@@ -3,6 +3,7 @@
 `bijux-proteomics-core` defines the durable program entities for the umbrella repository:
 
 - protein discovery programs
+- explicit domain modules for targets, constraints, assays, reviews, and operating assumptions
 - scientific constraints and review gates
 - operating models for human review and lab feedback
 - assay panels and success criteria

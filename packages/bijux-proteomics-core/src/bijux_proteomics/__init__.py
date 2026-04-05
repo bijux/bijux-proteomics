@@ -5,23 +5,24 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.programs import (
-    AssayRequirement,
-    MeasurementDirection,
-    OperatingModel,
-    ProgramStage,
+from bijux_proteomics.assays import AssayRequirement
+from bijux_proteomics.constraints import ScientificConstraint
+from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.operating_model import OperatingModel
+from bijux_proteomics.program_spec import (
+    EvidenceNeed,
     ProgramSpec,
-    ProteinTarget,
-    ReviewGate,
-    ScientificConstraint,
-    SuccessCriterion,
+    ProgramStage,
     create_program_spec,
     program_summary,
 )
+from bijux_proteomics.reviews import ReviewGate
+from bijux_proteomics.targets import ProteinTarget
 from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
 
 __all__ = [
     "AssayRequirement",
+    "EvidenceNeed",
     "MeasurementDirection",
     "OperatingModel",
     "ProgramExecutionRequest",
