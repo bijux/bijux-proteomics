@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling>=1.27.0,<1.28"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bijux-proteomics-core"
+version = "0.1.0"
+description = "Program models and execution adapters for Bijux Proteomics"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [{ name = "Bijan Mousavi", email = "mousavi.bijan@gmail.com" }]
+dependencies = [
+  "click>=8.1",
+  "pydantic>=2.0.2",
+]
+
+[project.urls]
+Repository = "https://github.com/bijux/bijux-proteomics"
+Issues = "https://github.com/bijux/bijux-proteomics/issues"
+
+[project.scripts]
+bijux-proteomics = "bijux_proteomics.cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bijux_proteomics"]
+
+[tool.hatch.build.targets.wheel.package-data]
+"bijux_proteomics" = ["py.typed"]

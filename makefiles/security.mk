@@ -1,6 +1,6 @@
 # Security Configuration (no SBOM here; SBOM is handled in sbom.mk)
 
-SECURITY_PATHS           ?= packages/agentic-proteins/src/agentic_proteins
+SECURITY_PATHS           ?= packages/agentic-proteins/src/agentic_proteins packages/bijux-proteomics-core/src/bijux_proteomics packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge packages/bijux-proteomics-lab/src/bijux_proteomics_lab
 BANDIT                   ?= $(if $(ACT),$(ACT)/bandit,bandit)
 PIP_AUDIT                ?= $(if $(ACT),$(ACT)/pip-audit,pip-audit)
 VENV_PYTHON              ?= $(if $(VIRTUAL_ENV),$(VIRTUAL_ENV)/bin/python,python)

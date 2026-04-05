@@ -1,7 +1,13 @@
 target-version = "py311"
 line-length = 88
 respect-gitignore = true
-src = ["packages/agentic-proteins/src", "tests"]
+src = [
+  "packages/agentic-proteins/src",
+  "packages/bijux-proteomics-core/src",
+  "packages/bijux-proteomics-knowledge/src",
+  "packages/bijux-proteomics-lab/src",
+  "tests",
+]
 
 exclude = [
   ".git", ".hg", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".tox", ".venv",
@@ -18,7 +24,12 @@ ignore = ["E501","E203"]
 
 [lint.isort]
 force-sort-within-sections = true
-known-first-party = ["agentic_proteins"]
+known-first-party = [
+  "agentic_proteins",
+  "bijux_proteomics",
+  "bijux_proteomics_knowledge",
+  "bijux_proteomics_lab",
+]
 required-imports = ["from __future__ import annotations"]
 
 [lint.flake8-tidy-imports]

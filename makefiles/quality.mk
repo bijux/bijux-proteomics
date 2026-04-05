@@ -1,7 +1,7 @@
 # Quality Configuration (evidence → artifacts_pages/quality)
 
-INTERROGATE_PATHS ?= packages/agentic-proteins/src/agentic_proteins
-QUALITY_PATHS     ?= packages/agentic-proteins/src/agentic_proteins
+INTERROGATE_PATHS ?= packages/agentic-proteins/src/agentic_proteins packages/bijux-proteomics-core/src/bijux_proteomics packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge packages/bijux-proteomics-lab/src/bijux_proteomics_lab
+QUALITY_PATHS     ?= packages/agentic-proteins/src/agentic_proteins packages/bijux-proteomics-core/src/bijux_proteomics packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge packages/bijux-proteomics-lab/src/bijux_proteomics_lab
 
 VULTURE     := $(if $(ACT),$(ACT)/vulture,vulture)
 DEPTRY      := $(if $(ACT),$(ACT)/deptry,deptry)
