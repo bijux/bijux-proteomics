@@ -5,10 +5,16 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from bijux_proteomics.programs import ProgramSpec
-from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
+from bijux_proteomics_knowledge import (
+    EvidenceBundle,
+    assess_decision_readiness,
+    evidence_gaps,
+)
 
 
 class AssayObservation(BaseModel):
@@ -60,6 +66,55 @@ class ExperimentPlan(BaseModel):
     )
 
 
+class ProgressDecision(StrEnum):
+    """Next-step decision after reviewing evidence and assay data."""
+
+    ADVANCE = "advance"
+    HOLD = "hold"
+    REDESIGN = "redesign"
+
+
+class ReviewPacket(BaseModel):
+    """Review-ready summary for human decision makers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    ready_for_synthesis: bool = Field(
+        ...,
+        description="Whether the current state is ready for synthesis or next spend.",
+    )
+    blocking_findings: list[str] = Field(
+        default_factory=list,
+        description="Issues that stop progression.",
+    )
+    recommended_actions: list[str] = Field(
+        default_factory=list,
+        description="Actions that should happen before the next decision.",
+    )
+
+
+class ClosedLoopPlan(BaseModel):
+    """Recommended next cycle based on evidence and assay outcomes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    decision: ProgressDecision = Field(..., description="Recommended next decision.")
+    evidence_backlog: list[str] = Field(
+        default_factory=list,
+        description="Evidence work that should happen next.",
+    )
+    assay_backlog: list[str] = Field(
+        default_factory=list,
+        description="Assays that should run next.",
+    )
+    notes: list[str] = Field(
+        default_factory=list,
+        description="Short reasoning notes for the recommendation.",
+    )
+
+
 def plan_experiment_batches(
     program: ProgramSpec,
     bundle: EvidenceBundle | None = None,
@@ -101,4 +156,72 @@ def plan_experiment_batches(
         evidence_gaps=gaps,
         review_queue=[gate.gate_id for gate in program.review_gates if gate.blocking],
         batches=batches,
+    )
+
+
+def build_review_packet(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+) -> ReviewPacket:
+    """Build a human review summary from evidence and assay outcomes."""
+    required_kinds = [need.value for need in program.evidence_needs]
+    readiness = assess_decision_readiness(bundle, required_kinds)
+    failed_assays = [observation.assay_id for observation in observations if not observation.passed]
+    blockers = list(readiness.blockers)
+    if failed_assays:
+        blockers.append("failed assays: " + ", ".join(failed_assays))
+
+    recommendations = list(readiness.recommendations)
+    if failed_assays:
+        recommendations.append(
+            "repeat or redesign around assays: " + ", ".join(failed_assays)
+        )
+
+    return ReviewPacket(
+        program_id=program.program_id,
+        ready_for_synthesis=not blockers,
+        blocking_findings=blockers,
+        recommended_actions=recommendations,
+    )
+
+
+def recommend_next_cycle(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+) -> ClosedLoopPlan:
+    """Recommend the next closed-loop action for the program."""
+    review_packet = build_review_packet(program, bundle, observations)
+    failed_assays = [observation.assay_id for observation in observations if not observation.passed]
+    pending_assays = [
+        assay.assay_id
+        for assay in program.assay_panel
+        if assay.assay_id not in {observation.assay_id for observation in observations}
+    ]
+
+    if review_packet.ready_for_synthesis and not pending_assays:
+        return ClosedLoopPlan(
+            program_id=program.program_id,
+            decision=ProgressDecision.ADVANCE,
+            evidence_backlog=[],
+            assay_backlog=[],
+            notes=["evidence and assays support progression to the next spend"],
+        )
+    if failed_assays:
+        return ClosedLoopPlan(
+            program_id=program.program_id,
+            decision=ProgressDecision.REDESIGN,
+            evidence_backlog=[gap for gap in evidence_gaps(bundle, [need.value for need in program.evidence_needs])],
+            assay_backlog=failed_assays,
+            notes=["failed assays indicate the design loop should change before progression"],
+        )
+    return ClosedLoopPlan(
+        program_id=program.program_id,
+        decision=ProgressDecision.HOLD,
+        evidence_backlog=[
+            gap for gap in evidence_gaps(bundle, [need.value for need in program.evidence_needs])
+        ],
+        assay_backlog=pending_assays,
+        notes=["complete missing evidence and assay work before progression"],
     )

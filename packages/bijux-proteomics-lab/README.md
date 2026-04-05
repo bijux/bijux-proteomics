@@ -7,3 +7,4 @@ It focuses on:
 - blocking vs non-blocking assays
 - review queue generation
 - evidence gaps that should be closed before synthesis or scale-up
+- review packets that explain whether the next cycle should advance, hold, or redesign
