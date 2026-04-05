@@ -7,10 +7,11 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
+from bijux_proteomics_intelligence.serialization import JsonModel
 
 
 class OptimizationAxis(StrEnum):
@@ -24,7 +25,7 @@ class OptimizationAxis(StrEnum):
     SAFETY = "safety"
 
 
-class LiabilityFlag(BaseModel):
+class LiabilityFlag(JsonModel):
     """A program or candidate risk that should shape ranking."""
 
     model_config = ConfigDict(extra="forbid")
@@ -35,7 +36,7 @@ class LiabilityFlag(BaseModel):
     source: str = Field(..., min_length=1, description="Where the liability came from.")
 
 
-class DesignBrief(BaseModel):
+class DesignBrief(JsonModel):
     """Condensed program intent for design and review work."""
 
     model_config = ConfigDict(extra="forbid")
@@ -66,7 +67,7 @@ class DesignBrief(BaseModel):
     )
 
 
-class CandidateAssessment(BaseModel):
+class CandidateAssessment(JsonModel):
     """A candidate with explicit scoring context."""
 
     model_config = ConfigDict(extra="forbid")
@@ -89,7 +90,7 @@ class CandidateAssessment(BaseModel):
     )
 
 
-class RankedCandidate(BaseModel):
+class RankedCandidate(JsonModel):
     """A ranked candidate with transparent reasoning."""
 
     model_config = ConfigDict(extra="forbid")
@@ -103,7 +104,7 @@ class RankedCandidate(BaseModel):
     )
 
 
-class CandidateRanking(BaseModel):
+class CandidateRanking(JsonModel):
     """Ordered candidate list for a program."""
 
     model_config = ConfigDict(extra="forbid")

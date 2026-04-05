@@ -15,14 +15,34 @@ from bijux_proteomics_intelligence.briefs import (
     build_design_brief,
     prioritize_candidates,
 )
+from bijux_proteomics_intelligence.candidates import (
+    CandidateDecision,
+    CandidatePortfolio,
+    CandidateProposal,
+    CandidateRiskProfile,
+    CandidateScreeningResult,
+    CandidateStatus,
+    build_risk_profile,
+    portfolio_status,
+)
+from bijux_proteomics_intelligence.serialization import JsonModel
 
 __all__ = [
     "CandidateAssessment",
+    "CandidateDecision",
     "CandidateRanking",
+    "CandidatePortfolio",
+    "CandidateProposal",
+    "CandidateRiskProfile",
+    "CandidateScreeningResult",
+    "CandidateStatus",
     "DesignBrief",
+    "JsonModel",
     "LiabilityFlag",
     "OptimizationAxis",
     "RankedCandidate",
     "build_design_brief",
+    "build_risk_profile",
+    "portfolio_status",
     "prioritize_candidates",
 ]
