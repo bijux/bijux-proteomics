@@ -46,6 +46,36 @@ class CandidateRiskProfile(JsonModel):
         default_factory=list,
         description="Risks carried by the candidate.",
     )
+    manufacturability_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Risk that the candidate is hard to express or handle.",
+    )
+    safety_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Risk of safety or immunogenicity issues.",
+    )
+    assay_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Risk that assays will fail or be inconclusive.",
+    )
+    evidence_uncertainty_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Risk contributed by weak or uncertain evidence.",
+    )
+    novelty_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Risk contributed by unsupported novelty.",
+    )
     residual_risk: float = Field(
         default=0.0,
         ge=0.0,
@@ -107,11 +137,55 @@ class CandidatePortfolio(JsonModel):
 
 def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
     """Build a risk profile from an assessment."""
-    total_severity = sum(flag.severity for flag in assessment.liabilities)
-    residual_risk = min(total_severity / 20.0, 1.0)
+    developability_severity = sum(
+        flag.severity
+        for flag in assessment.liabilities
+        if "aggregation" in flag.code or "develop" in flag.code
+    )
+    safety_severity = sum(
+        flag.severity
+        for flag in assessment.liabilities
+        if "safety" in flag.code or "immun" in flag.code or "tox" in flag.code
+    )
+    assay_severity = sum(
+        flag.severity
+        for flag in assessment.liabilities
+        if "assay" in flag.code or "screen" in flag.code
+    )
+    general_severity = sum(flag.severity for flag in assessment.liabilities)
+    manufacturability_risk = min(
+        (1.0 - assessment.manufacturability_score) * 0.6 + (developability_severity / 10.0),
+        1.0,
+    )
+    safety_risk = min(safety_severity / 10.0, 1.0)
+    assay_risk = min(assay_severity / 10.0, 1.0)
+    evidence_uncertainty_risk = min(
+        (1.0 - assessment.evidence_support) * 0.5 + assessment.uncertainty * 0.5,
+        1.0,
+    )
+    novelty_risk = min(
+        max(0.0, general_severity - developability_severity - safety_severity - assay_severity)
+        / 10.0,
+        1.0,
+    )
+    residual_risk = min(
+        (
+            manufacturability_risk * 0.25
+            + safety_risk * 0.25
+            + assay_risk * 0.15
+            + evidence_uncertainty_risk * 0.2
+            + novelty_risk * 0.15
+        ),
+        1.0,
+    )
     return CandidateRiskProfile(
         candidate_id=assessment.candidate_id,
         liabilities=assessment.liabilities,
+        manufacturability_risk=round(manufacturability_risk, 4),
+        safety_risk=round(safety_risk, 4),
+        assay_risk=round(assay_risk, 4),
+        evidence_uncertainty_risk=round(evidence_uncertainty_risk, 4),
+        novelty_risk=round(novelty_risk, 4),
         residual_risk=round(residual_risk, 4),
     )
 

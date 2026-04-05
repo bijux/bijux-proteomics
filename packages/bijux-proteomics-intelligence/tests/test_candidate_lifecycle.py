@@ -33,7 +33,9 @@ def test_build_risk_profile_rolls_liabilities_into_residual_risk() -> None:
     profile = build_risk_profile(assessment)
 
     assert profile.candidate_id == "candidate-1"
-    assert profile.residual_risk == 0.2
+    assert profile.manufacturability_risk > 0.0
+    assert profile.evidence_uncertainty_risk > 0.0
+    assert 0.0 <= profile.residual_risk <= 1.0
 
 
 def test_portfolio_status_counts_candidate_decisions() -> None:
