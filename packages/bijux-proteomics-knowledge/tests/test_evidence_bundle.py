@@ -45,6 +45,7 @@ def test_summarize_bundle_counts_records_by_kind() -> None:
 
     assert summary["record_count"] == 2
     assert summary["decisive_records"] == 1
+    assert summary["schema_version"] == "1.0.0"
     assert summary["by_kind"]["literature"] == 1
     assert summary["by_kind"]["assay"] == 1
 
@@ -131,3 +132,29 @@ def test_assess_decision_readiness_reports_blockers() -> None:
     assert readiness.ready is False
     assert "missing required evidence kinds: structure, assay" in readiness.blockers
     assert "not enough decisive evidence for an irreversible decision" in readiness.blockers
+
+
+def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path) -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-1",
+        target_id="target-1",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                claim="Target is disease-relevant.",
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    bundle.document_schema.trace_id = "trace-knowledge-1"
+    path = tmp_path / "bundle.json"
+
+    bundle.save_json(path)
+    restored = EvidenceBundle.load_json(path)
+
+    assert restored.to_dict()["document_schema"]["trace_id"] == "trace-knowledge-1"
+    assert EvidenceBundle.from_json(bundle.to_json()).bundle_id == "bundle-1"

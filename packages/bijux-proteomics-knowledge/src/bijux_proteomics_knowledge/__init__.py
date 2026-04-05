@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_knowledge.schema import SchemaMetadata
+from bijux_proteomics_knowledge.serialization import JsonModel
 from bijux_proteomics_knowledge.evidence import (
     DecisionReadiness,
     EvidenceCoverage,
@@ -29,4 +31,6 @@ __all__ = [
     "coverage_report",
     "evidence_gaps",
     "summarize_bundle",
+    "JsonModel",
+    "SchemaMetadata",
 ]

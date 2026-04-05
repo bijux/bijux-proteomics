@@ -7,8 +7,10 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
+from bijux_proteomics_knowledge.schema import SchemaMetadata
+from bijux_proteomics_knowledge.serialization import JsonModel
 
 class EvidenceKind(StrEnum):
     """Evidence families tracked by the platform."""
@@ -28,7 +30,7 @@ class EvidenceStrength(StrEnum):
     DECISIVE = "decisive"
 
 
-class EvidenceRecord(BaseModel):
+class EvidenceRecord(JsonModel):
     """Single evidence statement."""
 
     model_config = ConfigDict(extra="forbid")
@@ -63,20 +65,24 @@ class EvidenceRecord(BaseModel):
     strength: EvidenceStrength = Field(..., description="Support level.")
 
 
-class EvidenceBundle(BaseModel):
+class EvidenceBundle(JsonModel):
     """Set of evidence attached to a program or target."""
 
     model_config = ConfigDict(extra="forbid")
 
     bundle_id: str = Field(..., min_length=1, description="Stable bundle identifier.")
     target_id: str = Field(..., min_length=1, description="Target identifier.")
+    document_schema: SchemaMetadata = Field(
+        default_factory=SchemaMetadata,
+        description="Schema and provenance metadata.",
+    )
     records: list[EvidenceRecord] = Field(
         default_factory=list,
         description="Evidence records in the bundle.",
     )
 
 
-class EvidenceCoverage(BaseModel):
+class EvidenceCoverage(JsonModel):
     """Coverage and strength of the current evidence bundle."""
 
     model_config = ConfigDict(extra="forbid")
@@ -104,7 +110,7 @@ class EvidenceCoverage(BaseModel):
     )
 
 
-class DecisionReadiness(BaseModel):
+class DecisionReadiness(JsonModel):
     """Whether the current evidence is strong enough for a program decision."""
 
     model_config = ConfigDict(extra="forbid")
@@ -136,6 +142,7 @@ def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     return {
         "bundle_id": bundle.bundle_id,
         "target_id": bundle.target_id,
+        "schema_version": bundle.document_schema.schema_version,
         "record_count": len(bundle.records),
         "decisive_records": decisive,
         "by_kind": by_kind,
