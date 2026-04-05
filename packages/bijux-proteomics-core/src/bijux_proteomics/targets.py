@@ -5,12 +5,9 @@
 
 from __future__ import annotations
 
-import re
-
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from bijux_proteomics_foundation import TargetId
-
-_SEQUENCE_RE = re.compile(r"^[ACDEFGHIKLMNPQRSTVWY]+$")
+from bijux_proteomics.sequences import ProteinSequence
 
 
 class ProteinTarget(BaseModel):
@@ -20,9 +17,7 @@ class ProteinTarget(BaseModel):
 
     target_id: TargetId = Field(..., description="Stable target identifier.")
     name: str = Field(..., min_length=1, description="Human-readable target name.")
-    sequence: str = Field(
-        ..., min_length=1, description="Reference amino-acid sequence."
-    )
+    sequence: ProteinSequence = Field(..., description="Reference amino-acid sequence.")
     organism: str = Field(..., min_length=1, description="Source organism.")
     mechanism: str = Field(
         ..., min_length=1, description="Working biological hypothesis."
@@ -35,11 +30,3 @@ class ProteinTarget(BaseModel):
         default_factory=list,
         description="Known failure modes or safety concerns.",
     )
-
-    @field_validator("sequence")
-    @classmethod
-    def _validate_sequence(cls, value: str) -> str:
-        sequence = value.strip().upper()
-        if not _SEQUENCE_RE.fullmatch(sequence):
-            raise ValueError("sequence must contain only canonical amino-acid symbols")
-        return sequence

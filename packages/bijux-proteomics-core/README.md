@@ -4,6 +4,7 @@
 
 - protein discovery programs
 - explicit domain modules for targets, constraints, assays, reviews, and operating assumptions
+- explicit biological domain modules for sequences, liabilities, and program lifecycle
 - scientific constraints and review gates
 - operating models for human review and lab feedback
 - assay panels and success criteria

@@ -13,6 +13,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import SuccessCriterion
+from bijux_proteomics.liabilities import ProgramLiability
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
@@ -55,6 +56,10 @@ class ProgramSpec(JsonModel):
     constraints: list[ScientificConstraint] = Field(
         default_factory=list,
         description="Scientific and operational constraints.",
+    )
+    liabilities: list[ProgramLiability] = Field(
+        default_factory=list,
+        description="Known liabilities tracked at the program level.",
     )
     success_criteria: list[SuccessCriterion] = Field(
         default_factory=list,
@@ -109,7 +114,7 @@ def create_program_spec(
         target=ProteinTarget(
             target_id=target_id,
             name=target_name,
-            sequence=sequence,
+            sequence={"target_id": target_id, "residues": sequence},
             organism=organism,
             mechanism=mechanism,
         ),
@@ -129,6 +134,7 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
         "stage": program.stage.value,
         "schema_version": program.document_schema.schema_version,
         "constraint_count": len(program.constraints),
+        "liability_count": len(program.liabilities),
         "assay_count": len(program.assay_panel),
         "review_gate_count": len(program.review_gates),
         "evidence_needs": [need.value for need in program.evidence_needs],

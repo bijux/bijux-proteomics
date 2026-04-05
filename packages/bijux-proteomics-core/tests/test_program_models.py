@@ -108,7 +108,7 @@ def test_program_execution_request_requires_workspace_path(tmp_path: Path) -> No
 
     request = ProgramExecutionRequest(
         program=program,
-        candidate_sequence=program.target.sequence,
+        candidate_sequence=program.target.sequence.residues,
         base_dir=tmp_path,
     )
 
@@ -203,7 +203,7 @@ def test_execute_program_request_rejects_missing_blocking_approval(tmp_path: Pat
     )
     request = ProgramExecutionRequest(
         program=program,
-        candidate_sequence=program.target.sequence,
+        candidate_sequence=program.target.sequence.residues,
         base_dir=tmp_path,
         review_decisions=[
             ReviewDecision(

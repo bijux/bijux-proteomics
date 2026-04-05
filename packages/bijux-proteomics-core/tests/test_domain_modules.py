@@ -6,9 +6,12 @@ from __future__ import annotations
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage
+from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics.reviews import ReviewGate
+from bijux_proteomics.sequences import ProteinSequence, sequence_length
 from bijux_proteomics.targets import ProteinTarget
 
 
@@ -16,7 +19,10 @@ def test_domain_modules_define_program_components() -> None:
     target = ProteinTarget(
         target_id="target-1",
         name="Target 1",
-        sequence="ACDEFGHIKLMNPQRSTVWY",
+        sequence=ProteinSequence(
+            target_id="target-1",
+            residues="ACDEFGHIKLMNPQRSTVWY",
+        ),
         organism="human",
         mechanism="stabilize productive packing",
     )
@@ -32,6 +38,15 @@ def test_domain_modules_define_program_components() -> None:
                 category="developability",
                 statement="avoid broad hydrophobic surface patches",
                 rationale="reduce aggregation risk",
+            )
+        ],
+        liabilities=[
+            ProgramLiability(
+                liability_id="liability-1",
+                category=LiabilityCategory.DEVELOPABILITY,
+                summary="Aggregation hotspot",
+                impact="Could limit expression yield.",
+                mitigation="Screen stabilizing substitutions.",
             )
         ],
         success_criteria=[
@@ -65,3 +80,16 @@ def test_domain_modules_define_program_components() -> None:
     assert program.stage is ProgramStage.DESIGN
     assert program.assay_panel[0].blocking is True
     assert program.operating_model.review_cadence == "weekly"
+    assert sequence_length(program.target.sequence) == 20
+
+
+def test_program_lifecycle_advances_between_stages() -> None:
+    lifecycle = ProgramLifecycle(
+        program_id="prog-1",
+        current_stage=ProgramStage.SCOPING,
+    )
+
+    advanced = advance_stage(lifecycle, ProgramStage.DESIGN)
+
+    assert advanced.current_stage is ProgramStage.DESIGN
+    assert advanced.visited_stages == [ProgramStage.SCOPING, ProgramStage.DESIGN]
