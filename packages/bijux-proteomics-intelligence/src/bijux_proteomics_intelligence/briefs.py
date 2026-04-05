@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
 from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
+from bijux_proteomics_intelligence.outcomes import CandidateRejection, TieBreakExplanation
 from bijux_proteomics_intelligence.policies import RankingPolicy, TieBreakRule
 from bijux_proteomics_intelligence.serialization import JsonModel
 
@@ -136,6 +137,14 @@ class CandidateRanking(JsonModel):
         default_factory=list,
         description="Candidates screened out for missing minimum requirements.",
     )
+    rejections: list[CandidateRejection] = Field(
+        default_factory=list,
+        description="Structured rejection details for screened-out candidates.",
+    )
+    tie_breaks: list[TieBreakExplanation] = Field(
+        default_factory=list,
+        description="Tie-break decisions that affected ranking order.",
+    )
 
 
 def _metric_weight_name(metric: str) -> OptimizationAxis:
@@ -251,6 +260,7 @@ def prioritize_candidates(
     policy = policy or RankingPolicy(policy_id="default-balance")
     scored: list[tuple[CandidateAssessment, float, list[str]]] = []
     rejected: list[str] = []
+    rejections: list[CandidateRejection] = []
     for candidate in candidates:
         passed, rejection_reasons, criterion_score = _screen_candidate(
             candidate,
@@ -259,6 +269,12 @@ def prioritize_candidates(
         )
         if not passed:
             rejected.append(candidate.candidate_id)
+            rejections.append(
+                CandidateRejection(
+                    candidate_id=candidate.candidate_id,
+                    reasons=rejection_reasons,
+                )
+            )
             continue
         liability_penalty = sum(flag.severity for flag in candidate.liabilities) * 0.15
         support_bonus = candidate.evidence_support * 0.5
@@ -302,6 +318,17 @@ def prioritize_candidates(
         ),
         reverse=True,
     )
+    tie_breaks: list[TieBreakExplanation] = []
+    for left, right in zip(ranked, ranked[1:]):
+        if round(left[1], 4) == round(right[1], 4):
+            tie_breaks.append(
+                TieBreakExplanation(
+                    winner_candidate_id=left[0].candidate_id,
+                    compared_candidate_id=right[0].candidate_id,
+                    rules_applied=[rule.value for rule in policy.tie_break_rules],
+                )
+            )
+
     return CandidateRanking(
         program_id=program.program_id,
         ranked_candidates=[
@@ -322,4 +349,6 @@ def prioritize_candidates(
             for index, (candidate, score, reasons) in enumerate(ranked, start=1)
         ],
         rejected_candidates=rejected,
+        rejections=rejections,
+        tie_breaks=tie_breaks,
     )

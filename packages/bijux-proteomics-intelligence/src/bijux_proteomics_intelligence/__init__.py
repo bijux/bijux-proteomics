@@ -34,6 +34,10 @@ from bijux_proteomics_intelligence.evaluators import (
     evaluate_for_synthesis,
 )
 from bijux_proteomics_intelligence.policies import RankingPolicy, TieBreakRule
+from bijux_proteomics_intelligence.outcomes import (
+    CandidateRejection,
+    TieBreakExplanation,
+)
 from bijux_proteomics_intelligence.serialization import JsonModel
 
 __all__ = [
@@ -42,6 +46,7 @@ __all__ = [
     "CandidateRanking",
     "CandidatePortfolio",
     "CandidateProposal",
+    "CandidateRejection",
     "CandidateRiskProfile",
     "CandidateScreeningResult",
     "CandidateStatus",
@@ -53,6 +58,7 @@ __all__ = [
     "RankedCandidate",
     "ScenarioAction",
     "ScenarioEvaluation",
+    "TieBreakExplanation",
     "TieBreakRule",
     "build_design_brief",
     "build_risk_profile",

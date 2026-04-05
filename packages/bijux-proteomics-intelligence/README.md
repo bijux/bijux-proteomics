@@ -12,3 +12,4 @@ It focuses on:
 - evaluating progression, synthesis, scale-up, and redesign scenarios explicitly
 - serializing ranking policy and tie-break rules as first-class package documents
 - aggregating residual risk from explicit manufacturability, safety, assay, uncertainty, and novelty factors
+- returning structured rejection outcomes and tie-break explanations alongside ranked candidates

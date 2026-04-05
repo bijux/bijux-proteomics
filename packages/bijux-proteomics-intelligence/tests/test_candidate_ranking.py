@@ -158,6 +158,7 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
         "candidate-b",
     ]
     assert ranking.rejected_candidates == ["candidate-c"]
+    assert ranking.rejections[0].candidate_id == "candidate-c"
     assert ranking.ranked_candidates[0].explainability["confidence"] == 0.9
 
 
