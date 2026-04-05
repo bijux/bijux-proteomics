@@ -73,13 +73,12 @@ make lint test docs api
 | --------------- | ---------------------------------------------------------------------------- |
 | `make test`     | `pytest` + coverage (HTML in `artifacts/test/htmlcov/`)                      |
 | `make lint`     | Format (ruff), lint (ruff), type-check (mypy/pyright), complexity (radon)    |
-| `make quality`  | Dead code (vulture), deps hygiene (deptry), REUSE, docstrings (interrogate)  |
+| `make quality`  | Dead code (vulture), deps hygiene (deptry), docstrings (interrogate)          |
 | `make security` | Bandit + pip-audit                                                           |
 | `make api`      | OpenAPI lint + generator compat + Schemathesis contract tests                |
 | `make docs`     | Build MkDocs (strict)                                                        |
 | `make build`    | Build sdist + wheel                                                          |
 | `make sbom`     | CycloneDX SBOM → `artifacts/sbom/`                                           |
-| `make citation` | Validate `CITATION.cff` and generate citation formats                        |
 
 **Handy helpers**
 

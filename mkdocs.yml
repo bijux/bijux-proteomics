@@ -89,7 +89,6 @@ nav:
   - Security:
       - dependencies: security/dependencies.md
       - threat_model: security/threat_model.md
-      - citation: security/citation.md
 
 strict: true
 

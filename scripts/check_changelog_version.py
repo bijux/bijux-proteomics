@@ -12,6 +12,8 @@ def _parse_version(text: str) -> str | None:
     for line in text.splitlines():
         if line.strip().startswith("version:"):
             return line.split(":", 1)[1].strip()
+        if line.strip().startswith("version ="):
+            return line.split("=", 1)[1].strip().strip('"')
     return None
 
 
@@ -25,13 +27,13 @@ def _git_show(path: str) -> str | None:
 
 
 def main() -> int:
-    citation = Path("CITATION.cff")
+    pyproject = Path("pyproject.toml")
     changelog = Path("CHANGELOG.md")
-    if not citation.exists():
-        print("CITATION.cff missing; skipping changelog version check.")
+    if not pyproject.exists():
+        print("pyproject.toml missing; skipping changelog version check.")
         return 0
-    current_version = _parse_version(citation.read_text())
-    previous_text = _git_show("CITATION.cff")
+    current_version = _parse_version(pyproject.read_text())
+    previous_text = _git_show("pyproject.toml")
     if not previous_text:
         return 0
     previous_version = _parse_version(previous_text)
@@ -47,7 +49,7 @@ def main() -> int:
         return 0
     if str(changelog) not in changed_files:
         print(
-            "Version bumped in CITATION.cff without CHANGELOG.md update.",
+            "Version bumped in pyproject.toml without CHANGELOG.md update.",
             file=sys.stderr,
         )
         return 1

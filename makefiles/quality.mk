@@ -5,7 +5,6 @@ QUALITY_PATHS     ?= packages/agentic-proteins/src/agentic_proteins packages/bij
 
 VULTURE     := $(if $(ACT),$(ACT)/vulture,vulture)
 DEPTRY      := $(if $(ACT),$(ACT)/deptry,deptry)
-REUSE       := $(if $(ACT),$(ACT)/reuse,reuse)
 INTERROGATE := $(if $(ACT),$(ACT)/interrogate,interrogate)
 MYPY        := $(if $(ACT),$(ACT)/mypy,mypy)
 PYTHON      := $(shell command -v python3 || command -v python)
@@ -15,7 +14,6 @@ QUALITY_OK_MARKER     := $(QUALITY_ARTIFACTS_DIR)/_passed
 MYPY_CACHE_DIR        ?= $(QUALITY_ARTIFACTS_DIR)/.mypy_cache
 
 SKIP_DEPTRY       ?= 0
-SKIP_REUSE        ?= 0
 SKIP_INTERROGATE  ?= 0
 SKIP_MYPY         ?= 0
 
@@ -54,15 +52,6 @@ quality:
 	  set -euo pipefail; \
 	    { $(DEPTRY) --version 2>/dev/null || true; } >"$(QUALITY_ARTIFACTS_DIR)/deptry.log"; \
 	    $(DEPTRY) $(QUALITY_PATHS) 2>&1 | tee -a "$(QUALITY_ARTIFACTS_DIR)/deptry.log"; \
-	fi
-
-	@echo "   - License & SPDX compliance (REUSE)"
-	@if [ "$(SKIP_REUSE)" = "1" ]; then \
-	  echo "   • SKIP_REUSE=1; skipping REUSE" | tee "$(QUALITY_ARTIFACTS_DIR)/reuse.log"; \
-	else \
-	  set -euo pipefail; \
-	    { $(REUSE) --version 2>/dev/null || true; } >"$(QUALITY_ARTIFACTS_DIR)/reuse.log"; \
-	    $(REUSE) lint 2>&1 | tee -a "$(QUALITY_ARTIFACTS_DIR)/reuse.log"; \
 	fi
 
 	@echo "   - Documentation coverage (Interrogate)"
@@ -107,7 +96,7 @@ quality-clean:
 	@rm -rf "$(QUALITY_ARTIFACTS_DIR)"
 
 ##@ Quality
-quality: ## Run Vulture, Deptry, REUSE, Interrogate; save logs to artifacts_pages/quality/
+quality: ## Run Vulture, Deptry, Interrogate; save logs to artifacts_pages/quality/
 interrogate-report: ## Save full Interrogate table + offenders list
 docs-links: ## Fail if markdown links are broken (docs + README)
 quality-clean: ## Remove artifacts_pages/quality

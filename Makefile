@@ -24,9 +24,7 @@ include makefiles/build.mk
 include makefiles/sbom.mk
 include makefiles/docs.mk
 include makefiles/api.mk
-include makefiles/citation.mk
 include makefiles/dictionary.mk
-include makefiles/changelog.mk
 include makefiles/architecture.mk
 
 -include .env
@@ -72,7 +70,7 @@ clean-venv:
 
 clean: clean-soft clean-venv ## Remove venv + artifacts
 
-all: clean install test lint quality security sbom build docs api citation dictionary ## Full pipeline
+all: clean install test lint quality security sbom build docs api dictionary ## Full pipeline
 	@echo "✔ All targets completed"
 
 manage_examples:

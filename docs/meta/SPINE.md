@@ -82,4 +82,3 @@ Docs list:
 - [Schema](../api/schema.md)  
 - [Dependencies](../security/dependencies.md)  
 - [Threat Model](../security/threat_model.md)  
-- [Citation](../security/citation.md)  

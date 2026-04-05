@@ -21,9 +21,9 @@ jobs:
         run: make test
       - name: Coverage floors
         run: |
-          python -m coverage report --rcfile config/coveragerc.ini --data-file artifacts/test/.coverage --include "src/agentic_proteins/providers/*" --fail-under=65
-          python -m coverage report --rcfile config/coveragerc.ini --data-file artifacts/test/.coverage --include "src/agentic_proteins/interfaces/cli.py" --fail-under=60
-          python -m coverage report --rcfile config/coveragerc.ini --data-file artifacts/test/.coverage --include "src/agentic_proteins/api/*" --fail-under=75
+          python -m coverage report --rcfile config/coveragerc.ini --data-file artifacts/test/.coverage --include "packages/agentic-proteins/src/agentic_proteins/providers/*" --fail-under=65
+          python -m coverage report --rcfile config/coveragerc.ini --data-file artifacts/test/.coverage --include "packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py" --fail-under=60
+          python -m coverage report --rcfile config/coveragerc.ini --data-file artifacts/test/.coverage --include "packages/agentic-proteins/src/agentic_proteins/api/*" --fail-under=75
 
   checks:
     runs-on: ubuntu-latest
@@ -37,10 +37,8 @@ jobs:
           - build
           - sbom
           - api
-          - citation
           - dictionary-check
           - openapi-drift
-          - changelog-ci
           - architecture-check
     steps:
       - uses: actions/checkout@v4
