@@ -6,6 +6,7 @@ This repository is no longer a single-package codebase. It is the umbrella for m
 
 - `agentic-proteins` remains the deterministic execution and orchestration product.
 - `bijux-proteomics-core` defines durable program models, review gates, and execution adapters.
+- `bijux-proteomics-intelligence` turns program intent into design briefs, candidate ranking logic, and explicit liabilities.
 - `bijux-proteomics-knowledge` stores evidence bundles that explain why a target or candidate should advance.
 - `bijux-proteomics-lab` turns assay requirements into ordered experiment batches.
 
@@ -25,6 +26,7 @@ The earlier shape was strong on reproducibility but too narrow: it looked more l
 | ------- | ---- | --------------- |
 | `packages/agentic-proteins` | Deterministic runtime, CLI, API, artifact model | `agentic-proteins` CLI |
 | `packages/bijux-proteomics-core` | Program specifications and execution adapters | `bijux-proteomics` CLI |
+| `packages/bijux-proteomics-intelligence` | Design briefs, liabilities, and candidate ranking | Python models |
 | `packages/bijux-proteomics-knowledge` | Evidence bundles and gap analysis | Python models |
 | `packages/bijux-proteomics-lab` | Experiment batching and review queue generation | Python helpers |
 
@@ -57,6 +59,7 @@ config/                               Lint, typing, and coverage config
 docs/                                 MkDocs site for the umbrella repo
 packages/agentic-proteins/            Existing deterministic runtime product
 packages/bijux-proteomics-core/       Program models and execution adapters
+packages/bijux-proteomics-intelligence/ Protein reasoning, ranking, and liabilities
 packages/bijux-proteomics-knowledge/  Evidence bundle package
 packages/bijux-proteomics-lab/        Experiment planning package
 scripts/                              Repository automation and consistency checks
@@ -68,6 +71,7 @@ packages/agentic-proteins/tests/ Cross-package unit, integration, and regression
 The architecture is centered on:
 
 - deterministic core execution
+- protein intelligence and candidate ranking
 - protein intelligence and decision context
 - human review and approval points
 - lab planning and feedback loops
