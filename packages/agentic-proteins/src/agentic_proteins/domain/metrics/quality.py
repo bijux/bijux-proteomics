@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -48,7 +48,7 @@ class ToolReliability(BaseModel):
     sample_count: int = Field(0, ge=0, description="Number of samples.")
 
 
-class QCStatus(str, Enum):
+class QCStatus(StrEnum):
     """QCStatus."""
 
     ACCEPTABLE = "acceptable"

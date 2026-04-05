@@ -5,12 +5,12 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 import inspect
 import sys
 
 
-class StabilityLevel(str, Enum):
+class StabilityLevel(StrEnum):
     """Stability marker for module zones."""
 
     STABLE = "stable"

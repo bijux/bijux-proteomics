@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 import random
 from typing import Any
 
@@ -11,7 +11,7 @@ from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalT
 from agentic_proteins.biology.validation import validate_transition
 
 
-class ProteinState(str, Enum):
+class ProteinState(StrEnum):
     """Finite protein state model."""
 
     INACTIVE = "inactive"
@@ -20,7 +20,7 @@ class ProteinState(str, Enum):
     DEGRADED = "degraded"
 
 
-class ProteinFailure(str, Enum):
+class ProteinFailure(StrEnum):
     """Failure modes for protein agents."""
 
     INVALID_TRANSITION = "invalid_transition"
@@ -29,7 +29,7 @@ class ProteinFailure(str, Enum):
     DISABLED = "disabled"
 
 
-class ProteinLifecycle(str, Enum):
+class ProteinLifecycle(StrEnum):
     """Lifecycle phases for protein agents."""
 
     CREATED = "created"

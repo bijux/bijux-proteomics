@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class DeterminismLevel(str, Enum):
+class DeterminismLevel(StrEnum):
     """DeterminismLevel."""
 
     DETERMINISTIC = "deterministic"

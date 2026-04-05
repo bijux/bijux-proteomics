@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class RunLifecycleState(str, Enum):
+class RunLifecycleState(StrEnum):
     """RunLifecycleState."""
 
     PLANNED = "planned"

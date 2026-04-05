@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from agentic_proteins.biology.protein_agent import ProteinAgent
@@ -14,7 +14,7 @@ if False:  # pragma: no cover - type checking only
     from agentic_proteins.biology.pathway import PathwayContract, PathwayExecutor
 
 
-class LLMAction(str, Enum):
+class LLMAction(StrEnum):
     """Allowed LLM actions for tuning only."""
 
     TUNE_PROBABILITY = "tune_probability"
@@ -22,7 +22,7 @@ class LLMAction(str, Enum):
     SUGGEST_WEIGHT = "suggest_weight"
 
 
-class LLMFailureMode(str, Enum):
+class LLMFailureMode(StrEnum):
     """LLM failure modes treated as sensor faults."""
 
     HALLUCINATION = "hallucination"
@@ -31,7 +31,7 @@ class LLMFailureMode(str, Enum):
     DRIFT = "drift"
 
 
-class ApprovalMode(str, Enum):
+class ApprovalMode(StrEnum):
     """Human-in-the-loop approval modes."""
 
     AUTO_APPROVE = "auto_approve"
@@ -39,7 +39,7 @@ class ApprovalMode(str, Enum):
     AUTO_REJECT = "auto_reject"
 
 
-class PermissionMode(str, Enum):
+class PermissionMode(StrEnum):
     """Authority permission modes."""
 
     READ_ONLY = "read_only"

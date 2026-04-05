@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
-from enum import Enum
+from enum import StrEnum
 import json
 import numbers
 from typing import Any, NewType, cast
@@ -22,7 +22,7 @@ Percentage = NewType("Percentage", float)  # [0,100]
 Probability = NewType("Probability", float)  # [0,1]
 
 
-class PLDDTBand(str, Enum):
+class PLDDTBand(StrEnum):
     """pLDDT confidence bands."""
 
     GE90 = "≥90"
@@ -31,7 +31,7 @@ class PLDDTBand(str, Enum):
     LT50 = "<50"
 
 
-class SS8(str, Enum):
+class SS8(StrEnum):
     """8-state secondary structure labels from DSSP."""
 
     H = "H"

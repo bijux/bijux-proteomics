@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 import random
 import time
 import tracemalloc
@@ -13,7 +13,7 @@ from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinState
 from agentic_proteins.biology.signals import SignalPayload, SignalScope
 
 
-class ExecutionMode(str, Enum):
+class ExecutionMode(StrEnum):
     """Simulation versus intervention boundary."""
 
     SIMULATION = "simulation"

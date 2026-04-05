@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -41,7 +41,7 @@ class PipelineRunner(Protocol):
         ...
 
 
-class LoopAction(str, Enum):
+class LoopAction(StrEnum):
     """LoopAction."""
 
     CONTINUE = "continue"

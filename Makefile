@@ -7,6 +7,7 @@
 SHELL         := bash
 PYTHON        := python3.11
 RM            := rm -rf
+SETUPTOOLS_VERSION ?= <82
 
 .NOTPARALLEL: all clean
 
@@ -41,7 +42,7 @@ $(VENV):
 ensure-venv: $(VENV) ## Ensure venv exists and deps are installed
 	@set -e; \
 	echo "→ Ensuring dependencies in $(VENV) ..."; \
-	"$(VENV_PYTHON)" -m pip install --upgrade pip setuptools wheel; \
+	"$(VENV_PYTHON)" -m pip install --upgrade pip "setuptools$(SETUPTOOLS_VERSION)" wheel; \
 	EXTRAS="$${EXTRAS:-dev,local-esmfold}"; \
 	if [ -n "$$EXTRAS" ]; then SPEC=".[$$EXTRAS]"; else SPEC="."; fi; \
 	echo "→ Installing: $$SPEC"; \

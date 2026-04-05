@@ -30,7 +30,9 @@ class ExperimentBatch(BaseModel):
 
     batch_id: str = Field(..., min_length=1, description="Stable batch identifier.")
     objective: str = Field(..., min_length=1, description="Batch objective.")
-    assay_ids: list[str] = Field(default_factory=list, description="Assays in the batch.")
+    assay_ids: list[str] = Field(
+        default_factory=list, description="Assays in the batch."
+    )
     blocking_review_gates: list[str] = Field(
         default_factory=list,
         description="Review gates that must clear this batch.",
@@ -63,8 +65,9 @@ def plan_experiment_batches(
     bundle: EvidenceBundle | None = None,
 ) -> ExperimentPlan:
     """Build a two-lane plan with blocking work first."""
-
-    blocking_assays = [assay.assay_id for assay in program.assay_panel if assay.blocking]
+    blocking_assays = [
+        assay.assay_id for assay in program.assay_panel if assay.blocking
+    ]
     supporting_assays = [
         assay.assay_id for assay in program.assay_panel if not assay.blocking
     ]
@@ -75,7 +78,9 @@ def plan_experiment_batches(
                 batch_id=f"{program.program_id}-gate-batch",
                 objective="De-risk the program before expensive work starts.",
                 assay_ids=blocking_assays,
-                blocking_review_gates=[gate.gate_id for gate in program.review_gates if gate.blocking],
+                blocking_review_gates=[
+                    gate.gate_id for gate in program.review_gates if gate.blocking
+                ],
                 priority=1,
             )
         )

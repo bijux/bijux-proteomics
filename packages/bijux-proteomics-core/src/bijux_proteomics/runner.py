@@ -19,17 +19,22 @@ class ProgramExecutionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     program: ProgramSpec = Field(..., description="Program to execute.")
-    candidate_sequence: str = Field(..., min_length=1, description="Sequence to evaluate.")
+    candidate_sequence: str = Field(
+        ..., min_length=1, description="Sequence to evaluate."
+    )
     base_dir: Path = Field(..., description="Workspace root.")
     rounds: int = Field(default=1, ge=1, description="Agentic loop iterations.")
-    provider: str | None = Field(default=None, description="Optional provider override.")
+    provider: str | None = Field(
+        default=None, description="Optional provider override."
+    )
     execution_mode: str = Field(default="auto", description="Provider execution mode.")
-    artifacts_dir: Path | None = Field(default=None, description="Artifact root override.")
+    artifacts_dir: Path | None = Field(
+        default=None, description="Artifact root override."
+    )
 
 
 def execute_program(request: ProgramExecutionRequest) -> dict[str, Any]:
     """Run an approved program sequence through the agent runtime."""
-
     from agentic_proteins.runtime import RunManager
     from agentic_proteins.runtime.infra import RunConfig
 
@@ -45,6 +50,8 @@ def execute_program(request: ProgramExecutionRequest) -> dict[str, Any]:
     )
     provenance = result.setdefault("program", {})
     provenance.update(program_summary(request.program))
-    provenance["review_gate_ids"] = [gate.gate_id for gate in request.program.review_gates]
+    provenance["review_gate_ids"] = [
+        gate.gate_id for gate in request.program.review_gates
+    ]
     provenance["assay_ids"] = [assay.assay_id for assay in request.program.assay_panel]
     return result

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -13,7 +13,7 @@ from agentic_proteins.agents.schemas import CoordinatorDecisionType
 from agentic_proteins.domain.metrics.quality import QCStatus
 
 
-class RunStatus(str, Enum):
+class RunStatus(StrEnum):
     """RunStatus."""
 
     SUCCESS = "success"

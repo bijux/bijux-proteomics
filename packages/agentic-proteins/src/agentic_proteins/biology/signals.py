@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
 
-class SignalType(str, Enum):
+class SignalType(StrEnum):
     """Typed signal kinds for protein agents."""
 
     ACTIVATE = "activate"
@@ -17,7 +17,7 @@ class SignalType(str, Enum):
     MISFOLD = "misfold"
 
 
-class SignalScope(str, Enum):
+class SignalScope(StrEnum):
     """Signal scope for delivery."""
 
     LOCAL = "local"

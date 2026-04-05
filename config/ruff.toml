@@ -6,7 +6,10 @@ src = [
   "packages/bijux-proteomics-core/src",
   "packages/bijux-proteomics-knowledge/src",
   "packages/bijux-proteomics-lab/src",
-  "tests",
+  "packages/agentic-proteins/tests",
+  "packages/bijux-proteomics-core/tests",
+  "packages/bijux-proteomics-knowledge/tests",
+  "packages/bijux-proteomics-lab/tests",
 ]
 
 exclude = [
@@ -19,7 +22,7 @@ select = ["E","F","I","B","UP","SIM","PT","N","A","C4","S","TID","PERF"]
 ignore = ["E501","E203"]
 
 [lint.per-file-ignores]
-"tests/**" = ["S101"]
+"packages/*/tests/**" = ["S101"]
 "__init__.py" = ["F401"]
 
 [lint.isort]

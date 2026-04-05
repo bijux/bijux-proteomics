@@ -1,44 +1,65 @@
-# Test Configuration — zero root pollution (pytest runs from artifacts_pages/test)
+# Test Configuration — zero root pollution (pytest runs from artifacts/test)
 
-TEST_PATHS            ?= packages/agentic-proteins/tests
-TEST_PATHS_UNIT       ?= packages/agentic-proteins/tests/unit
-TEST_PATHS_E2E        ?= packages/agentic-proteins/tests/e2e
-TEST_PATHS_REGRESSION ?= packages/agentic-proteins/tests/regression
-TEST_PATHS_EVAL       ?= packages/agentic-proteins/tests/regression
+TEST_PATHS                ?= packages/agentic-proteins/tests
+TEST_PATHS_UNIT           ?= packages/agentic-proteins/tests/unit
+TEST_PATHS_E2E            ?= packages/agentic-proteins/tests/e2e
+TEST_PATHS_REGRESSION     ?= packages/agentic-proteins/tests/regression
+TEST_PATHS_EVALUATION     ?= packages/agentic-proteins/tests/regression
+TEST_REAL_LOCAL_PATH      ?= packages/agentic-proteins/tests/real_local
 
-TEST_ARTIFACTS_DIR    ?= artifacts/test
-JUNIT_XML             ?= $(TEST_ARTIFACTS_DIR)/junit.xml
-TMP_DIR               ?= $(TEST_ARTIFACTS_DIR)/tmp
-HYPOTHESIS_DB_DIR     ?= $(TEST_ARTIFACTS_DIR)/hypothesis
-BENCHMARK_DIR         ?= $(TEST_ARTIFACTS_DIR)/benchmarks
+TEST_ARTIFACTS_DIR        ?= artifacts/test
+JUNIT_XML                 ?= $(TEST_ARTIFACTS_DIR)/junit.xml
+TMP_DIR                   ?= $(TEST_ARTIFACTS_DIR)/tmp
+HYPOTHESIS_DB_DIR         ?= $(TEST_ARTIFACTS_DIR)/hypothesis
+BENCHMARK_DIR             ?= $(TEST_ARTIFACTS_DIR)/benchmarks
+COV_XML                   ?= $(TEST_ARTIFACTS_DIR)/coverage.xml
 
-ENABLE_BENCH          ?= 1
-PYTEST_ADDOPTS_EXTRA  ?=
+ENABLE_BENCH              ?= 1
+PYTEST_ADDOPTS_EXTRA      ?=
+TEST_PRE_TARGETS          ?=
+TEST_MAIN_ARGS            ?= -m "not real_local"
+TEST_UNIT_DIR_ARGS        ?= -m "not slow" --maxfail=1 -q
+TEST_UNIT_FALLBACK_ARGS   ?= -k "not e2e and not integration and not functional" -m "not slow" --maxfail=1 -q
+TEST_E2E_ARGS             ?= -m "e2e" --maxfail=1 -q
+TEST_REGRESSION_ARGS      ?= -m "regression" --maxfail=1 -q
+TEST_EVALUATION_ARGS      ?= -m "evaluation" --maxfail=1 -q
+TEST_REAL_LOCAL_ARGS      ?= -m "real_local" -s -p no:cov
+TEST_CI_TARGETS           ?= test-unit test-e2e test-regression test-evaluation
+TEST_RESET_PYCACHE        ?= 0
+TEST_SYNTAX_PATHS         ?=
+TEST_PYCACHE_PREFIX       ?=
+TEST_COVERAGE_TARGETS     ?=
+TEST_COVERAGE_FAIL_UNDER  ?= 60
+TEST_SOURCE_PATH          ?= $(abspath packages/agentic-proteins/src):$(abspath packages/bijux-proteomics-core/src):$(abspath packages/bijux-proteomics-knowledge/src):$(abspath packages/bijux-proteomics-lab/src)
+TEST_CLEAN_PATHS          ?= .hypothesis .benchmarks
 
-# Use absolute venv Python for pytest to avoid missing entrypoints after cd.
-PY                   ?= $(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),python3)
-PYTEST               ?= $(PY) -m pytest
+TEST_PYTHON               ?= $(if $(wildcard $(VENV_PYTHON)),$(abspath $(VENV_PYTHON)),$(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),$(PYTHON)))
+PYTEST                    ?= $(TEST_PYTHON) -m pytest
+PYTEST_CONFIG             ?= pytest.ini
+COVERAGE_CONFIG           ?= config/coveragerc.ini
+TEST_SELF_MAKE            ?= $(MAKE)
 
-# absolute paths so running from artifacts_pages/test works cleanly
-PYTEST_INI_ABS        := $(abspath pytest.ini)
-COVCFG_ABS            := $(abspath config/coveragerc.ini)
-COV_HTML_ABS          := $(abspath $(TEST_ARTIFACTS_DIR)/htmlcov)
-CACHE_DIR_ABS         := $(abspath $(TEST_ARTIFACTS_DIR)/.pytest_cache)
-COV_XML_ABS           := $(abspath $(TEST_ARTIFACTS_DIR)/coverage.xml)
-COV_DATA_ABS          := $(abspath $(TEST_ARTIFACTS_DIR)/.coverage)
+include $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/util.mk
 
-TEST_PATHS_ABS        := $(abspath $(TEST_PATHS))
-TEST_PATHS_UNIT_ABS   := $(abspath $(TEST_PATHS_UNIT))
-TEST_PATHS_E2E_ABS    := $(abspath $(TEST_PATHS_E2E))
+PYTEST_INI_ABS            := $(abspath $(PYTEST_CONFIG))
+COVCFG_ABS                := $(abspath $(COVERAGE_CONFIG))
+COV_HTML_ABS              := $(abspath $(TEST_ARTIFACTS_DIR)/htmlcov)
+CACHE_DIR_ABS             := $(abspath $(TEST_ARTIFACTS_DIR)/.pytest_cache)
+COV_XML_ABS               := $(abspath $(COV_XML))
+COV_DATA_ABS              := $(abspath $(TEST_ARTIFACTS_DIR)/.coverage)
+TEST_PATHS_ABS            := $(abspath $(TEST_PATHS))
+TEST_PATHS_UNIT_ABS       := $(abspath $(TEST_PATHS_UNIT))
+TEST_PATHS_E2E_ABS        := $(abspath $(TEST_PATHS_E2E))
 TEST_PATHS_REGRESSION_ABS := $(abspath $(TEST_PATHS_REGRESSION))
-TEST_PATHS_EVAL_ABS   := $(abspath $(TEST_PATHS_EVAL))
-SRC_ABS               := $(abspath packages/agentic-proteins/src):$(abspath packages/bijux-proteomics-core/src):$(abspath packages/bijux-proteomics-knowledge/src):$(abspath packages/bijux-proteomics-lab/src)
-JUNIT_XML_ABS         := $(abspath $(JUNIT_XML))
-TMP_DIR_ABS           := $(abspath $(TMP_DIR))
-HYPOTHESIS_DB_ABS     := $(abspath $(HYPOTHESIS_DB_DIR))
-BENCHMARK_DIR_ABS     := $(abspath $(BENCHMARK_DIR))
+TEST_PATHS_EVALUATION_ABS := $(abspath $(TEST_PATHS_EVALUATION))
+TEST_REAL_LOCAL_ABS       := $(abspath $(TEST_REAL_LOCAL_PATH))
+JUNIT_XML_ABS             := $(abspath $(JUNIT_XML))
+TMP_DIR_ABS               := $(abspath $(TMP_DIR))
+HYPOTHESIS_DB_ABS         := $(abspath $(HYPOTHESIS_DB_DIR))
+BENCHMARK_DIR_ABS         := $(abspath $(BENCHMARK_DIR))
+TEST_PYCACHE_PREFIX_ABS   := $(abspath $(TEST_PYCACHE_PREFIX))
+TEST_PYCACHE_ENV          := $(if $(strip $(TEST_PYCACHE_PREFIX)),PYTHONPYCACHEPREFIX="$(TEST_PYCACHE_PREFIX_ABS)",)
 
-# override ini-relative bits with absolute paths
 PYTEST_FLAGS = \
   --junitxml "$(JUNIT_XML_ABS)" \
   --basetemp "$(TMP_DIR_ABS)" \
@@ -47,97 +68,51 @@ PYTEST_FLAGS = \
   --cov-report=xml:"$(COV_XML_ABS)" \
   -o cache_dir="$(CACHE_DIR_ABS)" \
   $(PYTEST_ADDOPTS_EXTRA)
+PYTEST_INFO_FLAGS = -o cache_dir="$(CACHE_DIR_ABS)"
 
-.PHONY: test test-unit test-e2e test-regression test-evaluation test-ci test-clean real-local
+.PHONY: test test-unit test-e2e test-regression test-evaluation test-ci test-clean test-syntax coverage-core real-local
 
 test:
 	@echo "→ Running full test suite on $(TEST_PATHS)"
-	@$(MAKE) ensure-venv
-	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)"
-	@rm -rf .hypothesis .benchmarks || true
+	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
+	@$(TEST_SELF_MAKE) test-syntax
+	@if [ "$(TEST_RESET_PYCACHE)" = "1" ]; then find . -type d -name '__pycache__' -exec rm -rf {} + >/dev/null 2>&1 || true; fi
+	@rm -rf "$(TMP_DIR_ABS)"
+	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
+	@rm -rf $(TEST_CLEAN_PATHS) || true
 	@echo "   • JUnit XML → $(JUNIT_XML_ABS)"
 	@echo "   • Hypothesis DB → $(HYPOTHESIS_DB_ABS)"
 	@echo "   • Using pytest → $(PYTEST)"
 	@BENCH_FLAGS=""; \
-	if [ "$(ENABLE_BENCH)" = "1" ] && sh -c "$(PYTEST) -q --help" 2>/dev/null | grep -q -- '--benchmark-storage'; then \
+	if [ "$(ENABLE_BENCH)" = "1" ] && sh -c '$(PYTEST) $(PYTEST_INFO_FLAGS) -q --help' 2>/dev/null | grep -q -- '--benchmark-storage'; then \
 	  BENCH_FLAGS="--benchmark-autosave --benchmark-storage=file://$(BENCHMARK_DIR_ABS)"; \
 	  echo "   • pytest-benchmark detected → storing in $(BENCHMARK_DIR_ABS)"; \
 	else \
 	  echo "   • pytest-benchmark disabled or not installed"; \
 	fi; \
 	( cd "$(TEST_ARTIFACTS_DIR)" && \
-	  PYTHONPATH="$(SRC_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
-	  HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	  PYTHONPATH="$(TEST_SOURCE_PATH)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	  PYTHONDONTWRITEBYTECODE=1 \
 	  COVERAGE_FILE="$(COV_DATA_ABS)" \
-	  sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_ABS)" -m "not real_local" $(PYTEST_FLAGS) '"$$BENCH_FLAGS" )
-	@rm -rf .hypothesis .benchmarks || true
+	  HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	  $(TEST_PYCACHE_ENV) \
+	  sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_ABS)" $(TEST_MAIN_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" )
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@rm -rf .pytest_cache || true
 
 test-unit:
 	@echo "→ Running unit tests only"
-	@$(MAKE) ensure-venv
-	@$(PYTEST) --version
+	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
+	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
 	@echo "pytest cmd: $(PYTEST) -c '$(PYTEST_INI_ABS)' …"
-	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)"
-	@rm -rf .hypothesis .benchmarks || true
-
-test-e2e:
-	@echo "→ Running end-to-end tests only"
-	@$(MAKE) ensure-venv
-	@$(PYTEST) --version
-	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)"
-	@rm -rf .hypothesis .benchmarks || true
-	@if [ -d "$(TEST_PATHS_E2E)" ] && find "$(TEST_PATHS_E2E)" -type f -name 'test_*.py' | grep -q .; then \
-	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
-	    PYTHONPATH="$(SRC_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
-	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
-	    COVERAGE_FILE="$(COV_DATA_ABS)" \
-	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_E2E_ABS)" -m "e2e" --maxfail=1 -q $(PYTEST_FLAGS)' ); \
-	else \
-	  echo "   • no $(TEST_PATHS_E2E); skipping"; \
-	fi
-	@rm -rf .hypothesis .benchmarks || true
-
-test-regression:
-	@echo "→ Running regression tests only"
-	@$(MAKE) ensure-venv
-	@$(PYTEST) --version
-	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)"
-	@rm -rf .hypothesis .benchmarks || true
-
-test-evaluation:
-	@echo "→ Running evaluation benchmarks"
-	@$(MAKE) ensure-venv
-	@$(PYTEST) --version
-	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)"
-	@rm -rf .hypothesis .benchmarks || true
-	@if [ -d "$(TEST_PATHS_EVAL)" ] && find "$(TEST_PATHS_EVAL)" -type f -name 'test_*.py' | grep -q .; then \
-	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
-	    PYTHONPATH="$(SRC_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
-	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
-	    COVERAGE_FILE="$(COV_DATA_ABS)" \
-	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_EVAL_ABS)" -m "evaluation" --maxfail=1 -q $(PYTEST_FLAGS)' ); \
-	else \
-	  echo "   • no $(TEST_PATHS_EVAL); skipping"; \
-	fi
-	@rm -rf .hypothesis .benchmarks || true
-	@if [ -d "$(TEST_PATHS_REGRESSION)" ] && find "$(TEST_PATHS_REGRESSION)" -type f -name 'test_*.py' | grep -q .; then \
-	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
-	    PYTHONPATH="$(SRC_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
-	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
-	    COVERAGE_FILE="$(COV_DATA_ABS)" \
-	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_REGRESSION_ABS)" -m "regression" --maxfail=1 -q $(PYTEST_FLAGS)' ); \
-	else \
-	  echo "   • no $(TEST_PATHS_REGRESSION); skipping"; \
-	fi
-	@rm -rf .hypothesis .benchmarks || true
-
-test-ci: test-unit test-e2e test-regression test-evaluation
-	@echo "✔ CI test categories completed"
+	@rm -rf "$(TMP_DIR_ABS)"
+	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
+	@rm -rf $(TEST_CLEAN_PATHS) || true
 	@echo "   • JUnit XML → $(JUNIT_XML_ABS)"
 	@echo "   • Hypothesis DB → $(HYPOTHESIS_DB_ABS)"
 	@echo "   • Using pytest → $(PYTEST)"
 	@BENCH_FLAGS=""; \
-	if [ "$(ENABLE_BENCH)" = "1" ] && sh -c "$(PYTEST) -q --help" 2>/dev/null | grep -q -- '--benchmark-storage'; then \
+	if [ "$(ENABLE_BENCH)" = "1" ] && sh -c '$(PYTEST) $(PYTEST_INFO_FLAGS) -q --help' 2>/dev/null | grep -q -- '--benchmark-storage'; then \
 	  BENCH_FLAGS="--benchmark-autosave --benchmark-storage=file://$(BENCHMARK_DIR_ABS)"; \
 	  echo "   • pytest-benchmark detected → storing in $(BENCHMARK_DIR_ABS)"; \
 	else \
@@ -146,38 +121,141 @@ test-ci: test-unit test-e2e test-regression test-evaluation
 	if [ -d "$(TEST_PATHS_UNIT)" ] && find "$(TEST_PATHS_UNIT)" -type f -name 'test_*.py' | grep -q .; then \
 	  echo "   • detected $(TEST_PATHS_UNIT) — targeting that directory"; \
 	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
-	    PYTHONPATH="$(SRC_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
-	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	    PYTHONPATH="$(TEST_SOURCE_PATH)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	    PYTHONDONTWRITEBYTECODE=1 \
 	    COVERAGE_FILE="$(COV_DATA_ABS)" \
-	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_UNIT_ABS)" -m "not slow" --maxfail=1 -q $(PYTEST_FLAGS) '"$$BENCH_FLAGS" ); \
+	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	    $(TEST_PYCACHE_ENV) \
+	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_UNIT_ABS)" $(TEST_UNIT_DIR_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" ); \
 	else \
-	  echo "   • no $(TEST_PATHS_UNIT); excluding e2e/integration/functional/slow"; \
+	  echo "   • no $(TEST_PATHS_UNIT); falling back to filtered suite"; \
 	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
-	    PYTHONPATH="$(SRC_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
-	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	    PYTHONPATH="$(TEST_SOURCE_PATH)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	    PYTHONDONTWRITEBYTECODE=1 \
 	    COVERAGE_FILE="$(COV_DATA_ABS)" \
-	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_ABS)" -k "not e2e and not integration and not functional" -m "not slow" --maxfail=1 -q $(PYTEST_FLAGS) '"$$BENCH_FLAGS" ); \
+	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	    $(TEST_PYCACHE_ENV) \
+	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_ABS)" $(TEST_UNIT_FALLBACK_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" ); \
 	fi
-	@rm -rf .hypothesis .benchmarks || true
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@rm -rf .pytest_cache || true
+
+test-e2e:
+	@echo "→ Running end-to-end tests only"
+	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
+	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
+	@rm -rf "$(TMP_DIR_ABS)"
+	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@if [ -n "$(TEST_PATHS_E2E)" ] && [ -d "$(TEST_PATHS_E2E)" ] && find "$(TEST_PATHS_E2E)" -type f -name 'test_*.py' | grep -q .; then \
+	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
+	    PYTHONPATH="$(TEST_SOURCE_PATH)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	    PYTHONDONTWRITEBYTECODE=1 \
+	    COVERAGE_FILE="$(COV_DATA_ABS)" \
+	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	    $(TEST_PYCACHE_ENV) \
+	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_E2E_ABS)" $(TEST_E2E_ARGS) $(PYTEST_FLAGS)' ); \
+	else \
+	  echo "   • no $(TEST_PATHS_E2E); skipping"; \
+	fi
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@rm -rf .pytest_cache || true
+
+test-regression:
+	@echo "→ Running regression tests only"
+	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
+	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
+	@rm -rf "$(TMP_DIR_ABS)"
+	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@if [ -n "$(TEST_PATHS_REGRESSION)" ] && [ -d "$(TEST_PATHS_REGRESSION)" ] && find "$(TEST_PATHS_REGRESSION)" -type f -name 'test_*.py' | grep -q .; then \
+	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
+	    PYTHONPATH="$(TEST_SOURCE_PATH)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	    PYTHONDONTWRITEBYTECODE=1 \
+	    COVERAGE_FILE="$(COV_DATA_ABS)" \
+	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	    $(TEST_PYCACHE_ENV) \
+	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_REGRESSION_ABS)" $(TEST_REGRESSION_ARGS) $(PYTEST_FLAGS)' ); \
+	else \
+	  echo "   • no $(TEST_PATHS_REGRESSION); skipping"; \
+	fi
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@rm -rf .pytest_cache || true
+
+test-evaluation:
+	@echo "→ Running evaluation tests only"
+	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
+	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
+	@rm -rf "$(TMP_DIR_ABS)"
+	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@if [ -n "$(TEST_PATHS_EVALUATION)" ] && [ -d "$(TEST_PATHS_EVALUATION)" ] && find "$(TEST_PATHS_EVALUATION)" -type f -name 'test_*.py' | grep -q .; then \
+	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
+	    PYTHONPATH="$(TEST_SOURCE_PATH)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	    PYTHONDONTWRITEBYTECODE=1 \
+	    COVERAGE_FILE="$(COV_DATA_ABS)" \
+	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	    $(TEST_PYCACHE_ENV) \
+	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_EVALUATION_ABS)" $(TEST_EVALUATION_ARGS) $(PYTEST_FLAGS)' ); \
+	else \
+	  echo "   • no $(TEST_PATHS_EVALUATION); skipping"; \
+	fi
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@rm -rf .pytest_cache || true
+
+test-ci: $(TEST_CI_TARGETS)
+	@echo "✔ CI test categories completed"
 
 test-clean:
 	@echo "→ Cleaning test artifacts"
-	@rm -rf ".hypothesis" ".benchmarks" || true
-	@$(RM) .coverage* || true
+	@rm -rf $(TEST_CLEAN_PATHS) || true
+	@$(RM) "$(TEST_ARTIFACTS_DIR)" .coverage .coverage.* || true
 	@echo "✔ done"
 
+test-syntax:
+	@if [ -n "$(TEST_SYNTAX_PATHS)" ]; then \
+	  echo "→ Running syntax-only checks (compileall $(TEST_SYNTAX_PATHS))"; \
+	  if [ -n "$(strip $(TEST_PYCACHE_PREFIX))" ]; then mkdir -p "$(TEST_PYCACHE_PREFIX_ABS)"; fi; \
+	  PYTHONDONTWRITEBYTECODE=1 $(TEST_PYCACHE_ENV) \
+	    "$(TEST_PYTHON)" -m compileall $(TEST_SYNTAX_PATHS); \
+	else \
+	  echo "→ No syntax-only checks configured"; \
+	fi
+
+coverage-core:
+	@if [ -z "$(TEST_COVERAGE_TARGETS)" ]; then \
+	  echo "→ coverage-core is not configured"; \
+	  exit 0; \
+	fi
+	@echo "→ Coverage focus run (fail-under=$(TEST_COVERAGE_FAIL_UNDER)%)"
+	@rm -rf "$(TMP_DIR_ABS)" .coverage .coverage.*
+	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)"
+	@PYTHONPATH="$(TEST_SOURCE_PATH)$${PYTHONPATH:+:$${PYTHONPATH}}" \
+	PYTHONDONTWRITEBYTECODE=1 \
+	COVERAGE_FILE="$(COV_DATA_ABS)" \
+	HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
+	$(TEST_PYCACHE_ENV) \
+	$(PYTEST) -c "$(PYTEST_INI_ABS)" $(TEST_COVERAGE_TARGETS) --cov="$(TEST_SOURCE_PATH)" --cov-report=term-missing --cov-fail-under=$(TEST_COVERAGE_FAIL_UNDER)
+
 real-local:
+	@if [ -z "$(TEST_REAL_LOCAL_PATH)" ] || [ ! -d "$(TEST_REAL_LOCAL_PATH)" ]; then \
+	  echo "→ real-local is not configured"; \
+	  exit 0; \
+	fi
 	@echo "→ Running real local model tests (manual only)"
-	@$(MAKE) ensure-venv
-	@$(PYTEST) --version
-	@$(PYTEST) -c "$(PYTEST_INI_ABS)" -o addopts= "$(abspath packages/agentic-proteins/tests/real_local)" -m "real_local" -s -p no:cov
+	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
+	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
+	@$(PYTEST) -c "$(PYTEST_INI_ABS)" -o addopts= "$(TEST_REAL_LOCAL_ABS)" $(TEST_REAL_LOCAL_ARGS)
+	@rm -rf .pytest_cache || true
 
 ##@ Test
-test: ## Run full test suite; side-effects contained in artifacts_pages/test/
-test-unit: ## Run unit tests only; same containment; fallback excludes e2e/integration/functional/slow
-test-e2e: ## Run end-to-end tests only (LocalExecutor only)
-test-regression: ## Run regression tests only (deterministic, pinned)
-test-evaluation: ## Run evaluation benchmarks (deterministic, pinned)
-test-ci: ## Run unit, e2e, and regression tests sequentially (fail fast)
-test-clean: ## Remove stray root .hypothesis/.benchmarks and coverage files
+test: ## Run the full test suite with artifacts under artifacts/test
+test-unit: ## Run the unit-focused suite or fall back to a filtered test run
+test-e2e: ## Run end-to-end tests when the package defines an e2e suite
+test-regression: ## Run regression tests when the package defines a regression suite
+test-evaluation: ## Run evaluation tests when the package defines an evaluation suite
+test-ci: ## Run the configured CI test targets
+test-clean: ## Remove test artifacts and transient coverage files
+test-syntax: ## Run compile-only syntax checks when configured
+coverage-core: ## Run a focused coverage gate when configured
 real-local: ## Run real local model tests (manual; not for CI)

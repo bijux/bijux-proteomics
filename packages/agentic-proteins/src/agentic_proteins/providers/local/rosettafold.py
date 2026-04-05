@@ -201,10 +201,10 @@ class LocalRoseTTAFoldProvider(BaseProvider):
                         cwd=None if self.docker else temp_dir,
                         shell=False,
                     )
-                except subprocess.TimeoutExpired as te:
+                except subprocess.TimeoutExpired as timeout_error:
                     raise PredictionError(
                         "RoseTTAFold run timed out", code="TIMEOUT"
-                    ) from te
+                    ) from timeout_error
                 if result.returncode != 0:
                     err_tail = f"Exit: {result.returncode}, stderr: {result.stderr[-500:] if result.stderr else ''}"
                     raise PredictionError(

@@ -6,16 +6,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 import re
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
 _SEQUENCE_RE = re.compile(r"^[ACDEFGHIKLMNPQRSTVWY]+$")
 
 
-class MeasurementDirection(str, Enum):
+class MeasurementDirection(StrEnum):
     """Target direction for a success criterion."""
 
     MAXIMIZE = "maximize"
@@ -23,7 +22,7 @@ class MeasurementDirection(str, Enum):
     BOUND = "bound"
 
 
-class EvidenceNeed(str, Enum):
+class EvidenceNeed(StrEnum):
     """Evidence families that make a program decision-ready."""
 
     LITERATURE = "literature"
@@ -40,9 +39,13 @@ class ProteinTarget(BaseModel):
 
     target_id: str = Field(..., min_length=1, description="Stable target identifier.")
     name: str = Field(..., min_length=1, description="Human-readable target name.")
-    sequence: str = Field(..., min_length=1, description="Reference amino-acid sequence.")
+    sequence: str = Field(
+        ..., min_length=1, description="Reference amino-acid sequence."
+    )
     organism: str = Field(..., min_length=1, description="Source organism.")
-    mechanism: str = Field(..., min_length=1, description="Working biological hypothesis.")
+    mechanism: str = Field(
+        ..., min_length=1, description="Working biological hypothesis."
+    )
     desired_outcomes: list[str] = Field(
         default_factory=list,
         description="Desired biological or engineering outcomes.",
@@ -66,7 +69,9 @@ class ScientificConstraint(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    constraint_id: str = Field(..., min_length=1, description="Stable constraint identifier.")
+    constraint_id: str = Field(
+        ..., min_length=1, description="Stable constraint identifier."
+    )
     category: str = Field(..., min_length=1, description="Constraint family.")
     statement: str = Field(..., min_length=1, description="Constraint text.")
     rationale: str = Field(..., min_length=1, description="Why this constraint exists.")
@@ -81,7 +86,9 @@ class SuccessCriterion(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    criterion_id: str = Field(..., min_length=1, description="Stable criterion identifier.")
+    criterion_id: str = Field(
+        ..., min_length=1, description="Stable criterion identifier."
+    )
     metric: str = Field(..., min_length=1, description="Metric to evaluate.")
     direction: MeasurementDirection = Field(..., description="Optimization direction.")
     threshold: float = Field(..., description="Threshold for the metric.")
@@ -93,7 +100,9 @@ class ReviewGate(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    gate_id: str = Field(..., min_length=1, description="Stable review gate identifier.")
+    gate_id: str = Field(
+        ..., min_length=1, description="Stable review gate identifier."
+    )
     name: str = Field(..., min_length=1, description="Review gate name.")
     required_roles: list[str] = Field(
         default_factory=list,
@@ -116,7 +125,9 @@ class AssayRequirement(BaseModel):
 
     assay_id: str = Field(..., min_length=1, description="Stable assay identifier.")
     purpose: str = Field(..., min_length=1, description="Why the assay exists.")
-    readout: str = Field(..., min_length=1, description="Primary output or measurement.")
+    readout: str = Field(
+        ..., min_length=1, description="Primary output or measurement."
+    )
     sample_kind: str = Field(..., min_length=1, description="Sample or system type.")
     replicates: int = Field(default=3, ge=1, description="Recommended replicate count.")
     blocking: bool = Field(
@@ -176,7 +187,6 @@ def create_program_spec(
     mechanism: str,
 ) -> ProgramSpec:
     """Create a minimal but valid protein program document."""
-
     return ProgramSpec(
         program_id=program_id,
         name=name,
@@ -198,7 +208,6 @@ def create_program_spec(
 
 def program_summary(program: ProgramSpec) -> dict[str, object]:
     """Return a compact summary for CLI and dashboards."""
-
     return {
         "program_id": program.program_id,
         "target_id": program.target.target_id,

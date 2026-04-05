@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class FailureType(str, Enum):
+class FailureType(StrEnum):
     """FailureType."""
 
     NONE = "none"

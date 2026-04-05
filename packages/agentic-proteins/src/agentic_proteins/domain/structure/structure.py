@@ -92,7 +92,7 @@ def per_residue_plddt_ss(
     ]
 
     residues = [r for r in residues if getattr(r, "id", ("",))[0] == " "]
-    aas = [_res3_to1(r.get_resname()) for r in residues]
+    amino_acids = [_res3_to1(r.get_resname()) for r in residues]
 
     plddts = []
     for r in residues:
@@ -134,7 +134,7 @@ def per_residue_plddt_ss(
     except Exception as e:
         logger.warning("DSSP failed ({}); using coil SS", e)
 
-    return plddts, sss, aas
+    return plddts, sss, amino_acids
 
 
 def secondary_summary_from_structure(structure: Structure) -> SecondarySummary:

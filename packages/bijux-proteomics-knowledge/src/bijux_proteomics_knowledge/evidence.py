@@ -5,12 +5,12 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class EvidenceKind(str, Enum):
+class EvidenceKind(StrEnum):
     """Evidence families tracked by the platform."""
 
     LITERATURE = "literature"
@@ -20,7 +20,7 @@ class EvidenceKind(str, Enum):
     SAFETY = "safety"
 
 
-class EvidenceStrength(str, Enum):
+class EvidenceStrength(StrEnum):
     """How strongly an evidence record supports a claim."""
 
     EXPLORATORY = "exploratory"
@@ -33,7 +33,11 @@ class EvidenceRecord(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    evidence_id: str = Field(..., min_length=1, description="Stable evidence identifier.")
+    evidence_id: str = Field(
+        ...,
+        min_length=1,
+        description="Stable evidence identifier.",
+    )
     kind: EvidenceKind = Field(..., description="Evidence family.")
     title: str = Field(..., min_length=1, description="Short title.")
     source: str = Field(..., min_length=1, description="Source location or system.")
@@ -42,7 +46,12 @@ class EvidenceRecord(BaseModel):
         default_factory=list,
         description="Related target identifiers.",
     )
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence in the record.")
+    confidence: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Confidence in the record.",
+    )
     strength: EvidenceStrength = Field(..., description="Support level.")
 
 
@@ -61,7 +70,6 @@ class EvidenceBundle(BaseModel):
 
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
-
     by_kind = {kind.value: 0 for kind in EvidenceKind}
     decisive = 0
     for record in bundle.records:
@@ -79,6 +87,5 @@ def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
 
 def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str]:
     """Return required evidence kinds that are still missing."""
-
     present = {record.kind.value for record in bundle.records}
     return [kind for kind in required_kinds if kind not in present]

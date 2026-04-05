@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ExecutionStatus(str, Enum):
+class ExecutionStatus(StrEnum):
     """ExecutionStatus."""
 
     COMPLETED = "completed"
@@ -16,7 +16,7 @@ class ExecutionStatus(str, Enum):
     ABORTED = "aborted"
 
 
-class WorkflowState(str, Enum):
+class WorkflowState(StrEnum):
     """WorkflowState."""
 
     RUNNING = "running"
@@ -25,7 +25,7 @@ class WorkflowState(str, Enum):
     DONE = "done"
 
 
-class Outcome(str, Enum):
+class Outcome(StrEnum):
     """Outcome."""
 
     ACCEPTED = "accepted"
@@ -34,7 +34,7 @@ class Outcome(str, Enum):
     INCONCLUSIVE = "inconclusive"
 
 
-class ToolStatus(str, Enum):
+class ToolStatus(StrEnum):
     """ToolStatus."""
 
     SUCCESS = "success"

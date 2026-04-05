@@ -50,7 +50,6 @@ def program_template(
     out_path: Path,
 ) -> None:
     """Write a starter program manifest."""
-
     program = create_program_spec(
         program_id=program_id,
         name=name,
@@ -69,7 +68,6 @@ def program_template(
 @click.argument("program_file", type=click.Path(exists=True, path_type=Path))
 def summarize_program(program_file: Path) -> None:
     """Print a compact summary for a program document."""
-
     program = ProgramSpec.model_validate_json(program_file.read_text())
     click.echo(json.dumps(program_summary(program), sort_keys=True))
 
