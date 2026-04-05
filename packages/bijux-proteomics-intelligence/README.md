@@ -10,3 +10,4 @@ It focuses on:
 - carrying candidates through proposal, screening, prioritization, and decision states
 - supporting policy-based ranking with hard filters, uncertainty penalties, and explainability blocks
 - evaluating progression, synthesis, scale-up, and redesign scenarios explicitly
+- serializing ranking policy and tie-break rules as first-class package documents

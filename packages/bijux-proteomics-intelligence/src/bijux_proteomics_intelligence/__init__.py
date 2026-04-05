@@ -11,7 +11,6 @@ from bijux_proteomics_intelligence.briefs import (
     DesignBrief,
     LiabilityFlag,
     OptimizationAxis,
-    RankingProfile,
     RankedCandidate,
     build_design_brief,
     prioritize_candidates,
@@ -34,6 +33,7 @@ from bijux_proteomics_intelligence.evaluators import (
     evaluate_for_scale_up,
     evaluate_for_synthesis,
 )
+from bijux_proteomics_intelligence.policies import RankingPolicy, TieBreakRule
 from bijux_proteomics_intelligence.serialization import JsonModel
 
 __all__ = [
@@ -49,10 +49,11 @@ __all__ = [
     "JsonModel",
     "LiabilityFlag",
     "OptimizationAxis",
-    "RankingProfile",
+    "RankingPolicy",
     "RankedCandidate",
     "ScenarioAction",
     "ScenarioEvaluation",
+    "TieBreakRule",
     "build_design_brief",
     "build_risk_profile",
     "evaluate_for_progression",

@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
 from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
+from bijux_proteomics_intelligence.policies import RankingPolicy, TieBreakRule
 from bijux_proteomics_intelligence.serialization import JsonModel
 
 
@@ -137,45 +138,6 @@ class CandidateRanking(JsonModel):
     )
 
 
-class RankingProfile(JsonModel):
-    """Policy knobs for candidate ranking."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    profile_id: str = Field(..., min_length=1, description="Stable profile identifier.")
-    minimum_metric_fraction: float = Field(
-        default=0.5,
-        ge=0.0,
-        description="Minimum fraction of criterion thresholds required to stay in ranking.",
-    )
-    minimum_evidence_support: float = Field(
-        default=0.2,
-        ge=0.0,
-        le=1.0,
-        description="Minimum evidence support required to stay in ranking.",
-    )
-    require_manufacturability_floor: bool = Field(
-        default=False,
-        description="Whether low manufacturability is a hard rejection.",
-    )
-    manufacturability_floor: float = Field(
-        default=0.3,
-        ge=0.0,
-        le=1.0,
-        description="Minimum acceptable manufacturability score.",
-    )
-    uncertainty_penalty_weight: float = Field(
-        default=0.4,
-        ge=0.0,
-        description="Penalty weight applied to uncertainty.",
-    )
-    diversity_bonus_weight: float = Field(
-        default=0.1,
-        ge=0.0,
-        description="Bonus weight for candidates with fewer liabilities.",
-    )
-
-
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     lowered = metric.lower()
     if "affin" in lowered or "bind" in lowered:
@@ -261,7 +223,7 @@ def _criterion_score(candidate: CandidateAssessment, program: ProgramSpec) -> fl
 def _screen_candidate(
     candidate: CandidateAssessment,
     program: ProgramSpec,
-    profile: RankingProfile,
+    profile: RankingPolicy,
 ) -> tuple[bool, list[str], float]:
     criterion_score = _criterion_score(candidate, program)
     threshold_count = max(len(program.success_criteria), 1)
@@ -283,17 +245,17 @@ def _screen_candidate(
 def prioritize_candidates(
     program: ProgramSpec,
     candidates: list[CandidateAssessment],
-    profile: RankingProfile | None = None,
+    policy: RankingPolicy | None = None,
 ) -> CandidateRanking:
     """Rank candidates with transparent penalties for risk and weak support."""
-    profile = profile or RankingProfile(profile_id="default-balance")
+    policy = policy or RankingPolicy(policy_id="default-balance")
     scored: list[tuple[CandidateAssessment, float, list[str]]] = []
     rejected: list[str] = []
     for candidate in candidates:
         passed, rejection_reasons, criterion_score = _screen_candidate(
             candidate,
             program,
-            profile,
+            policy,
         )
         if not passed:
             rejected.append(candidate.candidate_id)
@@ -301,10 +263,10 @@ def prioritize_candidates(
         liability_penalty = sum(flag.severity for flag in candidate.liabilities) * 0.15
         support_bonus = candidate.evidence_support * 0.5
         manufacturability_bonus = candidate.manufacturability_score * 0.3
-        uncertainty_penalty = candidate.uncertainty * profile.uncertainty_penalty_weight
+        uncertainty_penalty = candidate.uncertainty * policy.uncertainty_penalty_weight
         diversity_bonus = (
             max(0.0, 1.0 - (len(candidate.liabilities) / 5.0))
-            * profile.diversity_bonus_weight
+            * policy.diversity_bonus_weight
         )
         score = (
             criterion_score
@@ -329,7 +291,17 @@ def prioritize_candidates(
             )
         scored.append((candidate, score, reasons))
 
-    ranked = sorted(scored, key=lambda item: item[1], reverse=True)
+    ranked = sorted(
+        scored,
+        key=lambda item: (
+            item[1],
+            item[0].evidence_support if TieBreakRule.EVIDENCE_SUPPORT in policy.tie_break_rules else 0.0,
+            item[0].manufacturability_score if TieBreakRule.MANUFACTURABILITY in policy.tie_break_rules else 0.0,
+            -item[0].uncertainty if TieBreakRule.LOWER_UNCERTAINTY in policy.tie_break_rules else 0.0,
+            -len(item[0].liabilities) if TieBreakRule.FEWER_LIABILITIES in policy.tie_break_rules else 0.0,
+        ),
+        reverse=True,
+    )
     return CandidateRanking(
         program_id=program.program_id,
         ranked_candidates=[

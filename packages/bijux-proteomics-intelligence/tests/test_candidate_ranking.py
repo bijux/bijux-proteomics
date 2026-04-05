@@ -9,7 +9,7 @@ from bijux_proteomics_intelligence import (
     CandidateAssessment,
     LiabilityFlag,
     OptimizationAxis,
-    RankingProfile,
+    RankingPolicy,
     build_design_brief,
     prioritize_candidates,
 )
@@ -201,8 +201,8 @@ def test_prioritize_candidates_applies_profile_hard_filters() -> None:
                 evidence_support=0.8,
             ),
         ],
-        profile=RankingProfile(
-            profile_id="manufacturability-gate",
+        policy=RankingPolicy(
+            policy_id="manufacturability-gate",
             require_manufacturability_floor=True,
             manufacturability_floor=0.5,
         ),
