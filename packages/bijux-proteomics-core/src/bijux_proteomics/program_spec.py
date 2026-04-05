@@ -8,13 +8,15 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import SuccessCriterion
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.reviews import ReviewGate
+from bijux_proteomics.schema import SchemaMetadata
+from bijux_proteomics.serialization import JsonModel
 from bijux_proteomics.targets import ProteinTarget
 
 
@@ -38,7 +40,7 @@ class ProgramStage(StrEnum):
     LEARNING = "learning"
 
 
-class ProgramSpec(BaseModel):
+class ProgramSpec(JsonModel):
     """Top-level program document for a protein effort."""
 
     model_config = ConfigDict(extra="forbid")
@@ -74,6 +76,10 @@ class ProgramSpec(BaseModel):
     operating_model: OperatingModel = Field(
         default_factory=OperatingModel,
         description="How the program is governed across compute, review, and lab work.",
+    )
+    document_schema: SchemaMetadata = Field(
+        default_factory=SchemaMetadata,
+        description="Schema and provenance metadata.",
     )
     metadata: dict[str, str] = Field(
         default_factory=dict,
@@ -122,6 +128,7 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
         "program_id": program.program_id,
         "target_id": program.target.target_id,
         "stage": program.stage.value,
+        "schema_version": program.document_schema.schema_version,
         "constraint_count": len(program.constraints),
         "assay_count": len(program.assay_panel),
         "review_gate_count": len(program.review_gates),

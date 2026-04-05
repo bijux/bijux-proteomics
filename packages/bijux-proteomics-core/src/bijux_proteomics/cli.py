@@ -12,11 +12,6 @@ import click
 
 from bijux_proteomics.programs import ProgramSpec, create_program_spec, program_summary
 
-
-def _write_json(path: Path, payload: dict[str, object]) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n")
-
-
 @click.group()
 def cli() -> None:
     """Manage program manifests for Bijux Proteomics."""
@@ -60,7 +55,7 @@ def program_template(
         organism=organism,
         mechanism=mechanism,
     )
-    _write_json(out_path, program.model_dump(mode="json"))
+    program.save_json(out_path)
     click.echo(json.dumps(program_summary(program), sort_keys=True))
 
 
@@ -68,7 +63,7 @@ def program_template(
 @click.argument("program_file", type=click.Path(exists=True, path_type=Path))
 def summarize_program(program_file: Path) -> None:
     """Print a compact summary for a program document."""
-    program = ProgramSpec.model_validate_json(program_file.read_text())
+    program = ProgramSpec.load_json(program_file)
     click.echo(json.dumps(program_summary(program), sort_keys=True))
 
 

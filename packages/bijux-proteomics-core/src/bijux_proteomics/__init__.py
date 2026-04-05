@@ -17,6 +17,8 @@ from bijux_proteomics.program_spec import (
     program_summary,
 )
 from bijux_proteomics.reviews import ReviewGate
+from bijux_proteomics.schema import SchemaMetadata
+from bijux_proteomics.serialization import JsonModel
 from bijux_proteomics.targets import ProteinTarget
 from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
 
@@ -29,7 +31,9 @@ __all__ = [
     "ProgramStage",
     "ProgramSpec",
     "ProteinTarget",
+    "JsonModel",
     "ReviewGate",
+    "SchemaMetadata",
     "ScientificConstraint",
     "SuccessCriterion",
     "create_program_spec",

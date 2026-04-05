@@ -7,7 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics import ProgramExecutionRequest, create_program_spec, program_summary
+from bijux_proteomics import (
+    ProgramExecutionRequest,
+    ProgramSpec,
+    create_program_spec,
+    program_summary,
+)
 from bijux_proteomics.programs import (
     AssayRequirement,
     MeasurementDirection,
@@ -82,6 +87,7 @@ def test_program_summary_counts_scientific_parts() -> None:
     assert summary["constraint_count"] == 1
     assert summary["assay_count"] == 1
     assert summary["review_gate_count"] == 1
+    assert summary["schema_version"] == "1.0.0"
 
 
 def test_program_execution_request_requires_workspace_path(tmp_path: Path) -> None:
@@ -122,3 +128,24 @@ def test_program_summary_includes_operating_model_defaults() -> None:
     assert summary["stage"] == ProgramStage.SCOPING.value
     assert summary["human_review_required"] is True
     assert summary["lab_feedback_required"] is True
+
+
+def test_program_spec_round_trips_with_serialization_helpers(tmp_path: Path) -> None:
+    program = create_program_spec(
+        program_id="prog-3",
+        name="portable manifest",
+        objective="exercise SDK-style serialization helpers",
+        target_id="target-3",
+        target_name="Target 3",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="preserve active-site geometry",
+    )
+    program.document_schema.trace_id = "trace-123"
+    path = tmp_path / "program.json"
+
+    program.save_json(path)
+    restored = ProgramSpec.load_json(path)
+
+    assert restored.to_dict()["document_schema"]["trace_id"] == "trace-123"
+    assert ProgramSpec.from_json(program.to_json()).program_id == "prog-3"

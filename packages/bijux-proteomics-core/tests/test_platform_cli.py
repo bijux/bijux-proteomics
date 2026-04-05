@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from click.testing import CliRunner
 
@@ -41,3 +42,5 @@ def test_program_template_writes_manifest() -> None:
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["program_id"] == "prog-1"
+        manifest = json.loads(Path("program.json").read_text())
+        assert manifest["document_schema"]["schema_version"] == "1.0.0"
