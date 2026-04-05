@@ -5,26 +5,46 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_lab.repositories import (
+    ExperimentPlanRepository,
+    ReviewQueueEntry,
+    ReviewQueueRepository,
+)
+from bijux_proteomics_lab.schema import SchemaMetadata
+from bijux_proteomics_lab.serialization import JsonModel
 from bijux_proteomics_lab.planning import (
     AssayObservation,
     ClosedLoopPlan,
     ExperimentBatch,
     ExperimentPlan,
+    LabCapacity,
     ProgressDecision,
     ReviewPacket,
+    ScheduledBatch,
+    ScheduledPlan,
     build_review_packet,
     plan_experiment_batches,
     recommend_next_cycle,
+    schedule_experiment_plan,
 )
 
 __all__ = [
     "AssayObservation",
     "ClosedLoopPlan",
+    "ExperimentPlanRepository",
     "ExperimentBatch",
     "ExperimentPlan",
+    "JsonModel",
+    "LabCapacity",
     "ProgressDecision",
+    "ReviewQueueEntry",
+    "ReviewQueueRepository",
     "ReviewPacket",
+    "ScheduledBatch",
+    "ScheduledPlan",
+    "SchemaMetadata",
     "build_review_packet",
     "plan_experiment_batches",
     "recommend_next_cycle",
+    "schedule_experiment_plan",
 ]

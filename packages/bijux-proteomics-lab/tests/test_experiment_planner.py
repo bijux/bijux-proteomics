@@ -3,15 +3,21 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics import create_program_spec
 from bijux_proteomics.programs import AssayRequirement, ReviewGate
 from bijux_proteomics_knowledge import EvidenceBundle, EvidenceKind, EvidenceRecord, EvidenceStrength
 from bijux_proteomics_lab import (
     AssayObservation,
+    ExperimentBatch,
+    ExperimentPlan,
+    LabCapacity,
     ProgressDecision,
     build_review_packet,
     plan_experiment_batches,
     recommend_next_cycle,
+    schedule_experiment_plan,
 )
 
 
@@ -210,3 +216,43 @@ def test_recommend_next_cycle_requests_redesign_after_failed_assay() -> None:
 
     assert plan.decision is ProgressDecision.REDESIGN
     assert plan.assay_backlog == ["primary-binding"]
+
+
+def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-1",
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-1",
+                objective="blocking",
+                assay_ids=["a1", "a2", "a3"],
+                priority=1,
+            ),
+            ExperimentBatch(
+                batch_id="batch-2",
+                objective="supporting",
+                assay_ids=["b1"],
+                priority=2,
+            ),
+        ],
+    )
+
+    scheduled = schedule_experiment_plan(
+        plan,
+        LabCapacity(cycle_id="cycle-1", max_batches=1, max_assays_per_batch=2),
+    )
+
+    assert scheduled.scheduled_batches[0].assay_ids == ["a1", "a2"]
+    assert scheduled.scheduled_batches[0].deferred_assay_ids == ["a3"]
+    assert scheduled.unscheduled_batches == ["batch-2"]
+
+
+def test_experiment_plan_round_trips_with_serialization_helpers(tmp_path: Path) -> None:
+    plan = ExperimentPlan(program_id="prog-2")
+    plan.document_schema.trace_id = "trace-lab-1"
+    path = tmp_path / "plan.json"
+
+    plan.save_json(path)
+    restored = ExperimentPlan.load_json(path)
+
+    assert restored.to_dict()["document_schema"]["trace_id"] == "trace-lab-1"
