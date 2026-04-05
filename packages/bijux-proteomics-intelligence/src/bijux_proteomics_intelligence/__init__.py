@@ -26,6 +26,14 @@ from bijux_proteomics_intelligence.candidates import (
     build_risk_profile,
     portfolio_status,
 )
+from bijux_proteomics_intelligence.evaluators import (
+    ScenarioAction,
+    ScenarioEvaluation,
+    evaluate_for_progression,
+    evaluate_for_redesign,
+    evaluate_for_scale_up,
+    evaluate_for_synthesis,
+)
 from bijux_proteomics_intelligence.serialization import JsonModel
 
 __all__ = [
@@ -43,8 +51,14 @@ __all__ = [
     "OptimizationAxis",
     "RankingProfile",
     "RankedCandidate",
+    "ScenarioAction",
+    "ScenarioEvaluation",
     "build_design_brief",
     "build_risk_profile",
+    "evaluate_for_progression",
+    "evaluate_for_redesign",
+    "evaluate_for_scale_up",
+    "evaluate_for_synthesis",
     "portfolio_status",
     "prioritize_candidates",
 ]

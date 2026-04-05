@@ -9,3 +9,4 @@ It focuses on:
 - highlighting manufacturability, safety, and assay readiness risks before wet-lab work starts
 - carrying candidates through proposal, screening, prioritization, and decision states
 - supporting policy-based ranking with hard filters, uncertainty penalties, and explainability blocks
+- evaluating progression, synthesis, scale-up, and redesign scenarios explicitly
