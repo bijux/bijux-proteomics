@@ -38,7 +38,7 @@ pip install -e .
 agentic-proteins run --sequence "ACDEFGHIKLMNPQRSTVWY"
 
 # Platform program scaffolding
-PYTHONPATH=packages/bijux-proteomics-core/src:packages/bijux-proteomics-knowledge/src:packages/bijux-proteomics-lab/src \
+PYTHONPATH=packages/bijux-proteomics-core/src:packages/bijux-proteomics-intelligence/src:packages/bijux-proteomics-knowledge/src:packages/bijux-proteomics-lab/src \
   .venv/bin/python -m bijux_proteomics.cli program-template \
   --program-id kinase-rescue \
   --name "Kinase Rescue" \
@@ -76,6 +76,7 @@ The architecture is centered on:
 - human review and approval points
 - lab planning and feedback loops
 - evidence memory that explains program decisions
+- candidate ranking that stays legible to reviewers
 
 The short architecture note is in `docs/platform_core.md`.
 
