@@ -19,7 +19,7 @@ Sandbox code is marked experimental.
 ## Invariants  
 Core stability aligns with [Invariants](../architecture/invariants.md).  
 Sandbox usage aligns with [Experimental](../architecture/experimental.md).  
-Evidence aligns with [tests/unit/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_module_stability.py).  
+Evidence aligns with [packages/agentic-proteins/tests/unit/governance/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/governance/test_module_stability.py).  
 
 ## Failure Modes  
 Mixing core and sandbox breaks [Core](../governance/core.md).  

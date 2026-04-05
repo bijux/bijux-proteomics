@@ -8,9 +8,11 @@ import sys
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+ROOT = Path(__file__).resolve().parents[3]
+PACKAGE_ROOT = ROOT / "packages" / "agentic-proteins"
+for path in (ROOT, PACKAGE_ROOT):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:

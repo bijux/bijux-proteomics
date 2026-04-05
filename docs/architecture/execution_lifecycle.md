@@ -42,4 +42,4 @@ This doc becomes obsolete when execution is generated.
 The replacement is [Architecture](architecture.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/integration/test_runtime_flow.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_runtime_flow.py).  
+Code refs: [packages/agentic-proteins/tests/e2e/test_runtime_flow.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/e2e/test_runtime_flow.py).  

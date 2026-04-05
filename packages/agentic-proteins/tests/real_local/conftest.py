@@ -7,11 +7,13 @@ from pathlib import Path
 
 import pytest
 
+from tests.helpers.paths import repo_root
+
 
 @pytest.fixture(scope="session")
 def ROOT() -> Path:
     """Return the repository root path."""
-    return Path(__file__).resolve().parents[2]
+    return repo_root()
 
 
 @pytest.fixture(scope="session")

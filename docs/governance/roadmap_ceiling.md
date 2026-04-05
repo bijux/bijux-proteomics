@@ -19,7 +19,7 @@ The system avoids replacing contract locks in [packages/agentic-proteins/src/age
 ## Invariants  
 Ceilings align with [Invariants](../architecture/invariants.md).  
 Ceilings align with [Experimental](../architecture/experimental.md).  
-Checks align with [tests/unit/test_core_api_lock.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_core_api_lock.py).  
+Checks align with [packages/agentic-proteins/tests/unit/core/test_core_api_lock.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/core/test_core_api_lock.py).  
 
 ## Failure Modes  
 Scope drift breaks [Core](core.md).  
@@ -29,7 +29,7 @@ Untracked changes break [Docs Style](../meta/DOCS_STYLE.md).
 ## Extension Points  
 Extensions follow [Experimental](../architecture/experimental.md).  
 Extension docs align with [Docs Style](../meta/DOCS_STYLE.md).  
-Extension checks align with [tests/unit/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_module_stability.py).  
+Extension checks align with [packages/agentic-proteins/tests/unit/governance/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/governance/test_module_stability.py).  
 
 ## Exit Criteria  
 This doc is obsolete when scope is encoded.  

@@ -6,6 +6,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+from tests.helpers.paths import package_tests_root, repo_root
+
 
 LAYER_ORDER = {
     "cli": 7,
@@ -44,13 +46,7 @@ def _module_layer(path: Path) -> int | None:
 
 
 def test_import_boundaries() -> None:
-    root = (
-        Path(__file__).resolve().parents[2]
-        / "packages"
-        / "agentic-proteins"
-        / "src"
-        / "agentic_proteins"
-    )
+    root = repo_root() / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
     for path in root.rglob("*.py"):
         layer = _module_layer(path)
         if layer is None:
@@ -77,19 +73,13 @@ def test_import_boundaries() -> None:
 
 
 def test_root_modules_removed() -> None:
-    root = (
-        Path(__file__).resolve().parents[2]
-        / "packages"
-        / "agentic-proteins"
-        / "src"
-        / "agentic_proteins"
-    )
+    root = repo_root() / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
     assert not (root / "planning.py").exists()
     assert not (root / "providers.py").exists()
 
 
 def test_high_level_tests_use_public_entrypoints() -> None:
-    root = Path(__file__).resolve().parents[2] / "tests"
+    root = package_tests_root()
     allowed_prefixes = (
         "agentic_proteins.interfaces",
         "agentic_proteins.report",

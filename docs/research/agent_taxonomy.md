@@ -24,7 +24,7 @@ This system uses explicit signal scopes and pathway contracts.
 ## Invariants  
 Taxonomy mapping stays consistent.  
 Mapping aligns with [Invariants](../architecture/invariants.md).  
-Evidence aligns with [tests/unit/test_protein_system_rigidity.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_protein_system_rigidity.py).  
+Evidence aligns with [packages/agentic-proteins/tests/unit/agents/test_protein_system_rigidity.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/agents/test_protein_system_rigidity.py).  
 
 ## Failure Modes  
 Unstated contrasts weaken reviewability.  
@@ -34,11 +34,11 @@ Unlinked references break [Docs Style](../meta/DOCS_STYLE.md).
 ## Extension Points  
 Mapping updates follow [Docs Style](../meta/DOCS_STYLE.md).  
 Extensions align with [Experimental](../architecture/experimental.md).  
-Evidence updates align with [tests/unit/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_docs_contract.py).  
+Evidence updates align with [packages/agentic-proteins/tests/unit/docs/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/docs/test_docs_contract.py).  
 
 ## Exit Criteria  
 This doc is obsolete when mapping is encoded.  
 The replacement is [Architecture](../architecture/architecture.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/unit/test_protein_system_rigidity.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_protein_system_rigidity.py).  
+Code refs: [packages/agentic-proteins/tests/unit/agents/test_protein_system_rigidity.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/agents/test_protein_system_rigidity.py).  

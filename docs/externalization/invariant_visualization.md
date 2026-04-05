@@ -18,7 +18,7 @@ Visualization uses [scripts/visualize_invariants.py](https://github.com/bijux/bi
 
 ## Invariants  
 Invariant visibility aligns with [Invariants](../architecture/invariants.md).  
-Snapshot format aligns with [tests/unit/test_execution_cost.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_execution_cost.py).  
+Snapshot format aligns with [packages/agentic-proteins/tests/unit/runtime/test_execution_cost.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/runtime/test_execution_cost.py).  
 MPI meaning aligns with [Mpi](mpi.md).  
 
 ## Failure Modes  

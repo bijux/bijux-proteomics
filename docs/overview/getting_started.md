@@ -37,4 +37,4 @@ This doc becomes obsolete when a generated entrypoint replaces it.
 The replacement is [Index](../index.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/integration/test_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_cli.py).  
+Code refs: [packages/agentic-proteins/tests/integration/test_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/integration/test_cli.py).  

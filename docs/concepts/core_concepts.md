@@ -48,4 +48,4 @@ This doc becomes obsolete when vocabulary is generated.
 The replacement is [Architecture](../architecture/architecture.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/unit/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_docs_contract.py).  
+Code refs: [packages/agentic-proteins/tests/unit/docs/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/docs/test_docs_contract.py).  

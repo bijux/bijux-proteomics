@@ -18,8 +18,8 @@ Unauthorized LLM actions raise in [LLMRegulator](https://github.com/bijux/bijux-
 
 ## Invariants  
 Guards align with [Core](../governance/core.md).  
-Guard tests align with [tests/unit/test_protein_agent.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_protein_agent.py).  
-Guard tests align with [tests/unit/test_llm_regulator.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_llm_regulator.py).  
+Guard tests align with [packages/agentic-proteins/tests/unit/agents/test_protein_agent.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/agents/test_protein_agent.py).  
+Guard tests align with [packages/agentic-proteins/tests/unit/llm/test_llm_regulator.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/llm/test_llm_regulator.py).  
 
 ## Failure Modes  
 Bypass attempts break [Invariants](../architecture/invariants.md).  

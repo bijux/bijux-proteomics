@@ -22,6 +22,7 @@ from agentic_proteins.tools.schemas import (
 )
 from agentic_proteins.core.decisions import Decision
 from agentic_proteins.validation.tools import validate_tools_for_agents
+from tests.helpers.paths import repo_root
 
 
 def register_sample_tool() -> ToolContract:
@@ -124,7 +125,7 @@ def test_decision_requires_tool_invocation_specs() -> None:
 
 
 def test_agents_do_not_import_tools_package() -> None:
-    root = Path(__file__).resolve().parents[2]
+    root = repo_root()
     agents_dir = (
         root / "packages" / "agentic-proteins" / "src" / "agentic_proteins" / "agents"
     )

@@ -1,10 +1,10 @@
 # Test Configuration — zero root pollution (pytest runs from artifacts_pages/test)
 
-TEST_PATHS            ?= tests
-TEST_PATHS_UNIT       ?= tests/unit
-TEST_PATHS_E2E        ?= tests/e2e
-TEST_PATHS_REGRESSION ?= tests/regression
-TEST_PATHS_EVAL       ?= tests/regression
+TEST_PATHS            ?= packages/agentic-proteins/tests
+TEST_PATHS_UNIT       ?= packages/agentic-proteins/tests/unit
+TEST_PATHS_E2E        ?= packages/agentic-proteins/tests/e2e
+TEST_PATHS_REGRESSION ?= packages/agentic-proteins/tests/regression
+TEST_PATHS_EVAL       ?= packages/agentic-proteins/tests/regression
 
 TEST_ARTIFACTS_DIR    ?= artifacts/test
 JUNIT_XML             ?= $(TEST_ARTIFACTS_DIR)/junit.xml
@@ -170,7 +170,7 @@ real-local:
 	@echo "→ Running real local model tests (manual only)"
 	@$(MAKE) ensure-venv
 	@$(PYTEST) --version
-	@$(PYTEST) -c "$(PYTEST_INI_ABS)" -o addopts= "$(abspath tests/real_local)" -m "real_local" -s -p no:cov
+	@$(PYTEST) -c "$(PYTEST_INI_ABS)" -o addopts= "$(abspath packages/agentic-proteins/tests/real_local)" -m "real_local" -s -p no:cov
 
 ##@ Test
 test: ## Run full test suite; side-effects contained in artifacts_pages/test/

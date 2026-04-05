@@ -19,7 +19,7 @@ PATCH means bug fix only.
 ## Invariants  
 Version changes align with [Invariants](../architecture/invariants.md).  
 Contract locks align with [packages/agentic-proteins/src/agentic_proteins/core/api_lock.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/src/agentic_proteins/core/api_lock.py).  
-Checks align with [tests/unit/test_core_api_lock.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_core_api_lock.py).  
+Checks align with [packages/agentic-proteins/tests/unit/core/test_core_api_lock.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/core/test_core_api_lock.py).  
 
 ## Failure Modes  
 Meaning drift breaks [Core](core.md).  
@@ -28,7 +28,7 @@ Untracked changes break [Invariants](../architecture/invariants.md).
 
 ## Extension Points  
 Extensions follow [Experimental](../architecture/experimental.md).  
-Extension checks align with [tests/unit/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_module_stability.py).  
+Extension checks align with [packages/agentic-proteins/tests/unit/governance/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/governance/test_module_stability.py).  
 Extension docs align with [Docs Style](../meta/DOCS_STYLE.md).  
 
 ## Exit Criteria  

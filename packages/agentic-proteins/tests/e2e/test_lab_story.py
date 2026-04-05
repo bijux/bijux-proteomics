@@ -7,6 +7,7 @@ from pathlib import Path
 
 from agentic_proteins.runtime import RunManager
 from agentic_proteins.runtime.infra import RunConfig
+from tests.helpers.paths import package_tests_root
 
 
 def _read_fasta(path: Path) -> str:
@@ -15,13 +16,7 @@ def _read_fasta(path: Path) -> str:
 
 
 def test_lab_story_end_to_end(tmp_path: Path) -> None:
-    seq_path = (
-        Path(__file__).resolve().parents[2]
-        / "tests"
-        / "fixtures"
-        / "proteins"
-        / "small_enzyme.fasta"
-    )
+    seq_path = package_tests_root() / "fixtures" / "proteins" / "small_enzyme.fasta"
     sequence = _read_fasta(seq_path)
     config = RunConfig(loop_max_iterations=2, require_human_decision=True)
     manager = RunManager(tmp_path, config)

@@ -19,16 +19,16 @@ Undeclared transitions violate [packages/agentic-proteins/src/agentic_proteins/b
 ## Invariants  
 Agent behavior stays within [Core Concepts](../concepts/core_concepts.md).  
 Transition rules align with [Execution Model](../architecture/execution_model.md).  
-Checks align with [tests/unit/test_protein_agent.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_protein_agent.py).  
+Checks align with [packages/agentic-proteins/tests/unit/agents/test_protein_agent.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/agents/test_protein_agent.py).  
 
 ## Failure Modes  
 Bypass attempts break [Invariants](../architecture/invariants.md).  
 Silent changes break [Core](core.md).  
-Drift detection aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
+Drift detection aligns with [packages/agentic-proteins/tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/regression/test_architecture_invariants.py).  
 
 ## Extension Points  
 Extensions follow [Experimental](../architecture/experimental.md).  
-Extension checks align with [tests/unit/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_module_stability.py).  
+Extension checks align with [packages/agentic-proteins/tests/unit/governance/test_module_stability.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/governance/test_module_stability.py).  
 Extension docs align with [Docs Style](../meta/DOCS_STYLE.md).  
 
 ## Exit Criteria  

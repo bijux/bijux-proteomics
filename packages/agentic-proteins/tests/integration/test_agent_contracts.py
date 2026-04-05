@@ -24,6 +24,7 @@ from agentic_proteins.agents.schemas import (
 )
 from agentic_proteins.agents.planning.schemas import PlanDecision
 from agentic_proteins.validation.agents import ALLOWED_TOOL_NAMESPACE, validate_agent
+from tests.helpers.paths import package_tests_root, repo_root
 
 
 AGENT_MODULES = [
@@ -55,7 +56,7 @@ AGENT_CLASSES = [
 def _repo_files(root: Path) -> set[Path]:
     scan_roots = [
         root / "packages" / "agentic-proteins" / "src",
-        root / "tests",
+        package_tests_root(),
         root / "docs",
         root / "scripts",
         root / "makefiles",
@@ -97,7 +98,7 @@ def test_agents_import_purity(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(os.environ.__class__, "__getitem__", _blocked_getitem, raising=False)
     monkeypatch.setattr(os.environ, "get", _blocked_getenv, raising=False)
 
-    root = Path(__file__).resolve().parents[2]
+    root = repo_root()
     before_files = _repo_files(root)
     before_modules = set(sys.modules)
 
@@ -165,7 +166,7 @@ def test_decision_only_outputs_signature() -> None:
 
 
 def test_no_cross_agent_imports() -> None:
-    root = Path(__file__).resolve().parents[2]
+    root = repo_root()
     agents_dir = (
         root / "packages" / "agentic-proteins" / "src" / "agentic_proteins" / "agents"
     )
@@ -190,7 +191,7 @@ def test_no_cross_agent_imports() -> None:
 
 
 def test_agents_import_only_allowed_domains() -> None:
-    root = Path(__file__).resolve().parents[2]
+    root = repo_root()
     agents_dir = (
         root / "packages" / "agentic-proteins" / "src" / "agentic_proteins" / "agents"
     )

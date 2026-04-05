@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from tests.helpers.paths import repo_root
 
 
 def test_conceptual_onboarding_passes() -> None:
-    root = Path(__file__).resolve().parents[3]
+    root = repo_root()
     text = (root / "docs" / "concepts" / "core_concepts.md").read_text()
     required = (
         "agent:",

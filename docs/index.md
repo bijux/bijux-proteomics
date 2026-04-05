@@ -17,7 +17,7 @@ The umbrella contract is simple: `agentic-proteins` remains the execution produc
 
 ## Invariants
 
-Deterministic execution still matters, but it is no longer the only story. Every serious program needs a target definition, explicit constraints, evidence coverage, and review gates before expensive work advances. The package move and path rules are checked by [tests/integration/test_agent_contracts.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_agent_contracts.py), and the umbrella CLI template is covered by [packages/bijux-proteomics-core/tests/test_platform_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/tests/test_platform_cli.py).
+Deterministic execution still matters, but it is no longer the only story. Every serious program needs a target definition, explicit constraints, evidence coverage, and review gates before expensive work advances. The package move and path rules are checked by [packages/agentic-proteins/tests/integration/test_agent_contracts.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/integration/test_agent_contracts.py), and the umbrella CLI template is covered by [packages/bijux-proteomics-core/tests/test_platform_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/tests/test_platform_cli.py).
 
 ## Failure Modes
 

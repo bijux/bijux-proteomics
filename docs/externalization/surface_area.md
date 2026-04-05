@@ -18,7 +18,7 @@ Configuration knobs are capped by the same budget.
 
 ## Invariants  
 Budgets align with [Core](../governance/core.md).  
-Budget checks align with [tests/unit/test_surface_area_budget.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_surface_area_budget.py).  
+Budget checks align with [packages/agentic-proteins/tests/unit/governance/test_surface_area_budget.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/governance/test_surface_area_budget.py).  
 Budget changes update [Mpi](mpi.md).  
 
 ## Failure Modes  

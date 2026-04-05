@@ -8,6 +8,7 @@ import json
 
 from agentic_proteins.tools.heuristic import HeuristicStructureTool
 from agentic_proteins.tools.schemas import InvocationInput
+from tests.helpers.paths import package_tests_root
 
 
 def _read_fasta(path: Path) -> str:
@@ -16,7 +17,6 @@ def _read_fasta(path: Path) -> str:
 
 
 def test_real_protein_regression() -> None:
-    root = Path(__file__).resolve().parents[2]
     fixtures = {
         "small_enzyme.fasta": "89cc49be82577b86c9b4e766c5d8ab8788dd7ac1233a0f65331e0f5c44815cf9",
         "membrane_protein.fasta": "b2fa5c729ac59d361bb123cae9b798099369ada64bc299da2c28b3b9449a8c74",
@@ -24,7 +24,7 @@ def test_real_protein_regression() -> None:
     }
     tool = HeuristicStructureTool()
     for name, expected_hash in fixtures.items():
-        seq_path = root / "tests" / "fixtures" / "proteins" / name
+        seq_path = package_tests_root() / "fixtures" / "proteins" / name
         sequence = _read_fasta(seq_path)
         result = tool.run(
             invocation_id="invocation-1",

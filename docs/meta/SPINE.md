@@ -37,7 +37,7 @@ This doc becomes obsolete when the surface ends.
 The replacement is linked in [Docs Style](DOCS_STYLE.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/unit/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_docs_contract.py).  
+Code refs: [packages/agentic-proteins/tests/unit/docs/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/unit/docs/test_docs_contract.py).  
 Docs list:  
 - [Docs Style](DOCS_STYLE.md)  
 - [Docs Voice](DOCS_VOICE.md)  

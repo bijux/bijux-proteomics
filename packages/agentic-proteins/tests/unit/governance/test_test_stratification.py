@@ -6,6 +6,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+from tests.helpers.paths import package_tests_root, repo_root
+
 
 def _iter_test_files(root: Path) -> list[Path]:
     if not root.exists():
@@ -14,7 +16,7 @@ def _iter_test_files(root: Path) -> list[Path]:
 
 
 def test_unit_tests_do_not_import_execution() -> None:
-    root = Path(__file__).resolve().parents[1] / "unit"
+    root = package_tests_root() / "unit"
     for path in _iter_test_files(root):
         tree = ast.parse(path.read_text(), filename=str(path))
         for node in ast.walk(tree):
@@ -32,7 +34,7 @@ def test_unit_tests_do_not_import_execution() -> None:
 
 
 def test_e2e_tests_use_local_executor_only() -> None:
-    root = Path(__file__).resolve().parents[1] / "e2e"
+    root = package_tests_root() / "e2e"
     for path in _iter_test_files(root):
         content = path.read_text()
         if "agentic_proteins.execution.runtime.executor import" in content:
@@ -47,7 +49,7 @@ def test_e2e_tests_use_local_executor_only() -> None:
 
 
 def test_no_markdown_in_src_tree() -> None:
-    root = Path(__file__).resolve().parents[2]
+    root = repo_root()
     src_dirs = [
         root / "packages" / "agentic-proteins" / "src",
         root / "packages" / "bijux-proteomics-core" / "src",

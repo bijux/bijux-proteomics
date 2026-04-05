@@ -60,7 +60,7 @@ packages/bijux-proteomics-core/       Program models and execution adapters
 packages/bijux-proteomics-knowledge/  Evidence bundle package
 packages/bijux-proteomics-lab/        Experiment planning package
 scripts/                              Repository automation and consistency checks
-tests/                                Cross-package unit, integration, and regression tests
+packages/agentic-proteins/tests/ Cross-package unit, integration, and regression tests
 ```
 
 ## Design Direction

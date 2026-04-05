@@ -19,7 +19,7 @@ Example code lives in [scripts/golden_path_example.py](https://github.com/bijux/
 
 ## Invariants  
 The golden path remains single and canonical.  
-Evidence aligns with [tests/regression/test_negative_results.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_negative_results.py).  
+Evidence aligns with [packages/agentic-proteins/tests/regression/test_negative_results.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/regression/test_negative_results.py).  
 MPI meaning aligns with [Core Concepts](../concepts/core_concepts.md).  
 
 ## Failure Modes  

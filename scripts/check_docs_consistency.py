@@ -16,7 +16,7 @@ SRC_DIR = ROOT / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
 
 MODULE_RE = re.compile(r"agentic_proteins\.[A-Za-z0-9_\.]+")
 SRC_PATH_RE = re.compile(
-    r"(packages/(?:agentic-proteins/src/agentic_proteins|bijux-proteomics-[a-z-]+/tests)|tests)/[A-Za-z0-9_\-/\.]+"
+    r"packages/(?:agentic-proteins/(?:src/agentic_proteins|tests)|bijux-proteomics-[a-z-]+/tests)/[A-Za-z0-9_\-/\.]+"
 )
 MKDOCS_RE = re.compile(r"([A-Za-z0-9_./-]+\.md)")
 FUTURE_WORDS = re.compile(
@@ -39,7 +39,7 @@ ALLOWED_SECTION_ORDER = [
 ]
 ALLOWED_SECTIONS = set(ALLOWED_SECTION_ORDER)
 CODE_REF_RE = re.compile(
-    r"((packages/(?:agentic-proteins/src/agentic_proteins|bijux-proteomics-[a-z-]+/tests)|tests|scripts)/[A-Za-z0-9_./-]+\.py|api/[A-Za-z0-9_./-]+\.yaml)"
+    r"((packages/(?:agentic-proteins/(?:src/agentic_proteins|tests)|bijux-proteomics-[a-z-]+/tests)|scripts)/[A-Za-z0-9_./-]+\.py|api/[A-Za-z0-9_./-]+\.yaml)"
 )
 SECURITY_WORDS = re.compile(r"\b(security|sandbox|isolation|trust)\b", re.IGNORECASE)
 DOC_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
@@ -268,8 +268,17 @@ def main() -> int:
                     failures.append(f"canonical_casing: {rel_from_root}")
                     break
 
+    test_roots = [
+        ROOT / "packages" / "agentic-proteins" / "tests",
+        ROOT / "packages" / "bijux-proteomics-core" / "tests",
+        ROOT / "packages" / "bijux-proteomics-knowledge" / "tests",
+        ROOT / "packages" / "bijux-proteomics-lab" / "tests",
+    ]
     test_text = "\n".join(
-        p.read_text() for p in (ROOT / "tests").rglob("*.py")
+        path.read_text()
+        for test_root in test_roots
+        if test_root.exists()
+        for path in test_root.rglob("*.py")
     )
     for doc in sorted(DOCS_DIR.rglob("*.md")):
         rel = doc.relative_to(DOCS_DIR)

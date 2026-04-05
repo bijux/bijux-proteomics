@@ -36,4 +36,4 @@ This doc becomes obsolete when execution is generated.
 The replacement is [Architecture](architecture.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
+Code refs: [packages/agentic-proteins/tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/regression/test_architecture_invariants.py).  
