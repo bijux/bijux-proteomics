@@ -17,7 +17,7 @@ ALLOWED_SECTION_ORDER = [
 ]
 FRONT_MATTER_FIELDS = ("**Scope:**", "**Audience:**", "**Guarantees:**", "**Non-Goals:**")
 CODE_REF_RE = re.compile(
-    r"((packages/agentic-proteins/src/agentic_proteins|tests|scripts)/[A-Za-z0-9_./-]+\.py|api/[A-Za-z0-9_./-]+\.yaml)"
+    r"((packages/(?:agentic-proteins/src/agentic_proteins|bijux-proteomics-[a-z-]+/tests)|tests|scripts)/[A-Za-z0-9_./-]+\.py|api/[A-Za-z0-9_./-]+\.yaml)"
 )
 
 
