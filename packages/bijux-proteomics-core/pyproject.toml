@@ -21,7 +21,7 @@ Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 
 [project.scripts]
-bijux-proteomics = "bijux_proteomics.cli:cli"
+bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bijux_proteomics"]

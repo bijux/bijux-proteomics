@@ -8,7 +8,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
-from bijux_proteomics.cli import cli
+from bijux_proteomics.interfaces.cli import cli
 
 
 def test_program_template_writes_manifest() -> None:
