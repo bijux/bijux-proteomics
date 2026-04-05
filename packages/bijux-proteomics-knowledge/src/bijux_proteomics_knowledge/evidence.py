@@ -10,7 +10,12 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import (
+    DocumentSchema,
+    EvidenceId,
+    JsonModel,
+    TargetId,
+)
 
 class EvidenceKind(StrEnum):
     """Evidence families tracked by the platform."""
@@ -45,11 +50,7 @@ class EvidenceRecord(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    evidence_id: str = Field(
-        ...,
-        min_length=1,
-        description="Stable evidence identifier.",
-    )
+    evidence_id: EvidenceId = Field(..., description="Stable evidence identifier.")
     kind: EvidenceKind = Field(..., description="Evidence family.")
     title: str = Field(..., min_length=1, description="Short title.")
     source: str = Field(..., min_length=1, description="Source location or system.")
@@ -92,8 +93,8 @@ class EvidenceBundle(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    bundle_id: str = Field(..., min_length=1, description="Stable bundle identifier.")
-    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    bundle_id: EvidenceId = Field(..., description="Stable bundle identifier.")
+    target_id: TargetId = Field(..., description="Target identifier.")
     document_schema: DocumentSchema = Field(
         default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-knowledge"),
         description="Schema and provenance metadata.",
@@ -109,8 +110,8 @@ class EvidenceCoverage(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    bundle_id: str = Field(..., min_length=1, description="Stable bundle identifier.")
-    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    bundle_id: EvidenceId = Field(..., description="Stable bundle identifier.")
+    target_id: TargetId = Field(..., description="Target identifier.")
     by_kind: dict[str, int] = Field(
         default_factory=dict,
         description="Count of records grouped by evidence kind.",
@@ -137,7 +138,7 @@ class DecisionReadiness(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    target_id: TargetId = Field(..., description="Target identifier.")
     ready: bool = Field(..., description="Whether the bundle is decision-ready.")
     blockers: list[str] = Field(
         default_factory=list,

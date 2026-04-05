@@ -9,6 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation import CandidateId, ProgramId
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, LiabilityFlag
 from bijux_proteomics_intelligence.serialization import JsonModel
 
@@ -28,8 +29,8 @@ class CandidateProposal(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_id: str = Field(..., min_length=1, description="Stable candidate identifier.")
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
     sequence: str = Field(..., min_length=1, description="Candidate protein sequence.")
     origin: str = Field(..., min_length=1, description="Where the candidate came from.")
     rationale: str = Field(..., min_length=1, description="Why the candidate was proposed.")
@@ -40,7 +41,7 @@ class CandidateRiskProfile(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_id: str = Field(..., min_length=1, description="Stable candidate identifier.")
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
     liabilities: list[LiabilityFlag] = Field(
         default_factory=list,
         description="Risks carried by the candidate.",
@@ -58,7 +59,7 @@ class CandidateScreeningResult(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_id: str = Field(..., min_length=1, description="Stable candidate identifier.")
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
     passed_filters: bool = Field(..., description="Whether the candidate passed screening.")
     filter_notes: list[str] = Field(
         default_factory=list,
@@ -75,7 +76,7 @@ class CandidateDecision(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_id: str = Field(..., min_length=1, description="Stable candidate identifier.")
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
     status: CandidateStatus = Field(..., description="Lifecycle status after the decision.")
     decision_summary: str = Field(
         ...,
@@ -89,7 +90,7 @@ class CandidatePortfolio(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
     proposals: list[CandidateProposal] = Field(
         default_factory=list,
         description="All proposed candidates.",

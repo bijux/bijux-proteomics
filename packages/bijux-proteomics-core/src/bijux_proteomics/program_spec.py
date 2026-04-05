@@ -15,7 +15,7 @@ from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import SuccessCriterion
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.reviews import ReviewGate
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
 from bijux_proteomics.targets import ProteinTarget
 
 
@@ -44,7 +44,7 @@ class ProgramSpec(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Stable program identifier.")
+    program_id: ProgramId = Field(..., description="Stable program identifier.")
     name: str = Field(..., min_length=1, description="Program name.")
     objective: str = Field(..., min_length=1, description="Scientific objective.")
     stage: ProgramStage = Field(

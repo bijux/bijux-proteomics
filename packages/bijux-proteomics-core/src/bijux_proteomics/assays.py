@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
+from bijux_proteomics_foundation import AssayId
 
 
 class AssayRequirement(BaseModel):
@@ -13,7 +14,7 @@ class AssayRequirement(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    assay_id: str = Field(..., min_length=1, description="Stable assay identifier.")
+    assay_id: AssayId = Field(..., description="Stable assay identifier.")
     purpose: str = Field(..., min_length=1, description="Why the assay exists.")
     readout: str = Field(
         ..., min_length=1, description="Primary output or measurement."

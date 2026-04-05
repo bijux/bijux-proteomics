@@ -9,7 +9,7 @@ from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_lab.serialization import JsonModel
+from bijux_proteomics_foundation import GateId, JsonModel, ProgramId
 
 
 class ReviewQueueEntry(JsonModel):
@@ -17,8 +17,8 @@ class ReviewQueueEntry(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
-    gate_id: str = Field(..., min_length=1, description="Review gate identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    gate_id: GateId = Field(..., description="Review gate identifier.")
     summary: str = Field(..., min_length=1, description="Why the entry exists.")
 
 

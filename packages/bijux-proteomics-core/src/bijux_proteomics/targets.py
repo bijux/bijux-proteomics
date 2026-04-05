@@ -8,6 +8,7 @@ from __future__ import annotations
 import re
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from bijux_proteomics_foundation import TargetId
 
 _SEQUENCE_RE = re.compile(r"^[ACDEFGHIKLMNPQRSTVWY]+$")
 
@@ -17,7 +18,7 @@ class ProteinTarget(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    target_id: str = Field(..., min_length=1, description="Stable target identifier.")
+    target_id: TargetId = Field(..., description="Stable target identifier.")
     name: str = Field(..., min_length=1, description="Human-readable target name.")
     sequence: str = Field(
         ..., min_length=1, description="Reference amino-acid sequence."

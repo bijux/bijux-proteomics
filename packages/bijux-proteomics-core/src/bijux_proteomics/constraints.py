@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
+from bijux_proteomics_foundation import EvidenceId
 
 
 class ScientificConstraint(BaseModel):
@@ -13,9 +14,7 @@ class ScientificConstraint(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    constraint_id: str = Field(
-        ..., min_length=1, description="Stable constraint identifier."
-    )
+    constraint_id: EvidenceId = Field(..., description="Stable constraint identifier.")
     category: str = Field(..., min_length=1, description="Constraint family.")
     statement: str = Field(..., min_length=1, description="Constraint text.")
     rationale: str = Field(..., min_length=1, description="Why this constraint exists.")

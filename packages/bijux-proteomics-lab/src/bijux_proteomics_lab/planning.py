@@ -15,7 +15,14 @@ from bijux_proteomics_knowledge import (
     assess_decision_readiness,
     evidence_gaps,
 )
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import (
+    AssayId,
+    BatchId,
+    CycleId,
+    DocumentSchema,
+    JsonModel,
+    ProgramId,
+)
 
 
 class AssayObservation(JsonModel):
@@ -23,7 +30,7 @@ class AssayObservation(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    assay_id: str = Field(..., min_length=1, description="Assay identifier.")
+    assay_id: AssayId = Field(..., description="Assay identifier.")
     metric: str = Field(..., min_length=1, description="Observed metric.")
     value: float = Field(..., description="Observed value.")
     unit: str | None = Field(default=None, description="Measurement unit.")
@@ -35,7 +42,7 @@ class ExperimentBatch(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    batch_id: str = Field(..., min_length=1, description="Stable batch identifier.")
+    batch_id: BatchId = Field(..., description="Stable batch identifier.")
     objective: str = Field(..., min_length=1, description="Batch objective.")
     assay_ids: list[str] = Field(
         default_factory=list,
@@ -53,7 +60,7 @@ class ExperimentPlan(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
     document_schema: DocumentSchema = Field(
         default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-lab"),
         description="Schema and provenance metadata.",
@@ -85,7 +92,7 @@ class ReviewPacket(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
     ready_for_synthesis: bool = Field(
         ...,
         description="Whether the current state is ready for synthesis or next spend.",
@@ -105,7 +112,7 @@ class ClosedLoopPlan(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
     document_schema: DocumentSchema = Field(
         default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-lab"),
         description="Schema and provenance metadata.",
@@ -130,7 +137,7 @@ class LabCapacity(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    cycle_id: str = Field(..., min_length=1, description="Stable cycle identifier.")
+    cycle_id: CycleId = Field(..., description="Stable cycle identifier.")
     max_batches: int = Field(..., ge=1, description="Maximum batch slots in the cycle.")
     max_assays_per_batch: int = Field(
         ...,
@@ -144,8 +151,8 @@ class ScheduledBatch(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    batch_id: str = Field(..., min_length=1, description="Stable batch identifier.")
-    cycle_id: str = Field(..., min_length=1, description="Assigned cycle identifier.")
+    batch_id: BatchId = Field(..., description="Stable batch identifier.")
+    cycle_id: CycleId = Field(..., description="Assigned cycle identifier.")
     assay_ids: list[str] = Field(default_factory=list, description="Scheduled assays.")
     deferred_assay_ids: list[str] = Field(
         default_factory=list,
@@ -158,7 +165,7 @@ class ScheduledPlan(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
     scheduled_batches: list[ScheduledBatch] = Field(
         default_factory=list,
         description="Capacity-aware scheduled batches.",

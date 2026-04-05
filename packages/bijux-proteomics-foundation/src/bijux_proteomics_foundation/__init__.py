@@ -5,7 +5,28 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_foundation.ids import (
+    AssayId,
+    BatchId,
+    CandidateId,
+    CycleId,
+    EvidenceId,
+    GateId,
+    ProgramId,
+    TargetId,
+)
 from bijux_proteomics_foundation.schema import DocumentSchema
 from bijux_proteomics_foundation.serialization import JsonModel
 
-__all__ = ["DocumentSchema", "JsonModel"]
+__all__ = [
+    "AssayId",
+    "BatchId",
+    "CandidateId",
+    "CycleId",
+    "DocumentSchema",
+    "EvidenceId",
+    "GateId",
+    "JsonModel",
+    "ProgramId",
+    "TargetId",
+]

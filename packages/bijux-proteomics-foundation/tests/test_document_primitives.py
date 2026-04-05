@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+import pytest
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
 
 
 class DemoDocument(JsonModel):
@@ -28,3 +29,12 @@ def test_document_primitives_round_trip(tmp_path: Path) -> None:
     restored = DemoDocument.load_json(path)
 
     assert restored.to_dict()["document_schema"]["trace_id"] == "trace-foundation-1"
+
+
+class IdentifierHolder(BaseModel):
+    program_id: ProgramId
+
+
+def test_typed_ids_enforce_non_empty_values() -> None:
+    with pytest.raises(ValidationError):
+        IdentifierHolder(program_id="  ")

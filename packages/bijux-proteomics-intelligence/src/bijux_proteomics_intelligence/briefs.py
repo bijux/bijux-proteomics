@@ -10,6 +10,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
+from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 from bijux_proteomics_intelligence.serialization import JsonModel
 
@@ -41,8 +42,8 @@ class DesignBrief(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
-    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    target_id: TargetId = Field(..., description="Target identifier.")
     objective: str = Field(..., min_length=1, description="Program objective.")
     mechanism: str = Field(..., min_length=1, description="Target mechanism hypothesis.")
     optimization_axes: list[OptimizationAxis] = Field(
@@ -72,7 +73,7 @@ class CandidateAssessment(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_id: str = Field(..., min_length=1, description="Stable candidate identifier.")
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
     sequence: str = Field(..., min_length=1, description="Candidate protein sequence.")
     metric_scores: dict[str, float] = Field(
         default_factory=dict,
@@ -107,7 +108,7 @@ class RankedCandidate(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_id: str = Field(..., min_length=1, description="Stable candidate identifier.")
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
     score: float = Field(..., description="Composite ranking score.")
     rank: int = Field(..., ge=1, description="Position in the ordered list.")
     reasons: list[str] = Field(
@@ -125,7 +126,7 @@ class CandidateRanking(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
     ranked_candidates: list[RankedCandidate] = Field(
         default_factory=list,
         description="Candidates ordered from strongest to weakest.",
