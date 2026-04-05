@@ -4,6 +4,7 @@
 
 - protein discovery programs
 - scientific constraints and review gates
+- operating models for human review and lab feedback
 - assay panels and success criteria
 - execution adapters that can hand an approved sequence to `agentic_proteins`
 

@@ -7,6 +7,9 @@ from __future__ import annotations
 
 from bijux_proteomics.programs import (
     AssayRequirement,
+    MeasurementDirection,
+    OperatingModel,
+    ProgramStage,
     ProgramSpec,
     ProteinTarget,
     ReviewGate,
@@ -19,7 +22,10 @@ from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
 
 __all__ = [
     "AssayRequirement",
+    "MeasurementDirection",
+    "OperatingModel",
     "ProgramExecutionRequest",
+    "ProgramStage",
     "ProgramSpec",
     "ProteinTarget",
     "ReviewGate",

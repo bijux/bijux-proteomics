@@ -32,6 +32,16 @@ class EvidenceNeed(StrEnum):
     SAFETY = "safety"
 
 
+class ProgramStage(StrEnum):
+    """Lifecycle stages for a protein program."""
+
+    SCOPING = "scoping"
+    DESIGN = "design"
+    REVIEW = "review"
+    LAB_READY = "lab_ready"
+    LEARNING = "learning"
+
+
 class ProteinTarget(BaseModel):
     """Target definition for a discovery or engineering program."""
 
@@ -136,6 +146,30 @@ class AssayRequirement(BaseModel):
     )
 
 
+class OperatingModel(BaseModel):
+    """How the program moves between computation, review, and lab work."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    review_cadence: str = Field(
+        default="per-decision",
+        min_length=1,
+        description="When human review is expected.",
+    )
+    human_review_required: bool = Field(
+        default=True,
+        description="Whether human review is mandatory before progression.",
+    )
+    lab_feedback_required: bool = Field(
+        default=True,
+        description="Whether lab results must close the loop before iteration.",
+    )
+    decision_owner_roles: list[str] = Field(
+        default_factory=lambda: ["scientist"],
+        description="Roles accountable for final progression decisions.",
+    )
+
+
 class ProgramSpec(BaseModel):
     """Top-level program document for a protein effort."""
 
@@ -144,6 +178,10 @@ class ProgramSpec(BaseModel):
     program_id: str = Field(..., min_length=1, description="Stable program identifier.")
     name: str = Field(..., min_length=1, description="Program name.")
     objective: str = Field(..., min_length=1, description="Scientific objective.")
+    stage: ProgramStage = Field(
+        default=ProgramStage.SCOPING,
+        description="Current lifecycle stage.",
+    )
     target: ProteinTarget = Field(..., description="Protein target definition.")
     constraints: list[ScientificConstraint] = Field(
         default_factory=list,
@@ -164,6 +202,10 @@ class ProgramSpec(BaseModel):
     evidence_needs: list[EvidenceNeed] = Field(
         default_factory=list,
         description="Evidence types that must be covered.",
+    )
+    operating_model: OperatingModel = Field(
+        default_factory=OperatingModel,
+        description="How the program is governed across compute, review, and lab work.",
     )
     metadata: dict[str, str] = Field(
         default_factory=dict,
@@ -211,8 +253,11 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
     return {
         "program_id": program.program_id,
         "target_id": program.target.target_id,
+        "stage": program.stage.value,
         "constraint_count": len(program.constraints),
         "assay_count": len(program.assay_panel),
         "review_gate_count": len(program.review_gates),
         "evidence_needs": [need.value for need in program.evidence_needs],
+        "human_review_required": program.operating_model.human_review_required,
+        "lab_feedback_required": program.operating_model.lab_feedback_required,
     }

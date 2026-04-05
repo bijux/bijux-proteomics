@@ -11,6 +11,7 @@ from bijux_proteomics import ProgramExecutionRequest, create_program_spec, progr
 from bijux_proteomics.programs import (
     AssayRequirement,
     MeasurementDirection,
+    ProgramStage,
     ReviewGate,
     ScientificConstraint,
     SuccessCriterion,
@@ -102,3 +103,22 @@ def test_program_execution_request_requires_workspace_path(tmp_path: Path) -> No
     )
 
     assert request.base_dir == tmp_path
+
+
+def test_program_summary_includes_operating_model_defaults() -> None:
+    program = create_program_spec(
+        program_id="prog-2",
+        name="reviewable rescue",
+        objective="improve activity with explicit lab follow-up",
+        target_id="target-2",
+        target_name="Target 2",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize the productive conformation",
+    )
+
+    summary = program_summary(program)
+
+    assert summary["stage"] == ProgramStage.SCOPING.value
+    assert summary["human_review_required"] is True
+    assert summary["lab_feedback_required"] is True
