@@ -9,6 +9,7 @@ from bijux_proteomics_intelligence import (
     CandidateAssessment,
     LiabilityFlag,
     OptimizationAxis,
+    RankingProfile,
     build_design_brief,
     prioritize_candidates,
 )
@@ -121,12 +122,16 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
                 candidate_id="candidate-a",
                 sequence="ACDEFGHIKLMNPQRSTVWY",
                 metric_scores={"binding_score": 0.82},
+                manufacturability_score=0.8,
+                uncertainty=0.1,
                 evidence_support=0.8,
             ),
             CandidateAssessment(
                 candidate_id="candidate-b",
                 sequence="ACDEFGHIKLMNPQRSTVWYA",
                 metric_scores={"binding_score": 0.88},
+                manufacturability_score=0.4,
+                uncertainty=0.2,
                 evidence_support=0.4,
                 liabilities=[
                     LiabilityFlag(
@@ -141,6 +146,8 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
                 candidate_id="candidate-c",
                 sequence="ACDEFGHIKLMNPQRSTV",
                 metric_scores={},
+                manufacturability_score=0.2,
+                uncertainty=0.7,
                 evidence_support=0.2,
             ),
         ],
@@ -151,3 +158,55 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
         "candidate-b",
     ]
     assert ranking.rejected_candidates == ["candidate-c"]
+    assert ranking.ranked_candidates[0].explainability["confidence"] == 0.9
+
+
+def test_prioritize_candidates_applies_profile_hard_filters() -> None:
+    program = create_program_spec(
+        program_id="prog-2",
+        name="filter profile",
+        objective="screen out weakly supported and hard-to-make candidates",
+        target_id="target-2",
+        target_name="Target 2",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize productive packing",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        )
+    )
+
+    ranking = prioritize_candidates(
+        program,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-hard-filter",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.85},
+                manufacturability_score=0.2,
+                uncertainty=0.1,
+                evidence_support=0.7,
+            ),
+            CandidateAssessment(
+                candidate_id="candidate-keep",
+                sequence="ACDEFGHIKLMNPQRSTVWA",
+                metric_scores={"binding_score": 0.82},
+                manufacturability_score=0.7,
+                uncertainty=0.1,
+                evidence_support=0.8,
+            ),
+        ],
+        profile=RankingProfile(
+            profile_id="manufacturability-gate",
+            require_manufacturability_floor=True,
+            manufacturability_floor=0.5,
+        ),
+    )
+
+    assert [item.candidate_id for item in ranking.ranked_candidates] == ["candidate-keep"]
+    assert ranking.rejected_candidates == ["candidate-hard-filter"]

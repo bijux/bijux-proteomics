@@ -78,6 +78,18 @@ class CandidateAssessment(JsonModel):
         default_factory=dict,
         description="Observed or predicted metrics keyed by metric name.",
     )
+    manufacturability_score: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="How easy the candidate is to express and handle.",
+    )
+    uncertainty: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Uncertainty in the candidate assessment.",
+    )
     liabilities: list[LiabilityFlag] = Field(
         default_factory=list,
         description="Candidate-specific risks.",
@@ -102,6 +114,10 @@ class RankedCandidate(JsonModel):
         default_factory=list,
         description="Short explanations for the ranking outcome.",
     )
+    explainability: dict[str, list[str] | float] = Field(
+        default_factory=dict,
+        description="Structured explanation for the ranking outcome.",
+    )
 
 
 class CandidateRanking(JsonModel):
@@ -117,6 +133,45 @@ class CandidateRanking(JsonModel):
     rejected_candidates: list[str] = Field(
         default_factory=list,
         description="Candidates screened out for missing minimum requirements.",
+    )
+
+
+class RankingProfile(JsonModel):
+    """Policy knobs for candidate ranking."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(..., min_length=1, description="Stable profile identifier.")
+    minimum_metric_fraction: float = Field(
+        default=0.5,
+        ge=0.0,
+        description="Minimum fraction of criterion thresholds required to stay in ranking.",
+    )
+    minimum_evidence_support: float = Field(
+        default=0.2,
+        ge=0.0,
+        le=1.0,
+        description="Minimum evidence support required to stay in ranking.",
+    )
+    require_manufacturability_floor: bool = Field(
+        default=False,
+        description="Whether low manufacturability is a hard rejection.",
+    )
+    manufacturability_floor: float = Field(
+        default=0.3,
+        ge=0.0,
+        le=1.0,
+        description="Minimum acceptable manufacturability score.",
+    )
+    uncertainty_penalty_weight: float = Field(
+        default=0.4,
+        ge=0.0,
+        description="Penalty weight applied to uncertainty.",
+    )
+    diversity_bonus_weight: float = Field(
+        default=0.1,
+        ge=0.0,
+        description="Bonus weight for candidates with fewer liabilities.",
     )
 
 
@@ -202,24 +257,67 @@ def _criterion_score(candidate: CandidateAssessment, program: ProgramSpec) -> fl
     return total
 
 
+def _screen_candidate(
+    candidate: CandidateAssessment,
+    program: ProgramSpec,
+    profile: RankingProfile,
+) -> tuple[bool, list[str], float]:
+    criterion_score = _criterion_score(candidate, program)
+    threshold_count = max(len(program.success_criteria), 1)
+    mean_fraction = criterion_score / threshold_count
+    reasons: list[str] = []
+
+    if program.success_criteria and mean_fraction < profile.minimum_metric_fraction:
+        reasons.append("below minimum criterion fraction")
+    if candidate.evidence_support < profile.minimum_evidence_support:
+        reasons.append("insufficient evidence support")
+    if (
+        profile.require_manufacturability_floor
+        and candidate.manufacturability_score < profile.manufacturability_floor
+    ):
+        reasons.append("below manufacturability floor")
+    return (not reasons, reasons, criterion_score)
+
+
 def prioritize_candidates(
     program: ProgramSpec,
     candidates: list[CandidateAssessment],
+    profile: RankingProfile | None = None,
 ) -> CandidateRanking:
     """Rank candidates with transparent penalties for risk and weak support."""
+    profile = profile or RankingProfile(profile_id="default-balance")
     scored: list[tuple[CandidateAssessment, float, list[str]]] = []
     rejected: list[str] = []
     for candidate in candidates:
-        criterion_score = _criterion_score(candidate, program)
-        if program.success_criteria and criterion_score <= 0:
+        passed, rejection_reasons, criterion_score = _screen_candidate(
+            candidate,
+            program,
+            profile,
+        )
+        if not passed:
             rejected.append(candidate.candidate_id)
             continue
         liability_penalty = sum(flag.severity for flag in candidate.liabilities) * 0.15
         support_bonus = candidate.evidence_support * 0.5
-        score = criterion_score + support_bonus - liability_penalty
+        manufacturability_bonus = candidate.manufacturability_score * 0.3
+        uncertainty_penalty = candidate.uncertainty * profile.uncertainty_penalty_weight
+        diversity_bonus = (
+            max(0.0, 1.0 - (len(candidate.liabilities) / 5.0))
+            * profile.diversity_bonus_weight
+        )
+        score = (
+            criterion_score
+            + support_bonus
+            + manufacturability_bonus
+            + diversity_bonus
+            - liability_penalty
+            - uncertainty_penalty
+        )
         reasons = [
             f"criteria_score={criterion_score:.2f}",
             f"evidence_support={candidate.evidence_support:.2f}",
+            f"manufacturability={candidate.manufacturability_score:.2f}",
+            f"uncertainty={candidate.uncertainty:.2f}",
         ]
         if candidate.liabilities:
             reasons.append(
@@ -239,6 +337,14 @@ def prioritize_candidates(
                 score=round(score, 4),
                 rank=index,
                 reasons=reasons,
+                explainability={
+                    "top_drivers": reasons[:3],
+                    "blockers": [
+                        flag.summary for flag in candidate.liabilities[:3]
+                    ],
+                    "confidence": round(1.0 - candidate.uncertainty, 4),
+                    "missing_evidence": [],
+                },
             )
             for index, (candidate, score, reasons) in enumerate(ranked, start=1)
         ],
