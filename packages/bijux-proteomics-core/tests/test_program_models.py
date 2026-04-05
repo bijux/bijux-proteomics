@@ -10,7 +10,11 @@ import pytest
 from bijux_proteomics import (
     ProgramExecutionRequest,
     ProgramSpec,
+    ReviewDecision,
+    ReviewGateBlockedError,
+    ReviewOutcome,
     create_program_spec,
+    ensure_review_clearance,
     program_summary,
 )
 from bijux_proteomics.programs import (
@@ -149,3 +153,70 @@ def test_program_spec_round_trips_with_serialization_helpers(tmp_path: Path) -> 
 
     assert restored.to_dict()["document_schema"]["trace_id"] == "trace-123"
     assert ProgramSpec.from_json(program.to_json()).program_id == "prog-3"
+
+
+def test_ensure_review_clearance_lists_blocking_gates_without_approval() -> None:
+    program = create_program_spec(
+        program_id="prog-4",
+        name="reviewable manifest",
+        objective="exercise review clearance",
+        target_id="target-4",
+        target_name="Target 4",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="hold execution until review is recorded",
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="pre-synthesis",
+            name="Pre-synthesis review",
+            required_roles=["scientist"],
+            decision_inputs=["evidence_bundle"],
+            blocking=True,
+        )
+    )
+
+    blocked = ensure_review_clearance(program, [])
+
+    assert [gate.gate_id for gate in blocked] == ["pre-synthesis"]
+
+
+def test_execute_program_request_rejects_missing_blocking_approval(tmp_path: Path) -> None:
+    program = create_program_spec(
+        program_id="prog-5",
+        name="gated execution",
+        objective="confirm blocking review enforcement",
+        target_id="target-5",
+        target_name="Target 5",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="hold execution until review is approved",
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="pre-synthesis",
+            name="Pre-synthesis review",
+            required_roles=["scientist"],
+            decision_inputs=["evidence_bundle"],
+            blocking=True,
+        )
+    )
+    request = ProgramExecutionRequest(
+        program=program,
+        candidate_sequence=program.target.sequence,
+        base_dir=tmp_path,
+        review_decisions=[
+            ReviewDecision(
+                program_id=program.program_id,
+                gate_id="pre-synthesis",
+                outcome=ReviewOutcome.NEEDS_REVISION,
+                decided_by="scientist",
+                rationale="need stronger evidence",
+            )
+        ],
+    )
+
+    with pytest.raises(ReviewGateBlockedError):
+        from bijux_proteomics.runner import execute_program
+
+        execute_program(request)

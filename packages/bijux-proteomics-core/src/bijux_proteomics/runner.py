@@ -10,7 +10,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from bijux_proteomics.exceptions import ReviewGateBlockedError
 from bijux_proteomics.programs import ProgramSpec, program_summary
+from bijux_proteomics.repositories import ReviewDecision, ensure_review_clearance
 
 
 class ProgramExecutionRequest(BaseModel):
@@ -31,10 +33,24 @@ class ProgramExecutionRequest(BaseModel):
     artifacts_dir: Path | None = Field(
         default=None, description="Artifact root override."
     )
+    review_decisions: list[ReviewDecision] = Field(
+        default_factory=list,
+        description="Recorded review decisions attached to the execution request.",
+    )
 
 
 def execute_program(request: ProgramExecutionRequest) -> dict[str, Any]:
     """Run an approved program sequence through the agent runtime."""
+    blocked_gates = ensure_review_clearance(
+        request.program,
+        request.review_decisions,
+    )
+    if blocked_gates:
+        raise ReviewGateBlockedError(
+            "blocking review gates require approval before execution: "
+            + ", ".join(gate.gate_id for gate in blocked_gates)
+        )
+
     from agentic_proteins.runtime import RunManager
     from agentic_proteins.runtime.infra import RunConfig
 
