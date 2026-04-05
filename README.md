@@ -73,7 +73,7 @@ The architecture is centered on:
 - lab planning and feedback loops
 - evidence memory that explains program decisions
 
-The short architecture note is in `CORE.md`.
+The short architecture note is in `docs/platform_core.md`.
 
 ## Resources
 

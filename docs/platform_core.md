@@ -1,46 +1,32 @@
-# Bijux Proteomics Core
+# platform_core
 
-## Mission
+**Scope:** Repository mission, package ownership, and platform pillars for Bijux Proteomics.
+**Audience:** Contributors who need the repository intent before editing a package.
+**Guarantees:** States the stable package map and the reason the umbrella platform exists.
+**Non-Goals:** This page does not replace package-level API, CLI, or runtime documents.
 
-Build a protein R&D platform where deterministic execution, scientific evidence, human review, and lab planning are first-class from the start.
+Why: the repository now contains multiple packages, so the platform intent belongs in the maintained docs tree.
 
-## Users
+## Overview
 
-- computational biology engineers building reproducible workflows
-- research scientists defining targets, constraints, and review gates
-- platform engineers who need stable packages instead of one growing runtime
+Bijux Proteomics joins deterministic execution, evidence review, and experiment planning in one repository. Read [index.md](index.md) for the landing map. Read [overview/getting_started.md](overview/getting_started.md) for local setup. Runtime execution lives in [packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py). Program models live in [packages/bijux-proteomics-core/src/bijux_proteomics/programs.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/programs.py).
 
-## Scientific Scope
+## Contracts
 
-- protein target programs
-- evidence-backed candidate review
-- experiment batch planning
-- deterministic execution through the existing `agentic-proteins` runtime
+Each package owns one durable role. [governance/core.md](governance/core.md) defines the broad governance frame. [architecture/architecture.md](architecture/architecture.md) describes the runtime shape. `agentic-proteins` owns execution. `bijux-proteomics-core` owns program definitions. `bijux-proteomics-knowledge` owns evidence bundles. `bijux-proteomics-lab` owns experiment planning. Those boundaries are exercised by [packages/bijux-proteomics-core/tests/test_program_models.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/tests/test_program_models.py) and [packages/bijux-proteomics-lab/tests/test_experiment_planner.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/tests/test_experiment_planner.py).
 
-## Non-Goals
+## Invariants
 
-- pretending the repository is only a single package
-- hiding review and assay work behind generic workflow abstractions
-- overcommitting to a Rust-first implementation before the product concepts are stable in Python
+The platform does not stop at sequence execution. [concepts/core_concepts.md](concepts/core_concepts.md) describes the shared language. [architecture/invariants.md](architecture/invariants.md) records the stable system rules. Every program needs targets, constraints, evidence needs, review gates, and assay plans. Those rules are encoded in [packages/bijux-proteomics-core/src/bijux_proteomics/programs.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/programs.py) and [packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py).
 
-## Package Map
+## Failure Modes
 
-- `packages/agentic-proteins`: deterministic runtime, API, CLI, and artifact model
-- `packages/bijux-proteomics-core`: program documents and runtime adapters
-- `packages/bijux-proteomics-knowledge`: evidence bundles and gap analysis
-- `packages/bijux-proteomics-lab`: assay batching and review queue planning
+The platform drifts when package ownership blurs. [meta/NAMING.md](meta/NAMING.md) guards naming quality. [meta/SPINE.md](meta/SPINE.md) guards doc placement. Root tooling drift is also a risk. Evidence and assay work fail when treated as side notes. These cases are reduced by [packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py) and [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).
 
-## Platform Pillars
+## Extension Points
 
-- deterministic execution and provenance
-- protein program definitions instead of raw sequences alone
-- evidence coverage that explains why a candidate should advance
-- human review gates before expensive steps
-- experiment planning that makes lab work part of the architecture
+New work attaches to a durable package role. [architecture/execution_model.md](architecture/execution_model.md) records execution constraints. [research/system_schematic.md](research/system_schematic.md) records the broader system picture. Model registries can extend [packages/bijux-proteomics-core/src/bijux_proteomics/runner.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/runner.py). Assay orchestration can extend [packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py).
 
-## Next Expansion
+## Exit Criteria
 
-- evidence ingestion from literature and assay systems
-- richer run-to-program provenance back into `agentic-proteins`
-- notebook and service surfaces for the umbrella platform
-- future Rust core behind stable Python package boundaries
+This page succeeds when a contributor can explain the repository mission. [index.md](index.md) and [governance/positioning.md](governance/positioning.md) must stay aligned with it. The reader must also identify the right package for a change. The reader must also describe how execution, evidence, and experiment planning connect. The platform story has regressed if those answers move back into scattered root notes.
