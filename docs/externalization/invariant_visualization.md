@@ -12,7 +12,7 @@ Architecture context lives in [Conservation](../architecture/conservation.md).
 Metrics context lives in [Metrics](../architecture/metrics.md).  
 
 ## Contracts  
-Per-tick invariant snapshots are recorded by [PathwayExecutor](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/pathway.py).  
+Per-tick invariant snapshots are recorded by [PathwayExecutor](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/pathway.py).  
 Violations are captured in the invariant log.  
 Visualization uses [scripts/visualize_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/visualize_invariants.py).  
 

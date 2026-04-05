@@ -185,7 +185,7 @@ config/         # Lint/type/security configs
 docs/           # MkDocs site
 makefiles/      # Task modules (docs, test, lint, etc.)
 scripts/        # Helper scripts
-src/agentic_proteins/  # Runtime + CLI implementation
+packages/agentic-proteins/src/agentic_proteins/  # Runtime + CLI implementation
 tests/          # unit / integration / e2e
 ```
 

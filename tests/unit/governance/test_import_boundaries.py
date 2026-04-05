@@ -44,7 +44,13 @@ def _module_layer(path: Path) -> int | None:
 
 
 def test_import_boundaries() -> None:
-    root = Path(__file__).resolve().parents[2] / "src" / "agentic_proteins"
+    root = (
+        Path(__file__).resolve().parents[2]
+        / "packages"
+        / "agentic-proteins"
+        / "src"
+        / "agentic_proteins"
+    )
     for path in root.rglob("*.py"):
         layer = _module_layer(path)
         if layer is None:
@@ -71,7 +77,13 @@ def test_import_boundaries() -> None:
 
 
 def test_root_modules_removed() -> None:
-    root = Path(__file__).resolve().parents[2] / "src" / "agentic_proteins"
+    root = (
+        Path(__file__).resolve().parents[2]
+        / "packages"
+        / "agentic-proteins"
+        / "src"
+        / "agentic_proteins"
+    )
     assert not (root / "planning.py").exists()
     assert not (root / "providers.py").exists()
 

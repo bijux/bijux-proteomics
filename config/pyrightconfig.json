@@ -1,9 +1,9 @@
 {
   "include": [
-    "../src/agentic_proteins"
+    "../packages/agentic-proteins/src/agentic_proteins"
   ],
   "extraPaths": [
-    "../src",
+    "../packages/agentic-proteins/src",
     ".."
   ],
   "exclude": [
@@ -50,7 +50,7 @@
     {
       "root": ".",
       "extraPaths": [
-        "src"
+        "packages/agentic-proteins/src"
       ]
     }
   ]

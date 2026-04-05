@@ -1,7 +1,7 @@
 target-version = "py311"
 line-length = 88
 respect-gitignore = true
-src = ["src", "tests"]
+src = ["packages/agentic-proteins/src", "tests"]
 
 exclude = [
   ".git", ".hg", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".tox", ".venv",

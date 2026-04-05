@@ -37,4 +37,4 @@ This doc becomes obsolete when authority is generated.
 The replacement is [Architecture](architecture.md).  
 Obsolete docs are removed.  
 
-Code refs: [src/agentic_proteins/biology/regulator.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/regulator.py).  
+Code refs: [packages/agentic-proteins/src/agentic_proteins/biology/regulator.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/regulator.py).  

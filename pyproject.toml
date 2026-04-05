@@ -10,7 +10,7 @@ build-backend = "hatchling.build"
 name = "agentic-proteins"
 dynamic = ["version"]
 description = "Deterministic, artifact-first protein design runtime and CLI"
-readme = { file = "README.md", content-type = "text/markdown" }
+readme = { file = "packages/agentic-proteins/README.md", content-type = "text/markdown" }
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
 authors = [{ name = "Bijan Mousavi", email = "mousavi.bijan@gmail.com" }]
@@ -123,18 +123,19 @@ dev = [
 [tool.hatch.build]
 include = [
   "README.md",
+  "packages/agentic-proteins/README.md",
   "CHANGELOG.md",
   "LICENSE",
   "REUSE.toml",
   "CITATION.cff",
-  "src/agentic_proteins/py.typed",
+  "packages/agentic-proteins/src/agentic_proteins/py.typed",
 ]
 
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agentic_proteins"]
+packages = ["packages/agentic-proteins/src/agentic_proteins"]
 zip-safe = false
 
 [tool.hatch.build.targets.wheel.package-data]

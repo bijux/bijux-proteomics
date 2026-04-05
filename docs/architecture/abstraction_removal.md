@@ -36,4 +36,4 @@ This doc becomes obsolete when removals are generated.
 The replacement is [Core](../governance/core.md).  
 Obsolete docs are removed.  
 
-Code refs: [src/agentic_proteins/registry/agents.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/registry/agents.py).  
+Code refs: [packages/agentic-proteins/src/agentic_proteins/registry/agents.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/registry/agents.py).  

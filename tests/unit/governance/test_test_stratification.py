@@ -48,7 +48,12 @@ def test_e2e_tests_use_local_executor_only() -> None:
 
 def test_no_markdown_in_src_tree() -> None:
     root = Path(__file__).resolve().parents[2]
-    src_dir = root / "src"
-    md_files = list(src_dir.rglob("*.md"))
+    src_dirs = [
+        root / "packages" / "agentic-proteins" / "src",
+        root / "packages" / "bijux-proteomics-core" / "src",
+        root / "packages" / "bijux-proteomics-lab" / "src",
+        root / "packages" / "bijux-proteomics-knowledge" / "src",
+    ]
+    md_files = [path for src_dir in src_dirs if src_dir.exists() for path in src_dir.rglob("*.md")]
     if md_files:
         raise AssertionError(f"Markdown files must live in docs/: {md_files[:3]}")

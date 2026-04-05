@@ -12,9 +12,9 @@ Anti-patterns align with [Core](core.md).
 Architecture context lives in [Architecture](../architecture/architecture.md).  
 
 ## Contracts  
-Direct state mutation bypasses [src/agentic_proteins/biology/protein_agent.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/protein_agent.py).  
+Direct state mutation bypasses [packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py).  
 Hidden stochastic paths violate [Invariants](../architecture/invariants.md).  
-Undeclared transitions violate [src/agentic_proteins/biology/validation.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/validation.py).  
+Undeclared transitions violate [packages/agentic-proteins/src/agentic_proteins/biology/validation.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/validation.py).  
 
 ## Invariants  
 Agent behavior stays within [Core Concepts](../concepts/core_concepts.md).  
@@ -36,4 +36,4 @@ This doc is obsolete when anti-patterns are encoded.
 The replacement is [Invariants](../architecture/invariants.md).  
 Obsolete docs are removed.  
 
-Code refs: [src/agentic_proteins/biology/protein_agent.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/protein_agent.py).  
+Code refs: [packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py).  

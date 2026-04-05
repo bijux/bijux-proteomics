@@ -12,7 +12,7 @@ MPI context lives in [Mpi](mpi.md).
 Architecture context lives in [Invariants](../architecture/invariants.md).  
 
 ## Contracts  
-Public entry points are capped by [src/agentic_proteins/core/surface_area.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/core/surface_area.py).  
+Public entry points are capped by [packages/agentic-proteins/src/agentic_proteins/core/surface_area.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/core/surface_area.py).  
 Extension points are capped by the same budget.  
 Configuration knobs are capped by the same budget.  
 
@@ -36,4 +36,4 @@ This doc is obsolete when budgets are generated.
 The replacement is [Mpi](mpi.md).  
 Obsolete docs are removed.  
 
-Code refs: [src/agentic_proteins/core/surface_area.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/core/surface_area.py).  
+Code refs: [packages/agentic-proteins/src/agentic_proteins/core/surface_area.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/core/surface_area.py).  

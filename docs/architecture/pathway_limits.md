@@ -36,4 +36,4 @@ This doc becomes obsolete when limits are generated.
 The replacement is [Architecture](architecture.md).  
 Obsolete docs are removed.  
 
-Code refs: [src/agentic_proteins/biology/pathway.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/pathway.py).  
+Code refs: [packages/agentic-proteins/src/agentic_proteins/biology/pathway.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/pathway.py).  

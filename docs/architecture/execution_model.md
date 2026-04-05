@@ -13,7 +13,7 @@ Read [Core Concepts](../concepts/core_concepts.md) for vocabulary.
 
 ## Contracts  
 Deterministic behavior covers state transitions and artifact hashing.  
-The execution contract is recorded in [src/agentic_proteins/core/contracts.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/core/contracts.py).  
+The execution contract is recorded in [packages/agentic-proteins/src/agentic_proteins/core/contracts.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/core/contracts.py).  
 Agentic behavior is limited to provider outputs and selection.  
 
 ## Invariants  

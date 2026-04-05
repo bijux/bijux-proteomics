@@ -125,7 +125,9 @@ def test_decision_requires_tool_invocation_specs() -> None:
 
 def test_agents_do_not_import_tools_package() -> None:
     root = Path(__file__).resolve().parents[2]
-    agents_dir = root / "src" / "agentic_proteins" / "agents"
+    agents_dir = (
+        root / "packages" / "agentic-proteins" / "src" / "agentic_proteins" / "agents"
+    )
     for path in agents_dir.glob("*.py"):
         if path.name in {"__init__.py", "base.py"}:
             continue

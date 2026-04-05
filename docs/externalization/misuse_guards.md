@@ -12,9 +12,9 @@ MPI context lives in [Mpi](mpi.md).
 Architecture context lives in [Invariants](../architecture/invariants.md).  
 
 ## Contracts  
-Direct state mutation is rejected by [ProteinAgent](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/protein_agent.py).  
-Invariant checks run per tick in [PathwayExecutor](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/pathway.py).  
-Unauthorized LLM actions raise in [LLMRegulator](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/regulator.py).  
+Direct state mutation is rejected by [ProteinAgent](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py).  
+Invariant checks run per tick in [PathwayExecutor](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/pathway.py).  
+Unauthorized LLM actions raise in [LLMRegulator](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/regulator.py).  
 
 ## Invariants  
 Guards align with [Core](../governance/core.md).  
@@ -36,4 +36,4 @@ This doc is obsolete when guards are generated.
 The replacement is [Invariants](../architecture/invariants.md).  
 Obsolete docs are removed.  
 
-Code refs: [src/agentic_proteins/biology/protein_agent.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/biology/protein_agent.py).  
+Code refs: [packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py).  

@@ -12,10 +12,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_DIR = ROOT / "docs"
-SRC_DIR = ROOT / "src" / "agentic_proteins"
+SRC_DIR = ROOT / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
 
 MODULE_RE = re.compile(r"agentic_proteins\.[A-Za-z0-9_\.]+")
-SRC_PATH_RE = re.compile(r"(src/agentic_proteins|tests)/[A-Za-z0-9_\-/\.]+")
+SRC_PATH_RE = re.compile(
+    r"(packages/agentic-proteins/src/agentic_proteins|tests)/[A-Za-z0-9_\-/\.]+"
+)
 MKDOCS_RE = re.compile(r"([A-Za-z0-9_./-]+\.md)")
 FUTURE_WORDS = re.compile(
     r"\b(will|planned|future|soon|upcoming|later|tbd|eventually)\b", re.IGNORECASE
@@ -37,7 +39,7 @@ ALLOWED_SECTION_ORDER = [
 ]
 ALLOWED_SECTIONS = set(ALLOWED_SECTION_ORDER)
 CODE_REF_RE = re.compile(
-    r"((src/agentic_proteins|tests|scripts)/[A-Za-z0-9_./-]+\.py|api/[A-Za-z0-9_./-]+\.yaml)"
+    r"((packages/agentic-proteins/src/agentic_proteins|tests|scripts)/[A-Za-z0-9_./-]+\.py|api/[A-Za-z0-9_./-]+\.yaml)"
 )
 SECURITY_WORDS = re.compile(r"\b(security|sandbox|isolation|trust)\b", re.IGNORECASE)
 DOC_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
@@ -276,10 +278,14 @@ def main() -> int:
         text = doc.read_text()
         for match in CODE_REF_RE.finditer(text):
             ref = match.group(1)
-            if ref.startswith("src/agentic_proteins"):
+            if ref.startswith("packages/agentic-proteins/src/agentic_proteins"):
                 module_path = Path(ref)
                 module_name = "agentic_proteins." + ".".join(
-                    module_path.relative_to("src/agentic_proteins").with_suffix("").parts
+                    module_path.relative_to(
+                        "packages/agentic-proteins/src/agentic_proteins"
+                    )
+                    .with_suffix("")
+                    .parts
                 )
                 if module_name not in test_text:
                     failures.append(f"doc_without_tests: {doc.relative_to(ROOT)}")

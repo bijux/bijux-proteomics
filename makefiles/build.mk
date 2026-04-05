@@ -60,7 +60,7 @@ release-dry: build
 # Renamed to be more specific and corrected
 clean-temp-build-files:
 	@echo "→ Cleaning temporary build files from root directory..."
-	@rm -rf build dist src/*.egg-info || true
+	@rm -rf build dist packages/agentic-proteins/src/*.egg-info || true
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@echo "✔ Temporary files cleaned."
 

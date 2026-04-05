@@ -54,7 +54,7 @@ AGENT_CLASSES = [
 
 def _repo_files(root: Path) -> set[Path]:
     scan_roots = [
-        root / "src",
+        root / "packages" / "agentic-proteins" / "src",
         root / "tests",
         root / "docs",
         root / "scripts",
@@ -166,7 +166,9 @@ def test_decision_only_outputs_signature() -> None:
 
 def test_no_cross_agent_imports() -> None:
     root = Path(__file__).resolve().parents[2]
-    agents_dir = root / "src" / "agentic_proteins" / "agents"
+    agents_dir = (
+        root / "packages" / "agentic-proteins" / "src" / "agentic_proteins" / "agents"
+    )
     forbidden = {
         "planner",
         "sequence_analysis",
@@ -189,7 +191,9 @@ def test_no_cross_agent_imports() -> None:
 
 def test_agents_import_only_allowed_domains() -> None:
     root = Path(__file__).resolve().parents[2]
-    agents_dir = root / "src" / "agentic_proteins" / "agents"
+    agents_dir = (
+        root / "packages" / "agentic-proteins" / "src" / "agentic_proteins" / "agents"
+    )
     allowed_prefixes = (
         "from agentic_proteins.agents.schemas",
         "from agentic_proteins.core.decisions",

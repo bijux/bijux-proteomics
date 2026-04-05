@@ -2,7 +2,7 @@
 
 # ── Server / app
 SHELL                 := /bin/bash
-APP_DIR               ?= src
+APP_DIR               ?= packages/agentic-proteins/src
 API_HOST              ?= 127.0.0.1
 API_PORT              ?= 8000
 API_BASE_PATH         ?= /api/v1
@@ -58,7 +58,7 @@ HYPOTHESIS_DB_API_ABS   := $(abspath $(HYPOTHESIS_DB_API))
 REDOCLY_ABS             := $(API_NODE_DIR_ABS)/node_modules/.bin/redocly
 OPENAPI_GENERATOR_ABS   := $(API_NODE_DIR_ABS)/node_modules/.bin/openapi-generator-cli
 
-# ── Uvicorn runner (force import from src/; tolerate unset PYTHONPATH)
+# ── Uvicorn runner (force import from package src/; tolerate unset PYTHONPATH)
 ifneq ($(strip $(API_FACTORY)),)
 API_CMD ?= PYTHONPATH="$(APP_DIR)$${PYTHONPATH:+:$$PYTHONPATH}" \
   $(VENV_PYTHON) -c 'import sys, importlib, uvicorn; \

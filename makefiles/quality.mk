@@ -1,7 +1,7 @@
 # Quality Configuration (evidence → artifacts_pages/quality)
 
-INTERROGATE_PATHS ?= src/agentic_proteins
-QUALITY_PATHS     ?= src/agentic_proteins
+INTERROGATE_PATHS ?= packages/agentic-proteins/src/agentic_proteins
+QUALITY_PATHS     ?= packages/agentic-proteins/src/agentic_proteins
 
 VULTURE     := $(if $(ACT),$(ACT)/vulture,vulture)
 DEPTRY      := $(if $(ACT),$(ACT)/deptry,deptry)

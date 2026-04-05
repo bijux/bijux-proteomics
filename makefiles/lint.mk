@@ -7,7 +7,7 @@ PYDOCSTYLE  := $(if $(ACT),$(ACT)/pydocstyle,pydocstyle)
 RADON       := $(if $(ACT),$(ACT)/radon,radon)
 
 # Targets & dirs
-LINT_DIRS           ?= src/agentic_proteins
+LINT_DIRS           ?= packages/agentic-proteins/src/agentic_proteins
 LINT_ARTIFACTS_DIR  ?= artifacts/lint
 FMT_LOG             ?= $(LINT_ARTIFACTS_DIR)/fmt.log
 

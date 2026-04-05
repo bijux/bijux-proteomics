@@ -18,7 +18,7 @@ PATCH means bug fix only.
 
 ## Invariants  
 Version changes align with [Invariants](../architecture/invariants.md).  
-Contract locks align with [src/agentic_proteins/core/api_lock.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/core/api_lock.py).  
+Contract locks align with [packages/agentic-proteins/src/agentic_proteins/core/api_lock.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/core/api_lock.py).  
 Checks align with [tests/unit/test_core_api_lock.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_core_api_lock.py).  
 
 ## Failure Modes  
@@ -36,4 +36,4 @@ This doc is obsolete when versioning is generated.
 The replacement is [Docs Style](../meta/DOCS_STYLE.md).  
 Obsolete docs are removed.  
 
-Code refs: [src/agentic_proteins/core/api_lock.py](https://github.com/bijux/agentic-proteins/blob/main/src/agentic_proteins/core/api_lock.py).  
+Code refs: [packages/agentic-proteins/src/agentic_proteins/core/api_lock.py](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/core/api_lock.py).  
