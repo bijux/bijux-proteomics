@@ -14,27 +14,27 @@ Read [Triage](../meta/TRIAGE.md) for context.
 
 ## Contracts  
 Each statement is a contract.  
-Contracts align with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Contracts align with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 Contracts link to [Docs Style](../meta/DOCS_STYLE.md) and [Triage](../meta/TRIAGE.md).  
 
 ## Invariants  
 Invariants describe stable behavior.  
-Checks align with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Checks align with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 Invariants align with [Docs Style](../meta/DOCS_STYLE.md).  
 
 ## Failure Modes  
 Failures are explicit and tested.  
-Failure coverage aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Failure coverage aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 Failures align with [Triage](../meta/TRIAGE.md).  
 
 ## Extension Points  
 Extensions require tests and docs.  
 Extensions are tracked in [Docs Style](../meta/DOCS_STYLE.md).  
-Extensions align with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Extensions align with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 
 ## Exit Criteria  
 This doc becomes obsolete when the surface ends.  
 The replacement is linked in [Triage](../meta/TRIAGE.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  

@@ -15,12 +15,12 @@ Vocabulary aligns with [Core Concepts](../concepts/core_concepts.md).
 Positioning is agent systems research.  
 Computational biology context is modeled, not claimed as primary.  
 Hybrid simulation framing is limited to pathway execution.  
-Evidence uses [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Evidence uses [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 
 ## Invariants  
 Positioning stays fixed across releases.  
 Positioning aligns with [Core](core.md).  
-Evidence aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Evidence aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 
 ## Failure Modes  
 Ambiguous positioning weakens reviewability.  
@@ -30,11 +30,11 @@ Missing evidence breaks [Docs Style](../meta/DOCS_STYLE.md).
 ## Extension Points  
 Position updates follow [Docs Style](../meta/DOCS_STYLE.md).  
 Extensions align with [Experimental](../architecture/experimental.md).  
-Evidence updates align with [tests/unit/test_docs_contract.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_docs_contract.py).  
+Evidence updates align with [tests/unit/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_docs_contract.py).  
 
 ## Exit Criteria  
 This doc is obsolete when positioning is encoded.  
 The replacement is [Core](core.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  

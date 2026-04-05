@@ -14,7 +14,7 @@ Read [Docs Style](../meta/DOCS_STYLE.md) for context.
 
 ## Contracts  
 Each statement is a contract.  
-Contracts align with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_cli_surface_documentation.py).  
+Contracts align with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_cli_surface_documentation.py).  
 Contracts link to [Cli](../cli/cli.md) and [Docs Style](../meta/DOCS_STYLE.md).  
 - api  
 - api serve  
@@ -42,22 +42,22 @@ Contracts link to [Cli](../cli/cli.md) and [Docs Style](../meta/DOCS_STYLE.md).
 
 ## Invariants  
 Invariants describe stable behavior.  
-Checks align with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_cli_surface_documentation.py).  
+Checks align with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_cli_surface_documentation.py).  
 Invariants align with [Cli](../cli/cli.md).  
 
 ## Failure Modes  
 Failures are explicit and tested.  
-Failure coverage aligns with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_cli_surface_documentation.py).  
+Failure coverage aligns with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_cli_surface_documentation.py).  
 Failures align with [Docs Style](../meta/DOCS_STYLE.md).  
 
 ## Extension Points  
 Extensions require tests and docs.  
 Extensions are tracked in [Cli](../cli/cli.md).  
-Extensions align with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_cli_surface_documentation.py).  
+Extensions align with [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_cli_surface_documentation.py).  
 
 ## Exit Criteria  
 This doc becomes obsolete when the surface ends.  
 The replacement is linked in [Docs Style](../meta/DOCS_STYLE.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_cli_surface_documentation.py).  
+Code refs: [tests/unit/test_cli_surface_documentation.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_cli_surface_documentation.py).  

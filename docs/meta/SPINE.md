@@ -14,30 +14,30 @@ Read [Docs Style](DOCS_STYLE.md) for context.
 
 ## Contracts  
 Each statement is a contract.  
-Contracts align with [mkdocs.yml](https://github.com/bijux/agentic-proteins/blob/main/mkdocs.yml).  
+Contracts align with [mkdocs.yml](https://github.com/bijux/bijux-proteomics/blob/main/mkdocs.yml).  
 Contracts link to [Index](../index.md) and [Docs Style](DOCS_STYLE.md).  
 
 ## Invariants  
 Invariants describe stable behavior.  
-Checks align with [mkdocs.yml](https://github.com/bijux/agentic-proteins/blob/main/mkdocs.yml).  
+Checks align with [mkdocs.yml](https://github.com/bijux/bijux-proteomics/blob/main/mkdocs.yml).  
 Invariants align with [Index](../index.md).  
 
 ## Failure Modes  
 Failures are explicit and tested.  
-Failure coverage aligns with [mkdocs.yml](https://github.com/bijux/agentic-proteins/blob/main/mkdocs.yml).  
+Failure coverage aligns with [mkdocs.yml](https://github.com/bijux/bijux-proteomics/blob/main/mkdocs.yml).  
 Failures align with [Docs Style](DOCS_STYLE.md).  
 
 ## Extension Points  
 Extensions require tests and docs.  
 Extensions are tracked in [Index](../index.md).  
-Extensions align with [mkdocs.yml](https://github.com/bijux/agentic-proteins/blob/main/mkdocs.yml).  
+Extensions align with [mkdocs.yml](https://github.com/bijux/bijux-proteomics/blob/main/mkdocs.yml).  
 
 ## Exit Criteria  
 This doc becomes obsolete when the surface ends.  
 The replacement is linked in [Docs Style](DOCS_STYLE.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/unit/test_docs_contract.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_docs_contract.py).  
+Code refs: [tests/unit/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_docs_contract.py).  
 Docs list:  
 - [Docs Style](DOCS_STYLE.md)  
 - [Docs Voice](DOCS_VOICE.md)  

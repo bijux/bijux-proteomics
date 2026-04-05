@@ -37,7 +37,8 @@ def test_docs_contract() -> None:
         lines = text.splitlines()
         assert lines and lines[0].startswith("# ")
         title = lines[0][2:].strip()
-        assert title == doc.stem
+        expected_title = "Bijux Proteomics" if doc.stem == "index" else doc.stem
+        assert title == expected_title
         for idx, field in enumerate(FRONT_MATTER_FIELDS, start=2):
             assert len(lines) > idx
             assert lines[idx].strip().startswith(field)

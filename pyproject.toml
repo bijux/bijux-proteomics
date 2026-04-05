@@ -50,10 +50,10 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://bijux.github.io/agentic-proteins/"
-Repository = "https://github.com/bijux/agentic-proteins"
-Issues = "https://github.com/bijux/agentic-proteins/issues"
-Changelog = "https://github.com/bijux/agentic-proteins/blob/main/CHANGELOG.md"
+Documentation = "https://bijux.github.io/bijux-proteomics/"
+Repository = "https://github.com/bijux/bijux-proteomics"
+Issues = "https://github.com/bijux/bijux-proteomics/issues"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 local-esmfold = [

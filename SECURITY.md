@@ -47,9 +47,9 @@ When `0.2.0` is released, support for `0.1.x` ends. We do **not** backport beyon
 Please report privately via one of the following channels:  
 
 - **Preferred:** GitHub **Private Vulnerability Report**  
-  https://github.com/bijux/agentic-proteins/security/advisories/new  
+  https://github.com/bijux/bijux-proteomics/security/advisories/new  
 - **Fallback:** Email **[mousavi.bijan@gmail.com](mailto:mousavi.bijan@gmail.com)** with subject  
-  **`[SECURITY] Vulnerability report: agentic-proteins`**  
+  **`[SECURITY] Vulnerability report: bijux-proteomics`**  
 
 ### What to include (to speed up triage)  
 
@@ -146,8 +146,8 @@ If you’re unsure whether an activity is in scope, **ask first** via the channe
 
 ## Contact  
 
-- **Private report:** https://github.com/bijux/agentic-proteins/security/advisories/new  
+- **Private report:** https://github.com/bijux/bijux-proteomics/security/advisories/new  
 - **Email:** **[mousavi.bijan@gmail.com](mailto:mousavi.bijan@gmail.com)**  
 - **Non-security questions:** open a normal GitHub issue  
 
-Thank you for helping keep Agentic Proteins users safe.  
+Thank you for helping keep Bijux Proteomics users safe.  

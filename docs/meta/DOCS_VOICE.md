@@ -29,12 +29,12 @@ Voice violations require a rewrite.
 
 ## Extension Points  
 Voice rules change only in this file.  
-Voice changes update [scripts/check_docs_consistency.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/check_docs_consistency.py).  
+Voice changes update [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).  
 Voice changes update [Docs Style](DOCS_STYLE.md).  
 
 ## Exit Criteria  
 This doc becomes obsolete when docs are generated.  
-The replacement is [scripts/check_docs_consistency.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/check_docs_consistency.py).  
+The replacement is [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).  
 Obsolete docs are removed.  
 
-Code refs: [scripts/check_docs_consistency.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/check_docs_consistency.py).  
+Code refs: [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).  

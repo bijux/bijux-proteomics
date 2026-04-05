@@ -15,27 +15,27 @@ Read [Cli Surface](../interface/cli_surface.md) for context.
 
 ## Contracts  
 Each statement is a contract.  
-Contracts align with [tests/integration/test_cli.py](https://github.com/bijux/agentic-proteins/blob/main/tests/integration/test_cli.py).  
+Contracts align with [tests/integration/test_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_cli.py).  
 Contracts link to [Docs Style](../meta/DOCS_STYLE.md) and [Cli Surface](../interface/cli_surface.md).  
 
 ## Invariants  
 Invariants describe stable behavior.  
-Checks align with [tests/integration/test_cli.py](https://github.com/bijux/agentic-proteins/blob/main/tests/integration/test_cli.py).  
+Checks align with [tests/integration/test_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_cli.py).  
 Invariants align with [Docs Style](../meta/DOCS_STYLE.md).  
 
 ## Failure Modes  
 Failures are explicit and tested.  
-Failure coverage aligns with [tests/integration/test_cli.py](https://github.com/bijux/agentic-proteins/blob/main/tests/integration/test_cli.py).  
+Failure coverage aligns with [tests/integration/test_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_cli.py).  
 Failures align with [Cli Surface](../interface/cli_surface.md).  
 
 ## Extension Points  
 Extensions require tests and docs.  
 Extensions are tracked in [Docs Style](../meta/DOCS_STYLE.md).  
-Extensions align with [tests/integration/test_cli.py](https://github.com/bijux/agentic-proteins/blob/main/tests/integration/test_cli.py).  
+Extensions align with [tests/integration/test_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_cli.py).  
 
 ## Exit Criteria  
 This doc becomes obsolete when the surface ends.  
 The replacement is linked in [Cli Surface](../interface/cli_surface.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/integration/test_cli.py](https://github.com/bijux/agentic-proteins/blob/main/tests/integration/test_cli.py).  
+Code refs: [tests/integration/test_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_cli.py).  

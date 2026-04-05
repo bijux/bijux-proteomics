@@ -14,7 +14,7 @@ Version context lives in [Semver](semver.md).
 ## Contracts  
 Release identity is research prototype.  
 Identity aligns with [Core](core.md).  
-Evidence aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Evidence aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 
 ## Invariants  
 Identity stays fixed across releases.  
@@ -36,4 +36,4 @@ This doc is obsolete when identity is encoded.
 The replacement is [Core](core.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  

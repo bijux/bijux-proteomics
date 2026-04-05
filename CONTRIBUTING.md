@@ -1,4 +1,4 @@
-# Contributing to Agentic Proteins
+# Contributing to Bijux Proteomics
 <a id="top"></a>
 
 This guide is the single source of truth for local setup, workflows, API validation, and PR rules. Follow it to ensure your changes pass CI seamlessly.
@@ -38,8 +38,8 @@ This guide is the single source of truth for local setup, workflows, API validat
 **Setup**
 
 ```bash
-git clone https://github.com/bijux/agentic-proteins.git
-cd agentic-proteins
+git clone https://github.com/bijux/bijux-proteomics.git
+cd bijux-proteomics
 make PYTHON=python3.11 install
 source .venv/bin/activate
 # optional but recommended

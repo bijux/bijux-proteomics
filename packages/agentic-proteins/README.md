@@ -6,9 +6,9 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/agentic-proteins.svg)](https://pypi.org/project/agentic-proteins/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://pypi.org/project/agentic-proteins/)
 [![Typing: typed (PEP 561)](https://img.shields.io/badge/typing-typed-4F8CC9.svg)](https://peps.python.org/pep-0561/)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/bijux/agentic-proteins/blob/main/LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen)](https://bijux.github.io/agentic-proteins/)
-[![CI Status](https://github.com/bijux/agentic-proteins/actions/workflows/ci.yml/badge.svg)](https://github.com/bijux/agentic-proteins/actions)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen)](https://bijux.github.io/bijux-proteomics/)
+[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/ci.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions)
 
 > **At a glance:** deterministic execution • artifact immutability • invariant enforcement • reproducible runs • API + CLI surfaces • structured telemetry  
 > **Quality:** coverage floors enforced per module, benchmark regression gate active, docs linted and built in CI, no telemetry.
@@ -122,7 +122,7 @@ Artifacts are immutable and hash-addressed. Reproducing a run verifies hashes be
 agentic-proteins reproduce <run_id>
 ```
 
-Docs: [Execution Lifecycle](https://bijux.github.io/agentic-proteins/architecture/execution_lifecycle/) · [Invariants](https://bijux.github.io/agentic-proteins/architecture/invariants/)
+Docs: [Execution Lifecycle](https://bijux.github.io/bijux-proteomics/architecture/execution_lifecycle/) · [Invariants](https://bijux.github.io/bijux-proteomics/architecture/invariants/)
 
 
 
@@ -133,7 +133,7 @@ Docs: [Execution Lifecycle](https://bijux.github.io/agentic-proteins/architectur
 
 The HTTP API exposes the same contracts as the CLI.
 
-Docs: [API Overview](https://bijux.github.io/agentic-proteins/api/overview/) · [Schema](https://bijux.github.io/agentic-proteins/api/schema/)
+Docs: [API Overview](https://bijux.github.io/bijux-proteomics/api/overview/) · [Schema](https://bijux.github.io/bijux-proteomics/api/schema/)
 
 
 
@@ -149,7 +149,7 @@ Docs: [API Overview](https://bijux.github.io/agentic-proteins/api/overview/) · 
 | `reproduce` | Replay a run with hash checks | `agentic-proteins reproduce <run_id>` |
 | `api` | Start the API server | `agentic-proteins api --host 0.0.0.0` |
 
-Full surface: [CLI Surface](https://bijux.github.io/agentic-proteins/interface/cli_surface/)
+Full surface: [CLI Surface](https://bijux.github.io/bijux-proteomics/interface/cli_surface/)
 
 
 
@@ -196,12 +196,12 @@ tests/          # unit / integration / e2e
 <a id="docs--resources"></a>
 ## Docs & Resources
 
-* **Site**: https://bijux.github.io/agentic-proteins/
-* **Changelog**: https://github.com/bijux/agentic-proteins/blob/main/CHANGELOG.md
-* **Repository**: https://github.com/bijux/agentic-proteins
-* **Issues**: https://github.com/bijux/agentic-proteins/issues
-* **Security** (private reports): https://github.com/bijux/agentic-proteins/security/advisories/new
-* **Artifacts**: https://bijux.github.io/agentic-proteins/artifacts/
+* **Site**: https://bijux.github.io/bijux-proteomics/
+* **Changelog**: https://github.com/bijux/bijux-proteomics/blob/main/CHANGELOG.md
+* **Repository**: https://github.com/bijux/bijux-proteomics
+* **Issues**: https://github.com/bijux/bijux-proteomics/issues
+* **Security** (private reports): https://github.com/bijux/bijux-proteomics/security/advisories/new
+* **Artifacts**: https://bijux.github.io/bijux-proteomics/artifacts/
 
 
 
@@ -210,7 +210,7 @@ tests/          # unit / integration / e2e
 <a id="contributing"></a>
 ## Contributing
 
-Welcome. See **[CONTRIBUTING.md](https://github.com/bijux/agentic-proteins/blob/main/CONTRIBUTING.md)** for setup and test guidance.
+Welcome. See **[CONTRIBUTING.md](https://github.com/bijux/bijux-proteomics/blob/main/CONTRIBUTING.md)** for setup and test guidance.
 
 
 
@@ -219,6 +219,6 @@ Welcome. See **[CONTRIBUTING.md](https://github.com/bijux/agentic-proteins/blob/
 <a id="license"></a>
 ## License
 
-Apache-2.0 — see **[LICENSE](https://github.com/bijux/agentic-proteins/blob/main/LICENSE)**.
+Apache-2.0 — see **[LICENSE](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)**.
 © 2025 Bijan Mousavi.
 

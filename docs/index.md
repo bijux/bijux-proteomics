@@ -1,224 +1,32 @@
-# Agentic Proteins
-<a id="top"></a>
+# Bijux Proteomics
 
-**A deterministic, artifact-first protein design runtime and CLI** — strict invariants, reproducible runs, and traceable outputs. Build reliable design workflows that are audit-ready and repeatable.
+**Scope:** Repository-level platform map for the Bijux Proteomics umbrella.
+**Audience:** Contributors and reviewers who need the package map before changing code.
+**Guarantees:** Names the platform pillars, package boundaries, and current execution surfaces.
+**Non-Goals:** This page does not replace package-specific API or CLI documentation.
 
-[![PyPI - Version](https://img.shields.io/pypi/v/agentic-proteins.svg)](https://pypi.org/project/agentic-proteins/)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://pypi.org/project/agentic-proteins/)
-[![Typing: typed (PEP 561)](https://img.shields.io/badge/typing-typed-4F8CC9.svg)](https://peps.python.org/pep-0561/)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://github.com/bijux/agentic-proteins/blob/main/LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen)](https://bijux.github.io/agentic-proteins/)
-[![CI Status](https://github.com/bijux/agentic-proteins/actions/workflows/ci.yml/badge.svg)](https://github.com/bijux/agentic-proteins/actions)
+Why: the repository now contains multiple packages, so the home page needs to explain how deterministic execution, evidence, and lab planning fit together in one platform.
 
-> **At a glance:** deterministic execution • artifact immutability • invariant enforcement • reproducible runs • API + CLI surfaces • structured telemetry  
-> **Quality:** coverage floors enforced per module, benchmark regression gate active, docs linted and built in CI, no telemetry.
+## Overview
 
----
+Bijux Proteomics is the umbrella repository for protein R&D work. The deterministic runtime still lives in `agentic-proteins`, but the repository now also carries dedicated packages for program definitions, evidence bundles, and experiment planning. The runtime is implemented in [packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py), and repository consistency checks are enforced by [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).
 
-## Table of Contents
+## Contracts
 
-* [Why Agentic Proteins?](#why-agentic-proteins)
-* [Try It in 20 Seconds](#try-it-in-20-seconds)
-* [Key Features](#key-features)
-* [Installation](#installation)
-* [Quick Start](#quick-start)
-* [Artifacts & Reproducibility](#artifacts--reproducibility)
-* [API Surface](#api-surface)
-* [Built-in Commands](#built-in-commands)
-* [Tests & Quality](#tests--quality)
-* [Project Tree](#project-tree)
-* [Docs & Resources](#docs--resources)
-* [Contributing](#contributing)
-* [License](#license)
+The umbrella contract is simple: `agentic-proteins` remains the execution product, `bijux-proteomics-core` defines stable program documents, `bijux-proteomics-knowledge` explains decisions with evidence, and `bijux-proteomics-lab` turns assay requirements into batches. Cross-package expectations are exercised in [tests/unit/platform/test_program_models.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/platform/test_program_models.py) and [tests/unit/platform/test_experiment_planner.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/platform/test_experiment_planner.py).
 
+## Invariants
 
+Deterministic execution still matters, but it is no longer the only story. Every serious program needs a target definition, explicit constraints, evidence coverage, and review gates before expensive work advances. The package move and path rules are checked by [tests/integration/test_agent_contracts.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/integration/test_agent_contracts.py), and the umbrella CLI template is covered by [tests/unit/platform/test_platform_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/platform/test_platform_cli.py).
 
----
+## Failure Modes
 
-<a id="why-agentic-proteins"></a>
-## Why Agentic Proteins?
+The repository becomes misleading when package boundaries blur, when a runtime change silently breaks platform packages, or when evidence and assay planning regress into ad hoc dictionaries. Those failures are reduced by keeping package code under `packages/`, validating documentation references with [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py), and exercising evidence coverage with [tests/unit/platform/test_evidence_bundle.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/platform/test_evidence_bundle.py).
 
-Most protein design tooling prioritizes iteration speed. Agentic Proteins prioritizes **repeatability, traceability, and audit-ready artifacts**:
+## Extension Points
 
-* **Determinism first** for reliable experiments and CI validation.
-* **Artifact immutability** with hash-checked outputs.
-* **Invariant enforcement** for predictable execution paths.
-* **Clear boundaries** between deterministic execution and stochastic components.
+The current Python-first shape leaves room for future model registries, assay ingestion adapters, notebook SDK surfaces, and eventually a Rust core without renaming the public concepts. New platform work should land in a package that matches its long-term role instead of being appended to the runtime by default. Package scaffolding lives under [packages/bijux-proteomics-core/pyproject.toml](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/pyproject.toml) and [packages/bijux-proteomics-lab/pyproject.toml](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/pyproject.toml).
 
+## Exit Criteria
 
-
----
-
-<a id="try-it-in-20-seconds"></a>
-## Try It in 20 Seconds
-
-```bash
-pipx install agentic-proteins  # Or: pip install agentic-proteins
-agentic-proteins --version
-agentic-proteins run --sequence "ACDEFGHIKLMNPQRSTVWY"
-agentic-proteins inspect-candidate <candidate_id>
-```
-
-
-
----
-
-<a id="key-features"></a>
-## Key Features
-
-* **Deterministic execution** — reproducible runs with seeded randomness.
-* **Artifact-first workflow** — immutable artifacts with stable hashes.
-* **Invariant enforcement** — fail-fast checks across runtime boundaries.
-* **Dual surface** — CLI and API share the same contracts.
-* **Structured telemetry** — correlation IDs and traceable logs.
-
-
-
----
-
-<a id="installation"></a>
-## Installation
-
-Requires **Python 3.11+**.
-
-```bash
-# Isolated install (recommended)
-pipx install agentic-proteins
-
-# Standard
-pip install agentic-proteins
-```
-
-Upgrade: `pipx upgrade agentic-proteins` or `pip install --upgrade agentic-proteins`.
-
-
-
----
-
-<a id="quick-start"></a>
-## Quick Start
-
-```bash
-# Discover commands/flags
-agentic-proteins --help
-
-# Run a deterministic design cycle
-agentic-proteins run --sequence "ACDEFGHIKLMNPQRSTVWY" --seed 7
-
-# Inspect artifacts
-agentic-proteins inspect-candidate <candidate_id>
-```
-
-
-
----
-
-<a id="artifacts--reproducibility"></a>
-## Artifacts & Reproducibility
-
-Artifacts are immutable and hash-addressed. Reproducing a run verifies hashes before returning outputs.
-
-```bash
-agentic-proteins reproduce <run_id>
-```
-
-Docs: [Execution Lifecycle](https://bijux.github.io/agentic-proteins/architecture/execution_lifecycle/) · [Invariants](https://bijux.github.io/agentic-proteins/architecture/invariants/)
-
-
-
----
-
-<a id="api-surface"></a>
-## API Surface
-
-The HTTP API exposes the same contracts as the CLI.
-
-Docs: [API Overview](https://bijux.github.io/agentic-proteins/api/overview/) · [Schema](https://bijux.github.io/agentic-proteins/api/schema/)
-
-
-
----
-
-<a id="built-in-commands"></a>
-## Built-in Commands
-
-| Command | Description | Example |
-| ------- | ----------- | ------- |
-| `run` | Execute a design run | `agentic-proteins run --sequence ...` |
-| `inspect-candidate` | Inspect a candidate artifact | `agentic-proteins inspect-candidate <id>` |
-| `reproduce` | Replay a run with hash checks | `agentic-proteins reproduce <run_id>` |
-| `api` | Start the API server | `agentic-proteins api --host 0.0.0.0` |
-
-Full surface: [CLI Surface](https://bijux.github.io/agentic-proteins/interface/cli_surface/)
-
-
-
----
-
-<a id="tests--quality"></a>
-## Tests & Quality
-
-* **Coverage floors:** enforced per module in CI.
-* **Benchmarks:** regression gate on critical path.
-* **Docs:** linted and built in CI.
-
-Quick commands:
-
-```bash
-make test
-make lint
-make quality
-```
-
-Artifacts: Generated in CI; see GitHub Actions for logs and reports.
-
-
-
----
-
-<a id="project-tree"></a>
-## Project Tree
-
-```
-api/            # OpenAPI schemas
-config/         # Lint/type/security configs
-docs/           # MkDocs site
-makefiles/      # Task modules (docs, test, lint, etc.)
-scripts/        # Helper scripts
-packages/agentic-proteins/src/agentic_proteins/  # Runtime + CLI implementation
-tests/          # unit / integration / e2e
-```
-
-
-
----
-
-<a id="docs--resources"></a>
-## Docs & Resources
-
-* **Site**: https://bijux.github.io/agentic-proteins/
-* **Changelog**: https://github.com/bijux/agentic-proteins/blob/main/CHANGELOG.md
-* **Repository**: https://github.com/bijux/agentic-proteins
-* **Issues**: https://github.com/bijux/agentic-proteins/issues
-* **Security** (private reports): https://github.com/bijux/agentic-proteins/security/advisories/new
-* **Artifacts**: https://bijux.github.io/agentic-proteins/artifacts/
-
-
-
----
-
-<a id="contributing"></a>
-## Contributing
-
-Welcome. See **[CONTRIBUTING.md](https://github.com/bijux/agentic-proteins/blob/main/CONTRIBUTING.md)** for setup and test guidance.
-
-
-
----
-
-<a id="license"></a>
-## License
-
-Apache-2.0 — see **[LICENSE](https://github.com/bijux/agentic-proteins/blob/main/LICENSE)**.
-© 2025 Bijan Mousavi.
-
+This page is accurate when a new contributor can answer three questions quickly: what the umbrella platform is, which package owns a change, and how program definitions now connect evidence, review, and execution. A change is incomplete if those answers disappear from the repo landing surfaces or if the package map no longer matches the code under `packages/`.

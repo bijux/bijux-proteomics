@@ -12,13 +12,13 @@ Architecture context lives in [Conservation](../architecture/conservation.md).
 Metrics context lives in [Metrics](../architecture/metrics.md).  
 
 ## Contracts  
-Per-tick invariant snapshots are recorded by [PathwayExecutor](https://github.com/bijux/agentic-proteins/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/pathway.py).  
+Per-tick invariant snapshots are recorded by [PathwayExecutor](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/src/agentic_proteins/biology/pathway.py).  
 Violations are captured in the invariant log.  
-Visualization uses [scripts/visualize_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/visualize_invariants.py).  
+Visualization uses [scripts/visualize_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/visualize_invariants.py).  
 
 ## Invariants  
 Invariant visibility aligns with [Invariants](../architecture/invariants.md).  
-Snapshot format aligns with [tests/unit/test_execution_cost.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_execution_cost.py).  
+Snapshot format aligns with [tests/unit/test_execution_cost.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_execution_cost.py).  
 MPI meaning aligns with [Mpi](mpi.md).  
 
 ## Failure Modes  
@@ -36,4 +36,4 @@ This doc is obsolete when visualization is generated.
 The replacement is [Metrics](../architecture/metrics.md).  
 Obsolete docs are removed.  
 
-Code refs: [scripts/visualize_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/visualize_invariants.py).  
+Code refs: [scripts/visualize_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/visualize_invariants.py).  

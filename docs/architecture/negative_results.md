@@ -36,4 +36,4 @@ This doc becomes obsolete when results are generated.
 The replacement is [Metrics](metrics.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/regression/test_negative_results.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_negative_results.py).  
+Code refs: [tests/regression/test_negative_results.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_negative_results.py).  

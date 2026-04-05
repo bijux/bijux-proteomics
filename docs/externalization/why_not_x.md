@@ -19,7 +19,7 @@ End-to-end LLM agents blur control, while this system enforces regulator boundar
 ## Invariants  
 Contrasts align with [Core](../governance/core.md).  
 Contrasts align with [Execution Model](../architecture/execution_model.md).  
-Evidence aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Evidence aligns with [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  
 
 ## Failure Modes  
 Missing contrasts weakens reviewability.  
@@ -36,4 +36,4 @@ This doc is obsolete when contrasts are encoded.
 The replacement is [Core](../governance/core.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_architecture_invariants.py).  
+Code refs: [tests/regression/test_architecture_invariants.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_architecture_invariants.py).  

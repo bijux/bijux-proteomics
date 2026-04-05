@@ -15,11 +15,11 @@ Architecture context lives in [Architecture](../architecture/architecture.md).
 The example uses only MPI entry points.  
 The example shows agenticity, failure, and recovery.  
 The example runtime stays under 60 seconds on default hardware.  
-Example code lives in [scripts/golden_path_example.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/golden_path_example.py).  
+Example code lives in [scripts/golden_path_example.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/golden_path_example.py).  
 
 ## Invariants  
 The golden path remains single and canonical.  
-Evidence aligns with [tests/regression/test_negative_results.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_negative_results.py).  
+Evidence aligns with [tests/regression/test_negative_results.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_negative_results.py).  
 MPI meaning aligns with [Core Concepts](../concepts/core_concepts.md).  
 
 ## Failure Modes  
@@ -37,4 +37,4 @@ This doc is obsolete when examples are generated.
 The replacement is [Mpi](mpi.md).  
 Obsolete docs are removed.  
 
-Code refs: [scripts/golden_path_example.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/golden_path_example.py).  
+Code refs: [scripts/golden_path_example.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/golden_path_example.py).  

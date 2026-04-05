@@ -15,7 +15,7 @@ Claim context lives in [Falsifiable Claim](falsifiable_claim.md).
 Each ablation removes one capability.  
 Ablations compare recovery and failure metrics.  
 Metrics follow [Metrics](../architecture/metrics.md).  
-Evidence uses [tests/regression/test_negative_results.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_negative_results.py).  
+Evidence uses [tests/regression/test_negative_results.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_negative_results.py).  
 | Ablation | Removed capability | Expected signal. |  
 | --- | --- | --- |  
 | No regulator | Proposal application | Recovery drop. |  
@@ -26,7 +26,7 @@ Evidence uses [tests/regression/test_negative_results.py](https://github.com/bij
 ## Invariants  
 Ablation list stays fixed.  
 List aligns with [Core](../governance/core.md).  
-Evidence aligns with [tests/regression/test_negative_results.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_negative_results.py).  
+Evidence aligns with [tests/regression/test_negative_results.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_negative_results.py).  
 
 ## Failure Modes  
 Missing ablations weaken claims.  
@@ -36,11 +36,11 @@ Missing evidence breaks [Docs Style](../meta/DOCS_STYLE.md).
 ## Extension Points  
 Ablation updates follow [Docs Style](../meta/DOCS_STYLE.md).  
 Extensions align with [Experimental](../architecture/experimental.md).  
-Evidence updates align with [tests/unit/test_docs_contract.py](https://github.com/bijux/agentic-proteins/blob/main/tests/unit/test_docs_contract.py).  
+Evidence updates align with [tests/unit/test_docs_contract.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/unit/test_docs_contract.py).  
 
 ## Exit Criteria  
 This doc is obsolete when ablations are encoded.  
 The replacement is [Metrics](../architecture/metrics.md).  
 Obsolete docs are removed.  
 
-Code refs: [tests/regression/test_negative_results.py](https://github.com/bijux/agentic-proteins/blob/main/tests/regression/test_negative_results.py).  
+Code refs: [tests/regression/test_negative_results.py](https://github.com/bijux/bijux-proteomics/blob/main/tests/regression/test_negative_results.py).  

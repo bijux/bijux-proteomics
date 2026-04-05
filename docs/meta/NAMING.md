@@ -29,12 +29,12 @@ Undefined names fail reviews.
 
 ## Extension Points  
 Naming changes occur in this file.  
-Naming changes update [scripts/check_docs_consistency.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/check_docs_consistency.py).  
+Naming changes update [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).  
 Naming changes update [Triage](TRIAGE.md).  
 
 ## Exit Criteria  
 This doc becomes obsolete when naming is generated.  
-The replacement is [scripts/check_docs_consistency.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/check_docs_consistency.py).  
+The replacement is [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).  
 Obsolete docs are removed.  
 
 Canonical names:  
@@ -61,4 +61,4 @@ Forbidden aliases:
 - execution-unit  
 - evaluation output  
 
-Code refs: [scripts/check_docs_consistency.py](https://github.com/bijux/agentic-proteins/blob/main/scripts/check_docs_consistency.py).  
+Code refs: [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).  

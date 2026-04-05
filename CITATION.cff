@@ -1,23 +1,23 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as:"
-title: "agentic-proteins"
+title: "Bijux Proteomics"
 version: "0.2.0"
 date-released: 2025-01-16
 authors:
   - family-names: "Mousavi"
     given-names: "Bijan"
     orcid: "https://orcid.org/0009-0002-4092-2854"
-repository-code: "https://github.com/bijux/agentic-proteins"
-url: "https://github.com/bijux/agentic-proteins"
+repository-code: "https://github.com/bijux/bijux-proteomics"
+url: "https://github.com/bijux/bijux-proteomics"
 license: "Apache-2.0"
 keywords: ["protein-design", "agents", "runtime"]
 preferred-citation:
   type: software
-  title: "agentic-proteins"
+  title: "Bijux Proteomics"
   version: "0.2.0"
   authors:
     - family-names: "Mousavi"
       given-names: "Bijan"
   year: 2025
   month: 1
-  url: "https://github.com/bijux/agentic-proteins"
+  url: "https://github.com/bijux/bijux-proteomics"
