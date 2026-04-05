@@ -72,7 +72,7 @@ make lint test docs api
 | Target          | What it does                                                                 |
 | --------------- | ---------------------------------------------------------------------------- |
 | `make test`     | `pytest` + coverage (HTML in `artifacts/test/htmlcov/`)                      |
-| `make lint`     | Format (ruff), lint (ruff), type-check (mypy/pyright), complexity (radon)    |
+| `make lint`     | Format (ruff), lint (ruff), type-check (mypy), complexity (radon)             |
 | `make quality`  | Dead code (vulture), deps hygiene (deptry), docstrings (interrogate)          |
 | `make security` | Bandit + pip-audit                                                           |
 | `make api`      | OpenAPI lint + generator compat + Schemathesis contract tests                |
@@ -148,7 +148,7 @@ make api
 
 * **Formatting:** `ruff format` (enforced in `make lint`)
 * **Linting:** `ruff`
-* **Types:** `mypy` (strict) + `pyright` (strict)
+* **Types:** `mypy` (strict)
 * **Complexity:** `radon`
 * **Docstrings:** `interrogate` (meet configured thresholds)
 

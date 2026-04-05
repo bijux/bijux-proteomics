@@ -38,7 +38,7 @@ lint-artifacts: | $(VENV)
 	} 2>&1 | tee "$(LINT_ARTIFACTS_DIR)/ruff-format.log"
 	@set -euo pipefail; $(RUFF) check --config config/ruff.toml --cache-dir "$(RUFF_CACHE_DIR)" $(LINT_DIRS) 2>&1 | tee "$(LINT_ARTIFACTS_DIR)/ruff.log"
 	@set -euo pipefail; $(MYPY) --config-file config/mypy.ini --strict --cache-dir "$(MYPY_CACHE_DIR)" $(LINT_DIRS) 2>&1 | tee "$(LINT_ARTIFACTS_DIR)/mypy.log"
-	@set -euo pipefail; $(CODESPELL) -I config/agentic_proteins.dic $(LINT_DIRS) 2>&1 | tee "$(LINT_ARTIFACTS_DIR)/codespell.log"
+	@set -euo pipefail; $(CODESPELL) $(LINT_DIRS) 2>&1 | tee "$(LINT_ARTIFACTS_DIR)/codespell.log"
 	@set -euo pipefail; $(RADON) cc -s -a $(LINT_DIRS) 2>&1 | tee "$(LINT_ARTIFACTS_DIR)/radon.log"
 	@set -euo pipefail; $(PYDOCSTYLE) --convention=google --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107 $(LINT_DIRS) 2>&1 | tee "$(LINT_ARTIFACTS_DIR)/pydocstyle.log"
 	@[ -d .pytype ] && echo "→ removing stray .pytype" && rm -rf .pytype || true
@@ -53,7 +53,7 @@ endif
 	@$(call run_tool,RuffFormat,$(RUFF) format --check --cache-dir "$(RUFF_CACHE_DIR)")
 	@$(call run_tool,Ruff,$(RUFF) check --config config/ruff.toml --cache-dir "$(RUFF_CACHE_DIR)")
 	@$(call run_tool,Mypy,$(MYPY) --config-file config/mypy.ini --strict --cache-dir "$(MYPY_CACHE_DIR)")
-	@$(call run_tool,Codespell,$(CODESPELL) -I config/agentic_proteins.dic)
+	@$(call run_tool,Codespell,$(CODESPELL))
 	@$(call run_tool,Radon,$(RADON) cc -s -a)
 	@$(call run_tool,Pydocstyle,$(PYDOCSTYLE) --convention=google)
 
