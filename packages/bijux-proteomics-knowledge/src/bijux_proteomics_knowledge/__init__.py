@@ -5,8 +5,22 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_knowledge.adapters import (
+    AssayResultIngestionAdapter,
+    LiteratureIngestionAdapter,
+    NormalizedEvidenceInput,
+    StructureAnnotationIngestionAdapter,
+    attach_evidence_inputs,
+)
 from bijux_proteomics_knowledge.schema import SchemaMetadata
 from bijux_proteomics_knowledge.serialization import JsonModel
+from bijux_proteomics_knowledge.graph import (
+    EvidenceEdge,
+    EvidenceGraph,
+    EvidenceNode,
+    EvidenceNodeType,
+    build_evidence_graph,
+)
 from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
     DecisionReadiness,
@@ -30,16 +44,23 @@ from bijux_proteomics_knowledge.evidence import (
 )
 
 __all__ = [
+    "AssayResultIngestionAdapter",
     "BundleTrustReport",
     "DecisionReadiness",
     "EvidenceConflict",
     "EvidenceCoverage",
     "EvidenceBundle",
+    "EvidenceEdge",
+    "EvidenceGraph",
     "EvidenceKind",
+    "EvidenceNode",
+    "EvidenceNodeType",
     "EvidenceRecord",
     "EvidenceSourceType",
     "EvidenceStrength",
     "assess_decision_readiness",
+    "attach_evidence_inputs",
+    "build_evidence_graph",
     "compute_bundle_trust",
     "coverage_report",
     "deduplicate_records",
@@ -50,5 +71,8 @@ __all__ = [
     "summarize_bundle",
     "weight_source_type",
     "JsonModel",
+    "LiteratureIngestionAdapter",
+    "NormalizedEvidenceInput",
     "SchemaMetadata",
+    "StructureAnnotationIngestionAdapter",
 ]
