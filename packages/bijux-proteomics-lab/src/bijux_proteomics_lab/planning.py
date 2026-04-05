@@ -15,8 +15,7 @@ from bijux_proteomics_knowledge import (
     assess_decision_readiness,
     evidence_gaps,
 )
-from bijux_proteomics_lab.schema import SchemaMetadata
-from bijux_proteomics_lab.serialization import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
 class AssayObservation(JsonModel):
@@ -55,8 +54,8 @@ class ExperimentPlan(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: str = Field(..., min_length=1, description="Program identifier.")
-    document_schema: SchemaMetadata = Field(
-        default_factory=SchemaMetadata,
+    document_schema: DocumentSchema = Field(
+        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-lab"),
         description="Schema and provenance metadata.",
     )
     evidence_gaps: list[str] = Field(
@@ -107,8 +106,8 @@ class ClosedLoopPlan(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: str = Field(..., min_length=1, description="Program identifier.")
-    document_schema: SchemaMetadata = Field(
-        default_factory=SchemaMetadata,
+    document_schema: DocumentSchema = Field(
+        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-lab"),
         description="Schema and provenance metadata.",
     )
     decision: ProgressDecision = Field(..., description="Recommended next decision.")

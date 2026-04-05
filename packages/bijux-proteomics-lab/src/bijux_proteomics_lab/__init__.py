@@ -10,8 +10,7 @@ from bijux_proteomics_lab.repositories import (
     ReviewQueueEntry,
     ReviewQueueRepository,
 )
-from bijux_proteomics_lab.schema import SchemaMetadata
-from bijux_proteomics_lab.serialization import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.planning import (
     AssayObservation,
     ClosedLoopPlan,
@@ -42,7 +41,7 @@ __all__ = [
     "ReviewPacket",
     "ScheduledBatch",
     "ScheduledPlan",
-    "SchemaMetadata",
+    "DocumentSchema",
     "build_review_packet",
     "plan_experiment_batches",
     "recommend_next_cycle",

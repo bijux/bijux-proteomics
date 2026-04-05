@@ -15,8 +15,7 @@ from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import SuccessCriterion
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.reviews import ReviewGate
-from bijux_proteomics.schema import SchemaMetadata
-from bijux_proteomics.serialization import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.targets import ProteinTarget
 
 
@@ -77,8 +76,8 @@ class ProgramSpec(JsonModel):
         default_factory=OperatingModel,
         description="How the program is governed across compute, review, and lab work.",
     )
-    document_schema: SchemaMetadata = Field(
-        default_factory=SchemaMetadata,
+    document_schema: DocumentSchema = Field(
+        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-core"),
         description="Schema and provenance metadata.",
     )
     metadata: dict[str, str] = Field(

@@ -3,26 +3,21 @@ requires = ["hatchling>=1.27.0,<1.28"]
 build-backend = "hatchling.build"
 
 [project]
-name = "bijux-proteomics-lab"
+name = "bijux-proteomics-foundation"
 version = "0.1.0"
-description = "Experiment planning helpers for Bijux Proteomics"
+description = "Shared document and serialization primitives for Bijux Proteomics"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
 authors = [{ name = "Bijan Mousavi", email = "mousavi.bijan@gmail.com" }]
-dependencies = [
-  "pydantic>=2.0.2",
-  "bijux-proteomics-foundation>=0.1.0",
-  "bijux-proteomics-core>=0.1.0",
-  "bijux-proteomics-knowledge>=0.1.0",
-]
+dependencies = ["pydantic>=2.0.2"]
 
 [project.urls]
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/bijux_proteomics_lab"]
+packages = ["src/bijux_proteomics_foundation"]
 
 [tool.hatch.build.targets.wheel.package-data]
-"bijux_proteomics_lab" = ["py.typed"]
+"bijux_proteomics_foundation" = ["py.typed"]

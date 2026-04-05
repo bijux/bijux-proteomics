@@ -10,8 +10,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_knowledge.schema import SchemaMetadata
-from bijux_proteomics_knowledge.serialization import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 class EvidenceKind(StrEnum):
     """Evidence families tracked by the platform."""
@@ -95,8 +94,8 @@ class EvidenceBundle(JsonModel):
 
     bundle_id: str = Field(..., min_length=1, description="Stable bundle identifier.")
     target_id: str = Field(..., min_length=1, description="Target identifier.")
-    document_schema: SchemaMetadata = Field(
-        default_factory=SchemaMetadata,
+    document_schema: DocumentSchema = Field(
+        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-knowledge"),
         description="Schema and provenance metadata.",
     )
     records: list[EvidenceRecord] = Field(

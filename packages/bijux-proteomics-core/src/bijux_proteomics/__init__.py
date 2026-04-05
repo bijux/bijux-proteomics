@@ -29,8 +29,7 @@ from bijux_proteomics.repositories import (
     ReviewOutcome,
     ensure_review_clearance,
 )
-from bijux_proteomics.schema import SchemaMetadata
-from bijux_proteomics.serialization import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.targets import ProteinTarget
 from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
 
@@ -52,7 +51,7 @@ __all__ = [
     "ReviewDecisionRepository",
     "ReviewGateBlockedError",
     "ReviewOutcome",
-    "SchemaMetadata",
+    "DocumentSchema",
     "ScientificConstraint",
     "SuccessCriterion",
     "create_program_spec",

@@ -12,8 +12,7 @@ from bijux_proteomics_knowledge.adapters import (
     StructureAnnotationIngestionAdapter,
     attach_evidence_inputs,
 )
-from bijux_proteomics_knowledge.schema import SchemaMetadata
-from bijux_proteomics_knowledge.serialization import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_knowledge.graph import (
     EvidenceEdge,
     EvidenceGraph,
@@ -73,6 +72,6 @@ __all__ = [
     "JsonModel",
     "LiteratureIngestionAdapter",
     "NormalizedEvidenceInput",
-    "SchemaMetadata",
+    "DocumentSchema",
     "StructureAnnotationIngestionAdapter",
 ]

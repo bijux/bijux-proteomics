@@ -25,6 +25,7 @@ The earlier shape was strong on reproducibility but too narrow: it looked more l
 | Package | Role | Current surface |
 | ------- | ---- | --------------- |
 | `packages/agentic-proteins` | Deterministic runtime, CLI, API, artifact model | `agentic-proteins` CLI |
+| `packages/bijux-proteomics-foundation` | Shared schema metadata and JSON document helpers | Python models |
 | `packages/bijux-proteomics-core` | Program specifications and execution adapters | `bijux-proteomics` CLI |
 | `packages/bijux-proteomics-intelligence` | Design briefs, liabilities, and candidate ranking | Python models |
 | `packages/bijux-proteomics-knowledge` | Evidence bundles and gap analysis | Python models |
@@ -58,6 +59,7 @@ api/                                  OpenAPI schemas for Agentic Proteins
 config/                               Lint, typing, and coverage config
 docs/                                 MkDocs site for the umbrella repo
 packages/agentic-proteins/            Existing deterministic runtime product
+packages/bijux-proteomics-foundation/ Shared document and schema primitives
 packages/bijux-proteomics-core/       Program models and execution adapters
 packages/bijux-proteomics-intelligence/ Protein reasoning, ranking, and liabilities
 packages/bijux-proteomics-knowledge/  Evidence bundle package
