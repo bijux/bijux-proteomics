@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics import (
+    ExecutionRequest,
     ProgramExecutionRequest,
     ProgramSpec,
     ReviewDecision,
@@ -17,6 +18,7 @@ from bijux_proteomics import (
     ensure_review_clearance,
     program_summary,
 )
+from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
 from bijux_proteomics.programs import (
     AssayRequirement,
     MeasurementDirection,
@@ -220,3 +222,59 @@ def test_execute_program_request_rejects_missing_blocking_approval(tmp_path: Pat
         from bijux_proteomics.runner import execute_program
 
         execute_program(request)
+
+
+def test_execute_program_requires_injected_backend(tmp_path: Path) -> None:
+    program = create_program_spec(
+        program_id="prog-6",
+        name="injected backend",
+        objective="exercise backend protocol boundary",
+        target_id="target-6",
+        target_name="Target 6",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="decouple core from concrete runtime imports",
+    )
+    request = ProgramExecutionRequest(
+        program=program,
+        candidate_sequence=program.target.sequence.residues,
+        base_dir=tmp_path,
+    )
+
+    with pytest.raises(MissingExecutionBackendError):
+        from bijux_proteomics.runner import execute_program
+
+        execute_program(request)
+
+
+def test_execute_program_uses_injected_backend(tmp_path: Path) -> None:
+    class StubBackend:
+        def execute(self, request: ExecutionRequest) -> dict[str, object]:
+            return {
+                "sequence": request.candidate_sequence,
+                "backend": "stub",
+            }
+
+    program = create_program_spec(
+        program_id="prog-7",
+        name="stub backend",
+        objective="exercise backend protocol",
+        target_id="target-7",
+        target_name="Target 7",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="return stub payload",
+    )
+    request = ProgramExecutionRequest(
+        program=program,
+        candidate_sequence=program.target.sequence.residues,
+        base_dir=tmp_path,
+        backend=StubBackend(),
+    )
+
+    from bijux_proteomics.runner import execute_program
+
+    result = execute_program(request)
+
+    assert result["backend"] == "stub"
+    assert result["program"]["program_id"] == "prog-7"

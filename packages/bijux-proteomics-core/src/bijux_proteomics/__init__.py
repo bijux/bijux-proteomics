@@ -13,6 +13,7 @@ from bijux_proteomics.exceptions import (
     ProgramValidationError,
     ReviewGateBlockedError,
 )
+from bijux_proteomics.execution_backend import ExecutionBackend, ExecutionRequest
 from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.operating_model import OperatingModel
@@ -30,6 +31,10 @@ from bijux_proteomics.repositories import (
     ReviewDecisionRepository,
     ReviewOutcome,
     ensure_review_clearance,
+)
+from bijux_proteomics.runtime_adapter import (
+    AgenticProteinsBackend,
+    MissingExecutionBackendError,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
@@ -59,7 +64,11 @@ __all__ = [
     "ReviewGateBlockedError",
     "ReviewOutcome",
     "DocumentSchema",
+    "ExecutionBackend",
+    "ExecutionRequest",
     "ScientificConstraint",
+    "AgenticProteinsBackend",
+    "MissingExecutionBackendError",
     "SuccessCriterion",
     "advance_stage",
     "create_program_spec",

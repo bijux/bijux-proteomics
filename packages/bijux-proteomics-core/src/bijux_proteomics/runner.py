@@ -10,15 +10,17 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from bijux_proteomics.execution_backend import ExecutionRequest
 from bijux_proteomics.exceptions import ReviewGateBlockedError
 from bijux_proteomics.programs import ProgramSpec, program_summary
 from bijux_proteomics.repositories import ReviewDecision, ensure_review_clearance
+from bijux_proteomics.runtime_adapter import require_backend
 
 
 class ProgramExecutionRequest(BaseModel):
     """Program execution request."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     program: ProgramSpec = Field(..., description="Program to execute.")
     candidate_sequence: str = Field(
@@ -37,6 +39,10 @@ class ProgramExecutionRequest(BaseModel):
         default_factory=list,
         description="Recorded review decisions attached to the execution request.",
     )
+    backend: Any = Field(
+        default=None,
+        description="Injected execution backend for runtime work.",
+    )
 
 
 def execute_program(request: ProgramExecutionRequest) -> dict[str, Any]:
@@ -51,18 +57,17 @@ def execute_program(request: ProgramExecutionRequest) -> dict[str, Any]:
             + ", ".join(gate.gate_id for gate in blocked_gates)
         )
 
-    from agentic_proteins.runtime import RunManager
-    from agentic_proteins.runtime.infra import RunConfig
-
-    config = RunConfig(
-        loop_max_iterations=request.rounds,
-        predictors_enabled=[request.provider] if request.provider else None,
-        artifacts_dir=str(request.artifacts_dir) if request.artifacts_dir else None,
-        execution_mode=request.execution_mode,
-        require_human_decision=bool(request.program.review_gates),
-    )
-    result = RunManager(base_dir=request.base_dir, config=config).run(
-        request.candidate_sequence
+    backend = require_backend(request.backend)
+    result = backend.execute(
+        ExecutionRequest(
+            candidate_sequence=request.candidate_sequence,
+            base_dir=request.base_dir,
+            rounds=request.rounds,
+            provider=request.provider,
+            execution_mode=request.execution_mode,
+            artifacts_dir=request.artifacts_dir,
+            require_human_decision=bool(request.program.review_gates),
+        )
     )
     provenance = result.setdefault("program", {})
     provenance.update(program_summary(request.program))
