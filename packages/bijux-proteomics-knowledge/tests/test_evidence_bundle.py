@@ -3,14 +3,23 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 from bijux_proteomics_knowledge import (
     assess_decision_readiness,
+    compute_bundle_trust,
     coverage_report,
+    deduplicate_records,
     EvidenceBundle,
+    EvidenceConflict,
     EvidenceKind,
     EvidenceRecord,
+    EvidenceSourceType,
     EvidenceStrength,
     evidence_gaps,
+    flag_conflicting_evidence,
+    score_evidence_record,
+    stale_records,
     summarize_bundle,
 )
 
@@ -82,6 +91,7 @@ def test_coverage_report_tracks_missing_kinds_and_confidence() -> None:
                 kind=EvidenceKind.LITERATURE,
                 title="Paper",
                 source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
                 claim="Target is disease-relevant.",
                 confidence=0.9,
                 strength=EvidenceStrength.SUPPORTING,
@@ -91,6 +101,7 @@ def test_coverage_report_tracks_missing_kinds_and_confidence() -> None:
                 kind=EvidenceKind.ASSAY,
                 title="Assay",
                 source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
                 claim="Variant keeps activity in vitro.",
                 confidence=0.7,
                 strength=EvidenceStrength.DECISIVE,
@@ -115,6 +126,7 @@ def test_assess_decision_readiness_reports_blockers() -> None:
                 kind=EvidenceKind.LITERATURE,
                 title="Paper",
                 source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
                 claim="Target is disease-relevant.",
                 confidence=0.55,
                 strength=EvidenceStrength.EXPLORATORY,
@@ -144,6 +156,7 @@ def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path) -> Non
                 kind=EvidenceKind.LITERATURE,
                 title="Paper",
                 source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
                 claim="Target is disease-relevant.",
                 confidence=0.9,
                 strength=EvidenceStrength.SUPPORTING,
@@ -158,3 +171,93 @@ def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path) -> Non
 
     assert restored.to_dict()["document_schema"]["trace_id"] == "trace-knowledge-1"
     assert EvidenceBundle.from_json(bundle.to_json()).bundle_id == "bundle-1"
+
+
+def test_compute_bundle_trust_accounts_for_staleness_conflicts_and_duplicates() -> None:
+    now = datetime(2026, 1, 10, tzinfo=UTC)
+    bundle = EvidenceBundle(
+        bundle_id="bundle-2",
+        target_id="target-2",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="Assay positive",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.DECISIVE,
+                expires_at=now + timedelta(days=7),
+            ),
+            EvidenceRecord(
+                evidence_id="assay-2",
+                kind=EvidenceKind.ASSAY,
+                title="Assay caution",
+                source="lab-2",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate may miss the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.EXPLORATORY,
+                expires_at=now + timedelta(days=7),
+            ),
+            EvidenceRecord(
+                evidence_id="lit-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="Target is disease-relevant.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+                expires_at=now - timedelta(days=1),
+            ),
+            EvidenceRecord(
+                evidence_id="lit-2",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper duplicate",
+                source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="Target is disease-relevant.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+                expires_at=now + timedelta(days=20),
+            ),
+        ],
+    )
+
+    trust = compute_bundle_trust(bundle, now=now)
+
+    assert trust.stale_records == ["lit-1"]
+    assert trust.duplicate_groups == [["lit-1", "lit-2"]]
+    assert trust.conflicts == [
+        EvidenceConflict(
+            left_evidence_id="assay-1",
+            right_evidence_id="assay-2",
+            reason="same decision tag but materially different claim strength",
+        )
+    ]
+    assert trust.trust_score < 1.0
+
+
+def test_record_scoring_and_helpers_are_exposed_for_policy_use() -> None:
+    now = datetime(2026, 1, 10, tzinfo=UTC)
+    record = EvidenceRecord(
+        evidence_id="lit-1",
+        kind=EvidenceKind.LITERATURE,
+        title="Paper",
+        source="PMID:1",
+        source_type=EvidenceSourceType.LITERATURE,
+        claim="Target is disease-relevant.",
+        confidence=0.9,
+        strength=EvidenceStrength.SUPPORTING,
+        expires_at=now + timedelta(days=30),
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-3", target_id="target-3", records=[record, record.model_copy(update={"evidence_id": "lit-2"})])
+
+    assert score_evidence_record(record, now=now) > 0.0
+    assert stale_records(bundle, now=now) == []
+    assert deduplicate_records(bundle) == [["lit-1", "lit-2"]]
+    assert flag_conflicting_evidence(bundle) == []

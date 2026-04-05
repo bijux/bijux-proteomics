@@ -9,5 +9,6 @@
 - safety observations
 - readiness checks that explain whether a decision can proceed
 - schema-aware bundle files that can be saved, loaded, and traced across systems
+- trust scoring, stale evidence detection, contradiction flags, and deduplication support
 
 The aim is to keep program decisions traceable to evidence instead of relying on opaque prompts.

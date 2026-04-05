@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
@@ -30,6 +31,16 @@ class EvidenceStrength(StrEnum):
     DECISIVE = "decisive"
 
 
+class EvidenceSourceType(StrEnum):
+    """Source categories used for trust weighting."""
+
+    LITERATURE = "literature"
+    STRUCTURE_MODEL = "structure_model"
+    LAB_ASSAY = "lab_assay"
+    CURATED_NOTE = "curated_note"
+    EXTERNAL_DATABASE = "external_database"
+
+
 class EvidenceRecord(JsonModel):
     """Single evidence statement."""
 
@@ -43,6 +54,10 @@ class EvidenceRecord(JsonModel):
     kind: EvidenceKind = Field(..., description="Evidence family.")
     title: str = Field(..., min_length=1, description="Short title.")
     source: str = Field(..., min_length=1, description="Source location or system.")
+    source_type: EvidenceSourceType = Field(
+        default=EvidenceSourceType.CURATED_NOTE,
+        description="Source category for trust policies.",
+    )
     claim: str = Field(..., min_length=1, description="Human-readable claim.")
     related_targets: list[str] = Field(
         default_factory=list,
@@ -63,6 +78,14 @@ class EvidenceRecord(JsonModel):
         description="Confidence in the record.",
     )
     strength: EvidenceStrength = Field(..., description="Support level.")
+    observed_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the evidence was produced or observed.",
+    )
+    expires_at: datetime | None = Field(
+        default=None,
+        description="Optional point after which the evidence should be treated as stale.",
+    )
 
 
 class EvidenceBundle(JsonModel):
@@ -128,6 +151,38 @@ class DecisionReadiness(JsonModel):
     coverage: EvidenceCoverage = Field(
         ...,
         description="Coverage report used for the readiness call.",
+    )
+
+
+class EvidenceConflict(JsonModel):
+    """Two records that appear to disagree about the same decision area."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    left_evidence_id: str = Field(..., min_length=1, description="First evidence identifier.")
+    right_evidence_id: str = Field(..., min_length=1, description="Second evidence identifier.")
+    reason: str = Field(..., min_length=1, description="Why the pair is considered conflicting.")
+
+
+class BundleTrustReport(JsonModel):
+    """Trust summary for an evidence bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1, description="Stable bundle identifier.")
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    trust_score: float = Field(..., ge=0.0, le=1.0, description="Overall trust score.")
+    stale_records: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers that should be refreshed.",
+    )
+    conflicts: list[EvidenceConflict] = Field(
+        default_factory=list,
+        description="Detected evidence conflicts.",
+    )
+    duplicate_groups: list[list[str]] = Field(
+        default_factory=list,
+        description="Potential duplicate evidence identifiers.",
     )
 
 
@@ -212,4 +267,107 @@ def assess_decision_readiness(
         blockers=blockers,
         recommendations=recommendations,
         coverage=coverage,
+    )
+
+
+def weight_source_type(source_type: EvidenceSourceType) -> float:
+    """Return a trust weight for the source category."""
+    return {
+        EvidenceSourceType.LAB_ASSAY: 1.0,
+        EvidenceSourceType.LITERATURE: 0.9,
+        EvidenceSourceType.EXTERNAL_DATABASE: 0.8,
+        EvidenceSourceType.STRUCTURE_MODEL: 0.75,
+        EvidenceSourceType.CURATED_NOTE: 0.65,
+    }[source_type]
+
+
+def score_evidence_record(
+    record: EvidenceRecord,
+    *,
+    now: datetime | None = None,
+) -> float:
+    """Compute a trust score for a single evidence record."""
+    now = now or datetime.now(UTC)
+    strength_weight = {
+        EvidenceStrength.EXPLORATORY: 0.5,
+        EvidenceStrength.SUPPORTING: 0.8,
+        EvidenceStrength.DECISIVE: 1.0,
+    }[record.strength]
+    stale_penalty = 0.5 if record.expires_at is not None and record.expires_at < now else 1.0
+    return round(record.confidence * weight_source_type(record.source_type) * strength_weight * stale_penalty, 4)
+
+
+def stale_records(
+    bundle: EvidenceBundle,
+    *,
+    now: datetime | None = None,
+) -> list[EvidenceRecord]:
+    """Return records whose explicit expiry has passed."""
+    now = now or datetime.now(UTC)
+    return [
+        record
+        for record in bundle.records
+        if record.expires_at is not None and record.expires_at < now
+    ]
+
+
+def deduplicate_records(bundle: EvidenceBundle) -> list[list[str]]:
+    """Group records that look like duplicates."""
+    grouped: dict[tuple[str, str, str], list[str]] = {}
+    for record in bundle.records:
+        key = (
+            record.kind.value,
+            record.claim.strip().lower(),
+            record.source.strip().lower(),
+        )
+        grouped.setdefault(key, []).append(record.evidence_id)
+    return [ids for ids in grouped.values() if len(ids) > 1]
+
+
+def flag_conflicting_evidence(bundle: EvidenceBundle) -> list[EvidenceConflict]:
+    """Identify conflicting evidence with opposite decision tags on the same target."""
+    conflicts: list[EvidenceConflict] = []
+    for index, left in enumerate(bundle.records):
+        left_tags = set(left.decision_tags)
+        for right in bundle.records[index + 1 :]:
+            if left.kind is not right.kind:
+                continue
+            if not left_tags.intersection(right.decision_tags):
+                continue
+            if left.claim.strip().lower() == right.claim.strip().lower():
+                continue
+            if {left.strength, right.strength} == {
+                EvidenceStrength.DECISIVE,
+                EvidenceStrength.EXPLORATORY,
+            }:
+                conflicts.append(
+                    EvidenceConflict(
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="same decision tag but materially different claim strength",
+                    )
+                )
+    return conflicts
+
+
+def compute_bundle_trust(
+    bundle: EvidenceBundle,
+    *,
+    now: datetime | None = None,
+) -> BundleTrustReport:
+    """Compute overall trust after staleness, conflicts, and deduplication."""
+    now = now or datetime.now(UTC)
+    record_scores = [score_evidence_record(record, now=now) for record in bundle.records]
+    base_score = sum(record_scores) / len(record_scores) if record_scores else 0.0
+    stale = stale_records(bundle, now=now)
+    conflicts = flag_conflicting_evidence(bundle)
+    duplicate_groups = deduplicate_records(bundle)
+    penalty = (0.05 * len(stale)) + (0.1 * len(conflicts)) + (0.03 * len(duplicate_groups))
+    return BundleTrustReport(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        trust_score=max(0.0, round(base_score - penalty, 4)),
+        stale_records=[record.evidence_id for record in stale],
+        conflicts=conflicts,
+        duplicate_groups=duplicate_groups,
     )
