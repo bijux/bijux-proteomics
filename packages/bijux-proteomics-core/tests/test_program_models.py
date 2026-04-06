@@ -423,6 +423,72 @@ def test_validate_assay_dependencies_flags_unmapped_success_metrics() -> None:
     ) in issues
 
 
+def test_validate_program_flags_duplicate_criterion_ids() -> None:
+    program = create_program_spec(
+        program_id="prog-12",
+        name="duplicate criteria",
+        objective="keep criterion identifiers stable and unique",
+        target_id="target-12",
+        target_name="Target 12",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="prevent ambiguous criterion references",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        )
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="off_target_score",
+            direction=MeasurementDirection.MINIMIZE,
+            threshold=0.2,
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="criterion-ids-duplicate",
+        message="success criteria should use unique identifiers",
+    ) in issues
+
+
+def test_validate_program_requires_assay_evidence_for_gated_review() -> None:
+    program = create_program_spec(
+        program_id="prog-13",
+        name="review evidence coherence",
+        objective="align review gates with evidence needs",
+        target_id="target-13",
+        target_name="Target 13",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="ensure review contracts require assay evidence",
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="pre-synthesis",
+            name="Pre-synthesis",
+            required_roles=["scientist"],
+            decision_inputs=["review_packet"],
+            blocking=True,
+        )
+    )
+    program.evidence_needs = [program.evidence_needs[0]]
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="review-needs-assay-evidence",
+        message="programs with review gates should include assay evidence needs",
+    ) in issues
+
+
 def test_execute_program_rejects_invalid_program_before_backend_use(tmp_path: Path) -> None:
     class StubBackend:
         def execute(self, request: ExecutionRequest) -> dict[str, object]:

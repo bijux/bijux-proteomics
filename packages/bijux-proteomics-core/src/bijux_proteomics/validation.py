@@ -32,6 +32,7 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
     issues: list[ProgramValidationIssue] = []
     gate_ids = [gate.gate_id for gate in program.review_gates]
     assay_ids = [assay.assay_id for assay in program.assay_panel]
+    criterion_ids = [criterion.criterion_id for criterion in program.success_criteria]
     criterion_metrics = {criterion.metric for criterion in program.success_criteria}
     blocking_assays = [assay for assay in program.assay_panel if assay.blocking]
 
@@ -143,6 +144,28 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
             ProgramValidationIssue(
                 code="assay-ids-duplicate",
                 message="assays should use unique identifiers",
+            )
+        )
+    if len(criterion_ids) != len(set(criterion_ids)):
+        issues.append(
+            ProgramValidationIssue(
+                code="criterion-ids-duplicate",
+                message="success criteria should use unique identifiers",
+            )
+        )
+    needs = {need.value for need in program.evidence_needs}
+    if program.review_gates and "assay" not in needs:
+        issues.append(
+            ProgramValidationIssue(
+                code="review-needs-assay-evidence",
+                message="programs with review gates should include assay evidence needs",
+            )
+        )
+    if program.assay_panel and "assay" not in needs:
+        issues.append(
+            ProgramValidationIssue(
+                code="assay-panel-needs-assay-evidence",
+                message="programs with assay panels should include assay evidence needs",
             )
         )
     return issues
