@@ -130,6 +130,43 @@ def test_resolve_conflicts_holds_high_severity_conflicts() -> None:
     assert resolutions[0].action is ResolutionAction.HOLD_DECISION
 
 
+def test_resolve_conflicts_can_split_species_context_conflicts() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-context-split",
+        target_id="target-context-split",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-human",
+                kind=EvidenceKind.ASSAY,
+                title="human assay",
+                source="lab-human",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                species="human",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-mouse",
+                kind=EvidenceKind.ASSAY,
+                title="mouse assay",
+                source="lab-mouse",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                species="mouse",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    _, resolutions = resolve_conflicts(bundle)
+
+    assert resolutions[0].action is ResolutionAction.SPLIT_BY_CONTEXT
+
+
 def test_claim_resolution_record_captures_resolution_history() -> None:
     _, resolutions = resolve_conflicts(
         EvidenceBundle(

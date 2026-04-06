@@ -26,6 +26,7 @@ class ResolutionAction(StrEnum):
     ACCEPT_HIGHER_TRUST = "accept_higher_trust"
     REQUIRE_CURATION = "require_curation"
     HOLD_DECISION = "hold_decision"
+    SPLIT_BY_CONTEXT = "split_by_context"
 
 
 class ConflictResolution(JsonModel):
@@ -65,6 +66,10 @@ class ResolutionPolicy(JsonModel):
         default=True,
         description="Whether high-severity conflicts should avoid automatic acceptance.",
     )
+    split_context_conflicts: bool = Field(
+        default=True,
+        description="Whether context mismatch conflicts should be split by context.",
+    )
 
 
 class ResolutionSummary(JsonModel):
@@ -99,6 +104,19 @@ def resolve_conflicts(
         left_weighted = _resolution_score(left, policy, now=now)
         right_weighted = _resolution_score(right, policy, now=now)
         confidence_gap = abs(left_weighted - right_weighted)
+        if (
+            policy.split_context_conflicts
+            and conflict.conflict_type in {"species_context_mismatch", "biological_system_mismatch"}
+        ):
+            resolutions.append(
+                ConflictResolution(
+                    left_evidence_id=left.evidence_id,
+                    right_evidence_id=right.evidence_id,
+                    action=ResolutionAction.SPLIT_BY_CONTEXT,
+                    rationale="conflict reflects context mismatch and should be split by biological context",
+                )
+            )
+            continue
         if policy.high_severity_requires_hold and conflict.severity == "high":
             resolutions.append(
                 ConflictResolution(
