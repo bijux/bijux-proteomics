@@ -17,6 +17,7 @@ from bijux_proteomics_lab import (
     assess_dependency_integrity,
     assay_family_priority,
     dependency_order,
+    dependency_critical_path,
     detect_dependency_cycle,
     ExperimentBatch,
     ExperimentPlan,
@@ -396,6 +397,20 @@ def test_dependency_order_ignores_invalid_edges_and_keeps_valid_prerequisites() 
     )
 
     assert ordered.index("a1") < ordered.index("a2")
+
+
+def test_dependency_critical_path_returns_longest_prerequisite_chain() -> None:
+    critical = dependency_critical_path(
+        ["a1", "a2", "a3", "a4"],
+        [
+            AssayDependency(assay_id="a2", requires_assay_id="a1"),
+            AssayDependency(assay_id="a3", requires_assay_id="a2"),
+            AssayDependency(assay_id="a4", requires_assay_id="a1"),
+        ],
+    )
+
+    assert critical.path_length == 3
+    assert critical.ordered_assay_ids == ["a1", "a2", "a3"]
 
 
 def test_recommend_next_cycle_from_outcome_holds_on_technical_failures() -> None:

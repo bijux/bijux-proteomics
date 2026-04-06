@@ -455,6 +455,15 @@ class DependencyIntegrityReport(JsonModel):
     )
 
 
+class DependencyCriticalPath(JsonModel):
+    """Critical dependency path summary for assay execution order."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ordered_assay_ids: list[AssayId] = Field(default_factory=list, description="Critical path assay order.")
+    path_length: int = Field(default=0, ge=0, description="Number of assays in the critical path.")
+
+
 def assess_dependency_integrity(
     assay_ids: list[AssayId],
     dependencies: list[AssayDependency],
@@ -551,6 +560,44 @@ def detect_dependency_cycle(
     return DependencyCycleReport(
         has_cycle=has_cycle,
         cycle_assay_ids=sorted(cycle_nodes),
+    )
+
+
+def dependency_critical_path(
+    assay_ids: list[AssayId],
+    dependencies: list[AssayDependency],
+) -> DependencyCriticalPath:
+    """Compute a longest dependency path for assay execution planning."""
+    prerequisites: dict[str, list[str]] = {assay_id: [] for assay_id in assay_ids}
+    for dependency in dependencies:
+        if dependency.assay_id in prerequisites and dependency.requires_assay_id in prerequisites:
+            prerequisites[dependency.assay_id].append(dependency.requires_assay_id)
+
+    memo: dict[str, list[str]] = {}
+
+    def longest_path(node: str, stack: set[str]) -> list[str]:
+        if node in memo:
+            return memo[node]
+        if node in stack:
+            return [node]
+        stack.add(node)
+        best: list[str] = []
+        for prereq in prerequisites.get(node, []):
+            candidate = longest_path(prereq, stack)
+            if len(candidate) > len(best):
+                best = candidate
+        stack.remove(node)
+        memo[node] = best + [node]
+        return memo[node]
+
+    best_overall: list[str] = []
+    for assay_id in assay_ids:
+        candidate = longest_path(assay_id, set())
+        if len(candidate) > len(best_overall):
+            best_overall = candidate
+    return DependencyCriticalPath(
+        ordered_assay_ids=best_overall,
+        path_length=len(best_overall),
     )
 
 
