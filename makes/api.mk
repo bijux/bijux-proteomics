@@ -92,7 +92,7 @@ endef
 api: api-install api-lint api-test
 
 openapi-drift:
-	@$(PYTHON) scripts/check_openapi_drift.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.api.openapi_drift
 
 # ── Install toolchain (Python + Node sandbox)
 api-install: | $(VENV) node_deps

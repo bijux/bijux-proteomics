@@ -379,4 +379,5 @@ nav:
       - Architecture: bijux-proteomics-dev/architecture.md
       - Interfaces: bijux-proteomics-dev/interfaces.md
       - Operations: bijux-proteomics-dev/operations.md
+      - Tooling Map: bijux-proteomics-dev/tooling-map.md
       - Quality: bijux-proteomics-dev/quality.md

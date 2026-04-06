@@ -16,6 +16,8 @@ VENV ?= .venv
 VENV_PYTHON ?= $(if $(shell test -x "$(VENV)/bin/python" && echo yes),$(VENV)/bin/python,python3)
 ACT ?= $(if $(wildcard $(VENV)/bin/activate),$(VENV)/bin,)
 CONFIG_DIR ?= configs
+DEV_PYTHONPATH ?= packages/bijux-proteomics-dev/src
+DEV_RUN ?= PYTHONPATH="$(DEV_PYTHONPATH)$${PYTHONPATH:+:$$PYTHONPATH}" "$(VENV_PYTHON)"
 
 -include .env
 export

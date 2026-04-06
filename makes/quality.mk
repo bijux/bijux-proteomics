@@ -62,10 +62,10 @@ quality:
 	fi
 
 	@echo "   - Markdown link check"
-	@$(PYTHON) scripts/check_md_links.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.markdown_links
 
 	@echo "   - Documentation consistency"
-	@$(PYTHON) scripts/check_docs_consistency.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.consistency
 
 	@echo "   - MkDocs build"
 	@$(PYTHON) -m mkdocs build --strict
@@ -89,7 +89,7 @@ interrogate-report:
 	  exit $$rc
 
 docs-links:
-	@$(PYTHON) scripts/check_md_links.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.markdown_links
 
 quality-clean:
 	@echo "→ Cleaning quality artifacts"

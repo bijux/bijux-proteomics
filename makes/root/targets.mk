@@ -56,10 +56,10 @@ all: clean install test lint quality security sbom build docs api ## Full pipeli
 	@echo "✔ All targets completed"
 
 manage_examples:
-	"$(VENV_PYTHON)" scripts/manage_examples.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_examples
 
 manage_models:
-	"$(VENV_PYTHON)" scripts/manage_models.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_models
 
 help: ## Show this help
 	@awk 'BEGIN{FS=":.*##"; OFS="";} \

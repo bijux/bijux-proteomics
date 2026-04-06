@@ -5,5 +5,5 @@ PYTHON      := $(shell command -v python3 || command -v python)
 .PHONY: architecture-check
 
 architecture-check:
-	@$(PYTHON) scripts/check_architecture_docs.py
-	@$(PYTHON) scripts/check_design_debt.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.architecture_docs
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.design_debt

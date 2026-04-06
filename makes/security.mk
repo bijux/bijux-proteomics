@@ -44,10 +44,11 @@ security-audit:
 	PIPA_JSON="$(PIPA_JSON)" \
 	SECURITY_STRICT="$(SECURITY_STRICT)" \
 	SECURITY_IGNORE_IDS="$(SECURITY_IGNORE_IDS)" \
-	"$(VENV_PYTHON)" scripts/helper_pip_audit.py | tee "$(PIPA_TXT)"
+	PYTHONPATH="$(DEV_PYTHONPATH)$${PYTHONPATH:+:$$PYTHONPATH}" \
+	"$(VENV_PYTHON)" -m bijux_proteomics_dev.security.pip_audit_gate | tee "$(PIPA_TXT)"
 
 security-deps:
-	@$(VENV_PYTHON) scripts/check_dependency_allowlist.py
+	@$(DEV_RUN) -m bijux_proteomics_dev.security.dependency_allowlist
 
 security-clean:
 	@rm -rf "$(SECURITY_REPORT_DIR)"
