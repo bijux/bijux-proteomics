@@ -24,8 +24,10 @@ from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
     LabFeedbackRecord,
     LabFeedbackRepository,
+    LabFeedbackQuery,
     ReviewQueueEntry,
     ReviewQueueRepository,
+    query_feedback_records,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.planning import (
@@ -78,6 +80,7 @@ __all__ = [
     "FailureClass",
     "JsonModel",
     "LabFeedbackRecord",
+    "LabFeedbackQuery",
     "LabFeedbackRepository",
     "LabCapacity",
     "MaterialConstraintReport",
@@ -88,6 +91,7 @@ __all__ = [
     "RerunPolicy",
     "ReviewQueueEntry",
     "ReviewQueueRepository",
+    "query_feedback_records",
     "ReviewPacket",
     "ScheduledBatch",
     "ScheduledPlan",

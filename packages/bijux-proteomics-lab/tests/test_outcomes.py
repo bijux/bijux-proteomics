@@ -15,8 +15,10 @@ from bijux_proteomics_lab import (
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
+    LabFeedbackQuery,
     LabFeedbackRecord,
     promote_outcome_to_evidence,
+    query_feedback_records,
     recommend_rerun_policy,
 )
 
@@ -175,3 +177,31 @@ def test_evaluate_assay_acceptance_supports_bounded_ranges() -> None:
 
     assert outcome.passed is True
     assert outcome.result_state is AssayResultState.PASSED
+
+
+def test_query_feedback_records_filters_by_cycle_and_assay() -> None:
+    records = [
+        LabFeedbackRecord(
+            feedback_id="f1",
+            program_id="prog-1",
+            cycle_id="cycle-1",
+            summary="binding risk",
+            related_assay_ids=["a1"],
+            related_evidence_ids=["e1"],
+        ),
+        LabFeedbackRecord(
+            feedback_id="f2",
+            program_id="prog-1",
+            cycle_id="cycle-2",
+            summary="stability risk",
+            related_assay_ids=["a2"],
+            related_evidence_ids=["e2"],
+        ),
+    ]
+
+    filtered = query_feedback_records(
+        records,
+        LabFeedbackQuery(program_id="prog-1", cycle_id="cycle-1", related_assay_id="a1"),
+    )
+
+    assert [record.feedback_id for record in filtered] == ["f1"]

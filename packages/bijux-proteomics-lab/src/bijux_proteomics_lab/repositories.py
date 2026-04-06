@@ -66,6 +66,16 @@ class LabFeedbackRecord(JsonModel):
     )
 
 
+class LabFeedbackQuery(JsonModel):
+    """Structured query for filtering feedback records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    cycle_id: str | None = Field(default=None, description="Optional cycle filter.")
+    related_assay_id: str | None = Field(default=None, description="Optional assay filter.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -74,3 +84,20 @@ class LabFeedbackRepository(Protocol):
 
     def list_feedback_records(self, program_id: str) -> list[LabFeedbackRecord]:
         """List feedback records for a program."""
+
+
+def query_feedback_records(
+    records: list[LabFeedbackRecord],
+    query: LabFeedbackQuery,
+) -> list[LabFeedbackRecord]:
+    """Filter feedback records using structured query fields."""
+    filtered = [record for record in records if record.program_id == query.program_id]
+    if query.cycle_id is not None:
+        filtered = [record for record in filtered if record.cycle_id == query.cycle_id]
+    if query.related_assay_id is not None:
+        filtered = [
+            record
+            for record in filtered
+            if query.related_assay_id in record.related_assay_ids
+        ]
+    return sorted(filtered, key=lambda record: record.created_at)
