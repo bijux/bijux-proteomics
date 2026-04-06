@@ -27,6 +27,7 @@ from bijux_proteomics_intelligence.candidates import (
     CandidateScreeningResult,
     CandidateStatus,
     CandidateTransition,
+    CandidateLifecycleSummary,
     SequenceRiskSignals,
     PortfolioSelectionPolicy,
     PortfolioSelectionResult,
@@ -37,6 +38,7 @@ from bijux_proteomics_intelligence.candidates import (
     select_portfolio_shortlist,
     sequence_risk_signals,
     select_pareto_candidates,
+    summarize_candidate_lifecycle,
 )
 from bijux_proteomics_intelligence.evaluators import (
     EvaluatorPolicyBundle,
@@ -92,6 +94,7 @@ __all__ = [
     "CandidateScreeningResult",
     "CandidateStatus",
     "CandidateTransition",
+    "CandidateLifecycleSummary",
     "SequenceRiskSignals",
     "DesignBrief",
     "EvaluatorPolicyBundle",
@@ -133,6 +136,7 @@ __all__ = [
     "select_portfolio_shortlist",
     "sequence_risk_signals",
     "select_pareto_candidates",
+    "summarize_candidate_lifecycle",
     "prioritize_candidates",
     "summarize_candidate_explainability",
     "candidate_score_breakdown",

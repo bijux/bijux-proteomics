@@ -232,6 +232,20 @@ class ParetoFrontResult(JsonModel):
     )
 
 
+class CandidateLifecycleSummary(JsonModel):
+    """Summary view of candidate transition history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    transition_count: int = Field(..., ge=0, description="Number of recorded transitions.")
+    latest_status: CandidateStatus = Field(..., description="Latest lifecycle status.")
+    visited_statuses: list[CandidateStatus] = Field(
+        default_factory=list,
+        description="Ordered statuses visited by the candidate.",
+    )
+
+
 ALLOWED_CANDIDATE_TRANSITIONS: dict[CandidateStatus, set[CandidateStatus]] = {
     CandidateStatus.PROPOSED: {CandidateStatus.SCREENED, CandidateStatus.REJECTED, CandidateStatus.DEFERRED},
     CandidateStatus.SCREENED: {
@@ -479,4 +493,25 @@ def select_pareto_candidates(
     return ParetoFrontResult(
         frontier_candidate_ids=sorted(frontier),
         dominated_candidate_ids=sorted(dominated),
+    )
+
+
+def summarize_candidate_lifecycle(
+    transitions: list[CandidateTransition],
+) -> CandidateLifecycleSummary:
+    """Summarize ordered transition history for one candidate."""
+    if not transitions:
+        raise ValueError("at least one transition is required to summarize lifecycle")
+    ordered = sorted(transitions, key=lambda transition: transition.changed_at)
+    candidate_id = ordered[0].candidate_id
+    latest_status = ordered[-1].to_status
+    visited: list[CandidateStatus] = [ordered[0].from_status]
+    for transition in ordered:
+        if transition.to_status not in visited:
+            visited.append(transition.to_status)
+    return CandidateLifecycleSummary(
+        candidate_id=candidate_id,
+        transition_count=len(ordered),
+        latest_status=latest_status,
+        visited_statuses=visited,
     )

@@ -10,6 +10,7 @@ from bijux_proteomics_intelligence import (
     CandidateProposal,
     CandidateStatus,
     CandidateTransition,
+    CandidateLifecycleSummary,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
@@ -17,6 +18,7 @@ from bijux_proteomics_intelligence import (
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
+    summarize_candidate_lifecycle,
     transition_candidate,
 )
 
@@ -180,3 +182,25 @@ def test_select_pareto_candidates_preserves_multi_objective_tradeoffs() -> None:
     assert isinstance(result, ParetoFrontResult)
     assert set(result.frontier_candidate_ids) == {"candidate-a", "candidate-b"}
     assert result.dominated_candidate_ids == ["candidate-c"]
+
+
+def test_summarize_candidate_lifecycle_builds_ordered_status_history() -> None:
+    first = transition_candidate(
+        "candidate-lifecycle",
+        CandidateStatus.PROPOSED,
+        CandidateStatus.SCREENED,
+        reason="screen complete",
+    )
+    second = transition_candidate(
+        "candidate-lifecycle",
+        CandidateStatus.SCREENED,
+        CandidateStatus.PRIORITIZED,
+        reason="prioritized",
+        evidence_ids=["ev-1"],
+    )
+
+    summary = summarize_candidate_lifecycle([second, first])
+
+    assert isinstance(summary, CandidateLifecycleSummary)
+    assert summary.transition_count == 2
+    assert summary.latest_status is CandidateStatus.PRIORITIZED
