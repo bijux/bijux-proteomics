@@ -65,6 +65,15 @@ class LabSchemaContractRegistry(JsonModel):
     )
 
 
+class LabSchemaContractIssue(JsonModel):
+    """Validation issue for schema contract registry quality."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, description="Stable issue code.")
+    message: str = Field(..., min_length=1, description="Issue description.")
+
+
 def default_lab_schema_profile() -> LabSchemaProfile:
     """Return the default schema profile for lab artifacts."""
     return LabSchemaProfile(
@@ -187,6 +196,29 @@ def build_lab_schema_upgrade_advisory(
     )
 
 
+def lint_lab_schema_contract_registry(registry: LabSchemaContractRegistry) -> list[LabSchemaContractIssue]:
+    """Lint contract registry for duplicate kinds and invalid version ranges."""
+    issues: list[LabSchemaContractIssue] = []
+    seen: set[str] = set()
+    for contract in registry.contracts:
+        if contract.artifact_kind in seen:
+            issues.append(
+                LabSchemaContractIssue(
+                    code="duplicate-artifact-kind",
+                    message=f"duplicate contract for artifact kind '{contract.artifact_kind}'",
+                )
+            )
+        seen.add(contract.artifact_kind)
+        if contract.minimum_schema_version > "9.9.9":
+            issues.append(
+                LabSchemaContractIssue(
+                    code="schema-version-suspicious",
+                    message=f"contract '{contract.artifact_kind}' has suspicious minimum schema version",
+                )
+            )
+    return issues
+
+
 __all__ = [
     "SchemaMetadata",
     "LabSchemaProfile",
@@ -197,7 +229,9 @@ __all__ = [
     "LabArtifactSchemaContract",
     "evaluate_lab_artifact_schema_contract",
     "LabSchemaContractRegistry",
+    "LabSchemaContractIssue",
     "default_lab_schema_contract_registry",
     "evaluate_lab_artifact_with_registry",
     "build_lab_schema_upgrade_advisory",
+    "lint_lab_schema_contract_registry",
 ]

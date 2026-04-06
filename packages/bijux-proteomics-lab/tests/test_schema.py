@@ -6,10 +6,12 @@ from __future__ import annotations
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_lab import (
     LabArtifactSchemaContract,
+    LabSchemaContractRegistry,
     build_lab_schema_upgrade_advisory,
     evaluate_lab_artifact_with_registry,
     evaluate_lab_artifact_schema_contract,
     evaluate_lab_schema_compatibility,
+    lint_lab_schema_contract_registry,
 )
 
 
@@ -49,3 +51,24 @@ def test_build_lab_schema_upgrade_advisory_recommends_upgrade_for_old_schema() -
     )
 
     assert advisory.action == "upgrade"
+
+
+def test_lint_lab_schema_contract_registry_detects_duplicate_artifact_kinds() -> None:
+    issues = lint_lab_schema_contract_registry(
+        LabSchemaContractRegistry(
+            contracts=[
+                LabArtifactSchemaContract(
+                    artifact_kind="plan",
+                    required_created_by="bijux-proteomics-lab",
+                    minimum_schema_version="1.0.0",
+                ),
+                LabArtifactSchemaContract(
+                    artifact_kind="plan",
+                    required_created_by="bijux-proteomics-lab",
+                    minimum_schema_version="1.0.0",
+                ),
+            ]
+        )
+    )
+
+    assert any(issue.code == "duplicate-artifact-kind" for issue in issues)

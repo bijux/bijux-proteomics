@@ -84,6 +84,7 @@ from bijux_proteomics_lab.schema import (
     LabArtifactSchemaContract,
     LabSchemaCompatibilityReport,
     LabSchemaContractRegistry,
+    LabSchemaContractIssue,
     LabSchemaProfile,
     LabSchemaUpgradeAdvisory,
     build_lab_schema_upgrade_advisory,
@@ -92,6 +93,7 @@ from bijux_proteomics_lab.schema import (
     evaluate_lab_artifact_schema_contract,
     evaluate_lab_artifact_with_registry,
     evaluate_lab_schema_compatibility,
+    lint_lab_schema_contract_registry,
 )
 from bijux_proteomics_lab.serialization import (
     build_canonical_artifact_envelope,
@@ -276,6 +278,7 @@ __all__ = [
     "LabSchemaCompatibilityReport",
     "LabArtifactSchemaContract",
     "LabSchemaContractRegistry",
+    "LabSchemaContractIssue",
     "LabSchemaProfile",
     "LabSchemaUpgradeAdvisory",
     "build_lab_schema_upgrade_advisory",
@@ -284,6 +287,7 @@ __all__ = [
     "evaluate_lab_artifact_schema_contract",
     "evaluate_lab_artifact_with_registry",
     "evaluate_lab_schema_compatibility",
+    "lint_lab_schema_contract_registry",
     "to_canonical_json",
     "fingerprint_model",
     "diff_model_payloads",
