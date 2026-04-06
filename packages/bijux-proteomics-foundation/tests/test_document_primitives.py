@@ -51,7 +51,19 @@ def test_document_schema_touch_updates_audit_metadata() -> None:
     assert touched.updated_by == "curator"
     assert touched.parent_trace_id is None
     assert touched.tags == ["initial", "reviewed"]
+    assert touched.revision == 2
     assert touched.updated_at >= touched.created_at
+
+
+def test_document_schema_content_hash_is_deterministic() -> None:
+    schema = DocumentSchema(created_by="test")
+    payload = {"b": 2, "a": 1}
+
+    hashed_once = schema.with_content_hash(payload)
+    hashed_twice = schema.with_content_hash({"a": 1, "b": 2})
+
+    assert hashed_once.content_hash is not None
+    assert hashed_once.content_hash == hashed_twice.content_hash
 
 
 def test_stable_json_is_sorted_for_reproducible_diffs(tmp_path: Path) -> None:

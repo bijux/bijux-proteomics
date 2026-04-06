@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import UTC, datetime
 
 from pydantic import ConfigDict, Field
@@ -56,6 +58,15 @@ class DocumentSchema(JsonModel):
         default=None,
         description="Actor that most recently touched this document metadata.",
     )
+    revision: int = Field(
+        default=1,
+        ge=1,
+        description="Monotonic revision number for the document.",
+    )
+    content_hash: str | None = Field(
+        default=None,
+        description="Optional stable hash for document content.",
+    )
 
     def touch(self, actor: str, *, tag: str | None = None) -> "DocumentSchema":
         """Return a copy with updated audit metadata."""
@@ -67,5 +78,12 @@ class DocumentSchema(JsonModel):
                 "updated_at": datetime.now(UTC),
                 "updated_by": actor,
                 "tags": tags,
+                "revision": self.revision + 1,
             }
         )
+
+    def with_content_hash(self, payload: dict[str, object]) -> "DocumentSchema":
+        """Return a copy with deterministic content hash from a payload."""
+        stable = json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
+        digest = hashlib.sha256(stable.encode("utf-8")).hexdigest()
+        return self.model_copy(update={"content_hash": digest})
