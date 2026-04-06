@@ -277,6 +277,18 @@ class CandidateScientificProfile(JsonModel):
     )
 
 
+class MutationBurdenSignals(JsonModel):
+    """Compact mutation burden signals for scientific ranking features."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    mutation_count: int = Field(..., ge=0, description="Number of annotated mutations.")
+    conserved_mutation_count: int = Field(..., ge=0, description="Mutations at highly conserved sites.")
+    affected_region_count: int = Field(..., ge=0, description="Distinct affected regions.")
+    burden_risk_index: float = Field(..., ge=0.0, le=1.0, description="Normalized mutation burden risk index.")
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -618,4 +630,34 @@ def build_candidate_scientific_profile(
         variant_context=variant_context,
         risk_profile=risk_profile,
         assay_rationale=assay_rationale,
+    )
+
+
+def mutation_burden_signals(
+    candidate_id: str,
+    mutations: list[MutationAnnotation],
+) -> MutationBurdenSignals:
+    """Compute mutation burden signals for ranking and reviewer summaries."""
+    mutation_count = len(mutations)
+    conserved_mutation_count = sum(
+        1
+        for mutation in mutations
+        if mutation.conservation_score is not None and mutation.conservation_score >= 0.8
+    )
+    affected_regions = {mutation.region for mutation in mutations if mutation.region}
+    burden_index = min(
+        1.0,
+        round(
+            (min(mutation_count / 6.0, 1.0) * 0.5)
+            + (min(conserved_mutation_count / 3.0, 1.0) * 0.35)
+            + (min(len(affected_regions) / 4.0, 1.0) * 0.15),
+            4,
+        ),
+    )
+    return MutationBurdenSignals(
+        candidate_id=candidate_id,
+        mutation_count=mutation_count,
+        conserved_mutation_count=conserved_mutation_count,
+        affected_region_count=len(affected_regions),
+        burden_risk_index=burden_index,
     )

@@ -14,11 +14,13 @@ from bijux_proteomics_intelligence import (
     CandidateScientificProfile,
     CandidateVariantContext,
     MutationAnnotation,
+    MutationBurdenSignals,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
     build_risk_profile,
     build_candidate_scientific_profile,
+    mutation_burden_signals,
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
@@ -269,3 +271,35 @@ def test_build_candidate_scientific_profile_links_risk_and_assay_rationale() -> 
     assert profile.variant_context.elevated_conservation_risk is True
     assert profile.risk_profile.manufacturability_risk > 0.3
     assert len(profile.assay_rationale) >= 2
+
+
+def test_mutation_burden_signals_capture_conserved_and_region_spread() -> None:
+    signals = mutation_burden_signals(
+        "candidate-burden",
+        [
+            MutationAnnotation(
+                mutation="A101V",
+                region="active-site",
+                expected_effect="stabilize active conformation",
+                conservation_score=0.9,
+            ),
+            MutationAnnotation(
+                mutation="L215P",
+                region="interface",
+                expected_effect="improve specificity",
+                conservation_score=0.45,
+            ),
+            MutationAnnotation(
+                mutation="G216S",
+                region="interface",
+                expected_effect="improve specificity",
+                conservation_score=0.81,
+            ),
+        ],
+    )
+
+    assert isinstance(signals, MutationBurdenSignals)
+    assert signals.mutation_count == 3
+    assert signals.conserved_mutation_count == 2
+    assert signals.affected_region_count == 2
+    assert signals.burden_risk_index > 0.0
