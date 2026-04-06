@@ -81,6 +81,15 @@ class AssayIntent(JsonModel):
     )
 
 
+class AssayFamily(StrEnum):
+    """Coarse assay families used for planning batches."""
+
+    BIOPHYSICAL = "biophysical"
+    EXPRESSION = "expression"
+    CELLULAR = "cellular"
+    OTHER = "other"
+
+
 class ExperimentPlan(JsonModel):
     """Experiment plan derived from a program definition."""
 
@@ -271,50 +280,54 @@ def dependency_order(
     return ordered
 
 
+def assay_family(sample_kind: str) -> AssayFamily:
+    """Infer a planning family from the assay sample kind."""
+    lowered = sample_kind.lower()
+    if "biophys" in lowered or "protein" in lowered:
+        return AssayFamily.BIOPHYSICAL
+    if "express" in lowered:
+        return AssayFamily.EXPRESSION
+    if "cell" in lowered:
+        return AssayFamily.CELLULAR
+    return AssayFamily.OTHER
+
+
 def plan_experiment_batches(
     program: ProgramSpec,
     bundle: EvidenceBundle | None = None,
+    dependencies: list[AssayDependency] | None = None,
 ) -> ExperimentPlan:
-    """Build a two-lane plan with blocking work first."""
-    blocking_assays = [
-        assay.assay_id for assay in program.assay_panel if assay.blocking
-    ]
-    supporting_assays = [
-        assay.assay_id for assay in program.assay_panel if not assay.blocking
-    ]
+    """Build dependency-aware batches grouped by blocking status and assay family."""
+    dependencies = dependencies or []
     batches: list[ExperimentBatch] = []
-    if blocking_assays:
+    grouped: dict[tuple[bool, AssayFamily], list[object]] = {}
+    for assay in program.assay_panel:
+        grouped.setdefault((assay.blocking, assay_family(assay.sample_kind)), []).append(assay)
+    priority = 1
+    for (blocking, family), assays in sorted(
+        grouped.items(),
+        key=lambda item: (not item[0][0], item[0][1].value),
+    ):
+        ordered_assays = dependency_order([assay.assay_id for assay in assays], dependencies)
         batches.append(
             ExperimentBatch(
-                batch_id=f"{program.program_id}-gate-batch",
-                objective="De-risk the program before expensive work starts.",
-                assay_ids=blocking_assays,
+                batch_id=f"{program.program_id}-{family.value}-{'gate' if blocking else 'support'}",
+                objective=(
+                    "De-risk the program before expensive work starts."
+                    if blocking
+                    else "Expand confidence and rank promising candidates."
+                ),
+                assay_ids=ordered_assays,
                 blocking_review_gates=[
                     gate.gate_id for gate in program.review_gates if gate.blocking
-                ],
-                priority=1,
-                sample_requirements=[
-                    assay.sample_kind
-                    for assay in program.assay_panel
-                    if assay.blocking
-                ],
+                ]
+                if blocking
+                else [],
+                priority=priority,
+                sample_requirements=sorted({assay.sample_kind for assay in assays}),
             )
         )
-    if supporting_assays:
-        batches.append(
-            ExperimentBatch(
-                batch_id=f"{program.program_id}-optimization-batch",
-                objective="Expand confidence and rank promising candidates.",
-                assay_ids=supporting_assays,
-                blocking_review_gates=[],
-                priority=2 if batches else 1,
-                sample_requirements=[
-                    assay.sample_kind
-                    for assay in program.assay_panel
-                    if not assay.blocking
-                ],
-            )
-        )
+        priority += 1
     required_kinds = [need.value for need in program.evidence_needs]
     gaps = evidence_gaps(bundle, required_kinds) if bundle else required_kinds
     return ExperimentPlan(

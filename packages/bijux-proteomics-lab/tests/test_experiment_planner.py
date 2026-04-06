@@ -10,6 +10,7 @@ from bijux_proteomics.programs import AssayRequirement, ReviewGate
 from bijux_proteomics_knowledge import EvidenceBundle, EvidenceKind, EvidenceRecord, EvidenceStrength
 from bijux_proteomics_lab import (
     AssayDependency,
+    AssayFamily,
     AssayObservation,
     ExperimentBatch,
     ExperimentPlan,
@@ -79,14 +80,19 @@ def test_plan_experiment_batches_prioritizes_blocking_assays() -> None:
         ],
     )
 
-    plan = plan_experiment_batches(program, bundle)
+    plan = plan_experiment_batches(
+        program,
+        bundle,
+        dependencies=[AssayDependency(assay_id="expression-screen", requires_assay_id="primary-binding")],
+    )
 
     assert [batch.batch_id for batch in plan.batches] == [
-        "prog-1-gate-batch",
-        "prog-1-optimization-batch",
+        "prog-1-biophysical-gate",
+        "prog-1-expression-support",
     ]
     assert plan.review_queue == ["synthesis-review"]
     assert "structure" in plan.evidence_gaps
+    assert AssayFamily.BIOPHYSICAL.value in plan.batches[0].batch_id
 
 
 def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
