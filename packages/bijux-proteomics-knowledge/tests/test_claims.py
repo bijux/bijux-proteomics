@@ -19,6 +19,7 @@ from bijux_proteomics_knowledge import (
     link_evidence_to_claim,
     build_decision_lineage,
     strengthen_claim,
+    build_hypothesis_dossier,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -285,3 +286,54 @@ def test_validate_claims_rejects_closed_claim_with_insufficient_status() -> None
     )
 
     assert any(issue.code == "closed-insufficient-claim" for issue in issues)
+
+
+def test_build_hypothesis_dossier_summarizes_support_contradiction_and_assays() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-hypothesis",
+        target_id="target-1",
+        records=[
+            EvidenceRecord(
+                evidence_id="ev-1",
+                kind=EvidenceKind.LITERATURE,
+                title="lit",
+                source="pmid",
+                claim="supports progression",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    support_claim = build_claim(
+        claim_id="claim-support",
+        target_id="target-1",
+        statement="support claim",
+        evidence_ids=["ev-1"],
+        status=ClaimStatus.SUPPORTED,
+        confidence=0.8,
+        resolution_assays=["orthogonal cellular assay"],
+    )
+    contradict_claim = build_claim(
+        claim_id="claim-contradict",
+        target_id="target-1",
+        statement="contradict claim",
+        evidence_ids=["ev-1"],
+        contradicting_evidence_ids=["ev-1"],
+        status=ClaimStatus.DISPUTED,
+        polarity=ClaimPolarity.CONTRADICTING,
+        resolution_assays=["target engagement assay"],
+    )
+
+    dossier = build_hypothesis_dossier(
+        bundle,
+        [support_claim, contradict_claim],
+        decision_tag="progression",
+    )
+
+    assert dossier.supporting_claim_ids == ["claim-support"]
+    assert dossier.contradicting_claim_ids == ["claim-contradict"]
+    assert sorted(dossier.required_resolution_assays) == [
+        "orthogonal cellular assay",
+        "target engagement assay",
+    ]

@@ -148,6 +148,20 @@ class ClaimValidationIssue(JsonModel):
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
 
+class HypothesisDossier(JsonModel):
+    """Structured summary of claim evidence for a decision hypothesis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: TargetId = Field(..., description="Target identifier.")
+    decision_tag: str = Field(..., min_length=1, description="Decision tag under review.")
+    supporting_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Supporting claim identifiers.")
+    contradicting_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Contradicting claim identifiers.")
+    unresolved_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Open claims requiring more work.")
+    required_resolution_assays: list[str] = Field(default_factory=list, description="Unique assays needed for resolution.")
+    support_confidence_mean: float = Field(default=0.0, ge=0.0, le=1.0, description="Mean confidence of supporting claims.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -365,3 +379,45 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                 )
             )
     return issues
+
+
+def build_hypothesis_dossier(
+    bundle: EvidenceBundle,
+    claims: list[EvidenceClaim],
+    *,
+    decision_tag: str,
+) -> HypothesisDossier:
+    """Build a claim-level hypothesis dossier for one decision dimension."""
+    scoped_claims = [
+        claim
+        for claim in claims
+        if any(
+            decision_tag in record.decision_tags and record.evidence_id in claim.evidence_ids
+            for record in bundle.records
+        )
+    ]
+    supporting = [claim for claim in scoped_claims if claim.polarity is ClaimPolarity.SUPPORTING]
+    contradicting = [claim for claim in scoped_claims if claim.polarity is ClaimPolarity.CONTRADICTING]
+    unresolved = [claim for claim in scoped_claims if claim.resolution_state is ClaimResolutionState.OPEN]
+    support_confidence_mean = (
+        round(sum(claim.confidence for claim in supporting) / len(supporting), 4)
+        if supporting
+        else 0.0
+    )
+    required_assays = sorted(
+        {
+            assay
+            for claim in unresolved
+            for assay in claim.resolution_assays
+        }
+    )
+    target_id = scoped_claims[0].target_id if scoped_claims else bundle.target_id
+    return HypothesisDossier(
+        target_id=target_id,
+        decision_tag=decision_tag,
+        supporting_claim_ids=[claim.claim_id for claim in supporting],
+        contradicting_claim_ids=[claim.claim_id for claim in contradicting],
+        unresolved_claim_ids=[claim.claim_id for claim in unresolved],
+        required_resolution_assays=required_assays,
+        support_confidence_mean=support_confidence_mean,
+    )
