@@ -9,44 +9,23 @@ last_reviewed: 2026-04-04
 
 # Interfaces
 
-This section explains which commands, APIs, imports, schemas, and artifacts `bijux-proteomics-knowledge` is prepared to stand behind as real surfaces.
+This section explains the surfaces `bijux-proteomics-knowledge` is prepared to
+support over time.
 
-These pages explain the public face of `bijux-proteomics-knowledge`. They help a caller separate deliberate contracts from incidental visibility before a dependency hardens around the wrong surface.
-
-Treat the interfaces pages for `bijux-proteomics-knowledge` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+The package is library-first. The dependable interfaces are import contracts and
+data shapes, not a packaged CLI or HTTP service.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    page["Interfaces<br/>clarifies: identify contracts | see caller impact | review compatibility"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["HTTP app in src/bijux_proteomics_knowledge/claims.py"]
-    surface1 --> page
-    surface2["knowledge contracts in src/bijux_proteomics_knowledge/schema.py"]
-    surface2 --> page
-    surface3["CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py"]
-    surface3 --> page
-    proof1["src/bijux_proteomics_knowledge/schema.py"]
-    page --> proof1
-    proof2["src/bijux_proteomics_knowledge/schema.py"]
-    page --> proof2
-    proof3["execution store records"]
-    page --> proof3
-    review1["tests/e2e for governed flow behavior"]
-    review1 -.raises compatibility pressure on.-> page
-    review2["tests/regression and tests/smoke for replay and storage protection"]
-    review2 -.raises compatibility pressure on.-> page
-    review3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    review3 -.raises compatibility pressure on.-> page
-    class page page;
-    class surface1,surface2,surface3 positive;
-    class proof1,proof2,proof3 anchor;
-    class review1,review2,review3 caution;
+    imports["public imports in __init__.py"]
+    schemas["schema and serialization contracts"]
+    models["evidence/claims/resolution models"]
+    tests["package tests for compatibility pressure"]
+    imports --> tests
+    schemas --> tests
+    models --> tests
 ```
 
 ## Pages in This Section
@@ -70,10 +49,10 @@ flowchart LR
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py
-- HTTP app in src/bijux_proteomics_knowledge/claims.py
-- knowledge contracts in src/bijux_proteomics_knowledge/schema.py
-- src/bijux_proteomics_knowledge/schema.py
+- `src/bijux_proteomics_knowledge/__init__.py` for public import exports
+- `src/bijux_proteomics_knowledge/schema.py` for schema compatibility contracts
+- `src/bijux_proteomics_knowledge/serialization.py` for canonical serialization rules
+- `src/bijux_proteomics_knowledge/evidence.py` and `claims.py` for core data surfaces
 
 ## Use This Page When
 
@@ -87,9 +66,9 @@ Use `Interfaces` to decide whether a caller-facing surface is explicit enough to
 
 ## What This Page Answers
 
-- which public or operator-facing surfaces `bijux-proteomics-knowledge` is really asking readers to trust
-- which schemas, artifacts, imports, or commands behave like contracts
-- what compatibility pressure a change to this surface would create
+- which import paths and payload shapes callers can rely on
+- where compatibility pressure is highest when models evolve
+- what should trigger explicit compatibility review
 
 ## Reviewer Lens
 
