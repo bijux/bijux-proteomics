@@ -14,6 +14,7 @@ from bijux_proteomics_knowledge import (
     audit_knowledge_quality,
     rank_evidence_for_decision,
     evaluate_modality_coverage,
+    summarize_evidence_provenance,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -1012,3 +1013,45 @@ def test_evaluate_modality_coverage_reports_missing_required_modalities() -> Non
 
     assert report.observed_modalities[EvidenceKind.LITERATURE.value] == 1
     assert report.missing_modalities == [EvidenceKind.ASSAY.value]
+
+
+def test_summarize_evidence_provenance_reports_transitive_ancestors() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-prov",
+        target_id="target-prov",
+        records=[
+            EvidenceRecord(
+                evidence_id="prov-root",
+                kind=EvidenceKind.LITERATURE,
+                title="root",
+                source="pmid",
+                claim="root",
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="prov-mid",
+                kind=EvidenceKind.STRUCTURE,
+                title="mid",
+                source="model",
+                claim="mid",
+                derived_from=["prov-root"],
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="prov-leaf",
+                kind=EvidenceKind.ASSAY,
+                title="leaf",
+                source="lab",
+                claim="leaf",
+                derived_from=["prov-mid"],
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    report = summarize_evidence_provenance(bundle, evidence_id="prov-leaf")
+
+    assert report.ancestor_ids == ["prov-mid", "prov-root"]
+    assert report.lineage_depth == 2

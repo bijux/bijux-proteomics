@@ -629,6 +629,20 @@ class ModalityCoverageReport(JsonModel):
     coverage_score: float = Field(..., ge=0.0, le=1.0, description="Fraction of required modalities observed.")
 
 
+class EvidenceProvenanceReport(JsonModel):
+    """Lineage summary for an evidence record within a bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
+    ancestor_ids: list[str] = Field(default_factory=list, description="Transitive upstream evidence identifiers.")
+    lineage_depth: int = Field(default=0, ge=0, description="Maximum lineage depth from upstream ancestry.")
+    has_missing_ancestors: bool = Field(
+        default=False,
+        description="Whether lineage references missing upstream evidence IDs.",
+    )
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -1057,6 +1071,48 @@ def evaluate_modality_coverage(
         observed_modalities=observed,
         missing_modalities=missing,
         coverage_score=max(0.0, min(coverage_score, 1.0)),
+    )
+
+
+def summarize_evidence_provenance(
+    bundle: EvidenceBundle,
+    *,
+    evidence_id: str,
+) -> EvidenceProvenanceReport:
+    """Summarize transitive evidence ancestry from derived_from links."""
+    by_id = {record.evidence_id: record for record in bundle.records}
+    if evidence_id not in by_id:
+        return EvidenceProvenanceReport(
+            evidence_id=evidence_id,
+            ancestor_ids=[],
+            lineage_depth=0,
+            has_missing_ancestors=True,
+        )
+    ancestors: set[str] = set()
+    missing = False
+
+    def walk(current_id: str, depth: int) -> int:
+        nonlocal missing
+        record = by_id.get(current_id)
+        if record is None:
+            missing = True
+            return depth
+        max_depth = depth
+        for upstream_id in record.derived_from:
+            if upstream_id not in by_id:
+                missing = True
+            if upstream_id in ancestors:
+                continue
+            ancestors.add(upstream_id)
+            max_depth = max(max_depth, walk(upstream_id, depth + 1))
+        return max_depth
+
+    depth = walk(evidence_id, 0)
+    return EvidenceProvenanceReport(
+        evidence_id=evidence_id,
+        ancestor_ids=sorted(ancestors),
+        lineage_depth=depth,
+        has_missing_ancestors=missing,
     )
 
 
