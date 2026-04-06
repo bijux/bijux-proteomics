@@ -9,44 +9,29 @@ last_reviewed: 2026-04-04
 
 # Architecture
 
-This section explains how `bijux_proteomics_knowledge` is organized so a reviewer can follow structure, dependency direction, and execution flow without guessing.
+This section maps the real module layout for `bijux-proteomics-knowledge`.
 
-These pages turn `bijux-proteomics-knowledge` from a directory tree into a readable design map. Use them when a structural change needs to be grounded in named modules and real execution paths.
-
-Treat the architecture pages for `bijux-proteomics-knowledge` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+The package is not split into `runtime/model/application` layers. The structure
+is feature-oriented around evidence, claims, conflict resolution, review, and
+graph semantics.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    page["Architecture<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["execution engines and lifecycle logic"]
-    module1 --> page
-    module2["orchestration and replay coordination"]
-    module2 --> page
-    module3["durable runtime models"]
-    module3 --> page
-    code1["src/bijux_proteomics_knowledge/model"]
-    page --> code1
-    code2["src/bijux_proteomics_knowledge/runtime"]
-    page --> code2
-    code3["src/bijux_proteomics_knowledge/application"]
-    page --> code3
-    pressure1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/e2e for governed flow behavior"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/regression and tests/smoke for replay and storage protection"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+    evidence["evidence.py"]
+    claims["claims.py"]
+    resolution["resolution.py"]
+    review["review.py"]
+    graph["graph.py"]
+    repositories["repositories.py"]
+    adapters["adapters.py"]
+    evidence --> claims
+    claims --> resolution
+    resolution --> review
+    claims --> graph
+    repositories --> review
+    adapters --> evidence
 ```
 
 ## Pages in This Section
@@ -70,9 +55,10 @@ flowchart LR
 
 ## Concrete Anchors
 
-- `src/bijux_proteomics_knowledge/model` for durable runtime models
-- `src/bijux_proteomics_knowledge/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_knowledge/application` for orchestration and replay coordination
+- `src/bijux_proteomics_knowledge/evidence.py` for evidence modeling and trust logic
+- `src/bijux_proteomics_knowledge/claims.py` for claim lifecycle and lineage behavior
+- `src/bijux_proteomics_knowledge/resolution.py` for conflict resolution policy behavior
+- `src/bijux_proteomics_knowledge/review.py` for review-packet and readiness summarization
 
 ## Use This Page When
 
@@ -86,9 +72,9 @@ Use `Architecture` to decide whether a structural change makes `bijux-proteomics
 
 ## What This Page Answers
 
-- how `bijux-proteomics-knowledge` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
+- how the package is actually decomposed today
+- which modules are core dependency hubs
+- where structural drift is likely to create caller confusion
 
 ## Reviewer Lens
 
