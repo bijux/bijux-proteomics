@@ -34,6 +34,7 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
     assay_ids = [assay.assay_id for assay in program.assay_panel]
     criterion_ids = [criterion.criterion_id for criterion in program.success_criteria]
     criterion_metrics = {criterion.metric for criterion in program.success_criteria}
+    criterion_metric_list = [criterion.metric for criterion in program.success_criteria]
     blocking_assays = [assay for assay in program.assay_panel if assay.blocking]
 
     if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY} and not program.review_gates:
@@ -108,6 +109,13 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
             )
         )
     for gate in program.review_gates:
+        if len(gate.decision_inputs) != len(set(gate.decision_inputs)):
+            issues.append(
+                ProgramValidationIssue(
+                    code="review-inputs-duplicate",
+                    message=f"review gate '{gate.gate_id}' repeats one or more decision inputs",
+                )
+            )
         if gate.blocking and not gate.required_roles:
             issues.append(
                 ProgramValidationIssue(
@@ -132,6 +140,25 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                     ),
                 )
             )
+        if program.stage is ProgramStage.LAB_READY and gate.blocking:
+            mapped_assay_inputs = [
+                decision_input for decision_input in gate.decision_inputs if decision_input in assay_ids
+            ]
+            non_blocking_inputs = [
+                assay.assay_id
+                for assay in program.assay_panel
+                if assay.assay_id in mapped_assay_inputs and not assay.blocking
+            ]
+            if non_blocking_inputs:
+                issues.append(
+                    ProgramValidationIssue(
+                        code="blocking-gate-needs-blocking-assays",
+                        message=(
+                            f"blocking review gate '{gate.gate_id}' references non-blocking assays: "
+                            + ", ".join(sorted(non_blocking_inputs))
+                        ),
+                    )
+                )
     if len(gate_ids) != len(set(gate_ids)):
         issues.append(
             ProgramValidationIssue(
@@ -151,6 +178,13 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
             ProgramValidationIssue(
                 code="criterion-ids-duplicate",
                 message="success criteria should use unique identifiers",
+            )
+        )
+    if len(criterion_metric_list) != len(set(criterion_metric_list)):
+        issues.append(
+            ProgramValidationIssue(
+                code="criterion-metrics-duplicate",
+                message="success criteria should not duplicate the same metric key",
             )
         )
     needs = {need.value for need in program.evidence_needs}

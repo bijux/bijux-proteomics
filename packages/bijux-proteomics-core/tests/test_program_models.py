@@ -398,6 +398,74 @@ def test_validate_program_readiness_flags_unmapped_review_inputs() -> None:
     ) in issues
 
 
+def test_validate_program_readiness_flags_duplicate_gate_inputs() -> None:
+    program = create_program_spec(
+        program_id="prog-10b",
+        name="duplicate review inputs",
+        objective="reject repeated review input definitions",
+        target_id="target-10b",
+        target_name="Target 10B",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="keep review contracts explicit and unique",
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="pre-review",
+            name="Pre-review",
+            required_roles=["scientist"],
+            decision_inputs=["evidence_bundle", "evidence_bundle"],
+            blocking=True,
+        )
+    )
+
+    issues = validate_program_readiness(program)
+
+    assert ProgramValidationIssue(
+        code="review-inputs-duplicate",
+        message="review gate 'pre-review' repeats one or more decision inputs",
+    ) in issues
+
+
+def test_validate_program_readiness_requires_blocking_assays_for_blocking_gates() -> None:
+    program = create_program_spec(
+        program_id="prog-10c",
+        name="blocking assay alignment",
+        objective="ensure blocking review inputs map to blocking assays",
+        target_id="target-10c",
+        target_name="Target 10C",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="tie review risk to hard assay blockers",
+    )
+    program.stage = ProgramStage.LAB_READY
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="primary-binding",
+            purpose="measure activity",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=False,
+        )
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="lab-gate",
+            name="Lab gate",
+            required_roles=["scientist"],
+            decision_inputs=["primary-binding"],
+            blocking=True,
+        )
+    )
+
+    issues = validate_program_readiness(program)
+
+    assert ProgramValidationIssue(
+        code="blocking-gate-needs-blocking-assays",
+        message="blocking review gate 'lab-gate' references non-blocking assays: primary-binding",
+    ) in issues
+
+
 def test_validate_assay_dependencies_flags_unmapped_success_metrics() -> None:
     program = create_program_spec(
         program_id="prog-11",
