@@ -17,9 +17,12 @@ from bijux_proteomics_foundation import (
     DocumentSchema,
     FoundationContractError,
     JsonModel,
+    IdentifierKind,
     ProgramId,
     SchemaMigration,
     assess_schema_compatibility,
+    classify_identifier,
+    ensure_identifier_kind,
 )
 
 
@@ -108,6 +111,16 @@ def test_typed_ids_enforce_stable_identifier_pattern() -> None:
 
     with pytest.raises(ValidationError):
         IdentifierHolder(program_id="Program 1")
+
+
+def test_identifier_helpers_classify_and_validate_prefix() -> None:
+    assert classify_identifier("prog-1") is IdentifierKind.PROGRAM
+    assert classify_identifier("unknown-1") is None
+
+    ensure_identifier_kind("target-1", IdentifierKind.TARGET)
+
+    with pytest.raises(ValueError, match="should use 'prog-' prefix"):
+        ensure_identifier_kind("target-1", IdentifierKind.PROGRAM)
 
 
 def test_foundation_contract_errors_share_common_base() -> None:

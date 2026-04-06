@@ -18,8 +18,11 @@ from bijux_proteomics_foundation.ids import (
     CycleId,
     EvidenceId,
     GateId,
+    IdentifierKind,
     ProgramId,
     TargetId,
+    classify_identifier,
+    ensure_identifier_kind,
 )
 from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
 from bijux_proteomics_foundation.schema import (
@@ -43,9 +46,12 @@ __all__ = [
     "EvidenceId",
     "FoundationContractError",
     "GateId",
+    "IdentifierKind",
     "JsonModel",
     "MigrationRegistry",
     "ProgramId",
     "SchemaMigration",
     "TargetId",
+    "classify_identifier",
+    "ensure_identifier_kind",
 ]

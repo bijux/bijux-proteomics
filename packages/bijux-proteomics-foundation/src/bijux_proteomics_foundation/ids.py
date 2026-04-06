@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 from typing import Annotated
 
 from pydantic import StringConstraints
@@ -24,3 +25,34 @@ EvidenceId = Annotated[str, Identifier]
 BatchId = Annotated[str, Identifier]
 GateId = Annotated[str, Identifier]
 CycleId = Annotated[str, Identifier]
+
+
+class IdentifierKind(StrEnum):
+    """Known identifier kinds with stable prefix contracts."""
+
+    PROGRAM = "prog"
+    TARGET = "target"
+    CANDIDATE = "candidate"
+    EVIDENCE = "evid"
+    ASSAY = "assay"
+    BATCH = "batch"
+    GATE = "gate"
+    CYCLE = "cycle"
+
+
+def classify_identifier(identifier: str) -> IdentifierKind | None:
+    """Return the identifier kind from prefix, if recognized."""
+    prefix = identifier.split("-", maxsplit=1)[0].strip().lower()
+    for kind in IdentifierKind:
+        if kind.value == prefix:
+            return kind
+    return None
+
+
+def ensure_identifier_kind(identifier: str, kind: IdentifierKind) -> None:
+    """Raise when an identifier does not match the expected kind prefix."""
+    actual = classify_identifier(identifier)
+    if actual is not kind:
+        raise ValueError(
+            f"identifier '{identifier}' should use '{kind.value}-' prefix"
+        )
