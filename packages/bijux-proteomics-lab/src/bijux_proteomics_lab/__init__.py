@@ -29,6 +29,8 @@ from bijux_proteomics_lab.outcomes import (
     BatchClaimBeliefUpdate,
     ObservationQualityProfile,
     BatchPromotionPolicy,
+    OutcomeReliabilityTier,
+    OutcomeReliabilityAssessment,
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
@@ -46,6 +48,7 @@ from bijux_proteomics_lab.outcomes import (
     triage_batch_failures,
     consolidate_claim_belief_updates,
     assess_observation_quality,
+    assess_outcome_reliability,
 )
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
@@ -203,6 +206,8 @@ __all__ = [
     "BatchClaimBeliefUpdate",
     "ObservationQualityProfile",
     "BatchPromotionPolicy",
+    "OutcomeReliabilityTier",
+    "OutcomeReliabilityAssessment",
     "ExperimentPlan",
     "FamilyCapacity",
     "FailureClass",
@@ -293,6 +298,7 @@ __all__ = [
     "triage_batch_failures",
     "consolidate_claim_belief_updates",
     "assess_observation_quality",
+    "assess_outcome_reliability",
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
     "prioritize_next_assays",

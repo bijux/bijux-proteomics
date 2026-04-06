@@ -385,6 +385,25 @@ class BatchPromotionPolicy(JsonModel):
     )
 
 
+class OutcomeReliabilityTier(StrEnum):
+    """Reliability tier for assay outcomes used in progression logic."""
+
+    ROBUST = "robust"
+    PROVISIONAL = "provisional"
+    WEAK = "weak"
+
+
+class OutcomeReliabilityAssessment(JsonModel):
+    """Reliability assessment for one assay outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    tier: OutcomeReliabilityTier = Field(..., description="Assigned reliability tier.")
+    score: float = Field(..., ge=0.0, le=1.0, description="Reliability score.")
+    notes: list[str] = Field(default_factory=list, description="Assessment rationale notes.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -931,5 +950,45 @@ def assess_observation_quality(observation: AssayObservationRecord) -> Observati
         qc_reliability=round(qc_score, 4),
         interpretability=round(interpretability, 4),
         composite_quality=composite,
+        notes=notes,
+    )
+
+
+def assess_outcome_reliability(
+    outcome: AssayOutcome,
+    *,
+    quality_profile: ObservationQualityProfile | None = None,
+) -> OutcomeReliabilityAssessment:
+    """Assess reliability of one assay outcome for downstream decisioning."""
+    score = 0.5
+    notes: list[str] = []
+    if outcome.result_state is AssayResultState.PASSED:
+        score += 0.2
+        notes.append("passed assay outcome increases reliability")
+    if outcome.result_state in {AssayResultState.FAILED_TECHNICAL, AssayResultState.INCONCLUSIVE}:
+        score -= 0.25
+        notes.append("technical or inconclusive state reduces reliability")
+    if outcome.replicate_count >= 3:
+        score += 0.15
+        notes.append("replicate_count supports reliability")
+    if outcome.uncertainty > 0.5:
+        score -= 0.2
+        notes.append("high uncertainty weakens reliability")
+    if quality_profile is not None:
+        score = (score * 0.6) + (quality_profile.composite_quality * 0.4)
+        notes.append("observation quality profile applied")
+    bounded = round(max(0.0, min(score, 1.0)), 4)
+    if bounded >= 0.75:
+        tier = OutcomeReliabilityTier.ROBUST
+    elif bounded >= 0.5:
+        tier = OutcomeReliabilityTier.PROVISIONAL
+    else:
+        tier = OutcomeReliabilityTier.WEAK
+    if not notes:
+        notes.append("baseline reliability assessment")
+    return OutcomeReliabilityAssessment(
+        assay_id=outcome.assay_id,
+        tier=tier,
+        score=bounded,
         notes=notes,
     )

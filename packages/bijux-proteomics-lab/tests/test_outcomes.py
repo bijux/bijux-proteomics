@@ -46,6 +46,8 @@ from bijux_proteomics_lab import (
     assess_observation_quality,
     BatchPromotionPolicy,
     ObservationQualityProfile,
+    assess_outcome_reliability,
+    OutcomeReliabilityTier,
 )
 
 
@@ -543,6 +545,30 @@ def test_promote_batch_outcome_to_evidence_respects_quality_policy() -> None:
 
     assert promoted == []
     assert report.blocked_assay_ids == ["assay-1"]
+
+
+def test_assess_outcome_reliability_uses_quality_and_uncertainty() -> None:
+    assessment = assess_outcome_reliability(
+        AssayOutcome(
+            assay_id="assay-rel",
+            passed=True,
+            result_state=AssayResultState.PASSED,
+            observation_summary="good result",
+            replicate_count=3,
+            uncertainty=0.1,
+        ),
+        quality_profile=ObservationQualityProfile(
+            assay_id="assay-rel",
+            technical_reproducibility=0.9,
+            qc_reliability=0.9,
+            interpretability=0.8,
+            composite_quality=0.88,
+            notes=[],
+        ),
+    )
+
+    assert assessment.tier is OutcomeReliabilityTier.ROBUST
+    assert assessment.score >= 0.75
 
 
 def test_query_feedback_records_supports_evidence_and_time_filters() -> None:
