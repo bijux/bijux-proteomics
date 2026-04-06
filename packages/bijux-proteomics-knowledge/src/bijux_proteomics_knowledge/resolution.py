@@ -37,8 +37,27 @@ class ConflictResolution(JsonModel):
     rationale: str = Field(..., min_length=1, description="Why this resolution was chosen.")
 
 
-def resolve_conflicts(bundle: EvidenceBundle) -> tuple[BundleTrustReport, list[ConflictResolution]]:
+class ResolutionPolicy(JsonModel):
+    """Policy that controls automatic conflict resolution behavior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable resolution policy identifier.")
+    minimum_confidence_delta_for_auto_accept: float = Field(
+        default=0.1,
+        ge=0.0,
+        le=1.0,
+        description="Minimum confidence gap required to auto-accept one side.",
+    )
+
+
+def resolve_conflicts(
+    bundle: EvidenceBundle,
+    *,
+    policy: ResolutionPolicy | None = None,
+) -> tuple[BundleTrustReport, list[ConflictResolution]]:
     """Resolve conflicting evidence using trust and curation heuristics."""
+    policy = policy or ResolutionPolicy(policy_id="default-resolution-policy")
     trust = compute_bundle_trust(bundle)
     resolutions: list[ConflictResolution] = []
     for conflict in trust.conflicts:
@@ -53,7 +72,7 @@ def resolve_conflicts(bundle: EvidenceBundle) -> tuple[BundleTrustReport, list[C
                     rationale="records have similar trust; a curator should resolve the conflict",
                 )
             )
-        elif left.confidence >= right.confidence:
+        elif (left.confidence - right.confidence) >= policy.minimum_confidence_delta_for_auto_accept:
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
@@ -62,13 +81,22 @@ def resolve_conflicts(bundle: EvidenceBundle) -> tuple[BundleTrustReport, list[C
                     rationale=f"{left.evidence_id} carries the stronger confidence signal",
                 )
             )
-        else:
+        elif (right.confidence - left.confidence) >= policy.minimum_confidence_delta_for_auto_accept:
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
                     right_evidence_id=right.evidence_id,
                     action=ResolutionAction.ACCEPT_HIGHER_TRUST,
                     rationale=f"{right.evidence_id} carries the stronger confidence signal",
+                )
+            )
+        else:
+            resolutions.append(
+                ConflictResolution(
+                    left_evidence_id=left.evidence_id,
+                    right_evidence_id=right.evidence_id,
+                    action=ResolutionAction.REQUIRE_CURATION,
+                    rationale="confidence separation is too small for automatic acceptance",
                 )
             )
     if trust.conflicts and not resolutions:

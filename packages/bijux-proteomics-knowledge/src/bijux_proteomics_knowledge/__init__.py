@@ -39,6 +39,7 @@ from bijux_proteomics_knowledge.repositories import (
 from bijux_proteomics_knowledge.resolution import (
     ConflictResolution,
     ResolutionAction,
+    ResolutionPolicy,
     resolve_conflicts,
 )
 from bijux_proteomics_knowledge.evidence import (
@@ -129,6 +130,7 @@ __all__ = [
     "EvidenceClaimRepository",
     "EvidenceRecordRepository",
     "ResolutionAction",
+    "ResolutionPolicy",
     "resolve_conflicts",
     "StructureAnnotationIngestionAdapter",
     "attach_manual_notes",
