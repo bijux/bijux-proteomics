@@ -21,6 +21,7 @@ from bijux_proteomics_foundation.ids import (
     ProgramId,
     TargetId,
 )
+from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
 from bijux_proteomics_foundation.schema import (
     DocumentSchema,
     SchemaCompatibility,
@@ -43,6 +44,8 @@ __all__ = [
     "FoundationContractError",
     "GateId",
     "JsonModel",
+    "MigrationRegistry",
     "ProgramId",
+    "SchemaMigration",
     "TargetId",
 ]

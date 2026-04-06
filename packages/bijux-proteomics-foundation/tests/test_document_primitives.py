@@ -9,6 +9,7 @@ import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from bijux_proteomics_foundation import (
+    MigrationRegistry,
     SchemaCompatibility,
     ContractConflictError,
     ContractNotFoundError,
@@ -17,6 +18,7 @@ from bijux_proteomics_foundation import (
     FoundationContractError,
     JsonModel,
     ProgramId,
+    SchemaMigration,
     assess_schema_compatibility,
 )
 
@@ -106,3 +108,32 @@ def test_assess_schema_compatibility_uses_major_minor_semantics() -> None:
     assert assess_schema_compatibility("1.2.0", "1.1.0") is SchemaCompatibility.COMPATIBLE
     assert assess_schema_compatibility("1.0.0", "1.1.0") is SchemaCompatibility.FORWARD_INCOMPATIBLE
     assert assess_schema_compatibility("2.0.0", "1.9.0") is SchemaCompatibility.BACKWARD_INCOMPATIBLE
+
+
+def test_migration_registry_applies_sequential_steps() -> None:
+    registry = MigrationRegistry()
+    registry.register(
+        SchemaMigration(
+            from_version="1.0.0",
+            to_version="1.1.0",
+            description="add review cadence",
+            migrate=lambda payload: {
+                **payload,
+                "document_schema": {
+                    **payload["document_schema"],
+                    "schema_version": "1.1.0",
+                },
+                "review_cadence": "weekly",
+            },
+        )
+    )
+    payload = {
+        "document_schema": {"schema_version": "1.0.0"},
+        "value": "demo",
+    }
+
+    migrated = registry.migrate_to(payload, "1.1.0")
+
+    assert migrated["document_schema"]["schema_version"] == "1.1.0"
+    assert migrated["review_cadence"] == "weekly"
+    MigrationRegistry,
