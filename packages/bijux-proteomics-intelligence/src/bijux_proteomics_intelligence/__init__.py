@@ -33,6 +33,7 @@ from bijux_proteomics_intelligence.candidates import (
     select_portfolio_shortlist,
 )
 from bijux_proteomics_intelligence.evaluators import (
+    EvaluatorPolicyBundle,
     ProgressionPolicy,
     RedesignPolicy,
     ScaleUpPolicy,
@@ -65,6 +66,7 @@ __all__ = [
     "CandidateStatus",
     "CandidateTransition",
     "DesignBrief",
+    "EvaluatorPolicyBundle",
     "JsonModel",
     "LiabilityFlag",
     "OptimizationAxis",

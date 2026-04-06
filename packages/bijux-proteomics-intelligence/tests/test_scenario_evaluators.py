@@ -11,6 +11,7 @@ from bijux_proteomics_knowledge import (
 from bijux_proteomics_intelligence import (
     CandidateRanking,
     CandidateRiskProfile,
+    EvaluatorPolicyBundle,
     ProgressionPolicy,
     RankedCandidate,
     ScaleUpPolicy,
@@ -154,3 +155,12 @@ def test_evaluate_for_progression_can_allow_evidence_only_progression() -> None:
     )
 
     assert evaluation.action is ScenarioAction.ADVANCE
+
+
+def test_evaluator_policy_bundle_exposes_all_policy_ids() -> None:
+    bundle = EvaluatorPolicyBundle()
+
+    assert bundle.progression.policy_id == "progression-default"
+    assert bundle.synthesis.policy_id == "synthesis-default"
+    assert bundle.scale_up.policy_id == "scale-up-default"
+    assert bundle.redesign.policy_id == "redesign-default"

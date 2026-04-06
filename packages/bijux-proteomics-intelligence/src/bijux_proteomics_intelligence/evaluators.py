@@ -95,6 +95,29 @@ class RedesignPolicy(JsonModel):
     )
 
 
+class EvaluatorPolicyBundle(JsonModel):
+    """Bundle of scenario policies applied together."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    progression: ProgressionPolicy = Field(
+        default_factory=lambda: ProgressionPolicy(policy_id="progression-default"),
+        description="Progression scenario policy.",
+    )
+    synthesis: SynthesisPolicy = Field(
+        default_factory=lambda: SynthesisPolicy(policy_id="synthesis-default"),
+        description="Synthesis scenario policy.",
+    )
+    scale_up: ScaleUpPolicy = Field(
+        default_factory=lambda: ScaleUpPolicy(policy_id="scale-up-default"),
+        description="Scale-up scenario policy.",
+    )
+    redesign: RedesignPolicy = Field(
+        default_factory=lambda: RedesignPolicy(policy_id="redesign-default"),
+        description="Redesign scenario policy.",
+    )
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
