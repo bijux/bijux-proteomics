@@ -8,7 +8,11 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation import (
+    IdentifierKind,
+    JsonModel,
+    ensure_identifier_kind,
+)
 
 
 class ProgramValidationIssue(JsonModel):
@@ -24,6 +28,7 @@ def validate_program(program: ProgramSpec) -> list[ProgramValidationIssue]:
     """Return all detected domain issues for a program."""
     issues = validate_program_readiness(program)
     issues.extend(validate_assay_dependencies(program))
+    issues.extend(validate_identifier_contracts(program))
     return issues
 
 
@@ -237,5 +242,44 @@ def validate_assay_dependencies(program: ProgramSpec) -> list[ProgramValidationI
                 code="learning-stage-assays-missing",
                 message="learning-stage programs should retain assay definitions for feedback capture",
             )
+        )
+    return issues
+
+
+def validate_identifier_contracts(program: ProgramSpec) -> list[ProgramValidationIssue]:
+    """Validate identifier kind prefixes for core program entities."""
+    issues: list[ProgramValidationIssue] = []
+
+    def _check(value: str, kind: IdentifierKind, code: str, message: str) -> None:
+        try:
+            ensure_identifier_kind(value, kind)
+        except ValueError:
+            issues.append(ProgramValidationIssue(code=code, message=message))
+
+    _check(
+        program.program_id,
+        IdentifierKind.PROGRAM,
+        "program-id-prefix-invalid",
+        "program_id should use a 'prog-' prefix",
+    )
+    _check(
+        program.target.target_id,
+        IdentifierKind.TARGET,
+        "target-id-prefix-invalid",
+        "target_id should use a 'target-' prefix",
+    )
+    for assay in program.assay_panel:
+        _check(
+            assay.assay_id,
+            IdentifierKind.ASSAY,
+            "assay-id-prefix-invalid",
+            f"assay_id '{assay.assay_id}' should use an 'assay-' prefix",
+        )
+    for gate in program.review_gates:
+        _check(
+            gate.gate_id,
+            IdentifierKind.GATE,
+            "gate-id-prefix-invalid",
+            f"gate_id '{gate.gate_id}' should use a 'gate-' prefix",
         )
     return issues

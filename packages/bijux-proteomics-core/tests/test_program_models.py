@@ -543,6 +543,48 @@ def test_validate_program_flags_duplicate_criterion_ids() -> None:
     ) in issues
 
 
+def test_validate_program_enforces_identifier_prefix_contracts() -> None:
+    program = create_program_spec(
+        program_id="program-21",
+        name="identifier contracts",
+        objective="enforce stable id prefixes across core entities",
+        target_id="tgt-21",
+        target_name="Target 21",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="prefix validation",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="primary-binding",
+            purpose="measure binding",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="pre-synthesis",
+            name="Pre-synthesis",
+            required_roles=["scientist"],
+            decision_inputs=["evidence_bundle"],
+            blocking=True,
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="program-id-prefix-invalid",
+        message="program_id should use a 'prog-' prefix",
+    ) in issues
+    assert ProgramValidationIssue(
+        code="target-id-prefix-invalid",
+        message="target_id should use a 'target-' prefix",
+    ) in issues
+
+
 def test_validate_program_requires_assay_evidence_for_gated_review() -> None:
     program = create_program_spec(
         program_id="prog-13",
