@@ -52,6 +52,7 @@ from bijux_proteomics_knowledge.graph import (
     LiabilityNodeInput,
     UnresolvedQuestion,
     build_evidence_graph,
+    extract_decision_subgraph,
 )
 from bijux_proteomics_knowledge.schema import (
     KnowledgeSchemaProfile,
@@ -197,6 +198,7 @@ __all__ = [
     "assess_decision_readiness",
     "attach_evidence_inputs",
     "build_evidence_graph",
+    "extract_decision_subgraph",
     "KnowledgeSchemaProfile",
     "SchemaCompatibilityReport",
     "default_knowledge_schema_profile",

@@ -281,3 +281,40 @@ def build_evidence_graph(
         nodes=nodes,
         edges=edges,
     )
+
+
+def extract_decision_subgraph(graph: EvidenceGraph, *, decision_tag: str) -> EvidenceGraph:
+    """Extract the decision-scoped subgraph for one decision tag."""
+    decision_node_id = f"decision:{decision_tag}"
+    related_node_ids = {decision_node_id}
+    for edge in graph.edges:
+        if edge.source_node_id == decision_node_id or edge.target_node_id == decision_node_id:
+            related_node_ids.add(edge.source_node_id)
+            related_node_ids.add(edge.target_node_id)
+    sub_edges = [
+        edge
+        for edge in graph.edges
+        if edge.source_node_id in related_node_ids and edge.target_node_id in related_node_ids
+    ]
+    expanded = True
+    while expanded:
+        expanded = False
+        for edge in graph.edges:
+            if edge.source_node_id in related_node_ids and edge.target_node_id not in related_node_ids:
+                related_node_ids.add(edge.target_node_id)
+                expanded = True
+            if edge.target_node_id in related_node_ids and edge.source_node_id not in related_node_ids:
+                related_node_ids.add(edge.source_node_id)
+                expanded = True
+    sub_nodes = [node for node in graph.nodes if node.node_id in related_node_ids]
+    sub_edges = [
+        edge
+        for edge in graph.edges
+        if edge.source_node_id in related_node_ids and edge.target_node_id in related_node_ids
+    ]
+    return EvidenceGraph(
+        bundle_id=graph.bundle_id,
+        target_id=graph.target_id,
+        nodes=sub_nodes,
+        edges=sub_edges,
+    )

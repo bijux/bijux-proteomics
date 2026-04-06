@@ -18,6 +18,7 @@ from bijux_proteomics_knowledge import (
     attach_evidence_inputs,
     ingest_inputs_with_report,
     build_evidence_graph,
+    extract_decision_subgraph,
 )
 
 
@@ -94,6 +95,30 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
     assert any(node.node_type.value == "liability" for node in graph.nodes)
     assert any(edge.relation == "blocks" for edge in graph.edges)
     assert any(edge.relation == "risks" for edge in graph.edges)
+
+
+def test_extract_decision_subgraph_keeps_decision_scoped_nodes() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-subgraph",
+        target_id="target-subgraph",
+        records=[
+            EvidenceRecord(
+                evidence_id="ev-sub-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="supports progression",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    graph = build_evidence_graph(bundle)
+    subgraph = extract_decision_subgraph(graph, decision_tag="progression")
+
+    assert any(node.node_id == "decision:progression" for node in subgraph.nodes)
+    assert len(subgraph.nodes) <= len(graph.nodes)
 
 
 def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
