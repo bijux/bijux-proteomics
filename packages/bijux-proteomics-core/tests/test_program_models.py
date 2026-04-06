@@ -197,6 +197,26 @@ def test_program_summary_includes_structured_context_fields() -> None:
     assert summary["decision_horizon"] == "monthly"
 
 
+def test_program_summary_includes_target_context_fields() -> None:
+    program = create_program_spec(
+        program_id="prog-2c",
+        name="target context",
+        objective="surface target class and localization in summaries",
+        target_id="target-2c",
+        target_name="Target 2C",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="propagate target metadata to summary consumers",
+    )
+    program.target.target_class = "enzyme"
+    program.target.subcellular_localization = "cytosol"
+
+    summary = program_summary(program)
+
+    assert summary["target_class"] == "enzyme"
+    assert summary["target_localization"] == "cytosol"
+
+
 def test_program_spec_round_trips_with_serialization_helpers(tmp_path: Path) -> None:
     program = create_program_spec(
         program_id="prog-3",

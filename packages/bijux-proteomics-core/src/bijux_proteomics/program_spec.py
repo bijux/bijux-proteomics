@@ -160,6 +160,8 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
     return {
         "program_id": program.program_id,
         "target_id": program.target.target_id,
+        "target_class": program.target.target_class,
+        "target_localization": program.target.subcellular_localization,
         "stage": program.stage.value,
         "mechanism_hypothesis": program.mechanism_hypothesis,
         "intervention_goal": program.intervention_goal,
