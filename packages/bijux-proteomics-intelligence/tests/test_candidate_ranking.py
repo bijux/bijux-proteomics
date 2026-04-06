@@ -7,6 +7,7 @@ from bijux_proteomics import ReviewGate, ScientificConstraint, SuccessCriterion,
 from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
+    CandidateExplainabilitySummary,
     build_risk_profile,
     LiabilityFlag,
     OptimizationAxis,
@@ -15,6 +16,7 @@ from bijux_proteomics_intelligence import (
     build_design_brief,
     prioritize_candidates,
     select_portfolio_shortlist,
+    summarize_candidate_explainability,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -280,3 +282,62 @@ def test_select_portfolio_shortlist_preserves_liability_diversity() -> None:
 
     assert selection.selected_candidate_ids == ["candidate-a", "candidate-c"]
     assert selection.deferred_candidate_ids == ["candidate-b"]
+
+
+def test_summarize_candidate_explainability_carries_evidence_gaps() -> None:
+    program = create_program_spec(
+        program_id="prog-3",
+        name="explainability brief",
+        objective="surface evidence gaps alongside ranking drivers",
+        target_id="target-3",
+        target_name="Target 3",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize a productive fold",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        )
+    )
+    brief = build_design_brief(program)
+    ranking = prioritize_candidates(
+        program,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-a",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.86},
+                manufacturability_score=0.82,
+                uncertainty=0.1,
+                evidence_support=0.78,
+                liabilities=[
+                    LiabilityFlag(
+                        code="aggregation-risk",
+                        summary="Predicted aggregation hotspot",
+                        severity=3,
+                        source="model",
+                    )
+                ],
+            )
+        ],
+    )
+
+    summaries = summarize_candidate_explainability(ranking, brief)
+
+    assert summaries == [
+        CandidateExplainabilitySummary(
+            candidate_id="candidate-a",
+            strengths=[
+                "criteria_score=1.07",
+                "evidence_support=0.78",
+                "manufacturability=0.82",
+                "assessment confidence remains high enough for active consideration",
+            ],
+            open_risks=["Predicted aggregation hotspot"],
+            evidence_gaps=["literature", "structure", "assay"],
+        )
+    ]

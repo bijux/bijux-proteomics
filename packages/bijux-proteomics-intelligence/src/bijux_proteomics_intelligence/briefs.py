@@ -147,6 +147,26 @@ class CandidateRanking(JsonModel):
     )
 
 
+class CandidateExplainabilitySummary(JsonModel):
+    """Review-ready explanation for one ranked candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
+    strengths: list[str] = Field(
+        default_factory=list,
+        description="Why the candidate remains attractive.",
+    )
+    open_risks: list[str] = Field(
+        default_factory=list,
+        description="Liabilities or uncertainty that still need attention.",
+    )
+    evidence_gaps: list[str] = Field(
+        default_factory=list,
+        description="Evidence gaps that still affect confidence in the candidate.",
+    )
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     lowered = metric.lower()
     if "affin" in lowered or "bind" in lowered:
@@ -352,3 +372,26 @@ def prioritize_candidates(
         rejections=rejections,
         tie_breaks=tie_breaks,
     )
+
+
+def summarize_candidate_explainability(
+    ranking: CandidateRanking,
+    brief: DesignBrief,
+) -> list[CandidateExplainabilitySummary]:
+    """Build review-ready summaries for ranked candidates."""
+    summaries: list[CandidateExplainabilitySummary] = []
+    for candidate in ranking.ranked_candidates:
+        blockers = list(candidate.explainability.get("blockers", []))
+        strengths = list(candidate.explainability.get("top_drivers", []))
+        missing_evidence = brief.evidence_gaps
+        if candidate.explainability.get("confidence", 0.0) >= 0.75:
+            strengths.append("assessment confidence remains high enough for active consideration")
+        summaries.append(
+            CandidateExplainabilitySummary(
+                candidate_id=candidate.candidate_id,
+                strengths=strengths,
+                open_risks=blockers,
+                evidence_gaps=missing_evidence,
+            )
+        )
+    return summaries
