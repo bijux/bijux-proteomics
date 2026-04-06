@@ -110,6 +110,12 @@ class SynthesisPolicy(JsonModel):
         le=1.0,
         description="Minimum top candidate confidence required before synthesis.",
     )
+    maximum_safety_risk: float = Field(
+        default=0.4,
+        ge=0.0,
+        le=1.0,
+        description="Maximum acceptable safety-specific risk for synthesis.",
+    )
 
 
 class ScaleUpPolicy(JsonModel):
@@ -128,6 +134,12 @@ class ScaleUpPolicy(JsonModel):
         ge=0.0,
         le=1.0,
         description="Maximum acceptable residual risk for scale-up.",
+    )
+    maximum_safety_risk: float = Field(
+        default=0.25,
+        ge=0.0,
+        le=1.0,
+        description="Maximum acceptable safety-specific risk for scale-up.",
     )
 
 
@@ -198,6 +210,19 @@ def _top_candidate(
     candidate_id = ranking.ranked_candidates[0].candidate_id
     risk_map = {risk.candidate_id: risk.residual_risk for risk in risks}
     return candidate_id, risk_map.get(candidate_id)
+
+
+def _top_candidate_risk_profile(
+    ranking: CandidateRanking,
+    risks: list[CandidateRiskProfile],
+) -> CandidateRiskProfile | None:
+    if not ranking.ranked_candidates:
+        return None
+    candidate_id = ranking.ranked_candidates[0].candidate_id
+    for risk in risks:
+        if risk.candidate_id == candidate_id:
+            return risk
+    return None
 
 
 def _top_candidate_blockers(ranking: CandidateRanking) -> list[str]:
@@ -328,6 +353,17 @@ def evaluate_for_synthesis(
             confidence=0.65,
             unresolved_questions=[f"residual_risk={residual_risk:.2f} exceeds policy limit"],
         )
+    top_profile = _top_candidate_risk_profile(ranking, risks)
+    if top_profile is not None and top_profile.safety_risk > policy.maximum_safety_risk:
+        return ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.REDESIGN,
+            reasons=[f"top candidate safety risk {top_profile.safety_risk:.2f} exceeds policy"],
+            hypothesis_status=HypothesisStatus.WEAKENED,
+            key_discriminating_experiment="run safety-focused assays before synthesis commitment",
+            confidence=0.66,
+            unresolved_questions=[f"safety_risk={top_profile.safety_risk:.2f} exceeds policy limit"],
+        )
     top_blockers = _top_candidate_blockers(ranking)
     top_confidence = _top_candidate_confidence(ranking)
     if top_confidence is not None and top_confidence < policy.minimum_top_candidate_confidence:
@@ -396,6 +432,16 @@ def evaluate_for_scale_up(
             ],
         )
     if residual_risk is not None and residual_risk <= policy.maximum_residual_risk:
+        top_profile = _top_candidate_risk_profile(ranking, risks)
+        if top_profile is not None and top_profile.safety_risk > policy.maximum_safety_risk:
+            return ScenarioEvaluation(
+                scenario="scale_up",
+                action=ScenarioAction.HOLD,
+                reasons=["safety-specific risk remains above scale-up policy"],
+                hypothesis_status=HypothesisStatus.UNRESOLVED,
+                confidence=0.62,
+                unresolved_questions=[f"safety_risk={top_profile.safety_risk:.2f} remains above policy"],
+            )
         return ScenarioEvaluation(
             scenario="scale_up",
             action=ScenarioAction.SCALE_UP,

@@ -204,6 +204,44 @@ def test_evaluate_for_synthesis_holds_when_top_candidate_confidence_is_low() -> 
     assert "top_candidate_confidence=0.50" in evaluation.unresolved_questions
 
 
+def test_evaluate_for_synthesis_redesigns_on_safety_channel_risk() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-safety",
+        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+    )
+    risks = [
+        CandidateRiskProfile(
+            candidate_id="candidate-1",
+            residual_risk=0.3,
+            safety_risk=0.55,
+        )
+    ]
+
+    evaluation = evaluate_for_synthesis(ranking, _ready_state(), risks)
+
+    assert evaluation.action is ScenarioAction.REDESIGN
+    assert "safety_risk=0.55 exceeds policy limit" in evaluation.unresolved_questions
+
+
+def test_evaluate_for_scale_up_holds_on_safety_channel_risk() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-scale-safety",
+        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+    )
+    risks = [
+        CandidateRiskProfile(
+            candidate_id="candidate-1",
+            residual_risk=0.1,
+            safety_risk=0.3,
+        )
+    ]
+
+    evaluation = evaluate_for_scale_up(ranking, _ready_state(), risks)
+
+    assert evaluation.action is ScenarioAction.HOLD
+    assert "safety_risk=0.30 remains above policy" in evaluation.unresolved_questions
+
+
 def test_evaluate_for_scale_up_requires_low_risk_and_decisive_evidence() -> None:
     ranking = CandidateRanking(
         program_id="prog-1",
