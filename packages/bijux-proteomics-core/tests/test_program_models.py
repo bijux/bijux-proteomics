@@ -22,12 +22,14 @@ from bijux_proteomics import (
     ProgramPortfolioContext,
     ReviewGateEvaluation,
     ReviewGateState,
+    StageEligibility,
     decision_timeline,
     create_program_spec,
     evaluate_review_gates,
     ensure_review_clearance,
     latest_gate_decision,
     program_summary,
+    assess_stage_eligibility,
     validate_review_decision,
     validate_assay_dependencies,
     validate_program,
@@ -648,3 +650,28 @@ def test_latest_gate_decision_and_timeline_are_time_ordered() -> None:
     assert latest is not None
     assert latest.outcome is ReviewOutcome.APPROVED
     assert decision_timeline("prog-15", decisions) == [older, newer]
+
+
+def test_assess_stage_eligibility_flags_missing_lab_ready_prerequisites() -> None:
+    program = create_program_spec(
+        program_id="prog-16",
+        name="stage eligibility",
+        objective="make stage blockers explicit",
+        target_id="target-16",
+        target_name="Target 16",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="check stage-level prerequisites",
+    )
+
+    eligibility = assess_stage_eligibility(program, ProgramStage.LAB_READY)
+
+    assert eligibility == StageEligibility(
+        program_id="prog-16",
+        stage=ProgramStage.LAB_READY,
+        eligible=False,
+        blockers=[
+            "lab-ready stage requires at least one blocking assay",
+            "lab-ready stage requires at least one blocking review gate",
+        ],
+    )

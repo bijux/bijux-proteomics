@@ -23,6 +23,8 @@ from bijux_proteomics.program_spec import (
     EvidenceNeed,
     ProgramSpec,
     ProgramStage,
+    StageEligibility,
+    assess_stage_eligibility,
     create_program_spec,
     program_summary,
 )
@@ -60,6 +62,7 @@ __all__ = [
     "ProgramLifecycle",
     "ProgramSpec",
     "ProgramStage",
+    "StageEligibility",
     "ProteinTarget",
     "TargetAnnotation",
     "TargetOutcome",
@@ -79,6 +82,7 @@ __all__ = [
     "validate_review_decision",
     "advance_stage",
     "allowed_next_stages",
+    "assess_stage_eligibility",
     "program_summary",
     "target_summary",
 ]

@@ -96,6 +96,20 @@ class ProgramSpec(JsonModel):
     )
 
 
+class StageEligibility(JsonModel):
+    """Eligibility view for entering or operating in a lifecycle stage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    stage: ProgramStage = Field(..., description="Stage evaluated for readiness.")
+    eligible: bool = Field(..., description="Whether required prerequisites are satisfied.")
+    blockers: list[str] = Field(
+        default_factory=list,
+        description="Concrete blockers that prevent this stage from being eligible.",
+    )
+
+
 def create_program_spec(
     *,
     program_id: str,
@@ -144,3 +158,27 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
         "therapeutic_area": program.context.portfolio.therapeutic_area,
         "decision_horizon": program.context.delivery.decision_horizon,
     }
+
+
+def assess_stage_eligibility(
+    program: ProgramSpec,
+    stage: ProgramStage | None = None,
+) -> StageEligibility:
+    """Assess whether a program satisfies prerequisites for a target stage."""
+    stage = stage or program.stage
+    blockers: list[str] = []
+    if stage is ProgramStage.REVIEW and not program.review_gates:
+        blockers.append("review stage requires at least one review gate")
+    if stage is ProgramStage.LAB_READY:
+        if not any(assay.blocking for assay in program.assay_panel):
+            blockers.append("lab-ready stage requires at least one blocking assay")
+        if not any(gate.blocking for gate in program.review_gates):
+            blockers.append("lab-ready stage requires at least one blocking review gate")
+    if stage is ProgramStage.LEARNING and not program.assay_panel:
+        blockers.append("learning stage requires retained assay definitions")
+    return StageEligibility(
+        program_id=program.program_id,
+        stage=stage,
+        eligible=not blockers,
+        blockers=blockers,
+    )
