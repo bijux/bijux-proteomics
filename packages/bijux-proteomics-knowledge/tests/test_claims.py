@@ -20,6 +20,8 @@ from bijux_proteomics_knowledge import (
     build_decision_lineage,
     strengthen_claim,
     build_hypothesis_dossier,
+    apply_resolution_assay_outcome,
+    ResolutionAssayOutcome,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -337,3 +339,28 @@ def test_build_hypothesis_dossier_summarizes_support_contradiction_and_assays() 
         "orthogonal cellular assay",
         "target engagement assay",
     ]
+
+
+def test_apply_resolution_assay_outcome_updates_claim_confidence() -> None:
+    claim = build_claim(
+        claim_id="claim-assay-outcome",
+        target_id="target-1",
+        statement="candidate improves target engagement",
+        evidence_ids=["ev-1"],
+        status=ClaimStatus.SUPPORTED,
+        confidence=0.6,
+        resolution_assays=["target engagement assay"],
+    )
+    updated, update = apply_resolution_assay_outcome(
+        claim,
+        ResolutionAssayOutcome(
+            claim_id="claim-assay-outcome",
+            assay_name="target engagement assay",
+            confirms_claim=False,
+            confidence_delta=0.25,
+        ),
+    )
+
+    assert updated.confidence == 0.35
+    assert updated.status is ClaimStatus.DISPUTED
+    assert "does not confirm claim direction" in update.rationale

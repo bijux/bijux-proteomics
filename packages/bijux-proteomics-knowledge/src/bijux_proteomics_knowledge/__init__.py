@@ -21,6 +21,7 @@ from bijux_proteomics_knowledge.adapters import (
 from bijux_proteomics_knowledge.claims import (
     ClaimValidationIssue,
     HypothesisDossier,
+    ResolutionAssayOutcome,
     ClaimStrengthUpdate,
     ClaimType,
     ClaimPolarity,
@@ -35,6 +36,7 @@ from bijux_proteomics_knowledge.claims import (
     strengthen_claim,
     validate_claims,
     build_hypothesis_dossier,
+    apply_resolution_assay_outcome,
     weaken_claim,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
@@ -126,6 +128,7 @@ __all__ = [
     "ClaimType",
     "ClaimValidationIssue",
     "HypothesisDossier",
+    "ResolutionAssayOutcome",
     "ClaimResolutionState",
     "ClaimStatus",
     "ClaimStrengthUpdate",
@@ -175,6 +178,7 @@ __all__ = [
     "strengthen_claim",
     "validate_claims",
     "build_hypothesis_dossier",
+    "apply_resolution_assay_outcome",
     "weaken_claim",
     "compute_bundle_trust",
     "coverage_report",

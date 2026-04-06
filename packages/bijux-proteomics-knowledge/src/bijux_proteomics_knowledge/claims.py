@@ -162,6 +162,23 @@ class HypothesisDossier(JsonModel):
     support_confidence_mean: float = Field(default=0.0, ge=0.0, le=1.0, description="Mean confidence of supporting claims.")
 
 
+class ResolutionAssayOutcome(JsonModel):
+    """Outcome payload for an assay used to resolve a claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    assay_name: str = Field(..., min_length=1, description="Assay used for resolution.")
+    confirms_claim: bool = Field(..., description="Whether the assay confirms the claim direction.")
+    confidence_delta: float = Field(
+        default=0.1,
+        ge=0.0,
+        le=1.0,
+        description="Bounded confidence update magnitude from this assay outcome.",
+    )
+    note: str | None = Field(default=None, description="Optional interpretation note.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -420,4 +437,30 @@ def build_hypothesis_dossier(
         unresolved_claim_ids=[claim.claim_id for claim in unresolved],
         required_resolution_assays=required_assays,
         support_confidence_mean=support_confidence_mean,
+    )
+
+
+def apply_resolution_assay_outcome(
+    claim: EvidenceClaim,
+    outcome: ResolutionAssayOutcome,
+) -> tuple[EvidenceClaim, ClaimStrengthUpdate]:
+    """Apply a structured resolution-assay outcome to one claim."""
+    if claim.claim_id != outcome.claim_id:
+        raise ValueError("resolution assay outcome claim_id does not match claim")
+    if outcome.confirms_claim:
+        updated_confidence = min(1.0, round(claim.confidence + outcome.confidence_delta, 4))
+        updated_status = ClaimStatus.SUPPORTED if updated_confidence >= 0.5 else claim.status
+        rationale = f"{outcome.assay_name} confirms claim direction"
+    else:
+        updated_confidence = max(0.0, round(claim.confidence - outcome.confidence_delta, 4))
+        updated_status = ClaimStatus.DISPUTED if updated_confidence < 0.5 else claim.status
+        rationale = f"{outcome.assay_name} does not confirm claim direction"
+    if outcome.note:
+        rationale = f"{rationale}; {outcome.note}"
+    updated_claim = claim.model_copy(update={"confidence": updated_confidence, "status": updated_status})
+    return updated_claim, ClaimStrengthUpdate(
+        claim_id=claim.claim_id,
+        previous_confidence=claim.confidence,
+        updated_confidence=updated_confidence,
+        rationale=rationale,
     )
