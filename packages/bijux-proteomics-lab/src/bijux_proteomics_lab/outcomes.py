@@ -308,6 +308,17 @@ class OutcomeFeedbackMapping(JsonModel):
     assay_ids: list[AssayId] = Field(default_factory=list, description="Assays represented by generated feedback.")
 
 
+class BatchEvidencePromotionReport(JsonModel):
+    """Promotion report for all assay outcomes in one batch."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    promoted_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays promoted into evidence.")
+    blocked_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays blocked from promotion.")
+    notes: list[str] = Field(default_factory=list, description="Promotion summary notes.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -659,3 +670,40 @@ def generate_feedback_records_from_outcome(
         assay_ids=[assay.assay_id for assay in outcome.assay_outcomes],
     )
     return records, mapping
+
+
+def promote_batch_outcome_to_evidence(
+    outcome: ExperimentOutcome,
+    *,
+    target_id: str,
+    policy: OutcomePromotionPolicy | None = None,
+) -> tuple[list[NormalizedEvidenceInput], BatchEvidencePromotionReport]:
+    """Promote all promotion-ready assays from a batch outcome into evidence payloads."""
+    policy = policy or OutcomePromotionPolicy(policy_id="default-outcome-promotion-policy")
+    promoted: list[NormalizedEvidenceInput] = []
+    promoted_ids: list[str] = []
+    blocked_ids: list[str] = []
+    notes: list[str] = []
+    for assay in outcome.assay_outcomes:
+        readiness = assess_evidence_promotion_readiness(assay)
+        if readiness.ready:
+            promoted.append(
+                promote_outcome_to_evidence(
+                    assay,
+                    target_id=target_id,
+                    batch_id=outcome.batch_id,
+                    policy=policy,
+                )
+            )
+            promoted_ids.append(assay.assay_id)
+        else:
+            blocked_ids.append(assay.assay_id)
+            notes.append(f"{assay.assay_id} blocked: {', '.join(readiness.blockers) or 'not promotion-ready'}")
+    if not notes:
+        notes.append("all assay outcomes were promotion-ready")
+    return promoted, BatchEvidencePromotionReport(
+        batch_id=outcome.batch_id,
+        promoted_assay_ids=promoted_ids,
+        blocked_assay_ids=blocked_ids,
+        notes=notes,
+    )

@@ -31,6 +31,7 @@ from bijux_proteomics_lab import (
     assess_batch_outcome,
     validate_assay_observation_record,
     generate_feedback_records_from_outcome,
+    promote_batch_outcome_to_evidence,
 )
 
 
@@ -556,6 +557,37 @@ def test_generate_feedback_records_from_outcome_preserves_assay_lineage() -> Non
 
     assert mapping.feedback_ids == ["feedback:batch-feedback:assay-1"]
     assert records[0].related_evidence_ids == ["assay:batch-feedback:assay-1"]
+
+
+def test_promote_batch_outcome_to_evidence_reports_promoted_and_blocked_assays() -> None:
+    payloads, report = promote_batch_outcome_to_evidence(
+        ExperimentOutcome(
+            batch_id="batch-promote",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="assay-pass",
+                    passed=True,
+                    result_state=AssayResultState.PASSED,
+                    observation_summary="pass",
+                    replicate_count=2,
+                    uncertainty=0.1,
+                ),
+                AssayOutcome(
+                    assay_id="assay-fail",
+                    passed=False,
+                    result_state=AssayResultState.INCONCLUSIVE,
+                    observation_summary="inconclusive",
+                    replicate_count=1,
+                    uncertainty=0.7,
+                ),
+            ],
+            rerun_policy=RerunPolicy.ON_INCONCLUSIVE_RESULT,
+        ),
+        target_id="target-promote",
+    )
+
+    assert [payload.evidence_id for payload in payloads] == ["assay:batch-promote:assay-pass"]
+    assert report.blocked_assay_ids == ["assay-fail"]
 
 
 def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:
