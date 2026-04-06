@@ -29,6 +29,8 @@ nav:
       - Testing and Validation: bijux-proteomics/testing-and-validation.md
       - Release and Versioning: bijux-proteomics/release-and-versioning.md
       - Documentation System: bijux-proteomics/documentation-system.md
+      - Architecture Invariants: bijux-proteomics/architecture-invariants.md
+      - Design Debt Ledger: bijux-proteomics/design-debt-ledger.md
   - agentic-proteins:
       - Overview: agentic-proteins/index.md
       - Foundation:
