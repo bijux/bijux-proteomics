@@ -9,44 +9,25 @@ last_reviewed: 2026-04-04
 
 # Operations
 
-This section explains how to install, run, diagnose, and release `bijux-proteomics-knowledge` from checked-in workflow guidance instead of team memory.
+This section is for maintainers who need to change `bijux-proteomics-knowledge`
+without guessing.
 
-These pages are the checked-in operating memory for `bijux-proteomics-knowledge`. They should let a maintainer move from setup to diagnosis to release without relying on CI archaeology or private habits.
+Unlike `agentic-proteins`, this package is import-first. There is no published
+CLI or HTTP service surface. Operational work here mostly means:
 
-Treat the operations pages for `bijux-proteomics-knowledge` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
+- managing package metadata and release notes
+- validating library behavior with package tests
+- confirming schema, evidence, and claim workflows remain stable for callers
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    page["Operations<br/>clarifies: repeat workflows | find diagnostics | release safely"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py"]
-    step1 --> page
-    step2["HTTP app in src/bijux_proteomics_knowledge/claims.py"]
-    step2 --> page
-    step3["packages/bijux-proteomics-knowledge/pyproject.toml"]
-    step3 --> page
-    run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run1
-    run2["tests/e2e for governed flow behavior"]
-    page --> run2
-    run3["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run3
-    release1["CHANGELOG.md"]
-    run1 --> release1
-    release2["pyproject.toml"]
-    run2 --> release2
-    release3["README.md"]
-    run3 --> release3
-    class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    change["change in evidence or claim behavior"]
+    tests["run package tests in packages/bijux-proteomics-knowledge/tests"]
+    metadata["verify pyproject + README + CHANGELOG"]
+    release["release via tag-triggered workflow"]
+    change --> tests --> metadata --> release
 ```
 
 ## Pages in This Section
@@ -73,6 +54,7 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/pyproject.toml` for package metadata
 - `packages/bijux-proteomics-knowledge/README.md` for local package framing
 - `packages/bijux-proteomics-knowledge/tests` for executable operational backstops
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` for the import surface
 
 ## Use This Page When
 
@@ -86,9 +68,9 @@ Use `Operations` to decide whether a maintainer can repeat the package workflow 
 
 ## What This Page Answers
 
-- how `bijux-proteomics-knowledge` is installed, run, diagnosed, and released in practice
-- which checked-in files and tests anchor the operational story
-- where a maintainer should look first when the package behaves differently
+- how maintainers should operate an import-first package safely
+- which files must be updated together before release
+- where to verify evidence/claim behavior before publishing
 
 ## Reviewer Lens
 
@@ -108,7 +90,8 @@ This page explains how `bijux-proteomics-knowledge` is expected to be operated, 
 
 ## Purpose
 
-This page explains how to use the operations section for `bijux-proteomics-knowledge` without repeating the detail that belongs on the topic pages beneath it.
+This page gives maintainers a reliable starting path for practical package
+operations.
 
 ## Stability
 
