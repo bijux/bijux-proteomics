@@ -19,6 +19,7 @@ from bijux_proteomics_knowledge import (
     query_evidence_records,
     EvidenceRecordQuery,
     plan_evidence_collection,
+    validate_quantitative_support_payload,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -1150,3 +1151,23 @@ def test_plan_evidence_collection_prioritizes_missing_modalities() -> None:
 
     assert any(action.priority == "high" for action in actions)
     assert any("collect assay evidence" in action.action for action in actions)
+
+
+def test_validate_quantitative_support_payload_reports_coherence_issues() -> None:
+    issues = validate_quantitative_support_payload(
+        QuantitativeSupport(
+            confidence_interval_low=2.0,
+            confidence_interval_high=1.0,
+            p_value=0.2,
+            q_value=0.1,
+            censored_by_detection_limit=True,
+            absolute_scale=True,
+        )
+    )
+
+    assert {issue.code for issue in issues} == {
+        "interval-bounds-inverted",
+        "censoring-limit-missing",
+        "q-value-less-than-p-value",
+        "absolute-scale-unit-missing",
+    }

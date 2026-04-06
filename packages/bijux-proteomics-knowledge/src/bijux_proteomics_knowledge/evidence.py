@@ -664,6 +664,15 @@ class EvidenceCollectionAction(JsonModel):
     rationale: str = Field(..., min_length=1, description="Why this action is needed.")
 
 
+class QuantitativeValidationIssue(JsonModel):
+    """Validation issue detected in quantitative evidence support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, description="Stable issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -1190,6 +1199,48 @@ def plan_evidence_collection(
             )
         )
     return actions
+
+
+def validate_quantitative_support_payload(
+    support: QuantitativeSupport | None,
+) -> list[QuantitativeValidationIssue]:
+    """Validate quantitative support payload coherence."""
+    if support is None:
+        return []
+    issues: list[QuantitativeValidationIssue] = []
+    if (
+        support.confidence_interval_low is not None
+        and support.confidence_interval_high is not None
+        and support.confidence_interval_low > support.confidence_interval_high
+    ):
+        issues.append(
+            QuantitativeValidationIssue(
+                code="interval-bounds-inverted",
+                message="confidence_interval_low should be <= confidence_interval_high",
+            )
+        )
+    if support.censored_by_detection_limit and support.detection_limit_value is None:
+        issues.append(
+            QuantitativeValidationIssue(
+                code="censoring-limit-missing",
+                message="censored observations should include detection_limit_value",
+            )
+        )
+    if support.p_value is not None and support.q_value is not None and support.q_value < support.p_value:
+        issues.append(
+            QuantitativeValidationIssue(
+                code="q-value-less-than-p-value",
+                message="q_value should generally be >= p_value for corrected statistics",
+            )
+        )
+    if support.absolute_scale and not support.unit:
+        issues.append(
+            QuantitativeValidationIssue(
+                code="absolute-scale-unit-missing",
+                message="absolute_scale measurements should include an explicit unit",
+            )
+        )
+    return issues
 
 
 def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str]:
