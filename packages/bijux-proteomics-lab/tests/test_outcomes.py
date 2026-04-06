@@ -4,10 +4,16 @@
 from __future__ import annotations
 
 from bijux_proteomics_lab import (
+    AcceptanceOperator,
+    AssayAcceptanceRule,
+    AssayCategory,
+    AssayDefinition,
+    AssayObservationRecord,
     AssayOutcome,
     ExperimentOutcome,
     FailureClass,
     RerunPolicy,
+    evaluate_assay_acceptance,
     recommend_rerun_policy,
 )
 
@@ -27,3 +33,27 @@ def test_recommend_rerun_policy_prefers_technical_reruns() -> None:
     )
 
     assert recommend_rerun_policy(outcome) is RerunPolicy.ON_TECHNICAL_FAILURE
+
+
+def test_evaluate_assay_acceptance_applies_explicit_rule() -> None:
+    outcome = evaluate_assay_acceptance(
+        AssayDefinition(
+            assay_id="binding-assay",
+            category=AssayCategory.BINDING,
+            purpose="confirm target engagement",
+            acceptance_rule=AssayAcceptanceRule(
+                assay_id="binding-assay",
+                metric="binding_score",
+                operator=AcceptanceOperator.GREATER_EQUAL,
+                threshold=0.8,
+            ),
+        ),
+        AssayObservationRecord(
+            assay_id="binding-assay",
+            metric="binding_score",
+            value=0.83,
+        ),
+    )
+
+    assert outcome.passed is True
+    assert outcome.failure_class is None

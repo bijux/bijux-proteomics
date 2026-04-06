@@ -29,6 +29,48 @@ class RerunPolicy(StrEnum):
     ON_INCONCLUSIVE_RESULT = "on_inconclusive_result"
 
 
+class AssayCategory(StrEnum):
+    """Taxonomy of assay roles in the lab workflow."""
+
+    BINDING = "binding"
+    ACTIVITY = "activity"
+    STABILITY = "stability"
+    DEVELOPABILITY = "developability"
+
+
+class AcceptanceOperator(StrEnum):
+    """Operator used to judge an assay observation."""
+
+    GREATER_EQUAL = "greater_equal"
+    LESS_EQUAL = "less_equal"
+
+
+class AssayAcceptanceRule(JsonModel):
+    """Acceptance threshold for one assay metric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    metric: str = Field(..., min_length=1, description="Metric to evaluate.")
+    operator: AcceptanceOperator = Field(..., description="Threshold operator.")
+    threshold: float = Field(..., description="Acceptance threshold.")
+    unit: str | None = Field(default=None, description="Expected unit of measure.")
+
+
+class AssayDefinition(JsonModel):
+    """Definition of an assay and how its output should be judged."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    category: AssayCategory = Field(..., description="Taxonomy category.")
+    purpose: str = Field(..., min_length=1, description="Why the assay exists.")
+    acceptance_rule: AssayAcceptanceRule = Field(
+        ...,
+        description="Acceptance contract for the assay output.",
+    )
+
+
 class AssayOutcome(JsonModel):
     """Observed result for one assay in a batch."""
 
@@ -60,6 +102,17 @@ class ExperimentOutcome(JsonModel):
     rerun_policy: RerunPolicy = Field(..., description="Recommended rerun policy.")
 
 
+class AssayObservationRecord(JsonModel):
+    """Observed measurement that can be evaluated against an assay definition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    metric: str = Field(..., min_length=1, description="Observed metric.")
+    value: float = Field(..., description="Observed value.")
+    unit: str | None = Field(default=None, description="Observed unit.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -71,3 +124,32 @@ def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     if any(not assay.passed for assay in outcome.assay_outcomes):
         return RerunPolicy.ON_INCONCLUSIVE_RESULT
     return RerunPolicy.NEVER
+
+
+def evaluate_assay_acceptance(
+    definition: AssayDefinition,
+    observation: AssayObservationRecord,
+) -> AssayOutcome:
+    """Evaluate one observation against the assay acceptance contract."""
+    rule = definition.acceptance_rule
+    if observation.assay_id != definition.assay_id:
+        raise ValueError("assay observation does not match the assay definition")
+    if observation.metric != rule.metric:
+        raise ValueError("assay observation metric does not match the acceptance rule")
+
+    passed = (
+        observation.value >= rule.threshold
+        if rule.operator is AcceptanceOperator.GREATER_EQUAL
+        else observation.value <= rule.threshold
+    )
+    summary = (
+        f"{observation.metric}={observation.value:g}"
+        f"{observation.unit or ''} {'met' if passed else 'missed'} "
+        f"{rule.operator.value} {rule.threshold:g}{rule.unit or ''}"
+    )
+    return AssayOutcome(
+        assay_id=observation.assay_id,
+        passed=passed,
+        observation_summary=summary,
+        failure_class=None if passed else FailureClass.BIOLOGICAL,
+    )

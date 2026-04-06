@@ -6,10 +6,16 @@
 from __future__ import annotations
 
 from bijux_proteomics_lab.outcomes import (
+    AcceptanceOperator,
+    AssayAcceptanceRule,
+    AssayCategory,
+    AssayDefinition,
+    AssayObservationRecord,
     AssayOutcome,
     ExperimentOutcome,
     FailureClass,
     RerunPolicy,
+    evaluate_assay_acceptance,
     recommend_rerun_policy,
 )
 from bijux_proteomics_lab.repositories import (
@@ -42,6 +48,11 @@ from bijux_proteomics_lab.planning import (
 )
 
 __all__ = [
+    "AcceptanceOperator",
+    "AssayAcceptanceRule",
+    "AssayCategory",
+    "AssayDefinition",
+    "AssayObservationRecord",
     "AssayOutcome",
     "AssayObservation",
     "AssayDependency",
@@ -70,6 +81,7 @@ __all__ = [
     "build_review_packet",
     "plan_experiment_batches",
     "recommend_next_cycle",
+    "evaluate_assay_acceptance",
     "recommend_rerun_policy",
     "schedule_experiment_plan",
 ]
