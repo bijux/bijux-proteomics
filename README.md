@@ -76,6 +76,19 @@ surface.
 - `make security` to run static security and vulnerability gates
 - `make test` to execute the configured test matrix
 
+## Release Model
+
+- publishing is tag-driven: pushing `vX.Y.Z` triggers package publish workflows
+- each publishable package owns its release notes in `packages/<package>/CHANGELOG.md`
+- root `CHANGELOG.md` is only for repository-wide changes that span packages or shared automation
+- trusted publishing is used in package publish workflows; no manual PyPI token step is required in the workflow definition
+
+Recommended release order:
+
+1. Update package `README.md`, `pyproject.toml`, and package `CHANGELOG.md`.
+2. Run `make lint test quality security`.
+3. Push the release tag (`vX.Y.Z`) and verify package publish workflows complete.
+
 ## Repository Boundaries
 
 The root keeps repository-owned concerns explicit:
