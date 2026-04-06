@@ -1,105 +1,373 @@
-site_name: BIJUX PROTEOMICS
-site_url: https://bijux.io/bijux-proteomics/
+INHERIT: mkdocs.shared.yml
+
+site_name: Bijux Proteomics
+site_description: Deterministic protein runtime, program design, intelligence, evidence, and lab orchestration documentation for the Bijux Proteomics package system.
+site_author: Bijan Mousavi <bijan@bijux.io>
+site_url: !ENV [SITE_URL, https://bijux.io/bijux-proteomics/]
 repo_name: bijux/bijux-proteomics
 repo_url: https://github.com/bijux/bijux-proteomics
+edit_uri: edit/main/docs/
 
 docs_dir: docs
-
-theme:
-  name: material
-  language: en
-  features:
-    - navigation.instant
-    - navigation.tabs
-    - navigation.sections
-    - search.highlight
-    - content.code.copy
-    - navigation.footer
-  palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
-    - scheme: slate
-      primary: teal
-      accent: lime
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
-  logo: assets/bijux_logo_hq.png
-  favicon: assets/bijux_icon.png
+site_dir: artifacts/root/docs/site
+watch:
+  - docs
+  - docs/assets
+  - mkdocs.yml
+  - mkdocs.shared.yml
 
 nav:
   - Home: index.md
-  - Platform Core: platform_core.md
-  - Getting Started: overview/getting_started.md
-  - Concepts: concepts/core_concepts.md
-  - Governance:
-      - core: governance/core.md
-      - semver: governance/semver.md
-      - anti_patterns: governance/anti_patterns.md
-      - roadmap_ceiling: governance/roadmap_ceiling.md
-      - positioning: governance/positioning.md
-      - release_identity: governance/release_identity.md
-  - Research:
-      - agentic_criteria: research/agentic_criteria.md
-      - agent_taxonomy: research/agent_taxonomy.md
-      - formal_model: research/formal_model.md
-      - falsifiable_claim: research/falsifiable_claim.md
-      - decisive_experiment: research/decisive_experiment.md
-      - ablation_studies: research/ablation_studies.md
-      - neutral_results: research/neutral_results.md
-      - reviewer_premortem: research/reviewer_premortem.md
-      - system_schematic: research/system_schematic.md
-  - Externalization:
-      - mpi: externalization/mpi.md
-      - golden_path: externalization/golden_path.md
-      - misuse_guards: externalization/misuse_guards.md
-      - surface_area: externalization/surface_area.md
-      - sandbox: externalization/sandbox.md
-      - invariant_visualization: externalization/invariant_visualization.md
-      - why_not_x: externalization/why_not_x.md
-  - Docs:
-      - SPINE: meta/SPINE.md
-      - DOCS_STYLE: meta/DOCS_STYLE.md
-      - DOCS_VOICE: meta/DOCS_VOICE.md
-      - NAMING: meta/NAMING.md
-      - TRIAGE: meta/TRIAGE.md
-  - Architecture:
-      - architecture: architecture/architecture.md
-      - invariants: architecture/invariants.md
-      - abstraction_removal: architecture/abstraction_removal.md
-      - experimental: architecture/experimental.md
-      - llm_authority: architecture/llm_authority.md
-      - execution_model: architecture/execution_model.md
-      - execution_lifecycle: architecture/execution_lifecycle.md
-      - execution_cost: architecture/execution_cost.md
-      - pathway_limits: architecture/pathway_limits.md
-      - conservation: architecture/conservation.md
-      - metrics: architecture/metrics.md
-      - negative_results: architecture/negative_results.md
-      - design_debt: architecture/design_debt.md
-  - CLI:
-      - cli: cli/cli.md
-      - cli_surface: interface/cli_surface.md
-  - API:
-      - overview: api/overview.md
-      - schema: api/schema.md
-  - Security:
-      - dependencies: security/dependencies.md
-      - threat_model: security/threat_model.md
-
-strict: true
-
-plugins:
-  - search
-
-markdown_extensions:
-  - admonition
-  - codehilite
-  - toc:
-      permalink: true
-  - tables
-  - def_list
+  - Repository Handbook:
+      - Repository Handbook: bijux-proteomics/index.md
+      - Platform Overview: bijux-proteomics/platform-overview.md
+      - Repository Scope: bijux-proteomics/repository-scope.md
+      - Workspace Layout: bijux-proteomics/workspace-layout.md
+      - Package Map: bijux-proteomics/package-map.md
+      - API and Schema Governance: bijux-proteomics/api-and-schema-governance.md
+      - Local Development: bijux-proteomics/local-development.md
+      - Testing and Validation: bijux-proteomics/testing-and-validation.md
+      - Release and Versioning: bijux-proteomics/release-and-versioning.md
+      - Documentation System: bijux-proteomics/documentation-system.md
+  - agentic-proteins:
+      - Overview: agentic-proteins/index.md
+      - Foundation:
+          - Foundation: agentic-proteins/foundation/index.md
+          - Package Overview: agentic-proteins/foundation/package-overview.md
+          - Scope and Non-Goals: agentic-proteins/foundation/scope-and-non-goals.md
+          - Ownership Boundary: agentic-proteins/foundation/ownership-boundary.md
+          - Repository Fit: agentic-proteins/foundation/repository-fit.md
+          - Capability Map: agentic-proteins/foundation/capability-map.md
+          - Domain Language: agentic-proteins/foundation/domain-language.md
+          - Lifecycle Overview: agentic-proteins/foundation/lifecycle-overview.md
+          - Dependencies and Adjacencies: agentic-proteins/foundation/dependencies-and-adjacencies.md
+          - Change Principles: agentic-proteins/foundation/change-principles.md
+      - Architecture:
+          - Architecture: agentic-proteins/architecture/index.md
+          - Module Map: agentic-proteins/architecture/module-map.md
+          - Dependency Direction: agentic-proteins/architecture/dependency-direction.md
+          - Execution Model: agentic-proteins/architecture/execution-model.md
+          - State and Persistence: agentic-proteins/architecture/state-and-persistence.md
+          - Integration Seams: agentic-proteins/architecture/integration-seams.md
+          - Error Model: agentic-proteins/architecture/error-model.md
+          - Extensibility Model: agentic-proteins/architecture/extensibility-model.md
+          - Code Navigation: agentic-proteins/architecture/code-navigation.md
+          - Architecture Risks: agentic-proteins/architecture/architecture-risks.md
+      - Interfaces:
+          - Interfaces: agentic-proteins/interfaces/index.md
+          - CLI Surface: agentic-proteins/interfaces/cli-surface.md
+          - API Surface: agentic-proteins/interfaces/api-surface.md
+          - Configuration Surface: agentic-proteins/interfaces/configuration-surface.md
+          - Data Contracts: agentic-proteins/interfaces/data-contracts.md
+          - Artifact Contracts: agentic-proteins/interfaces/artifact-contracts.md
+          - Entrypoints and Examples: agentic-proteins/interfaces/entrypoints-and-examples.md
+          - Operator Workflows: agentic-proteins/interfaces/operator-workflows.md
+          - Public Imports: agentic-proteins/interfaces/public-imports.md
+          - Compatibility Commitments: agentic-proteins/interfaces/compatibility-commitments.md
+      - Operations:
+          - Operations: agentic-proteins/operations/index.md
+          - Installation and Setup: agentic-proteins/operations/installation-and-setup.md
+          - Local Development: agentic-proteins/operations/local-development.md
+          - Common Workflows: agentic-proteins/operations/common-workflows.md
+          - Observability and Diagnostics: agentic-proteins/operations/observability-and-diagnostics.md
+          - Performance and Scaling: agentic-proteins/operations/performance-and-scaling.md
+          - Failure Recovery: agentic-proteins/operations/failure-recovery.md
+          - Release and Versioning: agentic-proteins/operations/release-and-versioning.md
+          - Security and Safety: agentic-proteins/operations/security-and-safety.md
+          - Deployment Boundaries: agentic-proteins/operations/deployment-boundaries.md
+      - Quality:
+          - Quality: agentic-proteins/quality/index.md
+          - Test Strategy: agentic-proteins/quality/test-strategy.md
+          - Invariants: agentic-proteins/quality/invariants.md
+          - Review Checklist: agentic-proteins/quality/review-checklist.md
+          - Documentation Standards: agentic-proteins/quality/documentation-standards.md
+          - Definition of Done: agentic-proteins/quality/definition-of-done.md
+          - Dependency Governance: agentic-proteins/quality/dependency-governance.md
+          - Change Validation: agentic-proteins/quality/change-validation.md
+          - Known Limitations: agentic-proteins/quality/known-limitations.md
+          - Risk Register: agentic-proteins/quality/risk-register.md
+  - bijux-proteomics-foundation:
+      - Overview: bijux-proteomics-foundation/index.md
+      - Foundation:
+          - Foundation: bijux-proteomics-foundation/foundation/index.md
+          - Package Overview: bijux-proteomics-foundation/foundation/package-overview.md
+          - Scope and Non-Goals: bijux-proteomics-foundation/foundation/scope-and-non-goals.md
+          - Ownership Boundary: bijux-proteomics-foundation/foundation/ownership-boundary.md
+          - Repository Fit: bijux-proteomics-foundation/foundation/repository-fit.md
+          - Capability Map: bijux-proteomics-foundation/foundation/capability-map.md
+          - Domain Language: bijux-proteomics-foundation/foundation/domain-language.md
+          - Lifecycle Overview: bijux-proteomics-foundation/foundation/lifecycle-overview.md
+          - Dependencies and Adjacencies: bijux-proteomics-foundation/foundation/dependencies-and-adjacencies.md
+          - Change Principles: bijux-proteomics-foundation/foundation/change-principles.md
+      - Architecture:
+          - Architecture: bijux-proteomics-foundation/architecture/index.md
+          - Module Map: bijux-proteomics-foundation/architecture/module-map.md
+          - Dependency Direction: bijux-proteomics-foundation/architecture/dependency-direction.md
+          - Execution Model: bijux-proteomics-foundation/architecture/execution-model.md
+          - State and Persistence: bijux-proteomics-foundation/architecture/state-and-persistence.md
+          - Integration Seams: bijux-proteomics-foundation/architecture/integration-seams.md
+          - Error Model: bijux-proteomics-foundation/architecture/error-model.md
+          - Extensibility Model: bijux-proteomics-foundation/architecture/extensibility-model.md
+          - Code Navigation: bijux-proteomics-foundation/architecture/code-navigation.md
+          - Architecture Risks: bijux-proteomics-foundation/architecture/architecture-risks.md
+      - Interfaces:
+          - Interfaces: bijux-proteomics-foundation/interfaces/index.md
+          - CLI Surface: bijux-proteomics-foundation/interfaces/cli-surface.md
+          - API Surface: bijux-proteomics-foundation/interfaces/api-surface.md
+          - Configuration Surface: bijux-proteomics-foundation/interfaces/configuration-surface.md
+          - Data Contracts: bijux-proteomics-foundation/interfaces/data-contracts.md
+          - Artifact Contracts: bijux-proteomics-foundation/interfaces/artifact-contracts.md
+          - Entrypoints and Examples: bijux-proteomics-foundation/interfaces/entrypoints-and-examples.md
+          - Operator Workflows: bijux-proteomics-foundation/interfaces/operator-workflows.md
+          - Public Imports: bijux-proteomics-foundation/interfaces/public-imports.md
+          - Compatibility Commitments: bijux-proteomics-foundation/interfaces/compatibility-commitments.md
+      - Operations:
+          - Operations: bijux-proteomics-foundation/operations/index.md
+          - Installation and Setup: bijux-proteomics-foundation/operations/installation-and-setup.md
+          - Local Development: bijux-proteomics-foundation/operations/local-development.md
+          - Common Workflows: bijux-proteomics-foundation/operations/common-workflows.md
+          - Observability and Diagnostics: bijux-proteomics-foundation/operations/observability-and-diagnostics.md
+          - Performance and Scaling: bijux-proteomics-foundation/operations/performance-and-scaling.md
+          - Failure Recovery: bijux-proteomics-foundation/operations/failure-recovery.md
+          - Release and Versioning: bijux-proteomics-foundation/operations/release-and-versioning.md
+          - Security and Safety: bijux-proteomics-foundation/operations/security-and-safety.md
+          - Deployment Boundaries: bijux-proteomics-foundation/operations/deployment-boundaries.md
+      - Quality:
+          - Quality: bijux-proteomics-foundation/quality/index.md
+          - Test Strategy: bijux-proteomics-foundation/quality/test-strategy.md
+          - Invariants: bijux-proteomics-foundation/quality/invariants.md
+          - Review Checklist: bijux-proteomics-foundation/quality/review-checklist.md
+          - Documentation Standards: bijux-proteomics-foundation/quality/documentation-standards.md
+          - Definition of Done: bijux-proteomics-foundation/quality/definition-of-done.md
+          - Dependency Governance: bijux-proteomics-foundation/quality/dependency-governance.md
+          - Change Validation: bijux-proteomics-foundation/quality/change-validation.md
+          - Known Limitations: bijux-proteomics-foundation/quality/known-limitations.md
+          - Risk Register: bijux-proteomics-foundation/quality/risk-register.md
+  - bijux-proteomics-core:
+      - Overview: bijux-proteomics-core/index.md
+      - Foundation:
+          - Foundation: bijux-proteomics-core/foundation/index.md
+          - Package Overview: bijux-proteomics-core/foundation/package-overview.md
+          - Scope and Non-Goals: bijux-proteomics-core/foundation/scope-and-non-goals.md
+          - Ownership Boundary: bijux-proteomics-core/foundation/ownership-boundary.md
+          - Repository Fit: bijux-proteomics-core/foundation/repository-fit.md
+          - Capability Map: bijux-proteomics-core/foundation/capability-map.md
+          - Domain Language: bijux-proteomics-core/foundation/domain-language.md
+          - Lifecycle Overview: bijux-proteomics-core/foundation/lifecycle-overview.md
+          - Dependencies and Adjacencies: bijux-proteomics-core/foundation/dependencies-and-adjacencies.md
+          - Change Principles: bijux-proteomics-core/foundation/change-principles.md
+      - Architecture:
+          - Architecture: bijux-proteomics-core/architecture/index.md
+          - Module Map: bijux-proteomics-core/architecture/module-map.md
+          - Dependency Direction: bijux-proteomics-core/architecture/dependency-direction.md
+          - Execution Model: bijux-proteomics-core/architecture/execution-model.md
+          - State and Persistence: bijux-proteomics-core/architecture/state-and-persistence.md
+          - Integration Seams: bijux-proteomics-core/architecture/integration-seams.md
+          - Error Model: bijux-proteomics-core/architecture/error-model.md
+          - Extensibility Model: bijux-proteomics-core/architecture/extensibility-model.md
+          - Code Navigation: bijux-proteomics-core/architecture/code-navigation.md
+          - Architecture Risks: bijux-proteomics-core/architecture/architecture-risks.md
+      - Interfaces:
+          - Interfaces: bijux-proteomics-core/interfaces/index.md
+          - CLI Surface: bijux-proteomics-core/interfaces/cli-surface.md
+          - API Surface: bijux-proteomics-core/interfaces/api-surface.md
+          - Configuration Surface: bijux-proteomics-core/interfaces/configuration-surface.md
+          - Data Contracts: bijux-proteomics-core/interfaces/data-contracts.md
+          - Artifact Contracts: bijux-proteomics-core/interfaces/artifact-contracts.md
+          - Entrypoints and Examples: bijux-proteomics-core/interfaces/entrypoints-and-examples.md
+          - Operator Workflows: bijux-proteomics-core/interfaces/operator-workflows.md
+          - Public Imports: bijux-proteomics-core/interfaces/public-imports.md
+          - Compatibility Commitments: bijux-proteomics-core/interfaces/compatibility-commitments.md
+      - Operations:
+          - Operations: bijux-proteomics-core/operations/index.md
+          - Installation and Setup: bijux-proteomics-core/operations/installation-and-setup.md
+          - Local Development: bijux-proteomics-core/operations/local-development.md
+          - Common Workflows: bijux-proteomics-core/operations/common-workflows.md
+          - Observability and Diagnostics: bijux-proteomics-core/operations/observability-and-diagnostics.md
+          - Performance and Scaling: bijux-proteomics-core/operations/performance-and-scaling.md
+          - Failure Recovery: bijux-proteomics-core/operations/failure-recovery.md
+          - Release and Versioning: bijux-proteomics-core/operations/release-and-versioning.md
+          - Security and Safety: bijux-proteomics-core/operations/security-and-safety.md
+          - Deployment Boundaries: bijux-proteomics-core/operations/deployment-boundaries.md
+      - Quality:
+          - Quality: bijux-proteomics-core/quality/index.md
+          - Test Strategy: bijux-proteomics-core/quality/test-strategy.md
+          - Invariants: bijux-proteomics-core/quality/invariants.md
+          - Review Checklist: bijux-proteomics-core/quality/review-checklist.md
+          - Documentation Standards: bijux-proteomics-core/quality/documentation-standards.md
+          - Definition of Done: bijux-proteomics-core/quality/definition-of-done.md
+          - Dependency Governance: bijux-proteomics-core/quality/dependency-governance.md
+          - Change Validation: bijux-proteomics-core/quality/change-validation.md
+          - Known Limitations: bijux-proteomics-core/quality/known-limitations.md
+          - Risk Register: bijux-proteomics-core/quality/risk-register.md
+  - bijux-proteomics-intelligence:
+      - Overview: bijux-proteomics-intelligence/index.md
+      - Foundation:
+          - Foundation: bijux-proteomics-intelligence/foundation/index.md
+          - Package Overview: bijux-proteomics-intelligence/foundation/package-overview.md
+          - Scope and Non-Goals: bijux-proteomics-intelligence/foundation/scope-and-non-goals.md
+          - Ownership Boundary: bijux-proteomics-intelligence/foundation/ownership-boundary.md
+          - Repository Fit: bijux-proteomics-intelligence/foundation/repository-fit.md
+          - Capability Map: bijux-proteomics-intelligence/foundation/capability-map.md
+          - Domain Language: bijux-proteomics-intelligence/foundation/domain-language.md
+          - Lifecycle Overview: bijux-proteomics-intelligence/foundation/lifecycle-overview.md
+          - Dependencies and Adjacencies: bijux-proteomics-intelligence/foundation/dependencies-and-adjacencies.md
+          - Change Principles: bijux-proteomics-intelligence/foundation/change-principles.md
+      - Architecture:
+          - Architecture: bijux-proteomics-intelligence/architecture/index.md
+          - Module Map: bijux-proteomics-intelligence/architecture/module-map.md
+          - Dependency Direction: bijux-proteomics-intelligence/architecture/dependency-direction.md
+          - Execution Model: bijux-proteomics-intelligence/architecture/execution-model.md
+          - State and Persistence: bijux-proteomics-intelligence/architecture/state-and-persistence.md
+          - Integration Seams: bijux-proteomics-intelligence/architecture/integration-seams.md
+          - Error Model: bijux-proteomics-intelligence/architecture/error-model.md
+          - Extensibility Model: bijux-proteomics-intelligence/architecture/extensibility-model.md
+          - Code Navigation: bijux-proteomics-intelligence/architecture/code-navigation.md
+          - Architecture Risks: bijux-proteomics-intelligence/architecture/architecture-risks.md
+      - Interfaces:
+          - Interfaces: bijux-proteomics-intelligence/interfaces/index.md
+          - CLI Surface: bijux-proteomics-intelligence/interfaces/cli-surface.md
+          - API Surface: bijux-proteomics-intelligence/interfaces/api-surface.md
+          - Configuration Surface: bijux-proteomics-intelligence/interfaces/configuration-surface.md
+          - Data Contracts: bijux-proteomics-intelligence/interfaces/data-contracts.md
+          - Artifact Contracts: bijux-proteomics-intelligence/interfaces/artifact-contracts.md
+          - Entrypoints and Examples: bijux-proteomics-intelligence/interfaces/entrypoints-and-examples.md
+          - Operator Workflows: bijux-proteomics-intelligence/interfaces/operator-workflows.md
+          - Public Imports: bijux-proteomics-intelligence/interfaces/public-imports.md
+          - Compatibility Commitments: bijux-proteomics-intelligence/interfaces/compatibility-commitments.md
+      - Operations:
+          - Operations: bijux-proteomics-intelligence/operations/index.md
+          - Installation and Setup: bijux-proteomics-intelligence/operations/installation-and-setup.md
+          - Local Development: bijux-proteomics-intelligence/operations/local-development.md
+          - Common Workflows: bijux-proteomics-intelligence/operations/common-workflows.md
+          - Observability and Diagnostics: bijux-proteomics-intelligence/operations/observability-and-diagnostics.md
+          - Performance and Scaling: bijux-proteomics-intelligence/operations/performance-and-scaling.md
+          - Failure Recovery: bijux-proteomics-intelligence/operations/failure-recovery.md
+          - Release and Versioning: bijux-proteomics-intelligence/operations/release-and-versioning.md
+          - Security and Safety: bijux-proteomics-intelligence/operations/security-and-safety.md
+          - Deployment Boundaries: bijux-proteomics-intelligence/operations/deployment-boundaries.md
+      - Quality:
+          - Quality: bijux-proteomics-intelligence/quality/index.md
+          - Test Strategy: bijux-proteomics-intelligence/quality/test-strategy.md
+          - Invariants: bijux-proteomics-intelligence/quality/invariants.md
+          - Review Checklist: bijux-proteomics-intelligence/quality/review-checklist.md
+          - Documentation Standards: bijux-proteomics-intelligence/quality/documentation-standards.md
+          - Definition of Done: bijux-proteomics-intelligence/quality/definition-of-done.md
+          - Dependency Governance: bijux-proteomics-intelligence/quality/dependency-governance.md
+          - Change Validation: bijux-proteomics-intelligence/quality/change-validation.md
+          - Known Limitations: bijux-proteomics-intelligence/quality/known-limitations.md
+          - Risk Register: bijux-proteomics-intelligence/quality/risk-register.md
+  - bijux-proteomics-knowledge:
+      - Overview: bijux-proteomics-knowledge/index.md
+      - Foundation:
+          - Foundation: bijux-proteomics-knowledge/foundation/index.md
+          - Package Overview: bijux-proteomics-knowledge/foundation/package-overview.md
+          - Scope and Non-Goals: bijux-proteomics-knowledge/foundation/scope-and-non-goals.md
+          - Ownership Boundary: bijux-proteomics-knowledge/foundation/ownership-boundary.md
+          - Repository Fit: bijux-proteomics-knowledge/foundation/repository-fit.md
+          - Capability Map: bijux-proteomics-knowledge/foundation/capability-map.md
+          - Domain Language: bijux-proteomics-knowledge/foundation/domain-language.md
+          - Lifecycle Overview: bijux-proteomics-knowledge/foundation/lifecycle-overview.md
+          - Dependencies and Adjacencies: bijux-proteomics-knowledge/foundation/dependencies-and-adjacencies.md
+          - Change Principles: bijux-proteomics-knowledge/foundation/change-principles.md
+      - Architecture:
+          - Architecture: bijux-proteomics-knowledge/architecture/index.md
+          - Module Map: bijux-proteomics-knowledge/architecture/module-map.md
+          - Dependency Direction: bijux-proteomics-knowledge/architecture/dependency-direction.md
+          - Execution Model: bijux-proteomics-knowledge/architecture/execution-model.md
+          - State and Persistence: bijux-proteomics-knowledge/architecture/state-and-persistence.md
+          - Integration Seams: bijux-proteomics-knowledge/architecture/integration-seams.md
+          - Error Model: bijux-proteomics-knowledge/architecture/error-model.md
+          - Extensibility Model: bijux-proteomics-knowledge/architecture/extensibility-model.md
+          - Code Navigation: bijux-proteomics-knowledge/architecture/code-navigation.md
+          - Architecture Risks: bijux-proteomics-knowledge/architecture/architecture-risks.md
+      - Interfaces:
+          - Interfaces: bijux-proteomics-knowledge/interfaces/index.md
+          - CLI Surface: bijux-proteomics-knowledge/interfaces/cli-surface.md
+          - API Surface: bijux-proteomics-knowledge/interfaces/api-surface.md
+          - Configuration Surface: bijux-proteomics-knowledge/interfaces/configuration-surface.md
+          - Data Contracts: bijux-proteomics-knowledge/interfaces/data-contracts.md
+          - Artifact Contracts: bijux-proteomics-knowledge/interfaces/artifact-contracts.md
+          - Entrypoints and Examples: bijux-proteomics-knowledge/interfaces/entrypoints-and-examples.md
+          - Operator Workflows: bijux-proteomics-knowledge/interfaces/operator-workflows.md
+          - Public Imports: bijux-proteomics-knowledge/interfaces/public-imports.md
+          - Compatibility Commitments: bijux-proteomics-knowledge/interfaces/compatibility-commitments.md
+      - Operations:
+          - Operations: bijux-proteomics-knowledge/operations/index.md
+          - Installation and Setup: bijux-proteomics-knowledge/operations/installation-and-setup.md
+          - Local Development: bijux-proteomics-knowledge/operations/local-development.md
+          - Common Workflows: bijux-proteomics-knowledge/operations/common-workflows.md
+          - Observability and Diagnostics: bijux-proteomics-knowledge/operations/observability-and-diagnostics.md
+          - Performance and Scaling: bijux-proteomics-knowledge/operations/performance-and-scaling.md
+          - Failure Recovery: bijux-proteomics-knowledge/operations/failure-recovery.md
+          - Release and Versioning: bijux-proteomics-knowledge/operations/release-and-versioning.md
+          - Security and Safety: bijux-proteomics-knowledge/operations/security-and-safety.md
+          - Deployment Boundaries: bijux-proteomics-knowledge/operations/deployment-boundaries.md
+      - Quality:
+          - Quality: bijux-proteomics-knowledge/quality/index.md
+          - Test Strategy: bijux-proteomics-knowledge/quality/test-strategy.md
+          - Invariants: bijux-proteomics-knowledge/quality/invariants.md
+          - Review Checklist: bijux-proteomics-knowledge/quality/review-checklist.md
+          - Documentation Standards: bijux-proteomics-knowledge/quality/documentation-standards.md
+          - Definition of Done: bijux-proteomics-knowledge/quality/definition-of-done.md
+          - Dependency Governance: bijux-proteomics-knowledge/quality/dependency-governance.md
+          - Change Validation: bijux-proteomics-knowledge/quality/change-validation.md
+          - Known Limitations: bijux-proteomics-knowledge/quality/known-limitations.md
+          - Risk Register: bijux-proteomics-knowledge/quality/risk-register.md
+  - bijux-proteomics-lab:
+      - Overview: bijux-proteomics-lab/index.md
+      - Foundation:
+          - Foundation: bijux-proteomics-lab/foundation/index.md
+          - Package Overview: bijux-proteomics-lab/foundation/package-overview.md
+          - Scope and Non-Goals: bijux-proteomics-lab/foundation/scope-and-non-goals.md
+          - Ownership Boundary: bijux-proteomics-lab/foundation/ownership-boundary.md
+          - Repository Fit: bijux-proteomics-lab/foundation/repository-fit.md
+          - Capability Map: bijux-proteomics-lab/foundation/capability-map.md
+          - Domain Language: bijux-proteomics-lab/foundation/domain-language.md
+          - Lifecycle Overview: bijux-proteomics-lab/foundation/lifecycle-overview.md
+          - Dependencies and Adjacencies: bijux-proteomics-lab/foundation/dependencies-and-adjacencies.md
+          - Change Principles: bijux-proteomics-lab/foundation/change-principles.md
+      - Architecture:
+          - Architecture: bijux-proteomics-lab/architecture/index.md
+          - Module Map: bijux-proteomics-lab/architecture/module-map.md
+          - Dependency Direction: bijux-proteomics-lab/architecture/dependency-direction.md
+          - Execution Model: bijux-proteomics-lab/architecture/execution-model.md
+          - State and Persistence: bijux-proteomics-lab/architecture/state-and-persistence.md
+          - Integration Seams: bijux-proteomics-lab/architecture/integration-seams.md
+          - Error Model: bijux-proteomics-lab/architecture/error-model.md
+          - Extensibility Model: bijux-proteomics-lab/architecture/extensibility-model.md
+          - Code Navigation: bijux-proteomics-lab/architecture/code-navigation.md
+          - Architecture Risks: bijux-proteomics-lab/architecture/architecture-risks.md
+      - Interfaces:
+          - Interfaces: bijux-proteomics-lab/interfaces/index.md
+          - CLI Surface: bijux-proteomics-lab/interfaces/cli-surface.md
+          - API Surface: bijux-proteomics-lab/interfaces/api-surface.md
+          - Configuration Surface: bijux-proteomics-lab/interfaces/configuration-surface.md
+          - Data Contracts: bijux-proteomics-lab/interfaces/data-contracts.md
+          - Artifact Contracts: bijux-proteomics-lab/interfaces/artifact-contracts.md
+          - Entrypoints and Examples: bijux-proteomics-lab/interfaces/entrypoints-and-examples.md
+          - Operator Workflows: bijux-proteomics-lab/interfaces/operator-workflows.md
+          - Public Imports: bijux-proteomics-lab/interfaces/public-imports.md
+          - Compatibility Commitments: bijux-proteomics-lab/interfaces/compatibility-commitments.md
+      - Operations:
+          - Operations: bijux-proteomics-lab/operations/index.md
+          - Installation and Setup: bijux-proteomics-lab/operations/installation-and-setup.md
+          - Local Development: bijux-proteomics-lab/operations/local-development.md
+          - Common Workflows: bijux-proteomics-lab/operations/common-workflows.md
+          - Observability and Diagnostics: bijux-proteomics-lab/operations/observability-and-diagnostics.md
+          - Performance and Scaling: bijux-proteomics-lab/operations/performance-and-scaling.md
+          - Failure Recovery: bijux-proteomics-lab/operations/failure-recovery.md
+          - Release and Versioning: bijux-proteomics-lab/operations/release-and-versioning.md
+          - Security and Safety: bijux-proteomics-lab/operations/security-and-safety.md
+          - Deployment Boundaries: bijux-proteomics-lab/operations/deployment-boundaries.md
+      - Quality:
+          - Quality: bijux-proteomics-lab/quality/index.md
+          - Test Strategy: bijux-proteomics-lab/quality/test-strategy.md
+          - Invariants: bijux-proteomics-lab/quality/invariants.md
+          - Review Checklist: bijux-proteomics-lab/quality/review-checklist.md
+          - Documentation Standards: bijux-proteomics-lab/quality/documentation-standards.md
+          - Definition of Done: bijux-proteomics-lab/quality/definition-of-done.md
+          - Dependency Governance: bijux-proteomics-lab/quality/dependency-governance.md
+          - Change Validation: bijux-proteomics-lab/quality/change-validation.md
+          - Known Limitations: bijux-proteomics-lab/quality/known-limitations.md
+          - Risk Register: bijux-proteomics-lab/quality/risk-register.md

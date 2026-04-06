@@ -1,32 +1,79 @@
+---
+title: bijux-proteomics Documentation
+audience: mixed
+type: index
+status: canonical
+owner: bijux-proteomics-docs
+last_reviewed: 2026-04-04
+---
+
 # Bijux Proteomics
 
-**Scope:** Repository-level platform map for the Bijux Proteomics umbrella.
-**Audience:** Contributors and reviewers who need the package map before changing code.
-**Guarantees:** Names the platform pillars, package boundaries, and current execution surfaces.
-**Non-Goals:** This page does not replace package-specific API or CLI documentation.
+`bijux-proteomics` is split on purpose. It is easier to understand, review, and
+trust when ingest, retrieval, reasoning, orchestration, and runtime authority
+stay separate instead of dissolving into one vague codebase.
 
-Why: the repository now contains multiple packages, so the home page needs to explain how deterministic execution, candidate reasoning, evidence, and lab planning fit together in one platform.
+This landing page is for orientation. A reader should be able to skim it,
+decide where their question belongs, and move on without needing a meeting.
 
-## Overview
+## How To Read The Site
 
-Bijux Proteomics is the umbrella repository for protein R&D work. The deterministic runtime still lives in `agentic-proteins`, but the repository now also carries dedicated packages for program definitions, candidate reasoning, evidence bundles, and experiment planning. The runtime is implemented in [packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py), and repository consistency checks are enforced by [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py).
+```mermaid
+flowchart LR
+    start["Start with the question you have"]
+    repo["Repository handbook<br/>shared rules and system fit"]
+    ingest["bijux-proteomics-ingest<br/>prepare and normalize material"]
+    index["bijux-proteomics-index<br/>execute retrieval and track provenance"]
+    reason["bijux-proteomics-reason<br/>turn evidence into inspectable claims"]
+    agent["bijux-proteomics-agent<br/>coordinate role-based work"]
+    runtime["bijux-proteomics-runtime<br/>govern replay, persistence, acceptance"]
+    dev["bijux-proteomics-dev<br/>maintainer-only tooling"]
+    compat["compat-packages<br/>legacy names and shims"]
 
-## Contracts
+    start --> repo
+    start --> ingest
+    start --> index
+    start --> reason
+    start --> agent
+    start --> runtime
+    start --> dev
+    start --> compat
+```
 
-The umbrella contract is simple: `agentic-proteins` remains the execution product, `bijux-proteomics-core` defines stable program documents, `bijux-proteomics-intelligence` turns those documents into transparent design briefs and rankings, `bijux-proteomics-knowledge` explains decisions with evidence, and `bijux-proteomics-lab` turns assay requirements into closed-loop execution plans. Cross-package expectations are exercised in [packages/bijux-proteomics-core/tests/test_program_models.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/tests/test_program_models.py), [packages/bijux-proteomics-intelligence/tests/test_candidate_ranking.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/tests/test_candidate_ranking.py), and [packages/bijux-proteomics-lab/tests/test_experiment_planner.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/tests/test_experiment_planner.py).
+## Start Here
 
-## Invariants
+- Open the [Repository Handbook](bijux-proteomics/index.md) when the question
+  crosses package boundaries or touches shared repository rules.
+- Open one product package when the question is about owned behavior, public
+  surfaces, workflows, or proof inside that package.
+- Open [bijux-proteomics-dev](bijux-proteomics-dev/index.md) only for maintainer-side
+  automation, release helpers, schema drift checks, and similar repository
+  health concerns.
+- Open [compat-packages](compat-packages/index.md) only when a legacy name is
+  part of the problem. They exist to help migration, not to compete with the
+  canonical package family.
+- Open one legacy package handbook under `compat-packages/` when the exact PyPI
+  distribution name is part of the migration question.
 
-Deterministic execution still matters, but it is no longer the only story. Every serious program needs a target definition, explicit constraints, candidate liabilities, evidence coverage, and review gates before expensive work advances. The package move and path rules are checked by [packages/agentic-proteins/tests/integration/test_agent_contracts.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/tests/integration/test_agent_contracts.py), and the umbrella CLI template is covered by [packages/bijux-proteomics-core/tests/test_platform_cli.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/tests/test_platform_cli.py).
+## The Five Core Packages
 
-## Failure Modes
+- [`bijux-proteomics-ingest`](bijux-proteomics-ingest/index.md) is where raw
+  material becomes deterministic, reviewable input.
+- [`bijux-proteomics-index`](bijux-proteomics-index/index.md) is where
+  retrieval becomes explicit and provenance-aware.
+- [`bijux-proteomics-reason`](bijux-proteomics-reason/index.md) is where
+  evidence becomes claims, checks, and inspectable reasoning traces.
+- [`bijux-proteomics-agent`](bijux-proteomics-agent/index.md) is where
+  role-based work is coordinated into coherent runs.
+- [`bijux-proteomics-runtime`](bijux-proteomics-runtime/index.md) is where the
+  system decides whether a run is acceptable, replayable, and worth keeping.
 
-The repository becomes misleading when package boundaries blur, when a runtime change silently breaks platform packages, or when ranking, evidence, and assay planning regress into ad hoc dictionaries. Those failures are reduced by keeping package code under `packages/`, validating documentation references with [scripts/check_docs_consistency.py](https://github.com/bijux/bijux-proteomics/blob/main/scripts/check_docs_consistency.py), and exercising evidence coverage with [packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py).
+## Two Supporting Sections
 
-## Extension Points
+- [`bijux-proteomics-dev`](bijux-proteomics-dev/index.md) owns the developer tooling and
+  maintainer workflows that do not belong in a product package.
+- [`compat-packages`](compat-packages/index.md) explains the legacy names that
+  still exist as migration shims.
 
-The current Python-first shape leaves room for future model registries, assay ingestion adapters, notebook SDK surfaces, and eventually a Rust core without renaming the public concepts. New platform work should land in a package that matches its long-term role instead of being appended to the runtime by default. Package scaffolding lives under [packages/bijux-proteomics-core/pyproject.toml](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/pyproject.toml), [packages/bijux-proteomics-intelligence/pyproject.toml](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/pyproject.toml), and [packages/bijux-proteomics-lab/pyproject.toml](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/pyproject.toml).
-
-## Exit Criteria
-
-This page is accurate when a new contributor can answer three questions quickly: what the umbrella platform is, which package owns a change, and how program definitions now connect ranking, evidence, review, and execution. A change is incomplete if those answers disappear from the repo landing surfaces or if the package map no longer matches the code under `packages/`.
+The root docs should shorten conversations, not create new documentation
+ceremony.

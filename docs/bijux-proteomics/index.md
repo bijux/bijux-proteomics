@@ -1,0 +1,78 @@
+---
+title: Repository Handbook
+audience: mixed
+type: index
+status: canonical
+owner: bijux-proteomics-docs
+last_reviewed: 2026-04-04
+---
+
+# Repository Handbook
+
+This section is for the questions that no single package can answer on its
+own. The root is not a sixth product package. It is where we explain how the
+package family fits together, which assets genuinely live above one package,
+and where cross-package rules begin and end.
+
+If a reader can answer their question honestly from one package handbook, they
+should go there instead of staying here.
+
+## What The Root Actually Owns
+
+```mermaid
+flowchart TB
+    root["Repository handbook"]
+    layout["workspace layout"]
+    schemas["shared schemas in api/"]
+    release["release and versioning rules"]
+    docs["handbook shape and root docs"]
+    checks["cross-package checks and CI fit"]
+    packages["package-local behavior"]
+    shadow["shadow implementation at the root"]
+
+    layout --> root
+    schemas --> root
+    release --> root
+    docs --> root
+    checks --> root
+    root -.does not own.-> packages
+    root -.must not become.-> shadow
+```
+
+## Pages In This Section
+
+- [Platform Overview](platform-overview.md)
+- [Repository Scope](repository-scope.md)
+- [Workspace Layout](workspace-layout.md)
+- [Package Map](package-map.md)
+- [API and Schema Governance](api-and-schema-governance.md)
+- [Local Development](local-development.md)
+- [Testing and Validation](testing-and-validation.md)
+- [Release and Versioning](release-and-versioning.md)
+- [Documentation System](documentation-system.md)
+
+## Use This Section For
+
+- Questions about why the repository is split the way it is.
+- Questions about root-managed assets such as `api/`, `Makefile`, shared CI,
+  and release conventions.
+- Questions about where the root should stop and a product package should take
+  over.
+
+## Leave This Section For A Package Handbook When
+
+- the answer lives mostly in one package's source tree, tests, or public surface
+- the question is about one package's internal boundary rather than repository fit
+- you are tempted to describe behavior at the root that really belongs inside
+  `packages/`
+
+## Package Handbooks
+
+- [bijux-proteomics-ingest](../bijux-proteomics-ingest/foundation/index.md)
+- [bijux-proteomics-index](../bijux-proteomics-index/foundation/index.md)
+- [bijux-proteomics-reason](../bijux-proteomics-reason/foundation/index.md)
+- [bijux-proteomics-agent](../bijux-proteomics-agent/foundation/index.md)
+- [bijux-proteomics-runtime](../bijux-proteomics-runtime/foundation/index.md)
+
+The job of this section is simple: help readers understand the system without
+letting the root pretend it owns behavior that belongs elsewhere.
