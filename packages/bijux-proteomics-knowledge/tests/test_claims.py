@@ -23,6 +23,7 @@ from bijux_proteomics_knowledge import (
     apply_resolution_assay_outcome,
     ResolutionAssayOutcome,
     identify_knowledge_gaps,
+    evaluate_claim_consistency,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -436,3 +437,32 @@ def test_identify_knowledge_gaps_reports_open_claim_and_decisive_gap() -> None:
 
     assert any(gap.gap_code == "open-claims-require-resolution" for gap in gaps)
     assert any(gap.gap_code == "no-decisive-evidence" for gap in gaps)
+
+
+def test_evaluate_claim_consistency_reports_unbalanced_contradiction_groups() -> None:
+    claims = [
+        build_claim(
+            claim_id="claim-consistency-a",
+            target_id="target-1",
+            statement="support claim",
+            evidence_ids=["ev-1"],
+            status=ClaimStatus.SUPPORTED,
+            contradiction_group="group-1",
+            polarity=ClaimPolarity.SUPPORTING,
+            resolution_assays=["assay-a"],
+        ),
+        build_claim(
+            claim_id="claim-consistency-b",
+            target_id="target-1",
+            statement="another support claim",
+            evidence_ids=["ev-2"],
+            status=ClaimStatus.SUPPORTED,
+            contradiction_group="group-1",
+            polarity=ClaimPolarity.SUPPORTING,
+            resolution_assays=["assay-b"],
+        ),
+    ]
+    report = evaluate_claim_consistency(claims, target_id="target-1")
+
+    assert report.claim_count == 2
+    assert report.inconsistent_groups == ["group-1"]

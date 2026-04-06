@@ -23,6 +23,7 @@ from bijux_proteomics_knowledge.claims import (
     HypothesisDossier,
     ResolutionAssayOutcome,
     KnowledgeGap,
+    ClaimConsistencyReport,
     ClaimStrengthUpdate,
     ClaimType,
     ClaimPolarity,
@@ -39,6 +40,7 @@ from bijux_proteomics_knowledge.claims import (
     build_hypothesis_dossier,
     apply_resolution_assay_outcome,
     identify_knowledge_gaps,
+    evaluate_claim_consistency,
     weaken_claim,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
@@ -147,6 +149,7 @@ __all__ = [
     "HypothesisDossier",
     "ResolutionAssayOutcome",
     "KnowledgeGap",
+    "ClaimConsistencyReport",
     "ClaimResolutionState",
     "ClaimStatus",
     "ClaimStrengthUpdate",
@@ -208,6 +211,7 @@ __all__ = [
     "build_hypothesis_dossier",
     "apply_resolution_assay_outcome",
     "identify_knowledge_gaps",
+    "evaluate_claim_consistency",
     "weaken_claim",
     "compute_bundle_trust",
     "coverage_report",

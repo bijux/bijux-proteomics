@@ -189,6 +189,19 @@ class KnowledgeGap(JsonModel):
     related_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Claim identifiers tied to this gap.")
 
 
+class ClaimConsistencyReport(JsonModel):
+    """Consistency diagnostics for a claim set under one decision scope."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: TargetId = Field(..., description="Target identifier.")
+    claim_count: int = Field(default=0, ge=0, description="Number of claims evaluated.")
+    open_claim_count: int = Field(default=0, ge=0, description="Number of open claims.")
+    contradiction_group_count: int = Field(default=0, ge=0, description="Number of contradiction groups.")
+    inconsistent_groups: list[str] = Field(default_factory=list, description="Contradiction groups missing both polarities.")
+    notes: list[str] = Field(default_factory=list, description="Consistency notes.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -540,3 +553,30 @@ def identify_knowledge_gaps(
             )
         )
     return gaps
+
+
+def evaluate_claim_consistency(claims: list[EvidenceClaim], *, target_id: str) -> ClaimConsistencyReport:
+    """Summarize claim-set consistency for one target."""
+    scoped = [claim for claim in claims if claim.target_id == target_id]
+    groups = sorted({claim.contradiction_group for claim in scoped if claim.contradiction_group})
+    inconsistent_groups: list[str] = []
+    for group in groups:
+        group_claims = [claim for claim in scoped if claim.contradiction_group == group]
+        polarities = {claim.polarity for claim in group_claims}
+        if polarities != {ClaimPolarity.SUPPORTING, ClaimPolarity.CONTRADICTING}:
+            inconsistent_groups.append(group)
+    notes: list[str] = []
+    if inconsistent_groups:
+        notes.append("some contradiction groups are missing balanced supporting and contradicting claims")
+    if any(claim.resolution_state is ClaimResolutionState.OPEN for claim in scoped):
+        notes.append("open claims still require resolution work")
+    if not notes:
+        notes.append("claim set looks internally consistent")
+    return ClaimConsistencyReport(
+        target_id=target_id,
+        claim_count=len(scoped),
+        open_claim_count=sum(1 for claim in scoped if claim.resolution_state is ClaimResolutionState.OPEN),
+        contradiction_group_count=len(groups),
+        inconsistent_groups=inconsistent_groups,
+        notes=notes,
+    )
