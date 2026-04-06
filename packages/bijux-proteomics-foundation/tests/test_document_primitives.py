@@ -24,6 +24,7 @@ from bijux_proteomics_foundation import (
     SchemaMigration,
     assess_schema_compatibility,
     classify_identifier,
+    build_identifier,
     ensure_identifier_kind,
 )
 
@@ -137,6 +138,12 @@ def test_identifier_helpers_classify_and_validate_prefix() -> None:
 
     with pytest.raises(ValueError, match="should use 'prog-' prefix"):
         ensure_identifier_kind("target-1", IdentifierKind.PROGRAM)
+
+
+def test_build_identifier_creates_canonical_prefixed_ids() -> None:
+    identifier = build_identifier(IdentifierKind.ASSAY, "Primary Readout")
+
+    assert identifier == "assay-primary-readout"
 
 
 def test_foundation_contract_errors_share_common_base() -> None:

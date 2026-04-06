@@ -56,3 +56,11 @@ def ensure_identifier_kind(identifier: str, kind: IdentifierKind) -> None:
         raise ValueError(
             f"identifier '{identifier}' should use '{kind.value}-' prefix"
         )
+
+
+def build_identifier(kind: IdentifierKind, suffix: str) -> str:
+    """Build a canonical identifier from kind and suffix."""
+    cleaned = suffix.strip().lower().replace(" ", "-")
+    if not cleaned:
+        raise ValueError("identifier suffix must be non-empty")
+    return f"{kind.value}-{cleaned}"

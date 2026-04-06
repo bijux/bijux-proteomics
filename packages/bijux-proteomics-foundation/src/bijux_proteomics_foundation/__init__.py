@@ -23,6 +23,7 @@ from bijux_proteomics_foundation.ids import (
     IdentifierKind,
     ProgramId,
     TargetId,
+    build_identifier,
     classify_identifier,
     ensure_identifier_kind,
 )
@@ -56,6 +57,7 @@ __all__ = [
     "ProgramId",
     "SchemaMigration",
     "TargetId",
+    "build_identifier",
     "classify_identifier",
     "ensure_identifier_kind",
 ]
