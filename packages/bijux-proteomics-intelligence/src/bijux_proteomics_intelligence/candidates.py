@@ -21,8 +21,11 @@ class CandidateStatus(StrEnum):
     PROPOSED = "proposed"
     SCREENED = "screened"
     PRIORITIZED = "prioritized"
+    DEFERRED = "deferred"
+    PARKED = "parked"
     ADVANCED = "advanced"
     REJECTED = "rejected"
+    REOPENED = "reopened"
 
 
 class CandidateProposal(JsonModel):
@@ -197,11 +200,23 @@ class PortfolioSelectionResult(JsonModel):
 
 
 ALLOWED_CANDIDATE_TRANSITIONS: dict[CandidateStatus, set[CandidateStatus]] = {
-    CandidateStatus.PROPOSED: {CandidateStatus.SCREENED, CandidateStatus.REJECTED},
-    CandidateStatus.SCREENED: {CandidateStatus.PRIORITIZED, CandidateStatus.REJECTED},
-    CandidateStatus.PRIORITIZED: {CandidateStatus.ADVANCED, CandidateStatus.REJECTED},
+    CandidateStatus.PROPOSED: {CandidateStatus.SCREENED, CandidateStatus.REJECTED, CandidateStatus.DEFERRED},
+    CandidateStatus.SCREENED: {
+        CandidateStatus.PRIORITIZED,
+        CandidateStatus.REJECTED,
+        CandidateStatus.DEFERRED,
+        CandidateStatus.PARKED,
+    },
+    CandidateStatus.PRIORITIZED: {
+        CandidateStatus.ADVANCED,
+        CandidateStatus.REJECTED,
+        CandidateStatus.DEFERRED,
+    },
+    CandidateStatus.DEFERRED: {CandidateStatus.REOPENED, CandidateStatus.REJECTED},
+    CandidateStatus.PARKED: {CandidateStatus.REOPENED, CandidateStatus.REJECTED},
+    CandidateStatus.REOPENED: {CandidateStatus.SCREENED, CandidateStatus.PRIORITIZED},
     CandidateStatus.ADVANCED: set(),
-    CandidateStatus.REJECTED: set(),
+    CandidateStatus.REJECTED: {CandidateStatus.REOPENED},
 }
 
 
@@ -276,8 +291,12 @@ def transition_candidate(
             f"cannot move candidate from {current_status.value} to {next_status.value}"
         )
     evidence_ids = evidence_ids or []
-    if next_status in {CandidateStatus.PRIORITIZED, CandidateStatus.ADVANCED} and not evidence_ids:
-        raise ValueError("prioritized or advanced transitions require evidence references")
+    if (
+        next_status
+        in {CandidateStatus.PRIORITIZED, CandidateStatus.ADVANCED, CandidateStatus.REOPENED}
+        and not evidence_ids
+    ):
+        raise ValueError("prioritized, advanced, and reopened transitions require evidence references")
     return CandidateTransition(
         candidate_id=candidate_id,
         from_status=current_status,

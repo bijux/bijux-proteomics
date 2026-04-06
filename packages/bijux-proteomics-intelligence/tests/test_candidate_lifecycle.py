@@ -108,3 +108,22 @@ def test_transition_candidate_requires_evidence_for_prioritization() -> None:
             CandidateStatus.PRIORITIZED,
             reason="missing evidence refs",
         )
+
+
+def test_transition_candidate_supports_deferred_and_reopened_states() -> None:
+    deferred = transition_candidate(
+        "candidate-1",
+        CandidateStatus.SCREENED,
+        CandidateStatus.DEFERRED,
+        reason="waiting for new evidence",
+    )
+    reopened = transition_candidate(
+        "candidate-1",
+        CandidateStatus.DEFERRED,
+        CandidateStatus.REOPENED,
+        reason="new decisive assay evidence available",
+        evidence_ids=["ev-5"],
+    )
+
+    assert deferred.to_status is CandidateStatus.DEFERRED
+    assert reopened.to_status is CandidateStatus.REOPENED
