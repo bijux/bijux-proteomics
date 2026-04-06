@@ -686,6 +686,41 @@ def test_validate_program_requires_mitigation_for_blocking_constraints() -> None
     ) in issues
 
 
+def test_validate_program_requires_owner_and_evidence_for_blocking_liabilities() -> None:
+    program = create_program_spec(
+        program_id="prog-liability",
+        name="liability governance",
+        objective="require ownership and evidence for blocking liabilities",
+        target_id="target-liability",
+        target_name="Target Liability",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="enforce blocker liability hygiene",
+    )
+    program.liabilities.append(
+        ProgramLiability(
+            liability_id="liability-x",
+            category=LiabilityCategory.SAFETY,
+            summary="safety blocker",
+            impact="could block progression",
+            mitigation="run follow-up safety assay",
+            blocker=True,
+            severity=5,
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="liability-owner-missing",
+        message="blocking liability 'liability-x' should declare owner_role",
+    ) in issues
+    assert ProgramValidationIssue(
+        code="liability-evidence-missing",
+        message="blocking liability 'liability-x' should reference supporting evidence ids",
+    ) in issues
+
+
 def test_success_criterion_supports_metric_family_and_bounds() -> None:
     criterion = SuccessCriterion(
         criterion_id="crit-1",

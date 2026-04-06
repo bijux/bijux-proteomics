@@ -130,6 +130,21 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                     ),
                 )
             )
+    for liability in program.liabilities:
+        if liability.blocker and not liability.owner_role:
+            issues.append(
+                ProgramValidationIssue(
+                    code="liability-owner-missing",
+                    message=f"blocking liability '{liability.liability_id}' should declare owner_role",
+                )
+            )
+        if liability.blocker and not liability.evidence_ids:
+            issues.append(
+                ProgramValidationIssue(
+                    code="liability-evidence-missing",
+                    message=f"blocking liability '{liability.liability_id}' should reference supporting evidence ids",
+                )
+            )
     if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY}:
         if not program.target.target_class:
             issues.append(
