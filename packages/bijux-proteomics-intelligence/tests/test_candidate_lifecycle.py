@@ -17,6 +17,7 @@ from bijux_proteomics_intelligence import (
     MutationBurdenSignals,
     PortfolioRiskSummary,
     TransitionAuditIssue,
+    ParsedMutation,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
@@ -25,6 +26,7 @@ from bijux_proteomics_intelligence import (
     mutation_burden_signals,
     summarize_portfolio_risk,
     validate_transition_history,
+    parse_mutation_token,
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
@@ -344,3 +346,17 @@ def test_validate_transition_history_flags_broken_status_chain() -> None:
     assert issues
     assert isinstance(issues[0], TransitionAuditIssue)
     assert any(issue.code == "status-link-broken" for issue in issues)
+
+
+def test_parse_mutation_token_extracts_wild_type_position_and_variant() -> None:
+    parsed = parse_mutation_token("A123V")
+
+    assert isinstance(parsed, ParsedMutation)
+    assert parsed.wild_type == "A"
+    assert parsed.position == 123
+    assert parsed.variant == "V"
+
+
+def test_parse_mutation_token_rejects_invalid_patterns() -> None:
+    with pytest.raises(ValueError):
+        parse_mutation_token("A12")

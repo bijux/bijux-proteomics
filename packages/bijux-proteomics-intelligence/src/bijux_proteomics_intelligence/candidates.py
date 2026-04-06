@@ -316,6 +316,16 @@ class TransitionAuditIssue(JsonModel):
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
 
+class ParsedMutation(JsonModel):
+    """Structured parsed mutation token."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    wild_type: str = Field(..., min_length=1, max_length=1, description="Wild-type residue.")
+    position: int = Field(..., ge=1, description="1-based residue position.")
+    variant: str = Field(..., min_length=1, max_length=1, description="Variant residue.")
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -766,3 +776,25 @@ def validate_transition_history(
                 )
             )
     return issues
+
+
+def parse_mutation_token(token: str) -> ParsedMutation:
+    """Parse mutation token like A123V into structured fields."""
+    stripped = token.strip().upper()
+    if len(stripped) < 3:
+        raise ValueError("mutation token should follow pattern A123V")
+    wild_type = stripped[0]
+    variant = stripped[-1]
+    position_token = stripped[1:-1]
+    if not position_token.isdigit():
+        raise ValueError("mutation token position should be numeric")
+    position = int(position_token)
+    if position < 1:
+        raise ValueError("mutation position should be at least 1")
+    if not wild_type.isalpha() or not variant.isalpha():
+        raise ValueError("mutation residues should be alphabetic letters")
+    return ParsedMutation(
+        wild_type=wild_type,
+        position=position,
+        variant=variant,
+    )
