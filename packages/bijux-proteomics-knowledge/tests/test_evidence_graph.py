@@ -12,6 +12,7 @@ from bijux_proteomics_knowledge import (
     EvidenceSourceType,
     EvidenceStrength,
     NormalizedEvidenceInput,
+    UnresolvedQuestion,
     QuantitativeSupport,
     attach_evidence_inputs,
     ingest_inputs_with_report,
@@ -61,6 +62,13 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
                 status=ClaimStatus.SUPPORTED,
             )
         ],
+        unresolved_questions=[
+            UnresolvedQuestion(
+                question_id="q1",
+                text="Does orthogonal assay confirm the activity signal?",
+                related_decision_tags=["progression"],
+            )
+        ],
     )
 
     assert graph.target_id == "target-1"
@@ -69,6 +77,8 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
     assert any(edge.relation == "informs" for edge in graph.edges)
     assert any(edge.relation == "derived_into" for edge in graph.edges)
     assert any(edge.relation == "supported_by_evidence" for edge in graph.edges)
+    assert any(node.node_type.value == "question" for node in graph.nodes)
+    assert any(edge.relation == "blocks" for edge in graph.edges)
 
 
 def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:

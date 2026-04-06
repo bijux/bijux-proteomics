@@ -35,6 +35,7 @@ from bijux_proteomics_knowledge.graph import (
     EvidenceGraph,
     EvidenceNode,
     EvidenceNodeType,
+    UnresolvedQuestion,
     build_evidence_graph,
 )
 from bijux_proteomics_knowledge.repositories import (
@@ -114,6 +115,7 @@ __all__ = [
     "EvidenceKind",
     "EvidenceNode",
     "EvidenceNodeType",
+    "UnresolvedQuestion",
     "EvidenceOrigin",
     "EvidenceRecord",
     "EvidenceQualityDecomposition",

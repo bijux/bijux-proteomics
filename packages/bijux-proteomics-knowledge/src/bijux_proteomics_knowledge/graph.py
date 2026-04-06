@@ -21,6 +21,8 @@ class EvidenceNodeType(StrEnum):
     CLAIM = "claim"
     EVIDENCE = "evidence"
     DECISION = "decision"
+    ASSAY = "assay"
+    QUESTION = "question"
 
 
 class EvidenceNode(JsonModel):
@@ -54,9 +56,20 @@ class EvidenceGraph(JsonModel):
     edges: list[EvidenceEdge] = Field(default_factory=list, description="Graph edges.")
 
 
+class UnresolvedQuestion(JsonModel):
+    """Question that remains unresolved in the current evidence state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    question_id: str = Field(..., min_length=1, description="Stable question identifier.")
+    text: str = Field(..., min_length=1, description="Unresolved scientific question.")
+    related_decision_tags: list[str] = Field(default_factory=list, description="Decision tags impacted by the question.")
+
+
 def build_evidence_graph(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim] | None = None,
+    unresolved_questions: list[UnresolvedQuestion] | None = None,
 ) -> EvidenceGraph:
     """Build a graph from bundle contents and optional claim lineage."""
     target_node = EvidenceNode(
@@ -67,6 +80,7 @@ def build_evidence_graph(
     nodes = [target_node]
     edges: list[EvidenceEdge] = []
     claims = claims or []
+    unresolved_questions = unresolved_questions or []
 
     for claim in claims:
         claim_node = EvidenceNode(
@@ -145,12 +159,55 @@ def build_evidence_graph(
                     relation="informs",
                 )
             )
+            if record.kind.value == "assay":
+                assay_node_id = f"assay:{record.evidence_id}"
+                if all(node.node_id != assay_node_id for node in nodes):
+                    nodes.append(
+                        EvidenceNode(
+                            node_id=assay_node_id,
+                            node_type=EvidenceNodeType.ASSAY,
+                            label=record.title,
+                        )
+                    )
+                edges.append(
+                    EvidenceEdge(
+                        source_node_id=assay_node_id,
+                        target_node_id=decision_node_id,
+                        relation="tests",
+                    )
+                )
         for upstream_id in record.derived_from:
             edges.append(
                 EvidenceEdge(
                     source_node_id=f"evidence:{upstream_id}",
                     target_node_id=evidence_node.node_id,
                     relation="derived_into",
+                )
+            )
+    for question in unresolved_questions:
+        question_node_id = f"question:{question.question_id}"
+        nodes.append(
+            EvidenceNode(
+                node_id=question_node_id,
+                node_type=EvidenceNodeType.QUESTION,
+                label=question.text,
+            )
+        )
+        for decision_tag in question.related_decision_tags:
+            decision_node_id = f"decision:{decision_tag}"
+            if all(node.node_id != decision_node_id for node in nodes):
+                nodes.append(
+                    EvidenceNode(
+                        node_id=decision_node_id,
+                        node_type=EvidenceNodeType.DECISION,
+                        label=decision_tag,
+                    )
+                )
+            edges.append(
+                EvidenceEdge(
+                    source_node_id=question_node_id,
+                    target_node_id=decision_node_id,
+                    relation="blocks",
                 )
             )
 
