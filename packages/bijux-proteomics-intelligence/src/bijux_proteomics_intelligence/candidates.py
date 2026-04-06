@@ -257,6 +257,26 @@ class CandidateVariantContext(JsonModel):
     )
 
 
+class CandidateScientificProfile(JsonModel):
+    """Integrated scientific profile for one candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    variant_context: CandidateVariantContext = Field(
+        ...,
+        description="Mutation-level context for this candidate.",
+    )
+    risk_profile: CandidateRiskProfile = Field(
+        ...,
+        description="Risk decomposition used for decision support.",
+    )
+    assay_rationale: list[str] = Field(
+        default_factory=list,
+        description="Assay recommendations driven by variant and risk context.",
+    )
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -574,4 +594,28 @@ def summarize_variant_context(
         affected_regions=regions,
         elevated_conservation_risk=elevated_conservation_risk,
         mechanistic_hypotheses=hypotheses,
+    )
+
+
+def build_candidate_scientific_profile(
+    assessment: CandidateAssessment,
+    mutations: list[MutationAnnotation],
+) -> CandidateScientificProfile:
+    """Build an integrated scientific profile for candidate review and planning."""
+    variant_context = summarize_variant_context(assessment.candidate_id, mutations)
+    risk_profile = build_risk_profile(assessment)
+    assay_rationale: list[str] = []
+    if variant_context.elevated_conservation_risk:
+        assay_rationale.append("run selectivity assays to confirm conserved-site perturbations remain acceptable")
+    if risk_profile.manufacturability_risk >= 0.4:
+        assay_rationale.append("run expression and purification assays to de-risk manufacturability")
+    if risk_profile.safety_risk >= 0.3:
+        assay_rationale.append("run safety panel assays to evaluate off-target liabilities")
+    if not assay_rationale:
+        assay_rationale.append("run baseline binding and activity assays to confirm predicted mechanism")
+    return CandidateScientificProfile(
+        candidate_id=assessment.candidate_id,
+        variant_context=variant_context,
+        risk_profile=risk_profile,
+        assay_rationale=assay_rationale,
     )

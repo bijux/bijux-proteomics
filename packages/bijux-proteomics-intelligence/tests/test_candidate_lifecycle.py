@@ -11,12 +11,14 @@ from bijux_proteomics_intelligence import (
     CandidateStatus,
     CandidateTransition,
     CandidateLifecycleSummary,
+    CandidateScientificProfile,
     CandidateVariantContext,
     MutationAnnotation,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
     build_risk_profile,
+    build_candidate_scientific_profile,
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
@@ -235,3 +237,35 @@ def test_summarize_variant_context_groups_regions_and_conservation_risk() -> Non
         "reduce off-target family engagement",
         "stabilize active conformation",
     ]
+
+
+def test_build_candidate_scientific_profile_links_risk_and_assay_rationale() -> None:
+    profile = build_candidate_scientific_profile(
+        CandidateAssessment(
+            candidate_id="candidate-science-1",
+            sequence="VVVVVVVVVVVVVVVVVVVV",
+            liabilities=[
+                LiabilityFlag(
+                    code="safety-off-target",
+                    summary="potential off-target family risk",
+                    severity=4,
+                    source="model",
+                )
+            ],
+            manufacturability_score=0.35,
+            evidence_support=0.7,
+        ),
+        [
+            MutationAnnotation(
+                mutation="A101V",
+                region="active-site",
+                expected_effect="stabilize active state",
+                conservation_score=0.92,
+            )
+        ],
+    )
+
+    assert isinstance(profile, CandidateScientificProfile)
+    assert profile.variant_context.elevated_conservation_risk is True
+    assert profile.risk_profile.manufacturability_risk > 0.3
+    assert len(profile.assay_rationale) >= 2
