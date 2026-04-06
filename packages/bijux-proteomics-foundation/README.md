@@ -1,9 +1,40 @@
-# Bijux Proteomics Foundation
+# bijux-proteomics-foundation
 
-`bijux-proteomics-foundation` owns the shared document primitives used by the shallow platform packages.
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-foundation/)
+[![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-foundation/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
+[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-foundation.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-foundation.yml)
+[![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
-It focuses on:
+`bijux-proteomics-foundation` defines shared schema metadata, canonical JSON
+serialization behavior, and document ergonomics used by the rest of the
+proteomics package family.
 
-- schema and provenance metadata shared across package documents
-- JSON serialization helpers for stable SDK-style models
-- one source of truth for document-level ergonomics so packages do not drift apart
+If you need stable document fingerprints, schema version tracking, or
+cross-package serialization consistency, start here.
+
+## What this package owns
+
+- schema metadata primitives for package documents
+- canonical JSON serialization and fingerprinting helpers
+- migration and compatibility helpers for persisted documents
+
+## What this package does not own
+
+- protein program domain entities and lifecycle logic
+- candidate ranking or scenario evaluation logic
+- evidence modeling, conflict resolution, and lab planning rules
+
+## Source map
+
+- [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
+- [`src/bijux_proteomics_foundation/serialization.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization.py) for canonical serialization and fingerprints
+- [`src/bijux_proteomics_foundation/migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/migrations.py) for migration-oriented helpers
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation/tests) for executable package expectations
+
+## Read this next
+
+- [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/ARCHITECTURE.md)
+- [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/BOUNDARIES.md)
+- [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/CONTRACTS.md)
+- [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/maintainer/pypi.md)
