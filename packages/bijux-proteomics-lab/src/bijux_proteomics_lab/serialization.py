@@ -23,8 +23,11 @@ def fingerprint_model(model: JsonModel) -> str:
 
 def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str]]:
     """Compute a deterministic field-level diff between two model payloads."""
-    left_payload = left.to_dict()
-    right_payload = right.to_dict()
+    ignored_fields = {"document_schema"}
+    left_payload = {k: v for k, v in left.to_dict().items() if k not in ignored_fields}
+    right_payload = {
+        k: v for k, v in right.to_dict().items() if k not in ignored_fields
+    }
     left_keys = set(left_payload.keys())
     right_keys = set(right_payload.keys())
     changed = sorted(
