@@ -15,12 +15,14 @@ from bijux_proteomics_intelligence import (
     CandidateVariantContext,
     MutationAnnotation,
     MutationBurdenSignals,
+    PortfolioRiskSummary,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
     build_risk_profile,
     build_candidate_scientific_profile,
     mutation_burden_signals,
+    summarize_portfolio_risk,
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
@@ -303,3 +305,17 @@ def test_mutation_burden_signals_capture_conserved_and_region_spread() -> None:
     assert signals.conserved_mutation_count == 2
     assert signals.affected_region_count == 2
     assert signals.burden_risk_index > 0.0
+
+
+def test_summarize_portfolio_risk_reports_high_risk_candidates_and_channel() -> None:
+    summary = summarize_portfolio_risk(
+        [
+            CandidateRiskProfile(candidate_id="c1", residual_risk=0.62, safety_risk=0.7),
+            CandidateRiskProfile(candidate_id="c2", residual_risk=0.3, safety_risk=0.2),
+        ],
+        high_risk_threshold=0.5,
+    )
+
+    assert isinstance(summary, PortfolioRiskSummary)
+    assert summary.mean_residual_risk > 0.4
+    assert summary.high_risk_candidate_ids == ["c1"]

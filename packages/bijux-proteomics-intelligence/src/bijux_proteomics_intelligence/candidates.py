@@ -289,6 +289,23 @@ class MutationBurdenSignals(JsonModel):
     burden_risk_index: float = Field(..., ge=0.0, le=1.0, description="Normalized mutation burden risk index.")
 
 
+class PortfolioRiskSummary(JsonModel):
+    """Portfolio-level summary of candidate risk concentration."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_count: int = Field(..., ge=0, description="Number of candidates included in summary.")
+    mean_residual_risk: float = Field(..., ge=0.0, le=1.0, description="Mean residual risk.")
+    high_risk_candidate_ids: list[str] = Field(
+        default_factory=list,
+        description="Candidates exceeding residual risk threshold.",
+    )
+    dominant_risk_channel: str | None = Field(
+        default=None,
+        description="Risk channel with highest average contribution.",
+    )
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -660,4 +677,45 @@ def mutation_burden_signals(
         conserved_mutation_count=conserved_mutation_count,
         affected_region_count=len(affected_regions),
         burden_risk_index=burden_index,
+    )
+
+
+def summarize_portfolio_risk(
+    risk_profiles: list[CandidateRiskProfile],
+    *,
+    high_risk_threshold: float = 0.5,
+) -> PortfolioRiskSummary:
+    """Summarize residual and channel risk across a candidate portfolio."""
+    if not risk_profiles:
+        return PortfolioRiskSummary(
+            candidate_count=0,
+            mean_residual_risk=0.0,
+            high_risk_candidate_ids=[],
+            dominant_risk_channel=None,
+        )
+    mean_residual = round(
+        sum(profile.residual_risk for profile in risk_profiles) / len(risk_profiles),
+        4,
+    )
+    high_risk_candidate_ids = sorted(
+        profile.candidate_id
+        for profile in risk_profiles
+        if profile.residual_risk >= high_risk_threshold
+    )
+    channel_means = {
+        "manufacturability_risk": sum(profile.manufacturability_risk for profile in risk_profiles) / len(risk_profiles),
+        "safety_risk": sum(profile.safety_risk for profile in risk_profiles) / len(risk_profiles),
+        "assay_risk": sum(profile.assay_risk for profile in risk_profiles) / len(risk_profiles),
+        "evidence_uncertainty_risk": sum(profile.evidence_uncertainty_risk for profile in risk_profiles)
+        / len(risk_profiles),
+        "novelty_risk": sum(profile.novelty_risk for profile in risk_profiles) / len(risk_profiles),
+        "sequence_complexity_risk": sum(profile.sequence_complexity_risk for profile in risk_profiles)
+        / len(risk_profiles),
+    }
+    dominant_channel = max(channel_means, key=channel_means.get)
+    return PortfolioRiskSummary(
+        candidate_count=len(risk_profiles),
+        mean_residual_risk=mean_residual,
+        high_risk_candidate_ids=high_risk_candidate_ids,
+        dominant_risk_channel=dominant_channel,
     )
