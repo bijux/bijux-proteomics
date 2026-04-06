@@ -9,7 +9,8 @@ description = "Experiment planning helpers for Bijux Proteomics"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
-authors = [{ name = "Bijan Mousavi", email = "mousavi.bijan@gmail.com" }]
+authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 dependencies = [
   "pydantic>=2.0.2",
   "bijux-proteomics-foundation>=0.1.0",
@@ -18,8 +19,17 @@ dependencies = [
 ]
 
 [project.urls]
+Homepage = "https://bijux.io/bijux-proteomics/"
+Documentation = "https://bijux.io/bijux-proteomics/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
+
+[tool.hatch.build]
+include = [
+  "README.md",
+  "docs/maintainer/pypi.md",
+  "src/bijux_proteomics_lab/py.typed",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bijux_proteomics_lab"]
