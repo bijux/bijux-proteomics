@@ -37,6 +37,16 @@ class ClaimResolutionState(StrEnum):
     CLOSED = "closed"
 
 
+class ClaimType(StrEnum):
+    """Structured taxonomy for scientific claim content."""
+
+    MECHANISTIC = "mechanistic"
+    EFFICACY = "efficacy"
+    SAFETY = "safety"
+    DEVELOPABILITY = "developability"
+    BIOMARKER = "biomarker"
+
+
 class EvidenceClaim(JsonModel):
     """A claim backed by one or more evidence records."""
 
@@ -45,6 +55,10 @@ class EvidenceClaim(JsonModel):
     claim_id: EvidenceId = Field(..., description="Stable claim identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
     statement: str = Field(..., min_length=1, description="Human-readable claim statement.")
+    claim_type: ClaimType = Field(
+        default=ClaimType.MECHANISTIC,
+        description="Claim taxonomy for policy and reporting.",
+    )
     evidence_ids: list[EvidenceId] = Field(
         default_factory=list,
         description="Evidence records supporting the claim.",
@@ -57,6 +71,21 @@ class EvidenceClaim(JsonModel):
     resolution_state: ClaimResolutionState = Field(
         default=ClaimResolutionState.OPEN,
         description="Whether the claim still needs active resolution.",
+    )
+    confidence: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Aggregate confidence in the claim.",
+    )
+    contradiction_group: str | None = Field(
+        default=None,
+        description="Optional contradiction group for mutually exclusive claims.",
+    )
+    decision_impact: str = Field(
+        default="supporting_context",
+        min_length=1,
+        description="How strongly this claim influences decision flow.",
     )
 
 
@@ -89,6 +118,10 @@ def build_claim(
     status: ClaimStatus,
     polarity: ClaimPolarity = ClaimPolarity.SUPPORTING,
     resolution_state: ClaimResolutionState = ClaimResolutionState.OPEN,
+    claim_type: ClaimType = ClaimType.MECHANISTIC,
+    confidence: float = 0.5,
+    contradiction_group: str | None = None,
+    decision_impact: str = "supporting_context",
 ) -> EvidenceClaim:
     """Build a claim from explicit evidence identifiers."""
     return EvidenceClaim(
@@ -99,6 +132,10 @@ def build_claim(
         status=status,
         polarity=polarity,
         resolution_state=resolution_state,
+        claim_type=claim_type,
+        confidence=confidence,
+        contradiction_group=contradiction_group,
+        decision_impact=decision_impact,
     )
 
 

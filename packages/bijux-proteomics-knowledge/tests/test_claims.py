@@ -7,6 +7,7 @@ from bijux_proteomics_knowledge import (
     ClaimPolarity,
     ClaimResolutionState,
     ClaimStatus,
+    ClaimType,
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -102,3 +103,21 @@ def test_link_evidence_to_claim_attaches_bundle_evidence_ids() -> None:
     linked = link_evidence_to_claim(claim, bundle)
 
     assert linked.evidence_ids == ["ev-1"]
+
+
+def test_build_claim_supports_structured_decision_metadata() -> None:
+    claim = build_claim(
+        claim_id="claim-5",
+        target_id="target-1",
+        statement="Candidate is likely developable at scale.",
+        evidence_ids=["ev-1"],
+        status=ClaimStatus.SUPPORTED,
+        claim_type=ClaimType.DEVELOPABILITY,
+        confidence=0.82,
+        contradiction_group="scale-readiness",
+        decision_impact="blocking_gate_input",
+    )
+
+    assert claim.claim_type is ClaimType.DEVELOPABILITY
+    assert claim.confidence == 0.82
+    assert claim.contradiction_group == "scale-readiness"
