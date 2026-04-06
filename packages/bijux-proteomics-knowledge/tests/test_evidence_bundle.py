@@ -131,6 +131,22 @@ def test_evidence_gaps_supports_proteomics_specific_kinds() -> None:
     assert gaps == [EvidenceKind.PHOSPHOPROTEOMICS.value]
 
 
+def test_evidence_kind_taxonomy_covers_biological_and_developability_domains() -> None:
+    expected = {
+        "sequence_homology",
+        "conservation",
+        "binding",
+        "enzymatic",
+        "cellular",
+        "phenotype",
+        "developability",
+        "manufacturability",
+    }
+    observed = {kind.value for kind in EvidenceKind}
+
+    assert expected.issubset(observed)
+
+
 def test_coverage_report_tracks_missing_kinds_and_confidence() -> None:
     bundle = EvidenceBundle(
         bundle_id="bundle-1",
