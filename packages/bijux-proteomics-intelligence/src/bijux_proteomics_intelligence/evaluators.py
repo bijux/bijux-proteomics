@@ -74,6 +74,11 @@ class ProgressionPolicy(JsonModel):
         default=True,
         description="Whether progression requires at least one ranked candidate.",
     )
+    maximum_blocker_findings_on_top_candidate: int = Field(
+        default=2,
+        ge=0,
+        description="Maximum blocker findings allowed on the top candidate before holding progression.",
+    )
 
 
 class SynthesisPolicy(JsonModel):
@@ -87,6 +92,11 @@ class SynthesisPolicy(JsonModel):
         ge=0.0,
         le=1.0,
         description="Maximum acceptable residual risk for synthesis.",
+    )
+    maximum_blocker_findings_on_top_candidate: int = Field(
+        default=2,
+        ge=0,
+        description="Maximum blocker findings allowed on the top candidate before synthesis.",
     )
 
 
@@ -166,6 +176,15 @@ def _top_candidate(
     return candidate_id, risk_map.get(candidate_id)
 
 
+def _top_candidate_blockers(ranking: CandidateRanking) -> list[str]:
+    if not ranking.ranked_candidates:
+        return []
+    blockers = ranking.ranked_candidates[0].explainability.get("blockers", [])
+    if not isinstance(blockers, list):
+        return []
+    return [str(item) for item in blockers if str(item).strip()]
+
+
 def evaluate_for_progression(
     program: ProgramSpec,
     ranking: CandidateRanking,
@@ -195,6 +214,19 @@ def evaluate_for_progression(
             key_discriminating_experiment="expand candidate generation with mechanism-preserving variants",
             confidence=0.6,
             unresolved_questions=["no prioritized candidate is available for the progression decision"],
+        )
+    top_blockers = _top_candidate_blockers(ranking)
+    if len(top_blockers) > policy.maximum_blocker_findings_on_top_candidate:
+        return ScenarioEvaluation(
+            scenario="progression",
+            action=ScenarioAction.HOLD,
+            reasons=[
+                f"top candidate carries {len(top_blockers)} blocker findings"
+            ],
+            hypothesis_status=HypothesisStatus.UNRESOLVED,
+            key_discriminating_experiment="run focused follow-up assays to resolve top blocker liabilities",
+            confidence=0.6,
+            unresolved_questions=top_blockers[:5],
         )
     if ranking.ranked_candidates:
         reasons.append(
@@ -251,6 +283,17 @@ def evaluate_for_synthesis(
             key_discriminating_experiment="run risk-focused assays on top liabilities",
             confidence=0.65,
             unresolved_questions=[f"residual_risk={residual_risk:.2f} exceeds policy limit"],
+        )
+    top_blockers = _top_candidate_blockers(ranking)
+    if len(top_blockers) > policy.maximum_blocker_findings_on_top_candidate:
+        return ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.HOLD,
+            reasons=[f"top candidate still has {len(top_blockers)} open blocker findings"],
+            hypothesis_status=HypothesisStatus.UNRESOLVED,
+            key_discriminating_experiment="run blocker-focused assays before synthesis commitment",
+            confidence=0.62,
+            unresolved_questions=top_blockers[:5],
         )
     return ScenarioEvaluation(
         scenario="synthesis",

@@ -71,6 +71,35 @@ def test_evaluate_for_progression_advances_when_ready_and_ranked() -> None:
     assert evaluation.confidence > 0.8
 
 
+def test_evaluate_for_progression_holds_when_top_candidate_has_many_blockers() -> None:
+    program = create_program_spec(
+        program_id="prog-blockers",
+        name="progression blockers",
+        objective="hold progression when top blocker pressure is high",
+        target_id="target-1",
+        target_name="Target 1",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="require blocker reduction before advance",
+    )
+    ranking = CandidateRanking(
+        program_id="prog-blockers",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-1",
+                score=1.2,
+                rank=1,
+                explainability={"blockers": ["agg risk", "off-target risk", "yield risk"]},
+            )
+        ],
+    )
+
+    evaluation = evaluate_for_progression(program, ranking, _ready_state())
+
+    assert evaluation.action is ScenarioAction.HOLD
+    assert evaluation.unresolved_questions == ["agg risk", "off-target risk", "yield risk"]
+
+
 def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:
     ranking = CandidateRanking(
         program_id="prog-1",
@@ -98,6 +127,31 @@ def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:
     assert evaluation.action is ScenarioAction.REDESIGN
     assert evaluation.key_discriminating_experiment is not None
     assert evaluation.unresolved_questions
+
+
+def test_evaluate_for_synthesis_holds_on_blocker_pressure() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-1",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-1",
+                score=1.2,
+                rank=1,
+                explainability={"blockers": ["risk-a", "risk-b", "risk-c"]},
+            )
+        ],
+    )
+    risks = [
+        CandidateRiskProfile(
+            candidate_id="candidate-1",
+            residual_risk=0.2,
+        )
+    ]
+
+    evaluation = evaluate_for_synthesis(ranking, _ready_state(), risks)
+
+    assert evaluation.action is ScenarioAction.HOLD
+    assert evaluation.unresolved_questions == ["risk-a", "risk-b", "risk-c"]
 
 
 def test_evaluate_for_scale_up_requires_low_risk_and_decisive_evidence() -> None:
