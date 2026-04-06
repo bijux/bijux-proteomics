@@ -182,3 +182,15 @@ def assess_stage_eligibility(
         eligible=not blockers,
         blockers=blockers,
     )
+
+
+def revise_program(
+    program: ProgramSpec,
+    *,
+    actor: str,
+    tag: str | None = None,
+) -> ProgramSpec:
+    """Return a revised program with incremented schema revision and content hash."""
+    touched = program.document_schema.touch(actor, tag=tag)
+    hashed = touched.with_content_hash(program_summary(program))
+    return program.model_copy(update={"document_schema": hashed})

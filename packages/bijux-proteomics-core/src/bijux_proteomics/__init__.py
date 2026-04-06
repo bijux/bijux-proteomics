@@ -40,6 +40,7 @@ from bijux_proteomics.program_spec import (
     assess_stage_eligibility,
     create_program_spec,
     program_summary,
+    revise_program,
 )
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.repositories import (
@@ -139,6 +140,7 @@ __all__ = [
     "require_program",
     "execute_program",
     "program_summary",
+    "revise_program",
     "sequence_length",
     "target_summary",
     "validate_review_decision",

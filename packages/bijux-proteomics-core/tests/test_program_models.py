@@ -31,6 +31,7 @@ from bijux_proteomics import (
     ensure_review_clearance,
     latest_gate_decision,
     program_summary,
+    revise_program,
     assess_stage_eligibility,
     ensure_unique_gate_decision,
     require_program,
@@ -699,3 +700,22 @@ def test_ensure_unique_gate_decision_rejects_duplicate_timestamp() -> None:
 
     with pytest.raises(DuplicateReviewDecisionError):
         ensure_unique_gate_decision(decision, [decision])
+
+
+def test_revise_program_increments_revision_and_sets_content_hash() -> None:
+    program = create_program_spec(
+        program_id="prog-19",
+        name="revision test",
+        objective="check revision metadata behavior",
+        target_id="target-19",
+        target_name="Target 19",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="test revision bumping",
+    )
+
+    revised = revise_program(program, actor="scientist", tag="updated")
+
+    assert revised.document_schema.revision == program.document_schema.revision + 1
+    assert revised.document_schema.updated_by == "scientist"
+    assert revised.document_schema.content_hash is not None
