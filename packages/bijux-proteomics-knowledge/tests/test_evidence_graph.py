@@ -191,3 +191,27 @@ def test_ingest_inputs_with_report_tracks_duplicates() -> None:
     assert len(updated.records) == 2
     assert report.added_records == 1
     assert report.duplicate_ids == ["existing-1"]
+
+
+def test_ingest_inputs_with_report_rejects_invalid_inputs_with_reasons() -> None:
+    bundle = EvidenceBundle(bundle_id="bundle-4", target_id="target-4")
+    updated, report = ingest_inputs_with_report(
+        bundle,
+        [
+            NormalizedEvidenceInput(
+                evidence_id="invalid-assay",
+                kind=EvidenceKind.ASSAY,
+                title="Invalid assay",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Signal changed.",
+                related_targets=["off-target"],
+                confidence=0.6,
+                strength=EvidenceStrength.EXPLORATORY,
+            )
+        ],
+    )
+
+    assert len(updated.records) == 0
+    assert report.rejected_records >= 1
+    assert any("endpoint is required" in reason for reason in report.rejection_reasons)

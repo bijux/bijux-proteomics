@@ -161,6 +161,27 @@ class IngestionReport(JsonModel):
         default_factory=list,
         description="Evidence identifiers skipped because they already existed.",
     )
+    rejected_records: int = Field(default=0, ge=0, description="Number of records rejected by validation.")
+    rejection_reasons: list[str] = Field(
+        default_factory=list,
+        description="Reasons for rejected normalized inputs.",
+    )
+
+
+def validate_normalized_input(
+    item: NormalizedEvidenceInput,
+    *,
+    target_id: str,
+) -> list[str]:
+    """Return validation issues for a normalized evidence input."""
+    issues: list[str] = []
+    if item.kind in {EvidenceKind.ASSAY, EvidenceKind.CELLULAR, EvidenceKind.PHENOTYPE} and not item.endpoint:
+        issues.append(f"{item.evidence_id}: endpoint is required for assay-like evidence")
+    if item.quantitative_support is not None and item.quantitative_support.replicate_count is None:
+        issues.append(f"{item.evidence_id}: quantitative support should include replicate_count")
+    if item.related_targets and target_id not in item.related_targets:
+        issues.append(f"{item.evidence_id}: related_targets does not include bundle target '{target_id}'")
+    return issues
 
 
 def attach_evidence_inputs(
@@ -250,9 +271,16 @@ def ingest_inputs_with_report(
     existing_ids = {record.evidence_id for record in bundle.records}
     accepted: list[NormalizedEvidenceInput] = []
     duplicate_ids: list[str] = []
+    rejection_reasons: list[str] = []
+    rejected_records = 0
     for item in inputs:
         if item.evidence_id in existing_ids:
             duplicate_ids.append(item.evidence_id)
+            continue
+        issues = validate_normalized_input(item, target_id=bundle.target_id)
+        if issues:
+            rejected_records += 1
+            rejection_reasons.extend(issues)
             continue
         existing_ids.add(item.evidence_id)
         accepted.append(item)
@@ -262,5 +290,7 @@ def ingest_inputs_with_report(
         added_records=len(accepted),
         skipped_records=len(duplicate_ids),
         duplicate_ids=duplicate_ids,
+        rejected_records=rejected_records,
+        rejection_reasons=rejection_reasons,
     )
     return updated, report
