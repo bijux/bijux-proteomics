@@ -121,3 +121,24 @@ def test_build_claim_supports_structured_decision_metadata() -> None:
     assert claim.claim_type is ClaimType.DEVELOPABILITY
     assert claim.confidence == 0.82
     assert claim.contradiction_group == "scale-readiness"
+
+
+def test_build_claim_supports_mechanistic_structure_fields() -> None:
+    claim = build_claim(
+        claim_id="claim-6",
+        target_id="target-1",
+        statement="Treatment increases phospho-signal in cells.",
+        evidence_ids=["ev-2"],
+        status=ClaimStatus.SUPPORTED,
+        subject="target-1",
+        relation="increases",
+        object="phospho-signal",
+        condition="cellular assay under treatment",
+        direction="up",
+        magnitude=1.6,
+    )
+
+    assert claim.subject == "target-1"
+    assert claim.relation == "increases"
+    assert claim.object == "phospho-signal"
+    assert claim.direction == "up"

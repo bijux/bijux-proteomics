@@ -55,6 +55,12 @@ class EvidenceClaim(JsonModel):
     claim_id: EvidenceId = Field(..., description="Stable claim identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
     statement: str = Field(..., min_length=1, description="Human-readable claim statement.")
+    subject: str | None = Field(default=None, description="Claim subject entity.")
+    relation: str | None = Field(default=None, description="Claim relation predicate.")
+    object: str | None = Field(default=None, description="Claim object entity.")
+    condition: str | None = Field(default=None, description="Experimental condition for the claim.")
+    direction: str | None = Field(default=None, description="Directionality such as increases or decreases.")
+    magnitude: float | None = Field(default=None, description="Optional claim magnitude.")
     claim_type: ClaimType = Field(
         default=ClaimType.MECHANISTIC,
         description="Claim taxonomy for policy and reporting.",
@@ -122,6 +128,12 @@ def build_claim(
     confidence: float = 0.5,
     contradiction_group: str | None = None,
     decision_impact: str = "supporting_context",
+    subject: str | None = None,
+    relation: str | None = None,
+    object: str | None = None,
+    condition: str | None = None,
+    direction: str | None = None,
+    magnitude: float | None = None,
 ) -> EvidenceClaim:
     """Build a claim from explicit evidence identifiers."""
     return EvidenceClaim(
@@ -136,6 +148,12 @@ def build_claim(
         confidence=confidence,
         contradiction_group=contradiction_group,
         decision_impact=decision_impact,
+        subject=subject,
+        relation=relation,
+        object=object,
+        condition=condition,
+        direction=direction,
+        magnitude=magnitude,
     )
 
 
