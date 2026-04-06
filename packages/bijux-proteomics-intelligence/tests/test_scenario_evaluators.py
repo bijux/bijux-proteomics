@@ -68,6 +68,7 @@ def test_evaluate_for_progression_advances_when_ready_and_ranked() -> None:
 
     assert evaluation.action is ScenarioAction.ADVANCE
     assert evaluation.hypothesis_status is HypothesisStatus.SUPPORTED
+    assert evaluation.confidence > 0.8
 
 
 def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:
@@ -96,6 +97,7 @@ def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:
 
     assert evaluation.action is ScenarioAction.REDESIGN
     assert evaluation.key_discriminating_experiment is not None
+    assert evaluation.unresolved_questions
 
 
 def test_evaluate_for_scale_up_requires_low_risk_and_decisive_evidence() -> None:

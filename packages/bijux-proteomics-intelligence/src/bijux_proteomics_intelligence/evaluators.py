@@ -52,6 +52,16 @@ class ScenarioEvaluation(JsonModel):
         default=None,
         description="Most informative next experiment for reducing uncertainty.",
     )
+    confidence: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Confidence in the recommendation quality.",
+    )
+    unresolved_questions: list[str] = Field(
+        default_factory=list,
+        description="Critical unresolved questions that still affect the scenario.",
+    )
 
 
 class ProgressionPolicy(JsonModel):
@@ -173,6 +183,8 @@ def evaluate_for_progression(
             reasons=reasons,
             hypothesis_status=HypothesisStatus.WEAKENED,
             key_discriminating_experiment="run orthogonal assay panel to resolve readiness blockers",
+            confidence=0.45,
+            unresolved_questions=list(readiness.blockers),
         )
     if policy.require_ranked_candidate and not ranking.ranked_candidates:
         return ScenarioEvaluation(
@@ -181,6 +193,8 @@ def evaluate_for_progression(
             reasons=["no ranked candidates remain after screening"],
             hypothesis_status=HypothesisStatus.WEAKENED,
             key_discriminating_experiment="expand candidate generation with mechanism-preserving variants",
+            confidence=0.6,
+            unresolved_questions=["no prioritized candidate is available for the progression decision"],
         )
     if ranking.ranked_candidates:
         reasons.append(
@@ -195,6 +209,7 @@ def evaluate_for_progression(
         reasons=reasons,
         hypothesis_status=HypothesisStatus.SUPPORTED,
         key_discriminating_experiment=None,
+        confidence=0.85,
     )
 
 
@@ -214,6 +229,8 @@ def evaluate_for_synthesis(
             reasons=["no candidates are available for synthesis"],
             hypothesis_status=HypothesisStatus.WEAKENED,
             key_discriminating_experiment="generate candidates with improved multi-objective profiles",
+            confidence=0.55,
+            unresolved_questions=["candidate pool is empty for synthesis"],
         )
     if not readiness.ready:
         return ScenarioEvaluation(
@@ -222,6 +239,8 @@ def evaluate_for_synthesis(
             reasons=readiness.blockers,
             hypothesis_status=HypothesisStatus.UNRESOLVED,
             key_discriminating_experiment="collect missing decisive evidence before synthesis",
+            confidence=0.5,
+            unresolved_questions=list(readiness.blockers),
         )
     if residual_risk is not None and residual_risk > policy.maximum_residual_risk:
         return ScenarioEvaluation(
@@ -230,6 +249,8 @@ def evaluate_for_synthesis(
             reasons=[f"top candidate {candidate_id} has residual risk {residual_risk:.2f}"],
             hypothesis_status=HypothesisStatus.WEAKENED,
             key_discriminating_experiment="run risk-focused assays on top liabilities",
+            confidence=0.65,
+            unresolved_questions=[f"residual_risk={residual_risk:.2f} exceeds policy limit"],
         )
     return ScenarioEvaluation(
         scenario="synthesis",
@@ -237,6 +258,7 @@ def evaluate_for_synthesis(
         reasons=[f"top candidate {candidate_id} is supported and within risk budget"],
         hypothesis_status=HypothesisStatus.SUPPORTED,
         key_discriminating_experiment=None,
+        confidence=0.85,
     )
 
 
@@ -255,6 +277,8 @@ def evaluate_for_scale_up(
             action=ScenarioAction.REDESIGN,
             reasons=["scale-up requires at least one prioritized candidate"],
             hypothesis_status=HypothesisStatus.WEAKENED,
+            confidence=0.55,
+            unresolved_questions=["no prioritized candidate is available for scale-up"],
         )
     if (
         not readiness.ready
@@ -268,6 +292,10 @@ def evaluate_for_scale_up(
                 f"{policy.minimum_decisive_records} decisive records"
             ],
             hypothesis_status=HypothesisStatus.UNRESOLVED,
+            confidence=0.5,
+            unresolved_questions=[
+                "insufficient decisive evidence for scale-up confidence"
+            ],
         )
     if residual_risk is not None and residual_risk <= policy.maximum_residual_risk:
         return ScenarioEvaluation(
@@ -275,12 +303,15 @@ def evaluate_for_scale_up(
             action=ScenarioAction.SCALE_UP,
             reasons=[f"top candidate {candidate_id} has low residual risk"],
             hypothesis_status=HypothesisStatus.SUPPORTED,
+            confidence=0.85,
         )
     return ScenarioEvaluation(
         scenario="scale_up",
         action=ScenarioAction.HOLD,
         reasons=[f"top candidate {candidate_id} still carries too much residual risk for scale-up"],
         hypothesis_status=HypothesisStatus.UNRESOLVED,
+        confidence=0.6,
+        unresolved_questions=[f"residual_risk={residual_risk:.2f} remains above scale-up policy"],
     )
 
 
@@ -300,6 +331,8 @@ def evaluate_for_redesign(
             action=ScenarioAction.REDESIGN,
             reasons=["ranking outcomes indicate the current design set is weak"],
             hypothesis_status=HypothesisStatus.WEAKENED,
+            confidence=0.7,
+            unresolved_questions=["candidate ranking indicates redesign pressure"],
         )
     if not readiness.ready:
         return ScenarioEvaluation(
@@ -307,12 +340,15 @@ def evaluate_for_redesign(
             action=ScenarioAction.HOLD,
             reasons=readiness.blockers,
             hypothesis_status=HypothesisStatus.UNRESOLVED,
+            confidence=0.5,
+            unresolved_questions=list(readiness.blockers),
         )
     return ScenarioEvaluation(
         scenario="redesign",
         action=ScenarioAction.ADVANCE,
         reasons=["current candidates and evidence do not require immediate redesign"],
         hypothesis_status=HypothesisStatus.SUPPORTED,
+        confidence=0.8,
     )
 
 
