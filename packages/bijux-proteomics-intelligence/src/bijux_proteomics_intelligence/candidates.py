@@ -217,6 +217,21 @@ class SequenceRiskSignals(JsonModel):
     glyco_motif_count: int = Field(..., ge=0, description="Count of NXS or NXT motifs.")
 
 
+class ParetoFrontResult(JsonModel):
+    """Pareto-optimal candidate set across competing objectives."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    frontier_candidate_ids: list[str] = Field(
+        default_factory=list,
+        description="Candidate identifiers on the Pareto frontier.",
+    )
+    dominated_candidate_ids: list[str] = Field(
+        default_factory=list,
+        description="Candidate identifiers dominated by at least one frontier candidate.",
+    )
+
+
 ALLOWED_CANDIDATE_TRANSITIONS: dict[CandidateStatus, set[CandidateStatus]] = {
     CandidateStatus.PROPOSED: {CandidateStatus.SCREENED, CandidateStatus.REJECTED, CandidateStatus.DEFERRED},
     CandidateStatus.SCREENED: {
@@ -431,4 +446,37 @@ def sequence_risk_signals(candidate: CandidateProposal) -> SequenceRiskSignals:
         hydrophobic_fraction=round(hydrophobic_fraction, 4),
         acidic_basic_balance=round(acidic_basic_balance, 4),
         glyco_motif_count=glyco_motif_count,
+    )
+
+
+def select_pareto_candidates(
+    assessments: list[CandidateAssessment],
+) -> ParetoFrontResult:
+    """Select Pareto-optimal candidates across support, manufacturability, and uncertainty."""
+    frontier: list[str] = []
+    dominated: list[str] = []
+    for left in assessments:
+        left_dominated = False
+        for right in assessments:
+            if right.candidate_id == left.candidate_id:
+                continue
+            if (
+                right.evidence_support >= left.evidence_support
+                and right.manufacturability_score >= left.manufacturability_score
+                and right.uncertainty <= left.uncertainty
+                and (
+                    right.evidence_support > left.evidence_support
+                    or right.manufacturability_score > left.manufacturability_score
+                    or right.uncertainty < left.uncertainty
+                )
+            ):
+                left_dominated = True
+                break
+        if left_dominated:
+            dominated.append(left.candidate_id)
+        else:
+            frontier.append(left.candidate_id)
+    return ParetoFrontResult(
+        frontier_candidate_ids=sorted(frontier),
+        dominated_candidate_ids=sorted(dominated),
     )

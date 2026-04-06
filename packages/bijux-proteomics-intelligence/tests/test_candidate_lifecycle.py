@@ -10,11 +10,13 @@ from bijux_proteomics_intelligence import (
     CandidateProposal,
     CandidateStatus,
     CandidateTransition,
+    ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
     build_risk_profile,
     portfolio_status,
     sequence_risk_signals,
+    select_pareto_candidates,
     transition_candidate,
 )
 
@@ -146,3 +148,35 @@ def test_sequence_risk_signals_capture_basic_sequence_properties() -> None:
     assert isinstance(signals, SequenceRiskSignals)
     assert signals.length == 11
     assert signals.glyco_motif_count >= 1
+
+
+def test_select_pareto_candidates_preserves_multi_objective_tradeoffs() -> None:
+    result = select_pareto_candidates(
+        [
+            CandidateAssessment(
+                candidate_id="candidate-a",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                evidence_support=0.9,
+                manufacturability_score=0.6,
+                uncertainty=0.2,
+            ),
+            CandidateAssessment(
+                candidate_id="candidate-b",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                evidence_support=0.7,
+                manufacturability_score=0.9,
+                uncertainty=0.1,
+            ),
+            CandidateAssessment(
+                candidate_id="candidate-c",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                evidence_support=0.6,
+                manufacturability_score=0.5,
+                uncertainty=0.4,
+            ),
+        ]
+    )
+
+    assert isinstance(result, ParetoFrontResult)
+    assert set(result.frontier_candidate_ids) == {"candidate-a", "candidate-b"}
+    assert result.dominated_candidate_ids == ["candidate-c"]
