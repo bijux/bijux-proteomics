@@ -413,6 +413,10 @@ def trace_decision_paths(
 def validate_evidence_graph(graph: EvidenceGraph) -> list[GraphValidationIssue]:
     """Validate evidence graph structure and derived lineage cycles."""
     issues: list[GraphValidationIssue] = []
+    normalized_edges = [
+        edge if isinstance(edge, EvidenceEdge) else EvidenceEdge.model_validate(edge)
+        for edge in graph.edges
+    ]
     node_ids = [node.node_id for node in graph.nodes]
     node_id_set = set(node_ids)
     if len(node_ids) != len(node_id_set):
@@ -427,7 +431,7 @@ def validate_evidence_graph(graph: EvidenceGraph) -> list[GraphValidationIssue]:
             code="dangling-edge",
             message=f"edge {edge.source_node_id}->{edge.target_node_id} references unknown node",
         )
-        for edge in graph.edges
+        for edge in normalized_edges
         if (
             edge.source_node_id not in node_id_set
             or edge.target_node_id not in node_id_set
@@ -435,7 +439,7 @@ def validate_evidence_graph(graph: EvidenceGraph) -> list[GraphValidationIssue]:
     )
     derived_edges = [
         edge
-        for edge in graph.edges
+        for edge in normalized_edges
         if edge.relation == "derived_into"
         and edge.source_node_id.startswith("evidence:")
         and edge.target_node_id.startswith("evidence:")

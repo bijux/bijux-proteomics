@@ -884,20 +884,18 @@ def decompose_evidence_quality(
     context_relevance = 0.9 if record.biological_system else 0.6
     age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
     recency = 1.0 if age_days <= 30 else max(0.4, 1.0 - (age_days / 365.0))
-    derived_confidence = round(
-        (
-            assay_validity * 0.2
-            + reproducibility * 0.15
-            + orthogonality * 0.1
-            + biological_relevance * 0.15
-            + statistical_support * 0.1
-            + context_match * 0.1
-            + context_relevance * 0.1
-            + source_credibility * 0.2
-            + recency * 0.1
-        ),
-        4,
+    weighted_sum = (
+        assay_validity * 0.2
+        + reproducibility * 0.15
+        + orthogonality * 0.1
+        + biological_relevance * 0.15
+        + statistical_support * 0.1
+        + context_match * 0.1
+        + context_relevance * 0.1
+        + source_credibility * 0.2
+        + recency * 0.1
     )
+    derived_confidence = round(min(1.0, weighted_sum / 1.2), 4)
     return EvidenceQualityDecomposition(
         assay_validity=round(assay_validity, 4),
         reproducibility=round(reproducibility, 4),
@@ -1770,16 +1768,14 @@ def flag_conflicting_evidence(
     for index, left in enumerate(bundle.records):
         left_tags = set(left.decision_tags)
         for right in bundle.records[index + 1 :]:
-            if left.kind is not right.kind:
-                continue
+            same_kind = left.kind is right.kind
             if policy.require_shared_decision_tag and not left_tags.intersection(
                 right.decision_tags
             ):
                 continue
-            if left.claim.strip().lower() == right.claim.strip().lower():
-                continue
             if (
                 policy.detect_quantitative_direction_conflicts
+                and same_kind
                 and left.endpoint
                 and right.endpoint
                 and left.endpoint.strip().lower() == right.endpoint.strip().lower()
@@ -1796,7 +1792,8 @@ def flag_conflicting_evidence(
                 )
                 continue
             if (
-                left.endpoint
+                same_kind
+                and left.endpoint
                 and right.endpoint
                 and left.endpoint.strip().lower() == right.endpoint.strip().lower()
                 and _has_magnitude_conflict(
@@ -1816,6 +1813,7 @@ def flag_conflicting_evidence(
             if (
                 policy.detect_assay_readout_conflicts
                 and left.kind is EvidenceKind.ASSAY
+                and right.kind is EvidenceKind.ASSAY
                 and left.source_uri is not None
                 and left.source_uri == right.source_uri
             ):
