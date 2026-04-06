@@ -35,8 +35,8 @@ TEST_CLEAN_PATHS          ?= .hypothesis .benchmarks
 
 TEST_PYTHON               ?= $(if $(wildcard $(VENV_PYTHON)),$(abspath $(VENV_PYTHON)),$(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),$(PYTHON)))
 PYTEST                    ?= $(TEST_PYTHON) -m pytest
-PYTEST_CONFIG             ?= pytest.ini
-COVERAGE_CONFIG           ?= config/coveragerc.ini
+PYTEST_CONFIG             ?= configs/pytest.ini
+COVERAGE_CONFIG           ?= configs/coveragerc.ini
 TEST_SELF_MAKE            ?= $(MAKE)
 
 include $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/util.mk

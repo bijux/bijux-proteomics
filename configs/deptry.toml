@@ -1,0 +1,29 @@
+[tool.deptry]
+pep621_dev_dependency_groups = ["dev"]
+ignore = ["DEP002", "DEP003"]
+extend_exclude = ["docs", "api", "artifacts", "site"]
+package_module_name_map = { "langchain-core" = "langchain_core", "langchain-community" = "langchain_community", "langchain-huggingface" = "langchain_huggingface", "openprotein-python" = "openprotein" }
+
+[tool.repo_deptry.packages."agentic-proteins"]
+known_first_party = ["agentic_proteins"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."bijux-proteomics-foundation"]
+known_first_party = ["bijux_proteomics_foundation"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."bijux-proteomics-core"]
+known_first_party = ["bijux_proteomics"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."bijux-proteomics-intelligence"]
+known_first_party = ["bijux_proteomics_intelligence"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."bijux-proteomics-knowledge"]
+known_first_party = ["bijux_proteomics_knowledge"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."bijux-proteomics-lab"]
+known_first_party = ["bijux_proteomics_lab"]
+ignore = ["DEP002", "DEP003"]

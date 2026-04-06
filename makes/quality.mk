@@ -35,7 +35,7 @@ quality:
 	@if [ "$(SKIP_MYPY)" = "1" ]; then \
 	  echo "   • SKIP_MYPY=1; skipping Mypy" | tee "$(QUALITY_ARTIFACTS_DIR)/mypy.log"; \
 	else \
-	  set -euo pipefail; $(MYPY) --config-file config/mypy.ini --strict --cache-dir "$(MYPY_CACHE_DIR)" $(QUALITY_PATHS) 2>&1 | tee "$(QUALITY_ARTIFACTS_DIR)/mypy.log"; \
+	  set -euo pipefail; $(MYPY) --config-file configs/mypy.ini --strict --cache-dir "$(MYPY_CACHE_DIR)" $(QUALITY_PATHS) 2>&1 | tee "$(QUALITY_ARTIFACTS_DIR)/mypy.log"; \
 	fi
 
 	@echo "   - Dead code analysis (Vulture)"

@@ -56,7 +56,7 @@ PYTHONPATH=packages/bijux-proteomics-core/src:packages/bijux-proteomics-intellig
 
 ```text
 api/                                  OpenAPI schemas for Agentic Proteins
-config/                               Lint, typing, and coverage config
+configs/                              Lint, typing, and coverage config
 docs/                                 MkDocs site for the umbrella repo
 packages/agentic-proteins/            Existing deterministic runtime product
 packages/bijux-proteomics-foundation/ Shared document and schema primitives

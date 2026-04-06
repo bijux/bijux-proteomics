@@ -181,7 +181,7 @@ Artifacts: Generated in CI; see GitHub Actions for logs and reports.
 
 ```
 api/            # OpenAPI schemas
-config/         # Lint/type/security configs
+configs/        # Lint/type/security configs
 docs/           # MkDocs site
 makes/          # Task modules (docs, test, lint, etc.)
 scripts/        # Helper scripts
