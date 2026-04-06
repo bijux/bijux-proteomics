@@ -456,6 +456,16 @@ class GateCoverageGapReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Coverage interpretation notes.")
 
 
+class AssayContradictionPressure(JsonModel):
+    """Contradiction pressure score for each assay in a plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    pressure_score: float = Field(..., ge=0.0, le=1.0, description="Contradiction pressure score.")
+    rationale: list[str] = Field(default_factory=list, description="Pressure rationale notes.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1389,6 +1399,35 @@ def assess_gate_coverage_gaps(plan: ExperimentPlan) -> GateCoverageGapReport:
         uncovered_gates=uncovered,
         notes=notes,
     )
+
+
+def map_assay_contradiction_pressure(
+    *,
+    intents: list[AssayIntent],
+    contradiction_count: int,
+    blocked_assay_ids: list[str] | None = None,
+) -> list[AssayContradictionPressure]:
+    """Map contradiction pressure scores to assay intents."""
+    blocked = set(blocked_assay_ids or [])
+    base = min(1.0, contradiction_count * 0.2)
+    rows: list[AssayContradictionPressure] = []
+    for intent in intents:
+        score = base
+        rationale: list[str] = [f"contradiction_count={contradiction_count}"]
+        if intent.prerequisite_assay_ids:
+            score = max(0.0, score - 0.1)
+            rationale.append("prerequisites reduce immediate contradiction pressure")
+        if intent.assay_id in blocked:
+            score = max(0.0, score - 0.2)
+            rationale.append("assay is blocked in current cycle")
+        rows.append(
+            AssayContradictionPressure(
+                assay_id=intent.assay_id,
+                pressure_score=round(max(0.0, min(score, 1.0)), 4),
+                rationale=rationale,
+            )
+        )
+    return sorted(rows, key=lambda item: item.pressure_score, reverse=True)
 
 
 def recommend_orthogonal_confirmation(

@@ -53,6 +53,7 @@ from bijux_proteomics_lab import (
     plan_material_reservations,
     derive_lab_execution_directive,
     assess_gate_coverage_gaps,
+    map_assay_contradiction_pressure,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -407,6 +408,19 @@ def test_assess_gate_coverage_gaps_reports_uncovered_queue_gates() -> None:
     report = assess_gate_coverage_gaps(plan)
 
     assert report.uncovered_gates == ["gate-b"]
+
+
+def test_map_assay_contradiction_pressure_orders_highest_pressure_first() -> None:
+    rows = map_assay_contradiction_pressure(
+        intents=[
+            AssayIntent(assay_id="a1", objective="resolve contradiction", prerequisite_assay_ids=[]),
+            AssayIntent(assay_id="a2", objective="secondary check", prerequisite_assay_ids=["a1"]),
+        ],
+        contradiction_count=3,
+    )
+
+    assert rows[0].assay_id == "a1"
+    assert rows[0].pressure_score >= rows[1].pressure_score
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
