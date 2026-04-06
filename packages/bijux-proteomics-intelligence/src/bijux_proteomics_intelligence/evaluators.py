@@ -281,6 +281,21 @@ class FinalDecisionRecommendation(JsonModel):
     reasons: list[str] = Field(default_factory=list, description="Reasons supporting the final recommendation.")
 
 
+class UnresolvedQuestionLedger(JsonModel):
+    """Deduplicated unresolved question ledger across scenario outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    question_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Count of unresolved question occurrences across scenarios.",
+    )
+    prioritized_questions: list[str] = Field(
+        default_factory=list,
+        description="Questions sorted by frequency and then lexicographic order.",
+    )
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -785,4 +800,27 @@ def build_final_decision_recommendation(
         action=consensus.recommended_action,
         requires_human_review=escalation.escalate_to_human_review,
         reasons=reasons,
+    )
+
+
+def summarize_unresolved_question_ledger(
+    evaluations: ScenarioSetEvaluation,
+) -> UnresolvedQuestionLedger:
+    """Build deduplicated unresolved question ledger across scenarios."""
+    questions = (
+        evaluations.progression.unresolved_questions
+        + evaluations.synthesis.unresolved_questions
+        + evaluations.scale_up.unresolved_questions
+        + evaluations.redesign.unresolved_questions
+    )
+    counts: dict[str, int] = {}
+    for question in questions:
+        cleaned = question.strip()
+        if not cleaned:
+            continue
+        counts[cleaned] = counts.get(cleaned, 0) + 1
+    prioritized = sorted(counts, key=lambda item: (-counts[item], item))
+    return UnresolvedQuestionLedger(
+        question_counts=counts,
+        prioritized_questions=prioritized,
     )

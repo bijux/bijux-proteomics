@@ -26,6 +26,7 @@ from bijux_proteomics_intelligence import (
     summarize_scenario_confidence_spread,
     derive_decision_escalation_flags,
     build_final_decision_recommendation,
+    summarize_unresolved_question_ledger,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -542,3 +543,30 @@ def test_build_final_decision_recommendation_uses_consensus_and_escalation() -> 
 
     assert recommendation.reasons
     assert recommendation.requires_human_review is True
+
+
+def test_summarize_unresolved_question_ledger_prioritizes_frequent_questions() -> None:
+    grouped = evaluate_all_scenarios(
+        create_program_spec(
+            program_id="prog-ledger",
+            name="question ledger",
+            objective="aggregate unresolved questions across scenarios",
+            target_id="target-ledger",
+            target_name="Target Ledger",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            organism="human",
+            mechanism="question ledger",
+        ),
+        CandidateRanking(
+            program_id="prog-ledger",
+            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ),
+        _ready_state(),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        policies=EvaluatorPolicyBundle(),
+    )
+
+    ledger = summarize_unresolved_question_ledger(grouped)
+
+    assert ledger.prioritized_questions
+    assert isinstance(ledger.question_counts, dict)
