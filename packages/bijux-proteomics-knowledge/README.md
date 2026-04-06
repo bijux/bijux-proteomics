@@ -40,3 +40,7 @@ which gaps still block progression, start with this package.
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/docs/maintainer/pypi.md)
+
+## Primary entrypoint
+
+- import-first library package; no console script is published
