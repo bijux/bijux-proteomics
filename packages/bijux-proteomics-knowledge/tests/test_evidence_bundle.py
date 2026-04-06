@@ -12,7 +12,9 @@ from bijux_proteomics_knowledge import (
     deduplicate_records,
     EvidenceBundle,
     EvidenceConflict,
+    EvidenceExtractionMethod,
     EvidenceKind,
+    EvidenceOrigin,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
@@ -34,6 +36,10 @@ def test_summarize_bundle_counts_records_by_kind() -> None:
                 kind=EvidenceKind.LITERATURE,
                 title="Paper",
                 source="PMID:1",
+                source_uri="https://pubmed.ncbi.nlm.nih.gov/1/",
+                origin=EvidenceOrigin.IMPORTED,
+                extraction_method=EvidenceExtractionMethod.AUTOMATED_IMPORT,
+                curator="literature-loader",
                 claim="Target is disease-relevant.",
                 confidence=0.9,
                 strength=EvidenceStrength.SUPPORTING,
@@ -92,6 +98,10 @@ def test_coverage_report_tracks_missing_kinds_and_confidence() -> None:
                 title="Paper",
                 source="PMID:1",
                 source_type=EvidenceSourceType.LITERATURE,
+                source_uri="https://pubmed.ncbi.nlm.nih.gov/1/",
+                origin=EvidenceOrigin.IMPORTED,
+                extraction_method=EvidenceExtractionMethod.AUTOMATED_IMPORT,
+                curator="literature-loader",
                 claim="Target is disease-relevant.",
                 confidence=0.9,
                 strength=EvidenceStrength.SUPPORTING,
@@ -157,6 +167,10 @@ def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path) -> Non
                 title="Paper",
                 source="PMID:1",
                 source_type=EvidenceSourceType.LITERATURE,
+                source_uri="https://pubmed.ncbi.nlm.nih.gov/1/",
+                origin=EvidenceOrigin.IMPORTED,
+                extraction_method=EvidenceExtractionMethod.AUTOMATED_IMPORT,
+                curator="literature-loader",
                 claim="Target is disease-relevant.",
                 confidence=0.9,
                 strength=EvidenceStrength.SUPPORTING,
@@ -171,6 +185,7 @@ def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path) -> Non
 
     assert restored.to_dict()["document_schema"]["trace_id"] == "trace-knowledge-1"
     assert EvidenceBundle.from_json(bundle.to_json()).bundle_id == "bundle-1"
+    assert restored.records[0].curator == "literature-loader"
 
 
 def test_compute_bundle_trust_accounts_for_staleness_conflicts_and_duplicates() -> None:

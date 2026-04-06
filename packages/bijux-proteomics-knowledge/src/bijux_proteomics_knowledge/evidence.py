@@ -45,6 +45,24 @@ class EvidenceSourceType(StrEnum):
     EXTERNAL_DATABASE = "external_database"
 
 
+class EvidenceOrigin(StrEnum):
+    """Origin of an evidence record."""
+
+    OBSERVED = "observed"
+    INFERRED = "inferred"
+    IMPORTED = "imported"
+    SYNTHETIC = "synthetic"
+
+
+class EvidenceExtractionMethod(StrEnum):
+    """How the evidence record was produced."""
+
+    MANUAL_CURATION = "manual_curation"
+    AUTOMATED_IMPORT = "automated_import"
+    MODEL_INFERENCE = "model_inference"
+    LAB_CAPTURE = "lab_capture"
+
+
 class EvidenceRecord(JsonModel):
     """Single evidence statement."""
 
@@ -57,6 +75,22 @@ class EvidenceRecord(JsonModel):
     source_type: EvidenceSourceType = Field(
         default=EvidenceSourceType.CURATED_NOTE,
         description="Source category for trust policies.",
+    )
+    source_uri: str | None = Field(
+        default=None,
+        description="Stable URI or locator for the source.",
+    )
+    origin: EvidenceOrigin = Field(
+        default=EvidenceOrigin.OBSERVED,
+        description="Whether the evidence was observed, inferred, imported, or synthetic.",
+    )
+    extraction_method: EvidenceExtractionMethod = Field(
+        default=EvidenceExtractionMethod.MANUAL_CURATION,
+        description="How the evidence record was produced.",
+    )
+    curator: str | None = Field(
+        default=None,
+        description="Human or system responsible for producing the record.",
     )
     claim: str = Field(..., min_length=1, description="Human-readable claim.")
     related_targets: list[str] = Field(
