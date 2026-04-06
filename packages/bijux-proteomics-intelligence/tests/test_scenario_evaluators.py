@@ -101,6 +101,35 @@ def test_evaluate_for_progression_holds_when_top_candidate_has_many_blockers() -
     assert evaluation.unresolved_questions == ["agg risk", "off-target risk", "yield risk"]
 
 
+def test_evaluate_for_progression_holds_when_top_candidate_confidence_is_low() -> None:
+    program = create_program_spec(
+        program_id="prog-low-conf",
+        name="progression confidence gate",
+        objective="hold progression when top confidence is weak",
+        target_id="target-low-conf",
+        target_name="Target Low Conf",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="enforce confidence floor",
+    )
+    ranking = CandidateRanking(
+        program_id="prog-low-conf",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-1",
+                score=1.2,
+                rank=1,
+                explainability={"confidence": 0.45, "blockers": []},
+            )
+        ],
+    )
+
+    evaluation = evaluate_for_progression(program, ranking, _ready_state())
+
+    assert evaluation.action is ScenarioAction.HOLD
+    assert "top_candidate_confidence=0.45" in evaluation.unresolved_questions
+
+
 def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:
     ranking = CandidateRanking(
         program_id="prog-1",
@@ -153,6 +182,26 @@ def test_evaluate_for_synthesis_holds_on_blocker_pressure() -> None:
 
     assert evaluation.action is ScenarioAction.HOLD
     assert evaluation.unresolved_questions == ["risk-a", "risk-b", "risk-c"]
+
+
+def test_evaluate_for_synthesis_holds_when_top_candidate_confidence_is_low() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-1",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-1",
+                score=1.2,
+                rank=1,
+                explainability={"confidence": 0.5, "blockers": []},
+            )
+        ],
+    )
+    risks = [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.2)]
+
+    evaluation = evaluate_for_synthesis(ranking, _ready_state(), risks)
+
+    assert evaluation.action is ScenarioAction.HOLD
+    assert "top_candidate_confidence=0.50" in evaluation.unresolved_questions
 
 
 def test_evaluate_for_scale_up_requires_low_risk_and_decisive_evidence() -> None:

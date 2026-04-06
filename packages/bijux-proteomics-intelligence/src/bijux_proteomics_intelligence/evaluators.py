@@ -79,6 +79,12 @@ class ProgressionPolicy(JsonModel):
         ge=0,
         description="Maximum blocker findings allowed on the top candidate before holding progression.",
     )
+    minimum_top_candidate_confidence: float = Field(
+        default=0.6,
+        ge=0.0,
+        le=1.0,
+        description="Minimum confidence required on top candidate explainability for progression.",
+    )
 
 
 class SynthesisPolicy(JsonModel):
@@ -97,6 +103,12 @@ class SynthesisPolicy(JsonModel):
         default=2,
         ge=0,
         description="Maximum blocker findings allowed on the top candidate before synthesis.",
+    )
+    minimum_top_candidate_confidence: float = Field(
+        default=0.65,
+        ge=0.0,
+        le=1.0,
+        description="Minimum top candidate confidence required before synthesis.",
     )
 
 
@@ -197,6 +209,15 @@ def _top_candidate_blockers(ranking: CandidateRanking) -> list[str]:
     return [str(item) for item in blockers if str(item).strip()]
 
 
+def _top_candidate_confidence(ranking: CandidateRanking) -> float | None:
+    if not ranking.ranked_candidates:
+        return None
+    confidence = ranking.ranked_candidates[0].explainability.get("confidence")
+    if confidence is None:
+        return None
+    return float(confidence)
+
+
 def evaluate_for_progression(
     program: ProgramSpec,
     ranking: CandidateRanking,
@@ -228,6 +249,17 @@ def evaluate_for_progression(
             unresolved_questions=["no prioritized candidate is available for the progression decision"],
         )
     top_blockers = _top_candidate_blockers(ranking)
+    top_confidence = _top_candidate_confidence(ranking)
+    if top_confidence is not None and top_confidence < policy.minimum_top_candidate_confidence:
+        return ScenarioEvaluation(
+            scenario="progression",
+            action=ScenarioAction.HOLD,
+            reasons=[f"top candidate confidence {top_confidence:.2f} is below policy floor"],
+            hypothesis_status=HypothesisStatus.UNRESOLVED,
+            key_discriminating_experiment="collect orthogonal evidence to increase top candidate confidence",
+            confidence=0.58,
+            unresolved_questions=[f"top_candidate_confidence={top_confidence:.2f}"],
+        )
     if len(top_blockers) > policy.maximum_blocker_findings_on_top_candidate:
         return ScenarioEvaluation(
             scenario="progression",
@@ -297,6 +329,17 @@ def evaluate_for_synthesis(
             unresolved_questions=[f"residual_risk={residual_risk:.2f} exceeds policy limit"],
         )
     top_blockers = _top_candidate_blockers(ranking)
+    top_confidence = _top_candidate_confidence(ranking)
+    if top_confidence is not None and top_confidence < policy.minimum_top_candidate_confidence:
+        return ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.HOLD,
+            reasons=[f"top candidate confidence {top_confidence:.2f} is below synthesis policy floor"],
+            hypothesis_status=HypothesisStatus.UNRESOLVED,
+            key_discriminating_experiment="collect confirmatory assays before synthesis commitment",
+            confidence=0.6,
+            unresolved_questions=[f"top_candidate_confidence={top_confidence:.2f}"],
+        )
     if len(top_blockers) > policy.maximum_blocker_findings_on_top_candidate:
         return ScenarioEvaluation(
             scenario="synthesis",
