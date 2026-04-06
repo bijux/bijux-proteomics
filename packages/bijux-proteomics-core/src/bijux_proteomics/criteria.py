@@ -26,6 +26,11 @@ class MetricFamily(StrEnum):
     AFFINITY = "affinity"
     STABILITY = "stability"
     SELECTIVITY = "selectivity"
+    EXPRESSION = "expression"
+    SOLUBILITY = "solubility"
+    AGGREGATION = "aggregation"
+    CELLULAR_ACTIVITY = "cellular_activity"
+    PHENOTYPE_RESCUE = "phenotype_rescue"
     SAFETY = "safety"
     DEVELOPABILITY = "developability"
 
@@ -65,3 +70,57 @@ def criterion_passes(
     lower = min(criterion.threshold, criterion.upper_threshold)
     upper = max(criterion.threshold, criterion.upper_threshold)
     return lower <= observed_value <= upper
+
+
+def build_assay_grounded_criteria(
+    *,
+    target_id: str,
+) -> list[SuccessCriterion]:
+    """Build assay-grounded criteria that map to common proteomics endpoints."""
+    return [
+        SuccessCriterion(
+            criterion_id=f"{target_id}-affinity",
+            metric="binding_kd",
+            metric_family=MetricFamily.AFFINITY,
+            direction=MeasurementDirection.MINIMIZE,
+            threshold=1e-6,
+            unit="M",
+        ),
+        SuccessCriterion(
+            criterion_id=f"{target_id}-stability",
+            metric="delta_tm",
+            metric_family=MetricFamily.STABILITY,
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=2.0,
+            unit="C",
+        ),
+        SuccessCriterion(
+            criterion_id=f"{target_id}-expression",
+            metric="yield_mg_per_l",
+            metric_family=MetricFamily.EXPRESSION,
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=5.0,
+            unit="mg/L",
+        ),
+        SuccessCriterion(
+            criterion_id=f"{target_id}-solubility",
+            metric="solubility_fraction",
+            metric_family=MetricFamily.SOLUBILITY,
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        ),
+        SuccessCriterion(
+            criterion_id=f"{target_id}-aggregation",
+            metric="aggregation_index",
+            metric_family=MetricFamily.AGGREGATION,
+            direction=MeasurementDirection.MINIMIZE,
+            threshold=0.2,
+        ),
+        SuccessCriterion(
+            criterion_id=f"{target_id}-cellular",
+            metric="cellular_activity",
+            metric_family=MetricFamily.CELLULAR_ACTIVITY,
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.6,
+        ),
+    ]

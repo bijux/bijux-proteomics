@@ -50,6 +50,7 @@ from bijux_proteomics import (
 from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
 from bijux_proteomics.programs import (
     AssayRequirement,
+    build_assay_grounded_criteria,
     MeasurementDirection,
     MetricFamily,
     ProgramStage,
@@ -196,6 +197,15 @@ def test_program_summary_includes_structured_context_fields() -> None:
 
     assert summary["therapeutic_area"] == "immunology"
     assert summary["decision_horizon"] == "monthly"
+
+
+def test_build_assay_grounded_criteria_returns_key_endpoints() -> None:
+    criteria = build_assay_grounded_criteria(target_id="target-crit")
+
+    families = {criterion.metric_family for criterion in criteria}
+
+    assert MetricFamily.AFFINITY in families
+    assert MetricFamily.CELLULAR_ACTIVITY in families
 
 
 def test_program_summary_includes_target_context_fields() -> None:
