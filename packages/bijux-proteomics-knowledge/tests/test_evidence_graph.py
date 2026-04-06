@@ -12,6 +12,7 @@ from bijux_proteomics_knowledge import (
     EvidenceSourceType,
     EvidenceStrength,
     NormalizedEvidenceInput,
+    QuantitativeSupport,
     attach_evidence_inputs,
     ingest_inputs_with_report,
     build_evidence_graph,
@@ -87,12 +88,25 @@ def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
                 decision_tags=["synthesis"],
                 confidence=0.7,
                 strength=EvidenceStrength.SUPPORTING,
+                assay_modality="proteomics",
+                biological_system="HEK293",
+                species="human",
+                sample_type="cell lysate",
+                endpoint="fold_confidence",
+                quantitative_support=QuantitativeSupport(
+                    effect_size=1.4,
+                    p_value=0.01,
+                    q_value=0.04,
+                    replicate_count=3,
+                    unit="fold-change",
+                ),
             )
         ],
     )
 
     assert len(updated.records) == 1
     assert updated.records[0].source_type is EvidenceSourceType.STRUCTURE_MODEL
+    assert updated.records[0].quantitative_support is not None
 
 
 def test_ingest_inputs_with_report_tracks_duplicates() -> None:

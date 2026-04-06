@@ -17,6 +17,7 @@ from bijux_proteomics_knowledge.evidence import (
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
+    QuantitativeSupport,
 )
 from bijux_proteomics_knowledge.serialization import JsonModel
 
@@ -61,6 +62,15 @@ class NormalizedEvidenceInput(JsonModel):
     derived_from: list[str] = Field(
         default_factory=list,
         description="Upstream evidence identifiers or note references.",
+    )
+    assay_modality: str | None = Field(default=None, description="Assay modality context.")
+    biological_system: str | None = Field(default=None, description="Biological system context.")
+    species: str | None = Field(default=None, description="Species context.")
+    sample_type: str | None = Field(default=None, description="Sample or matrix type.")
+    endpoint: str | None = Field(default=None, description="Primary measured endpoint.")
+    quantitative_support: QuantitativeSupport | None = Field(
+        default=None,
+        description="Optional quantitative support for the claim.",
     )
 
 
@@ -154,6 +164,12 @@ def attach_evidence_inputs(
                 related_targets=item.related_targets,
                 decision_tags=item.decision_tags,
                 derived_from=item.derived_from,
+                assay_modality=item.assay_modality,
+                biological_system=item.biological_system,
+                species=item.species,
+                sample_type=item.sample_type,
+                endpoint=item.endpoint,
+                quantitative_support=item.quantitative_support,
                 confidence=item.confidence,
                 strength=item.strength,
             )
