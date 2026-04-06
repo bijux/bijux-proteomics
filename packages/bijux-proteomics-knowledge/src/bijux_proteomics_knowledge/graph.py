@@ -88,6 +88,15 @@ class DecisionTracePath(JsonModel):
     path: list[str] = Field(default_factory=list, description="Ordered node IDs from decision to terminal node.")
 
 
+class GraphValidationIssue(JsonModel):
+    """Validation issue for graph structural integrity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, description="Stable graph issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue description.")
+
+
 def build_evidence_graph(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim] | None = None,
@@ -365,3 +374,57 @@ def trace_decision_paths(graph: EvidenceGraph, *, decision_tag: str) -> list[Dec
                 )
             )
     return sorted(traces, key=lambda item: (len(item.path), item.terminal_node_id))
+
+
+def validate_evidence_graph(graph: EvidenceGraph) -> list[GraphValidationIssue]:
+    """Validate evidence graph structure and derived lineage cycles."""
+    issues: list[GraphValidationIssue] = []
+    node_ids = [node.node_id for node in graph.nodes]
+    node_id_set = set(node_ids)
+    if len(node_ids) != len(node_id_set):
+        issues.append(
+            GraphValidationIssue(
+                code="duplicate-node-id",
+                message="graph contains duplicate node_id entries",
+            )
+        )
+    for edge in graph.edges:
+        if edge.source_node_id not in node_id_set or edge.target_node_id not in node_id_set:
+            issues.append(
+                GraphValidationIssue(
+                    code="dangling-edge",
+                    message=f"edge {edge.source_node_id}->{edge.target_node_id} references unknown node",
+                )
+            )
+    derived_edges = [
+        edge
+        for edge in graph.edges
+        if edge.relation == "derived_into"
+        and edge.source_node_id.startswith("evidence:")
+        and edge.target_node_id.startswith("evidence:")
+    ]
+    adjacency: dict[str, list[str]] = {}
+    for edge in derived_edges:
+        adjacency.setdefault(edge.source_node_id, []).append(edge.target_node_id)
+    visited: set[str] = set()
+    in_stack: set[str] = set()
+
+    def visit(node_id: str) -> bool:
+        visited.add(node_id)
+        in_stack.add(node_id)
+        for neighbor in adjacency.get(node_id, []):
+            if neighbor not in visited and visit(neighbor):
+                return True
+            if neighbor in in_stack:
+                return True
+        in_stack.remove(node_id)
+        return False
+
+    if any(visit(node_id) for node_id in adjacency if node_id not in visited):
+        issues.append(
+            GraphValidationIssue(
+                code="derived-lineage-cycle",
+                message="derived_into evidence lineage contains a cycle",
+            )
+        )
+    return issues

@@ -55,10 +55,12 @@ from bijux_proteomics_knowledge.graph import (
     EvidenceNodeType,
     LiabilityNodeInput,
     DecisionTracePath,
+    GraphValidationIssue,
     UnresolvedQuestion,
     build_evidence_graph,
     extract_decision_subgraph,
     trace_decision_paths,
+    validate_evidence_graph,
 )
 from bijux_proteomics_knowledge.schema import (
     KnowledgeSchemaProfile,
@@ -209,6 +211,7 @@ __all__ = [
     "EvidenceNodeType",
     "LiabilityNodeInput",
     "DecisionTracePath",
+    "GraphValidationIssue",
     "UnresolvedQuestion",
     "EvidenceOrigin",
     "EvidenceRecord",
@@ -238,6 +241,7 @@ __all__ = [
     "build_evidence_graph",
     "extract_decision_subgraph",
     "trace_decision_paths",
+    "validate_evidence_graph",
     "KnowledgeSchemaProfile",
     "SchemaCompatibilityReport",
     "default_knowledge_schema_profile",

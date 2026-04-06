@@ -20,6 +20,7 @@ from bijux_proteomics_knowledge import (
     build_evidence_graph,
     extract_decision_subgraph,
     trace_decision_paths,
+    validate_evidence_graph,
 )
 
 
@@ -144,6 +145,25 @@ def test_trace_decision_paths_returns_terminal_paths() -> None:
 
     assert len(traces) >= 1
     assert traces[0].path[0] == "decision:progression"
+
+
+def test_validate_evidence_graph_reports_dangling_edges() -> None:
+    graph = build_evidence_graph(EvidenceBundle(bundle_id="bundle-gv", target_id="target-gv"))
+    broken = graph.model_copy(
+        update={
+            "edges": graph.edges
+            + [
+                {
+                    "source_node_id": "target:target-gv",
+                    "target_node_id": "evidence:missing",
+                    "relation": "supported_by",
+                }
+            ]
+        }
+    )
+    issues = validate_evidence_graph(broken)
+
+    assert any(issue.code == "dangling-edge" for issue in issues)
 
 
 def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
