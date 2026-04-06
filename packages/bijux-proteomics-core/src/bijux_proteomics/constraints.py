@@ -41,6 +41,14 @@ class ScientificConstraint(BaseModel):
         default=None,
         description="Assay or modality context where the constraint applies.",
     )
+    blocker: bool = Field(
+        default=False,
+        description="Whether violating this constraint should block progression.",
+    )
+    mitigation_plan: str | None = Field(
+        default=None,
+        description="Mitigation plan when this constraint is at risk.",
+    )
     threshold: float | None = Field(
         default=None,
         description="Optional numeric threshold for the constraint.",

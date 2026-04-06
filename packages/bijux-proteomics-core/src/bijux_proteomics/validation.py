@@ -120,6 +120,16 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                 message="programs with assay work should define success criteria",
             )
         )
+    for constraint in program.constraints:
+        if constraint.blocker and not constraint.mitigation_plan:
+            issues.append(
+                ProgramValidationIssue(
+                    code="constraint-mitigation-missing",
+                    message=(
+                        f"blocking constraint '{constraint.constraint_id}' should define a mitigation_plan"
+                    ),
+                )
+            )
     if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY}:
         if not program.target.target_class:
             issues.append(

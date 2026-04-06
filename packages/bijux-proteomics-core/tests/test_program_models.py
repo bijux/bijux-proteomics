@@ -656,6 +656,35 @@ def test_validate_program_enforces_identifier_prefix_contracts() -> None:
     ) in issues
 
 
+def test_validate_program_requires_mitigation_for_blocking_constraints() -> None:
+    program = create_program_spec(
+        program_id="prog-constraint",
+        name="constraint mitigation",
+        objective="require mitigation plans for blocking constraints",
+        target_id="target-constraint",
+        target_name="Target Constraint",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="keep blocker constraints actionable",
+    )
+    program.constraints.append(
+        ScientificConstraint(
+            constraint_id="constraint-1",
+            category="developability",
+            statement="avoid severe aggregation hotspots",
+            rationale="aggregation blocks manufacturability",
+            blocker=True,
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="constraint-mitigation-missing",
+        message="blocking constraint 'constraint-1' should define a mitigation_plan",
+    ) in issues
+
+
 def test_success_criterion_supports_metric_family_and_bounds() -> None:
     criterion = SuccessCriterion(
         criterion_id="crit-1",
