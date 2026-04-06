@@ -348,6 +348,16 @@ class BatchFailureTriageReport(JsonModel):
     summary_notes: list[str] = Field(default_factory=list, description="Concise triage summary for review.")
 
 
+class BatchClaimBeliefUpdate(JsonModel):
+    """Aggregate claim-confidence updates from a batch outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    updates: list[ClaimBeliefDelta] = Field(default_factory=list, description="Aggregated claim deltas.")
+    contributing_assay_count: int = Field(default=0, ge=0, description="Number of assays contributing deltas.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -813,4 +823,36 @@ def triage_batch_failures(outcome: ExperimentOutcome) -> BatchFailureTriageRepor
         triage=triage,
         escalation_assay_ids=escalation_assay_ids,
         summary_notes=summary_notes,
+    )
+
+
+def consolidate_claim_belief_updates(
+    outcome: ExperimentOutcome,
+    *,
+    claim_links: dict[str, list[str]],
+) -> BatchClaimBeliefUpdate:
+    """Aggregate assay-level belief deltas into a batch-level claim update set."""
+    totals: dict[str, float] = {}
+    rationales: dict[str, list[str]] = {}
+    contributing_assays = 0
+    for assay in outcome.assay_outcomes:
+        linked_claim_ids = claim_links.get(assay.assay_id, [])
+        if not linked_claim_ids:
+            continue
+        contributing_assays += 1
+        for delta in recommend_claim_belief_deltas(assay, linked_claim_ids=linked_claim_ids):
+            totals[delta.claim_id] = totals.get(delta.claim_id, 0.0) + delta.delta
+            rationales.setdefault(delta.claim_id, []).append(assay.assay_id)
+    updates = [
+        ClaimBeliefDelta(
+            claim_id=claim_id,
+            delta=round(max(-1.0, min(total_delta, 1.0)), 4),
+            rationale=f"aggregated from assays: {', '.join(sorted(rationales.get(claim_id, [])))}",
+        )
+        for claim_id, total_delta in sorted(totals.items())
+    ]
+    return BatchClaimBeliefUpdate(
+        batch_id=outcome.batch_id,
+        updates=updates,
+        contributing_assay_count=contributing_assays,
     )

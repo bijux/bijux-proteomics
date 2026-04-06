@@ -39,6 +39,7 @@ from bijux_proteomics_lab import (
     promote_batch_outcome_to_evidence,
     triage_assay_failure,
     triage_batch_failures,
+    consolidate_claim_belief_updates,
 )
 
 
@@ -188,6 +189,38 @@ def test_triage_batch_failures_tracks_escalation_assays() -> None:
 
     assert report.escalation_assay_ids == ["assay-bio"]
     assert any("technical execution issues" in note for note in report.summary_notes)
+
+
+def test_consolidate_claim_belief_updates_aggregates_assay_deltas() -> None:
+    batch = ExperimentOutcome(
+        batch_id="batch-agg",
+        assay_outcomes=[
+            AssayOutcome(
+                assay_id="a1",
+                passed=True,
+                result_state=AssayResultState.PASSED,
+                observation_summary="binding passed",
+                uncertainty=0.1,
+            ),
+            AssayOutcome(
+                assay_id="a2",
+                passed=False,
+                result_state=AssayResultState.FAILED_BIOLOGICAL,
+                observation_summary="cellular miss",
+                failure_class=FailureClass.BIOLOGICAL,
+                uncertainty=0.2,
+            ),
+        ],
+        rerun_policy=RerunPolicy.NEVER,
+    )
+
+    update = consolidate_claim_belief_updates(
+        batch,
+        claim_links={"a1": ["claim-1"], "a2": ["claim-1", "claim-2"]},
+    )
+
+    assert update.contributing_assay_count == 2
+    assert {item.claim_id for item in update.updates} == {"claim-1", "claim-2"}
 
 
 def test_lab_feedback_record_keeps_cycle_and_lineage_refs() -> None:
