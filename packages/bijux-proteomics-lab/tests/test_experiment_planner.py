@@ -32,6 +32,7 @@ from bijux_proteomics_lab import (
     prioritize_next_assays,
     plan_conflict_resolution_assays,
     plan_uncertainty_reduction_assays,
+    recommend_next_best_experiment,
     recommend_orthogonal_confirmation,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
@@ -699,3 +700,44 @@ def test_plan_uncertainty_reduction_assays_returns_ranked_backlog() -> None:
 
     assert "assay-ur-1" in plan.prioritized_assay_ids
     assert 0.0 <= plan.residual_uncertainty <= 1.0
+
+
+def test_recommend_next_best_experiment_respects_dependencies() -> None:
+    program = create_program_spec(
+        program_id="prog-nbe",
+        name="next best experiment",
+        objective="pick next assay",
+        target_id="target-nbe",
+        target_name="Target",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="resolve uncertainty",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(
+                assay_id="assay-prereq",
+                purpose="prerequisite",
+                readout="quality",
+                sample_kind="biophysical",
+                blocking=False,
+            ),
+            AssayRequirement(
+                assay_id="assay-main",
+                purpose="main uncertainty reducer",
+                readout="activity",
+                sample_kind="cellular",
+                blocking=True,
+            ),
+        ]
+    )
+    recommendation = recommend_next_best_experiment(
+        program,
+        EvidenceBundle(bundle_id="bundle-nbe", target_id="target-nbe"),
+        [],
+        dependencies=[AssayDependency(assay_id="assay-main", requires_assay_id="assay-prereq")],
+    )
+
+    assert recommendation is not None
+    assert recommendation.assay_id == "assay-main"
+    assert recommendation.prerequisite_assay_ids == ["assay-prereq"]

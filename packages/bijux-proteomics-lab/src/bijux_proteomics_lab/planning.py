@@ -359,6 +359,20 @@ class UncertaintyReductionPlan(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Plan notes for reviewers.")
 
 
+class NextBestExperiment(JsonModel):
+    """Single next-best experiment recommendation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Recommended assay identifier.")
+    prerequisite_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Prerequisites that should run first.",
+    )
+    expected_information_gain: float = Field(..., ge=0.0, le=1.0, description="Expected information gain score.")
+    rationale: list[str] = Field(default_factory=list, description="Short rationale for recommendation.")
+
+
 class DependencyCycleReport(JsonModel):
     """Cycle detection report for assay dependency graphs."""
 
@@ -892,6 +906,38 @@ def plan_uncertainty_reduction_assays(
         prioritized_assay_ids=prioritized,
         residual_uncertainty=residual_uncertainty,
         notes=notes,
+    )
+
+
+def recommend_next_best_experiment(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+    dependencies: list[AssayDependency] | None = None,
+) -> NextBestExperiment | None:
+    """Recommend the next best experiment with dependency awareness."""
+    priorities = prioritize_next_assays(program, bundle, observations)
+    if not priorities:
+        return None
+    dependencies = dependencies or []
+    top = priorities[0]
+    prerequisites = sorted(
+        {
+            dependency.requires_assay_id
+            for dependency in dependencies
+            if dependency.assay_id == top.assay_id
+        }
+    )
+    rationale = list(top.reasons)
+    if prerequisites:
+        rationale.append("assay has prerequisite dependencies that should be scheduled first")
+    if top.estimated_cost > 1.2:
+        rationale.append("assay has elevated execution burden but highest current information gain")
+    return NextBestExperiment(
+        assay_id=top.assay_id,
+        prerequisite_assay_ids=prerequisites,
+        expected_information_gain=top.score,
+        rationale=rationale or ["highest ranked by information-gain scoring"],
     )
 
 
