@@ -13,6 +13,7 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     ResolutionAction,
     ResolutionPolicy,
+    QuantitativeSupport,
     apply_resolution_updates,
     build_claim,
     resolve_conflicts,
@@ -203,6 +204,45 @@ def test_resolve_conflicts_can_split_cross_modality_conflicts() -> None:
     _, resolutions = resolve_conflicts(bundle)
 
     assert resolutions[0].action is ResolutionAction.SPLIT_BY_MODALITY
+
+
+def test_resolve_conflicts_holds_quantitative_direction_conflicts() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-quant-hold",
+        target_id="target-quant-hold",
+        records=[
+            EvidenceRecord(
+                evidence_id="q-up",
+                kind=EvidenceKind.ASSAY,
+                title="up signal",
+                source="lab-1",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Signal increases.",
+                decision_tags=["progression"],
+                endpoint="activity_ratio",
+                quantitative_support=QuantitativeSupport(effect_size=1.1),
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="q-down",
+                kind=EvidenceKind.ASSAY,
+                title="down signal",
+                source="lab-2",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Signal decreases.",
+                decision_tags=["progression"],
+                endpoint="activity_ratio",
+                quantitative_support=QuantitativeSupport(effect_size=-0.9),
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    _, resolutions = resolve_conflicts(bundle)
+
+    assert resolutions[0].action is ResolutionAction.HOLD_DECISION
 
 
 def test_claim_resolution_record_captures_resolution_history() -> None:

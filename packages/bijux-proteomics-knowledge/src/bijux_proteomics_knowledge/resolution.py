@@ -148,6 +148,26 @@ def resolve_conflicts(
                 )
             )
             continue
+        if conflict.conflict_type == "quantitative_direction_conflict":
+            resolutions.append(
+                ConflictResolution(
+                    left_evidence_id=left.evidence_id,
+                    right_evidence_id=right.evidence_id,
+                    action=ResolutionAction.HOLD_DECISION,
+                    rationale="opposite quantitative effect directions require explicit adjudication",
+                )
+            )
+            continue
+        if conflict.conflict_type == "quantitative_magnitude_conflict":
+            resolutions.append(
+                ConflictResolution(
+                    left_evidence_id=left.evidence_id,
+                    right_evidence_id=right.evidence_id,
+                    action=ResolutionAction.REQUIRE_CURATION,
+                    rationale="large effect-size disagreement should be resolved with curation and rerun planning",
+                )
+            )
+            continue
         if policy.high_severity_requires_hold and conflict.severity == "high":
             resolutions.append(
                 ConflictResolution(
