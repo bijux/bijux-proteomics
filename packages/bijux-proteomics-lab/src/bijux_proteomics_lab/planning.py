@@ -528,6 +528,15 @@ class MaterialFeasibilityPriority(JsonModel):
     priority_score: float = Field(..., ge=0.0, le=1.0, description="Material-feasibility priority score.")
 
 
+class PlanValidationIssue(JsonModel):
+    """Validation issue for experiment plan structure."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, description="Stable issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
 def assess_dependency_integrity(
     assay_ids: list[AssayId],
     dependencies: list[AssayDependency],
@@ -1286,3 +1295,33 @@ def prioritize_batches_by_material_feasibility(
         ranked,
         key=lambda item: (not item.material_ready, -item.priority_score, item.batch_id),
     )
+
+
+def validate_experiment_plan(plan: ExperimentPlan) -> list[PlanValidationIssue]:
+    """Validate experiment plan structure before scheduling."""
+    issues: list[PlanValidationIssue] = []
+    batch_ids = [batch.batch_id for batch in plan.batches]
+    if len(batch_ids) != len(set(batch_ids)):
+        issues.append(
+            PlanValidationIssue(
+                code="duplicate-batch-id",
+                message="experiment plan contains duplicate batch_id values",
+            )
+        )
+    priorities = [batch.priority for batch in plan.batches]
+    if priorities and sorted(priorities) != priorities:
+        issues.append(
+            PlanValidationIssue(
+                code="priority-order-invalid",
+                message="batch priorities should be non-decreasing in plan order",
+            )
+        )
+    for batch in plan.batches:
+        if not batch.assay_ids:
+            issues.append(
+                PlanValidationIssue(
+                    code="empty-assay-batch",
+                    message=f"{batch.batch_id} should include at least one assay_id",
+                )
+            )
+    return issues

@@ -46,6 +46,7 @@ from bijux_proteomics_lab import (
     score_assay_information_gain,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
+    validate_experiment_plan,
     ExperimentOutcome,
 )
 
@@ -425,6 +426,21 @@ def test_prioritize_batches_by_material_feasibility_promotes_ready_batches() -> 
 
     assert ranked[0].batch_id == "batch-ready"
     assert ranked[1].material_ready is False
+
+
+def test_validate_experiment_plan_reports_duplicate_and_empty_batches() -> None:
+    issues = validate_experiment_plan(
+        ExperimentPlan(
+            program_id="prog-validate",
+            batches=[
+                ExperimentBatch(batch_id="b1", objective="o1", assay_ids=["a1"], priority=2),
+                ExperimentBatch(batch_id="b1", objective="o2", assay_ids=[], priority=1),
+            ],
+        )
+    )
+
+    assert any(issue.code == "duplicate-batch-id" for issue in issues)
+    assert any(issue.code == "empty-assay-batch" for issue in issues)
 
 
 def test_assess_dependency_integrity_reports_unknown_and_self_edges() -> None:
