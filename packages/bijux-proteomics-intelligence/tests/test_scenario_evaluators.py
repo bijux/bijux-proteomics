@@ -24,6 +24,7 @@ from bijux_proteomics_intelligence import (
     build_intelligence_review_packet,
     summarize_hold_pressure,
     summarize_scenario_confidence_spread,
+    derive_decision_escalation_flags,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -487,3 +488,29 @@ def test_summarize_scenario_confidence_spread_reports_range() -> None:
 
     assert spread.maximum_confidence >= spread.minimum_confidence
     assert spread.spread >= 0.0
+
+
+def test_derive_decision_escalation_flags_triggers_human_review() -> None:
+    grouped = evaluate_all_scenarios(
+        create_program_spec(
+            program_id="prog-escalation",
+            name="escalation",
+            objective="derive escalation flags from scenario outputs",
+            target_id="target-escalation",
+            target_name="Target Escalation",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            organism="human",
+            mechanism="trigger escalation when scenarios conflict",
+        ),
+        CandidateRanking(
+            program_id="prog-escalation",
+            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ),
+        _ready_state(),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        policies=EvaluatorPolicyBundle(),
+    )
+
+    flags = derive_decision_escalation_flags(grouped)
+
+    assert flags.escalate_to_human_review is True

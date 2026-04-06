@@ -260,6 +260,17 @@ class ScenarioConfidenceSpread(JsonModel):
     spread: float = Field(..., ge=0.0, le=1.0, description="Difference between max and min confidence.")
 
 
+class DecisionEscalationFlags(JsonModel):
+    """Escalation flags indicating when human arbitration should be mandatory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    conflicting_actions: bool = Field(..., description="Scenario actions conflict.")
+    high_hold_pressure: bool = Field(..., description="Hold pressure is high.")
+    wide_confidence_spread: bool = Field(..., description="Confidence spread exceeds threshold.")
+    escalate_to_human_review: bool = Field(..., description="Overall escalation recommendation.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -724,4 +735,24 @@ def summarize_scenario_confidence_spread(
         maximum_confidence=maximum,
         mean_confidence=mean,
         spread=round(maximum - minimum, 4),
+    )
+
+
+def derive_decision_escalation_flags(
+    evaluations: ScenarioSetEvaluation,
+    *,
+    hold_threshold: float = 0.5,
+    confidence_spread_threshold: float = 0.25,
+) -> DecisionEscalationFlags:
+    """Derive escalation flags from scenario consensus, hold pressure, and confidence spread."""
+    consensus = summarize_scenario_consensus(evaluations)
+    hold_pressure = summarize_hold_pressure(evaluations, threshold=hold_threshold)
+    spread = summarize_scenario_confidence_spread(evaluations)
+    wide_spread = spread.spread >= confidence_spread_threshold
+    escalate = consensus.conflicting_actions or hold_pressure.high_hold_pressure or wide_spread
+    return DecisionEscalationFlags(
+        conflicting_actions=consensus.conflicting_actions,
+        high_hold_pressure=hold_pressure.high_hold_pressure,
+        wide_confidence_spread=wide_spread,
+        escalate_to_human_review=escalate,
     )
