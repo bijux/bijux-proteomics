@@ -299,6 +299,21 @@ class NextAssayPriority(JsonModel):
     reasons: list[str] = Field(default_factory=list, description="Short rationale points.")
 
 
+class InformationGainBreakdown(JsonModel):
+    """Multiparameter information-gain score components for an assay."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    uncertainty_reduction: float = Field(..., ge=0.0, le=1.0, description="Expected uncertainty reduction.")
+    contradiction_resolution_value: float = Field(..., ge=0.0, le=1.0, description="Expected contradiction resolution value.")
+    falsification_value: float = Field(..., ge=0.0, le=1.0, description="Expected hypothesis falsification value.")
+    decision_gate_impact: float = Field(..., ge=0.0, le=1.0, description="Impact on near-term decision gates.")
+    orthogonal_confirmation_value: float = Field(..., ge=0.0, le=1.0, description="Orthogonal confirmation contribution.")
+    burden_penalty: float = Field(..., ge=0.0, le=1.0, description="Relative execution burden penalty.")
+    final_score: float = Field(..., ge=0.0, le=1.0, description="Combined information-gain score.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -716,33 +731,80 @@ def prioritize_next_assays(
     trust = compute_bundle_trust(bundle)
     readiness = assess_decision_readiness(bundle, [need.value for need in program.evidence_needs])
     ranked: list[NextAssayPriority] = []
+    contradictions = flag_conflicting_evidence(bundle)
     for assay in program.assay_panel:
         if assay.assay_id in observed_ids:
             continue
-        score = 0.5
+        breakdown = score_assay_information_gain(
+            assay_id=assay.assay_id,
+            blocking=assay.blocking,
+            readiness_ready=readiness.ready,
+            trust_score=trust.trust_score,
+            contradiction_count=len(contradictions),
+        )
         reasons: list[str] = []
-        if assay.blocking:
-            score += 0.3
+        if breakdown.decision_gate_impact >= 0.7:
             reasons.append("blocking assay with direct gate impact")
-        if not readiness.ready:
-            score += 0.1
-            reasons.append("program is not decision-ready")
-        if trust.trust_score < 0.7:
-            score += 0.1
-            reasons.append("evidence trust is below target")
+        if breakdown.contradiction_resolution_value > 0.0:
+            reasons.append("assay can resolve active evidence contradictions")
+        if breakdown.uncertainty_reduction >= 0.6:
+            reasons.append("assay expected to reduce uncertainty substantially")
         estimated_cost = 1.5 if assay.blocking else 1.0
         estimated_days = 4.0 if assay.blocking else 2.0
-        effort_penalty = min(0.2, (estimated_cost * 0.05) + (estimated_days * 0.01))
         ranked.append(
             NextAssayPriority(
                 assay_id=assay.assay_id,
-                score=round(max(0.0, min(score - effort_penalty, 1.0)), 4),
+                score=breakdown.final_score,
                 estimated_cost=estimated_cost,
                 estimated_days=estimated_days,
                 reasons=reasons or ["assay reduces residual uncertainty"],
             )
         )
     return sorted(ranked, key=lambda item: item.score, reverse=True)
+
+
+def score_assay_information_gain(
+    *,
+    assay_id: AssayId,
+    blocking: bool,
+    readiness_ready: bool,
+    trust_score: float,
+    contradiction_count: int,
+) -> InformationGainBreakdown:
+    """Score assay information gain using explicit scientific planning dimensions."""
+    uncertainty_reduction = 0.7 if not readiness_ready else 0.4
+    contradiction_resolution_value = min(1.0, contradiction_count * 0.25)
+    falsification_value = 0.7 if blocking else 0.5
+    decision_gate_impact = 0.9 if blocking else 0.4
+    orthogonal_confirmation_value = 0.6 if trust_score < 0.7 else 0.3
+    burden_penalty = 0.2 if blocking else 0.12
+    final_score = round(
+        max(
+            0.0,
+            min(
+                (
+                    uncertainty_reduction * 0.22
+                    + contradiction_resolution_value * 0.2
+                    + falsification_value * 0.18
+                    + decision_gate_impact * 0.2
+                    + orthogonal_confirmation_value * 0.2
+                    - burden_penalty
+                ),
+                1.0,
+            ),
+        ),
+        4,
+    )
+    return InformationGainBreakdown(
+        assay_id=assay_id,
+        uncertainty_reduction=uncertainty_reduction,
+        contradiction_resolution_value=contradiction_resolution_value,
+        falsification_value=falsification_value,
+        decision_gate_impact=decision_gate_impact,
+        orthogonal_confirmation_value=orthogonal_confirmation_value,
+        burden_penalty=burden_penalty,
+        final_score=final_score,
+    )
 
 
 def recommend_orthogonal_confirmation(

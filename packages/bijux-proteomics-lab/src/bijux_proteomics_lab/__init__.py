@@ -58,6 +58,7 @@ from bijux_proteomics_lab.planning import (
     MaterialConstraintReport,
     MaterialInventory,
     MaterialRequirement,
+    InformationGainBreakdown,
     NextAssayPriority,
     OrthogonalConfirmationPlan,
     ConflictResolutionPlan,
@@ -73,6 +74,7 @@ from bijux_proteomics_lab.planning import (
     schedule_experiment_plan,
     schedule_with_family_capacity,
     prioritize_next_assays,
+    score_assay_information_gain,
     recommend_orthogonal_confirmation,
     plan_conflict_resolution_assays,
 )
@@ -115,6 +117,7 @@ __all__ = [
     "MaterialConstraintReport",
     "MaterialInventory",
     "MaterialRequirement",
+    "InformationGainBreakdown",
     "NextAssayPriority",
     "OrthogonalConfirmationPlan",
     "ConflictResolutionPlan",
@@ -142,6 +145,7 @@ __all__ = [
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
     "prioritize_next_assays",
+    "score_assay_information_gain",
     "recommend_orthogonal_confirmation",
     "plan_conflict_resolution_assays",
 ]

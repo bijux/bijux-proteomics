@@ -36,6 +36,7 @@ from bijux_proteomics_lab import (
     recommend_next_cycle_from_outcome,
     schedule_experiment_plan,
     schedule_with_family_capacity,
+    score_assay_information_gain,
     ExperimentOutcome,
 )
 
@@ -273,6 +274,20 @@ def test_recommend_next_cycle_redesigns_when_evidence_trust_is_too_low() -> None
 
     assert plan.decision is ProgressDecision.REDESIGN
     assert plan.evidence_trust_score < 0.5
+
+
+def test_score_assay_information_gain_reflects_gate_and_conflict_pressure() -> None:
+    breakdown = score_assay_information_gain(
+        assay_id="assay-priority",
+        blocking=True,
+        readiness_ready=False,
+        trust_score=0.5,
+        contradiction_count=2,
+    )
+
+    assert breakdown.decision_gate_impact == 0.9
+    assert breakdown.contradiction_resolution_value > 0.0
+    assert 0.0 <= breakdown.final_score <= 1.0
 
 
 def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
