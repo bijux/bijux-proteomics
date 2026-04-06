@@ -322,6 +322,27 @@ class CriterionSatisfactionVector(JsonModel):
     satisfied_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of criteria satisfied.")
 
 
+class RankingDriftItem(JsonModel):
+    """Rank movement for one candidate between two ranking snapshots."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    previous_rank: int | None = Field(default=None, ge=1, description="Previous rank if present.")
+    current_rank: int | None = Field(default=None, ge=1, description="Current rank if present.")
+    rank_shift: int = Field(..., description="Positive when candidate moved up in ranking.")
+
+
+class RankingDriftReport(JsonModel):
+    """Audit report describing ranking drift between two snapshots."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    moved_candidates: list[RankingDriftItem] = Field(default_factory=list, description="Candidates with rank movement.")
+    newly_ranked_candidate_ids: list[str] = Field(default_factory=list, description="Candidates newly entering ranking.")
+    dropped_candidate_ids: list[str] = Field(default_factory=list, description="Candidates dropped from ranking.")
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -783,4 +804,34 @@ def criterion_satisfaction_vector(
         candidate_id=candidate.candidate_id,
         items=items,
         satisfied_fraction=fraction,
+    )
+
+
+def summarize_ranking_drift(
+    previous: CandidateRanking,
+    current: CandidateRanking,
+) -> RankingDriftReport:
+    """Summarize rank movement between previous and current ranking snapshots."""
+    previous_rank = {item.candidate_id: item.rank for item in previous.ranked_candidates}
+    current_rank = {item.candidate_id: item.rank for item in current.ranked_candidates}
+    shared_ids = sorted(set(previous_rank).intersection(current_rank))
+    moved: list[RankingDriftItem] = []
+    for candidate_id in shared_ids:
+        prev_rank = previous_rank[candidate_id]
+        curr_rank = current_rank[candidate_id]
+        if prev_rank != curr_rank:
+            moved.append(
+                RankingDriftItem(
+                    candidate_id=candidate_id,
+                    previous_rank=prev_rank,
+                    current_rank=curr_rank,
+                    rank_shift=prev_rank - curr_rank,
+                )
+            )
+    newly_ranked = sorted(set(current_rank) - set(previous_rank))
+    dropped = sorted(set(previous_rank) - set(current_rank))
+    return RankingDriftReport(
+        moved_candidates=moved,
+        newly_ranked_candidate_ids=newly_ranked,
+        dropped_candidate_ids=dropped,
     )

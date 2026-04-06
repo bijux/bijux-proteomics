@@ -8,6 +8,7 @@ from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     CandidateExplainabilitySummary,
+    CandidateRanking,
     CandidateRejection,
     CandidateScoreBreakdown,
     LiabilityFocusSummary,
@@ -20,6 +21,7 @@ from bijux_proteomics_intelligence import (
     PortfolioSelectionPolicy,
     RejectionReasonCode,
     RankingPolicy,
+    RankedCandidate,
     ScientificMetricClass,
     build_design_brief,
     prioritize_candidates,
@@ -35,6 +37,7 @@ from bijux_proteomics_intelligence import (
     build_ranking_robustness_report,
     summarize_metric_coverage,
     criterion_satisfaction_vector,
+    summarize_ranking_drift,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -597,6 +600,29 @@ def test_criterion_satisfaction_vector_tracks_per_criterion_pass_fail() -> None:
 
     assert vector.satisfied_fraction == 0.5
     assert [item.satisfied for item in vector.items] == [True, False]
+
+
+def test_summarize_ranking_drift_reports_movements_and_entry_exit() -> None:
+    previous = CandidateRanking(
+        program_id="prog-drift",
+        ranked_candidates=[
+            RankedCandidate(candidate_id="c1", score=1.2, rank=1),
+            RankedCandidate(candidate_id="c2", score=1.1, rank=2),
+        ],
+    )
+    current = CandidateRanking(
+        program_id="prog-drift",
+        ranked_candidates=[
+            RankedCandidate(candidate_id="c2", score=1.2, rank=1),
+            RankedCandidate(candidate_id="c3", score=1.0, rank=2),
+        ],
+    )
+
+    report = summarize_ranking_drift(previous, current)
+
+    assert report.newly_ranked_candidate_ids == ["c3"]
+    assert report.dropped_candidate_ids == ["c1"]
+    assert report.moved_candidates[0].candidate_id == "c2"
 
 
 def test_candidate_score_breakdown_reports_weighted_contributions() -> None:

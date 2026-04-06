@@ -16,6 +16,8 @@ from bijux_proteomics_intelligence.briefs import (
     MetricCoverageSummary,
     CriterionSatisfactionItem,
     CriterionSatisfactionVector,
+    RankingDriftItem,
+    RankingDriftReport,
     CandidateRanking,
     DesignBrief,
     LiabilityFlag,
@@ -31,6 +33,7 @@ from bijux_proteomics_intelligence.briefs import (
     build_ranking_robustness_report,
     summarize_metric_coverage,
     criterion_satisfaction_vector,
+    summarize_ranking_drift,
 )
 from bijux_proteomics_intelligence.candidates import (
     CandidateDecision,
@@ -121,6 +124,8 @@ __all__ = [
     "MetricCoverageSummary",
     "CriterionSatisfactionItem",
     "CriterionSatisfactionVector",
+    "RankingDriftItem",
+    "RankingDriftReport",
     "CandidateDecision",
     "CandidateRanking",
     "CandidatePortfolio",
@@ -200,6 +205,7 @@ __all__ = [
     "build_ranking_robustness_report",
     "summarize_metric_coverage",
     "criterion_satisfaction_vector",
+    "summarize_ranking_drift",
     "transition_candidate",
     "classify_metric_name",
     "validate_metric_catalog",
