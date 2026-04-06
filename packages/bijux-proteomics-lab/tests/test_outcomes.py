@@ -24,6 +24,7 @@ from bijux_proteomics_lab import (
     summarize_experiment_outcome,
     summarize_observation,
     assess_evidence_promotion_readiness,
+    recommend_claim_belief_deltas,
 )
 
 
@@ -375,6 +376,22 @@ def test_assess_evidence_promotion_readiness_blocks_uncertain_inconclusive_outco
 
     assert readiness.ready is False
     assert any("result_state" in blocker for blocker in readiness.blockers)
+
+
+def test_recommend_claim_belief_deltas_supports_closed_loop_updates() -> None:
+    deltas = recommend_claim_belief_deltas(
+        AssayOutcome(
+            assay_id="assay-belief",
+            passed=True,
+            result_state=AssayResultState.PASSED,
+            observation_summary="signal met acceptance",
+            uncertainty=0.2,
+        ),
+        linked_claim_ids=["claim-1", "claim-2"],
+    )
+
+    assert len(deltas) == 2
+    assert all(delta.delta > 0 for delta in deltas)
 
 
 def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:

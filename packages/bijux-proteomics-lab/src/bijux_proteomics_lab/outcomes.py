@@ -235,6 +235,16 @@ class EvidencePromotionReadiness(JsonModel):
     recommended_action: str = Field(..., min_length=1, description="Next action before promotion.")
 
 
+class ClaimBeliefDelta(JsonModel):
+    """Belief delta recommendation derived from one assay outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(..., min_length=1, description="Claim identifier to update.")
+    delta: float = Field(..., description="Signed confidence delta recommendation.")
+    rationale: str = Field(..., min_length=1, description="Scientific rationale for the delta.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -461,3 +471,34 @@ def assess_evidence_promotion_readiness(outcome: AssayOutcome) -> EvidencePromot
         blockers=blockers,
         recommended_action=action,
     )
+
+
+def recommend_claim_belief_deltas(
+    outcome: AssayOutcome,
+    *,
+    linked_claim_ids: list[str],
+) -> list[ClaimBeliefDelta]:
+    """Recommend bounded claim-confidence deltas from one assay outcome."""
+    if not linked_claim_ids:
+        return []
+    if outcome.result_state is AssayResultState.PASSED and outcome.passed:
+        base_delta = max(0.05, 0.2 - (outcome.uncertainty * 0.1))
+        rationale = "assay passed and supports linked claim direction"
+    elif outcome.result_state in {
+        AssayResultState.FAILED_BIOLOGICAL,
+        AssayResultState.FAILED_TECHNICAL,
+        AssayResultState.FAILED_REPRODUCIBILITY,
+    }:
+        base_delta = -0.2
+        rationale = f"assay produced {outcome.result_state.value} outcome"
+    else:
+        base_delta = -0.05
+        rationale = "assay outcome is inconclusive and weakens confidence modestly"
+    return [
+        ClaimBeliefDelta(
+            claim_id=claim_id,
+            delta=round(base_delta, 4),
+            rationale=rationale,
+        )
+        for claim_id in linked_claim_ids
+    ]
