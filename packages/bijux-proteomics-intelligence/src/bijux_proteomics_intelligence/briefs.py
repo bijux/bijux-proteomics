@@ -14,9 +14,11 @@ from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 from bijux_proteomics_intelligence.outcomes import (
     CandidateRejection,
+    RejectionSummary,
     RejectionReasonCode,
     TieBreakExplanation,
     build_rejection_action_plan,
+    summarize_rejections,
 )
 from bijux_proteomics_intelligence.policies import (
     RankingFactor,
@@ -341,6 +343,15 @@ class RankingDriftReport(JsonModel):
     moved_candidates: list[RankingDriftItem] = Field(default_factory=list, description="Candidates with rank movement.")
     newly_ranked_candidate_ids: list[str] = Field(default_factory=list, description="Candidates newly entering ranking.")
     dropped_candidate_ids: list[str] = Field(default_factory=list, description="Candidates dropped from ranking.")
+
+
+class RankingDiagnostics(JsonModel):
+    """Combined diagnostics for a ranking snapshot."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    robustness: RankingRobustnessReport = Field(..., description="Ranking robustness summary.")
+    rejection_summary: RejectionSummary = Field(..., description="Rejection analytics summary.")
 
 
 def _metric_weight_name(metric: str) -> OptimizationAxis:
@@ -843,4 +854,14 @@ def summarize_ranking_drift(
         moved_candidates=moved,
         newly_ranked_candidate_ids=newly_ranked,
         dropped_candidate_ids=dropped,
+    )
+
+
+def build_ranking_diagnostics(
+    ranking: CandidateRanking,
+) -> RankingDiagnostics:
+    """Build combined diagnostics for one ranking snapshot."""
+    return RankingDiagnostics(
+        robustness=build_ranking_robustness_report(ranking),
+        rejection_summary=summarize_rejections(ranking.rejections),
     )

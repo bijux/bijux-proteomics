@@ -41,6 +41,7 @@ from bijux_proteomics_intelligence import (
     summarize_metric_coverage,
     criterion_satisfaction_vector,
     summarize_ranking_drift,
+    build_ranking_diagnostics,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -672,6 +673,24 @@ def test_summarize_ranking_drift_reports_movements_and_entry_exit() -> None:
     assert report.newly_ranked_candidate_ids == ["c3"]
     assert report.dropped_candidate_ids == ["c1"]
     assert report.moved_candidates[0].candidate_id == "c2"
+
+
+def test_build_ranking_diagnostics_combines_robustness_and_rejections() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-diagnostics",
+        ranked_candidates=[RankedCandidate(candidate_id="c1", score=0.9, rank=1)],
+        rejections=[
+            CandidateRejection(
+                candidate_id="c2",
+                reason_codes=[RejectionReasonCode.LOW_EVIDENCE_SUPPORT],
+            )
+        ],
+    )
+
+    diagnostics = build_ranking_diagnostics(ranking)
+
+    assert diagnostics.robustness.robustness_score >= 0.0
+    assert diagnostics.rejection_summary.rejection_count == 1
 
 
 def test_candidate_score_breakdown_reports_weighted_contributions() -> None:
