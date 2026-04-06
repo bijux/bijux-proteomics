@@ -12,6 +12,7 @@ from bijux_proteomics_knowledge import (
     assess_scientific_context_completeness,
     assess_context_compatibility,
     audit_knowledge_quality,
+    rank_evidence_for_decision,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -912,3 +913,49 @@ def test_audit_knowledge_quality_surfaces_bundle_level_recommendations() -> None
     assert "audit-1" in audit.low_context_records
     assert "audit-1" in audit.weak_quantitative_records
     assert any("collect missing modalities" in note for note in audit.recommendations)
+
+
+def test_rank_evidence_for_decision_prioritizes_context_and_quality() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-rank",
+        target_id="target-rank",
+        records=[
+            EvidenceRecord(
+                evidence_id="rank-high",
+                kind=EvidenceKind.CELLULAR,
+                title="high context fit",
+                source="lab",
+                claim="supports progression",
+                decision_tags=["progression"],
+                species="human",
+                biological_system="HEK293",
+                sample_type="cell lysate",
+                confidence=0.85,
+                strength=EvidenceStrength.DECISIVE,
+                quantitative_support=QuantitativeSupport(replicate_count=4, coefficient_of_variation=0.2, p_value=0.01),
+            ),
+            EvidenceRecord(
+                evidence_id="rank-low",
+                kind=EvidenceKind.ASSAY,
+                title="low context fit",
+                source="lab",
+                claim="supports progression",
+                decision_tags=["progression"],
+                species="mouse",
+                biological_system="NIH3T3",
+                sample_type="plasma",
+                confidence=0.85,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    ranked = rank_evidence_for_decision(
+        bundle,
+        decision_tag="progression",
+        expected_species="human",
+        expected_system="HEK293",
+        expected_sample_type="cell lysate",
+    )
+
+    assert ranked[0].evidence_id == "rank-high"
+    assert ranked[0].relevance_score >= ranked[1].relevance_score

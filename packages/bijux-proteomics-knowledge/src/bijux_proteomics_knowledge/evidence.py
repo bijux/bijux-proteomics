@@ -598,6 +598,16 @@ class KnowledgeQualityAudit(JsonModel):
     recommendations: list[str] = Field(default_factory=list, description="Actionable quality recommendations.")
 
 
+class EvidenceRelevanceScore(JsonModel):
+    """Relevance score for one evidence record in a decision context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Overall relevance score.")
+    drivers: list[str] = Field(default_factory=list, description="Primary relevance drivers.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -951,6 +961,55 @@ def audit_knowledge_quality(
         conflict_count=len(trust.conflicts),
         recommendations=recommendations,
     )
+
+
+def rank_evidence_for_decision(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str,
+    expected_species: str | None = None,
+    expected_system: str | None = None,
+    expected_sample_type: str | None = None,
+) -> list[EvidenceRelevanceScore]:
+    """Rank evidence by decision-tag alignment, context match, and scientific quality."""
+    ranked: list[EvidenceRelevanceScore] = []
+    for record in bundle.records:
+        if decision_tag not in record.decision_tags:
+            continue
+        context = assess_context_compatibility(
+            record,
+            expected_species=expected_species,
+            expected_system=expected_system,
+            expected_sample_type=expected_sample_type,
+        )
+        quality = decompose_evidence_quality(record)
+        quantitative = evaluate_quantitative_support(record.quantitative_support)
+        score = round(
+            (
+                record.confidence * 0.35
+                + context.score * 0.25
+                + quality.derived_confidence * 0.25
+                + quantitative.support_score * 0.15
+            ),
+            4,
+        )
+        drivers: list[str] = []
+        if context.score >= 0.9:
+            drivers.append("strong context match")
+        if quality.statistical_support >= 0.7:
+            drivers.append("strong statistical support")
+        if record.strength is EvidenceStrength.DECISIVE:
+            drivers.append("decisive evidence strength")
+        if not drivers:
+            drivers.append("baseline confidence and quality support ranking")
+        ranked.append(
+            EvidenceRelevanceScore(
+                evidence_id=record.evidence_id,
+                relevance_score=score,
+                drivers=drivers,
+            )
+        )
+    return sorted(ranked, key=lambda item: item.relevance_score, reverse=True)
 
 
 def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str]:
