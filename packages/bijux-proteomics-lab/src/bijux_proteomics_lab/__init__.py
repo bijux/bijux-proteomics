@@ -38,6 +38,12 @@ from bijux_proteomics_lab.repositories import (
     ReviewQueueRepository,
     query_feedback_records,
 )
+from bijux_proteomics_lab.schema import (
+    LabSchemaCompatibilityReport,
+    LabSchemaProfile,
+    default_lab_schema_profile,
+    evaluate_lab_schema_compatibility,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.planning import (
     AssayDependency,
@@ -132,6 +138,10 @@ __all__ = [
     "ReviewQueueEntry",
     "ReviewQueueRepository",
     "query_feedback_records",
+    "LabSchemaCompatibilityReport",
+    "LabSchemaProfile",
+    "default_lab_schema_profile",
+    "evaluate_lab_schema_compatibility",
     "ReviewPacket",
     "ScheduledBatch",
     "ScheduledPlan",
