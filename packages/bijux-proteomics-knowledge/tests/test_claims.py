@@ -14,6 +14,7 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     build_claim,
     close_claim,
+    link_evidence_to_claim,
     build_decision_lineage,
 )
 
@@ -71,3 +72,33 @@ def test_close_claim_marks_resolution_state_closed() -> None:
     closed = close_claim(claim)
 
     assert closed.resolution_state is ClaimResolutionState.CLOSED
+
+
+def test_link_evidence_to_claim_attaches_bundle_evidence_ids() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-2",
+        target_id="target-1",
+        records=[
+            EvidenceRecord(
+                evidence_id="ev-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="Target is disease-relevant.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    claim = build_claim(
+        claim_id="claim-4",
+        target_id="target-1",
+        statement="Linked claim",
+        evidence_ids=[],
+        status=ClaimStatus.SUPPORTED,
+    )
+
+    linked = link_evidence_to_claim(claim, bundle)
+
+    assert linked.evidence_ids == ["ev-1"]

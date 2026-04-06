@@ -26,6 +26,7 @@ from bijux_proteomics_knowledge.claims import (
     build_claim,
     close_claim,
     build_decision_lineage,
+    link_evidence_to_claim,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_knowledge.graph import (
@@ -114,6 +115,7 @@ __all__ = [
     "build_evidence_graph",
     "build_claim",
     "close_claim",
+    "link_evidence_to_claim",
     "build_decision_lineage",
     "compute_bundle_trust",
     "coverage_report",

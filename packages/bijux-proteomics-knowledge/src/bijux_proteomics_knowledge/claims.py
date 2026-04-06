@@ -143,3 +143,16 @@ def build_decision_lineage(
 def close_claim(claim: EvidenceClaim) -> EvidenceClaim:
     """Return a claim marked as closed in the resolution workflow."""
     return claim.model_copy(update={"resolution_state": ClaimResolutionState.CLOSED})
+
+
+def link_evidence_to_claim(
+    claim: EvidenceClaim,
+    bundle: EvidenceBundle,
+) -> EvidenceClaim:
+    """Attach known bundle evidence IDs to a claim without duplicating IDs."""
+    known_ids = {record.evidence_id for record in bundle.records}
+    linked = list(claim.evidence_ids)
+    for evidence_id in sorted(known_ids):
+        if evidence_id not in linked:
+            linked.append(evidence_id)
+    return claim.model_copy(update={"evidence_ids": linked})
