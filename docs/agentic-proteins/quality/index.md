@@ -25,11 +25,11 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    proof1["tests/api and tests/integration for contract and boundary coverage"]
     proof1 --> page
-    proof2["tests/e2e for governed flow behavior"]
+    proof2["tests/e2e for runtime flow, observability, and failure scenarios"]
     proof2 --> page
-    proof3["tests/regression and tests/smoke for replay and storage protection"]
+    proof3["tests/regression for behavioral drift in agents, evaluation, and pathways"]
     proof3 --> page
     risk1["CHANGELOG.md"]
     risk1 -.keeps trust honest.-> page
@@ -70,8 +70,8 @@ flowchart TB
 
 ## Concrete Anchors
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
+- packages/agentic-proteins/tests/api and tests/integration for interface and contract behavior
+- packages/agentic-proteins/tests/e2e and tests/regression for end-to-end and drift protection
 - README.md
 
 ## Use This Page When
