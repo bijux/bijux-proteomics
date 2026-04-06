@@ -68,11 +68,12 @@ flowchart TB
 
 ## Package Handbooks
 
-- [bijux-proteomics-ingest](../bijux-proteomics-ingest/foundation/index.md)
-- [bijux-proteomics-index](../bijux-proteomics-index/foundation/index.md)
-- [bijux-proteomics-reason](../bijux-proteomics-reason/foundation/index.md)
-- [bijux-proteomics-agent](../bijux-proteomics-agent/foundation/index.md)
-- [bijux-proteomics-runtime](../bijux-proteomics-runtime/foundation/index.md)
+- [agentic-proteins](../agentic-proteins/foundation/index.md)
+- [bijux-proteomics-foundation](../bijux-proteomics-foundation/foundation/index.md)
+- [bijux-proteomics-core](../bijux-proteomics-core/foundation/index.md)
+- [bijux-proteomics-intelligence](../bijux-proteomics-intelligence/foundation/index.md)
+- [bijux-proteomics-knowledge](../bijux-proteomics-knowledge/foundation/index.md)
+- [bijux-proteomics-lab](../bijux-proteomics-lab/foundation/index.md)
 
 The job of this section is simple: help readers understand the system without
 letting the root pretend it owns behavior that belongs elsewhere.
