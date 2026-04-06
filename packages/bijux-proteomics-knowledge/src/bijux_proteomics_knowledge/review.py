@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+"""Integrated review packet builders for scientific decision readiness."""
+
+from __future__ import annotations
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_knowledge.claims import (
+    EvidenceClaim,
+    HypothesisDossier,
+    KnowledgeGap,
+    build_hypothesis_dossier,
+    identify_knowledge_gaps,
+)
+from bijux_proteomics_knowledge.evidence import (
+    EvidenceBundle,
+    EvidenceRelevanceScore,
+    KnowledgeQualityAudit,
+    audit_knowledge_quality,
+    rank_evidence_for_decision,
+)
+from bijux_proteomics_knowledge.resolution import ConflictCluster, cluster_conflicts, resolve_conflicts
+
+
+class KnowledgeReviewPacket(JsonModel):
+    """Unified review packet for one target and decision dimension."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    decision_tag: str = Field(..., min_length=1, description="Decision tag under review.")
+    evidence_ranking: list[EvidenceRelevanceScore] = Field(
+        default_factory=list,
+        description="Evidence ranked for decision relevance.",
+    )
+    quality_audit: KnowledgeQualityAudit = Field(..., description="Bundle-level quality audit.")
+    hypothesis_dossier: HypothesisDossier = Field(..., description="Claim-level hypothesis dossier.")
+    knowledge_gaps: list[KnowledgeGap] = Field(default_factory=list, description="Structured unresolved gaps.")
+    conflict_clusters: list[ConflictCluster] = Field(default_factory=list, description="Grouped conflicts for review.")
+
+
+def build_knowledge_review_packet(
+    bundle: EvidenceBundle,
+    claims: list[EvidenceClaim],
+    *,
+    decision_tag: str,
+    required_modalities: list[str] | None = None,
+    expected_species: str | None = None,
+    expected_system: str | None = None,
+    expected_sample_type: str | None = None,
+) -> KnowledgeReviewPacket:
+    """Build an integrated review packet for decision workflows."""
+    ranking = rank_evidence_for_decision(
+        bundle,
+        decision_tag=decision_tag,
+        expected_species=expected_species,
+        expected_system=expected_system,
+        expected_sample_type=expected_sample_type,
+    )
+    audit = audit_knowledge_quality(
+        bundle,
+        decision_tag=decision_tag,
+        required_modalities=required_modalities,
+    )
+    dossier = build_hypothesis_dossier(bundle, claims, decision_tag=decision_tag)
+    gaps = identify_knowledge_gaps(bundle, claims, decision_tag=decision_tag)
+    trust, _ = resolve_conflicts(bundle)
+    clusters = cluster_conflicts(bundle, trust)
+    return KnowledgeReviewPacket(
+        target_id=bundle.target_id,
+        decision_tag=decision_tag,
+        evidence_ranking=ranking,
+        quality_audit=audit,
+        hypothesis_dossier=dossier,
+        knowledge_gaps=gaps,
+        conflict_clusters=clusters,
+    )

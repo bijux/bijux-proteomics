@@ -51,6 +51,10 @@ from bijux_proteomics_knowledge.graph import (
     UnresolvedQuestion,
     build_evidence_graph,
 )
+from bijux_proteomics_knowledge.review import (
+    KnowledgeReviewPacket,
+    build_knowledge_review_packet,
+)
 from bijux_proteomics_knowledge.repositories import (
     ClaimQuery,
     ClaimResolutionRecord,
@@ -177,6 +181,8 @@ __all__ = [
     "assess_decision_readiness",
     "attach_evidence_inputs",
     "build_evidence_graph",
+    "KnowledgeReviewPacket",
+    "build_knowledge_review_packet",
     "build_claim",
     "close_claim",
     "link_evidence_to_claim",
