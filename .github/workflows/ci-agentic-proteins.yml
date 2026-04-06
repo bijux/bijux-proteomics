@@ -37,3 +37,4 @@ jobs:
       test_paths: packages/agentic-proteins/tests
       lint_dirs: packages/agentic-proteins/src/agentic_proteins
       quality_paths: packages/agentic-proteins/src/agentic_proteins
+      build_target: build-agentic-proteins

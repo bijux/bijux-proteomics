@@ -26,6 +26,10 @@ on:
         required: false
         type: string
         default: '["quality", "security", "docs", "api", "build", "sbom"]'
+      build_target:
+        required: false
+        type: string
+        default: "build"
 
 permissions:
   contents: read
@@ -117,7 +121,10 @@ jobs:
             quality)
               make quality QUALITY_PATHS="${{ inputs.quality_paths }}"
               ;;
-            security|docs|api|build|sbom)
+            build)
+              make "${{ inputs.build_target }}"
+              ;;
+            security|docs|api|sbom)
               make "${{ matrix.target }}"
               ;;
             *)

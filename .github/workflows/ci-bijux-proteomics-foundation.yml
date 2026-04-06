@@ -35,3 +35,4 @@ jobs:
       test_paths: packages/bijux-proteomics-foundation/tests
       lint_dirs: packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation
       quality_paths: packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation
+      build_target: build-bijux-proteomics-foundation

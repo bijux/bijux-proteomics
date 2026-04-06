@@ -35,3 +35,4 @@ jobs:
       test_paths: packages/bijux-proteomics-knowledge/tests
       lint_dirs: packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge
       quality_paths: packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge
+      build_target: build-bijux-proteomics-knowledge
