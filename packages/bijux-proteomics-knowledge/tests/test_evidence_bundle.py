@@ -29,6 +29,7 @@ from bijux_proteomics_knowledge import (
     TrustPolicy,
     default_trust_policy,
     default_conflict_policy,
+    decompose_evidence_quality,
     evidence_gaps,
     flag_conflicting_evidence,
     plan_evidence_refresh,
@@ -463,6 +464,28 @@ def test_evidence_record_supports_quantitative_context_payload() -> None:
 
     assert record.quantitative_support is not None
     assert record.quantitative_support.replicate_count == 4
+
+
+def test_decompose_evidence_quality_derives_confidence_components() -> None:
+    record = EvidenceRecord(
+        evidence_id="assay-qual-1",
+        kind=EvidenceKind.ASSAY,
+        title="quality record",
+        source="lab",
+        source_type=EvidenceSourceType.LAB_ASSAY,
+        claim="Candidate improves endpoint.",
+        decision_tags=["progression", "synthesis"],
+        confidence=0.7,
+        strength=EvidenceStrength.SUPPORTING,
+        biological_system="HEK293",
+        quantitative_support=QuantitativeSupport(replicate_count=4),
+    )
+
+    quality = decompose_evidence_quality(record)
+
+    assert quality.reproducibility >= 0.9
+    assert quality.context_relevance == 0.9
+    assert 0.0 <= quality.derived_confidence <= 1.0
 
 
 def test_attach_manual_notes_creates_curated_evidence_records() -> None:

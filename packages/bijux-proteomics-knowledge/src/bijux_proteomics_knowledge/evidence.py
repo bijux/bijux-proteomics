@@ -380,6 +380,20 @@ class BundleFreshnessReport(JsonModel):
     )
 
 
+class EvidenceQualityDecomposition(JsonModel):
+    """Decomposed quality dimensions for an evidence record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_validity: float = Field(..., ge=0.0, le=1.0, description="Assay validity signal.")
+    reproducibility: float = Field(..., ge=0.0, le=1.0, description="Reproducibility signal.")
+    orthogonality: float = Field(..., ge=0.0, le=1.0, description="Orthogonal support signal.")
+    context_relevance: float = Field(..., ge=0.0, le=1.0, description="Biological context relevance.")
+    source_credibility: float = Field(..., ge=0.0, le=1.0, description="Source credibility signal.")
+    recency: float = Field(..., ge=0.0, le=1.0, description="Recency signal.")
+    derived_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence derived from dimensions.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -396,6 +410,47 @@ def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
         "decisive_records": decisive,
         "by_kind": by_kind,
     }
+
+
+def decompose_evidence_quality(
+    record: EvidenceRecord,
+    *,
+    now: datetime | None = None,
+) -> EvidenceQualityDecomposition:
+    """Decompose quality and derive confidence from explicit dimensions."""
+    now = now or datetime.now(UTC)
+    source_credibility = weight_source_type(record.source_type, policy=default_trust_policy())
+    assay_validity = min(1.0, 0.4 + (0.6 if record.kind is EvidenceKind.ASSAY else 0.3))
+    replicate_count = (
+        record.quantitative_support.replicate_count
+        if record.quantitative_support is not None and record.quantitative_support.replicate_count is not None
+        else 1
+    )
+    reproducibility = min(1.0, 0.3 + (replicate_count / 5.0))
+    orthogonality = min(1.0, 0.4 + (0.2 * len(set(record.decision_tags))))
+    context_relevance = 0.9 if record.biological_system else 0.6
+    age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
+    recency = 1.0 if age_days <= 30 else max(0.4, 1.0 - (age_days / 365.0))
+    derived_confidence = round(
+        (
+            assay_validity * 0.2
+            + reproducibility * 0.15
+            + orthogonality * 0.15
+            + context_relevance * 0.2
+            + source_credibility * 0.2
+            + recency * 0.1
+        ),
+        4,
+    )
+    return EvidenceQualityDecomposition(
+        assay_validity=round(assay_validity, 4),
+        reproducibility=round(reproducibility, 4),
+        orthogonality=round(orthogonality, 4),
+        context_relevance=round(context_relevance, 4),
+        source_credibility=round(source_credibility, 4),
+        recency=round(recency, 4),
+        derived_confidence=derived_confidence,
+    )
 
 
 def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str]:
