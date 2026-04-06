@@ -10,6 +10,7 @@ from bijux_proteomics_lab import (
     AssayDefinition,
     AssayObservationRecord,
     AssayOutcome,
+    AssayResultState,
     ExperimentOutcome,
     FailureClass,
     RerunPolicy,
@@ -60,6 +61,7 @@ def test_evaluate_assay_acceptance_applies_explicit_rule() -> None:
     )
 
     assert outcome.passed is True
+    assert outcome.result_state is AssayResultState.PASSED
     assert outcome.failure_class is None
 
 
@@ -94,3 +96,29 @@ def test_lab_feedback_record_keeps_cycle_and_lineage_refs() -> None:
 
     assert record.cycle_id == "cycle-2026-01"
     assert record.related_evidence_ids == ["assay:batch-1:binding-assay"]
+
+
+def test_evaluate_assay_acceptance_marks_unit_mismatch_as_inconclusive() -> None:
+    outcome = evaluate_assay_acceptance(
+        AssayDefinition(
+            assay_id="binding-assay",
+            category=AssayCategory.BINDING,
+            purpose="confirm target engagement",
+            acceptance_rule=AssayAcceptanceRule(
+                assay_id="binding-assay",
+                metric="binding_score",
+                operator=AcceptanceOperator.GREATER_EQUAL,
+                threshold=0.8,
+                unit="uM",
+            ),
+        ),
+        AssayObservationRecord(
+            assay_id="binding-assay",
+            metric="binding_score",
+            value=0.83,
+            unit="nM",
+        ),
+    )
+
+    assert outcome.result_state is AssayResultState.INCONCLUSIVE
+    assert outcome.failure_class is FailureClass.INTERPRETATION

@@ -27,6 +27,15 @@ class FailureClass(StrEnum):
     INTERPRETATION = "interpretation"
 
 
+class AssayResultState(StrEnum):
+    """Normalized assay result states beyond binary pass/fail."""
+
+    PASSED = "passed"
+    FAILED_BIOLOGICAL = "failed_biological"
+    FAILED_TECHNICAL = "failed_technical"
+    INCONCLUSIVE = "inconclusive"
+
+
 class RerunPolicy(StrEnum):
     """Rerun recommendation after an outcome is observed."""
 
@@ -84,6 +93,10 @@ class AssayOutcome(JsonModel):
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
     passed: bool = Field(..., description="Whether the assay met acceptance.")
+    result_state: AssayResultState = Field(
+        default=AssayResultState.PASSED,
+        description="Normalized assay result state.",
+    )
     observation_summary: str = Field(
         ...,
         min_length=1,
@@ -133,12 +146,16 @@ class AssayObservationRecord(JsonModel):
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
-        assay.failure_class is FailureClass.TECHNICAL
+        assay.result_state is AssayResultState.FAILED_TECHNICAL
+        or assay.failure_class is FailureClass.TECHNICAL
         for assay in outcome.assay_outcomes
         if not assay.passed
     ):
         return RerunPolicy.ON_TECHNICAL_FAILURE
-    if any(not assay.passed for assay in outcome.assay_outcomes):
+    if any(
+        not assay.passed or assay.result_state is AssayResultState.INCONCLUSIVE
+        for assay in outcome.assay_outcomes
+    ):
         return RerunPolicy.ON_INCONCLUSIVE_RESULT
     return RerunPolicy.NEVER
 
@@ -153,6 +170,16 @@ def evaluate_assay_acceptance(
         raise ValueError("assay observation does not match the assay definition")
     if observation.metric != rule.metric:
         raise ValueError("assay observation metric does not match the acceptance rule")
+    if rule.unit is not None and observation.unit is not None and observation.unit != rule.unit:
+        return AssayOutcome(
+            assay_id=observation.assay_id,
+            passed=False,
+            result_state=AssayResultState.INCONCLUSIVE,
+            observation_summary=(
+                f"{observation.metric} unit mismatch ({observation.unit} vs expected {rule.unit})"
+            ),
+            failure_class=FailureClass.INTERPRETATION,
+        )
 
     passed = (
         observation.value >= rule.threshold
@@ -167,6 +194,7 @@ def evaluate_assay_acceptance(
     return AssayOutcome(
         assay_id=observation.assay_id,
         passed=passed,
+        result_state=AssayResultState.PASSED if passed else AssayResultState.FAILED_BIOLOGICAL,
         observation_summary=summary,
         failure_class=None if passed else FailureClass.BIOLOGICAL,
     )
