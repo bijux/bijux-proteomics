@@ -105,6 +105,17 @@ class ClaimBeliefUpdate(JsonModel):
     reason: str = Field(..., min_length=1, description="Summary of why the update was applied.")
 
 
+class ConflictCluster(JsonModel):
+    """Grouped conflict signals for one decision tag and conflict taxonomy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision tag affected by the cluster.")
+    conflict_type: str = Field(..., min_length=1, description="Conflict taxonomy represented by this cluster.")
+    conflict_pairs: list[str] = Field(default_factory=list, description="Evidence pairs contributing to this cluster.")
+    recommended_hold: bool = Field(default=False, description="Whether cluster should hold progression decisions.")
+
+
 def resolve_conflicts(
     bundle: EvidenceBundle,
     *,
@@ -303,3 +314,37 @@ def apply_resolution_updates(
         else:
             updated_claims.append(claim)
     return updated_claims, updates
+
+
+def cluster_conflicts(
+    bundle: EvidenceBundle,
+    trust_report: BundleTrustReport,
+) -> list[ConflictCluster]:
+    """Group conflicts by decision tag and conflict type for review workflows."""
+    clusters: dict[tuple[str, str], list[str]] = {}
+    for conflict in trust_report.conflicts:
+        left = next((record for record in bundle.records if record.evidence_id == conflict.left_evidence_id), None)
+        right = next((record for record in bundle.records if record.evidence_id == conflict.right_evidence_id), None)
+        if left is None or right is None:
+            continue
+        shared_tags = sorted(set(left.decision_tags).intersection(right.decision_tags))
+        if not shared_tags:
+            shared_tags = ["unscoped"]
+        pair_label = f"{conflict.left_evidence_id}<>{conflict.right_evidence_id}"
+        for decision_tag in shared_tags:
+            key = (decision_tag, conflict.conflict_type)
+            clusters.setdefault(key, []).append(pair_label)
+    grouped: list[ConflictCluster] = []
+    for (decision_tag, conflict_type), pairs in sorted(clusters.items()):
+        grouped.append(
+            ConflictCluster(
+                decision_tag=decision_tag,
+                conflict_type=conflict_type,
+                conflict_pairs=sorted(set(pairs)),
+                recommended_hold=any(
+                    conflict.severity == "high" and conflict.conflict_type == conflict_type
+                    for conflict in trust_report.conflicts
+                ),
+            )
+        )
+    return grouped

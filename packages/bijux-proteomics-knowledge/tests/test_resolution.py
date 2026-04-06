@@ -15,6 +15,7 @@ from bijux_proteomics_knowledge import (
     ResolutionPolicy,
     QuantitativeSupport,
     apply_resolution_updates,
+    cluster_conflicts,
     build_claim,
     resolve_conflicts,
     summarize_resolutions,
@@ -370,6 +371,43 @@ def test_apply_resolution_updates_strengthens_claim_on_preferred_evidence() -> N
 
     assert updated_claims[0].confidence > claim.confidence
     assert updates[0].updated_status is ClaimStatus.SUPPORTED
+
+
+def test_cluster_conflicts_groups_by_decision_tag_and_type() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-cluster",
+        target_id="target-cluster",
+        records=[
+            EvidenceRecord(
+                evidence_id="c1",
+                kind=EvidenceKind.ASSAY,
+                title="positive",
+                source="lab-1",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets progression gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="c2",
+                kind=EvidenceKind.ASSAY,
+                title="negative",
+                source="lab-2",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate fails progression gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    trust, _ = resolve_conflicts(bundle)
+    clusters = cluster_conflicts(bundle, trust)
+
+    assert len(clusters) == 1
+    assert clusters[0].decision_tag == "progression"
+    assert clusters[0].recommended_hold is True
 
 
 def test_apply_resolution_updates_disputes_claim_when_hold_is_required() -> None:
