@@ -23,6 +23,7 @@ from bijux_proteomics_intelligence import (
     summarize_scenario_consensus,
     build_intelligence_review_packet,
     summarize_hold_pressure,
+    summarize_scenario_confidence_spread,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -459,3 +460,30 @@ def test_summarize_hold_pressure_counts_hold_actions() -> None:
 
     assert summary.total_scenarios == 4
     assert summary.hold_count >= 1
+
+
+def test_summarize_scenario_confidence_spread_reports_range() -> None:
+    grouped = evaluate_all_scenarios(
+        create_program_spec(
+            program_id="prog-confidence-spread",
+            name="confidence spread",
+            objective="summarize confidence spread across scenarios",
+            target_id="target-confidence-spread",
+            target_name="Target Confidence Spread",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            organism="human",
+            mechanism="confidence spread tracking",
+        ),
+        CandidateRanking(
+            program_id="prog-confidence-spread",
+            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ),
+        _ready_state(),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        policies=EvaluatorPolicyBundle(),
+    )
+
+    spread = summarize_scenario_confidence_spread(grouped)
+
+    assert spread.maximum_confidence >= spread.minimum_confidence
+    assert spread.spread >= 0.0

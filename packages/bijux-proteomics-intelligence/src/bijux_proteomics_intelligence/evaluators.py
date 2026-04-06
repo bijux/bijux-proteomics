@@ -249,6 +249,17 @@ class HoldPressureSummary(JsonModel):
     high_hold_pressure: bool = Field(..., description="Whether hold pressure crosses escalation threshold.")
 
 
+class ScenarioConfidenceSpread(JsonModel):
+    """Spread of scenario confidences for review consistency checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    minimum_confidence: float = Field(..., ge=0.0, le=1.0, description="Minimum confidence among scenarios.")
+    maximum_confidence: float = Field(..., ge=0.0, le=1.0, description="Maximum confidence among scenarios.")
+    mean_confidence: float = Field(..., ge=0.0, le=1.0, description="Mean confidence across scenarios.")
+    spread: float = Field(..., ge=0.0, le=1.0, description="Difference between max and min confidence.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -692,4 +703,25 @@ def summarize_hold_pressure(
         total_scenarios=len(actions),
         hold_fraction=hold_fraction,
         high_hold_pressure=hold_fraction >= threshold,
+    )
+
+
+def summarize_scenario_confidence_spread(
+    evaluations: ScenarioSetEvaluation,
+) -> ScenarioConfidenceSpread:
+    """Summarize confidence spread across all scenario evaluations."""
+    confidences = [
+        evaluations.progression.confidence,
+        evaluations.synthesis.confidence,
+        evaluations.scale_up.confidence,
+        evaluations.redesign.confidence,
+    ]
+    minimum = min(confidences)
+    maximum = max(confidences)
+    mean = round(sum(confidences) / len(confidences), 4)
+    return ScenarioConfidenceSpread(
+        minimum_confidence=minimum,
+        maximum_confidence=maximum,
+        mean_confidence=mean,
+        spread=round(maximum - minimum, 4),
     )
