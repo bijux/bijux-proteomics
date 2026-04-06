@@ -11,6 +11,7 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     build_claim,
     build_knowledge_review_packet,
+    compare_review_packets,
     summarize_multi_decision_readiness,
 )
 
@@ -103,3 +104,46 @@ def test_summarize_multi_decision_readiness_reports_portfolio_score() -> None:
 
     assert set(summary.decision_scores) == {"progression", "synthesis"}
     assert 0.0 <= summary.portfolio_score <= 1.0
+
+
+def test_compare_review_packets_reports_delta() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-delta",
+        target_id="target-delta",
+        records=[
+            EvidenceRecord(
+                evidence_id="d1",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="progression support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+                endpoint="activity_ratio",
+            )
+        ],
+    )
+    claims = [
+        build_claim(
+            claim_id="claim-delta-1",
+            target_id="target-delta",
+            statement="candidate can progress",
+            evidence_ids=["d1"],
+            status=ClaimStatus.SUPPORTED,
+            resolution_assays=["assay"],
+        )
+    ]
+    previous = build_knowledge_review_packet(bundle, claims, decision_tag="progression")
+    improved_bundle = bundle.model_copy(
+        update={
+            "records": [
+                bundle.records[0].model_copy(update={"confidence": 0.9, "strength": EvidenceStrength.DECISIVE})
+            ]
+        }
+    )
+    current = build_knowledge_review_packet(improved_bundle, claims, decision_tag="progression")
+    delta = compare_review_packets(previous, current)
+
+    assert delta.decision_tag == "progression"
+    assert isinstance(delta.intelligence_index_delta, float)

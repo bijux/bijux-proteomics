@@ -61,6 +61,19 @@ class MultiDecisionReadiness(JsonModel):
     portfolio_score: float = Field(..., ge=0.0, le=1.0, description="Mean readiness score across decision tags.")
 
 
+class KnowledgeReviewDelta(JsonModel):
+    """Difference report between two review packets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision tag compared.")
+    intelligence_index_delta: float = Field(..., description="Change in decision intelligence index.")
+    trust_delta: float = Field(..., description="Change in trust score.")
+    triangulation_delta: float = Field(..., description="Change in triangulation score.")
+    gap_delta: int = Field(..., description="Change in unresolved knowledge gap count.")
+    recommendation_changed: bool = Field(..., description="Whether gate recommendation changed.")
+
+
 def build_knowledge_review_packet(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim],
@@ -197,4 +210,27 @@ def summarize_multi_decision_readiness(
         decision_scores=scores,
         weakest_decision_tag=weakest,
         portfolio_score=portfolio_score,
+    )
+
+
+def compare_review_packets(
+    previous: KnowledgeReviewPacket,
+    current: KnowledgeReviewPacket,
+) -> KnowledgeReviewDelta:
+    """Compare two review packets for the same decision tag."""
+    if previous.decision_tag != current.decision_tag:
+        raise ValueError("review packets must share the same decision_tag")
+    return KnowledgeReviewDelta(
+        decision_tag=current.decision_tag,
+        intelligence_index_delta=round(
+            current.decision_intelligence_index - previous.decision_intelligence_index,
+            4,
+        ),
+        trust_delta=round(current.quality_audit.trust_score - previous.quality_audit.trust_score, 4),
+        triangulation_delta=round(
+            current.quality_audit.triangulation_score - previous.quality_audit.triangulation_score,
+            4,
+        ),
+        gap_delta=len(current.knowledge_gaps) - len(previous.knowledge_gaps),
+        recommendation_changed=current.gate_recommendation != previous.gate_recommendation,
     )

@@ -69,7 +69,9 @@ from bijux_proteomics_knowledge.schema import (
 from bijux_proteomics_knowledge.review import (
     KnowledgeReviewPacket,
     MultiDecisionReadiness,
+    KnowledgeReviewDelta,
     build_knowledge_review_packet,
+    compare_review_packets,
     compute_decision_intelligence_index,
     summarize_multi_decision_readiness,
 )
@@ -230,7 +232,9 @@ __all__ = [
     "evaluate_schema_compatibility",
     "KnowledgeReviewPacket",
     "MultiDecisionReadiness",
+    "KnowledgeReviewDelta",
     "build_knowledge_review_packet",
+    "compare_review_packets",
     "compute_decision_intelligence_index",
     "summarize_multi_decision_readiness",
     "to_canonical_json",
