@@ -23,6 +23,10 @@ from bijux_proteomics_lab import (
     promote_outcome_to_evidence,
     query_feedback_records,
     summarize_feedback_trend,
+    query_review_queue,
+    summarize_review_queue,
+    ReviewQueueEntry,
+    ReviewQueueQuery,
     recommend_rerun_policy,
     summarize_experiment_outcome,
     summarize_observation,
@@ -632,3 +636,17 @@ def test_recommend_rerun_policy_can_return_reproducibility_failure() -> None:
     )
 
     assert recommend_rerun_policy(outcome) is RerunPolicy.ON_REPRODUCIBILITY_FAILURE
+
+
+def test_query_and_summarize_review_queue_support_gate_workload_views() -> None:
+    entries = [
+        ReviewQueueEntry(program_id="prog-1", gate_id="gate-a", summary="a"),
+        ReviewQueueEntry(program_id="prog-1", gate_id="gate-b", summary="b"),
+        ReviewQueueEntry(program_id="prog-2", gate_id="gate-a", summary="c"),
+    ]
+    filtered = query_review_queue(entries, ReviewQueueQuery(program_id="prog-1"))
+    summary = summarize_review_queue(filtered)
+
+    assert len(filtered) == 2
+    assert summary.total_entries == 2
+    assert summary.by_gate["gate-a"] == 1

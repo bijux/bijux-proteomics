@@ -90,6 +90,24 @@ class LabFeedbackTrendReport(JsonModel):
     assay_coverage: dict[str, int] = Field(default_factory=dict, description="Frequency by related assay ID.")
 
 
+class ReviewQueueQuery(JsonModel):
+    """Structured query for filtering review queue entries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId | None = Field(default=None, description="Optional program identifier filter.")
+    gate_id: GateId | None = Field(default=None, description="Optional review gate filter.")
+
+
+class ReviewQueueTrendReport(JsonModel):
+    """Summary report for review queue composition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_entries: int = Field(default=0, ge=0, description="Total queue entries evaluated.")
+    by_gate: dict[str, int] = Field(default_factory=dict, description="Queue counts by gate identifier.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -144,4 +162,28 @@ def summarize_feedback_trend(
         cycle_ids=[record.cycle_id for record in filtered],
         feedback_count=len(filtered),
         assay_coverage=coverage,
+    )
+
+
+def query_review_queue(
+    entries: list[ReviewQueueEntry],
+    query: ReviewQueueQuery,
+) -> list[ReviewQueueEntry]:
+    """Filter review queue entries using structured query fields."""
+    filtered = list(entries)
+    if query.program_id is not None:
+        filtered = [entry for entry in filtered if entry.program_id == query.program_id]
+    if query.gate_id is not None:
+        filtered = [entry for entry in filtered if entry.gate_id == query.gate_id]
+    return filtered
+
+
+def summarize_review_queue(entries: list[ReviewQueueEntry]) -> ReviewQueueTrendReport:
+    """Summarize review queue volume by gate identifier."""
+    by_gate: dict[str, int] = {}
+    for entry in entries:
+        by_gate[entry.gate_id] = by_gate.get(entry.gate_id, 0) + 1
+    return ReviewQueueTrendReport(
+        total_entries=len(entries),
+        by_gate=by_gate,
     )
