@@ -27,6 +27,11 @@ from bijux_proteomics_knowledge.graph import (
     EvidenceNodeType,
     build_evidence_graph,
 )
+from bijux_proteomics_knowledge.resolution import (
+    ConflictResolution,
+    ResolutionAction,
+    resolve_conflicts,
+)
 from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
     DecisionReadiness,
@@ -55,6 +60,7 @@ __all__ = [
     "AssayResultIngestionAdapter",
     "BundleTrustReport",
     "ClaimStatus",
+    "ConflictResolution",
     "DecisionReadiness",
     "DecisionLineage",
     "EvidenceClaim",
@@ -89,5 +95,7 @@ __all__ = [
     "LiteratureIngestionAdapter",
     "NormalizedEvidenceInput",
     "DocumentSchema",
+    "ResolutionAction",
+    "resolve_conflicts",
     "StructureAnnotationIngestionAdapter",
 ]
