@@ -26,22 +26,23 @@ intent, not just what happened to be touched in one diff.
 sequenceDiagram
     participant Change as change
     participant Commit as commit message
-    participant Tags as package tags
-    participant Hatch as Hatch VCS
-    participant Version as _version.py
-    participant Release as release artifact
+    participant Tag as git tag (v*)
+    participant Build as build-release-artifacts workflow
+    participant Publish as publish-<package> workflow
+    participant PyPI as PyPI package
 
     Change->>Commit: describe durable intent
-    Commit->>Tags: support package-level release history
-    Tags->>Hatch: resolve version
-    Hatch->>Version: write package version
-    Version->>Release: ship the same story in code and metadata
+    Commit->>Tag: create release tag
+    Tag->>Build: trigger package artifact build
+    Build->>Publish: stage and publish per package
+    Publish->>PyPI: ship package metadata + artifacts
 ```
 
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
 - package versions are resolved per package (Hatch VCS or explicit version)
+- publish workflows are tag-triggered (`v*`) and package-specific
 - every publishable package keeps its own `CHANGELOG.md`
 - the root `CHANGELOG.md` only records repository-wide changes that span more
   than one package or alter shared release machinery
