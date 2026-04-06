@@ -9,10 +9,14 @@ from bijux_proteomics_intelligence import (
     CandidatePortfolio,
     CandidateProposal,
     CandidateStatus,
+    CandidateTransition,
     LiabilityFlag,
     build_risk_profile,
     portfolio_status,
+    transition_candidate,
 )
+
+import pytest
 
 
 def test_build_risk_profile_rolls_liabilities_into_residual_risk() -> None:
@@ -68,3 +72,27 @@ def test_portfolio_status_counts_candidate_decisions() -> None:
 
     assert counts["prioritized"] == 1
     assert counts["rejected"] == 1
+
+
+def test_transition_candidate_enforces_lifecycle_progression() -> None:
+    transition = transition_candidate(
+        "candidate-1",
+        CandidateStatus.PROPOSED,
+        CandidateStatus.SCREENED,
+        reason="screening completed",
+    )
+
+    assert transition.candidate_id == "candidate-1"
+    assert transition.from_status is CandidateStatus.PROPOSED
+    assert transition.to_status is CandidateStatus.SCREENED
+    assert transition.reason == "screening completed"
+
+
+def test_transition_candidate_rejects_invalid_jump() -> None:
+    with pytest.raises(ValueError):
+        transition_candidate(
+            "candidate-1",
+            CandidateStatus.PROPOSED,
+            CandidateStatus.ADVANCED,
+            reason="skip directly to advancement",
+        )

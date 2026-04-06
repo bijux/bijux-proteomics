@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
@@ -115,6 +116,21 @@ class CandidateDecision(JsonModel):
     )
 
 
+class CandidateTransition(JsonModel):
+    """One audited lifecycle transition for a candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
+    from_status: CandidateStatus = Field(..., description="Previous lifecycle status.")
+    to_status: CandidateStatus = Field(..., description="New lifecycle status.")
+    reason: str = Field(..., min_length=1, description="Why the transition happened.")
+    changed_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the transition was recorded.",
+    )
+
+
 class CandidatePortfolio(JsonModel):
     """Portfolio view of candidates under one program."""
 
@@ -172,6 +188,15 @@ class PortfolioSelectionResult(JsonModel):
     )
 
 
+ALLOWED_CANDIDATE_TRANSITIONS: dict[CandidateStatus, set[CandidateStatus]] = {
+    CandidateStatus.PROPOSED: {CandidateStatus.SCREENED, CandidateStatus.REJECTED},
+    CandidateStatus.SCREENED: {CandidateStatus.PRIORITIZED, CandidateStatus.REJECTED},
+    CandidateStatus.PRIORITIZED: {CandidateStatus.ADVANCED, CandidateStatus.REJECTED},
+    CandidateStatus.ADVANCED: set(),
+    CandidateStatus.REJECTED: set(),
+}
+
+
 def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
     """Build a risk profile from an assessment."""
     developability_severity = sum(
@@ -224,6 +249,27 @@ def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
         evidence_uncertainty_risk=round(evidence_uncertainty_risk, 4),
         novelty_risk=round(novelty_risk, 4),
         residual_risk=round(residual_risk, 4),
+    )
+
+
+def transition_candidate(
+    candidate_id: str,
+    current_status: CandidateStatus,
+    next_status: CandidateStatus,
+    *,
+    reason: str,
+) -> CandidateTransition:
+    """Transition a candidate through the allowed lifecycle states."""
+    allowed = ALLOWED_CANDIDATE_TRANSITIONS.get(current_status, set())
+    if next_status not in allowed:
+        raise ValueError(
+            f"cannot move candidate from {current_status.value} to {next_status.value}"
+        )
+    return CandidateTransition(
+        candidate_id=candidate_id,
+        from_status=current_status,
+        to_status=next_status,
+        reason=reason,
     )
 
 
