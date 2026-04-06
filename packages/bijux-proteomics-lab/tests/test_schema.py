@@ -6,6 +6,7 @@ from __future__ import annotations
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_lab import (
     LabArtifactSchemaContract,
+    evaluate_lab_artifact_with_registry,
     evaluate_lab_artifact_schema_contract,
     evaluate_lab_schema_compatibility,
 )
@@ -29,3 +30,13 @@ def test_evaluate_lab_artifact_schema_contract_checks_created_by_and_version() -
     )
 
     assert report.compatible is True
+
+
+def test_evaluate_lab_artifact_with_registry_flags_unknown_kind() -> None:
+    report = evaluate_lab_artifact_with_registry(
+        DocumentSchema(schema_version="1.0.0", created_by="bijux-proteomics-lab"),
+        artifact_kind="decision-log",
+    )
+
+    assert report.compatible is False
+    assert "no schema contract registered" in report.notes[0]

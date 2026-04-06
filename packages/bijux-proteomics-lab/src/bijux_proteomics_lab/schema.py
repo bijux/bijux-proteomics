@@ -42,6 +42,17 @@ class LabArtifactSchemaContract(JsonModel):
     minimum_schema_version: str = Field(..., min_length=1, description="Minimum allowed schema version.")
 
 
+class LabSchemaContractRegistry(JsonModel):
+    """Registry of artifact contracts used in lab schema validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contracts: list[LabArtifactSchemaContract] = Field(
+        default_factory=list,
+        description="Registered artifact contracts.",
+    )
+
+
 def default_lab_schema_profile() -> LabSchemaProfile:
     """Return the default schema profile for lab artifacts."""
     return LabSchemaProfile(
@@ -96,6 +107,48 @@ def evaluate_lab_artifact_schema_contract(
     )
 
 
+def default_lab_schema_contract_registry() -> LabSchemaContractRegistry:
+    """Return a default registry for canonical lab artifacts."""
+    return LabSchemaContractRegistry(
+        contracts=[
+            LabArtifactSchemaContract(
+                artifact_kind="plan",
+                required_created_by="bijux-proteomics-lab",
+                minimum_schema_version="1.0.0",
+            ),
+            LabArtifactSchemaContract(
+                artifact_kind="outcome",
+                required_created_by="bijux-proteomics-lab",
+                minimum_schema_version="1.0.0",
+            ),
+            LabArtifactSchemaContract(
+                artifact_kind="feedback",
+                required_created_by="bijux-proteomics-lab",
+                minimum_schema_version="1.0.0",
+            ),
+        ]
+    )
+
+
+def evaluate_lab_artifact_with_registry(
+    schema: SchemaMetadata,
+    *,
+    artifact_kind: str,
+    registry: LabSchemaContractRegistry | None = None,
+) -> LabSchemaCompatibilityReport:
+    """Evaluate schema metadata by resolving artifact contract from a registry."""
+    registry = registry or default_lab_schema_contract_registry()
+    contract = next((item for item in registry.contracts if item.artifact_kind == artifact_kind), None)
+    if contract is None:
+        return LabSchemaCompatibilityReport(
+            profile_id=f"artifact:{artifact_kind}",
+            schema_version=schema.schema_version,
+            compatible=False,
+            notes=[f"no schema contract registered for artifact kind '{artifact_kind}'"],
+        )
+    return evaluate_lab_artifact_schema_contract(schema, contract=contract)
+
+
 __all__ = [
     "SchemaMetadata",
     "LabSchemaProfile",
@@ -104,4 +157,7 @@ __all__ = [
     "evaluate_lab_schema_compatibility",
     "LabArtifactSchemaContract",
     "evaluate_lab_artifact_schema_contract",
+    "LabSchemaContractRegistry",
+    "default_lab_schema_contract_registry",
+    "evaluate_lab_artifact_with_registry",
 ]

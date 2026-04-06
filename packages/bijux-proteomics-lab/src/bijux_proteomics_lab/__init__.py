@@ -62,9 +62,12 @@ from bijux_proteomics_lab.repositories import (
 from bijux_proteomics_lab.schema import (
     LabArtifactSchemaContract,
     LabSchemaCompatibilityReport,
+    LabSchemaContractRegistry,
     LabSchemaProfile,
+    default_lab_schema_contract_registry,
     default_lab_schema_profile,
     evaluate_lab_artifact_schema_contract,
+    evaluate_lab_artifact_with_registry,
     evaluate_lab_schema_compatibility,
 )
 from bijux_proteomics_lab.serialization import diff_model_payloads, fingerprint_model, to_canonical_json
@@ -206,9 +209,12 @@ __all__ = [
     "summarize_review_queue_workload",
     "LabSchemaCompatibilityReport",
     "LabArtifactSchemaContract",
+    "LabSchemaContractRegistry",
     "LabSchemaProfile",
+    "default_lab_schema_contract_registry",
     "default_lab_schema_profile",
     "evaluate_lab_artifact_schema_contract",
+    "evaluate_lab_artifact_with_registry",
     "evaluate_lab_schema_compatibility",
     "to_canonical_json",
     "fingerprint_model",
