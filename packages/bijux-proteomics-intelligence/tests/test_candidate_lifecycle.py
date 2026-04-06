@@ -41,6 +41,7 @@ def test_build_risk_profile_rolls_liabilities_into_residual_risk() -> None:
     assert profile.candidate_id == "candidate-1"
     assert profile.manufacturability_risk > 0.0
     assert profile.evidence_uncertainty_risk > 0.0
+    assert 0.0 <= profile.sequence_complexity_risk <= 1.0
     assert 0.0 <= profile.residual_risk <= 1.0
 
 

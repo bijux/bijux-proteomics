@@ -80,6 +80,12 @@ class CandidateRiskProfile(JsonModel):
         le=1.0,
         description="Risk contributed by unsupported novelty.",
     )
+    sequence_complexity_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Risk contributed by sequence-derived complexity signals.",
+    )
     residual_risk: float = Field(
         default=0.0,
         ge=0.0,
@@ -265,13 +271,28 @@ def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
         / 10.0,
         1.0,
     )
+    sequence_features = sequence_risk_signals(
+        CandidateProposal(
+            candidate_id=assessment.candidate_id,
+            program_id="derived-profile",
+            sequence=assessment.sequence,
+            origin="risk-profile",
+            rationale="derive sequence risk signals for candidate profile",
+        )
+    )
+    sequence_complexity_risk = min(
+        max(0.0, sequence_features.hydrophobic_fraction - 0.45) * 1.5
+        + max(0.0, 0.4 - sequence_features.acidic_basic_balance),
+        1.0,
+    )
     residual_risk = min(
         (
             manufacturability_risk * 0.25
             + safety_risk * 0.25
             + assay_risk * 0.15
             + evidence_uncertainty_risk * 0.2
-            + novelty_risk * 0.15
+            + novelty_risk * 0.1
+            + sequence_complexity_risk * 0.05
         ),
         1.0,
     )
@@ -283,6 +304,7 @@ def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
         assay_risk=round(assay_risk, 4),
         evidence_uncertainty_risk=round(evidence_uncertainty_risk, 4),
         novelty_risk=round(novelty_risk, 4),
+        sequence_complexity_risk=round(sequence_complexity_risk, 4),
         residual_risk=round(residual_risk, 4),
     )
 
