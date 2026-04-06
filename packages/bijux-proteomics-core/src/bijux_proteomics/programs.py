@@ -36,7 +36,13 @@ from bijux_proteomics.repositories import (
     evaluate_review_gates,
     validate_review_decision,
 )
-from bijux_proteomics.targets import ProteinTarget
+from bijux_proteomics.targets import (
+    OutcomeSeverity,
+    ProteinTarget,
+    TargetAnnotation,
+    TargetOutcome,
+    target_summary,
+)
 
 __all__ = [
     "AssayRequirement",
@@ -45,6 +51,7 @@ __all__ = [
     "LifecycleTransition",
     "MeasurementDirection",
     "OperatingModel",
+    "OutcomeSeverity",
     "ProgramContext",
     "ProgramDeliveryContext",
     "ProgramPortfolioContext",
@@ -52,6 +59,8 @@ __all__ = [
     "ProgramSpec",
     "ProgramStage",
     "ProteinTarget",
+    "TargetAnnotation",
+    "TargetOutcome",
     "ReviewGate",
     "ReviewDecision",
     "ReviewCadence",
@@ -67,4 +76,5 @@ __all__ = [
     "advance_stage",
     "allowed_next_stages",
     "program_summary",
+    "target_summary",
 ]

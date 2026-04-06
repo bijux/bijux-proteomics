@@ -58,7 +58,13 @@ from bijux_proteomics.runtime_adapter import (
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
-from bijux_proteomics.targets import ProteinTarget
+from bijux_proteomics.targets import (
+    OutcomeSeverity,
+    ProteinTarget,
+    TargetAnnotation,
+    TargetOutcome,
+    target_summary,
+)
 from bijux_proteomics.validation import (
     ProgramValidationIssue,
     validate_assay_dependencies,
@@ -77,6 +83,7 @@ __all__ = [
     "LifecycleTransition",
     "MeasurementDirection",
     "OperatingModel",
+    "OutcomeSeverity",
     "ProgramContext",
     "ProgramDeliveryContext",
     "ProgramPortfolioContext",
@@ -89,6 +96,8 @@ __all__ = [
     "ProgramValidationError",
     "ProgramValidationIssue",
     "ProteinTarget",
+    "TargetAnnotation",
+    "TargetOutcome",
     "ProteinSequence",
     "JsonModel",
     "ReviewGate",
@@ -115,6 +124,7 @@ __all__ = [
     "execute_program",
     "program_summary",
     "sequence_length",
+    "target_summary",
     "validate_review_decision",
     "validate_program",
     "validate_program_readiness",

@@ -20,7 +20,13 @@ from bijux_proteomics.operating_model import DecisionOwnerRole, OperatingModel, 
 from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
-from bijux_proteomics.targets import ProteinTarget
+from bijux_proteomics.targets import (
+    OutcomeSeverity,
+    ProteinTarget,
+    TargetAnnotation,
+    TargetOutcome,
+    target_summary,
+)
 
 
 def test_domain_modules_define_program_components() -> None:
@@ -113,6 +119,35 @@ def test_domain_modules_define_program_components() -> None:
     ]
     assert program.context.portfolio.therapeutic_area == "oncology"
     assert sequence_length(program.target.sequence) == 20
+
+
+def test_target_summary_includes_structured_annotations_and_risk_codes() -> None:
+    target = ProteinTarget(
+        target_id="target-2",
+        name="Target 2",
+        sequence=ProteinSequence(target_id="target-2", residues="ACDEFGHIKLMNPQRSTVWY"),
+        organism="human",
+        mechanism="stabilize fold",
+        blocked_outcome_records=[
+            TargetOutcome(
+                code="agg-hotspot",
+                summary="Aggregation hotspot near loop",
+                severity=OutcomeSeverity.HIGH,
+            )
+        ],
+        annotations=[
+            TargetAnnotation(
+                annotation_id="annot-1",
+                statement="conserved active site geometry",
+                evidence_ids=["ev-1", "ev-2"],
+            )
+        ],
+    )
+
+    summary = target_summary(target)
+
+    assert summary["high_risk_block_codes"] == ["agg-hotspot"]
+    assert summary["annotation_evidence_ids"] == ["ev-1", "ev-2"]
 
 
 def test_program_lifecycle_advances_between_stages() -> None:
