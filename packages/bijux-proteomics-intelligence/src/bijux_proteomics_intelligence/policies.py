@@ -194,6 +194,17 @@ class MetricCatalogAuditReport(JsonModel):
     )
 
 
+class FactorWeightValidationReport(JsonModel):
+    """Validation report for ranking factor weights."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    missing_factors: list[str] = Field(default_factory=list, description="Ranking factors missing from weight map.")
+    negative_factors: list[str] = Field(default_factory=list, description="Factors with negative weights.")
+    weight_sum: float = Field(..., description="Sum of declared factor weights.")
+    normalized: bool = Field(..., description="Whether weight sum is approximately normalized to 1.0.")
+
+
 def classify_metric_name(metric: str) -> ScientificMetricClass:
     """Classify a metric name into a typed scientific metric class."""
     lowered = metric.lower()
@@ -243,4 +254,26 @@ def audit_metric_catalog(
         missing_metric_keys=missing_keys,
         duplicate_metric_keys=duplicate_keys,
         missing_metric_classes=missing_classes,
+    )
+
+
+def validate_factor_weights(
+    policy: RankingPolicy,
+    *,
+    tolerance: float = 0.001,
+) -> FactorWeightValidationReport:
+    """Validate ranking factor weights for completeness and normalization."""
+    missing_factors = sorted(
+        factor.value for factor in RankingFactor if factor not in policy.factor_weights
+    )
+    negative_factors = sorted(
+        factor.value for factor, weight in policy.factor_weights.items() if weight < 0.0
+    )
+    weight_sum = round(sum(policy.factor_weights.values()), 6)
+    normalized = abs(weight_sum - 1.0) <= tolerance
+    return FactorWeightValidationReport(
+        missing_factors=missing_factors,
+        negative_factors=negative_factors,
+        weight_sum=weight_sum,
+        normalized=normalized,
     )

@@ -31,6 +31,7 @@ from bijux_proteomics_intelligence import (
     classify_metric_name,
     build_rejection_action_plan,
     audit_metric_catalog,
+    validate_factor_weights,
     validate_metric_catalog,
     summarize_liability_focus,
     summarize_uncertainty_pressure,
@@ -837,6 +838,21 @@ def test_audit_metric_catalog_reports_duplicates_and_missing_classes() -> None:
     assert report.missing_metric_keys == ["delta_tm"]
     assert report.duplicate_metric_keys == ["binding_kd"]
     assert "stability" in report.missing_metric_classes
+
+
+def test_validate_factor_weights_reports_normalization_and_missing_factors() -> None:
+    report = validate_factor_weights(
+        RankingPolicy(
+            policy_id="weights",
+            factor_weights={
+                RankingFactor.CRITERIA: 0.6,
+                RankingFactor.EVIDENCE: 0.3,
+            },
+        )
+    )
+
+    assert "manufacturability" in report.missing_factors
+    assert report.normalized is False
 
 
 def test_summarize_liability_focus_counts_top_blockers() -> None:

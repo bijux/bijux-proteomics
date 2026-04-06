@@ -110,6 +110,7 @@ from bijux_proteomics_intelligence.evaluators import (
 )
 from bijux_proteomics_intelligence.policies import (
     MetricCatalogAuditReport,
+    FactorWeightValidationReport,
     MetricDefinition,
     MetricDirection,
     RankingFactor,
@@ -118,6 +119,7 @@ from bijux_proteomics_intelligence.policies import (
     TieBreakRule,
     classify_metric_name,
     audit_metric_catalog,
+    validate_factor_weights,
     validate_metric_catalog,
 )
 from bijux_proteomics_intelligence.policies import (
@@ -173,6 +175,7 @@ __all__ = [
     "JsonModel",
     "LiabilityFlag",
     "MetricCatalogAuditReport",
+    "FactorWeightValidationReport",
     "MetricDefinition",
     "MetricDirection",
     "OptimizationAxis",
@@ -250,5 +253,6 @@ __all__ = [
     "transition_candidate",
     "classify_metric_name",
     "audit_metric_catalog",
+    "validate_factor_weights",
     "validate_metric_catalog",
 ]
