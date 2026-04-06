@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from bijux_proteomics_knowledge import (
     aging_records,
     assess_decision_readiness,
+    assess_context_compatibility,
     attach_manual_notes,
     BundleFreshnessReport,
     ConflictPolicy,
@@ -486,6 +487,31 @@ def test_decompose_evidence_quality_derives_confidence_components() -> None:
     assert quality.reproducibility >= 0.9
     assert quality.context_relevance == 0.9
     assert 0.0 <= quality.derived_confidence <= 1.0
+
+
+def test_assess_context_compatibility_flags_species_and_system_mismatch() -> None:
+    record = EvidenceRecord(
+        evidence_id="ctx-1",
+        kind=EvidenceKind.ASSAY,
+        title="context test",
+        source="lab",
+        claim="Context mismatch candidate signal.",
+        confidence=0.7,
+        strength=EvidenceStrength.SUPPORTING,
+        species="mouse",
+        biological_system="NIH3T3",
+        sample_type="plasma",
+    )
+
+    report = assess_context_compatibility(
+        record,
+        expected_species="human",
+        expected_system="HEK293",
+        expected_sample_type="cell lysate",
+    )
+
+    assert report.score < 1.0
+    assert any("species context" in note for note in report.notes)
 
 
 def test_attach_manual_notes_creates_curated_evidence_records() -> None:

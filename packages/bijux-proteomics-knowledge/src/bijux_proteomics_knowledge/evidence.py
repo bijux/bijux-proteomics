@@ -394,6 +394,16 @@ class EvidenceQualityDecomposition(JsonModel):
     derived_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence derived from dimensions.")
 
 
+class ContextCompatibilityReport(JsonModel):
+    """Compatibility of one evidence record with target biological context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
+    score: float = Field(..., ge=0.0, le=1.0, description="Context compatibility score.")
+    notes: list[str] = Field(default_factory=list, description="Context compatibility notes.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -450,6 +460,37 @@ def decompose_evidence_quality(
         source_credibility=round(source_credibility, 4),
         recency=round(recency, 4),
         derived_confidence=derived_confidence,
+    )
+
+
+def assess_context_compatibility(
+    record: EvidenceRecord,
+    *,
+    expected_species: str | None = None,
+    expected_system: str | None = None,
+    expected_sample_type: str | None = None,
+) -> ContextCompatibilityReport:
+    """Assess how well evidence context matches expected program biology."""
+    notes: list[str] = []
+    score = 1.0
+    if expected_species is not None:
+        if (record.species or "").lower() != expected_species.lower():
+            score -= 0.25
+            notes.append("species context does not match expected program species")
+    if expected_system is not None:
+        if (record.biological_system or "").lower() != expected_system.lower():
+            score -= 0.25
+            notes.append("biological system context does not match expected system")
+    if expected_sample_type is not None:
+        if (record.sample_type or "").lower() != expected_sample_type.lower():
+            score -= 0.2
+            notes.append("sample type context does not match expected sample type")
+    if not notes:
+        notes.append("evidence context matches expected biology")
+    return ContextCompatibilityReport(
+        evidence_id=record.evidence_id,
+        score=max(0.0, round(score, 4)),
+        notes=notes,
     )
 
 
