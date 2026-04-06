@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Protocol
 
 from pydantic import ConfigDict, Field
@@ -40,3 +41,36 @@ class ReviewQueueRepository(Protocol):
 
     def list_review_queue(self, program_id: str) -> list[ReviewQueueEntry]:
         """List queued review entries for a program."""
+
+
+class LabFeedbackRecord(JsonModel):
+    """Structured bridge from lab outcomes back into program decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    feedback_id: str = Field(..., min_length=1, description="Stable feedback identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    cycle_id: str = Field(..., min_length=1, description="Planning or execution cycle identifier.")
+    summary: str = Field(..., min_length=1, description="Feedback summary.")
+    related_assay_ids: list[str] = Field(
+        default_factory=list,
+        description="Assays that produced this feedback.",
+    )
+    related_evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence records promoted from this feedback.",
+    )
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the feedback record was created.",
+    )
+
+
+class LabFeedbackRepository(Protocol):
+    """Persistence contract for closed-loop feedback records."""
+
+    def save_feedback_record(self, record: LabFeedbackRecord) -> None:
+        """Persist one feedback record."""
+
+    def list_feedback_records(self, program_id: str) -> list[LabFeedbackRecord]:
+        """List feedback records for a program."""

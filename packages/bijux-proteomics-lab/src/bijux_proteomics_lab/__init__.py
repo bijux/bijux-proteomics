@@ -21,6 +21,8 @@ from bijux_proteomics_lab.outcomes import (
 )
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
+    LabFeedbackRecord,
+    LabFeedbackRepository,
     ReviewQueueEntry,
     ReviewQueueRepository,
 )
@@ -68,6 +70,8 @@ __all__ = [
     "ExperimentPlan",
     "FailureClass",
     "JsonModel",
+    "LabFeedbackRecord",
+    "LabFeedbackRepository",
     "LabCapacity",
     "MaterialConstraintReport",
     "MaterialInventory",

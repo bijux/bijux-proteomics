@@ -14,6 +14,7 @@ from bijux_proteomics_lab import (
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
+    LabFeedbackRecord,
     promote_outcome_to_evidence,
     recommend_rerun_policy,
 )
@@ -75,3 +76,17 @@ def test_promote_outcome_to_evidence_builds_normalized_payload() -> None:
     assert payload.kind.value == "assay"
     assert payload.source_type.value == "lab_assay"
     assert payload.related_targets == ["target-1"]
+
+
+def test_lab_feedback_record_keeps_cycle_and_lineage_refs() -> None:
+    record = LabFeedbackRecord(
+        feedback_id="feedback-1",
+        program_id="prog-1",
+        cycle_id="cycle-2026-01",
+        summary="assay run indicates progression risk",
+        related_assay_ids=["binding-assay"],
+        related_evidence_ids=["assay:batch-1:binding-assay"],
+    )
+
+    assert record.cycle_id == "cycle-2026-01"
+    assert record.related_evidence_ids == ["assay:batch-1:binding-assay"]
