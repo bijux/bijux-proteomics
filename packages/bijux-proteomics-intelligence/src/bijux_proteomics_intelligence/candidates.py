@@ -289,6 +289,18 @@ class MutationBurdenSignals(JsonModel):
     burden_risk_index: float = Field(..., ge=0.0, le=1.0, description="Normalized mutation burden risk index.")
 
 
+class MutationRiskSummary(JsonModel):
+    """Risk summary for mutation annotations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    conserved_site_count: int = Field(..., ge=0, description="Mutations at conserved sites.")
+    region_diversity: int = Field(..., ge=0, description="Distinct regions affected.")
+    high_risk: bool = Field(..., description="Whether mutation risk is elevated.")
+    notes: list[str] = Field(default_factory=list, description="Risk interpretation notes.")
+
+
 class PortfolioRiskSummary(JsonModel):
     """Portfolio-level summary of candidate risk concentration."""
 
@@ -665,6 +677,23 @@ def summarize_variant_context(
         affected_regions=regions,
         elevated_conservation_risk=elevated_conservation_risk,
         mechanistic_hypotheses=hypotheses,
+    )
+
+
+def summarize_mutation_risk(context: CandidateVariantContext) -> MutationRiskSummary:
+    """Summarize mutation risk from variant context annotations."""
+    conserved_count = sum(
+        1 for mutation in context.mutations if mutation.conservation_score is not None and mutation.conservation_score >= 0.8
+    )
+    region_diversity = len(context.affected_regions)
+    high_risk = conserved_count > 0 and region_diversity >= 2
+    notes = ["mutation risk is elevated"] if high_risk else ["mutation risk is manageable"]
+    return MutationRiskSummary(
+        candidate_id=context.candidate_id,
+        conserved_site_count=conserved_count,
+        region_diversity=region_diversity,
+        high_risk=high_risk,
+        notes=notes,
     )
 
 

@@ -36,6 +36,7 @@ from bijux_proteomics_intelligence import (
     sequence_risk_signals,
     select_pareto_candidates,
     summarize_variant_context,
+    summarize_mutation_risk,
     summarize_candidate_lifecycle,
     transition_candidate,
 )
@@ -246,6 +247,21 @@ def test_summarize_variant_context_groups_regions_and_conservation_risk() -> Non
     assert isinstance(context, CandidateVariantContext)
     assert context.affected_regions == ["activation-loop", "allosteric-site"]
     assert context.elevated_conservation_risk is True
+
+
+def test_summarize_mutation_risk_flags_multi_region_conserved_risk() -> None:
+    context = summarize_variant_context(
+        "candidate-risk",
+        [
+            MutationAnnotation(mutation="A101V", region="core", expected_effect="stabilize", conservation_score=0.9),
+            MutationAnnotation(mutation="G205S", region="loop", expected_effect="tune", conservation_score=0.85),
+        ],
+    )
+
+    risk = summarize_mutation_risk(context)
+
+    assert risk.high_risk is True
+    assert risk.conserved_site_count == 2
     assert context.mechanistic_hypotheses == [
         "reduce off-target family engagement",
         "stabilize active conformation",
