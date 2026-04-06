@@ -147,6 +147,14 @@ fragments = [
 # --8<-- [start:deptry]
 [tool.deptry]
 ignore = ["DEP002", "DEP003"]
+known_first_party = [
+  "agentic_proteins",
+  "bijux_proteomics_foundation",
+  "bijux_proteomics",
+  "bijux_proteomics_intelligence",
+  "bijux_proteomics_knowledge",
+  "bijux_proteomics_lab",
+]
 
 [tool.deptry.package_module_name_map]
 "langchain-core" = ["langchain_core"]
