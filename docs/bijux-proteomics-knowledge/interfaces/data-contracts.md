@@ -16,59 +16,40 @@ This page keeps data shape changes reviewable. If a record or payload matters to
 another package, another process, or a replay path, it deserves to be described
 as a contract rather than left implicit in implementation details.
 
-Treat the interfaces pages for `bijux-proteomics-knowledge` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
-
 ## Visual Summary
 
 ```mermaid
 flowchart RL
-    page["Data Contracts<br/>clarifies: identify contracts | see caller impact | review compatibility"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["knowledge contracts in src/bijux_proteomics_knowledge/schema.py"]
-    surface1 --> page
-    surface2["CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py"]
-    surface2 --> page
-    surface3["HTTP app in src/bijux_proteomics_knowledge/claims.py"]
-    surface3 --> page
-    proof1["execution store records"]
-    page --> proof1
-    proof2["src/bijux_proteomics_knowledge/schema.py"]
-    page --> proof2
-    proof3["src/bijux_proteomics_knowledge/schema.py"]
-    page --> proof3
-    review1["tests/e2e for governed flow behavior"]
-    review1 -.raises compatibility pressure on.-> page
-    review2["tests/regression and tests/smoke for replay and storage protection"]
-    review2 -.raises compatibility pressure on.-> page
-    review3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    review3 -.raises compatibility pressure on.-> page
-    class page page;
-    class surface1,surface2,surface3 positive;
-    class proof1,proof2,proof3 anchor;
-    class review1,review2,review3 caution;
+    schema["schema.py: compatibility reports and schema profile"]
+    serialization["serialization.py: canonical json + fingerprints"]
+    evidence["evidence.py: evidence bundle and record shapes"]
+    claims["claims.py: claim and lineage shapes"]
+    resolution["resolution.py: conflict resolution shapes"]
+    schema --> serialization
+    evidence --> claims --> resolution
+    schema --> evidence
 ```
 
 ## Contract Anchors
 
-- src/bijux_proteomics_knowledge/schema.py
-- src/bijux_proteomics_knowledge/schema.py
+- `src/bijux_proteomics_knowledge/schema.py`
+- `src/bijux_proteomics_knowledge/serialization.py`
+- `src/bijux_proteomics_knowledge/evidence.py`
+- `src/bijux_proteomics_knowledge/claims.py`
+- `src/bijux_proteomics_knowledge/resolution.py`
 
 ## Artifact Anchors
 
-- execution store records
-- replay decision artifacts
-- non-determinism policy evaluations
+- evidence bundles
+- decision lineage views
+- conflict-resolution summaries
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py
-- HTTP app in src/bijux_proteomics_knowledge/claims.py
-- knowledge contracts in src/bijux_proteomics_knowledge/schema.py
-- src/bijux_proteomics_knowledge/schema.py
+- `src/bijux_proteomics_knowledge/schema.py`
+- `src/bijux_proteomics_knowledge/serialization.py`
+- `packages/bijux-proteomics-knowledge/tests/test_schema.py`
+- `packages/bijux-proteomics-knowledge/tests/test_serialization.py`
 
 ## Use This Page When
 
