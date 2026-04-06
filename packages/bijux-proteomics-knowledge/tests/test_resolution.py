@@ -92,6 +92,43 @@ def test_resolve_conflicts_requires_curation_when_confidence_gap_is_small() -> N
     assert resolutions[0].action is ResolutionAction.REQUIRE_CURATION
 
 
+def test_resolve_conflicts_holds_high_severity_conflicts() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-hold",
+        target_id="target-hold",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="Assay positive",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://run-1",
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-2",
+                kind=EvidenceKind.ASSAY,
+                title="Assay negative",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://run-1",
+                claim="Candidate misses the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    _, resolutions = resolve_conflicts(bundle)
+
+    assert resolutions[0].action is ResolutionAction.HOLD_DECISION
+
+
 def test_claim_resolution_record_captures_resolution_history() -> None:
     _, resolutions = resolve_conflicts(
         EvidenceBundle(

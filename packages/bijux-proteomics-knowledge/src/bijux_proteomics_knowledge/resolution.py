@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
@@ -14,6 +15,7 @@ from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
     EvidenceBundle,
     EvidenceConflict,
+    EvidenceRecord,
     compute_bundle_trust,
 )
 
@@ -49,6 +51,20 @@ class ResolutionPolicy(JsonModel):
         le=1.0,
         description="Minimum confidence gap required to auto-accept one side.",
     )
+    source_precedence: dict[EvidenceSourceType, float] = Field(
+        default_factory=lambda: {
+            EvidenceSourceType.LAB_ASSAY: 1.0,
+            EvidenceSourceType.LITERATURE: 0.9,
+            EvidenceSourceType.EXTERNAL_DATABASE: 0.8,
+            EvidenceSourceType.STRUCTURE_MODEL: 0.75,
+            EvidenceSourceType.CURATED_NOTE: 0.7,
+        },
+        description="Multiplier applied by source type before comparing conflict sides.",
+    )
+    high_severity_requires_hold: bool = Field(
+        default=True,
+        description="Whether high-severity conflicts should avoid automatic acceptance.",
+    )
 
 
 def resolve_conflicts(
@@ -60,9 +76,23 @@ def resolve_conflicts(
     policy = policy or ResolutionPolicy(policy_id="default-resolution-policy")
     trust = compute_bundle_trust(bundle)
     resolutions: list[ConflictResolution] = []
+    now = datetime.now(UTC)
     for conflict in trust.conflicts:
         left = next(record for record in bundle.records if record.evidence_id == conflict.left_evidence_id)
         right = next(record for record in bundle.records if record.evidence_id == conflict.right_evidence_id)
+        left_weighted = _resolution_score(left, policy, now=now)
+        right_weighted = _resolution_score(right, policy, now=now)
+        confidence_gap = abs(left_weighted - right_weighted)
+        if policy.high_severity_requires_hold and conflict.severity == "high":
+            resolutions.append(
+                ConflictResolution(
+                    left_evidence_id=left.evidence_id,
+                    right_evidence_id=right.evidence_id,
+                    action=ResolutionAction.HOLD_DECISION,
+                    rationale="high-severity conflict requires curator adjudication before progression",
+                )
+            )
+            continue
         if left.source_type is right.source_type and left.confidence == right.confidence:
             resolutions.append(
                 ConflictResolution(
@@ -72,22 +102,22 @@ def resolve_conflicts(
                     rationale="records have similar trust; a curator should resolve the conflict",
                 )
             )
-        elif (left.confidence - right.confidence) >= policy.minimum_confidence_delta_for_auto_accept:
+        elif (left_weighted - right_weighted) >= policy.minimum_confidence_delta_for_auto_accept:
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
                     right_evidence_id=right.evidence_id,
                     action=ResolutionAction.ACCEPT_HIGHER_TRUST,
-                    rationale=f"{left.evidence_id} carries the stronger confidence signal",
+                    rationale=f"{left.evidence_id} carries the stronger weighted trust signal",
                 )
             )
-        elif (right.confidence - left.confidence) >= policy.minimum_confidence_delta_for_auto_accept:
+        elif (right_weighted - left_weighted) >= policy.minimum_confidence_delta_for_auto_accept:
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
                     right_evidence_id=right.evidence_id,
                     action=ResolutionAction.ACCEPT_HIGHER_TRUST,
-                    rationale=f"{right.evidence_id} carries the stronger confidence signal",
+                    rationale=f"{right.evidence_id} carries the stronger weighted trust signal",
                 )
             )
         else:
@@ -96,7 +126,7 @@ def resolve_conflicts(
                     left_evidence_id=left.evidence_id,
                     right_evidence_id=right.evidence_id,
                     action=ResolutionAction.REQUIRE_CURATION,
-                    rationale="confidence separation is too small for automatic acceptance",
+                    rationale=f"weighted trust separation ({confidence_gap:.2f}) is too small for automatic acceptance",
                 )
             )
     if trust.conflicts and not resolutions:
@@ -109,3 +139,10 @@ def resolve_conflicts(
             )
         )
     return trust, resolutions
+
+
+def _resolution_score(record: EvidenceRecord, policy: ResolutionPolicy, *, now: datetime) -> float:
+    source_weight = policy.source_precedence.get(record.source_type, 0.7)
+    age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
+    recency_multiplier = 1.0 if age_days <= 30 else 0.9
+    return round(record.confidence * source_weight * recency_multiplier, 4)
