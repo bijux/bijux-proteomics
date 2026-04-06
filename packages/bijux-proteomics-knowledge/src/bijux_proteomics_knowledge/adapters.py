@@ -68,6 +68,15 @@ class NormalizedEvidenceInput(JsonModel):
     species: str | None = Field(default=None, description="Species context.")
     sample_type: str | None = Field(default=None, description="Sample or matrix type.")
     endpoint: str | None = Field(default=None, description="Primary measured endpoint.")
+    dose: str | None = Field(default=None, description="Dose level or concentration context.")
+    timepoint: str | None = Field(default=None, description="Measurement timepoint context.")
+    perturbation: str | None = Field(default=None, description="Perturbation applied in the experiment.")
+    control_design: str | None = Field(default=None, description="Control arm design.")
+    replicate_design: str | None = Field(default=None, description="Replicate strategy used for the experiment.")
+    normalization_method: str | None = Field(default=None, description="Normalization method for quantitative values.")
+    sample_preparation: str | None = Field(default=None, description="Sample preparation protocol.")
+    tissue_context: str | None = Field(default=None, description="Tissue context when relevant.")
+    cell_line_context: str | None = Field(default=None, description="Cell line context when relevant.")
     quantitative_support: QuantitativeSupport | None = Field(
         default=None,
         description="Optional quantitative support for the claim.",
@@ -103,6 +112,10 @@ class ManualEvidenceNote(JsonModel):
         default=None,
         description="Species context referenced by the note.",
     )
+    sample_type: str | None = Field(default=None, description="Sample context referenced by the note.")
+    endpoint: str | None = Field(default=None, description="Primary endpoint referenced by the note.")
+    dose: str | None = Field(default=None, description="Dose context referenced by the note.")
+    timepoint: str | None = Field(default=None, description="Timepoint context referenced by the note.")
 
 
 class LiteratureIngestionAdapter(Protocol):
@@ -177,6 +190,15 @@ def attach_evidence_inputs(
                 species=item.species,
                 sample_type=item.sample_type,
                 endpoint=item.endpoint,
+                dose=item.dose,
+                timepoint=item.timepoint,
+                perturbation=item.perturbation,
+                control_design=item.control_design,
+                replicate_design=item.replicate_design,
+                normalization_method=item.normalization_method,
+                sample_preparation=item.sample_preparation,
+                tissue_context=item.tissue_context,
+                cell_line_context=item.cell_line_context,
                 quantitative_support=item.quantitative_support,
                 confidence=item.confidence,
                 strength=item.strength,
@@ -210,6 +232,10 @@ def attach_manual_notes(
                 extraction_method=EvidenceExtractionMethod.MANUAL_CURATION,
                 biological_system=note.biological_system,
                 species=note.species,
+                sample_type=note.sample_type,
+                endpoint=note.endpoint,
+                dose=note.dose,
+                timepoint=note.timepoint,
             )
             for note in notes
         ],

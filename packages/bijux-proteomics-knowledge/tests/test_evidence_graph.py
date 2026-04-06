@@ -118,6 +118,15 @@ def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
                 species="human",
                 sample_type="cell lysate",
                 endpoint="fold_confidence",
+                dose="0.5 uM",
+                timepoint="6 h",
+                perturbation="compound treatment",
+                control_design="vehicle control",
+                replicate_design="3 biological replicates",
+                normalization_method="median normalization",
+                sample_preparation="S-trap digestion",
+                tissue_context="liver",
+                cell_line_context="HEK293",
                 quantitative_support=QuantitativeSupport(
                     effect_size=1.4,
                     p_value=0.01,
@@ -132,6 +141,8 @@ def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
     assert len(updated.records) == 1
     assert updated.records[0].source_type is EvidenceSourceType.STRUCTURE_MODEL
     assert updated.records[0].quantitative_support is not None
+    assert updated.records[0].timepoint == "6 h"
+    assert updated.records[0].normalization_method == "median normalization"
 
 
 def test_ingest_inputs_with_report_tracks_duplicates() -> None:
