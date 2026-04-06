@@ -275,6 +275,16 @@ class ScheduledPlan(JsonModel):
     )
 
 
+class NextAssayPriority(JsonModel):
+    """Priority score for selecting the next assay based on information gain."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    score: float = Field(..., description="Priority score.")
+    reasons: list[str] = Field(default_factory=list, description="Short rationale points.")
+
+
 def dependency_order(
     assay_ids: list[AssayId],
     dependencies: list[AssayDependency],
@@ -534,3 +544,37 @@ def schedule_with_family_capacity(
         scheduled_batches=scheduled_batches,
         unscheduled_batches=unscheduled_batches,
     )
+
+
+def prioritize_next_assays(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+) -> list[NextAssayPriority]:
+    """Rank pending assays by expected information gain and decision impact."""
+    observed_ids = {observation.assay_id for observation in observations}
+    trust = compute_bundle_trust(bundle)
+    readiness = assess_decision_readiness(bundle, [need.value for need in program.evidence_needs])
+    ranked: list[NextAssayPriority] = []
+    for assay in program.assay_panel:
+        if assay.assay_id in observed_ids:
+            continue
+        score = 0.5
+        reasons: list[str] = []
+        if assay.blocking:
+            score += 0.3
+            reasons.append("blocking assay with direct gate impact")
+        if not readiness.ready:
+            score += 0.1
+            reasons.append("program is not decision-ready")
+        if trust.trust_score < 0.7:
+            score += 0.1
+            reasons.append("evidence trust is below target")
+        ranked.append(
+            NextAssayPriority(
+                assay_id=assay.assay_id,
+                score=round(min(score, 1.0), 4),
+                reasons=reasons or ["assay reduces residual uncertainty"],
+            )
+        )
+    return sorted(ranked, key=lambda item: item.score, reverse=True)

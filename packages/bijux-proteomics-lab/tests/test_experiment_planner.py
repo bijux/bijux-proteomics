@@ -22,6 +22,7 @@ from bijux_proteomics_lab import (
     assess_material_constraints,
     build_review_packet,
     plan_experiment_batches,
+    prioritize_next_assays,
     recommend_next_cycle,
     schedule_experiment_plan,
     schedule_with_family_capacity,
@@ -397,3 +398,43 @@ def test_experiment_plan_round_trips_with_serialization_helpers(tmp_path: Path) 
     restored = ExperimentPlan.load_json(path)
 
     assert restored.to_dict()["document_schema"]["trace_id"] == "trace-lab-1"
+
+
+def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
+    program = create_program_spec(
+        program_id="prog-priority",
+        name="priority model",
+        objective="rank next assays by information gain",
+        target_id="target-priority",
+        target_name="Target Priority",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="drive next experiment selection by decision impact",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(
+                assay_id="a-block",
+                purpose="blocking readout",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            ),
+            AssayRequirement(
+                assay_id="a-support",
+                purpose="supporting readout",
+                readout="yield",
+                sample_kind="expression",
+                blocking=False,
+            ),
+        ]
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-priority", target_id="target-priority")
+
+    ranked = prioritize_next_assays(
+        program,
+        bundle,
+        [AssayObservation(assay_id="a-support", metric="yield", value=1.0, passed=True)],
+    )
+
+    assert ranked[0].assay_id == "a-block"

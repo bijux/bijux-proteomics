@@ -42,6 +42,7 @@ from bijux_proteomics_lab.planning import (
     MaterialConstraintReport,
     MaterialInventory,
     MaterialRequirement,
+    NextAssayPriority,
     ProgressDecision,
     ReviewPacket,
     ScheduledBatch,
@@ -52,6 +53,7 @@ from bijux_proteomics_lab.planning import (
     recommend_next_cycle,
     schedule_experiment_plan,
     schedule_with_family_capacity,
+    prioritize_next_assays,
 )
 
 __all__ = [
@@ -81,6 +83,7 @@ __all__ = [
     "MaterialConstraintReport",
     "MaterialInventory",
     "MaterialRequirement",
+    "NextAssayPriority",
     "ProgressDecision",
     "RerunPolicy",
     "ReviewQueueEntry",
@@ -98,4 +101,5 @@ __all__ = [
     "recommend_rerun_policy",
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
+    "prioritize_next_assays",
 ]
