@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import UTC, datetime
+from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
@@ -87,3 +88,25 @@ class DocumentSchema(JsonModel):
         stable = json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
         digest = hashlib.sha256(stable.encode("utf-8")).hexdigest()
         return self.model_copy(update={"content_hash": digest})
+
+
+class SchemaCompatibility(StrEnum):
+    """Compatibility status for expected versus observed schema versions."""
+
+    COMPATIBLE = "compatible"
+    FORWARD_INCOMPATIBLE = "forward_incompatible"
+    BACKWARD_INCOMPATIBLE = "backward_incompatible"
+
+
+def assess_schema_compatibility(
+    observed: str,
+    expected: str,
+) -> SchemaCompatibility:
+    """Assess compatibility using major/minor version semantics."""
+    observed_major, observed_minor, *_ = [int(part) for part in observed.split(".")]
+    expected_major, expected_minor, *_ = [int(part) for part in expected.split(".")]
+    if observed_major != expected_major:
+        return SchemaCompatibility.BACKWARD_INCOMPATIBLE
+    if observed_minor < expected_minor:
+        return SchemaCompatibility.FORWARD_INCOMPATIBLE
+    return SchemaCompatibility.COMPATIBLE

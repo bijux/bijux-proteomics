@@ -9,6 +9,7 @@ import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from bijux_proteomics_foundation import (
+    SchemaCompatibility,
     ContractConflictError,
     ContractNotFoundError,
     ContractValidationError,
@@ -16,6 +17,7 @@ from bijux_proteomics_foundation import (
     FoundationContractError,
     JsonModel,
     ProgramId,
+    assess_schema_compatibility,
 )
 
 
@@ -98,3 +100,9 @@ def test_foundation_contract_errors_share_common_base() -> None:
     assert issubclass(ContractValidationError, FoundationContractError)
     assert issubclass(ContractNotFoundError, FoundationContractError)
     assert issubclass(ContractConflictError, FoundationContractError)
+
+
+def test_assess_schema_compatibility_uses_major_minor_semantics() -> None:
+    assert assess_schema_compatibility("1.2.0", "1.1.0") is SchemaCompatibility.COMPATIBLE
+    assert assess_schema_compatibility("1.0.0", "1.1.0") is SchemaCompatibility.FORWARD_INCOMPATIBLE
+    assert assess_schema_compatibility("2.0.0", "1.9.0") is SchemaCompatibility.BACKWARD_INCOMPATIBLE

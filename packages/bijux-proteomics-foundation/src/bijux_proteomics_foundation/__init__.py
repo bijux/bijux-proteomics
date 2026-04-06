@@ -21,7 +21,11 @@ from bijux_proteomics_foundation.ids import (
     ProgramId,
     TargetId,
 )
-from bijux_proteomics_foundation.schema import DocumentSchema
+from bijux_proteomics_foundation.schema import (
+    DocumentSchema,
+    SchemaCompatibility,
+    assess_schema_compatibility,
+)
 from bijux_proteomics_foundation.serialization import JsonModel
 
 __all__ = [
@@ -33,6 +37,8 @@ __all__ = [
     "ContractNotFoundError",
     "ContractValidationError",
     "DocumentSchema",
+    "SchemaCompatibility",
+    "assess_schema_compatibility",
     "EvidenceId",
     "FoundationContractError",
     "GateId",
