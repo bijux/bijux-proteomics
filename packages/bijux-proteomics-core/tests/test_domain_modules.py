@@ -23,8 +23,14 @@ from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
 from bijux_proteomics.targets import (
+    ComplexMembership,
+    MechanismLiability,
     OutcomeSeverity,
+    ProteinDomain,
+    ProteinMotif,
     ProteinTarget,
+    PtmHotspot,
+    TractabilityFlag,
     TargetAnnotation,
     TargetOutcome,
     target_summary,
@@ -165,12 +171,22 @@ def test_target_summary_includes_target_class_and_isoform_context() -> None:
         subcellular_localization="cytosol",
         isoforms=["iso-1", "iso-2"],
         pathway_roles=["MAPK signaling"],
+        domains=[ProteinDomain(domain_id="d1", name="Kinase", start=1, end=100)],
+        motifs=[ProteinMotif(motif_id="m1", name="H-loop", pattern="HRD", start=50)],
+        ptm_hotspots=[PtmHotspot(site="S42", modification="phosphorylation")],
+        complex_memberships=[ComplexMembership(complex_id="cx-1", role="catalytic core")],
+        tractability_flags=[TractabilityFlag(code="tractable", summary="known binders")],
+        mechanism_liabilities=[
+            MechanismLiability(liability_id="liab-1", summary="allosteric risk", severity=OutcomeSeverity.HIGH)
+        ],
     )
 
     summary = target_summary(target)
 
     assert summary["target_class"] == "enzyme"
     assert summary["isoform_count"] == 2
+    assert summary["domain_count"] == 1
+    assert summary["tractability_flag_count"] == 1
 
 
 def test_program_liability_supports_blocker_fields() -> None:

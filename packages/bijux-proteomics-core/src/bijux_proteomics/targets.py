@@ -50,6 +50,80 @@ class TargetAnnotation(BaseModel):
     )
 
 
+class ProteinDomain(BaseModel):
+    """Structured domain annotation for the target."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    domain_id: str = Field(..., min_length=1, description="Stable domain identifier.")
+    name: str = Field(..., min_length=1, description="Domain name.")
+    start: int = Field(..., ge=1, description="Start residue (1-based).")
+    end: int = Field(..., ge=1, description="End residue (1-based).")
+
+
+class ProteinMotif(BaseModel):
+    """Motif annotation for the target sequence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    motif_id: str = Field(..., min_length=1, description="Stable motif identifier.")
+    name: str = Field(..., min_length=1, description="Motif name.")
+    pattern: str = Field(..., min_length=1, description="Motif sequence pattern.")
+    start: int | None = Field(default=None, ge=1, description="Optional motif start residue.")
+
+
+class PtmHotspot(BaseModel):
+    """Post-translational modification hotspot metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site: str = Field(..., min_length=1, description="PTM site label such as S123.")
+    modification: str = Field(..., min_length=1, description="Modification type.")
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers supporting the hotspot.",
+    )
+
+
+class ComplexMembership(BaseModel):
+    """Complex membership annotation for the target."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    complex_id: str = Field(..., min_length=1, description="Complex identifier.")
+    role: str = Field(..., min_length=1, description="Role of the target in the complex.")
+
+
+class TractabilityFlag(BaseModel):
+    """Tractability signals for the target."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, description="Stable tractability flag code.")
+    summary: str = Field(..., min_length=1, description="Tractability summary.")
+    severity: OutcomeSeverity = Field(
+        default=OutcomeSeverity.MEDIUM,
+        description="How strongly the flag impacts tractability.",
+    )
+
+
+class MechanismLiability(BaseModel):
+    """Mechanism-specific liability attached to the target."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    liability_id: str = Field(..., min_length=1, description="Stable liability identifier.")
+    summary: str = Field(..., min_length=1, description="Liability summary.")
+    severity: OutcomeSeverity = Field(
+        default=OutcomeSeverity.MEDIUM,
+        description="Severity of the liability.",
+    )
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers supporting the liability.",
+    )
+
+
 class ProteinTarget(BaseModel):
     """Target definition for a discovery or engineering program."""
 
@@ -73,6 +147,34 @@ class ProteinTarget(BaseModel):
     isoforms: list[str] = Field(
         default_factory=list,
         description="Known isoform identifiers relevant to this program.",
+    )
+    domains: list[ProteinDomain] = Field(
+        default_factory=list,
+        description="Structured domain annotations.",
+    )
+    motifs: list[ProteinMotif] = Field(
+        default_factory=list,
+        description="Motif annotations on the target sequence.",
+    )
+    ptm_hotspots: list[PtmHotspot] = Field(
+        default_factory=list,
+        description="PTM hotspot annotations.",
+    )
+    paralog_family: str | None = Field(
+        default=None,
+        description="Paralog or family context for the target.",
+    )
+    complex_memberships: list[ComplexMembership] = Field(
+        default_factory=list,
+        description="Known complex memberships for the target.",
+    )
+    tractability_flags: list[TractabilityFlag] = Field(
+        default_factory=list,
+        description="Tractability flags that affect program risk.",
+    )
+    mechanism_liabilities: list[MechanismLiability] = Field(
+        default_factory=list,
+        description="Mechanism-specific liabilities for the target.",
     )
     pathway_roles: list[str] = Field(
         default_factory=list,
@@ -120,6 +222,12 @@ def target_summary(target: ProteinTarget) -> dict[str, object]:
         "target_class": target.target_class,
         "subcellular_localization": target.subcellular_localization,
         "isoform_count": len(target.isoforms),
+        "domain_count": len(target.domains),
+        "motif_count": len(target.motifs),
+        "ptm_hotspot_count": len(target.ptm_hotspots),
+        "complex_membership_count": len(target.complex_memberships),
+        "tractability_flag_count": len(target.tractability_flags),
+        "mechanism_liability_count": len(target.mechanism_liabilities),
         "pathway_role_count": len(target.pathway_roles),
         "blocked_outcomes": len(target.blocked_outcomes)
         + len(target.blocked_outcome_records),
