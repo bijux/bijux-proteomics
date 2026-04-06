@@ -174,6 +174,19 @@ class AssayObservationRecord(JsonModel):
     )
 
 
+class ExperimentOutcomeSummary(JsonModel):
+    """Compact summary of experiment outcomes by result state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    total_assays: int = Field(..., ge=0, description="Total assay outcomes in the batch.")
+    passed_count: int = Field(..., ge=0, description="Count of passed assays.")
+    failed_biological_count: int = Field(..., ge=0, description="Count of biological failures.")
+    failed_technical_count: int = Field(..., ge=0, description="Count of technical failures.")
+    inconclusive_count: int = Field(..., ge=0, description="Count of inconclusive results.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -290,4 +303,20 @@ def promote_outcome_to_evidence(
         decision_tags=decision_tags,
         confidence=round(confidence, 4),
         strength=EvidenceStrength.DECISIVE if outcome.passed else EvidenceStrength.EXPLORATORY,
+    )
+
+
+def summarize_experiment_outcome(outcome: ExperimentOutcome) -> ExperimentOutcomeSummary:
+    """Summarize one experiment outcome into normalized state counts."""
+    return ExperimentOutcomeSummary(
+        batch_id=outcome.batch_id,
+        total_assays=len(outcome.assay_outcomes),
+        passed_count=sum(1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.PASSED),
+        failed_biological_count=sum(
+            1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.FAILED_BIOLOGICAL
+        ),
+        failed_technical_count=sum(
+            1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.FAILED_TECHNICAL
+        ),
+        inconclusive_count=sum(1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.INCONCLUSIVE),
     )

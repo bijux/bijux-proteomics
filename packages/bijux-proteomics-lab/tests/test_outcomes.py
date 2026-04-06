@@ -20,6 +20,7 @@ from bijux_proteomics_lab import (
     promote_outcome_to_evidence,
     query_feedback_records,
     recommend_rerun_policy,
+    summarize_experiment_outcome,
 )
 
 
@@ -268,3 +269,39 @@ def test_promote_outcome_to_evidence_adds_uncertainty_tags_for_inconclusive_resu
     )
 
     assert "uncertainty" in payload.decision_tags
+
+
+def test_summarize_experiment_outcome_counts_result_states() -> None:
+    summary = summarize_experiment_outcome(
+        ExperimentOutcome(
+            batch_id="batch-summary",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="a1",
+                    passed=True,
+                    result_state=AssayResultState.PASSED,
+                    observation_summary="pass",
+                ),
+                AssayOutcome(
+                    assay_id="a2",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_TECHNICAL,
+                    observation_summary="tech",
+                    failure_class=FailureClass.TECHNICAL,
+                ),
+                AssayOutcome(
+                    assay_id="a3",
+                    passed=False,
+                    result_state=AssayResultState.INCONCLUSIVE,
+                    observation_summary="inc",
+                    failure_class=FailureClass.INTERPRETATION,
+                ),
+            ],
+            rerun_policy=RerunPolicy.ON_INCONCLUSIVE_RESULT,
+        )
+    )
+
+    assert summary.total_assays == 3
+    assert summary.passed_count == 1
+    assert summary.failed_technical_count == 1
+    assert summary.inconclusive_count == 1
