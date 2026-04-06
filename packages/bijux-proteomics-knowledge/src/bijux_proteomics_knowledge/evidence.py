@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 
 from pydantic import ConfigDict, Field
@@ -220,6 +220,53 @@ class BundleTrustReport(JsonModel):
     )
 
 
+class EvidenceRefreshPriority(StrEnum):
+    """Priority for refreshing stale or aging evidence."""
+
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
+class EvidenceRefreshNeed(JsonModel):
+    """Actionable refresh recommendation for one evidence record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
+    priority: EvidenceRefreshPriority = Field(
+        ...,
+        description="Recommended refresh priority.",
+    )
+    reason: str = Field(..., min_length=1, description="Why refresh is recommended.")
+    suggested_action: str = Field(
+        ...,
+        min_length=1,
+        description="Concrete action to improve freshness.",
+    )
+
+
+class BundleFreshnessReport(JsonModel):
+    """Freshness posture for an evidence bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1, description="Stable bundle identifier.")
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    stale_records: list[str] = Field(
+        default_factory=list,
+        description="Records already past their validity window.",
+    )
+    aging_records: list[str] = Field(
+        default_factory=list,
+        description="Records nearing expiry and worth refreshing soon.",
+    )
+    refresh_needs: list[EvidenceRefreshNeed] = Field(
+        default_factory=list,
+        description="Prioritized refresh actions for the bundle.",
+    )
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -343,6 +390,83 @@ def stale_records(
         for record in bundle.records
         if record.expires_at is not None and record.expires_at < now
     ]
+
+
+def aging_records(
+    bundle: EvidenceBundle,
+    *,
+    now: datetime | None = None,
+    horizon_days: int = 30,
+) -> list[EvidenceRecord]:
+    """Return records that will expire soon enough to justify refresh planning."""
+    now = now or datetime.now(UTC)
+    horizon = now + timedelta(days=horizon_days)
+    return [
+        record
+        for record in bundle.records
+        if record.expires_at is not None
+        and now <= record.expires_at <= horizon
+    ]
+
+
+def plan_evidence_refresh(
+    bundle: EvidenceBundle,
+    *,
+    now: datetime | None = None,
+    horizon_days: int = 30,
+) -> BundleFreshnessReport:
+    """Build a prioritized refresh plan for stale and aging evidence."""
+    now = now or datetime.now(UTC)
+    stale = stale_records(bundle, now=now)
+    aging = aging_records(bundle, now=now, horizon_days=horizon_days)
+    refresh_needs: list[EvidenceRefreshNeed] = []
+
+    for record in stale:
+        refresh_needs.append(
+            EvidenceRefreshNeed(
+                evidence_id=record.evidence_id,
+                priority=EvidenceRefreshPriority.HIGH,
+                reason="the evidence record is already past its validity window",
+                suggested_action=_refresh_action_for_record(record),
+            )
+        )
+    stale_ids = {record.evidence_id for record in stale}
+    for record in aging:
+        if record.evidence_id in stale_ids:
+            continue
+        priority = (
+            EvidenceRefreshPriority.HIGH
+            if record.strength is EvidenceStrength.DECISIVE
+            else EvidenceRefreshPriority.MEDIUM
+        )
+        refresh_needs.append(
+            EvidenceRefreshNeed(
+                evidence_id=record.evidence_id,
+                priority=priority,
+                reason="the evidence record will expire soon and should be refreshed proactively",
+                suggested_action=_refresh_action_for_record(record),
+            )
+        )
+    return BundleFreshnessReport(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        stale_records=[record.evidence_id for record in stale],
+        aging_records=[record.evidence_id for record in aging if record.evidence_id not in stale_ids],
+        refresh_needs=refresh_needs,
+    )
+
+
+def _refresh_action_for_record(record: EvidenceRecord) -> str:
+    """Return a concrete refresh recommendation for a record."""
+    if record.source_type is EvidenceSourceType.LAB_ASSAY:
+        return "repeat or reconfirm the assay readout in the lab system"
+    if record.source_type is EvidenceSourceType.LITERATURE:
+        return "search for newer literature and re-evaluate the claim"
+    if record.source_type is EvidenceSourceType.STRUCTURE_MODEL:
+        return "rerun or revalidate the structure model with the latest inputs"
+    if record.source_type is EvidenceSourceType.EXTERNAL_DATABASE:
+        return "re-ingest the linked external database record"
+    return "refresh the curated note with a current reviewer assessment"
 
 
 def deduplicate_records(bundle: EvidenceBundle) -> list[list[str]]:

@@ -6,14 +6,18 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics_knowledge import (
+    aging_records,
     assess_decision_readiness,
     attach_manual_notes,
+    BundleFreshnessReport,
     compute_bundle_trust,
     coverage_report,
     deduplicate_records,
     EvidenceBundle,
     EvidenceConflict,
     EvidenceExtractionMethod,
+    EvidenceRefreshNeed,
+    EvidenceRefreshPriority,
     EvidenceKind,
     EvidenceOrigin,
     EvidenceRecord,
@@ -22,6 +26,7 @@ from bijux_proteomics_knowledge import (
     ManualEvidenceNote,
     evidence_gaps,
     flag_conflicting_evidence,
+    plan_evidence_refresh,
     score_evidence_record,
     stale_records,
     summarize_bundle,
@@ -304,3 +309,59 @@ def test_attach_manual_notes_creates_curated_evidence_records() -> None:
     assert updated.records[0].source_type is EvidenceSourceType.CURATED_NOTE
     assert updated.records[0].curator == "review-scientist"
     assert updated.records[0].extraction_method is EvidenceExtractionMethod.MANUAL_CURATION
+
+
+def test_plan_evidence_refresh_prioritizes_stale_and_aging_records() -> None:
+    now = datetime(2026, 1, 10, tzinfo=UTC)
+    bundle = EvidenceBundle(
+        bundle_id="bundle-5",
+        target_id="target-5",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-urgent",
+                kind=EvidenceKind.ASSAY,
+                title="Aging assay",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Activity remains above the gate.",
+                confidence=0.88,
+                strength=EvidenceStrength.DECISIVE,
+                expires_at=now + timedelta(days=4),
+            ),
+            EvidenceRecord(
+                evidence_id="lit-stale",
+                kind=EvidenceKind.LITERATURE,
+                title="Stale paper review",
+                source="PMID:4",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="The target remains disease relevant.",
+                confidence=0.76,
+                strength=EvidenceStrength.SUPPORTING,
+                expires_at=now - timedelta(days=1),
+            ),
+        ],
+    )
+
+    freshness = plan_evidence_refresh(bundle, now=now, horizon_days=7)
+
+    assert aging_records(bundle, now=now, horizon_days=7)[0].evidence_id == "assay-urgent"
+    assert freshness == BundleFreshnessReport(
+        bundle_id="bundle-5",
+        target_id="target-5",
+        stale_records=["lit-stale"],
+        aging_records=["assay-urgent"],
+        refresh_needs=[
+            EvidenceRefreshNeed(
+                evidence_id="lit-stale",
+                priority=EvidenceRefreshPriority.HIGH,
+                reason="the evidence record is already past its validity window",
+                suggested_action="search for newer literature and re-evaluate the claim",
+            ),
+            EvidenceRefreshNeed(
+                evidence_id="assay-urgent",
+                priority=EvidenceRefreshPriority.HIGH,
+                reason="the evidence record will expire soon and should be refreshed proactively",
+                suggested_action="repeat or reconfirm the assay readout in the lab system",
+            ),
+        ],
+    )
