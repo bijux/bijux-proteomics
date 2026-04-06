@@ -11,5 +11,6 @@
 - schema-aware bundle files that can be saved, loaded, and traced across systems
 - trust scoring, stale evidence detection, contradiction flags, and deduplication support
 - evidence graphs and ingestion adapter contracts for building explainable evidence flows
+- claim-level models and decision lineage that connect decisions to supporting evidence
 
 The aim is to keep program decisions traceable to evidence instead of relying on opaque prompts.

@@ -12,6 +12,13 @@ from bijux_proteomics_knowledge.adapters import (
     StructureAnnotationIngestionAdapter,
     attach_evidence_inputs,
 )
+from bijux_proteomics_knowledge.claims import (
+    ClaimStatus,
+    DecisionLineage,
+    EvidenceClaim,
+    build_claim,
+    build_decision_lineage,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_knowledge.graph import (
     EvidenceEdge,
@@ -47,7 +54,10 @@ from bijux_proteomics_knowledge.evidence import (
 __all__ = [
     "AssayResultIngestionAdapter",
     "BundleTrustReport",
+    "ClaimStatus",
     "DecisionReadiness",
+    "DecisionLineage",
+    "EvidenceClaim",
     "EvidenceConflict",
     "EvidenceCoverage",
     "EvidenceBundle",
@@ -64,6 +74,8 @@ __all__ = [
     "assess_decision_readiness",
     "attach_evidence_inputs",
     "build_evidence_graph",
+    "build_claim",
+    "build_decision_lineage",
     "compute_bundle_trust",
     "coverage_report",
     "deduplicate_records",
