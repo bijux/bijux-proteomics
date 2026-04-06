@@ -367,6 +367,18 @@ class GateImpactScore(JsonModel):
     rationale: list[str] = Field(default_factory=list, description="Human-readable impact rationale.")
 
 
+class AssayExecutionBurden(JsonModel):
+    """Estimated execution burden for one assay inside an experiment plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    batch_id: BatchId = Field(..., description="Batch containing the assay.")
+    burden_score: float = Field(..., ge=0.0, le=1.0, description="Relative burden score.")
+    estimated_days: float = Field(..., ge=0.0, description="Estimated turnaround time in days.")
+    drivers: list[str] = Field(default_factory=list, description="Primary burden drivers.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1099,6 +1111,36 @@ def score_assay_gate_impact(plan: ExperimentPlan) -> list[GateImpactScore]:
                 )
             )
     return sorted(results, key=lambda item: item.impact_score, reverse=True)
+
+
+def estimate_assay_execution_burden(plan: ExperimentPlan) -> list[AssayExecutionBurden]:
+    """Estimate execution burden for each assay from batch planning context."""
+    burdens: list[AssayExecutionBurden] = []
+    for batch in plan.batches:
+        sample_pressure = min(0.4, len(set(batch.sample_requirements)) * 0.1)
+        gate_pressure = min(0.3, len(batch.blocking_review_gates) * 0.1)
+        priority_pressure = min(0.2, max(0, 3 - batch.priority) * 0.05)
+        base_score = round(max(0.0, min(0.2 + sample_pressure + gate_pressure + priority_pressure, 1.0)), 4)
+        base_days = 2.0 + (sample_pressure * 6.0) + (gate_pressure * 4.0)
+        for assay_id in batch.assay_ids:
+            assay_kind = batch.assay_sample_kinds.get(assay_id, "other")
+            kind_penalty = 0.15 if assay_kind in {"cellular", "developability"} else 0.05
+            burden_score = round(max(0.0, min(base_score + kind_penalty, 1.0)), 4)
+            drivers = [f"sample kind={assay_kind}"]
+            if batch.sample_requirements:
+                drivers.append(f"requires {len(batch.sample_requirements)} material type(s)")
+            if batch.blocking_review_gates:
+                drivers.append(f"coupled to {len(batch.blocking_review_gates)} review gate(s)")
+            burdens.append(
+                AssayExecutionBurden(
+                    assay_id=assay_id,
+                    batch_id=batch.batch_id,
+                    burden_score=burden_score,
+                    estimated_days=round(base_days + (kind_penalty * 4.0), 2),
+                    drivers=drivers,
+                )
+            )
+    return sorted(burdens, key=lambda item: item.burden_score, reverse=True)
 
 
 def recommend_orthogonal_confirmation(

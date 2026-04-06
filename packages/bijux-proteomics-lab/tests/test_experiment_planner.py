@@ -45,6 +45,7 @@ from bijux_proteomics_lab import (
     schedule_with_family_capacity,
     score_assay_information_gain,
     score_assay_gate_impact,
+    estimate_assay_execution_burden,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -210,6 +211,39 @@ def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
 
     assert scores[0].assay_id == "a1"
     assert scores[0].impact_score > scores[1].impact_score
+
+
+def test_estimate_assay_execution_burden_accounts_for_sample_kind_and_gates() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-1",
+        review_queue=[],
+        evidence_gaps=[],
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="cell assay batch",
+                assay_ids=["cell-a"],
+                blocking_review_gates=["gate-a"],
+                priority=1,
+                sample_requirements=["cell-line", "compound"],
+                assay_sample_kinds={"cell-a": "cellular"},
+            ),
+            ExperimentBatch(
+                batch_id="b2",
+                objective="simple expression batch",
+                assay_ids=["exp-a"],
+                blocking_review_gates=[],
+                priority=3,
+                sample_requirements=["protein"],
+                assay_sample_kinds={"exp-a": "expression"},
+            ),
+        ],
+    )
+
+    burden = estimate_assay_execution_burden(plan)
+
+    assert burden[0].assay_id == "cell-a"
+    assert burden[0].burden_score > burden[1].burden_score
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
