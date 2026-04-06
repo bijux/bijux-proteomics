@@ -34,6 +34,7 @@ from bijux_proteomics_knowledge import (
     default_conflict_policy,
     decompose_evidence_quality,
     evidence_gaps,
+    evaluate_quantitative_support,
     flag_conflicting_evidence,
     plan_evidence_refresh,
     score_evidence_record,
@@ -696,3 +697,40 @@ def test_plan_evidence_refresh_prioritizes_stale_and_aging_records() -> None:
             ),
         ],
     )
+
+
+def test_evaluate_quantitative_support_scores_high_quality_payload() -> None:
+    report = evaluate_quantitative_support(
+        QuantitativeSupport(
+            effect_size=1.8,
+            confidence_interval_low=1.3,
+            confidence_interval_high=2.2,
+            variance=0.12,
+            coefficient_of_variation=0.18,
+            p_value=0.01,
+            q_value=0.04,
+            replicate_count=4,
+            peptide_count=6,
+            protein_coverage=0.42,
+            site_localization_probability=0.86,
+            absolute_scale=True,
+        )
+    )
+
+    assert report.support_score > 0.7
+    assert "replicate count supports reproducibility" in report.notes
+
+
+def test_evaluate_quantitative_support_penalizes_censored_signal() -> None:
+    report = evaluate_quantitative_support(
+        QuantitativeSupport(
+            replicate_count=2,
+            coefficient_of_variation=0.52,
+            peptide_count=1,
+            protein_coverage=0.12,
+            censored_by_detection_limit=True,
+        )
+    )
+
+    assert report.support_score < 0.5
+    assert "quantitative estimate is censored by detection limit" in report.notes

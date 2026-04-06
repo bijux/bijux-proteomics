@@ -73,9 +73,44 @@ class QuantitativeSupport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     effect_size: float | None = Field(default=None, description="Observed effect size.")
+    confidence_interval_low: float | None = Field(
+        default=None,
+        description="Lower bound of the confidence interval.",
+    )
+    confidence_interval_high: float | None = Field(
+        default=None,
+        description="Upper bound of the confidence interval.",
+    )
+    variance: float | None = Field(default=None, ge=0.0, description="Observed variance.")
+    coefficient_of_variation: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Coefficient of variation for replicate measurements.",
+    )
     p_value: float | None = Field(default=None, ge=0.0, le=1.0, description="Nominal p-value.")
     q_value: float | None = Field(default=None, ge=0.0, le=1.0, description="Multiple-test adjusted q-value.")
     replicate_count: int | None = Field(default=None, ge=1, description="Replicate count behind the observation.")
+    peptide_count: int | None = Field(default=None, ge=1, description="Number of quantified peptides.")
+    protein_coverage: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Protein sequence coverage fraction.",
+    )
+    site_localization_probability: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="PTM site localization probability when relevant.",
+    )
+    censored_by_detection_limit: bool = Field(
+        default=False,
+        description="Whether the estimate is censored by detection limits.",
+    )
+    absolute_scale: bool = Field(
+        default=False,
+        description="Whether the quantitative estimate is on an absolute scale.",
+    )
     unit: str | None = Field(default=None, description="Measurement unit for quantitative effects.")
 
 
@@ -447,6 +482,15 @@ class ArtifactRiskReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Artifact interpretation notes.")
 
 
+class QuantitativeSupportReport(JsonModel):
+    """Interpretability report for one quantitative support payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    support_score: float = Field(..., ge=0.0, le=1.0, description="Quantitative support quality score.")
+    notes: list[str] = Field(default_factory=list, description="Interpretation notes for score drivers.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -588,6 +632,64 @@ def assess_artifact_risk(record: EvidenceRecord) -> ArtifactRiskReport:
     return ArtifactRiskReport(
         evidence_id=record.evidence_id,
         risk_score=min(1.0, round(risk, 4)),
+        notes=notes,
+    )
+
+
+def evaluate_quantitative_support(
+    support: QuantitativeSupport | None,
+) -> QuantitativeSupportReport:
+    """Score quantitative support quality for downstream trust decisions."""
+    if support is None:
+        return QuantitativeSupportReport(
+            support_score=0.0,
+            notes=["no quantitative support provided"],
+        )
+    score = 0.25
+    notes: list[str] = []
+    if support.replicate_count is not None and support.replicate_count >= 3:
+        score += 0.2
+        notes.append("replicate count supports reproducibility")
+    if support.coefficient_of_variation is not None:
+        if support.coefficient_of_variation <= 0.3:
+            score += 0.15
+            notes.append("coefficient of variation is within an acceptable range")
+        else:
+            notes.append("coefficient of variation is high")
+    if support.p_value is not None and support.p_value <= 0.05:
+        score += 0.1
+        notes.append("p-value supports statistical separation")
+    if support.q_value is not None and support.q_value <= 0.1:
+        score += 0.1
+        notes.append("q-value remains acceptable after correction")
+    if support.protein_coverage is not None:
+        if support.protein_coverage >= 0.3:
+            score += 0.1
+            notes.append("protein coverage supports interpretation")
+        else:
+            notes.append("protein coverage is limited")
+    if support.peptide_count is not None:
+        if support.peptide_count >= 3:
+            score += 0.05
+            notes.append("peptide count is sufficient for stable quantification")
+        else:
+            notes.append("peptide count is low")
+    if support.site_localization_probability is not None:
+        if support.site_localization_probability >= 0.75:
+            score += 0.05
+            notes.append("site localization probability is strong")
+        else:
+            notes.append("site localization probability is weak")
+    if support.censored_by_detection_limit:
+        score -= 0.1
+        notes.append("quantitative estimate is censored by detection limit")
+    if support.absolute_scale:
+        score += 0.05
+        notes.append("measurement is on absolute scale")
+    if not notes:
+        notes.append("quantitative support contains minimal scoring features")
+    return QuantitativeSupportReport(
+        support_score=max(0.0, min(round(score, 4), 1.0)),
         notes=notes,
     )
 
