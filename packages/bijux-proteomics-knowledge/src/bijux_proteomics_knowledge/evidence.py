@@ -673,6 +673,15 @@ class QuantitativeValidationIssue(JsonModel):
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
 
+class BundleIntegrityIssue(JsonModel):
+    """Integrity issue detected across evidence bundle records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, description="Stable issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -1240,6 +1249,37 @@ def validate_quantitative_support_payload(
                 message="absolute_scale measurements should include an explicit unit",
             )
         )
+    return issues
+
+
+def validate_bundle_integrity(bundle: EvidenceBundle) -> list[BundleIntegrityIssue]:
+    """Validate basic bundle integrity invariants used by reasoning workflows."""
+    issues: list[BundleIntegrityIssue] = []
+    ids = [record.evidence_id for record in bundle.records]
+    if len(ids) != len(set(ids)):
+        issues.append(
+            BundleIntegrityIssue(
+                code="duplicate-evidence-ids",
+                message="bundle contains duplicate evidence_id values",
+            )
+        )
+    known_ids = set(ids)
+    for record in bundle.records:
+        if not record.decision_tags:
+            issues.append(
+                BundleIntegrityIssue(
+                    code="decision-tags-missing",
+                    message=f"{record.evidence_id} should include at least one decision tag",
+                )
+            )
+        for upstream_id in record.derived_from:
+            if upstream_id not in known_ids:
+                issues.append(
+                    BundleIntegrityIssue(
+                        code="derived-from-missing",
+                        message=f"{record.evidence_id} references missing upstream evidence '{upstream_id}'",
+                    )
+                )
     return issues
 
 

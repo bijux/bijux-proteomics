@@ -20,6 +20,7 @@ from bijux_proteomics_knowledge import (
     EvidenceRecordQuery,
     plan_evidence_collection,
     validate_quantitative_support_payload,
+    validate_bundle_integrity,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -1171,3 +1172,37 @@ def test_validate_quantitative_support_payload_reports_coherence_issues() -> Non
         "q-value-less-than-p-value",
         "absolute-scale-unit-missing",
     }
+
+
+def test_validate_bundle_integrity_reports_duplicate_and_missing_lineage() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-integrity",
+        target_id="target-integrity",
+        records=[
+            EvidenceRecord(
+                evidence_id="dup-1",
+                kind=EvidenceKind.LITERATURE,
+                title="one",
+                source="pmid",
+                claim="one",
+                decision_tags=["progression"],
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="dup-1",
+                kind=EvidenceKind.ASSAY,
+                title="two",
+                source="lab",
+                claim="two",
+                derived_from=["missing-upstream"],
+                decision_tags=[],
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    issues = validate_bundle_integrity(bundle)
+
+    assert any(issue.code == "duplicate-evidence-ids" for issue in issues)
+    assert any(issue.code == "derived-from-missing" for issue in issues)
