@@ -11,6 +11,7 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     build_claim,
     build_knowledge_review_packet,
+    summarize_multi_decision_readiness,
 )
 
 
@@ -63,3 +64,42 @@ def test_build_knowledge_review_packet_returns_integrated_sections() -> None:
     }
     assert any("gate recommendation" in line for line in packet.executive_summary)
     assert 0.0 <= packet.decision_intelligence_index <= 1.0
+
+
+def test_summarize_multi_decision_readiness_reports_portfolio_score() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-multi",
+        target_id="target-multi",
+        records=[
+            EvidenceRecord(
+                evidence_id="m1",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="progression support",
+                decision_tags=["progression", "synthesis"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+                endpoint="activity_ratio",
+            )
+        ],
+    )
+    claims = [
+        build_claim(
+            claim_id="claim-multi-1",
+            target_id="target-multi",
+            statement="candidate is viable",
+            evidence_ids=["m1"],
+            status=ClaimStatus.SUPPORTED,
+            resolution_assays=["orthogonal assay"],
+        )
+    ]
+
+    summary = summarize_multi_decision_readiness(
+        bundle,
+        claims,
+        decision_tags=["progression", "synthesis"],
+    )
+
+    assert set(summary.decision_scores) == {"progression", "synthesis"}
+    assert 0.0 <= summary.portfolio_score <= 1.0

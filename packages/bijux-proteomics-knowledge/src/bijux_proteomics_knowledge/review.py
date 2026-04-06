@@ -50,6 +50,17 @@ class KnowledgeReviewPacket(JsonModel):
     )
 
 
+class MultiDecisionReadiness(JsonModel):
+    """Decision readiness summary across multiple decision tags."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    decision_scores: dict[str, float] = Field(default_factory=dict, description="Decision-tag intelligence indices.")
+    weakest_decision_tag: str | None = Field(default=None, description="Lowest-scoring decision tag.")
+    portfolio_score: float = Field(..., ge=0.0, le=1.0, description="Mean readiness score across decision tags.")
+
+
 def build_knowledge_review_packet(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim],
@@ -153,3 +164,37 @@ def compute_decision_intelligence_index(
         0.08 * sum(1 for cluster in conflict_clusters if cluster.recommended_hold),
     )
     return max(0.0, min(round(score - gap_penalty - high_conflict_penalty, 4), 1.0))
+
+
+def summarize_multi_decision_readiness(
+    bundle: EvidenceBundle,
+    claims: list[EvidenceClaim],
+    *,
+    decision_tags: list[str],
+    required_modalities: list[str] | None = None,
+) -> MultiDecisionReadiness:
+    """Build a cross-decision readiness summary from review packets."""
+    scores: dict[str, float] = {}
+    for decision_tag in decision_tags:
+        packet = build_knowledge_review_packet(
+            bundle,
+            claims,
+            decision_tag=decision_tag,
+            required_modalities=required_modalities,
+        )
+        scores[decision_tag] = packet.decision_intelligence_index
+    if not scores:
+        return MultiDecisionReadiness(
+            target_id=bundle.target_id,
+            decision_scores={},
+            weakest_decision_tag=None,
+            portfolio_score=0.0,
+        )
+    weakest = min(scores, key=scores.get)
+    portfolio_score = round(sum(scores.values()) / len(scores), 4)
+    return MultiDecisionReadiness(
+        target_id=bundle.target_id,
+        decision_scores=scores,
+        weakest_decision_tag=weakest,
+        portfolio_score=portfolio_score,
+    )

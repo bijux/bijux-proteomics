@@ -62,8 +62,10 @@ from bijux_proteomics_knowledge.schema import (
 )
 from bijux_proteomics_knowledge.review import (
     KnowledgeReviewPacket,
+    MultiDecisionReadiness,
     build_knowledge_review_packet,
     compute_decision_intelligence_index,
+    summarize_multi_decision_readiness,
 )
 from bijux_proteomics_knowledge.serialization import fingerprint_model, to_canonical_json
 from bijux_proteomics_knowledge.repositories import (
@@ -212,8 +214,10 @@ __all__ = [
     "default_knowledge_schema_profile",
     "evaluate_schema_compatibility",
     "KnowledgeReviewPacket",
+    "MultiDecisionReadiness",
     "build_knowledge_review_packet",
     "compute_decision_intelligence_index",
+    "summarize_multi_decision_readiness",
     "to_canonical_json",
     "fingerprint_model",
     "build_claim",
