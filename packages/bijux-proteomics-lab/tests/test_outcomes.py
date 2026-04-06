@@ -296,12 +296,64 @@ def test_summarize_experiment_outcome_counts_result_states() -> None:
                     observation_summary="inc",
                     failure_class=FailureClass.INTERPRETATION,
                 ),
+                AssayOutcome(
+                    assay_id="a4",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_REPRODUCIBILITY,
+                    observation_summary="replicate drift",
+                    failure_class=FailureClass.INTERPRETATION,
+                ),
             ],
             rerun_policy=RerunPolicy.ON_INCONCLUSIVE_RESULT,
         )
     )
 
-    assert summary.total_assays == 3
+    assert summary.total_assays == 4
     assert summary.passed_count == 1
     assert summary.failed_technical_count == 1
+    assert summary.failed_reproducibility_count == 1
     assert summary.inconclusive_count == 1
+
+
+def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:
+    outcome = evaluate_assay_acceptance(
+        AssayDefinition(
+            assay_id="binding-assay",
+            category=AssayCategory.BINDING,
+            purpose="confirm reproducibility",
+            acceptance_rule=AssayAcceptanceRule(
+                assay_id="binding-assay",
+                metric="binding_score",
+                operator=AcceptanceOperator.GREATER_EQUAL,
+                threshold=0.8,
+            ),
+        ),
+        AssayObservationRecord(
+            assay_id="binding-assay",
+            metric="binding_score",
+            value=0.84,
+            replicate_values=[0.61, 0.84, 1.01],
+            dispersion=0.35,
+        ),
+    )
+
+    assert outcome.result_state is AssayResultState.FAILED_REPRODUCIBILITY
+    assert outcome.passed is False
+
+
+def test_recommend_rerun_policy_can_return_reproducibility_failure() -> None:
+    outcome = ExperimentOutcome(
+        batch_id="batch-repro",
+        assay_outcomes=[
+            AssayOutcome(
+                assay_id="assay-repro",
+                passed=False,
+                result_state=AssayResultState.FAILED_REPRODUCIBILITY,
+                observation_summary="high replicate drift",
+                failure_class=FailureClass.INTERPRETATION,
+            )
+        ],
+        rerun_policy=RerunPolicy.NEVER,
+    )
+
+    assert recommend_rerun_policy(outcome) is RerunPolicy.ON_REPRODUCIBILITY_FAILURE

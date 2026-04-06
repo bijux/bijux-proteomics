@@ -33,6 +33,7 @@ class AssayResultState(StrEnum):
     PASSED = "passed"
     FAILED_BIOLOGICAL = "failed_biological"
     FAILED_TECHNICAL = "failed_technical"
+    FAILED_REPRODUCIBILITY = "failed_reproducibility"
     INCONCLUSIVE = "inconclusive"
 
 
@@ -41,6 +42,7 @@ class RerunPolicy(StrEnum):
 
     NEVER = "never"
     ON_TECHNICAL_FAILURE = "on_technical_failure"
+    ON_REPRODUCIBILITY_FAILURE = "on_reproducibility_failure"
     ON_BIOLOGICAL_FAILURE = "on_biological_failure"
     ON_INCONCLUSIVE_RESULT = "on_inconclusive_result"
 
@@ -184,6 +186,7 @@ class ExperimentOutcomeSummary(JsonModel):
     passed_count: int = Field(..., ge=0, description="Count of passed assays.")
     failed_biological_count: int = Field(..., ge=0, description="Count of biological failures.")
     failed_technical_count: int = Field(..., ge=0, description="Count of technical failures.")
+    failed_reproducibility_count: int = Field(..., ge=0, description="Count of reproducibility failures.")
     inconclusive_count: int = Field(..., ge=0, description="Count of inconclusive results.")
 
 
@@ -196,6 +199,12 @@ def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
         if not assay.passed
     ):
         return RerunPolicy.ON_TECHNICAL_FAILURE
+    if any(
+        assay.result_state is AssayResultState.FAILED_REPRODUCIBILITY
+        for assay in outcome.assay_outcomes
+        if not assay.passed
+    ):
+        return RerunPolicy.ON_REPRODUCIBILITY_FAILURE
     if any(
         assay.result_state is AssayResultState.FAILED_BIOLOGICAL
         or assay.failure_class is FailureClass.BIOLOGICAL
@@ -267,6 +276,20 @@ def evaluate_assay_acceptance(
         f"{observation.unit or ''} {'met' if passed else 'missed'} "
         f"{rule.operator.value} {rule.threshold:g}{rule.unit or ''}"
     )
+    if (
+        observation.dispersion is not None
+        and observation.dispersion > 0.3
+        and len(observation.replicate_values) >= 3
+    ):
+        return AssayOutcome(
+            assay_id=observation.assay_id,
+            passed=False,
+            result_state=AssayResultState.FAILED_REPRODUCIBILITY,
+            observation_summary=f"{observation.metric} showed high replicate dispersion ({observation.dispersion:g})",
+            failure_class=FailureClass.INTERPRETATION,
+            replicate_count=max(1, len(observation.replicate_values) or 1),
+            uncertainty=0.65,
+        )
     return AssayOutcome(
         assay_id=observation.assay_id,
         passed=passed,
@@ -292,6 +315,8 @@ def promote_outcome_to_evidence(
         decision_tags.append("uncertainty")
     if outcome.result_state is AssayResultState.FAILED_BIOLOGICAL:
         decision_tags.append("biological_risk")
+    if outcome.result_state is AssayResultState.FAILED_REPRODUCIBILITY:
+        decision_tags.append("reproducibility_risk")
     return NormalizedEvidenceInput(
         evidence_id=f"assay:{batch_id}:{outcome.assay_id}",
         kind=EvidenceKind.ASSAY,
@@ -317,6 +342,11 @@ def summarize_experiment_outcome(outcome: ExperimentOutcome) -> ExperimentOutcom
         ),
         failed_technical_count=sum(
             1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.FAILED_TECHNICAL
+        ),
+        failed_reproducibility_count=sum(
+            1
+            for assay in outcome.assay_outcomes
+            if assay.result_state is AssayResultState.FAILED_REPRODUCIBILITY
         ),
         inconclusive_count=sum(1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.INCONCLUSIVE),
     )
