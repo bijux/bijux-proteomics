@@ -167,6 +167,41 @@ def test_resolve_conflicts_can_split_species_context_conflicts() -> None:
     assert resolutions[0].action is ResolutionAction.SPLIT_BY_CONTEXT
 
 
+def test_resolve_conflicts_can_split_cross_modality_conflicts() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-modality-split",
+        target_id="target-modality-split",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay positive",
+                source="lab-1",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="structure-1",
+                kind=EvidenceKind.STRUCTURE,
+                title="structure caution",
+                source="model-1",
+                source_type=EvidenceSourceType.STRUCTURE_MODEL,
+                claim="Candidate misses the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    _, resolutions = resolve_conflicts(bundle)
+
+    assert resolutions[0].action is ResolutionAction.SPLIT_BY_MODALITY
+
+
 def test_claim_resolution_record_captures_resolution_history() -> None:
     _, resolutions = resolve_conflicts(
         EvidenceBundle(

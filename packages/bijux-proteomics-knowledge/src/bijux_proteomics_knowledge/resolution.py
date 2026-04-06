@@ -14,7 +14,6 @@ from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
     EvidenceBundle,
-    EvidenceConflict,
     EvidenceRecord,
     compute_bundle_trust,
 )
@@ -27,6 +26,7 @@ class ResolutionAction(StrEnum):
     REQUIRE_CURATION = "require_curation"
     HOLD_DECISION = "hold_decision"
     SPLIT_BY_CONTEXT = "split_by_context"
+    SPLIT_BY_MODALITY = "split_by_modality"
 
 
 class ConflictResolution(JsonModel):
@@ -69,6 +69,10 @@ class ResolutionPolicy(JsonModel):
     split_context_conflicts: bool = Field(
         default=True,
         description="Whether context mismatch conflicts should be split by context.",
+    )
+    split_modality_conflicts: bool = Field(
+        default=True,
+        description="Whether cross-modality conflicts should be split by modality.",
     )
 
 
@@ -114,6 +118,20 @@ def resolve_conflicts(
                     right_evidence_id=right.evidence_id,
                     action=ResolutionAction.SPLIT_BY_CONTEXT,
                     rationale="conflict reflects context mismatch and should be split by biological context",
+                )
+            )
+            continue
+        if (
+            policy.split_modality_conflicts
+            and left.kind is not right.kind
+            and conflict.conflict_type in {"opposite_claim_polarity", "assay_readout_disagreement"}
+        ):
+            resolutions.append(
+                ConflictResolution(
+                    left_evidence_id=left.evidence_id,
+                    right_evidence_id=right.evidence_id,
+                    action=ResolutionAction.SPLIT_BY_MODALITY,
+                    rationale="conflict spans different assay modalities and should be tracked by modality",
                 )
             )
             continue
