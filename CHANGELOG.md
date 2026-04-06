@@ -1,93 +1,48 @@
-# Changelog  
-<a id="top"></a>  
+# Changelog
 
-All notable changes to **agentic-proteins** are documented here.  
-This project adheres to [Semantic Versioning](https://semver.org) and the  
-[Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.  
+This file records notable repository-level changes for `bijux-proteomics`.
 
-<a id="unreleased"></a>  
-## [Unreleased]  
+It does not replace package-level release history. Versioning and package-local
+release notes belong to each distribution under `packages/`.
 
-<!-- unreleased start -->
+Use this changelog for workspace changes that affect multiple packages or
+change contributor and maintainer workflows across the repository.
+
+## 0.3.0 - 2026-04-06
+
 ### Added
-* (add new entries via fragments in `changelog.d/`)
+
+- Canon-style package documentation structure was applied across proteomics
+  packages, including ownership boundaries, source maps, and maintainer notes.
+- Package-level maintainer notes for PyPI workflows were added under each
+  package `docs/maintainer/pypi.md`.
 
 ### Changed
-* (add here)
+
+- Repository workflow design now uses reusable package CI and release-artifact
+  workflows with package-specific entry pipelines.
+- Shared tool configuration moved to `configs/` and gate modules now resolve
+  settings through centralized make configuration variables.
+- Root README now describes repository governance and package boundaries using
+  the same durable structure used in `bijux-canon`.
 
 ### Fixed
-* (add here)
-<!-- unreleased end -->  
 
-  
+- Pytest rootdir behavior after config relocation was stabilized by passing
+  explicit rootdir flags from make-based test orchestration.
+- Quality gates now use a repository-owned deptry configuration path while
+  preserving current dependency hygiene behavior.
 
----  
+## Changelog Scope
 
-<!-- release start -->  
-<a id="v0-2-0"></a>  
+Use this file for changes such as:
 
-## [0.2.3]  
+- root governance and contributor policy
+- shared automation under `makes/`
+- shared configuration under `configs/`
+- root handbook and repository navigation
+- repository-level CI, publish, and release process changes
+- shared API artifact conventions under `apis/`
 
-### Added  
-- Expanded provider test coverage for ColabFold, OpenProtein, and local ESMFold utilities.  
-- Runtime capability validation tests and candidate filter unit coverage.  
-- Stability marking test for module annotations.  
-
-### Changed  
-- Hardened local ESMFold utility tests to exercise error and success branches.  
-
-### Fixed  
-- Reliability checks and helper tests to keep coverage and gating stable.  
-
-## [0.2.2]  
-
-### Added  
-- Release alignment for docs, gates, and CI structure.  
-
-### Changed  
-- Consistent documentation build and validation wiring.  
-
-### Fixed  
-- Minor release hygiene issues discovered in CI.  
-
-## [0.2.1]  
-
-### Added  
-- Expanded unit and integration coverage with new invariants, API, and docs gates.  
-- Additional tests for provider isolation, reproducibility, and abuse-case blocking.  
-- Fancy PyPI readme fragments for README + changelog publishing.  
-
-### Changed  
-- Refactored `tests/unit` into a structured layout for clearer ownership.  
-
-### Fixed  
-- Coverage floors and CI gates stabilized around new test layout.  
-
-## [0.2.0]  
-
-### Added  
-- Architecture invariants, threat model skeleton, and design debt ledger.  
-- Reproducible runs via `agentic-proteins reproduce <run_id>` with hash checks.  
-- Determinism tests, artifact immutability tests, and invariant regression coverage.  
-- Provider isolation checks and chaos failure test for mid-run provider loss.  
-- Benchmark regression gate and per-module coverage floors in CI.  
-- Documentation system contracts, lint gates, and CLI surface audit coverage.  
-- API error taxonomy enforcement, correlation ID logging test, and OpenAPI drift guard.  
-- Dependency allowlist enforcement for SBOM changes.  
-
-<a id="v0-1-0"></a>  
-
-## [0.1.0]  
-
-### Added
-- Deterministic, artifact-first execution engine with explicit run directories and state snapshots.
-- Agent-based architecture covering planning, analysis, execution, verification, and reporting.
-- End-to-end design loop with failure handling, stagnation detection, and human-in-the-loop gating.
-- CLI for running, resuming, inspecting, comparing, and exporting protein design runs.
-- Local and remote provider abstractions with explicit capability and requirement checks.
-- Structured reporting system with machine-readable artifacts and human-readable summaries.
-- Integrated evaluation pipeline supporting structure-based metrics and ground-truth comparison.
-- Reproducibility controls, observability hooks, and execution telemetry.
-- Example datasets and reference runs for local experimentation and validation.
-- Comprehensive test suite covering unit, integration, regression, and execution boundaries.
-<!-- release end -->
+Do not use this file for changes that only affect one package release stream
+unless the repository-level workflow changed too.
