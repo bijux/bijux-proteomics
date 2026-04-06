@@ -3,41 +3,19 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-import re
 import sys
-import tomllib
+from pathlib import Path
 
-
-def _normalize(dep: str) -> str:
-    match = re.match(r"([A-Za-z0-9_.-]+)", dep.strip())
-    return match.group(1).lower() if match else dep.strip().lower()
+ROOT = Path(__file__).resolve().parents[1]
+DEV_SRC = ROOT / "packages" / "bijux-proteomics-dev" / "src"
+if str(DEV_SRC) not in sys.path:
+    sys.path.insert(0, str(DEV_SRC))
 
 
 def main() -> int:
-    pyproject = Path("pyproject.toml")
-    allowlist_path = Path("docs/security/dependencies.md")
-    if not pyproject.exists():
-        print("pyproject.toml missing.", file=sys.stderr)
-        return 1
-    if not allowlist_path.exists():
-        print("Allowlist missing: docs/security/dependencies.md", file=sys.stderr)
-        return 1
-    data = tomllib.loads(pyproject.read_text())
-    deps = data.get("project", {}).get("dependencies", [])
-    required = {_normalize(dep) for dep in deps}
-    allowlist = set()
-    for line in allowlist_path.read_text().splitlines():
-        stripped = line.strip()
-        if stripped.startswith("- "):
-            allowlist.add(stripped[2:].strip().lower())
-    missing = sorted(required - allowlist)
-    if missing:
-        print("Dependencies missing from allowlist:", file=sys.stderr)
-        for item in missing:
-            print(f"- {item}", file=sys.stderr)
-        return 1
-    return 0
+    from bijux_proteomics_dev.security.dependency_allowlist import run
+
+    return run(ROOT)
 
 
 if __name__ == "__main__":
