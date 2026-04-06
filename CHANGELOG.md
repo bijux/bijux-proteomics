@@ -8,6 +8,27 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## 0.3.1 - 2026-04-06
+
+### Added
+
+- Cross-package discoverability badges were added to package maintainer notes
+  and package READMEs for PyPI and documentation navigation.
+
+### Changed
+
+- Package README content was rewritten across the workspace to improve package
+  purpose clarity, boundaries, installation guidance, and quick-start usage.
+- Package metadata descriptions were strengthened for clearer PyPI package
+  discovery and search relevance.
+- Publishable package version strategy now uses tag-driven dynamic versioning
+  (`hatch-vcs`) across the workspace for release consistency on `v*` tags.
+
+### Fixed
+
+- Release workflow behavior now avoids static version drift between tagged
+  releases and package metadata for multi-package publication.
+
 ## 0.3.0 - 2026-04-06
 
 ### Added

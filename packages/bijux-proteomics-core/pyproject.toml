@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling>=1.27.0,<1.28"]
+requires = ["hatchling>=1.27.0,<1.28", "hatch-vcs>=0.4.0,<1.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "bijux-proteomics-core"
-version = "0.3.0"
+dynamic = ["version"]
 description = "Protein program domain models, lifecycle gates, and execution interfaces for stage-based discovery workflows"
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -35,7 +35,7 @@ classifiers = [
 dependencies = [
   "click>=8.1",
   "pydantic>=2.0.2",
-  "bijux-proteomics-foundation>=0.3.0",
+  "bijux-proteomics-foundation>=0.3.1",
 ]
 
 [project.urls]
@@ -48,6 +48,11 @@ Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.scripts]
 bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^v(?P<version>.*)$"
+raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]
 include = [

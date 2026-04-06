@@ -2,6 +2,20 @@
 
 All notable changes for `agentic-proteins` are recorded here.
 
+## 0.3.1 - 2026-04-06
+
+### Added
+
+- Package family PyPI and docs badges were added to README and maintainer
+  package notes for cross-package discoverability.
+
+### Changed
+
+- README content was rewritten with clearer package value proposition, usage
+  scenarios, installation, quick-start guidance, and boundary definitions.
+- Package description text was enhanced for stronger PyPI search relevance and
+  package discovery.
+
 ## 0.3.0 - 2026-04-06
 
 ### Added

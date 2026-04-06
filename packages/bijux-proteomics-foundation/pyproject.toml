@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling>=1.27.0,<1.28"]
+requires = ["hatchling>=1.27.0,<1.28", "hatch-vcs>=0.4.0,<1.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "bijux-proteomics-foundation"
-version = "0.3.0"
+dynamic = ["version"]
 description = "Schema governance and canonical serialization primitives for reproducible proteomics documents and cross-package compatibility"
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -41,6 +41,11 @@ Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/CHANGELOG.md"
 Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^v(?P<version>.*)$"
+raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]
 include = [

@@ -2,6 +2,23 @@
 
 All notable changes for `bijux-proteomics-core` are recorded here.
 
+## 0.3.1 - 2026-04-06
+
+### Added
+
+- Package family PyPI and docs badges were added to README and maintainer
+  package notes for cross-package discoverability.
+
+### Changed
+
+- Versioning now uses tag-driven dynamic release metadata via `hatch-vcs`
+  instead of static package version pinning.
+- Internal dependency floor was raised to `bijux-proteomics-foundation>=0.3.1`
+  to match synchronized release expectations.
+- README content was rewritten to improve package purpose clarity, usage
+  guidance, and ownership boundaries.
+- Package description text was enhanced for clearer PyPI package discovery.
+
 ## 0.3.0 - 2026-04-06
 
 ### Added
