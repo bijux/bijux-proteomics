@@ -1,0 +1,45 @@
+name: publish-bijux-proteomics-intelligence
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-release-artifacts.yml
+    with:
+      package_slug: bijux-proteomics-intelligence
+      cache_dependency_path: |
+        pyproject.toml
+        packages/bijux-proteomics-intelligence/pyproject.toml
+      build_targets: "build-bijux-proteomics-intelligence"
+      package_dir: "packages/bijux-proteomics-intelligence"
+      dist_subdir: "build/bijux-proteomics-intelligence"
+      upload_paths: |
+        artifacts/build/bijux-proteomics-intelligence/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    permissions:
+      contents: read
+    steps:
+      - name: Download publish artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: bijux-proteomics-intelligence-pypi-dist
+          path: .github/tmp/bijux-proteomics-intelligence-dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: .github/tmp/bijux-proteomics-intelligence-dist
+          skip-existing: true
