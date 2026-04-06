@@ -220,6 +220,56 @@ class BundleTrustReport(JsonModel):
     )
 
 
+class TrustPolicy(JsonModel):
+    """Explicit policy for evidence trust scoring."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable trust policy identifier.")
+    source_type_weights: dict[EvidenceSourceType, float] = Field(
+        default_factory=lambda: {
+            EvidenceSourceType.LAB_ASSAY: 1.0,
+            EvidenceSourceType.LITERATURE: 0.9,
+            EvidenceSourceType.EXTERNAL_DATABASE: 0.8,
+            EvidenceSourceType.STRUCTURE_MODEL: 0.75,
+            EvidenceSourceType.CURATED_NOTE: 0.65,
+        },
+        description="Weight applied to each evidence source category.",
+    )
+    strength_weights: dict[EvidenceStrength, float] = Field(
+        default_factory=lambda: {
+            EvidenceStrength.EXPLORATORY: 0.5,
+            EvidenceStrength.SUPPORTING: 0.8,
+            EvidenceStrength.DECISIVE: 1.0,
+        },
+        description="Weight applied to each evidence strength level.",
+    )
+    stale_penalty: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Penalty multiplier applied to stale evidence.",
+    )
+    stale_record_penalty: float = Field(
+        default=0.05,
+        ge=0.0,
+        le=1.0,
+        description="Penalty applied per stale record at the bundle level.",
+    )
+    conflict_penalty: float = Field(
+        default=0.1,
+        ge=0.0,
+        le=1.0,
+        description="Penalty applied per detected conflict.",
+    )
+    duplicate_penalty: float = Field(
+        default=0.03,
+        ge=0.0,
+        le=1.0,
+        description="Penalty applied per duplicate group.",
+    )
+
+
 class EvidenceRefreshPriority(StrEnum):
     """Priority for refreshing stale or aging evidence."""
 
@@ -351,31 +401,43 @@ def assess_decision_readiness(
     )
 
 
-def weight_source_type(source_type: EvidenceSourceType) -> float:
+def default_trust_policy() -> TrustPolicy:
+    """Return the default trust policy used by the package."""
+    return TrustPolicy(policy_id="default-trust-policy")
+
+
+def weight_source_type(
+    source_type: EvidenceSourceType,
+    *,
+    policy: TrustPolicy | None = None,
+) -> float:
     """Return a trust weight for the source category."""
-    return {
-        EvidenceSourceType.LAB_ASSAY: 1.0,
-        EvidenceSourceType.LITERATURE: 0.9,
-        EvidenceSourceType.EXTERNAL_DATABASE: 0.8,
-        EvidenceSourceType.STRUCTURE_MODEL: 0.75,
-        EvidenceSourceType.CURATED_NOTE: 0.65,
-    }[source_type]
+    policy = policy or default_trust_policy()
+    return policy.source_type_weights[source_type]
 
 
 def score_evidence_record(
     record: EvidenceRecord,
     *,
     now: datetime | None = None,
+    policy: TrustPolicy | None = None,
 ) -> float:
     """Compute a trust score for a single evidence record."""
     now = now or datetime.now(UTC)
-    strength_weight = {
-        EvidenceStrength.EXPLORATORY: 0.5,
-        EvidenceStrength.SUPPORTING: 0.8,
-        EvidenceStrength.DECISIVE: 1.0,
-    }[record.strength]
-    stale_penalty = 0.5 if record.expires_at is not None and record.expires_at < now else 1.0
-    return round(record.confidence * weight_source_type(record.source_type) * strength_weight * stale_penalty, 4)
+    policy = policy or default_trust_policy()
+    strength_weight = policy.strength_weights[record.strength]
+    stale_penalty = (
+        policy.stale_penalty
+        if record.expires_at is not None and record.expires_at < now
+        else 1.0
+    )
+    return round(
+        record.confidence
+        * weight_source_type(record.source_type, policy=policy)
+        * strength_weight
+        * stale_penalty,
+        4,
+    )
 
 
 def stale_records(
@@ -512,15 +574,24 @@ def compute_bundle_trust(
     bundle: EvidenceBundle,
     *,
     now: datetime | None = None,
+    policy: TrustPolicy | None = None,
 ) -> BundleTrustReport:
     """Compute overall trust after staleness, conflicts, and deduplication."""
     now = now or datetime.now(UTC)
-    record_scores = [score_evidence_record(record, now=now) for record in bundle.records]
+    policy = policy or default_trust_policy()
+    record_scores = [
+        score_evidence_record(record, now=now, policy=policy)
+        for record in bundle.records
+    ]
     base_score = sum(record_scores) / len(record_scores) if record_scores else 0.0
     stale = stale_records(bundle, now=now)
     conflicts = flag_conflicting_evidence(bundle)
     duplicate_groups = deduplicate_records(bundle)
-    penalty = (0.05 * len(stale)) + (0.1 * len(conflicts)) + (0.03 * len(duplicate_groups))
+    penalty = (
+        policy.stale_record_penalty * len(stale)
+        + policy.conflict_penalty * len(conflicts)
+        + policy.duplicate_penalty * len(duplicate_groups)
+    )
     return BundleTrustReport(
         bundle_id=bundle.bundle_id,
         target_id=bundle.target_id,

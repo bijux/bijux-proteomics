@@ -24,6 +24,8 @@ from bijux_proteomics_knowledge import (
     EvidenceSourceType,
     EvidenceStrength,
     ManualEvidenceNote,
+    TrustPolicy,
+    default_trust_policy,
     evidence_gaps,
     flag_conflicting_evidence,
     plan_evidence_refresh,
@@ -262,6 +264,38 @@ def test_compute_bundle_trust_accounts_for_staleness_conflicts_and_duplicates() 
         )
     ]
     assert trust.trust_score < 1.0
+
+
+def test_compute_bundle_trust_uses_explicit_trust_policy() -> None:
+    now = datetime(2026, 1, 10, tzinfo=UTC)
+    record = EvidenceRecord(
+        evidence_id="note-1",
+        kind=EvidenceKind.STRUCTURE,
+        title="Curated note",
+        source="notebook",
+        source_type=EvidenceSourceType.CURATED_NOTE,
+        claim="Fold looks rescuable.",
+        confidence=0.8,
+        strength=EvidenceStrength.SUPPORTING,
+        expires_at=now + timedelta(days=10),
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-policy", target_id="target-policy", records=[record])
+
+    default_score = compute_bundle_trust(bundle, now=now).trust_score
+    strict_policy = default_trust_policy().model_copy(
+        update={
+            "policy_id": "strict-curation",
+            "source_type_weights": {
+                **default_trust_policy().source_type_weights,
+                EvidenceSourceType.CURATED_NOTE: 0.3,
+            },
+        }
+    )
+
+    strict_score = compute_bundle_trust(bundle, now=now, policy=strict_policy).trust_score
+
+    assert isinstance(strict_policy, TrustPolicy)
+    assert strict_score < default_score
 
 
 def test_record_scoring_and_helpers_are_exposed_for_policy_use() -> None:
