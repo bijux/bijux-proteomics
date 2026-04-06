@@ -29,6 +29,7 @@ from bijux_proteomics_lab import (
     assess_evidence_promotion_readiness,
     recommend_claim_belief_deltas,
     assess_batch_outcome,
+    validate_assay_observation_record,
 )
 
 
@@ -512,6 +513,27 @@ def test_assess_batch_outcome_reports_promotion_readiness_and_rerun_posture() ->
     assert assessment.total_assays == 2
     assert assessment.technical_or_repro_failures == 1
     assert assessment.rerun_policy is RerunPolicy.ON_TECHNICAL_FAILURE
+
+
+def test_validate_assay_observation_record_reports_qc_and_detection_issues() -> None:
+    issues = validate_assay_observation_record(
+        AssayObservationRecord(
+            assay_id="assay-validate",
+            metric="activity_signal",
+            value=0.1,
+            replicate_values=[0.1],
+            dispersion=0.2,
+            below_detection_limit=True,
+            qc_state=QcState.FAILED,
+            qc_passed=True,
+        )
+    )
+
+    assert {issue.code for issue in issues} == {
+        "replicate-count-low",
+        "detection-limit-missing",
+        "qc-state-inconsistent",
+    }
 
 
 def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:

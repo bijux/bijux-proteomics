@@ -288,6 +288,15 @@ class BatchOutcomeAssessment(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Summary notes for reviewers.")
 
 
+class ObservationValidationIssue(JsonModel):
+    """Validation issue for assay observation record quality."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1, description="Stable issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -578,3 +587,37 @@ def assess_batch_outcome(outcome: ExperimentOutcome) -> BatchOutcomeAssessment:
         rerun_policy=policy,
         notes=notes,
     )
+
+
+def validate_assay_observation_record(observation: AssayObservationRecord) -> list[ObservationValidationIssue]:
+    """Validate assay observation consistency before acceptance evaluation."""
+    issues: list[ObservationValidationIssue] = []
+    if observation.replicate_values and len(observation.replicate_values) < 2:
+        issues.append(
+            ObservationValidationIssue(
+                code="replicate-count-low",
+                message="replicate_values should include at least two values when provided",
+            )
+        )
+    if observation.dispersion is not None and not observation.replicate_values:
+        issues.append(
+            ObservationValidationIssue(
+                code="dispersion-without-replicates",
+                message="dispersion was provided without replicate values",
+            )
+        )
+    if observation.below_detection_limit and observation.detection_limit is None:
+        issues.append(
+            ObservationValidationIssue(
+                code="detection-limit-missing",
+                message="below_detection_limit requires detection_limit to be specified",
+            )
+        )
+    if observation.qc_state is QcState.FAILED and observation.qc_passed:
+        issues.append(
+            ObservationValidationIssue(
+                code="qc-state-inconsistent",
+                message="qc_state failed is inconsistent with qc_passed=True",
+            )
+        )
+    return issues
