@@ -126,6 +126,16 @@ class ClaimStrengthUpdate(JsonModel):
     rationale: str = Field(..., min_length=1, description="Why confidence changed.")
 
 
+class ClaimValidationIssue(JsonModel):
+    """Scientific validity issue detected in a claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    code: str = Field(..., min_length=1, description="Stable validation issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -257,3 +267,67 @@ def weaken_claim(
         updated_confidence=updated_confidence,
         rationale=rationale,
     )
+
+
+def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
+    """Validate scientific structure and contradiction hygiene for claims."""
+    issues: list[ClaimValidationIssue] = []
+    claim_ids = [claim.claim_id for claim in claims]
+    if len(claim_ids) != len(set(claim_ids)):
+        issues.append(
+            ClaimValidationIssue(
+                claim_id="claim-set",
+                code="claim-id-duplicate",
+                message="claims should use unique claim_id values",
+            )
+        )
+    contradiction_groups = {claim.contradiction_group for claim in claims if claim.contradiction_group}
+    for claim in claims:
+        if not claim.evidence_ids:
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=claim.claim_id,
+                    code="claim-evidence-missing",
+                    message="claim should reference at least one evidence_id",
+                )
+            )
+        if claim.claim_type is ClaimType.MECHANISTIC and (
+            not claim.subject or not claim.relation or not claim.object
+        ):
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=claim.claim_id,
+                    code="mechanistic-structure-missing",
+                    message="mechanistic claims should define subject, relation, and object",
+                )
+            )
+        if claim.resolution_state is ClaimResolutionState.CLOSED and claim.status is ClaimStatus.INSUFFICIENT:
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=claim.claim_id,
+                    code="closed-insufficient-claim",
+                    message="closed claims should not remain in insufficient status",
+                )
+            )
+    for group in sorted(contradiction_groups):
+        group_claims = [claim for claim in claims if claim.contradiction_group == group]
+        if len(group_claims) < 2:
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=group_claims[0].claim_id,
+                    code="contradiction-group-singleton",
+                    message=f"contradiction_group '{group}' should include at least two claims",
+                )
+            )
+            continue
+        if all(claim.polarity is ClaimPolarity.SUPPORTING for claim in group_claims) or all(
+            claim.polarity is ClaimPolarity.CONTRADICTING for claim in group_claims
+        ):
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=group_claims[0].claim_id,
+                    code="contradiction-group-polarity-unbalanced",
+                    message=f"contradiction_group '{group}' should contain opposing claim polarities",
+                )
+            )
+    return issues

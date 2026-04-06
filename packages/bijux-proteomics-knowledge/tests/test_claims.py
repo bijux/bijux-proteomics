@@ -19,6 +19,7 @@ from bijux_proteomics_knowledge import (
     link_evidence_to_claim,
     build_decision_lineage,
     strengthen_claim,
+    validate_claims,
     weaken_claim,
     query_claims,
 )
@@ -198,3 +199,67 @@ def test_query_claims_filters_by_status_type_and_polarity() -> None:
     )
 
     assert [claim.claim_id for claim in filtered] == ["claim-a"]
+
+
+def test_validate_claims_requires_mechanistic_structure_and_evidence() -> None:
+    issues = validate_claims(
+        [
+            build_claim(
+                claim_id="claim-missing-shape",
+                target_id="target-1",
+                statement="mechanistic claim with missing structure",
+                evidence_ids=[],
+                status=ClaimStatus.SUPPORTED,
+                claim_type=ClaimType.MECHANISTIC,
+            )
+        ]
+    )
+
+    assert {issue.code for issue in issues} == {
+        "claim-evidence-missing",
+        "mechanistic-structure-missing",
+    }
+
+
+def test_validate_claims_requires_balanced_contradiction_group() -> None:
+    issues = validate_claims(
+        [
+            build_claim(
+                claim_id="claim-a",
+                target_id="target-1",
+                statement="one-sided support",
+                evidence_ids=["ev-1"],
+                status=ClaimStatus.SUPPORTED,
+                polarity=ClaimPolarity.SUPPORTING,
+                contradiction_group="group-1",
+            ),
+            build_claim(
+                claim_id="claim-b",
+                target_id="target-1",
+                statement="another one-sided support",
+                evidence_ids=["ev-2"],
+                status=ClaimStatus.SUPPORTED,
+                polarity=ClaimPolarity.SUPPORTING,
+                contradiction_group="group-1",
+            ),
+        ]
+    )
+
+    assert any(issue.code == "contradiction-group-polarity-unbalanced" for issue in issues)
+
+
+def test_validate_claims_rejects_closed_claim_with_insufficient_status() -> None:
+    issues = validate_claims(
+        [
+            build_claim(
+                claim_id="claim-closed",
+                target_id="target-1",
+                statement="closed but unresolved",
+                evidence_ids=["ev-1"],
+                status=ClaimStatus.INSUFFICIENT,
+                resolution_state=ClaimResolutionState.CLOSED,
+            )
+        ]
+    )
+
+    assert any(issue.code == "closed-insufficient-claim" for issue in issues)
