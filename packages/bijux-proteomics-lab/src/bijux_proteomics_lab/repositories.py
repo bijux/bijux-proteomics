@@ -74,6 +74,9 @@ class LabFeedbackQuery(JsonModel):
     program_id: ProgramId = Field(..., description="Program identifier.")
     cycle_id: str | None = Field(default=None, description="Optional cycle filter.")
     related_assay_id: str | None = Field(default=None, description="Optional assay filter.")
+    related_evidence_id: str | None = Field(default=None, description="Optional evidence filter.")
+    created_after: datetime | None = Field(default=None, description="Optional lower bound for created_at.")
+    descending: bool = Field(default=False, description="Whether to sort results in descending time order.")
 
 
 class LabFeedbackRepository(Protocol):
@@ -100,4 +103,12 @@ def query_feedback_records(
             for record in filtered
             if query.related_assay_id in record.related_assay_ids
         ]
-    return sorted(filtered, key=lambda record: record.created_at)
+    if query.related_evidence_id is not None:
+        filtered = [
+            record
+            for record in filtered
+            if query.related_evidence_id in record.related_evidence_ids
+        ]
+    if query.created_after is not None:
+        filtered = [record for record in filtered if record.created_at >= query.created_after]
+    return sorted(filtered, key=lambda record: record.created_at, reverse=query.descending)

@@ -2,6 +2,7 @@
 # Copyright © 2025 Bijan Mousavi
 
 from __future__ import annotations
+from datetime import UTC, datetime
 
 from bijux_proteomics_lab import (
     AcceptanceOperator,
@@ -255,6 +256,39 @@ def test_query_feedback_records_filters_by_cycle_and_assay() -> None:
     )
 
     assert [record.feedback_id for record in filtered] == ["f1"]
+
+
+def test_query_feedback_records_supports_evidence_and_time_filters() -> None:
+    records = [
+        LabFeedbackRecord(
+            feedback_id="f-old",
+            program_id="prog-1",
+            cycle_id="cycle-1",
+            summary="old feedback",
+            related_assay_ids=["a1"],
+            related_evidence_ids=["e1"],
+            created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        ),
+        LabFeedbackRecord(
+            feedback_id="f-new",
+            program_id="prog-1",
+            cycle_id="cycle-1",
+            summary="new feedback",
+            related_assay_ids=["a1"],
+            related_evidence_ids=["e2"],
+            created_at=datetime(2026, 2, 1, tzinfo=UTC),
+        ),
+    ]
+    filtered = query_feedback_records(
+        records,
+        LabFeedbackQuery(
+            program_id="prog-1",
+            related_evidence_id="e2",
+            created_after=datetime(2026, 1, 15, tzinfo=UTC),
+        ),
+    )
+
+    assert [record.feedback_id for record in filtered] == ["f-new"]
 
 
 def test_evaluate_assay_acceptance_marks_below_detection_as_inconclusive() -> None:
