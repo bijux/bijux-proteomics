@@ -175,6 +175,37 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
     assert "failed assays: primary-binding" in packet.blocking_findings
 
 
+def test_build_review_packet_blocks_qc_warning_even_if_passed() -> None:
+    program = create_program_spec(
+        program_id="prog-qc",
+        name="qc warning",
+        objective="block warning observations",
+        target_id="target-qc",
+        target_name="Target",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="gate quality signals",
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-qc", target_id="target-qc")
+    packet = build_review_packet(
+        program,
+        bundle,
+        [
+            AssayObservation(
+                assay_id="assay-qc",
+                metric="binding_score",
+                value=0.9,
+                passed=True,
+                qc_state="warning",
+                interpretation_confidence=0.95,
+            )
+        ],
+    )
+
+    assert packet.ready_for_synthesis is False
+    assert any("assay-qc" in finding for finding in packet.blocking_findings)
+
+
 def test_recommend_next_cycle_requests_redesign_after_failed_assay() -> None:
     program = create_program_spec(
         program_id="prog-1",

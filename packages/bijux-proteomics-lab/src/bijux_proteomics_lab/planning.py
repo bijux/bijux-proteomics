@@ -39,6 +39,21 @@ class AssayObservation(JsonModel):
     value: float = Field(..., description="Observed value.")
     unit: str | None = Field(default=None, description="Measurement unit.")
     passed: bool = Field(..., description="Whether the observation met expectations.")
+    replicate_values: list[float] = Field(
+        default_factory=list,
+        description="Raw replicate values captured for the observation.",
+    )
+    summary_statistic: str | None = Field(default=None, description="Summary statistic used for decisioning.")
+    dispersion: float | None = Field(default=None, ge=0.0, description="Replicate dispersion signal.")
+    qc_state: str = Field(default="passed", description="QC state such as passed, warning, or failed.")
+    normalization_method: str | None = Field(default=None, description="Normalization method applied.")
+    censoring_flag: bool = Field(default=False, description="Whether the observation was censored by detection limits.")
+    interpretation_confidence: float = Field(
+        default=1.0,
+        ge=0.0,
+        le=1.0,
+        description="Confidence in interpretation quality for this observation.",
+    )
 
 
 class ExperimentBatch(JsonModel):
@@ -633,7 +648,9 @@ def build_review_packet(
     required_kinds = [need.value for need in program.evidence_needs]
     readiness = assess_decision_readiness(bundle, required_kinds)
     failed_assays = [
-        observation.assay_id for observation in observations if not observation.passed
+        observation.assay_id
+        for observation in observations
+        if _observation_blocks_progression(observation)
     ]
     blockers = list(readiness.blockers)
     if failed_assays:
@@ -651,6 +668,19 @@ def build_review_packet(
         blocking_findings=blockers,
         recommended_actions=recommendations,
     )
+
+
+def _observation_blocks_progression(observation: AssayObservation) -> bool:
+    """Return whether an observation should block progression."""
+    if not observation.passed:
+        return True
+    if observation.qc_state.lower() in {"failed", "warning"}:
+        return True
+    if observation.censoring_flag:
+        return True
+    if observation.interpretation_confidence < 0.6:
+        return True
+    return False
 
 
 def recommend_next_cycle(
