@@ -1,0 +1,56 @@
+openapi: 3.1.0
+info:
+  title: bijux-proteomics-foundation API
+  version: v1
+  summary: Foundation package service contract for shared runtime metadata.
+  description: >
+    API contract for foundation-level metadata and readiness checks.
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: /
+security: []
+paths:
+  /health:
+    get:
+      operationId: foundationHealth
+      summary: Health check
+      responses:
+        "200":
+          description: Service health response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /ready:
+    get:
+      operationId: foundationReady
+      summary: Readiness check
+      responses:
+        "200":
+          description: Service readiness response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadyResponse"
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: ok
+    ReadyResponse:
+      type: object
+      additionalProperties: false
+      required: [ready, package]
+      properties:
+        ready:
+          type: boolean
+        package:
+          type: string
+          const: bijux-proteomics-foundation
