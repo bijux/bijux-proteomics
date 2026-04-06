@@ -441,6 +441,43 @@ def test_conflict_detection_captures_opposite_claim_polarity() -> None:
     ]
 
 
+def test_conflict_detection_flags_quantitative_direction_conflict() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-quant-direction",
+        target_id="target-quant-direction",
+        records=[
+            EvidenceRecord(
+                evidence_id="q1",
+                kind=EvidenceKind.ASSAY,
+                title="effect positive",
+                source="lab-1",
+                decision_tags=["progression"],
+                endpoint="activity_ratio",
+                claim="Activity increases.",
+                confidence=0.82,
+                strength=EvidenceStrength.SUPPORTING,
+                quantitative_support=QuantitativeSupport(effect_size=1.2),
+            ),
+            EvidenceRecord(
+                evidence_id="q2",
+                kind=EvidenceKind.ASSAY,
+                title="effect negative",
+                source="lab-2",
+                decision_tags=["progression"],
+                endpoint="activity_ratio",
+                claim="Activity decreases.",
+                confidence=0.81,
+                strength=EvidenceStrength.SUPPORTING,
+                quantitative_support=QuantitativeSupport(effect_size=-0.7),
+            ),
+        ],
+    )
+
+    conflicts = flag_conflicting_evidence(bundle)
+
+    assert conflicts[0].conflict_type == "quantitative_direction_conflict"
+
+
 def test_record_scoring_and_helpers_are_exposed_for_policy_use() -> None:
     now = datetime(2026, 1, 10, tzinfo=UTC)
     record = EvidenceRecord(

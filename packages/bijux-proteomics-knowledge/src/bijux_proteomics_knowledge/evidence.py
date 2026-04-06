@@ -441,6 +441,15 @@ class ConflictPolicy(JsonModel):
         default=True,
         description="Whether same-source assay records with divergent claims should conflict.",
     )
+    detect_quantitative_direction_conflicts: bool = Field(
+        default=True,
+        description="Whether opposite quantitative effect directions should conflict.",
+    )
+    magnitude_divergence_threshold: float = Field(
+        default=1.5,
+        ge=0.0,
+        description="Minimum absolute effect-size difference to flag magnitude disagreement.",
+    )
 
 
 class EvidenceRefreshPriority(StrEnum):
@@ -1089,6 +1098,39 @@ def flag_conflicting_evidence(
             if left.claim.strip().lower() == right.claim.strip().lower():
                 continue
             if (
+                policy.detect_quantitative_direction_conflicts
+                and left.endpoint
+                and right.endpoint
+                and left.endpoint.strip().lower() == right.endpoint.strip().lower()
+                and _has_opposite_effect_direction(left, right)
+            ):
+                conflicts.append(
+                    EvidenceConflict(
+                        conflict_type="quantitative_direction_conflict",
+                        severity="high",
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="records show opposite quantitative effect direction on a shared endpoint",
+                    )
+                )
+                continue
+            if (
+                left.endpoint
+                and right.endpoint
+                and left.endpoint.strip().lower() == right.endpoint.strip().lower()
+                and _has_magnitude_conflict(left, right, threshold=policy.magnitude_divergence_threshold)
+            ):
+                conflicts.append(
+                    EvidenceConflict(
+                        conflict_type="quantitative_magnitude_conflict",
+                        severity="medium",
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="records show a large effect-size magnitude disagreement on a shared endpoint",
+                    )
+                )
+                continue
+            if (
                 policy.detect_assay_readout_conflicts
                 and left.kind is EvidenceKind.ASSAY
                 and left.source_uri is not None
@@ -1171,6 +1213,22 @@ def _looks_polarity_conflict(left_claim: str, right_claim: str) -> bool:
     left_negative = any(token in left_text for token in negative_tokens)
     right_negative = any(token in right_text for token in negative_tokens)
     return (left_positive and right_negative) or (left_negative and right_positive)
+
+
+def _has_opposite_effect_direction(left: EvidenceRecord, right: EvidenceRecord) -> bool:
+    left_effect = left.quantitative_support.effect_size if left.quantitative_support else None
+    right_effect = right.quantitative_support.effect_size if right.quantitative_support else None
+    if left_effect is None or right_effect is None:
+        return False
+    return (left_effect > 0 and right_effect < 0) or (left_effect < 0 and right_effect > 0)
+
+
+def _has_magnitude_conflict(left: EvidenceRecord, right: EvidenceRecord, *, threshold: float) -> bool:
+    left_effect = left.quantitative_support.effect_size if left.quantitative_support else None
+    right_effect = right.quantitative_support.effect_size if right.quantitative_support else None
+    if left_effect is None or right_effect is None:
+        return False
+    return abs(left_effect - right_effect) >= threshold
 
 
 def compute_bundle_trust(
