@@ -28,17 +28,17 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["CLI entrypoint in src/bijux_proteomics_intelligence/interfaces/cli/entrypoint.py"]
+    surface1["CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py"]
     surface1 --> page
-    surface2["HTTP app in src/bijux_proteomics_intelligence/api/v1"]
+    surface2["HTTP app in src/bijux_proteomics_intelligence/evaluators.py"]
     surface2 --> page
-    surface3["schema files in api/bijux-proteomics-intelligence/v1"]
+    surface3["ranking contracts in src/bijux_proteomics_intelligence/policies.py"]
     surface3 --> page
-    proof1["api/bijux-proteomics-intelligence/v1/schema.hash"]
+    proof1["src/bijux_proteomics_intelligence/policies.py"]
     page --> proof1
     proof2["execution store records"]
     page --> proof2
-    proof3["api/bijux-proteomics-intelligence/v1/schema.yaml"]
+    proof3["src/bijux_proteomics_intelligence/policies.py"]
     page --> proof3
     review1["tests/regression and tests/smoke for replay and storage protection"]
     review1 -.raises compatibility pressure on.-> page
@@ -54,21 +54,21 @@ flowchart TB
 
 ## API Artifacts
 
-- api/bijux-proteomics-intelligence/v1/schema.yaml
-- api/bijux-proteomics-intelligence/v1/schema.hash
+- src/bijux_proteomics_intelligence/policies.py
+- src/bijux_proteomics_intelligence/policies.py
 
 ## Boundary Modules
 
-- CLI entrypoint in src/bijux_proteomics_intelligence/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics_intelligence/api/v1
-- schema files in api/bijux-proteomics-intelligence/v1
+- CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py
+- HTTP app in src/bijux_proteomics_intelligence/evaluators.py
+- ranking contracts in src/bijux_proteomics_intelligence/policies.py
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/bijux_proteomics_intelligence/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics_intelligence/api/v1
-- schema files in api/bijux-proteomics-intelligence/v1
-- api/bijux-proteomics-intelligence/v1/schema.yaml
+- CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py
+- HTTP app in src/bijux_proteomics_intelligence/evaluators.py
+- ranking contracts in src/bijux_proteomics_intelligence/policies.py
+- src/bijux_proteomics_intelligence/policies.py
 
 ## Use This Page When
 

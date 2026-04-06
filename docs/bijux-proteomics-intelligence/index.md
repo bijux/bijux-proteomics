@@ -1,5 +1,5 @@
 ---
-title: Runtime Handbook
+title: bijux-proteomics-intelligence
 audience: mixed
 type: index
 status: canonical
@@ -7,17 +7,18 @@ owner: bijux-proteomics-intelligence-docs
 last_reviewed: 2026-04-04
 ---
 
-# Runtime Handbook
+# bijux-proteomics-intelligence
 
-`bijux-proteomics-intelligence` is the execution authority layer in `bijux-proteomics`. Start
-here when the question is about run acceptance, replay policy, persistence, or
-runtime-facing boundaries that sit above the rest of the package family.
+`bijux-proteomics-intelligence` is the decision and ranking package in
+`bijux-proteomics`. Start here when the question is about candidate scoring,
+portfolio ordering, scenario evaluation, or explainability outputs used to
+advance or redesign programs.
 
 ## Read This Section When
 
-- you need the package-level entrypoint for runtime docs
-- you are checking execution, replay, or persistence behavior
-- you want the shortest route into the owned runtime documentation
+- you need the package-level entrypoint for scoring and recommendation logic
+- you are checking candidate ranking policy and scenario outcome rules
+- you want the shortest route into explainability-oriented decision artifacts
 
 ## Main Paths
 
