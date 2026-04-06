@@ -296,6 +296,19 @@ class UnresolvedQuestionLedger(JsonModel):
     )
 
 
+class AdvancedIntelligenceReviewPacket(JsonModel):
+    """Review packet including escalation and uncertainty-ledger context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    base_packet: IntelligenceReviewPacket = Field(..., description="Base intelligence review packet.")
+    escalation: DecisionEscalationFlags = Field(..., description="Escalation flags for decision governance.")
+    unresolved_questions: UnresolvedQuestionLedger = Field(
+        ...,
+        description="Deduplicated unresolved question ledger.",
+    )
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -823,4 +836,20 @@ def summarize_unresolved_question_ledger(
     return UnresolvedQuestionLedger(
         question_counts=counts,
         prioritized_questions=prioritized,
+    )
+
+
+def build_advanced_review_packet(
+    evaluations: ScenarioSetEvaluation,
+    ranking: CandidateRanking,
+    risks: list[CandidateRiskProfile],
+) -> AdvancedIntelligenceReviewPacket:
+    """Build advanced review packet with escalation and unresolved question ledger."""
+    base = build_intelligence_review_packet(evaluations, ranking, risks)
+    escalation = derive_decision_escalation_flags(evaluations)
+    ledger = summarize_unresolved_question_ledger(evaluations)
+    return AdvancedIntelligenceReviewPacket(
+        base_packet=base,
+        escalation=escalation,
+        unresolved_questions=ledger,
     )

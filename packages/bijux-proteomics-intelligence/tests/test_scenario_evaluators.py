@@ -27,6 +27,7 @@ from bijux_proteomics_intelligence import (
     derive_decision_escalation_flags,
     build_final_decision_recommendation,
     summarize_unresolved_question_ledger,
+    build_advanced_review_packet,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -570,3 +571,38 @@ def test_summarize_unresolved_question_ledger_prioritizes_frequent_questions() -
 
     assert ledger.prioritized_questions
     assert isinstance(ledger.question_counts, dict)
+
+
+def test_build_advanced_review_packet_includes_escalation_and_ledger() -> None:
+    grouped = evaluate_all_scenarios(
+        create_program_spec(
+            program_id="prog-advanced-packet",
+            name="advanced packet",
+            objective="compose advanced review packet",
+            target_id="target-advanced-packet",
+            target_name="Target Advanced Packet",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            organism="human",
+            mechanism="advanced packet composition",
+        ),
+        CandidateRanking(
+            program_id="prog-advanced-packet",
+            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ),
+        _ready_state(),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        policies=EvaluatorPolicyBundle(),
+    )
+
+    packet = build_advanced_review_packet(
+        grouped,
+        CandidateRanking(
+            program_id="prog-advanced-packet",
+            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+    )
+
+    assert packet.base_packet.notes
+    assert isinstance(packet.escalation.escalate_to_human_review, bool)
+    assert isinstance(packet.unresolved_questions.question_counts, dict)
