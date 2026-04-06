@@ -38,3 +38,7 @@ cross-package serialization consistency, start here.
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/maintainer/pypi.md)
+
+## Primary entrypoint
+
+- import-first library package; no console script is published
