@@ -370,6 +370,10 @@ def test_validate_program_detects_missing_review_and_assay_modeling() -> None:
         code="assay-panel-missing",
         message="lab-ready programs should define an assay panel",
     ) in issues
+    assert ProgramValidationIssue(
+        code="translational-assumptions-missing",
+        message="lab-ready programs should define translational assumptions",
+    ) in issues
 
 
 def test_validate_program_readiness_flags_unmapped_review_inputs() -> None:

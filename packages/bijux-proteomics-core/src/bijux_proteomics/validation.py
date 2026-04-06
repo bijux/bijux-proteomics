@@ -92,6 +92,13 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                 message="lab-ready programs should include at least one blocking assay",
             )
         )
+    if program.stage is ProgramStage.LAB_READY and not program.translational_assumptions:
+        issues.append(
+            ProgramValidationIssue(
+                code="translational-assumptions-missing",
+                message="lab-ready programs should define translational assumptions",
+            )
+        )
     if program.review_gates and not program.operating_model.decision_owner_roles:
         issues.append(
             ProgramValidationIssue(
