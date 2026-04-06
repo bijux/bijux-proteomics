@@ -224,6 +224,17 @@ class ObservationSummary(JsonModel):
     below_detection_limit: bool = Field(default=False, description="Whether signal is below detection.")
 
 
+class EvidencePromotionReadiness(JsonModel):
+    """Promotion readiness for one assay outcome entering knowledge systems."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    ready: bool = Field(..., description="Whether the outcome is ready for evidence promotion.")
+    blockers: list[str] = Field(default_factory=list, description="Blockers preventing promotion.")
+    recommended_action: str = Field(..., min_length=1, description="Next action before promotion.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -419,4 +430,34 @@ def summarize_observation(observation: AssayObservationRecord) -> ObservationSum
         replicate_count=len(values),
         dispersion=observation.dispersion,
         below_detection_limit=observation.below_detection_limit,
+    )
+
+
+def assess_evidence_promotion_readiness(outcome: AssayOutcome) -> EvidencePromotionReadiness:
+    """Assess whether an assay outcome should be promoted as decision-grade evidence."""
+    blockers: list[str] = []
+    if outcome.result_state in {
+        AssayResultState.FAILED_TECHNICAL,
+        AssayResultState.FAILED_REPRODUCIBILITY,
+        AssayResultState.INCONCLUSIVE,
+    }:
+        blockers.append(f"result_state={outcome.result_state.value}")
+    if outcome.uncertainty > 0.5:
+        blockers.append(f"uncertainty={outcome.uncertainty:.2f} exceeds promotion threshold")
+    if outcome.replicate_count < 2:
+        blockers.append("replicate_count below promotion minimum")
+    ready = not blockers and outcome.passed
+    if ready:
+        action = "promote outcome to knowledge evidence bundle"
+    elif outcome.result_state is AssayResultState.FAILED_TECHNICAL:
+        action = "rerun assay after resolving technical failure"
+    elif outcome.result_state is AssayResultState.FAILED_REPRODUCIBILITY:
+        action = "repeat assay with improved replicate consistency controls"
+    else:
+        action = "curate interpretation and collect additional orthogonal evidence"
+    return EvidencePromotionReadiness(
+        assay_id=outcome.assay_id,
+        ready=ready,
+        blockers=blockers,
+        recommended_action=action,
     )

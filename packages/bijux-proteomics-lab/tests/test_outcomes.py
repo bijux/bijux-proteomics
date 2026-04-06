@@ -23,6 +23,7 @@ from bijux_proteomics_lab import (
     recommend_rerun_policy,
     summarize_experiment_outcome,
     summarize_observation,
+    assess_evidence_promotion_readiness,
 )
 
 
@@ -357,6 +358,23 @@ def test_summarize_observation_uses_replicate_statistics() -> None:
     assert summary.replicate_count == 3
     assert summary.mean_value == 1.0
     assert summary.median_value == 1.0
+
+
+def test_assess_evidence_promotion_readiness_blocks_uncertain_inconclusive_outcomes() -> None:
+    readiness = assess_evidence_promotion_readiness(
+        AssayOutcome(
+            assay_id="assay-promote",
+            passed=False,
+            result_state=AssayResultState.INCONCLUSIVE,
+            observation_summary="signal below detection",
+            failure_class=FailureClass.INTERPRETATION,
+            replicate_count=1,
+            uncertainty=0.7,
+        )
+    )
+
+    assert readiness.ready is False
+    assert any("result_state" in blocker for blocker in readiness.blockers)
 
 
 def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:

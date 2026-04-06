@@ -17,6 +17,7 @@ from bijux_proteomics_lab.outcomes import (
     ExperimentOutcome,
     ExperimentOutcomeSummary,
     ObservationSummary,
+    EvidencePromotionReadiness,
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
@@ -24,6 +25,7 @@ from bijux_proteomics_lab.outcomes import (
     recommend_rerun_policy,
     summarize_experiment_outcome,
     summarize_observation,
+    assess_evidence_promotion_readiness,
 )
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
@@ -98,6 +100,7 @@ __all__ = [
     "ExperimentOutcome",
     "ExperimentOutcomeSummary",
     "ObservationSummary",
+    "EvidencePromotionReadiness",
     "ExperimentPlan",
     "FamilyCapacity",
     "FailureClass",
@@ -131,6 +134,7 @@ __all__ = [
     "recommend_rerun_policy",
     "summarize_experiment_outcome",
     "summarize_observation",
+    "assess_evidence_promotion_readiness",
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
     "prioritize_next_assays",
