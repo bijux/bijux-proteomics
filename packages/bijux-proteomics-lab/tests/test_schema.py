@@ -6,6 +6,7 @@ from __future__ import annotations
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_lab import (
     LabArtifactSchemaContract,
+    build_lab_schema_upgrade_advisory,
     evaluate_lab_artifact_with_registry,
     evaluate_lab_artifact_schema_contract,
     evaluate_lab_schema_compatibility,
@@ -40,3 +41,11 @@ def test_evaluate_lab_artifact_with_registry_flags_unknown_kind() -> None:
 
     assert report.compatible is False
     assert "no schema contract registered" in report.notes[0]
+
+
+def test_build_lab_schema_upgrade_advisory_recommends_upgrade_for_old_schema() -> None:
+    advisory = build_lab_schema_upgrade_advisory(
+        DocumentSchema(schema_version="0.9.0", created_by="bijux-proteomics-lab")
+    )
+
+    assert advisory.action == "upgrade"

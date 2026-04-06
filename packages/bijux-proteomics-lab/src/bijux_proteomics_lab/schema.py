@@ -32,6 +32,18 @@ class LabSchemaCompatibilityReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Compatibility rationale.")
 
 
+class LabSchemaUpgradeAdvisory(JsonModel):
+    """Upgrade advisory derived from schema compatibility evaluation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(..., min_length=1, description="Profile identifier used for evaluation.")
+    current_schema_version: str = Field(..., min_length=1, description="Current schema version.")
+    recommended_schema_version: str = Field(..., min_length=1, description="Recommended schema version.")
+    action: str = Field(..., min_length=1, description="Action recommendation: keep, upgrade, or investigate.")
+    notes: list[str] = Field(default_factory=list, description="Upgrade rationale.")
+
+
 class LabArtifactSchemaContract(JsonModel):
     """Schema contract for a specific lab artifact kind."""
 
@@ -149,10 +161,37 @@ def evaluate_lab_artifact_with_registry(
     return evaluate_lab_artifact_schema_contract(schema, contract=contract)
 
 
+def build_lab_schema_upgrade_advisory(
+    schema: SchemaMetadata,
+    *,
+    profile: LabSchemaProfile | None = None,
+) -> LabSchemaUpgradeAdvisory:
+    """Build actionable schema upgrade guidance for lab artifacts."""
+    profile = profile or default_lab_schema_profile()
+    compatibility = evaluate_lab_schema_compatibility(schema, profile=profile)
+    if not compatibility.compatible:
+        action = "upgrade"
+        notes = ["schema is below minimum compatibility threshold"]
+    elif schema.schema_version != profile.recommended_schema_version:
+        action = "investigate"
+        notes = ["schema is compatible but differs from recommended profile version"]
+    else:
+        action = "keep"
+        notes = ["schema aligns with recommended profile"]
+    return LabSchemaUpgradeAdvisory(
+        profile_id=profile.profile_id,
+        current_schema_version=schema.schema_version,
+        recommended_schema_version=profile.recommended_schema_version,
+        action=action,
+        notes=notes,
+    )
+
+
 __all__ = [
     "SchemaMetadata",
     "LabSchemaProfile",
     "LabSchemaCompatibilityReport",
+    "LabSchemaUpgradeAdvisory",
     "default_lab_schema_profile",
     "evaluate_lab_schema_compatibility",
     "LabArtifactSchemaContract",
@@ -160,4 +199,5 @@ __all__ = [
     "LabSchemaContractRegistry",
     "default_lab_schema_contract_registry",
     "evaluate_lab_artifact_with_registry",
+    "build_lab_schema_upgrade_advisory",
 ]
