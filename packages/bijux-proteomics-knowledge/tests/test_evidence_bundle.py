@@ -548,6 +548,49 @@ def test_triangulate_evidence_scores_modality_convergence() -> None:
     assert report.convergence_score > 0
 
 
+def test_conflict_detection_flags_species_context_mismatch() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-species",
+        target_id="target-species",
+        records=[
+            EvidenceRecord(
+                evidence_id="s1",
+                kind=EvidenceKind.ASSAY,
+                title="human assay",
+                source="lab-h",
+                claim="Candidate meets activity gate.",
+                decision_tags=["progression"],
+                species="human",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="s2",
+                kind=EvidenceKind.ASSAY,
+                title="mouse assay",
+                source="lab-m",
+                claim="Candidate meets activity gate.",
+                decision_tags=["progression"],
+                species="mouse",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    conflicts = flag_conflicting_evidence(bundle)
+
+    assert conflicts == [
+        EvidenceConflict(
+            conflict_type="species_context_mismatch",
+            severity="medium",
+            left_evidence_id="s1",
+            right_evidence_id="s2",
+            reason="records inform the same decision tag under different species contexts",
+        )
+    ]
+
+
 def test_attach_manual_notes_creates_curated_evidence_records() -> None:
     bundle = EvidenceBundle(bundle_id="bundle-4", target_id="target-4")
 

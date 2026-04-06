@@ -787,6 +787,36 @@ def flag_conflicting_evidence(
                     )
                 )
                 continue
+            if (
+                left.species is not None
+                and right.species is not None
+                and left.species.strip().lower() != right.species.strip().lower()
+            ):
+                conflicts.append(
+                    EvidenceConflict(
+                        conflict_type="species_context_mismatch",
+                        severity="medium",
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="records inform the same decision tag under different species contexts",
+                    )
+                )
+                continue
+            if (
+                left.biological_system is not None
+                and right.biological_system is not None
+                and left.biological_system.strip().lower() != right.biological_system.strip().lower()
+            ):
+                conflicts.append(
+                    EvidenceConflict(
+                        conflict_type="biological_system_mismatch",
+                        severity="medium",
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="records inform the same decision tag under different biological systems",
+                    )
+                )
+                continue
             if {left.strength, right.strength} == {
                 EvidenceStrength.DECISIVE,
                 EvidenceStrength.EXPLORATORY,
