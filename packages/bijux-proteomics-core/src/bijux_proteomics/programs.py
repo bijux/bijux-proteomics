@@ -32,8 +32,10 @@ from bijux_proteomics.repositories import (
     ReviewGateEvaluation,
     ReviewGateState,
     ReviewOutcome,
+    decision_timeline,
     evaluate_review_gate,
     evaluate_review_gates,
+    latest_gate_decision,
     validate_review_decision,
 )
 from bijux_proteomics.targets import (
@@ -70,8 +72,10 @@ __all__ = [
     "ScientificConstraint",
     "SuccessCriterion",
     "create_program_spec",
+    "decision_timeline",
     "evaluate_review_gate",
     "evaluate_review_gates",
+    "latest_gate_decision",
     "validate_review_decision",
     "advance_stage",
     "allowed_next_stages",

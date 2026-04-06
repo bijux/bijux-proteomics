@@ -47,9 +47,11 @@ from bijux_proteomics.repositories import (
     ReviewGateEvaluation,
     ReviewGateState,
     ReviewOutcome,
+    decision_timeline,
     evaluate_review_gate,
     evaluate_review_gates,
     ensure_review_clearance,
+    latest_gate_decision,
     validate_review_decision,
 )
 from bijux_proteomics.runtime_adapter import (
@@ -120,7 +122,9 @@ __all__ = [
     "advance_stage",
     "allowed_next_stages",
     "create_program_spec",
+    "decision_timeline",
     "ensure_review_clearance",
+    "latest_gate_decision",
     "execute_program",
     "program_summary",
     "sequence_length",

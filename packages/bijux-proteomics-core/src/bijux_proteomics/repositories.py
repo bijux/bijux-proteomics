@@ -126,6 +126,33 @@ def validate_review_decision(decision: ReviewDecision) -> list[str]:
     return issues
 
 
+def latest_gate_decision(
+    program_id: str,
+    gate_id: str,
+    decisions: list[ReviewDecision],
+) -> ReviewDecision | None:
+    """Return the latest decision for one gate in a program."""
+    matches = [
+        decision
+        for decision in decisions
+        if decision.program_id == program_id and decision.gate_id == gate_id
+    ]
+    if not matches:
+        return None
+    return sorted(matches, key=lambda decision: decision.decided_at)[-1]
+
+
+def decision_timeline(
+    program_id: str,
+    decisions: list[ReviewDecision],
+) -> list[ReviewDecision]:
+    """Return all decisions for a program ordered by decision timestamp."""
+    return sorted(
+        [decision for decision in decisions if decision.program_id == program_id],
+        key=lambda decision: decision.decided_at,
+    )
+
+
 def evaluate_review_gate(
     gate: ReviewGate,
     decisions: list[ReviewDecision],

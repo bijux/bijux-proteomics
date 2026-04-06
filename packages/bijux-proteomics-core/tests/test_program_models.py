@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -21,9 +22,11 @@ from bijux_proteomics import (
     ProgramPortfolioContext,
     ReviewGateEvaluation,
     ReviewGateState,
+    decision_timeline,
     create_program_spec,
     evaluate_review_gates,
     ensure_review_clearance,
+    latest_gate_decision,
     program_summary,
     validate_review_decision,
     validate_assay_dependencies,
@@ -619,3 +622,29 @@ def test_validate_review_decision_requires_evidence_refs_for_approval() -> None:
     )
 
     assert issues == ["approved review decisions should reference supporting evidence ids"]
+
+
+def test_latest_gate_decision_and_timeline_are_time_ordered() -> None:
+    older = ReviewDecision(
+        program_id="prog-15",
+        gate_id="pre-synthesis",
+        outcome=ReviewOutcome.NEEDS_REVISION,
+        decided_by="scientist",
+        rationale="needs stronger assay corroboration",
+        reviewed_inputs=["review_packet"],
+        reviewed_evidence_ids=["ev-1"],
+    )
+    newer = older.model_copy(
+        update={
+            "outcome": ReviewOutcome.APPROVED,
+            "rationale": "evidence is now sufficient",
+            "decided_at": older.decided_at + timedelta(seconds=1),
+        }
+    )
+    decisions = [newer, older]
+
+    latest = latest_gate_decision("prog-15", "pre-synthesis", decisions)
+
+    assert latest is not None
+    assert latest.outcome is ReviewOutcome.APPROVED
+    assert decision_timeline("prog-15", decisions) == [older, newer]
