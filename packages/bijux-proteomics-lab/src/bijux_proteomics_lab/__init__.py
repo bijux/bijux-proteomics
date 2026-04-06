@@ -33,6 +33,8 @@ from bijux_proteomics_lab.outcomes import (
     OutcomeReliabilityAssessment,
     AssayReadinessRow,
     BatchReadinessMatrix,
+    AssayRerunAction,
+    BatchRerunPlan,
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
@@ -52,6 +54,7 @@ from bijux_proteomics_lab.outcomes import (
     assess_observation_quality,
     assess_outcome_reliability,
     build_batch_readiness_matrix,
+    build_batch_rerun_plan,
 )
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
@@ -227,6 +230,8 @@ __all__ = [
     "OutcomeReliabilityAssessment",
     "AssayReadinessRow",
     "BatchReadinessMatrix",
+    "AssayRerunAction",
+    "BatchRerunPlan",
     "ExperimentPlan",
     "FamilyCapacity",
     "FailureClass",
@@ -330,6 +335,7 @@ __all__ = [
     "assess_observation_quality",
     "assess_outcome_reliability",
     "build_batch_readiness_matrix",
+    "build_batch_rerun_plan",
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
     "prioritize_next_assays",

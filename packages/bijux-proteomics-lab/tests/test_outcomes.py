@@ -51,6 +51,7 @@ from bijux_proteomics_lab import (
     assess_outcome_reliability,
     OutcomeReliabilityTier,
     build_batch_readiness_matrix,
+    build_batch_rerun_plan,
 )
 
 
@@ -652,6 +653,32 @@ def test_build_batch_readiness_matrix_tracks_ready_count() -> None:
 
     assert matrix.batch_id == "batch-readiness"
     assert matrix.ready_count == 1
+
+
+def test_build_batch_rerun_plan_prioritizes_technical_failures() -> None:
+    plan = build_batch_rerun_plan(
+        ExperimentOutcome(
+            batch_id="batch-rerun",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="a2",
+                    passed=False,
+                    result_state=AssayResultState.INCONCLUSIVE,
+                    observation_summary="unclear",
+                ),
+                AssayOutcome(
+                    assay_id="a1",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_TECHNICAL,
+                    observation_summary="tech fail",
+                ),
+            ],
+            rerun_policy=RerunPolicy.NEVER,
+        )
+    )
+
+    assert plan.actions[0].assay_id == "a1"
+    assert plan.actions[0].priority == 1
 
 
 def test_query_feedback_records_supports_evidence_and_time_filters() -> None:

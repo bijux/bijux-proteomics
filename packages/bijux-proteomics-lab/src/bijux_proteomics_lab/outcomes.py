@@ -427,6 +427,27 @@ class BatchReadinessMatrix(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Batch readiness notes.")
 
 
+class AssayRerunAction(JsonModel):
+    """One rerun action recommendation for an assay."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    priority: int = Field(..., ge=1, description="Execution priority; lower values are more urgent.")
+    action: str = Field(..., min_length=1, description="Recommended rerun action.")
+    rationale: str = Field(..., min_length=1, description="Reason for rerun action.")
+
+
+class BatchRerunPlan(JsonModel):
+    """Rerun plan synthesized from batch outcomes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    actions: list[AssayRerunAction] = Field(default_factory=list, description="Recommended rerun actions.")
+    notes: list[str] = Field(default_factory=list, description="Batch-level rerun notes.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -1057,3 +1078,39 @@ def build_batch_readiness_matrix(
         ready_count=ready_count,
         notes=notes,
     )
+
+
+def build_batch_rerun_plan(outcome: ExperimentOutcome) -> BatchRerunPlan:
+    """Build prioritized rerun actions from batch assay outcomes."""
+    actions: list[AssayRerunAction] = []
+    for assay in outcome.assay_outcomes:
+        if assay.result_state is AssayResultState.FAILED_TECHNICAL:
+            actions.append(
+                AssayRerunAction(
+                    assay_id=assay.assay_id,
+                    priority=1,
+                    action="rerun with refreshed controls and instrument calibration checks",
+                    rationale="technical failure blocks reliable interpretation",
+                )
+            )
+        elif assay.result_state is AssayResultState.FAILED_REPRODUCIBILITY:
+            actions.append(
+                AssayRerunAction(
+                    assay_id=assay.assay_id,
+                    priority=1,
+                    action="rerun with expanded replicate design and stricter handling SOPs",
+                    rationale="reproducibility failure undermines confidence in signal direction",
+                )
+            )
+        elif assay.result_state is AssayResultState.INCONCLUSIVE:
+            actions.append(
+                AssayRerunAction(
+                    assay_id=assay.assay_id,
+                    priority=2,
+                    action="rerun with orthogonal controls and updated interpretation rubric",
+                    rationale="inconclusive result needs clarification before progression",
+                )
+            )
+    actions.sort(key=lambda item: (item.priority, item.assay_id))
+    notes = ["no reruns needed"] if not actions else ["reruns recommended before next progression decision"]
+    return BatchRerunPlan(batch_id=outcome.batch_id, actions=actions, notes=notes)
