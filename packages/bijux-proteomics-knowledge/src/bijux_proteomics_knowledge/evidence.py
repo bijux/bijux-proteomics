@@ -643,6 +643,17 @@ class EvidenceProvenanceReport(JsonModel):
     )
 
 
+class ContextScoringProfile(JsonModel):
+    """Configurable penalties for biological context mismatch scoring."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(..., min_length=1, description="Stable context scoring profile identifier.")
+    species_mismatch_penalty: float = Field(default=0.25, ge=0.0, le=1.0, description="Penalty for species mismatch.")
+    system_mismatch_penalty: float = Field(default=0.25, ge=0.0, le=1.0, description="Penalty for biological system mismatch.")
+    sample_type_mismatch_penalty: float = Field(default=0.2, ge=0.0, le=1.0, description="Penalty for sample-type mismatch.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -718,21 +729,23 @@ def assess_context_compatibility(
     expected_species: str | None = None,
     expected_system: str | None = None,
     expected_sample_type: str | None = None,
+    profile: ContextScoringProfile | None = None,
 ) -> ContextCompatibilityReport:
     """Assess how well evidence context matches expected program biology."""
+    profile = profile or ContextScoringProfile(profile_id="default-context-profile")
     notes: list[str] = []
     score = 1.0
     if expected_species is not None:
         if (record.species or "").lower() != expected_species.lower():
-            score -= 0.25
+            score -= profile.species_mismatch_penalty
             notes.append("species context does not match expected program species")
     if expected_system is not None:
         if (record.biological_system or "").lower() != expected_system.lower():
-            score -= 0.25
+            score -= profile.system_mismatch_penalty
             notes.append("biological system context does not match expected system")
     if expected_sample_type is not None:
         if (record.sample_type or "").lower() != expected_sample_type.lower():
-            score -= 0.2
+            score -= profile.sample_type_mismatch_penalty
             notes.append("sample type context does not match expected sample type")
     if not notes:
         notes.append("evidence context matches expected biology")

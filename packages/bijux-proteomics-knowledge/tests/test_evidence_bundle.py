@@ -15,6 +15,7 @@ from bijux_proteomics_knowledge import (
     rank_evidence_for_decision,
     evaluate_modality_coverage,
     summarize_evidence_provenance,
+    ContextScoringProfile,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -577,6 +578,35 @@ def test_assess_context_compatibility_flags_species_and_system_mismatch() -> Non
 
     assert report.score < 1.0
     assert any("species context" in note for note in report.notes)
+
+
+def test_assess_context_compatibility_supports_custom_scoring_profile() -> None:
+    record = EvidenceRecord(
+        evidence_id="ctx-profile-1",
+        kind=EvidenceKind.ASSAY,
+        title="context profile",
+        source="lab",
+        claim="signal",
+        confidence=0.7,
+        strength=EvidenceStrength.SUPPORTING,
+        species="mouse",
+        biological_system="NIH3T3",
+        sample_type="plasma",
+    )
+    report = assess_context_compatibility(
+        record,
+        expected_species="human",
+        expected_system="HEK293",
+        expected_sample_type="cell lysate",
+        profile=ContextScoringProfile(
+            profile_id="strict-profile",
+            species_mismatch_penalty=0.4,
+            system_mismatch_penalty=0.4,
+            sample_type_mismatch_penalty=0.1,
+        ),
+    )
+
+    assert report.score == 0.1
 
 
 def test_triangulate_evidence_scores_modality_convergence() -> None:
