@@ -16,47 +16,30 @@ This page exists so integration changes do not feel mysterious. A reviewer shoul
 be able to say which seams are intentional, which ones carry compatibility risk,
 and where the package expects outside systems to meet it.
 
-Treat the architecture pages for `bijux-proteomics-knowledge` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
-
 ## Visual Summary
 
 ```mermaid
 flowchart RL
-    page["Integration Seams<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["orchestration and replay coordination"]
-    module1 --> page
-    module2["durable runtime models"]
-    module2 --> page
-    module3["execution engines and lifecycle logic"]
-    module3 --> page
-    code1["src/bijux_proteomics_knowledge/runtime"]
-    page --> code1
-    code2["src/bijux_proteomics_knowledge/application"]
-    page --> code2
-    code3["src/bijux_proteomics_knowledge/model"]
-    page --> code3
-    pressure1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/e2e for governed flow behavior"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/regression and tests/smoke for replay and storage protection"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+    adapters["adapters.py"]
+    evidence["evidence.py"]
+    claims["claims.py"]
+    resolution["resolution.py"]
+    graph["graph.py"]
+    review["review.py"]
+    repositories["repositories.py"]
+    adapters --> evidence
+    evidence --> claims
+    claims --> resolution
+    claims --> graph
+    resolution --> review
+    repositories --> review
 ```
 
 ## Integration Surfaces
 
-- CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py
-- HTTP app in src/bijux_proteomics_knowledge/claims.py
-- knowledge contracts in src/bijux_proteomics_knowledge/schema.py
+- ingestion adapters that normalize external inputs (`adapters.py`)
+- serialization and schema boundaries used by other packages (`serialization.py`, `schema.py`)
+- repository protocols and review summaries consumed by downstream decision layers (`repositories.py`, `review.py`)
 
 ## Adjacent Systems
 
@@ -65,9 +48,11 @@ flowchart RL
 
 ## Concrete Anchors
 
-- `src/bijux_proteomics_knowledge/model` for durable runtime models
-- `src/bijux_proteomics_knowledge/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_knowledge/application` for orchestration and replay coordination
+- `src/bijux_proteomics_knowledge/adapters.py`
+- `src/bijux_proteomics_knowledge/evidence.py`
+- `src/bijux_proteomics_knowledge/claims.py`
+- `src/bijux_proteomics_knowledge/resolution.py`
+- `src/bijux_proteomics_knowledge/review.py`
 
 ## Use This Page When
 
