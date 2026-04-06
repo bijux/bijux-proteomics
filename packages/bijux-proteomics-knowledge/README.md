@@ -22,12 +22,13 @@
 [![Knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
 [![Lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
 
-`bijux-proteomics-knowledge` models the evidence layer that supports or blocks
-program decisions through explicit claims, trust scoring, and contradiction
-resolution.
+`bijux-proteomics-knowledge` models the evidence and claim layer behind protein
+program decisions, including trust scoring, contradiction handling, and
+decision-lineage structures.
 
-If you need to track why a decision was made, what evidence conflicts exist, or
-which gaps still block progression, start with this package.
+Use this package when you need auditable evidence provenance, conflict-aware
+knowledge management, and explicit reasoning about uncertainty and evidence
+gaps.
 
 ## What this package owns
 

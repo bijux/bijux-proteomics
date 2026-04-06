@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bijux-proteomics-foundation"
 version = "0.3.0"
-description = "Shared document and serialization primitives for Bijux Proteomics"
+description = "Schema governance and canonical serialization primitives for reproducible proteomics documents and cross-package compatibility"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"

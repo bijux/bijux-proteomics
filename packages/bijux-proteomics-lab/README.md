@@ -23,11 +23,12 @@
 [![Lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
 
 `bijux-proteomics-lab` converts scientific requirements into executable assay
-plans, schedule-aware experiment batches, and outcome summaries that feed back
-into program decisions.
+plans, dependency-aware schedules, and outcome interpretation that feeds back
+into program progression decisions.
 
-If you need planning outputs that are constrained by dependencies, capacity,
-and review gates, this is the package boundary.
+Use this package when you need lab-in-the-loop planning under gate constraints,
+capacity-aware batch construction, and rerun recommendations tied to assay
+outcomes.
 
 ## What this package owns
 

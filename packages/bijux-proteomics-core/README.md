@@ -22,11 +22,13 @@
 [![Knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
 [![Lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
 
-`bijux-proteomics-core` defines protein program entities, lifecycle transitions,
-review gates, assay requirements, and execution adapters used by the platform.
+`bijux-proteomics-core` defines the central protein program domain, including
+entities, lifecycle transitions, review gates, assay requirements, and
+execution interfaces used across the platform.
 
-If you need to understand what a program is, when it can advance, and which
-review constraints must hold before progression, this is the package boundary.
+Use this package when you need stage-based governance for protein programs,
+deterministic progression rules, and enforceable domain contracts for decision
+and execution pipelines.
 
 ## What this package owns
 

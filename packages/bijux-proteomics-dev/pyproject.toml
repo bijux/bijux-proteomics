@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bijux-proteomics-dev"
 dynamic = ["version"]
-description = "Repository-owned developer tooling for bijux-proteomics packages."
+description = "Monorepo developer toolkit for quality gates, security checks, release validation, and API schema governance"
 readme = "README.md"
 requires-python = ">=3.11,<4"
 license = { text = "Apache-2.0" }

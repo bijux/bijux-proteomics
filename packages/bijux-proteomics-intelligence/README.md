@@ -22,12 +22,12 @@
 [![Knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
 [![Lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
 
-`bijux-proteomics-intelligence` converts program intent and evidence posture into
-ranked candidate decisions with explicit policy, explainability, and risk
-signals.
+`bijux-proteomics-intelligence` transforms program intent and evidence posture
+into policy-governed candidate rankings, scenario recommendations, and
+decision outputs with explicit explainability and risk signals.
 
-If you need design briefs, ranking decisions, rejection reasons, or scenario
-recommendations, this package is the decision intelligence boundary.
+Use this package when you need transparent prioritization logic, rejection
+reasoning, and portfolio-aware progression guidance for protein design.
 
 ## What this package owns
 

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bijux-proteomics-knowledge"
 version = "0.3.0"
-description = "Evidence models for Bijux Proteomics"
+description = "Evidence, trust, and contradiction-resolution models for auditable proteomics decision knowledge graphs"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"

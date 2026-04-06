@@ -22,12 +22,13 @@
 [![Knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
 [![Lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
 
-`agentic-proteins` is the deterministic runtime package in the proteomics
-workspace. It owns execution flow, runtime artifacts, and replay-oriented
-guardrails for protein design workflows.
+`agentic-proteins` provides the deterministic execution engine for protein
+design workflows, including replayable runtime artifacts, policy-safe runtime
+state transitions, CLI automation, and API boundaries.
 
-If you need execution behavior, runtime state transitions, or inspectable run
-artifacts, start with this package.
+Use this package when you need production execution behavior, traceable
+artifacts for auditability, or runtime integration points for agentic and
+lab-in-the-loop protein design systems.
 
 ## What this package owns
 

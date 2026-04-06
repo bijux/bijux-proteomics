@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bijux-proteomics-lab"
 version = "0.3.0"
-description = "Experiment planning helpers for Bijux Proteomics"
+description = "Assay planning, schedule-aware experiment orchestration, and outcome interpretation for lab-in-the-loop proteomics"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"

@@ -22,12 +22,12 @@
 [![Knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
 [![Lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
 
-`bijux-proteomics-foundation` defines shared schema metadata, canonical JSON
-serialization behavior, and document ergonomics used by the rest of the
-proteomics package family.
+`bijux-proteomics-foundation` provides the shared schema and serialization layer
+for the package family, including canonical JSON behavior, document
+fingerprinting, and compatibility contracts for persisted scientific records.
 
-If you need stable document fingerprints, schema version tracking, or
-cross-package serialization consistency, start here.
+Use this package when you need versioned document governance, migration-safe
+serialization, and cross-package consistency for reproducible proteomics data.
 
 ## What this package owns
 

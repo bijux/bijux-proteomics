@@ -9,7 +9,7 @@ build-backend = "hatchling.build"
 [project]
 name = "agentic-proteins"
 dynamic = ["version"]
-description = "Deterministic, artifact-first protein design runtime and CLI"
+description = "Deterministic protein design runtime with replayable execution artifacts, CLI automation, and API surfaces for lab-in-the-loop workflows"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"

@@ -1,11 +1,11 @@
 # bijux-proteomics-dev
 
-`bijux-proteomics-dev` is the maintenance package for this monorepo. It owns
-the Python helpers behind root quality gates, security checks, release
-validation, OpenAPI drift checks, and repository automation.
+`bijux-proteomics-dev` is the maintenance toolkit for this monorepo. It
+provides Python helpers for root quality gates, security checks, release
+validation, OpenAPI drift detection, and repository automation.
 
-This package is for maintainers, CI, and root `make` targets. It is not part
-of the product runtime surface.
+Use this package for CI and maintainer workflows that enforce repository
+standards; it is intentionally separate from product runtime behavior.
 
 ## Package Family
 

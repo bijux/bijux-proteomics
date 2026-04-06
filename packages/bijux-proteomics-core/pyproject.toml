@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "bijux-proteomics-core"
 version = "0.3.0"
-description = "Program models and execution adapters for Bijux Proteomics"
+description = "Protein program domain models, lifecycle gates, and execution interfaces for stage-based discovery workflows"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
