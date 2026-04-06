@@ -1,283 +1,90 @@
-# Contributing to Bijux Proteomics
-<a id="top"></a>
+# Contributing
 
-This guide is the single source of truth for local setup, workflows, API validation, and PR rules. Follow it to ensure your changes pass CI seamlessly.
+This repository publishes multiple packages, but it should still feel like one
+coherent system. Good contributions improve a package without weakening the
+shared contracts that keep the rest of the workspace aligned.
 
----
+## Start With Placement
 
-## Table of Contents
+Choose the narrowest correct home for every change:
 
-- [Quick Start](#quick-start)
-- [Daily Workflow](#daily-workflow)
-- [API Development](#api-development)
-- [Docs](#docs)
-- [Tests & Coverage](#tests--coverage)
-- [Style, Types, Hygiene](#style-types-hygiene)
-- [Security & Supply Chain](#security--supply-chain)
-- [Make Targets (Mirror CI)](#make-targets-mirror-ci)
-- [Commits & PRs](#commits--prs)
-- [Pre-Commit](#pre-commit)
-- [Troubleshooting](#troubleshooting)
-- [Community & Conduct](#community--conduct)
+- package runtime behavior belongs in the owning package under `packages/`
+- repository-wide automation belongs in `makes/`
+- shared tool policy belongs in `configs/`
+- checked-in API contracts belong in `api/`
+- repository governance and handbook content belong at the root or in `docs/`
 
+If the same rule would need to be copied into multiple packages, that is a sign
+it probably belongs at the repository level instead.
 
+## Working Principles
 
----
+- prefer one shared fix over many package-local copies
+- keep generated outputs under `artifacts/`
+- keep names durable and descriptive rather than tied to temporary planning
+  language
+- write docs for humans first, especially in the root handbook
+- preserve compatibility shims only where they still serve a migration purpose
 
-<a id="quick-start"></a>
+## Local Workflow
 
-## Quick Start
+1. Read the root handbook entry points in `README.md` and `docs/`.
+2. Change the smallest surface that can honestly own the behavior.
+3. Run the checks that match the area you touched.
+4. Update contracts, docs, or metadata when the change affects shared behavior.
+5. Commit in a small, coherent step with a durable message.
 
-**Prereqs**
+## Validation Expectations
 
-- Python **3.11+** (`pyenv` recommended)
-- **GNU Make**
-- **Node.js + npm** (for API validation tooling)
-- Optional: **pre-commit** (to catch issues before pushing)
+Use the generated root help to discover the current command surface:
 
-**Setup**
+- `make help`
+- `make list`
+- `make list-all`
 
-```bash
-git clone https://github.com/bijux/bijux-proteomics.git
-cd bijux-proteomics
-make PYTHON=python3.11 install
-source .venv/bin/activate
-# optional but recommended
-pre-commit install
-```
+Typical validation flows:
 
-**Sanity check**
+- root docs and governance changes: `make docs-check`
+- root workflow or config changes: `make help`, `make list-all`, and any
+  relevant package or root targets
+- package-scoped changes: `make -C packages/<package> <target>`
+- repository package dispatch changes: `make <target> PACKAGE=<package>`
 
-```bash
-make lint test docs api
-```
+If you touch APIs, checked-in schemas, or publish flows, verify the resulting
+artifacts rather than assuming the repository state stayed consistent.
 
-* ✔ Pass → your env matches CI
-* ✘ Fail → jump to [Troubleshooting](#troubleshooting)
+## Commits
 
+Use Conventional Commits with clear, durable intent.
 
+Good examples:
 
----
+- `build(repo): centralize pytest configuration`
+- `docs(governance): clarify repository security reporting`
+- `refactor(ci): replace duplicated package workflow wiring`
 
-<a id="daily-workflow"></a>
+Avoid commit messages that depend on temporary project language or internal
+iteration labels. Someone reading the history two years later should still know
+what changed and why.
 
-## Daily Workflow
+## Pull Request Quality Bar
 
-* Everything runs inside **.venv/**
-* No global installs after `make install`
-* Make targets mirror CI jobs 1:1
+- explain the user-facing or maintainer-facing effect
+- call out compatibility impact when behavior or naming changed
+- mention any follow-up that still remains open
+- keep unrelated edits out of the same change
 
-**Core targets**
+## When Shared Files Move
 
-| Target          | What it does                                                                 |
-| --------------- | ---------------------------------------------------------------------------- |
-| `make test`     | `pytest` + coverage (HTML in `artifacts/test/htmlcov/`)                      |
-| `make lint`     | Format (ruff), lint (ruff), type-check (mypy), complexity (radon)             |
-| `make quality`  | Dead code (vulture), deps hygiene (deptry), docstrings (interrogate)          |
-| `make security` | Bandit + pip-audit                                                           |
-| `make api`      | OpenAPI lint + generator compat + Schemathesis contract tests                |
-| `make docs`     | Build MkDocs (strict)                                                        |
-| `make build`    | Build sdist + wheel                                                          |
-| `make sbom`     | CycloneDX SBOM → `artifacts/sbom/`                                           |
+If you move or rename root-owned files, update the references that point to
+them:
 
-**Handy helpers**
+- package metadata and URLs
+- workflow paths and automation
+- docs links and handbook navigation
+- contract or release references
 
-```bash
-make lint-file file=path/to/file.py
-make docs-serve    # local docs server
-# make docs-deploy # if you have perms
-```
+## Getting Help
 
-
-
----
-
-<a id="api-development"></a>
-
-## API Development
-
-**Schema:** `api/v1/schema.yaml`  
-**Tooling:** Prance, OpenAPI Spec Validator, Redocly, OpenAPI Generator, Schemathesis
-
-**Validate locally**
-
-```bash
-.venv/bin/uvicorn agentic_proteins.api.app:app --host 0.0.0.0 --port 8000 &
-make api
-```
-
-**Contract rules**
-
-* Errors use the documented API error taxonomy.
-* Response shapes and pagination are stable or versioned.
-* Breaking changes require a versioned path **and** a changelog entry.
-
-
-
----
-
-<a id="docs"></a>
-
-## Docs
-
-* Config: `mkdocs.yml` (Material, **strict**)
-* Build: `make docs`
-* Serve: `make docs-serve`
-* Deploy: `make docs-deploy` (if authorized)
-
-
-
----
-
-<a id="tests--coverage"></a>
-
-## Tests & Coverage
-
-* Run all tests: `make test`
-* Focused run: `pytest -k "<expr>" -q`
-* Coverage report: HTML in `artifacts/test/htmlcov/`
-* **Project bar:** keep coverage thresholds green and benchmarks within the regression gate.
-
-
-
----
-
-<a id="style-types-hygiene"></a>
-
-## Style, Types, Hygiene
-
-* **Formatting:** `ruff format` (enforced in `make lint`)
-* **Linting:** `ruff`
-* **Types:** `mypy` (strict)
-* **Complexity:** `radon`
-* **Docstrings:** `interrogate` (meet configured thresholds)
-
-Run them all:
-
-```bash
-make lint
-```
-
-
-
----
-
-<a id="security--supply-chain"></a>
-
-## Security & Supply Chain
-
-```bash
-make security  # bandit + pip-audit
-make sbom      # CycloneDX, saved to artifacts/sbom/
-```
-
-* No secrets in code or tests
-* Keep dependency pins sane; document any suppressions
-
-
-
----
-
-<a id="make-targets-mirror-ci"></a>
-
-## Make Targets (Mirror CI)
-
-| Target     | Runs            |
-| ---------- | --------------- |
-| `test`     | `make test`     |
-| `lint`     | `make lint`     |
-| `quality`  | `make quality`  |
-| `security` | `make security` |
-| `api`      | `make api`      |
-| `docs`     | `make docs`     |
-| `build`    | `make build`    |
-| `sbom`     | `make sbom`     |
-
-List all:
-
-```bash
-make help
-```
-
-
-
----
-
-<a id="commits--prs"></a>
-
-## Commits & PRs
-
-### Conventional Commits (required)
-
-```
-<type>(<scope>): <description>
-```
-
-**Types:** `feat` `fix` `docs` `style` `refactor` `test` `chore`
-
-**Example**
-
-```
-feat(runtime): enforce artifact immutability checks
-```
-
-**Breaking changes** must include:
-
-```
-BREAKING CHANGE: <explanation>
-```
-
-> Commit messages are validated (Commitizen via pre-commit hook).
-
-### PR Checklist
-
-1. Branch from `main`
-2. Run:
-
-   ```bash
-   make lint test api docs
-   ```
-3. Ensure Conventional Commits
-4. Open PR with clear summary & rationale
-
-
-
----
-
-<a id="pre-commit"></a>
-
-## Pre-Commit
-
-```bash
-pre-commit install
-```
-
-Runs critical checks locally (format, lint, commit message validation, etc.).
-
-
-
----
-
-<a id="troubleshooting"></a>
-
-## Troubleshooting
-
-* **Missing Node.js** → required for API validation tools
-* **Docs fail** → MkDocs is strict; fix broken links/includes
-* **Port in use for API tests** → kill old `uvicorn` or use a different port
-
-
-
----
-
-<a id="community--conduct"></a>
-
-## Community & Conduct
-
-Be kind and constructive. See the **Code of Conduct** in the docs site. If you see something off, let us know.
-
-
-
----
-
-**Build well. Break nothing.**
+Open an issue for questions that are not security-sensitive. For security
+issues, use the private reporting guidance in `SECURITY.md`.

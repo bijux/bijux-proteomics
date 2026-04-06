@@ -1,165 +1,59 @@
-Owner: Bijan Mousavi  
-Status: stable  
-Scope: Code of Conduct.  
+# Code of Conduct
 
-# Code of Conduct  
-<a id="top"></a>  
+`bijux-proteomics` should be a place where people can collaborate directly,
+critically, and respectfully. We care about clarity, rigor, and honest review,
+and none of those require hostility.
 
-We pledge to make our community welcoming, safe, and equitable for all.  
+## Scope
 
----  
+This code of conduct applies to:
 
-## Table of Contents  
+- all repository discussions, issues, pull requests, and reviews
+- package-specific documentation and examples
+- public spaces where someone is representing this repository
+- private communication that directly concerns repository participation
 
-- [Our Pledge](#our-pledge)  
-- [Encouraged Behaviors](#encouraged-behaviors)  
-- [Restricted Behaviors](#restricted-behaviors)  
-- [Other Restrictions](#other-restrictions)  
-- [Reporting an Issue](#reporting-an-issue)  
-- [Addressing and Repairing Harm](#addressing-and-repairing-harm)  
-- [Scope](#scope)  
-- [Attribution](#attribution)  
+## Expected Behavior
 
-  
+- Be respectful, direct, and constructive.
+- Critique ideas, code, and decisions without attacking people.
+- Make room for contributors with different levels of context and experience.
+- Accept correction without turning review into conflict.
+- Prefer clarity over sarcasm, status games, or performative harshness.
 
----  
+## Unacceptable Behavior
 
-<a id="our-pledge"></a>  
+- Harassment, intimidation, or discrimination
+- Personal attacks, insults, or demeaning language
+- Sharing private information without permission
+- Deliberately disruptive, misleading, or bad-faith participation
+- Retaliation against someone who reports a conduct concern
 
-## Our Pledge  
+## Enforcement
 
-We pledge to make our community welcoming, safe, and equitable for all.  
+Maintainers may take any action needed to protect the community and the
+repository, including:
 
-We are committed to fostering an environment that respects and promotes the dignity, rights, and contributions of all individuals, regardless of characteristics including race, ethnicity, caste, color, age, physical characteristics, neurodiversity, disability, sex or gender, gender identity or expression, sexual orientation, language, philosophy or religion, national or social origin, socio-economic position, level of education, or other status. The same privileges of participation are extended to everyone who participates in good faith and in accordance with this Covenant.  
+- asking for behavior to stop
+- moderating or removing comments
+- restricting repository participation
+- escalating severe cases to platform-level reporting
 
-  
+Enforcement decisions will aim to protect people first and keep the repository
+workable for everyone else.
 
----  
+## Reporting
 
-<a id="encouraged-behaviors"></a>  
+To report a code of conduct issue, contact
+[`bijan@bijux.io`](mailto:bijan@bijux.io).
 
-## Encouraged Behaviors  
+Please include any context that would help a fair review, such as links,
+screenshots, or the approximate time of the incident.
 
-While acknowledging differences in social norms, we all strive to meet our community's expectations for positive behavior. We also understand that our words and actions may be interpreted differently than we intend based on culture, background, or native language.  
+All reports will be reviewed as promptly and fairly as possible. Good-faith
+reports will be handled with care and without retaliation.
 
-With these considerations in mind, we agree to behave mindfully toward each other and act in ways that center our shared values, including:  
+## Attribution
 
-1. Respecting the **purpose of our community**, our activities, and our ways of gathering.  
-2. Engaging **kindly and honestly** with others.  
-3. Respecting **different viewpoints** and experiences.  
-4. **Taking responsibility** for our actions and contributions.  
-5. Gracefully giving and accepting **constructive feedback**.  
-6. Committing to **repairing harm** when it occurs.  
-7. Behaving in other ways that promote and sustain the **well-being of our community**.  
-
-  
-
----  
-
-<a id="restricted-behaviors"></a>  
-
-## Restricted Behaviors  
-
-We agree to restrict the following behaviors in our community. Instances, threats, and promotion of these behaviors are violations of this Code of Conduct.  
-
-1. **Harassment.** Violating explicitly expressed boundaries or engaging in unnecessary personal attention after any clear request to stop.  
-2. **Character attacks.** Making insulting, demeaning, or pejorative comments directed at a community member or group of people.  
-3. **Stereotyping or discrimination.** Characterizing anyone's personality or behavior on the basis of immutable identities or traits.  
-4. **Sexualization.** Behaving in a way that would generally be considered inappropriately intimate in the context or purpose of the community.  
-5. **Violating confidentiality**. Sharing or acting on someone's personal or private information without their permission.  
-6. **Endangerment.** Causing, encouraging, or threatening violence or other harm toward any person or group.  
-7. Behaving in other ways that **threaten the well-being** of our community.  
-
-  
-
----  
-
-<a id="other-restrictions"></a>  
-
-## Other Restrictions  
-
-1. **Misleading identity.** Impersonating someone else for any reason, or pretending to be someone else to evade enforcement actions.  
-2. **Failing to credit sources.** Not properly crediting the sources of content you contribute.  
-3. **Promotional materials**. Sharing marketing or other commercial content in a way that is outside the norms of the community.  
-4. **Irresponsible communication.** Failing to responsibly present content which includes, links or describes any other restricted behaviors.  
-
-  
-
----  
-
-<a id="reporting-an-issue"></a>  
-
-## Reporting an Issue  
-
-Tensions can occur between community members even when they are trying their best to collaborate. Not every conflict represents a code of conduct violation, and this Code of Conduct reinforces encouraged behaviors and norms that can help avoid conflicts and minimize harm.  
-
-When an incident does occur, it is important to report it promptly. To report a possible violation, contact the maintainers at **[mousavi.bijan@gmail.com](mailto:mousavi.bijan@gmail.com)**.  
-
-To help us investigate, please include (to the extent you're comfortable):  
-
-- What happened, and when  
-- Where it occurred (link, channel, or location)  
-- Names of people involved and any witnesses  
-- Any relevant context or screenshots  
-
-We will acknowledge receipt as soon as possible and handle reports promptly and fairly. We will respect the privacy and safety of reporters and witnesses.  
-
-**Anti-retaliation:** Retaliation against anyone who reports a concern or participates in an investigation is a violation of this Code.  
-
-  
-
----  
-
-<a id="addressing-and-repairing-harm"></a>  
-
-## Addressing and Repairing Harm  
-
-If an investigation by the project maintainers finds that this Code of Conduct has been violated, the following enforcement ladder may be used to determine how best to repair harm, based on the incident's impact on the individuals involved and the community as a whole. Depending on the severity of a violation, lower rungs on the ladder may be skipped.  
-
-1. **Warning**  
-   - *Impact:* A violation involving a single incident or series of incidents.  
-   - *Consequence:* A private, written warning from the maintainers.  
-   - *Repair:* Examples of repair include a private written apology, acknowledgement of responsibility, and seeking clarification on expectations.  
-
-2. **Temporarily Limited Activities**  
-   - *Impact:* A repeated incidence of a violation that previously resulted in a warning, or the first incidence of a more serious violation.  
-   - *Consequence:* A private, written warning with a time-limited cooldown period designed to underscore the seriousness of the situation and give the community members involved time to process the incident. The cooldown period may be limited to particular communication channels or interactions with particular community members.  
-   - *Repair:* Examples of repair may include making an apology, using the cooldown period to reflect on actions and impact, and being thoughtful about re-entering community spaces after the period is over.  
-
-3. **Temporary Suspension**  
-   - *Impact:* A pattern of repeated violation which the maintainers have tried to address with warnings, or a single serious violation.  
-   - *Consequence:* A private written warning with conditions for return from suspension. In general, temporary suspensions give the person being suspended time to reflect upon their behavior and possible corrective actions.  
-   - *Repair:* Examples of repair include respecting the spirit of the suspension, meeting the specified conditions for return, and being thoughtful about how to reintegrate with the community when the suspension is lifted.  
-
-4. **Permanent Ban**  
-   - *Impact:* A pattern of repeated code of conduct violations that other steps on the ladder have failed to resolve, or a violation so serious that the maintainers determine there is no way to keep the community safe with this person as a member.  
-   - *Consequence:* Access to all community spaces, tools, and communication channels is removed. In general, permanent bans should be rarely used, should have strong reasoning behind them, and should only be resorted to if working through other remedies has failed to change the behavior.  
-   - *Repair:* There is no possible repair in cases of this severity.  
-
-This enforcement ladder is intended as a guideline. It does not limit the ability of maintainers to use their discretion and judgment, in keeping with the best interests of our community.  
-
-  
-
----  
-
-<a id="scope"></a>  
-
-## Scope  
-
-This Code of Conduct applies within all project spaces, and also applies when an individual is officially representing the project in public or other spaces. Examples of representing our project include using an official email address, posting via an official social media account, or acting as an appointed representative at an online or offline event.  
-
-  
-
----  
-
-<a id="attribution"></a>  
-
-## Attribution  
-
-This Code of Conduct is adapted from the Contributor Covenant, version 3.0, permanently available at <https://www.contributor-covenant.org/version/3/0/>.  
-
-Contributor Covenant is stewarded by the Organization for Ethical Source and licensed under CC BY-SA 4.0. To view a copy of this license, visit <https://creativecommons.org/licenses/by-sa/4.0/>.  
-
-For answers to common questions about Contributor Covenant, see the FAQ at <https://www.contributor-covenant.org/faq>. Translations are provided at <https://www.contributor-covenant.org/translations>. Additional enforcement and community guideline resources can be found at <https://www.contributor-covenant.org/resources>.  
-
-  
+This document is adapted from the Contributor Covenant:
+<https://www.contributor-covenant.org/>.

@@ -1,153 +1,80 @@
-# Security Policy  
-<a id="top"></a>  
+# Security Policy
 
-*Last updated: 2025-08-10*  
+This repository uses coordinated vulnerability disclosure. Security reports are
+handled privately until we understand impact and have a remediation path.
 
-We follow **Coordinated Vulnerability Disclosure (CVD)**. Please report issues privately and allow time for remediation before public disclosure.  
+## What This Policy Covers
 
-  
+Security reports may cover:
 
----  
+- the monorepo layout and shared tooling
+- package source code under `packages/`
+- shared configuration under `configs/`
+- shared automation under `makes/`
+- published release artifacts generated from this repository
 
-## Table of Contents  
+This policy also covers checked-in API contracts under `api/` when the issue
+could mislead operators, weaken validation, or permit unsafe behavior at an
+integration boundary.
 
-- [Supported Versions](#supported-versions)  
-- [Reporting a Vulnerability](#reporting-a-vulnerability)  
-- [Our Process & SLAs](#our-process--slas)  
-- [Safe Harbor (Good-Faith Research)](#safe-harbor-good-faith-research)  
-- [Scope](#scope)  
-- [Proactive Security Practices](#proactive-security-practices)  
-- [Contact](#contact)  
+## What To Report
 
-  
+Examples of in-scope reports include:
 
----  
+- authentication or authorization bypass
+- unsafe defaults that expose data or execution surfaces
+- contract validation gaps that allow malformed or dangerous inputs through
+- supply-chain weaknesses in build, publish, or artifact handling
+- secrets exposure in tracked files or generated release artifacts
 
-<a id="supported-versions"></a>  
+Low-quality bug reports and routine support questions should go through normal
+issue channels instead.
 
-## Supported Versions  
+## Reporting a Vulnerability
 
-We patch the **latest minor line** only.  
+Please report security issues privately through one of these channels:
 
-|  Version | Supported |  
-| -------: | :-------- |  
-|  `0.1.x` | Yes       |  
-| `<0.1.0` | No        |  
+- GitHub private vulnerability reporting for the affected package or repository
+- Email: [`bijan@bijux.io`](mailto:bijan@bijux.io)
 
-When `0.2.0` is released, support for `0.1.x` ends. We do **not** backport beyond the most recent minor line.  
+Please include:
 
-  
+- affected package or shared subsystem
+- version or commit reference
+- impact summary
+- reproduction steps or proof of concept
+- any known mitigations
 
----  
+Do not open a public issue for unpatched vulnerabilities.
 
-<a id="reporting-a-vulnerability"></a>  
+## What Happens Next
 
-## Reporting a Vulnerability  
+After a report is received, we will:
 
-Please report privately via one of the following channels:  
+1. acknowledge receipt
+2. confirm whether the report is in scope
+3. assess severity and affected surfaces
+4. prepare or plan remediation
+5. coordinate disclosure when it is responsible to do so
 
-- **Preferred:** GitHub **Private Vulnerability Report**  
-  https://github.com/bijux/bijux-proteomics/security/advisories/new  
-- **Fallback:** Email **[mousavi.bijan@gmail.com](mailto:mousavi.bijan@gmail.com)** with subject  
-  **`[SECURITY] Vulnerability report: bijux-proteomics`**  
+## Response Targets
 
-### What to include (to speed up triage)  
+Best-effort targets:
 
-- Affected version(s), OS, Python version, and install method  
-- Clear impact statement and **reproduction steps**  
-- Minimal **PoC** if possible  
-- Suggested mitigations/workarounds (if any)  
-- Whether you’d like **credit** (name/handle)  
+- acknowledgement within 48 hours
+- initial assessment within 5 business days
+- fix windows based on severity and exploitability
 
-> Please **do not** include secrets or production data. If you encounter sensitive information, stop testing and report immediately.  
+These are targets, not guarantees, but they are the bar we intend to meet.
 
-  
+## Safe Harbor
 
----  
+Good-faith research is welcome if it:
 
-<a id="our-process--slas"></a>  
+- avoids privacy violations and service disruption
+- stays within systems and data you control
+- stops immediately after proving impact
+- is reported privately without public disclosure before remediation
 
-## Our Process & SLAs  
-
-Best-effort targets based on **CVSS v3.x** severity:  
-
-- **Acknowledgement:** within **48 hours**  
-- **Initial assessment & provisional CVSS:** within **5 business days**  
-- **Target fix windows:**  
-  - **Critical:** 7 days  
-  - **High:** 30 days  
-  - **Medium:** 90 days  
-  - **Low:** 180 days  
-
-We publish a **GitHub Security Advisory** once a fix is available and request a **CVE** when appropriate. Reporter credit is given with your consent.  
-
-  
-
----  
-
-<a id="safe-harbor-good-faith-research"></a>  
-
-## Safe Harbor (Good-Faith Research)  
-
-We won’t pursue or support legal action for good-faith testing that:  
-
-- Avoids privacy violations, data exfiltration, and service interruption  
-- Is limited to accounts/environments you control  
-- Respects rate limits (no volumetric DoS/spam)  
-- Does not escalate or persist beyond what’s necessary to demonstrate impact  
-- Stops and reports immediately upon encountering sensitive data  
-
-If you’re unsure whether an activity is in scope, **ask first** via the channels above.  
-
-  
-
----  
-
-<a id="scope"></a>  
-
-## Scope  
-
-**In scope**  
-
-- This repository’s source code  
-- Release artifacts we publish  
-- CLI runtime behavior and default configurations  
-
-**Out of scope**  
-
-- Social engineering or physical attacks  
-- Third-party platforms/services (unless our integration directly introduces the issue)  
-- Volumetric DoS (traffic floods, stress/benchmarking)  
-- Issues requiring pre-existing privileged local access without a plausible escalation path  
-- Vulnerabilities in third-party **plugins** not maintained by this org  
-
-> For dependency vulnerabilities, please also notify the **upstream** project. We will track, pin/upgrade, or mitigate downstream as needed.  
-
-  
-
----  
-
-<a id="proactive-security-practices"></a>  
-
-## Proactive Security Practices  
-
-- **Dependency auditing:** `pip-audit`; SBOM via CycloneDX (`artifacts/sbom.json`)  
-- **Static analysis:** `bandit` on Python sources  
-- **Policy gates:** CI blocks on failed security checks; any ignores are reviewed and documented  
-- **Supply chain:** pinned tooling where feasible; reproducible builds where practical; SBOM generated on release  
-
-*(No public bounty program at this time.)*  
-
-  
-
----  
-
-<a id="contact"></a>  
-
-## Contact  
-
-- **Private report:** https://github.com/bijux/bijux-proteomics/security/advisories/new  
-- **Email:** **[mousavi.bijan@gmail.com](mailto:mousavi.bijan@gmail.com)**  
-- **Non-security questions:** open a normal GitHub issue  
-
-Thank you for helping keep Bijux Proteomics users safe.  
+Please do not use social engineering, denial-of-service, destructive payloads,
+or unauthorized data access as part of research.
