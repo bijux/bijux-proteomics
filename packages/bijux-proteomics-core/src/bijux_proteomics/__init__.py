@@ -11,7 +11,11 @@ from bijux_proteomics.context import (
     ProgramDeliveryContext,
     ProgramPortfolioContext,
 )
-from bijux_proteomics.constraints import ConstraintCategory, ScientificConstraint
+from bijux_proteomics.constraints import (
+    ConstraintCategory,
+    ScientificConstraint,
+    build_protein_native_constraints,
+)
 from bijux_proteomics.criteria import (
     MeasurementDirection,
     MetricFamily,
@@ -137,6 +141,7 @@ __all__ = [
     "DuplicateReviewDecisionError",
     "ScientificConstraint",
     "ConstraintCategory",
+    "build_protein_native_constraints",
     "AgenticProteinsBackend",
     "MissingExecutionBackendError",
     "SuccessCriterion",

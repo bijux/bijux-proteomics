@@ -11,6 +11,7 @@ from bijux_proteomics.context import (
 )
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.constraints import ConstraintCategory
+from bijux_proteomics.constraints import build_protein_native_constraints
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
 import pytest
 
@@ -211,6 +212,21 @@ def test_program_spec_supports_modality_unknowns_and_failure_modes() -> None:
     assert program.modality_context == "engineered binder"
     assert program.key_unknowns == ["does cell context preserve selectivity"]
     assert program.critical_failure_modes == ["aggregation under expression stress"]
+
+
+def test_build_protein_native_constraints_returns_blocking_scientific_set() -> None:
+    constraints = build_protein_native_constraints(
+        target_id="target-native",
+        catalytic_region="active-site-loop",
+        interface_region="partner-interface",
+    )
+
+    categories = {constraint.category for constraint in constraints}
+    assert ConstraintCategory.STABILITY_FLOOR in categories
+    assert ConstraintCategory.AGGREGATION_CEILING in categories
+    assert ConstraintCategory.CATALYTIC_RESIDUE in categories
+    assert ConstraintCategory.DOMAIN_MUTABILITY in categories
+    assert all(constraint.blocker for constraint in constraints)
 
 
 def test_program_lifecycle_advances_between_stages() -> None:
