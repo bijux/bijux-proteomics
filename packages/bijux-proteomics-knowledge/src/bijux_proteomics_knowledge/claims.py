@@ -235,6 +235,17 @@ class ClaimEvidenceLinkIssue(JsonModel):
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
 
+class ClaimFalsifiabilityReport(JsonModel):
+    """Falsifiability assessment for a scientific claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    falsifiable: bool = Field(..., description="Whether claim is structured for falsification.")
+    missing_fields: list[str] = Field(default_factory=list, description="Missing mechanistic fields.")
+    notes: list[str] = Field(default_factory=list, description="Falsifiability rationale notes.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -280,6 +291,29 @@ def build_claim(
         condition=condition,
         direction=direction,
         magnitude=magnitude,
+    )
+
+
+def evaluate_claim_falsifiability(claim: EvidenceClaim) -> ClaimFalsifiabilityReport:
+    """Evaluate whether a claim is structured for falsification."""
+    missing_fields: list[str] = []
+    if not claim.subject:
+        missing_fields.append("subject")
+    if not claim.relation:
+        missing_fields.append("relation")
+    if not claim.object:
+        missing_fields.append("object")
+    if not claim.condition:
+        missing_fields.append("condition")
+    if not claim.resolution_assays:
+        missing_fields.append("resolution_assays")
+    falsifiable = not missing_fields
+    notes = ["claim is falsifiable via defined resolution assays"] if falsifiable else ["claim lacks falsifiable structure"]
+    return ClaimFalsifiabilityReport(
+        claim_id=claim.claim_id,
+        falsifiable=falsifiable,
+        missing_fields=missing_fields,
+        notes=notes,
     )
 
 

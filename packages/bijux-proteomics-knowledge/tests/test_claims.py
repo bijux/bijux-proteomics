@@ -27,6 +27,7 @@ from bijux_proteomics_knowledge import (
     evaluate_mechanistic_completeness,
     build_contradiction_matrix,
     audit_claim_evidence_links,
+    evaluate_claim_falsifiability,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -549,3 +550,18 @@ def test_audit_claim_evidence_links_reports_missing_bundle_references() -> None:
         "support-evidence-missing-in-bundle",
         "contradiction-evidence-missing-in-bundle",
     }
+
+
+def test_evaluate_claim_falsifiability_flags_missing_fields() -> None:
+    claim = build_claim(
+        claim_id="claim-f",
+        target_id="target-1",
+        statement="needs structure",
+        evidence_ids=["ev-1"],
+        status=ClaimStatus.INSUFFICIENT,
+    )
+
+    report = evaluate_claim_falsifiability(claim)
+
+    assert report.falsifiable is False
+    assert "resolution_assays" in report.missing_fields
