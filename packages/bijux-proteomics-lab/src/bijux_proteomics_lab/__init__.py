@@ -5,6 +5,13 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_lab.outcomes import (
+    AssayOutcome,
+    ExperimentOutcome,
+    FailureClass,
+    RerunPolicy,
+    recommend_rerun_policy,
+)
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
     ReviewQueueEntry,
@@ -31,6 +38,7 @@ from bijux_proteomics_lab.planning import (
 )
 
 __all__ = [
+    "AssayOutcome",
     "AssayObservation",
     "AssayDependency",
     "AssayIntent",
@@ -38,10 +46,13 @@ __all__ = [
     "dependency_order",
     "ExperimentPlanRepository",
     "ExperimentBatch",
+    "ExperimentOutcome",
     "ExperimentPlan",
+    "FailureClass",
     "JsonModel",
     "LabCapacity",
     "ProgressDecision",
+    "RerunPolicy",
     "ReviewQueueEntry",
     "ReviewQueueRepository",
     "ReviewPacket",
@@ -51,5 +62,6 @@ __all__ = [
     "build_review_packet",
     "plan_experiment_batches",
     "recommend_next_cycle",
+    "recommend_rerun_policy",
     "schedule_experiment_plan",
 ]

@@ -10,3 +10,4 @@ It focuses on:
 - review packets that explain whether the next cycle should advance, hold, or redesign
 - schema-aware planning documents, capacity-aware scheduling, and repository contracts for plan storage
 - assay dependency and prerequisite modeling so scheduling respects wet-lab ordering constraints
+- explicit experiment outcomes, failure classes, and rerun recommendations after execution
