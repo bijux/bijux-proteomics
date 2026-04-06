@@ -20,3 +20,11 @@ class ContractNotFoundError(FoundationContractError):
 
 class ContractConflictError(FoundationContractError):
     """Raised when a contract operation conflicts with current state."""
+
+
+class MigrationPathError(FoundationContractError):
+    """Raised when a schema migration path is missing or malformed."""
+
+
+class MigrationExecutionError(FoundationContractError):
+    """Raised when a migration step fails during execution."""

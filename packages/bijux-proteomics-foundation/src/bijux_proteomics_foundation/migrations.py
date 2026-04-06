@@ -10,6 +10,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation.errors import MigrationExecutionError, MigrationPathError
 from bijux_proteomics_foundation.serialization import JsonModel
 
 MigrationFn = Callable[[dict[str, Any]], dict[str, Any]]
@@ -61,7 +62,7 @@ class MigrationRegistry:
             step = self._migrations.get(current)
             if step is None:
                 known = ", ".join(self.registered_versions()) or "none"
-                raise ValueError(
+                raise MigrationPathError(
                     f"missing migration step from {current} toward {target_version}; known versions: {known}"
                 )
             path.append(step)
@@ -82,7 +83,7 @@ class MigrationRegistry:
             result = step.migrate(result)
             current = result.get("document_schema", {}).get("schema_version")
             if current != step.to_version:
-                raise ValueError(
+                raise MigrationExecutionError(
                     "migration step produced an unexpected schema version: "
                     f"expected {step.to_version}, got {current}"
                 )

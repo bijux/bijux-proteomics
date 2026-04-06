@@ -10,6 +10,8 @@ from bijux_proteomics_foundation.errors import (
     ContractNotFoundError,
     ContractValidationError,
     FoundationContractError,
+    MigrationExecutionError,
+    MigrationPathError,
 )
 from bijux_proteomics_foundation.ids import (
     AssayId,
@@ -48,7 +50,9 @@ __all__ = [
     "GateId",
     "IdentifierKind",
     "JsonModel",
+    "MigrationExecutionError",
     "MigrationRegistry",
+    "MigrationPathError",
     "ProgramId",
     "SchemaMigration",
     "TargetId",

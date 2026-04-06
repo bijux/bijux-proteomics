@@ -16,6 +16,8 @@ from bijux_proteomics_foundation import (
     ContractValidationError,
     DocumentSchema,
     FoundationContractError,
+    MigrationExecutionError,
+    MigrationPathError,
     JsonModel,
     IdentifierKind,
     ProgramId,
@@ -196,7 +198,7 @@ def test_migration_registry_validates_missing_path_with_diagnostics() -> None:
         )
     )
 
-    with pytest.raises(ValueError, match="known versions: 1.0.0, 1.1.0"):
+    with pytest.raises(MigrationPathError, match="known versions: 1.0.0, 1.1.0"):
         registry.validate_path("1.0.0", "1.2.0")
 
 
@@ -218,5 +220,5 @@ def test_migration_registry_detects_version_mismatch_in_step_output() -> None:
     )
     payload = {"document_schema": {"schema_version": "1.0.0"}}
 
-    with pytest.raises(ValueError, match="unexpected schema version"):
+    with pytest.raises(MigrationExecutionError, match="unexpected schema version"):
         registry.migrate_to(payload, "1.1.0")
