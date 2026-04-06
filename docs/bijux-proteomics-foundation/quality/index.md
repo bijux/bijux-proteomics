@@ -25,11 +25,11 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    proof1["tests for schema, ids, and serialization invariants"]
     proof1 --> page
-    proof2["tests/e2e for governed flow behavior"]
+    proof2["cross-package tests that depend on foundation contracts"]
     proof2 --> page
-    proof3["tests/regression and tests/smoke for replay and storage protection"]
+    proof3["type and lint gates that protect package stability claims"]
     proof3 --> page
     risk1["CHANGELOG.md"]
     risk1 -.keeps trust honest.-> page
@@ -70,8 +70,8 @@ flowchart TB
 
 ## Concrete Anchors
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
+- packages/bijux-proteomics-foundation/tests/test_document_primitives.py
+- cross-package tests that consume foundation schema and id contracts
 - README.md
 
 ## Use This Page When
