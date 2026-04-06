@@ -72,6 +72,14 @@ class DesignBrief(JsonModel):
         default_factory=list,
         description="Current liabilities that must be actively managed.",
     )
+    ranking_priorities: list[str] = Field(
+        default_factory=list,
+        description="Ordered priorities to apply during candidate ranking.",
+    )
+    downstream_lab_assumptions: list[str] = Field(
+        default_factory=list,
+        description="Assumptions that downstream lab planning should validate.",
+    )
 
 
 class CandidateAssessment(JsonModel):
@@ -232,6 +240,12 @@ def build_design_brief(
         review_gate_ids=[gate.gate_id for gate in program.review_gates if gate.blocking],
         evidence_gaps=gaps,
         liabilities=liabilities,
+        ranking_priorities=[axis.value for axis in axes],
+        downstream_lab_assumptions=(
+            [assay.purpose for assay in program.assay_panel]
+            if program.assay_panel
+            else ["define assays that can validate candidate progression assumptions"]
+        ),
     )
 
 

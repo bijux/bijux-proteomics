@@ -93,8 +93,10 @@ def test_build_design_brief_surfaces_blockers_and_evidence_gaps() -> None:
     brief = build_design_brief(program, bundle)
 
     assert brief.optimization_axes == [OptimizationAxis.AFFINITY]
+    assert brief.ranking_priorities == ["affinity"]
     assert brief.blocking_assays == ["primary-binding"]
     assert brief.review_gate_ids == ["pre-synthesis"]
+    assert brief.downstream_lab_assumptions == ["confirm target engagement"]
     assert "structure" in brief.evidence_gaps
     assert [flag.code for flag in brief.liabilities] == [
         "surface-hydrophobics",
