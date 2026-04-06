@@ -25,6 +25,14 @@ class ScenarioAction(StrEnum):
     SCALE_UP = "scale_up"
 
 
+class HypothesisStatus(StrEnum):
+    """Status of the active scientific hypothesis for decision guidance."""
+
+    SUPPORTED = "supported"
+    WEAKENED = "weakened"
+    UNRESOLVED = "unresolved"
+
+
 class ScenarioEvaluation(JsonModel):
     """Recommendation for a specific progression scenario."""
 
@@ -35,6 +43,10 @@ class ScenarioEvaluation(JsonModel):
     reasons: list[str] = Field(
         default_factory=list,
         description="Short reasons for the recommendation.",
+    )
+    hypothesis_status: HypothesisStatus = Field(
+        default=HypothesisStatus.UNRESOLVED,
+        description="How the recommendation maps to current hypothesis confidence.",
     )
 
 
@@ -155,12 +167,14 @@ def evaluate_for_progression(
             scenario="progression",
             action=ScenarioAction.HOLD,
             reasons=reasons,
+            hypothesis_status=HypothesisStatus.WEAKENED,
         )
     if policy.require_ranked_candidate and not ranking.ranked_candidates:
         return ScenarioEvaluation(
             scenario="progression",
             action=ScenarioAction.REDESIGN,
             reasons=["no ranked candidates remain after screening"],
+            hypothesis_status=HypothesisStatus.WEAKENED,
         )
     if ranking.ranked_candidates:
         reasons.append(
@@ -173,6 +187,7 @@ def evaluate_for_progression(
         scenario="progression",
         action=ScenarioAction.ADVANCE,
         reasons=reasons,
+        hypothesis_status=HypothesisStatus.SUPPORTED,
     )
 
 
@@ -190,23 +205,27 @@ def evaluate_for_synthesis(
             scenario="synthesis",
             action=ScenarioAction.REDESIGN,
             reasons=["no candidates are available for synthesis"],
+            hypothesis_status=HypothesisStatus.WEAKENED,
         )
     if not readiness.ready:
         return ScenarioEvaluation(
             scenario="synthesis",
             action=ScenarioAction.HOLD,
             reasons=readiness.blockers,
+            hypothesis_status=HypothesisStatus.UNRESOLVED,
         )
     if residual_risk is not None and residual_risk > policy.maximum_residual_risk:
         return ScenarioEvaluation(
             scenario="synthesis",
             action=ScenarioAction.REDESIGN,
             reasons=[f"top candidate {candidate_id} has residual risk {residual_risk:.2f}"],
+            hypothesis_status=HypothesisStatus.WEAKENED,
         )
     return ScenarioEvaluation(
         scenario="synthesis",
         action=ScenarioAction.ADVANCE,
         reasons=[f"top candidate {candidate_id} is supported and within risk budget"],
+        hypothesis_status=HypothesisStatus.SUPPORTED,
     )
 
 
@@ -224,6 +243,7 @@ def evaluate_for_scale_up(
             scenario="scale_up",
             action=ScenarioAction.REDESIGN,
             reasons=["scale-up requires at least one prioritized candidate"],
+            hypothesis_status=HypothesisStatus.WEAKENED,
         )
     if (
         not readiness.ready
@@ -236,17 +256,20 @@ def evaluate_for_scale_up(
                 "scale-up needs decision-ready evidence with at least "
                 f"{policy.minimum_decisive_records} decisive records"
             ],
+            hypothesis_status=HypothesisStatus.UNRESOLVED,
         )
     if residual_risk is not None and residual_risk <= policy.maximum_residual_risk:
         return ScenarioEvaluation(
             scenario="scale_up",
             action=ScenarioAction.SCALE_UP,
             reasons=[f"top candidate {candidate_id} has low residual risk"],
+            hypothesis_status=HypothesisStatus.SUPPORTED,
         )
     return ScenarioEvaluation(
         scenario="scale_up",
         action=ScenarioAction.HOLD,
         reasons=[f"top candidate {candidate_id} still carries too much residual risk for scale-up"],
+        hypothesis_status=HypothesisStatus.UNRESOLVED,
     )
 
 
@@ -265,17 +288,20 @@ def evaluate_for_redesign(
             scenario="redesign",
             action=ScenarioAction.REDESIGN,
             reasons=["ranking outcomes indicate the current design set is weak"],
+            hypothesis_status=HypothesisStatus.WEAKENED,
         )
     if not readiness.ready:
         return ScenarioEvaluation(
             scenario="redesign",
             action=ScenarioAction.HOLD,
             reasons=readiness.blockers,
+            hypothesis_status=HypothesisStatus.UNRESOLVED,
         )
     return ScenarioEvaluation(
         scenario="redesign",
         action=ScenarioAction.ADVANCE,
         reasons=["current candidates and evidence do not require immediate redesign"],
+        hypothesis_status=HypothesisStatus.SUPPORTED,
     )
 
 

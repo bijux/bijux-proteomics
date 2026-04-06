@@ -13,6 +13,7 @@ from bijux_proteomics_intelligence import (
     CandidateRiskProfile,
     EvaluatorPolicyBundle,
     HoldPolicyConfig,
+    HypothesisStatus,
     ProgressionPolicyConfig,
     ProgressionPolicy,
     RankedCandidate,
@@ -66,6 +67,7 @@ def test_evaluate_for_progression_advances_when_ready_and_ranked() -> None:
     evaluation = evaluate_for_progression(program, ranking, _ready_state())
 
     assert evaluation.action is ScenarioAction.ADVANCE
+    assert evaluation.hypothesis_status is HypothesisStatus.SUPPORTED
 
 
 def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:

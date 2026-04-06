@@ -36,6 +36,7 @@ from bijux_proteomics_intelligence.candidates import (
 )
 from bijux_proteomics_intelligence.evaluators import (
     EvaluatorPolicyBundle,
+    HypothesisStatus,
     ScenarioSetEvaluation,
     evaluate_all_scenarios,
     ProgressionPolicy,
@@ -105,6 +106,7 @@ __all__ = [
     "TieBreakExplanation",
     "TieBreakRule",
     "HoldPolicyConfig",
+    "HypothesisStatus",
     "build_design_brief",
     "build_risk_profile",
     "evaluate_for_progression",
