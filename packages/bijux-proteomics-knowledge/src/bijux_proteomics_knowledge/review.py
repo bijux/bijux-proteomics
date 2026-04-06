@@ -74,6 +74,21 @@ class KnowledgeReviewDelta(JsonModel):
     recommendation_changed: bool = Field(..., description="Whether gate recommendation changed.")
 
 
+class DecisionGateProfile(JsonModel):
+    """Policy thresholds for decision recommendation in review packets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(..., min_length=1, description="Stable gate profile identifier.")
+    minimum_trust_score: float = Field(default=0.7, ge=0.0, le=1.0, description="Minimum trust score for direct advance.")
+    minimum_triangulation_score: float = Field(
+        default=0.6,
+        ge=0.0,
+        le=1.0,
+        description="Minimum triangulation score for direct advance.",
+    )
+
+
 def build_knowledge_review_packet(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim],
@@ -83,6 +98,7 @@ def build_knowledge_review_packet(
     expected_species: str | None = None,
     expected_system: str | None = None,
     expected_sample_type: str | None = None,
+    gate_profile: DecisionGateProfile | None = None,
 ) -> KnowledgeReviewPacket:
     """Build an integrated review packet for decision workflows."""
     ranking = rank_evidence_for_decision(
@@ -101,10 +117,12 @@ def build_knowledge_review_packet(
     gaps = identify_knowledge_gaps(bundle, claims, decision_tag=decision_tag)
     trust, _ = resolve_conflicts(bundle)
     clusters = cluster_conflicts(bundle, trust)
+    gate_profile = gate_profile or DecisionGateProfile(profile_id="default-gate-profile")
     gate_recommendation = _recommend_gate_action(
         quality_audit=audit,
         knowledge_gaps=gaps,
         conflict_clusters=clusters,
+        gate_profile=gate_profile,
     )
     summary = _build_executive_summary(
         quality_audit=audit,
@@ -136,12 +154,15 @@ def _recommend_gate_action(
     quality_audit: KnowledgeQualityAudit,
     knowledge_gaps: list[KnowledgeGap],
     conflict_clusters: list[ConflictCluster],
+    gate_profile: DecisionGateProfile,
 ) -> str:
     if any(cluster.recommended_hold for cluster in conflict_clusters):
         return "hold-for-conflict-resolution"
     if knowledge_gaps:
         return "advance-with-targeted-gap-closure"
-    if quality_audit.trust_score < 0.7:
+    if quality_audit.trust_score < gate_profile.minimum_trust_score:
+        return "advance-with-evidence-hardening"
+    if quality_audit.triangulation_score < gate_profile.minimum_triangulation_score:
         return "advance-with-evidence-hardening"
     return "advance"
 

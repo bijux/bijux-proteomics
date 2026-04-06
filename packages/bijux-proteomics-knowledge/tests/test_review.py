@@ -12,6 +12,7 @@ from bijux_proteomics_knowledge import (
     build_claim,
     build_knowledge_review_packet,
     compare_review_packets,
+    DecisionGateProfile,
     summarize_multi_decision_readiness,
 )
 
@@ -147,3 +148,44 @@ def test_compare_review_packets_reports_delta() -> None:
 
     assert delta.decision_tag == "progression"
     assert isinstance(delta.intelligence_index_delta, float)
+
+
+def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-gate-profile",
+        target_id="target-gate-profile",
+        records=[
+            EvidenceRecord(
+                evidence_id="gp-1",
+                kind=EvidenceKind.LITERATURE,
+                title="lit",
+                source="pmid",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.72,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    claims = [
+        build_claim(
+            claim_id="claim-gp-1",
+            target_id="target-gate-profile",
+            statement="claim",
+            evidence_ids=["gp-1"],
+            status=ClaimStatus.SUPPORTED,
+            resolution_assays=["assay"],
+        )
+    ]
+    packet = build_knowledge_review_packet(
+        bundle,
+        claims,
+        decision_tag="progression",
+        gate_profile=DecisionGateProfile(
+            profile_id="strict-profile",
+            minimum_trust_score=0.9,
+            minimum_triangulation_score=0.9,
+        ),
+    )
+
+    assert packet.gate_recommendation == "advance-with-targeted-gap-closure" or packet.gate_recommendation == "advance-with-evidence-hardening"
