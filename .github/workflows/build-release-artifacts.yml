@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: "build"
+      package_dir:
+        required: false
+        type: string
+        default: "."
       dist_subdir:
         required: false
         type: string
@@ -55,7 +59,7 @@ jobs:
         run: |
           set -euo pipefail
           for target in ${{ inputs.build_targets }}; do
-            make "$target"
+            make "$target" PACKAGE_DIR="${{ inputs.package_dir }}"
           done
 
       - name: Stage publish artifacts

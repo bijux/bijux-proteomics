@@ -2,6 +2,8 @@
 
 # Dirs & flags
 BUILD_DIR        ?= artifacts/build
+PACKAGE_DIR      ?=
+PACKAGE_NAME     ?=
 CHECK_DISTS      ?= 0             # set to 0 to skip twine check by default
 
 # Absolute paths (safer if a target changes CWD)
@@ -9,6 +11,7 @@ BUILD_DIR_ABS    := $(abspath $(BUILD_DIR))
 PYPROJECT_ABS    := $(abspath pyproject.toml)
 
 .PHONY: build build-sdist build-wheel build-check build-tools build-clean release-dry
+.PHONY: build-package build-agentic-proteins build-bijux-proteomics-foundation build-bijux-proteomics-core build-bijux-proteomics-intelligence build-bijux-proteomics-knowledge build-bijux-proteomics-lab
 
 build: build-tools
 	@if [ ! -f "$(PYPROJECT_ABS)" ]; then echo "✘ pyproject.toml not found"; exit 1; fi
@@ -25,6 +28,42 @@ build: build-tools
 	@echo "✔ Build artifacts ready in '$(BUILD_DIR_ABS)'"
 	@ls -l "$(BUILD_DIR_ABS)" || true
 	@$(MAKE) clean-temp-build-files # Run the corrected cleanup target
+
+build-package: build-tools
+	@if [ -z "$(PACKAGE_DIR)" ]; then echo "✘ PACKAGE_DIR is required (example: packages/agentic-proteins)"; exit 1; fi
+	@if [ ! -f "$(abspath $(PACKAGE_DIR))/pyproject.toml" ]; then echo "✘ pyproject.toml not found in $(PACKAGE_DIR)"; exit 1; fi
+	@package_slug="$(if $(strip $(PACKAGE_NAME)),$(PACKAGE_NAME),$(notdir $(PACKAGE_DIR)))"; \
+	out_dir="$(BUILD_DIR_ABS)/$${package_slug}"; \
+	echo "→ Preparing package artifacts for $(PACKAGE_DIR)"; \
+	mkdir -p "$${out_dir}"; \
+	$(VENV_PYTHON) -m build --wheel --sdist --outdir "$${out_dir}" "$(abspath $(PACKAGE_DIR))"; \
+	if [ "$(CHECK_DISTS)" = "1" ]; then \
+	  echo "→ Validating distributions with twine"; \
+	  $(VENV_PYTHON) -m twine check "$${out_dir}"/* 2>&1 | tee "$${out_dir}/twine-check.log"; \
+	else \
+	  echo "→ Skipping twine check (CHECK_DISTS=$(CHECK_DISTS))"; \
+	fi; \
+	echo "✔ Package artifacts ready in '$${out_dir}'"; \
+	ls -l "$${out_dir}" || true
+	@$(MAKE) clean-temp-build-files
+
+build-agentic-proteins:
+	@$(MAKE) build-package PACKAGE_DIR=packages/agentic-proteins PACKAGE_NAME=agentic-proteins
+
+build-bijux-proteomics-foundation:
+	@$(MAKE) build-package PACKAGE_DIR=packages/bijux-proteomics-foundation PACKAGE_NAME=bijux-proteomics-foundation
+
+build-bijux-proteomics-core:
+	@$(MAKE) build-package PACKAGE_DIR=packages/bijux-proteomics-core PACKAGE_NAME=bijux-proteomics-core
+
+build-bijux-proteomics-intelligence:
+	@$(MAKE) build-package PACKAGE_DIR=packages/bijux-proteomics-intelligence PACKAGE_NAME=bijux-proteomics-intelligence
+
+build-bijux-proteomics-knowledge:
+	@$(MAKE) build-package PACKAGE_DIR=packages/bijux-proteomics-knowledge PACKAGE_NAME=bijux-proteomics-knowledge
+
+build-bijux-proteomics-lab:
+	@$(MAKE) build-package PACKAGE_DIR=packages/bijux-proteomics-lab PACKAGE_NAME=bijux-proteomics-lab
 
 build-tools: | $(VENV)
 	@echo "→ Ensuring build toolchain..."
@@ -77,6 +116,13 @@ build-tools: ## Ensure local venv has build tooling (pip, build, twine)
 build-clean: ## Remove ALL build artifacts (artifacts/build + temporary files)
 clean-temp-build-files: ## (Internal) Remove temporary build files from the root directory
 build: ## Build wheel and sdist into artifacts/build and clean up temporary files
+build-package: ## Build wheel and sdist for PACKAGE_DIR into artifacts/build/<package>
+build-agentic-proteins: ## Build wheel and sdist for packages/agentic-proteins
+build-bijux-proteomics-foundation: ## Build wheel and sdist for packages/bijux-proteomics-foundation
+build-bijux-proteomics-core: ## Build wheel and sdist for packages/bijux-proteomics-core
+build-bijux-proteomics-intelligence: ## Build wheel and sdist for packages/bijux-proteomics-intelligence
+build-bijux-proteomics-knowledge: ## Build wheel and sdist for packages/bijux-proteomics-knowledge
+build-bijux-proteomics-lab: ## Build wheel and sdist for packages/bijux-proteomics-lab
 build-sdist: ## Build sdist only into artifacts/build and clean up temporary files
 build-wheel: ## Build wheel only into artifacts/build and clean up temporary files
 build-check: ## Run twine check on artifacts/build/*
