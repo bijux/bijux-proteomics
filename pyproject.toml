@@ -68,7 +68,7 @@ Website = "https://bijux.io/"
 Documentation = "https://bijux.github.io/bijux-proteomics/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
-Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/CHANGELOG.md"
 Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.optional-dependencies]
@@ -138,7 +138,7 @@ dev = [
 include = [
   "README.md",
   "packages/agentic-proteins/README.md",
-  "CHANGELOG.md",
+  "packages/agentic-proteins/CHANGELOG.md",
   "LICENSE",
   "packages/agentic-proteins/src/agentic_proteins/py.typed",
 ]
@@ -157,7 +157,7 @@ zip-safe = false
 content-type = "text/markdown"
 fragments = [
   { path = "README.md" },
-  { path = "CHANGELOG.md" },
+  { path = "packages/agentic-proteins/CHANGELOG.md" },
 ]
 
 # --8<-- [start:deptry]

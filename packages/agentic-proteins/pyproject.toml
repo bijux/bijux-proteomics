@@ -1,0 +1,85 @@
+[build-system]
+requires = [
+  "hatchling>=1.27.0,<1.28",
+  "hatch-fancy-pypi-readme>=24.2,<26.0",
+  "hatch-vcs>=0.4.0,<1.0",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-proteins"
+dynamic = ["version"]
+description = "Deterministic, artifact-first protein design runtime and CLI"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+keywords = [
+  "protein-design",
+  "protein-structure",
+  "bioinformatics",
+  "computational-biology",
+  "runtime",
+  "reproducibility",
+]
+dependencies = [
+  "requests>=2.31",
+  "biopython>=1.83",
+  "numpy>=1.26,<2.0",
+  "click>=8.1",
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "pydantic>=2.0.2",
+  "loguru>=0.7",
+  "slowapi>=0.1",
+  "boto3>=1.34",
+]
+
+[project.urls]
+Homepage = "https://bijux.io/bijux-proteomics/"
+Website = "https://bijux.io/"
+Documentation = "https://bijux.github.io/bijux-proteomics/"
+Repository = "https://github.com/bijux/bijux-proteomics"
+Issues = "https://github.com/bijux/bijux-proteomics/issues"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/CHANGELOG.md"
+Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
+
+[project.scripts]
+agentic-proteins = "agentic_proteins.interfaces.cli:cli"
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^v(?P<version>.*)$"
+raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
+
+[tool.hatch.build]
+include = [
+  "README.md",
+  "CHANGELOG.md",
+  "docs/maintainer/pypi.md",
+  "src/agentic_proteins/py.typed",
+]
+force-include = { "../../LICENSE" = "LICENSE" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_proteins"]
+zip-safe = false
+
+[tool.hatch.build.targets.wheel.package-data]
+"agentic_proteins" = ["py.typed"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "README.md",
+  "CHANGELOG.md",
+  "docs/maintainer/pypi.md",
+  "src/agentic_proteins/**",
+]
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+fragments = [
+  { path = "README.md" },
+  { path = "CHANGELOG.md" },
+]
