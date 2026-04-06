@@ -34,12 +34,12 @@ def _extract_fields(schema: dict) -> set[str]:
 
 
 def run(repo_root: Path) -> int:
-    schema_path = repo_root / "api/v1/schema.yaml"
+    schema_path = repo_root / "apis/agentic-proteins/v1/schema.yaml"
     if not schema_path.exists():
         print("OpenAPI schema missing; skipping.")
         return 0
     current_schema = _load_schema(schema_path.read_text(encoding="utf-8"))
-    previous_text = _git_show("api/v1/schema.yaml")
+    previous_text = _git_show("apis/agentic-proteins/v1/schema.yaml")
     if not previous_text:
         return 0
     previous_schema = _load_schema(previous_text)
