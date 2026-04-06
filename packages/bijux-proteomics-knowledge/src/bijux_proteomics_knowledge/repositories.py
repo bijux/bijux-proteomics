@@ -120,6 +120,8 @@ class EvidenceRecordQuery(JsonModel):
     source_type: EvidenceSourceType | None = Field(default=None, description="Optional source type filter.")
     minimum_confidence: float | None = Field(default=None, ge=0.0, le=1.0, description="Optional confidence floor.")
     observed_after: datetime | None = Field(default=None, description="Optional inclusive lower bound for observed_at.")
+    sort_by: str | None = Field(default=None, description="Optional sort key: confidence or observed_at.")
+    descending: bool = Field(default=True, description="Whether sorting should be descending.")
 
 
 def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[EvidenceClaim]:
@@ -173,4 +175,8 @@ def query_evidence_records(
         filtered = [record for record in filtered if record.confidence >= query.minimum_confidence]
     if query.observed_after is not None:
         filtered = [record for record in filtered if record.observed_at >= query.observed_after]
+    if query.sort_by == "confidence":
+        filtered = sorted(filtered, key=lambda record: record.confidence, reverse=query.descending)
+    elif query.sort_by == "observed_at":
+        filtered = sorted(filtered, key=lambda record: record.observed_at, reverse=query.descending)
     return filtered

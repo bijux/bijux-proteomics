@@ -1128,6 +1128,41 @@ def test_query_evidence_records_filters_by_decision_kind_and_confidence() -> Non
     assert [record.evidence_id for record in filtered] == ["qr-1"]
 
 
+def test_query_evidence_records_supports_confidence_sorting() -> None:
+    records = [
+        EvidenceRecord(
+            evidence_id="sort-1",
+            kind=EvidenceKind.ASSAY,
+            title="a",
+            source="lab",
+            claim="a",
+            decision_tags=["progression"],
+            confidence=0.6,
+            strength=EvidenceStrength.SUPPORTING,
+        ),
+        EvidenceRecord(
+            evidence_id="sort-2",
+            kind=EvidenceKind.ASSAY,
+            title="b",
+            source="lab",
+            claim="b",
+            decision_tags=["progression"],
+            confidence=0.9,
+            strength=EvidenceStrength.SUPPORTING,
+        ),
+    ]
+    sorted_records = query_evidence_records(
+        records,
+        EvidenceRecordQuery(
+            decision_tag="progression",
+            sort_by="confidence",
+            descending=True,
+        ),
+    )
+
+    assert [record.evidence_id for record in sorted_records] == ["sort-2", "sort-1"]
+
+
 def test_plan_evidence_collection_prioritizes_missing_modalities() -> None:
     bundle = EvidenceBundle(
         bundle_id="bundle-collection",
