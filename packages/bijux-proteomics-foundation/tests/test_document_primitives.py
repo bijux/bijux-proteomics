@@ -31,6 +31,21 @@ def test_document_primitives_round_trip(tmp_path: Path) -> None:
     assert restored.to_dict()["document_schema"]["trace_id"] == "trace-foundation-1"
 
 
+def test_document_schema_touch_updates_audit_metadata() -> None:
+    schema = DocumentSchema(
+        created_by="test",
+        trace_id="trace-1",
+        tags=["initial"],
+    )
+
+    touched = schema.touch("curator", tag="reviewed")
+
+    assert touched.updated_by == "curator"
+    assert touched.parent_trace_id is None
+    assert touched.tags == ["initial", "reviewed"]
+    assert touched.updated_at >= touched.created_at
+
+
 class IdentifierHolder(BaseModel):
     program_id: ProgramId
 
