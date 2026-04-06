@@ -95,6 +95,14 @@ class ManualEvidenceNote(JsonModel):
         default=None,
         description="Optional note locator in an external system.",
     )
+    biological_system: str | None = Field(
+        default=None,
+        description="Biological system referenced by the note.",
+    )
+    species: str | None = Field(
+        default=None,
+        description="Species context referenced by the note.",
+    )
 
 
 class LiteratureIngestionAdapter(Protocol):
@@ -200,6 +208,8 @@ def attach_manual_notes(
                 curator=note.curator,
                 origin=EvidenceOrigin.OBSERVED,
                 extraction_method=EvidenceExtractionMethod.MANUAL_CURATION,
+                biological_system=note.biological_system,
+                species=note.species,
             )
             for note in notes
         ],

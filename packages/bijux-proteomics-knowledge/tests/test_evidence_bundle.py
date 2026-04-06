@@ -608,12 +608,15 @@ def test_attach_manual_notes_creates_curated_evidence_records() -> None:
                 confidence=0.72,
                 strength=EvidenceStrength.SUPPORTING,
                 source_uri="notebook://target-4/review-1",
+                biological_system="HEK293",
+                species="human",
             )
         ],
     )
 
     assert updated.records[0].source_type is EvidenceSourceType.CURATED_NOTE
     assert updated.records[0].curator == "review-scientist"
+    assert updated.records[0].biological_system == "HEK293"
     assert updated.records[0].extraction_method is EvidenceExtractionMethod.MANUAL_CURATION
 
 
