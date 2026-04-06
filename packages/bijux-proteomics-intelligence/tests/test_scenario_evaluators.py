@@ -11,8 +11,11 @@ from bijux_proteomics_knowledge import (
 from bijux_proteomics_intelligence import (
     CandidateRanking,
     CandidateRiskProfile,
+    ProgressionPolicy,
     RankedCandidate,
+    ScaleUpPolicy,
     ScenarioAction,
+    SynthesisPolicy,
     evaluate_for_progression,
     evaluate_for_redesign,
     evaluate_for_scale_up,
@@ -74,7 +77,15 @@ def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:
         )
     ]
 
-    evaluation = evaluate_for_synthesis(ranking, _ready_state(), risks)
+    evaluation = evaluate_for_synthesis(
+        ranking,
+        _ready_state(),
+        risks,
+        policy=SynthesisPolicy(
+            policy_id="strict-synthesis",
+            maximum_residual_risk=0.5,
+        ),
+    )
 
     assert evaluation.action is ScenarioAction.REDESIGN
 
@@ -93,7 +104,16 @@ def test_evaluate_for_scale_up_requires_low_risk_and_decisive_evidence() -> None
         )
     ]
 
-    evaluation = evaluate_for_scale_up(ranking, _ready_state(), risks)
+    evaluation = evaluate_for_scale_up(
+        ranking,
+        _ready_state(),
+        risks,
+        policy=ScaleUpPolicy(
+            policy_id="scale-up-default",
+            minimum_decisive_records=2,
+            maximum_residual_risk=0.2,
+        ),
+    )
 
     assert evaluation.action is ScenarioAction.SCALE_UP
 
@@ -108,3 +128,29 @@ def test_evaluate_for_redesign_requests_redesign_when_candidates_are_rejected() 
     evaluation = evaluate_for_redesign(ranking, _ready_state())
 
     assert evaluation.action is ScenarioAction.REDESIGN
+
+
+def test_evaluate_for_progression_can_allow_evidence_only_progression() -> None:
+    program = create_program_spec(
+        program_id="prog-2",
+        name="evidence progression",
+        objective="allow evidence progression without ranking",
+        target_id="target-2",
+        target_name="Target 2",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="progress when evidence is ready even before ranking",
+    )
+    ranking = CandidateRanking(program_id="prog-2", ranked_candidates=[])
+
+    evaluation = evaluate_for_progression(
+        program,
+        ranking,
+        _ready_state(),
+        policy=ProgressionPolicy(
+            policy_id="evidence-first",
+            require_ranked_candidate=False,
+        ),
+    )
+
+    assert evaluation.action is ScenarioAction.ADVANCE
