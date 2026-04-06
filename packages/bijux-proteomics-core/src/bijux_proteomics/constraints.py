@@ -57,6 +57,20 @@ class ScientificConstraint(BaseModel):
     )
 
 
+class ConstraintRiskReport(BaseModel):
+    """Risk summary for a set of scientific constraints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_constraints: int = Field(..., ge=0, description="Total number of constraints evaluated.")
+    blocker_count: int = Field(..., ge=0, description="Number of blocker constraints.")
+    high_risk_constraints: list[str] = Field(
+        default_factory=list,
+        description="Constraint identifiers considered high risk.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Risk interpretation notes.")
+
+
 def build_protein_native_constraints(
     *,
     target_id: str,
@@ -117,3 +131,24 @@ def build_protein_native_constraints(
             )
         )
     return constraints
+
+
+def assess_constraint_risk(constraints: list[ScientificConstraint]) -> ConstraintRiskReport:
+    """Assess constraint risk based on blocker flags and missing mitigation plans."""
+    blockers = [constraint for constraint in constraints if constraint.blocker]
+    high_risk = [
+        constraint.constraint_id
+        for constraint in constraints
+        if constraint.blocker and not constraint.mitigation_plan
+    ]
+    notes: list[str] = []
+    if high_risk:
+        notes.append("blocker constraints lack mitigation plans and require action")
+    if not notes:
+        notes.append("constraints have acceptable mitigation posture")
+    return ConstraintRiskReport(
+        total_constraints=len(constraints),
+        blocker_count=len(blockers),
+        high_risk_constraints=high_risk,
+        notes=notes,
+    )

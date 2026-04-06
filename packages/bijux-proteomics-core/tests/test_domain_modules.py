@@ -11,6 +11,7 @@ from bijux_proteomics.context import (
 )
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.constraints import ConstraintCategory
+from bijux_proteomics.constraints import assess_constraint_risk
 from bijux_proteomics.constraints import build_protein_native_constraints
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
 import pytest
@@ -187,6 +188,23 @@ def test_target_summary_includes_target_class_and_isoform_context() -> None:
     assert summary["isoform_count"] == 2
     assert summary["domain_count"] == 1
     assert summary["tractability_flag_count"] == 1
+
+
+def test_assess_constraint_risk_flags_blockers_without_mitigation() -> None:
+    report = assess_constraint_risk(
+        [
+            ScientificConstraint(
+                constraint_id="constraint-1",
+                category=ConstraintCategory.DEVELOPABILITY,
+                statement="avoid aggregation",
+                rationale="aggregation risk",
+                blocker=True,
+            )
+        ]
+    )
+
+    assert report.blocker_count == 1
+    assert report.high_risk_constraints == ["constraint-1"]
 
 
 def test_program_liability_supports_blocker_fields() -> None:
