@@ -218,6 +218,26 @@ class ScenarioDecisionConsensus(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Short consensus notes.")
 
 
+class IntelligenceReviewPacket(JsonModel):
+    """Integrated intelligence packet for review-gate decision meetings."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    consensus: ScenarioDecisionConsensus = Field(
+        ...,
+        description="Consensus across scenario evaluations.",
+    )
+    portfolio: PortfolioDecisionReport = Field(
+        ...,
+        description="Portfolio risk/diversity report for top candidates.",
+    )
+    review_ready: bool = Field(
+        ...,
+        description="Whether intelligence outputs are coherent enough for a progression review.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Review-facing notes.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -614,5 +634,29 @@ def summarize_scenario_consensus(
         recommended_action=ScenarioAction(recommended),
         action_counts=action_counts,
         conflicting_actions=conflicting_actions,
+        notes=notes,
+    )
+
+
+def build_intelligence_review_packet(
+    evaluations: ScenarioSetEvaluation,
+    ranking: CandidateRanking,
+    risks: list[CandidateRiskProfile],
+) -> IntelligenceReviewPacket:
+    """Build a review packet from scenario and portfolio intelligence outputs."""
+    consensus = summarize_scenario_consensus(evaluations)
+    portfolio = evaluate_portfolio_balance(ranking, risks)
+    review_ready = not consensus.conflicting_actions and portfolio.balanced_portfolio
+    notes: list[str] = []
+    if consensus.conflicting_actions:
+        notes.append("scenario recommendations conflict and require adjudication")
+    if not portfolio.balanced_portfolio:
+        notes.append("portfolio balance is weak and should be improved before progression")
+    if not notes:
+        notes.append("intelligence outputs are aligned for review discussion")
+    return IntelligenceReviewPacket(
+        consensus=consensus,
+        portfolio=portfolio,
+        review_ready=review_ready,
         notes=notes,
     )

@@ -21,6 +21,7 @@ from bijux_proteomics_intelligence import (
     ScenarioAction,
     evaluate_portfolio_balance,
     summarize_scenario_consensus,
+    build_intelligence_review_packet,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -405,3 +406,28 @@ def test_summarize_scenario_consensus_reports_conflicting_actions() -> None:
 
     assert consensus.action_counts
     assert consensus.conflicting_actions is True
+
+
+def test_build_intelligence_review_packet_combines_consensus_and_portfolio() -> None:
+    program = create_program_spec(
+        program_id="prog-packet",
+        name="review packet",
+        objective="compose intelligence review packet",
+        target_id="target-packet",
+        target_name="Target Packet",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="integrate intelligence outputs for review",
+    )
+    ranking = CandidateRanking(
+        program_id="prog-packet",
+        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+    )
+    risks = [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)]
+    grouped = evaluate_all_scenarios(program, ranking, _ready_state(), risks, policies=EvaluatorPolicyBundle())
+
+    packet = build_intelligence_review_packet(grouped, ranking, risks)
+
+    assert packet.consensus.action_counts
+    assert packet.portfolio.candidate_count == 1
+    assert packet.review_ready is False
