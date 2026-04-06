@@ -15,12 +15,15 @@ def _normalize(dependency: str) -> str:
 
 def run(repo_root: Path) -> int:
     pyproject = repo_root / "pyproject.toml"
-    allowlist_path = repo_root / "docs/security/dependencies.md"
+    allowlist_path = repo_root / "docs/bijux-proteomics/dependency-allowlist.md"
     if not pyproject.exists():
         print("pyproject.toml missing.", file=sys.stderr)
         return 1
     if not allowlist_path.exists():
-        print("Allowlist missing: docs/security/dependencies.md", file=sys.stderr)
+        print(
+            "Allowlist missing: docs/bijux-proteomics/dependency-allowlist.md",
+            file=sys.stderr,
+        )
         return 1
     data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
     dependencies = data.get("project", {}).get("dependencies", [])

@@ -31,6 +31,7 @@ nav:
       - Documentation System: bijux-proteomics/documentation-system.md
       - Architecture Invariants: bijux-proteomics/architecture-invariants.md
       - Design Debt Ledger: bijux-proteomics/design-debt-ledger.md
+      - Dependency Allowlist: bijux-proteomics/dependency-allowlist.md
   - agentic-proteins:
       - Overview: agentic-proteins/index.md
       - Foundation:
