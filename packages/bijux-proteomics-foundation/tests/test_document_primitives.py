@@ -8,7 +8,15 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
+from bijux_proteomics_foundation import (
+    ContractConflictError,
+    ContractNotFoundError,
+    ContractValidationError,
+    DocumentSchema,
+    FoundationContractError,
+    JsonModel,
+    ProgramId,
+)
 
 
 class DemoDocument(JsonModel):
@@ -72,3 +80,9 @@ def test_typed_ids_enforce_stable_identifier_pattern() -> None:
 
     with pytest.raises(ValidationError):
         IdentifierHolder(program_id="Program 1")
+
+
+def test_foundation_contract_errors_share_common_base() -> None:
+    assert issubclass(ContractValidationError, FoundationContractError)
+    assert issubclass(ContractNotFoundError, FoundationContractError)
+    assert issubclass(ContractConflictError, FoundationContractError)

@@ -5,6 +5,12 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_foundation.errors import (
+    ContractConflictError,
+    ContractNotFoundError,
+    ContractValidationError,
+    FoundationContractError,
+)
 from bijux_proteomics_foundation.ids import (
     AssayId,
     BatchId,
@@ -23,8 +29,12 @@ __all__ = [
     "BatchId",
     "CandidateId",
     "CycleId",
+    "ContractConflictError",
+    "ContractNotFoundError",
+    "ContractValidationError",
     "DocumentSchema",
     "EvidenceId",
+    "FoundationContractError",
     "GateId",
     "JsonModel",
     "ProgramId",
