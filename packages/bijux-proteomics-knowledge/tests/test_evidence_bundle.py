@@ -11,6 +11,7 @@ from bijux_proteomics_knowledge import (
     assess_context_completeness,
     assess_scientific_context_completeness,
     assess_context_compatibility,
+    audit_knowledge_quality,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -879,3 +880,35 @@ def test_assess_scientific_context_completeness_requires_extended_fields() -> No
 
     assert report.completeness_score == 1.0
     assert report.missing_fields == []
+
+
+def test_audit_knowledge_quality_surfaces_bundle_level_recommendations() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-audit",
+        target_id="target-audit",
+        records=[
+            EvidenceRecord(
+                evidence_id="audit-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay result",
+                source="lab",
+                claim="signal supports progression",
+                decision_tags=["progression"],
+                endpoint="activity_ratio",
+                confidence=0.82,
+                strength=EvidenceStrength.SUPPORTING,
+                quantitative_support=QuantitativeSupport(replicate_count=2, coefficient_of_variation=0.55),
+            )
+        ],
+    )
+
+    audit = audit_knowledge_quality(
+        bundle,
+        decision_tag="progression",
+        required_modalities=[EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
+    )
+
+    assert audit.triangulation_score >= 0.0
+    assert "audit-1" in audit.low_context_records
+    assert "audit-1" in audit.weak_quantitative_records
+    assert any("collect missing modalities" in note for note in audit.recommendations)

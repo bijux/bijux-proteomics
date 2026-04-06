@@ -582,6 +582,22 @@ class ScientificContextCompletenessReport(JsonModel):
     missing_fields: list[str] = Field(default_factory=list, description="Scientific context fields that are missing.")
 
 
+class KnowledgeQualityAudit(JsonModel):
+    """Cross-cutting quality audit for one evidence bundle and decision tag."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1, description="Bundle identifier.")
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    decision_tag: str = Field(..., min_length=1, description="Decision tag under audit.")
+    trust_score: float = Field(..., ge=0.0, le=1.0, description="Bundle trust score.")
+    triangulation_score: float = Field(..., ge=0.0, le=1.0, description="Decision-tag triangulation score.")
+    low_context_records: list[str] = Field(default_factory=list, description="Records with poor scientific context.")
+    weak_quantitative_records: list[str] = Field(default_factory=list, description="Records with weak quantitative support.")
+    conflict_count: int = Field(default=0, ge=0, description="Number of conflicts in the bundle.")
+    recommendations: list[str] = Field(default_factory=list, description="Actionable quality recommendations.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -884,6 +900,56 @@ def assess_scientific_context_completeness(
         evidence_id=record.evidence_id,
         completeness_score=score,
         missing_fields=missing_fields,
+    )
+
+
+def audit_knowledge_quality(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str,
+    required_modalities: list[str] | None = None,
+) -> KnowledgeQualityAudit:
+    """Build an integrated quality audit from trust, context, quantitative, and triangulation signals."""
+    trust = compute_bundle_trust(bundle)
+    triangulation = triangulate_evidence(
+        bundle,
+        decision_tag=decision_tag,
+        required_modalities=required_modalities or [],
+    )
+    low_context_records: list[str] = []
+    weak_quantitative_records: list[str] = []
+    for record in bundle.records:
+        context = assess_scientific_context_completeness(record)
+        if context.completeness_score < 0.6:
+            low_context_records.append(record.evidence_id)
+        quantitative = evaluate_quantitative_support(record.quantitative_support)
+        if record.quantitative_support is not None and quantitative.support_score < 0.5:
+            weak_quantitative_records.append(record.evidence_id)
+
+    recommendations: list[str] = []
+    if triangulation.missing_required_modalities:
+        recommendations.append(
+            "collect missing modalities: " + ", ".join(triangulation.missing_required_modalities)
+        )
+    if low_context_records:
+        recommendations.append("complete assay context fields for low-context records")
+    if weak_quantitative_records:
+        recommendations.append("improve quantitative design for weak quantitative records")
+    if trust.conflicts:
+        recommendations.append("resolve outstanding evidence conflicts before decision signoff")
+    if not recommendations:
+        recommendations.append("knowledge quality is strong for current decision scope")
+
+    return KnowledgeQualityAudit(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        decision_tag=decision_tag,
+        trust_score=trust.trust_score,
+        triangulation_score=triangulation.convergence_score,
+        low_context_records=low_context_records,
+        weak_quantitative_records=weak_quantitative_records,
+        conflict_count=len(trust.conflicts),
+        recommendations=recommendations,
     )
 
 
