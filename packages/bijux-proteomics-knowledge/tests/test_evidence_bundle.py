@@ -37,6 +37,7 @@ from bijux_proteomics_knowledge import (
     score_evidence_record,
     stale_records,
     summarize_bundle,
+    triangulate_evidence,
 )
 
 
@@ -512,6 +513,39 @@ def test_assess_context_compatibility_flags_species_and_system_mismatch() -> Non
 
     assert report.score < 1.0
     assert any("species context" in note for note in report.notes)
+
+
+def test_triangulate_evidence_scores_modality_convergence() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-tri",
+        target_id="target-tri",
+        records=[
+            EvidenceRecord(
+                evidence_id="e1",
+                kind=EvidenceKind.LITERATURE,
+                title="lit",
+                source="pmid",
+                claim="lit support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="e2",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="assay support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    report = triangulate_evidence(bundle, decision_tag="progression")
+
+    assert report.modality_diversity == 2
+    assert report.convergence_score > 0
 
 
 def test_attach_manual_notes_creates_curated_evidence_records() -> None:

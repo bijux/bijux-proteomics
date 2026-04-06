@@ -404,6 +404,18 @@ class ContextCompatibilityReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Context compatibility notes.")
 
 
+class EvidenceTriangulationReport(JsonModel):
+    """Convergence summary across orthogonal evidence modalities."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    decision_tag: str = Field(..., min_length=1, description="Decision tag under analysis.")
+    modality_counts: dict[str, int] = Field(default_factory=dict, description="Count by modality.")
+    modality_diversity: int = Field(..., ge=0, description="Number of distinct modalities.")
+    convergence_score: float = Field(..., ge=0.0, le=1.0, description="Triangulation convergence score.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -491,6 +503,29 @@ def assess_context_compatibility(
         evidence_id=record.evidence_id,
         score=max(0.0, round(score, 4)),
         notes=notes,
+    )
+
+
+def triangulate_evidence(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str,
+) -> EvidenceTriangulationReport:
+    """Score multi-modality convergence for a decision tag."""
+    modality_counts: dict[str, int] = {}
+    for record in bundle.records:
+        if decision_tag not in record.decision_tags:
+            continue
+        modality = record.kind.value
+        modality_counts[modality] = modality_counts.get(modality, 0) + 1
+    diversity = len(modality_counts)
+    convergence = min(1.0, round((diversity / 4.0), 4))
+    return EvidenceTriangulationReport(
+        target_id=bundle.target_id,
+        decision_tag=decision_tag,
+        modality_counts=modality_counts,
+        modality_diversity=diversity,
+        convergence_score=convergence,
     )
 
 
