@@ -20,5 +20,24 @@ def fingerprint_model(model: JsonModel) -> str:
     """Generate a stable SHA-256 fingerprint for a lab model payload."""
     return hashlib.sha256(to_canonical_json(model).encode("utf-8")).hexdigest()
 
+def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str]]:
+    """Compute a deterministic field-level diff between two model payloads."""
+    left_payload = left.to_dict()
+    right_payload = right.to_dict()
+    left_keys = set(left_payload.keys())
+    right_keys = set(right_payload.keys())
+    changed = sorted(
+        [
+            key
+            for key in sorted(left_keys & right_keys)
+            if left_payload[key] != right_payload[key]
+        ]
+    )
+    return {
+        "added_fields": sorted(right_keys - left_keys),
+        "removed_fields": sorted(left_keys - right_keys),
+        "changed_fields": changed,
+    }
 
-__all__ = ["JsonModel", "to_canonical_json", "fingerprint_model"]
+
+__all__ = ["JsonModel", "to_canonical_json", "fingerprint_model", "diff_model_payloads"]

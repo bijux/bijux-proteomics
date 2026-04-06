@@ -67,7 +67,7 @@ from bijux_proteomics_lab.schema import (
     evaluate_lab_artifact_schema_contract,
     evaluate_lab_schema_compatibility,
 )
-from bijux_proteomics_lab.serialization import fingerprint_model, to_canonical_json
+from bijux_proteomics_lab.serialization import diff_model_payloads, fingerprint_model, to_canonical_json
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.planning import (
     AssayDependency,
@@ -212,6 +212,7 @@ __all__ = [
     "evaluate_lab_schema_compatibility",
     "to_canonical_json",
     "fingerprint_model",
+    "diff_model_payloads",
     "ReviewPacket",
     "ReviewRiskProfile",
     "ScheduledBatch",
