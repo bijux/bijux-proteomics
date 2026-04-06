@@ -12,6 +12,7 @@ from bijux_proteomics_knowledge import (
     assess_scientific_context_completeness,
     assess_context_compatibility,
     audit_knowledge_quality,
+    summarize_quantitative_coverage,
     rank_evidence_for_decision,
     evaluate_modality_coverage,
     summarize_evidence_provenance,
@@ -535,6 +536,39 @@ def test_evidence_record_supports_quantitative_context_payload() -> None:
 
     assert record.quantitative_support is not None
     assert record.quantitative_support.replicate_count == 4
+
+
+def test_summarize_quantitative_coverage_counts_records() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-quant",
+        target_id="target-quant",
+        records=[
+            EvidenceRecord(
+                evidence_id="e1",
+                kind=EvidenceKind.ASSAY,
+                title="quant",
+                source="lab",
+                claim="quant",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+                quantitative_support=QuantitativeSupport(replicate_count=3),
+            ),
+            EvidenceRecord(
+                evidence_id="e2",
+                kind=EvidenceKind.LITERATURE,
+                title="lit",
+                source="PMID:1",
+                claim="lit",
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    report = summarize_quantitative_coverage(bundle)
+
+    assert report.total_records == 2
+    assert report.quantitative_records == 1
 
 
 def test_decompose_evidence_quality_derives_confidence_components() -> None:

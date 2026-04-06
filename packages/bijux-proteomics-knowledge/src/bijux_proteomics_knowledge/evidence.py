@@ -608,6 +608,17 @@ class KnowledgeQualityAudit(JsonModel):
     recommendations: list[str] = Field(default_factory=list, description="Actionable quality recommendations.")
 
 
+class QuantitativeCoverageReport(JsonModel):
+    """Coverage report for quantitative evidence support within a bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1, description="Bundle identifier.")
+    total_records: int = Field(..., ge=0, description="Total records evaluated.")
+    quantitative_records: int = Field(..., ge=0, description="Records carrying quantitative support.")
+    coverage_ratio: float = Field(..., ge=0.0, le=1.0, description="Fraction of records with quantitative support.")
+
+
 class EvidenceRelevanceScore(JsonModel):
     """Relevance score for one evidence record in a decision context."""
 
@@ -1045,6 +1056,19 @@ def audit_knowledge_quality(
         weak_quantitative_records=weak_quantitative_records,
         conflict_count=len(trust.conflicts),
         recommendations=recommendations,
+    )
+
+
+def summarize_quantitative_coverage(bundle: EvidenceBundle) -> QuantitativeCoverageReport:
+    """Summarize quantitative support coverage in an evidence bundle."""
+    total = len(bundle.records)
+    quantitative = sum(1 for record in bundle.records if record.quantitative_support is not None)
+    coverage_ratio = round((quantitative / total), 4) if total else 0.0
+    return QuantitativeCoverageReport(
+        bundle_id=bundle.bundle_id,
+        total_records=total,
+        quantitative_records=quantitative,
+        coverage_ratio=coverage_ratio,
     )
 
 
