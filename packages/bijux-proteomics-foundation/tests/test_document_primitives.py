@@ -46,6 +46,18 @@ def test_document_schema_touch_updates_audit_metadata() -> None:
     assert touched.updated_at >= touched.created_at
 
 
+def test_stable_json_is_sorted_for_reproducible_diffs(tmp_path: Path) -> None:
+    document = DemoDocument(value="demo")
+    path = tmp_path / "stable.json"
+
+    document.save_stable_json(path)
+    lines = path.read_text().splitlines()
+
+    value_line = next(index for index, line in enumerate(lines) if '"value"' in line)
+    schema_line = next(index for index, line in enumerate(lines) if '"document_schema"' in line)
+    assert schema_line < value_line
+
+
 class IdentifierHolder(BaseModel):
     program_id: ProgramId
 
