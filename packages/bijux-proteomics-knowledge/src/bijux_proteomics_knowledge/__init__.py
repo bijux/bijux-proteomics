@@ -96,6 +96,7 @@ from bijux_proteomics_knowledge.resolution import (
     ConflictCluster,
     ResolutionImpactPreview,
     ResolutionPolicyComparison,
+    ResolutionEscalationItem,
     ConflictResolution,
     ResolutionAction,
     ResolutionPolicy,
@@ -105,6 +106,7 @@ from bijux_proteomics_knowledge.resolution import (
     cluster_conflicts,
     preview_resolution_impact,
     compare_resolution_policies,
+    build_resolution_escalation_queue,
     summarize_resolutions,
 )
 from bijux_proteomics_knowledge.evidence import (
@@ -192,6 +194,7 @@ __all__ = [
     "ConflictCluster",
     "ResolutionImpactPreview",
     "ResolutionPolicyComparison",
+    "ResolutionEscalationItem",
     "ConflictResolution",
     "ConflictPolicy",
     "DecisionReadiness",
@@ -323,6 +326,7 @@ __all__ = [
     "cluster_conflicts",
     "preview_resolution_impact",
     "compare_resolution_policies",
+    "build_resolution_escalation_queue",
     "summarize_resolutions",
     "StructureAnnotationIngestionAdapter",
     "attach_manual_notes",

@@ -144,6 +144,17 @@ class ResolutionPolicyComparison(JsonModel):
     )
 
 
+class ResolutionEscalationItem(JsonModel):
+    """Prioritized escalation item for curator review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    left_evidence_id: str = Field(..., min_length=1, description="First evidence identifier.")
+    right_evidence_id: str = Field(..., min_length=1, description="Second evidence identifier.")
+    priority: str = Field(..., min_length=1, description="Escalation priority tier.")
+    rationale: str = Field(..., min_length=1, description="Escalation rationale.")
+
+
 def resolve_conflicts(
     bundle: EvidenceBundle,
     *,
@@ -421,3 +432,35 @@ def compare_resolution_policies(
         policy_action_counts=policy_action_counts,
         policy_hold_flags=policy_hold_flags,
     )
+
+
+def build_resolution_escalation_queue(
+    trust_report: BundleTrustReport,
+    resolutions: list[ConflictResolution],
+) -> list[ResolutionEscalationItem]:
+    """Build prioritized curator queue from trust conflicts and selected actions."""
+    severity_by_pair = {
+        (conflict.left_evidence_id, conflict.right_evidence_id): conflict.severity
+        for conflict in trust_report.conflicts
+    }
+    queue: list[ResolutionEscalationItem] = []
+    for resolution in resolutions:
+        pair = (resolution.left_evidence_id, resolution.right_evidence_id)
+        severity = severity_by_pair.get(pair, "medium")
+        if resolution.action is ResolutionAction.HOLD_DECISION or severity == "high":
+            priority = "high"
+        elif resolution.action is ResolutionAction.REQUIRE_CURATION:
+            priority = "medium"
+        else:
+            priority = "low"
+        if priority == "low":
+            continue
+        queue.append(
+            ResolutionEscalationItem(
+                left_evidence_id=resolution.left_evidence_id,
+                right_evidence_id=resolution.right_evidence_id,
+                priority=priority,
+                rationale=resolution.rationale,
+            )
+        )
+    return sorted(queue, key=lambda item: (item.priority != "high", item.left_evidence_id, item.right_evidence_id))

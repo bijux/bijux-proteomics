@@ -25,6 +25,7 @@ from bijux_proteomics_knowledge import (
     query_resolution_records,
     ResolutionRecordQuery,
     compare_resolution_policies,
+    build_resolution_escalation_queue,
 )
 
 
@@ -559,6 +560,44 @@ def test_compare_resolution_policies_reports_action_profiles() -> None:
     )
 
     assert set(comparison.policy_action_counts) == {"default-a", "strict-b"}
+
+
+def test_build_resolution_escalation_queue_prioritizes_hold_conflicts() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-escalation",
+        target_id="target-escalation",
+        records=[
+            EvidenceRecord(
+                evidence_id="e1",
+                kind=EvidenceKind.ASSAY,
+                title="positive",
+                source="lab",
+                source_uri="lab://run-1",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="e2",
+                kind=EvidenceKind.ASSAY,
+                title="negative",
+                source="lab",
+                source_uri="lab://run-1",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate fails gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    trust, resolutions = resolve_conflicts(bundle)
+    queue = build_resolution_escalation_queue(trust, resolutions)
+
+    assert len(queue) == 1
+    assert queue[0].priority == "high"
 
 
 def test_apply_resolution_updates_disputes_claim_when_hold_is_required() -> None:
