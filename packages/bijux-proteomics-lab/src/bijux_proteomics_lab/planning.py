@@ -18,7 +18,12 @@ from bijux_proteomics_knowledge import (
     flag_conflicting_evidence,
     triangulate_evidence,
 )
-from bijux_proteomics_lab.outcomes import AssayResultState, ExperimentOutcome, summarize_experiment_outcome
+from bijux_proteomics_lab.outcomes import (
+    AssayResultState,
+    ExperimentOutcome,
+    assess_batch_outcome,
+    summarize_experiment_outcome,
+)
 from bijux_proteomics_foundation import (
     AssayId,
     BatchId,
@@ -238,6 +243,16 @@ class ClosedLoopPlan(JsonModel):
         ge=0.0,
         le=1.0,
         description="Trust score used to weight the recommendation.",
+    )
+    promotion_ready_count: int = Field(
+        default=0,
+        ge=0,
+        description="Number of assay outcomes that are ready for evidence promotion.",
+    )
+    technical_failure_count: int = Field(
+        default=0,
+        ge=0,
+        description="Technical/reproducibility failure count used in the recommendation.",
     )
 
 
@@ -1004,6 +1019,7 @@ def recommend_next_cycle_from_outcome(
 ) -> ClosedLoopPlan:
     """Recommend the next cycle by combining evidence trust with normalized assay outcomes."""
     summary = summarize_experiment_outcome(outcome)
+    assessment = assess_batch_outcome(outcome)
     trust = compute_bundle_trust(bundle)
     failed_assays = [
         assay.assay_id
@@ -1024,6 +1040,8 @@ def recommend_next_cycle_from_outcome(
             assay_backlog=failed_assays,
             notes=["repair assay execution quality before making redesign or progression calls"],
             evidence_trust_score=trust.trust_score,
+            promotion_ready_count=assessment.promotion_ready_count,
+            technical_failure_count=assessment.technical_or_repro_failures,
         )
     if summary.failed_biological_count > 0:
         return ClosedLoopPlan(
@@ -1033,8 +1051,10 @@ def recommend_next_cycle_from_outcome(
             assay_backlog=failed_assays,
             notes=["biological failures indicate the candidate hypothesis should be redesigned"],
             evidence_trust_score=trust.trust_score,
+            promotion_ready_count=assessment.promotion_ready_count,
+            technical_failure_count=assessment.technical_or_repro_failures,
         )
-    return recommend_next_cycle(
+    plan = recommend_next_cycle(
         program,
         bundle,
         [
@@ -1046,4 +1066,10 @@ def recommend_next_cycle_from_outcome(
             )
             for assay in outcome.assay_outcomes
         ],
+    )
+    return plan.model_copy(
+        update={
+            "promotion_ready_count": assessment.promotion_ready_count,
+            "technical_failure_count": assessment.technical_or_repro_failures,
+        }
     )

@@ -427,6 +427,7 @@ def test_recommend_next_cycle_from_outcome_holds_on_technical_failures() -> None
 
     assert plan.decision is ProgressDecision.HOLD
     assert plan.assay_backlog == ["binding-assay"]
+    assert plan.technical_failure_count == 1
 
 
 def test_recommend_next_cycle_from_outcome_redesigns_on_biological_failures() -> None:
@@ -457,6 +458,7 @@ def test_recommend_next_cycle_from_outcome_redesigns_on_biological_failures() ->
     plan = recommend_next_cycle_from_outcome(program, bundle, outcome)
 
     assert plan.decision is ProgressDecision.REDESIGN
+    assert plan.promotion_ready_count == 0
 
 
 def test_assess_material_constraints_flags_missing_sample_inventory() -> None:
