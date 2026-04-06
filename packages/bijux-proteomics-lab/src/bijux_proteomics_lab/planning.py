@@ -445,6 +445,17 @@ class LabExecutionDirective(JsonModel):
     immediate_actions: list[str] = Field(default_factory=list, description="Immediate execution actions.")
 
 
+class GateCoverageGapReport(JsonModel):
+    """Report of review-gate coverage and uncovered gates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    covered_gates: list[str] = Field(default_factory=list, description="Gates covered by planned batches.")
+    uncovered_gates: list[str] = Field(default_factory=list, description="Gates in queue with no planned coverage.")
+    notes: list[str] = Field(default_factory=list, description="Coverage interpretation notes.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1357,6 +1368,26 @@ def derive_lab_execution_directive(outcome: ExperimentOutcome) -> LabExecutionDi
         decision=decision,
         escalation_assay_ids=triage.escalation_assay_ids,
         immediate_actions=actions,
+    )
+
+
+def assess_gate_coverage_gaps(plan: ExperimentPlan) -> GateCoverageGapReport:
+    """Assess whether review queue gates are covered by planned batches."""
+    covered: set[str] = set()
+    for batch in plan.batches:
+        covered.update(batch.blocking_review_gates)
+    queued = set(plan.review_queue)
+    uncovered = sorted(queued - covered)
+    notes: list[str] = []
+    if uncovered:
+        notes.append("some queued review gates have no explicit assay batch coverage")
+    else:
+        notes.append("all queued review gates are represented in planned batches")
+    return GateCoverageGapReport(
+        program_id=plan.program_id,
+        covered_gates=sorted(covered),
+        uncovered_gates=uncovered,
+        notes=notes,
     )
 
 

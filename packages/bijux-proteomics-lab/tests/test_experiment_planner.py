@@ -52,6 +52,7 @@ from bijux_proteomics_lab import (
     summarize_assay_portfolio_balance,
     plan_material_reservations,
     derive_lab_execution_directive,
+    assess_gate_coverage_gaps,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -386,6 +387,26 @@ def test_derive_lab_execution_directive_holds_on_technical_failure() -> None:
 
     assert directive.decision is ProgressDecision.HOLD
     assert any("technical" in action for action in directive.immediate_actions)
+
+
+def test_assess_gate_coverage_gaps_reports_uncovered_queue_gates() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-gate-gap",
+        review_queue=["gate-a", "gate-b"],
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="covers gate a",
+                assay_ids=["a1"],
+                blocking_review_gates=["gate-a"],
+                priority=1,
+            )
+        ],
+    )
+
+    report = assess_gate_coverage_gaps(plan)
+
+    assert report.uncovered_gates == ["gate-b"]
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
