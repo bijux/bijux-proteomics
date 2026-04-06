@@ -7,7 +7,7 @@ VULTURE     := $(if $(ACT),$(ACT)/vulture,vulture)
 DEPTRY      := $(if $(ACT),$(ACT)/deptry,deptry)
 INTERROGATE := $(if $(ACT),$(ACT)/interrogate,interrogate)
 MYPY        := $(if $(ACT),$(ACT)/mypy,mypy)
-PYTHON      := $(shell command -v python3 || command -v python)
+QUALITY_PYTHON ?= $(if $(wildcard $(VENV_PYTHON)),$(abspath $(VENV_PYTHON)),$(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),$(shell command -v python3 || command -v python)))
 
 QUALITY_ARTIFACTS_DIR ?= artifacts/quality
 QUALITY_OK_MARKER     := $(QUALITY_ARTIFACTS_DIR)/_passed
@@ -68,7 +68,7 @@ quality:
 	@$(DEV_RUN) -m bijux_proteomics_dev.docs.consistency
 
 	@echo "   - MkDocs build"
-	@$(PYTHON) -m mkdocs build --strict
+	@$(QUALITY_PYTHON) -m mkdocs build --strict
 
 	@echo "✔ Quality checks passed"
 	@printf "OK\n" >"$(QUALITY_OK_MARKER)"
