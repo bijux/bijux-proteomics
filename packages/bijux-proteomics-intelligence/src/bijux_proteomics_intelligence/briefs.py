@@ -13,7 +13,7 @@ from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
 from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 from bijux_proteomics_intelligence.outcomes import CandidateRejection, TieBreakExplanation
-from bijux_proteomics_intelligence.policies import RankingPolicy, TieBreakRule
+from bijux_proteomics_intelligence.policies import RankingFactor, RankingPolicy, TieBreakRule
 from bijux_proteomics_intelligence.serialization import JsonModel
 
 
@@ -117,7 +117,7 @@ class RankedCandidate(JsonModel):
         default_factory=list,
         description="Short explanations for the ranking outcome.",
     )
-    explainability: dict[str, list[str] | float] = Field(
+    explainability: dict[str, object] = Field(
         default_factory=dict,
         description="Structured explanation for the ranking outcome.",
     )
@@ -278,7 +278,7 @@ def prioritize_candidates(
 ) -> CandidateRanking:
     """Rank candidates with transparent penalties for risk and weak support."""
     policy = policy or RankingPolicy(policy_id="default-balance")
-    scored: list[tuple[CandidateAssessment, float, list[str]]] = []
+    scored: list[tuple[CandidateAssessment, float, list[str], dict[str, float]]] = []
     rejected: list[str] = []
     rejections: list[CandidateRejection] = []
     for candidate in candidates:
@@ -296,27 +296,28 @@ def prioritize_candidates(
                 )
             )
             continue
-        liability_penalty = sum(flag.severity for flag in candidate.liabilities) * 0.15
-        support_bonus = candidate.evidence_support * 0.5
-        manufacturability_bonus = candidate.manufacturability_score * 0.3
-        uncertainty_penalty = candidate.uncertainty * policy.uncertainty_penalty_weight
-        diversity_bonus = (
-            max(0.0, 1.0 - (len(candidate.liabilities) / 5.0))
-            * policy.diversity_bonus_weight
-        )
-        score = (
-            criterion_score
-            + support_bonus
-            + manufacturability_bonus
-            + diversity_bonus
-            - liability_penalty
-            - uncertainty_penalty
+        threshold_count = max(len(program.success_criteria), 1)
+        factor_scores = {
+            RankingFactor.CRITERIA.value: round(
+                min(criterion_score / (threshold_count * 1.5), 1.0), 4
+            ),
+            RankingFactor.EVIDENCE.value: round(candidate.evidence_support, 4),
+            RankingFactor.MANUFACTURABILITY.value: round(candidate.manufacturability_score, 4),
+            RankingFactor.LIABILITY.value: round(
+                max(0.0, 1.0 - (sum(flag.severity for flag in candidate.liabilities) / 10.0)),
+                4,
+            ),
+            RankingFactor.UNCERTAINTY.value: round(max(0.0, 1.0 - candidate.uncertainty), 4),
+        }
+        score = sum(
+            factor_scores[factor.value] * weight
+            for factor, weight in policy.factor_weights.items()
         )
         reasons = [
-            f"criteria_score={criterion_score:.2f}",
-            f"evidence_support={candidate.evidence_support:.2f}",
-            f"manufacturability={candidate.manufacturability_score:.2f}",
-            f"uncertainty={candidate.uncertainty:.2f}",
+            f"criteria_factor={factor_scores[RankingFactor.CRITERIA.value]:.2f}",
+            f"evidence_factor={factor_scores[RankingFactor.EVIDENCE.value]:.2f}",
+            f"manufacturability_factor={factor_scores[RankingFactor.MANUFACTURABILITY.value]:.2f}",
+            f"uncertainty_factor={factor_scores[RankingFactor.UNCERTAINTY.value]:.2f}",
         ]
         if candidate.liabilities:
             reasons.append(
@@ -325,7 +326,7 @@ def prioritize_candidates(
                     flag.code for flag in sorted(candidate.liabilities, key=lambda item: item.code)
                 )
             )
-        scored.append((candidate, score, reasons))
+        scored.append((candidate, score, reasons, factor_scores))
 
     ranked = sorted(
         scored,
@@ -363,10 +364,11 @@ def prioritize_candidates(
                         flag.summary for flag in candidate.liabilities[:3]
                     ],
                     "confidence": round(1.0 - candidate.uncertainty, 4),
+                    "factor_scores": factor_scores,
                     "missing_evidence": [],
                 },
             )
-            for index, (candidate, score, reasons) in enumerate(ranked, start=1)
+            for index, (candidate, score, reasons, factor_scores) in enumerate(ranked, start=1)
         ],
         rejected_candidates=rejected,
         rejections=rejections,

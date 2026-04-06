@@ -11,6 +11,7 @@ from bijux_proteomics_intelligence import (
     build_risk_profile,
     LiabilityFlag,
     OptimizationAxis,
+    RankingFactor,
     PortfolioSelectionPolicy,
     RankingPolicy,
     build_design_brief,
@@ -165,6 +166,13 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
     assert ranking.rejected_candidates == ["candidate-c"]
     assert ranking.rejections[0].candidate_id == "candidate-c"
     assert ranking.ranked_candidates[0].explainability["confidence"] == 0.9
+    assert ranking.ranked_candidates[0].explainability["factor_scores"] == {
+        RankingFactor.CRITERIA.value: 0.7289,
+        RankingFactor.EVIDENCE.value: 0.8,
+        RankingFactor.MANUFACTURABILITY.value: 0.8,
+        RankingFactor.LIABILITY.value: 1.0,
+        RankingFactor.UNCERTAINTY.value: 0.9,
+    }
 
 
 def test_prioritize_candidates_applies_profile_hard_filters() -> None:
@@ -332,9 +340,9 @@ def test_summarize_candidate_explainability_carries_evidence_gaps() -> None:
         CandidateExplainabilitySummary(
             candidate_id="candidate-a",
             strengths=[
-                "criteria_score=1.07",
-                "evidence_support=0.78",
-                "manufacturability=0.82",
+                "criteria_factor=0.72",
+                "evidence_factor=0.78",
+                "manufacturability_factor=0.82",
                 "assessment confidence remains high enough for active consideration",
             ],
             open_risks=["Predicted aggregation hotspot"],

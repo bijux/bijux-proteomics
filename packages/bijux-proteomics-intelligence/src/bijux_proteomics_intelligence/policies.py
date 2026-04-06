@@ -21,6 +21,16 @@ class TieBreakRule(StrEnum):
     FEWER_LIABILITIES = "fewer_liabilities"
 
 
+class RankingFactor(StrEnum):
+    """Named factors used in normalized ranking."""
+
+    CRITERIA = "criteria"
+    EVIDENCE = "evidence"
+    MANUFACTURABILITY = "manufacturability"
+    LIABILITY = "liability"
+    UNCERTAINTY = "uncertainty"
+
+
 class RankingPolicy(JsonModel):
     """Serializable ranking policy for candidate evaluation."""
 
@@ -61,6 +71,16 @@ class RankingPolicy(JsonModel):
         default=0.1,
         ge=0.0,
         description="Bonus weight for candidates with fewer liabilities.",
+    )
+    factor_weights: dict[RankingFactor, float] = Field(
+        default_factory=lambda: {
+            RankingFactor.CRITERIA: 0.45,
+            RankingFactor.EVIDENCE: 0.2,
+            RankingFactor.MANUFACTURABILITY: 0.15,
+            RankingFactor.LIABILITY: 0.1,
+            RankingFactor.UNCERTAINTY: 0.1,
+        },
+        description="Weights used for normalized factor scoring.",
     )
     tie_break_rules: list[TieBreakRule] = Field(
         default_factory=lambda: [
