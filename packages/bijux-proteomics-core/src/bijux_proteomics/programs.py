@@ -22,6 +22,14 @@ from bijux_proteomics.program_spec import (
     program_summary,
 )
 from bijux_proteomics.reviews import ReviewGate
+from bijux_proteomics.repositories import (
+    ReviewDecision,
+    ReviewGateEvaluation,
+    ReviewGateState,
+    ReviewOutcome,
+    evaluate_review_gate,
+    evaluate_review_gates,
+)
 from bijux_proteomics.targets import ProteinTarget
 
 __all__ = [
@@ -36,8 +44,14 @@ __all__ = [
     "ProgramStage",
     "ProteinTarget",
     "ReviewGate",
+    "ReviewDecision",
+    "ReviewGateEvaluation",
+    "ReviewGateState",
+    "ReviewOutcome",
     "ScientificConstraint",
     "SuccessCriterion",
     "create_program_spec",
+    "evaluate_review_gate",
+    "evaluate_review_gates",
     "program_summary",
 ]

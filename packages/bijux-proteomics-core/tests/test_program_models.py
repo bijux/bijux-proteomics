@@ -19,7 +19,10 @@ from bijux_proteomics import (
     ProgramContext,
     ProgramDeliveryContext,
     ProgramPortfolioContext,
+    ReviewGateEvaluation,
+    ReviewGateState,
     create_program_spec,
+    evaluate_review_gates,
     ensure_review_clearance,
     program_summary,
     validate_assay_dependencies,
@@ -447,3 +450,87 @@ def test_execute_program_rejects_invalid_program_before_backend_use(tmp_path: Pa
         execute_program(request)
 
     assert "review-gates-missing" in str(excinfo.value)
+
+
+def test_evaluate_review_gates_reports_missing_inputs_and_roles() -> None:
+    program = create_program_spec(
+        program_id="prog-12",
+        name="review engine",
+        objective="make gate state explainable",
+        target_id="target-12",
+        target_name="Target 12",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="trace who signed off and what they reviewed",
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="progression-review",
+            name="Progression review",
+            required_roles=["scientist", "safety"],
+            decision_inputs=["review_packet", "binding_score"],
+            blocking=True,
+        )
+    )
+
+    evaluations = evaluate_review_gates(
+        program,
+        [
+            ReviewDecision(
+                program_id=program.program_id,
+                gate_id="progression-review",
+                outcome=ReviewOutcome.APPROVED,
+                decided_by="scientist",
+                rationale="scientific case is strong",
+                reviewed_inputs=["review_packet"],
+            )
+        ],
+    )
+
+    assert evaluations == [
+        ReviewGateEvaluation(
+            gate_id="progression-review",
+            state=ReviewGateState.NEEDS_OWNER,
+            missing_roles=["safety"],
+            missing_inputs=["binding_score"],
+            rationale="required decision owners have not all signed off yet",
+        )
+    ]
+
+
+def test_evaluate_review_gates_reports_fully_approved_gate() -> None:
+    program = create_program_spec(
+        program_id="prog-13",
+        name="approved review engine",
+        objective="mark fully covered gates as approved",
+        target_id="target-13",
+        target_name="Target 13",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="require all owners and inputs before progression",
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="pre-synthesis",
+            name="Pre-synthesis review",
+            required_roles=["scientist"],
+            decision_inputs=["review_packet"],
+            blocking=True,
+        )
+    )
+
+    evaluations = evaluate_review_gates(
+        program,
+        [
+            ReviewDecision(
+                program_id=program.program_id,
+                gate_id="pre-synthesis",
+                outcome=ReviewOutcome.APPROVED,
+                decided_by="scientist",
+                rationale="packet is complete",
+                reviewed_inputs=["review_packet"],
+            )
+        ],
+    )
+
+    assert evaluations[0].state is ReviewGateState.APPROVED
