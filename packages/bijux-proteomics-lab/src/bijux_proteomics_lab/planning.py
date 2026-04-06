@@ -373,6 +373,26 @@ class NextBestExperiment(JsonModel):
     rationale: list[str] = Field(default_factory=list, description="Short rationale for recommendation.")
 
 
+class PlanningPolicy(JsonModel):
+    """Weights and penalties for information-gain planning calculations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable planning policy identifier.")
+    uncertainty_weight: float = Field(default=0.22, ge=0.0, le=1.0, description="Weight for uncertainty reduction.")
+    contradiction_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Weight for contradiction resolution.")
+    falsification_weight: float = Field(default=0.18, ge=0.0, le=1.0, description="Weight for falsification value.")
+    gate_impact_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Weight for decision-gate impact.")
+    orthogonal_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Weight for orthogonal confirmation.")
+    blocking_burden_penalty: float = Field(default=0.2, ge=0.0, le=1.0, description="Burden penalty for blocking assays.")
+    non_blocking_burden_penalty: float = Field(
+        default=0.12,
+        ge=0.0,
+        le=1.0,
+        description="Burden penalty for non-blocking assays.",
+    )
+
+
 class DependencyCycleReport(JsonModel):
     """Cycle detection report for assay dependency graphs."""
 
@@ -758,6 +778,8 @@ def prioritize_next_assays(
     program: ProgramSpec,
     bundle: EvidenceBundle,
     observations: list[AssayObservation],
+    *,
+    policy: PlanningPolicy | None = None,
 ) -> list[NextAssayPriority]:
     """Rank pending assays by expected information gain and decision impact."""
     observed_ids = {observation.assay_id for observation in observations}
@@ -765,6 +787,7 @@ def prioritize_next_assays(
     readiness = assess_decision_readiness(bundle, [need.value for need in program.evidence_needs])
     ranked: list[NextAssayPriority] = []
     contradictions = flag_conflicting_evidence(bundle)
+    policy = policy or PlanningPolicy(policy_id="default-planning-policy")
     for assay in program.assay_panel:
         if assay.assay_id in observed_ids:
             continue
@@ -774,6 +797,7 @@ def prioritize_next_assays(
             readiness_ready=readiness.ready,
             trust_score=trust.trust_score,
             contradiction_count=len(contradictions),
+            policy=policy,
         )
         reasons: list[str] = []
         if breakdown.decision_gate_impact >= 0.7:
@@ -803,24 +827,26 @@ def score_assay_information_gain(
     readiness_ready: bool,
     trust_score: float,
     contradiction_count: int,
+    policy: PlanningPolicy | None = None,
 ) -> InformationGainBreakdown:
     """Score assay information gain using explicit scientific planning dimensions."""
+    policy = policy or PlanningPolicy(policy_id="default-planning-policy")
     uncertainty_reduction = 0.7 if not readiness_ready else 0.4
     contradiction_resolution_value = min(1.0, contradiction_count * 0.25)
     falsification_value = 0.7 if blocking else 0.5
     decision_gate_impact = 0.9 if blocking else 0.4
     orthogonal_confirmation_value = 0.6 if trust_score < 0.7 else 0.3
-    burden_penalty = 0.2 if blocking else 0.12
+    burden_penalty = policy.blocking_burden_penalty if blocking else policy.non_blocking_burden_penalty
     final_score = round(
         max(
             0.0,
             min(
                 (
-                    uncertainty_reduction * 0.22
-                    + contradiction_resolution_value * 0.2
-                    + falsification_value * 0.18
-                    + decision_gate_impact * 0.2
-                    + orthogonal_confirmation_value * 0.2
+                    uncertainty_reduction * policy.uncertainty_weight
+                    + contradiction_resolution_value * policy.contradiction_weight
+                    + falsification_value * policy.falsification_weight
+                    + decision_gate_impact * policy.gate_impact_weight
+                    + orthogonal_confirmation_value * policy.orthogonal_weight
                     - burden_penalty
                 ),
                 1.0,

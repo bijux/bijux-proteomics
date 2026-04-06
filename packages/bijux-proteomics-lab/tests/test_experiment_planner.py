@@ -33,6 +33,7 @@ from bijux_proteomics_lab import (
     plan_conflict_resolution_assays,
     plan_uncertainty_reduction_assays,
     recommend_next_best_experiment,
+    PlanningPolicy,
     recommend_orthogonal_confirmation,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
@@ -741,3 +742,24 @@ def test_recommend_next_best_experiment_respects_dependencies() -> None:
     assert recommendation is not None
     assert recommendation.assay_id == "assay-main"
     assert recommendation.prerequisite_assay_ids == ["assay-prereq"]
+
+
+def test_score_assay_information_gain_supports_custom_planning_policy() -> None:
+    breakdown = score_assay_information_gain(
+        assay_id="assay-policy",
+        blocking=False,
+        readiness_ready=True,
+        trust_score=0.8,
+        contradiction_count=0,
+        policy=PlanningPolicy(
+            policy_id="aggressive-policy",
+            uncertainty_weight=0.5,
+            contradiction_weight=0.1,
+            falsification_weight=0.1,
+            gate_impact_weight=0.1,
+            orthogonal_weight=0.2,
+            non_blocking_burden_penalty=0.05,
+        ),
+    )
+
+    assert breakdown.final_score > 0.0
