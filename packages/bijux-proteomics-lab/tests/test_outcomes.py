@@ -36,6 +36,7 @@ from bijux_proteomics_lab import (
     validate_assay_observation_record,
     generate_feedback_records_from_outcome,
     promote_batch_outcome_to_evidence,
+    triage_assay_failure,
 )
 
 
@@ -140,6 +141,23 @@ def test_promote_outcome_to_evidence_supports_custom_promotion_policy() -> None:
     )
 
     assert payload.confidence == 0.3
+
+
+def test_triage_assay_failure_handles_reproducibility_breakdown() -> None:
+    triage = triage_assay_failure(
+        AssayOutcome(
+            assay_id="binding-assay",
+            passed=False,
+            result_state=AssayResultState.FAILED_REPRODUCIBILITY,
+            observation_summary="replicate spread was too high",
+            failure_class=FailureClass.INTERPRETATION,
+            uncertainty=0.3,
+        )
+    )
+
+    assert triage.triage_code == "reproducibility-breakdown"
+    assert triage.escalation_required is True
+    assert any("orthogonal assay" in action for action in triage.recommended_actions)
 
 
 def test_lab_feedback_record_keeps_cycle_and_lineage_refs() -> None:

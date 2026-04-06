@@ -319,6 +319,21 @@ class BatchEvidencePromotionReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Promotion summary notes.")
 
 
+class AssayFailureTriage(JsonModel):
+    """Actionable triage interpretation for failed or inconclusive assay outcomes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    triage_code: str = Field(..., min_length=1, description="Stable triage code for automation hooks.")
+    root_cause_hypothesis: str = Field(..., min_length=1, description="Likely root-cause hypothesis.")
+    recommended_actions: list[str] = Field(default_factory=list, description="Ordered next actions for lab teams.")
+    escalation_required: bool = Field(
+        default=False,
+        description="Whether human escalation is recommended before rerunning.",
+    )
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -706,4 +721,59 @@ def promote_batch_outcome_to_evidence(
         promoted_assay_ids=promoted_ids,
         blocked_assay_ids=blocked_ids,
         notes=notes,
+    )
+
+
+def triage_assay_failure(outcome: AssayOutcome) -> AssayFailureTriage:
+    """Generate a root-cause triage recommendation for one assay outcome."""
+    if outcome.result_state is AssayResultState.PASSED:
+        return AssayFailureTriage(
+            assay_id=outcome.assay_id,
+            triage_code="no-failure",
+            root_cause_hypothesis="assay met acceptance criteria",
+            recommended_actions=["promote to evidence workflow"],
+            escalation_required=False,
+        )
+    if outcome.result_state is AssayResultState.FAILED_TECHNICAL:
+        return AssayFailureTriage(
+            assay_id=outcome.assay_id,
+            triage_code="technical-execution-risk",
+            root_cause_hypothesis="instrumentation or assay execution quality issue",
+            recommended_actions=[
+                "audit raw traces and instrument calibration",
+                "rerun assay with fresh controls and matched plate layout",
+            ],
+            escalation_required=False,
+        )
+    if outcome.result_state is AssayResultState.FAILED_REPRODUCIBILITY:
+        return AssayFailureTriage(
+            assay_id=outcome.assay_id,
+            triage_code="reproducibility-breakdown",
+            root_cause_hypothesis="high replicate variance or unstable sample behavior",
+            recommended_actions=[
+                "increase replicate count and enforce stricter sample handling",
+                "run orthogonal assay to confirm signal direction",
+            ],
+            escalation_required=True,
+        )
+    if outcome.result_state is AssayResultState.INCONCLUSIVE:
+        return AssayFailureTriage(
+            assay_id=outcome.assay_id,
+            triage_code="interpretation-uncertain",
+            root_cause_hypothesis="evidence quality does not support directional conclusion",
+            recommended_actions=[
+                "review QC notes and normalization pipeline",
+                "rerun with expanded controls and predefined interpretation rubric",
+            ],
+            escalation_required=outcome.uncertainty >= 0.5,
+        )
+    return AssayFailureTriage(
+        assay_id=outcome.assay_id,
+        triage_code="biological-miss",
+        root_cause_hypothesis="candidate mechanism did not satisfy biological endpoint",
+        recommended_actions=[
+            "review linked mechanistic claims and redesign hypothesis",
+            "prioritize contradiction-resolution assays before next synthesis cycle",
+        ],
+        escalation_required=True,
     )

@@ -24,6 +24,7 @@ from bijux_proteomics_lab.outcomes import (
     ObservationValidationIssue,
     OutcomeFeedbackMapping,
     BatchEvidencePromotionReport,
+    AssayFailureTriage,
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
@@ -37,6 +38,7 @@ from bijux_proteomics_lab.outcomes import (
     validate_assay_observation_record,
     generate_feedback_records_from_outcome,
     promote_batch_outcome_to_evidence,
+    triage_assay_failure,
 )
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
@@ -157,6 +159,7 @@ __all__ = [
     "ObservationValidationIssue",
     "OutcomeFeedbackMapping",
     "BatchEvidencePromotionReport",
+    "AssayFailureTriage",
     "ExperimentPlan",
     "FamilyCapacity",
     "FailureClass",
@@ -221,6 +224,7 @@ __all__ = [
     "validate_assay_observation_record",
     "generate_feedback_records_from_outcome",
     "promote_batch_outcome_to_evidence",
+    "triage_assay_failure",
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
     "prioritize_next_assays",
