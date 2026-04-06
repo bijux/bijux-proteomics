@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
+from agentic_proteins.runtime.infra import capabilities
 from agentic_proteins.runtime.infra.capabilities import validate_runtime_capabilities
 from agentic_proteins.providers import factory
 
 
 def test_capabilities_auto_requires_gpu_budget(monkeypatch) -> None:
     monkeypatch.setattr(factory, "cuda_available", lambda: False)
+    monkeypatch.setattr(capabilities, "provider_requirements", lambda _provider_name: [])
     config = {
         "predictors_enabled": ["local_esmfold"],
         "resource_limits": {"gpu_seconds": 0.0},
@@ -22,6 +24,7 @@ def test_capabilities_auto_requires_gpu_budget(monkeypatch) -> None:
 
 def test_capabilities_cpu_mode_warns(monkeypatch) -> None:
     monkeypatch.setattr(factory, "cuda_available", lambda: False)
+    monkeypatch.setattr(capabilities, "provider_requirements", lambda _provider_name: [])
     config = {
         "predictors_enabled": ["local_esmfold"],
         "resource_limits": {"gpu_seconds": 0.0},

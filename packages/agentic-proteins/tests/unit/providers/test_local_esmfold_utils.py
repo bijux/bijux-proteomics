@@ -6,10 +6,11 @@ from __future__ import annotations
 import pytest
 
 from agentic_proteins.providers.errors import PredictionError
-from agentic_proteins.providers.local.esmfold import LocalESMFoldProvider
 
 
 torch = pytest.importorskip("torch")
+
+from agentic_proteins.providers.local.esmfold import LocalESMFoldProvider
 
 
 def test_format_atom_name_alignment() -> None:

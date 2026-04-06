@@ -8,6 +8,7 @@ import inspect
 import os
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -93,16 +94,17 @@ def test_agents_import_purity(monkeypatch: pytest.MonkeyPatch) -> None:
                 return allowed_defaults[_key]
         raise AssertionError("Environment variables must not be read at import time.")
 
-    monkeypatch.setattr(os, "getenv", _blocked_getenv)
-    monkeypatch.setattr(os.environ.__class__, "__getitem__", _blocked_getitem, raising=False)
-    monkeypatch.setattr(os.environ, "get", _blocked_getenv, raising=False)
-
     root = repo_root()
     before_files = _repo_files(root)
     before_modules = set(sys.modules)
 
-    for module in AGENT_MODULES:
-        importlib.import_module(module)
+    with patch.object(os, "getenv", _blocked_getenv), patch.object(
+        os.environ.__class__,
+        "__getitem__",
+        _blocked_getitem,
+    ), patch.object(os.environ, "get", _blocked_getenv):
+        for module in AGENT_MODULES:
+            importlib.import_module(module)
 
     after_files = _repo_files(root)
     after_modules = set(sys.modules)
