@@ -25,6 +25,7 @@ from bijux_proteomics_knowledge import (
     EvidenceSourceType,
     EvidenceStrength,
     ManualEvidenceNote,
+    QuantitativeSupport,
     TrustPolicy,
     default_trust_policy,
     default_conflict_policy,
@@ -410,6 +411,33 @@ def test_record_scoring_and_helpers_are_exposed_for_policy_use() -> None:
     assert stale_records(bundle, now=now) == []
     assert deduplicate_records(bundle) == [["lit-1", "lit-2"]]
     assert flag_conflicting_evidence(bundle) == []
+
+
+def test_evidence_record_supports_quantitative_context_payload() -> None:
+    record = EvidenceRecord(
+        evidence_id="assay-quant-1",
+        kind=EvidenceKind.ASSAY,
+        title="Dose response",
+        source="lab",
+        claim="Candidate improves activity in cellular assay.",
+        confidence=0.82,
+        strength=EvidenceStrength.SUPPORTING,
+        assay_modality="cellular",
+        biological_system="HEK293",
+        species="human",
+        sample_type="cell lysate",
+        endpoint="activity_ratio",
+        quantitative_support=QuantitativeSupport(
+            effect_size=1.8,
+            p_value=0.004,
+            q_value=0.02,
+            replicate_count=4,
+            unit="fold-change",
+        ),
+    )
+
+    assert record.quantitative_support is not None
+    assert record.quantitative_support.replicate_count == 4
 
 
 def test_attach_manual_notes_creates_curated_evidence_records() -> None:

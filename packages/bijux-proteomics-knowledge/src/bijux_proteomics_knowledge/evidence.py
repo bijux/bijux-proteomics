@@ -63,6 +63,18 @@ class EvidenceExtractionMethod(StrEnum):
     LAB_CAPTURE = "lab_capture"
 
 
+class QuantitativeSupport(JsonModel):
+    """Quantitative support for an evidence claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    effect_size: float | None = Field(default=None, description="Observed effect size.")
+    p_value: float | None = Field(default=None, ge=0.0, le=1.0, description="Nominal p-value.")
+    q_value: float | None = Field(default=None, ge=0.0, le=1.0, description="Multiple-test adjusted q-value.")
+    replicate_count: int | None = Field(default=None, ge=1, description="Replicate count behind the observation.")
+    unit: str | None = Field(default=None, description="Measurement unit for quantitative effects.")
+
+
 class EvidenceRecord(JsonModel):
     """Single evidence statement."""
 
@@ -87,6 +99,27 @@ class EvidenceRecord(JsonModel):
     extraction_method: EvidenceExtractionMethod = Field(
         default=EvidenceExtractionMethod.MANUAL_CURATION,
         description="How the evidence record was produced.",
+    )
+    assay_modality: str | None = Field(
+        default=None,
+        description="Assay modality such as biochemical, cellular, or proteomics.",
+    )
+    biological_system: str | None = Field(
+        default=None,
+        description="Biological system where the observation was generated.",
+    )
+    species: str | None = Field(default=None, description="Species context for the evidence.")
+    sample_type: str | None = Field(
+        default=None,
+        description="Sample or matrix type used for the observation.",
+    )
+    endpoint: str | None = Field(
+        default=None,
+        description="Primary endpoint measured by this evidence record.",
+    )
+    quantitative_support: QuantitativeSupport | None = Field(
+        default=None,
+        description="Optional quantitative support payload for the claim.",
     )
     curator: str | None = Field(
         default=None,
