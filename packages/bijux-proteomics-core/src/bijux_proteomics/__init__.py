@@ -39,6 +39,12 @@ from bijux_proteomics.runtime_adapter import (
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
 from bijux_proteomics.targets import ProteinTarget
+from bijux_proteomics.validation import (
+    ProgramValidationIssue,
+    validate_assay_dependencies,
+    validate_program,
+    validate_program_readiness,
+)
 from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
 
 __all__ = [
@@ -55,6 +61,7 @@ __all__ = [
     "ProgramStage",
     "ProgramSpec",
     "ProgramValidationError",
+    "ProgramValidationIssue",
     "ProteinTarget",
     "ProteinSequence",
     "JsonModel",
@@ -76,4 +83,7 @@ __all__ = [
     "execute_program",
     "program_summary",
     "sequence_length",
+    "validate_program",
+    "validate_program_readiness",
+    "validate_assay_dependencies",
 ]

@@ -14,9 +14,14 @@ from bijux_proteomics import (
     ReviewDecision,
     ReviewGateBlockedError,
     ReviewOutcome,
+    ProgramValidationIssue,
+    ProgramValidationError,
     create_program_spec,
     ensure_review_clearance,
     program_summary,
+    validate_assay_dependencies,
+    validate_program,
+    validate_program_readiness,
 )
 from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
 from bijux_proteomics.programs import (
@@ -203,6 +208,7 @@ def test_execute_program_request_rejects_missing_blocking_approval(tmp_path: Pat
             blocking=True,
         )
     )
+    program.operating_model.lab_feedback_required = False
     request = ProgramExecutionRequest(
         program=program,
         candidate_sequence=program.target.sequence.residues,
@@ -235,6 +241,8 @@ def test_execute_program_requires_injected_backend(tmp_path: Path) -> None:
         organism="human",
         mechanism="decouple core from concrete runtime imports",
     )
+    program.operating_model.human_review_required = False
+    program.operating_model.lab_feedback_required = False
     request = ProgramExecutionRequest(
         program=program,
         candidate_sequence=program.target.sequence.residues,
@@ -265,6 +273,8 @@ def test_execute_program_uses_injected_backend(tmp_path: Path) -> None:
         organism="human",
         mechanism="return stub payload",
     )
+    program.operating_model.human_review_required = False
+    program.operating_model.lab_feedback_required = False
     request = ProgramExecutionRequest(
         program=program,
         candidate_sequence=program.target.sequence.residues,
@@ -278,3 +288,128 @@ def test_execute_program_uses_injected_backend(tmp_path: Path) -> None:
 
     assert result["backend"] == "stub"
     assert result["program"]["program_id"] == "prog-7"
+
+
+def test_validate_program_detects_missing_review_and_assay_modeling() -> None:
+    program = create_program_spec(
+        program_id="prog-8",
+        name="invalid program",
+        objective="exercise validation rules",
+        target_id="target-8",
+        target_name="Target 8",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="intentionally leave required structures empty",
+    )
+    program.stage = program.stage.LAB_READY
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="review-gates-missing",
+        message="review and lab-ready programs should define review gates",
+    ) in issues
+    assert ProgramValidationIssue(
+        code="assay-panel-missing",
+        message="lab-ready programs should define an assay panel",
+    ) in issues
+
+
+def test_validate_program_readiness_flags_unmapped_review_inputs() -> None:
+    program = create_program_spec(
+        program_id="prog-10",
+        name="review coherence",
+        objective="keep review gates tied to concrete artifacts",
+        target_id="target-10",
+        target_name="Target 10",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="tie signoff to actual evidence and assay outputs",
+    )
+    program.stage = ProgramStage.REVIEW
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="progression-review",
+            name="Progression review",
+            required_roles=["scientist"],
+            decision_inputs=["missing-packet"],
+            blocking=True,
+        )
+    )
+
+    issues = validate_program_readiness(program)
+
+    assert ProgramValidationIssue(
+        code="review-input-unmapped",
+        message="review gate 'progression-review' references unmapped inputs: missing-packet",
+    ) in issues
+
+
+def test_validate_assay_dependencies_flags_unmapped_success_metrics() -> None:
+    program = create_program_spec(
+        program_id="prog-11",
+        name="assay coherence",
+        objective="map advancement metrics to assay outputs",
+        target_id="target-11",
+        target_name="Target 11",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="require assay-backed progression criteria",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="thermal-shift",
+            purpose="measure stabilization",
+            readout="delta_tm",
+            sample_kind="purified protein",
+            blocking=True,
+        )
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="ic50",
+            direction=MeasurementDirection.MINIMIZE,
+            threshold=10.0,
+        )
+    )
+
+    issues = validate_assay_dependencies(program)
+
+    assert ProgramValidationIssue(
+        code="criterion-without-assay",
+        message=(
+            "success criterion 'binding' does not map to any assay readout or assay identifier"
+        ),
+    ) in issues
+
+
+def test_execute_program_rejects_invalid_program_before_backend_use(tmp_path: Path) -> None:
+    class StubBackend:
+        def execute(self, request: ExecutionRequest) -> dict[str, object]:
+            return {"backend": "stub"}
+
+    program = create_program_spec(
+        program_id="prog-9",
+        name="invalid execution",
+        objective="validation should block execution before backend use",
+        target_id="target-9",
+        target_name="Target 9",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="set stage without matching review gates",
+    )
+    program.stage = program.stage.REVIEW
+    request = ProgramExecutionRequest(
+        program=program,
+        candidate_sequence=program.target.sequence.residues,
+        base_dir=tmp_path,
+        backend=StubBackend(),
+    )
+
+    with pytest.raises(ProgramValidationError) as excinfo:
+        from bijux_proteomics.runner import execute_program
+
+        execute_program(request)
+
+    assert "review-gates-missing" in str(excinfo.value)

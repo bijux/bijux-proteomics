@@ -12,6 +12,7 @@
 - repository and review protocols that keep storage and signoff adapters out of the domain layer
 - execution backends injected through protocols instead of direct runtime imports from the core domain
 - interface entrypoints such as the CLI live under `interfaces/` instead of mixing with domain modules
+- domain-level invariant APIs that catch inconsistent stage, evidence, review, assay, and success-metric setup
 - execution adapters that can hand an approved sequence to `agentic_proteins`
 
 This package is intentionally Python-first so the platform can be kicked off now without waiting on a Rust core.

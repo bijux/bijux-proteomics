@@ -15,6 +15,8 @@ from bijux_proteomics.exceptions import ReviewGateBlockedError
 from bijux_proteomics.programs import ProgramSpec, program_summary
 from bijux_proteomics.repositories import ReviewDecision, ensure_review_clearance
 from bijux_proteomics.runtime_adapter import require_backend
+from bijux_proteomics.validation import validate_program
+from bijux_proteomics.exceptions import ProgramValidationError
 
 
 class ProgramExecutionRequest(BaseModel):
@@ -47,6 +49,13 @@ class ProgramExecutionRequest(BaseModel):
 
 def execute_program(request: ProgramExecutionRequest) -> dict[str, Any]:
     """Run an approved program sequence through the agent runtime."""
+    issues = validate_program(request.program)
+    if issues:
+        raise ProgramValidationError(
+            "program is not ready for execution: "
+            + "; ".join(issue.message for issue in issues),
+            issue_codes=[issue.code for issue in issues],
+        )
     blocked_gates = ensure_review_clearance(
         request.program,
         request.review_decisions,
