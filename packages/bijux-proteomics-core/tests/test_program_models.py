@@ -513,6 +513,43 @@ def test_validate_assay_dependencies_flags_unmapped_success_metrics() -> None:
     ) in issues
 
 
+def test_validate_assay_dependencies_requires_upper_bound_for_bound_criteria() -> None:
+    program = create_program_spec(
+        program_id="prog-11b",
+        name="bound criteria",
+        objective="enforce full bounds for bounded criteria",
+        target_id="target-11b",
+        target_name="Target 11B",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="require bounded criterion semantics",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="delta-tm-assay",
+            purpose="measure stabilization window",
+            readout="delta_tm",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="stability-window",
+            metric="delta_tm_assay",
+            direction=MeasurementDirection.BOUND,
+            threshold=1.0,
+        )
+    )
+
+    issues = validate_assay_dependencies(program)
+
+    assert ProgramValidationIssue(
+        code="bound-criterion-upper-threshold-missing",
+        message="bound criterion 'stability-window' should declare an upper_threshold",
+    ) in issues
+
+
 def test_validate_program_flags_duplicate_criterion_ids() -> None:
     program = create_program_spec(
         program_id="prog-12",

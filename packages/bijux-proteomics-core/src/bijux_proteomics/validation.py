@@ -243,6 +243,15 @@ def validate_assay_dependencies(program: ProgramSpec) -> list[ProgramValidationI
                     ),
                 )
             )
+        if criterion.direction.value == "bound" and criterion.upper_threshold is None:
+            issues.append(
+                ProgramValidationIssue(
+                    code="bound-criterion-upper-threshold-missing",
+                    message=(
+                        f"bound criterion '{criterion.criterion_id}' should declare an upper_threshold"
+                    ),
+                )
+            )
     if program.stage is ProgramStage.LEARNING and not program.assay_panel:
         issues.append(
             ProgramValidationIssue(
