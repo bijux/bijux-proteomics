@@ -404,6 +404,29 @@ class OutcomeReliabilityAssessment(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Assessment rationale notes.")
 
 
+class AssayReadinessRow(JsonModel):
+    """Readiness matrix row for one assay outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    promotion_ready: bool = Field(..., description="Whether assay is ready for evidence promotion.")
+    reliability_tier: OutcomeReliabilityTier = Field(..., description="Outcome reliability tier.")
+    escalation_required: bool = Field(..., description="Whether assay requires escalation.")
+    blockers: list[str] = Field(default_factory=list, description="Combined readiness blockers.")
+
+
+class BatchReadinessMatrix(JsonModel):
+    """Matrix view of readiness signals across a batch."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    rows: list[AssayReadinessRow] = Field(default_factory=list, description="Per-assay readiness rows.")
+    ready_count: int = Field(default=0, ge=0, description="Count of assays ready for progression workflows.")
+    notes: list[str] = Field(default_factory=list, description="Batch readiness notes.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -990,5 +1013,47 @@ def assess_outcome_reliability(
         assay_id=outcome.assay_id,
         tier=tier,
         score=bounded,
+        notes=notes,
+    )
+
+
+def build_batch_readiness_matrix(
+    outcome: ExperimentOutcome,
+    *,
+    quality_profiles: dict[str, ObservationQualityProfile] | None = None,
+) -> BatchReadinessMatrix:
+    """Build readiness matrix from promotion, reliability, and triage signals."""
+    quality_profiles = quality_profiles or {}
+    rows: list[AssayReadinessRow] = []
+    ready_count = 0
+    for assay in outcome.assay_outcomes:
+        promotion = assess_evidence_promotion_readiness(assay)
+        reliability = assess_outcome_reliability(
+            assay,
+            quality_profile=quality_profiles.get(assay.assay_id),
+        )
+        triage = triage_assay_failure(assay)
+        blockers = list(promotion.blockers)
+        if reliability.tier is OutcomeReliabilityTier.WEAK:
+            blockers.append("reliability tier is weak")
+        if triage.escalation_required:
+            blockers.append("triage requires escalation")
+        row_ready = promotion.ready and reliability.tier is not OutcomeReliabilityTier.WEAK and not triage.escalation_required
+        if row_ready:
+            ready_count += 1
+        rows.append(
+            AssayReadinessRow(
+                assay_id=assay.assay_id,
+                promotion_ready=promotion.ready,
+                reliability_tier=reliability.tier,
+                escalation_required=triage.escalation_required,
+                blockers=blockers,
+            )
+        )
+    notes = ["batch readiness is strong"] if ready_count == len(rows) else ["batch has readiness blockers"]
+    return BatchReadinessMatrix(
+        batch_id=outcome.batch_id,
+        rows=rows,
+        ready_count=ready_count,
         notes=notes,
     )

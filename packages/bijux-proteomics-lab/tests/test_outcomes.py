@@ -48,6 +48,7 @@ from bijux_proteomics_lab import (
     ObservationQualityProfile,
     assess_outcome_reliability,
     OutcomeReliabilityTier,
+    build_batch_readiness_matrix,
 )
 
 
@@ -569,6 +570,36 @@ def test_assess_outcome_reliability_uses_quality_and_uncertainty() -> None:
 
     assert assessment.tier is OutcomeReliabilityTier.ROBUST
     assert assessment.score >= 0.75
+
+
+def test_build_batch_readiness_matrix_tracks_ready_count() -> None:
+    matrix = build_batch_readiness_matrix(
+        ExperimentOutcome(
+            batch_id="batch-readiness",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="a1",
+                    passed=True,
+                    result_state=AssayResultState.PASSED,
+                    observation_summary="pass",
+                    replicate_count=3,
+                    uncertainty=0.1,
+                ),
+                AssayOutcome(
+                    assay_id="a2",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_TECHNICAL,
+                    observation_summary="fail",
+                    replicate_count=2,
+                    uncertainty=0.3,
+                ),
+            ],
+            rerun_policy=RerunPolicy.NEVER,
+        )
+    )
+
+    assert matrix.batch_id == "batch-readiness"
+    assert matrix.ready_count == 1
 
 
 def test_query_feedback_records_supports_evidence_and_time_filters() -> None:
