@@ -189,6 +189,30 @@ def test_program_liability_supports_blocker_fields() -> None:
     assert liability.owner_role == "safety"
 
 
+def test_program_spec_supports_modality_unknowns_and_failure_modes() -> None:
+    program = ProgramSpec(
+        program_id="prog-rich-context",
+        name="rich context",
+        objective="capture scientific unknowns and failure modes",
+        mechanism_hypothesis="stabilize target conformation",
+        intervention_goal="stability rescue",
+        modality_context="engineered binder",
+        key_unknowns=["does cell context preserve selectivity"],
+        critical_failure_modes=["aggregation under expression stress"],
+        target=ProteinTarget(
+            target_id="target-rich-context",
+            name="Target Rich Context",
+            sequence=ProteinSequence(target_id="target-rich-context", residues="ACDEFGHIKLMNPQRSTVWY"),
+            organism="human",
+            mechanism="stabilize target conformation",
+        ),
+    )
+
+    assert program.modality_context == "engineered binder"
+    assert program.key_unknowns == ["does cell context preserve selectivity"]
+    assert program.critical_failure_modes == ["aggregation under expression stress"]
+
+
 def test_program_lifecycle_advances_between_stages() -> None:
     lifecycle = ProgramLifecycle(
         program_id="prog-1",

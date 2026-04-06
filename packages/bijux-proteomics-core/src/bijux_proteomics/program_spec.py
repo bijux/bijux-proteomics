@@ -57,9 +57,21 @@ class ProgramSpec(JsonModel):
         default=None,
         description="Desired intervention outcome such as inhibit, stabilize, or degrade.",
     )
+    modality_context: str | None = Field(
+        default=None,
+        description="Modality context such as degrader, antibody, or enzyme modulator.",
+    )
     translational_assumptions: list[str] = Field(
         default_factory=list,
         description="Major translational assumptions that should be validated experimentally.",
+    )
+    key_unknowns: list[str] = Field(
+        default_factory=list,
+        description="Key scientific unknowns that must be reduced for progression.",
+    )
+    critical_failure_modes: list[str] = Field(
+        default_factory=list,
+        description="Failure modes that would terminate or significantly reset the program.",
     )
     stage: ProgramStage = Field(
         default=ProgramStage.SCOPING,
@@ -140,6 +152,9 @@ def create_program_spec(
         objective=objective,
         mechanism_hypothesis=mechanism,
         intervention_goal="modulate_target_state",
+        modality_context="protein_engineering",
+        key_unknowns=["target engagement durability in biological system"],
+        critical_failure_modes=["loss of target selectivity"],
         target=ProteinTarget(
             target_id=target_id,
             name=target_name,
@@ -165,6 +180,9 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
         "stage": program.stage.value,
         "mechanism_hypothesis": program.mechanism_hypothesis,
         "intervention_goal": program.intervention_goal,
+        "modality_context": program.modality_context,
+        "key_unknown_count": len(program.key_unknowns),
+        "critical_failure_mode_count": len(program.critical_failure_modes),
         "schema_version": program.document_schema.schema_version,
         "constraint_count": len(program.constraints),
         "liability_count": len(program.liabilities),
