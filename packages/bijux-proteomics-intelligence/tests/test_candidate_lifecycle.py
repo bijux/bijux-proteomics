@@ -29,6 +29,7 @@ from bijux_proteomics_intelligence import (
     summarize_portfolio_risk,
     validate_transition_history,
     parse_mutation_token,
+    build_mutation_annotations,
     build_candidate_assay_agenda,
     summarize_portfolio_mutation_burden,
     portfolio_status,
@@ -364,6 +365,18 @@ def test_parse_mutation_token_extracts_wild_type_position_and_variant() -> None:
 def test_parse_mutation_token_rejects_invalid_patterns() -> None:
     with pytest.raises(ValueError):
         parse_mutation_token("A12")
+
+
+def test_build_mutation_annotations_supports_position_maps() -> None:
+    annotations = build_mutation_annotations(
+        ["A10V", "G20S"],
+        expected_effect="improve selectivity",
+        region_by_position={10: "active-site", 20: "interface"},
+        conservation_by_position={10: 0.91, 20: 0.42},
+    )
+
+    assert [annotation.region for annotation in annotations] == ["active-site", "interface"]
+    assert annotations[0].conservation_score == 0.91
 
 
 def test_build_candidate_assay_agenda_prioritizes_higher_risk_profiles() -> None:

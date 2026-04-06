@@ -822,6 +822,30 @@ def parse_mutation_token(token: str) -> ParsedMutation:
     )
 
 
+def build_mutation_annotations(
+    mutation_tokens: list[str],
+    *,
+    expected_effect: str,
+    region_by_position: dict[int, str] | None = None,
+    conservation_by_position: dict[int, float] | None = None,
+) -> list[MutationAnnotation]:
+    """Build mutation annotations from compact mutation token lists."""
+    region_by_position = region_by_position or {}
+    conservation_by_position = conservation_by_position or {}
+    annotations: list[MutationAnnotation] = []
+    for token in mutation_tokens:
+        parsed = parse_mutation_token(token)
+        annotations.append(
+            MutationAnnotation(
+                mutation=token.upper(),
+                region=region_by_position.get(parsed.position),
+                expected_effect=expected_effect,
+                conservation_score=conservation_by_position.get(parsed.position),
+            )
+        )
+    return annotations
+
+
 def build_candidate_assay_agenda(
     profiles: list[CandidateScientificProfile],
 ) -> list[CandidateAssayAgendaItem]:
