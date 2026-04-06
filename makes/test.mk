@@ -1,6 +1,6 @@
 # Test Configuration — zero root pollution (pytest runs from artifacts/test)
 
-TEST_PATHS                ?= packages/agentic-proteins/tests
+TEST_PATHS                ?= packages/agentic-proteins/tests packages/bijux-proteomics-foundation/tests packages/bijux-proteomics-core/tests packages/bijux-proteomics-intelligence/tests packages/bijux-proteomics-knowledge/tests packages/bijux-proteomics-lab/tests
 TEST_PATHS_UNIT           ?= packages/agentic-proteins/tests/unit
 TEST_PATHS_E2E            ?= packages/agentic-proteins/tests/e2e
 TEST_PATHS_REGRESSION     ?= packages/agentic-proteins/tests/regression
@@ -30,7 +30,7 @@ TEST_SYNTAX_PATHS         ?=
 TEST_PYCACHE_PREFIX       ?=
 TEST_COVERAGE_TARGETS     ?=
 TEST_COVERAGE_FAIL_UNDER  ?= 60
-TEST_SOURCE_PATH          ?= $(abspath packages/agentic-proteins/src):$(abspath packages/bijux-proteomics-core/src):$(abspath packages/bijux-proteomics-knowledge/src):$(abspath packages/bijux-proteomics-lab/src)
+TEST_SOURCE_PATH          ?= $(abspath packages/agentic-proteins/src):$(abspath packages/bijux-proteomics-foundation/src):$(abspath packages/bijux-proteomics-core/src):$(abspath packages/bijux-proteomics-intelligence/src):$(abspath packages/bijux-proteomics-knowledge/src):$(abspath packages/bijux-proteomics-lab/src)
 TEST_CLEAN_PATHS          ?= .hypothesis .benchmarks
 
 TEST_PYTHON               ?= $(if $(wildcard $(VENV_PYTHON)),$(abspath $(VENV_PYTHON)),$(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),$(PYTHON)))
@@ -96,7 +96,7 @@ test:
 	  COVERAGE_FILE="$(COV_DATA_ABS)" \
 	  HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
 	  $(TEST_PYCACHE_ENV) \
-	  sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_ABS)" $(TEST_MAIN_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" )
+	  sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" $(TEST_PATHS_ABS) $(TEST_MAIN_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" )
 	@rm -rf $(TEST_CLEAN_PATHS) || true
 	@rm -rf .pytest_cache || true
 
@@ -135,7 +135,7 @@ test-unit:
 	    COVERAGE_FILE="$(COV_DATA_ABS)" \
 	    HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
 	    $(TEST_PYCACHE_ENV) \
-	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" "$(TEST_PATHS_ABS)" $(TEST_UNIT_FALLBACK_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" ); \
+	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" $(TEST_PATHS_ABS) $(TEST_UNIT_FALLBACK_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" ); \
 	fi
 	@rm -rf $(TEST_CLEAN_PATHS) || true
 	@rm -rf .pytest_cache || true

@@ -10,7 +10,7 @@ RADON       ?= $(VENV_PYTHON) -m radon
 include $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/util.mk
 
 LINT_SCOPE             ?=
-LINT_DIRS              ?= packages/agentic-proteins/src/agentic_proteins packages/bijux-proteomics-core/src/bijux_proteomics packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge packages/bijux-proteomics-lab/src/bijux_proteomics_lab
+LINT_DIRS              ?= packages/agentic-proteins/src/agentic_proteins packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation packages/bijux-proteomics-core/src/bijux_proteomics packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge packages/bijux-proteomics-lab/src/bijux_proteomics_lab
 FMT_DIRS               ?= $(if $(LINT_SCOPE),$(LINT_SCOPE),$(LINT_DIRS))
 LINT_TARGETS           ?= $(if $(LINT_SCOPE),$(LINT_SCOPE),$(LINT_DIRS))
 MYPY_TARGETS           ?= $(LINT_TARGETS)

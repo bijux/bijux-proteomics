@@ -1,6 +1,6 @@
 # Security Configuration (no SBOM here; SBOM is handled in sbom.mk)
 
-SECURITY_PATHS           ?= packages/agentic-proteins/src/agentic_proteins packages/bijux-proteomics-core/src/bijux_proteomics packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge packages/bijux-proteomics-lab/src/bijux_proteomics_lab
+SECURITY_PATHS           ?= packages/agentic-proteins/src/agentic_proteins packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation packages/bijux-proteomics-core/src/bijux_proteomics packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge packages/bijux-proteomics-lab/src/bijux_proteomics_lab
 BANDIT                   ?= $(if $(ACT),$(ACT)/bandit,bandit)
 PIP_AUDIT                ?= $(if $(ACT),$(ACT)/pip-audit,pip-audit)
 VENV_PYTHON              ?= $(if $(VIRTUAL_ENV),$(VIRTUAL_ENV)/bin/python,python)
@@ -27,8 +27,8 @@ security: security-bandit security-audit security-deps
 security-bandit:
 	@mkdir -p "$(SECURITY_REPORT_DIR)"
 	@echo "→ Bandit (Python static analysis)"
-	@$(BANDIT) -r "$(SECURITY_PATHS)" -x "$(BANDIT_EXCLUDES)" --skip B311 -f json -o "$(BANDIT_JSON)" -n $(BANDIT_THREADS) || true
-	@$(BANDIT) -r "$(SECURITY_PATHS)" -x "$(BANDIT_EXCLUDES)" --skip B311 -n $(BANDIT_THREADS) | tee "$(BANDIT_TXT)"
+	@$(BANDIT) -r $(SECURITY_PATHS) -x "$(BANDIT_EXCLUDES)" --skip B311 -f json -o "$(BANDIT_JSON)" -n $(BANDIT_THREADS) || true
+	@$(BANDIT) -r $(SECURITY_PATHS) -x "$(BANDIT_EXCLUDES)" --skip B311 -n $(BANDIT_THREADS) | tee "$(BANDIT_TXT)"
 
 security-audit:
 	@mkdir -p "$(SECURITY_REPORT_DIR)"
