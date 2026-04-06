@@ -232,6 +232,15 @@ class LabCapacity(JsonModel):
     )
 
 
+class FamilyCapacity(JsonModel):
+    """Capacity limits for one assay family in a cycle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    family: AssayFamily = Field(..., description="Assay family.")
+    max_assays: int = Field(..., ge=0, description="Maximum assays from this family.")
+
+
 class ScheduledBatch(JsonModel):
     """Batch assigned to a concrete lab cycle."""
 
@@ -473,6 +482,43 @@ def schedule_experiment_plan(
                 cycle_id=capacity.cycle_id,
                 assay_ids=ordered_assays[: capacity.max_assays_per_batch],
                 deferred_assay_ids=ordered_assays[capacity.max_assays_per_batch :],
+            )
+        )
+    for batch in plan.batches[capacity.max_batches :]:
+        unscheduled_batches.append(batch.batch_id)
+    return ScheduledPlan(
+        program_id=plan.program_id,
+        scheduled_batches=scheduled_batches,
+        unscheduled_batches=unscheduled_batches,
+    )
+
+
+def schedule_with_family_capacity(
+    plan: ExperimentPlan,
+    capacity: LabCapacity,
+    family_capacities: list[FamilyCapacity],
+) -> ScheduledPlan:
+    """Schedule while enforcing per-family assay limits."""
+    family_budget = {item.family: item.max_assays for item in family_capacities}
+    scheduled_batches: list[ScheduledBatch] = []
+    unscheduled_batches: list[str] = []
+
+    for batch in plan.batches[: capacity.max_batches]:
+        selected: list[str] = []
+        deferred: list[str] = []
+        for assay_id, sample_kind in zip(batch.assay_ids, batch.sample_requirements):
+            family = assay_family(sample_kind)
+            if family_budget.get(family, 0) <= 0:
+                deferred.append(assay_id)
+                continue
+            family_budget[family] -= 1
+            selected.append(assay_id)
+        scheduled_batches.append(
+            ScheduledBatch(
+                batch_id=batch.batch_id,
+                cycle_id=capacity.cycle_id,
+                assay_ids=selected[: capacity.max_assays_per_batch],
+                deferred_assay_ids=deferred + selected[capacity.max_assays_per_batch :],
             )
         )
     for batch in plan.batches[capacity.max_batches :]:

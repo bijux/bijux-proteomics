@@ -36,6 +36,7 @@ from bijux_proteomics_lab.planning import (
     dependency_order,
     ExperimentBatch,
     ExperimentPlan,
+    FamilyCapacity,
     LabCapacity,
     MaterialConstraintReport,
     MaterialInventory,
@@ -49,6 +50,7 @@ from bijux_proteomics_lab.planning import (
     plan_experiment_batches,
     recommend_next_cycle,
     schedule_experiment_plan,
+    schedule_with_family_capacity,
 )
 
 __all__ = [
@@ -68,6 +70,7 @@ __all__ = [
     "ExperimentBatch",
     "ExperimentOutcome",
     "ExperimentPlan",
+    "FamilyCapacity",
     "FailureClass",
     "JsonModel",
     "LabFeedbackRecord",
@@ -92,4 +95,5 @@ __all__ = [
     "promote_outcome_to_evidence",
     "recommend_rerun_policy",
     "schedule_experiment_plan",
+    "schedule_with_family_capacity",
 ]

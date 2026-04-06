@@ -14,6 +14,7 @@ from bijux_proteomics_lab import (
     AssayObservation,
     ExperimentBatch,
     ExperimentPlan,
+    FamilyCapacity,
     LabCapacity,
     MaterialInventory,
     MaterialRequirement,
@@ -23,6 +24,7 @@ from bijux_proteomics_lab import (
     plan_experiment_batches,
     recommend_next_cycle,
     schedule_experiment_plan,
+    schedule_with_family_capacity,
 )
 
 
@@ -324,6 +326,33 @@ def test_assess_material_constraints_flags_missing_sample_inventory() -> None:
     )
 
     assert report.blocking_material_ids == ["purified-protein"]
+
+
+def test_schedule_with_family_capacity_respects_family_limits() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-4",
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-1",
+                objective="family capacity",
+                assay_ids=["a1", "a2"],
+                sample_requirements=["biophysical", "expression"],
+                priority=1,
+            )
+        ],
+    )
+
+    scheduled = schedule_with_family_capacity(
+        plan,
+        LabCapacity(cycle_id="cycle-1", max_batches=1, max_assays_per_batch=2),
+        family_capacities=[
+            FamilyCapacity(family=AssayFamily.BIOPHYSICAL, max_assays=1),
+            FamilyCapacity(family=AssayFamily.EXPRESSION, max_assays=0),
+        ],
+    )
+
+    assert scheduled.scheduled_batches[0].assay_ids == ["a1"]
+    assert "a2" in scheduled.scheduled_batches[0].deferred_assay_ids
 
 
 def test_experiment_plan_round_trips_with_serialization_helpers(tmp_path: Path) -> None:
