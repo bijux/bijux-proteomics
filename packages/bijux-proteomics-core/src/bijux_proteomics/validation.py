@@ -120,6 +120,21 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                 message="programs with assay work should define success criteria",
             )
         )
+    if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY}:
+        if not program.target.target_class:
+            issues.append(
+                ProgramValidationIssue(
+                    code="target-class-missing",
+                    message="review and lab-ready programs should define target_class",
+                )
+            )
+        if not program.target.subcellular_localization:
+            issues.append(
+                ProgramValidationIssue(
+                    code="target-localization-missing",
+                    message="review and lab-ready programs should define target subcellular_localization",
+                )
+            )
     for gate in program.review_gates:
         if len(gate.decision_inputs) != len(set(gate.decision_inputs)):
             issues.append(

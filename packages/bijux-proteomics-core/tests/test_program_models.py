@@ -424,6 +424,14 @@ def test_validate_program_readiness_flags_unmapped_review_inputs() -> None:
         code="review-input-unmapped",
         message="review gate 'progression-review' references unmapped inputs: missing-packet",
     ) in issues
+    assert ProgramValidationIssue(
+        code="target-class-missing",
+        message="review and lab-ready programs should define target_class",
+    ) in issues
+    assert ProgramValidationIssue(
+        code="target-localization-missing",
+        message="review and lab-ready programs should define target subcellular_localization",
+    ) in issues
 
 
 def test_validate_program_readiness_flags_duplicate_gate_inputs() -> None:
