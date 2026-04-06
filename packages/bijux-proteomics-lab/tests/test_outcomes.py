@@ -30,6 +30,7 @@ from bijux_proteomics_lab import (
     detect_feedback_anomalies,
     forecast_cycle_workload,
     summarize_feedback_lineage_coverage,
+    summarize_review_queue_sla,
     ReviewQueueEntry,
     ReviewQueueQuery,
     recommend_rerun_policy,
@@ -539,6 +540,30 @@ def test_summarize_feedback_lineage_coverage_counts_full_lineage_records() -> No
 
     assert report.full_lineage_count == 1
     assert report.records_with_assay_lineage == 2
+
+
+def test_summarize_review_queue_sla_counts_breaches() -> None:
+    report = summarize_review_queue_sla(
+        [
+            ReviewQueueEntry(
+                program_id="prog-sla",
+                gate_id="gate-1",
+                summary="old",
+                created_at=datetime(2026, 1, 1, tzinfo=UTC),
+            ),
+            ReviewQueueEntry(
+                program_id="prog-sla",
+                gate_id="gate-1",
+                summary="new",
+                created_at=datetime(2026, 1, 9, tzinfo=UTC),
+            ),
+        ],
+        now=datetime(2026, 1, 10, tzinfo=UTC),
+        sla_days=7,
+    )
+
+    assert report.breached_entries == 1
+    assert report.breaches_by_gate["gate-1"] == 1
 
 
 def test_promote_batch_outcome_to_evidence_respects_quality_policy() -> None:

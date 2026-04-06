@@ -171,6 +171,17 @@ class FeedbackLineageCoverageReport(JsonModel):
     lineage_coverage_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Normalized lineage coverage score.")
 
 
+class ReviewQueueSlaReport(JsonModel):
+    """SLA breach report for review queue entries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_entries: int = Field(default=0, ge=0, description="Total queue entries evaluated.")
+    breached_entries: int = Field(default=0, ge=0, description="Entries breaching SLA threshold.")
+    breaches_by_gate: dict[str, int] = Field(default_factory=dict, description="Breach counts by gate ID.")
+    breach_ratio: float = Field(default=0.0, ge=0.0, le=1.0, description="Share of entries breaching SLA.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -404,4 +415,29 @@ def summarize_feedback_lineage_coverage(
         records_with_evidence_lineage=evidence_count,
         full_lineage_count=full_count,
         lineage_coverage_score=score,
+    )
+
+
+def summarize_review_queue_sla(
+    entries: list[ReviewQueueEntry],
+    *,
+    now: datetime | None = None,
+    sla_days: int = 7,
+) -> ReviewQueueSlaReport:
+    """Summarize SLA breach state across review queue entries."""
+    now = now or datetime.now(UTC)
+    breaches_by_gate: dict[str, int] = {}
+    breached = 0
+    for entry in entries:
+        age_days = (now - entry.created_at).days
+        if age_days > sla_days:
+            breached += 1
+            breaches_by_gate[entry.gate_id] = breaches_by_gate.get(entry.gate_id, 0) + 1
+    total = len(entries)
+    ratio = round((breached / total), 4) if total else 0.0
+    return ReviewQueueSlaReport(
+        total_entries=total,
+        breached_entries=breached,
+        breaches_by_gate=breaches_by_gate,
+        breach_ratio=ratio,
     )
