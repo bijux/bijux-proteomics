@@ -152,6 +152,25 @@ def test_target_summary_includes_structured_annotations_and_risk_codes() -> None
     assert summary["annotation_evidence_ids"] == ["ev-1", "ev-2"]
 
 
+def test_target_summary_includes_target_class_and_isoform_context() -> None:
+    target = ProteinTarget(
+        target_id="target-3",
+        name="Target 3",
+        sequence=ProteinSequence(target_id="target-3", residues="ACDEFGHIKLMNPQRSTVWY"),
+        organism="human",
+        mechanism="modulate pathway signaling",
+        target_class="enzyme",
+        subcellular_localization="cytosol",
+        isoforms=["iso-1", "iso-2"],
+        pathway_roles=["MAPK signaling"],
+    )
+
+    summary = target_summary(target)
+
+    assert summary["target_class"] == "enzyme"
+    assert summary["isoform_count"] == 2
+
+
 def test_program_lifecycle_advances_between_stages() -> None:
     lifecycle = ProgramLifecycle(
         program_id="prog-1",

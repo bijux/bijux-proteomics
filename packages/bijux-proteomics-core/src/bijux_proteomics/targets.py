@@ -62,6 +62,22 @@ class ProteinTarget(BaseModel):
     mechanism: str = Field(
         ..., min_length=1, description="Working biological hypothesis."
     )
+    target_class: str | None = Field(
+        default=None,
+        description="Target class such as enzyme, receptor, or scaffold.",
+    )
+    subcellular_localization: str | None = Field(
+        default=None,
+        description="Expected subcellular localization context.",
+    )
+    isoforms: list[str] = Field(
+        default_factory=list,
+        description="Known isoform identifiers relevant to this program.",
+    )
+    pathway_roles: list[str] = Field(
+        default_factory=list,
+        description="Pathway roles relevant to the target mechanism.",
+    )
     desired_outcomes: list[str] = Field(
         default_factory=list,
         description="Desired biological or engineering outcomes.",
@@ -101,6 +117,10 @@ def target_summary(target: ProteinTarget) -> dict[str, object]:
     return {
         "target_id": target.target_id,
         "organism": target.organism,
+        "target_class": target.target_class,
+        "subcellular_localization": target.subcellular_localization,
+        "isoform_count": len(target.isoforms),
+        "pathway_role_count": len(target.pathway_roles),
         "blocked_outcomes": len(target.blocked_outcomes)
         + len(target.blocked_outcome_records),
         "high_risk_block_codes": high_risk_blocks,
