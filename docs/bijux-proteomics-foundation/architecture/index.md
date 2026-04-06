@@ -25,23 +25,23 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["execution engines and lifecycle logic"]
+    module1["schema and identifier invariants"]
     module1 --> page
-    module2["orchestration and replay coordination"]
+    module2["serialization and migration compatibility"]
     module2 --> page
-    module3["durable runtime models"]
+    module3["error taxonomy and package export stability"]
     module3 --> page
-    code1["src/bijux_proteomics_foundation/model"]
+    code1["src/bijux_proteomics_foundation/schema.py and ids.py"]
     page --> code1
-    code2["src/bijux_proteomics_foundation/runtime"]
+    code2["src/bijux_proteomics_foundation/serialization.py and migrations.py"]
     page --> code2
-    code3["src/bijux_proteomics_foundation/application"]
+    code3["src/bijux_proteomics_foundation/errors.py and __init__.py"]
     page --> code3
-    pressure1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    pressure1["tests for document primitives and package-level type contracts"]
     pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/e2e for governed flow behavior"]
+    pressure2["cross-package tests that consume foundation schemas and ids"]
     pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/regression and tests/smoke for replay and storage protection"]
+    pressure3["lint and type gates protecting long-lived boundary compatibility"]
     pressure3 -.tests whether this structure still holds.-> page
     class page page;
     class module1,module2,module3 positive;
@@ -70,9 +70,9 @@ flowchart LR
 
 ## Concrete Anchors
 
-- `src/bijux_proteomics_foundation/model` for durable runtime models
-- `src/bijux_proteomics_foundation/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_foundation/application` for orchestration and replay coordination
+- `src/bijux_proteomics_foundation/schema.py` and `ids.py` for document and identifier contracts
+- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py` for compatibility flows
+- `src/bijux_proteomics_foundation/errors.py` and `__init__.py` for stable exported boundaries
 
 ## Use This Page When
 
