@@ -55,6 +55,28 @@ class ExperimentBatch(JsonModel):
     priority: int = Field(..., ge=1, description="Execution priority.")
 
 
+class AssayDependency(JsonModel):
+    """Dependency edge between assays."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Dependent assay identifier.")
+    requires_assay_id: AssayId = Field(..., description="Prerequisite assay identifier.")
+
+
+class AssayIntent(JsonModel):
+    """Intent and prerequisites for an assay in the planning layer."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    objective: str = Field(..., min_length=1, description="Why the assay is planned.")
+    prerequisite_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Assays that must complete first.",
+    )
+
+
 class ExperimentPlan(JsonModel):
     """Experiment plan derived from a program definition."""
 
@@ -174,6 +196,31 @@ class ScheduledPlan(JsonModel):
         default_factory=list,
         description="Batches deferred to a later cycle.",
     )
+
+
+def dependency_order(
+    assay_ids: list[AssayId],
+    dependencies: list[AssayDependency],
+) -> list[AssayId]:
+    """Return assay ids with prerequisites placed earlier when possible."""
+    ordered: list[AssayId] = []
+    remaining = list(assay_ids)
+    while remaining:
+        progressed = False
+        for assay_id in list(remaining):
+            prerequisites = [
+                dependency.requires_assay_id
+                for dependency in dependencies
+                if dependency.assay_id == assay_id
+            ]
+            if all(prerequisite in ordered or prerequisite not in assay_ids for prerequisite in prerequisites):
+                ordered.append(assay_id)
+                remaining.remove(assay_id)
+                progressed = True
+        if not progressed:
+            ordered.extend(remaining)
+            break
+    return ordered
 
 
 def plan_experiment_batches(
@@ -299,17 +346,20 @@ def recommend_next_cycle(
 def schedule_experiment_plan(
     plan: ExperimentPlan,
     capacity: LabCapacity,
+    dependencies: list[AssayDependency] | None = None,
 ) -> ScheduledPlan:
     """Fit an experiment plan into available lab capacity."""
+    dependencies = dependencies or []
     scheduled_batches: list[ScheduledBatch] = []
     unscheduled_batches: list[str] = []
     for batch in plan.batches[: capacity.max_batches]:
+        ordered_assays = dependency_order(batch.assay_ids, dependencies)
         scheduled_batches.append(
             ScheduledBatch(
                 batch_id=batch.batch_id,
                 cycle_id=capacity.cycle_id,
-                assay_ids=batch.assay_ids[: capacity.max_assays_per_batch],
-                deferred_assay_ids=batch.assay_ids[capacity.max_assays_per_batch :],
+                assay_ids=ordered_assays[: capacity.max_assays_per_batch],
+                deferred_assay_ids=ordered_assays[capacity.max_assays_per_batch :],
             )
         )
     for batch in plan.batches[capacity.max_batches :]:

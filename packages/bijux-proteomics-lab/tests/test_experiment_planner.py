@@ -9,6 +9,7 @@ from bijux_proteomics import create_program_spec
 from bijux_proteomics.programs import AssayRequirement, ReviewGate
 from bijux_proteomics_knowledge import EvidenceBundle, EvidenceKind, EvidenceRecord, EvidenceStrength
 from bijux_proteomics_lab import (
+    AssayDependency,
     AssayObservation,
     ExperimentBatch,
     ExperimentPlan,
@@ -240,6 +241,7 @@ def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
     scheduled = schedule_experiment_plan(
         plan,
         LabCapacity(cycle_id="cycle-1", max_batches=1, max_assays_per_batch=2),
+        dependencies=[AssayDependency(assay_id="a2", requires_assay_id="a1")],
     )
 
     assert scheduled.scheduled_batches[0].assay_ids == ["a1", "a2"]

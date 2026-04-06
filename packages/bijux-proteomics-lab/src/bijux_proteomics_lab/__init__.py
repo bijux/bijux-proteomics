@@ -12,8 +12,11 @@ from bijux_proteomics_lab.repositories import (
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.planning import (
+    AssayDependency,
+    AssayIntent,
     AssayObservation,
     ClosedLoopPlan,
+    dependency_order,
     ExperimentBatch,
     ExperimentPlan,
     LabCapacity,
@@ -29,7 +32,10 @@ from bijux_proteomics_lab.planning import (
 
 __all__ = [
     "AssayObservation",
+    "AssayDependency",
+    "AssayIntent",
     "ClosedLoopPlan",
+    "dependency_order",
     "ExperimentPlanRepository",
     "ExperimentBatch",
     "ExperimentPlan",

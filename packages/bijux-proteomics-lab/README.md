@@ -9,3 +9,4 @@ It focuses on:
 - evidence gaps that should be closed before synthesis or scale-up
 - review packets that explain whether the next cycle should advance, hold, or redesign
 - schema-aware planning documents, capacity-aware scheduling, and repository contracts for plan storage
+- assay dependency and prerequisite modeling so scheduling respects wet-lab ordering constraints
