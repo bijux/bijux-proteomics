@@ -217,6 +217,46 @@ class SequenceRiskSignals(JsonModel):
     glyco_motif_count: int = Field(..., ge=0, description="Count of NXS or NXT motifs.")
 
 
+class MutationAnnotation(JsonModel):
+    """Structured annotation for one candidate mutation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mutation: str = Field(..., min_length=2, description="Mutation token such as A123V.")
+    region: str | None = Field(default=None, description="Affected region or domain.")
+    expected_effect: str = Field(..., min_length=1, description="Mechanistic effect expectation.")
+    conservation_score: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Optional conservation score for the mutated site.",
+    )
+
+
+class CandidateVariantContext(JsonModel):
+    """Variant-level context used to reason about candidate mechanism and risk."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    mutations: list[MutationAnnotation] = Field(
+        default_factory=list,
+        description="Structured mutation annotations carried by this candidate.",
+    )
+    affected_regions: list[str] = Field(
+        default_factory=list,
+        description="Unique affected regions or domains.",
+    )
+    elevated_conservation_risk: bool = Field(
+        default=False,
+        description="Whether mutations touch highly conserved positions.",
+    )
+    mechanistic_hypotheses: list[str] = Field(
+        default_factory=list,
+        description="Expected mechanistic hypotheses for validation planning.",
+    )
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -514,4 +554,24 @@ def summarize_candidate_lifecycle(
         transition_count=len(ordered),
         latest_status=latest_status,
         visited_statuses=visited,
+    )
+
+
+def summarize_variant_context(
+    candidate_id: str,
+    mutations: list[MutationAnnotation],
+) -> CandidateVariantContext:
+    """Summarize mutation context into assay-planning friendly structure."""
+    regions = sorted({mutation.region for mutation in mutations if mutation.region})
+    elevated_conservation_risk = any(
+        mutation.conservation_score is not None and mutation.conservation_score >= 0.8
+        for mutation in mutations
+    )
+    hypotheses = sorted({mutation.expected_effect for mutation in mutations})
+    return CandidateVariantContext(
+        candidate_id=candidate_id,
+        mutations=mutations,
+        affected_regions=regions,
+        elevated_conservation_risk=elevated_conservation_risk,
+        mechanistic_hypotheses=hypotheses,
     )
