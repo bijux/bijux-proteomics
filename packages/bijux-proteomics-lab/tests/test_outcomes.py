@@ -29,6 +29,8 @@ def test_recommend_rerun_policy_prefers_technical_reruns() -> None:
                 passed=False,
                 observation_summary="Plate handling issue.",
                 failure_class=FailureClass.TECHNICAL,
+                replicate_count=2,
+                uncertainty=0.1,
             )
         ],
         rerun_policy=RerunPolicy.NEVER,
@@ -68,6 +70,7 @@ def test_promote_outcome_to_evidence_builds_normalized_payload() -> None:
             passed=True,
             observation_summary="binding_score=0.83 met greater_equal 0.8",
             failure_class=None,
+            uncertainty=0.2,
         ),
         target_id="target-1",
         batch_id="batch-1",
@@ -76,6 +79,7 @@ def test_promote_outcome_to_evidence_builds_normalized_payload() -> None:
     assert payload.kind.value == "assay"
     assert payload.source_type.value == "lab_assay"
     assert payload.related_targets == ["target-1"]
+    assert payload.confidence < 0.9
 
 
 def test_lab_feedback_record_keeps_cycle_and_lineage_refs() -> None:

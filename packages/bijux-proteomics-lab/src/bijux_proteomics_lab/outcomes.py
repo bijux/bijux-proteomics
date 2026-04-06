@@ -93,6 +93,17 @@ class AssayOutcome(JsonModel):
         default=None,
         description="Failure class when the assay does not pass.",
     )
+    replicate_count: int = Field(
+        default=1,
+        ge=1,
+        description="Number of replicates represented by this outcome.",
+    )
+    uncertainty: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Uncertainty associated with the outcome.",
+    )
 
 
 class ExperimentOutcome(JsonModel):
@@ -168,6 +179,7 @@ def promote_outcome_to_evidence(
     batch_id: str,
 ) -> NormalizedEvidenceInput:
     """Convert one assay outcome into normalized evidence for knowledge ingestion."""
+    confidence = max(0.1, (0.9 if outcome.passed else 0.5) - (outcome.uncertainty * 0.4))
     return NormalizedEvidenceInput(
         evidence_id=f"assay:{batch_id}:{outcome.assay_id}",
         kind=EvidenceKind.ASSAY,
@@ -177,6 +189,6 @@ def promote_outcome_to_evidence(
         claim=outcome.observation_summary,
         related_targets=[target_id],
         decision_tags=["progression"],
-        confidence=0.9 if outcome.passed else 0.5,
+        confidence=round(confidence, 4),
         strength=EvidenceStrength.DECISIVE if outcome.passed else EvidenceStrength.EXPLORATORY,
     )
