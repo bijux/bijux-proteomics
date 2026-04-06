@@ -48,6 +48,10 @@ class ScenarioEvaluation(JsonModel):
         default=HypothesisStatus.UNRESOLVED,
         description="How the recommendation maps to current hypothesis confidence.",
     )
+    key_discriminating_experiment: str | None = Field(
+        default=None,
+        description="Most informative next experiment for reducing uncertainty.",
+    )
 
 
 class ProgressionPolicy(JsonModel):
@@ -168,6 +172,7 @@ def evaluate_for_progression(
             action=ScenarioAction.HOLD,
             reasons=reasons,
             hypothesis_status=HypothesisStatus.WEAKENED,
+            key_discriminating_experiment="run orthogonal assay panel to resolve readiness blockers",
         )
     if policy.require_ranked_candidate and not ranking.ranked_candidates:
         return ScenarioEvaluation(
@@ -175,6 +180,7 @@ def evaluate_for_progression(
             action=ScenarioAction.REDESIGN,
             reasons=["no ranked candidates remain after screening"],
             hypothesis_status=HypothesisStatus.WEAKENED,
+            key_discriminating_experiment="expand candidate generation with mechanism-preserving variants",
         )
     if ranking.ranked_candidates:
         reasons.append(
@@ -188,6 +194,7 @@ def evaluate_for_progression(
         action=ScenarioAction.ADVANCE,
         reasons=reasons,
         hypothesis_status=HypothesisStatus.SUPPORTED,
+        key_discriminating_experiment=None,
     )
 
 
@@ -206,6 +213,7 @@ def evaluate_for_synthesis(
             action=ScenarioAction.REDESIGN,
             reasons=["no candidates are available for synthesis"],
             hypothesis_status=HypothesisStatus.WEAKENED,
+            key_discriminating_experiment="generate candidates with improved multi-objective profiles",
         )
     if not readiness.ready:
         return ScenarioEvaluation(
@@ -213,6 +221,7 @@ def evaluate_for_synthesis(
             action=ScenarioAction.HOLD,
             reasons=readiness.blockers,
             hypothesis_status=HypothesisStatus.UNRESOLVED,
+            key_discriminating_experiment="collect missing decisive evidence before synthesis",
         )
     if residual_risk is not None and residual_risk > policy.maximum_residual_risk:
         return ScenarioEvaluation(
@@ -220,12 +229,14 @@ def evaluate_for_synthesis(
             action=ScenarioAction.REDESIGN,
             reasons=[f"top candidate {candidate_id} has residual risk {residual_risk:.2f}"],
             hypothesis_status=HypothesisStatus.WEAKENED,
+            key_discriminating_experiment="run risk-focused assays on top liabilities",
         )
     return ScenarioEvaluation(
         scenario="synthesis",
         action=ScenarioAction.ADVANCE,
         reasons=[f"top candidate {candidate_id} is supported and within risk budget"],
         hypothesis_status=HypothesisStatus.SUPPORTED,
+        key_discriminating_experiment=None,
     )
 
 

@@ -95,6 +95,7 @@ def test_evaluate_for_synthesis_redesigns_on_high_risk_top_candidate() -> None:
     )
 
     assert evaluation.action is ScenarioAction.REDESIGN
+    assert evaluation.key_discriminating_experiment is not None
 
 
 def test_evaluate_for_scale_up_requires_low_risk_and_decisive_evidence() -> None:
