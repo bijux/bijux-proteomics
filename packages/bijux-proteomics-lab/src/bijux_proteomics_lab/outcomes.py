@@ -141,6 +141,19 @@ class AssayObservationRecord(JsonModel):
     metric: str = Field(..., min_length=1, description="Observed metric.")
     value: float = Field(..., description="Observed value.")
     unit: str | None = Field(default=None, description="Observed unit.")
+    replicate_values: list[float] = Field(
+        default_factory=list,
+        description="Raw replicate values captured for this observation.",
+    )
+    qc_passed: bool = Field(
+        default=True,
+        description="Whether assay-level QC checks passed.",
+    )
+    dispersion: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Observed dispersion (for example CV or SD) across replicates.",
+    )
 
 
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
@@ -170,6 +183,16 @@ def evaluate_assay_acceptance(
         raise ValueError("assay observation does not match the assay definition")
     if observation.metric != rule.metric:
         raise ValueError("assay observation metric does not match the acceptance rule")
+    if not observation.qc_passed:
+        return AssayOutcome(
+            assay_id=observation.assay_id,
+            passed=False,
+            result_state=AssayResultState.FAILED_TECHNICAL,
+            observation_summary=f"{observation.metric} failed assay QC checks",
+            failure_class=FailureClass.TECHNICAL,
+            replicate_count=max(1, len(observation.replicate_values) or 1),
+            uncertainty=0.6,
+        )
     if rule.unit is not None and observation.unit is not None and observation.unit != rule.unit:
         return AssayOutcome(
             assay_id=observation.assay_id,
@@ -197,6 +220,7 @@ def evaluate_assay_acceptance(
         result_state=AssayResultState.PASSED if passed else AssayResultState.FAILED_BIOLOGICAL,
         observation_summary=summary,
         failure_class=None if passed else FailureClass.BIOLOGICAL,
+        replicate_count=max(1, len(observation.replicate_values) or 1),
     )
 
 

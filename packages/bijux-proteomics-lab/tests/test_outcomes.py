@@ -122,3 +122,31 @@ def test_evaluate_assay_acceptance_marks_unit_mismatch_as_inconclusive() -> None
 
     assert outcome.result_state is AssayResultState.INCONCLUSIVE
     assert outcome.failure_class is FailureClass.INTERPRETATION
+
+
+def test_evaluate_assay_acceptance_flags_qc_failure_as_technical() -> None:
+    outcome = evaluate_assay_acceptance(
+        AssayDefinition(
+            assay_id="binding-assay",
+            category=AssayCategory.BINDING,
+            purpose="confirm target engagement",
+            acceptance_rule=AssayAcceptanceRule(
+                assay_id="binding-assay",
+                metric="binding_score",
+                operator=AcceptanceOperator.GREATER_EQUAL,
+                threshold=0.8,
+            ),
+        ),
+        AssayObservationRecord(
+            assay_id="binding-assay",
+            metric="binding_score",
+            value=0.85,
+            replicate_values=[0.82, 0.85, 0.88],
+            qc_passed=False,
+            dispersion=0.05,
+        ),
+    )
+
+    assert outcome.result_state is AssayResultState.FAILED_TECHNICAL
+    assert outcome.failure_class is FailureClass.TECHNICAL
+    assert outcome.replicate_count == 3
