@@ -466,6 +466,26 @@ class AssayContradictionPressure(JsonModel):
     rationale: list[str] = Field(default_factory=list, description="Pressure rationale notes.")
 
 
+class ScheduleScenarioSummary(JsonModel):
+    """Scenario summary for capacity scheduling sensitivity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str = Field(..., min_length=1, description="Scenario identifier.")
+    scheduled_batch_count: int = Field(..., ge=0, description="Number of scheduled batches.")
+    deferred_assay_count: int = Field(..., ge=0, description="Number of deferred assays.")
+
+
+class ScheduleScenarioComparison(JsonModel):
+    """Comparison report across multiple scheduling scenarios."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    scenarios: list[ScheduleScenarioSummary] = Field(default_factory=list, description="Scenario summaries.")
+    recommended_scenario_id: str | None = Field(default=None, description="Scenario with lowest deferred assay load.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1428,6 +1448,30 @@ def map_assay_contradiction_pressure(
             )
         )
     return sorted(rows, key=lambda item: item.pressure_score, reverse=True)
+
+
+def compare_schedule_scenarios(
+    plan: ExperimentPlan,
+    scenarios: list[LabCapacity],
+) -> ScheduleScenarioComparison:
+    """Compare scheduling outcomes across capacity scenarios."""
+    summaries: list[ScheduleScenarioSummary] = []
+    for capacity in scenarios:
+        scheduled = schedule_experiment_plan(plan, capacity)
+        deferred = sum(len(batch.deferred_assay_ids) for batch in scheduled.scheduled_batches)
+        summaries.append(
+            ScheduleScenarioSummary(
+                scenario_id=capacity.cycle_id,
+                scheduled_batch_count=len(scheduled.scheduled_batches),
+                deferred_assay_count=deferred,
+            )
+        )
+    recommended = min(summaries, key=lambda item: item.deferred_assay_count).scenario_id if summaries else None
+    return ScheduleScenarioComparison(
+        program_id=plan.program_id,
+        scenarios=summaries,
+        recommended_scenario_id=recommended,
+    )
 
 
 def recommend_orthogonal_confirmation(

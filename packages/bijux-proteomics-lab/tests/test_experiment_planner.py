@@ -54,6 +54,7 @@ from bijux_proteomics_lab import (
     derive_lab_execution_directive,
     assess_gate_coverage_gaps,
     map_assay_contradiction_pressure,
+    compare_schedule_scenarios,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -421,6 +422,29 @@ def test_map_assay_contradiction_pressure_orders_highest_pressure_first() -> Non
 
     assert rows[0].assay_id == "a1"
     assert rows[0].pressure_score >= rows[1].pressure_score
+
+
+def test_compare_schedule_scenarios_recommends_lowest_deferred_assay_load() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-sim",
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="batch",
+                assay_ids=["a1", "a2"],
+                priority=1,
+            )
+        ],
+    )
+    comparison = compare_schedule_scenarios(
+        plan,
+        scenarios=[
+            LabCapacity(cycle_id="tight", max_batches=1, max_assays_per_batch=1),
+            LabCapacity(cycle_id="relaxed", max_batches=1, max_assays_per_batch=3),
+        ],
+    )
+
+    assert comparison.recommended_scenario_id == "relaxed"
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
