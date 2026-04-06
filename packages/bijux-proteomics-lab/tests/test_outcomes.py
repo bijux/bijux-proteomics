@@ -30,6 +30,7 @@ from bijux_proteomics_lab import (
     recommend_claim_belief_deltas,
     assess_batch_outcome,
     validate_assay_observation_record,
+    generate_feedback_records_from_outcome,
 )
 
 
@@ -534,6 +535,27 @@ def test_validate_assay_observation_record_reports_qc_and_detection_issues() -> 
         "detection-limit-missing",
         "qc-state-inconsistent",
     }
+
+
+def test_generate_feedback_records_from_outcome_preserves_assay_lineage() -> None:
+    records, mapping = generate_feedback_records_from_outcome(
+        ExperimentOutcome(
+            batch_id="batch-feedback",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="assay-1",
+                    passed=True,
+                    observation_summary="assay passed",
+                )
+            ],
+            rerun_policy=RerunPolicy.NEVER,
+        ),
+        program_id="prog-feedback",
+        cycle_id="cycle-feedback-1",
+    )
+
+    assert mapping.feedback_ids == ["feedback:batch-feedback:assay-1"]
+    assert records[0].related_evidence_ids == ["assay:batch-feedback:assay-1"]
 
 
 def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:

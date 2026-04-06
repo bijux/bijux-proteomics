@@ -17,6 +17,7 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     NormalizedEvidenceInput,
 )
+from bijux_proteomics_lab.repositories import LabFeedbackRecord
 
 
 class FailureClass(StrEnum):
@@ -295,6 +296,16 @@ class ObservationValidationIssue(JsonModel):
 
     code: str = Field(..., min_length=1, description="Stable issue code.")
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
+class OutcomeFeedbackMapping(JsonModel):
+    """Mapping summary between assay outcomes and generated feedback records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    feedback_ids: list[str] = Field(default_factory=list, description="Generated feedback record identifiers.")
+    assay_ids: list[AssayId] = Field(default_factory=list, description="Assays represented by generated feedback.")
 
 
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
@@ -621,3 +632,30 @@ def validate_assay_observation_record(observation: AssayObservationRecord) -> li
             )
         )
     return issues
+
+
+def generate_feedback_records_from_outcome(
+    outcome: ExperimentOutcome,
+    *,
+    program_id: str,
+    cycle_id: str,
+) -> tuple[list[LabFeedbackRecord], OutcomeFeedbackMapping]:
+    """Generate structured feedback records from assay outcomes."""
+    records: list[LabFeedbackRecord] = []
+    for assay in outcome.assay_outcomes:
+        records.append(
+            LabFeedbackRecord(
+                feedback_id=f"feedback:{outcome.batch_id}:{assay.assay_id}",
+                program_id=program_id,
+                cycle_id=cycle_id,
+                summary=assay.observation_summary,
+                related_assay_ids=[assay.assay_id],
+                related_evidence_ids=[f"assay:{outcome.batch_id}:{assay.assay_id}"],
+            )
+        )
+    mapping = OutcomeFeedbackMapping(
+        batch_id=outcome.batch_id,
+        feedback_ids=[record.feedback_id for record in records],
+        assay_ids=[assay.assay_id for assay in outcome.assay_outcomes],
+    )
+    return records, mapping

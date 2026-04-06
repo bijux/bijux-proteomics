@@ -22,6 +22,7 @@ from bijux_proteomics_lab.outcomes import (
     OutcomePromotionPolicy,
     BatchOutcomeAssessment,
     ObservationValidationIssue,
+    OutcomeFeedbackMapping,
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
@@ -33,6 +34,7 @@ from bijux_proteomics_lab.outcomes import (
     recommend_claim_belief_deltas,
     assess_batch_outcome,
     validate_assay_observation_record,
+    generate_feedback_records_from_outcome,
 )
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
@@ -138,6 +140,7 @@ __all__ = [
     "OutcomePromotionPolicy",
     "BatchOutcomeAssessment",
     "ObservationValidationIssue",
+    "OutcomeFeedbackMapping",
     "ExperimentPlan",
     "FamilyCapacity",
     "FailureClass",
@@ -189,6 +192,7 @@ __all__ = [
     "recommend_claim_belief_deltas",
     "assess_batch_outcome",
     "validate_assay_observation_record",
+    "generate_feedback_records_from_outcome",
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
     "prioritize_next_assays",
