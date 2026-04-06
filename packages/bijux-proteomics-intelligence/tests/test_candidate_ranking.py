@@ -30,6 +30,7 @@ from bijux_proteomics_intelligence import (
     candidate_score_breakdown,
     classify_metric_name,
     build_rejection_action_plan,
+    summarize_rejections,
     audit_metric_catalog,
     validate_factor_weights,
     validate_metric_catalog,
@@ -781,6 +782,28 @@ def test_build_rejection_action_plan_handles_low_metric_coverage_reason() -> Non
     )
 
     assert "collect missing criterion-linked assay metrics before reranking" in plan.experiments
+
+
+def test_summarize_rejections_counts_reason_codes() -> None:
+    summary = summarize_rejections(
+        [
+            CandidateRejection(
+                candidate_id="c1",
+                reason_codes=[RejectionReasonCode.LOW_EVIDENCE_SUPPORT],
+                blocking=True,
+            ),
+            CandidateRejection(
+                candidate_id="c2",
+                reason_codes=[RejectionReasonCode.LOW_EVIDENCE_SUPPORT, RejectionReasonCode.LOW_METRIC_COVERAGE],
+                blocking=False,
+            ),
+        ]
+    )
+
+    assert summary.rejection_count == 2
+    assert summary.by_reason_code["low_evidence_support"] == 2
+    assert summary.by_reason_code["low_metric_coverage"] == 1
+    assert summary.blocking_rejection_count == 1
 
 
 def test_metric_definition_encodes_typed_metric_contract() -> None:

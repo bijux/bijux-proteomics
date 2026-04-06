@@ -75,6 +75,16 @@ class RejectionActionPlan(JsonModel):
     revisit_conditions: list[str] = Field(default_factory=list, description="Conditions to revisit the candidate.")
 
 
+class RejectionSummary(JsonModel):
+    """Summary analytics across candidate rejections."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rejection_count: int = Field(..., ge=0, description="Number of rejected candidates summarized.")
+    by_reason_code: dict[str, int] = Field(default_factory=dict, description="Rejection counts by reason code.")
+    blocking_rejection_count: int = Field(..., ge=0, description="Count of blocking rejections.")
+
+
 def build_rejection_action_plan(rejection: CandidateRejection) -> RejectionActionPlan:
     """Build an action plan from rejection reason taxonomy."""
     experiments: list[str] = []
@@ -97,4 +107,20 @@ def build_rejection_action_plan(rejection: CandidateRejection) -> RejectionActio
         candidate_id=rejection.candidate_id,
         experiments=experiments,
         revisit_conditions=revisit_conditions,
+    )
+
+
+def summarize_rejections(rejections: list[CandidateRejection]) -> RejectionSummary:
+    """Summarize rejection drivers across rejected candidates."""
+    reason_counts: dict[str, int] = {}
+    blocking_count = 0
+    for rejection in rejections:
+        if rejection.blocking:
+            blocking_count += 1
+        for reason_code in rejection.reason_codes:
+            reason_counts[reason_code.value] = reason_counts.get(reason_code.value, 0) + 1
+    return RejectionSummary(
+        rejection_count=len(rejections),
+        by_reason_code=reason_counts,
+        blocking_rejection_count=blocking_count,
     )
