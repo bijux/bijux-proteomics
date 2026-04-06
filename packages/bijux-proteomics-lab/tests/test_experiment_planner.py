@@ -47,6 +47,8 @@ from bijux_proteomics_lab import (
     score_assay_gate_impact,
     estimate_assay_execution_burden,
     build_lab_cycle_brief,
+    plan_hypothesis_falsification_assays,
+    AssayIntent,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -290,6 +292,19 @@ def test_build_lab_cycle_brief_combines_impact_burden_and_priorities() -> None:
     assert brief.program_id == "prog-brief"
     assert brief.top_gate_impacts
     assert brief.next_assay_priorities
+
+
+def test_plan_hypothesis_falsification_assays_prioritizes_counter_assays() -> None:
+    plan = plan_hypothesis_falsification_assays(
+        hypothesis="binder stability mechanism is causal",
+        intents=[
+            AssayIntent(assay_id="a1", objective="orthogonal counter-check for mechanism", prerequisite_assay_ids=[]),
+            AssayIntent(assay_id="a2", objective="supporting readout", prerequisite_assay_ids=["a1"]),
+        ],
+        contradictions=["activity increased while engagement dropped"],
+    )
+
+    assert plan.prioritized_assay_ids[0] == "a1"
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:

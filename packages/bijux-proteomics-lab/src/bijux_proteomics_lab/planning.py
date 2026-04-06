@@ -398,6 +398,16 @@ class LabCycleBrief(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Summary notes for review.")
 
 
+class HypothesisFalsificationPlan(JsonModel):
+    """Plan ranking assays by hypothesis-falsification value."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    hypothesis: str = Field(..., min_length=1, description="Scientific hypothesis under test.")
+    prioritized_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays ranked by falsification value.")
+    rationale: list[str] = Field(default_factory=list, description="Rationale notes for assay ranking.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1189,6 +1199,38 @@ def build_lab_cycle_brief(
         highest_burden_assays=burdens,
         next_assay_priorities=priorities,
         notes=notes,
+    )
+
+
+def plan_hypothesis_falsification_assays(
+    *,
+    hypothesis: str,
+    intents: list[AssayIntent],
+    contradictions: list[str],
+    blocked_assay_ids: list[str] | None = None,
+) -> HypothesisFalsificationPlan:
+    """Rank assays by expected value for falsifying a target hypothesis."""
+    blocked = set(blocked_assay_ids or [])
+    scores: list[tuple[str, float, list[str]]] = []
+    contradiction_pressure = min(1.0, len(contradictions) * 0.2)
+    for intent in intents:
+        if intent.assay_id in blocked:
+            continue
+        objective = intent.objective.lower()
+        objective_bonus = 0.5 if any(token in objective for token in ["falsif", "counter", "orthogonal"]) else 0.25
+        prereq_penalty = min(0.3, len(intent.prerequisite_assay_ids) * 0.1)
+        score = round(max(0.0, min(objective_bonus + contradiction_pressure - prereq_penalty, 1.0)), 4)
+        reasons = [f"objective={intent.objective}"]
+        if contradiction_pressure > 0:
+            reasons.append("active evidence contradictions increase falsification value")
+        if prereq_penalty > 0:
+            reasons.append("prerequisites reduce immediate execution value")
+        scores.append((intent.assay_id, score, reasons))
+    scores.sort(key=lambda item: item[1], reverse=True)
+    return HypothesisFalsificationPlan(
+        hypothesis=hypothesis,
+        prioritized_assay_ids=[item[0] for item in scores],
+        rationale=[f"{assay_id}: {', '.join(reasons)}" for assay_id, _, reasons in scores],
     )
 
 
