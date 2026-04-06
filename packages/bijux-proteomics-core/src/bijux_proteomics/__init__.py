@@ -6,6 +6,11 @@
 from __future__ import annotations
 
 from bijux_proteomics.assays import AssayRequirement
+from bijux_proteomics.context import (
+    ProgramContext,
+    ProgramDeliveryContext,
+    ProgramPortfolioContext,
+)
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.exceptions import (
@@ -54,6 +59,9 @@ __all__ = [
     "LiabilityCategory",
     "MeasurementDirection",
     "OperatingModel",
+    "ProgramContext",
+    "ProgramDeliveryContext",
+    "ProgramPortfolioContext",
     "ProgramLiability",
     "ProgramLifecycle",
     "ProgramRepository",

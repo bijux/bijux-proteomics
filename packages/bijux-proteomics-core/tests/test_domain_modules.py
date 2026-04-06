@@ -4,6 +4,11 @@
 from __future__ import annotations
 
 from bijux_proteomics.assays import AssayRequirement
+from bijux_proteomics.context import (
+    ProgramContext,
+    ProgramDeliveryContext,
+    ProgramPortfolioContext,
+)
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage
@@ -74,12 +79,26 @@ def test_domain_modules_define_program_components() -> None:
                 decision_inputs=["evidence_bundle"],
             )
         ],
+        context=ProgramContext(
+            portfolio=ProgramPortfolioContext(
+                therapeutic_area="oncology",
+                disease_area="solid tumors",
+                modality="protein degrader",
+            ),
+            delivery=ProgramDeliveryContext(
+                sponsor="translational biology",
+                decision_horizon="quarterly",
+                intended_output="review packet",
+            ),
+            tags=["solid-tumor", "discovery"],
+        ),
         operating_model=OperatingModel(review_cadence="weekly"),
     )
 
     assert program.stage is ProgramStage.DESIGN
     assert program.assay_panel[0].blocking is True
     assert program.operating_model.review_cadence == "weekly"
+    assert program.context.portfolio.therapeutic_area == "oncology"
     assert sequence_length(program.target.sequence) == 20
 
 

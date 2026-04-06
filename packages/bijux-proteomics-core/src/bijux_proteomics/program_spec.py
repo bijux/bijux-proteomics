@@ -11,6 +11,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.assays import AssayRequirement
+from bijux_proteomics.context import ProgramContext
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import SuccessCriterion
 from bijux_proteomics.liabilities import ProgramLiability
@@ -85,9 +86,9 @@ class ProgramSpec(JsonModel):
         default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-core"),
         description="Schema and provenance metadata.",
     )
-    metadata: dict[str, str] = Field(
-        default_factory=dict,
-        description="Free-form metadata for program setup.",
+    context: ProgramContext = Field(
+        default_factory=ProgramContext,
+        description="Structured program context for portfolio and delivery framing.",
     )
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
@@ -140,4 +141,6 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
         "evidence_needs": [need.value for need in program.evidence_needs],
         "human_review_required": program.operating_model.human_review_required,
         "lab_feedback_required": program.operating_model.lab_feedback_required,
+        "therapeutic_area": program.context.portfolio.therapeutic_area,
+        "decision_horizon": program.context.delivery.decision_horizon,
     }

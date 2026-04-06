@@ -16,6 +16,9 @@ from bijux_proteomics import (
     ReviewOutcome,
     ProgramValidationIssue,
     ProgramValidationError,
+    ProgramContext,
+    ProgramDeliveryContext,
+    ProgramPortfolioContext,
     create_program_spec,
     ensure_review_clearance,
     program_summary,
@@ -139,6 +142,37 @@ def test_program_summary_includes_operating_model_defaults() -> None:
     assert summary["stage"] == ProgramStage.SCOPING.value
     assert summary["human_review_required"] is True
     assert summary["lab_feedback_required"] is True
+
+
+def test_program_summary_includes_structured_context_fields() -> None:
+    program = create_program_spec(
+        program_id="prog-2b",
+        name="portfolio context",
+        objective="carry durable portfolio and delivery context",
+        target_id="target-2b",
+        target_name="Target 2B",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="make scoping intent visible to downstream systems",
+    )
+    program.context = ProgramContext(
+        portfolio=ProgramPortfolioContext(
+            therapeutic_area="immunology",
+            disease_area="autoimmune disease",
+            modality="bispecific protein",
+        ),
+        delivery=ProgramDeliveryContext(
+            sponsor="protein design",
+            decision_horizon="monthly",
+            intended_output="candidate shortlist",
+        ),
+        tags=["immune", "shortlist"],
+    )
+
+    summary = program_summary(program)
+
+    assert summary["therapeutic_area"] == "immunology"
+    assert summary["decision_horizon"] == "monthly"
 
 
 def test_program_spec_round_trips_with_serialization_helpers(tmp_path: Path) -> None:
