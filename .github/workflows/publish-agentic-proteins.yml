@@ -16,9 +16,12 @@ jobs:
       package_slug: agentic-proteins
       cache_dependency_path: |
         pyproject.toml
-      build_targets: "build sbom"
+        packages/agentic-proteins/pyproject.toml
+      build_targets: "build-agentic-proteins sbom"
+      package_dir: "packages/agentic-proteins"
+      dist_subdir: "build/agentic-proteins"
       upload_paths: |
-        artifacts/build/*
+        artifacts/build/agentic-proteins/*
         artifacts/sbom/*
 
   publish:
