@@ -40,6 +40,9 @@ class ScientificMetricClass(StrEnum):
     SPECIFICITY = "specificity"
     SAFETY = "safety"
     DEVELOPABILITY = "developability"
+    TARGET_ENGAGEMENT = "target_engagement"
+    PATHWAY_EFFECT = "pathway_effect"
+    ABUNDANCE_MODULATION = "abundance_modulation"
 
 
 class MetricDirection(StrEnum):
@@ -181,6 +184,12 @@ def classify_metric_name(metric: str) -> ScientificMetricClass:
         return ScientificMetricClass.STABILITY
     if any(token in lowered for token in ("specif", "off_target", "selectiv")):
         return ScientificMetricClass.SPECIFICITY
+    if any(token in lowered for token in ("target_engagement", "occupancy", "engagement")):
+        return ScientificMetricClass.TARGET_ENGAGEMENT
+    if any(token in lowered for token in ("pathway", "signaling", "phospho")):
+        return ScientificMetricClass.PATHWAY_EFFECT
+    if any(token in lowered for token in ("abundance", "fold_change", "proteomics")):
+        return ScientificMetricClass.ABUNDANCE_MODULATION
     if any(token in lowered for token in ("tox", "immun", "safety")):
         return ScientificMetricClass.SAFETY
     if any(token in lowered for token in ("yield", "express", "aggregation", "develop")):

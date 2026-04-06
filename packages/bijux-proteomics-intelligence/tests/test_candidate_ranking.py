@@ -671,6 +671,9 @@ def test_classify_metric_name_uses_typed_metric_classes() -> None:
     assert classify_metric_name("binding_score") is ScientificMetricClass.AFFINITY
     assert classify_metric_name("delta_tm") is ScientificMetricClass.STABILITY
     assert classify_metric_name("tox_signal") is ScientificMetricClass.SAFETY
+    assert classify_metric_name("target_engagement_ratio") is ScientificMetricClass.TARGET_ENGAGEMENT
+    assert classify_metric_name("pathway_phospho_response") is ScientificMetricClass.PATHWAY_EFFECT
+    assert classify_metric_name("proteomics_fold_change") is ScientificMetricClass.ABUNDANCE_MODULATION
 
 
 def test_candidate_rejection_supports_reopen_action_guidance() -> None:
