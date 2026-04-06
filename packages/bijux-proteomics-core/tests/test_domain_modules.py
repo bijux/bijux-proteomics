@@ -113,6 +113,7 @@ def test_domain_modules_define_program_components() -> None:
 
     assert program.stage is ProgramStage.DESIGN
     assert program.assay_panel[0].blocking is True
+    assert program.liabilities[0].severity == 3
     assert program.operating_model.review_cadence is ReviewCadence.WEEKLY
     assert program.operating_model.decision_owner_roles == [
         DecisionOwnerRole.SCIENTIST,
@@ -169,6 +170,23 @@ def test_target_summary_includes_target_class_and_isoform_context() -> None:
 
     assert summary["target_class"] == "enzyme"
     assert summary["isoform_count"] == 2
+
+
+def test_program_liability_supports_blocker_fields() -> None:
+    liability = ProgramLiability(
+        liability_id="liability-2",
+        category=LiabilityCategory.SAFETY,
+        summary="immunogenicity risk",
+        impact="could block clinical progression",
+        mitigation="run immunogenicity panel",
+        severity=5,
+        blocker=True,
+        owner_role="safety",
+        evidence_ids=["ev-1"],
+    )
+
+    assert liability.blocker is True
+    assert liability.owner_role == "safety"
 
 
 def test_program_lifecycle_advances_between_stages() -> None:

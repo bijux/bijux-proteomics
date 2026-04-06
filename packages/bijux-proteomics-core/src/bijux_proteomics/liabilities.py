@@ -31,3 +31,21 @@ class ProgramLiability(JsonModel):
     summary: str = Field(..., min_length=1, description="Human-readable liability summary.")
     impact: str = Field(..., min_length=1, description="Expected program impact.")
     mitigation: str = Field(..., min_length=1, description="Planned mitigation path.")
+    severity: int = Field(
+        default=3,
+        ge=1,
+        le=5,
+        description="Liability severity from low to critical.",
+    )
+    blocker: bool = Field(
+        default=False,
+        description="Whether this liability should block progression until mitigated.",
+    )
+    owner_role: str | None = Field(
+        default=None,
+        description="Decision owner role accountable for this liability.",
+    )
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence references supporting this liability assessment.",
+    )
