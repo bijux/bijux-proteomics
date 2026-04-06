@@ -271,6 +271,16 @@ class DecisionEscalationFlags(JsonModel):
     escalate_to_human_review: bool = Field(..., description="Overall escalation recommendation.")
 
 
+class FinalDecisionRecommendation(JsonModel):
+    """Final intelligence recommendation combining consensus and escalation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    action: ScenarioAction = Field(..., description="Recommended final action.")
+    requires_human_review: bool = Field(..., description="Whether human arbitration is required.")
+    reasons: list[str] = Field(default_factory=list, description="Reasons supporting the final recommendation.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -755,4 +765,24 @@ def derive_decision_escalation_flags(
         high_hold_pressure=hold_pressure.high_hold_pressure,
         wide_confidence_spread=wide_spread,
         escalate_to_human_review=escalate,
+    )
+
+
+def build_final_decision_recommendation(
+    evaluations: ScenarioSetEvaluation,
+) -> FinalDecisionRecommendation:
+    """Build final recommendation from scenario consensus and escalation signals."""
+    consensus = summarize_scenario_consensus(evaluations)
+    escalation = derive_decision_escalation_flags(evaluations)
+    reasons = list(consensus.notes)
+    if escalation.high_hold_pressure:
+        reasons.append("hold pressure is high across scenario evaluations")
+    if escalation.wide_confidence_spread:
+        reasons.append("scenario confidence spread is wide")
+    if escalation.conflicting_actions:
+        reasons.append("scenario actions conflict")
+    return FinalDecisionRecommendation(
+        action=consensus.recommended_action,
+        requires_human_review=escalation.escalate_to_human_review,
+        reasons=reasons,
     )

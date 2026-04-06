@@ -25,6 +25,7 @@ from bijux_proteomics_intelligence import (
     summarize_hold_pressure,
     summarize_scenario_confidence_spread,
     derive_decision_escalation_flags,
+    build_final_decision_recommendation,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -514,3 +515,30 @@ def test_derive_decision_escalation_flags_triggers_human_review() -> None:
     flags = derive_decision_escalation_flags(grouped)
 
     assert flags.escalate_to_human_review is True
+
+
+def test_build_final_decision_recommendation_uses_consensus_and_escalation() -> None:
+    grouped = evaluate_all_scenarios(
+        create_program_spec(
+            program_id="prog-final-recommendation",
+            name="final recommendation",
+            objective="build final recommendation from scenario intelligence",
+            target_id="target-final-recommendation",
+            target_name="Target Final Recommendation",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            organism="human",
+            mechanism="combine consensus and escalation",
+        ),
+        CandidateRanking(
+            program_id="prog-final-recommendation",
+            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ),
+        _ready_state(),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        policies=EvaluatorPolicyBundle(),
+    )
+
+    recommendation = build_final_decision_recommendation(grouped)
+
+    assert recommendation.reasons
+    assert recommendation.requires_human_review is True
