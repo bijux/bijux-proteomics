@@ -75,6 +75,7 @@ def test_document_schema_supports_package_lineage_fields() -> None:
 
     assert schema.document_kind == "evidence_bundle"
     assert schema.package_name == "bijux-proteomics-knowledge"
+    assert schema.status == "draft"
 
 
 def test_document_schema_content_hash_is_deterministic() -> None:

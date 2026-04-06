@@ -51,6 +51,19 @@ class DocumentSchema(JsonModel):
         default=None,
         description="Package version that produced the payload.",
     )
+    status: str = Field(
+        default="draft",
+        min_length=1,
+        description="Lifecycle status such as draft, reviewed, or superseded.",
+    )
+    derived_from: list[str] = Field(
+        default_factory=list,
+        description="Upstream document identifiers this artifact derives from.",
+    )
+    parent_document_id: str | None = Field(
+        default=None,
+        description="Immediate parent document identifier when superseded or revised.",
+    )
     trace_id: str | None = Field(
         default=None,
         description="Optional cross-system trace identifier.",
