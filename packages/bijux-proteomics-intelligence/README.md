@@ -39,3 +39,7 @@ recommendations, this package is the decision intelligence boundary.
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/maintainer/pypi.md)
+
+## Primary entrypoint
+
+- import-first library package; no console script is published
