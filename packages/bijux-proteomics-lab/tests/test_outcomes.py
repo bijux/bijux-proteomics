@@ -205,3 +205,30 @@ def test_query_feedback_records_filters_by_cycle_and_assay() -> None:
     )
 
     assert [record.feedback_id for record in filtered] == ["f1"]
+
+
+def test_evaluate_assay_acceptance_marks_below_detection_as_inconclusive() -> None:
+    outcome = evaluate_assay_acceptance(
+        AssayDefinition(
+            assay_id="activity-assay",
+            category=AssayCategory.ACTIVITY,
+            purpose="measure weak activity signals",
+            acceptance_rule=AssayAcceptanceRule(
+                assay_id="activity-assay",
+                metric="activity_signal",
+                operator=AcceptanceOperator.GREATER_EQUAL,
+                threshold=0.2,
+            ),
+        ),
+        AssayObservationRecord(
+            assay_id="activity-assay",
+            metric="activity_signal",
+            value=0.05,
+            detection_limit=0.1,
+            below_detection_limit=True,
+            normalization_method="median-center",
+        ),
+    )
+
+    assert outcome.result_state is AssayResultState.INCONCLUSIVE
+    assert outcome.failure_class is FailureClass.INTERPRETATION

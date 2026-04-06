@@ -159,6 +159,18 @@ class AssayObservationRecord(JsonModel):
         ge=0.0,
         description="Observed dispersion (for example CV or SD) across replicates.",
     )
+    normalization_method: str | None = Field(
+        default=None,
+        description="Normalization method applied before interpretation.",
+    )
+    detection_limit: float | None = Field(
+        default=None,
+        description="Detection limit for the measured endpoint.",
+    )
+    below_detection_limit: bool = Field(
+        default=False,
+        description="Whether the measured signal was below detection limit.",
+    )
 
 
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
@@ -197,6 +209,16 @@ def evaluate_assay_acceptance(
             failure_class=FailureClass.TECHNICAL,
             replicate_count=max(1, len(observation.replicate_values) or 1),
             uncertainty=0.6,
+        )
+    if observation.below_detection_limit:
+        return AssayOutcome(
+            assay_id=observation.assay_id,
+            passed=False,
+            result_state=AssayResultState.INCONCLUSIVE,
+            observation_summary=f"{observation.metric} signal is below detection limit",
+            failure_class=FailureClass.INTERPRETATION,
+            replicate_count=max(1, len(observation.replicate_values) or 1),
+            uncertainty=0.7,
         )
     if rule.unit is not None and observation.unit is not None and observation.unit != rule.unit:
         return AssayOutcome(
