@@ -100,6 +100,27 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                 message="lab-ready programs should define translational assumptions",
             )
         )
+    if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY} and not program.modality_context:
+        issues.append(
+            ProgramValidationIssue(
+                code="modality-context-missing",
+                message="review and lab-ready programs should define modality_context",
+            )
+        )
+    if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY} and not program.key_unknowns:
+        issues.append(
+            ProgramValidationIssue(
+                code="key-unknowns-missing",
+                message="review and lab-ready programs should define key_unknowns",
+            )
+        )
+    if program.stage is ProgramStage.LAB_READY and not program.critical_failure_modes:
+        issues.append(
+            ProgramValidationIssue(
+                code="critical-failure-modes-missing",
+                message="lab-ready programs should define critical_failure_modes",
+            )
+        )
     if program.review_gates and not program.operating_model.decision_owner_roles:
         issues.append(
             ProgramValidationIssue(

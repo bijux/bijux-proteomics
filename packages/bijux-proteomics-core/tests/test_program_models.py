@@ -846,6 +846,76 @@ def test_validate_program_requires_assay_evidence_for_gated_review() -> None:
     ) in issues
 
 
+def test_validate_program_requires_scientific_context_for_review_stage() -> None:
+    program = create_program_spec(
+        program_id="prog-review-context",
+        name="review context",
+        objective="enforce review-stage scientific context fields",
+        target_id="target-review-context",
+        target_name="Target Review Context",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="capture review-stage context",
+    )
+    program.stage = ProgramStage.REVIEW
+    program.modality_context = None
+    program.key_unknowns = []
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="progression-review",
+            name="Progression review",
+            required_roles=["scientist"],
+            decision_inputs=["evidence_bundle"],
+            blocking=True,
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="modality-context-missing",
+        message="review and lab-ready programs should define modality_context",
+    ) in issues
+    assert ProgramValidationIssue(
+        code="key-unknowns-missing",
+        message="review and lab-ready programs should define key_unknowns",
+    ) in issues
+
+
+def test_validate_program_requires_critical_failure_modes_for_lab_ready() -> None:
+    program = create_program_spec(
+        program_id="prog-lab-context",
+        name="lab context",
+        objective="enforce critical failure modeling for lab-ready programs",
+        target_id="target-lab-context",
+        target_name="Target Lab Context",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="capture lab-ready failure modes",
+    )
+    program.stage = ProgramStage.LAB_READY
+    program.modality_context = "engineered binder"
+    program.key_unknowns = ["does cell context retain selectivity"]
+    program.translational_assumptions = ["cell model predicts in vivo potency"]
+    program.critical_failure_modes = []
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="binding-assay",
+            purpose="measure target engagement",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="critical-failure-modes-missing",
+        message="lab-ready programs should define critical_failure_modes",
+    ) in issues
+
+
 def test_execute_program_rejects_invalid_program_before_backend_use(tmp_path: Path) -> None:
     class StubBackend:
         def execute(self, request: ExecutionRequest) -> dict[str, object]:
