@@ -2,6 +2,18 @@
 
 All notable changes for `bijux-proteomics-knowledge` are recorded here.
 
+## 0.3.0 - 2026-04-06
+
+### Added
+
+- Canonical package maintainer documentation and package-level architecture
+  references were added.
+
+### Changed
+
+- Package metadata now follows unified repository, issue, and documentation URL
+  standards.
+
 ## 0.1.0 - 2026-04-06
 
 ### Added

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bijux-proteomics-core"
-version = "0.1.0"
+version = "0.3.0"
 description = "Program models and execution adapters for Bijux Proteomics"
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -14,7 +14,7 @@ maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 dependencies = [
   "click>=8.1",
   "pydantic>=2.0.2",
-  "bijux-proteomics-foundation>=0.1.0",
+  "bijux-proteomics-foundation>=0.3.0",
 ]
 
 [project.urls]

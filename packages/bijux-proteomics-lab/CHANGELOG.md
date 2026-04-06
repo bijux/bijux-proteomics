@@ -2,6 +2,18 @@
 
 All notable changes for `bijux-proteomics-lab` are recorded here.
 
+## 0.3.0 - 2026-04-06
+
+### Added
+
+- Canonical package documentation and maintainer notes were added for lab
+  package ownership boundaries.
+
+### Changed
+
+- Package metadata and release links now match the shared `bijux-proteomics`
+  standards.
+
 ## 0.1.0 - 2026-04-06
 
 ### Added

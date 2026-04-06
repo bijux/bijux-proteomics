@@ -28,8 +28,8 @@ change contributor and maintainer workflows across the repository.
 
 ### Fixed
 
-- Pytest rootdir behavior after config relocation was stabilized by passing
-  explicit rootdir flags from make-based test orchestration.
+- Monorepo test-root resolution was stabilized for nested package manifests by
+  improving shared test path detection in `agentic-proteins`.
 - Quality gates now use a repository-owned deptry configuration path while
   preserving current dependency hygiene behavior.
 
