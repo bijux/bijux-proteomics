@@ -30,9 +30,9 @@ flowchart TB
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     step1["packages/bijux-proteomics-foundation/pyproject.toml"]
     step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics_foundation/interfaces/cli/entrypoint.py"]
+    step2["CLI entrypoint in src/bijux_proteomics_foundation/__init__.py"]
     step2 --> page
-    step3["HTTP app in src/bijux_proteomics_foundation/api/v1"]
+    step3["HTTP app in src/bijux_proteomics_foundation/schema.py"]
     step3 --> page
     run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
     page --> run1

@@ -54,9 +54,9 @@ flowchart RL
 
 ## Integration Surfaces
 
-- CLI entrypoint in src/bijux_proteomics_foundation/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics_foundation/api/v1
-- schema files in api/bijux-proteomics-foundation/v1
+- CLI entrypoint in src/bijux_proteomics_foundation/__init__.py
+- HTTP app in src/bijux_proteomics_foundation/schema.py
+- schema contracts in src/bijux_proteomics_foundation/schema.py
 
 ## Adjacent Systems
 

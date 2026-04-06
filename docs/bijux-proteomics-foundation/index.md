@@ -1,5 +1,5 @@
 ---
-title: Runtime Handbook
+title: bijux-proteomics-foundation
 audience: mixed
 type: index
 status: canonical
@@ -7,17 +7,18 @@ owner: bijux-proteomics-foundation-docs
 last_reviewed: 2026-04-04
 ---
 
-# Runtime Handbook
+# bijux-proteomics-foundation
 
-`bijux-proteomics-foundation` is the execution authority layer in `bijux-proteomics`. Start
-here when the question is about run acceptance, replay policy, persistence, or
-runtime-facing boundaries that sit above the rest of the package family.
+`bijux-proteomics-foundation` is the shared schema and serialization package in
+`bijux-proteomics`. Start here when the question is about canonical payload
+shape, version compatibility helpers, identity primitives, or deterministic
+serialization contracts used by multiple packages.
 
 ## Read This Section When
 
-- you need the package-level entrypoint for runtime docs
-- you are checking execution, replay, or persistence behavior
-- you want the shortest route into the owned runtime documentation
+- you need the package-level entrypoint for schema and payload contracts
+- you are checking migration helpers, identifiers, or serialization guarantees
+- you want the shortest route into shared cross-package primitives
 
 ## Main Paths
 

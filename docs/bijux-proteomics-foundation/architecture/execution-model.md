@@ -55,7 +55,7 @@ flowchart TB
 
 ## Execution Anchors
 
-- entry surfaces: CLI entrypoint in src/bijux_proteomics_foundation/interfaces/cli/entrypoint.py, HTTP app in src/bijux_proteomics_foundation/api/v1, schema files in api/bijux-proteomics-foundation/v1
+- entry surfaces: CLI entrypoint in src/bijux_proteomics_foundation/__init__.py, HTTP app in src/bijux_proteomics_foundation/schema.py, schema contracts in src/bijux_proteomics_foundation/schema.py
 - workflow modules: src/bijux_proteomics_foundation/model, src/bijux_proteomics_foundation/runtime, src/bijux_proteomics_foundation/application
 - outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 
