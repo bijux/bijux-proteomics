@@ -379,6 +379,25 @@ class AssayExecutionBurden(JsonModel):
     drivers: list[str] = Field(default_factory=list, description="Primary burden drivers.")
 
 
+class LabCycleBrief(JsonModel):
+    """Decision brief for the next laboratory cycle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    ready_for_progression: bool = Field(..., description="Whether current evidence supports progression.")
+    top_gate_impacts: list[GateImpactScore] = Field(default_factory=list, description="Highest gate-impact assays.")
+    highest_burden_assays: list[AssayExecutionBurden] = Field(
+        default_factory=list,
+        description="Assays expected to create the most execution burden.",
+    )
+    next_assay_priorities: list[NextAssayPriority] = Field(
+        default_factory=list,
+        description="Highest-priority assays based on information gain.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Summary notes for review.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1141,6 +1160,36 @@ def estimate_assay_execution_burden(plan: ExperimentPlan) -> list[AssayExecution
                 )
             )
     return sorted(burdens, key=lambda item: item.burden_score, reverse=True)
+
+
+def build_lab_cycle_brief(
+    program: ProgramSpec,
+    plan: ExperimentPlan,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+) -> LabCycleBrief:
+    """Build a cycle-level decision brief combining impact, burden, and priorities."""
+    readiness = assess_decision_readiness(bundle, [need.value for need in program.evidence_needs])
+    gate_impacts = score_assay_gate_impact(plan)[:5]
+    burdens = estimate_assay_execution_burden(plan)[:5]
+    priorities = prioritize_next_assays(program, bundle, observations)[:5]
+    notes: list[str] = []
+    if gate_impacts and gate_impacts[0].impact_score >= 0.7:
+        notes.append("high gate pressure detected in current assay backlog")
+    if burdens and burdens[0].burden_score >= 0.7:
+        notes.append("execution burden is concentrated in top-priority batches")
+    if not readiness.ready:
+        notes.append("decision readiness remains blocked by evidence gaps")
+    if not notes:
+        notes.append("cycle is balanced for execution and decision support")
+    return LabCycleBrief(
+        program_id=program.program_id,
+        ready_for_progression=readiness.ready,
+        top_gate_impacts=gate_impacts,
+        highest_burden_assays=burdens,
+        next_assay_priorities=priorities,
+        notes=notes,
+    )
 
 
 def recommend_orthogonal_confirmation(

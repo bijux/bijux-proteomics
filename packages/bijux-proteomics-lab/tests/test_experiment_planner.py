@@ -46,6 +46,7 @@ from bijux_proteomics_lab import (
     score_assay_information_gain,
     score_assay_gate_impact,
     estimate_assay_execution_burden,
+    build_lab_cycle_brief,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -244,6 +245,51 @@ def test_estimate_assay_execution_burden_accounts_for_sample_kind_and_gates() ->
 
     assert burden[0].assay_id == "cell-a"
     assert burden[0].burden_score > burden[1].burden_score
+
+
+def test_build_lab_cycle_brief_combines_impact_burden_and_priorities() -> None:
+    program = create_program_spec(
+        program_id="prog-brief",
+        name="brief test",
+        objective="build cycle brief",
+        target_id="target-brief",
+        target_name="Target",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize function",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="binding-a",
+            purpose="confirm binding",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-brief", target_id="target-brief")
+    plan = ExperimentPlan(
+        program_id="prog-brief",
+        review_queue=[],
+        evidence_gaps=[],
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="critical batch",
+                assay_ids=["binding-a"],
+                blocking_review_gates=["gate-1"],
+                priority=1,
+                sample_requirements=["protein"],
+                assay_sample_kinds={"binding-a": "biophysical"},
+            )
+        ],
+    )
+
+    brief = build_lab_cycle_brief(program, plan, bundle, observations=[])
+
+    assert brief.program_id == "prog-brief"
+    assert brief.top_gate_impacts
+    assert brief.next_assay_priorities
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
