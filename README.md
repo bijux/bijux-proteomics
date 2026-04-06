@@ -16,58 +16,76 @@
 [![bijux-proteomics-knowledge](https://img.shields.io/pypi/v/bijux-proteomics-knowledge?label=knowledge&logo=pypi)](https://pypi.org/project/bijux-proteomics-knowledge/)
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
 
-`bijux-proteomics` is a contract-first, multi-package Python workspace for
-protein discovery and lab-in-the-loop workflows.
+`bijux-proteomics` is a contract-first Python package family for governed
+protein discovery workflows across runtime execution, domain contracts,
+decision intelligence, evidence governance, and lab planning.
 
-It separates execution runtime, domain program modeling, decision intelligence,
-evidence governance, and lab planning into explicit package boundaries so
-contributors can evolve each layer without collapsing the system into one
-opaque codebase.
+The goal is not just to run a protein pipeline once. The goal is to keep
+behavior reviewable and reproducible as the system evolves.
 
 ## Why `bijux-proteomics` Exists
 
-Protein workflows become difficult to trust when target modeling, evidence
-reasoning, candidate scoring, and experiment planning are bundled into one
+Protein programs become difficult to trust when execution logic, domain models,
+evidence reasoning, policy decisions, and lab planning are merged into one
 surface.
 
-This repository keeps those concerns separated and explicit:
+`bijux-proteomics` keeps those concerns explicit and separable:
 
-- `agentic-proteins` for deterministic runtime execution
-- `foundation` for shared schema and canonical serialization behavior
-- `core` for durable program and review-gate domain contracts
-- `intelligence` for policy-driven candidate ranking and scenario decisions
-- `knowledge` for evidence trust, conflicts, and claim lineage
-- `lab` for scheduling, outcomes, and rerun recommendations
+- deterministic runtime behavior in `agentic-proteins`
+- shared primitives in `bijux-proteomics-foundation`
+- domain contracts in `bijux-proteomics-core`
+- ranking and policy decisions in `bijux-proteomics-intelligence`
+- evidence and trust resolution in `bijux-proteomics-knowledge`
+- lab orchestration boundaries in `bijux-proteomics-lab`
 
 ## Package Map
 
-| Package | Purpose | PyPI | Source |
+| Package | Role | PyPI | Source |
 | --- | --- | --- | --- |
-| `agentic-proteins` | Deterministic runtime, CLI, and API execution | <https://pypi.org/project/agentic-proteins/> | [`packages/agentic-proteins`](packages/agentic-proteins) |
-| `bijux-proteomics-foundation` | Shared schema and serialization contracts | <https://pypi.org/project/bijux-proteomics-foundation/> | [`packages/bijux-proteomics-foundation`](packages/bijux-proteomics-foundation) |
-| `bijux-proteomics-core` | Program, lifecycle, and review-gate domain contracts | <https://pypi.org/project/bijux-proteomics-core/> | [`packages/bijux-proteomics-core`](packages/bijux-proteomics-core) |
-| `bijux-proteomics-intelligence` | Candidate scoring, policy, and scenario evaluation | <https://pypi.org/project/bijux-proteomics-intelligence/> | [`packages/bijux-proteomics-intelligence`](packages/bijux-proteomics-intelligence) |
-| `bijux-proteomics-knowledge` | Evidence bundles, trust scoring, and conflict resolution | <https://pypi.org/project/bijux-proteomics-knowledge/> | [`packages/bijux-proteomics-knowledge`](packages/bijux-proteomics-knowledge) |
-| `bijux-proteomics-lab` | Lab planning, outcome modeling, and rerun policies | <https://pypi.org/project/bijux-proteomics-lab/> | [`packages/bijux-proteomics-lab`](packages/bijux-proteomics-lab) |
+| `agentic-proteins` | Runtime execution surfaces (CLI and HTTP) plus deterministic run artifacts | <https://pypi.org/project/agentic-proteins/> | [`packages/agentic-proteins`](packages/agentic-proteins) |
+| `bijux-proteomics-foundation` | Shared contracts, identifiers, and canonical serialization primitives | <https://pypi.org/project/bijux-proteomics-foundation/> | [`packages/bijux-proteomics-foundation`](packages/bijux-proteomics-foundation) |
+| `bijux-proteomics-core` | Program models, lifecycle transitions, and review-gate domain logic | <https://pypi.org/project/bijux-proteomics-core/> | [`packages/bijux-proteomics-core`](packages/bijux-proteomics-core) |
+| `bijux-proteomics-intelligence` | Candidate evaluation, scoring policy, and recommendation logic | <https://pypi.org/project/bijux-proteomics-intelligence/> | [`packages/bijux-proteomics-intelligence`](packages/bijux-proteomics-intelligence) |
+| `bijux-proteomics-knowledge` | Evidence graphs, trust scoring, and conflict resolution policy | <https://pypi.org/project/bijux-proteomics-knowledge/> | [`packages/bijux-proteomics-knowledge`](packages/bijux-proteomics-knowledge) |
+| `bijux-proteomics-lab` | Lab planning, scheduling decisions, and outcome promotion workflows | <https://pypi.org/project/bijux-proteomics-lab/> | [`packages/bijux-proteomics-lab`](packages/bijux-proteomics-lab) |
+| `bijux-proteomics-dev` | Repository maintenance tooling for quality, security, docs, release, and API gates | n/a (maintainer package) | [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev) |
+
+## What This Repository Is Not
+
+- not a single all-in-one package with hidden coupling
+- not a promise of wet-lab correctness by documentation alone
+- not a replacement for package-level tests and review gates
 
 ## Start Here
 
-- Want runtime execution behavior: `packages/agentic-proteins/README.md`
-- Want domain contracts: `packages/bijux-proteomics-core/README.md`
-- Want ranking and scenarios: `packages/bijux-proteomics-intelligence/README.md`
-- Want evidence lineage and conflicts: `packages/bijux-proteomics-knowledge/README.md`
-- Want lab planning and outcomes: `packages/bijux-proteomics-lab/README.md`
-- Want shared serialization/schema primitives: `packages/bijux-proteomics-foundation/README.md`
+- Repository handbook: [`docs/index.md`](docs/index.md)
+- API contract handbook: [`docs/bijux-proteomics/apis.md`](docs/bijux-proteomics/apis.md)
+- Runtime package: [`packages/agentic-proteins/README.md`](packages/agentic-proteins/README.md)
+- Domain core: [`packages/bijux-proteomics-core/README.md`](packages/bijux-proteomics-core/README.md)
+- Intelligence package: [`packages/bijux-proteomics-intelligence/README.md`](packages/bijux-proteomics-intelligence/README.md)
+- Knowledge package: [`packages/bijux-proteomics-knowledge/README.md`](packages/bijux-proteomics-knowledge/README.md)
+- Lab package: [`packages/bijux-proteomics-lab/README.md`](packages/bijux-proteomics-lab/README.md)
+- Foundation primitives: [`packages/bijux-proteomics-foundation/README.md`](packages/bijux-proteomics-foundation/README.md)
+- Maintainer tooling: [`packages/bijux-proteomics-dev/README.md`](packages/bijux-proteomics-dev/README.md)
 
-## Repository Design
+## Common Commands
+
+- `make help` to list repository automation targets
+- `make api` to validate all OpenAPI contracts in `apis/*/v1`
+- `make quality` to run type, quality, docs, and MkDocs strict checks
+- `make security` to run static security and vulnerability gates
+- `make test` to execute the configured test matrix
+
+## Repository Boundaries
 
 The root keeps repository-owned concerns explicit:
 
-- `apis/` for checked-in API contracts
-- `configs/` for shared quality and gate settings
-- `docs/` for repository handbook material
-- `makes/` for gate and orchestration automation
-- `.github/workflows/` for CI/release conventions
-- `packages/` for publishable package boundaries
+- `apis/` for checked-in OpenAPI contracts, pinned JSON, and schema digests
+- `configs/` for shared lint, typing, test, and coverage settings
+- `docs/` for the repository handbook and package handbook index
+- `makes/` for root and package gate orchestration
+- `.github/workflows/` for CI, release, and docs deployment pipelines
+- `packages/` for publishable package boundaries plus maintainer tooling
 
-This structure is the governance surface for all package-level development.
+That split is intentional: package runtime code stays local to packages, and
+repository governance stays visible and reviewable at the root.
