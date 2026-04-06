@@ -37,6 +37,7 @@ from bijux_proteomics_lab import (
     generate_feedback_records_from_outcome,
     promote_batch_outcome_to_evidence,
     triage_assay_failure,
+    triage_batch_failures,
 )
 
 
@@ -158,6 +159,34 @@ def test_triage_assay_failure_handles_reproducibility_breakdown() -> None:
     assert triage.triage_code == "reproducibility-breakdown"
     assert triage.escalation_required is True
     assert any("orthogonal assay" in action for action in triage.recommended_actions)
+
+
+def test_triage_batch_failures_tracks_escalation_assays() -> None:
+    report = triage_batch_failures(
+        ExperimentOutcome(
+            batch_id="batch-1",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="assay-tech",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_TECHNICAL,
+                    observation_summary="plate handling failure",
+                    failure_class=FailureClass.TECHNICAL,
+                ),
+                AssayOutcome(
+                    assay_id="assay-bio",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_BIOLOGICAL,
+                    observation_summary="activity endpoint missed",
+                    failure_class=FailureClass.BIOLOGICAL,
+                ),
+            ],
+            rerun_policy=RerunPolicy.NEVER,
+        )
+    )
+
+    assert report.escalation_assay_ids == ["assay-bio"]
+    assert any("technical execution issues" in note for note in report.summary_notes)
 
 
 def test_lab_feedback_record_keeps_cycle_and_lineage_refs() -> None:

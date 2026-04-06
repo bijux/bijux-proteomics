@@ -334,6 +334,20 @@ class AssayFailureTriage(JsonModel):
     )
 
 
+class BatchFailureTriageReport(JsonModel):
+    """Batch-level triage dashboard across assay outcomes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    triage: list[AssayFailureTriage] = Field(default_factory=list, description="Per-assay triage recommendations.")
+    escalation_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Assay IDs that require escalation before progression decisions.",
+    )
+    summary_notes: list[str] = Field(default_factory=list, description="Concise triage summary for review.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -776,4 +790,27 @@ def triage_assay_failure(outcome: AssayOutcome) -> AssayFailureTriage:
             "prioritize contradiction-resolution assays before next synthesis cycle",
         ],
         escalation_required=True,
+    )
+
+
+def triage_batch_failures(outcome: ExperimentOutcome) -> BatchFailureTriageReport:
+    """Generate triage recommendations across a full experiment outcome batch."""
+    triage = [triage_assay_failure(assay) for assay in outcome.assay_outcomes]
+    escalation_assay_ids = sorted(
+        [item.assay_id for item in triage if item.escalation_required]
+    )
+    summary_notes: list[str] = []
+    if escalation_assay_ids:
+        summary_notes.append(
+            f"escalation required for assays: {', '.join(escalation_assay_ids)}"
+        )
+    if any(item.triage_code == "technical-execution-risk" for item in triage):
+        summary_notes.append("technical execution issues should be resolved before biological redesign")
+    if not summary_notes:
+        summary_notes.append("no escalations detected; outcomes are operationally manageable")
+    return BatchFailureTriageReport(
+        batch_id=outcome.batch_id,
+        triage=triage,
+        escalation_assay_ids=escalation_assay_ids,
+        summary_notes=summary_notes,
     )
