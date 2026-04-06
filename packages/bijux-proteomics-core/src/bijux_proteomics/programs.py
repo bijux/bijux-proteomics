@@ -6,14 +6,19 @@
 from __future__ import annotations
 
 from bijux_proteomics.assays import AssayRequirement
+from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.context import (
     ProgramContext,
     ProgramDeliveryContext,
     ProgramPortfolioContext,
 )
-from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.lifecycle import LifecycleTransition, ProgramLifecycle, allowed_next_stages, advance_stage
+from bijux_proteomics.lifecycle import (
+    LifecycleTransition,
+    ProgramLifecycle,
+    advance_stage,
+    allowed_next_stages,
+)
 from bijux_proteomics.operating_model import (
     DecisionOwnerRole,
     OperatingModel,
@@ -29,7 +34,6 @@ from bijux_proteomics.program_spec import (
     program_summary,
     revise_program,
 )
-from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.repositories import (
     DuplicateReviewDecisionError,
     ProgramNotFoundError,
@@ -38,15 +42,16 @@ from bijux_proteomics.repositories import (
     ReviewGateState,
     ReviewOutcome,
     decision_timeline,
-    list_decisions_by_outcome,
-    list_gate_decisions,
     ensure_unique_gate_decision,
     evaluate_review_gate,
     evaluate_review_gates,
     latest_gate_decision,
+    list_decisions_by_outcome,
+    list_gate_decisions,
     require_program,
     validate_review_decision,
 )
+from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.targets import (
     OutcomeSeverity,
     ProteinTarget,

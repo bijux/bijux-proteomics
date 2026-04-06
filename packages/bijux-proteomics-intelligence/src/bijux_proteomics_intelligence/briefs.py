@@ -11,11 +11,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
 from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
-from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 from bijux_proteomics_intelligence.outcomes import (
     CandidateRejection,
-    RejectionSummary,
     RejectionReasonCode,
+    RejectionSummary,
     TieBreakExplanation,
     build_rejection_action_plan,
     summarize_rejections,
@@ -28,6 +27,7 @@ from bijux_proteomics_intelligence.policies import (
     classify_metric_name,
 )
 from bijux_proteomics_intelligence.serialization import JsonModel
+from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 
 
 class OptimizationAxis(StrEnum):
@@ -48,7 +48,9 @@ class LiabilityFlag(JsonModel):
 
     code: str = Field(..., min_length=1, description="Stable liability code.")
     summary: str = Field(..., min_length=1, description="Human-readable risk summary.")
-    severity: int = Field(..., ge=1, le=5, description="Risk severity from low to high.")
+    severity: int = Field(
+        ..., ge=1, le=5, description="Risk severity from low to high."
+    )
     source: str = Field(..., min_length=1, description="Where the liability came from.")
 
 
@@ -60,7 +62,9 @@ class DesignBrief(JsonModel):
     program_id: ProgramId = Field(..., description="Program identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
     objective: str = Field(..., min_length=1, description="Program objective.")
-    mechanism: str = Field(..., min_length=1, description="Target mechanism hypothesis.")
+    mechanism: str = Field(
+        ..., min_length=1, description="Target mechanism hypothesis."
+    )
     optimization_axes: list[OptimizationAxis] = Field(
         default_factory=list,
         description="Ordered optimization dimensions for candidate ranking.",
@@ -211,7 +215,9 @@ class CandidateScoreBreakdown(JsonModel):
         default_factory=dict,
         description="Per-factor weighted score contributions.",
     )
-    base_score: float = Field(..., ge=0.0, description="Weighted score before uncertainty penalty.")
+    base_score: float = Field(
+        ..., ge=0.0, description="Weighted score before uncertainty penalty."
+    )
     uncertainty_penalty: float = Field(
         ...,
         ge=0.0,
@@ -240,8 +246,12 @@ class UncertaintyPressureSummary(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_count: int = Field(..., ge=0, description="Number of ranked candidates considered.")
-    mean_confidence: float = Field(..., ge=0.0, le=1.0, description="Mean confidence across ranked candidates.")
+    candidate_count: int = Field(
+        ..., ge=0, description="Number of ranked candidates considered."
+    )
+    mean_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Mean confidence across ranked candidates."
+    )
     low_confidence_candidate_ids: list[str] = Field(
         default_factory=list,
         description="Candidates below the confidence floor.",
@@ -257,7 +267,9 @@ class NoveltyDiversitySummary(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_count: int = Field(..., ge=0, description="Number of ranked candidates considered.")
+    candidate_count: int = Field(
+        ..., ge=0, description="Number of ranked candidates considered."
+    )
     unique_sequence_signatures: int = Field(
         ...,
         ge=0,
@@ -268,7 +280,9 @@ class NoveltyDiversitySummary(JsonModel):
         ge=0,
         description="Number of unique liability blocker codes across ranked candidates.",
     )
-    diversity_score: float = Field(..., ge=0.0, le=1.0, description="Normalized diversity score.")
+    diversity_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Normalized diversity score."
+    )
 
 
 class RankingRobustnessReport(JsonModel):
@@ -276,7 +290,9 @@ class RankingRobustnessReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    robustness_score: float = Field(..., ge=0.0, le=1.0, description="Overall robustness score.")
+    robustness_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Overall robustness score."
+    )
     uncertainty_summary: UncertaintyPressureSummary = Field(
         ...,
         description="Uncertainty pressure summary used in robustness scoring.",
@@ -285,7 +301,9 @@ class RankingRobustnessReport(JsonModel):
         ...,
         description="Diversity summary used in robustness scoring.",
     )
-    notes: list[str] = Field(default_factory=list, description="Short notes explaining robustness posture.")
+    notes: list[str] = Field(
+        default_factory=list, description="Short notes explaining robustness posture."
+    )
 
 
 class MetricCoverageSummary(JsonModel):
@@ -294,10 +312,18 @@ class MetricCoverageSummary(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: CandidateId = Field(..., description="Candidate identifier.")
-    required_metrics: list[str] = Field(default_factory=list, description="Metrics required by program criteria.")
-    provided_metrics: list[str] = Field(default_factory=list, description="Metrics present on candidate assessment.")
-    missing_metrics: list[str] = Field(default_factory=list, description="Required metrics missing on candidate.")
-    coverage_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of required metrics provided.")
+    required_metrics: list[str] = Field(
+        default_factory=list, description="Metrics required by program criteria."
+    )
+    provided_metrics: list[str] = Field(
+        default_factory=list, description="Metrics present on candidate assessment."
+    )
+    missing_metrics: list[str] = Field(
+        default_factory=list, description="Required metrics missing on candidate."
+    )
+    coverage_fraction: float = Field(
+        ..., ge=0.0, le=1.0, description="Fraction of required metrics provided."
+    )
 
 
 class CriterionSatisfactionItem(JsonModel):
@@ -307,7 +333,9 @@ class CriterionSatisfactionItem(JsonModel):
 
     criterion_id: str = Field(..., min_length=1, description="Criterion identifier.")
     metric: str = Field(..., min_length=1, description="Metric key.")
-    observed_value: float | None = Field(default=None, description="Observed candidate value.")
+    observed_value: float | None = Field(
+        default=None, description="Observed candidate value."
+    )
     satisfied: bool = Field(..., description="Whether criterion is satisfied.")
 
 
@@ -321,7 +349,9 @@ class CriterionSatisfactionVector(JsonModel):
         default_factory=list,
         description="Per-criterion satisfaction items.",
     )
-    satisfied_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of criteria satisfied.")
+    satisfied_fraction: float = Field(
+        ..., ge=0.0, le=1.0, description="Fraction of criteria satisfied."
+    )
 
 
 class RankingDriftItem(JsonModel):
@@ -330,9 +360,15 @@ class RankingDriftItem(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: CandidateId = Field(..., description="Candidate identifier.")
-    previous_rank: int | None = Field(default=None, ge=1, description="Previous rank if present.")
-    current_rank: int | None = Field(default=None, ge=1, description="Current rank if present.")
-    rank_shift: int = Field(..., description="Positive when candidate moved up in ranking.")
+    previous_rank: int | None = Field(
+        default=None, ge=1, description="Previous rank if present."
+    )
+    current_rank: int | None = Field(
+        default=None, ge=1, description="Current rank if present."
+    )
+    rank_shift: int = Field(
+        ..., description="Positive when candidate moved up in ranking."
+    )
 
 
 class RankingDriftReport(JsonModel):
@@ -340,9 +376,15 @@ class RankingDriftReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    moved_candidates: list[RankingDriftItem] = Field(default_factory=list, description="Candidates with rank movement.")
-    newly_ranked_candidate_ids: list[str] = Field(default_factory=list, description="Candidates newly entering ranking.")
-    dropped_candidate_ids: list[str] = Field(default_factory=list, description="Candidates dropped from ranking.")
+    moved_candidates: list[RankingDriftItem] = Field(
+        default_factory=list, description="Candidates with rank movement."
+    )
+    newly_ranked_candidate_ids: list[str] = Field(
+        default_factory=list, description="Candidates newly entering ranking."
+    )
+    dropped_candidate_ids: list[str] = Field(
+        default_factory=list, description="Candidates dropped from ranking."
+    )
 
 
 class RankingDiagnostics(JsonModel):
@@ -350,8 +392,12 @@ class RankingDiagnostics(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    robustness: RankingRobustnessReport = Field(..., description="Ranking robustness summary.")
-    rejection_summary: RejectionSummary = Field(..., description="Rejection analytics summary.")
+    robustness: RankingRobustnessReport = Field(
+        ..., description="Ranking robustness summary."
+    )
+    rejection_summary: RejectionSummary = Field(
+        ..., description="Rejection analytics summary."
+    )
 
 
 def _metric_weight_name(metric: str) -> OptimizationAxis:
@@ -412,7 +458,9 @@ def build_design_brief(
         blocking_assays=[
             assay.assay_id for assay in program.assay_panel if assay.blocking
         ],
-        review_gate_ids=[gate.gate_id for gate in program.review_gates if gate.blocking],
+        review_gate_ids=[
+            gate.gate_id for gate in program.review_gates if gate.blocking
+        ],
         evidence_gaps=gaps,
         liabilities=liabilities,
         ranking_priorities=[axis.value for axis in axes],
@@ -422,16 +470,10 @@ def build_design_brief(
             else ["define assays that can validate candidate progression assumptions"]
         ),
         risk_appetite=(
-            "cautious"
-            if program.stage.value in {"review", "lab_ready"}
-            else "balanced"
+            "cautious" if program.stage.value in {"review", "lab_ready"} else "balanced"
         ),
         prohibited_failure_modes=sorted(
-            {
-                liability.summary
-                for liability in liabilities
-                if liability.severity >= 4
-            }
+            {liability.summary for liability in liabilities if liability.severity >= 4}
         ),
     )
 
@@ -464,7 +506,10 @@ def _screen_candidate(
     mean_fraction = criterion_score / threshold_count
     required_metrics = {criterion.metric for criterion in program.success_criteria}
     metric_coverage = (
-        len([metric for metric in required_metrics if metric in candidate.metric_scores]) / len(required_metrics)
+        len(
+            [metric for metric in required_metrics if metric in candidate.metric_scores]
+        )
+        / len(required_metrics)
         if required_metrics
         else 1.0
     )
@@ -500,10 +545,12 @@ def prioritize_candidates(
     rejected: list[str] = []
     rejections: list[CandidateRejection] = []
     for candidate in candidates:
-        passed, rejection_reasons, rejection_reason_codes, criterion_score = _screen_candidate(
-            candidate,
-            program,
-            policy,
+        passed, rejection_reasons, rejection_reason_codes, criterion_score = (
+            _screen_candidate(
+                candidate,
+                program,
+                policy,
+            )
         )
         if not passed:
             rejected.append(candidate.candidate_id)
@@ -527,12 +574,19 @@ def prioritize_candidates(
                 min(criterion_score / (threshold_count * 1.5), 1.0), 4
             ),
             RankingFactor.EVIDENCE.value: round(candidate.evidence_support, 4),
-            RankingFactor.MANUFACTURABILITY.value: round(candidate.manufacturability_score, 4),
+            RankingFactor.MANUFACTURABILITY.value: round(
+                candidate.manufacturability_score, 4
+            ),
             RankingFactor.LIABILITY.value: round(
-                max(0.0, 1.0 - (sum(flag.severity for flag in candidate.liabilities) / 10.0)),
+                max(
+                    0.0,
+                    1.0 - (sum(flag.severity for flag in candidate.liabilities) / 10.0),
+                ),
                 4,
             ),
-            RankingFactor.UNCERTAINTY.value: round(max(0.0, 1.0 - candidate.uncertainty), 4),
+            RankingFactor.UNCERTAINTY.value: round(
+                max(0.0, 1.0 - candidate.uncertainty), 4
+            ),
         }
         score = sum(
             factor_scores[factor.value] * weight
@@ -548,7 +602,10 @@ def prioritize_candidates(
             reasons.append(
                 "liabilities="
                 + ",".join(
-                    flag.code for flag in sorted(candidate.liabilities, key=lambda item: item.code)
+                    flag.code
+                    for flag in sorted(
+                        candidate.liabilities, key=lambda item: item.code
+                    )
                 )
             )
         scored.append((candidate, score, reasons, factor_scores))
@@ -557,15 +614,23 @@ def prioritize_candidates(
         scored,
         key=lambda item: (
             item[1],
-            item[0].evidence_support if TieBreakRule.EVIDENCE_SUPPORT in policy.tie_break_rules else 0.0,
-            item[0].manufacturability_score if TieBreakRule.MANUFACTURABILITY in policy.tie_break_rules else 0.0,
-            -item[0].uncertainty if TieBreakRule.LOWER_UNCERTAINTY in policy.tie_break_rules else 0.0,
-            -len(item[0].liabilities) if TieBreakRule.FEWER_LIABILITIES in policy.tie_break_rules else 0.0,
+            item[0].evidence_support
+            if TieBreakRule.EVIDENCE_SUPPORT in policy.tie_break_rules
+            else 0.0,
+            item[0].manufacturability_score
+            if TieBreakRule.MANUFACTURABILITY in policy.tie_break_rules
+            else 0.0,
+            -item[0].uncertainty
+            if TieBreakRule.LOWER_UNCERTAINTY in policy.tie_break_rules
+            else 0.0,
+            -len(item[0].liabilities)
+            if TieBreakRule.FEWER_LIABILITIES in policy.tie_break_rules
+            else 0.0,
         ),
         reverse=True,
     )
     tie_breaks: list[TieBreakExplanation] = []
-    for left, right in zip(ranked, ranked[1:]):
+    for left, right in zip(ranked, ranked[1:], strict=False):
         if round(left[1], 4) == round(right[1], 4):
             tie_breaks.append(
                 TieBreakExplanation(
@@ -585,15 +650,15 @@ def prioritize_candidates(
                 reasons=reasons,
                 explainability={
                     "top_drivers": reasons[:3],
-                    "blockers": [
-                        flag.summary for flag in candidate.liabilities[:3]
-                    ],
+                    "blockers": [flag.summary for flag in candidate.liabilities[:3]],
                     "confidence": round(1.0 - candidate.uncertainty, 4),
                     "factor_scores": factor_scores,
                     "missing_evidence": [],
                 },
             )
-            for index, (candidate, score, reasons, factor_scores) in enumerate(ranked, start=1)
+            for index, (candidate, score, reasons, factor_scores) in enumerate(
+                ranked, start=1
+            )
         ],
         rejected_candidates=rejected,
         rejections=rejections,
@@ -608,11 +673,27 @@ def summarize_candidate_explainability(
     """Build review-ready summaries for ranked candidates."""
     summaries: list[CandidateExplainabilitySummary] = []
     for candidate in ranking.ranked_candidates:
-        blockers = list(candidate.explainability.get("blockers", []))
-        strengths = list(candidate.explainability.get("top_drivers", []))
+        raw_blockers = candidate.explainability.get("blockers", [])
+        blockers = (
+            [str(item) for item in raw_blockers]
+            if isinstance(raw_blockers, list)
+            else []
+        )
+        raw_strengths = candidate.explainability.get("top_drivers", [])
+        strengths = (
+            [str(item) for item in raw_strengths]
+            if isinstance(raw_strengths, list)
+            else []
+        )
         missing_evidence = brief.evidence_gaps
-        if candidate.explainability.get("confidence", 0.0) >= 0.75:
-            strengths.append("assessment confidence remains high enough for active consideration")
+        confidence_raw = candidate.explainability.get("confidence", 0.0)
+        confidence = (
+            float(confidence_raw) if isinstance(confidence_raw, (int, float)) else 0.0
+        )
+        if confidence >= 0.75:
+            strengths.append(
+                "assessment confidence remains high enough for active consideration"
+            )
         summaries.append(
             CandidateExplainabilitySummary(
                 candidate_id=candidate.candidate_id,
@@ -629,10 +710,13 @@ def candidate_score_breakdown(
     policy: RankingPolicy,
 ) -> CandidateScoreBreakdown:
     """Return a normalized and weighted score decomposition."""
-    factor_scores = {
-        str(key): float(value)
-        for key, value in dict(ranked_candidate.explainability.get("factor_scores", {})).items()
-    }
+    raw_factor_scores = ranked_candidate.explainability.get("factor_scores", {})
+    parsed_factor_scores: dict[str, float] = {}
+    if isinstance(raw_factor_scores, dict):
+        for key, value in raw_factor_scores.items():
+            if isinstance(value, (int, float)):
+                parsed_factor_scores[str(key)] = float(value)
+    factor_scores = parsed_factor_scores
     weighted = {
         factor.value: round(
             factor_scores.get(factor.value, 0.0) * weight,
@@ -642,7 +726,9 @@ def candidate_score_breakdown(
     }
     base_score = round(sum(weighted.values()), 4)
     uncertainty_factor = factor_scores.get(RankingFactor.UNCERTAINTY.value, 1.0)
-    uncertainty_penalty = round((1.0 - uncertainty_factor) * policy.uncertainty_penalty_weight, 4)
+    uncertainty_penalty = round(
+        (1.0 - uncertainty_factor) * policy.uncertainty_penalty_weight, 4
+    )
     final_score = max(0.0, round(base_score - uncertainty_penalty, 4))
     return CandidateScoreBreakdown(
         candidate_id=ranked_candidate.candidate_id,
@@ -660,7 +746,12 @@ def summarize_liability_focus(
     """Summarize dominant liability codes across ranked candidates."""
     counts: dict[str, int] = {}
     for candidate in ranking.ranked_candidates:
-        blockers = list(candidate.explainability.get("blockers", []))
+        raw_blockers = candidate.explainability.get("blockers", [])
+        blockers = (
+            [str(item) for item in raw_blockers]
+            if isinstance(raw_blockers, list)
+            else []
+        )
         for blocker in blockers:
             counts[blocker] = counts.get(blocker, 0) + 1
     top = sorted(counts, key=lambda code: counts[code], reverse=True)
@@ -685,8 +776,10 @@ def summarize_uncertainty_pressure(
         )
     confidence_by_candidate: dict[str, float] = {}
     for candidate in ranking.ranked_candidates:
-        confidence = candidate.explainability.get("confidence", 0.0)
-        confidence_by_candidate[candidate.candidate_id] = float(confidence)
+        confidence_raw = candidate.explainability.get("confidence", 0.0)
+        confidence_by_candidate[candidate.candidate_id] = (
+            float(confidence_raw) if isinstance(confidence_raw, (int, float)) else 0.0
+        )
     low_confidence = sorted(
         candidate_id
         for candidate_id, confidence in confidence_by_candidate.items()
@@ -700,7 +793,8 @@ def summarize_uncertainty_pressure(
         candidate_count=len(ranking.ranked_candidates),
         mean_confidence=mean_confidence,
         low_confidence_candidate_ids=low_confidence,
-        uncertainty_pressure_high=len(low_confidence) >= max(1, len(ranking.ranked_candidates) // 2),
+        uncertainty_pressure_high=len(low_confidence)
+        >= max(1, len(ranking.ranked_candidates) // 2),
     )
 
 
@@ -756,7 +850,9 @@ def build_ranking_robustness_report(
     if uncertainty.uncertainty_pressure_high:
         notes.append("confidence pressure is high across ranked candidates")
     if diversity.diversity_score < 0.5:
-        notes.append("candidate diversity is limited and may reduce portfolio resilience")
+        notes.append(
+            "candidate diversity is limited and may reduce portfolio resilience"
+        )
     if not notes:
         notes.append("ranking appears robust for current decision stage")
     return RankingRobustnessReport(
@@ -772,9 +868,13 @@ def summarize_metric_coverage(
     program: ProgramSpec,
 ) -> MetricCoverageSummary:
     """Summarize metric completeness for one candidate against program criteria."""
-    required_metrics = sorted({criterion.metric for criterion in program.success_criteria})
+    required_metrics = sorted(
+        {criterion.metric for criterion in program.success_criteria}
+    )
     provided_metrics = sorted(candidate.metric_scores.keys())
-    missing_metrics = sorted(metric for metric in required_metrics if metric not in candidate.metric_scores)
+    missing_metrics = sorted(
+        metric for metric in required_metrics if metric not in candidate.metric_scores
+    )
     coverage_fraction = (
         round((len(required_metrics) - len(missing_metrics)) / len(required_metrics), 4)
         if required_metrics
@@ -805,7 +905,11 @@ def criterion_satisfaction_vector(
         elif criterion.direction is MeasurementDirection.MINIMIZE:
             satisfied = observed <= criterion.threshold
         else:
-            upper = criterion.upper_threshold if criterion.upper_threshold is not None else criterion.threshold
+            upper = (
+                criterion.upper_threshold
+                if criterion.upper_threshold is not None
+                else criterion.threshold
+            )
             lower = min(criterion.threshold, upper)
             higher = max(criterion.threshold, upper)
             satisfied = lower <= observed <= higher
@@ -832,7 +936,9 @@ def summarize_ranking_drift(
     current: CandidateRanking,
 ) -> RankingDriftReport:
     """Summarize rank movement between previous and current ranking snapshots."""
-    previous_rank = {item.candidate_id: item.rank for item in previous.ranked_candidates}
+    previous_rank = {
+        item.candidate_id: item.rank for item in previous.ranked_candidates
+    }
     current_rank = {item.candidate_id: item.rank for item in current.ranked_candidates}
     shared_ids = sorted(set(previous_rank).intersection(current_rank))
     moved: list[RankingDriftItem] = []

@@ -10,8 +10,8 @@ from typing import Protocol
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_knowledge.evidence import (
-    EvidenceExtractionMethod,
     EvidenceBundle,
+    EvidenceExtractionMethod,
     EvidenceKind,
     EvidenceOrigin,
     EvidenceRecord,
@@ -19,8 +19,7 @@ from bijux_proteomics_knowledge.evidence import (
     EvidenceStrength,
     QuantitativeSupport,
 )
-from bijux_proteomics_knowledge.serialization import JsonModel
-from bijux_proteomics_knowledge.serialization import fingerprint_model
+from bijux_proteomics_knowledge.serialization import JsonModel, fingerprint_model
 
 
 class NormalizedEvidenceInput(JsonModel):
@@ -28,7 +27,9 @@ class NormalizedEvidenceInput(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    evidence_id: str = Field(..., min_length=1, description="Stable evidence identifier.")
+    evidence_id: str = Field(
+        ..., min_length=1, description="Stable evidence identifier."
+    )
     kind: EvidenceKind = Field(..., description="Evidence family.")
     title: str = Field(..., min_length=1, description="Evidence title.")
     source: str = Field(..., min_length=1, description="Source location or system.")
@@ -64,20 +65,40 @@ class NormalizedEvidenceInput(JsonModel):
         default_factory=list,
         description="Upstream evidence identifiers or note references.",
     )
-    assay_modality: str | None = Field(default=None, description="Assay modality context.")
-    biological_system: str | None = Field(default=None, description="Biological system context.")
+    assay_modality: str | None = Field(
+        default=None, description="Assay modality context."
+    )
+    biological_system: str | None = Field(
+        default=None, description="Biological system context."
+    )
     species: str | None = Field(default=None, description="Species context.")
     sample_type: str | None = Field(default=None, description="Sample or matrix type.")
     endpoint: str | None = Field(default=None, description="Primary measured endpoint.")
-    dose: str | None = Field(default=None, description="Dose level or concentration context.")
-    timepoint: str | None = Field(default=None, description="Measurement timepoint context.")
-    perturbation: str | None = Field(default=None, description="Perturbation applied in the experiment.")
+    dose: str | None = Field(
+        default=None, description="Dose level or concentration context."
+    )
+    timepoint: str | None = Field(
+        default=None, description="Measurement timepoint context."
+    )
+    perturbation: str | None = Field(
+        default=None, description="Perturbation applied in the experiment."
+    )
     control_design: str | None = Field(default=None, description="Control arm design.")
-    replicate_design: str | None = Field(default=None, description="Replicate strategy used for the experiment.")
-    normalization_method: str | None = Field(default=None, description="Normalization method for quantitative values.")
-    sample_preparation: str | None = Field(default=None, description="Sample preparation protocol.")
-    tissue_context: str | None = Field(default=None, description="Tissue context when relevant.")
-    cell_line_context: str | None = Field(default=None, description="Cell line context when relevant.")
+    replicate_design: str | None = Field(
+        default=None, description="Replicate strategy used for the experiment."
+    )
+    normalization_method: str | None = Field(
+        default=None, description="Normalization method for quantitative values."
+    )
+    sample_preparation: str | None = Field(
+        default=None, description="Sample preparation protocol."
+    )
+    tissue_context: str | None = Field(
+        default=None, description="Tissue context when relevant."
+    )
+    cell_line_context: str | None = Field(
+        default=None, description="Cell line context when relevant."
+    )
     quantitative_support: QuantitativeSupport | None = Field(
         default=None,
         description="Optional quantitative support for the claim.",
@@ -94,7 +115,9 @@ class ManualEvidenceNote(JsonModel):
     title: str = Field(..., min_length=1, description="Short note title.")
     claim: str = Field(..., min_length=1, description="Claim captured by the curator.")
     curator: str = Field(..., min_length=1, description="Person who captured the note.")
-    kind: EvidenceKind = Field(..., description="Evidence family represented by the note.")
+    kind: EvidenceKind = Field(
+        ..., description="Evidence family represented by the note."
+    )
     decision_tags: list[str] = Field(
         default_factory=list,
         description="Decision dimensions informed by the note.",
@@ -113,10 +136,18 @@ class ManualEvidenceNote(JsonModel):
         default=None,
         description="Species context referenced by the note.",
     )
-    sample_type: str | None = Field(default=None, description="Sample context referenced by the note.")
-    endpoint: str | None = Field(default=None, description="Primary endpoint referenced by the note.")
-    dose: str | None = Field(default=None, description="Dose context referenced by the note.")
-    timepoint: str | None = Field(default=None, description="Timepoint context referenced by the note.")
+    sample_type: str | None = Field(
+        default=None, description="Sample context referenced by the note."
+    )
+    endpoint: str | None = Field(
+        default=None, description="Primary endpoint referenced by the note."
+    )
+    dose: str | None = Field(
+        default=None, description="Dose context referenced by the note."
+    )
+    timepoint: str | None = Field(
+        default=None, description="Timepoint context referenced by the note."
+    )
 
 
 class LiteratureIngestionAdapter(Protocol):
@@ -155,14 +186,20 @@ class IngestionReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    bundle_id: str = Field(..., min_length=1, description="Target evidence bundle identifier.")
+    bundle_id: str = Field(
+        ..., min_length=1, description="Target evidence bundle identifier."
+    )
     added_records: int = Field(default=0, ge=0, description="Number of records added.")
-    skipped_records: int = Field(default=0, ge=0, description="Number of records skipped.")
+    skipped_records: int = Field(
+        default=0, ge=0, description="Number of records skipped."
+    )
     duplicate_ids: list[str] = Field(
         default_factory=list,
         description="Evidence identifiers skipped because they already existed.",
     )
-    rejected_records: int = Field(default=0, ge=0, description="Number of records rejected by validation.")
+    rejected_records: int = Field(
+        default=0, ge=0, description="Number of records rejected by validation."
+    )
     rejection_reasons: list[str] = Field(
         default_factory=list,
         description="Reasons for rejected normalized inputs.",
@@ -180,12 +217,24 @@ def validate_normalized_input(
 ) -> list[str]:
     """Return validation issues for a normalized evidence input."""
     issues: list[str] = []
-    if item.kind in {EvidenceKind.ASSAY, EvidenceKind.CELLULAR, EvidenceKind.PHENOTYPE} and not item.endpoint:
-        issues.append(f"{item.evidence_id}: endpoint is required for assay-like evidence")
-    if item.quantitative_support is not None and item.quantitative_support.replicate_count is None:
-        issues.append(f"{item.evidence_id}: quantitative support should include replicate_count")
+    if (
+        item.kind in {EvidenceKind.ASSAY, EvidenceKind.CELLULAR, EvidenceKind.PHENOTYPE}
+        and not item.endpoint
+    ):
+        issues.append(
+            f"{item.evidence_id}: endpoint is required for assay-like evidence"
+        )
+    if (
+        item.quantitative_support is not None
+        and item.quantitative_support.replicate_count is None
+    ):
+        issues.append(
+            f"{item.evidence_id}: quantitative support should include replicate_count"
+        )
     if item.related_targets and target_id not in item.related_targets:
-        issues.append(f"{item.evidence_id}: related_targets does not include bundle target '{target_id}'")
+        issues.append(
+            f"{item.evidence_id}: related_targets does not include bundle target '{target_id}'"
+        )
     return issues
 
 
@@ -194,9 +243,9 @@ def attach_evidence_inputs(
     inputs: list[NormalizedEvidenceInput],
 ) -> EvidenceBundle:
     """Attach normalized adapter outputs to an existing bundle."""
-    records = list(bundle.records)
-    for item in inputs:
-        records.append(
+    records = [
+        *bundle.records,
+        *[
             EvidenceRecord(
                 evidence_id=item.evidence_id,
                 kind=item.kind,
@@ -229,7 +278,9 @@ def attach_evidence_inputs(
                 confidence=item.confidence,
                 strength=item.strength,
             )
-        )
+            for item in inputs
+        ],
+    ]
     return bundle.model_copy(update={"records": records})
 
 

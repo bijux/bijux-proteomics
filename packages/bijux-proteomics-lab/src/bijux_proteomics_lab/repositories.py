@@ -52,9 +52,13 @@ class LabFeedbackRecord(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    feedback_id: str = Field(..., min_length=1, description="Stable feedback identifier.")
+    feedback_id: str = Field(
+        ..., min_length=1, description="Stable feedback identifier."
+    )
     program_id: ProgramId = Field(..., description="Program identifier.")
-    cycle_id: str = Field(..., min_length=1, description="Planning or execution cycle identifier.")
+    cycle_id: str = Field(
+        ..., min_length=1, description="Planning or execution cycle identifier."
+    )
     summary: str = Field(..., min_length=1, description="Feedback summary.")
     related_assay_ids: list[str] = Field(
         default_factory=list,
@@ -77,10 +81,18 @@ class LabFeedbackQuery(JsonModel):
 
     program_id: ProgramId = Field(..., description="Program identifier.")
     cycle_id: str | None = Field(default=None, description="Optional cycle filter.")
-    related_assay_id: str | None = Field(default=None, description="Optional assay filter.")
-    related_evidence_id: str | None = Field(default=None, description="Optional evidence filter.")
-    created_after: datetime | None = Field(default=None, description="Optional lower bound for created_at.")
-    descending: bool = Field(default=False, description="Whether to sort results in descending time order.")
+    related_assay_id: str | None = Field(
+        default=None, description="Optional assay filter."
+    )
+    related_evidence_id: str | None = Field(
+        default=None, description="Optional evidence filter."
+    )
+    created_after: datetime | None = Field(
+        default=None, description="Optional lower bound for created_at."
+    )
+    descending: bool = Field(
+        default=False, description="Whether to sort results in descending time order."
+    )
 
 
 class LabFeedbackTrendReport(JsonModel):
@@ -89,9 +101,15 @@ class LabFeedbackTrendReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    cycle_ids: list[str] = Field(default_factory=list, description="Observed cycle IDs in chronological order.")
-    feedback_count: int = Field(default=0, ge=0, description="Total feedback records included.")
-    assay_coverage: dict[str, int] = Field(default_factory=dict, description="Frequency by related assay ID.")
+    cycle_ids: list[str] = Field(
+        default_factory=list, description="Observed cycle IDs in chronological order."
+    )
+    feedback_count: int = Field(
+        default=0, ge=0, description="Total feedback records included."
+    )
+    assay_coverage: dict[str, int] = Field(
+        default_factory=dict, description="Frequency by related assay ID."
+    )
 
 
 class ReviewQueueQuery(JsonModel):
@@ -99,8 +117,12 @@ class ReviewQueueQuery(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    program_id: ProgramId | None = Field(default=None, description="Optional program identifier filter.")
-    gate_id: GateId | None = Field(default=None, description="Optional review gate filter.")
+    program_id: ProgramId | None = Field(
+        default=None, description="Optional program identifier filter."
+    )
+    gate_id: GateId | None = Field(
+        default=None, description="Optional review gate filter."
+    )
 
 
 class ReviewQueueTrendReport(JsonModel):
@@ -108,8 +130,12 @@ class ReviewQueueTrendReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    total_entries: int = Field(default=0, ge=0, description="Total queue entries evaluated.")
-    by_gate: dict[str, int] = Field(default_factory=dict, description="Queue counts by gate identifier.")
+    total_entries: int = Field(
+        default=0, ge=0, description="Total queue entries evaluated."
+    )
+    by_gate: dict[str, int] = Field(
+        default_factory=dict, description="Queue counts by gate identifier."
+    )
 
 
 class ReviewQueueWorkloadReport(JsonModel):
@@ -117,10 +143,18 @@ class ReviewQueueWorkloadReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    total_entries: int = Field(default=0, ge=0, description="Total queue entries evaluated.")
-    by_program: dict[str, int] = Field(default_factory=dict, description="Queue counts by program identifier.")
-    stale_entry_count: int = Field(default=0, ge=0, description="Count of entries older than the stale threshold.")
-    pressure_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Normalized queue pressure score.")
+    total_entries: int = Field(
+        default=0, ge=0, description="Total queue entries evaluated."
+    )
+    by_program: dict[str, int] = Field(
+        default_factory=dict, description="Queue counts by program identifier."
+    )
+    stale_entry_count: int = Field(
+        default=0, ge=0, description="Count of entries older than the stale threshold."
+    )
+    pressure_score: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Normalized queue pressure score."
+    )
 
 
 class FeedbackCycleLatencyReport(JsonModel):
@@ -133,7 +167,9 @@ class FeedbackCycleLatencyReport(JsonModel):
         default_factory=dict,
         description="Days from earliest program feedback to first feedback in each cycle.",
     )
-    median_latency_days: float = Field(default=0.0, ge=0.0, description="Median first-feedback latency across cycles.")
+    median_latency_days: float = Field(
+        default=0.0, ge=0.0, description="Median first-feedback latency across cycles."
+    )
 
 
 class FeedbackAnomalyReport(JsonModel):
@@ -142,9 +178,16 @@ class FeedbackAnomalyReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    high_volume_cycles: list[str] = Field(default_factory=list, description="Cycle IDs with unusually high feedback count.")
-    dominant_assay_ids: list[str] = Field(default_factory=list, description="Assays that dominate feedback payloads.")
-    notes: list[str] = Field(default_factory=list, description="Anomaly interpretation notes.")
+    high_volume_cycles: list[str] = Field(
+        default_factory=list,
+        description="Cycle IDs with unusually high feedback count.",
+    )
+    dominant_assay_ids: list[str] = Field(
+        default_factory=list, description="Assays that dominate feedback payloads."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Anomaly interpretation notes."
+    )
 
 
 class CycleWorkloadForecast(JsonModel):
@@ -153,10 +196,18 @@ class CycleWorkloadForecast(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    forecast_feedback_count: int = Field(default=0, ge=0, description="Forecasted number of feedback records.")
-    forecast_review_entries: int = Field(default=0, ge=0, description="Forecasted review queue entries.")
-    pressure_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Forecasted workload pressure score.")
-    notes: list[str] = Field(default_factory=list, description="Forecast interpretation notes.")
+    forecast_feedback_count: int = Field(
+        default=0, ge=0, description="Forecasted number of feedback records."
+    )
+    forecast_review_entries: int = Field(
+        default=0, ge=0, description="Forecasted review queue entries."
+    )
+    pressure_score: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Forecasted workload pressure score."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Forecast interpretation notes."
+    )
 
 
 class FeedbackLineageCoverageReport(JsonModel):
@@ -165,10 +216,20 @@ class FeedbackLineageCoverageReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    records_with_assay_lineage: int = Field(default=0, ge=0, description="Records containing assay lineage.")
-    records_with_evidence_lineage: int = Field(default=0, ge=0, description="Records containing evidence lineage.")
-    full_lineage_count: int = Field(default=0, ge=0, description="Records containing both assay and evidence lineage.")
-    lineage_coverage_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Normalized lineage coverage score.")
+    records_with_assay_lineage: int = Field(
+        default=0, ge=0, description="Records containing assay lineage."
+    )
+    records_with_evidence_lineage: int = Field(
+        default=0, ge=0, description="Records containing evidence lineage."
+    )
+    full_lineage_count: int = Field(
+        default=0,
+        ge=0,
+        description="Records containing both assay and evidence lineage.",
+    )
+    lineage_coverage_score: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Normalized lineage coverage score."
+    )
 
 
 class ReviewQueueSlaReport(JsonModel):
@@ -176,10 +237,18 @@ class ReviewQueueSlaReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    total_entries: int = Field(default=0, ge=0, description="Total queue entries evaluated.")
-    breached_entries: int = Field(default=0, ge=0, description="Entries breaching SLA threshold.")
-    breaches_by_gate: dict[str, int] = Field(default_factory=dict, description="Breach counts by gate ID.")
-    breach_ratio: float = Field(default=0.0, ge=0.0, le=1.0, description="Share of entries breaching SLA.")
+    total_entries: int = Field(
+        default=0, ge=0, description="Total queue entries evaluated."
+    )
+    breached_entries: int = Field(
+        default=0, ge=0, description="Entries breaching SLA threshold."
+    )
+    breaches_by_gate: dict[str, int] = Field(
+        default_factory=dict, description="Breach counts by gate ID."
+    )
+    breach_ratio: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Share of entries breaching SLA."
+    )
 
 
 class LabFeedbackRepository(Protocol):
@@ -213,8 +282,12 @@ def query_feedback_records(
             if query.related_evidence_id in record.related_evidence_ids
         ]
     if query.created_after is not None:
-        filtered = [record for record in filtered if record.created_at >= query.created_after]
-    return sorted(filtered, key=lambda record: record.created_at, reverse=query.descending)
+        filtered = [
+            record for record in filtered if record.created_at >= query.created_after
+        ]
+    return sorted(
+        filtered, key=lambda record: record.created_at, reverse=query.descending
+    )
 
 
 def summarize_feedback_trend(
@@ -281,7 +354,9 @@ def summarize_review_queue_workload(
     total = len(entries)
     stale_ratio = (stale_count / total) if total else 0.0
     concentration = (max(by_program.values()) / total) if total and by_program else 0.0
-    pressure_score = round(max(0.0, min((0.6 * stale_ratio) + (0.4 * concentration), 1.0)), 4)
+    pressure_score = round(
+        max(0.0, min((0.6 * stale_ratio) + (0.4 * concentration), 1.0)), 4
+    )
     return ReviewQueueWorkloadReport(
         total_entries=total,
         by_program=by_program,
@@ -313,7 +388,9 @@ def summarize_feedback_cycle_latency(
     sorted_latency_values = sorted(latencies.values())
     midpoint = len(sorted_latency_values) // 2
     if len(sorted_latency_values) % 2 == 0:
-        median_latency = (sorted_latency_values[midpoint - 1] + sorted_latency_values[midpoint]) / 2
+        median_latency = (
+            sorted_latency_values[midpoint - 1] + sorted_latency_values[midpoint]
+        ) / 2
     else:
         median_latency = sorted_latency_values[midpoint]
     return FeedbackCycleLatencyReport(
@@ -338,20 +415,29 @@ def detect_feedback_anomalies(
         cycle_counts[record.cycle_id] = cycle_counts.get(record.cycle_id, 0) + 1
         for assay_id in record.related_assay_ids:
             assay_counts[assay_id] = assay_counts.get(assay_id, 0) + 1
-    high_volume = sorted([cycle_id for cycle_id, count in cycle_counts.items() if count >= cycle_volume_threshold])
+    high_volume = sorted(
+        [
+            cycle_id
+            for cycle_id, count in cycle_counts.items()
+            if count >= cycle_volume_threshold
+        ]
+    )
     total_assay_refs = sum(assay_counts.values())
     dominant_assays = sorted(
         [
             assay_id
             for assay_id, count in assay_counts.items()
-            if total_assay_refs > 0 and (count / total_assay_refs) >= assay_dominance_ratio
+            if total_assay_refs > 0
+            and (count / total_assay_refs) >= assay_dominance_ratio
         ]
     )
     notes: list[str] = []
     if high_volume:
         notes.append(f"high feedback volume in cycles: {', '.join(high_volume)}")
     if dominant_assays:
-        notes.append(f"feedback is concentrated in assays: {', '.join(dominant_assays)}")
+        notes.append(
+            f"feedback is concentrated in assays: {', '.join(dominant_assays)}"
+        )
     if not notes:
         notes.append("no strong anomaly signal detected")
     return FeedbackAnomalyReport(
@@ -369,18 +455,28 @@ def forecast_cycle_workload(
     review_entries: list[ReviewQueueEntry],
 ) -> CycleWorkloadForecast:
     """Forecast next-cycle workload from recent cycle volumes."""
-    feedback_filtered = [record for record in feedback_records if record.program_id == program_id]
-    review_filtered = [entry for entry in review_entries if entry.program_id == program_id]
+    feedback_filtered = [
+        record for record in feedback_records if record.program_id == program_id
+    ]
+    review_filtered = [
+        entry for entry in review_entries if entry.program_id == program_id
+    ]
     feedback_by_cycle: dict[str, int] = {}
     for record in feedback_filtered:
-        feedback_by_cycle[record.cycle_id] = feedback_by_cycle.get(record.cycle_id, 0) + 1
+        feedback_by_cycle[record.cycle_id] = (
+            feedback_by_cycle.get(record.cycle_id, 0) + 1
+        )
     feedback_values = sorted(feedback_by_cycle.values())
     if feedback_values:
-        feedback_forecast = int(round(sum(feedback_values[-3:]) / min(3, len(feedback_values))))
+        feedback_forecast = int(
+            round(sum(feedback_values[-3:]) / min(3, len(feedback_values)))
+        )
     else:
         feedback_forecast = 0
     review_forecast = len(review_filtered)
-    pressure_score = round(max(0.0, min((feedback_forecast * 0.08) + (review_forecast * 0.06), 1.0)), 4)
+    pressure_score = round(
+        max(0.0, min((feedback_forecast * 0.08) + (review_forecast * 0.06), 1.0)), 4
+    )
     notes: list[str] = []
     if pressure_score >= 0.7:
         notes.append("forecast indicates high workload pressure")
@@ -406,7 +502,11 @@ def summarize_feedback_lineage_coverage(
     filtered = [record for record in records if record.program_id == program_id]
     assay_count = sum(1 for record in filtered if record.related_assay_ids)
     evidence_count = sum(1 for record in filtered if record.related_evidence_ids)
-    full_count = sum(1 for record in filtered if record.related_assay_ids and record.related_evidence_ids)
+    full_count = sum(
+        1
+        for record in filtered
+        if record.related_assay_ids and record.related_evidence_ids
+    )
     total = len(filtered)
     score = round((full_count / total), 4) if total else 0.0
     return FeedbackLineageCoverageReport(

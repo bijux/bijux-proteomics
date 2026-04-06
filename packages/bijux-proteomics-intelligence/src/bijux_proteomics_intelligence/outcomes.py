@@ -57,8 +57,12 @@ class TieBreakExplanation(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    winner_candidate_id: CandidateId = Field(..., description="Candidate chosen after tie-break.")
-    compared_candidate_id: CandidateId = Field(..., description="Candidate not selected.")
+    winner_candidate_id: CandidateId = Field(
+        ..., description="Candidate chosen after tie-break."
+    )
+    compared_candidate_id: CandidateId = Field(
+        ..., description="Candidate not selected."
+    )
     rules_applied: list[str] = Field(
         default_factory=list,
         description="Tie-break rules applied in order.",
@@ -71,8 +75,12 @@ class RejectionActionPlan(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: CandidateId = Field(..., description="Rejected candidate identifier.")
-    experiments: list[str] = Field(default_factory=list, description="Follow-up experiments.")
-    revisit_conditions: list[str] = Field(default_factory=list, description="Conditions to revisit the candidate.")
+    experiments: list[str] = Field(
+        default_factory=list, description="Follow-up experiments."
+    )
+    revisit_conditions: list[str] = Field(
+        default_factory=list, description="Conditions to revisit the candidate."
+    )
 
 
 class RejectionSummary(JsonModel):
@@ -80,9 +88,15 @@ class RejectionSummary(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    rejection_count: int = Field(..., ge=0, description="Number of rejected candidates summarized.")
-    by_reason_code: dict[str, int] = Field(default_factory=dict, description="Rejection counts by reason code.")
-    blocking_rejection_count: int = Field(..., ge=0, description="Count of blocking rejections.")
+    rejection_count: int = Field(
+        ..., ge=0, description="Number of rejected candidates summarized."
+    )
+    by_reason_code: dict[str, int] = Field(
+        default_factory=dict, description="Rejection counts by reason code."
+    )
+    blocking_rejection_count: int = Field(
+        ..., ge=0, description="Count of blocking rejections."
+    )
 
 
 def build_rejection_action_plan(rejection: CandidateRejection) -> RejectionActionPlan:
@@ -93,7 +107,9 @@ def build_rejection_action_plan(rejection: CandidateRejection) -> RejectionActio
         experiments.append("run focused potency and selectivity assays")
         revisit_conditions.append("criterion fraction reaches policy floor")
     if RejectionReasonCode.LOW_METRIC_COVERAGE in rejection.reason_codes:
-        experiments.append("collect missing criterion-linked assay metrics before reranking")
+        experiments.append(
+            "collect missing criterion-linked assay metrics before reranking"
+        )
         revisit_conditions.append("all blocking criterion metrics are present")
     if RejectionReasonCode.LOW_EVIDENCE_SUPPORT in rejection.reason_codes:
         experiments.append("collect orthogonal evidence across at least two modalities")
@@ -118,7 +134,9 @@ def summarize_rejections(rejections: list[CandidateRejection]) -> RejectionSumma
         if rejection.blocking:
             blocking_count += 1
         for reason_code in rejection.reason_codes:
-            reason_counts[reason_code.value] = reason_counts.get(reason_code.value, 0) + 1
+            reason_counts[reason_code.value] = (
+                reason_counts.get(reason_code.value, 0) + 1
+            )
     return RejectionSummary(
         rejection_count=len(rejections),
         by_reason_code=reason_counts,

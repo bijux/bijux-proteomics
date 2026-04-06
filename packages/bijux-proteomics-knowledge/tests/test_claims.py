@@ -149,7 +149,7 @@ def test_build_claim_supports_mechanistic_structure_fields() -> None:
         status=ClaimStatus.SUPPORTED,
         subject="target-1",
         relation="increases",
-        object="phospho-signal",
+        object_value="phospho-signal",
         condition="cellular assay under treatment",
         direction="up",
         magnitude=1.6,

@@ -8,8 +8,9 @@ from __future__ import annotations
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
-from bijux_proteomics_foundation import TargetId
+
 from bijux_proteomics.sequences import ProteinSequence
+from bijux_proteomics_foundation import TargetId
 
 
 class OutcomeSeverity(StrEnum):
@@ -26,7 +27,9 @@ class TargetOutcome(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     code: str = Field(..., min_length=1, description="Stable outcome code.")
-    summary: str = Field(..., min_length=1, description="Human-readable outcome summary.")
+    summary: str = Field(
+        ..., min_length=1, description="Human-readable outcome summary."
+    )
     severity: OutcomeSeverity = Field(
         default=OutcomeSeverity.MEDIUM,
         description="Severity for blocked outcomes or importance for desired outcomes.",
@@ -42,7 +45,9 @@ class TargetAnnotation(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    annotation_id: str = Field(..., min_length=1, description="Stable annotation identifier.")
+    annotation_id: str = Field(
+        ..., min_length=1, description="Stable annotation identifier."
+    )
     statement: str = Field(..., min_length=1, description="Annotation text.")
     evidence_ids: list[str] = Field(
         default_factory=list,
@@ -69,7 +74,9 @@ class ProteinMotif(BaseModel):
     motif_id: str = Field(..., min_length=1, description="Stable motif identifier.")
     name: str = Field(..., min_length=1, description="Motif name.")
     pattern: str = Field(..., min_length=1, description="Motif sequence pattern.")
-    start: int | None = Field(default=None, ge=1, description="Optional motif start residue.")
+    start: int | None = Field(
+        default=None, ge=1, description="Optional motif start residue."
+    )
 
 
 class PtmHotspot(BaseModel):
@@ -91,7 +98,9 @@ class ComplexMembership(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     complex_id: str = Field(..., min_length=1, description="Complex identifier.")
-    role: str = Field(..., min_length=1, description="Role of the target in the complex.")
+    role: str = Field(
+        ..., min_length=1, description="Role of the target in the complex."
+    )
 
 
 class TractabilityFlag(BaseModel):
@@ -112,7 +121,9 @@ class MechanismLiability(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    liability_id: str = Field(..., min_length=1, description="Stable liability identifier.")
+    liability_id: str = Field(
+        ..., min_length=1, description="Stable liability identifier."
+    )
     summary: str = Field(..., min_length=1, description="Liability summary.")
     severity: OutcomeSeverity = Field(
         default=OutcomeSeverity.MEDIUM,
@@ -240,7 +251,9 @@ def target_summary(target: ProteinTarget) -> dict[str, object]:
 def summarize_tractability(target: ProteinTarget) -> dict[str, object]:
     """Summarize tractability posture for a target."""
     high_severity_flags = [
-        flag.code for flag in target.tractability_flags if flag.severity is OutcomeSeverity.HIGH
+        flag.code
+        for flag in target.tractability_flags
+        if flag.severity is OutcomeSeverity.HIGH
     ]
     high_severity_liabilities = [
         liability.liability_id

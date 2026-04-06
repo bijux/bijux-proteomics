@@ -53,9 +53,7 @@ def ensure_identifier_kind(identifier: str, kind: IdentifierKind) -> None:
     """Raise when an identifier does not match the expected kind prefix."""
     actual = classify_identifier(identifier)
     if actual is not kind:
-        raise ValueError(
-            f"identifier '{identifier}' should use '{kind.value}-' prefix"
-        )
+        raise ValueError(f"identifier '{identifier}' should use '{kind.value}-' prefix")
 
 
 def build_identifier(kind: IdentifierKind, suffix: str) -> str:

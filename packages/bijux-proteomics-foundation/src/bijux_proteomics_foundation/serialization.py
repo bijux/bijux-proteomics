@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
-import json
 from datetime import datetime
 from hashlib import sha256
+import json
 from pathlib import Path
-from typing import Any, Self
+from typing import Any, Self, cast
 
 from pydantic import BaseModel
 
@@ -34,7 +34,7 @@ class JsonModel(BaseModel):
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-compatible dictionary."""
-        return _normalize_for_json(self.model_dump(mode="json"))
+        return cast(dict[str, Any], _normalize_for_json(self.model_dump(mode="json")))
 
     def to_json(self) -> str:
         """Return a formatted JSON string."""

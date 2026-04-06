@@ -17,7 +17,12 @@ from bijux_proteomics_knowledge.claims import (
     ClaimType,
     EvidenceClaim,
 )
-from bijux_proteomics_knowledge.evidence import EvidenceBundle, EvidenceKind, EvidenceRecord, EvidenceSourceType
+from bijux_proteomics_knowledge.evidence import (
+    EvidenceBundle,
+    EvidenceKind,
+    EvidenceRecord,
+    EvidenceSourceType,
+)
 from bijux_proteomics_knowledge.resolution import ConflictResolution
 from bijux_proteomics_knowledge.serialization import JsonModel
 
@@ -60,9 +65,13 @@ class ClaimResolutionRecord(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    record_id: str = Field(..., min_length=1, description="Stable resolution record id.")
+    record_id: str = Field(
+        ..., min_length=1, description="Stable resolution record id."
+    )
     target_id: str = Field(..., min_length=1, description="Target identifier.")
-    decision_tag: str = Field(..., min_length=1, description="Decision dimension affected.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision dimension affected."
+    )
     resolution: ConflictResolution = Field(
         ...,
         description="Resolution applied for a conflicting evidence pair.",
@@ -71,7 +80,9 @@ class ClaimResolutionRecord(JsonModel):
         default_factory=lambda: datetime.now(UTC),
         description="When the resolution was recorded.",
     )
-    recorded_by: str = Field(..., min_length=1, description="Actor recording the resolution.")
+    recorded_by: str = Field(
+        ..., min_length=1, description="Actor recording the resolution."
+    )
 
 
 class ClaimResolutionRepository(Protocol):
@@ -80,7 +91,9 @@ class ClaimResolutionRepository(Protocol):
     def save_resolution_record(self, record: ClaimResolutionRecord) -> None:
         """Persist one claim resolution record."""
 
-    def list_target_resolution_records(self, target_id: str) -> list[ClaimResolutionRecord]:
+    def list_target_resolution_records(
+        self, target_id: str
+    ) -> list[ClaimResolutionRecord]:
         """List resolution history records for a target."""
 
 
@@ -90,13 +103,27 @@ class ClaimQuery(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     target_id: str = Field(..., min_length=1, description="Target identifier.")
-    status: ClaimStatus | None = Field(default=None, description="Optional status filter.")
-    claim_type: ClaimType | None = Field(default=None, description="Optional claim-type filter.")
-    polarity: ClaimPolarity | None = Field(default=None, description="Optional polarity filter.")
-    resolution_state: ClaimResolutionState | None = Field(default=None, description="Optional resolution-state filter.")
-    minimum_confidence: float | None = Field(default=None, ge=0.0, le=1.0, description="Optional confidence floor.")
-    decision_impact: str | None = Field(default=None, description="Optional decision-impact filter.")
-    contradiction_group: str | None = Field(default=None, description="Optional contradiction-group filter.")
+    status: ClaimStatus | None = Field(
+        default=None, description="Optional status filter."
+    )
+    claim_type: ClaimType | None = Field(
+        default=None, description="Optional claim-type filter."
+    )
+    polarity: ClaimPolarity | None = Field(
+        default=None, description="Optional polarity filter."
+    )
+    resolution_state: ClaimResolutionState | None = Field(
+        default=None, description="Optional resolution-state filter."
+    )
+    minimum_confidence: float | None = Field(
+        default=None, ge=0.0, le=1.0, description="Optional confidence floor."
+    )
+    decision_impact: str | None = Field(
+        default=None, description="Optional decision-impact filter."
+    )
+    contradiction_group: str | None = Field(
+        default=None, description="Optional contradiction-group filter."
+    )
 
 
 class ResolutionRecordQuery(JsonModel):
@@ -105,9 +132,13 @@ class ResolutionRecordQuery(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     target_id: str = Field(..., min_length=1, description="Target identifier.")
-    decision_tag: str | None = Field(default=None, description="Optional decision-tag filter.")
+    decision_tag: str | None = Field(
+        default=None, description="Optional decision-tag filter."
+    )
     recorded_by: str | None = Field(default=None, description="Optional actor filter.")
-    recorded_after: datetime | None = Field(default=None, description="Optional inclusive lower bound for record time.")
+    recorded_after: datetime | None = Field(
+        default=None, description="Optional inclusive lower bound for record time."
+    )
 
 
 class EvidenceRecordQuery(JsonModel):
@@ -115,13 +146,27 @@ class EvidenceRecordQuery(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    decision_tag: str | None = Field(default=None, description="Optional decision-tag filter.")
-    kind: EvidenceKind | None = Field(default=None, description="Optional evidence kind filter.")
-    source_type: EvidenceSourceType | None = Field(default=None, description="Optional source type filter.")
-    minimum_confidence: float | None = Field(default=None, ge=0.0, le=1.0, description="Optional confidence floor.")
-    observed_after: datetime | None = Field(default=None, description="Optional inclusive lower bound for observed_at.")
-    sort_by: str | None = Field(default=None, description="Optional sort key: confidence or observed_at.")
-    descending: bool = Field(default=True, description="Whether sorting should be descending.")
+    decision_tag: str | None = Field(
+        default=None, description="Optional decision-tag filter."
+    )
+    kind: EvidenceKind | None = Field(
+        default=None, description="Optional evidence kind filter."
+    )
+    source_type: EvidenceSourceType | None = Field(
+        default=None, description="Optional source type filter."
+    )
+    minimum_confidence: float | None = Field(
+        default=None, ge=0.0, le=1.0, description="Optional confidence floor."
+    )
+    observed_after: datetime | None = Field(
+        default=None, description="Optional inclusive lower bound for observed_at."
+    )
+    sort_by: str | None = Field(
+        default=None, description="Optional sort key: confidence or observed_at."
+    )
+    descending: bool = Field(
+        default=True, description="Whether sorting should be descending."
+    )
 
 
 def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[EvidenceClaim]:
@@ -134,13 +179,27 @@ def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[Evidenc
     if query.polarity is not None:
         filtered = [claim for claim in filtered if claim.polarity is query.polarity]
     if query.resolution_state is not None:
-        filtered = [claim for claim in filtered if claim.resolution_state is query.resolution_state]
+        filtered = [
+            claim
+            for claim in filtered
+            if claim.resolution_state is query.resolution_state
+        ]
     if query.minimum_confidence is not None:
-        filtered = [claim for claim in filtered if claim.confidence >= query.minimum_confidence]
+        filtered = [
+            claim for claim in filtered if claim.confidence >= query.minimum_confidence
+        ]
     if query.decision_impact is not None:
-        filtered = [claim for claim in filtered if claim.decision_impact == query.decision_impact]
+        filtered = [
+            claim
+            for claim in filtered
+            if claim.decision_impact == query.decision_impact
+        ]
     if query.contradiction_group is not None:
-        filtered = [claim for claim in filtered if claim.contradiction_group == query.contradiction_group]
+        filtered = [
+            claim
+            for claim in filtered
+            if claim.contradiction_group == query.contradiction_group
+        ]
     return filtered
 
 
@@ -151,11 +210,17 @@ def query_resolution_records(
     """Filter resolution records using structured query fields."""
     filtered = [record for record in records if record.target_id == query.target_id]
     if query.decision_tag is not None:
-        filtered = [record for record in filtered if record.decision_tag == query.decision_tag]
+        filtered = [
+            record for record in filtered if record.decision_tag == query.decision_tag
+        ]
     if query.recorded_by is not None:
-        filtered = [record for record in filtered if record.recorded_by == query.recorded_by]
+        filtered = [
+            record for record in filtered if record.recorded_by == query.recorded_by
+        ]
     if query.recorded_after is not None:
-        filtered = [record for record in filtered if record.recorded_at >= query.recorded_after]
+        filtered = [
+            record for record in filtered if record.recorded_at >= query.recorded_after
+        ]
     return filtered
 
 
@@ -166,17 +231,31 @@ def query_evidence_records(
     """Filter evidence records using structured fields."""
     filtered = list(records)
     if query.decision_tag is not None:
-        filtered = [record for record in filtered if query.decision_tag in record.decision_tags]
+        filtered = [
+            record for record in filtered if query.decision_tag in record.decision_tags
+        ]
     if query.kind is not None:
         filtered = [record for record in filtered if record.kind is query.kind]
     if query.source_type is not None:
-        filtered = [record for record in filtered if record.source_type is query.source_type]
+        filtered = [
+            record for record in filtered if record.source_type is query.source_type
+        ]
     if query.minimum_confidence is not None:
-        filtered = [record for record in filtered if record.confidence >= query.minimum_confidence]
+        filtered = [
+            record
+            for record in filtered
+            if record.confidence >= query.minimum_confidence
+        ]
     if query.observed_after is not None:
-        filtered = [record for record in filtered if record.observed_at >= query.observed_after]
+        filtered = [
+            record for record in filtered if record.observed_at >= query.observed_after
+        ]
     if query.sort_by == "confidence":
-        filtered = sorted(filtered, key=lambda record: record.confidence, reverse=query.descending)
+        filtered = sorted(
+            filtered, key=lambda record: record.confidence, reverse=query.descending
+        )
     elif query.sort_by == "observed_at":
-        filtered = sorted(filtered, key=lambda record: record.observed_at, reverse=query.descending)
+        filtered = sorted(
+            filtered, key=lambda record: record.observed_at, reverse=query.descending
+        )
     return filtered

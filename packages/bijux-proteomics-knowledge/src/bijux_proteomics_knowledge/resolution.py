@@ -16,6 +16,7 @@ from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
     EvidenceBundle,
     EvidenceRecord,
+    EvidenceSourceType,
     compute_bundle_trust,
 )
 
@@ -35,10 +36,16 @@ class ConflictResolution(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    left_evidence_id: str = Field(..., min_length=1, description="First evidence identifier.")
-    right_evidence_id: str = Field(..., min_length=1, description="Second evidence identifier.")
+    left_evidence_id: str = Field(
+        ..., min_length=1, description="First evidence identifier."
+    )
+    right_evidence_id: str = Field(
+        ..., min_length=1, description="Second evidence identifier."
+    )
     action: ResolutionAction = Field(..., description="Recommended resolution action.")
-    rationale: str = Field(..., min_length=1, description="Why this resolution was chosen.")
+    rationale: str = Field(
+        ..., min_length=1, description="Why this resolution was chosen."
+    )
 
 
 class ResolutionPolicy(JsonModel):
@@ -46,7 +53,9 @@ class ResolutionPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable resolution policy identifier.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable resolution policy identifier."
+    )
     minimum_confidence_delta_for_auto_accept: float = Field(
         default=0.1,
         ge=0.0,
@@ -82,7 +91,9 @@ class ResolutionSummary(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Resolution policy identifier.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Resolution policy identifier."
+    )
     action_counts: dict[str, int] = Field(
         default_factory=dict,
         description="Count of conflicts grouped by selected action.",
@@ -99,10 +110,18 @@ class ClaimBeliefUpdate(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     claim_id: str = Field(..., min_length=1, description="Claim identifier.")
-    previous_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence before update.")
-    updated_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence after update.")
-    updated_status: ClaimStatus = Field(..., description="Updated claim status after applying resolutions.")
-    reason: str = Field(..., min_length=1, description="Summary of why the update was applied.")
+    previous_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confidence before update."
+    )
+    updated_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confidence after update."
+    )
+    updated_status: ClaimStatus = Field(
+        ..., description="Updated claim status after applying resolutions."
+    )
+    reason: str = Field(
+        ..., min_length=1, description="Summary of why the update was applied."
+    )
 
 
 class ConflictCluster(JsonModel):
@@ -110,10 +129,18 @@ class ConflictCluster(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    decision_tag: str = Field(..., min_length=1, description="Decision tag affected by the cluster.")
-    conflict_type: str = Field(..., min_length=1, description="Conflict taxonomy represented by this cluster.")
-    conflict_pairs: list[str] = Field(default_factory=list, description="Evidence pairs contributing to this cluster.")
-    recommended_hold: bool = Field(default=False, description="Whether cluster should hold progression decisions.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision tag affected by the cluster."
+    )
+    conflict_type: str = Field(
+        ..., min_length=1, description="Conflict taxonomy represented by this cluster."
+    )
+    conflict_pairs: list[str] = Field(
+        default_factory=list, description="Evidence pairs contributing to this cluster."
+    )
+    recommended_hold: bool = Field(
+        default=False, description="Whether cluster should hold progression decisions."
+    )
 
 
 class ResolutionImpactPreview(JsonModel):
@@ -122,10 +149,18 @@ class ResolutionImpactPreview(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     claim_count: int = Field(default=0, ge=0, description="Number of claims evaluated.")
-    changed_claim_count: int = Field(default=0, ge=0, description="Number of claims expected to change.")
-    mean_confidence_before: float = Field(default=0.0, ge=0.0, le=1.0, description="Mean confidence before updates.")
-    mean_confidence_after: float = Field(default=0.0, ge=0.0, le=1.0, description="Mean confidence after updates.")
-    expected_supported_claims: int = Field(default=0, ge=0, description="Expected supported claim count after updates.")
+    changed_claim_count: int = Field(
+        default=0, ge=0, description="Number of claims expected to change."
+    )
+    mean_confidence_before: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Mean confidence before updates."
+    )
+    mean_confidence_after: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Mean confidence after updates."
+    )
+    expected_supported_claims: int = Field(
+        default=0, ge=0, description="Expected supported claim count after updates."
+    )
 
 
 class ResolutionPolicyComparison(JsonModel):
@@ -149,8 +184,12 @@ class ResolutionEscalationItem(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    left_evidence_id: str = Field(..., min_length=1, description="First evidence identifier.")
-    right_evidence_id: str = Field(..., min_length=1, description="Second evidence identifier.")
+    left_evidence_id: str = Field(
+        ..., min_length=1, description="First evidence identifier."
+    )
+    right_evidence_id: str = Field(
+        ..., min_length=1, description="Second evidence identifier."
+    )
     priority: str = Field(..., min_length=1, description="Escalation priority tier.")
     rationale: str = Field(..., min_length=1, description="Escalation rationale.")
 
@@ -160,8 +199,12 @@ class ResolutionEscalationQueue(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Resolution policy identifier.")
-    items: list[ResolutionEscalationItem] = Field(default_factory=list, description="Escalation items in priority order.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Resolution policy identifier."
+    )
+    items: list[ResolutionEscalationItem] = Field(
+        default_factory=list, description="Escalation items in priority order."
+    )
 
 
 def resolve_conflicts(
@@ -175,15 +218,23 @@ def resolve_conflicts(
     resolutions: list[ConflictResolution] = []
     now = datetime.now(UTC)
     for conflict in trust.conflicts:
-        left = next(record for record in bundle.records if record.evidence_id == conflict.left_evidence_id)
-        right = next(record for record in bundle.records if record.evidence_id == conflict.right_evidence_id)
+        left = next(
+            record
+            for record in bundle.records
+            if record.evidence_id == conflict.left_evidence_id
+        )
+        right = next(
+            record
+            for record in bundle.records
+            if record.evidence_id == conflict.right_evidence_id
+        )
         left_weighted = _resolution_score(left, policy, now=now)
         right_weighted = _resolution_score(right, policy, now=now)
         confidence_gap = abs(left_weighted - right_weighted)
-        if (
-            policy.split_context_conflicts
-            and conflict.conflict_type in {"species_context_mismatch", "biological_system_mismatch"}
-        ):
+        if policy.split_context_conflicts and conflict.conflict_type in {
+            "species_context_mismatch",
+            "biological_system_mismatch",
+        }:
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
@@ -196,7 +247,8 @@ def resolve_conflicts(
         if (
             policy.split_modality_conflicts
             and left.kind is not right.kind
-            and conflict.conflict_type in {"opposite_claim_polarity", "assay_readout_disagreement"}
+            and conflict.conflict_type
+            in {"opposite_claim_polarity", "assay_readout_disagreement"}
         ):
             resolutions.append(
                 ConflictResolution(
@@ -237,7 +289,10 @@ def resolve_conflicts(
                 )
             )
             continue
-        if left.source_type is right.source_type and left.confidence == right.confidence:
+        if (
+            left.source_type is right.source_type
+            and left.confidence == right.confidence
+        ):
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
@@ -246,7 +301,9 @@ def resolve_conflicts(
                     rationale="records have similar trust; a curator should resolve the conflict",
                 )
             )
-        elif (left_weighted - right_weighted) >= policy.minimum_confidence_delta_for_auto_accept:
+        elif (
+            left_weighted - right_weighted
+        ) >= policy.minimum_confidence_delta_for_auto_accept:
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
@@ -255,7 +312,9 @@ def resolve_conflicts(
                     rationale=f"{left.evidence_id} carries the stronger weighted trust signal",
                 )
             )
-        elif (right_weighted - left_weighted) >= policy.minimum_confidence_delta_for_auto_accept:
+        elif (
+            right_weighted - left_weighted
+        ) >= policy.minimum_confidence_delta_for_auto_accept:
             resolutions.append(
                 ConflictResolution(
                     left_evidence_id=left.evidence_id,
@@ -285,7 +344,9 @@ def resolve_conflicts(
     return trust, resolutions
 
 
-def _resolution_score(record: EvidenceRecord, policy: ResolutionPolicy, *, now: datetime) -> float:
+def _resolution_score(
+    record: EvidenceRecord, policy: ResolutionPolicy, *, now: datetime
+) -> float:
     source_weight = policy.source_precedence.get(record.source_type, 0.7)
     age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
     recency_multiplier = 1.0 if age_days <= 30 else 0.9
@@ -334,21 +395,30 @@ def apply_resolution_updates(
             elif resolution.action is ResolutionAction.REQUIRE_CURATION:
                 confidence = max(0.0, confidence - 0.05)
                 reasons.append("claim linked to conflict requiring curation")
-            elif resolution.action in {ResolutionAction.SPLIT_BY_CONTEXT, ResolutionAction.SPLIT_BY_MODALITY}:
+            elif resolution.action in {
+                ResolutionAction.SPLIT_BY_CONTEXT,
+                ResolutionAction.SPLIT_BY_MODALITY,
+            }:
                 confidence = max(0.0, confidence - 0.1)
                 status = ClaimStatus.DISPUTED
-                reasons.append("claim must be interpreted with narrower context boundaries")
+                reasons.append(
+                    "claim must be interpreted with narrower context boundaries"
+                )
             elif resolution.action is ResolutionAction.ACCEPT_HIGHER_TRUST:
                 preferred = resolution.rationale.split(" ", maxsplit=1)[0]
                 if preferred in claim.evidence_ids:
                     confidence = min(1.0, confidence + 0.1)
                     status = ClaimStatus.SUPPORTED
-                    reasons.append(f"higher-trust evidence {preferred} supports this claim")
+                    reasons.append(
+                        f"higher-trust evidence {preferred} supports this claim"
+                    )
                 else:
                     confidence = max(0.0, confidence - 0.1)
                     reasons.append("claim aligns with lower-trust side of conflict")
         if reasons:
-            updated = claim.model_copy(update={"confidence": round(confidence, 4), "status": status})
+            updated = claim.model_copy(
+                update={"confidence": round(confidence, 4), "status": status}
+            )
             updated_claims.append(updated)
             updates.append(
                 ClaimBeliefUpdate(
@@ -371,8 +441,22 @@ def cluster_conflicts(
     """Group conflicts by decision tag and conflict type for review workflows."""
     clusters: dict[tuple[str, str], list[str]] = {}
     for conflict in trust_report.conflicts:
-        left = next((record for record in bundle.records if record.evidence_id == conflict.left_evidence_id), None)
-        right = next((record for record in bundle.records if record.evidence_id == conflict.right_evidence_id), None)
+        left = next(
+            (
+                record
+                for record in bundle.records
+                if record.evidence_id == conflict.left_evidence_id
+            ),
+            None,
+        )
+        right = next(
+            (
+                record
+                for record in bundle.records
+                if record.evidence_id == conflict.right_evidence_id
+            ),
+            None,
+        )
         if left is None or right is None:
             continue
         shared_tags = sorted(set(left.decision_tags).intersection(right.decision_tags))
@@ -390,7 +474,8 @@ def cluster_conflicts(
                 conflict_type=conflict_type,
                 conflict_pairs=sorted(set(pairs)),
                 recommended_hold=any(
-                    conflict.severity == "high" and conflict.conflict_type == conflict_type
+                    conflict.severity == "high"
+                    and conflict.conflict_type == conflict_type
                     for conflict in trust_report.conflicts
                 ),
             )
@@ -407,13 +492,18 @@ def preview_resolution_impact(
         return ResolutionImpactPreview()
     before_mean = round(sum(claim.confidence for claim in claims) / len(claims), 4)
     updated_claims, _ = apply_resolution_updates(claims, resolutions)
-    after_mean = round(sum(claim.confidence for claim in updated_claims) / len(updated_claims), 4)
+    after_mean = round(
+        sum(claim.confidence for claim in updated_claims) / len(updated_claims), 4
+    )
     changed = sum(
         1
         for original, updated in zip(claims, updated_claims, strict=False)
-        if original.confidence != updated.confidence or original.status is not updated.status
+        if original.confidence != updated.confidence
+        or original.status is not updated.status
     )
-    supported = sum(1 for claim in updated_claims if claim.status is ClaimStatus.SUPPORTED)
+    supported = sum(
+        1 for claim in updated_claims if claim.status is ClaimStatus.SUPPORTED
+    )
     return ResolutionImpactPreview(
         claim_count=len(claims),
         changed_claim_count=changed,
@@ -476,5 +566,12 @@ def build_resolution_escalation_queue(
         )
     return ResolutionEscalationQueue(
         policy_id=policy_id,
-        items=sorted(queue, key=lambda item: (item.priority != "high", item.left_evidence_id, item.right_evidence_id)),
+        items=sorted(
+            queue,
+            key=lambda item: (
+                item.priority != "high",
+                item.left_evidence_id,
+                item.right_evidence_id,
+            ),
+        ),
     )

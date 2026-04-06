@@ -22,7 +22,9 @@ class LifecycleTransition(JsonModel):
     from_stage: ProgramStage = Field(..., description="Previous lifecycle stage.")
     to_stage: ProgramStage = Field(..., description="New lifecycle stage.")
     reason: str = Field(..., min_length=1, description="Why the transition happened.")
-    actor: str = Field(..., min_length=1, description="Who or what initiated the change.")
+    actor: str = Field(
+        ..., min_length=1, description="Who or what initiated the change."
+    )
     changed_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         description="When the transition was recorded.",
@@ -44,6 +46,7 @@ class ProgramLifecycle(JsonModel):
         default_factory=list,
         description="Audit trail for lifecycle transitions.",
     )
+
 
 ALLOWED_STAGE_TRANSITIONS: dict[ProgramStage, set[ProgramStage]] = {
     ProgramStage.SCOPING: {ProgramStage.DESIGN},

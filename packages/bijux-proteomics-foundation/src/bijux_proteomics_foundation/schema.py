@@ -5,10 +5,10 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from datetime import UTC, datetime
 from enum import StrEnum
+import hashlib
+import json
 
 from pydantic import ConfigDict, Field
 
@@ -98,7 +98,7 @@ class DocumentSchema(JsonModel):
         description="Optional stable hash for document content.",
     )
 
-    def touch(self, actor: str, *, tag: str | None = None) -> "DocumentSchema":
+    def touch(self, actor: str, *, tag: str | None = None) -> DocumentSchema:
         """Return a copy with updated audit metadata."""
         tags = list(self.tags)
         if tag is not None and tag not in tags:
@@ -112,7 +112,7 @@ class DocumentSchema(JsonModel):
             }
         )
 
-    def with_content_hash(self, payload: dict[str, object]) -> "DocumentSchema":
+    def with_content_hash(self, payload: dict[str, object]) -> DocumentSchema:
         """Return a copy with deterministic content hash from a payload."""
         stable = json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
         digest = hashlib.sha256(stable.encode("utf-8")).hexdigest()

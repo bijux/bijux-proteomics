@@ -16,9 +16,15 @@ class LabSchemaProfile(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(..., min_length=1, description="Stable schema profile identifier.")
-    minimum_schema_version: str = Field(..., min_length=1, description="Minimum compatible schema version.")
-    recommended_schema_version: str = Field(..., min_length=1, description="Recommended schema version.")
+    profile_id: str = Field(
+        ..., min_length=1, description="Stable schema profile identifier."
+    )
+    minimum_schema_version: str = Field(
+        ..., min_length=1, description="Minimum compatible schema version."
+    )
+    recommended_schema_version: str = Field(
+        ..., min_length=1, description="Recommended schema version."
+    )
 
 
 class LabSchemaCompatibilityReport(JsonModel):
@@ -27,9 +33,13 @@ class LabSchemaCompatibilityReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str = Field(..., min_length=1, description="Schema profile identifier.")
-    schema_version: str = Field(..., min_length=1, description="Document schema version under evaluation.")
+    schema_version: str = Field(
+        ..., min_length=1, description="Document schema version under evaluation."
+    )
     compatible: bool = Field(..., description="Whether the schema is compatible.")
-    notes: list[str] = Field(default_factory=list, description="Compatibility rationale.")
+    notes: list[str] = Field(
+        default_factory=list, description="Compatibility rationale."
+    )
 
 
 class LabSchemaUpgradeAdvisory(JsonModel):
@@ -37,10 +47,20 @@ class LabSchemaUpgradeAdvisory(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(..., min_length=1, description="Profile identifier used for evaluation.")
-    current_schema_version: str = Field(..., min_length=1, description="Current schema version.")
-    recommended_schema_version: str = Field(..., min_length=1, description="Recommended schema version.")
-    action: str = Field(..., min_length=1, description="Action recommendation: keep, upgrade, or investigate.")
+    profile_id: str = Field(
+        ..., min_length=1, description="Profile identifier used for evaluation."
+    )
+    current_schema_version: str = Field(
+        ..., min_length=1, description="Current schema version."
+    )
+    recommended_schema_version: str = Field(
+        ..., min_length=1, description="Recommended schema version."
+    )
+    action: str = Field(
+        ...,
+        min_length=1,
+        description="Action recommendation: keep, upgrade, or investigate.",
+    )
     notes: list[str] = Field(default_factory=list, description="Upgrade rationale.")
 
 
@@ -49,9 +69,17 @@ class LabArtifactSchemaContract(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    artifact_kind: str = Field(..., min_length=1, description="Artifact kind such as plan, outcome, or feedback.")
-    required_created_by: str = Field(..., min_length=1, description="Expected created_by provenance value.")
-    minimum_schema_version: str = Field(..., min_length=1, description="Minimum allowed schema version.")
+    artifact_kind: str = Field(
+        ...,
+        min_length=1,
+        description="Artifact kind such as plan, outcome, or feedback.",
+    )
+    required_created_by: str = Field(
+        ..., min_length=1, description="Expected created_by provenance value."
+    )
+    minimum_schema_version: str = Field(
+        ..., min_length=1, description="Minimum allowed schema version."
+    )
 
 
 class LabSchemaContractRegistry(JsonModel):
@@ -112,7 +140,10 @@ def evaluate_lab_artifact_schema_contract(
     contract: LabArtifactSchemaContract,
 ) -> LabSchemaCompatibilityReport:
     """Evaluate schema metadata against an artifact-specific contract."""
-    compatible = schema.schema_version >= contract.minimum_schema_version and schema.created_by == contract.required_created_by
+    compatible = (
+        schema.schema_version >= contract.minimum_schema_version
+        and schema.created_by == contract.required_created_by
+    )
     notes: list[str] = []
     if schema.schema_version < contract.minimum_schema_version:
         notes.append("schema version is below artifact contract minimum")
@@ -159,13 +190,18 @@ def evaluate_lab_artifact_with_registry(
 ) -> LabSchemaCompatibilityReport:
     """Evaluate schema metadata by resolving artifact contract from a registry."""
     registry = registry or default_lab_schema_contract_registry()
-    contract = next((item for item in registry.contracts if item.artifact_kind == artifact_kind), None)
+    contract = next(
+        (item for item in registry.contracts if item.artifact_kind == artifact_kind),
+        None,
+    )
     if contract is None:
         return LabSchemaCompatibilityReport(
             profile_id=f"artifact:{artifact_kind}",
             schema_version=schema.schema_version,
             compatible=False,
-            notes=[f"no schema contract registered for artifact kind '{artifact_kind}'"],
+            notes=[
+                f"no schema contract registered for artifact kind '{artifact_kind}'"
+            ],
         )
     return evaluate_lab_artifact_schema_contract(schema, contract=contract)
 
@@ -196,7 +232,9 @@ def build_lab_schema_upgrade_advisory(
     )
 
 
-def lint_lab_schema_contract_registry(registry: LabSchemaContractRegistry) -> list[LabSchemaContractIssue]:
+def lint_lab_schema_contract_registry(
+    registry: LabSchemaContractRegistry,
+) -> list[LabSchemaContractIssue]:
     """Lint contract registry for duplicate kinds and invalid version ranges."""
     issues: list[LabSchemaContractIssue] = []
     seen: set[str] = set()

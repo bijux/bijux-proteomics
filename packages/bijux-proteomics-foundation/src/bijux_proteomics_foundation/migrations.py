@@ -10,7 +10,10 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.errors import MigrationExecutionError, MigrationPathError
+from bijux_proteomics_foundation.errors import (
+    MigrationExecutionError,
+    MigrationPathError,
+)
 from bijux_proteomics_foundation.serialization import JsonModel
 
 MigrationFn = Callable[[dict[str, Any]], dict[str, Any]]
@@ -47,7 +50,9 @@ class MigrationRegistry:
         }
         return sorted(versions)
 
-    def migration_path(self, from_version: str, target_version: str) -> list[SchemaMigration]:
+    def migration_path(
+        self, from_version: str, target_version: str
+    ) -> list[SchemaMigration]:
         """Return the ordered migration path needed to reach the target version."""
         if from_version == target_version:
             return []
@@ -82,7 +87,9 @@ class MigrationRegistry:
         """Return whether a schema version is deprecated."""
         return schema_version in self._deprecated_versions
 
-    def migrate_to(self, payload: dict[str, Any], target_version: str) -> dict[str, Any]:
+    def migrate_to(
+        self, payload: dict[str, Any], target_version: str
+    ) -> dict[str, Any]:
         """Apply sequential migrations until target version is reached."""
         current = payload.get("document_schema", {}).get("schema_version")
         if current is None:

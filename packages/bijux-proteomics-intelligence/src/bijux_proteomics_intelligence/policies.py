@@ -59,9 +59,13 @@ class MetricDefinition(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     metric_key: str = Field(..., min_length=1, description="Stable metric key.")
-    metric_class: ScientificMetricClass = Field(..., description="Scientific metric family.")
+    metric_class: ScientificMetricClass = Field(
+        ..., description="Scientific metric family."
+    )
     unit: str | None = Field(default=None, description="Expected measurement unit.")
-    direction: MetricDirection = Field(..., description="Direction semantics for optimization.")
+    direction: MetricDirection = Field(
+        ..., description="Direction semantics for optimization."
+    )
     normalization: str | None = Field(
         default=None,
         description="Optional normalization method such as zscore or minmax.",
@@ -75,7 +79,9 @@ class RankingPolicy(JsonModel):
 
     policy_id: str = Field(..., min_length=1, description="Stable policy identifier.")
     document_schema: DocumentSchema = Field(
-        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-intelligence"),
+        default_factory=lambda: DocumentSchema(
+            created_by="bijux-proteomics-intelligence"
+        ),
         description="Schema and provenance metadata.",
     )
     minimum_metric_fraction: float = Field(
@@ -144,7 +150,9 @@ class ProgressionPolicyConfig(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable progression policy identifier.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable progression policy identifier."
+    )
     minimum_evidence_support: float = Field(
         default=0.6,
         ge=0.0,
@@ -158,7 +166,9 @@ class HoldPolicyConfig(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable hold policy identifier.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable hold policy identifier."
+    )
     minimum_confidence_for_release: float = Field(
         default=0.65,
         ge=0.0,
@@ -172,7 +182,9 @@ class RedesignPolicyConfig(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable redesign policy identifier.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable redesign policy identifier."
+    )
     residual_risk_trigger: float = Field(
         default=0.5,
         ge=0.0,
@@ -186,8 +198,12 @@ class MetricCatalogAuditReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    missing_metric_keys: list[str] = Field(default_factory=list, description="Required metric keys not declared.")
-    duplicate_metric_keys: list[str] = Field(default_factory=list, description="Metric keys declared more than once.")
+    missing_metric_keys: list[str] = Field(
+        default_factory=list, description="Required metric keys not declared."
+    )
+    duplicate_metric_keys: list[str] = Field(
+        default_factory=list, description="Metric keys declared more than once."
+    )
     missing_metric_classes: list[str] = Field(
         default_factory=list,
         description="Scientific metric classes not represented in catalog.",
@@ -199,10 +215,16 @@ class FactorWeightValidationReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    missing_factors: list[str] = Field(default_factory=list, description="Ranking factors missing from weight map.")
-    negative_factors: list[str] = Field(default_factory=list, description="Factors with negative weights.")
+    missing_factors: list[str] = Field(
+        default_factory=list, description="Ranking factors missing from weight map."
+    )
+    negative_factors: list[str] = Field(
+        default_factory=list, description="Factors with negative weights."
+    )
     weight_sum: float = Field(..., description="Sum of declared factor weights.")
-    normalized: bool = Field(..., description="Whether weight sum is approximately normalized to 1.0.")
+    normalized: bool = Field(
+        ..., description="Whether weight sum is approximately normalized to 1.0."
+    )
 
 
 def classify_metric_name(metric: str) -> ScientificMetricClass:
@@ -212,9 +234,11 @@ def classify_metric_name(metric: str) -> ScientificMetricClass:
         return ScientificMetricClass.AFFINITY
     if any(token in lowered for token in ("stabil", "tm", "fold")):
         return ScientificMetricClass.STABILITY
-    if any(token in lowered for token in ("specif", "off_target", "selectiv")):
+    if any(token in lowered for token in ("specific", "off_target", "selectiv")):
         return ScientificMetricClass.SPECIFICITY
-    if any(token in lowered for token in ("target_engagement", "occupancy", "engagement")):
+    if any(
+        token in lowered for token in ("target_engagement", "occupancy", "engagement")
+    ):
         return ScientificMetricClass.TARGET_ENGAGEMENT
     if any(token in lowered for token in ("pathway", "signaling", "phospho")):
         return ScientificMetricClass.PATHWAY_EFFECT
@@ -222,7 +246,9 @@ def classify_metric_name(metric: str) -> ScientificMetricClass:
         return ScientificMetricClass.ABUNDANCE_MODULATION
     if any(token in lowered for token in ("tox", "immun", "safety")):
         return ScientificMetricClass.SAFETY
-    if any(token in lowered for token in ("yield", "express", "aggregation", "develop")):
+    if any(
+        token in lowered for token in ("yield", "express", "aggregation", "develop")
+    ):
         return ScientificMetricClass.DEVELOPABILITY
     return ScientificMetricClass.ACTIVITY
 
@@ -242,9 +268,17 @@ def audit_metric_catalog(
 ) -> MetricCatalogAuditReport:
     """Audit metric catalog for missing keys, duplicates, and class coverage."""
     declared_keys = [definition.metric_key for definition in policy.metric_catalog]
-    missing_keys = [metric_key for metric_key in required_metric_keys if metric_key not in set(declared_keys)]
-    duplicate_keys = sorted({key for key in declared_keys if declared_keys.count(key) > 1})
-    represented_classes = {definition.metric_class for definition in policy.metric_catalog}
+    missing_keys = [
+        metric_key
+        for metric_key in required_metric_keys
+        if metric_key not in set(declared_keys)
+    ]
+    duplicate_keys = sorted(
+        {key for key in declared_keys if declared_keys.count(key) > 1}
+    )
+    represented_classes = {
+        definition.metric_class for definition in policy.metric_catalog
+    }
     missing_classes = sorted(
         metric_class.value
         for metric_class in ScientificMetricClass

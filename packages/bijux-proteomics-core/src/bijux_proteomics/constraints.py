@@ -8,6 +8,7 @@ from __future__ import annotations
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
+
 from bijux_proteomics_foundation import EvidenceId
 
 
@@ -62,13 +63,17 @@ class ConstraintRiskReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    total_constraints: int = Field(..., ge=0, description="Total number of constraints evaluated.")
+    total_constraints: int = Field(
+        ..., ge=0, description="Total number of constraints evaluated."
+    )
     blocker_count: int = Field(..., ge=0, description="Number of blocker constraints.")
     high_risk_constraints: list[str] = Field(
         default_factory=list,
         description="Constraint identifiers considered high risk.",
     )
-    notes: list[str] = Field(default_factory=list, description="Risk interpretation notes.")
+    notes: list[str] = Field(
+        default_factory=list, description="Risk interpretation notes."
+    )
 
 
 def build_protein_native_constraints(
@@ -133,7 +138,9 @@ def build_protein_native_constraints(
     return constraints
 
 
-def assess_constraint_risk(constraints: list[ScientificConstraint]) -> ConstraintRiskReport:
+def assess_constraint_risk(
+    constraints: list[ScientificConstraint],
+) -> ConstraintRiskReport:
     """Assess constraint risk based on blocker flags and missing mitigation plans."""
     blockers = [constraint for constraint in constraints if constraint.blocker]
     high_risk = [

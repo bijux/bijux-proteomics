@@ -163,7 +163,9 @@ class AssayObservationRecord(JsonModel):
         default_factory=list,
         description="Raw replicate values captured for this observation.",
     )
-    qc_state: QcState = Field(default=QcState.PASSED, description="QC state for this observation.")
+    qc_state: QcState = Field(
+        default=QcState.PASSED, description="QC state for this observation."
+    )
     qc_passed: bool = Field(
         default=True,
         description="Whether assay-level QC checks passed.",
@@ -203,12 +205,22 @@ class ExperimentOutcomeSummary(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    total_assays: int = Field(..., ge=0, description="Total assay outcomes in the batch.")
+    total_assays: int = Field(
+        ..., ge=0, description="Total assay outcomes in the batch."
+    )
     passed_count: int = Field(..., ge=0, description="Count of passed assays.")
-    failed_biological_count: int = Field(..., ge=0, description="Count of biological failures.")
-    failed_technical_count: int = Field(..., ge=0, description="Count of technical failures.")
-    failed_reproducibility_count: int = Field(..., ge=0, description="Count of reproducibility failures.")
-    inconclusive_count: int = Field(..., ge=0, description="Count of inconclusive results.")
+    failed_biological_count: int = Field(
+        ..., ge=0, description="Count of biological failures."
+    )
+    failed_technical_count: int = Field(
+        ..., ge=0, description="Count of technical failures."
+    )
+    failed_reproducibility_count: int = Field(
+        ..., ge=0, description="Count of reproducibility failures."
+    )
+    inconclusive_count: int = Field(
+        ..., ge=0, description="Count of inconclusive results."
+    )
 
 
 class ObservationSummary(JsonModel):
@@ -220,9 +232,15 @@ class ObservationSummary(JsonModel):
     metric: str = Field(..., min_length=1, description="Observed metric.")
     mean_value: float = Field(..., description="Mean value across replicates.")
     median_value: float = Field(..., description="Median value across replicates.")
-    replicate_count: int = Field(..., ge=1, description="Replicate count used for summary.")
-    dispersion: float | None = Field(default=None, ge=0.0, description="Reported or inferred dispersion.")
-    below_detection_limit: bool = Field(default=False, description="Whether signal is below detection.")
+    replicate_count: int = Field(
+        ..., ge=1, description="Replicate count used for summary."
+    )
+    dispersion: float | None = Field(
+        default=None, ge=0.0, description="Reported or inferred dispersion."
+    )
+    below_detection_limit: bool = Field(
+        default=False, description="Whether signal is below detection."
+    )
 
 
 class EvidencePromotionReadiness(JsonModel):
@@ -231,9 +249,15 @@ class EvidencePromotionReadiness(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
-    ready: bool = Field(..., description="Whether the outcome is ready for evidence promotion.")
-    blockers: list[str] = Field(default_factory=list, description="Blockers preventing promotion.")
-    recommended_action: str = Field(..., min_length=1, description="Next action before promotion.")
+    ready: bool = Field(
+        ..., description="Whether the outcome is ready for evidence promotion."
+    )
+    blockers: list[str] = Field(
+        default_factory=list, description="Blockers preventing promotion."
+    )
+    recommended_action: str = Field(
+        ..., min_length=1, description="Next action before promotion."
+    )
 
 
 class ClaimBeliefDelta(JsonModel):
@@ -243,7 +267,9 @@ class ClaimBeliefDelta(JsonModel):
 
     claim_id: str = Field(..., min_length=1, description="Claim identifier to update.")
     delta: float = Field(..., description="Signed confidence delta recommendation.")
-    rationale: str = Field(..., min_length=1, description="Scientific rationale for the delta.")
+    rationale: str = Field(
+        ..., min_length=1, description="Scientific rationale for the delta."
+    )
 
 
 class OutcomePromotionPolicy(JsonModel):
@@ -279,14 +305,20 @@ class BatchOutcomeAssessment(JsonModel):
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
     total_assays: int = Field(..., ge=0, description="Total assays in batch.")
-    promotion_ready_count: int = Field(..., ge=0, description="Count of outcomes ready for evidence promotion.")
+    promotion_ready_count: int = Field(
+        ..., ge=0, description="Count of outcomes ready for evidence promotion."
+    )
     technical_or_repro_failures: int = Field(
         ...,
         ge=0,
         description="Count of technical or reproducibility failures that block interpretation.",
     )
-    rerun_policy: RerunPolicy = Field(..., description="Recommended rerun policy for the batch.")
-    notes: list[str] = Field(default_factory=list, description="Summary notes for reviewers.")
+    rerun_policy: RerunPolicy = Field(
+        ..., description="Recommended rerun policy for the batch."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Summary notes for reviewers."
+    )
 
 
 class ObservationValidationIssue(JsonModel):
@@ -304,8 +336,12 @@ class OutcomeFeedbackMapping(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    feedback_ids: list[str] = Field(default_factory=list, description="Generated feedback record identifiers.")
-    assay_ids: list[AssayId] = Field(default_factory=list, description="Assays represented by generated feedback.")
+    feedback_ids: list[str] = Field(
+        default_factory=list, description="Generated feedback record identifiers."
+    )
+    assay_ids: list[AssayId] = Field(
+        default_factory=list, description="Assays represented by generated feedback."
+    )
 
 
 class BatchEvidencePromotionReport(JsonModel):
@@ -314,9 +350,15 @@ class BatchEvidencePromotionReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    promoted_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays promoted into evidence.")
-    blocked_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays blocked from promotion.")
-    notes: list[str] = Field(default_factory=list, description="Promotion summary notes.")
+    promoted_assay_ids: list[AssayId] = Field(
+        default_factory=list, description="Assays promoted into evidence."
+    )
+    blocked_assay_ids: list[AssayId] = Field(
+        default_factory=list, description="Assays blocked from promotion."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Promotion summary notes."
+    )
 
 
 class AssayFailureTriage(JsonModel):
@@ -325,9 +367,15 @@ class AssayFailureTriage(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
-    triage_code: str = Field(..., min_length=1, description="Stable triage code for automation hooks.")
-    root_cause_hypothesis: str = Field(..., min_length=1, description="Likely root-cause hypothesis.")
-    recommended_actions: list[str] = Field(default_factory=list, description="Ordered next actions for lab teams.")
+    triage_code: str = Field(
+        ..., min_length=1, description="Stable triage code for automation hooks."
+    )
+    root_cause_hypothesis: str = Field(
+        ..., min_length=1, description="Likely root-cause hypothesis."
+    )
+    recommended_actions: list[str] = Field(
+        default_factory=list, description="Ordered next actions for lab teams."
+    )
     escalation_required: bool = Field(
         default=False,
         description="Whether human escalation is recommended before rerunning.",
@@ -340,12 +388,16 @@ class BatchFailureTriageReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    triage: list[AssayFailureTriage] = Field(default_factory=list, description="Per-assay triage recommendations.")
+    triage: list[AssayFailureTriage] = Field(
+        default_factory=list, description="Per-assay triage recommendations."
+    )
     escalation_assay_ids: list[AssayId] = Field(
         default_factory=list,
         description="Assay IDs that require escalation before progression decisions.",
     )
-    summary_notes: list[str] = Field(default_factory=list, description="Concise triage summary for review.")
+    summary_notes: list[str] = Field(
+        default_factory=list, description="Concise triage summary for review."
+    )
 
 
 class BatchClaimBeliefUpdate(JsonModel):
@@ -354,8 +406,12 @@ class BatchClaimBeliefUpdate(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    updates: list[ClaimBeliefDelta] = Field(default_factory=list, description="Aggregated claim deltas.")
-    contributing_assay_count: int = Field(default=0, ge=0, description="Number of assays contributing deltas.")
+    updates: list[ClaimBeliefDelta] = Field(
+        default_factory=list, description="Aggregated claim deltas."
+    )
+    contributing_assay_count: int = Field(
+        default=0, ge=0, description="Number of assays contributing deltas."
+    )
 
 
 class ObservationQualityProfile(JsonModel):
@@ -364,11 +420,24 @@ class ObservationQualityProfile(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
-    technical_reproducibility: float = Field(..., ge=0.0, le=1.0, description="Replicate-level reproducibility score.")
-    qc_reliability: float = Field(..., ge=0.0, le=1.0, description="QC reliability score.")
-    interpretability: float = Field(..., ge=0.0, le=1.0, description="Interpretability score given normalization and censoring.")
-    composite_quality: float = Field(..., ge=0.0, le=1.0, description="Composite observation quality score.")
-    notes: list[str] = Field(default_factory=list, description="Quality rationale notes.")
+    technical_reproducibility: float = Field(
+        ..., ge=0.0, le=1.0, description="Replicate-level reproducibility score."
+    )
+    qc_reliability: float = Field(
+        ..., ge=0.0, le=1.0, description="QC reliability score."
+    )
+    interpretability: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Interpretability score given normalization and censoring.",
+    )
+    composite_quality: float = Field(
+        ..., ge=0.0, le=1.0, description="Composite observation quality score."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Quality rationale notes."
+    )
 
 
 class BatchPromotionPolicy(JsonModel):
@@ -401,7 +470,9 @@ class OutcomeReliabilityAssessment(JsonModel):
     assay_id: AssayId = Field(..., description="Assay identifier.")
     tier: OutcomeReliabilityTier = Field(..., description="Assigned reliability tier.")
     score: float = Field(..., ge=0.0, le=1.0, description="Reliability score.")
-    notes: list[str] = Field(default_factory=list, description="Assessment rationale notes.")
+    notes: list[str] = Field(
+        default_factory=list, description="Assessment rationale notes."
+    )
 
 
 class AssayReadinessRow(JsonModel):
@@ -410,10 +481,18 @@ class AssayReadinessRow(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
-    promotion_ready: bool = Field(..., description="Whether assay is ready for evidence promotion.")
-    reliability_tier: OutcomeReliabilityTier = Field(..., description="Outcome reliability tier.")
-    escalation_required: bool = Field(..., description="Whether assay requires escalation.")
-    blockers: list[str] = Field(default_factory=list, description="Combined readiness blockers.")
+    promotion_ready: bool = Field(
+        ..., description="Whether assay is ready for evidence promotion."
+    )
+    reliability_tier: OutcomeReliabilityTier = Field(
+        ..., description="Outcome reliability tier."
+    )
+    escalation_required: bool = Field(
+        ..., description="Whether assay requires escalation."
+    )
+    blockers: list[str] = Field(
+        default_factory=list, description="Combined readiness blockers."
+    )
 
 
 class BatchReadinessMatrix(JsonModel):
@@ -422,8 +501,12 @@ class BatchReadinessMatrix(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    rows: list[AssayReadinessRow] = Field(default_factory=list, description="Per-assay readiness rows.")
-    ready_count: int = Field(default=0, ge=0, description="Count of assays ready for progression workflows.")
+    rows: list[AssayReadinessRow] = Field(
+        default_factory=list, description="Per-assay readiness rows."
+    )
+    ready_count: int = Field(
+        default=0, ge=0, description="Count of assays ready for progression workflows."
+    )
     notes: list[str] = Field(default_factory=list, description="Batch readiness notes.")
 
 
@@ -433,7 +516,9 @@ class AssayRerunAction(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
-    priority: int = Field(..., ge=1, description="Execution priority; lower values are more urgent.")
+    priority: int = Field(
+        ..., ge=1, description="Execution priority; lower values are more urgent."
+    )
     action: str = Field(..., min_length=1, description="Recommended rerun action.")
     rationale: str = Field(..., min_length=1, description="Reason for rerun action.")
 
@@ -444,8 +529,12 @@ class BatchRerunPlan(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    actions: list[AssayRerunAction] = Field(default_factory=list, description="Recommended rerun actions.")
-    notes: list[str] = Field(default_factory=list, description="Batch-level rerun notes.")
+    actions: list[AssayRerunAction] = Field(
+        default_factory=list, description="Recommended rerun actions."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Batch-level rerun notes."
+    )
 
 
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
@@ -530,7 +619,11 @@ def evaluate_assay_acceptance(
             replicate_count=max(1, len(observation.replicate_values) or 1),
             uncertainty=0.7,
         )
-    if rule.unit is not None and observation.unit is not None and observation.unit != rule.unit:
+    if (
+        rule.unit is not None
+        and observation.unit is not None
+        and observation.unit != rule.unit
+    ):
         return AssayOutcome(
             assay_id=observation.assay_id,
             passed=False,
@@ -573,7 +666,9 @@ def evaluate_assay_acceptance(
     return AssayOutcome(
         assay_id=observation.assay_id,
         passed=passed,
-        result_state=AssayResultState.PASSED if passed else AssayResultState.FAILED_BIOLOGICAL,
+        result_state=AssayResultState.PASSED
+        if passed
+        else AssayResultState.FAILED_BIOLOGICAL,
         observation_summary=summary,
         failure_class=None if passed else FailureClass.BIOLOGICAL,
         replicate_count=max(1, len(observation.replicate_values) or 1),
@@ -588,9 +683,17 @@ def promote_outcome_to_evidence(
     policy: OutcomePromotionPolicy | None = None,
 ) -> NormalizedEvidenceInput:
     """Convert one assay outcome into normalized evidence for knowledge ingestion."""
-    policy = policy or OutcomePromotionPolicy(policy_id="default-outcome-promotion-policy")
-    base_confidence = policy.passed_base_confidence if outcome.passed else policy.failed_base_confidence
-    confidence = max(0.1, base_confidence - (outcome.uncertainty * policy.uncertainty_penalty_factor))
+    policy = policy or OutcomePromotionPolicy(
+        policy_id="default-outcome-promotion-policy"
+    )
+    base_confidence = (
+        policy.passed_base_confidence
+        if outcome.passed
+        else policy.failed_base_confidence
+    )
+    confidence = max(
+        0.1, base_confidence - (outcome.uncertainty * policy.uncertainty_penalty_factor)
+    )
     decision_tags = ["progression"]
     if outcome.result_state is AssayResultState.FAILED_TECHNICAL:
         decision_tags.append("technical_risk")
@@ -610,28 +713,44 @@ def promote_outcome_to_evidence(
         related_targets=[target_id],
         decision_tags=decision_tags,
         confidence=round(confidence, 4),
-        strength=EvidenceStrength.DECISIVE if outcome.passed else EvidenceStrength.EXPLORATORY,
+        strength=EvidenceStrength.DECISIVE
+        if outcome.passed
+        else EvidenceStrength.EXPLORATORY,
     )
 
 
-def summarize_experiment_outcome(outcome: ExperimentOutcome) -> ExperimentOutcomeSummary:
+def summarize_experiment_outcome(
+    outcome: ExperimentOutcome,
+) -> ExperimentOutcomeSummary:
     """Summarize one experiment outcome into normalized state counts."""
     return ExperimentOutcomeSummary(
         batch_id=outcome.batch_id,
         total_assays=len(outcome.assay_outcomes),
-        passed_count=sum(1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.PASSED),
+        passed_count=sum(
+            1
+            for assay in outcome.assay_outcomes
+            if assay.result_state is AssayResultState.PASSED
+        ),
         failed_biological_count=sum(
-            1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.FAILED_BIOLOGICAL
+            1
+            for assay in outcome.assay_outcomes
+            if assay.result_state is AssayResultState.FAILED_BIOLOGICAL
         ),
         failed_technical_count=sum(
-            1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.FAILED_TECHNICAL
+            1
+            for assay in outcome.assay_outcomes
+            if assay.result_state is AssayResultState.FAILED_TECHNICAL
         ),
         failed_reproducibility_count=sum(
             1
             for assay in outcome.assay_outcomes
             if assay.result_state is AssayResultState.FAILED_REPRODUCIBILITY
         ),
-        inconclusive_count=sum(1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.INCONCLUSIVE),
+        inconclusive_count=sum(
+            1
+            for assay in outcome.assay_outcomes
+            if assay.result_state is AssayResultState.INCONCLUSIVE
+        ),
     )
 
 
@@ -649,7 +768,9 @@ def summarize_observation(observation: AssayObservationRecord) -> ObservationSum
     )
 
 
-def assess_evidence_promotion_readiness(outcome: AssayOutcome) -> EvidencePromotionReadiness:
+def assess_evidence_promotion_readiness(
+    outcome: AssayOutcome,
+) -> EvidencePromotionReadiness:
     """Assess whether an assay outcome should be promoted as decision-grade evidence."""
     blockers: list[str] = []
     if outcome.result_state in {
@@ -659,7 +780,9 @@ def assess_evidence_promotion_readiness(outcome: AssayOutcome) -> EvidencePromot
     }:
         blockers.append(f"result_state={outcome.result_state.value}")
     if outcome.uncertainty > 0.5:
-        blockers.append(f"uncertainty={outcome.uncertainty:.2f} exceeds promotion threshold")
+        blockers.append(
+            f"uncertainty={outcome.uncertainty:.2f} exceeds promotion threshold"
+        )
     if outcome.replicate_count < 2:
         blockers.append("replicate_count below promotion minimum")
     ready = not blockers and outcome.passed
@@ -720,12 +843,15 @@ def assess_batch_outcome(outcome: ExperimentOutcome) -> BatchOutcomeAssessment:
     technical_or_repro = sum(
         1
         for assay in outcome.assay_outcomes
-        if assay.result_state in {AssayResultState.FAILED_TECHNICAL, AssayResultState.FAILED_REPRODUCIBILITY}
+        if assay.result_state
+        in {AssayResultState.FAILED_TECHNICAL, AssayResultState.FAILED_REPRODUCIBILITY}
     )
     policy = recommend_rerun_policy(outcome)
     notes: list[str] = []
     if technical_or_repro > 0:
-        notes.append("technical or reproducibility failures should be resolved before confidence updates")
+        notes.append(
+            "technical or reproducibility failures should be resolved before confidence updates"
+        )
     if promotion_ready < len(outcome.assay_outcomes):
         notes.append("not all assays are promotion-ready")
     if not notes:
@@ -740,7 +866,9 @@ def assess_batch_outcome(outcome: ExperimentOutcome) -> BatchOutcomeAssessment:
     )
 
 
-def validate_assay_observation_record(observation: AssayObservationRecord) -> list[ObservationValidationIssue]:
+def validate_assay_observation_record(
+    observation: AssayObservationRecord,
+) -> list[ObservationValidationIssue]:
     """Validate assay observation consistency before acceptance evaluation."""
     issues: list[ObservationValidationIssue] = []
     if observation.replicate_values and len(observation.replicate_values) < 2:
@@ -781,18 +909,17 @@ def generate_feedback_records_from_outcome(
     cycle_id: str,
 ) -> tuple[list[LabFeedbackRecord], OutcomeFeedbackMapping]:
     """Generate structured feedback records from assay outcomes."""
-    records: list[LabFeedbackRecord] = []
-    for assay in outcome.assay_outcomes:
-        records.append(
-            LabFeedbackRecord(
-                feedback_id=f"feedback:{outcome.batch_id}:{assay.assay_id}",
-                program_id=program_id,
-                cycle_id=cycle_id,
-                summary=assay.observation_summary,
-                related_assay_ids=[assay.assay_id],
-                related_evidence_ids=[f"assay:{outcome.batch_id}:{assay.assay_id}"],
-            )
+    records: list[LabFeedbackRecord] = [
+        LabFeedbackRecord(
+            feedback_id=f"feedback:{outcome.batch_id}:{assay.assay_id}",
+            program_id=program_id,
+            cycle_id=cycle_id,
+            summary=assay.observation_summary,
+            related_assay_ids=[assay.assay_id],
+            related_evidence_ids=[f"assay:{outcome.batch_id}:{assay.assay_id}"],
         )
+        for assay in outcome.assay_outcomes
+    ]
     mapping = OutcomeFeedbackMapping(
         batch_id=outcome.batch_id,
         feedback_ids=[record.feedback_id for record in records],
@@ -810,8 +937,12 @@ def promote_batch_outcome_to_evidence(
     quality_profiles: dict[str, ObservationQualityProfile] | None = None,
 ) -> tuple[list[NormalizedEvidenceInput], BatchEvidencePromotionReport]:
     """Promote all promotion-ready assays from a batch outcome into evidence payloads."""
-    policy = policy or OutcomePromotionPolicy(policy_id="default-outcome-promotion-policy")
-    batch_policy = batch_policy or BatchPromotionPolicy(policy_id="default-batch-promotion-policy")
+    policy = policy or OutcomePromotionPolicy(
+        policy_id="default-outcome-promotion-policy"
+    )
+    batch_policy = batch_policy or BatchPromotionPolicy(
+        policy_id="default-batch-promotion-policy"
+    )
     quality_profiles = quality_profiles or {}
     promoted: list[NormalizedEvidenceInput] = []
     promoted_ids: list[str] = []
@@ -820,7 +951,10 @@ def promote_batch_outcome_to_evidence(
     for assay in outcome.assay_outcomes:
         readiness = assess_evidence_promotion_readiness(assay)
         quality = quality_profiles.get(assay.assay_id)
-        quality_ready = quality is None or quality.composite_quality >= batch_policy.minimum_quality_score
+        quality_ready = (
+            quality is None
+            or quality.composite_quality >= batch_policy.minimum_quality_score
+        )
         if readiness.ready and quality_ready:
             promoted.append(
                 promote_outcome_to_evidence(
@@ -838,7 +972,9 @@ def promote_batch_outcome_to_evidence(
                 blocker_notes.append(
                     f"quality score {quality.composite_quality if quality is not None else 0.0:.2f} below minimum {batch_policy.minimum_quality_score:.2f}"
                 )
-            notes.append(f"{assay.assay_id} blocked: {', '.join(blocker_notes) or 'not promotion-ready'}")
+            notes.append(
+                f"{assay.assay_id} blocked: {', '.join(blocker_notes) or 'not promotion-ready'}"
+            )
     if not notes:
         notes.append("all assay outcomes were promotion-ready")
     return promoted, BatchEvidencePromotionReport(
@@ -916,9 +1052,13 @@ def triage_batch_failures(outcome: ExperimentOutcome) -> BatchFailureTriageRepor
             f"escalation required for assays: {', '.join(escalation_assay_ids)}"
         )
     if any(item.triage_code == "technical-execution-risk" for item in triage):
-        summary_notes.append("technical execution issues should be resolved before biological redesign")
+        summary_notes.append(
+            "technical execution issues should be resolved before biological redesign"
+        )
     if not summary_notes:
-        summary_notes.append("no escalations detected; outcomes are operationally manageable")
+        summary_notes.append(
+            "no escalations detected; outcomes are operationally manageable"
+        )
     return BatchFailureTriageReport(
         batch_id=outcome.batch_id,
         triage=triage,
@@ -941,7 +1081,9 @@ def consolidate_claim_belief_updates(
         if not linked_claim_ids:
             continue
         contributing_assays += 1
-        for delta in recommend_claim_belief_deltas(assay, linked_claim_ids=linked_claim_ids):
+        for delta in recommend_claim_belief_deltas(
+            assay, linked_claim_ids=linked_claim_ids
+        ):
             totals[delta.claim_id] = totals.get(delta.claim_id, 0.0) + delta.delta
             rationales.setdefault(delta.claim_id, []).append(assay.assay_id)
     updates = [
@@ -959,7 +1101,9 @@ def consolidate_claim_belief_updates(
     )
 
 
-def assess_observation_quality(observation: AssayObservationRecord) -> ObservationQualityProfile:
+def assess_observation_quality(
+    observation: AssayObservationRecord,
+) -> ObservationQualityProfile:
     """Assess observation quality from reproducibility, QC, and interpretation signals."""
     notes: list[str] = []
     if observation.replicate_values:
@@ -983,7 +1127,13 @@ def assess_observation_quality(observation: AssayObservationRecord) -> Observati
         interpretability = max(0.0, interpretability - 0.1)
         notes.append("missing normalization method reduces interpretability")
     composite = round(
-        max(0.0, min((replicate_score * 0.35) + (qc_score * 0.35) + (interpretability * 0.3), 1.0)),
+        max(
+            0.0,
+            min(
+                (replicate_score * 0.35) + (qc_score * 0.35) + (interpretability * 0.3),
+                1.0,
+            ),
+        ),
         4,
     )
     if not notes:
@@ -1009,7 +1159,10 @@ def assess_outcome_reliability(
     if outcome.result_state is AssayResultState.PASSED:
         score += 0.2
         notes.append("passed assay outcome increases reliability")
-    if outcome.result_state in {AssayResultState.FAILED_TECHNICAL, AssayResultState.INCONCLUSIVE}:
+    if outcome.result_state in {
+        AssayResultState.FAILED_TECHNICAL,
+        AssayResultState.INCONCLUSIVE,
+    }:
         score -= 0.25
         notes.append("technical or inconclusive state reduces reliability")
     if outcome.replicate_count >= 3:
@@ -1059,7 +1212,11 @@ def build_batch_readiness_matrix(
             blockers.append("reliability tier is weak")
         if triage.escalation_required:
             blockers.append("triage requires escalation")
-        row_ready = promotion.ready and reliability.tier is not OutcomeReliabilityTier.WEAK and not triage.escalation_required
+        row_ready = (
+            promotion.ready
+            and reliability.tier is not OutcomeReliabilityTier.WEAK
+            and not triage.escalation_required
+        )
         if row_ready:
             ready_count += 1
         rows.append(
@@ -1071,7 +1228,11 @@ def build_batch_readiness_matrix(
                 blockers=blockers,
             )
         )
-    notes = ["batch readiness is strong"] if ready_count == len(rows) else ["batch has readiness blockers"]
+    notes = (
+        ["batch readiness is strong"]
+        if ready_count == len(rows)
+        else ["batch has readiness blockers"]
+    )
     return BatchReadinessMatrix(
         batch_id=outcome.batch_id,
         rows=rows,
@@ -1112,5 +1273,9 @@ def build_batch_rerun_plan(outcome: ExperimentOutcome) -> BatchRerunPlan:
                 )
             )
     actions.sort(key=lambda item: (item.priority, item.assay_id))
-    notes = ["no reruns needed"] if not actions else ["reruns recommended before next progression decision"]
+    notes = (
+        ["no reruns needed"]
+        if not actions
+        else ["reruns recommended before next progression decision"]
+    )
     return BatchRerunPlan(batch_id=outcome.batch_id, actions=actions, notes=notes)

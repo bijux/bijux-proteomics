@@ -42,8 +42,12 @@ class EvidenceEdge(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    source_node_id: str = Field(..., min_length=1, description="Source node identifier.")
-    target_node_id: str = Field(..., min_length=1, description="Target node identifier.")
+    source_node_id: str = Field(
+        ..., min_length=1, description="Source node identifier."
+    )
+    target_node_id: str = Field(
+        ..., min_length=1, description="Target node identifier."
+    )
     relation: str = Field(..., min_length=1, description="Relation label.")
 
 
@@ -63,9 +67,13 @@ class UnresolvedQuestion(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    question_id: str = Field(..., min_length=1, description="Stable question identifier.")
+    question_id: str = Field(
+        ..., min_length=1, description="Stable question identifier."
+    )
     text: str = Field(..., min_length=1, description="Unresolved scientific question.")
-    related_decision_tags: list[str] = Field(default_factory=list, description="Decision tags impacted by the question.")
+    related_decision_tags: list[str] = Field(
+        default_factory=list, description="Decision tags impacted by the question."
+    )
 
 
 class LiabilityNodeInput(JsonModel):
@@ -73,9 +81,13 @@ class LiabilityNodeInput(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    liability_id: str = Field(..., min_length=1, description="Stable liability identifier.")
+    liability_id: str = Field(
+        ..., min_length=1, description="Stable liability identifier."
+    )
     summary: str = Field(..., min_length=1, description="Liability summary.")
-    related_decision_tags: list[str] = Field(default_factory=list, description="Decision tags affected by the liability.")
+    related_decision_tags: list[str] = Field(
+        default_factory=list, description="Decision tags affected by the liability."
+    )
 
 
 class DecisionTracePath(JsonModel):
@@ -84,8 +96,13 @@ class DecisionTracePath(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     decision_tag: str = Field(..., min_length=1, description="Decision tag origin.")
-    terminal_node_id: str = Field(..., min_length=1, description="Terminal node reached by the trace.")
-    path: list[str] = Field(default_factory=list, description="Ordered node IDs from decision to terminal node.")
+    terminal_node_id: str = Field(
+        ..., min_length=1, description="Terminal node reached by the trace."
+    )
+    path: list[str] = Field(
+        default_factory=list,
+        description="Ordered node IDs from decision to terminal node.",
+    )
 
 
 class GraphValidationIssue(JsonModel):
@@ -94,7 +111,9 @@ class GraphValidationIssue(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     code: str = Field(..., min_length=1, description="Stable graph issue code.")
-    message: str = Field(..., min_length=1, description="Human-readable issue description.")
+    message: str = Field(
+        ..., min_length=1, description="Human-readable issue description."
+    )
 
 
 def build_evidence_graph(
@@ -233,14 +252,14 @@ def build_evidence_graph(
                         relation="tests",
                     )
                 )
-        for upstream_id in record.derived_from:
-            edges.append(
-                EvidenceEdge(
-                    source_node_id=f"evidence:{upstream_id}",
-                    target_node_id=evidence_node.node_id,
-                    relation="derived_into",
-                )
+        edges.extend(
+            EvidenceEdge(
+                source_node_id=f"evidence:{upstream_id}",
+                target_node_id=evidence_node.node_id,
+                relation="derived_into",
             )
+            for upstream_id in record.derived_from
+        )
     for question in unresolved_questions:
         question_node_id = f"question:{question.question_id}"
         nodes.append(
@@ -302,34 +321,47 @@ def build_evidence_graph(
     )
 
 
-def extract_decision_subgraph(graph: EvidenceGraph, *, decision_tag: str) -> EvidenceGraph:
+def extract_decision_subgraph(
+    graph: EvidenceGraph, *, decision_tag: str
+) -> EvidenceGraph:
     """Extract the decision-scoped subgraph for one decision tag."""
     decision_node_id = f"decision:{decision_tag}"
     related_node_ids = {decision_node_id}
     for edge in graph.edges:
-        if edge.source_node_id == decision_node_id or edge.target_node_id == decision_node_id:
+        if (
+            edge.source_node_id == decision_node_id
+            or edge.target_node_id == decision_node_id
+        ):
             related_node_ids.add(edge.source_node_id)
             related_node_ids.add(edge.target_node_id)
     sub_edges = [
         edge
         for edge in graph.edges
-        if edge.source_node_id in related_node_ids and edge.target_node_id in related_node_ids
+        if edge.source_node_id in related_node_ids
+        and edge.target_node_id in related_node_ids
     ]
     expanded = True
     while expanded:
         expanded = False
         for edge in graph.edges:
-            if edge.source_node_id in related_node_ids and edge.target_node_id not in related_node_ids:
+            if (
+                edge.source_node_id in related_node_ids
+                and edge.target_node_id not in related_node_ids
+            ):
                 related_node_ids.add(edge.target_node_id)
                 expanded = True
-            if edge.target_node_id in related_node_ids and edge.source_node_id not in related_node_ids:
+            if (
+                edge.target_node_id in related_node_ids
+                and edge.source_node_id not in related_node_ids
+            ):
                 related_node_ids.add(edge.source_node_id)
                 expanded = True
     sub_nodes = [node for node in graph.nodes if node.node_id in related_node_ids]
     sub_edges = [
         edge
         for edge in graph.edges
-        if edge.source_node_id in related_node_ids and edge.target_node_id in related_node_ids
+        if edge.source_node_id in related_node_ids
+        and edge.target_node_id in related_node_ids
     ]
     return EvidenceGraph(
         bundle_id=graph.bundle_id,
@@ -339,7 +371,9 @@ def extract_decision_subgraph(graph: EvidenceGraph, *, decision_tag: str) -> Evi
     )
 
 
-def trace_decision_paths(graph: EvidenceGraph, *, decision_tag: str) -> list[DecisionTracePath]:
+def trace_decision_paths(
+    graph: EvidenceGraph, *, decision_tag: str
+) -> list[DecisionTracePath]:
     """Trace outbound paths from one decision node to terminal evidence/assay nodes."""
     start = f"decision:{decision_tag}"
     adjacency: dict[str, list[str]] = {}
@@ -388,14 +422,17 @@ def validate_evidence_graph(graph: EvidenceGraph) -> list[GraphValidationIssue]:
                 message="graph contains duplicate node_id entries",
             )
         )
-    for edge in graph.edges:
-        if edge.source_node_id not in node_id_set or edge.target_node_id not in node_id_set:
-            issues.append(
-                GraphValidationIssue(
-                    code="dangling-edge",
-                    message=f"edge {edge.source_node_id}->{edge.target_node_id} references unknown node",
-                )
-            )
+    issues.extend(
+        GraphValidationIssue(
+            code="dangling-edge",
+            message=f"edge {edge.source_node_id}->{edge.target_node_id} references unknown node",
+        )
+        for edge in graph.edges
+        if (
+            edge.source_node_id not in node_id_set
+            or edge.target_node_id not in node_id_set
+        )
+    )
     derived_edges = [
         edge
         for edge in graph.edges

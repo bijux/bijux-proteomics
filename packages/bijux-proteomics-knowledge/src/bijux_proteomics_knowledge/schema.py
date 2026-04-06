@@ -16,10 +16,20 @@ class KnowledgeSchemaProfile(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(..., min_length=1, description="Stable schema profile identifier.")
-    package: str = Field(default="bijux-proteomics-knowledge", min_length=1, description="Owning package name.")
-    minimum_schema_version: str = Field(..., min_length=1, description="Minimum compatible schema version.")
-    recommended_schema_version: str = Field(..., min_length=1, description="Recommended schema version.")
+    profile_id: str = Field(
+        ..., min_length=1, description="Stable schema profile identifier."
+    )
+    package: str = Field(
+        default="bijux-proteomics-knowledge",
+        min_length=1,
+        description="Owning package name.",
+    )
+    minimum_schema_version: str = Field(
+        ..., min_length=1, description="Minimum compatible schema version."
+    )
+    recommended_schema_version: str = Field(
+        ..., min_length=1, description="Recommended schema version."
+    )
 
 
 class SchemaCompatibilityReport(JsonModel):
@@ -28,9 +38,15 @@ class SchemaCompatibilityReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str = Field(..., min_length=1, description="Schema profile identifier.")
-    schema_version: str = Field(..., min_length=1, description="Version from evaluated document schema.")
-    compatible: bool = Field(..., description="Whether the schema version is compatible with the profile.")
-    notes: list[str] = Field(default_factory=list, description="Compatibility rationale.")
+    schema_version: str = Field(
+        ..., min_length=1, description="Version from evaluated document schema."
+    )
+    compatible: bool = Field(
+        ..., description="Whether the schema version is compatible with the profile."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Compatibility rationale."
+    )
 
 
 def default_knowledge_schema_profile() -> KnowledgeSchemaProfile:
@@ -63,6 +79,7 @@ def evaluate_schema_compatibility(
         compatible=compatible,
         notes=notes,
     )
+
 
 __all__ = [
     "SchemaMetadata",

@@ -37,7 +37,9 @@ class CandidateProposal(JsonModel):
     program_id: ProgramId = Field(..., description="Program identifier.")
     sequence: str = Field(..., min_length=1, description="Candidate protein sequence.")
     origin: str = Field(..., min_length=1, description="Where the candidate came from.")
-    rationale: str = Field(..., min_length=1, description="Why the candidate was proposed.")
+    rationale: str = Field(
+        ..., min_length=1, description="Why the candidate was proposed."
+    )
 
 
 class CandidateRiskProfile(JsonModel):
@@ -100,7 +102,9 @@ class CandidateScreeningResult(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
-    passed_filters: bool = Field(..., description="Whether the candidate passed screening.")
+    passed_filters: bool = Field(
+        ..., description="Whether the candidate passed screening."
+    )
     filter_notes: list[str] = Field(
         default_factory=list,
         description="Reasons for pass or fail.",
@@ -117,7 +121,9 @@ class CandidateDecision(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
-    status: CandidateStatus = Field(..., description="Lifecycle status after the decision.")
+    status: CandidateStatus = Field(
+        ..., description="Lifecycle status after the decision."
+    )
     decision_summary: str = Field(
         ...,
         min_length=1,
@@ -212,8 +218,12 @@ class SequenceRiskSignals(JsonModel):
 
     candidate_id: CandidateId = Field(..., description="Candidate identifier.")
     length: int = Field(..., ge=1, description="Sequence length.")
-    hydrophobic_fraction: float = Field(..., ge=0.0, le=1.0, description="Hydrophobic residue fraction.")
-    acidic_basic_balance: float = Field(..., ge=0.0, le=1.0, description="Charge-balance proxy.")
+    hydrophobic_fraction: float = Field(
+        ..., ge=0.0, le=1.0, description="Hydrophobic residue fraction."
+    )
+    acidic_basic_balance: float = Field(
+        ..., ge=0.0, le=1.0, description="Charge-balance proxy."
+    )
     glyco_motif_count: int = Field(..., ge=0, description="Count of NXS or NXT motifs.")
 
 
@@ -222,9 +232,13 @@ class MutationAnnotation(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    mutation: str = Field(..., min_length=2, description="Mutation token such as A123V.")
+    mutation: str = Field(
+        ..., min_length=2, description="Mutation token such as A123V."
+    )
     region: str | None = Field(default=None, description="Affected region or domain.")
-    expected_effect: str = Field(..., min_length=1, description="Mechanistic effect expectation.")
+    expected_effect: str = Field(
+        ..., min_length=1, description="Mechanistic effect expectation."
+    )
     conservation_score: float | None = Field(
         default=None,
         ge=0.0,
@@ -284,9 +298,15 @@ class MutationBurdenSignals(JsonModel):
 
     candidate_id: CandidateId = Field(..., description="Candidate identifier.")
     mutation_count: int = Field(..., ge=0, description="Number of annotated mutations.")
-    conserved_mutation_count: int = Field(..., ge=0, description="Mutations at highly conserved sites.")
-    affected_region_count: int = Field(..., ge=0, description="Distinct affected regions.")
-    burden_risk_index: float = Field(..., ge=0.0, le=1.0, description="Normalized mutation burden risk index.")
+    conserved_mutation_count: int = Field(
+        ..., ge=0, description="Mutations at highly conserved sites."
+    )
+    affected_region_count: int = Field(
+        ..., ge=0, description="Distinct affected regions."
+    )
+    burden_risk_index: float = Field(
+        ..., ge=0.0, le=1.0, description="Normalized mutation burden risk index."
+    )
 
 
 class MutationRiskSummary(JsonModel):
@@ -295,10 +315,14 @@ class MutationRiskSummary(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: CandidateId = Field(..., description="Candidate identifier.")
-    conserved_site_count: int = Field(..., ge=0, description="Mutations at conserved sites.")
+    conserved_site_count: int = Field(
+        ..., ge=0, description="Mutations at conserved sites."
+    )
     region_diversity: int = Field(..., ge=0, description="Distinct regions affected.")
     high_risk: bool = Field(..., description="Whether mutation risk is elevated.")
-    notes: list[str] = Field(default_factory=list, description="Risk interpretation notes.")
+    notes: list[str] = Field(
+        default_factory=list, description="Risk interpretation notes."
+    )
 
 
 class PortfolioRiskSummary(JsonModel):
@@ -306,8 +330,12 @@ class PortfolioRiskSummary(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_count: int = Field(..., ge=0, description="Number of candidates included in summary.")
-    mean_residual_risk: float = Field(..., ge=0.0, le=1.0, description="Mean residual risk.")
+    candidate_count: int = Field(
+        ..., ge=0, description="Number of candidates included in summary."
+    )
+    mean_residual_risk: float = Field(
+        ..., ge=0.0, le=1.0, description="Mean residual risk."
+    )
     high_risk_candidate_ids: list[str] = Field(
         default_factory=list,
         description="Candidates exceeding residual risk threshold.",
@@ -333,9 +361,13 @@ class ParsedMutation(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    wild_type: str = Field(..., min_length=1, max_length=1, description="Wild-type residue.")
+    wild_type: str = Field(
+        ..., min_length=1, max_length=1, description="Wild-type residue."
+    )
     position: int = Field(..., ge=1, description="1-based residue position.")
-    variant: str = Field(..., min_length=1, max_length=1, description="Variant residue.")
+    variant: str = Field(
+        ..., min_length=1, max_length=1, description="Variant residue."
+    )
 
 
 class CandidateAssayAgendaItem(JsonModel):
@@ -345,8 +377,12 @@ class CandidateAssayAgendaItem(JsonModel):
 
     candidate_id: CandidateId = Field(..., description="Candidate identifier.")
     priority: int = Field(..., ge=1, description="Relative agenda priority.")
-    assays: list[str] = Field(default_factory=list, description="Recommended assays for this candidate.")
-    rationale: list[str] = Field(default_factory=list, description="Rationale linked to candidate risk/context.")
+    assays: list[str] = Field(
+        default_factory=list, description="Recommended assays for this candidate."
+    )
+    rationale: list[str] = Field(
+        default_factory=list, description="Rationale linked to candidate risk/context."
+    )
 
 
 class PortfolioMutationBurdenSummary(JsonModel):
@@ -354,10 +390,18 @@ class PortfolioMutationBurdenSummary(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_count: int = Field(..., ge=0, description="Number of candidate contexts summarized.")
-    total_mutations: int = Field(..., ge=0, description="Total mutation count across candidates.")
-    total_conserved_mutations: int = Field(..., ge=0, description="Total conserved-site mutations.")
-    mean_burden_risk_index: float = Field(..., ge=0.0, le=1.0, description="Average mutation burden risk index.")
+    candidate_count: int = Field(
+        ..., ge=0, description="Number of candidate contexts summarized."
+    )
+    total_mutations: int = Field(
+        ..., ge=0, description="Total mutation count across candidates."
+    )
+    total_conserved_mutations: int = Field(
+        ..., ge=0, description="Total conserved-site mutations."
+    )
+    mean_burden_risk_index: float = Field(
+        ..., ge=0.0, le=1.0, description="Average mutation burden risk index."
+    )
 
 
 class ParetoFrontResult(JsonModel):
@@ -381,7 +425,9 @@ class CandidateLifecycleSummary(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: CandidateId = Field(..., description="Candidate identifier.")
-    transition_count: int = Field(..., ge=0, description="Number of recorded transitions.")
+    transition_count: int = Field(
+        ..., ge=0, description="Number of recorded transitions."
+    )
     latest_status: CandidateStatus = Field(..., description="Latest lifecycle status.")
     visited_statuses: list[CandidateStatus] = Field(
         default_factory=list,
@@ -390,7 +436,11 @@ class CandidateLifecycleSummary(JsonModel):
 
 
 ALLOWED_CANDIDATE_TRANSITIONS: dict[CandidateStatus, set[CandidateStatus]] = {
-    CandidateStatus.PROPOSED: {CandidateStatus.SCREENED, CandidateStatus.REJECTED, CandidateStatus.DEFERRED},
+    CandidateStatus.PROPOSED: {
+        CandidateStatus.SCREENED,
+        CandidateStatus.REJECTED,
+        CandidateStatus.DEFERRED,
+    },
     CandidateStatus.SCREENED: {
         CandidateStatus.PRIORITIZED,
         CandidateStatus.REJECTED,
@@ -429,7 +479,8 @@ def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
     )
     general_severity = sum(flag.severity for flag in assessment.liabilities)
     manufacturability_risk = min(
-        (1.0 - assessment.manufacturability_score) * 0.6 + (developability_severity / 10.0),
+        (1.0 - assessment.manufacturability_score) * 0.6
+        + (developability_severity / 10.0),
         1.0,
     )
     safety_risk = min(safety_severity / 10.0, 1.0)
@@ -439,7 +490,13 @@ def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
         1.0,
     )
     novelty_risk = min(
-        max(0.0, general_severity - developability_severity - safety_severity - assay_severity)
+        max(
+            0.0,
+            general_severity
+            - developability_severity
+            - safety_severity
+            - assay_severity,
+        )
         / 10.0,
         1.0,
     )
@@ -499,10 +556,16 @@ def transition_candidate(
     evidence_ids = evidence_ids or []
     if (
         next_status
-        in {CandidateStatus.PRIORITIZED, CandidateStatus.ADVANCED, CandidateStatus.REOPENED}
+        in {
+            CandidateStatus.PRIORITIZED,
+            CandidateStatus.ADVANCED,
+            CandidateStatus.REOPENED,
+        }
         and not evidence_ids
     ):
-        raise ValueError("prioritized, advanced, and reopened transitions require evidence references")
+        raise ValueError(
+            "prioritized, advanced, and reopened transitions require evidence references"
+        )
     return CandidateTransition(
         candidate_id=candidate_id,
         from_status=current_status,
@@ -543,10 +606,7 @@ def select_portfolio_shortlist(
             continue
         profile = risk_map.get(candidate.candidate_id)
         liability_codes = sorted(
-            {
-                flag.code
-                for flag in (profile.liabilities if profile is not None else [])
-            }
+            {flag.code for flag in (profile.liabilities if profile is not None else [])}
         )
         overrepresented = [
             code
@@ -586,16 +646,20 @@ def sequence_risk_signals(candidate: CandidateProposal) -> SequenceRiskSignals:
     acidic = {"D", "E"}
     basic = {"K", "R", "H"}
     length = len(sequence)
-    hydrophobic_fraction = (
-        sum(1 for residue in sequence if residue in hydrophobic) / max(length, 1)
-    )
+    hydrophobic_fraction = sum(
+        1 for residue in sequence if residue in hydrophobic
+    ) / max(length, 1)
     acidic_count = sum(1 for residue in sequence if residue in acidic)
     basic_count = sum(1 for residue in sequence if residue in basic)
-    acidic_basic_balance = 1.0 - min(abs(acidic_count - basic_count) / max(length, 1), 1.0)
+    acidic_basic_balance = 1.0 - min(
+        abs(acidic_count - basic_count) / max(length, 1), 1.0
+    )
     glyco_motif_count = sum(
         1
         for index in range(max(length - 2, 0))
-        if sequence[index] == "N" and sequence[index + 1] != "P" and sequence[index + 2] in {"S", "T"}
+        if sequence[index] == "N"
+        and sequence[index + 1] != "P"
+        and sequence[index + 2] in {"S", "T"}
     )
     return SequenceRiskSignals(
         candidate_id=candidate.candidate_id,
@@ -683,11 +747,16 @@ def summarize_variant_context(
 def summarize_mutation_risk(context: CandidateVariantContext) -> MutationRiskSummary:
     """Summarize mutation risk from variant context annotations."""
     conserved_count = sum(
-        1 for mutation in context.mutations if mutation.conservation_score is not None and mutation.conservation_score >= 0.8
+        1
+        for mutation in context.mutations
+        if mutation.conservation_score is not None
+        and mutation.conservation_score >= 0.8
     )
     region_diversity = len(context.affected_regions)
     high_risk = conserved_count > 0 and region_diversity >= 2
-    notes = ["mutation risk is elevated"] if high_risk else ["mutation risk is manageable"]
+    notes = (
+        ["mutation risk is elevated"] if high_risk else ["mutation risk is manageable"]
+    )
     return MutationRiskSummary(
         candidate_id=context.candidate_id,
         conserved_site_count=conserved_count,
@@ -706,13 +775,21 @@ def build_candidate_scientific_profile(
     risk_profile = build_risk_profile(assessment)
     assay_rationale: list[str] = []
     if variant_context.elevated_conservation_risk:
-        assay_rationale.append("run selectivity assays to confirm conserved-site perturbations remain acceptable")
+        assay_rationale.append(
+            "run selectivity assays to confirm conserved-site perturbations remain acceptable"
+        )
     if risk_profile.manufacturability_risk >= 0.4:
-        assay_rationale.append("run expression and purification assays to de-risk manufacturability")
+        assay_rationale.append(
+            "run expression and purification assays to de-risk manufacturability"
+        )
     if risk_profile.safety_risk >= 0.3:
-        assay_rationale.append("run safety panel assays to evaluate off-target liabilities")
+        assay_rationale.append(
+            "run safety panel assays to evaluate off-target liabilities"
+        )
     if not assay_rationale:
-        assay_rationale.append("run baseline binding and activity assays to confirm predicted mechanism")
+        assay_rationale.append(
+            "run baseline binding and activity assays to confirm predicted mechanism"
+        )
     return CandidateScientificProfile(
         candidate_id=assessment.candidate_id,
         variant_context=variant_context,
@@ -730,7 +807,8 @@ def mutation_burden_signals(
     conserved_mutation_count = sum(
         1
         for mutation in mutations
-        if mutation.conservation_score is not None and mutation.conservation_score >= 0.8
+        if mutation.conservation_score is not None
+        and mutation.conservation_score >= 0.8
     )
     affected_regions = {mutation.region for mutation in mutations if mutation.region}
     burden_index = min(
@@ -774,16 +852,26 @@ def summarize_portfolio_risk(
         if profile.residual_risk >= high_risk_threshold
     )
     channel_means = {
-        "manufacturability_risk": sum(profile.manufacturability_risk for profile in risk_profiles) / len(risk_profiles),
-        "safety_risk": sum(profile.safety_risk for profile in risk_profiles) / len(risk_profiles),
-        "assay_risk": sum(profile.assay_risk for profile in risk_profiles) / len(risk_profiles),
-        "evidence_uncertainty_risk": sum(profile.evidence_uncertainty_risk for profile in risk_profiles)
+        "manufacturability_risk": sum(
+            profile.manufacturability_risk for profile in risk_profiles
+        )
         / len(risk_profiles),
-        "novelty_risk": sum(profile.novelty_risk for profile in risk_profiles) / len(risk_profiles),
-        "sequence_complexity_risk": sum(profile.sequence_complexity_risk for profile in risk_profiles)
+        "safety_risk": sum(profile.safety_risk for profile in risk_profiles)
+        / len(risk_profiles),
+        "assay_risk": sum(profile.assay_risk for profile in risk_profiles)
+        / len(risk_profiles),
+        "evidence_uncertainty_risk": sum(
+            profile.evidence_uncertainty_risk for profile in risk_profiles
+        )
+        / len(risk_profiles),
+        "novelty_risk": sum(profile.novelty_risk for profile in risk_profiles)
+        / len(risk_profiles),
+        "sequence_complexity_risk": sum(
+            profile.sequence_complexity_risk for profile in risk_profiles
+        )
         / len(risk_profiles),
     }
-    dominant_channel = max(channel_means, key=channel_means.get)
+    dominant_channel = max(channel_means, key=lambda key: channel_means[key])
     return PortfolioRiskSummary(
         candidate_count=len(risk_profiles),
         mean_residual_risk=mean_residual,
@@ -809,7 +897,7 @@ def validate_transition_history(
                 message="transition history should not mix candidate identifiers",
             )
         )
-    for previous, current in zip(ordered, ordered[1:]):
+    for previous, current in zip(ordered, ordered[1:], strict=False):
         if previous.to_status != current.from_status:
             issues.append(
                 TransitionAuditIssue(
@@ -892,8 +980,12 @@ def build_candidate_assay_agenda(
     for index, (profile, _) in enumerate(ranked, start=1):
         assays = [
             "binding_panel",
-            "selectivity_panel" if profile.variant_context.elevated_conservation_risk else "activity_panel",
-            "developability_panel" if profile.risk_profile.manufacturability_risk >= 0.4 else "stability_panel",
+            "selectivity_panel"
+            if profile.variant_context.elevated_conservation_risk
+            else "activity_panel",
+            "developability_panel"
+            if profile.risk_profile.manufacturability_risk >= 0.4
+            else "stability_panel",
         ]
         agenda.append(
             CandidateAssayAgendaItem(
@@ -917,11 +1009,16 @@ def summarize_portfolio_mutation_burden(
             total_conserved_mutations=0,
             mean_burden_risk_index=0.0,
         )
-    burden_items = [mutation_burden_signals(context.candidate_id, context.mutations) for context in contexts]
+    burden_items = [
+        mutation_burden_signals(context.candidate_id, context.mutations)
+        for context in contexts
+    ]
     return PortfolioMutationBurdenSummary(
         candidate_count=len(contexts),
         total_mutations=sum(item.mutation_count for item in burden_items),
-        total_conserved_mutations=sum(item.conserved_mutation_count for item in burden_items),
+        total_conserved_mutations=sum(
+            item.conserved_mutation_count for item in burden_items
+        ),
         mean_burden_risk_index=round(
             sum(item.burden_risk_index for item in burden_items) / len(burden_items),
             4,

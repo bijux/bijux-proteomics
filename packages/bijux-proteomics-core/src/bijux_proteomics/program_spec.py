@@ -11,14 +11,15 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.assays import AssayRequirement
-from bijux_proteomics.context import ProgramContext
 from bijux_proteomics.constraints import ScientificConstraint
+from bijux_proteomics.context import ProgramContext
 from bijux_proteomics.criteria import SuccessCriterion
 from bijux_proteomics.liabilities import ProgramLiability
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.reviews import ReviewGate
-from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
+from bijux_proteomics.sequences import ProteinSequence
 from bijux_proteomics.targets import ProteinTarget
+from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
 
 
 class EvidenceNeed(StrEnum):
@@ -131,7 +132,9 @@ class StageEligibility(JsonModel):
 
     program_id: ProgramId = Field(..., description="Program identifier.")
     stage: ProgramStage = Field(..., description="Stage evaluated for readiness.")
-    eligible: bool = Field(..., description="Whether required prerequisites are satisfied.")
+    eligible: bool = Field(
+        ..., description="Whether required prerequisites are satisfied."
+    )
     blockers: list[str] = Field(
         default_factory=list,
         description="Concrete blockers that prevent this stage from being eligible.",
@@ -163,7 +166,7 @@ def create_program_spec(
         target=ProteinTarget(
             target_id=target_id,
             name=target_name,
-            sequence={"target_id": target_id, "residues": sequence},
+            sequence=ProteinSequence(target_id=target_id, residues=sequence),
             organism=organism,
             mechanism=mechanism,
         ),
@@ -215,7 +218,9 @@ def assess_stage_eligibility(
         if not any(assay.blocking for assay in program.assay_panel):
             blockers.append("lab-ready stage requires at least one blocking assay")
         if not any(gate.blocking for gate in program.review_gates):
-            blockers.append("lab-ready stage requires at least one blocking review gate")
+            blockers.append(
+                "lab-ready stage requires at least one blocking review gate"
+            )
     if stage is ProgramStage.LEARNING and not program.assay_panel:
         blockers.append("learning stage requires retained assay definitions")
     return StageEligibility(

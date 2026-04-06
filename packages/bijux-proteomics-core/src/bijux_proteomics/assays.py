@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
+
 from bijux_proteomics_foundation import AssayId
 
 

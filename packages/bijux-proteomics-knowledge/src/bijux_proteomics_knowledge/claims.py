@@ -54,13 +54,21 @@ class EvidenceClaim(JsonModel):
 
     claim_id: EvidenceId = Field(..., description="Stable claim identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
-    statement: str = Field(..., min_length=1, description="Human-readable claim statement.")
+    statement: str = Field(
+        ..., min_length=1, description="Human-readable claim statement."
+    )
     subject: str | None = Field(default=None, description="Claim subject entity.")
     relation: str | None = Field(default=None, description="Claim relation predicate.")
     object: str | None = Field(default=None, description="Claim object entity.")
-    condition: str | None = Field(default=None, description="Experimental condition for the claim.")
-    direction: str | None = Field(default=None, description="Directionality such as increases or decreases.")
-    magnitude: float | None = Field(default=None, description="Optional claim magnitude.")
+    condition: str | None = Field(
+        default=None, description="Experimental condition for the claim."
+    )
+    direction: str | None = Field(
+        default=None, description="Directionality such as increases or decreases."
+    )
+    magnitude: float | None = Field(
+        default=None, description="Optional claim magnitude."
+    )
     claim_type: ClaimType = Field(
         default=ClaimType.MECHANISTIC,
         description="Claim taxonomy for policy and reporting.",
@@ -81,7 +89,9 @@ class EvidenceClaim(JsonModel):
         default_factory=list,
         description="Assays that can resolve or falsify the claim.",
     )
-    status: ClaimStatus = Field(..., description="Current support status for the claim.")
+    status: ClaimStatus = Field(
+        ..., description="Current support status for the claim."
+    )
     polarity: ClaimPolarity = Field(
         default=ClaimPolarity.SUPPORTING,
         description="Whether the claim supports or contradicts progression.",
@@ -133,8 +143,12 @@ class ClaimStrengthUpdate(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     claim_id: EvidenceId = Field(..., description="Claim identifier.")
-    previous_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence before update.")
-    updated_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence after update.")
+    previous_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confidence before update."
+    )
+    updated_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confidence after update."
+    )
     rationale: str = Field(..., min_length=1, description="Why confidence changed.")
 
 
@@ -154,12 +168,24 @@ class HypothesisDossier(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     target_id: TargetId = Field(..., description="Target identifier.")
-    decision_tag: str = Field(..., min_length=1, description="Decision tag under review.")
-    supporting_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Supporting claim identifiers.")
-    contradicting_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Contradicting claim identifiers.")
-    unresolved_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Open claims requiring more work.")
-    required_resolution_assays: list[str] = Field(default_factory=list, description="Unique assays needed for resolution.")
-    support_confidence_mean: float = Field(default=0.0, ge=0.0, le=1.0, description="Mean confidence of supporting claims.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision tag under review."
+    )
+    supporting_claim_ids: list[EvidenceId] = Field(
+        default_factory=list, description="Supporting claim identifiers."
+    )
+    contradicting_claim_ids: list[EvidenceId] = Field(
+        default_factory=list, description="Contradicting claim identifiers."
+    )
+    unresolved_claim_ids: list[EvidenceId] = Field(
+        default_factory=list, description="Open claims requiring more work."
+    )
+    required_resolution_assays: list[str] = Field(
+        default_factory=list, description="Unique assays needed for resolution."
+    )
+    support_confidence_mean: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Mean confidence of supporting claims."
+    )
 
 
 class ResolutionAssayOutcome(JsonModel):
@@ -169,7 +195,9 @@ class ResolutionAssayOutcome(JsonModel):
 
     claim_id: EvidenceId = Field(..., description="Claim identifier.")
     assay_name: str = Field(..., min_length=1, description="Assay used for resolution.")
-    confirms_claim: bool = Field(..., description="Whether the assay confirms the claim direction.")
+    confirms_claim: bool = Field(
+        ..., description="Whether the assay confirms the claim direction."
+    )
     confidence_delta: float = Field(
         default=0.1,
         ge=0.0,
@@ -185,8 +213,12 @@ class KnowledgeGap(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     gap_code: str = Field(..., min_length=1, description="Stable knowledge gap code.")
-    message: str = Field(..., min_length=1, description="Human-readable gap description.")
-    related_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Claim identifiers tied to this gap.")
+    message: str = Field(
+        ..., min_length=1, description="Human-readable gap description."
+    )
+    related_claim_ids: list[EvidenceId] = Field(
+        default_factory=list, description="Claim identifiers tied to this gap."
+    )
 
 
 class ClaimConsistencyReport(JsonModel):
@@ -197,8 +229,13 @@ class ClaimConsistencyReport(JsonModel):
     target_id: TargetId = Field(..., description="Target identifier.")
     claim_count: int = Field(default=0, ge=0, description="Number of claims evaluated.")
     open_claim_count: int = Field(default=0, ge=0, description="Number of open claims.")
-    contradiction_group_count: int = Field(default=0, ge=0, description="Number of contradiction groups.")
-    inconsistent_groups: list[str] = Field(default_factory=list, description="Contradiction groups missing both polarities.")
+    contradiction_group_count: int = Field(
+        default=0, ge=0, description="Number of contradiction groups."
+    )
+    inconsistent_groups: list[str] = Field(
+        default_factory=list,
+        description="Contradiction groups missing both polarities.",
+    )
     notes: list[str] = Field(default_factory=list, description="Consistency notes.")
 
 
@@ -208,8 +245,12 @@ class MechanisticCompletenessReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     claim_id: EvidenceId = Field(..., description="Claim identifier.")
-    completeness_score: float = Field(..., ge=0.0, le=1.0, description="Mechanistic completeness score.")
-    missing_fields: list[str] = Field(default_factory=list, description="Missing mechanistic fields.")
+    completeness_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Mechanistic completeness score."
+    )
+    missing_fields: list[str] = Field(
+        default_factory=list, description="Missing mechanistic fields."
+    )
 
 
 class ClaimContradictionMatrix(JsonModel):
@@ -217,8 +258,12 @@ class ClaimContradictionMatrix(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    decision_tag: str = Field(..., min_length=1, description="Decision tag for scoped claims.")
-    rows: list[str] = Field(default_factory=list, description="Claim IDs in matrix order.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision tag for scoped claims."
+    )
+    rows: list[str] = Field(
+        default_factory=list, description="Claim IDs in matrix order."
+    )
     relations: dict[str, str] = Field(
         default_factory=dict,
         description="Pair relation map using '<left>|<right>' keys and relation labels.",
@@ -241,9 +286,15 @@ class ClaimFalsifiabilityReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     claim_id: EvidenceId = Field(..., description="Claim identifier.")
-    falsifiable: bool = Field(..., description="Whether claim is structured for falsification.")
-    missing_fields: list[str] = Field(default_factory=list, description="Missing mechanistic fields.")
-    notes: list[str] = Field(default_factory=list, description="Falsifiability rationale notes.")
+    falsifiable: bool = Field(
+        ..., description="Whether claim is structured for falsification."
+    )
+    missing_fields: list[str] = Field(
+        default_factory=list, description="Missing mechanistic fields."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Falsifiability rationale notes."
+    )
 
 
 def build_claim(
@@ -264,7 +315,7 @@ def build_claim(
     decision_impact: str = "supporting_context",
     subject: str | None = None,
     relation: str | None = None,
-    object: str | None = None,
+    object_value: str | None = None,
     condition: str | None = None,
     direction: str | None = None,
     magnitude: float | None = None,
@@ -287,7 +338,7 @@ def build_claim(
         decision_impact=decision_impact,
         subject=subject,
         relation=relation,
-        object=object,
+        object=object_value,
         condition=condition,
         direction=direction,
         magnitude=magnitude,
@@ -308,7 +359,11 @@ def evaluate_claim_falsifiability(claim: EvidenceClaim) -> ClaimFalsifiabilityRe
     if not claim.resolution_assays:
         missing_fields.append("resolution_assays")
     falsifiable = not missing_fields
-    notes = ["claim is falsifiable via defined resolution assays"] if falsifiable else ["claim lacks falsifiable structure"]
+    notes = (
+        ["claim is falsifiable via defined resolution assays"]
+        if falsifiable
+        else ["claim lacks falsifiable structure"]
+    )
     return ClaimFalsifiabilityReport(
         claim_id=claim.claim_id,
         falsifiable=falsifiable,
@@ -328,7 +383,8 @@ def build_decision_lineage(
         for claim in claims
         if claim.status is ClaimStatus.SUPPORTED
         and any(
-            record.evidence_id in claim.evidence_ids and decision_tag in record.decision_tags
+            record.evidence_id in claim.evidence_ids
+            and decision_tag in record.decision_tags
             for record in bundle.records
         )
     ]
@@ -337,7 +393,8 @@ def build_decision_lineage(
         for claim in claims
         if claim.polarity is ClaimPolarity.CONTRADICTING
         and any(
-            record.evidence_id in claim.evidence_ids and decision_tag in record.decision_tags
+            record.evidence_id in claim.evidence_ids
+            and decision_tag in record.decision_tags
             for record in bundle.records
         )
     ]
@@ -381,7 +438,9 @@ def strengthen_claim(
 ) -> tuple[EvidenceClaim, ClaimStrengthUpdate]:
     """Increase claim confidence by a bounded delta."""
     updated_confidence = min(1.0, round(claim.confidence + max(delta, 0.0), 4))
-    updated = claim.model_copy(update={"confidence": updated_confidence, "status": ClaimStatus.SUPPORTED})
+    updated = claim.model_copy(
+        update={"confidence": updated_confidence, "status": ClaimStatus.SUPPORTED}
+    )
     return updated, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
         previous_confidence=claim.confidence,
@@ -399,7 +458,9 @@ def weaken_claim(
     """Decrease claim confidence by a bounded delta."""
     updated_confidence = max(0.0, round(claim.confidence - max(delta, 0.0), 4))
     updated_status = ClaimStatus.DISPUTED if updated_confidence < 0.5 else claim.status
-    updated = claim.model_copy(update={"confidence": updated_confidence, "status": updated_status})
+    updated = claim.model_copy(
+        update={"confidence": updated_confidence, "status": updated_status}
+    )
     return updated, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
         previous_confidence=claim.confidence,
@@ -420,7 +481,9 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                 message="claims should use unique claim_id values",
             )
         )
-    contradiction_groups = {claim.contradiction_group for claim in claims if claim.contradiction_group}
+    contradiction_groups = {
+        claim.contradiction_group for claim in claims if claim.contradiction_group
+    }
     for claim in claims:
         if not claim.evidence_ids:
             issues.append(
@@ -430,7 +493,10 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                     message="claim should reference at least one evidence_id",
                 )
             )
-        if claim.polarity is ClaimPolarity.CONTRADICTING and not claim.contradicting_evidence_ids:
+        if (
+            claim.polarity is ClaimPolarity.CONTRADICTING
+            and not claim.contradicting_evidence_ids
+        ):
             issues.append(
                 ClaimValidationIssue(
                     claim_id=claim.claim_id,
@@ -438,7 +504,10 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                     message="contradicting claims should include contradicting_evidence_ids",
                 )
             )
-        if claim.resolution_state is ClaimResolutionState.OPEN and not claim.resolution_assays:
+        if (
+            claim.resolution_state is ClaimResolutionState.OPEN
+            and not claim.resolution_assays
+        ):
             issues.append(
                 ClaimValidationIssue(
                     claim_id=claim.claim_id,
@@ -456,7 +525,10 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                     message="mechanistic claims should define subject, relation, and object",
                 )
             )
-        if claim.resolution_state is ClaimResolutionState.CLOSED and claim.status is ClaimStatus.INSUFFICIENT:
+        if (
+            claim.resolution_state is ClaimResolutionState.CLOSED
+            and claim.status is ClaimStatus.INSUFFICIENT
+        ):
             issues.append(
                 ClaimValidationIssue(
                     claim_id=claim.claim_id,
@@ -475,7 +547,9 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                 )
             )
             continue
-        if all(claim.polarity is ClaimPolarity.SUPPORTING for claim in group_claims) or all(
+        if all(
+            claim.polarity is ClaimPolarity.SUPPORTING for claim in group_claims
+        ) or all(
             claim.polarity is ClaimPolarity.CONTRADICTING for claim in group_claims
         ):
             issues.append(
@@ -499,24 +573,31 @@ def build_hypothesis_dossier(
         claim
         for claim in claims
         if any(
-            decision_tag in record.decision_tags and record.evidence_id in claim.evidence_ids
+            decision_tag in record.decision_tags
+            and record.evidence_id in claim.evidence_ids
             for record in bundle.records
         )
     ]
-    supporting = [claim for claim in scoped_claims if claim.polarity is ClaimPolarity.SUPPORTING]
-    contradicting = [claim for claim in scoped_claims if claim.polarity is ClaimPolarity.CONTRADICTING]
-    unresolved = [claim for claim in scoped_claims if claim.resolution_state is ClaimResolutionState.OPEN]
+    supporting = [
+        claim for claim in scoped_claims if claim.polarity is ClaimPolarity.SUPPORTING
+    ]
+    contradicting = [
+        claim
+        for claim in scoped_claims
+        if claim.polarity is ClaimPolarity.CONTRADICTING
+    ]
+    unresolved = [
+        claim
+        for claim in scoped_claims
+        if claim.resolution_state is ClaimResolutionState.OPEN
+    ]
     support_confidence_mean = (
         round(sum(claim.confidence for claim in supporting) / len(supporting), 4)
         if supporting
         else 0.0
     )
     required_assays = sorted(
-        {
-            assay
-            for claim in unresolved
-            for assay in claim.resolution_assays
-        }
+        {assay for claim in unresolved for assay in claim.resolution_assays}
     )
     target_id = scoped_claims[0].target_id if scoped_claims else bundle.target_id
     return HypothesisDossier(
@@ -538,16 +619,26 @@ def apply_resolution_assay_outcome(
     if claim.claim_id != outcome.claim_id:
         raise ValueError("resolution assay outcome claim_id does not match claim")
     if outcome.confirms_claim:
-        updated_confidence = min(1.0, round(claim.confidence + outcome.confidence_delta, 4))
-        updated_status = ClaimStatus.SUPPORTED if updated_confidence >= 0.5 else claim.status
+        updated_confidence = min(
+            1.0, round(claim.confidence + outcome.confidence_delta, 4)
+        )
+        updated_status = (
+            ClaimStatus.SUPPORTED if updated_confidence >= 0.5 else claim.status
+        )
         rationale = f"{outcome.assay_name} confirms claim direction"
     else:
-        updated_confidence = max(0.0, round(claim.confidence - outcome.confidence_delta, 4))
-        updated_status = ClaimStatus.DISPUTED if updated_confidence < 0.5 else claim.status
+        updated_confidence = max(
+            0.0, round(claim.confidence - outcome.confidence_delta, 4)
+        )
+        updated_status = (
+            ClaimStatus.DISPUTED if updated_confidence < 0.5 else claim.status
+        )
         rationale = f"{outcome.assay_name} does not confirm claim direction"
     if outcome.note:
         rationale = f"{rationale}; {outcome.note}"
-    updated_claim = claim.model_copy(update={"confidence": updated_confidence, "status": updated_status})
+    updated_claim = claim.model_copy(
+        update={"confidence": updated_confidence, "status": updated_status}
+    )
     return updated_claim, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
         previous_confidence=claim.confidence,
@@ -568,7 +659,8 @@ def identify_knowledge_gaps(
         claim
         for claim in claims
         if any(
-            decision_tag in record.decision_tags and record.evidence_id in claim.evidence_ids
+            decision_tag in record.decision_tags
+            and record.evidence_id in claim.evidence_ids
             for record in bundle.records
         )
     ]
@@ -580,7 +672,11 @@ def identify_knowledge_gaps(
             )
         )
         return gaps
-    open_claims = [claim for claim in decision_claims if claim.resolution_state is ClaimResolutionState.OPEN]
+    open_claims = [
+        claim
+        for claim in decision_claims
+        if claim.resolution_state is ClaimResolutionState.OPEN
+    ]
     if open_claims:
         gaps.append(
             KnowledgeGap(
@@ -589,7 +685,9 @@ def identify_knowledge_gaps(
                 related_claim_ids=[claim.claim_id for claim in open_claims],
             )
         )
-    unresolved_assay_claims = [claim for claim in open_claims if not claim.resolution_assays]
+    unresolved_assay_claims = [
+        claim for claim in open_claims if not claim.resolution_assays
+    ]
     if unresolved_assay_claims:
         gaps.append(
             KnowledgeGap(
@@ -598,8 +696,14 @@ def identify_knowledge_gaps(
                 related_claim_ids=[claim.claim_id for claim in unresolved_assay_claims],
             )
         )
-    contradicting = [claim for claim in decision_claims if claim.polarity is ClaimPolarity.CONTRADICTING]
-    if contradicting and not any(claim.contradicting_evidence_ids for claim in contradicting):
+    contradicting = [
+        claim
+        for claim in decision_claims
+        if claim.polarity is ClaimPolarity.CONTRADICTING
+    ]
+    if contradicting and not any(
+        claim.contradicting_evidence_ids for claim in contradicting
+    ):
         gaps.append(
             KnowledgeGap(
                 gap_code="contradiction-evidence-not-linked",
@@ -622,10 +726,14 @@ def identify_knowledge_gaps(
     return gaps
 
 
-def evaluate_claim_consistency(claims: list[EvidenceClaim], *, target_id: str) -> ClaimConsistencyReport:
+def evaluate_claim_consistency(
+    claims: list[EvidenceClaim], *, target_id: str
+) -> ClaimConsistencyReport:
     """Summarize claim-set consistency for one target."""
     scoped = [claim for claim in claims if claim.target_id == target_id]
-    groups = sorted({claim.contradiction_group for claim in scoped if claim.contradiction_group})
+    groups = sorted(
+        {claim.contradiction_group for claim in scoped if claim.contradiction_group}
+    )
     inconsistent_groups: list[str] = []
     for group in groups:
         group_claims = [claim for claim in scoped if claim.contradiction_group == group]
@@ -634,7 +742,9 @@ def evaluate_claim_consistency(claims: list[EvidenceClaim], *, target_id: str) -
             inconsistent_groups.append(group)
     notes: list[str] = []
     if inconsistent_groups:
-        notes.append("some contradiction groups are missing balanced supporting and contradicting claims")
+        notes.append(
+            "some contradiction groups are missing balanced supporting and contradicting claims"
+        )
     if any(claim.resolution_state is ClaimResolutionState.OPEN for claim in scoped):
         notes.append("open claims still require resolution work")
     if not notes:
@@ -642,14 +752,18 @@ def evaluate_claim_consistency(claims: list[EvidenceClaim], *, target_id: str) -
     return ClaimConsistencyReport(
         target_id=target_id,
         claim_count=len(scoped),
-        open_claim_count=sum(1 for claim in scoped if claim.resolution_state is ClaimResolutionState.OPEN),
+        open_claim_count=sum(
+            1 for claim in scoped if claim.resolution_state is ClaimResolutionState.OPEN
+        ),
         contradiction_group_count=len(groups),
         inconsistent_groups=inconsistent_groups,
         notes=notes,
     )
 
 
-def evaluate_mechanistic_completeness(claim: EvidenceClaim) -> MechanisticCompletenessReport:
+def evaluate_mechanistic_completeness(
+    claim: EvidenceClaim,
+) -> MechanisticCompletenessReport:
     """Score how completely a mechanistic claim is specified."""
     required = {
         "subject": claim.subject,
@@ -658,7 +772,11 @@ def evaluate_mechanistic_completeness(claim: EvidenceClaim) -> MechanisticComple
         "condition": claim.condition,
         "direction": claim.direction,
     }
-    missing = [name for name, value in required.items() if value is None or not str(value).strip()]
+    missing = [
+        name
+        for name, value in required.items()
+        if value is None or not str(value).strip()
+    ]
     score = round((len(required) - len(missing)) / len(required), 4)
     return MechanisticCompletenessReport(
         claim_id=claim.claim_id,
@@ -678,7 +796,8 @@ def build_contradiction_matrix(
         claim
         for claim in claims
         if any(
-            record.evidence_id in claim.evidence_ids and decision_tag in record.decision_tags
+            record.evidence_id in claim.evidence_ids
+            and decision_tag in record.decision_tags
             for record in bundle.records
         )
     ]
@@ -690,14 +809,19 @@ def build_contradiction_matrix(
             if left.claim_id == right.claim_id:
                 relations[key] = "self"
                 continue
-            if left.contradiction_group and left.contradiction_group == right.contradiction_group:
+            if (
+                left.contradiction_group
+                and left.contradiction_group == right.contradiction_group
+            ):
                 if left.polarity is right.polarity:
                     relations[key] = "same-group-same-polarity"
                 else:
                     relations[key] = "same-group-opposing-polarity"
-            elif set(left.evidence_ids).intersection(set(right.contradicting_evidence_ids)) or set(
-                right.evidence_ids
-            ).intersection(set(left.contradicting_evidence_ids)):
+            elif set(left.evidence_ids).intersection(
+                set(right.contradicting_evidence_ids)
+            ) or set(right.evidence_ids).intersection(
+                set(left.contradicting_evidence_ids)
+            ):
                 relations[key] = "cross-linked-contradiction"
             else:
                 relations[key] = "independent"
@@ -716,9 +840,15 @@ def audit_claim_evidence_links(
     known_ids = {record.evidence_id for record in bundle.records}
     issues: list[ClaimEvidenceLinkIssue] = []
     for claim in claims:
-        missing_support = [evidence_id for evidence_id in claim.evidence_ids if evidence_id not in known_ids]
+        missing_support = [
+            evidence_id
+            for evidence_id in claim.evidence_ids
+            if evidence_id not in known_ids
+        ]
         missing_contradictions = [
-            evidence_id for evidence_id in claim.contradicting_evidence_ids if evidence_id not in known_ids
+            evidence_id
+            for evidence_id in claim.contradicting_evidence_ids
+            if evidence_id not in known_ids
         ]
         if missing_support:
             issues.append(

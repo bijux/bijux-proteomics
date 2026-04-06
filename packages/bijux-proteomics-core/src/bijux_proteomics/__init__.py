@@ -6,15 +6,15 @@
 from __future__ import annotations
 
 from bijux_proteomics.assays import AssayRequirement
-from bijux_proteomics.context import (
-    ProgramContext,
-    ProgramDeliveryContext,
-    ProgramPortfolioContext,
-)
 from bijux_proteomics.constraints import (
     ConstraintCategory,
     ScientificConstraint,
     build_protein_native_constraints,
+)
+from bijux_proteomics.context import (
+    ProgramContext,
+    ProgramDeliveryContext,
+    ProgramPortfolioContext,
 )
 from bijux_proteomics.criteria import (
     MeasurementDirection,
@@ -29,13 +29,13 @@ from bijux_proteomics.exceptions import (
     ReviewGateBlockedError,
 )
 from bijux_proteomics.execution_backend import ExecutionBackend, ExecutionRequest
+from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.lifecycle import (
     LifecycleTransition,
     ProgramLifecycle,
     advance_stage,
     allowed_next_stages,
 )
-from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.operating_model import (
     DecisionOwnerRole,
     OperatingModel,
@@ -51,36 +51,36 @@ from bijux_proteomics.program_spec import (
     program_summary,
     revise_program,
 )
-from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.repositories import (
+    DecisionQuery,
     DuplicateReviewDecisionError,
-    ProgramRevisionConflictError,
-    ProgramRepository,
     ProgramNotFoundError,
+    ProgramRepository,
+    ProgramRevisionConflictError,
     ReviewDecision,
     ReviewDecisionRepository,
-    DecisionQuery,
     ReviewGateEvaluation,
     ReviewGateState,
     ReviewOutcome,
     decision_timeline,
+    ensure_program_revision,
+    ensure_review_clearance,
     ensure_unique_gate_decision,
     evaluate_review_gate,
     evaluate_review_gates,
+    latest_gate_decision,
     list_decisions_by_outcome,
     list_gate_decisions,
     query_decisions,
-    ensure_review_clearance,
-    latest_gate_decision,
     require_program,
-    ensure_program_revision,
     validate_review_decision,
 )
+from bijux_proteomics.reviews import ReviewGate
+from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
 from bijux_proteomics.runtime_adapter import (
     AgenticProteinsBackend,
     MissingExecutionBackendError,
 )
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
 from bijux_proteomics.targets import (
     OutcomeSeverity,
@@ -95,7 +95,7 @@ from bijux_proteomics.validation import (
     validate_program,
     validate_program_readiness,
 )
-from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 __all__ = [
     "AssayRequirement",

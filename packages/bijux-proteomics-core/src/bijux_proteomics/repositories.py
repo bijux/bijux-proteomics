@@ -11,10 +11,10 @@ from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import ContractConflictError, ContractNotFoundError
 from bijux_proteomics.program_spec import ProgramSpec
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.serialization import JsonModel
+from bijux_proteomics_foundation import ContractConflictError, ContractNotFoundError
 
 
 class ReviewOutcome(StrEnum):
@@ -74,7 +74,9 @@ class ReviewGateEvaluation(JsonModel):
         default_factory=list,
         description="Expected decision inputs that have not been reviewed yet.",
     )
-    rationale: str = Field(..., min_length=1, description="Why the gate is in this state.")
+    rationale: str = Field(
+        ..., min_length=1, description="Why the gate is in this state."
+    )
 
 
 class DecisionQuery(JsonModel):
@@ -84,8 +86,12 @@ class DecisionQuery(JsonModel):
 
     program_id: str = Field(..., min_length=1, description="Program identifier.")
     gate_id: str | None = Field(default=None, description="Optional gate filter.")
-    decided_by: str | None = Field(default=None, description="Optional decision owner filter.")
-    outcome: ReviewOutcome | None = Field(default=None, description="Optional outcome filter.")
+    decided_by: str | None = Field(
+        default=None, description="Optional decision owner filter."
+    )
+    outcome: ReviewOutcome | None = Field(
+        default=None, description="Optional outcome filter."
+    )
 
 
 class ProgramRepository(Protocol):
@@ -143,8 +149,13 @@ def validate_review_decision(decision: ReviewDecision) -> list[str]:
     issues: list[str] = []
     if decision.outcome is ReviewOutcome.APPROVED and not decision.reviewed_inputs:
         issues.append("approved review decisions should list the reviewed inputs")
-    if decision.outcome is ReviewOutcome.APPROVED and not decision.reviewed_evidence_ids:
-        issues.append("approved review decisions should reference supporting evidence ids")
+    if (
+        decision.outcome is ReviewOutcome.APPROVED
+        and not decision.reviewed_evidence_ids
+    ):
+        issues.append(
+            "approved review decisions should reference supporting evidence ids"
+        )
     if decision.outcome is ReviewOutcome.REJECTED and not decision.rationale.strip():
         issues.append("rejected review decisions should include an explicit rationale")
     return issues
@@ -245,13 +256,21 @@ def query_decisions(
     query: DecisionQuery,
 ) -> list[ReviewDecision]:
     """Return review decisions that match a structured query."""
-    filtered = [decision for decision in decisions if decision.program_id == query.program_id]
+    filtered = [
+        decision for decision in decisions if decision.program_id == query.program_id
+    ]
     if query.gate_id is not None:
-        filtered = [decision for decision in filtered if decision.gate_id == query.gate_id]
+        filtered = [
+            decision for decision in filtered if decision.gate_id == query.gate_id
+        ]
     if query.decided_by is not None:
-        filtered = [decision for decision in filtered if decision.decided_by == query.decided_by]
+        filtered = [
+            decision for decision in filtered if decision.decided_by == query.decided_by
+        ]
     if query.outcome is not None:
-        filtered = [decision for decision in filtered if decision.outcome is query.outcome]
+        filtered = [
+            decision for decision in filtered if decision.outcome is query.outcome
+        ]
     return sorted(filtered, key=lambda decision: decision.decided_at)
 
 
@@ -260,7 +279,9 @@ def evaluate_review_gate(
     decisions: list[ReviewDecision],
 ) -> ReviewGateEvaluation:
     """Evaluate one review gate against the recorded decision trail."""
-    relevant_decisions = [decision for decision in decisions if decision.gate_id == gate.gate_id]
+    relevant_decisions = [
+        decision for decision in decisions if decision.gate_id == gate.gate_id
+    ]
     required_roles = set(gate.required_roles)
     covered_roles = {decision.decided_by for decision in relevant_decisions}
     missing_roles = sorted(required_roles - covered_roles)
@@ -271,7 +292,9 @@ def evaluate_review_gate(
     }
     missing_inputs = sorted(set(gate.decision_inputs) - reviewed_inputs)
 
-    if any(decision.outcome is ReviewOutcome.REJECTED for decision in relevant_decisions):
+    if any(
+        decision.outcome is ReviewOutcome.REJECTED for decision in relevant_decisions
+    ):
         return ReviewGateEvaluation(
             gate_id=gate.gate_id,
             state=ReviewGateState.BLOCKED,
@@ -280,7 +303,8 @@ def evaluate_review_gate(
             rationale="a recorded rejection keeps the gate blocked until the program is revised",
         )
     if any(
-        decision.outcome is ReviewOutcome.NEEDS_REVISION for decision in relevant_decisions
+        decision.outcome is ReviewOutcome.NEEDS_REVISION
+        for decision in relevant_decisions
     ):
         return ReviewGateEvaluation(
             gate_id=gate.gate_id,
@@ -305,7 +329,9 @@ def evaluate_review_gate(
             missing_inputs=missing_inputs,
             rationale="the review gate still lacks one or more expected decision inputs",
         )
-    if any(decision.outcome is ReviewOutcome.APPROVED for decision in relevant_decisions):
+    if any(
+        decision.outcome is ReviewOutcome.APPROVED for decision in relevant_decisions
+    ):
         return ReviewGateEvaluation(
             gate_id=gate.gate_id,
             state=ReviewGateState.APPROVED,

@@ -20,7 +20,9 @@ class ProteinSequence(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     target_id: TargetId = Field(..., description="Target identifier.")
-    residues: str = Field(..., min_length=1, description="Canonical amino-acid sequence.")
+    residues: str = Field(
+        ..., min_length=1, description="Canonical amino-acid sequence."
+    )
 
     @field_validator("residues")
     @classmethod

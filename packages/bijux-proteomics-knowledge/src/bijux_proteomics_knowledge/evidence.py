@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -16,6 +17,7 @@ from bijux_proteomics_foundation import (
     JsonModel,
     TargetId,
 )
+
 
 class EvidenceKind(StrEnum):
     """Evidence families tracked by the platform."""
@@ -95,16 +97,26 @@ class QuantitativeSupport(JsonModel):
         le=1.0,
         description="Confidence level associated with the interval estimate.",
     )
-    variance: float | None = Field(default=None, ge=0.0, description="Observed variance.")
+    variance: float | None = Field(
+        default=None, ge=0.0, description="Observed variance."
+    )
     coefficient_of_variation: float | None = Field(
         default=None,
         ge=0.0,
         description="Coefficient of variation for replicate measurements.",
     )
-    p_value: float | None = Field(default=None, ge=0.0, le=1.0, description="Nominal p-value.")
-    q_value: float | None = Field(default=None, ge=0.0, le=1.0, description="Multiple-test adjusted q-value.")
-    replicate_count: int | None = Field(default=None, ge=1, description="Replicate count behind the observation.")
-    peptide_count: int | None = Field(default=None, ge=1, description="Number of quantified peptides.")
+    p_value: float | None = Field(
+        default=None, ge=0.0, le=1.0, description="Nominal p-value."
+    )
+    q_value: float | None = Field(
+        default=None, ge=0.0, le=1.0, description="Multiple-test adjusted q-value."
+    )
+    replicate_count: int | None = Field(
+        default=None, ge=1, description="Replicate count behind the observation."
+    )
+    peptide_count: int | None = Field(
+        default=None, ge=1, description="Number of quantified peptides."
+    )
     protein_coverage: float | None = Field(
         default=None,
         ge=0.0,
@@ -138,7 +150,9 @@ class QuantitativeSupport(JsonModel):
         default=None,
         description="Scale semantics such as fold-change, log2-ratio, or concentration.",
     )
-    unit: str | None = Field(default=None, description="Measurement unit for quantitative effects.")
+    unit: str | None = Field(
+        default=None, description="Measurement unit for quantitative effects."
+    )
 
 
 class ProteomicsArtifactFlags(JsonModel):
@@ -146,8 +160,12 @@ class ProteomicsArtifactFlags(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    missing_not_at_random: bool = Field(default=False, description="Potential MNAR missingness.")
-    ion_interference: bool = Field(default=False, description="Potential ion interference or suppression.")
+    missing_not_at_random: bool = Field(
+        default=False, description="Potential MNAR missingness."
+    )
+    ion_interference: bool = Field(
+        default=False, description="Potential ion interference or suppression."
+    )
     peptide_to_protein_ambiguity: bool = Field(
         default=False,
         description="Peptides may map ambiguously across proteins.",
@@ -191,7 +209,9 @@ class EvidenceRecord(JsonModel):
         default=None,
         description="Biological system where the observation was generated.",
     )
-    species: str | None = Field(default=None, description="Species context for the evidence.")
+    species: str | None = Field(
+        default=None, description="Species context for the evidence."
+    )
     sample_type: str | None = Field(
         default=None,
         description="Sample or matrix type used for the observation.",
@@ -200,9 +220,15 @@ class EvidenceRecord(JsonModel):
         default=None,
         description="Primary endpoint measured by this evidence record.",
     )
-    dose: str | None = Field(default=None, description="Dose level or concentration used in the experiment.")
-    timepoint: str | None = Field(default=None, description="Measurement timepoint for the observed signal.")
-    perturbation: str | None = Field(default=None, description="Perturbation applied to the system.")
+    dose: str | None = Field(
+        default=None, description="Dose level or concentration used in the experiment."
+    )
+    timepoint: str | None = Field(
+        default=None, description="Measurement timepoint for the observed signal."
+    )
+    perturbation: str | None = Field(
+        default=None, description="Perturbation applied to the system."
+    )
     control_design: str | None = Field(
         default=None,
         description="Control arm design for the experiment.",
@@ -350,9 +376,15 @@ class EvidenceConflict(JsonModel):
         min_length=1,
         description="Severity tier used to prioritize resolution.",
     )
-    left_evidence_id: str = Field(..., min_length=1, description="First evidence identifier.")
-    right_evidence_id: str = Field(..., min_length=1, description="Second evidence identifier.")
-    reason: str = Field(..., min_length=1, description="Why the pair is considered conflicting.")
+    left_evidence_id: str = Field(
+        ..., min_length=1, description="First evidence identifier."
+    )
+    right_evidence_id: str = Field(
+        ..., min_length=1, description="Second evidence identifier."
+    )
+    reason: str = Field(
+        ..., min_length=1, description="Why the pair is considered conflicting."
+    )
 
 
 class BundleTrustReport(JsonModel):
@@ -382,7 +414,9 @@ class TrustPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable trust policy identifier.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable trust policy identifier."
+    )
     source_type_weights: dict[EvidenceSourceType, float] = Field(
         default_factory=lambda: {
             EvidenceSourceType.LAB_ASSAY: 1.0,
@@ -442,7 +476,9 @@ class ConflictPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable conflict policy identifier.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable conflict policy identifier."
+    )
     require_shared_decision_tag: bool = Field(
         default=True,
         description="Whether conflicts require overlapping decision tags.",
@@ -514,16 +550,34 @@ class EvidenceQualityDecomposition(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    assay_validity: float = Field(..., ge=0.0, le=1.0, description="Assay validity signal.")
-    reproducibility: float = Field(..., ge=0.0, le=1.0, description="Reproducibility signal.")
-    orthogonality: float = Field(..., ge=0.0, le=1.0, description="Orthogonal support signal.")
-    biological_relevance: float = Field(..., ge=0.0, le=1.0, description="Biological relevance signal.")
-    statistical_support: float = Field(..., ge=0.0, le=1.0, description="Statistical support signal.")
-    context_match: float = Field(..., ge=0.0, le=1.0, description="Context match signal.")
-    context_relevance: float = Field(..., ge=0.0, le=1.0, description="Biological context relevance.")
-    source_credibility: float = Field(..., ge=0.0, le=1.0, description="Source credibility signal.")
+    assay_validity: float = Field(
+        ..., ge=0.0, le=1.0, description="Assay validity signal."
+    )
+    reproducibility: float = Field(
+        ..., ge=0.0, le=1.0, description="Reproducibility signal."
+    )
+    orthogonality: float = Field(
+        ..., ge=0.0, le=1.0, description="Orthogonal support signal."
+    )
+    biological_relevance: float = Field(
+        ..., ge=0.0, le=1.0, description="Biological relevance signal."
+    )
+    statistical_support: float = Field(
+        ..., ge=0.0, le=1.0, description="Statistical support signal."
+    )
+    context_match: float = Field(
+        ..., ge=0.0, le=1.0, description="Context match signal."
+    )
+    context_relevance: float = Field(
+        ..., ge=0.0, le=1.0, description="Biological context relevance."
+    )
+    source_credibility: float = Field(
+        ..., ge=0.0, le=1.0, description="Source credibility signal."
+    )
     recency: float = Field(..., ge=0.0, le=1.0, description="Recency signal.")
-    derived_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence derived from dimensions.")
+    derived_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confidence derived from dimensions."
+    )
 
 
 class ContextCompatibilityReport(JsonModel):
@@ -532,8 +586,12 @@ class ContextCompatibilityReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
-    score: float = Field(..., ge=0.0, le=1.0, description="Context compatibility score.")
-    notes: list[str] = Field(default_factory=list, description="Context compatibility notes.")
+    score: float = Field(
+        ..., ge=0.0, le=1.0, description="Context compatibility score."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Context compatibility notes."
+    )
 
 
 class EvidenceTriangulationReport(JsonModel):
@@ -542,15 +600,25 @@ class EvidenceTriangulationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     target_id: str = Field(..., min_length=1, description="Target identifier.")
-    decision_tag: str = Field(..., min_length=1, description="Decision tag under analysis.")
-    modality_counts: dict[str, int] = Field(default_factory=dict, description="Count by modality.")
-    modality_diversity: int = Field(..., ge=0, description="Number of distinct modalities.")
-    decisive_share: float = Field(..., ge=0.0, le=1.0, description="Fraction of records with decisive strength.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision tag under analysis."
+    )
+    modality_counts: dict[str, int] = Field(
+        default_factory=dict, description="Count by modality."
+    )
+    modality_diversity: int = Field(
+        ..., ge=0, description="Number of distinct modalities."
+    )
+    decisive_share: float = Field(
+        ..., ge=0.0, le=1.0, description="Fraction of records with decisive strength."
+    )
     missing_required_modalities: list[str] = Field(
         default_factory=list,
         description="Required modalities that are absent for this decision tag.",
     )
-    convergence_score: float = Field(..., ge=0.0, le=1.0, description="Triangulation convergence score.")
+    convergence_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Triangulation convergence score."
+    )
 
 
 class ArtifactRiskReport(JsonModel):
@@ -559,8 +627,12 @@ class ArtifactRiskReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
-    risk_score: float = Field(..., ge=0.0, le=1.0, description="Artifact-derived risk score.")
-    notes: list[str] = Field(default_factory=list, description="Artifact interpretation notes.")
+    risk_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Artifact-derived risk score."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Artifact interpretation notes."
+    )
 
 
 class QuantitativeSupportReport(JsonModel):
@@ -568,8 +640,12 @@ class QuantitativeSupportReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    support_score: float = Field(..., ge=0.0, le=1.0, description="Quantitative support quality score.")
-    notes: list[str] = Field(default_factory=list, description="Interpretation notes for score drivers.")
+    support_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Quantitative support quality score."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Interpretation notes for score drivers."
+    )
 
 
 class EvidenceContextCompletenessReport(JsonModel):
@@ -578,8 +654,12 @@ class EvidenceContextCompletenessReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
-    completeness_score: float = Field(..., ge=0.0, le=1.0, description="Context completeness score.")
-    missing_fields: list[str] = Field(default_factory=list, description="Context fields that are missing.")
+    completeness_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Context completeness score."
+    )
+    missing_fields: list[str] = Field(
+        default_factory=list, description="Context fields that are missing."
+    )
 
 
 class ScientificContextCompletenessReport(JsonModel):
@@ -588,8 +668,12 @@ class ScientificContextCompletenessReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
-    completeness_score: float = Field(..., ge=0.0, le=1.0, description="Scientific context completeness score.")
-    missing_fields: list[str] = Field(default_factory=list, description="Scientific context fields that are missing.")
+    completeness_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Scientific context completeness score."
+    )
+    missing_fields: list[str] = Field(
+        default_factory=list, description="Scientific context fields that are missing."
+    )
 
 
 class KnowledgeQualityAudit(JsonModel):
@@ -599,13 +683,25 @@ class KnowledgeQualityAudit(JsonModel):
 
     bundle_id: str = Field(..., min_length=1, description="Bundle identifier.")
     target_id: str = Field(..., min_length=1, description="Target identifier.")
-    decision_tag: str = Field(..., min_length=1, description="Decision tag under audit.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision tag under audit."
+    )
     trust_score: float = Field(..., ge=0.0, le=1.0, description="Bundle trust score.")
-    triangulation_score: float = Field(..., ge=0.0, le=1.0, description="Decision-tag triangulation score.")
-    low_context_records: list[str] = Field(default_factory=list, description="Records with poor scientific context.")
-    weak_quantitative_records: list[str] = Field(default_factory=list, description="Records with weak quantitative support.")
-    conflict_count: int = Field(default=0, ge=0, description="Number of conflicts in the bundle.")
-    recommendations: list[str] = Field(default_factory=list, description="Actionable quality recommendations.")
+    triangulation_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Decision-tag triangulation score."
+    )
+    low_context_records: list[str] = Field(
+        default_factory=list, description="Records with poor scientific context."
+    )
+    weak_quantitative_records: list[str] = Field(
+        default_factory=list, description="Records with weak quantitative support."
+    )
+    conflict_count: int = Field(
+        default=0, ge=0, description="Number of conflicts in the bundle."
+    )
+    recommendations: list[str] = Field(
+        default_factory=list, description="Actionable quality recommendations."
+    )
 
 
 class QuantitativeCoverageReport(JsonModel):
@@ -615,8 +711,15 @@ class QuantitativeCoverageReport(JsonModel):
 
     bundle_id: str = Field(..., min_length=1, description="Bundle identifier.")
     total_records: int = Field(..., ge=0, description="Total records evaluated.")
-    quantitative_records: int = Field(..., ge=0, description="Records carrying quantitative support.")
-    coverage_ratio: float = Field(..., ge=0.0, le=1.0, description="Fraction of records with quantitative support.")
+    quantitative_records: int = Field(
+        ..., ge=0, description="Records carrying quantitative support."
+    )
+    coverage_ratio: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Fraction of records with quantitative support.",
+    )
 
 
 class EvidenceRelevanceScore(JsonModel):
@@ -625,8 +728,12 @@ class EvidenceRelevanceScore(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
-    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Overall relevance score.")
-    drivers: list[str] = Field(default_factory=list, description="Primary relevance drivers.")
+    relevance_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Overall relevance score."
+    )
+    drivers: list[str] = Field(
+        default_factory=list, description="Primary relevance drivers."
+    )
 
 
 class ModalityCoverageReport(JsonModel):
@@ -634,10 +741,18 @@ class ModalityCoverageReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    decision_tag: str = Field(..., min_length=1, description="Decision tag under analysis.")
-    observed_modalities: dict[str, int] = Field(default_factory=dict, description="Observed count by modality.")
-    missing_modalities: list[str] = Field(default_factory=list, description="Required modalities not yet observed.")
-    coverage_score: float = Field(..., ge=0.0, le=1.0, description="Fraction of required modalities observed.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision tag under analysis."
+    )
+    observed_modalities: dict[str, int] = Field(
+        default_factory=dict, description="Observed count by modality."
+    )
+    missing_modalities: list[str] = Field(
+        default_factory=list, description="Required modalities not yet observed."
+    )
+    coverage_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Fraction of required modalities observed."
+    )
 
 
 class EvidenceProvenanceReport(JsonModel):
@@ -646,8 +761,12 @@ class EvidenceProvenanceReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
-    ancestor_ids: list[str] = Field(default_factory=list, description="Transitive upstream evidence identifiers.")
-    lineage_depth: int = Field(default=0, ge=0, description="Maximum lineage depth from upstream ancestry.")
+    ancestor_ids: list[str] = Field(
+        default_factory=list, description="Transitive upstream evidence identifiers."
+    )
+    lineage_depth: int = Field(
+        default=0, ge=0, description="Maximum lineage depth from upstream ancestry."
+    )
     has_missing_ancestors: bool = Field(
         default=False,
         description="Whether lineage references missing upstream evidence IDs.",
@@ -659,10 +778,21 @@ class ContextScoringProfile(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(..., min_length=1, description="Stable context scoring profile identifier.")
-    species_mismatch_penalty: float = Field(default=0.25, ge=0.0, le=1.0, description="Penalty for species mismatch.")
-    system_mismatch_penalty: float = Field(default=0.25, ge=0.0, le=1.0, description="Penalty for biological system mismatch.")
-    sample_type_mismatch_penalty: float = Field(default=0.2, ge=0.0, le=1.0, description="Penalty for sample-type mismatch.")
+    profile_id: str = Field(
+        ..., min_length=1, description="Stable context scoring profile identifier."
+    )
+    species_mismatch_penalty: float = Field(
+        default=0.25, ge=0.0, le=1.0, description="Penalty for species mismatch."
+    )
+    system_mismatch_penalty: float = Field(
+        default=0.25,
+        ge=0.0,
+        le=1.0,
+        description="Penalty for biological system mismatch.",
+    )
+    sample_type_mismatch_penalty: float = Field(
+        default=0.2, ge=0.0, le=1.0, description="Penalty for sample-type mismatch."
+    )
 
 
 class EvidenceCollectionAction(JsonModel):
@@ -670,7 +800,9 @@ class EvidenceCollectionAction(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    priority: str = Field(..., min_length=1, description="Priority tier for the collection action.")
+    priority: str = Field(
+        ..., min_length=1, description="Priority tier for the collection action."
+    )
     action: str = Field(..., min_length=1, description="Action text for scientists.")
     rationale: str = Field(..., min_length=1, description="Why this action is needed.")
 
@@ -698,8 +830,12 @@ class DecisionTagNormalizationReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    changed_records: int = Field(default=0, ge=0, description="Number of records whose tags changed.")
-    normalized_tag_set: list[str] = Field(default_factory=list, description="Unique normalized tag values.")
+    changed_records: int = Field(
+        default=0, ge=0, description="Number of records whose tags changed."
+    )
+    normalized_tag_set: list[str] = Field(
+        default_factory=list, description="Unique normalized tag values."
+    )
 
 
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
@@ -727,16 +863,21 @@ def decompose_evidence_quality(
 ) -> EvidenceQualityDecomposition:
     """Decompose quality and derive confidence from explicit dimensions."""
     now = now or datetime.now(UTC)
-    source_credibility = weight_source_type(record.source_type, policy=default_trust_policy())
+    source_credibility = weight_source_type(
+        record.source_type, policy=default_trust_policy()
+    )
     assay_validity = min(1.0, 0.4 + (0.6 if record.kind is EvidenceKind.ASSAY else 0.3))
     replicate_count = (
         record.quantitative_support.replicate_count
-        if record.quantitative_support is not None and record.quantitative_support.replicate_count is not None
+        if record.quantitative_support is not None
+        and record.quantitative_support.replicate_count is not None
         else 1
     )
     reproducibility = min(1.0, 0.3 + (replicate_count / 5.0))
     orthogonality = min(1.0, 0.4 + (0.2 * len(set(record.decision_tags))))
-    biological_relevance = 1.0 if record.kind in {EvidenceKind.CELLULAR, EvidenceKind.PHENOTYPE} else 0.75
+    biological_relevance = (
+        1.0 if record.kind in {EvidenceKind.CELLULAR, EvidenceKind.PHENOTYPE} else 0.75
+    )
     quantitative_report = evaluate_quantitative_support(record.quantitative_support)
     statistical_support = quantitative_report.support_score
     context_match = 0.95 if record.species and record.biological_system else 0.7
@@ -783,18 +924,21 @@ def assess_context_compatibility(
     profile = profile or ContextScoringProfile(profile_id="default-context-profile")
     notes: list[str] = []
     score = 1.0
-    if expected_species is not None:
-        if (record.species or "").lower() != expected_species.lower():
-            score -= profile.species_mismatch_penalty
-            notes.append("species context does not match expected program species")
-    if expected_system is not None:
-        if (record.biological_system or "").lower() != expected_system.lower():
-            score -= profile.system_mismatch_penalty
-            notes.append("biological system context does not match expected system")
-    if expected_sample_type is not None:
-        if (record.sample_type or "").lower() != expected_sample_type.lower():
-            score -= profile.sample_type_mismatch_penalty
-            notes.append("sample type context does not match expected sample type")
+    if expected_species is not None and (
+        (record.species or "").lower() != expected_species.lower()
+    ):
+        score -= profile.species_mismatch_penalty
+        notes.append("species context does not match expected program species")
+    if expected_system is not None and (
+        (record.biological_system or "").lower() != expected_system.lower()
+    ):
+        score -= profile.system_mismatch_penalty
+        notes.append("biological system context does not match expected system")
+    if expected_sample_type is not None and (
+        (record.sample_type or "").lower() != expected_sample_type.lower()
+    ):
+        score -= profile.sample_type_mismatch_penalty
+        notes.append("sample type context does not match expected sample type")
     if not notes:
         notes.append("evidence context matches expected biology")
     return ContextCompatibilityReport(
@@ -820,18 +964,28 @@ def triangulate_evidence(
         modality = record.kind.value
         modality_counts[modality] = modality_counts.get(modality, 0) + 1
     diversity = len(modality_counts)
-    decisive_count = sum(1 for record in matching_records if record.strength is EvidenceStrength.DECISIVE)
+    decisive_count = sum(
+        1 for record in matching_records if record.strength is EvidenceStrength.DECISIVE
+    )
     total_count = len(matching_records)
     decisive_share = round((decisive_count / total_count), 4) if total_count else 0.0
     required_modalities = required_modalities or []
-    missing_required_modalities = [modality for modality in required_modalities if modality not in modality_counts]
+    missing_required_modalities = [
+        modality for modality in required_modalities if modality not in modality_counts
+    ]
     modality_score = min(1.0, diversity / 4.0)
     decisive_score = decisive_share
-    completeness_score = 1.0 if not required_modalities else max(
-        0.0,
-        1.0 - (len(missing_required_modalities) / len(required_modalities)),
+    completeness_score = (
+        1.0
+        if not required_modalities
+        else max(
+            0.0,
+            1.0 - (len(missing_required_modalities) / len(required_modalities)),
+        )
     )
-    convergence = round((modality_score * 0.5) + (decisive_score * 0.3) + (completeness_score * 0.2), 4)
+    convergence = round(
+        (modality_score * 0.5) + (decisive_score * 0.3) + (completeness_score * 0.2), 4
+    )
     return EvidenceTriangulationReport(
         target_id=bundle.target_id,
         decision_tag=decision_tag,
@@ -862,7 +1016,9 @@ def assess_artifact_risk(record: EvidenceRecord) -> ArtifactRiskReport:
         notes.append("ion interference may distort abundance estimates")
     if flags.peptide_to_protein_ambiguity:
         risk += 0.2
-        notes.append("peptide-to-protein ambiguity may weaken protein-level conclusions")
+        notes.append(
+            "peptide-to-protein ambiguity may weaken protein-level conclusions"
+        )
     if flags.ptm_site_localization_uncertain:
         risk += 0.2
         notes.append("PTM localization uncertainty may weaken site-specific claims")
@@ -926,7 +1082,10 @@ def evaluate_quantitative_support(
     ):
         score += 0.05
         notes.append("confidence interval bounds are available")
-    if support.confidence_interval_level is not None and support.confidence_interval_level >= 0.9:
+    if (
+        support.confidence_interval_level is not None
+        and support.confidence_interval_level >= 0.9
+    ):
         score += 0.03
         notes.append("confidence interval level is scientifically standard")
     if support.scale_type:
@@ -1035,14 +1194,19 @@ def audit_knowledge_quality(
     recommendations: list[str] = []
     if triangulation.missing_required_modalities:
         recommendations.append(
-            "collect missing modalities: " + ", ".join(triangulation.missing_required_modalities)
+            "collect missing modalities: "
+            + ", ".join(triangulation.missing_required_modalities)
         )
     if low_context_records:
         recommendations.append("complete assay context fields for low-context records")
     if weak_quantitative_records:
-        recommendations.append("improve quantitative design for weak quantitative records")
+        recommendations.append(
+            "improve quantitative design for weak quantitative records"
+        )
     if trust.conflicts:
-        recommendations.append("resolve outstanding evidence conflicts before decision signoff")
+        recommendations.append(
+            "resolve outstanding evidence conflicts before decision signoff"
+        )
     if not recommendations:
         recommendations.append("knowledge quality is strong for current decision scope")
 
@@ -1059,10 +1223,14 @@ def audit_knowledge_quality(
     )
 
 
-def summarize_quantitative_coverage(bundle: EvidenceBundle) -> QuantitativeCoverageReport:
+def summarize_quantitative_coverage(
+    bundle: EvidenceBundle,
+) -> QuantitativeCoverageReport:
     """Summarize quantitative support coverage in an evidence bundle."""
     total = len(bundle.records)
-    quantitative = sum(1 for record in bundle.records if record.quantitative_support is not None)
+    quantitative = sum(
+        1 for record in bundle.records if record.quantitative_support is not None
+    )
     coverage_ratio = round((quantitative / total), 4) if total else 0.0
     return QuantitativeCoverageReport(
         bundle_id=bundle.bundle_id,
@@ -1197,20 +1365,19 @@ def plan_evidence_collection(
     required_modalities: list[str],
 ) -> list[EvidenceCollectionAction]:
     """Plan concrete evidence-collection actions for a decision tag."""
-    actions: list[EvidenceCollectionAction] = []
     coverage = evaluate_modality_coverage(
         bundle,
         decision_tag=decision_tag,
         required_modalities=required_modalities,
     )
-    for missing_modality in coverage.missing_modalities:
-        actions.append(
-            EvidenceCollectionAction(
-                priority="high",
-                action=f"collect {missing_modality} evidence for '{decision_tag}'",
-                rationale="required modality is missing for decision triangulation",
-            )
+    actions: list[EvidenceCollectionAction] = [
+        EvidenceCollectionAction(
+            priority="high",
+            action=f"collect {missing_modality} evidence for '{decision_tag}'",
+            rationale="required modality is missing for decision triangulation",
         )
+        for missing_modality in coverage.missing_modalities
+    ]
     for record in bundle.records:
         if decision_tag not in record.decision_tags:
             continue
@@ -1268,7 +1435,11 @@ def validate_quantitative_support_payload(
                 message="censored observations should include detection_limit_value",
             )
         )
-    if support.p_value is not None and support.q_value is not None and support.q_value < support.p_value:
+    if (
+        support.p_value is not None
+        and support.q_value is not None
+        and support.q_value < support.p_value
+    ):
         issues.append(
             QuantitativeValidationIssue(
                 code="q-value-less-than-p-value",
@@ -1297,26 +1468,29 @@ def validate_bundle_integrity(bundle: EvidenceBundle) -> list[BundleIntegrityIss
             )
         )
     known_ids = set(ids)
-    for record in bundle.records:
-        if not record.decision_tags:
-            issues.append(
-                BundleIntegrityIssue(
-                    code="decision-tags-missing",
-                    message=f"{record.evidence_id} should include at least one decision tag",
-                )
-            )
-        for upstream_id in record.derived_from:
-            if upstream_id not in known_ids:
-                issues.append(
-                    BundleIntegrityIssue(
-                        code="derived-from-missing",
-                        message=f"{record.evidence_id} references missing upstream evidence '{upstream_id}'",
-                    )
-                )
+    issues.extend(
+        BundleIntegrityIssue(
+            code="decision-tags-missing",
+            message=f"{record.evidence_id} should include at least one decision tag",
+        )
+        for record in bundle.records
+        if not record.decision_tags
+    )
+    issues.extend(
+        BundleIntegrityIssue(
+            code="derived-from-missing",
+            message=f"{record.evidence_id} references missing upstream evidence '{upstream_id}'",
+        )
+        for record in bundle.records
+        for upstream_id in record.derived_from
+        if upstream_id not in known_ids
+    )
     return issues
 
 
-def normalize_bundle_decision_tags(bundle: EvidenceBundle) -> tuple[EvidenceBundle, DecisionTagNormalizationReport]:
+def normalize_bundle_decision_tags(
+    bundle: EvidenceBundle,
+) -> tuple[EvidenceBundle, DecisionTagNormalizationReport]:
     """Normalize decision tags to lowercase kebab style and deduplicate per record."""
     changed = 0
     normalized_records: list[EvidenceRecord] = []
@@ -1332,7 +1506,9 @@ def normalize_bundle_decision_tags(bundle: EvidenceBundle) -> tuple[EvidenceBund
         normalized_tag_set.update(normalized_tags)
         if normalized_tags != record.decision_tags:
             changed += 1
-            normalized_records.append(record.model_copy(update={"decision_tags": normalized_tags}))
+            normalized_records.append(
+                record.model_copy(update={"decision_tags": normalized_tags})
+            )
         else:
             normalized_records.append(record)
     normalized_bundle = bundle.model_copy(update={"records": normalized_records})
@@ -1364,9 +1540,9 @@ def coverage_report(
     return EvidenceCoverage(
         bundle_id=bundle.bundle_id,
         target_id=bundle.target_id,
-        by_kind=summary["by_kind"],
+        by_kind=cast(dict[str, int], summary["by_kind"]),
         missing_kinds=evidence_gaps(bundle, required_kinds),
-        decisive_records=summary["decisive_records"],
+        decisive_records=cast(int, summary["decisive_records"]),
         mean_confidence=round(mean_confidence, 4),
     )
 
@@ -1398,7 +1574,9 @@ def assess_decision_readiness(
             f"mean confidence {coverage.mean_confidence:.2f} is below "
             f"{minimum_mean_confidence:.2f}"
         )
-        recommendations.append("replace exploratory evidence with stronger corroboration")
+        recommendations.append(
+            "replace exploratory evidence with stronger corroboration"
+        )
 
     return DecisionReadiness(
         target_id=bundle.target_id,
@@ -1511,17 +1689,15 @@ def plan_evidence_refresh(
     policy = policy or default_trust_policy()
     stale = stale_records(bundle, now=now, policy=policy)
     aging = aging_records(bundle, now=now, horizon_days=horizon_days, policy=policy)
-    refresh_needs: list[EvidenceRefreshNeed] = []
-
-    for record in stale:
-        refresh_needs.append(
-            EvidenceRefreshNeed(
-                evidence_id=record.evidence_id,
-                priority=EvidenceRefreshPriority.HIGH,
-                reason="the evidence record is already past its validity window",
-                suggested_action=_refresh_action_for_record(record),
-            )
+    refresh_needs: list[EvidenceRefreshNeed] = [
+        EvidenceRefreshNeed(
+            evidence_id=record.evidence_id,
+            priority=EvidenceRefreshPriority.HIGH,
+            reason="the evidence record is already past its validity window",
+            suggested_action=_refresh_action_for_record(record),
         )
+        for record in stale
+    ]
     stale_ids = {record.evidence_id for record in stale}
     for record in aging:
         if record.evidence_id in stale_ids:
@@ -1543,7 +1719,11 @@ def plan_evidence_refresh(
         bundle_id=bundle.bundle_id,
         target_id=bundle.target_id,
         stale_records=[record.evidence_id for record in stale],
-        aging_records=[record.evidence_id for record in aging if record.evidence_id not in stale_ids],
+        aging_records=[
+            record.evidence_id
+            for record in aging
+            if record.evidence_id not in stale_ids
+        ],
         refresh_needs=refresh_needs,
     )
 
@@ -1592,7 +1772,9 @@ def flag_conflicting_evidence(
         for right in bundle.records[index + 1 :]:
             if left.kind is not right.kind:
                 continue
-            if policy.require_shared_decision_tag and not left_tags.intersection(right.decision_tags):
+            if policy.require_shared_decision_tag and not left_tags.intersection(
+                right.decision_tags
+            ):
                 continue
             if left.claim.strip().lower() == right.claim.strip().lower():
                 continue
@@ -1617,7 +1799,9 @@ def flag_conflicting_evidence(
                 left.endpoint
                 and right.endpoint
                 and left.endpoint.strip().lower() == right.endpoint.strip().lower()
-                and _has_magnitude_conflict(left, right, threshold=policy.magnitude_divergence_threshold)
+                and _has_magnitude_conflict(
+                    left, right, threshold=policy.magnitude_divergence_threshold
+                )
             ):
                 conflicts.append(
                     EvidenceConflict(
@@ -1674,7 +1858,8 @@ def flag_conflicting_evidence(
             if (
                 left.biological_system is not None
                 and right.biological_system is not None
-                and left.biological_system.strip().lower() != right.biological_system.strip().lower()
+                and left.biological_system.strip().lower()
+                != right.biological_system.strip().lower()
             ):
                 conflicts.append(
                     EvidenceConflict(
@@ -1715,16 +1900,28 @@ def _looks_polarity_conflict(left_claim: str, right_claim: str) -> bool:
 
 
 def _has_opposite_effect_direction(left: EvidenceRecord, right: EvidenceRecord) -> bool:
-    left_effect = left.quantitative_support.effect_size if left.quantitative_support else None
-    right_effect = right.quantitative_support.effect_size if right.quantitative_support else None
+    left_effect = (
+        left.quantitative_support.effect_size if left.quantitative_support else None
+    )
+    right_effect = (
+        right.quantitative_support.effect_size if right.quantitative_support else None
+    )
     if left_effect is None or right_effect is None:
         return False
-    return (left_effect > 0 and right_effect < 0) or (left_effect < 0 and right_effect > 0)
+    return (left_effect > 0 and right_effect < 0) or (
+        left_effect < 0 and right_effect > 0
+    )
 
 
-def _has_magnitude_conflict(left: EvidenceRecord, right: EvidenceRecord, *, threshold: float) -> bool:
-    left_effect = left.quantitative_support.effect_size if left.quantitative_support else None
-    right_effect = right.quantitative_support.effect_size if right.quantitative_support else None
+def _has_magnitude_conflict(
+    left: EvidenceRecord, right: EvidenceRecord, *, threshold: float
+) -> bool:
+    left_effect = (
+        left.quantitative_support.effect_size if left.quantitative_support else None
+    )
+    right_effect = (
+        right.quantitative_support.effect_size if right.quantitative_support else None
+    )
     if left_effect is None or right_effect is None:
         return False
     return abs(left_effect - right_effect) >= threshold

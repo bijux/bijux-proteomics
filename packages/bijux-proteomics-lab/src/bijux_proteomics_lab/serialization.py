@@ -20,6 +20,7 @@ def fingerprint_model(model: JsonModel) -> str:
     """Generate a stable SHA-256 fingerprint for a lab model payload."""
     return hashlib.sha256(to_canonical_json(model).encode("utf-8")).hexdigest()
 
+
 def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str]]:
     """Compute a deterministic field-level diff between two model payloads."""
     left_payload = left.to_dict()
@@ -48,7 +49,9 @@ def build_canonical_artifact_envelope(
 ) -> dict[str, object]:
     """Build canonical envelope for lab artifact transport and auditing."""
     payload = model.to_dict()
-    fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    fingerprint = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
     return {
         "artifact_kind": artifact_kind,
         "schema": schema.to_dict(),
@@ -63,7 +66,9 @@ def verify_canonical_artifact_envelope(envelope: dict[str, object]) -> bool:
     fingerprint = envelope.get("fingerprint")
     if not isinstance(payload, dict) or not isinstance(fingerprint, str):
         return False
-    expected = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    expected = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
     return expected == fingerprint
 
 

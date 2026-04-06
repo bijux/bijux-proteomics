@@ -43,7 +43,10 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
     assay_readouts = {assay.readout for assay in program.assay_panel}
     blocking_assays = [assay for assay in program.assay_panel if assay.blocking]
 
-    if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY} and not program.review_gates:
+    if (
+        program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY}
+        and not program.review_gates
+    ):
         issues.append(
             ProgramValidationIssue(
                 code="review-gates-missing",
@@ -93,21 +96,30 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                 message="lab-ready programs should include at least one blocking assay",
             )
         )
-    if program.stage is ProgramStage.LAB_READY and not program.translational_assumptions:
+    if (
+        program.stage is ProgramStage.LAB_READY
+        and not program.translational_assumptions
+    ):
         issues.append(
             ProgramValidationIssue(
                 code="translational-assumptions-missing",
                 message="lab-ready programs should define translational assumptions",
             )
         )
-    if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY} and not program.modality_context:
+    if (
+        program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY}
+        and not program.modality_context
+    ):
         issues.append(
             ProgramValidationIssue(
                 code="modality-context-missing",
                 message="review and lab-ready programs should define modality_context",
             )
         )
-    if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY} and not program.key_unknowns:
+    if (
+        program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY}
+        and not program.key_unknowns
+    ):
         issues.append(
             ProgramValidationIssue(
                 code="key-unknowns-missing",
@@ -156,34 +168,39 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                     ),
                 )
             )
-    for constraint in program.constraints:
-        if constraint.blocker and not constraint.mitigation_plan:
-            issues.append(
-                ProgramValidationIssue(
-                    code="constraint-mitigation-missing",
-                    message=(
-                        f"blocking constraint '{constraint.constraint_id}' should define a mitigation_plan"
-                    ),
-                )
-            )
+    issues.extend(
+        ProgramValidationIssue(
+            code="constraint-mitigation-missing",
+            message=(
+                f"blocking constraint '{constraint.constraint_id}' should define a mitigation_plan"
+            ),
+        )
+        for constraint in program.constraints
+        if constraint.blocker and not constraint.mitigation_plan
+    )
+    issues.extend(
+        ProgramValidationIssue(
+            code="liability-owner-missing",
+            message=f"blocking liability '{liability.liability_id}' should declare owner_role",
+        )
+        for liability in program.liabilities
+        if liability.blocker and not liability.owner_role
+    )
+    issues.extend(
+        ProgramValidationIssue(
+            code="liability-evidence-missing",
+            message=f"blocking liability '{liability.liability_id}' should reference supporting evidence ids",
+        )
+        for liability in program.liabilities
+        if liability.blocker and not liability.evidence_ids
+    )
     for liability in program.liabilities:
-        if liability.blocker and not liability.owner_role:
-            issues.append(
-                ProgramValidationIssue(
-                    code="liability-owner-missing",
-                    message=f"blocking liability '{liability.liability_id}' should declare owner_role",
-                )
-            )
-        if liability.blocker and not liability.evidence_ids:
-            issues.append(
-                ProgramValidationIssue(
-                    code="liability-evidence-missing",
-                    message=f"blocking liability '{liability.liability_id}' should reference supporting evidence ids",
-                )
-            )
         if liability.blocker and liability.mitigation:
             mitigation_text = liability.mitigation.lower()
-            if not any(assay.assay_id.lower() in mitigation_text for assay in program.assay_panel):
+            if not any(
+                assay.assay_id.lower() in mitigation_text
+                for assay in program.assay_panel
+            ):
                 issues.append(
                     ProgramValidationIssue(
                         code="liability-mitigation-assay-unmapped",
@@ -227,7 +244,8 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
             for decision_input in gate.decision_inputs
             if decision_input not in assay_ids
             and decision_input not in criterion_metrics
-            and decision_input not in {"evidence_bundle", "ranked_candidates", "review_packet"}
+            and decision_input
+            not in {"evidence_bundle", "ranked_candidates", "review_packet"}
         ]
         if missing_inputs:
             issues.append(
@@ -241,7 +259,9 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
             )
         if program.stage is ProgramStage.LAB_READY and gate.blocking:
             mapped_assay_inputs = [
-                decision_input for decision_input in gate.decision_inputs if decision_input in assay_ids
+                decision_input
+                for decision_input in gate.decision_inputs
+                if decision_input in assay_ids
             ]
             non_blocking_inputs = [
                 assay.assay_id

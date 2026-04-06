@@ -9,7 +9,16 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.programs import ProgramSpec
+from bijux_proteomics_foundation import (
+    AssayId,
+    BatchId,
+    CycleId,
+    DocumentSchema,
+    JsonModel,
+    ProgramId,
+)
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     assess_decision_readiness,
@@ -24,14 +33,6 @@ from bijux_proteomics_lab.outcomes import (
     assess_batch_outcome,
     summarize_experiment_outcome,
     triage_batch_failures,
-)
-from bijux_proteomics_foundation import (
-    AssayId,
-    BatchId,
-    CycleId,
-    DocumentSchema,
-    JsonModel,
-    ProgramId,
 )
 
 
@@ -49,11 +50,22 @@ class AssayObservation(JsonModel):
         default_factory=list,
         description="Raw replicate values captured for the observation.",
     )
-    summary_statistic: str | None = Field(default=None, description="Summary statistic used for decisioning.")
-    dispersion: float | None = Field(default=None, ge=0.0, description="Replicate dispersion signal.")
-    qc_state: str = Field(default="passed", description="QC state such as passed, warning, or failed.")
-    normalization_method: str | None = Field(default=None, description="Normalization method applied.")
-    censoring_flag: bool = Field(default=False, description="Whether the observation was censored by detection limits.")
+    summary_statistic: str | None = Field(
+        default=None, description="Summary statistic used for decisioning."
+    )
+    dispersion: float | None = Field(
+        default=None, ge=0.0, description="Replicate dispersion signal."
+    )
+    qc_state: str = Field(
+        default="passed", description="QC state such as passed, warning, or failed."
+    )
+    normalization_method: str | None = Field(
+        default=None, description="Normalization method applied."
+    )
+    censoring_flag: bool = Field(
+        default=False,
+        description="Whether the observation was censored by detection limits.",
+    )
     interpretation_confidence: float = Field(
         default=1.0,
         ge=0.0,
@@ -94,7 +106,9 @@ class AssayDependency(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Dependent assay identifier.")
-    requires_assay_id: AssayId = Field(..., description="Prerequisite assay identifier.")
+    requires_assay_id: AssayId = Field(
+        ..., description="Prerequisite assay identifier."
+    )
 
 
 class AssayIntent(JsonModel):
@@ -149,8 +163,12 @@ class MaterialRequirement(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    material_id: str = Field(..., min_length=1, description="Stable material identifier.")
-    sample_kind: str = Field(..., min_length=1, description="Type of sample or reagent.")
+    material_id: str = Field(
+        ..., min_length=1, description="Stable material identifier."
+    )
+    sample_kind: str = Field(
+        ..., min_length=1, description="Type of sample or reagent."
+    )
     minimum_units: float = Field(
         ...,
         gt=0.0,
@@ -164,7 +182,9 @@ class MaterialInventory(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    material_id: str = Field(..., min_length=1, description="Stable material identifier.")
+    material_id: str = Field(
+        ..., min_length=1, description="Stable material identifier."
+    )
     available_units: float = Field(
         ...,
         ge=0.0,
@@ -221,10 +241,18 @@ class ReviewRiskProfile(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    trust_score: float = Field(..., ge=0.0, le=1.0, description="Evidence trust score for the current bundle.")
-    conflict_count: int = Field(..., ge=0, description="Number of active evidence conflicts.")
-    triangulation_score: float = Field(..., ge=0.0, le=1.0, description="Triangulation convergence score.")
-    risk_level: str = Field(..., min_length=1, description="Overall risk level: low, medium, or high.")
+    trust_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Evidence trust score for the current bundle."
+    )
+    conflict_count: int = Field(
+        ..., ge=0, description="Number of active evidence conflicts."
+    )
+    triangulation_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Triangulation convergence score."
+    )
+    risk_level: str = Field(
+        ..., min_length=1, description="Overall risk level: low, medium, or high."
+    )
 
 
 class ClosedLoopPlan(JsonModel):
@@ -338,7 +366,9 @@ class NextAssayPriority(JsonModel):
         ge=0.0,
         description="Estimated time-to-result in days.",
     )
-    reasons: list[str] = Field(default_factory=list, description="Short rationale points.")
+    reasons: list[str] = Field(
+        default_factory=list, description="Short rationale points."
+    )
 
 
 class InformationGainBreakdown(JsonModel):
@@ -347,13 +377,27 @@ class InformationGainBreakdown(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
-    uncertainty_reduction: float = Field(..., ge=0.0, le=1.0, description="Expected uncertainty reduction.")
-    contradiction_resolution_value: float = Field(..., ge=0.0, le=1.0, description="Expected contradiction resolution value.")
-    falsification_value: float = Field(..., ge=0.0, le=1.0, description="Expected hypothesis falsification value.")
-    decision_gate_impact: float = Field(..., ge=0.0, le=1.0, description="Impact on near-term decision gates.")
-    orthogonal_confirmation_value: float = Field(..., ge=0.0, le=1.0, description="Orthogonal confirmation contribution.")
-    burden_penalty: float = Field(..., ge=0.0, le=1.0, description="Relative execution burden penalty.")
-    final_score: float = Field(..., ge=0.0, le=1.0, description="Combined information-gain score.")
+    uncertainty_reduction: float = Field(
+        ..., ge=0.0, le=1.0, description="Expected uncertainty reduction."
+    )
+    contradiction_resolution_value: float = Field(
+        ..., ge=0.0, le=1.0, description="Expected contradiction resolution value."
+    )
+    falsification_value: float = Field(
+        ..., ge=0.0, le=1.0, description="Expected hypothesis falsification value."
+    )
+    decision_gate_impact: float = Field(
+        ..., ge=0.0, le=1.0, description="Impact on near-term decision gates."
+    )
+    orthogonal_confirmation_value: float = Field(
+        ..., ge=0.0, le=1.0, description="Orthogonal confirmation contribution."
+    )
+    burden_penalty: float = Field(
+        ..., ge=0.0, le=1.0, description="Relative execution burden penalty."
+    )
+    final_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Combined information-gain score."
+    )
 
 
 class GateImpactScore(JsonModel):
@@ -363,9 +407,15 @@ class GateImpactScore(JsonModel):
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
     batch_id: BatchId = Field(..., description="Batch containing the assay.")
-    blocking_gate_count: int = Field(..., ge=0, description="Count of blocking review gates tied to the batch.")
-    impact_score: float = Field(..., ge=0.0, le=1.0, description="Combined decision-gate impact score.")
-    rationale: list[str] = Field(default_factory=list, description="Human-readable impact rationale.")
+    blocking_gate_count: int = Field(
+        ..., ge=0, description="Count of blocking review gates tied to the batch."
+    )
+    impact_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Combined decision-gate impact score."
+    )
+    rationale: list[str] = Field(
+        default_factory=list, description="Human-readable impact rationale."
+    )
 
 
 class AssayExecutionBurden(JsonModel):
@@ -375,9 +425,15 @@ class AssayExecutionBurden(JsonModel):
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
     batch_id: BatchId = Field(..., description="Batch containing the assay.")
-    burden_score: float = Field(..., ge=0.0, le=1.0, description="Relative burden score.")
-    estimated_days: float = Field(..., ge=0.0, description="Estimated turnaround time in days.")
-    drivers: list[str] = Field(default_factory=list, description="Primary burden drivers.")
+    burden_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Relative burden score."
+    )
+    estimated_days: float = Field(
+        ..., ge=0.0, description="Estimated turnaround time in days."
+    )
+    drivers: list[str] = Field(
+        default_factory=list, description="Primary burden drivers."
+    )
 
 
 class LabCycleBrief(JsonModel):
@@ -386,8 +442,12 @@ class LabCycleBrief(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    ready_for_progression: bool = Field(..., description="Whether current evidence supports progression.")
-    top_gate_impacts: list[GateImpactScore] = Field(default_factory=list, description="Highest gate-impact assays.")
+    ready_for_progression: bool = Field(
+        ..., description="Whether current evidence supports progression."
+    )
+    top_gate_impacts: list[GateImpactScore] = Field(
+        default_factory=list, description="Highest gate-impact assays."
+    )
     highest_burden_assays: list[AssayExecutionBurden] = Field(
         default_factory=list,
         description="Assays expected to create the most execution burden.",
@@ -396,7 +456,9 @@ class LabCycleBrief(JsonModel):
         default_factory=list,
         description="Highest-priority assays based on information gain.",
     )
-    notes: list[str] = Field(default_factory=list, description="Summary notes for review.")
+    notes: list[str] = Field(
+        default_factory=list, description="Summary notes for review."
+    )
 
 
 class HypothesisFalsificationPlan(JsonModel):
@@ -404,9 +466,15 @@ class HypothesisFalsificationPlan(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    hypothesis: str = Field(..., min_length=1, description="Scientific hypothesis under test.")
-    prioritized_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays ranked by falsification value.")
-    rationale: list[str] = Field(default_factory=list, description="Rationale notes for assay ranking.")
+    hypothesis: str = Field(
+        ..., min_length=1, description="Scientific hypothesis under test."
+    )
+    prioritized_assay_ids: list[AssayId] = Field(
+        default_factory=list, description="Assays ranked by falsification value."
+    )
+    rationale: list[str] = Field(
+        default_factory=list, description="Rationale notes for assay ranking."
+    )
 
 
 class AssayPortfolioBalanceReport(JsonModel):
@@ -415,11 +483,21 @@ class AssayPortfolioBalanceReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    family_counts: dict[str, int] = Field(default_factory=dict, description="Assay counts by family.")
-    dominant_family: str | None = Field(default=None, description="Most represented assay family.")
-    concentration_ratio: float = Field(default=0.0, ge=0.0, le=1.0, description="Share of assays in dominant family.")
-    orthogonal_coverage_ready: bool = Field(default=False, description="Whether at least three families are represented.")
-    notes: list[str] = Field(default_factory=list, description="Portfolio balance commentary.")
+    family_counts: dict[str, int] = Field(
+        default_factory=dict, description="Assay counts by family."
+    )
+    dominant_family: str | None = Field(
+        default=None, description="Most represented assay family."
+    )
+    concentration_ratio: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Share of assays in dominant family."
+    )
+    orthogonal_coverage_ready: bool = Field(
+        default=False, description="Whether at least three families are represented."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Portfolio balance commentary."
+    )
 
 
 class MaterialReservation(JsonModel):
@@ -431,7 +509,9 @@ class MaterialReservation(JsonModel):
     material_id: str = Field(..., min_length=1, description="Material identifier.")
     reserved_units: float = Field(..., ge=0.0, description="Reserved quantity.")
     unit: str = Field(..., min_length=1, description="Unit of measure.")
-    feasible: bool = Field(..., description="Whether reservation is feasible with current inventory.")
+    feasible: bool = Field(
+        ..., description="Whether reservation is feasible with current inventory."
+    )
 
 
 class LabExecutionDirective(JsonModel):
@@ -440,9 +520,15 @@ class LabExecutionDirective(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    decision: ProgressDecision = Field(..., description="Operational next-step decision.")
-    escalation_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays requiring escalation.")
-    immediate_actions: list[str] = Field(default_factory=list, description="Immediate execution actions.")
+    decision: ProgressDecision = Field(
+        ..., description="Operational next-step decision."
+    )
+    escalation_assay_ids: list[AssayId] = Field(
+        default_factory=list, description="Assays requiring escalation."
+    )
+    immediate_actions: list[str] = Field(
+        default_factory=list, description="Immediate execution actions."
+    )
 
 
 class GateCoverageGapReport(JsonModel):
@@ -451,9 +537,15 @@ class GateCoverageGapReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    covered_gates: list[str] = Field(default_factory=list, description="Gates covered by planned batches.")
-    uncovered_gates: list[str] = Field(default_factory=list, description="Gates in queue with no planned coverage.")
-    notes: list[str] = Field(default_factory=list, description="Coverage interpretation notes.")
+    covered_gates: list[str] = Field(
+        default_factory=list, description="Gates covered by planned batches."
+    )
+    uncovered_gates: list[str] = Field(
+        default_factory=list, description="Gates in queue with no planned coverage."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Coverage interpretation notes."
+    )
 
 
 class AssayContradictionPressure(JsonModel):
@@ -462,8 +554,12 @@ class AssayContradictionPressure(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
-    pressure_score: float = Field(..., ge=0.0, le=1.0, description="Contradiction pressure score.")
-    rationale: list[str] = Field(default_factory=list, description="Pressure rationale notes.")
+    pressure_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Contradiction pressure score."
+    )
+    rationale: list[str] = Field(
+        default_factory=list, description="Pressure rationale notes."
+    )
 
 
 class ScheduleScenarioSummary(JsonModel):
@@ -472,8 +568,12 @@ class ScheduleScenarioSummary(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     scenario_id: str = Field(..., min_length=1, description="Scenario identifier.")
-    scheduled_batch_count: int = Field(..., ge=0, description="Number of scheduled batches.")
-    deferred_assay_count: int = Field(..., ge=0, description="Number of deferred assays.")
+    scheduled_batch_count: int = Field(
+        ..., ge=0, description="Number of scheduled batches."
+    )
+    deferred_assay_count: int = Field(
+        ..., ge=0, description="Number of deferred assays."
+    )
 
 
 class ScheduleScenarioComparison(JsonModel):
@@ -482,8 +582,12 @@ class ScheduleScenarioComparison(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
-    scenarios: list[ScheduleScenarioSummary] = Field(default_factory=list, description="Scenario summaries.")
-    recommended_scenario_id: str | None = Field(default=None, description="Scenario with lowest deferred assay load.")
+    scenarios: list[ScheduleScenarioSummary] = Field(
+        default_factory=list, description="Scenario summaries."
+    )
+    recommended_scenario_id: str | None = Field(
+        default=None, description="Scenario with lowest deferred assay load."
+    )
 
 
 class OrthogonalConfirmationPlan(JsonModel):
@@ -491,8 +595,12 @@ class OrthogonalConfirmationPlan(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    decision_tag: str = Field(..., min_length=1, description="Decision context evaluated.")
-    required: bool = Field(..., description="Whether orthogonal confirmation is required.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision context evaluated."
+    )
+    required: bool = Field(
+        ..., description="Whether orthogonal confirmation is required."
+    )
     suggested_assay_ids: list[str] = Field(
         default_factory=list,
         description="Assays suggested for orthogonal confirmation.",
@@ -509,7 +617,9 @@ class ConflictResolutionPlan(JsonModel):
         default_factory=list,
         description="Assays recommended to resolve contradictory evidence.",
     )
-    notes: list[str] = Field(default_factory=list, description="Human-readable plan notes.")
+    notes: list[str] = Field(
+        default_factory=list, description="Human-readable plan notes."
+    )
 
 
 class UncertaintyReductionPlan(JsonModel):
@@ -517,7 +627,9 @@ class UncertaintyReductionPlan(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    decision_tag: str = Field(..., min_length=1, description="Decision context under uncertainty reduction.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision context under uncertainty reduction."
+    )
     prioritized_assay_ids: list[str] = Field(
         default_factory=list,
         description="Assays ordered by uncertainty reduction value.",
@@ -528,7 +640,9 @@ class UncertaintyReductionPlan(JsonModel):
         le=1.0,
         description="Estimated residual uncertainty after planned assays.",
     )
-    notes: list[str] = Field(default_factory=list, description="Plan notes for reviewers.")
+    notes: list[str] = Field(
+        default_factory=list, description="Plan notes for reviewers."
+    )
 
 
 class NextBestExperiment(JsonModel):
@@ -541,8 +655,12 @@ class NextBestExperiment(JsonModel):
         default_factory=list,
         description="Prerequisites that should run first.",
     )
-    expected_information_gain: float = Field(..., ge=0.0, le=1.0, description="Expected information gain score.")
-    rationale: list[str] = Field(default_factory=list, description="Short rationale for recommendation.")
+    expected_information_gain: float = Field(
+        ..., ge=0.0, le=1.0, description="Expected information gain score."
+    )
+    rationale: list[str] = Field(
+        default_factory=list, description="Short rationale for recommendation."
+    )
 
 
 class PlanningPolicy(JsonModel):
@@ -550,13 +668,27 @@ class PlanningPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable planning policy identifier.")
-    uncertainty_weight: float = Field(default=0.22, ge=0.0, le=1.0, description="Weight for uncertainty reduction.")
-    contradiction_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Weight for contradiction resolution.")
-    falsification_weight: float = Field(default=0.18, ge=0.0, le=1.0, description="Weight for falsification value.")
-    gate_impact_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Weight for decision-gate impact.")
-    orthogonal_weight: float = Field(default=0.2, ge=0.0, le=1.0, description="Weight for orthogonal confirmation.")
-    blocking_burden_penalty: float = Field(default=0.2, ge=0.0, le=1.0, description="Burden penalty for blocking assays.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable planning policy identifier."
+    )
+    uncertainty_weight: float = Field(
+        default=0.22, ge=0.0, le=1.0, description="Weight for uncertainty reduction."
+    )
+    contradiction_weight: float = Field(
+        default=0.2, ge=0.0, le=1.0, description="Weight for contradiction resolution."
+    )
+    falsification_weight: float = Field(
+        default=0.18, ge=0.0, le=1.0, description="Weight for falsification value."
+    )
+    gate_impact_weight: float = Field(
+        default=0.2, ge=0.0, le=1.0, description="Weight for decision-gate impact."
+    )
+    orthogonal_weight: float = Field(
+        default=0.2, ge=0.0, le=1.0, description="Weight for orthogonal confirmation."
+    )
+    blocking_burden_penalty: float = Field(
+        default=0.2, ge=0.0, le=1.0, description="Burden penalty for blocking assays."
+    )
     non_blocking_burden_penalty: float = Field(
         default=0.12,
         ge=0.0,
@@ -570,8 +702,14 @@ class OrthogonalPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable orthogonal policy identifier.")
-    decision_tag: str = Field(default="progression", min_length=1, description="Decision tag under evaluation.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable orthogonal policy identifier."
+    )
+    decision_tag: str = Field(
+        default="progression",
+        min_length=1,
+        description="Decision tag under evaluation.",
+    )
     minimum_convergence_score: float = Field(
         default=0.5,
         ge=0.0,
@@ -589,10 +727,18 @@ class ConflictAssayPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    policy_id: str = Field(..., min_length=1, description="Stable conflict-assay policy identifier.")
-    max_suggestions: int = Field(default=3, ge=1, description="Maximum number of suggested assays.")
-    blocking_bonus: float = Field(default=0.25, ge=0.0, le=1.0, description="Score bonus for blocking assays.")
-    contradiction_weight: float = Field(default=0.3, ge=0.0, le=1.0, description="Weight for contradiction burden.")
+    policy_id: str = Field(
+        ..., min_length=1, description="Stable conflict-assay policy identifier."
+    )
+    max_suggestions: int = Field(
+        default=3, ge=1, description="Maximum number of suggested assays."
+    )
+    blocking_bonus: float = Field(
+        default=0.25, ge=0.0, le=1.0, description="Score bonus for blocking assays."
+    )
+    contradiction_weight: float = Field(
+        default=0.3, ge=0.0, le=1.0, description="Weight for contradiction burden."
+    )
 
 
 class DependencyCycleReport(JsonModel):
@@ -601,7 +747,9 @@ class DependencyCycleReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     has_cycle: bool = Field(..., description="Whether a dependency cycle exists.")
-    cycle_assay_ids: list[str] = Field(default_factory=list, description="Assays participating in a detected cycle.")
+    cycle_assay_ids: list[str] = Field(
+        default_factory=list, description="Assays participating in a detected cycle."
+    )
 
 
 class DependencyIntegrityReport(JsonModel):
@@ -632,8 +780,12 @@ class DependencyCriticalPath(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    ordered_assay_ids: list[AssayId] = Field(default_factory=list, description="Critical path assay order.")
-    path_length: int = Field(default=0, ge=0, description="Number of assays in the critical path.")
+    ordered_assay_ids: list[AssayId] = Field(
+        default_factory=list, description="Critical path assay order."
+    )
+    path_length: int = Field(
+        default=0, ge=0, description="Number of assays in the critical path."
+    )
 
 
 class SchedulePressureReport(JsonModel):
@@ -642,10 +794,18 @@ class SchedulePressureReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     cycle_id: CycleId = Field(..., description="Cycle identifier.")
-    scheduled_batch_count: int = Field(default=0, ge=0, description="Number of scheduled batches.")
-    unscheduled_batch_count: int = Field(default=0, ge=0, description="Number of unscheduled batches.")
-    assay_slot_utilization: float = Field(..., ge=0.0, le=1.0, description="Used assay slots / total slots.")
-    deferred_assay_count: int = Field(default=0, ge=0, description="Deferred assays due to capacity limits.")
+    scheduled_batch_count: int = Field(
+        default=0, ge=0, description="Number of scheduled batches."
+    )
+    unscheduled_batch_count: int = Field(
+        default=0, ge=0, description="Number of unscheduled batches."
+    )
+    assay_slot_utilization: float = Field(
+        ..., ge=0.0, le=1.0, description="Used assay slots / total slots."
+    )
+    deferred_assay_count: int = Field(
+        default=0, ge=0, description="Deferred assays due to capacity limits."
+    )
 
 
 class MaterialFeasibilityPriority(JsonModel):
@@ -654,9 +814,15 @@ class MaterialFeasibilityPriority(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     batch_id: BatchId = Field(..., description="Batch identifier.")
-    material_ready: bool = Field(..., description="Whether required materials are available.")
-    missing_material_ids: list[str] = Field(default_factory=list, description="Missing materials for this batch.")
-    priority_score: float = Field(..., ge=0.0, le=1.0, description="Material-feasibility priority score.")
+    material_ready: bool = Field(
+        ..., description="Whether required materials are available."
+    )
+    missing_material_ids: list[str] = Field(
+        default_factory=list, description="Missing materials for this batch."
+    )
+    priority_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Material-feasibility priority score."
+    )
 
 
 class PlanValidationIssue(JsonModel):
@@ -675,13 +841,25 @@ def assess_dependency_integrity(
     """Assess dependency integrity across unknown, invalid, and cyclic edges."""
     assay_id_set = set(assay_ids)
     unknown_assay_ids = sorted(
-        {dependency.assay_id for dependency in dependencies if dependency.assay_id not in assay_id_set}
+        {
+            dependency.assay_id
+            for dependency in dependencies
+            if dependency.assay_id not in assay_id_set
+        }
     )
     unknown_prerequisite_ids = sorted(
-        {dependency.requires_assay_id for dependency in dependencies if dependency.requires_assay_id not in assay_id_set}
+        {
+            dependency.requires_assay_id
+            for dependency in dependencies
+            if dependency.requires_assay_id not in assay_id_set
+        }
     )
     self_dependency_assay_ids = sorted(
-        {dependency.assay_id for dependency in dependencies if dependency.assay_id == dependency.requires_assay_id}
+        {
+            dependency.assay_id
+            for dependency in dependencies
+            if dependency.assay_id == dependency.requires_assay_id
+        }
     )
     valid_dependencies = [
         dependency
@@ -708,7 +886,8 @@ def dependency_order(
         dependency
         for dependency in dependencies
         if dependency.assay_id not in dependency_integrity.unknown_assay_ids
-        and dependency.requires_assay_id not in dependency_integrity.unknown_prerequisite_ids
+        and dependency.requires_assay_id
+        not in dependency_integrity.unknown_prerequisite_ids
         and dependency.assay_id not in dependency_integrity.self_dependency_assay_ids
     ]
     ordered: list[AssayId] = []
@@ -721,7 +900,10 @@ def dependency_order(
                 for dependency in valid_dependencies
                 if dependency.assay_id == assay_id
             ]
-            if all(prerequisite in ordered or prerequisite not in assay_ids for prerequisite in prerequisites):
+            if all(
+                prerequisite in ordered or prerequisite not in assay_ids
+                for prerequisite in prerequisites
+            ):
                 ordered.append(assay_id)
                 remaining.remove(assay_id)
                 progressed = True
@@ -736,7 +918,7 @@ def detect_dependency_cycle(
     dependencies: list[AssayDependency],
 ) -> DependencyCycleReport:
     """Detect whether assay dependencies contain a cycle."""
-    edges = {assay_id: [] for assay_id in assay_ids}
+    edges: dict[str, list[str]] = {assay_id: [] for assay_id in assay_ids}
     for dependency in dependencies:
         if dependency.assay_id in edges and dependency.requires_assay_id in edges:
             edges[dependency.assay_id].append(dependency.requires_assay_id)
@@ -774,7 +956,10 @@ def dependency_critical_path(
     """Compute a longest dependency path for assay execution planning."""
     prerequisites: dict[str, list[str]] = {assay_id: [] for assay_id in assay_ids}
     for dependency in dependencies:
-        if dependency.assay_id in prerequisites and dependency.requires_assay_id in prerequisites:
+        if (
+            dependency.assay_id in prerequisites
+            and dependency.requires_assay_id in prerequisites
+        ):
             prerequisites[dependency.assay_id].append(dependency.requires_assay_id)
 
     memo: dict[str, list[str]] = {}
@@ -839,15 +1024,19 @@ def plan_experiment_batches(
     """Build dependency-aware batches grouped by blocking status and assay family."""
     dependencies = dependencies or []
     batches: list[ExperimentBatch] = []
-    grouped: dict[tuple[bool, AssayFamily], list[object]] = {}
+    grouped: dict[tuple[bool, AssayFamily], list[AssayRequirement]] = {}
     for assay in program.assay_panel:
-        grouped.setdefault((assay.blocking, assay_family(assay.sample_kind)), []).append(assay)
+        grouped.setdefault(
+            (assay.blocking, assay_family(assay.sample_kind)), []
+        ).append(assay)
     priority = 1
     for (blocking, family), assays in sorted(
         grouped.items(),
         key=lambda item: (not item[0][0], assay_family_priority(item[0][1])),
     ):
-        ordered_assays = dependency_order([assay.assay_id for assay in assays], dependencies)
+        ordered_assays = dependency_order(
+            [assay.assay_id for assay in assays], dependencies
+        )
         batches.append(
             ExperimentBatch(
                 batch_id=f"{program.program_id}-{family.value}-{'gate' if blocking else 'support'}",
@@ -864,7 +1053,9 @@ def plan_experiment_batches(
                 else [],
                 priority=priority,
                 sample_requirements=sorted({assay.sample_kind for assay in assays}),
-                assay_sample_kinds={assay.assay_id: assay.sample_kind for assay in assays},
+                assay_sample_kinds={
+                    assay.assay_id: assay.sample_kind for assay in assays
+                },
             )
         )
         priority += 1
@@ -947,15 +1138,12 @@ def build_review_packet(
 
 def _observation_blocks_progression(observation: AssayObservation) -> bool:
     """Return whether an observation should block progression."""
-    if not observation.passed:
-        return True
-    if observation.qc_state.lower() in {"failed", "warning"}:
-        return True
-    if observation.censoring_flag:
-        return True
-    if observation.interpretation_confidence < 0.6:
-        return True
-    return False
+    return (
+        not observation.passed
+        or observation.qc_state.lower() in {"failed", "warning"}
+        or observation.censoring_flag
+        or observation.interpretation_confidence < 0.6
+    )
 
 
 def build_review_risk_profile(
@@ -1042,7 +1230,6 @@ def schedule_experiment_plan(
     """Fit an experiment plan into available lab capacity."""
     dependencies = dependencies or []
     scheduled_batches: list[ScheduledBatch] = []
-    unscheduled_batches: list[str] = []
     for batch in plan.batches[: capacity.max_batches]:
         ordered_assays = dependency_order(batch.assay_ids, dependencies)
         scheduled_batches.append(
@@ -1053,8 +1240,9 @@ def schedule_experiment_plan(
                 deferred_assay_ids=ordered_assays[capacity.max_assays_per_batch :],
             )
         )
-    for batch in plan.batches[capacity.max_batches :]:
-        unscheduled_batches.append(batch.batch_id)
+    unscheduled_batches = [
+        batch.batch_id for batch in plan.batches[capacity.max_batches :]
+    ]
     return ScheduledPlan(
         program_id=plan.program_id,
         scheduled_batches=scheduled_batches,
@@ -1070,7 +1258,6 @@ def schedule_with_family_capacity(
     """Schedule while enforcing per-family assay limits."""
     family_budget = {item.family: item.max_assays for item in family_capacities}
     scheduled_batches: list[ScheduledBatch] = []
-    unscheduled_batches: list[str] = []
 
     for batch in plan.batches[: capacity.max_batches]:
         selected: list[str] = []
@@ -1091,8 +1278,9 @@ def schedule_with_family_capacity(
                 deferred_assay_ids=deferred + selected[capacity.max_assays_per_batch :],
             )
         )
-    for batch in plan.batches[capacity.max_batches :]:
-        unscheduled_batches.append(batch.batch_id)
+    unscheduled_batches = [
+        batch.batch_id for batch in plan.batches[capacity.max_batches :]
+    ]
     return ScheduledPlan(
         program_id=plan.program_id,
         scheduled_batches=scheduled_batches,
@@ -1110,7 +1298,9 @@ def prioritize_next_assays(
     """Rank pending assays by expected information gain and decision impact."""
     observed_ids = {observation.assay_id for observation in observations}
     trust = compute_bundle_trust(bundle)
-    readiness = assess_decision_readiness(bundle, [need.value for need in program.evidence_needs])
+    readiness = assess_decision_readiness(
+        bundle, [need.value for need in program.evidence_needs]
+    )
     ranked: list[NextAssayPriority] = []
     contradictions = flag_conflicting_evidence(bundle)
     policy = policy or PlanningPolicy(policy_id="default-planning-policy")
@@ -1162,7 +1352,11 @@ def score_assay_information_gain(
     falsification_value = 0.7 if blocking else 0.5
     decision_gate_impact = 0.9 if blocking else 0.4
     orthogonal_confirmation_value = 0.6 if trust_score < 0.7 else 0.3
-    burden_penalty = policy.blocking_burden_penalty if blocking else policy.non_blocking_burden_penalty
+    burden_penalty = (
+        policy.blocking_burden_penalty
+        if blocking
+        else policy.non_blocking_burden_penalty
+    )
     final_score = round(
         max(
             0.0,
@@ -1205,7 +1399,9 @@ def score_assay_gate_impact(plan: ExperimentPlan) -> list[GateImpactScore]:
             if gate_count > 0:
                 rationale.append(f"batch blocks {gate_count} review gate(s)")
             if batch.priority <= 2:
-                rationale.append("high-priority batch contributes to near-term decisioning")
+                rationale.append(
+                    "high-priority batch contributes to near-term decisioning"
+                )
             if not rationale:
                 rationale.append("limited direct gate pressure")
             results.append(
@@ -1227,17 +1423,28 @@ def estimate_assay_execution_burden(plan: ExperimentPlan) -> list[AssayExecution
         sample_pressure = min(0.4, len(set(batch.sample_requirements)) * 0.1)
         gate_pressure = min(0.3, len(batch.blocking_review_gates) * 0.1)
         priority_pressure = min(0.2, max(0, 3 - batch.priority) * 0.05)
-        base_score = round(max(0.0, min(0.2 + sample_pressure + gate_pressure + priority_pressure, 1.0)), 4)
+        base_score = round(
+            max(
+                0.0, min(0.2 + sample_pressure + gate_pressure + priority_pressure, 1.0)
+            ),
+            4,
+        )
         base_days = 2.0 + (sample_pressure * 6.0) + (gate_pressure * 4.0)
         for assay_id in batch.assay_ids:
             assay_kind = batch.assay_sample_kinds.get(assay_id, "other")
-            kind_penalty = 0.15 if assay_kind in {"cellular", "developability"} else 0.05
+            kind_penalty = (
+                0.15 if assay_kind in {"cellular", "developability"} else 0.05
+            )
             burden_score = round(max(0.0, min(base_score + kind_penalty, 1.0)), 4)
             drivers = [f"sample kind={assay_kind}"]
             if batch.sample_requirements:
-                drivers.append(f"requires {len(batch.sample_requirements)} material type(s)")
+                drivers.append(
+                    f"requires {len(batch.sample_requirements)} material type(s)"
+                )
             if batch.blocking_review_gates:
-                drivers.append(f"coupled to {len(batch.blocking_review_gates)} review gate(s)")
+                drivers.append(
+                    f"coupled to {len(batch.blocking_review_gates)} review gate(s)"
+                )
             burdens.append(
                 AssayExecutionBurden(
                     assay_id=assay_id,
@@ -1257,7 +1464,9 @@ def build_lab_cycle_brief(
     observations: list[AssayObservation],
 ) -> LabCycleBrief:
     """Build a cycle-level decision brief combining impact, burden, and priorities."""
-    readiness = assess_decision_readiness(bundle, [need.value for need in program.evidence_needs])
+    readiness = assess_decision_readiness(
+        bundle, [need.value for need in program.evidence_needs]
+    )
     gate_impacts = score_assay_gate_impact(plan)[:5]
     burdens = estimate_assay_execution_burden(plan)[:5]
     priorities = prioritize_next_assays(program, bundle, observations)[:5]
@@ -1295,12 +1504,23 @@ def plan_hypothesis_falsification_assays(
         if intent.assay_id in blocked:
             continue
         objective = intent.objective.lower()
-        objective_bonus = 0.5 if any(token in objective for token in ["falsif", "counter", "orthogonal"]) else 0.25
+        objective_bonus = (
+            0.5
+            if any(token in objective for token in ["falsif", "counter", "orthogonal"])
+            else 0.25
+        )
         prereq_penalty = min(0.3, len(intent.prerequisite_assay_ids) * 0.1)
-        score = round(max(0.0, min(objective_bonus + contradiction_pressure - prereq_penalty, 1.0)), 4)
+        score = round(
+            max(
+                0.0, min(objective_bonus + contradiction_pressure - prereq_penalty, 1.0)
+            ),
+            4,
+        )
         reasons = [f"objective={intent.objective}"]
         if contradiction_pressure > 0:
-            reasons.append("active evidence contradictions increase falsification value")
+            reasons.append(
+                "active evidence contradictions increase falsification value"
+            )
         if prereq_penalty > 0:
             reasons.append("prerequisites reduce immediate execution value")
         scores.append((intent.assay_id, score, reasons))
@@ -1308,11 +1528,15 @@ def plan_hypothesis_falsification_assays(
     return HypothesisFalsificationPlan(
         hypothesis=hypothesis,
         prioritized_assay_ids=[item[0] for item in scores],
-        rationale=[f"{assay_id}: {', '.join(reasons)}" for assay_id, _, reasons in scores],
+        rationale=[
+            f"{assay_id}: {', '.join(reasons)}" for assay_id, _, reasons in scores
+        ],
     )
 
 
-def summarize_assay_portfolio_balance(plan: ExperimentPlan) -> AssayPortfolioBalanceReport:
+def summarize_assay_portfolio_balance(
+    plan: ExperimentPlan,
+) -> AssayPortfolioBalanceReport:
     """Summarize assay-family balance for an experiment plan."""
     counts: dict[str, int] = {}
     for batch in plan.batches:
@@ -1326,7 +1550,9 @@ def summarize_assay_portfolio_balance(plan: ExperimentPlan) -> AssayPortfolioBal
     if counts and total > 0:
         dominant_family, dominant_count = max(counts.items(), key=lambda item: item[1])
         concentration = round(dominant_count / total, 4)
-    orthogonal_coverage_ready = len([family for family, value in counts.items() if value > 0]) >= 3
+    orthogonal_coverage_ready = (
+        len([family for family, value in counts.items() if value > 0]) >= 3
+    )
     notes: list[str] = []
     if dominant_family is not None and concentration >= 0.7:
         notes.append(f"portfolio is heavily concentrated in {dominant_family}")
@@ -1370,7 +1596,9 @@ def plan_material_reservations(
                     feasible=feasible,
                 )
             )
-            inventory_map[requirement.material_id] = max(0.0, available - reserved_units)
+            inventory_map[requirement.material_id] = max(
+                0.0, available - reserved_units
+            )
     return reservations
 
 
@@ -1383,7 +1611,9 @@ def derive_lab_execution_directive(outcome: ExperimentOutcome) -> LabExecutionDi
         actions.append(f"escalate assays: {', '.join(triage.escalation_assay_ids)}")
     if assessment.technical_or_repro_failures > 0:
         decision = ProgressDecision.HOLD
-        actions.append("resolve technical or reproducibility failures before progression")
+        actions.append(
+            "resolve technical or reproducibility failures before progression"
+        )
     elif any(
         assay.result_state is AssayResultState.FAILED_BIOLOGICAL
         for assay in outcome.assay_outcomes
@@ -1458,7 +1688,9 @@ def compare_schedule_scenarios(
     summaries: list[ScheduleScenarioSummary] = []
     for capacity in scenarios:
         scheduled = schedule_experiment_plan(plan, capacity)
-        deferred = sum(len(batch.deferred_assay_ids) for batch in scheduled.scheduled_batches)
+        deferred = sum(
+            len(batch.deferred_assay_ids) for batch in scheduled.scheduled_batches
+        )
         summaries.append(
             ScheduleScenarioSummary(
                 scenario_id=capacity.cycle_id,
@@ -1466,7 +1698,11 @@ def compare_schedule_scenarios(
                 deferred_assay_count=deferred,
             )
         )
-    recommended = min(summaries, key=lambda item: item.deferred_assay_count).scenario_id if summaries else None
+    recommended = (
+        min(summaries, key=lambda item: item.deferred_assay_count).scenario_id
+        if summaries
+        else None
+    )
     return ScheduleScenarioComparison(
         program_id=plan.program_id,
         scenarios=summaries,
@@ -1484,19 +1720,25 @@ def recommend_orthogonal_confirmation(
 ) -> OrthogonalConfirmationPlan:
     """Recommend orthogonal assays when modality convergence is weak."""
     policy = policy or OrthogonalPolicy(policy_id="default-orthogonal-policy")
-    effective_tag = policy.decision_tag if decision_tag == "progression" else decision_tag
-    effective_threshold = minimum_convergence_score if minimum_convergence_score != 0.5 else policy.minimum_convergence_score
+    effective_tag = (
+        policy.decision_tag if decision_tag == "progression" else decision_tag
+    )
+    effective_threshold = (
+        minimum_convergence_score
+        if minimum_convergence_score != 0.5
+        else policy.minimum_convergence_score
+    )
     triangulation = triangulate_evidence(
         bundle,
         decision_tag=effective_tag,
         required_modalities=policy.required_modalities,
     )
-    required = triangulation.convergence_score < effective_threshold or bool(triangulation.missing_required_modalities)
-    suggested = [
-        assay.assay_id
-        for assay in program.assay_panel
-        if not assay.blocking
-    ][:3]
+    required = triangulation.convergence_score < effective_threshold or bool(
+        triangulation.missing_required_modalities
+    )
+    suggested = [assay.assay_id for assay in program.assay_panel if not assay.blocking][
+        :3
+    ]
     return OrthogonalConfirmationPlan(
         decision_tag=effective_tag,
         required=required,
@@ -1550,7 +1792,9 @@ def plan_uncertainty_reduction_assays(
     top_score = priorities[0].score if priorities else 0.0
     residual_uncertainty = round(max(0.0, 1.0 - top_score), 4)
     notes = (
-        [f"selected top {len(prioritized)} assays by information-gain score for {decision_tag}"]
+        [
+            f"selected top {len(prioritized)} assays by information-gain score for {decision_tag}"
+        ]
         if prioritized
         else [f"no pending assays available for {decision_tag} uncertainty reduction"]
     )
@@ -1583,9 +1827,13 @@ def recommend_next_best_experiment(
     )
     rationale = list(top.reasons)
     if prerequisites:
-        rationale.append("assay has prerequisite dependencies that should be scheduled first")
+        rationale.append(
+            "assay has prerequisite dependencies that should be scheduled first"
+        )
     if top.estimated_cost > 1.2:
-        rationale.append("assay has elevated execution burden but highest current information gain")
+        rationale.append(
+            "assay has elevated execution burden but highest current information gain"
+        )
     return NextBestExperiment(
         assay_id=top.assay_id,
         prerequisite_assay_ids=prerequisites,
@@ -1618,9 +1866,13 @@ def recommend_next_cycle_from_outcome(
         return ClosedLoopPlan(
             program_id=program.program_id,
             decision=ProgressDecision.HOLD,
-            evidence_backlog=evidence_gaps(bundle, [need.value for need in program.evidence_needs]),
+            evidence_backlog=evidence_gaps(
+                bundle, [need.value for need in program.evidence_needs]
+            ),
             assay_backlog=failed_assays,
-            notes=["repair assay execution quality before making redesign or progression calls"],
+            notes=[
+                "repair assay execution quality before making redesign or progression calls"
+            ],
             evidence_trust_score=trust.trust_score,
             promotion_ready_count=assessment.promotion_ready_count,
             technical_failure_count=assessment.technical_or_repro_failures,
@@ -1629,9 +1881,13 @@ def recommend_next_cycle_from_outcome(
         return ClosedLoopPlan(
             program_id=program.program_id,
             decision=ProgressDecision.REDESIGN,
-            evidence_backlog=evidence_gaps(bundle, [need.value for need in program.evidence_needs]),
+            evidence_backlog=evidence_gaps(
+                bundle, [need.value for need in program.evidence_needs]
+            ),
             assay_backlog=failed_assays,
-            notes=["biological failures indicate the candidate hypothesis should be redesigned"],
+            notes=[
+                "biological failures indicate the candidate hypothesis should be redesigned"
+            ],
             evidence_trust_score=trust.trust_score,
             promotion_ready_count=assessment.promotion_ready_count,
             technical_failure_count=assessment.technical_or_repro_failures,
@@ -1664,7 +1920,9 @@ def summarize_schedule_pressure(
     """Summarize scheduling pressure against available cycle capacity."""
     total_slots = capacity.max_batches * capacity.max_assays_per_batch
     used_slots = sum(len(batch.assay_ids) for batch in scheduled.scheduled_batches)
-    deferred = sum(len(batch.deferred_assay_ids) for batch in scheduled.scheduled_batches)
+    deferred = sum(
+        len(batch.deferred_assay_ids) for batch in scheduled.scheduled_batches
+    )
     utilization = round((used_slots / total_slots), 4) if total_slots else 0.0
     return SchedulePressureReport(
         cycle_id=capacity.cycle_id,
@@ -1695,7 +1953,9 @@ def prioritize_batches_by_material_feasibility(
                 missing.append(requirement.material_id)
         material_ready = not missing
         base = 1.0 if material_ready else 0.4
-        priority_score = round(max(0.0, min(base - ((batch.priority - 1) * 0.05), 1.0)), 4)
+        priority_score = round(
+            max(0.0, min(base - ((batch.priority - 1) * 0.05), 1.0)), 4
+        )
         ranked.append(
             MaterialFeasibilityPriority(
                 batch_id=batch.batch_id,
@@ -1729,12 +1989,12 @@ def validate_experiment_plan(plan: ExperimentPlan) -> list[PlanValidationIssue]:
                 message="batch priorities should be non-decreasing in plan order",
             )
         )
-    for batch in plan.batches:
-        if not batch.assay_ids:
-            issues.append(
-                PlanValidationIssue(
-                    code="empty-assay-batch",
-                    message=f"{batch.batch_id} should include at least one assay_id",
-                )
-            )
+    issues.extend(
+        PlanValidationIssue(
+            code="empty-assay-batch",
+            message=f"{batch.batch_id} should include at least one assay_id",
+        )
+        for batch in plan.batches
+        if not batch.assay_ids
+    )
     return issues

@@ -10,10 +10,10 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import ProgramSpec
-from bijux_proteomics_knowledge import DecisionReadiness
-from bijux_proteomics_intelligence.briefs import CandidateRanking
+from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
 from bijux_proteomics_intelligence.serialization import JsonModel
+from bijux_proteomics_knowledge import DecisionReadiness
 
 
 class ScenarioAction(StrEnum):
@@ -194,11 +194,21 @@ class PortfolioDecisionReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    candidate_count: int = Field(..., ge=0, description="Number of ranked candidates evaluated.")
-    liability_diversity: int = Field(..., ge=0, description="Distinct liability blocker labels in top candidates.")
-    mean_residual_risk: float = Field(..., ge=0.0, le=1.0, description="Average residual risk across top candidates.")
-    balanced_portfolio: bool = Field(..., description="Whether the shortlist appears balanced for progression.")
-    notes: list[str] = Field(default_factory=list, description="Short explanation of portfolio quality.")
+    candidate_count: int = Field(
+        ..., ge=0, description="Number of ranked candidates evaluated."
+    )
+    liability_diversity: int = Field(
+        ..., ge=0, description="Distinct liability blocker labels in top candidates."
+    )
+    mean_residual_risk: float = Field(
+        ..., ge=0.0, le=1.0, description="Average residual risk across top candidates."
+    )
+    balanced_portfolio: bool = Field(
+        ..., description="Whether the shortlist appears balanced for progression."
+    )
+    notes: list[str] = Field(
+        default_factory=list, description="Short explanation of portfolio quality."
+    )
 
 
 class ScenarioDecisionConsensus(JsonModel):
@@ -206,7 +216,9 @@ class ScenarioDecisionConsensus(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    recommended_action: ScenarioAction = Field(..., description="Consensus recommended action.")
+    recommended_action: ScenarioAction = Field(
+        ..., description="Consensus recommended action."
+    )
     action_counts: dict[str, int] = Field(
         default_factory=dict,
         description="Count of scenario actions by action label.",
@@ -243,10 +255,18 @@ class HoldPressureSummary(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    hold_count: int = Field(..., ge=0, description="Number of scenario actions recommending hold.")
-    total_scenarios: int = Field(..., ge=1, description="Total scenario count considered.")
-    hold_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of hold recommendations.")
-    high_hold_pressure: bool = Field(..., description="Whether hold pressure crosses escalation threshold.")
+    hold_count: int = Field(
+        ..., ge=0, description="Number of scenario actions recommending hold."
+    )
+    total_scenarios: int = Field(
+        ..., ge=1, description="Total scenario count considered."
+    )
+    hold_fraction: float = Field(
+        ..., ge=0.0, le=1.0, description="Fraction of hold recommendations."
+    )
+    high_hold_pressure: bool = Field(
+        ..., description="Whether hold pressure crosses escalation threshold."
+    )
 
 
 class ScenarioConfidenceSpread(JsonModel):
@@ -254,10 +274,18 @@ class ScenarioConfidenceSpread(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    minimum_confidence: float = Field(..., ge=0.0, le=1.0, description="Minimum confidence among scenarios.")
-    maximum_confidence: float = Field(..., ge=0.0, le=1.0, description="Maximum confidence among scenarios.")
-    mean_confidence: float = Field(..., ge=0.0, le=1.0, description="Mean confidence across scenarios.")
-    spread: float = Field(..., ge=0.0, le=1.0, description="Difference between max and min confidence.")
+    minimum_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Minimum confidence among scenarios."
+    )
+    maximum_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Maximum confidence among scenarios."
+    )
+    mean_confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Mean confidence across scenarios."
+    )
+    spread: float = Field(
+        ..., ge=0.0, le=1.0, description="Difference between max and min confidence."
+    )
 
 
 class AssessmentMetricCoverageReport(JsonModel):
@@ -265,10 +293,18 @@ class AssessmentMetricCoverageReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    required_metrics: list[str] = Field(default_factory=list, description="Required metrics for evaluation.")
-    covered_metrics: list[str] = Field(default_factory=list, description="Metrics present in assessments.")
-    missing_metrics: list[str] = Field(default_factory=list, description="Required metrics missing in assessments.")
-    coverage_ratio: float = Field(..., ge=0.0, le=1.0, description="Fraction of required metrics covered.")
+    required_metrics: list[str] = Field(
+        default_factory=list, description="Required metrics for evaluation."
+    )
+    covered_metrics: list[str] = Field(
+        default_factory=list, description="Metrics present in assessments."
+    )
+    missing_metrics: list[str] = Field(
+        default_factory=list, description="Required metrics missing in assessments."
+    )
+    coverage_ratio: float = Field(
+        ..., ge=0.0, le=1.0, description="Fraction of required metrics covered."
+    )
 
 
 class DecisionEscalationFlags(JsonModel):
@@ -278,8 +314,12 @@ class DecisionEscalationFlags(JsonModel):
 
     conflicting_actions: bool = Field(..., description="Scenario actions conflict.")
     high_hold_pressure: bool = Field(..., description="Hold pressure is high.")
-    wide_confidence_spread: bool = Field(..., description="Confidence spread exceeds threshold.")
-    escalate_to_human_review: bool = Field(..., description="Overall escalation recommendation.")
+    wide_confidence_spread: bool = Field(
+        ..., description="Confidence spread exceeds threshold."
+    )
+    escalate_to_human_review: bool = Field(
+        ..., description="Overall escalation recommendation."
+    )
 
 
 class FinalDecisionRecommendation(JsonModel):
@@ -288,8 +328,12 @@ class FinalDecisionRecommendation(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     action: ScenarioAction = Field(..., description="Recommended final action.")
-    requires_human_review: bool = Field(..., description="Whether human arbitration is required.")
-    reasons: list[str] = Field(default_factory=list, description="Reasons supporting the final recommendation.")
+    requires_human_review: bool = Field(
+        ..., description="Whether human arbitration is required."
+    )
+    reasons: list[str] = Field(
+        default_factory=list, description="Reasons supporting the final recommendation."
+    )
 
 
 class UnresolvedQuestionLedger(JsonModel):
@@ -312,8 +356,12 @@ class AdvancedIntelligenceReviewPacket(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    base_packet: IntelligenceReviewPacket = Field(..., description="Base intelligence review packet.")
-    escalation: DecisionEscalationFlags = Field(..., description="Escalation flags for decision governance.")
+    base_packet: IntelligenceReviewPacket = Field(
+        ..., description="Base intelligence review packet."
+    )
+    escalation: DecisionEscalationFlags = Field(
+        ..., description="Escalation flags for decision governance."
+    )
     unresolved_questions: UnresolvedQuestionLedger = Field(
         ...,
         description="Deduplicated unresolved question ledger.",
@@ -359,7 +407,12 @@ def _top_candidate_confidence(ranking: CandidateRanking) -> float | None:
     confidence = ranking.ranked_candidates[0].explainability.get("confidence")
     if confidence is None:
         return None
-    return float(confidence)
+    if not isinstance(confidence, (int, float, str)):
+        return None
+    try:
+        return float(confidence)
+    except (TypeError, ValueError):
+        return None
 
 
 def evaluate_for_progression(
@@ -390,15 +443,22 @@ def evaluate_for_progression(
             hypothesis_status=HypothesisStatus.WEAKENED,
             key_discriminating_experiment="expand candidate generation with mechanism-preserving variants",
             confidence=0.6,
-            unresolved_questions=["no prioritized candidate is available for the progression decision"],
+            unresolved_questions=[
+                "no prioritized candidate is available for the progression decision"
+            ],
         )
     top_blockers = _top_candidate_blockers(ranking)
     top_confidence = _top_candidate_confidence(ranking)
-    if top_confidence is not None and top_confidence < policy.minimum_top_candidate_confidence:
+    if (
+        top_confidence is not None
+        and top_confidence < policy.minimum_top_candidate_confidence
+    ):
         return ScenarioEvaluation(
             scenario="progression",
             action=ScenarioAction.HOLD,
-            reasons=[f"top candidate confidence {top_confidence:.2f} is below policy floor"],
+            reasons=[
+                f"top candidate confidence {top_confidence:.2f} is below policy floor"
+            ],
             hypothesis_status=HypothesisStatus.UNRESOLVED,
             key_discriminating_experiment="collect orthogonal evidence to increase top candidate confidence",
             confidence=0.58,
@@ -408,9 +468,7 @@ def evaluate_for_progression(
         return ScenarioEvaluation(
             scenario="progression",
             action=ScenarioAction.HOLD,
-            reasons=[
-                f"top candidate carries {len(top_blockers)} blocker findings"
-            ],
+            reasons=[f"top candidate carries {len(top_blockers)} blocker findings"],
             hypothesis_status=HypothesisStatus.UNRESOLVED,
             key_discriminating_experiment="run focused follow-up assays to resolve top blocker liabilities",
             confidence=0.6,
@@ -421,8 +479,12 @@ def evaluate_for_progression(
             f"top candidate {ranking.ranked_candidates[0].candidate_id} is available"
         )
     else:
-        reasons.append("evidence is decision-ready even though ranking has not been generated yet")
-    reasons.append(f"{len(program.review_gates)} review gates are modeled in the program")
+        reasons.append(
+            "evidence is decision-ready even though ranking has not been generated yet"
+        )
+    reasons.append(
+        f"{len(program.review_gates)} review gates are modeled in the program"
+    )
     return ScenarioEvaluation(
         scenario="progression",
         action=ScenarioAction.ADVANCE,
@@ -466,30 +528,43 @@ def evaluate_for_synthesis(
         return ScenarioEvaluation(
             scenario="synthesis",
             action=ScenarioAction.REDESIGN,
-            reasons=[f"top candidate {candidate_id} has residual risk {residual_risk:.2f}"],
+            reasons=[
+                f"top candidate {candidate_id} has residual risk {residual_risk:.2f}"
+            ],
             hypothesis_status=HypothesisStatus.WEAKENED,
             key_discriminating_experiment="run risk-focused assays on top liabilities",
             confidence=0.65,
-            unresolved_questions=[f"residual_risk={residual_risk:.2f} exceeds policy limit"],
+            unresolved_questions=[
+                f"residual_risk={residual_risk:.2f} exceeds policy limit"
+            ],
         )
     top_profile = _top_candidate_risk_profile(ranking, risks)
     if top_profile is not None and top_profile.safety_risk > policy.maximum_safety_risk:
         return ScenarioEvaluation(
             scenario="synthesis",
             action=ScenarioAction.REDESIGN,
-            reasons=[f"top candidate safety risk {top_profile.safety_risk:.2f} exceeds policy"],
+            reasons=[
+                f"top candidate safety risk {top_profile.safety_risk:.2f} exceeds policy"
+            ],
             hypothesis_status=HypothesisStatus.WEAKENED,
             key_discriminating_experiment="run safety-focused assays before synthesis commitment",
             confidence=0.66,
-            unresolved_questions=[f"safety_risk={top_profile.safety_risk:.2f} exceeds policy limit"],
+            unresolved_questions=[
+                f"safety_risk={top_profile.safety_risk:.2f} exceeds policy limit"
+            ],
         )
     top_blockers = _top_candidate_blockers(ranking)
     top_confidence = _top_candidate_confidence(ranking)
-    if top_confidence is not None and top_confidence < policy.minimum_top_candidate_confidence:
+    if (
+        top_confidence is not None
+        and top_confidence < policy.minimum_top_candidate_confidence
+    ):
         return ScenarioEvaluation(
             scenario="synthesis",
             action=ScenarioAction.HOLD,
-            reasons=[f"top candidate confidence {top_confidence:.2f} is below synthesis policy floor"],
+            reasons=[
+                f"top candidate confidence {top_confidence:.2f} is below synthesis policy floor"
+            ],
             hypothesis_status=HypothesisStatus.UNRESOLVED,
             key_discriminating_experiment="collect confirmatory assays before synthesis commitment",
             confidence=0.6,
@@ -499,7 +574,9 @@ def evaluate_for_synthesis(
         return ScenarioEvaluation(
             scenario="synthesis",
             action=ScenarioAction.HOLD,
-            reasons=[f"top candidate still has {len(top_blockers)} open blocker findings"],
+            reasons=[
+                f"top candidate still has {len(top_blockers)} open blocker findings"
+            ],
             hypothesis_status=HypothesisStatus.UNRESOLVED,
             key_discriminating_experiment="run blocker-focused assays before synthesis commitment",
             confidence=0.62,
@@ -552,14 +629,19 @@ def evaluate_for_scale_up(
         )
     if residual_risk is not None and residual_risk <= policy.maximum_residual_risk:
         top_profile = _top_candidate_risk_profile(ranking, risks)
-        if top_profile is not None and top_profile.safety_risk > policy.maximum_safety_risk:
+        if (
+            top_profile is not None
+            and top_profile.safety_risk > policy.maximum_safety_risk
+        ):
             return ScenarioEvaluation(
                 scenario="scale_up",
                 action=ScenarioAction.HOLD,
                 reasons=["safety-specific risk remains above scale-up policy"],
                 hypothesis_status=HypothesisStatus.UNRESOLVED,
                 confidence=0.62,
-                unresolved_questions=[f"safety_risk={top_profile.safety_risk:.2f} remains above policy"],
+                unresolved_questions=[
+                    f"safety_risk={top_profile.safety_risk:.2f} remains above policy"
+                ],
             )
         return ScenarioEvaluation(
             scenario="scale_up",
@@ -571,10 +653,14 @@ def evaluate_for_scale_up(
     return ScenarioEvaluation(
         scenario="scale_up",
         action=ScenarioAction.HOLD,
-        reasons=[f"top candidate {candidate_id} still carries too much residual risk for scale-up"],
+        reasons=[
+            f"top candidate {candidate_id} still carries too much residual risk for scale-up"
+        ],
         hypothesis_status=HypothesisStatus.UNRESOLVED,
         confidence=0.6,
-        unresolved_questions=[f"residual_risk={residual_risk:.2f} remains above scale-up policy"],
+        unresolved_questions=[
+            f"residual_risk={residual_risk:.2f} remains above scale-up policy"
+        ],
     )
 
 
@@ -585,9 +671,8 @@ def evaluate_for_redesign(
 ) -> ScenarioEvaluation:
     """Decide whether the system should move back into redesign."""
     policy = policy or RedesignPolicy(policy_id="redesign-default")
-    if (
-        not ranking.ranked_candidates
-        or (policy.redesign_on_any_rejection and ranking.rejected_candidates)
+    if not ranking.ranked_candidates or (
+        policy.redesign_on_any_rejection and ranking.rejected_candidates
     ):
         return ScenarioEvaluation(
             scenario="redesign",
@@ -662,7 +747,11 @@ def evaluate_portfolio_balance(
     top_candidates = ranking.ranked_candidates[: max(top_n, 1)]
     selected_ids = [candidate.candidate_id for candidate in top_candidates]
     risk_map = {risk.candidate_id: risk for risk in risks}
-    selected_risks = [risk_map[candidate_id] for candidate_id in selected_ids if candidate_id in risk_map]
+    selected_risks = [
+        risk_map[candidate_id]
+        for candidate_id in selected_ids
+        if candidate_id in risk_map
+    ]
     liability_labels: set[str] = set()
     for candidate in top_candidates:
         blockers = candidate.explainability.get("blockers", [])
@@ -670,7 +759,9 @@ def evaluate_portfolio_balance(
             for blocker in blockers:
                 liability_labels.add(str(blocker))
     mean_residual_risk = (
-        round(sum(risk.residual_risk for risk in selected_risks) / len(selected_risks), 4)
+        round(
+            sum(risk.residual_risk for risk in selected_risks) / len(selected_risks), 4
+        )
         if selected_risks
         else 0.0
     )
@@ -678,7 +769,9 @@ def evaluate_portfolio_balance(
     low_diversity = len(liability_labels) <= 1 and len(top_candidates) > 1
     high_risk = mean_residual_risk > 0.5
     if low_diversity:
-        notes.append("top candidates share similar blocker patterns and may limit portfolio diversity")
+        notes.append(
+            "top candidates share similar blocker patterns and may limit portfolio diversity"
+        )
     if high_risk:
         notes.append("mean residual risk is above preferred portfolio threshold")
     if not notes:
@@ -705,7 +798,7 @@ def summarize_scenario_consensus(
     action_counts: dict[str, int] = {}
     for action in scenario_actions:
         action_counts[action.value] = action_counts.get(action.value, 0) + 1
-    recommended = max(action_counts, key=action_counts.get)
+    recommended = max(action_counts, key=lambda action: action_counts[action])
     conflicting_actions = len(action_counts) > 1
     notes = (
         ["scenario actions are mixed and require explicit human arbitration"]
@@ -733,7 +826,9 @@ def build_intelligence_review_packet(
     if consensus.conflicting_actions:
         notes.append("scenario recommendations conflict and require adjudication")
     if not portfolio.balanced_portfolio:
-        notes.append("portfolio balance is weak and should be improved before progression")
+        notes.append(
+            "portfolio balance is weak and should be improved before progression"
+        )
     if not notes:
         notes.append("intelligence outputs are aligned for review discussion")
     return IntelligenceReviewPacket(
@@ -798,7 +893,9 @@ def summarize_assessment_metric_coverage(
         present.update(assessment.metric_scores.keys())
     covered = [metric for metric in required_metrics if metric in present]
     missing = [metric for metric in required_metrics if metric not in present]
-    coverage_ratio = round((len(covered) / len(required_metrics)), 4) if required_metrics else 0.0
+    coverage_ratio = (
+        round((len(covered) / len(required_metrics)), 4) if required_metrics else 0.0
+    )
     return AssessmentMetricCoverageReport(
         required_metrics=required_metrics,
         covered_metrics=covered,
@@ -818,7 +915,9 @@ def derive_decision_escalation_flags(
     hold_pressure = summarize_hold_pressure(evaluations, threshold=hold_threshold)
     spread = summarize_scenario_confidence_spread(evaluations)
     wide_spread = spread.spread >= confidence_spread_threshold
-    escalate = consensus.conflicting_actions or hold_pressure.high_hold_pressure or wide_spread
+    escalate = (
+        consensus.conflicting_actions or hold_pressure.high_hold_pressure or wide_spread
+    )
     return DecisionEscalationFlags(
         conflicting_actions=consensus.conflicting_actions,
         high_hold_pressure=hold_pressure.high_hold_pressure,

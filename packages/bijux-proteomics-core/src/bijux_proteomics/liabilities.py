@@ -28,7 +28,9 @@ class ProgramLiability(JsonModel):
 
     liability_id: EvidenceId = Field(..., description="Stable liability identifier.")
     category: LiabilityCategory = Field(..., description="Liability family.")
-    summary: str = Field(..., min_length=1, description="Human-readable liability summary.")
+    summary: str = Field(
+        ..., min_length=1, description="Human-readable liability summary."
+    )
     impact: str = Field(..., min_length=1, description="Expected program impact.")
     mitigation: str = Field(..., min_length=1, description="Planned mitigation path.")
     severity: int = Field(
