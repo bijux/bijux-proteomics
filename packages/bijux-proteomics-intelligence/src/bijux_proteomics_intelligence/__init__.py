@@ -55,6 +55,8 @@ from bijux_proteomics_intelligence.evaluators import (
     evaluate_for_synthesis,
 )
 from bijux_proteomics_intelligence.policies import (
+    MetricDefinition,
+    MetricDirection,
     RankingFactor,
     RankingPolicy,
     ScientificMetricClass,
@@ -94,6 +96,8 @@ __all__ = [
     "EvaluatorPolicyBundle",
     "JsonModel",
     "LiabilityFlag",
+    "MetricDefinition",
+    "MetricDirection",
     "OptimizationAxis",
     "PortfolioSelectionPolicy",
     "PortfolioSelectionResult",

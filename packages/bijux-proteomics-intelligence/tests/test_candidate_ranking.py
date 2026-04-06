@@ -10,6 +10,8 @@ from bijux_proteomics_intelligence import (
     CandidateExplainabilitySummary,
     CandidateRejection,
     CandidateScoreBreakdown,
+    MetricDefinition,
+    MetricDirection,
     build_risk_profile,
     LiabilityFlag,
     OptimizationAxis,
@@ -458,3 +460,16 @@ def test_build_rejection_action_plan_maps_reason_codes_to_experiments() -> None:
     )
 
     assert "collect orthogonal evidence across at least two modalities" in plan.experiments
+
+
+def test_metric_definition_encodes_typed_metric_contract() -> None:
+    definition = MetricDefinition(
+        metric_key="binding_kd",
+        metric_class=ScientificMetricClass.AFFINITY,
+        unit="nM",
+        direction=MetricDirection.LOWER_IS_BETTER,
+        normalization="log10",
+    )
+
+    assert definition.metric_key == "binding_kd"
+    assert definition.direction is MetricDirection.LOWER_IS_BETTER

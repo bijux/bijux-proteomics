@@ -42,6 +42,29 @@ class ScientificMetricClass(StrEnum):
     DEVELOPABILITY = "developability"
 
 
+class MetricDirection(StrEnum):
+    """Direction semantics for scientific metrics."""
+
+    HIGHER_IS_BETTER = "higher_is_better"
+    LOWER_IS_BETTER = "lower_is_better"
+    RANGE_IS_BETTER = "range_is_better"
+
+
+class MetricDefinition(JsonModel):
+    """Typed scientific metric definition used by ranking and validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric_key: str = Field(..., min_length=1, description="Stable metric key.")
+    metric_class: ScientificMetricClass = Field(..., description="Scientific metric family.")
+    unit: str | None = Field(default=None, description="Expected measurement unit.")
+    direction: MetricDirection = Field(..., description="Direction semantics for optimization.")
+    normalization: str | None = Field(
+        default=None,
+        description="Optional normalization method such as zscore or minmax.",
+    )
+
+
 class RankingPolicy(JsonModel):
     """Serializable ranking policy for candidate evaluation."""
 
