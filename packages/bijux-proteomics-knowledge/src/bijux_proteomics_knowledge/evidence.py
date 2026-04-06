@@ -193,6 +193,16 @@ class EvidenceConflict(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    conflict_type: str = Field(
+        default="generic",
+        min_length=1,
+        description="Stable conflict taxonomy for policy and analytics.",
+    )
+    severity: str = Field(
+        default="medium",
+        min_length=1,
+        description="Severity tier used to prioritize resolution.",
+    )
     left_evidence_id: str = Field(..., min_length=1, description="First evidence identifier.")
     right_evidence_id: str = Field(..., min_length=1, description="Second evidence identifier.")
     reason: str = Field(..., min_length=1, description="Why the pair is considered conflicting.")
@@ -590,9 +600,22 @@ def flag_conflicting_evidence(
             ):
                 conflicts.append(
                     EvidenceConflict(
+                        conflict_type="assay_readout_disagreement",
+                        severity="high",
                         left_evidence_id=left.evidence_id,
                         right_evidence_id=right.evidence_id,
                         reason="same assay source but inconsistent assay interpretation",
+                    )
+                )
+                continue
+            if _looks_polarity_conflict(left.claim, right.claim):
+                conflicts.append(
+                    EvidenceConflict(
+                        conflict_type="opposite_claim_polarity",
+                        severity="high",
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="evidence claims suggest opposite progression polarity",
                     )
                 )
                 continue
@@ -602,12 +625,26 @@ def flag_conflicting_evidence(
             }:
                 conflicts.append(
                     EvidenceConflict(
+                        conflict_type="claim_strength_mismatch",
+                        severity="medium",
                         left_evidence_id=left.evidence_id,
                         right_evidence_id=right.evidence_id,
                         reason="same decision tag but materially different claim strength",
                     )
                 )
     return conflicts
+
+
+def _looks_polarity_conflict(left_claim: str, right_claim: str) -> bool:
+    left_text = left_claim.strip().lower()
+    right_text = right_claim.strip().lower()
+    positive_tokens = {"meets", "supports", "retains", "passes", "improves"}
+    negative_tokens = {"misses", "fails", "contraindicates", "worsens", "reduces"}
+    left_positive = any(token in left_text for token in positive_tokens)
+    right_positive = any(token in right_text for token in positive_tokens)
+    left_negative = any(token in left_text for token in negative_tokens)
+    right_negative = any(token in right_text for token in negative_tokens)
+    return (left_positive and right_negative) or (left_negative and right_positive)
 
 
 def compute_bundle_trust(

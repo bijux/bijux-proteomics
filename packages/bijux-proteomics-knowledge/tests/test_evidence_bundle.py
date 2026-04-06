@@ -260,6 +260,8 @@ def test_compute_bundle_trust_accounts_for_staleness_conflicts_and_duplicates() 
     assert trust.duplicate_groups == [["lit-1", "lit-2"]]
     assert trust.conflicts == [
         EvidenceConflict(
+            conflict_type="claim_strength_mismatch",
+            severity="medium",
             left_evidence_id="assay-1",
             right_evidence_id="assay-2",
             reason="same decision tag but materially different claim strength",
@@ -339,9 +341,52 @@ def test_conflict_policy_detects_same_assay_source_disagreement() -> None:
 
     assert conflicts == [
         EvidenceConflict(
+            conflict_type="assay_readout_disagreement",
+            severity="high",
             left_evidence_id="assay-1",
             right_evidence_id="assay-2",
             reason="same assay source but inconsistent assay interpretation",
+        )
+    ]
+
+
+def test_conflict_detection_captures_opposite_claim_polarity() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-polarity",
+        target_id="target-polarity",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay positive",
+                source="lab",
+                decision_tags=["progression"],
+                claim="Candidate meets the progression gate.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-2",
+                kind=EvidenceKind.ASSAY,
+                title="assay negative",
+                source="lab-2",
+                decision_tags=["progression"],
+                claim="Candidate fails the progression gate.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    conflicts = flag_conflicting_evidence(bundle)
+
+    assert conflicts == [
+        EvidenceConflict(
+            conflict_type="opposite_claim_polarity",
+            severity="high",
+            left_evidence_id="assay-1",
+            right_evidence_id="assay-2",
+            reason="evidence claims suggest opposite progression polarity",
         )
     ]
 
