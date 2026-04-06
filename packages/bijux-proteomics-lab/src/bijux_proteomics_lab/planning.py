@@ -18,6 +18,7 @@ from bijux_proteomics_knowledge import (
     flag_conflicting_evidence,
     triangulate_evidence,
 )
+from bijux_proteomics_lab.outcomes import AssayResultState, ExperimentOutcome, summarize_experiment_outcome
 from bijux_proteomics_foundation import (
     AssayId,
     BatchId,
@@ -784,5 +785,57 @@ def plan_conflict_resolution_assays(
         suggested_assay_ids=suggested,
         notes=[
             "prioritize assays with orthogonal readouts to resolve conflict pairs",
+        ],
+    )
+
+
+def recommend_next_cycle_from_outcome(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    outcome: ExperimentOutcome,
+) -> ClosedLoopPlan:
+    """Recommend the next cycle by combining evidence trust with normalized assay outcomes."""
+    summary = summarize_experiment_outcome(outcome)
+    trust = compute_bundle_trust(bundle)
+    failed_assays = [
+        assay.assay_id
+        for assay in outcome.assay_outcomes
+        if assay.result_state
+        in {
+            AssayResultState.FAILED_BIOLOGICAL,
+            AssayResultState.FAILED_TECHNICAL,
+            AssayResultState.FAILED_REPRODUCIBILITY,
+            AssayResultState.INCONCLUSIVE,
+        }
+    ]
+    if summary.failed_technical_count > 0 or summary.failed_reproducibility_count > 0:
+        return ClosedLoopPlan(
+            program_id=program.program_id,
+            decision=ProgressDecision.HOLD,
+            evidence_backlog=evidence_gaps(bundle, [need.value for need in program.evidence_needs]),
+            assay_backlog=failed_assays,
+            notes=["repair assay execution quality before making redesign or progression calls"],
+            evidence_trust_score=trust.trust_score,
+        )
+    if summary.failed_biological_count > 0:
+        return ClosedLoopPlan(
+            program_id=program.program_id,
+            decision=ProgressDecision.REDESIGN,
+            evidence_backlog=evidence_gaps(bundle, [need.value for need in program.evidence_needs]),
+            assay_backlog=failed_assays,
+            notes=["biological failures indicate the candidate hypothesis should be redesigned"],
+            evidence_trust_score=trust.trust_score,
+        )
+    return recommend_next_cycle(
+        program,
+        bundle,
+        [
+            AssayObservation(
+                assay_id=assay.assay_id,
+                metric="outcome_state",
+                value=1.0 if assay.passed else 0.0,
+                passed=assay.passed,
+            )
+            for assay in outcome.assay_outcomes
         ],
     )

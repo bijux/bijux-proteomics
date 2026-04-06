@@ -12,6 +12,8 @@ from bijux_proteomics_lab import (
     AssayDependency,
     AssayFamily,
     AssayObservation,
+    AssayOutcome,
+    AssayResultState,
     assess_dependency_integrity,
     assay_family_priority,
     dependency_order,
@@ -23,6 +25,7 @@ from bijux_proteomics_lab import (
     MaterialInventory,
     MaterialRequirement,
     ProgressDecision,
+    RerunPolicy,
     assess_material_constraints,
     build_review_packet,
     plan_experiment_batches,
@@ -30,8 +33,10 @@ from bijux_proteomics_lab import (
     plan_conflict_resolution_assays,
     recommend_orthogonal_confirmation,
     recommend_next_cycle,
+    recommend_next_cycle_from_outcome,
     schedule_experiment_plan,
     schedule_with_family_capacity,
+    ExperimentOutcome,
 )
 
 
@@ -342,6 +347,67 @@ def test_dependency_order_ignores_invalid_edges_and_keeps_valid_prerequisites() 
     )
 
     assert ordered.index("a1") < ordered.index("a2")
+
+
+def test_recommend_next_cycle_from_outcome_holds_on_technical_failures() -> None:
+    program = create_program_spec(
+        program_id="prog-outcome-hold",
+        name="outcome hold",
+        objective="hold when assay execution quality is poor",
+        target_id="target-outcome-hold",
+        target_name="Target Outcome Hold",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="defer decisions until technical issues are resolved",
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-outcome-hold", target_id="target-outcome-hold", records=[])
+    outcome = ExperimentOutcome(
+        batch_id="batch-outcome-hold",
+        assay_outcomes=[
+            AssayOutcome(
+                assay_id="binding-assay",
+                passed=False,
+                result_state=AssayResultState.FAILED_TECHNICAL,
+                observation_summary="instrument drift",
+            )
+        ],
+        rerun_policy=RerunPolicy.ON_TECHNICAL_FAILURE,
+    )
+
+    plan = recommend_next_cycle_from_outcome(program, bundle, outcome)
+
+    assert plan.decision is ProgressDecision.HOLD
+    assert plan.assay_backlog == ["binding-assay"]
+
+
+def test_recommend_next_cycle_from_outcome_redesigns_on_biological_failures() -> None:
+    program = create_program_spec(
+        program_id="prog-outcome-redesign",
+        name="outcome redesign",
+        objective="redesign when biology fails",
+        target_id="target-outcome-redesign",
+        target_name="Target Outcome Redesign",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="use biological outcomes to drive redesign",
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-outcome-redesign", target_id="target-outcome-redesign", records=[])
+    outcome = ExperimentOutcome(
+        batch_id="batch-outcome-redesign",
+        assay_outcomes=[
+            AssayOutcome(
+                assay_id="activity-assay",
+                passed=False,
+                result_state=AssayResultState.FAILED_BIOLOGICAL,
+                observation_summary="activity gate missed",
+            )
+        ],
+        rerun_policy=RerunPolicy.ON_BIOLOGICAL_FAILURE,
+    )
+
+    plan = recommend_next_cycle_from_outcome(program, bundle, outcome)
+
+    assert plan.decision is ProgressDecision.REDESIGN
 
 
 def test_assess_material_constraints_flags_missing_sample_inventory() -> None:
