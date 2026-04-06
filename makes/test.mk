@@ -79,6 +79,7 @@ test:
 	@$(TEST_SELF_MAKE) test-syntax
 	@if [ "$(TEST_RESET_PYCACHE)" = "1" ]; then find . -type d -name '__pycache__' -exec rm -rf {} + >/dev/null 2>&1 || true; fi
 	@rm -rf "$(TMP_DIR_ABS)"
+	@rm -f "$(COV_DATA_ABS)" "$(COV_DATA_ABS)".*
 	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
 	@rm -rf $(TEST_CLEAN_PATHS) || true
 	@echo "   • JUnit XML → $(JUNIT_XML_ABS)"
