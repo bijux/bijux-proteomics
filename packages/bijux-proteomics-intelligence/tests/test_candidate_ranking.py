@@ -33,6 +33,7 @@ from bijux_proteomics_intelligence import (
     summarize_uncertainty_pressure,
     summarize_novelty_diversity,
     build_ranking_robustness_report,
+    summarize_metric_coverage,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -515,6 +516,46 @@ def test_build_ranking_robustness_report_combines_confidence_and_diversity() -> 
 
     assert report.robustness_score > 0.5
     assert report.uncertainty_summary.candidate_count == 2
+
+
+def test_summarize_metric_coverage_reports_missing_required_metrics() -> None:
+    program = create_program_spec(
+        program_id="prog-metric-coverage",
+        name="metric coverage",
+        objective="make missing candidate metrics explicit",
+        target_id="target-metric-coverage",
+        target_name="Target Metric Coverage",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="surface missing criteria metrics",
+    )
+    program.success_criteria.extend(
+        [
+            SuccessCriterion(
+                criterion_id="binding",
+                metric="binding_score",
+                direction=MeasurementDirection.MAXIMIZE,
+                threshold=0.8,
+            ),
+            SuccessCriterion(
+                criterion_id="stability",
+                metric="delta_tm",
+                direction=MeasurementDirection.MAXIMIZE,
+                threshold=1.5,
+            ),
+        ]
+    )
+    summary = summarize_metric_coverage(
+        CandidateAssessment(
+            candidate_id="candidate-metric-gap",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            metric_scores={"binding_score": 0.87},
+        ),
+        program,
+    )
+
+    assert summary.coverage_fraction == 0.5
+    assert summary.missing_metrics == ["delta_tm"]
 
 
 def test_candidate_score_breakdown_reports_weighted_contributions() -> None:

@@ -286,6 +286,18 @@ class RankingRobustnessReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Short notes explaining robustness posture.")
 
 
+class MetricCoverageSummary(JsonModel):
+    """Coverage summary of candidate metrics against program criteria."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    required_metrics: list[str] = Field(default_factory=list, description="Metrics required by program criteria.")
+    provided_metrics: list[str] = Field(default_factory=list, description="Metrics present on candidate assessment.")
+    missing_metrics: list[str] = Field(default_factory=list, description="Required metrics missing on candidate.")
+    coverage_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of required metrics provided.")
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -687,4 +699,26 @@ def build_ranking_robustness_report(
         uncertainty_summary=uncertainty,
         diversity_summary=diversity,
         notes=notes,
+    )
+
+
+def summarize_metric_coverage(
+    candidate: CandidateAssessment,
+    program: ProgramSpec,
+) -> MetricCoverageSummary:
+    """Summarize metric completeness for one candidate against program criteria."""
+    required_metrics = sorted({criterion.metric for criterion in program.success_criteria})
+    provided_metrics = sorted(candidate.metric_scores.keys())
+    missing_metrics = sorted(metric for metric in required_metrics if metric not in candidate.metric_scores)
+    coverage_fraction = (
+        round((len(required_metrics) - len(missing_metrics)) / len(required_metrics), 4)
+        if required_metrics
+        else 1.0
+    )
+    return MetricCoverageSummary(
+        candidate_id=candidate.candidate_id,
+        required_metrics=required_metrics,
+        provided_metrics=provided_metrics,
+        missing_metrics=missing_metrics,
+        coverage_fraction=coverage_fraction,
     )
