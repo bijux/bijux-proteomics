@@ -42,6 +42,7 @@ class KnowledgeReviewPacket(JsonModel):
     conflict_clusters: list[ConflictCluster] = Field(default_factory=list, description="Grouped conflicts for review.")
     gate_recommendation: str = Field(..., min_length=1, description="Recommended gate action for the decision tag.")
     executive_summary: list[str] = Field(default_factory=list, description="High-level review summary points.")
+    blocker_highlights: list[str] = Field(default_factory=list, description="Top blocker highlights for decision review.")
     decision_intelligence_index: float = Field(
         ...,
         ge=0.0,
@@ -130,6 +131,11 @@ def build_knowledge_review_packet(
         knowledge_gaps=gaps,
         gate_recommendation=gate_recommendation,
     )
+    blocker_highlights = extract_blocker_highlights(
+        quality_audit=audit,
+        knowledge_gaps=gaps,
+        conflict_clusters=clusters,
+    )
     intelligence_index = compute_decision_intelligence_index(
         quality_audit=audit,
         knowledge_gaps=gaps,
@@ -145,6 +151,7 @@ def build_knowledge_review_packet(
         conflict_clusters=clusters,
         gate_recommendation=gate_recommendation,
         executive_summary=summary,
+        blocker_highlights=blocker_highlights,
         decision_intelligence_index=intelligence_index,
     )
 
@@ -255,3 +262,23 @@ def compare_review_packets(
         gap_delta=len(current.knowledge_gaps) - len(previous.knowledge_gaps),
         recommendation_changed=current.gate_recommendation != previous.gate_recommendation,
     )
+
+
+def extract_blocker_highlights(
+    *,
+    quality_audit: KnowledgeQualityAudit,
+    knowledge_gaps: list[KnowledgeGap],
+    conflict_clusters: list[ConflictCluster],
+    limit: int = 5,
+) -> list[str]:
+    """Extract concise blocker highlights sorted by decision risk."""
+    highlights: list[tuple[int, str]] = []
+    for cluster in conflict_clusters:
+        if cluster.recommended_hold:
+            highlights.append((3, f"high-severity conflict cluster in '{cluster.decision_tag}'"))
+    for gap in knowledge_gaps:
+        highlights.append((2, f"knowledge gap: {gap.gap_code}"))
+    for recommendation in quality_audit.recommendations:
+        highlights.append((1, f"quality action: {recommendation}"))
+    highlights.sort(key=lambda item: item[0], reverse=True)
+    return [text for _, text in highlights[:limit]]

@@ -65,6 +65,7 @@ def test_build_knowledge_review_packet_returns_integrated_sections() -> None:
         "advance",
     }
     assert any("gate recommendation" in line for line in packet.executive_summary)
+    assert isinstance(packet.blocker_highlights, list)
     assert 0.0 <= packet.decision_intelligence_index <= 1.0
 
 

@@ -79,6 +79,7 @@ from bijux_proteomics_knowledge.review import (
     compare_review_packets,
     compute_decision_intelligence_index,
     summarize_multi_decision_readiness,
+    extract_blocker_highlights,
 )
 from bijux_proteomics_knowledge.serialization import fingerprint_model, to_canonical_json
 from bijux_proteomics_knowledge.repositories import (
@@ -261,6 +262,7 @@ __all__ = [
     "compare_review_packets",
     "compute_decision_intelligence_index",
     "summarize_multi_decision_readiness",
+    "extract_blocker_highlights",
     "to_canonical_json",
     "fingerprint_model",
     "build_claim",
