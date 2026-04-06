@@ -337,6 +337,7 @@ def test_schedule_with_family_capacity_respects_family_limits() -> None:
                 objective="family capacity",
                 assay_ids=["a1", "a2"],
                 sample_requirements=["biophysical", "expression"],
+                assay_sample_kinds={"a1": "biophysical", "a2": "expression"},
                 priority=1,
             )
         ],
@@ -353,6 +354,38 @@ def test_schedule_with_family_capacity_respects_family_limits() -> None:
 
     assert scheduled.scheduled_batches[0].assay_ids == ["a1"]
     assert "a2" in scheduled.scheduled_batches[0].deferred_assay_ids
+
+
+def test_schedule_with_family_capacity_uses_per_assay_mapping() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-5",
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-1",
+                objective="family mapped scheduling",
+                assay_ids=["a1", "a2", "a3"],
+                sample_requirements=["biophysical"],
+                assay_sample_kinds={
+                    "a1": "biophysical",
+                    "a2": "biophysical",
+                    "a3": "expression",
+                },
+                priority=1,
+            )
+        ],
+    )
+
+    scheduled = schedule_with_family_capacity(
+        plan,
+        LabCapacity(cycle_id="cycle-2", max_batches=1, max_assays_per_batch=3),
+        family_capacities=[
+            FamilyCapacity(family=AssayFamily.BIOPHYSICAL, max_assays=1),
+            FamilyCapacity(family=AssayFamily.EXPRESSION, max_assays=1),
+        ],
+    )
+
+    assert scheduled.scheduled_batches[0].assay_ids == ["a1", "a3"]
+    assert scheduled.scheduled_batches[0].deferred_assay_ids == ["a2"]
 
 
 def test_experiment_plan_round_trips_with_serialization_helpers(tmp_path: Path) -> None:

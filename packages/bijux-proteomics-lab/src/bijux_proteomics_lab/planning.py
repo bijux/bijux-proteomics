@@ -58,6 +58,10 @@ class ExperimentBatch(JsonModel):
         default_factory=list,
         description="Material requirements that must be available for the batch.",
     )
+    assay_sample_kinds: dict[str, str] = Field(
+        default_factory=dict,
+        description="Per-assay sample kind mapping used for capacity scheduling.",
+    )
 
 
 class AssayDependency(JsonModel):
@@ -341,6 +345,7 @@ def plan_experiment_batches(
                 else [],
                 priority=priority,
                 sample_requirements=sorted({assay.sample_kind for assay in assays}),
+                assay_sample_kinds={assay.assay_id: assay.sample_kind for assay in assays},
             )
         )
         priority += 1
@@ -506,7 +511,8 @@ def schedule_with_family_capacity(
     for batch in plan.batches[: capacity.max_batches]:
         selected: list[str] = []
         deferred: list[str] = []
-        for assay_id, sample_kind in zip(batch.assay_ids, batch.sample_requirements):
+        for assay_id in batch.assay_ids:
+            sample_kind = batch.assay_sample_kinds.get(assay_id, "other")
             family = assay_family(sample_kind)
             if family_budget.get(family, 0) <= 0:
                 deferred.append(assay_id)
