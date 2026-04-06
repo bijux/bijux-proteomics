@@ -34,6 +34,8 @@ from bijux_proteomics_intelligence.candidates import (
 )
 from bijux_proteomics_intelligence.evaluators import (
     EvaluatorPolicyBundle,
+    ScenarioSetEvaluation,
+    evaluate_all_scenarios,
     ProgressionPolicy,
     RedesignPolicy,
     ScaleUpPolicy,
@@ -87,6 +89,7 @@ __all__ = [
     "RedesignPolicyConfig",
     "ScenarioAction",
     "ScenarioEvaluation",
+    "ScenarioSetEvaluation",
     "ScaleUpPolicy",
     "SynthesisPolicy",
     "TieBreakExplanation",
@@ -98,6 +101,7 @@ __all__ = [
     "evaluate_for_redesign",
     "evaluate_for_scale_up",
     "evaluate_for_synthesis",
+    "evaluate_all_scenarios",
     "portfolio_status",
     "select_portfolio_shortlist",
     "prioritize_candidates",

@@ -118,6 +118,17 @@ class EvaluatorPolicyBundle(JsonModel):
     )
 
 
+class ScenarioSetEvaluation(JsonModel):
+    """Grouped scenario evaluations for one program state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    progression: ScenarioEvaluation = Field(..., description="Progression evaluation.")
+    synthesis: ScenarioEvaluation = Field(..., description="Synthesis evaluation.")
+    scale_up: ScenarioEvaluation = Field(..., description="Scale-up evaluation.")
+    redesign: ScenarioEvaluation = Field(..., description="Redesign evaluation.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -265,4 +276,41 @@ def evaluate_for_redesign(
         scenario="redesign",
         action=ScenarioAction.ADVANCE,
         reasons=["current candidates and evidence do not require immediate redesign"],
+    )
+
+
+def evaluate_all_scenarios(
+    program: ProgramSpec,
+    ranking: CandidateRanking,
+    readiness: DecisionReadiness,
+    risks: list[CandidateRiskProfile],
+    *,
+    policies: EvaluatorPolicyBundle | None = None,
+) -> ScenarioSetEvaluation:
+    """Evaluate all scenario endpoints under a shared policy bundle."""
+    policies = policies or EvaluatorPolicyBundle()
+    return ScenarioSetEvaluation(
+        progression=evaluate_for_progression(
+            program,
+            ranking,
+            readiness,
+            policy=policies.progression,
+        ),
+        synthesis=evaluate_for_synthesis(
+            ranking,
+            readiness,
+            risks,
+            policy=policies.synthesis,
+        ),
+        scale_up=evaluate_for_scale_up(
+            ranking,
+            readiness,
+            risks,
+            policy=policies.scale_up,
+        ),
+        redesign=evaluate_for_redesign(
+            ranking,
+            readiness,
+            policy=policies.redesign,
+        ),
     )
