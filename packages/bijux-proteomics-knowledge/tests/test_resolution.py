@@ -13,6 +13,7 @@ from bijux_proteomics_knowledge import (
     ResolutionAction,
     ResolutionPolicy,
     resolve_conflicts,
+    summarize_resolutions,
 )
 
 
@@ -170,3 +171,42 @@ def test_claim_resolution_record_captures_resolution_history() -> None:
     )
 
     assert record.resolution.action is ResolutionAction.ACCEPT_HIGHER_TRUST
+
+
+def test_summarize_resolutions_reports_action_counts() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-summary",
+        target_id="target-summary",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="Assay positive",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://run-1",
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-2",
+                kind=EvidenceKind.ASSAY,
+                title="Assay negative",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://run-1",
+                claim="Candidate misses the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    policy = ResolutionPolicy(policy_id="summary-policy")
+    _, resolutions = resolve_conflicts(bundle, policy=policy)
+    summary = summarize_resolutions(resolutions, policy=policy)
+
+    assert summary.policy_id == "summary-policy"
+    assert summary.hold_required is True

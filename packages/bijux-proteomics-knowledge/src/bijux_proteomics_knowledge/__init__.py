@@ -49,7 +49,9 @@ from bijux_proteomics_knowledge.resolution import (
     ConflictResolution,
     ResolutionAction,
     ResolutionPolicy,
+    ResolutionSummary,
     resolve_conflicts,
+    summarize_resolutions,
 )
 from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
@@ -162,7 +164,9 @@ __all__ = [
     "EvidenceRecordRepository",
     "ResolutionAction",
     "ResolutionPolicy",
+    "ResolutionSummary",
     "resolve_conflicts",
+    "summarize_resolutions",
     "StructureAnnotationIngestionAdapter",
     "attach_manual_notes",
     "ingest_inputs_with_report",

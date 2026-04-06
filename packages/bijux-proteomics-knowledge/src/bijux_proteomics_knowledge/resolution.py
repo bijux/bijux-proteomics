@@ -67,6 +67,22 @@ class ResolutionPolicy(JsonModel):
     )
 
 
+class ResolutionSummary(JsonModel):
+    """Action-level summary of resolution outcomes for one bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Resolution policy identifier.")
+    action_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Count of conflicts grouped by selected action.",
+    )
+    hold_required: bool = Field(
+        default=False,
+        description="Whether any conflict requires an explicit hold decision.",
+    )
+
+
 def resolve_conflicts(
     bundle: EvidenceBundle,
     *,
@@ -146,3 +162,23 @@ def _resolution_score(record: EvidenceRecord, policy: ResolutionPolicy, *, now: 
     age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
     recency_multiplier = 1.0 if age_days <= 30 else 0.9
     return round(record.confidence * source_weight * recency_multiplier, 4)
+
+
+def summarize_resolutions(
+    resolutions: list[ConflictResolution],
+    *,
+    policy: ResolutionPolicy,
+) -> ResolutionSummary:
+    """Summarize conflict resolutions into auditable action counts."""
+    counts: dict[str, int] = {}
+    hold_required = False
+    for resolution in resolutions:
+        action = resolution.action.value
+        counts[action] = counts.get(action, 0) + 1
+        if resolution.action is ResolutionAction.HOLD_DECISION:
+            hold_required = True
+    return ResolutionSummary(
+        policy_id=policy.policy_id,
+        action_counts=counts,
+        hold_required=hold_required,
+    )
