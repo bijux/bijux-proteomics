@@ -185,6 +185,32 @@ def decision_timeline(
     )
 
 
+def list_decisions_by_outcome(
+    program_id: str,
+    outcome: ReviewOutcome,
+    decisions: list[ReviewDecision],
+) -> list[ReviewDecision]:
+    """List all decisions for a program filtered by outcome."""
+    return [
+        decision
+        for decision in decision_timeline(program_id, decisions)
+        if decision.outcome is outcome
+    ]
+
+
+def list_gate_decisions(
+    program_id: str,
+    gate_id: str,
+    decisions: list[ReviewDecision],
+) -> list[ReviewDecision]:
+    """List all time-ordered decisions for a specific gate."""
+    return [
+        decision
+        for decision in decision_timeline(program_id, decisions)
+        if decision.gate_id == gate_id
+    ]
+
+
 def evaluate_review_gate(
     gate: ReviewGate,
     decisions: list[ReviewDecision],

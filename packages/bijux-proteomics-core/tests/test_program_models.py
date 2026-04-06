@@ -30,6 +30,8 @@ from bijux_proteomics import (
     evaluate_review_gates,
     ensure_review_clearance,
     latest_gate_decision,
+    list_decisions_by_outcome,
+    list_gate_decisions,
     program_summary,
     revise_program,
     assess_stage_eligibility,
@@ -719,3 +721,36 @@ def test_revise_program_increments_revision_and_sets_content_hash() -> None:
     assert revised.document_schema.revision == program.document_schema.revision + 1
     assert revised.document_schema.updated_by == "scientist"
     assert revised.document_schema.content_hash is not None
+
+
+def test_decision_query_helpers_filter_by_outcome_and_gate() -> None:
+    d1 = ReviewDecision(
+        program_id="prog-20",
+        gate_id="g1",
+        outcome=ReviewOutcome.APPROVED,
+        decided_by="scientist",
+        rationale="ok",
+        reviewed_inputs=["p"],
+        reviewed_evidence_ids=["ev-1"],
+    )
+    d2 = d1.model_copy(
+        update={
+            "gate_id": "g2",
+            "outcome": ReviewOutcome.NEEDS_REVISION,
+            "decided_at": d1.decided_at + timedelta(seconds=1),
+        }
+    )
+    d3 = d1.model_copy(
+        update={
+            "gate_id": "g1",
+            "outcome": ReviewOutcome.APPROVED,
+            "decided_at": d1.decided_at + timedelta(seconds=2),
+        }
+    )
+    decisions = [d2, d3, d1]
+
+    approved = list_decisions_by_outcome("prog-20", ReviewOutcome.APPROVED, decisions)
+    gate = list_gate_decisions("prog-20", "g1", decisions)
+
+    assert approved == [d1, d3]
+    assert gate == [d1, d3]
