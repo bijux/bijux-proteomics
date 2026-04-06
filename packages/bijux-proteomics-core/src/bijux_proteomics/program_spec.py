@@ -49,6 +49,18 @@ class ProgramSpec(JsonModel):
     program_id: ProgramId = Field(..., description="Stable program identifier.")
     name: str = Field(..., min_length=1, description="Program name.")
     objective: str = Field(..., min_length=1, description="Scientific objective.")
+    mechanism_hypothesis: str | None = Field(
+        default=None,
+        description="Explicit mechanistic hypothesis under test.",
+    )
+    intervention_goal: str | None = Field(
+        default=None,
+        description="Desired intervention outcome such as inhibit, stabilize, or degrade.",
+    )
+    translational_assumptions: list[str] = Field(
+        default_factory=list,
+        description="Major translational assumptions that should be validated experimentally.",
+    )
     stage: ProgramStage = Field(
         default=ProgramStage.SCOPING,
         description="Current lifecycle stage.",
@@ -126,6 +138,8 @@ def create_program_spec(
         program_id=program_id,
         name=name,
         objective=objective,
+        mechanism_hypothesis=mechanism,
+        intervention_goal="modulate_target_state",
         target=ProteinTarget(
             target_id=target_id,
             name=target_name,
@@ -147,6 +161,8 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
         "program_id": program.program_id,
         "target_id": program.target.target_id,
         "stage": program.stage.value,
+        "mechanism_hypothesis": program.mechanism_hypothesis,
+        "intervention_goal": program.intervention_goal,
         "schema_version": program.document_schema.schema_version,
         "constraint_count": len(program.constraints),
         "liability_count": len(program.liabilities),

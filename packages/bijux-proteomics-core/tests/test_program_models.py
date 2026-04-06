@@ -161,6 +161,7 @@ def test_program_summary_includes_operating_model_defaults() -> None:
     summary = program_summary(program)
 
     assert summary["stage"] == ProgramStage.SCOPING.value
+    assert summary["mechanism_hypothesis"] == "stabilize the productive conformation"
     assert summary["human_review_required"] is True
     assert summary["lab_feedback_required"] is True
 
