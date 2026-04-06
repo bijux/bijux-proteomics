@@ -22,6 +22,7 @@ from bijux_proteomics_knowledge import (
     build_hypothesis_dossier,
     apply_resolution_assay_outcome,
     ResolutionAssayOutcome,
+    identify_knowledge_gaps,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -403,3 +404,35 @@ def test_apply_resolution_assay_outcome_updates_claim_confidence() -> None:
     assert updated.confidence == 0.35
     assert updated.status is ClaimStatus.DISPUTED
     assert "does not confirm claim direction" in update.rationale
+
+
+def test_identify_knowledge_gaps_reports_open_claim_and_decisive_gap() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-gap",
+        target_id="target-1",
+        records=[
+            EvidenceRecord(
+                evidence_id="ev-gap-1",
+                kind=EvidenceKind.LITERATURE,
+                title="support",
+                source="pmid",
+                claim="supports progression",
+                decision_tags=["progression"],
+                confidence=0.75,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    claim = build_claim(
+        claim_id="claim-gap-1",
+        target_id="target-1",
+        statement="claim still open",
+        evidence_ids=["ev-gap-1"],
+        status=ClaimStatus.SUPPORTED,
+        resolution_assays=["orthogonal assay"],
+    )
+
+    gaps = identify_knowledge_gaps(bundle, [claim], decision_tag="progression")
+
+    assert any(gap.gap_code == "open-claims-require-resolution" for gap in gaps)
+    assert any(gap.gap_code == "no-decisive-evidence" for gap in gaps)

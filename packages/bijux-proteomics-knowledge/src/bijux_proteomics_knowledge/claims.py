@@ -179,6 +179,16 @@ class ResolutionAssayOutcome(JsonModel):
     note: str | None = Field(default=None, description="Optional interpretation note.")
 
 
+class KnowledgeGap(JsonModel):
+    """A concrete unresolved gap that blocks stronger scientific confidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    gap_code: str = Field(..., min_length=1, description="Stable knowledge gap code.")
+    message: str = Field(..., min_length=1, description="Human-readable gap description.")
+    related_claim_ids: list[EvidenceId] = Field(default_factory=list, description="Claim identifiers tied to this gap.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -464,3 +474,69 @@ def apply_resolution_assay_outcome(
         updated_confidence=updated_confidence,
         rationale=rationale,
     )
+
+
+def identify_knowledge_gaps(
+    bundle: EvidenceBundle,
+    claims: list[EvidenceClaim],
+    *,
+    decision_tag: str,
+) -> list[KnowledgeGap]:
+    """Identify unresolved claim and evidence gaps for one decision dimension."""
+    gaps: list[KnowledgeGap] = []
+    decision_claims = [
+        claim
+        for claim in claims
+        if any(
+            decision_tag in record.decision_tags and record.evidence_id in claim.evidence_ids
+            for record in bundle.records
+        )
+    ]
+    if not decision_claims:
+        gaps.append(
+            KnowledgeGap(
+                gap_code="no-claims-for-decision-tag",
+                message=f"no claims are linked to decision tag '{decision_tag}'",
+            )
+        )
+        return gaps
+    open_claims = [claim for claim in decision_claims if claim.resolution_state is ClaimResolutionState.OPEN]
+    if open_claims:
+        gaps.append(
+            KnowledgeGap(
+                gap_code="open-claims-require-resolution",
+                message="one or more claims remain open and require resolution assays",
+                related_claim_ids=[claim.claim_id for claim in open_claims],
+            )
+        )
+    unresolved_assay_claims = [claim for claim in open_claims if not claim.resolution_assays]
+    if unresolved_assay_claims:
+        gaps.append(
+            KnowledgeGap(
+                gap_code="resolution-assays-not-defined",
+                message="open claims are missing required resolution assays",
+                related_claim_ids=[claim.claim_id for claim in unresolved_assay_claims],
+            )
+        )
+    contradicting = [claim for claim in decision_claims if claim.polarity is ClaimPolarity.CONTRADICTING]
+    if contradicting and not any(claim.contradicting_evidence_ids for claim in contradicting):
+        gaps.append(
+            KnowledgeGap(
+                gap_code="contradiction-evidence-not-linked",
+                message="contradicting claims exist without linked contradicting evidence identifiers",
+                related_claim_ids=[claim.claim_id for claim in contradicting],
+            )
+        )
+    decisive_records = [
+        record
+        for record in bundle.records
+        if decision_tag in record.decision_tags and record.strength.value == "decisive"
+    ]
+    if not decisive_records:
+        gaps.append(
+            KnowledgeGap(
+                gap_code="no-decisive-evidence",
+                message=f"decision tag '{decision_tag}' has no decisive evidence records",
+            )
+        )
+    return gaps
