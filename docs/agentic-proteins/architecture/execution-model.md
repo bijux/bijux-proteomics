@@ -55,7 +55,7 @@ flowchart TB
 
 ## Execution Anchors
 
-- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in api/v1
+- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in apis/agentic-proteins/v1
 - workflow modules: src/agentic_proteins/runtime/control, src/agentic_proteins/runtime/context, src/agentic_proteins/agents
 - outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 

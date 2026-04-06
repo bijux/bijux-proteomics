@@ -53,7 +53,7 @@ flowchart TB
 
 ## Recovery Anchors
 
-- interface surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in api/v1
+- interface surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in apis/agentic-proteins/v1
 - artifacts to inspect: execution store records, replay decision artifacts, non-determinism policy evaluations
 - tests to run: tests/unit for api, contracts, core, interfaces, model, and runtime, tests/e2e for governed flow behavior
 

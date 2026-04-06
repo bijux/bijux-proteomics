@@ -56,7 +56,7 @@ flowchart RL
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in api/v1
+- shared API schema in apis/agentic-proteins/v1
 
 ## Adjacent Systems
 

@@ -31,13 +31,13 @@ flowchart TB
     surface1 --> page
     surface2["HTTP app in src/agentic_proteins/api/v1"]
     surface2 --> page
-    surface3["shared API schema in api/v1"]
+    surface3["shared API schema in apis/agentic-proteins/v1"]
     surface3 --> page
-    proof1["api/v1/schema.yaml"]
+    proof1["apis/agentic-proteins/v1/schema.yaml"]
     page --> proof1
     proof2["execution store records"]
     page --> proof2
-    proof3["api/v1/schema.yaml"]
+    proof3["apis/agentic-proteins/v1/schema.yaml"]
     page --> proof3
     review1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
     review1 -.raises compatibility pressure on.-> page
@@ -55,19 +55,19 @@ flowchart TB
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in api/v1
+- shared API schema in apis/agentic-proteins/v1
 
 ## Example Anchors
 
 - examples/ for minimal flows, replay violations, and datasets
-- api/v1/schema.yaml for schema integrity checks
+- apis/agentic-proteins/v1/schema.yaml for schema integrity checks
 
 ## Concrete Anchors
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in api/v1
-- api/v1/schema.yaml
+- shared API schema in apis/agentic-proteins/v1
+- apis/agentic-proteins/v1/schema.yaml
 
 ## Use This Page When
 

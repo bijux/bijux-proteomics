@@ -39,7 +39,7 @@ sequenceDiagram
 
 ## Current Schema Roots
 
-- `api/v1/schema.yaml` for public runtime API contracts
+- `apis/agentic-proteins/v1/schema.yaml` for public runtime API contracts
 - package-local model schemas under `packages/*/src/**/schema.py`
 - package-local changelog and metadata links as release-facing contract references
 

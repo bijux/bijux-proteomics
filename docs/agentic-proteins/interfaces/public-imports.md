@@ -30,15 +30,15 @@ flowchart LR
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     surface1["HTTP app in src/agentic_proteins/api/v1"]
     surface1 --> page
-    surface2["shared API schema in api/v1"]
+    surface2["shared API schema in apis/agentic-proteins/v1"]
     surface2 --> page
     surface3["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     surface3 --> page
     proof1["execution store records"]
     page --> proof1
-    proof2["api/v1/schema.yaml"]
+    proof2["apis/agentic-proteins/v1/schema.yaml"]
     page --> proof2
-    proof3["api/v1/schema.yaml"]
+    proof3["apis/agentic-proteins/v1/schema.yaml"]
     page --> proof3
     review1["tests/regression and tests/smoke for replay and storage protection"]
     review1 -.raises compatibility pressure on.-> page
@@ -61,8 +61,8 @@ flowchart LR
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in api/v1
-- api/v1/schema.yaml
+- shared API schema in apis/agentic-proteins/v1
+- apis/agentic-proteins/v1/schema.yaml
 
 ## Use This Page When
 
