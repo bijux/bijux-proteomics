@@ -43,17 +43,21 @@ from bijux_proteomics.program_spec import (
 )
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.repositories import (
+    DuplicateReviewDecisionError,
     ProgramRepository,
+    ProgramNotFoundError,
     ReviewDecision,
     ReviewDecisionRepository,
     ReviewGateEvaluation,
     ReviewGateState,
     ReviewOutcome,
     decision_timeline,
+    ensure_unique_gate_decision,
     evaluate_review_gate,
     evaluate_review_gates,
     ensure_review_clearance,
     latest_gate_decision,
+    require_program,
     validate_review_decision,
 )
 from bijux_proteomics.runtime_adapter import (
@@ -116,6 +120,7 @@ __all__ = [
     "DocumentSchema",
     "ExecutionBackend",
     "ExecutionRequest",
+    "DuplicateReviewDecisionError",
     "ScientificConstraint",
     "AgenticProteinsBackend",
     "MissingExecutionBackendError",
@@ -127,8 +132,11 @@ __all__ = [
     "assess_stage_eligibility",
     "create_program_spec",
     "decision_timeline",
+    "ensure_unique_gate_decision",
     "ensure_review_clearance",
     "latest_gate_decision",
+    "ProgramNotFoundError",
+    "require_program",
     "execute_program",
     "program_summary",
     "sequence_length",

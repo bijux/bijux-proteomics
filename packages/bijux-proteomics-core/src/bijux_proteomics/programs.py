@@ -30,14 +30,18 @@ from bijux_proteomics.program_spec import (
 )
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.repositories import (
+    DuplicateReviewDecisionError,
+    ProgramNotFoundError,
     ReviewDecision,
     ReviewGateEvaluation,
     ReviewGateState,
     ReviewOutcome,
     decision_timeline,
+    ensure_unique_gate_decision,
     evaluate_review_gate,
     evaluate_review_gates,
     latest_gate_decision,
+    require_program,
     validate_review_decision,
 )
 from bijux_proteomics.targets import (
@@ -51,6 +55,7 @@ from bijux_proteomics.targets import (
 __all__ = [
     "AssayRequirement",
     "DecisionOwnerRole",
+    "DuplicateReviewDecisionError",
     "EvidenceNeed",
     "LifecycleTransition",
     "MeasurementDirection",
@@ -60,6 +65,7 @@ __all__ = [
     "ProgramDeliveryContext",
     "ProgramPortfolioContext",
     "ProgramLifecycle",
+    "ProgramNotFoundError",
     "ProgramSpec",
     "ProgramStage",
     "StageEligibility",
@@ -76,9 +82,11 @@ __all__ = [
     "SuccessCriterion",
     "create_program_spec",
     "decision_timeline",
+    "ensure_unique_gate_decision",
     "evaluate_review_gate",
     "evaluate_review_gates",
     "latest_gate_decision",
+    "require_program",
     "validate_review_decision",
     "advance_stage",
     "allowed_next_stages",

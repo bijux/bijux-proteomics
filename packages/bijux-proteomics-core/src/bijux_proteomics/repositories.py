@@ -11,6 +11,7 @@ from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation import ContractConflictError, ContractNotFoundError
 from bijux_proteomics.program_spec import ProgramSpec
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.serialization import JsonModel
@@ -96,6 +97,14 @@ class ReviewDecisionRepository(Protocol):
         """List recorded review decisions for a program."""
 
 
+class ProgramNotFoundError(ContractNotFoundError):
+    """Raised when a program is requested but not found."""
+
+
+class DuplicateReviewDecisionError(ContractConflictError):
+    """Raised when a duplicate review decision is attempted."""
+
+
 def ensure_review_clearance(
     program: ProgramSpec,
     decisions: list[ReviewDecision],
@@ -124,6 +133,29 @@ def validate_review_decision(decision: ReviewDecision) -> list[str]:
     if decision.outcome is ReviewOutcome.REJECTED and not decision.rationale.strip():
         issues.append("rejected review decisions should include an explicit rationale")
     return issues
+
+
+def require_program(program: ProgramSpec | None, program_id: str) -> ProgramSpec:
+    """Return a program or raise a typed not-found error."""
+    if program is None:
+        raise ProgramNotFoundError(f"program '{program_id}' was not found")
+    return program
+
+
+def ensure_unique_gate_decision(
+    decision: ReviewDecision,
+    decisions: list[ReviewDecision],
+) -> None:
+    """Raise when a decision duplicates the same program/gate/outcome timestamp."""
+    if any(
+        existing.program_id == decision.program_id
+        and existing.gate_id == decision.gate_id
+        and existing.decided_at == decision.decided_at
+        for existing in decisions
+    ):
+        raise DuplicateReviewDecisionError(
+            "duplicate review decision for the same program, gate, and timestamp"
+        )
 
 
 def latest_gate_decision(

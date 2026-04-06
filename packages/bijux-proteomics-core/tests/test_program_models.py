@@ -19,6 +19,8 @@ from bijux_proteomics import (
     ProgramValidationError,
     ProgramContext,
     ProgramDeliveryContext,
+    DuplicateReviewDecisionError,
+    ProgramNotFoundError,
     ProgramPortfolioContext,
     ReviewGateEvaluation,
     ReviewGateState,
@@ -30,6 +32,8 @@ from bijux_proteomics import (
     latest_gate_decision,
     program_summary,
     assess_stage_eligibility,
+    ensure_unique_gate_decision,
+    require_program,
     validate_review_decision,
     validate_assay_dependencies,
     validate_program,
@@ -675,3 +679,23 @@ def test_assess_stage_eligibility_flags_missing_lab_ready_prerequisites() -> Non
             "lab-ready stage requires at least one blocking review gate",
         ],
     )
+
+
+def test_require_program_raises_typed_not_found_error() -> None:
+    with pytest.raises(ProgramNotFoundError):
+        require_program(None, "prog-17")
+
+
+def test_ensure_unique_gate_decision_rejects_duplicate_timestamp() -> None:
+    decision = ReviewDecision(
+        program_id="prog-18",
+        gate_id="pre-synthesis",
+        outcome=ReviewOutcome.APPROVED,
+        decided_by="scientist",
+        rationale="ready",
+        reviewed_inputs=["review_packet"],
+        reviewed_evidence_ids=["ev-1"],
+    )
+
+    with pytest.raises(DuplicateReviewDecisionError):
+        ensure_unique_gate_decision(decision, [decision])
