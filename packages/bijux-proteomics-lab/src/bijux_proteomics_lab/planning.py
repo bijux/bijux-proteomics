@@ -23,6 +23,7 @@ from bijux_proteomics_lab.outcomes import (
     ExperimentOutcome,
     assess_batch_outcome,
     summarize_experiment_outcome,
+    triage_batch_failures,
 )
 from bijux_proteomics_foundation import (
     AssayId,
@@ -431,6 +432,17 @@ class MaterialReservation(JsonModel):
     reserved_units: float = Field(..., ge=0.0, description="Reserved quantity.")
     unit: str = Field(..., min_length=1, description="Unit of measure.")
     feasible: bool = Field(..., description="Whether reservation is feasible with current inventory.")
+
+
+class LabExecutionDirective(JsonModel):
+    """Operational directive for the next lab cycle based on outcome triage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    decision: ProgressDecision = Field(..., description="Operational next-step decision.")
+    escalation_assay_ids: list[AssayId] = Field(default_factory=list, description="Assays requiring escalation.")
+    immediate_actions: list[str] = Field(default_factory=list, description="Immediate execution actions.")
 
 
 class OrthogonalConfirmationPlan(JsonModel):
@@ -1319,6 +1331,33 @@ def plan_material_reservations(
             )
             inventory_map[requirement.material_id] = max(0.0, available - reserved_units)
     return reservations
+
+
+def derive_lab_execution_directive(outcome: ExperimentOutcome) -> LabExecutionDirective:
+    """Derive an operational directive from batch outcome and triage signals."""
+    assessment = assess_batch_outcome(outcome)
+    triage = triage_batch_failures(outcome)
+    actions: list[str] = []
+    if triage.escalation_assay_ids:
+        actions.append(f"escalate assays: {', '.join(triage.escalation_assay_ids)}")
+    if assessment.technical_or_repro_failures > 0:
+        decision = ProgressDecision.HOLD
+        actions.append("resolve technical or reproducibility failures before progression")
+    elif any(
+        assay.result_state is AssayResultState.FAILED_BIOLOGICAL
+        for assay in outcome.assay_outcomes
+    ):
+        decision = ProgressDecision.REDESIGN
+        actions.append("redesign biological hypothesis and assay sequence")
+    else:
+        decision = ProgressDecision.ADVANCE
+        actions.append("promote ready outcomes and advance to next cycle")
+    return LabExecutionDirective(
+        batch_id=outcome.batch_id,
+        decision=decision,
+        escalation_assay_ids=triage.escalation_assay_ids,
+        immediate_actions=actions,
+    )
 
 
 def recommend_orthogonal_confirmation(

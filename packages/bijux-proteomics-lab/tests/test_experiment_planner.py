@@ -51,6 +51,7 @@ from bijux_proteomics_lab import (
     AssayIntent,
     summarize_assay_portfolio_balance,
     plan_material_reservations,
+    derive_lab_execution_directive,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -365,6 +366,26 @@ def test_plan_material_reservations_marks_infeasible_allocations() -> None:
 
     assert reservations[0].feasible is False
     assert reservations[0].reserved_units == 4.0
+
+
+def test_derive_lab_execution_directive_holds_on_technical_failure() -> None:
+    directive = derive_lab_execution_directive(
+        ExperimentOutcome(
+            batch_id="b1",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="a1",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_TECHNICAL,
+                    observation_summary="instrument drift",
+                )
+            ],
+            rerun_policy=RerunPolicy.NEVER,
+        )
+    )
+
+    assert directive.decision is ProgressDecision.HOLD
+    assert any("technical" in action for action in directive.immediate_actions)
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
