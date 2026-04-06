@@ -10,6 +10,7 @@ from bijux_proteomics_knowledge import (
     assess_decision_readiness,
     attach_manual_notes,
     BundleFreshnessReport,
+    ConflictPolicy,
     compute_bundle_trust,
     coverage_report,
     deduplicate_records,
@@ -26,6 +27,7 @@ from bijux_proteomics_knowledge import (
     ManualEvidenceNote,
     TrustPolicy,
     default_trust_policy,
+    default_conflict_policy,
     evidence_gaps,
     flag_conflicting_evidence,
     plan_evidence_refresh,
@@ -296,6 +298,52 @@ def test_compute_bundle_trust_uses_explicit_trust_policy() -> None:
 
     assert isinstance(strict_policy, TrustPolicy)
     assert strict_score < default_score
+
+
+def test_conflict_policy_detects_same_assay_source_disagreement() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-conflict",
+        target_id="target-conflict",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="Assay positive",
+                source="lab",
+                source_uri="lab://run-1",
+                decision_tags=["progression"],
+                claim="Candidate meets the assay gate.",
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-2",
+                kind=EvidenceKind.ASSAY,
+                title="Assay negative",
+                source="lab",
+                source_uri="lab://run-1",
+                decision_tags=["progression"],
+                claim="Candidate misses the assay gate.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    conflicts = flag_conflicting_evidence(
+        bundle,
+        policy=default_conflict_policy().model_copy(
+            update={"policy_id": "assay-aware"}
+        ),
+    )
+
+    assert conflicts == [
+        EvidenceConflict(
+            left_evidence_id="assay-1",
+            right_evidence_id="assay-2",
+            reason="same assay source but inconsistent assay interpretation",
+        )
+    ]
 
 
 def test_record_scoring_and_helpers_are_exposed_for_policy_use() -> None:

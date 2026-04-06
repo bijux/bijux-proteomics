@@ -270,6 +270,22 @@ class TrustPolicy(JsonModel):
     )
 
 
+class ConflictPolicy(JsonModel):
+    """Explicit policy for evidence conflict detection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable conflict policy identifier.")
+    require_shared_decision_tag: bool = Field(
+        default=True,
+        description="Whether conflicts require overlapping decision tags.",
+    )
+    detect_assay_readout_conflicts: bool = Field(
+        default=True,
+        description="Whether same-source assay records with divergent claims should conflict.",
+    )
+
+
 class EvidenceRefreshPriority(StrEnum):
     """Priority for refreshing stale or aging evidence."""
 
@@ -544,17 +560,41 @@ def deduplicate_records(bundle: EvidenceBundle) -> list[list[str]]:
     return [ids for ids in grouped.values() if len(ids) > 1]
 
 
-def flag_conflicting_evidence(bundle: EvidenceBundle) -> list[EvidenceConflict]:
+def default_conflict_policy() -> ConflictPolicy:
+    """Return the default conflict policy used by the package."""
+    return ConflictPolicy(policy_id="default-conflict-policy")
+
+
+def flag_conflicting_evidence(
+    bundle: EvidenceBundle,
+    *,
+    policy: ConflictPolicy | None = None,
+) -> list[EvidenceConflict]:
     """Identify conflicting evidence with opposite decision tags on the same target."""
+    policy = policy or default_conflict_policy()
     conflicts: list[EvidenceConflict] = []
     for index, left in enumerate(bundle.records):
         left_tags = set(left.decision_tags)
         for right in bundle.records[index + 1 :]:
             if left.kind is not right.kind:
                 continue
-            if not left_tags.intersection(right.decision_tags):
+            if policy.require_shared_decision_tag and not left_tags.intersection(right.decision_tags):
                 continue
             if left.claim.strip().lower() == right.claim.strip().lower():
+                continue
+            if (
+                policy.detect_assay_readout_conflicts
+                and left.kind is EvidenceKind.ASSAY
+                and left.source_uri is not None
+                and left.source_uri == right.source_uri
+            ):
+                conflicts.append(
+                    EvidenceConflict(
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="same assay source but inconsistent assay interpretation",
+                    )
+                )
                 continue
             if {left.strength, right.strength} == {
                 EvidenceStrength.DECISIVE,
@@ -575,6 +615,7 @@ def compute_bundle_trust(
     *,
     now: datetime | None = None,
     policy: TrustPolicy | None = None,
+    conflict_policy: ConflictPolicy | None = None,
 ) -> BundleTrustReport:
     """Compute overall trust after staleness, conflicts, and deduplication."""
     now = now or datetime.now(UTC)
@@ -585,7 +626,7 @@ def compute_bundle_trust(
     ]
     base_score = sum(record_scores) / len(record_scores) if record_scores else 0.0
     stale = stale_records(bundle, now=now)
-    conflicts = flag_conflicting_evidence(bundle)
+    conflicts = flag_conflicting_evidence(bundle, policy=conflict_policy)
     duplicate_groups = deduplicate_records(bundle)
     penalty = (
         policy.stale_record_penalty * len(stale)
