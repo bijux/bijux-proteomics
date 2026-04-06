@@ -654,6 +654,16 @@ class ContextScoringProfile(JsonModel):
     sample_type_mismatch_penalty: float = Field(default=0.2, ge=0.0, le=1.0, description="Penalty for sample-type mismatch.")
 
 
+class EvidenceCollectionAction(JsonModel):
+    """Concrete action to improve decision evidence quality."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    priority: str = Field(..., min_length=1, description="Priority tier for the collection action.")
+    action: str = Field(..., min_length=1, description="Action text for scientists.")
+    rationale: str = Field(..., min_length=1, description="Why this action is needed.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -1127,6 +1137,59 @@ def summarize_evidence_provenance(
         lineage_depth=depth,
         has_missing_ancestors=missing,
     )
+
+
+def plan_evidence_collection(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str,
+    required_modalities: list[str],
+) -> list[EvidenceCollectionAction]:
+    """Plan concrete evidence-collection actions for a decision tag."""
+    actions: list[EvidenceCollectionAction] = []
+    coverage = evaluate_modality_coverage(
+        bundle,
+        decision_tag=decision_tag,
+        required_modalities=required_modalities,
+    )
+    for missing_modality in coverage.missing_modalities:
+        actions.append(
+            EvidenceCollectionAction(
+                priority="high",
+                action=f"collect {missing_modality} evidence for '{decision_tag}'",
+                rationale="required modality is missing for decision triangulation",
+            )
+        )
+    for record in bundle.records:
+        if decision_tag not in record.decision_tags:
+            continue
+        context = assess_scientific_context_completeness(record)
+        if context.completeness_score < 0.6:
+            actions.append(
+                EvidenceCollectionAction(
+                    priority="medium",
+                    action=f"complete assay context fields for {record.evidence_id}",
+                    rationale="context completeness is too low for robust interpretation",
+                )
+            )
+        quantitative = evaluate_quantitative_support(record.quantitative_support)
+        if record.quantitative_support is not None and quantitative.support_score < 0.5:
+            actions.append(
+                EvidenceCollectionAction(
+                    priority="medium",
+                    action=f"repeat {record.evidence_id} with improved quantitative design",
+                    rationale="quantitative support quality is below acceptable threshold",
+                )
+            )
+    if not actions:
+        actions.append(
+            EvidenceCollectionAction(
+                priority="low",
+                action=f"maintain current evidence refresh cadence for '{decision_tag}'",
+                rationale="coverage and evidence quality are sufficient for current decision scope",
+            )
+        )
+    return actions
 
 
 def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str]:

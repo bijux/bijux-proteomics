@@ -18,6 +18,7 @@ from bijux_proteomics_knowledge import (
     ContextScoringProfile,
     query_evidence_records,
     EvidenceRecordQuery,
+    plan_evidence_collection,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -1122,3 +1123,30 @@ def test_query_evidence_records_filters_by_decision_kind_and_confidence() -> Non
     )
 
     assert [record.evidence_id for record in filtered] == ["qr-1"]
+
+
+def test_plan_evidence_collection_prioritizes_missing_modalities() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-collection",
+        target_id="target-collection",
+        records=[
+            EvidenceRecord(
+                evidence_id="ec-1",
+                kind=EvidenceKind.LITERATURE,
+                title="literature",
+                source="pmid",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    actions = plan_evidence_collection(
+        bundle,
+        decision_tag="progression",
+        required_modalities=[EvidenceKind.LITERATURE.value, EvidenceKind.ASSAY.value],
+    )
+
+    assert any(action.priority == "high" for action in actions)
+    assert any("collect assay evidence" in action.action for action in actions)
