@@ -1,0 +1,45 @@
+name: publish-bijux-proteomics-foundation
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-release-artifacts.yml
+    with:
+      package_slug: bijux-proteomics-foundation
+      cache_dependency_path: |
+        pyproject.toml
+        packages/bijux-proteomics-foundation/pyproject.toml
+      build_targets: "build-bijux-proteomics-foundation"
+      package_dir: "packages/bijux-proteomics-foundation"
+      dist_subdir: "build/bijux-proteomics-foundation"
+      upload_paths: |
+        artifacts/build/bijux-proteomics-foundation/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    permissions:
+      contents: read
+    steps:
+      - name: Download publish artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: bijux-proteomics-foundation-pypi-dist
+          path: .github/tmp/bijux-proteomics-foundation-dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: .github/tmp/bijux-proteomics-foundation-dist
+          skip-existing: true
