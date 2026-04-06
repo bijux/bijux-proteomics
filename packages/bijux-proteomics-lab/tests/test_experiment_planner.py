@@ -49,6 +49,7 @@ from bijux_proteomics_lab import (
     build_lab_cycle_brief,
     plan_hypothesis_falsification_assays,
     AssayIntent,
+    summarize_assay_portfolio_balance,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -305,6 +306,34 @@ def test_plan_hypothesis_falsification_assays_prioritizes_counter_assays() -> No
     )
 
     assert plan.prioritized_assay_ids[0] == "a1"
+
+
+def test_summarize_assay_portfolio_balance_flags_concentration() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-balance",
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="binding sweep",
+                assay_ids=["a1", "a2", "a3"],
+                priority=1,
+                assay_sample_kinds={"a1": "biophysical", "a2": "biophysical", "a3": "biophysical"},
+            ),
+            ExperimentBatch(
+                batch_id="b2",
+                objective="small expression check",
+                assay_ids=["a4"],
+                priority=2,
+                assay_sample_kinds={"a4": "expression"},
+            ),
+        ],
+    )
+
+    report = summarize_assay_portfolio_balance(plan)
+
+    assert report.dominant_family == "biophysical"
+    assert report.concentration_ratio >= 0.7
+    assert report.orthogonal_coverage_ready is False
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:

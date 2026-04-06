@@ -408,6 +408,19 @@ class HypothesisFalsificationPlan(JsonModel):
     rationale: list[str] = Field(default_factory=list, description="Rationale notes for assay ranking.")
 
 
+class AssayPortfolioBalanceReport(JsonModel):
+    """Coverage and concentration report across assay families."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    family_counts: dict[str, int] = Field(default_factory=dict, description="Assay counts by family.")
+    dominant_family: str | None = Field(default=None, description="Most represented assay family.")
+    concentration_ratio: float = Field(default=0.0, ge=0.0, le=1.0, description="Share of assays in dominant family.")
+    orthogonal_coverage_ready: bool = Field(default=False, description="Whether at least three families are represented.")
+    notes: list[str] = Field(default_factory=list, description="Portfolio balance commentary.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1231,6 +1244,38 @@ def plan_hypothesis_falsification_assays(
         hypothesis=hypothesis,
         prioritized_assay_ids=[item[0] for item in scores],
         rationale=[f"{assay_id}: {', '.join(reasons)}" for assay_id, _, reasons in scores],
+    )
+
+
+def summarize_assay_portfolio_balance(plan: ExperimentPlan) -> AssayPortfolioBalanceReport:
+    """Summarize assay-family balance for an experiment plan."""
+    counts: dict[str, int] = {}
+    for batch in plan.batches:
+        for assay_id in batch.assay_ids:
+            sample_kind = batch.assay_sample_kinds.get(assay_id, "other")
+            family = assay_family(sample_kind).value
+            counts[family] = counts.get(family, 0) + 1
+    total = sum(counts.values())
+    dominant_family = None
+    concentration = 0.0
+    if counts and total > 0:
+        dominant_family, dominant_count = max(counts.items(), key=lambda item: item[1])
+        concentration = round(dominant_count / total, 4)
+    orthogonal_coverage_ready = len([family for family, value in counts.items() if value > 0]) >= 3
+    notes: list[str] = []
+    if dominant_family is not None and concentration >= 0.7:
+        notes.append(f"portfolio is heavily concentrated in {dominant_family}")
+    if not orthogonal_coverage_ready:
+        notes.append("add assays from additional families for orthogonal coverage")
+    if not notes:
+        notes.append("assay portfolio has balanced modality coverage")
+    return AssayPortfolioBalanceReport(
+        program_id=plan.program_id,
+        family_counts=counts,
+        dominant_family=dominant_family,
+        concentration_ratio=concentration,
+        orthogonal_coverage_ready=orthogonal_coverage_ready,
+        notes=notes,
     )
 
 
