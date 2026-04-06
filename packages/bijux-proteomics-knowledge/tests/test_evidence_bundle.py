@@ -13,6 +13,7 @@ from bijux_proteomics_knowledge import (
     assess_context_compatibility,
     audit_knowledge_quality,
     rank_evidence_for_decision,
+    evaluate_modality_coverage,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -983,3 +984,31 @@ def test_rank_evidence_for_decision_prioritizes_context_and_quality() -> None:
 
     assert ranked[0].evidence_id == "rank-high"
     assert ranked[0].relevance_score >= ranked[1].relevance_score
+
+
+def test_evaluate_modality_coverage_reports_missing_required_modalities() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-modality-coverage",
+        target_id="target-modality-coverage",
+        records=[
+            EvidenceRecord(
+                evidence_id="m1",
+                kind=EvidenceKind.LITERATURE,
+                title="literature",
+                source="pmid",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+
+    report = evaluate_modality_coverage(
+        bundle,
+        decision_tag="progression",
+        required_modalities=[EvidenceKind.LITERATURE.value, EvidenceKind.ASSAY.value],
+    )
+
+    assert report.observed_modalities[EvidenceKind.LITERATURE.value] == 1
+    assert report.missing_modalities == [EvidenceKind.ASSAY.value]

@@ -618,6 +618,17 @@ class EvidenceRelevanceScore(JsonModel):
     drivers: list[str] = Field(default_factory=list, description="Primary relevance drivers.")
 
 
+class ModalityCoverageReport(JsonModel):
+    """Coverage report for required evidence modalities under one decision tag."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision tag under analysis.")
+    observed_modalities: dict[str, int] = Field(default_factory=dict, description="Observed count by modality.")
+    missing_modalities: list[str] = Field(default_factory=list, description="Required modalities not yet observed.")
+    coverage_score: float = Field(..., ge=0.0, le=1.0, description="Fraction of required modalities observed.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -1020,6 +1031,33 @@ def rank_evidence_for_decision(
             )
         )
     return sorted(ranked, key=lambda item: item.relevance_score, reverse=True)
+
+
+def evaluate_modality_coverage(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str,
+    required_modalities: list[str],
+) -> ModalityCoverageReport:
+    """Evaluate modality coverage for a decision dimension."""
+    observed: dict[str, int] = {}
+    for record in bundle.records:
+        if decision_tag not in record.decision_tags:
+            continue
+        modality = record.kind.value
+        observed[modality] = observed.get(modality, 0) + 1
+    missing = [modality for modality in required_modalities if modality not in observed]
+    coverage_score = (
+        round((len(required_modalities) - len(missing)) / len(required_modalities), 4)
+        if required_modalities
+        else 1.0
+    )
+    return ModalityCoverageReport(
+        decision_tag=decision_tag,
+        observed_modalities=observed,
+        missing_modalities=missing,
+        coverage_score=max(0.0, min(coverage_score, 1.0)),
+    )
 
 
 def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str]:
