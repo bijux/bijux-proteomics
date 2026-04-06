@@ -64,6 +64,19 @@ def test_document_schema_touch_updates_audit_metadata() -> None:
     assert touched.updated_at >= touched.created_at
 
 
+def test_document_schema_supports_package_lineage_fields() -> None:
+    schema = DocumentSchema(
+        created_by="test",
+        document_id="doc-1",
+        document_kind="evidence_bundle",
+        package_name="bijux-proteomics-knowledge",
+        package_version="0.1.0",
+    )
+
+    assert schema.document_kind == "evidence_bundle"
+    assert schema.package_name == "bijux-proteomics-knowledge"
+
+
 def test_document_schema_content_hash_is_deterministic() -> None:
     schema = DocumentSchema(created_by="test")
     payload = {"b": 2, "a": 1}

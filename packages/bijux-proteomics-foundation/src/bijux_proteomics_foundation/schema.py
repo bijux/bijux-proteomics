@@ -35,6 +35,22 @@ class DocumentSchema(JsonModel):
         min_length=1,
         description="System where the document originated.",
     )
+    document_id: str | None = Field(
+        default=None,
+        description="Stable identifier for the durable document artifact.",
+    )
+    document_kind: str | None = Field(
+        default=None,
+        description="Document kind such as program_spec or evidence_bundle.",
+    )
+    package_name: str | None = Field(
+        default=None,
+        description="Package that produced the document payload.",
+    )
+    package_version: str | None = Field(
+        default=None,
+        description="Package version that produced the payload.",
+    )
     trace_id: str | None = Field(
         default=None,
         description="Optional cross-system trace identifier.",
