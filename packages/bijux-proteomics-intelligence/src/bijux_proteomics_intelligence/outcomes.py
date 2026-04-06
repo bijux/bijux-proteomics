@@ -18,6 +18,9 @@ class RejectionReasonCode(StrEnum):
     LOW_METRIC_FRACTION = "low_metric_fraction"
     LOW_EVIDENCE_SUPPORT = "low_evidence_support"
     LOW_MANUFACTURABILITY = "low_manufacturability"
+    HIGH_SEQUENCE_COMPLEXITY = "high_sequence_complexity"
+    HIGH_RESIDUAL_RISK = "high_residual_risk"
+    CONTEXT_MISMATCH = "context_mismatch"
 
 
 class CandidateRejection(JsonModel):
@@ -37,6 +40,14 @@ class CandidateRejection(JsonModel):
     blocking: bool = Field(
         default=True,
         description="Whether this rejection blocks progression for the candidate.",
+    )
+    recommended_experiments: list[str] = Field(
+        default_factory=list,
+        description="Experiments that could resolve the rejection.",
+    )
+    reopen_conditions: list[str] = Field(
+        default_factory=list,
+        description="Conditions under which the candidate can be reconsidered.",
     )
 
 

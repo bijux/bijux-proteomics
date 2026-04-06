@@ -407,3 +407,38 @@ def test_classify_metric_name_uses_typed_metric_classes() -> None:
     assert classify_metric_name("binding_score") is ScientificMetricClass.AFFINITY
     assert classify_metric_name("delta_tm") is ScientificMetricClass.STABILITY
     assert classify_metric_name("tox_signal") is ScientificMetricClass.SAFETY
+
+
+def test_candidate_rejection_supports_reopen_action_guidance() -> None:
+    rejection = ranking = prioritize_candidates(
+        create_program_spec(
+            program_id="prog-reject",
+            name="rejection details",
+            objective="surface actionable rejection context",
+            target_id="target-reject",
+            target_name="Target Reject",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            organism="human",
+            mechanism="rejection guidance",
+        ),
+        [
+            CandidateAssessment(
+                candidate_id="candidate-x",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={},
+                manufacturability_score=0.1,
+                uncertainty=0.5,
+                evidence_support=0.1,
+            )
+        ],
+    ).rejections[0]
+
+    enriched = rejection.model_copy(
+        update={
+            "recommended_experiments": ["run orthogonal binding assay"],
+            "reopen_conditions": ["evidence_support >= 0.4"],
+        }
+    )
+
+    assert enriched.recommended_experiments == ["run orthogonal binding assay"]
+    assert enriched.reopen_conditions == ["evidence_support >= 0.4"]
