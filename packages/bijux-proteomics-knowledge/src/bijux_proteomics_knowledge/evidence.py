@@ -535,6 +535,11 @@ class EvidenceTriangulationReport(JsonModel):
     decision_tag: str = Field(..., min_length=1, description="Decision tag under analysis.")
     modality_counts: dict[str, int] = Field(default_factory=dict, description="Count by modality.")
     modality_diversity: int = Field(..., ge=0, description="Number of distinct modalities.")
+    decisive_share: float = Field(..., ge=0.0, le=1.0, description="Fraction of records with decisive strength.")
+    missing_required_modalities: list[str] = Field(
+        default_factory=list,
+        description="Required modalities that are absent for this decision tag.",
+    )
     convergence_score: float = Field(..., ge=0.0, le=1.0, description="Triangulation convergence score.")
 
 
@@ -681,21 +686,37 @@ def triangulate_evidence(
     bundle: EvidenceBundle,
     *,
     decision_tag: str,
+    required_modalities: list[str] | None = None,
 ) -> EvidenceTriangulationReport:
     """Score multi-modality convergence for a decision tag."""
     modality_counts: dict[str, int] = {}
+    matching_records: list[EvidenceRecord] = []
     for record in bundle.records:
         if decision_tag not in record.decision_tags:
             continue
+        matching_records.append(record)
         modality = record.kind.value
         modality_counts[modality] = modality_counts.get(modality, 0) + 1
     diversity = len(modality_counts)
-    convergence = min(1.0, round((diversity / 4.0), 4))
+    decisive_count = sum(1 for record in matching_records if record.strength is EvidenceStrength.DECISIVE)
+    total_count = len(matching_records)
+    decisive_share = round((decisive_count / total_count), 4) if total_count else 0.0
+    required_modalities = required_modalities or []
+    missing_required_modalities = [modality for modality in required_modalities if modality not in modality_counts]
+    modality_score = min(1.0, diversity / 4.0)
+    decisive_score = decisive_share
+    completeness_score = 1.0 if not required_modalities else max(
+        0.0,
+        1.0 - (len(missing_required_modalities) / len(required_modalities)),
+    )
+    convergence = round((modality_score * 0.5) + (decisive_score * 0.3) + (completeness_score * 0.2), 4)
     return EvidenceTriangulationReport(
         target_id=bundle.target_id,
         decision_tag=decision_tag,
         modality_counts=modality_counts,
         modality_diversity=diversity,
+        decisive_share=decisive_share,
+        missing_required_modalities=missing_required_modalities,
         convergence_score=convergence,
     )
 

@@ -598,13 +598,19 @@ def test_triangulate_evidence_scores_modality_convergence() -> None:
                 claim="assay support",
                 decision_tags=["progression"],
                 confidence=0.8,
-                strength=EvidenceStrength.SUPPORTING,
+                strength=EvidenceStrength.DECISIVE,
             ),
         ],
     )
-    report = triangulate_evidence(bundle, decision_tag="progression")
+    report = triangulate_evidence(
+        bundle,
+        decision_tag="progression",
+        required_modalities=[EvidenceKind.LITERATURE.value, EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
+    )
 
     assert report.modality_diversity == 2
+    assert report.decisive_share == 0.5
+    assert report.missing_required_modalities == [EvidenceKind.STRUCTURE.value]
     assert report.convergence_score > 0
 
 
