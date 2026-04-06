@@ -8,6 +8,8 @@ operations stay consistent locally and in CI.
 Core commands:
 
 - `make quality` for docs checks and static quality gates
+- `make api` for repository API schema lint, freeze, and drift checks
+- `make api-freeze` for schema freeze integrity checks only
 - `make security` for Bandit, pip-audit gating, and dependency policy checks
 - `make openapi-drift` for OpenAPI backward-compatibility policy
 - `make architecture-check` for repository architecture and debt guards
