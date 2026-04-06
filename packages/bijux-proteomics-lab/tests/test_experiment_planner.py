@@ -29,6 +29,7 @@ from bijux_proteomics_lab import (
     RerunPolicy,
     assess_material_constraints,
     build_review_packet,
+    build_review_risk_profile,
     plan_experiment_batches,
     prioritize_next_assays,
     plan_conflict_resolution_assays,
@@ -178,6 +179,16 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
 
     assert packet.ready_for_synthesis is False
     assert "failed assays: primary-binding" in packet.blocking_findings
+
+
+def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
+    profile = build_review_risk_profile(
+        trust_score=0.45,
+        conflict_count=1,
+        triangulation_score=0.3,
+    )
+
+    assert profile.risk_level == "high"
 
 
 def test_build_review_packet_blocks_qc_warning_even_if_passed() -> None:

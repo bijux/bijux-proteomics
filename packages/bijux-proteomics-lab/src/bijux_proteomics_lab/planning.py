@@ -215,6 +215,17 @@ class ReviewPacket(JsonModel):
     )
 
 
+class ReviewRiskProfile(JsonModel):
+    """Risk summary attached to a review packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    trust_score: float = Field(..., ge=0.0, le=1.0, description="Evidence trust score for the current bundle.")
+    conflict_count: int = Field(..., ge=0, description="Number of active evidence conflicts.")
+    triangulation_score: float = Field(..., ge=0.0, le=1.0, description="Triangulation convergence score.")
+    risk_level: str = Field(..., min_length=1, description="Overall risk level: low, medium, or high.")
+
+
 class ClosedLoopPlan(JsonModel):
     """Recommended next cycle based on evidence and assay outcomes."""
 
@@ -762,6 +773,9 @@ def build_review_packet(
     """Build a human review summary from evidence and assay outcomes."""
     required_kinds = [need.value for need in program.evidence_needs]
     readiness = assess_decision_readiness(bundle, required_kinds)
+    trust = compute_bundle_trust(bundle)
+    conflicts = flag_conflicting_evidence(bundle)
+    triangulation = triangulate_evidence(bundle, decision_tag="progression")
     failed_assays = [
         observation.assay_id
         for observation in observations
@@ -776,6 +790,12 @@ def build_review_packet(
         recommendations.append(
             "repeat or redesign around assays: " + ", ".join(failed_assays)
         )
+    risk_profile = build_review_risk_profile(
+        trust_score=trust.trust_score,
+        conflict_count=len(conflicts),
+        triangulation_score=triangulation.convergence_score,
+    )
+    recommendations.append(f"review risk level: {risk_profile.risk_level}")
 
     return ReviewPacket(
         program_id=program.program_id,
@@ -796,6 +816,27 @@ def _observation_blocks_progression(observation: AssayObservation) -> bool:
     if observation.interpretation_confidence < 0.6:
         return True
     return False
+
+
+def build_review_risk_profile(
+    *,
+    trust_score: float,
+    conflict_count: int,
+    triangulation_score: float,
+) -> ReviewRiskProfile:
+    """Build a compact risk profile from evidence quality indicators."""
+    if conflict_count > 0 or trust_score < 0.5 or triangulation_score < 0.4:
+        level = "high"
+    elif trust_score < 0.7 or triangulation_score < 0.6:
+        level = "medium"
+    else:
+        level = "low"
+    return ReviewRiskProfile(
+        trust_score=round(trust_score, 4),
+        conflict_count=conflict_count,
+        triangulation_score=round(triangulation_score, 4),
+        risk_level=level,
+    )
 
 
 def recommend_next_cycle(
