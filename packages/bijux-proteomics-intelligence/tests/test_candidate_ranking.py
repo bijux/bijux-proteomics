@@ -102,6 +102,8 @@ def test_build_design_brief_surfaces_blockers_and_evidence_gaps() -> None:
     assert brief.review_gate_ids == ["pre-synthesis"]
     assert brief.downstream_lab_assumptions == ["confirm target engagement"]
     assert "structure" in brief.evidence_gaps
+    assert brief.risk_appetite == "balanced"
+    assert "avoid broad hydrophobic surface patches" in brief.prohibited_failure_modes
     assert [flag.code for flag in brief.liabilities] == [
         "surface-hydrophobics",
         "blocked-outcome-1",

@@ -86,6 +86,15 @@ class DesignBrief(JsonModel):
         default_factory=list,
         description="Assumptions that downstream lab planning should validate.",
     )
+    risk_appetite: str = Field(
+        default="balanced",
+        min_length=1,
+        description="Risk appetite for this decision context.",
+    )
+    prohibited_failure_modes: list[str] = Field(
+        default_factory=list,
+        description="Failure modes that must not be tolerated in candidate selection.",
+    )
 
 
 class CandidateAssessment(JsonModel):
@@ -274,6 +283,18 @@ def build_design_brief(
             [assay.purpose for assay in program.assay_panel]
             if program.assay_panel
             else ["define assays that can validate candidate progression assumptions"]
+        ),
+        risk_appetite=(
+            "cautious"
+            if program.stage.value in {"review", "lab_ready"}
+            else "balanced"
+        ),
+        prohibited_failure_modes=sorted(
+            {
+                liability.summary
+                for liability in liabilities
+                if liability.severity >= 4
+            }
         ),
     )
 
