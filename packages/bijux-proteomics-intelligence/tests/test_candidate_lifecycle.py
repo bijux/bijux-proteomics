@@ -10,9 +10,11 @@ from bijux_proteomics_intelligence import (
     CandidateProposal,
     CandidateStatus,
     CandidateTransition,
+    SequenceRiskSignals,
     LiabilityFlag,
     build_risk_profile,
     portfolio_status,
+    sequence_risk_signals,
     transition_candidate,
 )
 
@@ -127,3 +129,19 @@ def test_transition_candidate_supports_deferred_and_reopened_states() -> None:
 
     assert deferred.to_status is CandidateStatus.DEFERRED
     assert reopened.to_status is CandidateStatus.REOPENED
+
+
+def test_sequence_risk_signals_capture_basic_sequence_properties() -> None:
+    proposal = CandidateProposal(
+        candidate_id="candidate-9",
+        program_id="prog-1",
+        sequence="ACDNNSTVVKK",
+        origin="generator",
+        rationale="sequence features test",
+    )
+
+    signals = sequence_risk_signals(proposal)
+
+    assert isinstance(signals, SequenceRiskSignals)
+    assert signals.length == 11
+    assert signals.glyco_motif_count >= 1

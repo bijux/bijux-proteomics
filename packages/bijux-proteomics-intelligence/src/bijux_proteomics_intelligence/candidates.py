@@ -199,6 +199,18 @@ class PortfolioSelectionResult(JsonModel):
     )
 
 
+class SequenceRiskSignals(JsonModel):
+    """Sequence-derived features that influence candidate risk interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    length: int = Field(..., ge=1, description="Sequence length.")
+    hydrophobic_fraction: float = Field(..., ge=0.0, le=1.0, description="Hydrophobic residue fraction.")
+    acidic_basic_balance: float = Field(..., ge=0.0, le=1.0, description="Charge-balance proxy.")
+    glyco_motif_count: int = Field(..., ge=0, description="Count of NXS or NXT motifs.")
+
+
 ALLOWED_CANDIDATE_TRANSITIONS: dict[CandidateStatus, set[CandidateStatus]] = {
     CandidateStatus.PROPOSED: {CandidateStatus.SCREENED, CandidateStatus.REJECTED, CandidateStatus.DEFERRED},
     CandidateStatus.SCREENED: {
@@ -370,4 +382,31 @@ def select_portfolio_shortlist(
         selected_candidate_ids=selected_candidate_ids,
         deferred_candidate_ids=deferred_candidate_ids,
         rationale=rationale,
+    )
+
+
+def sequence_risk_signals(candidate: CandidateProposal) -> SequenceRiskSignals:
+    """Compute lightweight sequence-derived risk signals for one candidate."""
+    sequence = candidate.sequence.upper()
+    hydrophobic = {"A", "V", "I", "L", "M", "F", "W", "Y"}
+    acidic = {"D", "E"}
+    basic = {"K", "R", "H"}
+    length = len(sequence)
+    hydrophobic_fraction = (
+        sum(1 for residue in sequence if residue in hydrophobic) / max(length, 1)
+    )
+    acidic_count = sum(1 for residue in sequence if residue in acidic)
+    basic_count = sum(1 for residue in sequence if residue in basic)
+    acidic_basic_balance = 1.0 - min(abs(acidic_count - basic_count) / max(length, 1), 1.0)
+    glyco_motif_count = sum(
+        1
+        for index in range(max(length - 2, 0))
+        if sequence[index] == "N" and sequence[index + 1] != "P" and sequence[index + 2] in {"S", "T"}
+    )
+    return SequenceRiskSignals(
+        candidate_id=candidate.candidate_id,
+        length=length,
+        hydrophobic_fraction=round(hydrophobic_fraction, 4),
+        acidic_basic_balance=round(acidic_basic_balance, 4),
+        glyco_motif_count=glyco_motif_count,
     )
