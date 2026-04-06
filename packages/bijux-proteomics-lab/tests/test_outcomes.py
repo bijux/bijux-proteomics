@@ -26,6 +26,7 @@ from bijux_proteomics_lab import (
     query_review_queue,
     summarize_review_queue,
     summarize_review_queue_workload,
+    summarize_feedback_cycle_latency,
     ReviewQueueEntry,
     ReviewQueueQuery,
     recommend_rerun_policy,
@@ -398,6 +399,37 @@ def test_summarize_review_queue_workload_reports_stale_pressure() -> None:
     assert report.stale_entry_count == 2
     assert report.by_program["prog-1"] == 2
     assert report.pressure_score > 0.0
+
+
+def test_summarize_feedback_cycle_latency_reports_median() -> None:
+    records = [
+        LabFeedbackRecord(
+            feedback_id="f1",
+            program_id="prog-lat",
+            cycle_id="cycle-1",
+            summary="first",
+            created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        ),
+        LabFeedbackRecord(
+            feedback_id="f2",
+            program_id="prog-lat",
+            cycle_id="cycle-2",
+            summary="second cycle",
+            created_at=datetime(2026, 1, 4, tzinfo=UTC),
+        ),
+        LabFeedbackRecord(
+            feedback_id="f3",
+            program_id="prog-lat",
+            cycle_id="cycle-3",
+            summary="third cycle",
+            created_at=datetime(2026, 1, 9, tzinfo=UTC),
+        ),
+    ]
+
+    report = summarize_feedback_cycle_latency(records, program_id="prog-lat")
+
+    assert report.cycle_to_first_feedback_days["cycle-2"] == 3.0
+    assert report.median_latency_days == 3.0
 
 
 def test_query_feedback_records_supports_evidence_and_time_filters() -> None:

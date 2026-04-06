@@ -123,6 +123,19 @@ class ReviewQueueWorkloadReport(JsonModel):
     pressure_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Normalized queue pressure score.")
 
 
+class FeedbackCycleLatencyReport(JsonModel):
+    """Latency profile for closed-loop feedback accumulation across cycles."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    cycle_to_first_feedback_days: dict[str, float] = Field(
+        default_factory=dict,
+        description="Days from earliest program feedback to first feedback in each cycle.",
+    )
+    median_latency_days: float = Field(default=0.0, ge=0.0, description="Median first-feedback latency across cycles.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -228,4 +241,37 @@ def summarize_review_queue_workload(
         by_program=by_program,
         stale_entry_count=stale_count,
         pressure_score=pressure_score,
+    )
+
+
+def summarize_feedback_cycle_latency(
+    records: list[LabFeedbackRecord],
+    *,
+    program_id: str,
+) -> FeedbackCycleLatencyReport:
+    """Summarize cycle feedback latency relative to the first program feedback timestamp."""
+    filtered = sorted(
+        [record for record in records if record.program_id == program_id],
+        key=lambda record: record.created_at,
+    )
+    if not filtered:
+        return FeedbackCycleLatencyReport(program_id=program_id)
+    anchor = filtered[0].created_at
+    first_by_cycle: dict[str, datetime] = {}
+    for record in filtered:
+        first_by_cycle.setdefault(record.cycle_id, record.created_at)
+    latencies = {
+        cycle_id: round((timestamp - anchor).total_seconds() / 86400.0, 4)
+        for cycle_id, timestamp in sorted(first_by_cycle.items())
+    }
+    sorted_latency_values = sorted(latencies.values())
+    midpoint = len(sorted_latency_values) // 2
+    if len(sorted_latency_values) % 2 == 0:
+        median_latency = (sorted_latency_values[midpoint - 1] + sorted_latency_values[midpoint]) / 2
+    else:
+        median_latency = sorted_latency_values[midpoint]
+    return FeedbackCycleLatencyReport(
+        program_id=program_id,
+        cycle_to_first_feedback_days=latencies,
+        median_latency_days=round(median_latency, 4),
     )
