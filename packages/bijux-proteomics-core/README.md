@@ -39,3 +39,7 @@ review constraints must hold before progression, this is the package boundary.
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/maintainer/pypi.md)
+
+## Primary entrypoint
+
+- console script: `bijux-proteomics`
