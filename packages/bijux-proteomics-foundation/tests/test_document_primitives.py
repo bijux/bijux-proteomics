@@ -236,3 +236,13 @@ def test_migration_registry_detects_version_mismatch_in_step_output() -> None:
 
     with pytest.raises(MigrationExecutionError, match="unexpected schema version"):
         registry.migrate_to(payload, "1.1.0")
+
+
+def test_migration_registry_blocks_deprecated_target_versions() -> None:
+    registry = MigrationRegistry()
+    registry.mark_deprecated("1.0.0")
+
+    assert registry.is_deprecated("1.0.0") is True
+
+    with pytest.raises(MigrationPathError, match="is deprecated"):
+        registry.migrate_to({"document_schema": {"schema_version": "0.9.0"}}, "1.0.0")

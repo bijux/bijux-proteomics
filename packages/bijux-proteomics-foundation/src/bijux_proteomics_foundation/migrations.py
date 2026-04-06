@@ -32,6 +32,7 @@ class MigrationRegistry:
 
     def __init__(self) -> None:
         self._migrations: dict[str, SchemaMigration] = {}
+        self._deprecated_versions: set[str] = set()
 
     def register(self, migration: SchemaMigration) -> None:
         """Register one migration by its source version."""
@@ -73,11 +74,23 @@ class MigrationRegistry:
         """Validate that the migration path exists and has no loops."""
         self.migration_path(from_version, target_version)
 
+    def mark_deprecated(self, schema_version: str) -> None:
+        """Mark one schema version as deprecated."""
+        self._deprecated_versions.add(schema_version)
+
+    def is_deprecated(self, schema_version: str) -> bool:
+        """Return whether a schema version is deprecated."""
+        return schema_version in self._deprecated_versions
+
     def migrate_to(self, payload: dict[str, Any], target_version: str) -> dict[str, Any]:
         """Apply sequential migrations until target version is reached."""
         current = payload.get("document_schema", {}).get("schema_version")
         if current is None:
             return payload
+        if self.is_deprecated(target_version):
+            raise MigrationPathError(
+                f"target schema version {target_version} is deprecated and cannot be used"
+            )
         result = dict(payload)
         for step in self.migration_path(current, target_version):
             result = step.migrate(result)
