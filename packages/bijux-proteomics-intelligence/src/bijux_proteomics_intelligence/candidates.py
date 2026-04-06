@@ -306,6 +306,16 @@ class PortfolioRiskSummary(JsonModel):
     )
 
 
+class TransitionAuditIssue(JsonModel):
+    """Audit issue detected in candidate transition history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1, description="Candidate identifier.")
+    code: str = Field(..., min_length=1, description="Stable issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -719,3 +729,40 @@ def summarize_portfolio_risk(
         high_risk_candidate_ids=high_risk_candidate_ids,
         dominant_risk_channel=dominant_channel,
     )
+
+
+def validate_transition_history(
+    transitions: list[CandidateTransition],
+) -> list[TransitionAuditIssue]:
+    """Validate transition history coherence for one candidate."""
+    issues: list[TransitionAuditIssue] = []
+    if not transitions:
+        return issues
+    ordered = sorted(transitions, key=lambda item: item.changed_at)
+    candidate_id = ordered[0].candidate_id
+    if any(transition.candidate_id != candidate_id for transition in ordered):
+        issues.append(
+            TransitionAuditIssue(
+                candidate_id=candidate_id,
+                code="candidate-id-mismatch",
+                message="transition history should not mix candidate identifiers",
+            )
+        )
+    for previous, current in zip(ordered, ordered[1:]):
+        if previous.to_status != current.from_status:
+            issues.append(
+                TransitionAuditIssue(
+                    candidate_id=candidate_id,
+                    code="status-link-broken",
+                    message="consecutive transitions should chain from to_status to next from_status",
+                )
+            )
+        if current.changed_at < previous.changed_at:
+            issues.append(
+                TransitionAuditIssue(
+                    candidate_id=candidate_id,
+                    code="timestamp-order-invalid",
+                    message="transition timestamps should be non-decreasing",
+                )
+            )
+    return issues

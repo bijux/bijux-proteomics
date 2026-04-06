@@ -16,6 +16,7 @@ from bijux_proteomics_intelligence import (
     MutationAnnotation,
     MutationBurdenSignals,
     PortfolioRiskSummary,
+    TransitionAuditIssue,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
@@ -23,6 +24,7 @@ from bijux_proteomics_intelligence import (
     build_candidate_scientific_profile,
     mutation_burden_signals,
     summarize_portfolio_risk,
+    validate_transition_history,
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
@@ -319,3 +321,26 @@ def test_summarize_portfolio_risk_reports_high_risk_candidates_and_channel() -> 
     assert isinstance(summary, PortfolioRiskSummary)
     assert summary.mean_residual_risk > 0.4
     assert summary.high_risk_candidate_ids == ["c1"]
+
+
+def test_validate_transition_history_flags_broken_status_chain() -> None:
+    first = transition_candidate(
+        "candidate-audit",
+        CandidateStatus.PROPOSED,
+        CandidateStatus.SCREENED,
+        reason="screen complete",
+    )
+    broken = CandidateTransition(
+        candidate_id="candidate-audit",
+        from_status=CandidateStatus.PROPOSED,
+        to_status=CandidateStatus.PRIORITIZED,
+        reason="invalid history jump",
+        evidence_ids=["ev-1"],
+        changed_at=first.changed_at,
+    )
+
+    issues = validate_transition_history([first, broken])
+
+    assert issues
+    assert isinstance(issues[0], TransitionAuditIssue)
+    assert any(issue.code == "status-link-broken" for issue in issues)
