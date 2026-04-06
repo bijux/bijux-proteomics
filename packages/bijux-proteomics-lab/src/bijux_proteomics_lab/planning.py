@@ -442,6 +442,17 @@ class OrthogonalPolicy(JsonModel):
     )
 
 
+class ConflictAssayPolicy(JsonModel):
+    """Policy for selecting assays to resolve conflicting evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable conflict-assay policy identifier.")
+    max_suggestions: int = Field(default=3, ge=1, description="Maximum number of suggested assays.")
+    blocking_bonus: float = Field(default=0.25, ge=0.0, le=1.0, description="Score bonus for blocking assays.")
+    contradiction_weight: float = Field(default=0.3, ge=0.0, le=1.0, description="Weight for contradiction burden.")
+
+
 class DependencyCycleReport(JsonModel):
     """Cycle detection report for assay dependency graphs."""
 
@@ -1033,8 +1044,11 @@ def recommend_orthogonal_confirmation(
 def plan_conflict_resolution_assays(
     program: ProgramSpec,
     bundle: EvidenceBundle,
+    *,
+    policy: ConflictAssayPolicy | None = None,
 ) -> ConflictResolutionPlan:
     """Recommend assays that can resolve current evidence conflicts."""
+    policy = policy or ConflictAssayPolicy(policy_id="default-conflict-assay-policy")
     conflicts = flag_conflicting_evidence(bundle)
     if not conflicts:
         return ConflictResolutionPlan(
@@ -1042,7 +1056,15 @@ def plan_conflict_resolution_assays(
             suggested_assay_ids=[],
             notes=["no active evidence conflicts require assay resolution"],
         )
-    suggested = [assay.assay_id for assay in program.assay_panel][:3]
+    contradiction_count = len(conflicts)
+    ranked: list[tuple[float, str]] = []
+    for assay in program.assay_panel:
+        score = contradiction_count * policy.contradiction_weight
+        if assay.blocking:
+            score += policy.blocking_bonus
+        ranked.append((score, assay.assay_id))
+    ranked.sort(reverse=True)
+    suggested = [assay_id for _, assay_id in ranked[: policy.max_suggestions]]
     return ConflictResolutionPlan(
         conflict_count=len(conflicts),
         suggested_assay_ids=suggested,

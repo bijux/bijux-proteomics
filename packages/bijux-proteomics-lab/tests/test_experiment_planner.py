@@ -36,6 +36,7 @@ from bijux_proteomics_lab import (
     recommend_next_best_experiment,
     PlanningPolicy,
     OrthogonalPolicy,
+    ConflictAssayPolicy,
     recommend_orthogonal_confirmation,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
@@ -840,6 +841,58 @@ def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist(
 
     assert plan.conflict_count > 0
     assert plan.suggested_assay_ids == ["assay-conflict"]
+
+
+def test_plan_conflict_resolution_assays_honors_policy_suggestion_limit() -> None:
+    program = create_program_spec(
+        program_id="prog-conflict-policy",
+        name="conflict policy",
+        objective="limit conflict suggestions",
+        target_id="target-conflict-policy",
+        target_name="Target",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="resolve conflicts",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(assay_id="a1", purpose="p1", readout="r1", sample_kind="cell", blocking=True),
+            AssayRequirement(assay_id="a2", purpose="p2", readout="r2", sample_kind="cell", blocking=False),
+        ]
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-conflict-policy",
+        target_id="target-conflict-policy",
+        records=[
+            EvidenceRecord(
+                evidence_id="cp1",
+                kind=EvidenceKind.ASSAY,
+                title="pos",
+                source="lab",
+                claim="Candidate meets gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="cp2",
+                kind=EvidenceKind.ASSAY,
+                title="neg",
+                source="lab2",
+                claim="Candidate fails gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    plan = plan_conflict_resolution_assays(
+        program,
+        bundle,
+        policy=ConflictAssayPolicy(policy_id="limit-1", max_suggestions=1),
+    )
+
+    assert len(plan.suggested_assay_ids) == 1
 
 
 def test_plan_uncertainty_reduction_assays_returns_ranked_backlog() -> None:
