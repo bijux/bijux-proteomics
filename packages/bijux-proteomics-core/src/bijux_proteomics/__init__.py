@@ -12,7 +12,7 @@ from bijux_proteomics.context import (
     ProgramPortfolioContext,
 )
 from bijux_proteomics.constraints import ConstraintCategory, ScientificConstraint
-from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.criteria import MeasurementDirection, MetricFamily, SuccessCriterion
 from bijux_proteomics.exceptions import (
     BijuxProteomicsError,
     InvalidLifecycleTransitionError,
@@ -97,6 +97,7 @@ __all__ = [
     "LiabilityCategory",
     "LifecycleTransition",
     "MeasurementDirection",
+    "MetricFamily",
     "OperatingModel",
     "OutcomeSeverity",
     "ProgramContext",

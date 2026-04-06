@@ -50,6 +50,7 @@ from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
 from bijux_proteomics.programs import (
     AssayRequirement,
     MeasurementDirection,
+    MetricFamily,
     ProgramStage,
     ReviewGate,
     ScientificConstraint,
@@ -583,6 +584,21 @@ def test_validate_program_enforces_identifier_prefix_contracts() -> None:
         code="target-id-prefix-invalid",
         message="target_id should use a 'target-' prefix",
     ) in issues
+
+
+def test_success_criterion_supports_metric_family_and_bounds() -> None:
+    criterion = SuccessCriterion(
+        criterion_id="crit-1",
+        metric="delta_tm",
+        metric_family=MetricFamily.STABILITY,
+        direction=MeasurementDirection.BOUND,
+        threshold=1.0,
+        upper_threshold=3.0,
+        unit="C",
+    )
+
+    assert criterion.metric_family is MetricFamily.STABILITY
+    assert criterion.upper_threshold == 3.0
 
 
 def test_validate_program_requires_assay_evidence_for_gated_review() -> None:

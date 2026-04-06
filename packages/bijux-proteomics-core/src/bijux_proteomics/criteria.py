@@ -19,6 +19,17 @@ class MeasurementDirection(StrEnum):
     BOUND = "bound"
 
 
+class MetricFamily(StrEnum):
+    """Typed families for measurable program criteria."""
+
+    ACTIVITY = "activity"
+    AFFINITY = "affinity"
+    STABILITY = "stability"
+    SELECTIVITY = "selectivity"
+    SAFETY = "safety"
+    DEVELOPABILITY = "developability"
+
+
 class SuccessCriterion(BaseModel):
     """Condition required for a program to advance."""
 
@@ -26,6 +37,14 @@ class SuccessCriterion(BaseModel):
 
     criterion_id: EvidenceId = Field(..., description="Stable criterion identifier.")
     metric: str = Field(..., min_length=1, description="Metric to evaluate.")
+    metric_family: MetricFamily = Field(
+        default=MetricFamily.ACTIVITY,
+        description="Typed metric family for this criterion.",
+    )
     direction: MeasurementDirection = Field(..., description="Optimization direction.")
     threshold: float = Field(..., description="Threshold for the metric.")
+    upper_threshold: float | None = Field(
+        default=None,
+        description="Upper bound used when direction is bound.",
+    )
     unit: str | None = Field(default=None, description="Optional measurement unit.")
