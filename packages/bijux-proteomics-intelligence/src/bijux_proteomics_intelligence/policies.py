@@ -230,6 +230,8 @@ class FactorWeightValidationReport(JsonModel):
 def classify_metric_name(metric: str) -> ScientificMetricClass:
     """Classify a metric name into a typed scientific metric class."""
     lowered = metric.lower()
+    if any(token in lowered for token in ("abundance", "fold_change", "proteomics")):
+        return ScientificMetricClass.ABUNDANCE_MODULATION
     if any(token in lowered for token in ("affin", "bind", "kd", "ic50", "ec50")):
         return ScientificMetricClass.AFFINITY
     if any(token in lowered for token in ("stabil", "tm", "fold")):
@@ -242,8 +244,6 @@ def classify_metric_name(metric: str) -> ScientificMetricClass:
         return ScientificMetricClass.TARGET_ENGAGEMENT
     if any(token in lowered for token in ("pathway", "signaling", "phospho")):
         return ScientificMetricClass.PATHWAY_EFFECT
-    if any(token in lowered for token in ("abundance", "fold_change", "proteomics")):
-        return ScientificMetricClass.ABUNDANCE_MODULATION
     if any(token in lowered for token in ("tox", "immun", "safety")):
         return ScientificMetricClass.SAFETY
     if any(

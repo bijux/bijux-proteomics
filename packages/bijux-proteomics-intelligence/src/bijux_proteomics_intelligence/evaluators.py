@@ -305,6 +305,17 @@ class AssessmentMetricCoverageReport(JsonModel):
     coverage_ratio: float = Field(
         ..., ge=0.0, le=1.0, description="Fraction of required metrics covered."
     )
+    liability_diversity: int = Field(
+        default=0,
+        ge=0,
+        description="Count of unique liability labels across evaluated candidates.",
+    )
+    mean_residual_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Residual risk estimate derived from metric coverage and liabilities.",
+    )
 
 
 class DecisionEscalationFlags(JsonModel):
@@ -893,14 +904,29 @@ def summarize_assessment_metric_coverage(
         present.update(assessment.metric_scores.keys())
     covered = [metric for metric in required_metrics if metric in present]
     missing = [metric for metric in required_metrics if metric not in present]
+    liability_labels = {
+        liability.summary.strip()
+        for assessment in assessments
+        for liability in assessment.liabilities
+        if liability.summary.strip()
+    }
+    if not liability_labels:
+        liability_labels = set(missing)
     coverage_ratio = (
         round((len(covered) / len(required_metrics)), 4) if required_metrics else 0.0
+    )
+    missing_ratio = len(missing) / len(required_metrics) if required_metrics else 0.0
+    mean_residual_risk = round(
+        min(1.0, missing_ratio + (0.1 if missing else 0.0)),
+        4,
     )
     return AssessmentMetricCoverageReport(
         required_metrics=required_metrics,
         covered_metrics=covered,
         missing_metrics=missing,
         coverage_ratio=coverage_ratio,
+        liability_diversity=len(liability_labels),
+        mean_residual_risk=mean_residual_risk,
     )
 
 

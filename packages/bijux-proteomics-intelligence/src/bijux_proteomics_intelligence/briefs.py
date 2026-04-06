@@ -519,7 +519,11 @@ def _screen_candidate(
     if program.success_criteria and mean_fraction < profile.minimum_metric_fraction:
         reasons.append("below minimum criterion fraction")
         reason_codes.append(RejectionReasonCode.LOW_METRIC_FRACTION)
-    if program.success_criteria and metric_coverage < profile.minimum_metric_coverage:
+    if (
+        program.success_criteria
+        and metric_coverage < profile.minimum_metric_coverage
+        and RejectionReasonCode.LOW_METRIC_FRACTION not in reason_codes
+    ):
         reasons.append("insufficient required metric coverage")
         reason_codes.append(RejectionReasonCode.LOW_METRIC_COVERAGE)
     if candidate.evidence_support < profile.minimum_evidence_support:

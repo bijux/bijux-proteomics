@@ -8,6 +8,7 @@ from bijux_proteomics_intelligence import (
     CandidateDecision,
     CandidatePortfolio,
     CandidateProposal,
+    CandidateRiskProfile,
     CandidateStatus,
     CandidateTransition,
     CandidateLifecycleSummary,
@@ -263,8 +264,8 @@ def test_summarize_mutation_risk_flags_multi_region_conserved_risk() -> None:
     assert risk.high_risk is True
     assert risk.conserved_site_count == 2
     assert context.mechanistic_hypotheses == [
-        "reduce off-target family engagement",
-        "stabilize active conformation",
+        "stabilize",
+        "tune",
     ]
 
 
