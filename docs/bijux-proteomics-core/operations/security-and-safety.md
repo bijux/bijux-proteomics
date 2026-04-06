@@ -27,9 +27,9 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py"]
+    step1["CLI entrypoint in src/bijux_proteomics/interfaces/cli.py"]
     step1 --> page
-    step2["HTTP app in src/bijux_proteomics/api/v1"]
+    step2["HTTP app in src/bijux_proteomics/programs.py"]
     step2 --> page
     step3["packages/bijux-proteomics-core/pyproject.toml"]
     step3 --> page
@@ -53,9 +53,9 @@ flowchart LR
 
 ## Review Anchors
 
-- CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics/api/v1
-- schema files in api/bijux-proteomics-core/v1
+- CLI entrypoint in src/bijux_proteomics/interfaces/cli.py
+- HTTP app in src/bijux_proteomics/programs.py
+- program schemas in src/bijux_proteomics/programs.py
 
 ## Safety Rule
 

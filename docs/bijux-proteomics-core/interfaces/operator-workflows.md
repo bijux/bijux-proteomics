@@ -27,17 +27,17 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py"]
+    surface1["CLI entrypoint in src/bijux_proteomics/interfaces/cli.py"]
     surface1 --> page
-    surface2["HTTP app in src/bijux_proteomics/api/v1"]
+    surface2["HTTP app in src/bijux_proteomics/programs.py"]
     surface2 --> page
-    surface3["schema files in api/bijux-proteomics-core/v1"]
+    surface3["program schemas in src/bijux_proteomics/programs.py"]
     surface3 --> page
-    proof1["api/bijux-proteomics-core/v1/schema.hash"]
+    proof1["src/bijux_proteomics/programs.py"]
     page --> proof1
     proof2["execution store records"]
     page --> proof2
-    proof3["api/bijux-proteomics-core/v1/schema.yaml"]
+    proof3["src/bijux_proteomics/programs.py"]
     page --> proof3
     review1["tests/e2e for governed flow behavior"]
     review1 -.raises compatibility pressure on.-> page
@@ -53,16 +53,16 @@ flowchart TB
 
 ## Workflow Anchors
 
-- entry surfaces: CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py, HTTP app in src/bijux_proteomics/api/v1, schema files in api/bijux-proteomics-core/v1
+- entry surfaces: CLI entrypoint in src/bijux_proteomics/interfaces/cli.py, HTTP app in src/bijux_proteomics/programs.py, program schemas in src/bijux_proteomics/programs.py
 - durable outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 - validation backstops: tests/unit for api, contracts, core, interfaces, model, and runtime, tests/e2e for governed flow behavior
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics/api/v1
-- schema files in api/bijux-proteomics-core/v1
-- api/bijux-proteomics-core/v1/schema.yaml
+- CLI entrypoint in src/bijux_proteomics/interfaces/cli.py
+- HTTP app in src/bijux_proteomics/programs.py
+- program schemas in src/bijux_proteomics/programs.py
+- src/bijux_proteomics/programs.py
 
 ## Use This Page When
 

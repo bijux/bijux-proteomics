@@ -29,15 +29,15 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["HTTP app in src/bijux_proteomics/api/v1"]
+    surface1["HTTP app in src/bijux_proteomics/programs.py"]
     surface1 --> page
-    surface2["schema files in api/bijux-proteomics-core/v1"]
+    surface2["program schemas in src/bijux_proteomics/programs.py"]
     surface2 --> page
-    surface3["CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py"]
+    surface3["CLI entrypoint in src/bijux_proteomics/interfaces/cli.py"]
     surface3 --> page
-    proof1["api/bijux-proteomics-core/v1/schema.yaml"]
+    proof1["src/bijux_proteomics/programs.py"]
     page --> proof1
-    proof2["api/bijux-proteomics-core/v1/schema.hash"]
+    proof2["src/bijux_proteomics/programs.py"]
     page --> proof2
     proof3["execution store records"]
     page --> proof3
@@ -56,14 +56,14 @@ flowchart LR
 ## Command Facts
 
 - canonical command: `bijux-proteomics-core`
-- interface modules: CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py, HTTP app in src/bijux_proteomics/api/v1, schema files in api/bijux-proteomics-core/v1
+- interface modules: CLI entrypoint in src/bijux_proteomics/interfaces/cli.py, HTTP app in src/bijux_proteomics/programs.py, program schemas in src/bijux_proteomics/programs.py
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics/api/v1
-- schema files in api/bijux-proteomics-core/v1
-- api/bijux-proteomics-core/v1/schema.yaml
+- CLI entrypoint in src/bijux_proteomics/interfaces/cli.py
+- HTTP app in src/bijux_proteomics/programs.py
+- program schemas in src/bijux_proteomics/programs.py
+- src/bijux_proteomics/programs.py
 
 ## Use This Page When
 

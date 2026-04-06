@@ -28,11 +28,11 @@ flowchart RL
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["HTTP app in src/bijux_proteomics/api/v1"]
+    step1["HTTP app in src/bijux_proteomics/programs.py"]
     step1 --> page
     step2["packages/bijux-proteomics-core/pyproject.toml"]
     step2 --> page
-    step3["CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py"]
+    step3["CLI entrypoint in src/bijux_proteomics/interfaces/cli.py"]
     step3 --> page
     run1["tests/regression and tests/smoke for replay and storage protection"]
     page --> run1

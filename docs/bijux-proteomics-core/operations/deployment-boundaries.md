@@ -29,9 +29,9 @@ flowchart TB
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     step1["packages/bijux-proteomics-core/pyproject.toml"]
     step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics/interfaces/cli/entrypoint.py"]
+    step2["CLI entrypoint in src/bijux_proteomics/interfaces/cli.py"]
     step2 --> page
-    step3["HTTP app in src/bijux_proteomics/api/v1"]
+    step3["HTTP app in src/bijux_proteomics/programs.py"]
     step3 --> page
     run1["tests/e2e for governed flow behavior"]
     page --> run1
