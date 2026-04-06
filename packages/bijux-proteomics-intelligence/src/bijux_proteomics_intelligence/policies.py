@@ -83,6 +83,12 @@ class RankingPolicy(JsonModel):
         ge=0.0,
         description="Minimum fraction of criterion thresholds required to stay in ranking.",
     )
+    minimum_metric_coverage: float = Field(
+        default=0.7,
+        ge=0.0,
+        le=1.0,
+        description="Minimum fraction of required criterion metrics that must be provided.",
+    )
     minimum_evidence_support: float = Field(
         default=0.2,
         ge=0.0,

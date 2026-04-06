@@ -255,6 +255,52 @@ def test_prioritize_candidates_applies_profile_hard_filters() -> None:
     assert ranking.rejected_candidates == ["candidate-hard-filter"]
 
 
+def test_prioritize_candidates_rejects_low_metric_coverage() -> None:
+    program = create_program_spec(
+        program_id="prog-coverage-filter",
+        name="coverage filter",
+        objective="reject candidates with missing criterion metrics",
+        target_id="target-coverage-filter",
+        target_name="Target Coverage Filter",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="enforce criterion metric coverage",
+    )
+    program.success_criteria.extend(
+        [
+            SuccessCriterion(
+                criterion_id="binding",
+                metric="binding_score",
+                direction=MeasurementDirection.MAXIMIZE,
+                threshold=0.8,
+            ),
+            SuccessCriterion(
+                criterion_id="stability",
+                metric="delta_tm",
+                direction=MeasurementDirection.MAXIMIZE,
+                threshold=1.5,
+            ),
+        ]
+    )
+    ranking = prioritize_candidates(
+        program,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-missing-metric",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.9},
+                manufacturability_score=0.8,
+                uncertainty=0.1,
+                evidence_support=0.8,
+            )
+        ],
+        policy=RankingPolicy(policy_id="coverage-policy", minimum_metric_coverage=1.0),
+    )
+
+    assert ranking.rejected_candidates == ["candidate-missing-metric"]
+    assert ranking.rejections[0].reason_codes == [RejectionReasonCode.LOW_METRIC_COVERAGE]
+
+
 def test_select_portfolio_shortlist_preserves_liability_diversity() -> None:
     candidates = [
         CandidateAssessment(

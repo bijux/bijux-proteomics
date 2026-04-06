@@ -451,12 +451,21 @@ def _screen_candidate(
     criterion_score = _criterion_score(candidate, program)
     threshold_count = max(len(program.success_criteria), 1)
     mean_fraction = criterion_score / threshold_count
+    required_metrics = {criterion.metric for criterion in program.success_criteria}
+    metric_coverage = (
+        len([metric for metric in required_metrics if metric in candidate.metric_scores]) / len(required_metrics)
+        if required_metrics
+        else 1.0
+    )
     reasons: list[str] = []
     reason_codes: list[RejectionReasonCode] = []
 
     if program.success_criteria and mean_fraction < profile.minimum_metric_fraction:
         reasons.append("below minimum criterion fraction")
         reason_codes.append(RejectionReasonCode.LOW_METRIC_FRACTION)
+    if program.success_criteria and metric_coverage < profile.minimum_metric_coverage:
+        reasons.append("insufficient required metric coverage")
+        reason_codes.append(RejectionReasonCode.LOW_METRIC_COVERAGE)
     if candidate.evidence_support < profile.minimum_evidence_support:
         reasons.append("insufficient evidence support")
         reason_codes.append(RejectionReasonCode.LOW_EVIDENCE_SUPPORT)
