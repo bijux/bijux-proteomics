@@ -42,6 +42,24 @@ def test_recommend_rerun_policy_prefers_technical_reruns() -> None:
     assert recommend_rerun_policy(outcome) is RerunPolicy.ON_TECHNICAL_FAILURE
 
 
+def test_recommend_rerun_policy_can_return_biological_failure() -> None:
+    outcome = ExperimentOutcome(
+        batch_id="batch-2",
+        assay_outcomes=[
+            AssayOutcome(
+                assay_id="assay-2",
+                passed=False,
+                result_state=AssayResultState.FAILED_BIOLOGICAL,
+                observation_summary="Biological endpoint missed.",
+                failure_class=FailureClass.BIOLOGICAL,
+            )
+        ],
+        rerun_policy=RerunPolicy.NEVER,
+    )
+
+    assert recommend_rerun_policy(outcome) is RerunPolicy.ON_BIOLOGICAL_FAILURE
+
+
 def test_evaluate_assay_acceptance_applies_explicit_rule() -> None:
     outcome = evaluate_assay_acceptance(
         AssayDefinition(

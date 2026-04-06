@@ -41,6 +41,7 @@ class RerunPolicy(StrEnum):
 
     NEVER = "never"
     ON_TECHNICAL_FAILURE = "on_technical_failure"
+    ON_BIOLOGICAL_FAILURE = "on_biological_failure"
     ON_INCONCLUSIVE_RESULT = "on_inconclusive_result"
 
 
@@ -182,6 +183,13 @@ def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
         if not assay.passed
     ):
         return RerunPolicy.ON_TECHNICAL_FAILURE
+    if any(
+        assay.result_state is AssayResultState.FAILED_BIOLOGICAL
+        or assay.failure_class is FailureClass.BIOLOGICAL
+        for assay in outcome.assay_outcomes
+        if not assay.passed
+    ):
+        return RerunPolicy.ON_BIOLOGICAL_FAILURE
     if any(
         not assay.passed or assay.result_state is AssayResultState.INCONCLUSIVE
         for assay in outcome.assay_outcomes
