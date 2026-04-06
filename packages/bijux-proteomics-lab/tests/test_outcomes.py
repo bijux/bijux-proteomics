@@ -83,6 +83,7 @@ def test_promote_outcome_to_evidence_builds_normalized_payload() -> None:
     assert payload.kind.value == "assay"
     assert payload.source_type.value == "lab_assay"
     assert payload.related_targets == ["target-1"]
+    assert payload.decision_tags == ["progression"]
     assert payload.confidence < 0.9
 
 
@@ -232,3 +233,20 @@ def test_evaluate_assay_acceptance_marks_below_detection_as_inconclusive() -> No
 
     assert outcome.result_state is AssayResultState.INCONCLUSIVE
     assert outcome.failure_class is FailureClass.INTERPRETATION
+
+
+def test_promote_outcome_to_evidence_adds_uncertainty_tags_for_inconclusive_results() -> None:
+    payload = promote_outcome_to_evidence(
+        AssayOutcome(
+            assay_id="activity-assay",
+            passed=False,
+            result_state=AssayResultState.INCONCLUSIVE,
+            observation_summary="activity signal below detection limit",
+            failure_class=FailureClass.INTERPRETATION,
+            uncertainty=0.6,
+        ),
+        target_id="target-2",
+        batch_id="batch-2",
+    )
+
+    assert "uncertainty" in payload.decision_tags

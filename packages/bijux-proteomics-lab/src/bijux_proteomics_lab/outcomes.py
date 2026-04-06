@@ -264,6 +264,13 @@ def promote_outcome_to_evidence(
 ) -> NormalizedEvidenceInput:
     """Convert one assay outcome into normalized evidence for knowledge ingestion."""
     confidence = max(0.1, (0.9 if outcome.passed else 0.5) - (outcome.uncertainty * 0.4))
+    decision_tags = ["progression"]
+    if outcome.result_state is AssayResultState.FAILED_TECHNICAL:
+        decision_tags.append("technical_risk")
+    if outcome.result_state is AssayResultState.INCONCLUSIVE:
+        decision_tags.append("uncertainty")
+    if outcome.result_state is AssayResultState.FAILED_BIOLOGICAL:
+        decision_tags.append("biological_risk")
     return NormalizedEvidenceInput(
         evidence_id=f"assay:{batch_id}:{outcome.assay_id}",
         kind=EvidenceKind.ASSAY,
@@ -272,7 +279,7 @@ def promote_outcome_to_evidence(
         source_type=EvidenceSourceType.LAB_ASSAY,
         claim=outcome.observation_summary,
         related_targets=[target_id],
-        decision_tags=["progression"],
+        decision_tags=decision_tags,
         confidence=round(confidence, 4),
         strength=EvidenceStrength.DECISIVE if outcome.passed else EvidenceStrength.EXPLORATORY,
     )
