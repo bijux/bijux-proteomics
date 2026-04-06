@@ -8,9 +8,12 @@ from __future__ import annotations
 from bijux_proteomics_knowledge.adapters import (
     AssayResultIngestionAdapter,
     LiteratureIngestionAdapter,
+    ManualEvidenceNote,
+    ManualEvidenceNoteAdapter,
     NormalizedEvidenceInput,
     StructureAnnotationIngestionAdapter,
     attach_evidence_inputs,
+    attach_manual_notes,
 )
 from bijux_proteomics_knowledge.claims import (
     ClaimStatus,
@@ -26,6 +29,11 @@ from bijux_proteomics_knowledge.graph import (
     EvidenceNode,
     EvidenceNodeType,
     build_evidence_graph,
+)
+from bijux_proteomics_knowledge.repositories import (
+    EvidenceBundleRepository,
+    EvidenceClaimRepository,
+    EvidenceRecordRepository,
 )
 from bijux_proteomics_knowledge.resolution import (
     ConflictResolution,
@@ -93,9 +101,15 @@ __all__ = [
     "weight_source_type",
     "JsonModel",
     "LiteratureIngestionAdapter",
+    "ManualEvidenceNote",
+    "ManualEvidenceNoteAdapter",
     "NormalizedEvidenceInput",
     "DocumentSchema",
+    "EvidenceBundleRepository",
+    "EvidenceClaimRepository",
+    "EvidenceRecordRepository",
     "ResolutionAction",
     "resolve_conflicts",
     "StructureAnnotationIngestionAdapter",
+    "attach_manual_notes",
 ]

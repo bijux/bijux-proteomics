@@ -7,6 +7,7 @@ from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics_knowledge import (
     assess_decision_readiness,
+    attach_manual_notes,
     compute_bundle_trust,
     coverage_report,
     deduplicate_records,
@@ -18,6 +19,7 @@ from bijux_proteomics_knowledge import (
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
+    ManualEvidenceNote,
     evidence_gaps,
     flag_conflicting_evidence,
     score_evidence_record,
@@ -276,3 +278,29 @@ def test_record_scoring_and_helpers_are_exposed_for_policy_use() -> None:
     assert stale_records(bundle, now=now) == []
     assert deduplicate_records(bundle) == [["lit-1", "lit-2"]]
     assert flag_conflicting_evidence(bundle) == []
+
+
+def test_attach_manual_notes_creates_curated_evidence_records() -> None:
+    bundle = EvidenceBundle(bundle_id="bundle-4", target_id="target-4")
+
+    updated = attach_manual_notes(
+        bundle,
+        [
+            ManualEvidenceNote(
+                note_id="note-1",
+                target_id="target-4",
+                title="Scientist review note",
+                claim="The fold rescue hypothesis still looks plausible.",
+                curator="review-scientist",
+                kind=EvidenceKind.STRUCTURE,
+                decision_tags=["progression", "design"],
+                confidence=0.72,
+                strength=EvidenceStrength.SUPPORTING,
+                source_uri="notebook://target-4/review-1",
+            )
+        ],
+    )
+
+    assert updated.records[0].source_type is EvidenceSourceType.CURATED_NOTE
+    assert updated.records[0].curator == "review-scientist"
+    assert updated.records[0].extraction_method is EvidenceExtractionMethod.MANUAL_CURATION
