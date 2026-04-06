@@ -77,6 +77,17 @@ class ReviewGateEvaluation(JsonModel):
     rationale: str = Field(..., min_length=1, description="Why the gate is in this state.")
 
 
+class DecisionQuery(JsonModel):
+    """Filter contract for querying review decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: str = Field(..., min_length=1, description="Program identifier.")
+    gate_id: str | None = Field(default=None, description="Optional gate filter.")
+    decided_by: str | None = Field(default=None, description="Optional decision owner filter.")
+    outcome: ReviewOutcome | None = Field(default=None, description="Optional outcome filter.")
+
+
 class ProgramRepository(Protocol):
     """Persistence contract for stored program manifests."""
 
@@ -227,6 +238,21 @@ def list_gate_decisions(
         for decision in decision_timeline(program_id, decisions)
         if decision.gate_id == gate_id
     ]
+
+
+def query_decisions(
+    decisions: list[ReviewDecision],
+    query: DecisionQuery,
+) -> list[ReviewDecision]:
+    """Return review decisions that match a structured query."""
+    filtered = [decision for decision in decisions if decision.program_id == query.program_id]
+    if query.gate_id is not None:
+        filtered = [decision for decision in filtered if decision.gate_id == query.gate_id]
+    if query.decided_by is not None:
+        filtered = [decision for decision in filtered if decision.decided_by == query.decided_by]
+    if query.outcome is not None:
+        filtered = [decision for decision in filtered if decision.outcome is query.outcome]
+    return sorted(filtered, key=lambda decision: decision.decided_at)
 
 
 def evaluate_review_gate(

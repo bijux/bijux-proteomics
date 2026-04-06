@@ -18,6 +18,7 @@ from bijux_proteomics import (
     ProgramValidationIssue,
     ProgramValidationError,
     ProgramContext,
+    DecisionQuery,
     ProgramDeliveryContext,
     DuplicateReviewDecisionError,
     ProgramNotFoundError,
@@ -33,6 +34,7 @@ from bijux_proteomics import (
     latest_gate_decision,
     list_decisions_by_outcome,
     list_gate_decisions,
+    query_decisions,
     program_summary,
     revise_program,
     assess_stage_eligibility,
@@ -838,6 +840,16 @@ def test_decision_query_helpers_filter_by_outcome_and_gate() -> None:
 
     approved = list_decisions_by_outcome("prog-20", ReviewOutcome.APPROVED, decisions)
     gate = list_gate_decisions("prog-20", "g1", decisions)
+    scientist_approved_gate = query_decisions(
+        decisions,
+        DecisionQuery(
+            program_id="prog-20",
+            gate_id="g1",
+            decided_by="scientist",
+            outcome=ReviewOutcome.APPROVED,
+        ),
+    )
 
     assert approved == [d1, d3]
     assert gate == [d1, d3]
+    assert scientist_approved_gate == [d1, d3]
