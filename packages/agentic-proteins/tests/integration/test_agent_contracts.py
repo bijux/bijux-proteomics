@@ -59,7 +59,7 @@ def _repo_files(root: Path) -> set[Path]:
         package_tests_root(),
         root / "docs",
         root / "scripts",
-        root / "makefiles",
+        root / "makes",
         root / "artifacts",
     ]
     files: set[Path] = set()

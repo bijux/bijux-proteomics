@@ -183,7 +183,7 @@ Artifacts: Generated in CI; see GitHub Actions for logs and reports.
 api/            # OpenAPI schemas
 config/         # Lint/type/security configs
 docs/           # MkDocs site
-makefiles/      # Task modules (docs, test, lint, etc.)
+makes/          # Task modules (docs, test, lint, etc.)
 scripts/        # Helper scripts
 packages/agentic-proteins/src/agentic_proteins/  # Runtime + CLI implementation
 tests/          # unit / integration / e2e
@@ -221,4 +221,3 @@ Welcome. See **[CONTRIBUTING.md](https://github.com/bijux/bijux-proteomics/blob/
 
 Apache-2.0 — see **[LICENSE](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)**.
 © 2025 Bijan Mousavi.
-
