@@ -16,6 +16,8 @@ from bijux_proteomics_knowledge import (
     evaluate_modality_coverage,
     summarize_evidence_provenance,
     ContextScoringProfile,
+    query_evidence_records,
+    EvidenceRecordQuery,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -1085,3 +1087,38 @@ def test_summarize_evidence_provenance_reports_transitive_ancestors() -> None:
 
     assert report.ancestor_ids == ["prov-mid", "prov-root"]
     assert report.lineage_depth == 2
+
+
+def test_query_evidence_records_filters_by_decision_kind_and_confidence() -> None:
+    records = [
+        EvidenceRecord(
+            evidence_id="qr-1",
+            kind=EvidenceKind.ASSAY,
+            title="assay",
+            source="lab",
+            claim="support",
+            decision_tags=["progression"],
+            confidence=0.9,
+            strength=EvidenceStrength.SUPPORTING,
+        ),
+        EvidenceRecord(
+            evidence_id="qr-2",
+            kind=EvidenceKind.LITERATURE,
+            title="lit",
+            source="pmid",
+            claim="context",
+            decision_tags=["design"],
+            confidence=0.5,
+            strength=EvidenceStrength.EXPLORATORY,
+        ),
+    ]
+    filtered = query_evidence_records(
+        records,
+        EvidenceRecordQuery(
+            decision_tag="progression",
+            kind=EvidenceKind.ASSAY,
+            minimum_confidence=0.8,
+        ),
+    )
+
+    assert [record.evidence_id for record in filtered] == ["qr-1"]

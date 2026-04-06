@@ -17,7 +17,7 @@ from bijux_proteomics_knowledge.claims import (
     ClaimType,
     EvidenceClaim,
 )
-from bijux_proteomics_knowledge.evidence import EvidenceBundle, EvidenceRecord
+from bijux_proteomics_knowledge.evidence import EvidenceBundle, EvidenceKind, EvidenceRecord, EvidenceSourceType
 from bijux_proteomics_knowledge.resolution import ConflictResolution
 from bijux_proteomics_knowledge.serialization import JsonModel
 
@@ -110,6 +110,18 @@ class ResolutionRecordQuery(JsonModel):
     recorded_after: datetime | None = Field(default=None, description="Optional inclusive lower bound for record time.")
 
 
+class EvidenceRecordQuery(JsonModel):
+    """Structured query for filtering evidence records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str | None = Field(default=None, description="Optional decision-tag filter.")
+    kind: EvidenceKind | None = Field(default=None, description="Optional evidence kind filter.")
+    source_type: EvidenceSourceType | None = Field(default=None, description="Optional source type filter.")
+    minimum_confidence: float | None = Field(default=None, ge=0.0, le=1.0, description="Optional confidence floor.")
+    observed_after: datetime | None = Field(default=None, description="Optional inclusive lower bound for observed_at.")
+
+
 def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[EvidenceClaim]:
     """Filter claims for one target using structured query fields."""
     filtered = [claim for claim in claims if claim.target_id == query.target_id]
@@ -142,4 +154,23 @@ def query_resolution_records(
         filtered = [record for record in filtered if record.recorded_by == query.recorded_by]
     if query.recorded_after is not None:
         filtered = [record for record in filtered if record.recorded_at >= query.recorded_after]
+    return filtered
+
+
+def query_evidence_records(
+    records: list[EvidenceRecord],
+    query: EvidenceRecordQuery,
+) -> list[EvidenceRecord]:
+    """Filter evidence records using structured fields."""
+    filtered = list(records)
+    if query.decision_tag is not None:
+        filtered = [record for record in filtered if query.decision_tag in record.decision_tags]
+    if query.kind is not None:
+        filtered = [record for record in filtered if record.kind is query.kind]
+    if query.source_type is not None:
+        filtered = [record for record in filtered if record.source_type is query.source_type]
+    if query.minimum_confidence is not None:
+        filtered = [record for record in filtered if record.confidence >= query.minimum_confidence]
+    if query.observed_after is not None:
+        filtered = [record for record in filtered if record.observed_at >= query.observed_after]
     return filtered
