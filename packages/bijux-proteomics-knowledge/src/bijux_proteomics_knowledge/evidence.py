@@ -79,6 +79,23 @@ class QuantitativeSupport(JsonModel):
     unit: str | None = Field(default=None, description="Measurement unit for quantitative effects.")
 
 
+class ProteomicsArtifactFlags(JsonModel):
+    """Common proteomics artifact flags that affect interpretation confidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    missing_not_at_random: bool = Field(default=False, description="Potential MNAR missingness.")
+    ion_interference: bool = Field(default=False, description="Potential ion interference or suppression.")
+    peptide_to_protein_ambiguity: bool = Field(
+        default=False,
+        description="Peptides may map ambiguously across proteins.",
+    )
+    ptm_site_localization_uncertain: bool = Field(
+        default=False,
+        description="PTM localization is uncertain.",
+    )
+
+
 class EvidenceRecord(JsonModel):
     """Single evidence statement."""
 
@@ -124,6 +141,10 @@ class EvidenceRecord(JsonModel):
     quantitative_support: QuantitativeSupport | None = Field(
         default=None,
         description="Optional quantitative support payload for the claim.",
+    )
+    artifact_flags: ProteomicsArtifactFlags | None = Field(
+        default=None,
+        description="Optional proteomics artifact flags affecting interpretation.",
     )
     curator: str | None = Field(
         default=None,
@@ -416,6 +437,16 @@ class EvidenceTriangulationReport(JsonModel):
     convergence_score: float = Field(..., ge=0.0, le=1.0, description="Triangulation convergence score.")
 
 
+class ArtifactRiskReport(JsonModel):
+    """Interpretability risk report based on proteomics artifact flags."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
+    risk_score: float = Field(..., ge=0.0, le=1.0, description="Artifact-derived risk score.")
+    notes: list[str] = Field(default_factory=list, description="Artifact interpretation notes.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -526,6 +557,38 @@ def triangulate_evidence(
         modality_counts=modality_counts,
         modality_diversity=diversity,
         convergence_score=convergence,
+    )
+
+
+def assess_artifact_risk(record: EvidenceRecord) -> ArtifactRiskReport:
+    """Score interpretation risk from proteomics artifact flags."""
+    flags = record.artifact_flags
+    if flags is None:
+        return ArtifactRiskReport(
+            evidence_id=record.evidence_id,
+            risk_score=0.0,
+            notes=["no artifact flags reported"],
+        )
+    risk = 0.0
+    notes: list[str] = []
+    if flags.missing_not_at_random:
+        risk += 0.25
+        notes.append("MNAR missingness may bias quantitative interpretation")
+    if flags.ion_interference:
+        risk += 0.25
+        notes.append("ion interference may distort abundance estimates")
+    if flags.peptide_to_protein_ambiguity:
+        risk += 0.2
+        notes.append("peptide-to-protein ambiguity may weaken protein-level conclusions")
+    if flags.ptm_site_localization_uncertain:
+        risk += 0.2
+        notes.append("PTM localization uncertainty may weaken site-specific claims")
+    if not notes:
+        notes.append("artifact flags indicate low interpretation risk")
+    return ArtifactRiskReport(
+        evidence_id=record.evidence_id,
+        risk_score=min(1.0, round(risk, 4)),
+        notes=notes,
     )
 
 

@@ -9,6 +9,7 @@ from bijux_proteomics_knowledge import (
     aging_records,
     assess_decision_readiness,
     assess_context_compatibility,
+    assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
     ConflictPolicy,
@@ -23,6 +24,7 @@ from bijux_proteomics_knowledge import (
     EvidenceKind,
     EvidenceOrigin,
     EvidenceRecord,
+    ProteomicsArtifactFlags,
     EvidenceSourceType,
     EvidenceStrength,
     ManualEvidenceNote,
@@ -589,6 +591,26 @@ def test_conflict_detection_flags_species_context_mismatch() -> None:
             reason="records inform the same decision tag under different species contexts",
         )
     ]
+
+
+def test_assess_artifact_risk_scores_proteomics_uncertainty_flags() -> None:
+    record = EvidenceRecord(
+        evidence_id="art-1",
+        kind=EvidenceKind.PHOSPHOPROTEOMICS,
+        title="phospho readout",
+        source="lab",
+        claim="site phosphorylation increases",
+        confidence=0.7,
+        strength=EvidenceStrength.SUPPORTING,
+        artifact_flags=ProteomicsArtifactFlags(
+            ion_interference=True,
+            ptm_site_localization_uncertain=True,
+        ),
+    )
+    report = assess_artifact_risk(record)
+
+    assert report.risk_score > 0.0
+    assert any("ion interference" in note for note in report.notes)
 
 
 def test_attach_manual_notes_creates_curated_evidence_records() -> None:
