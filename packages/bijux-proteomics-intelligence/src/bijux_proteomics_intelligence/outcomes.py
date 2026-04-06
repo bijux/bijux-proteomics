@@ -62,3 +62,35 @@ class TieBreakExplanation(JsonModel):
         default_factory=list,
         description="Tie-break rules applied in order.",
     )
+
+
+class RejectionActionPlan(JsonModel):
+    """Concrete remediation plan derived from a candidate rejection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Rejected candidate identifier.")
+    experiments: list[str] = Field(default_factory=list, description="Follow-up experiments.")
+    revisit_conditions: list[str] = Field(default_factory=list, description="Conditions to revisit the candidate.")
+
+
+def build_rejection_action_plan(rejection: CandidateRejection) -> RejectionActionPlan:
+    """Build an action plan from rejection reason taxonomy."""
+    experiments: list[str] = []
+    revisit_conditions: list[str] = []
+    if RejectionReasonCode.LOW_METRIC_FRACTION in rejection.reason_codes:
+        experiments.append("run focused potency and selectivity assays")
+        revisit_conditions.append("criterion fraction reaches policy floor")
+    if RejectionReasonCode.LOW_EVIDENCE_SUPPORT in rejection.reason_codes:
+        experiments.append("collect orthogonal evidence across at least two modalities")
+        revisit_conditions.append("evidence_support >= 0.4")
+    if RejectionReasonCode.LOW_MANUFACTURABILITY in rejection.reason_codes:
+        experiments.append("run expression and aggregation developability panel")
+        revisit_conditions.append("manufacturability_score >= 0.5")
+    if not experiments:
+        experiments.append("review candidate with scientist for bespoke follow-up")
+    return RejectionActionPlan(
+        candidate_id=rejection.candidate_id,
+        experiments=experiments,
+        revisit_conditions=revisit_conditions,
+    )

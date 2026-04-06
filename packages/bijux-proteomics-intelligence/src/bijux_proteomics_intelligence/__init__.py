@@ -68,8 +68,10 @@ from bijux_proteomics_intelligence.policies import (
 )
 from bijux_proteomics_intelligence.outcomes import (
     CandidateRejection,
+    RejectionActionPlan,
     RejectionReasonCode,
     TieBreakExplanation,
+    build_rejection_action_plan,
 )
 from bijux_proteomics_intelligence.serialization import JsonModel
 
@@ -82,6 +84,7 @@ __all__ = [
     "CandidatePortfolio",
     "CandidateProposal",
     "CandidateRejection",
+    "RejectionActionPlan",
     "CandidateRiskProfile",
     "CandidateScreeningResult",
     "CandidateStatus",
@@ -110,6 +113,7 @@ __all__ = [
     "ScaleUpPolicy",
     "SynthesisPolicy",
     "TieBreakExplanation",
+    "build_rejection_action_plan",
     "TieBreakRule",
     "HoldPolicyConfig",
     "HypothesisStatus",

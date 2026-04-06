@@ -8,6 +8,7 @@ from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     CandidateExplainabilitySummary,
+    CandidateRejection,
     CandidateScoreBreakdown,
     build_risk_profile,
     LiabilityFlag,
@@ -23,6 +24,7 @@ from bijux_proteomics_intelligence import (
     summarize_candidate_explainability,
     candidate_score_breakdown,
     classify_metric_name,
+    build_rejection_action_plan,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -444,3 +446,15 @@ def test_candidate_rejection_supports_reopen_action_guidance() -> None:
 
     assert enriched.recommended_experiments == ["run orthogonal binding assay"]
     assert enriched.reopen_conditions == ["evidence_support >= 0.4"]
+
+
+def test_build_rejection_action_plan_maps_reason_codes_to_experiments() -> None:
+    plan = build_rejection_action_plan(
+        CandidateRejection(
+            candidate_id="candidate-plan",
+            reasons=["insufficient evidence support"],
+            reason_codes=[RejectionReasonCode.LOW_EVIDENCE_SUPPORT],
+        )
+    )
+
+    assert "collect orthogonal evidence across at least two modalities" in plan.experiments
