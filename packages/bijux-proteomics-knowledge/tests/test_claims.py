@@ -25,6 +25,7 @@ from bijux_proteomics_knowledge import (
     identify_knowledge_gaps,
     evaluate_claim_consistency,
     evaluate_mechanistic_completeness,
+    build_contradiction_matrix,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -484,3 +485,46 @@ def test_evaluate_mechanistic_completeness_reports_missing_structure() -> None:
 
     assert report.completeness_score < 1.0
     assert "relation" in report.missing_fields
+
+
+def test_build_contradiction_matrix_marks_group_opposition() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-matrix",
+        target_id="target-1",
+        records=[
+            EvidenceRecord(
+                evidence_id="ev-m1",
+                kind=EvidenceKind.LITERATURE,
+                title="lit",
+                source="pmid",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    claim_a = build_claim(
+        claim_id="claim-matrix-a",
+        target_id="target-1",
+        statement="support",
+        evidence_ids=["ev-m1"],
+        status=ClaimStatus.SUPPORTED,
+        polarity=ClaimPolarity.SUPPORTING,
+        contradiction_group="cg-1",
+        resolution_assays=["assay"],
+    )
+    claim_b = build_claim(
+        claim_id="claim-matrix-b",
+        target_id="target-1",
+        statement="oppose",
+        evidence_ids=["ev-m1"],
+        contradicting_evidence_ids=["ev-m1"],
+        status=ClaimStatus.DISPUTED,
+        polarity=ClaimPolarity.CONTRADICTING,
+        contradiction_group="cg-1",
+        resolution_assays=["assay"],
+    )
+    matrix = build_contradiction_matrix(bundle, [claim_a, claim_b], decision_tag="progression")
+
+    assert matrix.relations["claim-matrix-a|claim-matrix-b"] == "same-group-opposing-polarity"

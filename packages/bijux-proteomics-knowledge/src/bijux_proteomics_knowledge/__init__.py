@@ -25,6 +25,7 @@ from bijux_proteomics_knowledge.claims import (
     KnowledgeGap,
     ClaimConsistencyReport,
     MechanisticCompletenessReport,
+    ClaimContradictionMatrix,
     ClaimStrengthUpdate,
     ClaimType,
     ClaimPolarity,
@@ -43,6 +44,7 @@ from bijux_proteomics_knowledge.claims import (
     identify_knowledge_gaps,
     evaluate_claim_consistency,
     evaluate_mechanistic_completeness,
+    build_contradiction_matrix,
     weaken_claim,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
@@ -164,6 +166,7 @@ __all__ = [
     "KnowledgeGap",
     "ClaimConsistencyReport",
     "MechanisticCompletenessReport",
+    "ClaimContradictionMatrix",
     "ClaimResolutionState",
     "ClaimStatus",
     "ClaimStrengthUpdate",
@@ -234,6 +237,7 @@ __all__ = [
     "identify_knowledge_gaps",
     "evaluate_claim_consistency",
     "evaluate_mechanistic_completeness",
+    "build_contradiction_matrix",
     "weaken_claim",
     "compute_bundle_trust",
     "coverage_report",

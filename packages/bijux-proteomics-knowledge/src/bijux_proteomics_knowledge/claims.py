@@ -212,6 +212,19 @@ class MechanisticCompletenessReport(JsonModel):
     missing_fields: list[str] = Field(default_factory=list, description="Missing mechanistic fields.")
 
 
+class ClaimContradictionMatrix(JsonModel):
+    """Pairwise contradiction relationships among scoped claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision tag for scoped claims.")
+    rows: list[str] = Field(default_factory=list, description="Claim IDs in matrix order.")
+    relations: dict[str, str] = Field(
+        default_factory=dict,
+        description="Pair relation map using '<left>|<right>' keys and relation labels.",
+    )
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -607,4 +620,45 @@ def evaluate_mechanistic_completeness(claim: EvidenceClaim) -> MechanisticComple
         claim_id=claim.claim_id,
         completeness_score=score,
         missing_fields=missing,
+    )
+
+
+def build_contradiction_matrix(
+    bundle: EvidenceBundle,
+    claims: list[EvidenceClaim],
+    *,
+    decision_tag: str,
+) -> ClaimContradictionMatrix:
+    """Build pairwise contradiction matrix for decision-scoped claims."""
+    scoped = [
+        claim
+        for claim in claims
+        if any(
+            record.evidence_id in claim.evidence_ids and decision_tag in record.decision_tags
+            for record in bundle.records
+        )
+    ]
+    rows = [claim.claim_id for claim in scoped]
+    relations: dict[str, str] = {}
+    for left in scoped:
+        for right in scoped:
+            key = f"{left.claim_id}|{right.claim_id}"
+            if left.claim_id == right.claim_id:
+                relations[key] = "self"
+                continue
+            if left.contradiction_group and left.contradiction_group == right.contradiction_group:
+                if left.polarity is right.polarity:
+                    relations[key] = "same-group-same-polarity"
+                else:
+                    relations[key] = "same-group-opposing-polarity"
+            elif set(left.evidence_ids).intersection(set(right.contradicting_evidence_ids)) or set(
+                right.evidence_ids
+            ).intersection(set(left.contradicting_evidence_ids)):
+                relations[key] = "cross-linked-contradiction"
+            else:
+                relations[key] = "independent"
+    return ClaimContradictionMatrix(
+        decision_tag=decision_tag,
+        rows=rows,
+        relations=relations,
     )
