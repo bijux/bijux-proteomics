@@ -55,3 +55,10 @@ def test_build_knowledge_review_packet_returns_integrated_sections() -> None:
     assert len(packet.evidence_ranking) == 1
     assert packet.hypothesis_dossier.supporting_claim_ids == ["claim-review-1"]
     assert any(gap.gap_code == "open-claims-require-resolution" for gap in packet.knowledge_gaps)
+    assert packet.gate_recommendation in {
+        "hold-for-conflict-resolution",
+        "advance-with-targeted-gap-closure",
+        "advance-with-evidence-hardening",
+        "advance",
+    }
+    assert any("gate recommendation" in line for line in packet.executive_summary)

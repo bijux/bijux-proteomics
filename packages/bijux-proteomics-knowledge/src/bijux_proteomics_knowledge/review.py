@@ -40,6 +40,8 @@ class KnowledgeReviewPacket(JsonModel):
     hypothesis_dossier: HypothesisDossier = Field(..., description="Claim-level hypothesis dossier.")
     knowledge_gaps: list[KnowledgeGap] = Field(default_factory=list, description="Structured unresolved gaps.")
     conflict_clusters: list[ConflictCluster] = Field(default_factory=list, description="Grouped conflicts for review.")
+    gate_recommendation: str = Field(..., min_length=1, description="Recommended gate action for the decision tag.")
+    executive_summary: list[str] = Field(default_factory=list, description="High-level review summary points.")
 
 
 def build_knowledge_review_packet(
@@ -69,6 +71,17 @@ def build_knowledge_review_packet(
     gaps = identify_knowledge_gaps(bundle, claims, decision_tag=decision_tag)
     trust, _ = resolve_conflicts(bundle)
     clusters = cluster_conflicts(bundle, trust)
+    gate_recommendation = _recommend_gate_action(
+        quality_audit=audit,
+        knowledge_gaps=gaps,
+        conflict_clusters=clusters,
+    )
+    summary = _build_executive_summary(
+        quality_audit=audit,
+        dossier=dossier,
+        knowledge_gaps=gaps,
+        gate_recommendation=gate_recommendation,
+    )
     return KnowledgeReviewPacket(
         target_id=bundle.target_id,
         decision_tag=decision_tag,
@@ -77,4 +90,38 @@ def build_knowledge_review_packet(
         hypothesis_dossier=dossier,
         knowledge_gaps=gaps,
         conflict_clusters=clusters,
+        gate_recommendation=gate_recommendation,
+        executive_summary=summary,
     )
+
+
+def _recommend_gate_action(
+    *,
+    quality_audit: KnowledgeQualityAudit,
+    knowledge_gaps: list[KnowledgeGap],
+    conflict_clusters: list[ConflictCluster],
+) -> str:
+    if any(cluster.recommended_hold for cluster in conflict_clusters):
+        return "hold-for-conflict-resolution"
+    if knowledge_gaps:
+        return "advance-with-targeted-gap-closure"
+    if quality_audit.trust_score < 0.7:
+        return "advance-with-evidence-hardening"
+    return "advance"
+
+
+def _build_executive_summary(
+    *,
+    quality_audit: KnowledgeQualityAudit,
+    dossier: HypothesisDossier,
+    knowledge_gaps: list[KnowledgeGap],
+    gate_recommendation: str,
+) -> list[str]:
+    summary = [
+        f"trust score {quality_audit.trust_score:.2f} with triangulation {quality_audit.triangulation_score:.2f}",
+        f"{len(dossier.supporting_claim_ids)} supporting and {len(dossier.contradicting_claim_ids)} contradicting claims",
+        f"gate recommendation: {gate_recommendation}",
+    ]
+    if knowledge_gaps:
+        summary.append(f"{len(knowledge_gaps)} unresolved knowledge gaps remain")
+    return summary
