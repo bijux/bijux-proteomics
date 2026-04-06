@@ -8,6 +8,7 @@ from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     CandidateExplainabilitySummary,
+    CandidateScoreBreakdown,
     build_risk_profile,
     LiabilityFlag,
     OptimizationAxis,
@@ -19,6 +20,7 @@ from bijux_proteomics_intelligence import (
     prioritize_candidates,
     select_portfolio_shortlist,
     summarize_candidate_explainability,
+    candidate_score_breakdown,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -355,3 +357,45 @@ def test_summarize_candidate_explainability_carries_evidence_gaps() -> None:
             evidence_gaps=["literature", "structure", "assay"],
         )
     ]
+
+
+def test_candidate_score_breakdown_reports_weighted_contributions() -> None:
+    program = create_program_spec(
+        program_id="prog-4",
+        name="score decomposition",
+        objective="explain weighted score composition",
+        target_id="target-4",
+        target_name="Target 4",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize active conformation",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        )
+    )
+    policy = RankingPolicy(policy_id="score-breakdown")
+    ranking = prioritize_candidates(
+        program,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-a",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.85},
+                manufacturability_score=0.75,
+                uncertainty=0.2,
+                evidence_support=0.8,
+            )
+        ],
+        policy=policy,
+    )
+
+    breakdown = candidate_score_breakdown(ranking.ranked_candidates[0], policy)
+
+    assert isinstance(breakdown, CandidateScoreBreakdown)
+    assert breakdown.base_score > 0
+    assert breakdown.final_score <= breakdown.base_score

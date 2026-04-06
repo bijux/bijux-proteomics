@@ -179,6 +179,29 @@ class CandidateExplainabilitySummary(JsonModel):
     )
 
 
+class CandidateScoreBreakdown(JsonModel):
+    """Detailed score decomposition for one ranked candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
+    normalized_factor_scores: dict[str, float] = Field(
+        default_factory=dict,
+        description="Per-factor normalized scores before weighting.",
+    )
+    weighted_contributions: dict[str, float] = Field(
+        default_factory=dict,
+        description="Per-factor weighted score contributions.",
+    )
+    base_score: float = Field(..., ge=0.0, description="Weighted score before uncertainty penalty.")
+    uncertainty_penalty: float = Field(
+        ...,
+        ge=0.0,
+        description="Penalty subtracted due to uncertainty.",
+    )
+    final_score: float = Field(..., ge=0.0, description="Final score after penalty.")
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     lowered = metric.lower()
     if "affin" in lowered or "bind" in lowered:
@@ -420,3 +443,33 @@ def summarize_candidate_explainability(
             )
         )
     return summaries
+
+
+def candidate_score_breakdown(
+    ranked_candidate: RankedCandidate,
+    policy: RankingPolicy,
+) -> CandidateScoreBreakdown:
+    """Return a normalized and weighted score decomposition."""
+    factor_scores = {
+        str(key): float(value)
+        for key, value in dict(ranked_candidate.explainability.get("factor_scores", {})).items()
+    }
+    weighted = {
+        factor.value: round(
+            factor_scores.get(factor.value, 0.0) * weight,
+            4,
+        )
+        for factor, weight in policy.factor_weights.items()
+    }
+    base_score = round(sum(weighted.values()), 4)
+    uncertainty_factor = factor_scores.get(RankingFactor.UNCERTAINTY.value, 1.0)
+    uncertainty_penalty = round((1.0 - uncertainty_factor) * policy.uncertainty_penalty_weight, 4)
+    final_score = max(0.0, round(base_score - uncertainty_penalty, 4))
+    return CandidateScoreBreakdown(
+        candidate_id=ranked_candidate.candidate_id,
+        normalized_factor_scores=factor_scores,
+        weighted_contributions=weighted,
+        base_score=base_score,
+        uncertainty_penalty=uncertainty_penalty,
+        final_score=final_score,
+    )

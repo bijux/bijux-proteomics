@@ -8,6 +8,7 @@ from __future__ import annotations
 from bijux_proteomics_intelligence.briefs import (
     CandidateAssessment,
     CandidateExplainabilitySummary,
+    CandidateScoreBreakdown,
     CandidateRanking,
     DesignBrief,
     LiabilityFlag,
@@ -16,6 +17,7 @@ from bijux_proteomics_intelligence.briefs import (
     build_design_brief,
     prioritize_candidates,
     summarize_candidate_explainability,
+    candidate_score_breakdown,
 )
 from bijux_proteomics_intelligence.candidates import (
     CandidateDecision,
@@ -63,6 +65,7 @@ from bijux_proteomics_intelligence.serialization import JsonModel
 __all__ = [
     "CandidateAssessment",
     "CandidateExplainabilitySummary",
+    "CandidateScoreBreakdown",
     "CandidateDecision",
     "CandidateRanking",
     "CandidatePortfolio",
@@ -106,5 +109,6 @@ __all__ = [
     "select_portfolio_shortlist",
     "prioritize_candidates",
     "summarize_candidate_explainability",
+    "candidate_score_breakdown",
     "transition_candidate",
 ]
