@@ -155,6 +155,15 @@ class ResolutionEscalationItem(JsonModel):
     rationale: str = Field(..., min_length=1, description="Escalation rationale.")
 
 
+class ResolutionEscalationQueue(JsonModel):
+    """Queue of escalation items for curator review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Resolution policy identifier.")
+    items: list[ResolutionEscalationItem] = Field(default_factory=list, description="Escalation items in priority order.")
+
+
 def resolve_conflicts(
     bundle: EvidenceBundle,
     *,
@@ -437,7 +446,9 @@ def compare_resolution_policies(
 def build_resolution_escalation_queue(
     trust_report: BundleTrustReport,
     resolutions: list[ConflictResolution],
-) -> list[ResolutionEscalationItem]:
+    *,
+    policy_id: str = "default-resolution-policy",
+) -> ResolutionEscalationQueue:
     """Build prioritized curator queue from trust conflicts and selected actions."""
     severity_by_pair = {
         (conflict.left_evidence_id, conflict.right_evidence_id): conflict.severity
@@ -463,4 +474,7 @@ def build_resolution_escalation_queue(
                 rationale=resolution.rationale,
             )
         )
-    return sorted(queue, key=lambda item: (item.priority != "high", item.left_evidence_id, item.right_evidence_id))
+    return ResolutionEscalationQueue(
+        policy_id=policy_id,
+        items=sorted(queue, key=lambda item: (item.priority != "high", item.left_evidence_id, item.right_evidence_id)),
+    )

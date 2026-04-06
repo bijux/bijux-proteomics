@@ -596,8 +596,8 @@ def test_build_resolution_escalation_queue_prioritizes_hold_conflicts() -> None:
     trust, resolutions = resolve_conflicts(bundle)
     queue = build_resolution_escalation_queue(trust, resolutions)
 
-    assert len(queue) == 1
-    assert queue[0].priority == "high"
+    assert len(queue.items) == 1
+    assert queue.items[0].priority == "high"
 
 
 def test_apply_resolution_updates_disputes_claim_when_hold_is_required() -> None:
