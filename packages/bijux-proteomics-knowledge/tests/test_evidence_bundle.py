@@ -723,6 +723,7 @@ def test_evaluate_quantitative_support_scores_high_quality_payload() -> None:
             effect_size=1.8,
             confidence_interval_low=1.3,
             confidence_interval_high=2.2,
+            confidence_interval_level=0.95,
             variance=0.12,
             coefficient_of_variation=0.18,
             p_value=0.01,
@@ -732,11 +733,13 @@ def test_evaluate_quantitative_support_scores_high_quality_payload() -> None:
             protein_coverage=0.42,
             site_localization_probability=0.86,
             absolute_scale=True,
+            scale_type="fold-change",
         )
     )
 
     assert report.support_score > 0.7
     assert "replicate count supports reproducibility" in report.notes
+    assert "confidence interval bounds are available" in report.notes
 
 
 def test_evaluate_quantitative_support_penalizes_censored_signal() -> None:
@@ -747,11 +750,14 @@ def test_evaluate_quantitative_support_penalizes_censored_signal() -> None:
             peptide_count=1,
             protein_coverage=0.12,
             censored_by_detection_limit=True,
+            detection_limit_value=0.03,
+            censoring_direction="left-censored",
         )
     )
 
     assert report.support_score < 0.5
     assert "quantitative estimate is censored by detection limit" in report.notes
+    assert "detection limit value is reported for censoring context" in report.notes
 
 
 def test_assess_context_completeness_reports_missing_context_fields() -> None:

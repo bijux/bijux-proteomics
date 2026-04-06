@@ -89,6 +89,12 @@ class QuantitativeSupport(JsonModel):
         default=None,
         description="Upper bound of the confidence interval.",
     )
+    confidence_interval_level: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Confidence level associated with the interval estimate.",
+    )
     variance: float | None = Field(default=None, ge=0.0, description="Observed variance.")
     coefficient_of_variation: float | None = Field(
         default=None,
@@ -115,9 +121,22 @@ class QuantitativeSupport(JsonModel):
         default=False,
         description="Whether the estimate is censored by detection limits.",
     )
+    detection_limit_value: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Lower or upper detection limit associated with censoring.",
+    )
+    censoring_direction: str | None = Field(
+        default=None,
+        description="Direction of censoring such as left-censored or right-censored.",
+    )
     absolute_scale: bool = Field(
         default=False,
         description="Whether the quantitative estimate is on an absolute scale.",
+    )
+    scale_type: str | None = Field(
+        default=None,
+        description="Scale semantics such as fold-change, log2-ratio, or concentration.",
     )
     unit: str | None = Field(default=None, description="Measurement unit for quantitative effects.")
 
@@ -735,9 +754,26 @@ def evaluate_quantitative_support(
             notes.append("site localization probability is strong")
         else:
             notes.append("site localization probability is weak")
+    if (
+        support.confidence_interval_low is not None
+        and support.confidence_interval_high is not None
+        and support.confidence_interval_low <= support.confidence_interval_high
+    ):
+        score += 0.05
+        notes.append("confidence interval bounds are available")
+    if support.confidence_interval_level is not None and support.confidence_interval_level >= 0.9:
+        score += 0.03
+        notes.append("confidence interval level is scientifically standard")
+    if support.scale_type:
+        score += 0.03
+        notes.append("scale semantics are explicitly reported")
     if support.censored_by_detection_limit:
         score -= 0.1
         notes.append("quantitative estimate is censored by detection limit")
+        if support.detection_limit_value is not None:
+            notes.append("detection limit value is reported for censoring context")
+        if support.censoring_direction:
+            notes.append("censoring direction is explicitly reported")
     if support.absolute_scale:
         score += 0.05
         notes.append("measurement is on absolute scale")
