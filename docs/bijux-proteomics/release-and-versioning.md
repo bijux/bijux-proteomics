@@ -9,9 +9,12 @@ last_reviewed: 2026-04-04
 
 # Release and Versioning
 
-The repository uses commitizen for conventional commit messages and package
-tags for version discovery through Hatch VCS. Version resolution is therefore
-both a repository concern and a package concern.
+The repository uses conventional commit messages and package changelogs as the
+release intent record. Version resolution is a package concern and currently
+uses two patterns in this repository:
+
+- Hatch VCS for `agentic-proteins` and `bijux-proteomics-dev`
+- explicit package versions for the remaining publishable packages
 
 The wording of the commit history matters because the repository is meant to
 stay understandable years later. A good commit message should explain durable
@@ -38,7 +41,7 @@ sequenceDiagram
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
-- package versions are resolved from tags through Hatch VCS configuration
+- package versions are resolved per package (Hatch VCS or explicit version)
 - every publishable package keeps its own `CHANGELOG.md`
 - the root `CHANGELOG.md` only records repository-wide changes that span more
   than one package or alter shared release machinery
