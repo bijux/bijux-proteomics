@@ -37,6 +37,14 @@ class AssayResultState(StrEnum):
     INCONCLUSIVE = "inconclusive"
 
 
+class QcState(StrEnum):
+    """QC state for assay observations."""
+
+    PASSED = "passed"
+    FAILED = "failed"
+    WARNING = "warning"
+
+
 class RerunPolicy(StrEnum):
     """Rerun recommendation after an outcome is observed."""
 
@@ -153,6 +161,7 @@ class AssayObservationRecord(JsonModel):
         default_factory=list,
         description="Raw replicate values captured for this observation.",
     )
+    qc_state: QcState = Field(default=QcState.PASSED, description="QC state for this observation.")
     qc_passed: bool = Field(
         default=True,
         description="Whether assay-level QC checks passed.",
@@ -173,6 +182,16 @@ class AssayObservationRecord(JsonModel):
     below_detection_limit: bool = Field(
         default=False,
         description="Whether the measured signal was below detection limit.",
+    )
+    batch_effect_note: str | None = Field(
+        default=None,
+        description="Optional note describing batch-effect concerns for interpretation.",
+    )
+    interpretation_confidence: float = Field(
+        default=1.0,
+        ge=0.0,
+        le=1.0,
+        description="Confidence in the interpreted observation quality.",
     )
 
 
@@ -230,7 +249,7 @@ def evaluate_assay_acceptance(
         raise ValueError("assay observation does not match the assay definition")
     if observation.metric != rule.metric:
         raise ValueError("assay observation metric does not match the acceptance rule")
-    if not observation.qc_passed:
+    if not observation.qc_passed or observation.qc_state is QcState.FAILED:
         return AssayOutcome(
             assay_id=observation.assay_id,
             passed=False,
@@ -239,6 +258,28 @@ def evaluate_assay_acceptance(
             failure_class=FailureClass.TECHNICAL,
             replicate_count=max(1, len(observation.replicate_values) or 1),
             uncertainty=0.6,
+        )
+    if observation.qc_state is QcState.WARNING:
+        warning_uncertainty = max(0.2, 1.0 - observation.interpretation_confidence)
+        return AssayOutcome(
+            assay_id=observation.assay_id,
+            passed=False,
+            result_state=AssayResultState.INCONCLUSIVE,
+            observation_summary=f"{observation.metric} requires review due to QC warning state",
+            failure_class=FailureClass.INTERPRETATION,
+            replicate_count=max(1, len(observation.replicate_values) or 1),
+            uncertainty=warning_uncertainty,
+        )
+    if observation.batch_effect_note:
+        batch_uncertainty = max(0.25, 1.0 - observation.interpretation_confidence)
+        return AssayOutcome(
+            assay_id=observation.assay_id,
+            passed=False,
+            result_state=AssayResultState.INCONCLUSIVE,
+            observation_summary=f"{observation.metric} impacted by batch-effect concern: {observation.batch_effect_note}",
+            failure_class=FailureClass.INTERPRETATION,
+            replicate_count=max(1, len(observation.replicate_values) or 1),
+            uncertainty=batch_uncertainty,
         )
     if observation.below_detection_limit:
         return AssayOutcome(
