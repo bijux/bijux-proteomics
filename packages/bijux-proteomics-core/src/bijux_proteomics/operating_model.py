@@ -5,7 +5,26 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class ReviewCadence(StrEnum):
+    """Supported review cadences for a program."""
+
+    PER_DECISION = "per-decision"
+    WEEKLY = "weekly"
+    MILESTONE = "milestone"
+
+
+class DecisionOwnerRole(StrEnum):
+    """Durable owner roles for progression decisions."""
+
+    SCIENTIST = "scientist"
+    SAFETY = "safety"
+    LAB = "lab"
+    PROGRAM_LEAD = "program_lead"
 
 
 class OperatingModel(BaseModel):
@@ -13,9 +32,8 @@ class OperatingModel(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    review_cadence: str = Field(
-        default="per-decision",
-        min_length=1,
+    review_cadence: ReviewCadence = Field(
+        default=ReviewCadence.PER_DECISION,
         description="When human review is expected.",
     )
     human_review_required: bool = Field(
@@ -26,7 +44,7 @@ class OperatingModel(BaseModel):
         default=True,
         description="Whether lab results must close the loop before iteration.",
     )
-    decision_owner_roles: list[str] = Field(
-        default_factory=lambda: ["scientist"],
+    decision_owner_roles: list[DecisionOwnerRole] = Field(
+        default_factory=lambda: [DecisionOwnerRole.SCIENTIST],
         description="Roles accountable for final progression decisions.",
     )

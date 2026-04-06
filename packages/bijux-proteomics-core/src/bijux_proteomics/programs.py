@@ -14,7 +14,11 @@ from bijux_proteomics.context import (
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.lifecycle import LifecycleTransition, ProgramLifecycle, allowed_next_stages, advance_stage
-from bijux_proteomics.operating_model import OperatingModel
+from bijux_proteomics.operating_model import (
+    DecisionOwnerRole,
+    OperatingModel,
+    ReviewCadence,
+)
 from bijux_proteomics.program_spec import (
     EvidenceNeed,
     ProgramSpec,
@@ -35,6 +39,7 @@ from bijux_proteomics.targets import ProteinTarget
 
 __all__ = [
     "AssayRequirement",
+    "DecisionOwnerRole",
     "EvidenceNeed",
     "LifecycleTransition",
     "MeasurementDirection",
@@ -48,6 +53,7 @@ __all__ = [
     "ProteinTarget",
     "ReviewGate",
     "ReviewDecision",
+    "ReviewCadence",
     "ReviewGateEvaluation",
     "ReviewGateState",
     "ReviewOutcome",

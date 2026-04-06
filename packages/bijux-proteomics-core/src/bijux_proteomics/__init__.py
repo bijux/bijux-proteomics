@@ -27,7 +27,11 @@ from bijux_proteomics.lifecycle import (
     allowed_next_stages,
 )
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
-from bijux_proteomics.operating_model import OperatingModel
+from bijux_proteomics.operating_model import (
+    DecisionOwnerRole,
+    OperatingModel,
+    ReviewCadence,
+)
 from bijux_proteomics.program_spec import (
     EvidenceNeed,
     ProgramSpec,
@@ -66,6 +70,7 @@ __all__ = [
     "AssayRequirement",
     "EvidenceNeed",
     "BijuxProteomicsError",
+    "DecisionOwnerRole",
     "InvalidLifecycleTransitionError",
     "LiabilityCategory",
     "LifecycleTransition",
@@ -88,6 +93,7 @@ __all__ = [
     "ReviewGate",
     "ReviewDecision",
     "ReviewDecisionRepository",
+    "ReviewCadence",
     "ReviewGateEvaluation",
     "ReviewGateBlockedError",
     "ReviewGateState",

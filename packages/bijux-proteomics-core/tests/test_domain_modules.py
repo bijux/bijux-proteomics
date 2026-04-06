@@ -16,7 +16,7 @@ import pytest
 from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
 from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage, allowed_next_stages
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
-from bijux_proteomics.operating_model import OperatingModel
+from bijux_proteomics.operating_model import DecisionOwnerRole, OperatingModel, ReviewCadence
 from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
@@ -95,12 +95,22 @@ def test_domain_modules_define_program_components() -> None:
             ),
             tags=["solid-tumor", "discovery"],
         ),
-        operating_model=OperatingModel(review_cadence="weekly"),
+        operating_model=OperatingModel(
+            review_cadence=ReviewCadence.WEEKLY,
+            decision_owner_roles=[
+                DecisionOwnerRole.SCIENTIST,
+                DecisionOwnerRole.PROGRAM_LEAD,
+            ],
+        ),
     )
 
     assert program.stage is ProgramStage.DESIGN
     assert program.assay_panel[0].blocking is True
-    assert program.operating_model.review_cadence == "weekly"
+    assert program.operating_model.review_cadence is ReviewCadence.WEEKLY
+    assert program.operating_model.decision_owner_roles == [
+        DecisionOwnerRole.SCIENTIST,
+        DecisionOwnerRole.PROGRAM_LEAD,
+    ]
     assert program.context.portfolio.therapeutic_area == "oncology"
     assert sequence_length(program.target.sequence) == 20
 
