@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
     ClaimPolarity,
+    ClaimResolutionState,
     ClaimStatus,
     EvidenceBundle,
     EvidenceKind,
@@ -12,6 +13,7 @@ from bijux_proteomics_knowledge import (
     EvidenceSourceType,
     EvidenceStrength,
     build_claim,
+    close_claim,
     build_decision_lineage,
 )
 
@@ -55,3 +57,17 @@ def test_build_decision_lineage_links_supported_claims_to_evidence() -> None:
     assert lineage.claim_ids == ["claim-1"]
     assert lineage.disputed_claim_ids == ["claim-2"]
     assert lineage.evidence_ids == ["lit-1"]
+
+
+def test_close_claim_marks_resolution_state_closed() -> None:
+    claim = build_claim(
+        claim_id="claim-3",
+        target_id="target-1",
+        statement="Needs resolution",
+        evidence_ids=["lit-1"],
+        status=ClaimStatus.INSUFFICIENT,
+    )
+
+    closed = close_claim(claim)
+
+    assert closed.resolution_state is ClaimResolutionState.CLOSED

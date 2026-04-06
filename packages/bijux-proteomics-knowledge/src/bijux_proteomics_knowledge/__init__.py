@@ -19,10 +19,12 @@ from bijux_proteomics_knowledge.adapters import (
 )
 from bijux_proteomics_knowledge.claims import (
     ClaimPolarity,
+    ClaimResolutionState,
     ClaimStatus,
     DecisionLineage,
     EvidenceClaim,
     build_claim,
+    close_claim,
     build_decision_lineage,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
@@ -83,6 +85,7 @@ __all__ = [
     "AssayResultIngestionAdapter",
     "BundleTrustReport",
     "ClaimPolarity",
+    "ClaimResolutionState",
     "ClaimStatus",
     "ConflictResolution",
     "ConflictPolicy",
@@ -110,6 +113,7 @@ __all__ = [
     "attach_evidence_inputs",
     "build_evidence_graph",
     "build_claim",
+    "close_claim",
     "build_decision_lineage",
     "compute_bundle_trust",
     "coverage_report",

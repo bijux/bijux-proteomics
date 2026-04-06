@@ -30,6 +30,13 @@ class ClaimPolarity(StrEnum):
     NEUTRAL = "neutral"
 
 
+class ClaimResolutionState(StrEnum):
+    """Resolution state for a claim in a decision workflow."""
+
+    OPEN = "open"
+    CLOSED = "closed"
+
+
 class EvidenceClaim(JsonModel):
     """A claim backed by one or more evidence records."""
 
@@ -46,6 +53,10 @@ class EvidenceClaim(JsonModel):
     polarity: ClaimPolarity = Field(
         default=ClaimPolarity.SUPPORTING,
         description="Whether the claim supports or contradicts progression.",
+    )
+    resolution_state: ClaimResolutionState = Field(
+        default=ClaimResolutionState.OPEN,
+        description="Whether the claim still needs active resolution.",
     )
 
 
@@ -77,6 +88,7 @@ def build_claim(
     evidence_ids: list[str],
     status: ClaimStatus,
     polarity: ClaimPolarity = ClaimPolarity.SUPPORTING,
+    resolution_state: ClaimResolutionState = ClaimResolutionState.OPEN,
 ) -> EvidenceClaim:
     """Build a claim from explicit evidence identifiers."""
     return EvidenceClaim(
@@ -86,6 +98,7 @@ def build_claim(
         evidence_ids=evidence_ids,
         status=status,
         polarity=polarity,
+        resolution_state=resolution_state,
     )
 
 
@@ -125,3 +138,8 @@ def build_decision_lineage(
         disputed_claim_ids=[claim.claim_id for claim in disputed_claims],
         evidence_ids=evidence_ids,
     )
+
+
+def close_claim(claim: EvidenceClaim) -> EvidenceClaim:
+    """Return a claim marked as closed in the resolution workflow."""
+    return claim.model_copy(update={"resolution_state": ClaimResolutionState.CLOSED})
