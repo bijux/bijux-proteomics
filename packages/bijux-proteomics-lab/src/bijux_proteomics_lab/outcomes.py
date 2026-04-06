@@ -271,6 +271,23 @@ class OutcomePromotionPolicy(JsonModel):
     )
 
 
+class BatchOutcomeAssessment(JsonModel):
+    """Aggregate decision assessment for a full experiment batch outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    total_assays: int = Field(..., ge=0, description="Total assays in batch.")
+    promotion_ready_count: int = Field(..., ge=0, description="Count of outcomes ready for evidence promotion.")
+    technical_or_repro_failures: int = Field(
+        ...,
+        ge=0,
+        description="Count of technical or reproducibility failures that block interpretation.",
+    )
+    rerun_policy: RerunPolicy = Field(..., description="Recommended rerun policy for the batch.")
+    notes: list[str] = Field(default_factory=list, description="Summary notes for reviewers.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -531,3 +548,33 @@ def recommend_claim_belief_deltas(
         )
         for claim_id in linked_claim_ids
     ]
+
+
+def assess_batch_outcome(outcome: ExperimentOutcome) -> BatchOutcomeAssessment:
+    """Assess aggregate readiness and rerun posture for an experiment batch."""
+    promotion_ready = sum(
+        1
+        for assay in outcome.assay_outcomes
+        if assess_evidence_promotion_readiness(assay).ready
+    )
+    technical_or_repro = sum(
+        1
+        for assay in outcome.assay_outcomes
+        if assay.result_state in {AssayResultState.FAILED_TECHNICAL, AssayResultState.FAILED_REPRODUCIBILITY}
+    )
+    policy = recommend_rerun_policy(outcome)
+    notes: list[str] = []
+    if technical_or_repro > 0:
+        notes.append("technical or reproducibility failures should be resolved before confidence updates")
+    if promotion_ready < len(outcome.assay_outcomes):
+        notes.append("not all assays are promotion-ready")
+    if not notes:
+        notes.append("batch outcome is promotion-ready for closed-loop updates")
+    return BatchOutcomeAssessment(
+        batch_id=outcome.batch_id,
+        total_assays=len(outcome.assay_outcomes),
+        promotion_ready_count=promotion_ready,
+        technical_or_repro_failures=technical_or_repro,
+        rerun_policy=policy,
+        notes=notes,
+    )

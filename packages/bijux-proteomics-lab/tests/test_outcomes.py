@@ -27,6 +27,7 @@ from bijux_proteomics_lab import (
     summarize_observation,
     assess_evidence_promotion_readiness,
     recommend_claim_belief_deltas,
+    assess_batch_outcome,
 )
 
 
@@ -448,6 +449,38 @@ def test_recommend_claim_belief_deltas_supports_closed_loop_updates() -> None:
 
     assert len(deltas) == 2
     assert all(delta.delta > 0 for delta in deltas)
+
+
+def test_assess_batch_outcome_reports_promotion_readiness_and_rerun_posture() -> None:
+    assessment = assess_batch_outcome(
+        ExperimentOutcome(
+            batch_id="batch-assess",
+            assay_outcomes=[
+                AssayOutcome(
+                    assay_id="a1",
+                    passed=False,
+                    result_state=AssayResultState.FAILED_TECHNICAL,
+                    observation_summary="instrument issue",
+                    failure_class=FailureClass.TECHNICAL,
+                    replicate_count=2,
+                    uncertainty=0.2,
+                ),
+                AssayOutcome(
+                    assay_id="a2",
+                    passed=True,
+                    result_state=AssayResultState.PASSED,
+                    observation_summary="passed",
+                    replicate_count=2,
+                    uncertainty=0.1,
+                ),
+            ],
+            rerun_policy=RerunPolicy.NEVER,
+        )
+    )
+
+    assert assessment.total_assays == 2
+    assert assessment.technical_or_repro_failures == 1
+    assert assessment.rerun_policy is RerunPolicy.ON_TECHNICAL_FAILURE
 
 
 def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:

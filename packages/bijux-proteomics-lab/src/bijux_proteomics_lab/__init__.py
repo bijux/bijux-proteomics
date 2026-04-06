@@ -20,6 +20,7 @@ from bijux_proteomics_lab.outcomes import (
     EvidencePromotionReadiness,
     ClaimBeliefDelta,
     OutcomePromotionPolicy,
+    BatchOutcomeAssessment,
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
@@ -29,6 +30,7 @@ from bijux_proteomics_lab.outcomes import (
     summarize_observation,
     assess_evidence_promotion_readiness,
     recommend_claim_belief_deltas,
+    assess_batch_outcome,
 )
 from bijux_proteomics_lab.repositories import (
     ExperimentPlanRepository,
@@ -119,6 +121,7 @@ __all__ = [
     "EvidencePromotionReadiness",
     "ClaimBeliefDelta",
     "OutcomePromotionPolicy",
+    "BatchOutcomeAssessment",
     "ExperimentPlan",
     "FamilyCapacity",
     "FailureClass",
@@ -163,6 +166,7 @@ __all__ = [
     "summarize_observation",
     "assess_evidence_promotion_readiness",
     "recommend_claim_belief_deltas",
+    "assess_batch_outcome",
     "schedule_experiment_plan",
     "schedule_with_family_capacity",
     "prioritize_next_assays",
