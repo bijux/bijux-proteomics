@@ -9,7 +9,12 @@ from typing import Annotated
 
 from pydantic import StringConstraints
 
-Identifier = StringConstraints(strip_whitespace=True, min_length=1)
+Identifier = StringConstraints(
+    strip_whitespace=True,
+    min_length=1,
+    max_length=128,
+    pattern=r"^[a-z0-9][a-z0-9._:-]*$",
+)
 
 ProgramId = Annotated[str, Identifier]
 TargetId = Annotated[str, Identifier]

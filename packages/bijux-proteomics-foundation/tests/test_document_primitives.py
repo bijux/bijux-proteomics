@@ -53,3 +53,10 @@ class IdentifierHolder(BaseModel):
 def test_typed_ids_enforce_non_empty_values() -> None:
     with pytest.raises(ValidationError):
         IdentifierHolder(program_id="  ")
+
+
+def test_typed_ids_enforce_stable_identifier_pattern() -> None:
+    IdentifierHolder(program_id="prog-1")
+
+    with pytest.raises(ValidationError):
+        IdentifierHolder(program_id="Program 1")
