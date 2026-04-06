@@ -150,3 +150,28 @@ def test_evaluate_assay_acceptance_flags_qc_failure_as_technical() -> None:
     assert outcome.result_state is AssayResultState.FAILED_TECHNICAL
     assert outcome.failure_class is FailureClass.TECHNICAL
     assert outcome.replicate_count == 3
+
+
+def test_evaluate_assay_acceptance_supports_bounded_ranges() -> None:
+    outcome = evaluate_assay_acceptance(
+        AssayDefinition(
+            assay_id="stability-assay",
+            category=AssayCategory.STABILITY,
+            purpose="confirm neutral stability window",
+            acceptance_rule=AssayAcceptanceRule(
+                assay_id="stability-assay",
+                metric="delta_tm",
+                operator=AcceptanceOperator.BETWEEN,
+                threshold=1.0,
+                upper_threshold=3.0,
+            ),
+        ),
+        AssayObservationRecord(
+            assay_id="stability-assay",
+            metric="delta_tm",
+            value=2.0,
+        ),
+    )
+
+    assert outcome.passed is True
+    assert outcome.result_state is AssayResultState.PASSED

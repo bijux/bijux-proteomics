@@ -58,6 +58,7 @@ class AcceptanceOperator(StrEnum):
 
     GREATER_EQUAL = "greater_equal"
     LESS_EQUAL = "less_equal"
+    BETWEEN = "between"
 
 
 class AssayAcceptanceRule(JsonModel):
@@ -69,6 +70,10 @@ class AssayAcceptanceRule(JsonModel):
     metric: str = Field(..., min_length=1, description="Metric to evaluate.")
     operator: AcceptanceOperator = Field(..., description="Threshold operator.")
     threshold: float = Field(..., description="Acceptance threshold.")
+    upper_threshold: float | None = Field(
+        default=None,
+        description="Upper bound used when the operator requires a range.",
+    )
     unit: str | None = Field(default=None, description="Expected unit of measure.")
 
 
@@ -204,11 +209,16 @@ def evaluate_assay_acceptance(
             failure_class=FailureClass.INTERPRETATION,
         )
 
-    passed = (
-        observation.value >= rule.threshold
-        if rule.operator is AcceptanceOperator.GREATER_EQUAL
-        else observation.value <= rule.threshold
-    )
+    if rule.operator is AcceptanceOperator.GREATER_EQUAL:
+        passed = observation.value >= rule.threshold
+    elif rule.operator is AcceptanceOperator.LESS_EQUAL:
+        passed = observation.value <= rule.threshold
+    else:
+        if rule.upper_threshold is None:
+            raise ValueError("between operator requires upper_threshold")
+        lower = min(rule.threshold, rule.upper_threshold)
+        upper = max(rule.threshold, rule.upper_threshold)
+        passed = lower <= observation.value <= upper
     summary = (
         f"{observation.metric}={observation.value:g}"
         f"{observation.unit or ''} {'met' if passed else 'missed'} "
