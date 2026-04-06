@@ -25,7 +25,8 @@ description = "Deterministic, artifact-first protein design runtime and CLI"
 readme = { file = "packages/agentic-proteins/README.md", content-type = "text/markdown" }
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11"
-authors = [{ name = "Bijan Mousavi", email = "mousavi.bijan@gmail.com" }]
+authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 keywords = ["protein-design", "protein-structure", "esmfold", "rosettafold", "fastapi", "bioinformatics", "computational-biology", "cli", "reproducible-science", "auditability", "laboratory", "pipelines"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -62,10 +63,13 @@ dependencies = [
 ]
 
 [project.urls]
+Homepage = "https://bijux.io/bijux-proteomics/"
+Website = "https://bijux.io/"
 Documentation = "https://bijux.github.io/bijux-proteomics/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/CHANGELOG.md"
+Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.optional-dependencies]
 local-esmfold = [

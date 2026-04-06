@@ -23,10 +23,13 @@ Homepage = "https://bijux.io/bijux-proteomics/"
 Documentation = "https://bijux.io/bijux-proteomics/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/CHANGELOG.md"
+Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [tool.hatch.build]
 include = [
   "README.md",
+  "CHANGELOG.md",
   "docs/maintainer/pypi.md",
   "src/bijux_proteomics_lab/py.typed",
 ]

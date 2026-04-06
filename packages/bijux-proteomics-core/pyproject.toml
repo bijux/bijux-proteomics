@@ -22,6 +22,8 @@ Homepage = "https://bijux.io/bijux-proteomics/"
 Documentation = "https://bijux.io/bijux-proteomics/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/CHANGELOG.md"
+Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.scripts]
 bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
@@ -29,6 +31,7 @@ bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
 [tool.hatch.build]
 include = [
   "README.md",
+  "CHANGELOG.md",
   "docs/maintainer/pypi.md",
   "src/bijux_proteomics/py.typed",
 ]
