@@ -32,7 +32,7 @@ flowchart RL
     step1 --> page
     step2["packages/agentic-proteins/pyproject.toml"]
     step2 --> page
-    step3["CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py"]
+    step3["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     step3 --> page
     run1["tests/regression and tests/smoke for replay and storage protection"]
     page --> run1

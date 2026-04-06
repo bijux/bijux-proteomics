@@ -55,7 +55,7 @@ flowchart RL
 
 ## Lifecycle Anchors
 
-- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py, HTTP app in src/agentic_proteins/api/v1, schema files in api/agentic-proteins/v1
+- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in api/v1
 - code ownership: src/agentic_proteins/model, src/agentic_proteins/runtime, src/agentic_proteins/application
 - durable outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 

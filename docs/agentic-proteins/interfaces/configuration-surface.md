@@ -30,15 +30,15 @@ flowchart LR
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     surface1["HTTP app in src/agentic_proteins/api/v1"]
     surface1 --> page
-    surface2["schema files in api/agentic-proteins/v1"]
+    surface2["shared API schema in api/v1"]
     surface2 --> page
-    surface3["CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py"]
+    surface3["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     surface3 --> page
     proof1["execution store records"]
     page --> proof1
-    proof2["api/agentic-proteins/v1/schema.yaml"]
+    proof2["api/v1/schema.yaml"]
     page --> proof2
-    proof3["api/agentic-proteins/v1/schema.hash"]
+    proof3["api/v1/schema.yaml"]
     page --> proof3
     review1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
     review1 -.raises compatibility pressure on.-> page
@@ -54,9 +54,9 @@ flowchart LR
 
 ## Configuration Anchors
 
-- CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py
+- CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- schema files in api/agentic-proteins/v1
+- shared API schema in api/v1
 
 ## Review Rule
 
@@ -64,10 +64,10 @@ Configuration changes should update the operator docs, schema docs, and tests th
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py
+- CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- schema files in api/agentic-proteins/v1
-- api/agentic-proteins/v1/schema.yaml
+- shared API schema in api/v1
+- api/v1/schema.yaml
 
 ## Use This Page When
 

@@ -30,7 +30,7 @@ flowchart TB
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     step1["packages/agentic-proteins/pyproject.toml"]
     step1 --> page
-    step2["CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py"]
+    step2["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     step2 --> page
     step3["HTTP app in src/agentic_proteins/api/v1"]
     step3 --> page

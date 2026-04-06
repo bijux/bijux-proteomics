@@ -29,7 +29,7 @@ flowchart TB
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     step1["packages/agentic-proteins/pyproject.toml"]
     step1 --> page
-    step2["CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py"]
+    step2["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     step2 --> page
     step3["HTTP app in src/agentic_proteins/api/v1"]
     step3 --> page
@@ -53,7 +53,7 @@ flowchart TB
 
 ## Recovery Anchors
 
-- interface surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py, HTTP app in src/agentic_proteins/api/v1, schema files in api/agentic-proteins/v1
+- interface surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in api/v1
 - artifacts to inspect: execution store records, replay decision artifacts, non-determinism policy evaluations
 - tests to run: tests/unit for api, contracts, core, interfaces, model, and runtime, tests/e2e for governed flow behavior
 

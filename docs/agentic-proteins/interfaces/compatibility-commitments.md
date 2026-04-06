@@ -28,17 +28,17 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py"]
+    surface1["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     surface1 --> page
     surface2["HTTP app in src/agentic_proteins/api/v1"]
     surface2 --> page
-    surface3["schema files in api/agentic-proteins/v1"]
+    surface3["shared API schema in api/v1"]
     surface3 --> page
-    proof1["api/agentic-proteins/v1/schema.hash"]
+    proof1["api/v1/schema.yaml"]
     page --> proof1
     proof2["execution store records"]
     page --> proof2
-    proof3["api/agentic-proteins/v1/schema.yaml"]
+    proof3["api/v1/schema.yaml"]
     page --> proof3
     review1["tests/e2e for governed flow behavior"]
     review1 -.raises compatibility pressure on.-> page
@@ -64,10 +64,10 @@ Breaking changes must be visible in code, docs, and validation together.
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py
+- CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- schema files in api/agentic-proteins/v1
-- api/agentic-proteins/v1/schema.yaml
+- shared API schema in api/v1
+- api/v1/schema.yaml
 
 ## Use This Page When
 

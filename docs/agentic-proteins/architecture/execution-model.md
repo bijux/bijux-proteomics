@@ -29,17 +29,17 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["durable runtime models"]
+    module1["durable execution and state models"]
     module1 --> page
     module2["execution engines and lifecycle logic"]
     module2 --> page
-    module3["orchestration and replay coordination"]
+    module3["agent orchestration and replay coordination"]
     module3 --> page
-    code1["src/agentic_proteins/model"]
+    code1["src/agentic_proteins/runtime/control"]
     page --> code1
     code2["src/agentic_proteins/runtime"]
     page --> code2
-    code3["src/agentic_proteins/application"]
+    code3["src/agentic_proteins/agents"]
     page --> code3
     pressure1["tests/e2e for governed flow behavior"]
     pressure1 -.tests whether this structure still holds.-> page
@@ -55,15 +55,15 @@ flowchart TB
 
 ## Execution Anchors
 
-- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli/entrypoint.py, HTTP app in src/agentic_proteins/api/v1, schema files in api/agentic-proteins/v1
-- workflow modules: src/agentic_proteins/model, src/agentic_proteins/runtime, src/agentic_proteins/application
+- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in api/v1
+- workflow modules: src/agentic_proteins/runtime/control, src/agentic_proteins/runtime/context, src/agentic_proteins/agents
 - outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 
 ## Concrete Anchors
 
-- `src/agentic_proteins/model` for durable runtime models
-- `src/agentic_proteins/runtime` for execution engines and lifecycle logic
-- `src/agentic_proteins/application` for orchestration and replay coordination
+- `src/agentic_proteins/runtime/control` for execution engines and lifecycle logic
+- `src/agentic_proteins/runtime/context` for run context and output contracts
+- `src/agentic_proteins/agents` for orchestration and decision roles
 
 ## Use This Page When
 

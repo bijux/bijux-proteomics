@@ -54,15 +54,17 @@ flowchart LR
 
 ## What It Owns
 
-- flow execution authority
+- flow execution authority for protein candidate loops
 - replay and acceptability semantics
 - trace capture, runtime persistence, and execution-store behavior
 - package-local CLI and API boundaries
+- deterministic hand-off points for intelligence, knowledge, and lab packages
 
 ## What It Does Not Own
 
-- agent composition policy
-- ingest and index domain ownership
+- scoring policy and candidate ranking logic
+- evidence curation and contradiction resolution logic
+- assay planning and outcome adjudication logic
 - repository tooling and release support
 
 ## Concrete Anchors
