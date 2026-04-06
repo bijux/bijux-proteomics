@@ -10,6 +10,7 @@ from bijux_proteomics_intelligence import (
     CandidateExplainabilitySummary,
     CandidateRejection,
     CandidateScoreBreakdown,
+    LiabilityFocusSummary,
     MetricDefinition,
     MetricDirection,
     build_risk_profile,
@@ -28,6 +29,7 @@ from bijux_proteomics_intelligence import (
     classify_metric_name,
     build_rejection_action_plan,
     validate_metric_catalog,
+    summarize_liability_focus,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -493,3 +495,29 @@ def test_validate_metric_catalog_reports_missing_definitions() -> None:
     missing = validate_metric_catalog(policy, ["binding_kd", "delta_tm"])
 
     assert missing == ["delta_tm"]
+
+
+def test_summarize_liability_focus_counts_top_blockers() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-liability-focus",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-a",
+                score=0.9,
+                rank=1,
+                explainability={"blockers": ["aggregation-risk", "expression-risk"]},
+            ),
+            RankedCandidate(
+                candidate_id="candidate-b",
+                score=0.8,
+                rank=2,
+                explainability={"blockers": ["aggregation-risk"]},
+            ),
+        ],
+    )
+
+    summary = summarize_liability_focus(ranking)
+
+    assert isinstance(summary, LiabilityFocusSummary)
+    assert summary.liability_counts["aggregation-risk"] == 2
+    assert summary.top_liabilities[0] == "aggregation-risk"

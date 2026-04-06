@@ -9,6 +9,7 @@ from bijux_proteomics_intelligence.briefs import (
     CandidateAssessment,
     CandidateExplainabilitySummary,
     CandidateScoreBreakdown,
+    LiabilityFocusSummary,
     CandidateRanking,
     DesignBrief,
     LiabilityFlag,
@@ -18,6 +19,7 @@ from bijux_proteomics_intelligence.briefs import (
     prioritize_candidates,
     summarize_candidate_explainability,
     candidate_score_breakdown,
+    summarize_liability_focus,
 )
 from bijux_proteomics_intelligence.candidates import (
     CandidateDecision,
@@ -84,6 +86,7 @@ __all__ = [
     "CandidateAssessment",
     "CandidateExplainabilitySummary",
     "CandidateScoreBreakdown",
+    "LiabilityFocusSummary",
     "CandidateDecision",
     "CandidateRanking",
     "CandidatePortfolio",
@@ -140,6 +143,7 @@ __all__ = [
     "prioritize_candidates",
     "summarize_candidate_explainability",
     "candidate_score_breakdown",
+    "summarize_liability_focus",
     "transition_candidate",
     "classify_metric_name",
     "validate_metric_catalog",

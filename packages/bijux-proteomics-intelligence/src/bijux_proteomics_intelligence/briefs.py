@@ -218,6 +218,21 @@ class CandidateScoreBreakdown(JsonModel):
     final_score: float = Field(..., ge=0.0, description="Final score after penalty.")
 
 
+class LiabilityFocusSummary(JsonModel):
+    """Summary of dominant liabilities in a ranked candidate set."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    liability_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Count of liabilities by code across ranked candidates.",
+    )
+    top_liabilities: list[str] = Field(
+        default_factory=list,
+        description="Most frequent liability codes in ranking order.",
+    )
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -506,4 +521,20 @@ def candidate_score_breakdown(
         base_score=base_score,
         uncertainty_penalty=uncertainty_penalty,
         final_score=final_score,
+    )
+
+
+def summarize_liability_focus(
+    ranking: CandidateRanking,
+) -> LiabilityFocusSummary:
+    """Summarize dominant liability codes across ranked candidates."""
+    counts: dict[str, int] = {}
+    for candidate in ranking.ranked_candidates:
+        blockers = list(candidate.explainability.get("blockers", []))
+        for blocker in blockers:
+            counts[blocker] = counts.get(blocker, 0) + 1
+    top = sorted(counts, key=lambda code: counts[code], reverse=True)
+    return LiabilityFocusSummary(
+        liability_counts=counts,
+        top_liabilities=top[:5],
     )
