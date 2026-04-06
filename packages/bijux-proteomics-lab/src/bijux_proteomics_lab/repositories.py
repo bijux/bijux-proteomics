@@ -136,6 +136,17 @@ class FeedbackCycleLatencyReport(JsonModel):
     median_latency_days: float = Field(default=0.0, ge=0.0, description="Median first-feedback latency across cycles.")
 
 
+class FeedbackAnomalyReport(JsonModel):
+    """Anomaly signals for feedback streams in one program."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    high_volume_cycles: list[str] = Field(default_factory=list, description="Cycle IDs with unusually high feedback count.")
+    dominant_assay_ids: list[str] = Field(default_factory=list, description="Assays that dominate feedback payloads.")
+    notes: list[str] = Field(default_factory=list, description="Anomaly interpretation notes.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -274,4 +285,43 @@ def summarize_feedback_cycle_latency(
         program_id=program_id,
         cycle_to_first_feedback_days=latencies,
         median_latency_days=round(median_latency, 4),
+    )
+
+
+def detect_feedback_anomalies(
+    records: list[LabFeedbackRecord],
+    *,
+    program_id: str,
+    cycle_volume_threshold: int = 5,
+    assay_dominance_ratio: float = 0.6,
+) -> FeedbackAnomalyReport:
+    """Detect anomalous feedback patterns by cycle volume and assay concentration."""
+    filtered = [record for record in records if record.program_id == program_id]
+    cycle_counts: dict[str, int] = {}
+    assay_counts: dict[str, int] = {}
+    for record in filtered:
+        cycle_counts[record.cycle_id] = cycle_counts.get(record.cycle_id, 0) + 1
+        for assay_id in record.related_assay_ids:
+            assay_counts[assay_id] = assay_counts.get(assay_id, 0) + 1
+    high_volume = sorted([cycle_id for cycle_id, count in cycle_counts.items() if count >= cycle_volume_threshold])
+    total_assay_refs = sum(assay_counts.values())
+    dominant_assays = sorted(
+        [
+            assay_id
+            for assay_id, count in assay_counts.items()
+            if total_assay_refs > 0 and (count / total_assay_refs) >= assay_dominance_ratio
+        ]
+    )
+    notes: list[str] = []
+    if high_volume:
+        notes.append(f"high feedback volume in cycles: {', '.join(high_volume)}")
+    if dominant_assays:
+        notes.append(f"feedback is concentrated in assays: {', '.join(dominant_assays)}")
+    if not notes:
+        notes.append("no strong anomaly signal detected")
+    return FeedbackAnomalyReport(
+        program_id=program_id,
+        high_volume_cycles=high_volume,
+        dominant_assay_ids=dominant_assays,
+        notes=notes,
     )

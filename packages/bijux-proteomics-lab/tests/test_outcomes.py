@@ -27,6 +27,7 @@ from bijux_proteomics_lab import (
     summarize_review_queue,
     summarize_review_queue_workload,
     summarize_feedback_cycle_latency,
+    detect_feedback_anomalies,
     ReviewQueueEntry,
     ReviewQueueQuery,
     recommend_rerun_policy,
@@ -453,6 +454,34 @@ def test_assess_observation_quality_decomposes_quality_dimensions() -> None:
     assert quality.assay_id == "assay-1"
     assert quality.qc_reliability == 0.5
     assert quality.composite_quality < 0.9
+
+
+def test_detect_feedback_anomalies_flags_cycle_and_assay_concentration() -> None:
+    records = [
+        LabFeedbackRecord(
+            feedback_id=f"f{i}",
+            program_id="prog-anom",
+            cycle_id="cycle-1",
+            summary="feedback",
+            related_assay_ids=["assay-1"],
+            created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        )
+        for i in range(6)
+    ] + [
+        LabFeedbackRecord(
+            feedback_id="f6",
+            program_id="prog-anom",
+            cycle_id="cycle-2",
+            summary="feedback",
+            related_assay_ids=["assay-2"],
+            created_at=datetime(2026, 1, 2, tzinfo=UTC),
+        )
+    ]
+
+    report = detect_feedback_anomalies(records, program_id="prog-anom", cycle_volume_threshold=5, assay_dominance_ratio=0.7)
+
+    assert report.high_volume_cycles == ["cycle-1"]
+    assert report.dominant_assay_ids == ["assay-1"]
 
 
 def test_promote_batch_outcome_to_evidence_respects_quality_policy() -> None:
