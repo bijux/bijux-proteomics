@@ -9,6 +9,7 @@ build-backend = "hatchling.build"
 [tool.bijux_proteomics]
 packages = [
   "agentic-proteins",
+  "bijux-proteomics-dev",
   "bijux-proteomics-foundation",
   "bijux-proteomics-core",
   "bijux-proteomics-intelligence",
@@ -165,6 +166,7 @@ fragments = [
 ignore = ["DEP002", "DEP003"]
 known_first_party = [
   "agentic_proteins",
+  "bijux_proteomics_dev",
   "bijux_proteomics_foundation",
   "bijux_proteomics",
   "bijux_proteomics_intelligence",

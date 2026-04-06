@@ -371,3 +371,10 @@ nav:
           - Change Validation: bijux-proteomics-lab/quality/change-validation.md
           - Known Limitations: bijux-proteomics-lab/quality/known-limitations.md
           - Risk Register: bijux-proteomics-lab/quality/risk-register.md
+  - bijux-proteomics-dev:
+      - Overview: bijux-proteomics-dev/index.md
+      - Foundation: bijux-proteomics-dev/foundation.md
+      - Architecture: bijux-proteomics-dev/architecture.md
+      - Interfaces: bijux-proteomics-dev/interfaces.md
+      - Operations: bijux-proteomics-dev/operations.md
+      - Quality: bijux-proteomics-dev/quality.md
