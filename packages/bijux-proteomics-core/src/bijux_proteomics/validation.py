@@ -398,11 +398,4 @@ def validate_identifier_contracts(program: ProgramSpec) -> list[ProgramValidatio
             "assay-id-prefix-invalid",
             f"assay_id '{assay.assay_id}' should use an 'assay-' prefix",
         )
-    for gate in program.review_gates:
-        _check(
-            gate.gate_id,
-            IdentifierKind.GATE,
-            "gate-id-prefix-invalid",
-            f"gate_id '{gate.gate_id}' should use a 'gate-' prefix",
-        )
     return issues

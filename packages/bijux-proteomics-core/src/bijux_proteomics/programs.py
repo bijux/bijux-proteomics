@@ -12,7 +12,13 @@ from bijux_proteomics.context import (
     ProgramDeliveryContext,
     ProgramPortfolioContext,
 )
-from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.criteria import (
+    MeasurementDirection,
+    MetricFamily,
+    SuccessCriterion,
+    build_assay_grounded_criteria,
+)
+from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.lifecycle import (
     LifecycleTransition,
     ProgramLifecycle,
@@ -66,7 +72,9 @@ __all__ = [
     "DuplicateReviewDecisionError",
     "EvidenceNeed",
     "LifecycleTransition",
+    "LiabilityCategory",
     "MeasurementDirection",
+    "MetricFamily",
     "OperatingModel",
     "OutcomeSeverity",
     "ProgramContext",
@@ -75,6 +83,7 @@ __all__ = [
     "ProgramLifecycle",
     "ProgramNotFoundError",
     "ProgramSpec",
+    "ProgramLiability",
     "ProgramStage",
     "StageEligibility",
     "ProteinTarget",
@@ -88,6 +97,7 @@ __all__ = [
     "ReviewOutcome",
     "ScientificConstraint",
     "SuccessCriterion",
+    "build_assay_grounded_criteria",
     "create_program_spec",
     "decision_timeline",
     "list_decisions_by_outcome",

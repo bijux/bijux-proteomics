@@ -50,6 +50,8 @@ from bijux_proteomics import (
 from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
 from bijux_proteomics.programs import (
     AssayRequirement,
+    ProgramLiability,
+    LiabilityCategory,
     build_assay_grounded_criteria,
     MeasurementDirection,
     MetricFamily,

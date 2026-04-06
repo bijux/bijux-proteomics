@@ -18,6 +18,8 @@ class MeasurementDirection(StrEnum):
     MAXIMIZE = "maximize"
     MINIMIZE = "minimize"
     BOUND = "bound"
+    GREATER_THAN = "maximize"
+    LESS_THAN = "minimize"
 
 
 class MetricFamily(StrEnum):
