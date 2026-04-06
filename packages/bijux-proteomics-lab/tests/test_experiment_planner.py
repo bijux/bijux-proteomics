@@ -50,6 +50,7 @@ from bijux_proteomics_lab import (
     plan_hypothesis_falsification_assays,
     AssayIntent,
     summarize_assay_portfolio_balance,
+    plan_material_reservations,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -334,6 +335,36 @@ def test_summarize_assay_portfolio_balance_flags_concentration() -> None:
     assert report.dominant_family == "biophysical"
     assert report.concentration_ratio >= 0.7
     assert report.orthogonal_coverage_ready is False
+
+
+def test_plan_material_reservations_marks_infeasible_allocations() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-mat",
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="reserve",
+                assay_ids=["a1"],
+                priority=1,
+                sample_requirements=["protein"],
+            )
+        ],
+    )
+    reservations = plan_material_reservations(
+        plan,
+        requirements=[
+            MaterialRequirement(
+                material_id="mat-1",
+                sample_kind="protein",
+                minimum_units=10.0,
+                unit="mg",
+            )
+        ],
+        inventory=[MaterialInventory(material_id="mat-1", available_units=4.0)],
+    )
+
+    assert reservations[0].feasible is False
+    assert reservations[0].reserved_units == 4.0
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:

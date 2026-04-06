@@ -421,6 +421,18 @@ class AssayPortfolioBalanceReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Portfolio balance commentary.")
 
 
+class MaterialReservation(JsonModel):
+    """Material reservation request tied to a specific batch."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    material_id: str = Field(..., min_length=1, description="Material identifier.")
+    reserved_units: float = Field(..., ge=0.0, description="Reserved quantity.")
+    unit: str = Field(..., min_length=1, description="Unit of measure.")
+    feasible: bool = Field(..., description="Whether reservation is feasible with current inventory.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1277,6 +1289,36 @@ def summarize_assay_portfolio_balance(plan: ExperimentPlan) -> AssayPortfolioBal
         orthogonal_coverage_ready=orthogonal_coverage_ready,
         notes=notes,
     )
+
+
+def plan_material_reservations(
+    plan: ExperimentPlan,
+    requirements: list[MaterialRequirement],
+    inventory: list[MaterialInventory],
+) -> list[MaterialReservation]:
+    """Plan per-batch material reservations from requirements and inventory."""
+    requirement_map = {item.sample_kind: item for item in requirements}
+    inventory_map = {item.material_id: item.available_units for item in inventory}
+    reservations: list[MaterialReservation] = []
+    for batch in plan.batches:
+        for sample_kind in batch.sample_requirements:
+            requirement = requirement_map.get(sample_kind)
+            if requirement is None:
+                continue
+            available = inventory_map.get(requirement.material_id, 0.0)
+            reserved_units = min(requirement.minimum_units, available)
+            feasible = available >= requirement.minimum_units
+            reservations.append(
+                MaterialReservation(
+                    batch_id=batch.batch_id,
+                    material_id=requirement.material_id,
+                    reserved_units=round(reserved_units, 4),
+                    unit=requirement.unit,
+                    feasible=feasible,
+                )
+            )
+            inventory_map[requirement.material_id] = max(0.0, available - reserved_units)
+    return reservations
 
 
 def recommend_orthogonal_confirmation(
