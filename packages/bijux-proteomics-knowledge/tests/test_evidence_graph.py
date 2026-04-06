@@ -60,6 +60,8 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
                 target_id="target-1",
                 statement="Target should progress.",
                 evidence_ids=["lit-1", "assay-1"],
+                contradicting_evidence_ids=["lit-1"],
+                assumptions=["assay signal maps to disease-relevant biology"],
                 status=ClaimStatus.SUPPORTED,
             )
         ],
@@ -85,6 +87,9 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
     assert any(edge.relation == "informs" for edge in graph.edges)
     assert any(edge.relation == "derived_into" for edge in graph.edges)
     assert any(edge.relation == "supported_by_evidence" for edge in graph.edges)
+    assert any(edge.relation == "contradicted_by_evidence" for edge in graph.edges)
+    assert any(edge.relation == "assumes" for edge in graph.edges)
+    assert any(node.node_type.value == "assumption" for node in graph.nodes)
     assert any(node.node_type.value == "question" for node in graph.nodes)
     assert any(node.node_type.value == "liability" for node in graph.nodes)
     assert any(edge.relation == "blocks" for edge in graph.edges)

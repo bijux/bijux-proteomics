@@ -22,6 +22,7 @@ class EvidenceNodeType(StrEnum):
     EVIDENCE = "evidence"
     DECISION = "decision"
     ASSAY = "assay"
+    ASSUMPTION = "assumption"
     QUESTION = "question"
     LIABILITY = "liability"
 
@@ -131,6 +132,22 @@ def build_evidence_graph(
                     relation="supports_decision",
                 )
             )
+        for assumption_index, assumption in enumerate(claim.assumptions):
+            assumption_node_id = f"assumption:{claim.claim_id}:{assumption_index + 1}"
+            nodes.append(
+                EvidenceNode(
+                    node_id=assumption_node_id,
+                    node_type=EvidenceNodeType.ASSUMPTION,
+                    label=assumption,
+                )
+            )
+            edges.append(
+                EvidenceEdge(
+                    source_node_id=claim_node.node_id,
+                    target_node_id=assumption_node_id,
+                    relation="assumes",
+                )
+            )
 
     for record in bundle.records:
         evidence_node = EvidenceNode(
@@ -153,6 +170,14 @@ def build_evidence_graph(
                         source_node_id=f"claim:{claim.claim_id}",
                         target_node_id=evidence_node.node_id,
                         relation="supported_by_evidence",
+                    )
+                )
+            if record.evidence_id in claim.contradicting_evidence_ids:
+                edges.append(
+                    EvidenceEdge(
+                        source_node_id=f"claim:{claim.claim_id}",
+                        target_node_id=evidence_node.node_id,
+                        relation="contradicted_by_evidence",
                     )
                 )
         for decision_tag in record.decision_tags:
