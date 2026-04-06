@@ -42,6 +42,7 @@ from bijux_proteomics_lab import (
     schedule_with_family_capacity,
     score_assay_information_gain,
     summarize_schedule_pressure,
+    prioritize_batches_by_material_feasibility,
     ExperimentOutcome,
 )
 
@@ -375,6 +376,42 @@ def test_summarize_schedule_pressure_reports_utilization_and_deferred_assays() -
     assert report.cycle_id == "cycle-pressure"
     assert report.assay_slot_utilization == 1.0
     assert report.deferred_assay_count == 1
+
+
+def test_prioritize_batches_by_material_feasibility_promotes_ready_batches() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-material",
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-ready",
+                objective="ready",
+                assay_ids=["a1"],
+                priority=1,
+                sample_requirements=["protein"],
+            ),
+            ExperimentBatch(
+                batch_id="batch-blocked",
+                objective="blocked",
+                assay_ids=["a2"],
+                priority=2,
+                sample_requirements=["cells"],
+            ),
+        ],
+    )
+    ranked = prioritize_batches_by_material_feasibility(
+        plan,
+        requirements=[
+            MaterialRequirement(material_id="protein-stock", sample_kind="protein", minimum_units=1, unit="mg"),
+            MaterialRequirement(material_id="cell-stock", sample_kind="cells", minimum_units=10, unit="ml"),
+        ],
+        inventory=[
+            MaterialInventory(material_id="protein-stock", available_units=5),
+            MaterialInventory(material_id="cell-stock", available_units=2),
+        ],
+    )
+
+    assert ranked[0].batch_id == "batch-ready"
+    assert ranked[1].material_ready is False
 
 
 def test_assess_dependency_integrity_reports_unknown_and_self_edges() -> None:

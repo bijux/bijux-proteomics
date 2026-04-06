@@ -476,6 +476,17 @@ class SchedulePressureReport(JsonModel):
     deferred_assay_count: int = Field(default=0, ge=0, description="Deferred assays due to capacity limits.")
 
 
+class MaterialFeasibilityPriority(JsonModel):
+    """Batch prioritization signal based on material feasibility."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    material_ready: bool = Field(..., description="Whether required materials are available.")
+    missing_material_ids: list[str] = Field(default_factory=list, description="Missing materials for this batch.")
+    priority_score: float = Field(..., ge=0.0, le=1.0, description="Material-feasibility priority score.")
+
+
 def assess_dependency_integrity(
     assay_ids: list[AssayId],
     dependencies: list[AssayDependency],
@@ -1149,4 +1160,39 @@ def summarize_schedule_pressure(
         unscheduled_batch_count=len(scheduled.unscheduled_batches),
         assay_slot_utilization=max(0.0, min(utilization, 1.0)),
         deferred_assay_count=deferred,
+    )
+
+
+def prioritize_batches_by_material_feasibility(
+    plan: ExperimentPlan,
+    requirements: list[MaterialRequirement],
+    inventory: list[MaterialInventory],
+) -> list[MaterialFeasibilityPriority]:
+    """Rank batches by material feasibility so executable work is scheduled first."""
+    requirement_map = {item.sample_kind: item for item in requirements}
+    inventory_map = {item.material_id: item.available_units for item in inventory}
+    ranked: list[MaterialFeasibilityPriority] = []
+    for batch in plan.batches:
+        missing: list[str] = []
+        for sample_kind in batch.sample_requirements:
+            requirement = requirement_map.get(sample_kind)
+            if requirement is None:
+                continue
+            available = inventory_map.get(requirement.material_id, 0.0)
+            if available < requirement.minimum_units:
+                missing.append(requirement.material_id)
+        material_ready = not missing
+        base = 1.0 if material_ready else 0.4
+        priority_score = round(max(0.0, min(base - ((batch.priority - 1) * 0.05), 1.0)), 4)
+        ranked.append(
+            MaterialFeasibilityPriority(
+                batch_id=batch.batch_id,
+                material_ready=material_ready,
+                missing_material_ids=sorted(missing),
+                priority_score=priority_score,
+            )
+        )
+    return sorted(
+        ranked,
+        key=lambda item: (not item.material_ready, -item.priority_score, item.batch_id),
     )
