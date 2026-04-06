@@ -284,6 +284,16 @@ class NextAssayPriority(JsonModel):
 
     assay_id: AssayId = Field(..., description="Assay identifier.")
     score: float = Field(..., description="Priority score.")
+    estimated_cost: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Estimated relative execution cost for this assay.",
+    )
+    estimated_days: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Estimated time-to-result in days.",
+    )
     reasons: list[str] = Field(default_factory=list, description="Short rationale points.")
 
 
@@ -599,10 +609,15 @@ def prioritize_next_assays(
         if trust.trust_score < 0.7:
             score += 0.1
             reasons.append("evidence trust is below target")
+        estimated_cost = 1.5 if assay.blocking else 1.0
+        estimated_days = 4.0 if assay.blocking else 2.0
+        effort_penalty = min(0.2, (estimated_cost * 0.05) + (estimated_days * 0.01))
         ranked.append(
             NextAssayPriority(
                 assay_id=assay.assay_id,
-                score=round(min(score, 1.0), 4),
+                score=round(max(0.0, min(score - effort_penalty, 1.0)), 4),
+                estimated_cost=estimated_cost,
+                estimated_days=estimated_days,
                 reasons=reasons or ["assay reduces residual uncertainty"],
             )
         )

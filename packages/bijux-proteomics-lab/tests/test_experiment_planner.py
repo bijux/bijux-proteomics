@@ -440,6 +440,7 @@ def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
     )
 
     assert ranked[0].assay_id == "a-block"
+    assert ranked[0].estimated_cost > 0
 
 
 def test_assay_family_priority_uses_scientific_execution_order() -> None:
