@@ -90,3 +90,45 @@ class RankingPolicy(JsonModel):
         ],
         description="Ordered tie-break rules for near-equal scores.",
     )
+
+
+class ProgressionPolicyConfig(JsonModel):
+    """Policy settings for progression decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable progression policy identifier.")
+    minimum_evidence_support: float = Field(
+        default=0.6,
+        ge=0.0,
+        le=1.0,
+        description="Minimum evidence support required for progression recommendations.",
+    )
+
+
+class HoldPolicyConfig(JsonModel):
+    """Policy settings for hold decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable hold policy identifier.")
+    minimum_confidence_for_release: float = Field(
+        default=0.65,
+        ge=0.0,
+        le=1.0,
+        description="Minimum confidence required to release a hold.",
+    )
+
+
+class RedesignPolicyConfig(JsonModel):
+    """Policy settings for redesign decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable redesign policy identifier.")
+    residual_risk_trigger: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Residual risk threshold that should trigger redesign.",
+    )

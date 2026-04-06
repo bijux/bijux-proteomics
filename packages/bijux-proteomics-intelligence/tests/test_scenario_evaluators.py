@@ -12,10 +12,13 @@ from bijux_proteomics_intelligence import (
     CandidateRanking,
     CandidateRiskProfile,
     EvaluatorPolicyBundle,
+    HoldPolicyConfig,
+    ProgressionPolicyConfig,
     ProgressionPolicy,
     RankedCandidate,
     ScaleUpPolicy,
     ScenarioAction,
+    RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
     evaluate_for_redesign,
@@ -164,3 +167,9 @@ def test_evaluator_policy_bundle_exposes_all_policy_ids() -> None:
     assert bundle.synthesis.policy_id == "synthesis-default"
     assert bundle.scale_up.policy_id == "scale-up-default"
     assert bundle.redesign.policy_id == "redesign-default"
+
+
+def test_policy_configs_have_expected_default_thresholds() -> None:
+    assert ProgressionPolicyConfig(policy_id="p").minimum_evidence_support == 0.6
+    assert HoldPolicyConfig(policy_id="h").minimum_confidence_for_release == 0.65
+    assert RedesignPolicyConfig(policy_id="r").residual_risk_trigger == 0.5

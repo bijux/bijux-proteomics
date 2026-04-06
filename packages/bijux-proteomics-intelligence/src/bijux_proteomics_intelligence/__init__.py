@@ -46,6 +46,11 @@ from bijux_proteomics_intelligence.evaluators import (
     evaluate_for_synthesis,
 )
 from bijux_proteomics_intelligence.policies import RankingFactor, RankingPolicy, TieBreakRule
+from bijux_proteomics_intelligence.policies import (
+    HoldPolicyConfig,
+    ProgressionPolicyConfig,
+    RedesignPolicyConfig,
+)
 from bijux_proteomics_intelligence.outcomes import (
     CandidateRejection,
     RejectionReasonCode,
@@ -73,17 +78,20 @@ __all__ = [
     "PortfolioSelectionPolicy",
     "PortfolioSelectionResult",
     "ProgressionPolicy",
+    "ProgressionPolicyConfig",
     "RankingFactor",
     "RankingPolicy",
     "RankedCandidate",
     "RejectionReasonCode",
     "RedesignPolicy",
+    "RedesignPolicyConfig",
     "ScenarioAction",
     "ScenarioEvaluation",
     "ScaleUpPolicy",
     "SynthesisPolicy",
     "TieBreakExplanation",
     "TieBreakRule",
+    "HoldPolicyConfig",
     "build_design_brief",
     "build_risk_profile",
     "evaluate_for_progression",
