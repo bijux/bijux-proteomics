@@ -9,6 +9,7 @@ from bijux_proteomics_knowledge import (
     EvidenceCoverage,
 )
 from bijux_proteomics_intelligence import (
+    CandidateAssessment,
     CandidateRanking,
     CandidateRiskProfile,
     EvaluatorPolicyBundle,
@@ -24,6 +25,7 @@ from bijux_proteomics_intelligence import (
     build_intelligence_review_packet,
     summarize_hold_pressure,
     summarize_scenario_confidence_spread,
+    summarize_assessment_metric_coverage,
     derive_decision_escalation_flags,
     build_final_decision_recommendation,
     summarize_unresolved_question_ledger,
@@ -386,6 +388,24 @@ def test_evaluate_portfolio_balance_flags_low_diversity_high_risk_shortlist() ->
     report = evaluate_portfolio_balance(ranking, risks, top_n=2)
 
     assert report.balanced_portfolio is False
+
+
+def test_summarize_assessment_metric_coverage_flags_missing_metrics() -> None:
+    report = summarize_assessment_metric_coverage(
+        [
+            CandidateAssessment(
+                candidate_id="c1",
+                sequence="ACDEFGHIK",
+                metric_scores={"binding_kd": 1e-6},
+                manufacturability_score=0.7,
+                evidence_support=0.6,
+            )
+        ],
+        required_metrics=["binding_kd", "cellular_activity"],
+    )
+
+    assert report.coverage_ratio == 0.5
+    assert report.missing_metrics == ["cellular_activity"]
     assert report.liability_diversity == 1
     assert report.mean_residual_risk > 0.5
 

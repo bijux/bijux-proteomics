@@ -260,6 +260,17 @@ class ScenarioConfidenceSpread(JsonModel):
     spread: float = Field(..., ge=0.0, le=1.0, description="Difference between max and min confidence.")
 
 
+class AssessmentMetricCoverageReport(JsonModel):
+    """Coverage report for required metrics across candidate assessments."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    required_metrics: list[str] = Field(default_factory=list, description="Required metrics for evaluation.")
+    covered_metrics: list[str] = Field(default_factory=list, description="Metrics present in assessments.")
+    missing_metrics: list[str] = Field(default_factory=list, description="Required metrics missing in assessments.")
+    coverage_ratio: float = Field(..., ge=0.0, le=1.0, description="Fraction of required metrics covered.")
+
+
 class DecisionEscalationFlags(JsonModel):
     """Escalation flags indicating when human arbitration should be mandatory."""
 
@@ -773,6 +784,26 @@ def summarize_scenario_confidence_spread(
         maximum_confidence=maximum,
         mean_confidence=mean,
         spread=round(maximum - minimum, 4),
+    )
+
+
+def summarize_assessment_metric_coverage(
+    assessments: list[CandidateAssessment],
+    *,
+    required_metrics: list[str],
+) -> AssessmentMetricCoverageReport:
+    """Summarize required metric coverage across candidate assessments."""
+    present: set[str] = set()
+    for assessment in assessments:
+        present.update(assessment.metric_scores.keys())
+    covered = [metric for metric in required_metrics if metric in present]
+    missing = [metric for metric in required_metrics if metric not in present]
+    coverage_ratio = round((len(covered) / len(required_metrics)), 4) if required_metrics else 0.0
+    return AssessmentMetricCoverageReport(
+        required_metrics=required_metrics,
+        covered_metrics=covered,
+        missing_metrics=missing,
+        coverage_ratio=coverage_ratio,
     )
 
 
