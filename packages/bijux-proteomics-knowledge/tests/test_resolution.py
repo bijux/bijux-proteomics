@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
+    ClaimStatus,
     ClaimResolutionRecord,
     EvidenceBundle,
     EvidenceKind,
@@ -12,6 +13,8 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     ResolutionAction,
     ResolutionPolicy,
+    apply_resolution_updates,
+    build_claim,
     resolve_conflicts,
     summarize_resolutions,
 )
@@ -282,3 +285,95 @@ def test_summarize_resolutions_reports_action_counts() -> None:
 
     assert summary.policy_id == "summary-policy"
     assert summary.hold_required is True
+
+
+def test_apply_resolution_updates_strengthens_claim_on_preferred_evidence() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-update",
+        target_id="target-update",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-strong",
+                kind=EvidenceKind.ASSAY,
+                title="Assay strong",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.DECISIVE,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-weak",
+                kind=EvidenceKind.ASSAY,
+                title="Assay weak",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate may miss the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.6,
+                strength=EvidenceStrength.EXPLORATORY,
+            ),
+        ],
+    )
+    _, resolutions = resolve_conflicts(bundle)
+    claim = build_claim(
+        claim_id="claim-support",
+        target_id="target-update",
+        statement="activity is sufficient",
+        evidence_ids=["assay-strong"],
+        status=ClaimStatus.SUPPORTED,
+        confidence=0.6,
+    )
+
+    updated_claims, updates = apply_resolution_updates([claim], resolutions)
+
+    assert updated_claims[0].confidence > claim.confidence
+    assert updates[0].updated_status is ClaimStatus.SUPPORTED
+
+
+def test_apply_resolution_updates_disputes_claim_when_hold_is_required() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-update-hold",
+        target_id="target-update-hold",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="Assay 1",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://run-1",
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-2",
+                kind=EvidenceKind.ASSAY,
+                title="Assay 2",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://run-1",
+                claim="Candidate misses the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    _, resolutions = resolve_conflicts(bundle)
+    claim = build_claim(
+        claim_id="claim-hold",
+        target_id="target-update-hold",
+        statement="activity remains acceptable",
+        evidence_ids=["assay-1", "assay-2"],
+        status=ClaimStatus.SUPPORTED,
+        confidence=0.7,
+    )
+
+    updated_claims, updates = apply_resolution_updates([claim], resolutions)
+
+    assert updated_claims[0].status is ClaimStatus.DISPUTED
+    assert updates[0].updated_confidence < claim.confidence

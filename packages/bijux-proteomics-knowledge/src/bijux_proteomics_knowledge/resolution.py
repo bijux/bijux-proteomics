@@ -11,6 +11,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_knowledge.claims import ClaimStatus, EvidenceClaim
 from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
     EvidenceBundle,
@@ -90,6 +91,18 @@ class ResolutionSummary(JsonModel):
         default=False,
         description="Whether any conflict requires an explicit hold decision.",
     )
+
+
+class ClaimBeliefUpdate(JsonModel):
+    """Belief update applied to one claim after conflict resolution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(..., min_length=1, description="Claim identifier.")
+    previous_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence before update.")
+    updated_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence after update.")
+    updated_status: ClaimStatus = Field(..., description="Updated claim status after applying resolutions.")
+    reason: str = Field(..., min_length=1, description="Summary of why the update was applied.")
 
 
 def resolve_conflicts(
@@ -218,3 +231,55 @@ def summarize_resolutions(
         action_counts=counts,
         hold_required=hold_required,
     )
+
+
+def apply_resolution_updates(
+    claims: list[EvidenceClaim],
+    resolutions: list[ConflictResolution],
+) -> tuple[list[EvidenceClaim], list[ClaimBeliefUpdate]]:
+    """Apply conflict-resolution outcomes as bounded belief updates on claims."""
+    updated_claims: list[EvidenceClaim] = []
+    updates: list[ClaimBeliefUpdate] = []
+    for claim in claims:
+        confidence = claim.confidence
+        status = claim.status
+        reasons: list[str] = []
+        for resolution in resolutions:
+            pair_ids = {resolution.left_evidence_id, resolution.right_evidence_id}
+            if not pair_ids.intersection(set(claim.evidence_ids)):
+                continue
+            if resolution.action is ResolutionAction.HOLD_DECISION:
+                confidence = max(0.0, confidence - 0.15)
+                status = ClaimStatus.DISPUTED
+                reasons.append("high-severity unresolved conflict requires hold")
+            elif resolution.action is ResolutionAction.REQUIRE_CURATION:
+                confidence = max(0.0, confidence - 0.05)
+                reasons.append("claim linked to conflict requiring curation")
+            elif resolution.action in {ResolutionAction.SPLIT_BY_CONTEXT, ResolutionAction.SPLIT_BY_MODALITY}:
+                confidence = max(0.0, confidence - 0.1)
+                status = ClaimStatus.DISPUTED
+                reasons.append("claim must be interpreted with narrower context boundaries")
+            elif resolution.action is ResolutionAction.ACCEPT_HIGHER_TRUST:
+                preferred = resolution.rationale.split(" ", maxsplit=1)[0]
+                if preferred in claim.evidence_ids:
+                    confidence = min(1.0, confidence + 0.1)
+                    status = ClaimStatus.SUPPORTED
+                    reasons.append(f"higher-trust evidence {preferred} supports this claim")
+                else:
+                    confidence = max(0.0, confidence - 0.1)
+                    reasons.append("claim aligns with lower-trust side of conflict")
+        if reasons:
+            updated = claim.model_copy(update={"confidence": round(confidence, 4), "status": status})
+            updated_claims.append(updated)
+            updates.append(
+                ClaimBeliefUpdate(
+                    claim_id=claim.claim_id,
+                    previous_confidence=claim.confidence,
+                    updated_confidence=round(confidence, 4),
+                    updated_status=status,
+                    reason="; ".join(reasons),
+                )
+            )
+        else:
+            updated_claims.append(claim)
+    return updated_claims, updates
