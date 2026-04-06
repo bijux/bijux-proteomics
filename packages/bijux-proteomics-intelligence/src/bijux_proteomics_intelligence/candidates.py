@@ -337,6 +337,17 @@ class CandidateAssayAgendaItem(JsonModel):
     rationale: list[str] = Field(default_factory=list, description="Rationale linked to candidate risk/context.")
 
 
+class PortfolioMutationBurdenSummary(JsonModel):
+    """Portfolio-level mutation burden summary across candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_count: int = Field(..., ge=0, description="Number of candidate contexts summarized.")
+    total_mutations: int = Field(..., ge=0, description="Total mutation count across candidates.")
+    total_conserved_mutations: int = Field(..., ge=0, description="Total conserved-site mutations.")
+    mean_burden_risk_index: float = Field(..., ge=0.0, le=1.0, description="Average mutation burden risk index.")
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -840,3 +851,26 @@ def build_candidate_assay_agenda(
             )
         )
     return agenda
+
+
+def summarize_portfolio_mutation_burden(
+    contexts: list[CandidateVariantContext],
+) -> PortfolioMutationBurdenSummary:
+    """Summarize mutation burden across candidate variant contexts."""
+    if not contexts:
+        return PortfolioMutationBurdenSummary(
+            candidate_count=0,
+            total_mutations=0,
+            total_conserved_mutations=0,
+            mean_burden_risk_index=0.0,
+        )
+    burden_items = [mutation_burden_signals(context.candidate_id, context.mutations) for context in contexts]
+    return PortfolioMutationBurdenSummary(
+        candidate_count=len(contexts),
+        total_mutations=sum(item.mutation_count for item in burden_items),
+        total_conserved_mutations=sum(item.conserved_mutation_count for item in burden_items),
+        mean_burden_risk_index=round(
+            sum(item.burden_risk_index for item in burden_items) / len(burden_items),
+            4,
+        ),
+    )

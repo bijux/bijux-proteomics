@@ -19,6 +19,7 @@ from bijux_proteomics_intelligence import (
     TransitionAuditIssue,
     ParsedMutation,
     CandidateAssayAgendaItem,
+    PortfolioMutationBurdenSummary,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
@@ -29,6 +30,7 @@ from bijux_proteomics_intelligence import (
     validate_transition_history,
     parse_mutation_token,
     build_candidate_assay_agenda,
+    summarize_portfolio_mutation_burden,
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
@@ -389,3 +391,23 @@ def test_build_candidate_assay_agenda_prioritizes_higher_risk_profiles() -> None
     assert isinstance(agenda[0], CandidateAssayAgendaItem)
     assert agenda[0].candidate_id == "candidate-high"
     assert agenda[0].priority == 1
+
+
+def test_summarize_portfolio_mutation_burden_aggregates_contexts() -> None:
+    summary = summarize_portfolio_mutation_burden(
+        [
+            summarize_variant_context(
+                "c1",
+                [MutationAnnotation(mutation="A10V", region="core", expected_effect="stabilize", conservation_score=0.9)],
+            ),
+            summarize_variant_context(
+                "c2",
+                [MutationAnnotation(mutation="G20S", region="loop", expected_effect="tune", conservation_score=0.2)],
+            ),
+        ]
+    )
+
+    assert isinstance(summary, PortfolioMutationBurdenSummary)
+    assert summary.candidate_count == 2
+    assert summary.total_mutations == 2
+    assert summary.total_conserved_mutations == 1
