@@ -16,6 +16,7 @@ from bijux_proteomics_lab.outcomes import (
     FailureClass,
     RerunPolicy,
     evaluate_assay_acceptance,
+    promote_outcome_to_evidence,
     recommend_rerun_policy,
 )
 from bijux_proteomics_lab.repositories import (
@@ -84,6 +85,7 @@ __all__ = [
     "plan_experiment_batches",
     "recommend_next_cycle",
     "evaluate_assay_acceptance",
+    "promote_outcome_to_evidence",
     "recommend_rerun_policy",
     "schedule_experiment_plan",
 ]

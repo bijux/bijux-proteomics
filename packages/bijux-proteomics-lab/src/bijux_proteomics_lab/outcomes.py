@@ -10,6 +10,12 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import AssayId, BatchId, JsonModel
+from bijux_proteomics_knowledge import (
+    EvidenceKind,
+    EvidenceSourceType,
+    EvidenceStrength,
+    NormalizedEvidenceInput,
+)
 
 
 class FailureClass(StrEnum):
@@ -152,4 +158,25 @@ def evaluate_assay_acceptance(
         passed=passed,
         observation_summary=summary,
         failure_class=None if passed else FailureClass.BIOLOGICAL,
+    )
+
+
+def promote_outcome_to_evidence(
+    outcome: AssayOutcome,
+    *,
+    target_id: str,
+    batch_id: str,
+) -> NormalizedEvidenceInput:
+    """Convert one assay outcome into normalized evidence for knowledge ingestion."""
+    return NormalizedEvidenceInput(
+        evidence_id=f"assay:{batch_id}:{outcome.assay_id}",
+        kind=EvidenceKind.ASSAY,
+        title=f"Assay outcome {outcome.assay_id}",
+        source=f"lab-batch:{batch_id}",
+        source_type=EvidenceSourceType.LAB_ASSAY,
+        claim=outcome.observation_summary,
+        related_targets=[target_id],
+        decision_tags=["progression"],
+        confidence=0.9 if outcome.passed else 0.5,
+        strength=EvidenceStrength.DECISIVE if outcome.passed else EvidenceStrength.EXPLORATORY,
     )
