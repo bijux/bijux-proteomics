@@ -25,17 +25,17 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["CLI entrypoint in src/bijux_proteomics_foundation/__init__.py"]
+    step1["public package exports in src/bijux_proteomics_foundation/__init__.py"]
     step1 --> page
-    step2["HTTP app in src/bijux_proteomics_foundation/schema.py"]
+    step2["schema and serialization boundaries in src/bijux_proteomics_foundation"]
     step2 --> page
     step3["packages/bijux-proteomics-foundation/pyproject.toml"]
     step3 --> page
-    run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    run1["packages/bijux-proteomics-foundation/tests/test_document_primitives.py"]
     page --> run1
-    run2["tests/e2e for governed flow behavior"]
+    run2["cross-package tests that consume foundation contracts"]
     page --> run2
-    run3["tests/regression and tests/smoke for replay and storage protection"]
+    run3["type, lint, and packaging gates for compatibility discipline"]
     page --> run3
     release1["CHANGELOG.md"]
     run1 --> release1
