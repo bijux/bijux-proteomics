@@ -30,6 +30,7 @@ from bijux_proteomics_intelligence import (
     candidate_score_breakdown,
     classify_metric_name,
     build_rejection_action_plan,
+    audit_metric_catalog,
     validate_metric_catalog,
     summarize_liability_focus,
     summarize_uncertainty_pressure,
@@ -752,6 +753,32 @@ def test_validate_metric_catalog_reports_missing_definitions() -> None:
     missing = validate_metric_catalog(policy, ["binding_kd", "delta_tm"])
 
     assert missing == ["delta_tm"]
+
+
+def test_audit_metric_catalog_reports_duplicates_and_missing_classes() -> None:
+    policy = RankingPolicy(
+        policy_id="audit-policy",
+        metric_catalog=[
+            MetricDefinition(
+                metric_key="binding_kd",
+                metric_class=ScientificMetricClass.AFFINITY,
+                unit="nM",
+                direction=MetricDirection.LOWER_IS_BETTER,
+            ),
+            MetricDefinition(
+                metric_key="binding_kd",
+                metric_class=ScientificMetricClass.AFFINITY,
+                unit="nM",
+                direction=MetricDirection.LOWER_IS_BETTER,
+            ),
+        ],
+    )
+
+    report = audit_metric_catalog(policy, ["binding_kd", "delta_tm"])
+
+    assert report.missing_metric_keys == ["delta_tm"]
+    assert report.duplicate_metric_keys == ["binding_kd"]
+    assert "stability" in report.missing_metric_classes
 
 
 def test_summarize_liability_focus_counts_top_blockers() -> None:

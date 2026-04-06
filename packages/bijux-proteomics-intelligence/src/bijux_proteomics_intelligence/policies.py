@@ -175,6 +175,19 @@ class RedesignPolicyConfig(JsonModel):
     )
 
 
+class MetricCatalogAuditReport(JsonModel):
+    """Audit report for ranking metric catalog quality."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    missing_metric_keys: list[str] = Field(default_factory=list, description="Required metric keys not declared.")
+    duplicate_metric_keys: list[str] = Field(default_factory=list, description="Metric keys declared more than once.")
+    missing_metric_classes: list[str] = Field(
+        default_factory=list,
+        description="Scientific metric classes not represented in catalog.",
+    )
+
+
 def classify_metric_name(metric: str) -> ScientificMetricClass:
     """Classify a metric name into a typed scientific metric class."""
     lowered = metric.lower()
@@ -204,3 +217,24 @@ def validate_metric_catalog(
     """Return missing metric definitions for policy-expected metric keys."""
     declared = {definition.metric_key for definition in policy.metric_catalog}
     return [metric_key for metric_key in metric_keys if metric_key not in declared]
+
+
+def audit_metric_catalog(
+    policy: RankingPolicy,
+    required_metric_keys: list[str],
+) -> MetricCatalogAuditReport:
+    """Audit metric catalog for missing keys, duplicates, and class coverage."""
+    declared_keys = [definition.metric_key for definition in policy.metric_catalog]
+    missing_keys = [metric_key for metric_key in required_metric_keys if metric_key not in set(declared_keys)]
+    duplicate_keys = sorted({key for key in declared_keys if declared_keys.count(key) > 1})
+    represented_classes = {definition.metric_class for definition in policy.metric_catalog}
+    missing_classes = sorted(
+        metric_class.value
+        for metric_class in ScientificMetricClass
+        if metric_class not in represented_classes
+    )
+    return MetricCatalogAuditReport(
+        missing_metric_keys=missing_keys,
+        duplicate_metric_keys=duplicate_keys,
+        missing_metric_classes=missing_classes,
+    )

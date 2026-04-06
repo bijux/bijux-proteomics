@@ -104,6 +104,7 @@ from bijux_proteomics_intelligence.evaluators import (
     evaluate_for_synthesis,
 )
 from bijux_proteomics_intelligence.policies import (
+    MetricCatalogAuditReport,
     MetricDefinition,
     MetricDirection,
     RankingFactor,
@@ -111,6 +112,7 @@ from bijux_proteomics_intelligence.policies import (
     ScientificMetricClass,
     TieBreakRule,
     classify_metric_name,
+    audit_metric_catalog,
     validate_metric_catalog,
 )
 from bijux_proteomics_intelligence.policies import (
@@ -165,6 +167,7 @@ __all__ = [
     "EvaluatorPolicyBundle",
     "JsonModel",
     "LiabilityFlag",
+    "MetricCatalogAuditReport",
     "MetricDefinition",
     "MetricDirection",
     "OptimizationAxis",
@@ -236,5 +239,6 @@ __all__ = [
     "summarize_ranking_drift",
     "transition_candidate",
     "classify_metric_name",
+    "audit_metric_catalog",
     "validate_metric_catalog",
 ]
