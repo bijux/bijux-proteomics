@@ -40,6 +40,7 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
     criterion_ids = [criterion.criterion_id for criterion in program.success_criteria]
     criterion_metrics = {criterion.metric for criterion in program.success_criteria}
     criterion_metric_list = [criterion.metric for criterion in program.success_criteria]
+    assay_readouts = {assay.readout for assay in program.assay_panel}
     blocking_assays = [assay for assay in program.assay_panel if assay.blocking]
 
     if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY} and not program.review_gates:
@@ -120,6 +121,20 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                 message="programs with assay work should define success criteria",
             )
         )
+    if program.assay_panel and program.success_criteria:
+        unmapped_metrics = sorted(
+            metric for metric in criterion_metrics if metric not in assay_readouts
+        )
+        if unmapped_metrics:
+            issues.append(
+                ProgramValidationIssue(
+                    code="criterion-assay-unmapped",
+                    message=(
+                        "success criteria are missing mapped assay readouts: "
+                        + ", ".join(unmapped_metrics)
+                    ),
+                )
+            )
     for constraint in program.constraints:
         if constraint.blocker and not constraint.mitigation_plan:
             issues.append(
@@ -145,6 +160,17 @@ def validate_program_readiness(program: ProgramSpec) -> list[ProgramValidationIs
                     message=f"blocking liability '{liability.liability_id}' should reference supporting evidence ids",
                 )
             )
+        if liability.blocker and liability.mitigation:
+            mitigation_text = liability.mitigation.lower()
+            if not any(assay.assay_id.lower() in mitigation_text for assay in program.assay_panel):
+                issues.append(
+                    ProgramValidationIssue(
+                        code="liability-mitigation-assay-unmapped",
+                        message=(
+                            f"blocking liability '{liability.liability_id}' mitigation should reference a planned assay_id"
+                        ),
+                    )
+                )
     if program.stage in {ProgramStage.REVIEW, ProgramStage.LAB_READY}:
         if not program.target.target_class:
             issues.append(

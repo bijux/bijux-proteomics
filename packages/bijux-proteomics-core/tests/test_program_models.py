@@ -721,6 +721,85 @@ def test_validate_program_requires_owner_and_evidence_for_blocking_liabilities()
     ) in issues
 
 
+def test_validate_program_requires_assay_mapping_for_success_criteria() -> None:
+    program = create_program_spec(
+        program_id="prog-criterion-map",
+        name="criterion map",
+        objective="enforce criterion to assay mapping",
+        target_id="target-criterion-map",
+        target_name="Target Criterion Map",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="bind with explicit assay mapping",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="binding-assay",
+            purpose="measure binding",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="crit-yield",
+            metric="expression_yield",
+            direction=MeasurementDirection.GREATER_THAN,
+            threshold=40.0,
+            unit="mg/L",
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="criterion-assay-unmapped",
+        message="success criteria are missing mapped assay readouts: expression_yield",
+    ) in issues
+
+
+def test_validate_program_requires_assay_reference_for_blocking_liability_mitigation() -> None:
+    program = create_program_spec(
+        program_id="prog-liability-mitigation",
+        name="liability mitigation mapping",
+        objective="ensure blocker liabilities map to assay mitigation paths",
+        target_id="target-liability-mitigation",
+        target_name="Target Liability Mitigation",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="keep mitigation tied to planned assays",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="safety-panel",
+            purpose="measure cytokine liability",
+            readout="cytokine_index",
+            sample_kind="cellular",
+            blocking=True,
+        )
+    )
+    program.liabilities.append(
+        ProgramLiability(
+            liability_id="liability-safety",
+            category=LiabilityCategory.SAFETY,
+            summary="safety blocker",
+            impact="could block progression",
+            mitigation="collect more safety data in follow-up",
+            blocker=True,
+            owner_role="safety",
+            evidence_ids=["ev-1"],
+        )
+    )
+
+    issues = validate_program(program)
+
+    assert ProgramValidationIssue(
+        code="liability-mitigation-assay-unmapped",
+        message="blocking liability 'liability-safety' mitigation should reference a planned assay_id",
+    ) in issues
+
+
 def test_success_criterion_supports_metric_family_and_bounds() -> None:
     criterion = SuccessCriterion(
         criterion_id="crit-1",
