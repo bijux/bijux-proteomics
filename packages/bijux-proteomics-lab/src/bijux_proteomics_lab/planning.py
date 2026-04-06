@@ -15,6 +15,7 @@ from bijux_proteomics_knowledge import (
     assess_decision_readiness,
     compute_bundle_trust,
     evidence_gaps,
+    flag_conflicting_evidence,
     triangulate_evidence,
 )
 from bijux_proteomics_foundation import (
@@ -308,6 +309,19 @@ class OrthogonalConfirmationPlan(JsonModel):
         default_factory=list,
         description="Assays suggested for orthogonal confirmation.",
     )
+
+
+class ConflictResolutionPlan(JsonModel):
+    """Assay recommendation plan for resolving evidence conflicts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    conflict_count: int = Field(..., ge=0, description="Number of detected conflicts.")
+    suggested_assay_ids: list[str] = Field(
+        default_factory=list,
+        description="Assays recommended to resolve contradictory evidence.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Human-readable plan notes.")
 
 
 def dependency_order(
@@ -643,4 +657,26 @@ def recommend_orthogonal_confirmation(
         decision_tag=decision_tag,
         required=required,
         suggested_assay_ids=suggested if required else [],
+    )
+
+
+def plan_conflict_resolution_assays(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+) -> ConflictResolutionPlan:
+    """Recommend assays that can resolve current evidence conflicts."""
+    conflicts = flag_conflicting_evidence(bundle)
+    if not conflicts:
+        return ConflictResolutionPlan(
+            conflict_count=0,
+            suggested_assay_ids=[],
+            notes=["no active evidence conflicts require assay resolution"],
+        )
+    suggested = [assay.assay_id for assay in program.assay_panel][:3]
+    return ConflictResolutionPlan(
+        conflict_count=len(conflicts),
+        suggested_assay_ids=suggested,
+        notes=[
+            "prioritize assays with orthogonal readouts to resolve conflict pairs",
+        ],
     )

@@ -24,6 +24,7 @@ from bijux_proteomics_lab import (
     build_review_packet,
     plan_experiment_batches,
     prioritize_next_assays,
+    plan_conflict_resolution_assays,
     recommend_orthogonal_confirmation,
     recommend_next_cycle,
     schedule_experiment_plan,
@@ -489,3 +490,56 @@ def test_recommend_orthogonal_confirmation_when_convergence_is_low() -> None:
 
     assert plan.required is True
     assert plan.suggested_assay_ids == ["assay-a"]
+
+
+def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist() -> None:
+    program = create_program_spec(
+        program_id="prog-conflict",
+        name="conflict plan",
+        objective="generate assays that resolve conflicting evidence",
+        target_id="target-conflict",
+        target_name="Target Conflict",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="resolve evidence contradictions before progression",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="assay-conflict",
+            purpose="resolve contradictory signal",
+            readout="activity",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-conflict",
+        target_id="target-conflict",
+        records=[
+            EvidenceRecord(
+                evidence_id="c1",
+                kind=EvidenceKind.ASSAY,
+                title="positive",
+                source="lab",
+                claim="Candidate meets gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="c2",
+                kind=EvidenceKind.ASSAY,
+                title="negative",
+                source="lab2",
+                claim="Candidate fails gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    plan = plan_conflict_resolution_assays(program, bundle)
+
+    assert plan.conflict_count > 0
+    assert plan.suggested_assay_ids == ["assay-conflict"]
