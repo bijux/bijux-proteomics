@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from bijux_proteomics_knowledge import (
     ClaimStatus,
     ClaimResolutionRecord,
@@ -20,6 +22,8 @@ from bijux_proteomics_knowledge import (
     build_claim,
     resolve_conflicts,
     summarize_resolutions,
+    query_resolution_records,
+    ResolutionRecordQuery,
 )
 
 
@@ -463,6 +467,57 @@ def test_preview_resolution_impact_estimates_confidence_shift() -> None:
 
     assert preview.claim_count == 1
     assert preview.changed_claim_count >= 1
+
+
+def test_query_resolution_records_filters_by_tag_actor_and_time() -> None:
+    record = ClaimResolutionRecord(
+        record_id="rr-1",
+        target_id="target-rr",
+        decision_tag="progression",
+        resolution=resolve_conflicts(
+            EvidenceBundle(
+                bundle_id="bundle-rr",
+                target_id="target-rr",
+                records=[
+                    EvidenceRecord(
+                        evidence_id="rr-a",
+                        kind=EvidenceKind.ASSAY,
+                        title="a",
+                        source="lab",
+                        source_type=EvidenceSourceType.LAB_ASSAY,
+                        claim="meets gate",
+                        decision_tags=["progression"],
+                        confidence=0.8,
+                        strength=EvidenceStrength.SUPPORTING,
+                    ),
+                    EvidenceRecord(
+                        evidence_id="rr-b",
+                        kind=EvidenceKind.ASSAY,
+                        title="b",
+                        source="lab",
+                        source_type=EvidenceSourceType.LAB_ASSAY,
+                        claim="fails gate",
+                        decision_tags=["progression"],
+                        confidence=0.7,
+                        strength=EvidenceStrength.SUPPORTING,
+                    ),
+                ],
+            )
+        )[1][0],
+        recorded_at=datetime(2026, 1, 10, tzinfo=UTC),
+        recorded_by="reviewer-a",
+    )
+    filtered = query_resolution_records(
+        [record],
+        ResolutionRecordQuery(
+            target_id="target-rr",
+            decision_tag="progression",
+            recorded_by="reviewer-a",
+            recorded_after=datetime(2026, 1, 1, tzinfo=UTC),
+        ),
+    )
+
+    assert [item.record_id for item in filtered] == ["rr-1"]
 
 
 def test_apply_resolution_updates_disputes_claim_when_hold_is_required() -> None:

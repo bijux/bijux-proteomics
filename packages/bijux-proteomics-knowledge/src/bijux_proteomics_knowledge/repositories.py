@@ -99,6 +99,17 @@ class ClaimQuery(JsonModel):
     contradiction_group: str | None = Field(default=None, description="Optional contradiction-group filter.")
 
 
+class ResolutionRecordQuery(JsonModel):
+    """Structured query for filtering resolution history records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    decision_tag: str | None = Field(default=None, description="Optional decision-tag filter.")
+    recorded_by: str | None = Field(default=None, description="Optional actor filter.")
+    recorded_after: datetime | None = Field(default=None, description="Optional inclusive lower bound for record time.")
+
+
 def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[EvidenceClaim]:
     """Filter claims for one target using structured query fields."""
     filtered = [claim for claim in claims if claim.target_id == query.target_id]
@@ -116,4 +127,19 @@ def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[Evidenc
         filtered = [claim for claim in filtered if claim.decision_impact == query.decision_impact]
     if query.contradiction_group is not None:
         filtered = [claim for claim in filtered if claim.contradiction_group == query.contradiction_group]
+    return filtered
+
+
+def query_resolution_records(
+    records: list[ClaimResolutionRecord],
+    query: ResolutionRecordQuery,
+) -> list[ClaimResolutionRecord]:
+    """Filter resolution records using structured query fields."""
+    filtered = [record for record in records if record.target_id == query.target_id]
+    if query.decision_tag is not None:
+        filtered = [record for record in filtered if record.decision_tag == query.decision_tag]
+    if query.recorded_by is not None:
+        filtered = [record for record in filtered if record.recorded_by == query.recorded_by]
+    if query.recorded_after is not None:
+        filtered = [record for record in filtered if record.recorded_at >= query.recorded_after]
     return filtered
