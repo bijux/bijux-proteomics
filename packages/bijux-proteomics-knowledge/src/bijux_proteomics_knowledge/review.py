@@ -42,6 +42,12 @@ class KnowledgeReviewPacket(JsonModel):
     conflict_clusters: list[ConflictCluster] = Field(default_factory=list, description="Grouped conflicts for review.")
     gate_recommendation: str = Field(..., min_length=1, description="Recommended gate action for the decision tag.")
     executive_summary: list[str] = Field(default_factory=list, description="High-level review summary points.")
+    decision_intelligence_index: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Composite index for decision intelligence readiness.",
+    )
 
 
 def build_knowledge_review_packet(
@@ -82,6 +88,11 @@ def build_knowledge_review_packet(
         knowledge_gaps=gaps,
         gate_recommendation=gate_recommendation,
     )
+    intelligence_index = compute_decision_intelligence_index(
+        quality_audit=audit,
+        knowledge_gaps=gaps,
+        conflict_clusters=clusters,
+    )
     return KnowledgeReviewPacket(
         target_id=bundle.target_id,
         decision_tag=decision_tag,
@@ -92,6 +103,7 @@ def build_knowledge_review_packet(
         conflict_clusters=clusters,
         gate_recommendation=gate_recommendation,
         executive_summary=summary,
+        decision_intelligence_index=intelligence_index,
     )
 
 
@@ -125,3 +137,19 @@ def _build_executive_summary(
     if knowledge_gaps:
         summary.append(f"{len(knowledge_gaps)} unresolved knowledge gaps remain")
     return summary
+
+
+def compute_decision_intelligence_index(
+    *,
+    quality_audit: KnowledgeQualityAudit,
+    knowledge_gaps: list[KnowledgeGap],
+    conflict_clusters: list[ConflictCluster],
+) -> float:
+    """Compute a composite readiness index from quality, gaps, and conflicts."""
+    score = quality_audit.trust_score * 0.45 + quality_audit.triangulation_score * 0.35
+    gap_penalty = min(0.25, 0.05 * len(knowledge_gaps))
+    high_conflict_penalty = min(
+        0.25,
+        0.08 * sum(1 for cluster in conflict_clusters if cluster.recommended_hold),
+    )
+    return max(0.0, min(round(score - gap_penalty - high_conflict_penalty, 4), 1.0))
