@@ -41,6 +41,7 @@ from bijux_proteomics_lab import (
     schedule_experiment_plan,
     schedule_with_family_capacity,
     score_assay_information_gain,
+    summarize_schedule_pressure,
     ExperimentOutcome,
 )
 
@@ -353,6 +354,27 @@ def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
     assert scheduled.scheduled_batches[0].assay_ids == ["a1", "a2"]
     assert scheduled.scheduled_batches[0].deferred_assay_ids == ["a3"]
     assert scheduled.unscheduled_batches == ["batch-2"]
+
+
+def test_summarize_schedule_pressure_reports_utilization_and_deferred_assays() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-pressure",
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-1",
+                objective="blocking",
+                assay_ids=["a1", "a2", "a3"],
+                priority=1,
+            )
+        ],
+    )
+    capacity = LabCapacity(cycle_id="cycle-pressure", max_batches=1, max_assays_per_batch=2)
+    scheduled = schedule_experiment_plan(plan, capacity)
+    report = summarize_schedule_pressure(scheduled, capacity)
+
+    assert report.cycle_id == "cycle-pressure"
+    assert report.assay_slot_utilization == 1.0
+    assert report.deferred_assay_count == 1
 
 
 def test_assess_dependency_integrity_reports_unknown_and_self_edges() -> None:

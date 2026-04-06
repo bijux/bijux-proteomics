@@ -464,6 +464,18 @@ class DependencyCriticalPath(JsonModel):
     path_length: int = Field(default=0, ge=0, description="Number of assays in the critical path.")
 
 
+class SchedulePressureReport(JsonModel):
+    """Capacity pressure summary for a scheduled plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cycle_id: CycleId = Field(..., description="Cycle identifier.")
+    scheduled_batch_count: int = Field(default=0, ge=0, description="Number of scheduled batches.")
+    unscheduled_batch_count: int = Field(default=0, ge=0, description="Number of unscheduled batches.")
+    assay_slot_utilization: float = Field(..., ge=0.0, le=1.0, description="Used assay slots / total slots.")
+    deferred_assay_count: int = Field(default=0, ge=0, description="Deferred assays due to capacity limits.")
+
+
 def assess_dependency_integrity(
     assay_ids: list[AssayId],
     dependencies: list[AssayDependency],
@@ -1119,4 +1131,22 @@ def recommend_next_cycle_from_outcome(
             "promotion_ready_count": assessment.promotion_ready_count,
             "technical_failure_count": assessment.technical_or_repro_failures,
         }
+    )
+
+
+def summarize_schedule_pressure(
+    scheduled: ScheduledPlan,
+    capacity: LabCapacity,
+) -> SchedulePressureReport:
+    """Summarize scheduling pressure against available cycle capacity."""
+    total_slots = capacity.max_batches * capacity.max_assays_per_batch
+    used_slots = sum(len(batch.assay_ids) for batch in scheduled.scheduled_batches)
+    deferred = sum(len(batch.deferred_assay_ids) for batch in scheduled.scheduled_batches)
+    utilization = round((used_slots / total_slots), 4) if total_slots else 0.0
+    return SchedulePressureReport(
+        cycle_id=capacity.cycle_id,
+        scheduled_batch_count=len(scheduled.scheduled_batches),
+        unscheduled_batch_count=len(scheduled.unscheduled_batches),
+        assay_slot_utilization=max(0.0, min(utilization, 1.0)),
+        deferred_assay_count=deferred,
     )
