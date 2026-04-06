@@ -25,7 +25,7 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["HTTP app in src/agentic_proteins/api/v1"]
+    surface1["HTTP app in src/agentic_proteins/api/app.py"]
     surface1 --> page
     surface2["shared API schema in apis/agentic-proteins/v1"]
     surface2 --> page
@@ -39,9 +39,9 @@ flowchart LR
     page --> proof3
     review1["tests/e2e for governed flow behavior"]
     review1 -.raises compatibility pressure on.-> page
-    review2["tests/regression and tests/smoke for replay and storage protection"]
+    review2["tests/regression for compatibility and behavior drift detection"]
     review2 -.raises compatibility pressure on.-> page
-    review3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    review3["tests/api, tests/integration, and tests/e2e for surface and workflow coverage"]
     review3 -.raises compatibility pressure on.-> page
     class page page;
     class surface1,surface2,surface3 positive;
@@ -71,7 +71,7 @@ flowchart LR
 ## Concrete Anchors
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
-- HTTP app in src/agentic_proteins/api/v1
+- HTTP app in src/agentic_proteins/api/app.py
 - shared API schema in apis/agentic-proteins/v1
 - apis/agentic-proteins/v1/schema.yaml
 
