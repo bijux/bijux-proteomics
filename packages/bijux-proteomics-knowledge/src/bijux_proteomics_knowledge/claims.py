@@ -115,6 +115,17 @@ class DecisionLineage(JsonModel):
     )
 
 
+class ClaimStrengthUpdate(JsonModel):
+    """Structured confidence update for a claim after new evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    previous_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence before update.")
+    updated_confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence after update.")
+    rationale: str = Field(..., min_length=1, description="Why confidence changed.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -211,3 +222,38 @@ def link_evidence_to_claim(
         if evidence_id not in linked:
             linked.append(evidence_id)
     return claim.model_copy(update={"evidence_ids": linked})
+
+
+def strengthen_claim(
+    claim: EvidenceClaim,
+    *,
+    delta: float,
+    rationale: str,
+) -> tuple[EvidenceClaim, ClaimStrengthUpdate]:
+    """Increase claim confidence by a bounded delta."""
+    updated_confidence = min(1.0, round(claim.confidence + max(delta, 0.0), 4))
+    updated = claim.model_copy(update={"confidence": updated_confidence, "status": ClaimStatus.SUPPORTED})
+    return updated, ClaimStrengthUpdate(
+        claim_id=claim.claim_id,
+        previous_confidence=claim.confidence,
+        updated_confidence=updated_confidence,
+        rationale=rationale,
+    )
+
+
+def weaken_claim(
+    claim: EvidenceClaim,
+    *,
+    delta: float,
+    rationale: str,
+) -> tuple[EvidenceClaim, ClaimStrengthUpdate]:
+    """Decrease claim confidence by a bounded delta."""
+    updated_confidence = max(0.0, round(claim.confidence - max(delta, 0.0), 4))
+    updated_status = ClaimStatus.DISPUTED if updated_confidence < 0.5 else claim.status
+    updated = claim.model_copy(update={"confidence": updated_confidence, "status": updated_status})
+    return updated, ClaimStrengthUpdate(
+        claim_id=claim.claim_id,
+        previous_confidence=claim.confidence,
+        updated_confidence=updated_confidence,
+        rationale=rationale,
+    )

@@ -17,6 +17,8 @@ from bijux_proteomics_knowledge import (
     close_claim,
     link_evidence_to_claim,
     build_decision_lineage,
+    strengthen_claim,
+    weaken_claim,
 )
 
 
@@ -142,3 +144,20 @@ def test_build_claim_supports_mechanistic_structure_fields() -> None:
     assert claim.relation == "increases"
     assert claim.object == "phospho-signal"
     assert claim.direction == "up"
+
+
+def test_claim_strength_update_helpers_adjust_confidence() -> None:
+    claim = build_claim(
+        claim_id="claim-7",
+        target_id="target-1",
+        statement="initial claim",
+        evidence_ids=["ev-1"],
+        status=ClaimStatus.SUPPORTED,
+        confidence=0.5,
+    )
+    strengthened, gain = strengthen_claim(claim, delta=0.2, rationale="new orthogonal assay")
+    weakened, loss = weaken_claim(strengthened, delta=0.4, rationale="contradictory evidence")
+
+    assert gain.updated_confidence == 0.7
+    assert loss.updated_confidence == 0.3
+    assert weakened.status is ClaimStatus.DISPUTED

@@ -18,6 +18,7 @@ from bijux_proteomics_knowledge.adapters import (
     attach_manual_notes,
 )
 from bijux_proteomics_knowledge.claims import (
+    ClaimStrengthUpdate,
     ClaimType,
     ClaimPolarity,
     ClaimResolutionState,
@@ -28,6 +29,8 @@ from bijux_proteomics_knowledge.claims import (
     close_claim,
     build_decision_lineage,
     link_evidence_to_claim,
+    strengthen_claim,
+    weaken_claim,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_knowledge.graph import (
@@ -104,6 +107,7 @@ __all__ = [
     "ClaimType",
     "ClaimResolutionState",
     "ClaimStatus",
+    "ClaimStrengthUpdate",
     "ConflictResolution",
     "ConflictPolicy",
     "DecisionReadiness",
@@ -141,6 +145,8 @@ __all__ = [
     "close_claim",
     "link_evidence_to_claim",
     "build_decision_lineage",
+    "strengthen_claim",
+    "weaken_claim",
     "compute_bundle_trust",
     "coverage_report",
     "default_conflict_policy",
