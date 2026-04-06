@@ -42,6 +42,8 @@ from bijux_proteomics_lab import (
     triage_batch_failures,
     consolidate_claim_belief_updates,
     assess_observation_quality,
+    BatchPromotionPolicy,
+    ObservationQualityProfile,
 )
 
 
@@ -451,6 +453,40 @@ def test_assess_observation_quality_decomposes_quality_dimensions() -> None:
     assert quality.assay_id == "assay-1"
     assert quality.qc_reliability == 0.5
     assert quality.composite_quality < 0.9
+
+
+def test_promote_batch_outcome_to_evidence_respects_quality_policy() -> None:
+    outcome = ExperimentOutcome(
+        batch_id="batch-quality",
+        assay_outcomes=[
+            AssayOutcome(
+                assay_id="assay-1",
+                passed=True,
+                result_state=AssayResultState.PASSED,
+                observation_summary="passed",
+                uncertainty=0.1,
+            )
+        ],
+        rerun_policy=RerunPolicy.NEVER,
+    )
+    promoted, report = promote_batch_outcome_to_evidence(
+        outcome,
+        target_id="target-1",
+        batch_policy=BatchPromotionPolicy(policy_id="strict", minimum_quality_score=0.8),
+        quality_profiles={
+            "assay-1": ObservationQualityProfile(
+                assay_id="assay-1",
+                technical_reproducibility=0.7,
+                qc_reliability=0.7,
+                interpretability=0.7,
+                composite_quality=0.7,
+                notes=["low"],
+            )
+        },
+    )
+
+    assert promoted == []
+    assert report.blocked_assay_ids == ["assay-1"]
 
 
 def test_query_feedback_records_supports_evidence_and_time_filters() -> None:

@@ -371,6 +371,20 @@ class ObservationQualityProfile(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Quality rationale notes.")
 
 
+class BatchPromotionPolicy(JsonModel):
+    """Policy controlling batch-level evidence promotion quality gates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable policy identifier.")
+    minimum_quality_score: float = Field(
+        default=0.6,
+        ge=0.0,
+        le=1.0,
+        description="Minimum observation quality required for batch promotion.",
+    )
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -729,16 +743,22 @@ def promote_batch_outcome_to_evidence(
     *,
     target_id: str,
     policy: OutcomePromotionPolicy | None = None,
+    batch_policy: BatchPromotionPolicy | None = None,
+    quality_profiles: dict[str, ObservationQualityProfile] | None = None,
 ) -> tuple[list[NormalizedEvidenceInput], BatchEvidencePromotionReport]:
     """Promote all promotion-ready assays from a batch outcome into evidence payloads."""
     policy = policy or OutcomePromotionPolicy(policy_id="default-outcome-promotion-policy")
+    batch_policy = batch_policy or BatchPromotionPolicy(policy_id="default-batch-promotion-policy")
+    quality_profiles = quality_profiles or {}
     promoted: list[NormalizedEvidenceInput] = []
     promoted_ids: list[str] = []
     blocked_ids: list[str] = []
     notes: list[str] = []
     for assay in outcome.assay_outcomes:
         readiness = assess_evidence_promotion_readiness(assay)
-        if readiness.ready:
+        quality = quality_profiles.get(assay.assay_id)
+        quality_ready = quality is None or quality.composite_quality >= batch_policy.minimum_quality_score
+        if readiness.ready and quality_ready:
             promoted.append(
                 promote_outcome_to_evidence(
                     assay,
@@ -750,7 +770,12 @@ def promote_batch_outcome_to_evidence(
             promoted_ids.append(assay.assay_id)
         else:
             blocked_ids.append(assay.assay_id)
-            notes.append(f"{assay.assay_id} blocked: {', '.join(readiness.blockers) or 'not promotion-ready'}")
+            blocker_notes = list(readiness.blockers)
+            if not quality_ready:
+                blocker_notes.append(
+                    f"quality score {quality.composite_quality if quality is not None else 0.0:.2f} below minimum {batch_policy.minimum_quality_score:.2f}"
+                )
+            notes.append(f"{assay.assay_id} blocked: {', '.join(blocker_notes) or 'not promotion-ready'}")
     if not notes:
         notes.append("all assay outcomes were promotion-ready")
     return promoted, BatchEvidencePromotionReport(
