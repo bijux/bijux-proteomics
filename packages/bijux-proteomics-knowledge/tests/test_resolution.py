@@ -24,6 +24,7 @@ from bijux_proteomics_knowledge import (
     summarize_resolutions,
     query_resolution_records,
     ResolutionRecordQuery,
+    compare_resolution_policies,
 )
 
 
@@ -518,6 +519,46 @@ def test_query_resolution_records_filters_by_tag_actor_and_time() -> None:
     )
 
     assert [item.record_id for item in filtered] == ["rr-1"]
+
+
+def test_compare_resolution_policies_reports_action_profiles() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-policy-compare",
+        target_id="target-policy-compare",
+        records=[
+            EvidenceRecord(
+                evidence_id="pc-1",
+                kind=EvidenceKind.ASSAY,
+                title="positive",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets activity gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="pc-2",
+                kind=EvidenceKind.ASSAY,
+                title="negative",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate fails activity gate.",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    comparison = compare_resolution_policies(
+        bundle,
+        policies=[
+            ResolutionPolicy(policy_id="default-a"),
+            ResolutionPolicy(policy_id="strict-b", high_severity_requires_hold=True),
+        ],
+    )
+
+    assert set(comparison.policy_action_counts) == {"default-a", "strict-b"}
 
 
 def test_apply_resolution_updates_disputes_claim_when_hold_is_required() -> None:

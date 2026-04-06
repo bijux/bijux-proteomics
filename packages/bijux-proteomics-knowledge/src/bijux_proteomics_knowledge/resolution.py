@@ -128,6 +128,22 @@ class ResolutionImpactPreview(JsonModel):
     expected_supported_claims: int = Field(default=0, ge=0, description="Expected supported claim count after updates.")
 
 
+class ResolutionPolicyComparison(JsonModel):
+    """Comparison of resolution outputs across multiple policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    policy_action_counts: dict[str, dict[str, int]] = Field(
+        default_factory=dict,
+        description="Action counts keyed by policy ID.",
+    )
+    policy_hold_flags: dict[str, bool] = Field(
+        default_factory=dict,
+        description="Whether each policy requires decision hold.",
+    )
+
+
 def resolve_conflicts(
     bundle: EvidenceBundle,
     *,
@@ -384,4 +400,24 @@ def preview_resolution_impact(
         mean_confidence_before=before_mean,
         mean_confidence_after=after_mean,
         expected_supported_claims=supported,
+    )
+
+
+def compare_resolution_policies(
+    bundle: EvidenceBundle,
+    *,
+    policies: list[ResolutionPolicy],
+) -> ResolutionPolicyComparison:
+    """Compare conflict-resolution action profiles across candidate policies."""
+    policy_action_counts: dict[str, dict[str, int]] = {}
+    policy_hold_flags: dict[str, bool] = {}
+    for policy in policies:
+        _, resolutions = resolve_conflicts(bundle, policy=policy)
+        summary = summarize_resolutions(resolutions, policy=policy)
+        policy_action_counts[policy.policy_id] = summary.action_counts
+        policy_hold_flags[policy.policy_id] = summary.hold_required
+    return ResolutionPolicyComparison(
+        target_id=bundle.target_id,
+        policy_action_counts=policy_action_counts,
+        policy_hold_flags=policy_hold_flags,
     )
