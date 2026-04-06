@@ -48,7 +48,7 @@ surface.
 | `bijux-proteomics-intelligence` | Candidate evaluation, scoring policy, and recommendation logic | <https://pypi.org/project/bijux-proteomics-intelligence/> | [`packages/bijux-proteomics-intelligence`](packages/bijux-proteomics-intelligence) |
 | `bijux-proteomics-knowledge` | Evidence graphs, trust scoring, and conflict resolution policy | <https://pypi.org/project/bijux-proteomics-knowledge/> | [`packages/bijux-proteomics-knowledge`](packages/bijux-proteomics-knowledge) |
 | `bijux-proteomics-lab` | Lab planning, scheduling decisions, and outcome promotion workflows | <https://pypi.org/project/bijux-proteomics-lab/> | [`packages/bijux-proteomics-lab`](packages/bijux-proteomics-lab) |
-| `bijux-proteomics-dev` | Repository maintenance tooling for quality, security, docs, release, and API gates | n/a (maintainer package) | [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev) |
+| `bijux-proteomics-dev` | Repository maintenance tooling for quality, security, docs, release, and API gates | not published on PyPI (maintainer package) | [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev) |
 
 ## What This Repository Is Not
 
