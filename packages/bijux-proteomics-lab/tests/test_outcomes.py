@@ -19,6 +19,7 @@ from bijux_proteomics_lab import (
     evaluate_assay_acceptance,
     LabFeedbackQuery,
     LabFeedbackRecord,
+    OutcomePromotionPolicy,
     promote_outcome_to_evidence,
     query_feedback_records,
     recommend_rerun_policy,
@@ -109,6 +110,27 @@ def test_promote_outcome_to_evidence_builds_normalized_payload() -> None:
     assert payload.related_targets == ["target-1"]
     assert payload.decision_tags == ["progression"]
     assert payload.confidence < 0.9
+
+
+def test_promote_outcome_to_evidence_supports_custom_promotion_policy() -> None:
+    payload = promote_outcome_to_evidence(
+        AssayOutcome(
+            assay_id="binding-assay",
+            passed=False,
+            observation_summary="binding did not pass threshold",
+            failure_class=FailureClass.BIOLOGICAL,
+            uncertainty=0.1,
+        ),
+        target_id="target-1",
+        batch_id="batch-1",
+        policy=OutcomePromotionPolicy(
+            policy_id="strict-policy",
+            failed_base_confidence=0.35,
+            uncertainty_penalty_factor=0.5,
+        ),
+    )
+
+    assert payload.confidence == 0.3
 
 
 def test_lab_feedback_record_keeps_cycle_and_lineage_refs() -> None:

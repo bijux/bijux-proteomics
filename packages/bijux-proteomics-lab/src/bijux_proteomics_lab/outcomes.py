@@ -245,6 +245,32 @@ class ClaimBeliefDelta(JsonModel):
     rationale: str = Field(..., min_length=1, description="Scientific rationale for the delta.")
 
 
+class OutcomePromotionPolicy(JsonModel):
+    """Policy controlling how assay outcomes are promoted into evidence payloads."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable policy identifier.")
+    passed_base_confidence: float = Field(
+        default=0.9,
+        ge=0.0,
+        le=1.0,
+        description="Base confidence for passed outcomes before uncertainty penalties.",
+    )
+    failed_base_confidence: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Base confidence for failed outcomes before uncertainty penalties.",
+    )
+    uncertainty_penalty_factor: float = Field(
+        default=0.4,
+        ge=0.0,
+        le=1.0,
+        description="Penalty multiplier applied to uncertainty.",
+    )
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -382,9 +408,12 @@ def promote_outcome_to_evidence(
     *,
     target_id: str,
     batch_id: str,
+    policy: OutcomePromotionPolicy | None = None,
 ) -> NormalizedEvidenceInput:
     """Convert one assay outcome into normalized evidence for knowledge ingestion."""
-    confidence = max(0.1, (0.9 if outcome.passed else 0.5) - (outcome.uncertainty * 0.4))
+    policy = policy or OutcomePromotionPolicy(policy_id="default-outcome-promotion-policy")
+    base_confidence = policy.passed_base_confidence if outcome.passed else policy.failed_base_confidence
+    confidence = max(0.1, base_confidence - (outcome.uncertainty * policy.uncertainty_penalty_factor))
     decision_tags = ["progression"]
     if outcome.result_state is AssayResultState.FAILED_TECHNICAL:
         decision_tags.append("technical_risk")
