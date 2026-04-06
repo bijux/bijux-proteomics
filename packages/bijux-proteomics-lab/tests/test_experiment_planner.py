@@ -14,7 +14,10 @@ from bijux_proteomics_lab import (
     ExperimentBatch,
     ExperimentPlan,
     LabCapacity,
+    MaterialInventory,
+    MaterialRequirement,
     ProgressDecision,
+    assess_material_constraints,
     build_review_packet,
     plan_experiment_batches,
     recommend_next_cycle,
@@ -247,6 +250,41 @@ def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
     assert scheduled.scheduled_batches[0].assay_ids == ["a1", "a2"]
     assert scheduled.scheduled_batches[0].deferred_assay_ids == ["a3"]
     assert scheduled.unscheduled_batches == ["batch-2"]
+
+
+def test_assess_material_constraints_flags_missing_sample_inventory() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-3",
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-1",
+                objective="blocking",
+                assay_ids=["a1"],
+                priority=1,
+                sample_requirements=["purified protein"],
+            )
+        ],
+    )
+
+    report = assess_material_constraints(
+        plan,
+        requirements=[
+            MaterialRequirement(
+                material_id="purified-protein",
+                sample_kind="purified protein",
+                minimum_units=5.0,
+                unit="mg",
+            )
+        ],
+        inventory=[
+            MaterialInventory(
+                material_id="purified-protein",
+                available_units=2.0,
+            )
+        ],
+    )
+
+    assert report.blocking_material_ids == ["purified-protein"]
 
 
 def test_experiment_plan_round_trips_with_serialization_helpers(tmp_path: Path) -> None:

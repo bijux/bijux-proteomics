@@ -53,6 +53,10 @@ class ExperimentBatch(JsonModel):
         description="Review gates that must clear this batch.",
     )
     priority: int = Field(..., ge=1, description="Execution priority.")
+    sample_requirements: list[str] = Field(
+        default_factory=list,
+        description="Material requirements that must be available for the batch.",
+    )
 
 
 class AssayDependency(JsonModel):
@@ -98,6 +102,50 @@ class ExperimentPlan(JsonModel):
     batches: list[ExperimentBatch] = Field(
         default_factory=list,
         description="Ordered experiment batches.",
+    )
+
+
+class MaterialRequirement(JsonModel):
+    """Material needed to execute planned work."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    material_id: str = Field(..., min_length=1, description="Stable material identifier.")
+    sample_kind: str = Field(..., min_length=1, description="Type of sample or reagent.")
+    minimum_units: float = Field(
+        ...,
+        gt=0.0,
+        description="Minimum quantity required for execution.",
+    )
+    unit: str = Field(..., min_length=1, description="Unit of measure.")
+
+
+class MaterialInventory(JsonModel):
+    """Available material inventory for a planning cycle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    material_id: str = Field(..., min_length=1, description="Stable material identifier.")
+    available_units: float = Field(
+        ...,
+        ge=0.0,
+        description="Available quantity for the planning cycle.",
+    )
+
+
+class MaterialConstraintReport(JsonModel):
+    """Material feasibility assessment for an experiment plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    blocking_material_ids: list[str] = Field(
+        default_factory=list,
+        description="Materials that are insufficient for planned work.",
+    )
+    notes: list[str] = Field(
+        default_factory=list,
+        description="Human-readable explanation of the material constraints.",
     )
 
 
@@ -245,6 +293,11 @@ def plan_experiment_batches(
                     gate.gate_id for gate in program.review_gates if gate.blocking
                 ],
                 priority=1,
+                sample_requirements=[
+                    assay.sample_kind
+                    for assay in program.assay_panel
+                    if assay.blocking
+                ],
             )
         )
     if supporting_assays:
@@ -255,6 +308,11 @@ def plan_experiment_batches(
                 assay_ids=supporting_assays,
                 blocking_review_gates=[],
                 priority=2 if batches else 1,
+                sample_requirements=[
+                    assay.sample_kind
+                    for assay in program.assay_panel
+                    if not assay.blocking
+                ],
             )
         )
     required_kinds = [need.value for need in program.evidence_needs]
@@ -264,6 +322,33 @@ def plan_experiment_batches(
         evidence_gaps=gaps,
         review_queue=[gate.gate_id for gate in program.review_gates if gate.blocking],
         batches=batches,
+    )
+
+
+def assess_material_constraints(
+    plan: ExperimentPlan,
+    requirements: list[MaterialRequirement],
+    inventory: list[MaterialInventory],
+) -> MaterialConstraintReport:
+    """Check whether the planned work is supported by available material."""
+    inventory_map = {item.material_id: item.available_units for item in inventory}
+    blocking_material_ids: list[str] = []
+    notes: list[str] = []
+
+    for requirement in requirements:
+        available = inventory_map.get(requirement.material_id, 0.0)
+        if available < requirement.minimum_units:
+            blocking_material_ids.append(requirement.material_id)
+            notes.append(
+                f"{requirement.material_id} only has {available:g} {requirement.unit} available "
+                f"but needs {requirement.minimum_units:g} {requirement.unit}"
+            )
+    if not blocking_material_ids:
+        notes.append("available materials support the current experiment batches")
+    return MaterialConstraintReport(
+        program_id=plan.program_id,
+        blocking_material_ids=blocking_material_ids,
+        notes=notes,
     )
 
 
