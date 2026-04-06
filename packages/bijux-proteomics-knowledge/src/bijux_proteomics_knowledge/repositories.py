@@ -10,7 +10,7 @@ from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_knowledge.claims import EvidenceClaim
+from bijux_proteomics_knowledge.claims import ClaimPolarity, ClaimStatus, ClaimType, EvidenceClaim
 from bijux_proteomics_knowledge.evidence import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.resolution import ConflictResolution
 from bijux_proteomics_knowledge.serialization import JsonModel
@@ -76,3 +76,26 @@ class ClaimResolutionRepository(Protocol):
 
     def list_target_resolution_records(self, target_id: str) -> list[ClaimResolutionRecord]:
         """List resolution history records for a target."""
+
+
+class ClaimQuery(JsonModel):
+    """Structured query for filtering target claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    status: ClaimStatus | None = Field(default=None, description="Optional status filter.")
+    claim_type: ClaimType | None = Field(default=None, description="Optional claim-type filter.")
+    polarity: ClaimPolarity | None = Field(default=None, description="Optional polarity filter.")
+
+
+def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[EvidenceClaim]:
+    """Filter claims for one target using structured query fields."""
+    filtered = [claim for claim in claims if claim.target_id == query.target_id]
+    if query.status is not None:
+        filtered = [claim for claim in filtered if claim.status is query.status]
+    if query.claim_type is not None:
+        filtered = [claim for claim in filtered if claim.claim_type is query.claim_type]
+    if query.polarity is not None:
+        filtered = [claim for claim in filtered if claim.polarity is query.polarity]
+    return filtered

@@ -8,6 +8,7 @@ from bijux_proteomics_knowledge import (
     ClaimResolutionState,
     ClaimStatus,
     ClaimType,
+    ClaimQuery,
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -19,6 +20,7 @@ from bijux_proteomics_knowledge import (
     build_decision_lineage,
     strengthen_claim,
     weaken_claim,
+    query_claims,
 )
 
 
@@ -161,3 +163,38 @@ def test_claim_strength_update_helpers_adjust_confidence() -> None:
     assert gain.updated_confidence == 0.7
     assert loss.updated_confidence == 0.3
     assert weakened.status is ClaimStatus.DISPUTED
+
+
+def test_query_claims_filters_by_status_type_and_polarity() -> None:
+    claims = [
+        build_claim(
+            claim_id="claim-a",
+            target_id="target-1",
+            statement="efficacy support",
+            evidence_ids=["ev-1"],
+            status=ClaimStatus.SUPPORTED,
+            claim_type=ClaimType.EFFICACY,
+            polarity=ClaimPolarity.SUPPORTING,
+        ),
+        build_claim(
+            claim_id="claim-b",
+            target_id="target-1",
+            statement="safety caution",
+            evidence_ids=["ev-2"],
+            status=ClaimStatus.DISPUTED,
+            claim_type=ClaimType.SAFETY,
+            polarity=ClaimPolarity.CONTRADICTING,
+        ),
+    ]
+
+    filtered = query_claims(
+        claims,
+        ClaimQuery(
+            target_id="target-1",
+            status=ClaimStatus.SUPPORTED,
+            claim_type=ClaimType.EFFICACY,
+            polarity=ClaimPolarity.SUPPORTING,
+        ),
+    )
+
+    assert [claim.claim_id for claim in filtered] == ["claim-a"]
