@@ -12,7 +12,10 @@ from bijux_proteomics_lab import (
     AssayDependency,
     AssayFamily,
     AssayObservation,
+    assess_dependency_integrity,
     assay_family_priority,
+    dependency_order,
+    detect_dependency_cycle,
     ExperimentBatch,
     ExperimentPlan,
     FamilyCapacity,
@@ -295,6 +298,50 @@ def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
     assert scheduled.scheduled_batches[0].assay_ids == ["a1", "a2"]
     assert scheduled.scheduled_batches[0].deferred_assay_ids == ["a3"]
     assert scheduled.unscheduled_batches == ["batch-2"]
+
+
+def test_assess_dependency_integrity_reports_unknown_and_self_edges() -> None:
+    report = assess_dependency_integrity(
+        ["a1", "a2"],
+        [
+            AssayDependency(assay_id="a2", requires_assay_id="a1"),
+            AssayDependency(assay_id="a3", requires_assay_id="a1"),
+            AssayDependency(assay_id="a2", requires_assay_id="a9"),
+            AssayDependency(assay_id="a1", requires_assay_id="a1"),
+        ],
+    )
+
+    assert report.unknown_assay_ids == ["a3"]
+    assert report.unknown_prerequisite_ids == ["a9"]
+    assert report.self_dependency_assay_ids == ["a1"]
+    assert report.cycle_report.has_cycle is False
+
+
+def test_detect_dependency_cycle_reports_cycle_nodes() -> None:
+    cycle_report = detect_dependency_cycle(
+        ["a1", "a2", "a3"],
+        [
+            AssayDependency(assay_id="a1", requires_assay_id="a2"),
+            AssayDependency(assay_id="a2", requires_assay_id="a3"),
+            AssayDependency(assay_id="a3", requires_assay_id="a1"),
+        ],
+    )
+
+    assert cycle_report.has_cycle is True
+    assert cycle_report.cycle_assay_ids == ["a1", "a2", "a3"]
+
+
+def test_dependency_order_ignores_invalid_edges_and_keeps_valid_prerequisites() -> None:
+    ordered = dependency_order(
+        ["a1", "a2", "a3"],
+        [
+            AssayDependency(assay_id="a2", requires_assay_id="a1"),
+            AssayDependency(assay_id="a3", requires_assay_id="a9"),
+            AssayDependency(assay_id="a1", requires_assay_id="a1"),
+        ],
+    )
+
+    assert ordered.index("a1") < ordered.index("a2")
 
 
 def test_assess_material_constraints_flags_missing_sample_inventory() -> None:

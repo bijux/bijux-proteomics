@@ -324,11 +324,81 @@ class ConflictResolutionPlan(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Human-readable plan notes.")
 
 
+class DependencyCycleReport(JsonModel):
+    """Cycle detection report for assay dependency graphs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    has_cycle: bool = Field(..., description="Whether a dependency cycle exists.")
+    cycle_assay_ids: list[str] = Field(default_factory=list, description="Assays participating in a detected cycle.")
+
+
+class DependencyIntegrityReport(JsonModel):
+    """Integrity report for dependency graphs used in assay planning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    unknown_assay_ids: list[str] = Field(
+        default_factory=list,
+        description="Dependency assay IDs not present in the planned assay set.",
+    )
+    unknown_prerequisite_ids: list[str] = Field(
+        default_factory=list,
+        description="Prerequisite assay IDs not present in the planned assay set.",
+    )
+    self_dependency_assay_ids: list[str] = Field(
+        default_factory=list,
+        description="Assays that depend on themselves.",
+    )
+    cycle_report: DependencyCycleReport = Field(
+        ...,
+        description="Detected cycle information for valid dependency edges.",
+    )
+
+
+def assess_dependency_integrity(
+    assay_ids: list[AssayId],
+    dependencies: list[AssayDependency],
+) -> DependencyIntegrityReport:
+    """Assess dependency integrity across unknown, invalid, and cyclic edges."""
+    assay_id_set = set(assay_ids)
+    unknown_assay_ids = sorted(
+        {dependency.assay_id for dependency in dependencies if dependency.assay_id not in assay_id_set}
+    )
+    unknown_prerequisite_ids = sorted(
+        {dependency.requires_assay_id for dependency in dependencies if dependency.requires_assay_id not in assay_id_set}
+    )
+    self_dependency_assay_ids = sorted(
+        {dependency.assay_id for dependency in dependencies if dependency.assay_id == dependency.requires_assay_id}
+    )
+    valid_dependencies = [
+        dependency
+        for dependency in dependencies
+        if dependency.assay_id in assay_id_set
+        and dependency.requires_assay_id in assay_id_set
+        and dependency.assay_id != dependency.requires_assay_id
+    ]
+    return DependencyIntegrityReport(
+        unknown_assay_ids=unknown_assay_ids,
+        unknown_prerequisite_ids=unknown_prerequisite_ids,
+        self_dependency_assay_ids=self_dependency_assay_ids,
+        cycle_report=detect_dependency_cycle(assay_ids, valid_dependencies),
+    )
+
+
 def dependency_order(
     assay_ids: list[AssayId],
     dependencies: list[AssayDependency],
 ) -> list[AssayId]:
     """Return assay ids with prerequisites placed earlier when possible."""
+    dependency_integrity = assess_dependency_integrity(assay_ids, dependencies)
+    valid_dependencies = [
+        dependency
+        for dependency in dependencies
+        if dependency.assay_id not in dependency_integrity.unknown_assay_ids
+        and dependency.requires_assay_id not in dependency_integrity.unknown_prerequisite_ids
+        and dependency.assay_id not in dependency_integrity.self_dependency_assay_ids
+    ]
     ordered: list[AssayId] = []
     remaining = list(assay_ids)
     while remaining:
@@ -336,7 +406,7 @@ def dependency_order(
         for assay_id in list(remaining):
             prerequisites = [
                 dependency.requires_assay_id
-                for dependency in dependencies
+                for dependency in valid_dependencies
                 if dependency.assay_id == assay_id
             ]
             if all(prerequisite in ordered or prerequisite not in assay_ids for prerequisite in prerequisites):
@@ -347,6 +417,42 @@ def dependency_order(
             ordered.extend(remaining)
             break
     return ordered
+
+
+def detect_dependency_cycle(
+    assay_ids: list[AssayId],
+    dependencies: list[AssayDependency],
+) -> DependencyCycleReport:
+    """Detect whether assay dependencies contain a cycle."""
+    edges = {assay_id: [] for assay_id in assay_ids}
+    for dependency in dependencies:
+        if dependency.assay_id in edges and dependency.requires_assay_id in edges:
+            edges[dependency.assay_id].append(dependency.requires_assay_id)
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+    cycle_nodes: set[str] = set()
+
+    def _visit(node: str) -> bool:
+        if node in visiting:
+            cycle_nodes.add(node)
+            return True
+        if node in visited:
+            return False
+        visiting.add(node)
+        for neighbor in edges.get(node, []):
+            if _visit(neighbor):
+                cycle_nodes.add(node)
+                return True
+        visiting.remove(node)
+        visited.add(node)
+        return False
+
+    has_cycle = any(_visit(node) for node in edges)
+    return DependencyCycleReport(
+        has_cycle=has_cycle,
+        cycle_assay_ids=sorted(cycle_nodes),
+    )
 
 
 def assay_family(sample_kind: str) -> AssayFamily:
