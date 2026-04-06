@@ -235,3 +235,21 @@ def target_summary(target: ProteinTarget) -> dict[str, object]:
         "annotation_count": len(target.annotations),
         "annotation_evidence_ids": annotation_evidence_ids,
     }
+
+
+def summarize_tractability(target: ProteinTarget) -> dict[str, object]:
+    """Summarize tractability posture for a target."""
+    high_severity_flags = [
+        flag.code for flag in target.tractability_flags if flag.severity is OutcomeSeverity.HIGH
+    ]
+    high_severity_liabilities = [
+        liability.liability_id
+        for liability in target.mechanism_liabilities
+        if liability.severity is OutcomeSeverity.HIGH
+    ]
+    return {
+        "tractability_flag_count": len(target.tractability_flags),
+        "mechanism_liability_count": len(target.mechanism_liabilities),
+        "high_severity_flags": high_severity_flags,
+        "high_severity_liabilities": high_severity_liabilities,
+    }

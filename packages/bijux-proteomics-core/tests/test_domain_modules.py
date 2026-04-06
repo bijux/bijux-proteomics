@@ -34,6 +34,7 @@ from bijux_proteomics.targets import (
     TractabilityFlag,
     TargetAnnotation,
     TargetOutcome,
+    summarize_tractability,
     target_summary,
 )
 
@@ -205,6 +206,27 @@ def test_assess_constraint_risk_flags_blockers_without_mitigation() -> None:
 
     assert report.blocker_count == 1
     assert report.high_risk_constraints == ["constraint-1"]
+
+
+def test_summarize_tractability_flags_high_severity() -> None:
+    target = ProteinTarget(
+        target_id="target-tract",
+        name="Target",
+        sequence=ProteinSequence(target_id="target-tract", residues="ACDEFGHIKLMNPQRSTVWY"),
+        organism="human",
+        mechanism="stabilize fold",
+        tractability_flags=[
+            TractabilityFlag(code="risk-1", summary="hard to express", severity=OutcomeSeverity.HIGH)
+        ],
+        mechanism_liabilities=[
+            MechanismLiability(liability_id="liab-1", summary="allosteric risk", severity=OutcomeSeverity.HIGH)
+        ],
+    )
+
+    summary = summarize_tractability(target)
+
+    assert summary["high_severity_flags"] == ["risk-1"]
+    assert summary["high_severity_liabilities"] == ["liab-1"]
 
 
 def test_program_liability_supports_blocker_fields() -> None:
