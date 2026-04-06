@@ -358,6 +358,19 @@ class BatchClaimBeliefUpdate(JsonModel):
     contributing_assay_count: int = Field(default=0, ge=0, description="Number of assays contributing deltas.")
 
 
+class ObservationQualityProfile(JsonModel):
+    """Decomposed quality profile for an assay observation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    technical_reproducibility: float = Field(..., ge=0.0, le=1.0, description="Replicate-level reproducibility score.")
+    qc_reliability: float = Field(..., ge=0.0, le=1.0, description="QC reliability score.")
+    interpretability: float = Field(..., ge=0.0, le=1.0, description="Interpretability score given normalization and censoring.")
+    composite_quality: float = Field(..., ge=0.0, le=1.0, description="Composite observation quality score.")
+    notes: list[str] = Field(default_factory=list, description="Quality rationale notes.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -855,4 +868,43 @@ def consolidate_claim_belief_updates(
         batch_id=outcome.batch_id,
         updates=updates,
         contributing_assay_count=contributing_assays,
+    )
+
+
+def assess_observation_quality(observation: AssayObservationRecord) -> ObservationQualityProfile:
+    """Assess observation quality from reproducibility, QC, and interpretation signals."""
+    notes: list[str] = []
+    if observation.replicate_values:
+        replicate_score = min(1.0, max(0.0, 1.0 - (observation.dispersion or 0.0)))
+    else:
+        replicate_score = 0.6
+        notes.append("replicate_values missing; reproducibility score is penalized")
+    if observation.qc_state is QcState.FAILED or not observation.qc_passed:
+        qc_score = 0.0
+        notes.append("qc indicates failed quality controls")
+    elif observation.qc_state is QcState.WARNING:
+        qc_score = 0.5
+        notes.append("qc warning state reduces confidence")
+    else:
+        qc_score = 1.0
+    interpretability = observation.interpretation_confidence
+    if observation.below_detection_limit:
+        interpretability = max(0.0, interpretability - 0.3)
+        notes.append("below detection limit lowers interpretability")
+    if observation.normalization_method is None:
+        interpretability = max(0.0, interpretability - 0.1)
+        notes.append("missing normalization method reduces interpretability")
+    composite = round(
+        max(0.0, min((replicate_score * 0.35) + (qc_score * 0.35) + (interpretability * 0.3), 1.0)),
+        4,
+    )
+    if not notes:
+        notes.append("observation quality is well-supported across dimensions")
+    return ObservationQualityProfile(
+        assay_id=observation.assay_id,
+        technical_reproducibility=round(replicate_score, 4),
+        qc_reliability=round(qc_score, 4),
+        interpretability=round(interpretability, 4),
+        composite_quality=composite,
+        notes=notes,
     )

@@ -41,6 +41,7 @@ from bijux_proteomics_lab import (
     triage_assay_failure,
     triage_batch_failures,
     consolidate_claim_belief_updates,
+    assess_observation_quality,
 )
 
 
@@ -430,6 +431,26 @@ def test_summarize_feedback_cycle_latency_reports_median() -> None:
 
     assert report.cycle_to_first_feedback_days["cycle-2"] == 3.0
     assert report.median_latency_days == 3.0
+
+
+def test_assess_observation_quality_decomposes_quality_dimensions() -> None:
+    quality = assess_observation_quality(
+        AssayObservationRecord(
+            assay_id="assay-1",
+            metric="binding_score",
+            value=0.8,
+            replicate_values=[0.78, 0.81, 0.79],
+            dispersion=0.05,
+            qc_state=QcState.WARNING,
+            interpretation_confidence=0.9,
+            below_detection_limit=True,
+            normalization_method=None,
+        )
+    )
+
+    assert quality.assay_id == "assay-1"
+    assert quality.qc_reliability == 0.5
+    assert quality.composite_quality < 0.9
 
 
 def test_query_feedback_records_supports_evidence_and_time_filters() -> None:
