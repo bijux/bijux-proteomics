@@ -30,6 +30,7 @@ from bijux_proteomics_intelligence import (
     build_rejection_action_plan,
     validate_metric_catalog,
     summarize_liability_focus,
+    summarize_uncertainty_pressure,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -369,6 +370,53 @@ def test_summarize_candidate_explainability_carries_evidence_gaps() -> None:
             evidence_gaps=["literature", "structure", "assay"],
         )
     ]
+
+
+def test_summarize_uncertainty_pressure_identifies_low_confidence_cluster() -> None:
+    program = create_program_spec(
+        program_id="prog-uncertainty",
+        name="uncertainty pressure",
+        objective="surface uncertainty pressure in ranking outputs",
+        target_id="target-uncertainty",
+        target_name="Target Uncertainty",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="rank candidates with confidence-aware summaries",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        )
+    )
+    ranking = prioritize_candidates(
+        program,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-high",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.9},
+                manufacturability_score=0.8,
+                uncertainty=0.1,
+                evidence_support=0.8,
+            ),
+            CandidateAssessment(
+                candidate_id="candidate-low",
+                sequence="ACDEFGHIKLMNPQRSTVWA",
+                metric_scores={"binding_score": 0.85},
+                manufacturability_score=0.75,
+                uncertainty=0.45,
+                evidence_support=0.6,
+            ),
+        ],
+    )
+
+    summary = summarize_uncertainty_pressure(ranking, confidence_floor=0.65)
+
+    assert summary.candidate_count == 2
+    assert "candidate-low" in summary.low_confidence_candidate_ids
 
 
 def test_candidate_score_breakdown_reports_weighted_contributions() -> None:

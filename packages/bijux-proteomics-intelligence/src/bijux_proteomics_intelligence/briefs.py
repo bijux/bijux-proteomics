@@ -233,6 +233,23 @@ class LiabilityFocusSummary(JsonModel):
     )
 
 
+class UncertaintyPressureSummary(JsonModel):
+    """Summary of uncertainty pressure across ranked candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_count: int = Field(..., ge=0, description="Number of ranked candidates considered.")
+    mean_confidence: float = Field(..., ge=0.0, le=1.0, description="Mean confidence across ranked candidates.")
+    low_confidence_candidate_ids: list[str] = Field(
+        default_factory=list,
+        description="Candidates below the confidence floor.",
+    )
+    uncertainty_pressure_high: bool = Field(
+        ...,
+        description="Whether uncertainty pressure is high enough to warrant a hold/redesign lens.",
+    )
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -537,4 +554,38 @@ def summarize_liability_focus(
     return LiabilityFocusSummary(
         liability_counts=counts,
         top_liabilities=top[:5],
+    )
+
+
+def summarize_uncertainty_pressure(
+    ranking: CandidateRanking,
+    *,
+    confidence_floor: float = 0.65,
+) -> UncertaintyPressureSummary:
+    """Summarize confidence and uncertainty pressure across ranked candidates."""
+    if not ranking.ranked_candidates:
+        return UncertaintyPressureSummary(
+            candidate_count=0,
+            mean_confidence=0.0,
+            low_confidence_candidate_ids=[],
+            uncertainty_pressure_high=False,
+        )
+    confidence_by_candidate: dict[str, float] = {}
+    for candidate in ranking.ranked_candidates:
+        confidence = candidate.explainability.get("confidence", 0.0)
+        confidence_by_candidate[candidate.candidate_id] = float(confidence)
+    low_confidence = sorted(
+        candidate_id
+        for candidate_id, confidence in confidence_by_candidate.items()
+        if confidence < confidence_floor
+    )
+    mean_confidence = round(
+        sum(confidence_by_candidate.values()) / len(confidence_by_candidate),
+        4,
+    )
+    return UncertaintyPressureSummary(
+        candidate_count=len(ranking.ranked_candidates),
+        mean_confidence=mean_confidence,
+        low_confidence_candidate_ids=low_confidence,
+        uncertainty_pressure_high=len(low_confidence) >= max(1, len(ranking.ranked_candidates) // 2),
     )
