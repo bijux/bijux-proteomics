@@ -34,16 +34,14 @@ sequenceDiagram
 ## Governance Rules
 
 - package code and tracked schema files must describe the same public behavior
-- drift checks belong in `bijux-proteomics-dev` or package tests, not in prose alone
+- drift checks belong in shared gates or package tests, not in prose alone
 - schema hashes and pinned OpenAPI artifacts should move only with reviewable intent
 
 ## Current Schema Roots
 
-- `api/bijux-proteomics-agent/v1`
-- `api/bijux-proteomics-index/v1`
-- `api/bijux-proteomics-ingest/v1`
-- `api/bijux-proteomics-reason/v1`
-- `api/bijux-proteomics-runtime/v1`
+- `api/v1/schema.yaml` for public runtime API contracts
+- package-local model schemas under `packages/*/src/**/schema.py`
+- package-local changelog and metadata links as release-facing contract references
 
 One public contract should have one reviewable story. If code, schema files,
 and release artifacts disagree, the docs are not the thing that will save us.

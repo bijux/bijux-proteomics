@@ -17,24 +17,25 @@ The split is not a packaging detail. The split is the design.
 
 ```mermaid
 flowchart LR
-    sources["upstream sources"] --> ingest["ingest<br/>clean, normalize, chunk"]
-    ingest --> index["index<br/>retrieve, rank, record provenance"]
-    index --> reason["reason<br/>form claims and checks from evidence"]
-    reason --> agent["agent<br/>coordinate roles and multi-step work"]
-    agent --> runtime["runtime<br/>govern replay, persistence, acceptance"]
+    sources["program goals and constraints"] --> foundation["foundation<br/>schema and serialization primitives"]
+    foundation --> core["core<br/>program contracts and lifecycle models"]
+    core --> knowledge["knowledge<br/>evidence and claim state"]
+    core --> intelligence["intelligence<br/>ranking and scenario decisions"]
+    knowledge --> intelligence
+    knowledge --> lab["lab<br/>assay plans and outcomes"]
+    intelligence --> runtime["agentic-proteins<br/>runtime orchestration and acceptance"]
+    lab --> runtime
     runtime --> records["accepted runs and durable records"]
 ```
 
 ## What Each Step Adds
 
-- `bijux-proteomics-ingest` makes source material deterministic enough to build on.
-- `bijux-proteomics-index` makes retrieval explicit and provenance-aware.
-- `bijux-proteomics-reason` turns evidence into claims that can be inspected and
-  challenged.
-- `bijux-proteomics-agent` coordinates role-based work so the system can do more
-  than one local step.
-- `bijux-proteomics-runtime` decides whether the resulting run is acceptable,
-  replayable, and worth keeping.
+- `bijux-proteomics-foundation` keeps shared payload semantics stable across packages.
+- `bijux-proteomics-core` defines durable program and gate contracts.
+- `bijux-proteomics-knowledge` tracks evidence and claim state explicitly.
+- `bijux-proteomics-intelligence` converts programs and evidence into ranking decisions.
+- `bijux-proteomics-lab` turns decisions into executable assay cycles.
+- `agentic-proteins` governs runtime execution, replay, and final acceptance.
 
 ## Why The Split Helps
 
