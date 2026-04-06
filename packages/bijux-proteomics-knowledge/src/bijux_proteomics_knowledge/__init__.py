@@ -76,6 +76,7 @@ from bijux_proteomics_knowledge.repositories import (
 from bijux_proteomics_knowledge.resolution import (
     ClaimBeliefUpdate,
     ConflictCluster,
+    ResolutionImpactPreview,
     ConflictResolution,
     ResolutionAction,
     ResolutionPolicy,
@@ -83,6 +84,7 @@ from bijux_proteomics_knowledge.resolution import (
     resolve_conflicts,
     apply_resolution_updates,
     cluster_conflicts,
+    preview_resolution_impact,
     summarize_resolutions,
 )
 from bijux_proteomics_knowledge.evidence import (
@@ -155,6 +157,7 @@ __all__ = [
     "ClaimStrengthUpdate",
     "ClaimBeliefUpdate",
     "ConflictCluster",
+    "ResolutionImpactPreview",
     "ConflictResolution",
     "ConflictPolicy",
     "DecisionReadiness",
@@ -257,6 +260,7 @@ __all__ = [
     "resolve_conflicts",
     "apply_resolution_updates",
     "cluster_conflicts",
+    "preview_resolution_impact",
     "summarize_resolutions",
     "StructureAnnotationIngestionAdapter",
     "attach_manual_notes",

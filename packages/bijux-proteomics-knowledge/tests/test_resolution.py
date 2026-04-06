@@ -16,6 +16,7 @@ from bijux_proteomics_knowledge import (
     QuantitativeSupport,
     apply_resolution_updates,
     cluster_conflicts,
+    preview_resolution_impact,
     build_claim,
     resolve_conflicts,
     summarize_resolutions,
@@ -408,6 +409,60 @@ def test_cluster_conflicts_groups_by_decision_tag_and_type() -> None:
     assert len(clusters) == 1
     assert clusters[0].decision_tag == "progression"
     assert clusters[0].recommended_hold is True
+
+
+def test_preview_resolution_impact_estimates_confidence_shift() -> None:
+    claim = build_claim(
+        claim_id="claim-impact",
+        target_id="target-1",
+        statement="impact preview claim",
+        evidence_ids=["assay-strong", "assay-weak"],
+        status=ClaimStatus.SUPPORTED,
+        confidence=0.7,
+        resolution_assays=["assay"],
+    )
+    resolutions = [
+        ClaimResolutionRecord(
+            record_id="r1",
+            target_id="target-1",
+            decision_tag="progression",
+            resolution=resolve_conflicts(
+                EvidenceBundle(
+                    bundle_id="bundle-impact",
+                    target_id="target-1",
+                    records=[
+                        EvidenceRecord(
+                            evidence_id="assay-strong",
+                            kind=EvidenceKind.ASSAY,
+                            title="strong",
+                            source="lab",
+                            source_type=EvidenceSourceType.LAB_ASSAY,
+                            claim="meets gate",
+                            decision_tags=["progression"],
+                            confidence=0.9,
+                            strength=EvidenceStrength.DECISIVE,
+                        ),
+                        EvidenceRecord(
+                            evidence_id="assay-weak",
+                            kind=EvidenceKind.ASSAY,
+                            title="weak",
+                            source="lab",
+                            source_type=EvidenceSourceType.LAB_ASSAY,
+                            claim="fails gate",
+                            decision_tags=["progression"],
+                            confidence=0.5,
+                            strength=EvidenceStrength.EXPLORATORY,
+                        ),
+                    ],
+                )
+            )[1][0],
+            recorded_by="tester",
+        ).resolution
+    ]
+    preview = preview_resolution_impact([claim], resolutions)
+
+    assert preview.claim_count == 1
+    assert preview.changed_claim_count >= 1
 
 
 def test_apply_resolution_updates_disputes_claim_when_hold_is_required() -> None:

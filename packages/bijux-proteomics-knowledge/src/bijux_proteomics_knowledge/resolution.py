@@ -116,6 +116,18 @@ class ConflictCluster(JsonModel):
     recommended_hold: bool = Field(default=False, description="Whether cluster should hold progression decisions.")
 
 
+class ResolutionImpactPreview(JsonModel):
+    """Estimated confidence impact of applying a set of conflict resolutions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_count: int = Field(default=0, ge=0, description="Number of claims evaluated.")
+    changed_claim_count: int = Field(default=0, ge=0, description="Number of claims expected to change.")
+    mean_confidence_before: float = Field(default=0.0, ge=0.0, le=1.0, description="Mean confidence before updates.")
+    mean_confidence_after: float = Field(default=0.0, ge=0.0, le=1.0, description="Mean confidence after updates.")
+    expected_supported_claims: int = Field(default=0, ge=0, description="Expected supported claim count after updates.")
+
+
 def resolve_conflicts(
     bundle: EvidenceBundle,
     *,
@@ -348,3 +360,28 @@ def cluster_conflicts(
             )
         )
     return grouped
+
+
+def preview_resolution_impact(
+    claims: list[EvidenceClaim],
+    resolutions: list[ConflictResolution],
+) -> ResolutionImpactPreview:
+    """Preview aggregate claim-confidence impact before persisting updates."""
+    if not claims:
+        return ResolutionImpactPreview()
+    before_mean = round(sum(claim.confidence for claim in claims) / len(claims), 4)
+    updated_claims, _ = apply_resolution_updates(claims, resolutions)
+    after_mean = round(sum(claim.confidence for claim in updated_claims) / len(updated_claims), 4)
+    changed = sum(
+        1
+        for original, updated in zip(claims, updated_claims, strict=False)
+        if original.confidence != updated.confidence or original.status is not updated.status
+    )
+    supported = sum(1 for claim in updated_claims if claim.status is ClaimStatus.SUPPORTED)
+    return ResolutionImpactPreview(
+        claim_count=len(claims),
+        changed_claim_count=changed,
+        mean_confidence_before=before_mean,
+        mean_confidence_after=after_mean,
+        expected_supported_claims=supported,
+    )
