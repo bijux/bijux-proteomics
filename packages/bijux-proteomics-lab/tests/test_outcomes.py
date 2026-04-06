@@ -25,6 +25,7 @@ from bijux_proteomics_lab import (
     summarize_feedback_trend,
     query_review_queue,
     summarize_review_queue,
+    summarize_review_queue_workload,
     ReviewQueueEntry,
     ReviewQueueQuery,
     recommend_rerun_policy,
@@ -334,6 +335,36 @@ def test_query_feedback_records_filters_by_cycle_and_assay() -> None:
     )
 
     assert [record.feedback_id for record in filtered] == ["f1"]
+
+
+def test_summarize_review_queue_workload_reports_stale_pressure() -> None:
+    now = datetime(2026, 4, 1, tzinfo=UTC)
+    entries = [
+        ReviewQueueEntry(
+            program_id="prog-1",
+            gate_id="gate-1",
+            summary="primary gate blocked",
+            created_at=datetime(2026, 3, 1, tzinfo=UTC),
+        ),
+        ReviewQueueEntry(
+            program_id="prog-1",
+            gate_id="gate-2",
+            summary="secondary gate blocked",
+            created_at=datetime(2026, 3, 20, tzinfo=UTC),
+        ),
+        ReviewQueueEntry(
+            program_id="prog-2",
+            gate_id="gate-1",
+            summary="new blocker",
+            created_at=datetime(2026, 3, 30, tzinfo=UTC),
+        ),
+    ]
+
+    report = summarize_review_queue_workload(entries, now=now, stale_after_days=10)
+
+    assert report.stale_entry_count == 2
+    assert report.by_program["prog-1"] == 2
+    assert report.pressure_score > 0.0
 
 
 def test_query_feedback_records_supports_evidence_and_time_filters() -> None:
