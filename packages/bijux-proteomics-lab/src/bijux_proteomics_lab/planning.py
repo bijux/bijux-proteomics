@@ -340,6 +340,25 @@ class ConflictResolutionPlan(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Human-readable plan notes.")
 
 
+class UncertaintyReductionPlan(JsonModel):
+    """Assay plan focused on reducing decision uncertainty."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision context under uncertainty reduction.")
+    prioritized_assay_ids: list[str] = Field(
+        default_factory=list,
+        description="Assays ordered by uncertainty reduction value.",
+    )
+    residual_uncertainty: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Estimated residual uncertainty after planned assays.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Plan notes for reviewers.")
+
+
 class DependencyCycleReport(JsonModel):
     """Cycle detection report for assay dependency graphs."""
 
@@ -848,6 +867,31 @@ def plan_conflict_resolution_assays(
         notes=[
             "prioritize assays with orthogonal readouts to resolve conflict pairs",
         ],
+    )
+
+
+def plan_uncertainty_reduction_assays(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+    *,
+    decision_tag: str = "progression",
+) -> UncertaintyReductionPlan:
+    """Plan assays that most reduce uncertainty for a target decision tag."""
+    priorities = prioritize_next_assays(program, bundle, observations)
+    prioritized = [item.assay_id for item in priorities[:5]]
+    top_score = priorities[0].score if priorities else 0.0
+    residual_uncertainty = round(max(0.0, 1.0 - top_score), 4)
+    notes = (
+        [f"selected top {len(prioritized)} assays by information-gain score for {decision_tag}"]
+        if prioritized
+        else [f"no pending assays available for {decision_tag} uncertainty reduction"]
+    )
+    return UncertaintyReductionPlan(
+        decision_tag=decision_tag,
+        prioritized_assay_ids=prioritized,
+        residual_uncertainty=residual_uncertainty,
+        notes=notes,
     )
 
 

@@ -62,6 +62,7 @@ from bijux_proteomics_lab.planning import (
     NextAssayPriority,
     OrthogonalConfirmationPlan,
     ConflictResolutionPlan,
+    UncertaintyReductionPlan,
     ProgressDecision,
     ReviewPacket,
     ScheduledBatch,
@@ -77,6 +78,7 @@ from bijux_proteomics_lab.planning import (
     score_assay_information_gain,
     recommend_orthogonal_confirmation,
     plan_conflict_resolution_assays,
+    plan_uncertainty_reduction_assays,
 )
 
 __all__ = [
@@ -121,6 +123,7 @@ __all__ = [
     "NextAssayPriority",
     "OrthogonalConfirmationPlan",
     "ConflictResolutionPlan",
+    "UncertaintyReductionPlan",
     "ProgressDecision",
     "RerunPolicy",
     "ReviewQueueEntry",
@@ -148,4 +151,5 @@ __all__ = [
     "score_assay_information_gain",
     "recommend_orthogonal_confirmation",
     "plan_conflict_resolution_assays",
+    "plan_uncertainty_reduction_assays",
 ]

@@ -31,6 +31,7 @@ from bijux_proteomics_lab import (
     plan_experiment_batches,
     prioritize_next_assays,
     plan_conflict_resolution_assays,
+    plan_uncertainty_reduction_assays,
     recommend_orthogonal_confirmation,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
@@ -671,3 +672,30 @@ def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist(
 
     assert plan.conflict_count > 0
     assert plan.suggested_assay_ids == ["assay-conflict"]
+
+
+def test_plan_uncertainty_reduction_assays_returns_ranked_backlog() -> None:
+    program = create_program_spec(
+        program_id="prog-ur",
+        name="uncertainty reduction",
+        objective="reduce uncertainty before progression",
+        target_id="target-ur",
+        target_name="Target",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="resolve uncertainty",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="assay-ur-1",
+            purpose="reduce uncertainty",
+            readout="activity_score",
+            sample_kind="cellular",
+            blocking=True,
+        )
+    )
+    bundle = EvidenceBundle(bundle_id="bundle-ur", target_id="target-ur")
+    plan = plan_uncertainty_reduction_assays(program, bundle, [], decision_tag="progression")
+
+    assert "assay-ur-1" in plan.prioritized_assay_ids
+    assert 0.0 <= plan.residual_uncertainty <= 1.0
