@@ -225,6 +225,16 @@ class ClaimContradictionMatrix(JsonModel):
     )
 
 
+class ClaimEvidenceLinkIssue(JsonModel):
+    """Issue in claim-to-evidence linkage integrity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    code: str = Field(..., min_length=1, description="Stable issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue message.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -662,3 +672,34 @@ def build_contradiction_matrix(
         rows=rows,
         relations=relations,
     )
+
+
+def audit_claim_evidence_links(
+    bundle: EvidenceBundle,
+    claims: list[EvidenceClaim],
+) -> list[ClaimEvidenceLinkIssue]:
+    """Audit claim references against evidence IDs present in the bundle."""
+    known_ids = {record.evidence_id for record in bundle.records}
+    issues: list[ClaimEvidenceLinkIssue] = []
+    for claim in claims:
+        missing_support = [evidence_id for evidence_id in claim.evidence_ids if evidence_id not in known_ids]
+        missing_contradictions = [
+            evidence_id for evidence_id in claim.contradicting_evidence_ids if evidence_id not in known_ids
+        ]
+        if missing_support:
+            issues.append(
+                ClaimEvidenceLinkIssue(
+                    claim_id=claim.claim_id,
+                    code="support-evidence-missing-in-bundle",
+                    message=f"missing support evidence ids: {', '.join(sorted(missing_support))}",
+                )
+            )
+        if missing_contradictions:
+            issues.append(
+                ClaimEvidenceLinkIssue(
+                    claim_id=claim.claim_id,
+                    code="contradiction-evidence-missing-in-bundle",
+                    message=f"missing contradiction evidence ids: {', '.join(sorted(missing_contradictions))}",
+                )
+            )
+    return issues

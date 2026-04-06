@@ -26,6 +26,7 @@ from bijux_proteomics_knowledge import (
     evaluate_claim_consistency,
     evaluate_mechanistic_completeness,
     build_contradiction_matrix,
+    audit_claim_evidence_links,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -528,3 +529,23 @@ def test_build_contradiction_matrix_marks_group_opposition() -> None:
     matrix = build_contradiction_matrix(bundle, [claim_a, claim_b], decision_tag="progression")
 
     assert matrix.relations["claim-matrix-a|claim-matrix-b"] == "same-group-opposing-polarity"
+
+
+def test_audit_claim_evidence_links_reports_missing_bundle_references() -> None:
+    bundle = EvidenceBundle(bundle_id="bundle-link", target_id="target-1")
+    claim = build_claim(
+        claim_id="claim-link-1",
+        target_id="target-1",
+        statement="missing links",
+        evidence_ids=["ev-missing-support"],
+        contradicting_evidence_ids=["ev-missing-contradiction"],
+        status=ClaimStatus.DISPUTED,
+        polarity=ClaimPolarity.CONTRADICTING,
+        resolution_assays=["assay"],
+    )
+    issues = audit_claim_evidence_links(bundle, [claim])
+
+    assert {issue.code for issue in issues} == {
+        "support-evidence-missing-in-bundle",
+        "contradiction-evidence-missing-in-bundle",
+    }
