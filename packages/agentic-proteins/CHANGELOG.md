@@ -21,7 +21,7 @@ All notable changes for `agentic-proteins` are recorded here.
 - Test path resolution now uses explicit monorepo-root detection so e2e,
   regression, and governance tests stay stable with nested package manifests.
 
-## 0.2.3 - 2026-03-29
+## 0.2.3 - 2026-01-16
 
 ### Added
 
@@ -38,7 +38,7 @@ All notable changes for `agentic-proteins` are recorded here.
 
 - Reliability checks and helper tests to keep coverage and gating stable.
 
-## 0.2.2 - 2026-03-28
+## 0.2.2 - 2026-01-16
 
 ### Added
 
@@ -52,7 +52,7 @@ All notable changes for `agentic-proteins` are recorded here.
 
 - Minor release hygiene issues discovered in CI.
 
-## 0.2.1 - 2026-03-28
+## 0.2.1 - 2026-01-16
 
 ### Added
 
@@ -70,7 +70,7 @@ All notable changes for `agentic-proteins` are recorded here.
 
 - Coverage floors and CI gates stabilized around new test layout.
 
-## 0.2.0 - 2026-03-27
+## 0.2.0 - 2026-01-16
 
 ### Added
 
@@ -86,7 +86,7 @@ All notable changes for `agentic-proteins` are recorded here.
   drift guard.
 - Dependency allowlist enforcement for SBOM changes.
 
-## 0.1.0 - 2025-12-17
+## 0.1.0 - 2026-01-14
 
 ### Added
 
