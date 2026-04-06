@@ -20,6 +20,7 @@ from bijux_proteomics_knowledge.evidence import (
     QuantitativeSupport,
 )
 from bijux_proteomics_knowledge.serialization import JsonModel
+from bijux_proteomics_knowledge.serialization import fingerprint_model
 
 
 class NormalizedEvidenceInput(JsonModel):
@@ -166,6 +167,10 @@ class IngestionReport(JsonModel):
         default_factory=list,
         description="Reasons for rejected normalized inputs.",
     )
+    accepted_fingerprints: dict[str, str] = Field(
+        default_factory=dict,
+        description="Stable fingerprints for accepted normalized evidence payloads.",
+    )
 
 
 def validate_normalized_input(
@@ -273,6 +278,7 @@ def ingest_inputs_with_report(
     duplicate_ids: list[str] = []
     rejection_reasons: list[str] = []
     rejected_records = 0
+    accepted_fingerprints: dict[str, str] = {}
     for item in inputs:
         if item.evidence_id in existing_ids:
             duplicate_ids.append(item.evidence_id)
@@ -284,6 +290,7 @@ def ingest_inputs_with_report(
             continue
         existing_ids.add(item.evidence_id)
         accepted.append(item)
+        accepted_fingerprints[item.evidence_id] = fingerprint_model(item)
     updated = attach_evidence_inputs(bundle, accepted)
     report = IngestionReport(
         bundle_id=bundle.bundle_id,
@@ -292,5 +299,6 @@ def ingest_inputs_with_report(
         duplicate_ids=duplicate_ids,
         rejected_records=rejected_records,
         rejection_reasons=rejection_reasons,
+        accepted_fingerprints=accepted_fingerprints,
     )
     return updated, report

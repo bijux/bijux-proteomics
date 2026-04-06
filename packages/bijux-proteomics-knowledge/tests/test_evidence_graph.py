@@ -191,6 +191,7 @@ def test_ingest_inputs_with_report_tracks_duplicates() -> None:
     assert len(updated.records) == 2
     assert report.added_records == 1
     assert report.duplicate_ids == ["existing-1"]
+    assert "new-1" in report.accepted_fingerprints
 
 
 def test_ingest_inputs_with_report_rejects_invalid_inputs_with_reasons() -> None:
