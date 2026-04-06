@@ -16,6 +16,7 @@ from bijux_proteomics_intelligence.outcomes import (
     CandidateRejection,
     RejectionReasonCode,
     TieBreakExplanation,
+    build_rejection_action_plan,
 )
 from bijux_proteomics_intelligence.policies import (
     RankingFactor,
@@ -361,12 +362,18 @@ def prioritize_candidates(
         )
         if not passed:
             rejected.append(candidate.candidate_id)
-            rejections.append(
-                CandidateRejection(
-                    candidate_id=candidate.candidate_id,
-                    reasons=rejection_reasons,
-                    reason_codes=rejection_reason_codes,
-                )
+            rejection = CandidateRejection(
+                candidate_id=candidate.candidate_id,
+                reasons=rejection_reasons,
+                reason_codes=rejection_reason_codes,
+            )
+            rejections.append(rejection)
+            action_plan = build_rejection_action_plan(rejection)
+            rejections[-1] = rejection.model_copy(
+                update={
+                    "recommended_experiments": action_plan.experiments,
+                    "reopen_conditions": action_plan.revisit_conditions,
+                }
             )
             continue
         threshold_count = max(len(program.success_criteria), 1)

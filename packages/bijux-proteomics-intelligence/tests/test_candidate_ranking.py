@@ -181,6 +181,7 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
     assert ranking.rejections[0].reason_codes == [
         RejectionReasonCode.LOW_METRIC_FRACTION
     ]
+    assert ranking.rejections[0].recommended_experiments
     assert ranking.ranked_candidates[0].explainability["confidence"] == 0.9
     assert ranking.ranked_candidates[0].explainability["factor_scores"] == {
         RankingFactor.CRITERIA.value: 0.7289,
