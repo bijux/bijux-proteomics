@@ -61,6 +61,7 @@ from bijux_proteomics_knowledge.review import (
     KnowledgeReviewPacket,
     build_knowledge_review_packet,
 )
+from bijux_proteomics_knowledge.serialization import fingerprint_model, to_canonical_json
 from bijux_proteomics_knowledge.repositories import (
     ClaimQuery,
     ClaimResolutionRecord,
@@ -193,6 +194,8 @@ __all__ = [
     "evaluate_schema_compatibility",
     "KnowledgeReviewPacket",
     "build_knowledge_review_packet",
+    "to_canonical_json",
+    "fingerprint_model",
     "build_claim",
     "close_claim",
     "link_evidence_to_claim",
