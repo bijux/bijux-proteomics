@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import re
+
+from tests.helpers.paths import repo_root
 
 
 ALLOWED_SECTION_ORDER = [
@@ -21,16 +22,8 @@ CODE_REF_RE = re.compile(
 )
 
 
-def _repo_root() -> Path:
-    path = Path(__file__).resolve()
-    for parent in [path] + list(path.parents):
-        if (parent / "pyproject.toml").exists():
-            return parent
-    raise FileNotFoundError("pyproject.toml not found for repo root")
-
-
 def test_docs_contract() -> None:
-    root = _repo_root()
+    root = repo_root()
     docs_dir = root / "docs"
     for doc in docs_dir.rglob("*.md"):
         text = doc.read_text()

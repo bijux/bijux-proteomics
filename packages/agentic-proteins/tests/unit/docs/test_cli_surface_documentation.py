@@ -3,12 +3,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import re
 
 import click
 
 from agentic_proteins.interfaces.cli import cli
+from tests.helpers.paths import repo_root
 
 
 def _collect_commands() -> set[str]:
@@ -38,16 +38,8 @@ def _collect_flags() -> set[str]:
     return flags
 
 
-def _repo_root() -> Path:
-    path = Path(__file__).resolve()
-    for parent in [path] + list(path.parents):
-        if (parent / "pyproject.toml").exists():
-            return parent
-    raise FileNotFoundError("pyproject.toml not found for repo root")
-
-
 def test_cli_surface_documented() -> None:
-    doc_path = _repo_root() / "docs/interface/cli_surface.md"
+    doc_path = repo_root() / "docs/interface/cli_surface.md"
     text = doc_path.read_text()
     documented_commands = set(
         re.findall(r"^- ([a-z0-9-]+(?: [a-z0-9-]+)?)\s*$", text, re.M)
