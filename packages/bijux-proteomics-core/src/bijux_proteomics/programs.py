@@ -13,6 +13,7 @@ from bijux_proteomics.context import (
 )
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.lifecycle import LifecycleTransition, ProgramLifecycle, allowed_next_stages, advance_stage
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.program_spec import (
     EvidenceNeed,
@@ -35,11 +36,13 @@ from bijux_proteomics.targets import ProteinTarget
 __all__ = [
     "AssayRequirement",
     "EvidenceNeed",
+    "LifecycleTransition",
     "MeasurementDirection",
     "OperatingModel",
     "ProgramContext",
     "ProgramDeliveryContext",
     "ProgramPortfolioContext",
+    "ProgramLifecycle",
     "ProgramSpec",
     "ProgramStage",
     "ProteinTarget",
@@ -53,5 +56,7 @@ __all__ = [
     "create_program_spec",
     "evaluate_review_gate",
     "evaluate_review_gates",
+    "advance_stage",
+    "allowed_next_stages",
     "program_summary",
 ]

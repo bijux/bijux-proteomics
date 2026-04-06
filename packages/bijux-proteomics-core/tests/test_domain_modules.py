@@ -11,7 +11,10 @@ from bijux_proteomics.context import (
 )
 from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage
+import pytest
+
+from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
+from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage, allowed_next_stages
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
@@ -108,7 +111,31 @@ def test_program_lifecycle_advances_between_stages() -> None:
         current_stage=ProgramStage.SCOPING,
     )
 
-    advanced = advance_stage(lifecycle, ProgramStage.DESIGN)
+    advanced = advance_stage(
+        lifecycle,
+        ProgramStage.DESIGN,
+        reason="design kickoff approved",
+        actor="scientist",
+    )
 
     assert advanced.current_stage is ProgramStage.DESIGN
     assert advanced.visited_stages == [ProgramStage.SCOPING, ProgramStage.DESIGN]
+    assert advanced.transitions[0].reason == "design kickoff approved"
+    assert advanced.transitions[0].actor == "scientist"
+
+
+def test_program_lifecycle_rejects_invalid_transition() -> None:
+    lifecycle = ProgramLifecycle(
+        program_id="prog-1",
+        current_stage=ProgramStage.SCOPING,
+    )
+
+    with pytest.raises(InvalidLifecycleTransitionError):
+        advance_stage(lifecycle, ProgramStage.LAB_READY)
+
+
+def test_allowed_next_stages_exposes_transition_map() -> None:
+    assert allowed_next_stages(ProgramStage.REVIEW) == {
+        ProgramStage.DESIGN,
+        ProgramStage.LAB_READY,
+    }

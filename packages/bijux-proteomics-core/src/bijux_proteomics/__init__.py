@@ -15,11 +15,17 @@ from bijux_proteomics.constraints import ScientificConstraint
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.exceptions import (
     BijuxProteomicsError,
+    InvalidLifecycleTransitionError,
     ProgramValidationError,
     ReviewGateBlockedError,
 )
 from bijux_proteomics.execution_backend import ExecutionBackend, ExecutionRequest
-from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage
+from bijux_proteomics.lifecycle import (
+    LifecycleTransition,
+    ProgramLifecycle,
+    advance_stage,
+    allowed_next_stages,
+)
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.program_spec import (
@@ -60,7 +66,9 @@ __all__ = [
     "AssayRequirement",
     "EvidenceNeed",
     "BijuxProteomicsError",
+    "InvalidLifecycleTransitionError",
     "LiabilityCategory",
+    "LifecycleTransition",
     "MeasurementDirection",
     "OperatingModel",
     "ProgramContext",
@@ -94,6 +102,7 @@ __all__ = [
     "evaluate_review_gate",
     "evaluate_review_gates",
     "advance_stage",
+    "allowed_next_stages",
     "create_program_spec",
     "ensure_review_clearance",
     "execute_program",

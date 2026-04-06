@@ -25,3 +25,7 @@ class ProgramValidationError(BijuxProteomicsError):
 
 class ReviewGateBlockedError(BijuxProteomicsError):
     """Raised when execution is attempted before required review decisions exist."""
+
+
+class InvalidLifecycleTransitionError(BijuxProteomicsError):
+    """Raised when a program lifecycle transition is not allowed."""
