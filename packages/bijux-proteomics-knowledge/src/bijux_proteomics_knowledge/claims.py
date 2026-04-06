@@ -22,6 +22,14 @@ class ClaimStatus(StrEnum):
     INSUFFICIENT = "insufficient"
 
 
+class ClaimPolarity(StrEnum):
+    """Polarity of a scientific claim."""
+
+    SUPPORTING = "supporting"
+    CONTRADICTING = "contradicting"
+    NEUTRAL = "neutral"
+
+
 class EvidenceClaim(JsonModel):
     """A claim backed by one or more evidence records."""
 
@@ -35,6 +43,10 @@ class EvidenceClaim(JsonModel):
         description="Evidence records supporting the claim.",
     )
     status: ClaimStatus = Field(..., description="Current support status for the claim.")
+    polarity: ClaimPolarity = Field(
+        default=ClaimPolarity.SUPPORTING,
+        description="Whether the claim supports or contradicts progression.",
+    )
 
 
 class DecisionLineage(JsonModel):
@@ -46,6 +58,10 @@ class DecisionLineage(JsonModel):
     claim_ids: list[EvidenceId] = Field(
         default_factory=list,
         description="Claims that inform the decision.",
+    )
+    disputed_claim_ids: list[EvidenceId] = Field(
+        default_factory=list,
+        description="Claims that dispute or contradict the decision context.",
     )
     evidence_ids: list[EvidenceId] = Field(
         default_factory=list,
@@ -60,6 +76,7 @@ def build_claim(
     statement: str,
     evidence_ids: list[str],
     status: ClaimStatus,
+    polarity: ClaimPolarity = ClaimPolarity.SUPPORTING,
 ) -> EvidenceClaim:
     """Build a claim from explicit evidence identifiers."""
     return EvidenceClaim(
@@ -68,6 +85,7 @@ def build_claim(
         statement=statement,
         evidence_ids=evidence_ids,
         status=status,
+        polarity=polarity,
     )
 
 
@@ -86,6 +104,15 @@ def build_decision_lineage(
             for record in bundle.records
         )
     ]
+    disputed_claims = [
+        claim
+        for claim in claims
+        if claim.polarity is ClaimPolarity.CONTRADICTING
+        and any(
+            record.evidence_id in claim.evidence_ids and decision_tag in record.decision_tags
+            for record in bundle.records
+        )
+    ]
     evidence_ids = [
         record.evidence_id
         for record in bundle.records
@@ -95,5 +122,6 @@ def build_decision_lineage(
     return DecisionLineage(
         decision_tag=decision_tag,
         claim_ids=[claim.claim_id for claim in selected_claims],
+        disputed_claim_ids=[claim.claim_id for claim in disputed_claims],
         evidence_ids=evidence_ids,
     )

@@ -16,6 +16,7 @@ from bijux_proteomics_knowledge.adapters import (
     attach_manual_notes,
 )
 from bijux_proteomics_knowledge.claims import (
+    ClaimPolarity,
     ClaimStatus,
     DecisionLineage,
     EvidenceClaim,
@@ -76,6 +77,7 @@ from bijux_proteomics_knowledge.evidence import (
 __all__ = [
     "AssayResultIngestionAdapter",
     "BundleTrustReport",
+    "ClaimPolarity",
     "ClaimStatus",
     "ConflictResolution",
     "ConflictPolicy",
