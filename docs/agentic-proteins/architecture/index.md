@@ -25,23 +25,23 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["execution engines and lifecycle logic"]
+    module1["execution lifecycle and orchestration flows"]
     module1 --> page
-    module2["orchestration and replay coordination"]
+    module2["state, memory, and artifact continuity"]
     module2 --> page
-    module3["durable runtime models"]
+    module3["contract and schema protection across API and tools"]
     module3 --> page
-    code1["src/agentic_proteins/model"]
+    code1["src/agentic_proteins/execution and src/agentic_proteins/design_loop"]
     page --> code1
-    code2["src/agentic_proteins/runtime"]
+    code2["src/agentic_proteins/runtime, src/agentic_proteins/state, src/agentic_proteins/memory"]
     page --> code2
-    code3["src/agentic_proteins/application"]
+    code3["src/agentic_proteins/core, src/agentic_proteins/api, src/agentic_proteins/interfaces"]
     page --> code3
-    pressure1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    pressure1["tests/api and tests/integration for contract and boundary behavior"]
     pressure1 -.tests whether this structure still holds.-> page
     pressure2["tests/e2e for governed flow behavior"]
     pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/regression and tests/smoke for replay and storage protection"]
+    pressure3["tests/regression for drift detection across execution and memory behavior"]
     pressure3 -.tests whether this structure still holds.-> page
     class page page;
     class module1,module2,module3 positive;
@@ -70,9 +70,9 @@ flowchart LR
 
 ## Concrete Anchors
 
-- `src/agentic_proteins/model` for durable runtime models
-- `src/agentic_proteins/runtime` for execution engines and lifecycle logic
-- `src/agentic_proteins/application` for orchestration and replay coordination
+- `src/agentic_proteins/execution` and `src/agentic_proteins/design_loop` for lifecycle and loop orchestration
+- `src/agentic_proteins/runtime`, `src/agentic_proteins/state`, and `src/agentic_proteins/memory` for continuity and persistence
+- `src/agentic_proteins/core`, `src/agentic_proteins/api`, and `src/agentic_proteins/interfaces` for contracts and entry surfaces
 
 ## Use This Page When
 
