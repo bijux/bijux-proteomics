@@ -491,6 +491,16 @@ class QuantitativeSupportReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Interpretation notes for score drivers.")
 
 
+class EvidenceContextCompletenessReport(JsonModel):
+    """Completeness report for contextual scientific fields on one evidence record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
+    completeness_score: float = Field(..., ge=0.0, le=1.0, description="Context completeness score.")
+    missing_fields: list[str] = Field(default_factory=list, description="Context fields that are missing.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -691,6 +701,31 @@ def evaluate_quantitative_support(
     return QuantitativeSupportReport(
         support_score=max(0.0, min(round(score, 4), 1.0)),
         notes=notes,
+    )
+
+
+def assess_context_completeness(
+    record: EvidenceRecord,
+) -> EvidenceContextCompletenessReport:
+    """Assess whether key biological and assay context fields are populated."""
+    required_fields = {
+        "assay_modality": record.assay_modality,
+        "biological_system": record.biological_system,
+        "species": record.species,
+        "sample_type": record.sample_type,
+        "endpoint": record.endpoint,
+    }
+    missing_fields = [
+        field_name
+        for field_name, field_value in required_fields.items()
+        if field_value is None or not str(field_value).strip()
+    ]
+    filled = len(required_fields) - len(missing_fields)
+    score = round(filled / len(required_fields), 4)
+    return EvidenceContextCompletenessReport(
+        evidence_id=record.evidence_id,
+        completeness_score=score,
+        missing_fields=missing_fields,
     )
 
 

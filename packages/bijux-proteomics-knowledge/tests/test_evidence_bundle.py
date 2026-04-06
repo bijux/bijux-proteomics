@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from bijux_proteomics_knowledge import (
     aging_records,
     assess_decision_readiness,
+    assess_context_completeness,
     assess_context_compatibility,
     assess_artifact_risk,
     attach_manual_notes,
@@ -734,3 +735,48 @@ def test_evaluate_quantitative_support_penalizes_censored_signal() -> None:
 
     assert report.support_score < 0.5
     assert "quantitative estimate is censored by detection limit" in report.notes
+
+
+def test_assess_context_completeness_reports_missing_context_fields() -> None:
+    report = assess_context_completeness(
+        EvidenceRecord(
+            evidence_id="assay-context-1",
+            kind=EvidenceKind.ASSAY,
+            title="Context-light assay",
+            source="lab",
+            claim="Candidate appears active.",
+            confidence=0.8,
+            strength=EvidenceStrength.SUPPORTING,
+            species="human",
+        )
+    )
+
+    assert report.completeness_score == 0.2
+    assert sorted(report.missing_fields) == [
+        "assay_modality",
+        "biological_system",
+        "endpoint",
+        "sample_type",
+    ]
+
+
+def test_assess_context_completeness_scores_full_context_record() -> None:
+    report = assess_context_completeness(
+        EvidenceRecord(
+            evidence_id="assay-context-2",
+            kind=EvidenceKind.ASSAY,
+            title="Context-rich assay",
+            source="lab",
+            claim="Candidate remains active.",
+            confidence=0.9,
+            strength=EvidenceStrength.DECISIVE,
+            assay_modality="cellular",
+            biological_system="HEK293",
+            species="human",
+            sample_type="whole-cell lysate",
+            endpoint="viability rescue",
+        )
+    )
+
+    assert report.completeness_score == 1.0
+    assert report.missing_fields == []
