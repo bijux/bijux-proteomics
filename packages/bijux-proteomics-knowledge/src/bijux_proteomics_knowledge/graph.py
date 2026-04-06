@@ -78,6 +78,16 @@ class LiabilityNodeInput(JsonModel):
     related_decision_tags: list[str] = Field(default_factory=list, description="Decision tags affected by the liability.")
 
 
+class DecisionTracePath(JsonModel):
+    """Path trace from a decision node to supporting graph nodes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision tag origin.")
+    terminal_node_id: str = Field(..., min_length=1, description="Terminal node reached by the trace.")
+    path: list[str] = Field(default_factory=list, description="Ordered node IDs from decision to terminal node.")
+
+
 def build_evidence_graph(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim] | None = None,
@@ -318,3 +328,40 @@ def extract_decision_subgraph(graph: EvidenceGraph, *, decision_tag: str) -> Evi
         nodes=sub_nodes,
         edges=sub_edges,
     )
+
+
+def trace_decision_paths(graph: EvidenceGraph, *, decision_tag: str) -> list[DecisionTracePath]:
+    """Trace outbound paths from one decision node to terminal evidence/assay nodes."""
+    start = f"decision:{decision_tag}"
+    adjacency: dict[str, list[str]] = {}
+    for edge in graph.edges:
+        adjacency.setdefault(edge.source_node_id, []).append(edge.target_node_id)
+        adjacency.setdefault(edge.target_node_id, []).append(edge.source_node_id)
+    if start not in adjacency:
+        return []
+    traces: list[DecisionTracePath] = []
+    stack: list[tuple[str, list[str]]] = [(start, [start])]
+    visited_paths: set[tuple[str, ...]] = set()
+    while stack:
+        node_id, path = stack.pop()
+        neighbors = adjacency.get(node_id, [])
+        progressed = False
+        for neighbor in neighbors:
+            if neighbor in path:
+                continue
+            progressed = True
+            next_path = path + [neighbor]
+            key = tuple(next_path)
+            if key in visited_paths:
+                continue
+            visited_paths.add(key)
+            stack.append((neighbor, next_path))
+        if not progressed and node_id != start:
+            traces.append(
+                DecisionTracePath(
+                    decision_tag=decision_tag,
+                    terminal_node_id=node_id,
+                    path=path,
+                )
+            )
+    return sorted(traces, key=lambda item: (len(item.path), item.terminal_node_id))

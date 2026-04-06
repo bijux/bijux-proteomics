@@ -19,6 +19,7 @@ from bijux_proteomics_knowledge import (
     ingest_inputs_with_report,
     build_evidence_graph,
     extract_decision_subgraph,
+    trace_decision_paths,
 )
 
 
@@ -119,6 +120,30 @@ def test_extract_decision_subgraph_keeps_decision_scoped_nodes() -> None:
 
     assert any(node.node_id == "decision:progression" for node in subgraph.nodes)
     assert len(subgraph.nodes) <= len(graph.nodes)
+
+
+def test_trace_decision_paths_returns_terminal_paths() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-trace",
+        target_id="target-trace",
+        records=[
+            EvidenceRecord(
+                evidence_id="trace-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="supports progression",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    graph = build_evidence_graph(bundle)
+    traces = trace_decision_paths(graph, decision_tag="progression")
+
+    assert len(traces) >= 1
+    assert traces[0].path[0] == "decision:progression"
 
 
 def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
