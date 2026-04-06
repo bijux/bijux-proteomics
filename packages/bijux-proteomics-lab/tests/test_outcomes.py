@@ -29,6 +29,7 @@ from bijux_proteomics_lab import (
     summarize_feedback_cycle_latency,
     detect_feedback_anomalies,
     forecast_cycle_workload,
+    summarize_feedback_lineage_coverage,
     ReviewQueueEntry,
     ReviewQueueQuery,
     recommend_rerun_policy,
@@ -512,6 +513,32 @@ def test_forecast_cycle_workload_estimates_pressure_from_history() -> None:
 
     assert forecast.forecast_feedback_count > 0
     assert forecast.forecast_review_entries == 2
+
+
+def test_summarize_feedback_lineage_coverage_counts_full_lineage_records() -> None:
+    records = [
+        LabFeedbackRecord(
+            feedback_id="f1",
+            program_id="prog-lineage",
+            cycle_id="c1",
+            summary="full",
+            related_assay_ids=["a1"],
+            related_evidence_ids=["e1"],
+        ),
+        LabFeedbackRecord(
+            feedback_id="f2",
+            program_id="prog-lineage",
+            cycle_id="c1",
+            summary="assay only",
+            related_assay_ids=["a2"],
+            related_evidence_ids=[],
+        ),
+    ]
+
+    report = summarize_feedback_lineage_coverage(records, program_id="prog-lineage")
+
+    assert report.full_lineage_count == 1
+    assert report.records_with_assay_lineage == 2
 
 
 def test_promote_batch_outcome_to_evidence_respects_quality_policy() -> None:

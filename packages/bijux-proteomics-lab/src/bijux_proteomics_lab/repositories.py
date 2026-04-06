@@ -159,6 +159,18 @@ class CycleWorkloadForecast(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Forecast interpretation notes.")
 
 
+class FeedbackLineageCoverageReport(JsonModel):
+    """Coverage report for assay/evidence lineage in feedback records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    records_with_assay_lineage: int = Field(default=0, ge=0, description="Records containing assay lineage.")
+    records_with_evidence_lineage: int = Field(default=0, ge=0, description="Records containing evidence lineage.")
+    full_lineage_count: int = Field(default=0, ge=0, description="Records containing both assay and evidence lineage.")
+    lineage_coverage_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Normalized lineage coverage score.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -371,4 +383,25 @@ def forecast_cycle_workload(
         forecast_review_entries=review_forecast,
         pressure_score=pressure_score,
         notes=notes,
+    )
+
+
+def summarize_feedback_lineage_coverage(
+    records: list[LabFeedbackRecord],
+    *,
+    program_id: str,
+) -> FeedbackLineageCoverageReport:
+    """Summarize how well feedback records preserve lineage context."""
+    filtered = [record for record in records if record.program_id == program_id]
+    assay_count = sum(1 for record in filtered if record.related_assay_ids)
+    evidence_count = sum(1 for record in filtered if record.related_evidence_ids)
+    full_count = sum(1 for record in filtered if record.related_assay_ids and record.related_evidence_ids)
+    total = len(filtered)
+    score = round((full_count / total), 4) if total else 0.0
+    return FeedbackLineageCoverageReport(
+        program_id=program_id,
+        records_with_assay_lineage=assay_count,
+        records_with_evidence_lineage=evidence_count,
+        full_lineage_count=full_count,
+        lineage_coverage_score=score,
     )
