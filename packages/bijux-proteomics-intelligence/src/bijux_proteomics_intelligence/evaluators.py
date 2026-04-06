@@ -165,6 +165,18 @@ class ScenarioSetEvaluation(JsonModel):
     redesign: ScenarioEvaluation = Field(..., description="Redesign evaluation.")
 
 
+class PortfolioDecisionReport(JsonModel):
+    """Portfolio-level quality report for ranked candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_count: int = Field(..., ge=0, description="Number of ranked candidates evaluated.")
+    liability_diversity: int = Field(..., ge=0, description="Distinct liability blocker labels in top candidates.")
+    mean_residual_risk: float = Field(..., ge=0.0, le=1.0, description="Average residual risk across top candidates.")
+    balanced_portfolio: bool = Field(..., description="Whether the shortlist appears balanced for progression.")
+    notes: list[str] = Field(default_factory=list, description="Short explanation of portfolio quality.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -429,4 +441,44 @@ def evaluate_all_scenarios(
             readiness,
             policy=policies.redesign,
         ),
+    )
+
+
+def evaluate_portfolio_balance(
+    ranking: CandidateRanking,
+    risks: list[CandidateRiskProfile],
+    *,
+    top_n: int = 3,
+) -> PortfolioDecisionReport:
+    """Assess whether top ranked candidates form a scientifically balanced portfolio."""
+    top_candidates = ranking.ranked_candidates[: max(top_n, 1)]
+    selected_ids = [candidate.candidate_id for candidate in top_candidates]
+    risk_map = {risk.candidate_id: risk for risk in risks}
+    selected_risks = [risk_map[candidate_id] for candidate_id in selected_ids if candidate_id in risk_map]
+    liability_labels: set[str] = set()
+    for candidate in top_candidates:
+        blockers = candidate.explainability.get("blockers", [])
+        if isinstance(blockers, list):
+            for blocker in blockers:
+                liability_labels.add(str(blocker))
+    mean_residual_risk = (
+        round(sum(risk.residual_risk for risk in selected_risks) / len(selected_risks), 4)
+        if selected_risks
+        else 0.0
+    )
+    notes: list[str] = []
+    low_diversity = len(liability_labels) <= 1 and len(top_candidates) > 1
+    high_risk = mean_residual_risk > 0.5
+    if low_diversity:
+        notes.append("top candidates share similar blocker patterns and may limit portfolio diversity")
+    if high_risk:
+        notes.append("mean residual risk is above preferred portfolio threshold")
+    if not notes:
+        notes.append("top candidate set shows acceptable diversity and risk posture")
+    return PortfolioDecisionReport(
+        candidate_count=len(top_candidates),
+        liability_diversity=len(liability_labels),
+        mean_residual_risk=mean_residual_risk,
+        balanced_portfolio=not low_diversity and not high_risk,
+        notes=notes,
     )

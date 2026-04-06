@@ -19,6 +19,7 @@ from bijux_proteomics_intelligence import (
     RankedCandidate,
     ScaleUpPolicy,
     ScenarioAction,
+    evaluate_portfolio_balance,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -262,3 +263,33 @@ def test_evaluate_all_scenarios_returns_grouped_actions() -> None:
 
     assert grouped.progression.action is ScenarioAction.ADVANCE
     assert grouped.scale_up.action is ScenarioAction.SCALE_UP
+
+
+def test_evaluate_portfolio_balance_flags_low_diversity_high_risk_shortlist() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-portfolio",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-1",
+                score=1.2,
+                rank=1,
+                explainability={"blockers": ["aggregation"]},
+            ),
+            RankedCandidate(
+                candidate_id="candidate-2",
+                score=1.1,
+                rank=2,
+                explainability={"blockers": ["aggregation"]},
+            ),
+        ],
+    )
+    risks = [
+        CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6),
+        CandidateRiskProfile(candidate_id="candidate-2", residual_risk=0.55),
+    ]
+
+    report = evaluate_portfolio_balance(ranking, risks, top_n=2)
+
+    assert report.balanced_portfolio is False
+    assert report.liability_diversity == 1
+    assert report.mean_residual_risk > 0.5
