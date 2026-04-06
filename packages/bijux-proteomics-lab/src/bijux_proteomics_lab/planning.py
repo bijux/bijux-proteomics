@@ -92,6 +92,7 @@ class AssayFamily(StrEnum):
     BIOPHYSICAL = "biophysical"
     EXPRESSION = "expression"
     CELLULAR = "cellular"
+    DEVELOPABILITY = "developability"
     OTHER = "other"
 
 
@@ -319,7 +320,21 @@ def assay_family(sample_kind: str) -> AssayFamily:
         return AssayFamily.EXPRESSION
     if "cell" in lowered:
         return AssayFamily.CELLULAR
+    if "develop" in lowered or "aggregation" in lowered or "stability" in lowered:
+        return AssayFamily.DEVELOPABILITY
     return AssayFamily.OTHER
+
+
+def assay_family_priority(family: AssayFamily) -> int:
+    """Return scientific execution priority for assay families."""
+    order = {
+        AssayFamily.BIOPHYSICAL: 1,
+        AssayFamily.EXPRESSION: 2,
+        AssayFamily.CELLULAR: 3,
+        AssayFamily.DEVELOPABILITY: 4,
+        AssayFamily.OTHER: 5,
+    }
+    return order[family]
 
 
 def plan_experiment_batches(
@@ -336,7 +351,7 @@ def plan_experiment_batches(
     priority = 1
     for (blocking, family), assays in sorted(
         grouped.items(),
-        key=lambda item: (not item[0][0], item[0][1].value),
+        key=lambda item: (not item[0][0], assay_family_priority(item[0][1])),
     ):
         ordered_assays = dependency_order([assay.assay_id for assay in assays], dependencies)
         batches.append(

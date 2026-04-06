@@ -12,6 +12,7 @@ from bijux_proteomics_lab import (
     AssayDependency,
     AssayFamily,
     AssayObservation,
+    assay_family_priority,
     ExperimentBatch,
     ExperimentPlan,
     FamilyCapacity,
@@ -438,3 +439,8 @@ def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
     )
 
     assert ranked[0].assay_id == "a-block"
+
+
+def test_assay_family_priority_uses_scientific_execution_order() -> None:
+    assert assay_family_priority(AssayFamily.BIOPHYSICAL) < assay_family_priority(AssayFamily.CELLULAR)
+    assert assay_family_priority(AssayFamily.CELLULAR) < assay_family_priority(AssayFamily.DEVELOPABILITY)
