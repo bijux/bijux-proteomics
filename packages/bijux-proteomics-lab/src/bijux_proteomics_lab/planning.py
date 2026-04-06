@@ -13,6 +13,7 @@ from bijux_proteomics.programs import ProgramSpec
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     assess_decision_readiness,
+    compute_bundle_trust,
     evidence_gaps,
 )
 from bijux_proteomics_foundation import (
@@ -209,6 +210,12 @@ class ClosedLoopPlan(JsonModel):
         default_factory=list,
         description="Short reasoning notes for the recommendation.",
     )
+    evidence_trust_score: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Trust score used to weight the recommendation.",
+    )
 
 
 class LabCapacity(JsonModel):
@@ -401,6 +408,7 @@ def recommend_next_cycle(
 ) -> ClosedLoopPlan:
     """Recommend the next closed-loop action for the program."""
     review_packet = build_review_packet(program, bundle, observations)
+    trust = compute_bundle_trust(bundle)
     failed_assays = [
         observation.assay_id for observation in observations if not observation.passed
     ]
@@ -417,8 +425,9 @@ def recommend_next_cycle(
             evidence_backlog=[],
             assay_backlog=[],
             notes=["evidence and assays support progression to the next spend"],
+            evidence_trust_score=trust.trust_score,
         )
-    if failed_assays:
+    if failed_assays or trust.trust_score < 0.5:
         return ClosedLoopPlan(
             program_id=program.program_id,
             decision=ProgressDecision.REDESIGN,
@@ -427,7 +436,12 @@ def recommend_next_cycle(
                 [need.value for need in program.evidence_needs],
             ),
             assay_backlog=failed_assays,
-            notes=["failed assays indicate the design loop should change before progression"],
+            notes=[
+                "failed assays indicate the design loop should change before progression"
+                if failed_assays
+                else "low evidence trust indicates the program should be reworked before progression"
+            ],
+            evidence_trust_score=trust.trust_score,
         )
     return ClosedLoopPlan(
         program_id=program.program_id,
@@ -438,6 +452,7 @@ def recommend_next_cycle(
         ),
         assay_backlog=pending_assays,
         notes=["complete missing evidence and assay work before progression"],
+        evidence_trust_score=trust.trust_score,
     )
 
 

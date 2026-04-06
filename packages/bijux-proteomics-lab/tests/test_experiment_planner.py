@@ -228,6 +228,39 @@ def test_recommend_next_cycle_requests_redesign_after_failed_assay() -> None:
     assert plan.assay_backlog == ["primary-binding"]
 
 
+def test_recommend_next_cycle_redesigns_when_evidence_trust_is_too_low() -> None:
+    program = create_program_spec(
+        program_id="prog-2",
+        name="trust weighted cycle",
+        objective="hold weak evidence out of progression",
+        target_id="target-2",
+        target_name="Target",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="use evidence trust in the loop",
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-low-trust",
+        target_id="target-2",
+        records=[
+            EvidenceRecord(
+                evidence_id="note-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Weak note",
+                source="PMID:weak",
+                claim="The target may matter.",
+                confidence=0.2,
+                strength=EvidenceStrength.EXPLORATORY,
+            )
+        ],
+    )
+
+    plan = recommend_next_cycle(program, bundle, [])
+
+    assert plan.decision is ProgressDecision.REDESIGN
+    assert plan.evidence_trust_score < 0.5
+
+
 def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
     plan = ExperimentPlan(
         program_id="prog-1",
