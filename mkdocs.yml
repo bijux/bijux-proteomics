@@ -24,6 +24,7 @@ nav:
       - Repository Scope: bijux-proteomics/repository-scope.md
       - Workspace Layout: bijux-proteomics/workspace-layout.md
       - Package Map: bijux-proteomics/package-map.md
+      - API Contracts: bijux-proteomics/apis.md
       - API and Schema Governance: bijux-proteomics/api-and-schema-governance.md
       - Local Development: bijux-proteomics/local-development.md
       - Testing and Validation: bijux-proteomics/testing-and-validation.md

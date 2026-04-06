@@ -5,6 +5,7 @@ commands.
 
 | Maintainer command | Module entrypoint |
 | --- | --- |
+| `make api-freeze` | `python -m bijux_proteomics_dev.api.freeze_contracts` |
 | `make docs-links` | `python -m bijux_proteomics_dev.docs.markdown_links` |
 | `make quality` docs consistency step | `python -m bijux_proteomics_dev.docs.consistency` |
 | `make openapi-drift` | `python -m bijux_proteomics_dev.api.openapi_drift` |
