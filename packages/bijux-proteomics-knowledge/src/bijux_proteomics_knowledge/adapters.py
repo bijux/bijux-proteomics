@@ -118,6 +118,20 @@ class ManualEvidenceNoteAdapter(Protocol):
         """Return curated notes for a target."""
 
 
+class IngestionReport(JsonModel):
+    """Summary of one ingestion run into an evidence bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1, description="Target evidence bundle identifier.")
+    added_records: int = Field(default=0, ge=0, description="Number of records added.")
+    skipped_records: int = Field(default=0, ge=0, description="Number of records skipped.")
+    duplicate_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers skipped because they already existed.",
+    )
+
+
 def attach_evidence_inputs(
     bundle: EvidenceBundle,
     inputs: list[NormalizedEvidenceInput],
@@ -174,3 +188,27 @@ def attach_manual_notes(
             for note in notes
         ],
     )
+
+
+def ingest_inputs_with_report(
+    bundle: EvidenceBundle,
+    inputs: list[NormalizedEvidenceInput],
+) -> tuple[EvidenceBundle, IngestionReport]:
+    """Attach normalized inputs and return an auditable ingestion report."""
+    existing_ids = {record.evidence_id for record in bundle.records}
+    accepted: list[NormalizedEvidenceInput] = []
+    duplicate_ids: list[str] = []
+    for item in inputs:
+        if item.evidence_id in existing_ids:
+            duplicate_ids.append(item.evidence_id)
+            continue
+        existing_ids.add(item.evidence_id)
+        accepted.append(item)
+    updated = attach_evidence_inputs(bundle, accepted)
+    report = IngestionReport(
+        bundle_id=bundle.bundle_id,
+        added_records=len(accepted),
+        skipped_records=len(duplicate_ids),
+        duplicate_ids=duplicate_ids,
+    )
+    return updated, report

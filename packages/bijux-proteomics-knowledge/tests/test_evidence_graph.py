@@ -13,6 +13,7 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     NormalizedEvidenceInput,
     attach_evidence_inputs,
+    ingest_inputs_with_report,
     build_evidence_graph,
 )
 
@@ -92,3 +93,51 @@ def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
 
     assert len(updated.records) == 1
     assert updated.records[0].source_type is EvidenceSourceType.STRUCTURE_MODEL
+
+
+def test_ingest_inputs_with_report_tracks_duplicates() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-3",
+        target_id="target-3",
+        records=[
+            EvidenceRecord(
+                evidence_id="existing-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="Existing claim.",
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    updated, report = ingest_inputs_with_report(
+        bundle,
+        [
+            NormalizedEvidenceInput(
+                evidence_id="existing-1",
+                kind=EvidenceKind.STRUCTURE,
+                title="Duplicate",
+                source="model",
+                source_type=EvidenceSourceType.STRUCTURE_MODEL,
+                claim="duplicate",
+                confidence=0.6,
+                strength=EvidenceStrength.EXPLORATORY,
+            ),
+            NormalizedEvidenceInput(
+                evidence_id="new-1",
+                kind=EvidenceKind.STRUCTURE,
+                title="New",
+                source="model",
+                source_type=EvidenceSourceType.STRUCTURE_MODEL,
+                claim="new",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    assert len(updated.records) == 2
+    assert report.added_records == 1
+    assert report.duplicate_ids == ["existing-1"]

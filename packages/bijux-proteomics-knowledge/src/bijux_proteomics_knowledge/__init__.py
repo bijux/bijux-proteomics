@@ -7,12 +7,14 @@ from __future__ import annotations
 
 from bijux_proteomics_knowledge.adapters import (
     AssayResultIngestionAdapter,
+    IngestionReport,
     LiteratureIngestionAdapter,
     ManualEvidenceNote,
     ManualEvidenceNoteAdapter,
     NormalizedEvidenceInput,
     StructureAnnotationIngestionAdapter,
     attach_evidence_inputs,
+    ingest_inputs_with_report,
     attach_manual_notes,
 )
 from bijux_proteomics_knowledge.claims import (
@@ -121,6 +123,7 @@ __all__ = [
     "summarize_bundle",
     "weight_source_type",
     "JsonModel",
+    "IngestionReport",
     "LiteratureIngestionAdapter",
     "ManualEvidenceNote",
     "ManualEvidenceNoteAdapter",
@@ -134,4 +137,5 @@ __all__ = [
     "resolve_conflicts",
     "StructureAnnotationIngestionAdapter",
     "attach_manual_notes",
+    "ingest_inputs_with_report",
 ]
