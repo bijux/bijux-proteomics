@@ -1,0 +1,91 @@
+{
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "status": {
+            "const": "ok",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "ReadyResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "package": {
+            "const": "bijux-proteomics-core",
+            "type": "string"
+          },
+          "ready": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ready",
+          "package"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "API contract for core package health and deterministic program validation.\n",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "summary": "Core package service contract for program model checks.",
+    "title": "bijux-proteomics-core API",
+    "version": "v1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "coreHealth",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Service health response"
+          }
+        },
+        "summary": "Health check"
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "coreReady",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadyResponse"
+                }
+              }
+            },
+            "description": "Service readiness response"
+          }
+        },
+        "summary": "Readiness check"
+      }
+    }
+  },
+  "security": [],
+  "servers": [
+    {
+      "url": "/"
+    }
+  ]
+}

@@ -1,0 +1,905 @@
+{
+  "components": {
+    "schemas": {
+      "ApiCandidate": {
+        "additionalProperties": "false",
+        "properties": {
+          "candidate_id": {
+            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
+            "minLength": "1",
+            "type": "string"
+          },
+          "confidence": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "created_at": {
+            "example": "2025-01-01T00:00:00Z",
+            "type": "string"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "provenance": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "sequence": {
+            "example": "ACDEFGHIKLMNPQRSTVWY",
+            "minLength": "1",
+            "type": "string"
+          },
+          "structures": {
+            "items": {
+              "$ref": "#/components/schemas/ApiCandidateStructure"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "sequence",
+          "structures",
+          "metrics",
+          "flags",
+          "provenance",
+          "confidence",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "ApiCandidateStructure": {
+        "additionalProperties": "false",
+        "properties": {
+          "metadata": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "pdb_text": {
+            "nullable": "true",
+            "type": "string"
+          },
+          "provider": {
+            "example": "heuristic_proxy",
+            "type": "string"
+          },
+          "structure_id": {
+            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0-s0",
+            "type": "string"
+          }
+        },
+        "required": [
+          "structure_id",
+          "provider"
+        ],
+        "type": "object"
+      },
+      "ApiEnvelope": {
+        "additionalProperties": "false",
+        "properties": {
+          "data": {
+            "nullable": "true",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RunResponse"
+              },
+              {
+                "$ref": "#/components/schemas/InspectResponse"
+              },
+              {
+                "$ref": "#/components/schemas/CompareResponse"
+              },
+              {
+                "$ref": "#/components/schemas/HealthResponse"
+              },
+              {
+                "$ref": "#/components/schemas/ReadyResponse"
+              }
+            ],
+            "type": "object"
+          },
+          "error": {
+            "nullable": "true",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ErrorResponse"
+              }
+            ],
+            "type": "object"
+          },
+          "meta": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "error"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "data",
+          "error",
+          "meta"
+        ],
+        "type": "object"
+      },
+      "CompareRequest": {
+        "additionalProperties": "false",
+        "properties": {
+          "run_id_a": {
+            "example": "artifacts/run-a",
+            "minLength": "1",
+            "type": "string"
+          },
+          "run_id_b": {
+            "example": "artifacts/run-b",
+            "minLength": "1",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id_a",
+          "run_id_b"
+        ],
+        "type": "object"
+      },
+      "CompareResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "candidate_trajectories": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "final_outcome": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "iteration_deltas": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "run_ids": {
+            "additionalProperties": {
+              "nullable": "true",
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "run_ids",
+          "final_outcome",
+          "candidate_trajectories",
+          "iteration_deltas"
+        ],
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "detail": {
+            "example": "Provide sequence or sequence_file.",
+            "type": "string"
+          },
+          "instance": {
+            "example": "http://127.0.0.1:8000/api/v1/run",
+            "type": "string"
+          },
+          "status": {
+            "example": "422",
+            "type": "integer"
+          },
+          "title": {
+            "example": "Validation error",
+            "type": "string"
+          },
+          "type": {
+            "example": "https://bijux-cli.dev/docs/errors/validation-error",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance"
+        ],
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "status": {
+            "example": "ok",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "InspectResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "artifacts": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "candidate": {
+            "$ref": "#/components/schemas/ApiCandidate"
+          },
+          "qc_status": {
+            "example": "acceptable",
+            "nullable": "true",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate",
+          "artifacts"
+        ],
+        "type": "object"
+      },
+      "ReadyResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "providers": {
+            "additionalProperties": "true",
+            "type": "object"
+          },
+          "status": {
+            "example": "ok",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "providers"
+        ],
+        "type": "object"
+      },
+      "ResumeRequest": {
+        "additionalProperties": "false",
+        "oneOf": [
+          {
+            "required": [
+              "run_id"
+            ]
+          },
+          {
+            "required": [
+              "candidate_id"
+            ]
+          }
+        ],
+        "properties": {
+          "artifacts_dir": {
+            "example": "artifacts",
+            "nullable": "true",
+            "type": "string"
+          },
+          "candidate_id": {
+            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
+            "minLength": "1",
+            "nullable": "true",
+            "type": "string"
+          },
+          "execution_mode": {
+            "default": "auto",
+            "example": "auto",
+            "type": "string"
+          },
+          "provider": {
+            "example": "heuristic_proxy",
+            "nullable": "true",
+            "type": "string"
+          },
+          "rounds": {
+            "default": "1",
+            "example": "1",
+            "minimum": "1",
+            "type": "integer"
+          },
+          "run_id": {
+            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
+            "minLength": "1",
+            "nullable": "true",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunRequest": {
+        "additionalProperties": "false",
+        "oneOf": [
+          {
+            "required": [
+              "sequence"
+            ]
+          },
+          {
+            "required": [
+              "sequence_file"
+            ]
+          }
+        ],
+        "properties": {
+          "artifacts_dir": {
+            "example": "artifacts",
+            "nullable": "true",
+            "type": "string"
+          },
+          "dry_run": {
+            "default": "false",
+            "example": "false",
+            "type": "boolean"
+          },
+          "execution_mode": {
+            "default": "auto",
+            "example": "auto",
+            "type": "string"
+          },
+          "ground_truth": {
+            "example": "AF2",
+            "nullable": "true",
+            "type": "string"
+          },
+          "provider": {
+            "example": "heuristic_proxy",
+            "nullable": "true",
+            "type": "string"
+          },
+          "rounds": {
+            "default": "1",
+            "example": "1",
+            "minimum": "1",
+            "type": "integer"
+          },
+          "sequence": {
+            "example": "ACDEFGHIKLMNPQRSTVWY",
+            "minLength": "1",
+            "nullable": "true",
+            "type": "string"
+          },
+          "sequence_file": {
+            "example": "tests/fixtures/proteins/small_enzyme.fasta",
+            "minLength": "1",
+            "nullable": "true",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RunResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "artifacts_dir": {
+            "example": "artifacts/9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
+            "type": "string"
+          },
+          "candidate_id": {
+            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
+            "minLength": "1",
+            "type": "string"
+          },
+          "command": {
+            "example": "run",
+            "type": "string"
+          },
+          "execution_status": {
+            "enum": [
+              "completed",
+              "errored",
+              "aborted"
+            ],
+            "type": "string"
+          },
+          "failure": {
+            "example": "null",
+            "nullable": "true",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "accepted",
+              "rejected",
+              "needs_review",
+              "inconclusive"
+            ],
+            "type": "string"
+          },
+          "provider": {
+            "example": "heuristic_proxy",
+            "type": "string"
+          },
+          "qc_status": {
+            "example": "acceptable",
+            "type": "string"
+          },
+          "run_id": {
+            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
+            "minLength": "1",
+            "type": "string"
+          },
+          "tool_status": {
+            "enum": [
+              "success",
+              "degraded",
+              "failed",
+              "skipped"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "$ref": "#/components/schemas/VersionInfo"
+          },
+          "warnings": {
+            "example": [],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "workflow_state": {
+            "enum": [
+              "running",
+              "paused",
+              "awaiting_human_review",
+              "done"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "candidate_id",
+          "command",
+          "execution_status",
+          "workflow_state",
+          "outcome",
+          "provider",
+          "tool_status",
+          "qc_status",
+          "artifacts_dir",
+          "warnings",
+          "version"
+        ],
+        "type": "object"
+      },
+      "VersionInfo": {
+        "additionalProperties": "false",
+        "properties": {
+          "app": {
+            "example": "0.1.0",
+            "type": "string"
+          },
+          "git_commit": {
+            "example": "unknown",
+            "type": "string"
+          },
+          "tool_versions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "app",
+          "git_commit",
+          "tool_versions"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "title": "agentic-proteins API schemas",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/compare": {
+      "post": {
+        "operationId": "compareRuns",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareRequest"
+              }
+            }
+          },
+          "required": "true"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Comparison report"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Bad request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "summary": "Compare runs"
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Health response"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          }
+        },
+        "summary": "Health check"
+      }
+    },
+    "/inspect/{candidate_id}": {
+      "get": {
+        "operationId": "inspectCandidate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "candidate_id",
+            "required": "true",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Candidate inspection"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          }
+        },
+        "summary": "Inspect a candidate"
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Readiness response"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          }
+        },
+        "summary": "Readiness check"
+      }
+    },
+    "/resume": {
+      "post": {
+        "operationId": "resumeRun",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResumeRequest"
+              }
+            }
+          },
+          "required": "true"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Run resumed"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Run awaiting human review"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Bad request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          }
+        },
+        "summary": "Resume a run"
+      }
+    },
+    "/run": {
+      "post": {
+        "operationId": "runSequence",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunRequest"
+              }
+            }
+          },
+          "required": "true"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Run completed"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Run awaiting human review"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Bad request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Not found"
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Method not allowed"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Validation error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Unexpected error"
+          }
+        },
+        "summary": "Run a sequence"
+      }
+    }
+  },
+  "security": [],
+  "servers": [
+    {
+      "url": "/"
+    }
+  ]
+}

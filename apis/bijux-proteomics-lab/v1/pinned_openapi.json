@@ -1,0 +1,91 @@
+{
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "status": {
+            "const": "ok",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "ReadyResponse": {
+        "additionalProperties": "false",
+        "properties": {
+          "package": {
+            "const": "bijux-proteomics-lab",
+            "type": "string"
+          },
+          "ready": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ready",
+          "package"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "API contract for lab-layer health and readiness checks.\n",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "summary": "Lab package service contract for execution and scheduling boundaries.",
+    "title": "bijux-proteomics-lab API",
+    "version": "v1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "labHealth",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Service health response"
+          }
+        },
+        "summary": "Health check"
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "labReady",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadyResponse"
+                }
+              }
+            },
+            "description": "Service readiness response"
+          }
+        },
+        "summary": "Readiness check"
+      }
+    }
+  },
+  "security": [],
+  "servers": [
+    {
+      "url": "/"
+    }
+  ]
+}
