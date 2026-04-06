@@ -1,5 +1,5 @@
 ---
-title: Runtime Handbook
+title: agentic-proteins
 audience: mixed
 type: index
 status: canonical
