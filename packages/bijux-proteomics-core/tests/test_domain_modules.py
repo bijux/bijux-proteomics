@@ -10,6 +10,7 @@ from bijux_proteomics.context import (
     ProgramPortfolioContext,
 )
 from bijux_proteomics.constraints import ScientificConstraint
+from bijux_proteomics.constraints import ConstraintCategory
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
 import pytest
 
@@ -117,6 +118,7 @@ def test_domain_modules_define_program_components() -> None:
         DecisionOwnerRole.SCIENTIST,
         DecisionOwnerRole.PROGRAM_LEAD,
     ]
+    assert program.constraints[0].category is ConstraintCategory.DEVELOPABILITY
     assert program.context.portfolio.therapeutic_area == "oncology"
     assert sequence_length(program.target.sequence) == 20
 
