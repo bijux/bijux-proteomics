@@ -16,6 +16,7 @@ class RejectionReasonCode(StrEnum):
     """Stable rejection reason categories."""
 
     LOW_METRIC_FRACTION = "low_metric_fraction"
+    LOW_METRIC_COVERAGE = "low_metric_coverage"
     LOW_EVIDENCE_SUPPORT = "low_evidence_support"
     LOW_MANUFACTURABILITY = "low_manufacturability"
     HIGH_SEQUENCE_COMPLEXITY = "high_sequence_complexity"
@@ -81,6 +82,9 @@ def build_rejection_action_plan(rejection: CandidateRejection) -> RejectionActio
     if RejectionReasonCode.LOW_METRIC_FRACTION in rejection.reason_codes:
         experiments.append("run focused potency and selectivity assays")
         revisit_conditions.append("criterion fraction reaches policy floor")
+    if RejectionReasonCode.LOW_METRIC_COVERAGE in rejection.reason_codes:
+        experiments.append("collect missing criterion-linked assay metrics before reranking")
+        revisit_conditions.append("all blocking criterion metrics are present")
     if RejectionReasonCode.LOW_EVIDENCE_SUPPORT in rejection.reason_codes:
         experiments.append("collect orthogonal evidence across at least two modalities")
         revisit_conditions.append("evidence_support >= 0.4")

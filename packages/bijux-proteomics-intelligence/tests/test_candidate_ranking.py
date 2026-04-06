@@ -724,6 +724,18 @@ def test_build_rejection_action_plan_maps_reason_codes_to_experiments() -> None:
     assert "collect orthogonal evidence across at least two modalities" in plan.experiments
 
 
+def test_build_rejection_action_plan_handles_low_metric_coverage_reason() -> None:
+    plan = build_rejection_action_plan(
+        CandidateRejection(
+            candidate_id="candidate-coverage",
+            reasons=["missing required metrics"],
+            reason_codes=[RejectionReasonCode.LOW_METRIC_COVERAGE],
+        )
+    )
+
+    assert "collect missing criterion-linked assay metrics before reranking" in plan.experiments
+
+
 def test_metric_definition_encodes_typed_metric_contract() -> None:
     definition = MetricDefinition(
         metric_key="binding_kd",
