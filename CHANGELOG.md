@@ -12,7 +12,7 @@ change contributor and maintainer workflows across the repository.
 
 ### Added
 
-- Canon-style package documentation structure was applied across proteomics
+- Unified package documentation structure was applied across proteomics
   packages, including ownership boundaries, source maps, and maintainer notes.
 - Package-level maintainer notes for PyPI workflows were added under each
   package `docs/maintainer/pypi.md`.
@@ -23,8 +23,8 @@ change contributor and maintainer workflows across the repository.
   workflows with package-specific entry pipelines.
 - Shared tool configuration moved to `configs/` and gate modules now resolve
   settings through centralized make configuration variables.
-- Root README now describes repository governance and package boundaries using
-  the same durable structure used in `bijux-canon`.
+- Root README now describes repository governance and package boundaries with a
+  durable package-map-first structure.
 
 ### Fixed
 
