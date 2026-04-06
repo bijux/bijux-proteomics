@@ -30,34 +30,49 @@ Use this package when you need auditable evidence provenance, conflict-aware
 knowledge management, and explicit reasoning about uncertainty and evidence
 gaps.
 
-## What this package owns
+## Why teams pick this package
 
-- evidence record and bundle models with schema-aware serialization
-- trust and freshness scoring for evidence posture
-- conflict detection, resolution actions, and claim belief updates
-- evidence graph validation and decision-lineage construction
+- explicit evidence and claim models with trust and freshness semantics
+- contradiction-aware resolution workflows that preserve audit history
+- decision lineage structures for explainable governance and retrospectives
+- compatibility with cross-package schema and serialization contracts
 
-## What this package does not own
+## Typical use cases
 
-- core program stage transitions and review gate ownership
-- candidate ranking policy and scenario decision synthesis
-- lab scheduling and assay execution outcomes
+- store and score evidence used to advance or block protein program decisions
+- detect conflicting claims and apply explicit resolution policies
+- build auditable trails that explain why a conclusion changed over time
+- surface unresolved knowledge gaps before committing lab or portfolio spend
 
-## Source map
+## Installation
 
-- [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and conflict detection
+```bash
+pip install bijux-proteomics-knowledge
+```
+
+## Quick start
+
+```python
+from bijux_proteomics_knowledge import evidence, claims, resolution, graph
+```
+
+## Package boundaries
+
+This package owns evidence records, claim state, trust scoring, and contradiction resolution.
+
+It does not own lifecycle gate transitions, ranking policy decisions, or experiment scheduling.
+
+## Source guide
+
+- [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
 - [`src/bijux_proteomics_knowledge/resolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py) for conflict-resolution policies
-- [`src/bijux_proteomics_knowledge/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/graph.py) for evidence graph rules
-- [`src/bijux_proteomics_knowledge/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py) for claim modeling and knowledge gap audits
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/tests) for executable package expectations
+- [`src/bijux_proteomics_knowledge/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/graph.py) for evidence-graph validation rules
+- [`src/bijux_proteomics_knowledge/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py) for claim modeling and knowledge-gap audits
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/tests) for executable behavior expectations
 
-## Read this next
+## Documentation
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/docs/ARCHITECTURE.md)
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/docs/maintainer/pypi.md)
-
-## Primary entrypoint
-
-- import-first library package; no console script is published

@@ -29,32 +29,48 @@ fingerprinting, and compatibility contracts for persisted scientific records.
 Use this package when you need versioned document governance, migration-safe
 serialization, and cross-package consistency for reproducible proteomics data.
 
-## What this package owns
+## Why teams pick this package
 
-- schema metadata primitives for package documents
-- canonical JSON serialization and fingerprinting helpers
-- migration and compatibility helpers for persisted documents
+- one canonical schema baseline across every proteomics package
+- stable fingerprints for cache keys, lineage, and provenance checks
+- compatibility helpers for migration-safe long-lived scientific records
+- typed primitives that reduce duplicated schema logic in downstream packages
 
-## What this package does not own
+## Typical use cases
 
-- protein program domain entities and lifecycle logic
-- candidate ranking or scenario evaluation logic
-- evidence modeling, conflict resolution, and lab planning rules
+- define document schema metadata with explicit version and compatibility policy
+- serialize domain models into canonical JSON for reproducible comparisons
+- validate migration paths before accepting persisted record upgrades
+- centralize schema behavior so other packages stay focused on domain logic
 
-## Source map
+## Installation
+
+```bash
+pip install bijux-proteomics-foundation
+```
+
+## Quick start
+
+```python
+from bijux_proteomics_foundation import schema, serialization
+```
+
+## Package boundaries
+
+This package owns schema metadata, canonical serialization, and migration compatibility helpers.
+
+It does not own product decision logic, lab logic, or runtime orchestration.
+
+## Source guide
 
 - [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
 - [`src/bijux_proteomics_foundation/serialization.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization.py) for canonical serialization and fingerprints
-- [`src/bijux_proteomics_foundation/migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/migrations.py) for migration-oriented helpers
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation/tests) for executable package expectations
+- [`src/bijux_proteomics_foundation/migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/migrations.py) for migration behavior
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation/tests) for executable behavior expectations
 
-## Read this next
+## Documentation
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/ARCHITECTURE.md)
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/maintainer/pypi.md)
-
-## Primary entrypoint
-
-- import-first library package; no console script is published

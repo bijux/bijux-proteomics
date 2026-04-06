@@ -30,34 +30,55 @@ Use this package when you need stage-based governance for protein programs,
 deterministic progression rules, and enforceable domain contracts for decision
 and execution pipelines.
 
-## What this package owns
+## Why teams pick this package
 
-- program, target, assay, and review domain models
-- lifecycle transition and stage eligibility logic
-- invariant validation for identifiers, gating, and scientific consistency
-- runtime adapter interfaces and CLI entrypoints for program workflows
+- explicit protein program contracts with validated lifecycle progression rules
+- deterministic gate transitions that prevent invalid stage advancement
+- strongly typed models for targets, assays, reviews, and governance outcomes
+- stable interfaces for orchestration and repository integration
 
-## What this package does not own
+## Typical use cases
 
-- evidence bundle conflict resolution and trust scoring
-- candidate ranking and scenario evaluation policies
-- lab scheduling, outcome promotion, and rerun policies
+- model a protein program from inception through review-gated progression
+- enforce invariant checks before promotion, approval, or execution
+- build service layers on top of shared program and repository contracts
+- integrate CLI-driven domain workflows in local or CI automation
 
-## Source map
+## Installation
 
-- [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities
+```bash
+pip install bijux-proteomics-core
+```
+
+## Quick start
+
+```bash
+bijux-proteomics --help
+```
+
+Import-driven usage starts from the core domain package:
+
+```python
+from bijux_proteomics import program_spec, validation
+```
+
+## Package boundaries
+
+This package owns lifecycle domain models, progression rules, and validation invariants.
+
+It does not own evidence trust policy, ranking policy, or lab scheduling behavior.
+
+## Source guide
+
+- [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
 - [`src/bijux_proteomics/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/repositories.py) for decision and gate repository protocols
-- [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for domain invariant checks
-- [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for package-facing CLI boundaries
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable package expectations
+- [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
+- [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
 
-## Read this next
+## Documentation
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/ARCHITECTURE.md)
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/maintainer/pypi.md)
-
-## Primary entrypoint
-
-- console script: `bijux-proteomics`

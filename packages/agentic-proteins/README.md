@@ -30,35 +30,61 @@ Use this package when you need production execution behavior, traceable
 artifacts for auditability, or runtime integration points for agentic and
 lab-in-the-loop protein design systems.
 
-## What this package owns
+## Why teams pick this package
 
-- deterministic design-loop execution and runtime lifecycle state
-- run artifacts, report generation, and replay-safe execution records
-- package-local CLI and API entry boundaries
-- provider contracts and runtime capability checks
+- reproducible execution with deterministic run state and replay-oriented controls
+- inspectable artifacts for scientific review, incident analysis, and compliance
+- integration-ready boundaries for CLI usage, API orchestration, and provider wiring
+- clear runtime contracts that keep orchestration behavior stable across releases
 
-## What this package does not own
+## Typical use cases
 
-- protein program-stage governance and review gate domain contracts
-- candidate ranking policy and scenario recommendation behavior
-- evidence trust, contradiction policies, and claim-lineage semantics
-- lab planning, scheduling, and rerun strategy outputs
+- run deterministic protein design loops in CI, batch systems, or orchestrators
+- capture run artifacts as evidence for downstream review and approval workflows
+- expose runtime capabilities through CLI or HTTP integration surfaces
+- enforce provider capability checks before expensive or irreversible execution
 
-## Source map
+## Installation
 
-- [`src/agentic_proteins/runtime`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/runtime) for runtime execution control and lifecycle behavior
+```bash
+pip install agentic-proteins
+```
+
+## Quick start
+
+```bash
+agentic-proteins --help
+```
+
+Import-driven usage starts from the runtime and design loop modules:
+
+```python
+from agentic_proteins.runtime import models as runtime_models
+from agentic_proteins.design_loop import orchestrator
+```
+
+## Package boundaries
+
+This package owns runtime execution, lifecycle state, run artifacts, and runtime-facing entrypoints.
+
+It does not own cross-package scientific governance:
+
+- domain lifecycle and review-gate semantics live in `bijux-proteomics-core`
+- ranking and scenario reasoning live in `bijux-proteomics-intelligence`
+- evidence trust and contradiction resolution live in `bijux-proteomics-knowledge`
+- lab scheduling and rerun planning live in `bijux-proteomics-lab`
+
+## Source guide
+
+- [`src/agentic_proteins/runtime`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/runtime) for runtime lifecycle and execution control
 - [`src/agentic_proteins/design_loop`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/design_loop) for design-loop orchestration
 - [`src/agentic_proteins/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/interfaces) for CLI surfaces
 - [`src/agentic_proteins/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/api) for HTTP-facing boundaries
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/tests) for executable package expectations
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/tests) for executable behavior expectations
 
-## Read this next
+## Documentation
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/ARCHITECTURE.md)
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/maintainer/pypi.md)
-
-## Primary entrypoint
-
-- console script: `agentic-proteins`

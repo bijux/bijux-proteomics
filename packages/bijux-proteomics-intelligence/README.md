@@ -29,33 +29,48 @@ decision outputs with explicit explainability and risk signals.
 Use this package when you need transparent prioritization logic, rejection
 reasoning, and portfolio-aware progression guidance for protein design.
 
-## What this package owns
+## Why teams pick this package
 
-- program-to-brief translation and decision context derivation
-- policy-driven candidate ranking, screening, and rejection coding
-- scenario evaluators for progression, synthesis, scale-up, and redesign
-- explainability and portfolio-level decision summaries
+- policy-first ranking and recommendation outputs with traceable decision rationale
+- scenario evaluators that support progression, redesign, and portfolio balancing
+- structured rejection reasons and explainability fields for review conversations
+- deterministic scoring patterns suitable for governance and automation
 
-## What this package does not own
+## Typical use cases
 
-- core program entity definitions and review-gate state ownership
-- evidence ingestion, trust scoring, and contradiction resolution
-- lab batch scheduling, execution outcomes, and rerun planning
+- rank candidate proteins against defined decision policies
+- generate scenario recommendations for advancement or redesign
+- produce explainable shortlists for expert review boards
+- aggregate portfolio-level signals for sequencing and prioritization
 
-## Source map
+## Installation
 
-- [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief and ranking behavior
+```bash
+pip install bijux-proteomics-intelligence
+```
+
+## Quick start
+
+```python
+from bijux_proteomics_intelligence import briefs, policies, evaluators
+```
+
+## Package boundaries
+
+This package owns decision intelligence, ranking policy, scenario scoring, and explainability outputs.
+
+It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
+
+## Source guide
+
+- [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
 - [`src/bijux_proteomics_intelligence/policies.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py) for ranking and decision policy models
 - [`src/bijux_proteomics_intelligence/evaluators.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py) for scenario and portfolio evaluators
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable package expectations
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
 
-## Read this next
+## Documentation
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/ARCHITECTURE.md)
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/maintainer/pypi.md)
-
-## Primary entrypoint
-
-- import-first library package; no console script is published

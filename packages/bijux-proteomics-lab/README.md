@@ -30,33 +30,48 @@ Use this package when you need lab-in-the-loop planning under gate constraints,
 capacity-aware batch construction, and rerun recommendations tied to assay
 outcomes.
 
-## What this package owns
+## Why teams pick this package
 
-- experiment planning, dependency ordering, and scheduling heuristics
-- review packet generation and plan risk summaries
-- assay outcome interpretation, failure triage, and rerun recommendations
-- repository contracts for plan, queue, and feedback persistence
+- practical lab planning built around dependencies, capacity, and timing limits
+- structured assay plans and review packets ready for scientific operations
+- outcome interpretation flows that support rerun and escalation decisions
+- repository contracts for integrating plan queues and feedback loops
 
-## What this package does not own
+## Typical use cases
 
-- core program-stage and review decision ownership
-- candidate scoring and scenario recommendation policies
-- evidence trust scoring and contradiction resolution semantics
+- convert candidate requirements into executable assay schedules
+- sequence assay batches while respecting constraints and review gates
+- summarize execution outcomes and recommend reruns with explicit rationale
+- track plan quality trends and feed outcomes back into decision pipelines
 
-## Source map
+## Installation
+
+```bash
+pip install bijux-proteomics-lab
+```
+
+## Quick start
+
+```python
+from bijux_proteomics_lab import planning, outcomes, repositories
+```
+
+## Package boundaries
+
+This package owns assay planning, schedule generation, outcome interpretation, and rerun strategy support.
+
+It does not own program-stage authority, ranking policy, or evidence truth semantics.
+
+## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
 - [`src/bijux_proteomics_lab/outcomes.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py) for outcome interpretation and rerun decisions
 - [`src/bijux_proteomics_lab/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/repositories.py) for repository contracts and trend summaries
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-lab/tests) for executable package expectations
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-lab/tests) for executable behavior expectations
 
-## Read this next
+## Documentation
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/ARCHITECTURE.md)
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/maintainer/pypi.md)
-
-## Primary entrypoint
-
-- import-first library package; no console script is published

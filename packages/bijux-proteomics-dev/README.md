@@ -23,20 +23,44 @@ standards; it is intentionally separate from product runtime behavior.
 [![Knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
 [![Lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
 
-## What this package owns
+## Why teams pick this package
 
-- shared quality and security helpers used across packages
-- release and version governance helpers
-- OpenAPI and schema drift tooling
-- repository maintenance helpers invoked by root automation
+- one toolkit for quality, security, release, docs, and API governance gates
+- consistent local and CI behavior through shared maintainership utilities
+- lower operational overhead by centralizing repetitive repo automation logic
+- explicit checks that reduce release risk and configuration drift
 
-## What this package does not own
+## Typical use cases
 
-- runtime or product behavior used by end users
-- domain models owned by foundation, core, intelligence, knowledge, or lab
-- compatibility shims whose only job is preserving legacy package names
+- run and extend root quality and security gates used by all packages
+- validate release readiness and metadata consistency before tagging
+- detect OpenAPI and schema drift before publication
+- automate maintainership checks for docs and repository health
 
-## Source map
+## Installation
+
+```bash
+pip install -e packages/bijux-proteomics-dev
+```
+
+## Quick start
+
+Use root `make` and `tox` commands that call this package under the hood:
+
+```bash
+make lint
+make test
+make quality
+make security
+```
+
+## Package boundaries
+
+This package owns maintainer automation and gate implementations for the monorepo.
+
+It does not define runtime product APIs or proteomics domain behavior.
+
+## Source guide
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
 - [`src/bijux_proteomics_dev/security`](src/bijux_proteomics_dev/security) for security gates
@@ -45,7 +69,7 @@ standards; it is intentionally separate from product runtime behavior.
 - [`src/bijux_proteomics_dev/docs`](src/bijux_proteomics_dev/docs) for documentation checks
 - [`src/bijux_proteomics_dev/tools`](src/bijux_proteomics_dev/tools) for maintainer utility tools
 
-## Read this next
+## Documentation
 
 - [Package guide](docs/index.md)
 - [Scope](docs/SCOPE.md)
