@@ -51,6 +51,12 @@ from bijux_proteomics_knowledge.graph import (
     UnresolvedQuestion,
     build_evidence_graph,
 )
+from bijux_proteomics_knowledge.schema import (
+    KnowledgeSchemaProfile,
+    SchemaCompatibilityReport,
+    default_knowledge_schema_profile,
+    evaluate_schema_compatibility,
+)
 from bijux_proteomics_knowledge.review import (
     KnowledgeReviewPacket,
     build_knowledge_review_packet,
@@ -181,6 +187,10 @@ __all__ = [
     "assess_decision_readiness",
     "attach_evidence_inputs",
     "build_evidence_graph",
+    "KnowledgeSchemaProfile",
+    "SchemaCompatibilityReport",
+    "default_knowledge_schema_profile",
+    "evaluate_schema_compatibility",
     "KnowledgeReviewPacket",
     "build_knowledge_review_packet",
     "build_claim",
