@@ -124,6 +124,10 @@ class RankingPolicy(JsonModel):
         ],
         description="Ordered tie-break rules for near-equal scores.",
     )
+    metric_catalog: list[MetricDefinition] = Field(
+        default_factory=list,
+        description="Declared metric definitions expected by the ranking policy.",
+    )
 
 
 class ProgressionPolicyConfig(JsonModel):
@@ -182,3 +186,12 @@ def classify_metric_name(metric: str) -> ScientificMetricClass:
     if any(token in lowered for token in ("yield", "express", "aggregation", "develop")):
         return ScientificMetricClass.DEVELOPABILITY
     return ScientificMetricClass.ACTIVITY
+
+
+def validate_metric_catalog(
+    policy: RankingPolicy,
+    metric_keys: list[str],
+) -> list[str]:
+    """Return missing metric definitions for policy-expected metric keys."""
+    declared = {definition.metric_key for definition in policy.metric_catalog}
+    return [metric_key for metric_key in metric_keys if metric_key not in declared]

@@ -62,6 +62,7 @@ from bijux_proteomics_intelligence.policies import (
     ScientificMetricClass,
     TieBreakRule,
     classify_metric_name,
+    validate_metric_catalog,
 )
 from bijux_proteomics_intelligence.policies import (
     HoldPolicyConfig,
@@ -137,4 +138,5 @@ __all__ = [
     "candidate_score_breakdown",
     "transition_candidate",
     "classify_metric_name",
+    "validate_metric_catalog",
 ]

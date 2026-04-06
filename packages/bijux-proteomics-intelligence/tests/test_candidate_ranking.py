@@ -27,6 +27,7 @@ from bijux_proteomics_intelligence import (
     candidate_score_breakdown,
     classify_metric_name,
     build_rejection_action_plan,
+    validate_metric_catalog,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -474,3 +475,21 @@ def test_metric_definition_encodes_typed_metric_contract() -> None:
 
     assert definition.metric_key == "binding_kd"
     assert definition.direction is MetricDirection.LOWER_IS_BETTER
+
+
+def test_validate_metric_catalog_reports_missing_definitions() -> None:
+    policy = RankingPolicy(
+        policy_id="catalog-policy",
+        metric_catalog=[
+            MetricDefinition(
+                metric_key="binding_kd",
+                metric_class=ScientificMetricClass.AFFINITY,
+                unit="nM",
+                direction=MetricDirection.LOWER_IS_BETTER,
+            )
+        ],
+    )
+
+    missing = validate_metric_catalog(policy, ["binding_kd", "delta_tm"])
+
+    assert missing == ["delta_tm"]
