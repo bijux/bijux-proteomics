@@ -40,6 +40,8 @@ from bijux_proteomics_lab.repositories import (
     ReviewQueueEntry,
     ReviewQueueRepository,
     query_feedback_records,
+    LabFeedbackTrendReport,
+    summarize_feedback_trend,
 )
 from bijux_proteomics_lab.schema import (
     LabSchemaCompatibilityReport,
@@ -129,6 +131,7 @@ __all__ = [
     "JsonModel",
     "LabFeedbackRecord",
     "LabFeedbackQuery",
+    "LabFeedbackTrendReport",
     "LabFeedbackRepository",
     "LabCapacity",
     "MaterialConstraintReport",
@@ -146,6 +149,7 @@ __all__ = [
     "ReviewQueueEntry",
     "ReviewQueueRepository",
     "query_feedback_records",
+    "summarize_feedback_trend",
     "LabSchemaCompatibilityReport",
     "LabSchemaProfile",
     "default_lab_schema_profile",

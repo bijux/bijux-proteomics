@@ -22,6 +22,7 @@ from bijux_proteomics_lab import (
     OutcomePromotionPolicy,
     promote_outcome_to_evidence,
     query_feedback_records,
+    summarize_feedback_trend,
     recommend_rerun_policy,
     summarize_experiment_outcome,
     summarize_observation,
@@ -312,6 +313,36 @@ def test_query_feedback_records_supports_evidence_and_time_filters() -> None:
     )
 
     assert [record.feedback_id for record in filtered] == ["f-new"]
+
+
+def test_summarize_feedback_trend_reports_cycle_and_assay_coverage() -> None:
+    report = summarize_feedback_trend(
+        [
+            LabFeedbackRecord(
+                feedback_id="t1",
+                program_id="prog-trend",
+                cycle_id="cycle-1",
+                summary="first",
+                related_assay_ids=["a1"],
+                related_evidence_ids=[],
+                created_at=datetime(2026, 1, 1, tzinfo=UTC),
+            ),
+            LabFeedbackRecord(
+                feedback_id="t2",
+                program_id="prog-trend",
+                cycle_id="cycle-2",
+                summary="second",
+                related_assay_ids=["a1", "a2"],
+                related_evidence_ids=[],
+                created_at=datetime(2026, 2, 1, tzinfo=UTC),
+            ),
+        ],
+        program_id="prog-trend",
+    )
+
+    assert report.feedback_count == 2
+    assert report.cycle_ids == ["cycle-1", "cycle-2"]
+    assert report.assay_coverage["a1"] == 2
 
 
 def test_evaluate_assay_acceptance_marks_below_detection_as_inconclusive() -> None:

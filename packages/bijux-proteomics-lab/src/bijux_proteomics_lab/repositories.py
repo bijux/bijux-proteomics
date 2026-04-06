@@ -79,6 +79,17 @@ class LabFeedbackQuery(JsonModel):
     descending: bool = Field(default=False, description="Whether to sort results in descending time order.")
 
 
+class LabFeedbackTrendReport(JsonModel):
+    """Trend summary across feedback records for one program."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    cycle_ids: list[str] = Field(default_factory=list, description="Observed cycle IDs in chronological order.")
+    feedback_count: int = Field(default=0, ge=0, description="Total feedback records included.")
+    assay_coverage: dict[str, int] = Field(default_factory=dict, description="Frequency by related assay ID.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -112,3 +123,25 @@ def query_feedback_records(
     if query.created_after is not None:
         filtered = [record for record in filtered if record.created_at >= query.created_after]
     return sorted(filtered, key=lambda record: record.created_at, reverse=query.descending)
+
+
+def summarize_feedback_trend(
+    records: list[LabFeedbackRecord],
+    *,
+    program_id: str,
+) -> LabFeedbackTrendReport:
+    """Summarize feedback trends by cycle and assay coverage."""
+    filtered = sorted(
+        [record for record in records if record.program_id == program_id],
+        key=lambda record: record.created_at,
+    )
+    coverage: dict[str, int] = {}
+    for record in filtered:
+        for assay_id in record.related_assay_ids:
+            coverage[assay_id] = coverage.get(assay_id, 0) + 1
+    return LabFeedbackTrendReport(
+        program_id=program_id,
+        cycle_ids=[record.cycle_id for record in filtered],
+        feedback_count=len(filtered),
+        assay_coverage=coverage,
+    )
