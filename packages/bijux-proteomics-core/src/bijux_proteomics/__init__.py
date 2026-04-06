@@ -12,7 +12,12 @@ from bijux_proteomics.context import (
     ProgramPortfolioContext,
 )
 from bijux_proteomics.constraints import ConstraintCategory, ScientificConstraint
-from bijux_proteomics.criteria import MeasurementDirection, MetricFamily, SuccessCriterion
+from bijux_proteomics.criteria import (
+    MeasurementDirection,
+    MetricFamily,
+    SuccessCriterion,
+    criterion_passes,
+)
 from bijux_proteomics.exceptions import (
     BijuxProteomicsError,
     InvalidLifecycleTransitionError,
@@ -135,6 +140,7 @@ __all__ = [
     "AgenticProteinsBackend",
     "MissingExecutionBackendError",
     "SuccessCriterion",
+    "criterion_passes",
     "evaluate_review_gate",
     "evaluate_review_gates",
     "advance_stage",

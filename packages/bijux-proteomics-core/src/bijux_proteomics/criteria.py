@@ -48,3 +48,20 @@ class SuccessCriterion(BaseModel):
         description="Upper bound used when direction is bound.",
     )
     unit: str | None = Field(default=None, description="Optional measurement unit.")
+
+
+def criterion_passes(
+    criterion: SuccessCriterion,
+    *,
+    observed_value: float,
+) -> bool:
+    """Return whether an observed value satisfies a success criterion."""
+    if criterion.direction is MeasurementDirection.MAXIMIZE:
+        return observed_value >= criterion.threshold
+    if criterion.direction is MeasurementDirection.MINIMIZE:
+        return observed_value <= criterion.threshold
+    if criterion.upper_threshold is None:
+        raise ValueError("bound criteria require upper_threshold")
+    lower = min(criterion.threshold, criterion.upper_threshold)
+    upper = max(criterion.threshold, criterion.upper_threshold)
+    return lower <= observed_value <= upper

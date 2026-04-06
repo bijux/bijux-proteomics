@@ -28,6 +28,7 @@ from bijux_proteomics import (
     ReviewGateState,
     StageEligibility,
     decision_timeline,
+    criterion_passes,
     create_program_spec,
     evaluate_review_gates,
     ensure_review_clearance,
@@ -698,6 +699,7 @@ def test_success_criterion_supports_metric_family_and_bounds() -> None:
 
     assert criterion.metric_family is MetricFamily.STABILITY
     assert criterion.upper_threshold == 3.0
+    assert criterion_passes(criterion, observed_value=2.0) is True
 
 
 def test_validate_program_requires_assay_evidence_for_gated_review() -> None:
