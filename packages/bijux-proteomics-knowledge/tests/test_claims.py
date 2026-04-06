@@ -24,6 +24,7 @@ from bijux_proteomics_knowledge import (
     ResolutionAssayOutcome,
     identify_knowledge_gaps,
     evaluate_claim_consistency,
+    evaluate_mechanistic_completeness,
     validate_claims,
     weaken_claim,
     query_claims,
@@ -466,3 +467,20 @@ def test_evaluate_claim_consistency_reports_unbalanced_contradiction_groups() ->
 
     assert report.claim_count == 2
     assert report.inconsistent_groups == ["group-1"]
+
+
+def test_evaluate_mechanistic_completeness_reports_missing_structure() -> None:
+    claim = build_claim(
+        claim_id="claim-mech-1",
+        target_id="target-1",
+        statement="partial mechanistic claim",
+        evidence_ids=["ev-1"],
+        status=ClaimStatus.SUPPORTED,
+        claim_type=ClaimType.MECHANISTIC,
+        subject="target-1",
+        resolution_assays=["assay"],
+    )
+    report = evaluate_mechanistic_completeness(claim)
+
+    assert report.completeness_score < 1.0
+    assert "relation" in report.missing_fields

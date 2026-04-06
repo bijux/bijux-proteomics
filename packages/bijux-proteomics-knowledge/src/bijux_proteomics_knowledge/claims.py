@@ -202,6 +202,16 @@ class ClaimConsistencyReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Consistency notes.")
 
 
+class MechanisticCompletenessReport(JsonModel):
+    """Completeness report for mechanistic claim structure."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    completeness_score: float = Field(..., ge=0.0, le=1.0, description="Mechanistic completeness score.")
+    missing_fields: list[str] = Field(default_factory=list, description="Missing mechanistic fields.")
+
+
 def build_claim(
     *,
     claim_id: str,
@@ -579,4 +589,22 @@ def evaluate_claim_consistency(claims: list[EvidenceClaim], *, target_id: str) -
         contradiction_group_count=len(groups),
         inconsistent_groups=inconsistent_groups,
         notes=notes,
+    )
+
+
+def evaluate_mechanistic_completeness(claim: EvidenceClaim) -> MechanisticCompletenessReport:
+    """Score how completely a mechanistic claim is specified."""
+    required = {
+        "subject": claim.subject,
+        "relation": claim.relation,
+        "object": claim.object,
+        "condition": claim.condition,
+        "direction": claim.direction,
+    }
+    missing = [name for name, value in required.items() if value is None or not str(value).strip()]
+    score = round((len(required) - len(missing)) / len(required), 4)
+    return MechanisticCompletenessReport(
+        claim_id=claim.claim_id,
+        completeness_score=score,
+        missing_fields=missing,
     )
