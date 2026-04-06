@@ -21,6 +21,7 @@ from bijux_proteomics import (
     ProgramDeliveryContext,
     DuplicateReviewDecisionError,
     ProgramNotFoundError,
+    ProgramRevisionConflictError,
     ProgramPortfolioContext,
     ReviewGateEvaluation,
     ReviewGateState,
@@ -36,6 +37,7 @@ from bijux_proteomics import (
     revise_program,
     assess_stage_eligibility,
     ensure_unique_gate_decision,
+    ensure_program_revision,
     require_program,
     validate_review_decision,
     validate_assay_dependencies,
@@ -702,6 +704,23 @@ def test_ensure_unique_gate_decision_rejects_duplicate_timestamp() -> None:
 
     with pytest.raises(DuplicateReviewDecisionError):
         ensure_unique_gate_decision(decision, [decision])
+
+
+def test_ensure_program_revision_detects_stale_writes() -> None:
+    program = create_program_spec(
+        program_id="prog-13",
+        name="revision-check",
+        objective="guard against stale concurrent writes",
+        target_id="target-13",
+        target_name="Target 13",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="maintain revision-aware persistence boundaries",
+    )
+    program.document_schema.revision = 3
+
+    with pytest.raises(ProgramRevisionConflictError):
+        ensure_program_revision(program, expected_revision=2)
 
 
 def test_revise_program_increments_revision_and_sets_content_hash() -> None:

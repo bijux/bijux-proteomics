@@ -45,6 +45,7 @@ from bijux_proteomics.program_spec import (
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.repositories import (
     DuplicateReviewDecisionError,
+    ProgramRevisionConflictError,
     ProgramRepository,
     ProgramNotFoundError,
     ReviewDecision,
@@ -61,6 +62,7 @@ from bijux_proteomics.repositories import (
     ensure_review_clearance,
     latest_gate_decision,
     require_program,
+    ensure_program_revision,
     validate_review_decision,
 )
 from bijux_proteomics.runtime_adapter import (
@@ -141,7 +143,9 @@ __all__ = [
     "ensure_review_clearance",
     "latest_gate_decision",
     "ProgramNotFoundError",
+    "ProgramRevisionConflictError",
     "require_program",
+    "ensure_program_revision",
     "execute_program",
     "program_summary",
     "revise_program",

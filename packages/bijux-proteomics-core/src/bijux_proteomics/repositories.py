@@ -105,6 +105,10 @@ class DuplicateReviewDecisionError(ContractConflictError):
     """Raised when a duplicate review decision is attempted."""
 
 
+class ProgramRevisionConflictError(ContractConflictError):
+    """Raised when program persistence sees a stale expected revision."""
+
+
 def ensure_review_clearance(
     program: ProgramSpec,
     decisions: list[ReviewDecision],
@@ -140,6 +144,20 @@ def require_program(program: ProgramSpec | None, program_id: str) -> ProgramSpec
     if program is None:
         raise ProgramNotFoundError(f"program '{program_id}' was not found")
     return program
+
+
+def ensure_program_revision(
+    program: ProgramSpec,
+    *,
+    expected_revision: int,
+) -> None:
+    """Raise when a write attempts to update from a stale document revision."""
+    actual_revision = program.document_schema.revision
+    if actual_revision != expected_revision:
+        raise ProgramRevisionConflictError(
+            "program revision conflict: "
+            f"expected revision {expected_revision}, found {actual_revision}"
+        )
 
 
 def ensure_unique_gate_decision(
