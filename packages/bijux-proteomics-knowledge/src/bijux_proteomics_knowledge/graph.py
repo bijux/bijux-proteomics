@@ -23,6 +23,7 @@ class EvidenceNodeType(StrEnum):
     DECISION = "decision"
     ASSAY = "assay"
     QUESTION = "question"
+    LIABILITY = "liability"
 
 
 class EvidenceNode(JsonModel):
@@ -66,10 +67,21 @@ class UnresolvedQuestion(JsonModel):
     related_decision_tags: list[str] = Field(default_factory=list, description="Decision tags impacted by the question.")
 
 
+class LiabilityNodeInput(JsonModel):
+    """Liability descriptor that should appear in the evidence graph."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    liability_id: str = Field(..., min_length=1, description="Stable liability identifier.")
+    summary: str = Field(..., min_length=1, description="Liability summary.")
+    related_decision_tags: list[str] = Field(default_factory=list, description="Decision tags affected by the liability.")
+
+
 def build_evidence_graph(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim] | None = None,
     unresolved_questions: list[UnresolvedQuestion] | None = None,
+    liabilities: list[LiabilityNodeInput] | None = None,
 ) -> EvidenceGraph:
     """Build a graph from bundle contents and optional claim lineage."""
     target_node = EvidenceNode(
@@ -81,6 +93,7 @@ def build_evidence_graph(
     edges: list[EvidenceEdge] = []
     claims = claims or []
     unresolved_questions = unresolved_questions or []
+    liabilities = liabilities or []
 
     for claim in claims:
         claim_node = EvidenceNode(
@@ -208,6 +221,32 @@ def build_evidence_graph(
                     source_node_id=question_node_id,
                     target_node_id=decision_node_id,
                     relation="blocks",
+                )
+            )
+    for liability in liabilities:
+        liability_node_id = f"liability:{liability.liability_id}"
+        nodes.append(
+            EvidenceNode(
+                node_id=liability_node_id,
+                node_type=EvidenceNodeType.LIABILITY,
+                label=liability.summary,
+            )
+        )
+        for decision_tag in liability.related_decision_tags:
+            decision_node_id = f"decision:{decision_tag}"
+            if all(node.node_id != decision_node_id for node in nodes):
+                nodes.append(
+                    EvidenceNode(
+                        node_id=decision_node_id,
+                        node_type=EvidenceNodeType.DECISION,
+                        label=decision_tag,
+                    )
+                )
+            edges.append(
+                EvidenceEdge(
+                    source_node_id=liability_node_id,
+                    target_node_id=decision_node_id,
+                    relation="risks",
                 )
             )
 

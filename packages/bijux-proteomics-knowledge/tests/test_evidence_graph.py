@@ -11,6 +11,7 @@ from bijux_proteomics_knowledge import (
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
+    LiabilityNodeInput,
     NormalizedEvidenceInput,
     UnresolvedQuestion,
     QuantitativeSupport,
@@ -69,6 +70,13 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
                 related_decision_tags=["progression"],
             )
         ],
+        liabilities=[
+            LiabilityNodeInput(
+                liability_id="liability-1",
+                summary="aggregation risk",
+                related_decision_tags=["progression"],
+            )
+        ],
     )
 
     assert graph.target_id == "target-1"
@@ -78,7 +86,9 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
     assert any(edge.relation == "derived_into" for edge in graph.edges)
     assert any(edge.relation == "supported_by_evidence" for edge in graph.edges)
     assert any(node.node_type.value == "question" for node in graph.nodes)
+    assert any(node.node_type.value == "liability" for node in graph.nodes)
     assert any(edge.relation == "blocks" for edge in graph.edges)
+    assert any(edge.relation == "risks" for edge in graph.edges)
 
 
 def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:
