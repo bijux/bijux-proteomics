@@ -69,7 +69,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          make test TEST_PATHS="${{ inputs.test_paths }}"
+          coverage_module=""
+          case "${{ inputs.package_slug }}" in
+            agentic-proteins) coverage_module="agentic_proteins" ;;
+            bijux-proteomics-core) coverage_module="bijux_proteomics" ;;
+            bijux-proteomics-foundation) coverage_module="bijux_proteomics_foundation" ;;
+            bijux-proteomics-intelligence) coverage_module="bijux_proteomics_intelligence" ;;
+            bijux-proteomics-knowledge) coverage_module="bijux_proteomics_knowledge" ;;
+            bijux-proteomics-lab) coverage_module="bijux_proteomics_lab" ;;
+            *) coverage_module="" ;;
+          esac
+
+          if [ -n "$coverage_module" ]; then
+            make test TEST_PATHS="${{ inputs.test_paths }}" PYTEST_ADDOPTS_EXTRA="--cov-reset --cov=$coverage_module"
+          else
+            make test TEST_PATHS="${{ inputs.test_paths }}"
+          fi
 
       - name: Upload test artifacts
         if: ${{ always() }}
