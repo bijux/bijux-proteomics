@@ -32,6 +32,7 @@ jobs:
       name: pypi
     permissions:
       contents: read
+      id-token: write
     steps:
       - name: Download publish artifacts
         uses: actions/download-artifact@v5
