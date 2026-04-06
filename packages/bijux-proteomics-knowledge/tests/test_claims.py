@@ -48,6 +48,7 @@ def test_build_decision_lineage_links_supported_claims_to_evidence() -> None:
         target_id="target-1",
         statement="Target relevance is supported.",
         evidence_ids=["lit-1"],
+        resolution_assays=["repeat relevance assay"],
         status=ClaimStatus.SUPPORTED,
     )
     contradicting_claim = build_claim(
@@ -55,6 +56,8 @@ def test_build_decision_lineage_links_supported_claims_to_evidence() -> None:
         target_id="target-1",
         statement="Target relevance is contradicted.",
         evidence_ids=["lit-1"],
+        contradicting_evidence_ids=["lit-1"],
+        resolution_assays=["orthogonal relevance assay"],
         status=ClaimStatus.DISPUTED,
         polarity=ClaimPolarity.CONTRADICTING,
     )
@@ -218,7 +221,26 @@ def test_validate_claims_requires_mechanistic_structure_and_evidence() -> None:
     assert {issue.code for issue in issues} == {
         "claim-evidence-missing",
         "mechanistic-structure-missing",
+        "resolution-assays-missing",
     }
+
+
+def test_validate_claims_requires_contradicting_evidence_ids() -> None:
+    issues = validate_claims(
+        [
+            build_claim(
+                claim_id="claim-contradicting",
+                target_id="target-1",
+                statement="signal contradicts efficacy assumption",
+                evidence_ids=["ev-1"],
+                status=ClaimStatus.DISPUTED,
+                polarity=ClaimPolarity.CONTRADICTING,
+                resolution_assays=["repeat assay in orthogonal system"],
+            )
+        ]
+    )
+
+    assert any(issue.code == "contradicting-evidence-missing" for issue in issues)
 
 
 def test_validate_claims_requires_balanced_contradiction_group() -> None:

@@ -69,6 +69,18 @@ class EvidenceClaim(JsonModel):
         default_factory=list,
         description="Evidence records supporting the claim.",
     )
+    contradicting_evidence_ids: list[EvidenceId] = Field(
+        default_factory=list,
+        description="Evidence records that currently contradict the claim.",
+    )
+    assumptions: list[str] = Field(
+        default_factory=list,
+        description="Scientific assumptions that this claim depends on.",
+    )
+    resolution_assays: list[str] = Field(
+        default_factory=list,
+        description="Assays that can resolve or falsify the claim.",
+    )
     status: ClaimStatus = Field(..., description="Current support status for the claim.")
     polarity: ClaimPolarity = Field(
         default=ClaimPolarity.SUPPORTING,
@@ -142,6 +154,9 @@ def build_claim(
     target_id: str,
     statement: str,
     evidence_ids: list[str],
+    contradicting_evidence_ids: list[str] | None = None,
+    assumptions: list[str] | None = None,
+    resolution_assays: list[str] | None = None,
     status: ClaimStatus,
     polarity: ClaimPolarity = ClaimPolarity.SUPPORTING,
     resolution_state: ClaimResolutionState = ClaimResolutionState.OPEN,
@@ -162,6 +177,9 @@ def build_claim(
         target_id=target_id,
         statement=statement,
         evidence_ids=evidence_ids,
+        contradicting_evidence_ids=contradicting_evidence_ids or [],
+        assumptions=assumptions or [],
+        resolution_assays=resolution_assays or [],
         status=status,
         polarity=polarity,
         resolution_state=resolution_state,
@@ -289,6 +307,22 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                     claim_id=claim.claim_id,
                     code="claim-evidence-missing",
                     message="claim should reference at least one evidence_id",
+                )
+            )
+        if claim.polarity is ClaimPolarity.CONTRADICTING and not claim.contradicting_evidence_ids:
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=claim.claim_id,
+                    code="contradicting-evidence-missing",
+                    message="contradicting claims should include contradicting_evidence_ids",
+                )
+            )
+        if claim.resolution_state is ClaimResolutionState.OPEN and not claim.resolution_assays:
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=claim.claim_id,
+                    code="resolution-assays-missing",
+                    message="open claims should include at least one resolution assay",
                 )
             )
         if claim.claim_type is ClaimType.MECHANISTIC and (
