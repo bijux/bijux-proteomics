@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
+    ClaimStatus,
     EvidenceBundle,
+    EvidenceClaim,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
@@ -46,12 +48,25 @@ def test_build_evidence_graph_links_target_evidence_and_decisions() -> None:
         ],
     )
 
-    graph = build_evidence_graph(bundle)
+    graph = build_evidence_graph(
+        bundle,
+        claims=[
+            EvidenceClaim(
+                claim_id="claim-1",
+                target_id="target-1",
+                statement="Target should progress.",
+                evidence_ids=["lit-1", "assay-1"],
+                status=ClaimStatus.SUPPORTED,
+            )
+        ],
+    )
 
     assert graph.target_id == "target-1"
+    assert any(node.node_type.value == "claim" for node in graph.nodes)
     assert any(edge.relation == "supported_by" for edge in graph.edges)
     assert any(edge.relation == "informs" for edge in graph.edges)
     assert any(edge.relation == "derived_into" for edge in graph.edges)
+    assert any(edge.relation == "supported_by_evidence" for edge in graph.edges)
 
 
 def test_attach_evidence_inputs_converts_adapter_payloads_to_records() -> None:

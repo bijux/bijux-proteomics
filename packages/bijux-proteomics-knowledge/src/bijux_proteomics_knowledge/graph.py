@@ -9,6 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_knowledge.claims import EvidenceClaim
 from bijux_proteomics_knowledge.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.serialization import JsonModel
 
@@ -17,6 +18,7 @@ class EvidenceNodeType(StrEnum):
     """Supported node kinds in the evidence graph."""
 
     TARGET = "target"
+    CLAIM = "claim"
     EVIDENCE = "evidence"
     DECISION = "decision"
 
@@ -52,8 +54,11 @@ class EvidenceGraph(JsonModel):
     edges: list[EvidenceEdge] = Field(default_factory=list, description="Graph edges.")
 
 
-def build_evidence_graph(bundle: EvidenceBundle) -> EvidenceGraph:
-    """Build a simple graph from bundle contents."""
+def build_evidence_graph(
+    bundle: EvidenceBundle,
+    claims: list[EvidenceClaim] | None = None,
+) -> EvidenceGraph:
+    """Build a graph from bundle contents and optional claim lineage."""
     target_node = EvidenceNode(
         node_id=f"target:{bundle.target_id}",
         node_type=EvidenceNodeType.TARGET,
@@ -61,6 +66,44 @@ def build_evidence_graph(bundle: EvidenceBundle) -> EvidenceGraph:
     )
     nodes = [target_node]
     edges: list[EvidenceEdge] = []
+    claims = claims or []
+
+    for claim in claims:
+        claim_node = EvidenceNode(
+            node_id=f"claim:{claim.claim_id}",
+            node_type=EvidenceNodeType.CLAIM,
+            label=claim.statement,
+        )
+        nodes.append(claim_node)
+        edges.append(
+            EvidenceEdge(
+                source_node_id=target_node.node_id,
+                target_node_id=claim_node.node_id,
+                relation="frames",
+            )
+        )
+        for decision_tag in {
+            decision_tag
+            for record in bundle.records
+            if record.evidence_id in claim.evidence_ids
+            for decision_tag in record.decision_tags
+        }:
+            decision_node_id = f"decision:{decision_tag}"
+            if all(node.node_id != decision_node_id for node in nodes):
+                nodes.append(
+                    EvidenceNode(
+                        node_id=decision_node_id,
+                        node_type=EvidenceNodeType.DECISION,
+                        label=decision_tag,
+                    )
+                )
+            edges.append(
+                EvidenceEdge(
+                    source_node_id=claim_node.node_id,
+                    target_node_id=decision_node_id,
+                    relation="supports_decision",
+                )
+            )
 
     for record in bundle.records:
         evidence_node = EvidenceNode(
@@ -76,6 +119,15 @@ def build_evidence_graph(bundle: EvidenceBundle) -> EvidenceGraph:
                 relation="supported_by",
             )
         )
+        for claim in claims:
+            if record.evidence_id in claim.evidence_ids:
+                edges.append(
+                    EvidenceEdge(
+                        source_node_id=f"claim:{claim.claim_id}",
+                        target_node_id=evidence_node.node_id,
+                        relation="supported_by_evidence",
+                    )
+                )
         for decision_tag in record.decision_tags:
             decision_node_id = f"decision:{decision_tag}"
             if all(node.node_id != decision_node_id for node in nodes):
