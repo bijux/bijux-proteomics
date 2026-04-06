@@ -21,6 +21,7 @@ from bijux_proteomics_knowledge import (
     plan_evidence_collection,
     validate_quantitative_support_payload,
     validate_bundle_integrity,
+    normalize_bundle_decision_tags,
     assess_artifact_risk,
     attach_manual_notes,
     BundleFreshnessReport,
@@ -1206,3 +1207,26 @@ def test_validate_bundle_integrity_reports_duplicate_and_missing_lineage() -> No
 
     assert any(issue.code == "duplicate-evidence-ids" for issue in issues)
     assert any(issue.code == "derived-from-missing" for issue in issues)
+
+
+def test_normalize_bundle_decision_tags_standardizes_format() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-tags",
+        target_id="target-tags",
+        records=[
+            EvidenceRecord(
+                evidence_id="tag-1",
+                kind=EvidenceKind.LITERATURE,
+                title="tag",
+                source="pmid",
+                claim="tag",
+                decision_tags=[" Progression ", "Cell Design", "progression"],
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    normalized, report = normalize_bundle_decision_tags(bundle)
+
+    assert normalized.records[0].decision_tags == ["cell-design", "progression"]
+    assert report.changed_records == 1

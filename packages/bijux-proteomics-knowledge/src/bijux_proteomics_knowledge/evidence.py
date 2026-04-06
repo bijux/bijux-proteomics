@@ -682,6 +682,15 @@ class BundleIntegrityIssue(JsonModel):
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
 
+class DecisionTagNormalizationReport(JsonModel):
+    """Summary of decision-tag normalization changes in a bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    changed_records: int = Field(default=0, ge=0, description="Number of records whose tags changed.")
+    normalized_tag_set: list[str] = Field(default_factory=list, description="Unique normalized tag values.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -1281,6 +1290,33 @@ def validate_bundle_integrity(bundle: EvidenceBundle) -> list[BundleIntegrityIss
                     )
                 )
     return issues
+
+
+def normalize_bundle_decision_tags(bundle: EvidenceBundle) -> tuple[EvidenceBundle, DecisionTagNormalizationReport]:
+    """Normalize decision tags to lowercase kebab style and deduplicate per record."""
+    changed = 0
+    normalized_records: list[EvidenceRecord] = []
+    normalized_tag_set: set[str] = set()
+    for record in bundle.records:
+        normalized_tags = sorted(
+            {
+                tag.strip().lower().replace(" ", "-")
+                for tag in record.decision_tags
+                if tag and tag.strip()
+            }
+        )
+        normalized_tag_set.update(normalized_tags)
+        if normalized_tags != record.decision_tags:
+            changed += 1
+            normalized_records.append(record.model_copy(update={"decision_tags": normalized_tags}))
+        else:
+            normalized_records.append(record)
+    normalized_bundle = bundle.model_copy(update={"records": normalized_records})
+    report = DecisionTagNormalizationReport(
+        changed_records=changed,
+        normalized_tag_set=sorted(normalized_tag_set),
+    )
+    return normalized_bundle, report
 
 
 def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str]:
