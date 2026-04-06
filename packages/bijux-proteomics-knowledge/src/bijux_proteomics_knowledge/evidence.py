@@ -25,6 +25,10 @@ class EvidenceKind(StrEnum):
     ASSAY = "assay"
     PATHWAY = "pathway"
     SAFETY = "safety"
+    DIFFERENTIAL_PROTEOMICS = "differential_proteomics"
+    PHOSPHOPROTEOMICS = "phosphoproteomics"
+    INTERACTOMICS = "interactomics"
+    TARGET_ENGAGEMENT = "target_engagement"
 
 
 class EvidenceStrength(StrEnum):

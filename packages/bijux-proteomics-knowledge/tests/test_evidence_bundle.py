@@ -99,6 +99,31 @@ def test_evidence_gaps_reports_missing_kinds() -> None:
     assert gaps == ["structure", "assay"]
 
 
+def test_evidence_gaps_supports_proteomics_specific_kinds() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-omics",
+        target_id="target-omics",
+        records=[
+            EvidenceRecord(
+                evidence_id="dp-1",
+                kind=EvidenceKind.DIFFERENTIAL_PROTEOMICS,
+                title="Proteomics panel",
+                source="lab",
+                claim="Target pathway proteins show desired directional shift.",
+                confidence=0.78,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+
+    gaps = evidence_gaps(
+        bundle,
+        [EvidenceKind.DIFFERENTIAL_PROTEOMICS.value, EvidenceKind.PHOSPHOPROTEOMICS.value],
+    )
+
+    assert gaps == [EvidenceKind.PHOSPHOPROTEOMICS.value]
+
+
 def test_coverage_report_tracks_missing_kinds_and_confidence() -> None:
     bundle = EvidenceBundle(
         bundle_id="bundle-1",
