@@ -58,7 +58,6 @@ def _repo_files(root: Path) -> set[Path]:
         root / "packages" / "agentic-proteins" / "src",
         package_tests_root(),
         root / "docs",
-        root / "scripts",
         root / "makes",
         root / "artifacts",
     ]

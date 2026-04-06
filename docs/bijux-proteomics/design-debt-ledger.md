@@ -1,3 +1,3 @@
 # Design Debt Ledger
 
-- docs gate wrappers remain in `scripts/` while gate callers migrate why: preserve stable maintainer commands exit: all gates call package modules directly
+- no active design debt entries why: repository debt ledger is intentionally empty until a new constrained exception is approved exit: keep this file empty except approved debt items

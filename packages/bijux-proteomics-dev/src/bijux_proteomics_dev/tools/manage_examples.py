@@ -5,7 +5,7 @@
 Prep examples/ from RCSB PDB: per-chain FASTA + ground-truth PDB.
 
 Usage:
-  python scripts/manage_examples.py [--targets 4krp:B 2zta:A,B ...] [--out examples] [--skip-existing] [--force]
+  python -m bijux_proteomics_dev.tools.manage_examples [--targets 4krp:B 2zta:A,B ...] [--out examples] [--skip-existing] [--force]
 
 Outputs, e.g.:
   examples/ex01_4krp_B/

@@ -56,5 +56,5 @@ security-clean:
 ##@ Security
 security:        ## Run Bandit and pip-audit; save reports to $(SECURITY_REPORT_DIR)
 security-bandit: ## Run Bandit (screen + JSON artifact)
-security-audit:  ## Run pip-audit (JSON once) and gate via scripts/helper_pip_audit.py; prints concise summary
+security-audit:  ## Run pip-audit (JSON once) and gate via bijux-proteomics-dev security module
 security-clean:  ## Remove security reports

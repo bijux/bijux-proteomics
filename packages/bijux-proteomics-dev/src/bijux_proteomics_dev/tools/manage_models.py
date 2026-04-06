@@ -12,13 +12,13 @@ This all-in-one script handles the entire lifecycle for local model setup:
 
 Usage:
   # Run the full pipeline for all models (rebuilds images by default)
-  python scripts/manage_models.py
+  python -m bijux_proteomics_dev.tools.manage_models
 
   # Skip rebuilding images if they already exist
-  python scripts/manage_models.py --skip-rebuild
+  python -m bijux_proteomics_dev.tools.manage_models --skip-rebuild
 
   # Prepare assets only, do not build or test
-  python scripts/manage_models.py --no-build
+  python -m bijux_proteomics_dev.tools.manage_models --no-build
 """
 
 from __future__ import annotations
