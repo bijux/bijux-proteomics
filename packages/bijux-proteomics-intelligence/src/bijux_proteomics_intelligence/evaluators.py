@@ -201,6 +201,23 @@ class PortfolioDecisionReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Short explanation of portfolio quality.")
 
 
+class ScenarioDecisionConsensus(JsonModel):
+    """Consensus summary across scenario evaluations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    recommended_action: ScenarioAction = Field(..., description="Consensus recommended action.")
+    action_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Count of scenario actions by action label.",
+    )
+    conflicting_actions: bool = Field(
+        ...,
+        description="Whether scenario evaluations disagree on action direction.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Short consensus notes.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -569,5 +586,33 @@ def evaluate_portfolio_balance(
         liability_diversity=len(liability_labels),
         mean_residual_risk=mean_residual_risk,
         balanced_portfolio=not low_diversity and not high_risk,
+        notes=notes,
+    )
+
+
+def summarize_scenario_consensus(
+    evaluations: ScenarioSetEvaluation,
+) -> ScenarioDecisionConsensus:
+    """Summarize grouped scenario evaluations into one consensus action view."""
+    scenario_actions = [
+        evaluations.progression.action,
+        evaluations.synthesis.action,
+        evaluations.scale_up.action,
+        evaluations.redesign.action,
+    ]
+    action_counts: dict[str, int] = {}
+    for action in scenario_actions:
+        action_counts[action.value] = action_counts.get(action.value, 0) + 1
+    recommended = max(action_counts, key=action_counts.get)
+    conflicting_actions = len(action_counts) > 1
+    notes = (
+        ["scenario actions are mixed and require explicit human arbitration"]
+        if conflicting_actions
+        else ["scenario actions are aligned"]
+    )
+    return ScenarioDecisionConsensus(
+        recommended_action=ScenarioAction(recommended),
+        action_counts=action_counts,
+        conflicting_actions=conflicting_actions,
         notes=notes,
     )

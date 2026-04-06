@@ -20,6 +20,7 @@ from bijux_proteomics_intelligence import (
     ScaleUpPolicy,
     ScenarioAction,
     evaluate_portfolio_balance,
+    summarize_scenario_consensus,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -380,3 +381,27 @@ def test_evaluate_portfolio_balance_flags_low_diversity_high_risk_shortlist() ->
     assert report.balanced_portfolio is False
     assert report.liability_diversity == 1
     assert report.mean_residual_risk > 0.5
+
+
+def test_summarize_scenario_consensus_reports_conflicting_actions() -> None:
+    program = create_program_spec(
+        program_id="prog-consensus",
+        name="consensus",
+        objective="summarize scenario action consensus",
+        target_id="target-consensus",
+        target_name="Target Consensus",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="evaluate scenario action coherence",
+    )
+    ranking = CandidateRanking(
+        program_id="prog-consensus",
+        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+    )
+    risks = [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.1, safety_risk=0.4)]
+    grouped = evaluate_all_scenarios(program, ranking, _ready_state(), risks, policies=EvaluatorPolicyBundle())
+
+    consensus = summarize_scenario_consensus(grouped)
+
+    assert consensus.action_counts
+    assert consensus.conflicting_actions is True
