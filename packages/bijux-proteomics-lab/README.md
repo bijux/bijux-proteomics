@@ -39,3 +39,7 @@ and review gates, this is the package boundary.
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/BOUNDARIES.md)
 - [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/CONTRACTS.md)
 - [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/maintainer/pypi.md)
+
+## Primary entrypoint
+
+- import-first library package; no console script is published
