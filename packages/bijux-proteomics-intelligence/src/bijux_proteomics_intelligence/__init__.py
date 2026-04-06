@@ -49,7 +49,13 @@ from bijux_proteomics_intelligence.evaluators import (
     evaluate_for_scale_up,
     evaluate_for_synthesis,
 )
-from bijux_proteomics_intelligence.policies import RankingFactor, RankingPolicy, TieBreakRule
+from bijux_proteomics_intelligence.policies import (
+    RankingFactor,
+    RankingPolicy,
+    ScientificMetricClass,
+    TieBreakRule,
+    classify_metric_name,
+)
 from bijux_proteomics_intelligence.policies import (
     HoldPolicyConfig,
     ProgressionPolicyConfig,
@@ -86,6 +92,7 @@ __all__ = [
     "ProgressionPolicyConfig",
     "RankingFactor",
     "RankingPolicy",
+    "ScientificMetricClass",
     "RankedCandidate",
     "RejectionReasonCode",
     "RedesignPolicy",
@@ -111,4 +118,5 @@ __all__ = [
     "summarize_candidate_explainability",
     "candidate_score_breakdown",
     "transition_candidate",
+    "classify_metric_name",
 ]

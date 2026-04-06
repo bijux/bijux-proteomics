@@ -17,7 +17,13 @@ from bijux_proteomics_intelligence.outcomes import (
     RejectionReasonCode,
     TieBreakExplanation,
 )
-from bijux_proteomics_intelligence.policies import RankingFactor, RankingPolicy, TieBreakRule
+from bijux_proteomics_intelligence.policies import (
+    RankingFactor,
+    RankingPolicy,
+    ScientificMetricClass,
+    TieBreakRule,
+    classify_metric_name,
+)
 from bijux_proteomics_intelligence.serialization import JsonModel
 
 
@@ -203,16 +209,16 @@ class CandidateScoreBreakdown(JsonModel):
 
 
 def _metric_weight_name(metric: str) -> OptimizationAxis:
-    lowered = metric.lower()
-    if "affin" in lowered or "bind" in lowered:
+    metric_class = classify_metric_name(metric)
+    if metric_class is ScientificMetricClass.AFFINITY:
         return OptimizationAxis.AFFINITY
-    if "stabil" in lowered or "tm" in lowered or "fold" in lowered:
+    if metric_class is ScientificMetricClass.STABILITY:
         return OptimizationAxis.STABILITY
-    if "specif" in lowered or "off-target" in lowered:
+    if metric_class is ScientificMetricClass.SPECIFICITY:
         return OptimizationAxis.SPECIFICITY
-    if "tox" in lowered or "immun" in lowered or "safety" in lowered:
+    if metric_class is ScientificMetricClass.SAFETY:
         return OptimizationAxis.SAFETY
-    if "yield" in lowered or "express" in lowered or "aggregation" in lowered:
+    if metric_class is ScientificMetricClass.DEVELOPABILITY:
         return OptimizationAxis.DEVELOPABILITY
     return OptimizationAxis.ACTIVITY
 

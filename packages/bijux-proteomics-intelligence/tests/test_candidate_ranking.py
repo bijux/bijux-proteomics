@@ -16,11 +16,13 @@ from bijux_proteomics_intelligence import (
     PortfolioSelectionPolicy,
     RejectionReasonCode,
     RankingPolicy,
+    ScientificMetricClass,
     build_design_brief,
     prioritize_candidates,
     select_portfolio_shortlist,
     summarize_candidate_explainability,
     candidate_score_breakdown,
+    classify_metric_name,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -399,3 +401,9 @@ def test_candidate_score_breakdown_reports_weighted_contributions() -> None:
     assert isinstance(breakdown, CandidateScoreBreakdown)
     assert breakdown.base_score > 0
     assert breakdown.final_score <= breakdown.base_score
+
+
+def test_classify_metric_name_uses_typed_metric_classes() -> None:
+    assert classify_metric_name("binding_score") is ScientificMetricClass.AFFINITY
+    assert classify_metric_name("delta_tm") is ScientificMetricClass.STABILITY
+    assert classify_metric_name("tox_signal") is ScientificMetricClass.SAFETY

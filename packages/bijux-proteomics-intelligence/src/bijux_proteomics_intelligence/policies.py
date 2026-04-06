@@ -31,6 +31,17 @@ class RankingFactor(StrEnum):
     UNCERTAINTY = "uncertainty"
 
 
+class ScientificMetricClass(StrEnum):
+    """Typed scientific metric classes used across ranking logic."""
+
+    ACTIVITY = "activity"
+    AFFINITY = "affinity"
+    STABILITY = "stability"
+    SPECIFICITY = "specificity"
+    SAFETY = "safety"
+    DEVELOPABILITY = "developability"
+
+
 class RankingPolicy(JsonModel):
     """Serializable ranking policy for candidate evaluation."""
 
@@ -132,3 +143,19 @@ class RedesignPolicyConfig(JsonModel):
         le=1.0,
         description="Residual risk threshold that should trigger redesign.",
     )
+
+
+def classify_metric_name(metric: str) -> ScientificMetricClass:
+    """Classify a metric name into a typed scientific metric class."""
+    lowered = metric.lower()
+    if any(token in lowered for token in ("affin", "bind", "kd", "ic50", "ec50")):
+        return ScientificMetricClass.AFFINITY
+    if any(token in lowered for token in ("stabil", "tm", "fold")):
+        return ScientificMetricClass.STABILITY
+    if any(token in lowered for token in ("specif", "off_target", "selectiv")):
+        return ScientificMetricClass.SPECIFICITY
+    if any(token in lowered for token in ("tox", "immun", "safety")):
+        return ScientificMetricClass.SAFETY
+    if any(token in lowered for token in ("yield", "express", "aggregation", "develop")):
+        return ScientificMetricClass.DEVELOPABILITY
+    return ScientificMetricClass.ACTIVITY
