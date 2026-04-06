@@ -238,6 +238,17 @@ class IntelligenceReviewPacket(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Review-facing notes.")
 
 
+class HoldPressureSummary(JsonModel):
+    """Summary of hold pressure across scenario evaluations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    hold_count: int = Field(..., ge=0, description="Number of scenario actions recommending hold.")
+    total_scenarios: int = Field(..., ge=1, description="Total scenario count considered.")
+    hold_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of hold recommendations.")
+    high_hold_pressure: bool = Field(..., description="Whether hold pressure crosses escalation threshold.")
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -659,4 +670,26 @@ def build_intelligence_review_packet(
         portfolio=portfolio,
         review_ready=review_ready,
         notes=notes,
+    )
+
+
+def summarize_hold_pressure(
+    evaluations: ScenarioSetEvaluation,
+    *,
+    threshold: float = 0.5,
+) -> HoldPressureSummary:
+    """Summarize hold recommendation pressure across scenarios."""
+    actions = [
+        evaluations.progression.action,
+        evaluations.synthesis.action,
+        evaluations.scale_up.action,
+        evaluations.redesign.action,
+    ]
+    hold_count = sum(1 for action in actions if action is ScenarioAction.HOLD)
+    hold_fraction = round(hold_count / len(actions), 4)
+    return HoldPressureSummary(
+        hold_count=hold_count,
+        total_scenarios=len(actions),
+        hold_fraction=hold_fraction,
+        high_hold_pressure=hold_fraction >= threshold,
     )

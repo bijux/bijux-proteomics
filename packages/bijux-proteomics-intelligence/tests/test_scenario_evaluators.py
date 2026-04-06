@@ -22,6 +22,7 @@ from bijux_proteomics_intelligence import (
     evaluate_portfolio_balance,
     summarize_scenario_consensus,
     build_intelligence_review_packet,
+    summarize_hold_pressure,
     RedesignPolicyConfig,
     SynthesisPolicy,
     evaluate_for_progression,
@@ -431,3 +432,30 @@ def test_build_intelligence_review_packet_combines_consensus_and_portfolio() -> 
     assert packet.consensus.action_counts
     assert packet.portfolio.candidate_count == 1
     assert packet.review_ready is False
+
+
+def test_summarize_hold_pressure_counts_hold_actions() -> None:
+    grouped = evaluate_all_scenarios(
+        create_program_spec(
+            program_id="prog-hold-pressure",
+            name="hold pressure",
+            objective="summarize hold pressure",
+            target_id="target-hold-pressure",
+            target_name="Target Hold Pressure",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            organism="human",
+            mechanism="hold pressure tracking",
+        ),
+        CandidateRanking(
+            program_id="prog-hold-pressure",
+            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ),
+        _ready_state(),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.1, safety_risk=0.6)],
+        policies=EvaluatorPolicyBundle(),
+    )
+
+    summary = summarize_hold_pressure(grouped)
+
+    assert summary.total_scenarios == 4
+    assert summary.hold_count >= 1
