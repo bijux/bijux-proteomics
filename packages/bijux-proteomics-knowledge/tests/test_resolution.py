@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
+    ClaimResolutionRecord,
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -89,3 +90,46 @@ def test_resolve_conflicts_requires_curation_when_confidence_gap_is_small() -> N
     )
 
     assert resolutions[0].action is ResolutionAction.REQUIRE_CURATION
+
+
+def test_claim_resolution_record_captures_resolution_history() -> None:
+    _, resolutions = resolve_conflicts(
+        EvidenceBundle(
+            bundle_id="bundle-3",
+            target_id="target-3",
+            records=[
+                EvidenceRecord(
+                    evidence_id="assay-1",
+                    kind=EvidenceKind.ASSAY,
+                    title="Assay positive",
+                    source="lab",
+                    source_type=EvidenceSourceType.LAB_ASSAY,
+                    claim="Candidate meets the activity gate.",
+                    decision_tags=["progression"],
+                    confidence=0.9,
+                    strength=EvidenceStrength.DECISIVE,
+                ),
+                EvidenceRecord(
+                    evidence_id="assay-2",
+                    kind=EvidenceKind.ASSAY,
+                    title="Assay caution",
+                    source="lab-2",
+                    source_type=EvidenceSourceType.LAB_ASSAY,
+                    claim="Candidate may miss the activity gate.",
+                    decision_tags=["progression"],
+                    confidence=0.6,
+                    strength=EvidenceStrength.EXPLORATORY,
+                ),
+            ],
+        )
+    )
+
+    record = ClaimResolutionRecord(
+        record_id="resolution-1",
+        target_id="target-3",
+        decision_tag="progression",
+        resolution=resolutions[0],
+        recorded_by="scientist",
+    )
+
+    assert record.resolution.action is ResolutionAction.ACCEPT_HIGHER_TRUST

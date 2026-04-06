@@ -34,6 +34,8 @@ from bijux_proteomics_knowledge.graph import (
     build_evidence_graph,
 )
 from bijux_proteomics_knowledge.repositories import (
+    ClaimResolutionRecord,
+    ClaimResolutionRepository,
     EvidenceBundleRepository,
     EvidenceClaimRepository,
     EvidenceRecordRepository,
@@ -131,6 +133,8 @@ __all__ = [
     "DocumentSchema",
     "EvidenceBundleRepository",
     "EvidenceClaimRepository",
+    "ClaimResolutionRecord",
+    "ClaimResolutionRepository",
     "EvidenceRecordRepository",
     "ResolutionAction",
     "ResolutionPolicy",
