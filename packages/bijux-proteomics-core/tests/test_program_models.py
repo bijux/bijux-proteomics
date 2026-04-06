@@ -166,6 +166,7 @@ def test_program_summary_includes_operating_model_defaults() -> None:
     assert summary["mechanism_hypothesis"] == "stabilize the productive conformation"
     assert summary["human_review_required"] is True
     assert summary["lab_feedback_required"] is True
+    assert summary["success_mode"] == "binder"
 
 
 def test_program_summary_includes_structured_context_fields() -> None:

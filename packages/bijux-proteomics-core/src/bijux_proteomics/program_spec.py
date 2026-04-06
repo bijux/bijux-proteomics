@@ -61,6 +61,10 @@ class ProgramSpec(JsonModel):
         default=None,
         description="Modality context such as degrader, antibody, or enzyme modulator.",
     )
+    success_mode: str | None = Field(
+        default=None,
+        description="Primary success mode such as inhibitor, binder, or stability rescue.",
+    )
     translational_assumptions: list[str] = Field(
         default_factory=list,
         description="Major translational assumptions that should be validated experimentally.",
@@ -153,6 +157,7 @@ def create_program_spec(
         mechanism_hypothesis=mechanism,
         intervention_goal="modulate_target_state",
         modality_context="protein_engineering",
+        success_mode="binder",
         key_unknowns=["target engagement durability in biological system"],
         critical_failure_modes=["loss of target selectivity"],
         target=ProteinTarget(
@@ -181,6 +186,7 @@ def program_summary(program: ProgramSpec) -> dict[str, object]:
         "mechanism_hypothesis": program.mechanism_hypothesis,
         "intervention_goal": program.intervention_goal,
         "modality_context": program.modality_context,
+        "success_mode": program.success_mode,
         "key_unknown_count": len(program.key_unknowns),
         "critical_failure_mode_count": len(program.critical_failure_modes),
         "schema_version": program.document_schema.schema_version,
