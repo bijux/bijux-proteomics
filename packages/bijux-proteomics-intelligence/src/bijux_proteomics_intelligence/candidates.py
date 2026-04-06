@@ -135,6 +135,43 @@ class CandidatePortfolio(JsonModel):
     )
 
 
+class PortfolioSelectionPolicy(JsonModel):
+    """Policy for selecting a balanced shortlist from ranked candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable policy identifier.")
+    selection_size: int = Field(
+        default=3,
+        ge=1,
+        description="Maximum number of candidates to keep in the shortlist.",
+    )
+    max_candidates_per_liability_code: int = Field(
+        default=1,
+        ge=1,
+        description="Maximum shortlisted candidates that may share a liability code.",
+    )
+
+
+class PortfolioSelectionResult(JsonModel):
+    """Balanced shortlist built from ranked candidates and risk profiles."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    selected_candidate_ids: list[str] = Field(
+        default_factory=list,
+        description="Candidate identifiers chosen for the shortlist.",
+    )
+    deferred_candidate_ids: list[str] = Field(
+        default_factory=list,
+        description="Candidate identifiers left out of the shortlist.",
+    )
+    rationale: list[str] = Field(
+        default_factory=list,
+        description="Why candidates were selected or deferred.",
+    )
+
+
 def build_risk_profile(assessment: CandidateAssessment) -> CandidateRiskProfile:
     """Build a risk profile from an assessment."""
     developability_severity = sum(
@@ -196,3 +233,61 @@ def portfolio_status(portfolio: CandidatePortfolio) -> dict[str, int]:
     for decision in portfolio.decisions:
         counts[decision.status.value] += 1
     return counts
+
+
+def select_portfolio_shortlist(
+    ranking: list[CandidateAssessment],
+    risk_profiles: list[CandidateRiskProfile],
+    policy: PortfolioSelectionPolicy | None = None,
+) -> PortfolioSelectionResult:
+    """Select a shortlist that preserves score quality without collapsing diversity."""
+    policy = policy or PortfolioSelectionPolicy(policy_id="balanced-shortlist")
+    risk_map = {profile.candidate_id: profile for profile in risk_profiles}
+    selected_candidate_ids: list[str] = []
+    deferred_candidate_ids: list[str] = []
+    rationale: list[str] = []
+    liability_counts: dict[str, int] = {}
+
+    for candidate in ranking:
+        if len(selected_candidate_ids) >= policy.selection_size:
+            deferred_candidate_ids.append(candidate.candidate_id)
+            rationale.append(
+                f"deferred {candidate.candidate_id} because the shortlist is already full"
+            )
+            continue
+        profile = risk_map.get(candidate.candidate_id)
+        liability_codes = sorted(
+            {
+                flag.code
+                for flag in (profile.liabilities if profile is not None else [])
+            }
+        )
+        overrepresented = [
+            code
+            for code in liability_codes
+            if liability_counts.get(code, 0) >= policy.max_candidates_per_liability_code
+        ]
+        if overrepresented:
+            deferred_candidate_ids.append(candidate.candidate_id)
+            rationale.append(
+                f"deferred {candidate.candidate_id} to avoid overloading the shortlist with "
+                + ", ".join(overrepresented)
+            )
+            continue
+        selected_candidate_ids.append(candidate.candidate_id)
+        for code in liability_codes:
+            liability_counts[code] = liability_counts.get(code, 0) + 1
+        if liability_codes:
+            rationale.append(
+                f"selected {candidate.candidate_id} while preserving liability diversity across "
+                + ", ".join(liability_codes)
+            )
+        else:
+            rationale.append(
+                f"selected {candidate.candidate_id} because it adds a clean risk profile to the shortlist"
+            )
+    return PortfolioSelectionResult(
+        selected_candidate_ids=selected_candidate_ids,
+        deferred_candidate_ids=deferred_candidate_ids,
+        rationale=rationale,
+    )

@@ -7,11 +7,14 @@ from bijux_proteomics import ReviewGate, ScientificConstraint, SuccessCriterion,
 from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
+    build_risk_profile,
     LiabilityFlag,
     OptimizationAxis,
+    PortfolioSelectionPolicy,
     RankingPolicy,
     build_design_brief,
     prioritize_candidates,
+    select_portfolio_shortlist,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -211,3 +214,69 @@ def test_prioritize_candidates_applies_profile_hard_filters() -> None:
 
     assert [item.candidate_id for item in ranking.ranked_candidates] == ["candidate-keep"]
     assert ranking.rejected_candidates == ["candidate-hard-filter"]
+
+
+def test_select_portfolio_shortlist_preserves_liability_diversity() -> None:
+    candidates = [
+        CandidateAssessment(
+            candidate_id="candidate-a",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            metric_scores={"binding_score": 0.85},
+            manufacturability_score=0.8,
+            uncertainty=0.1,
+            evidence_support=0.85,
+            liabilities=[
+                LiabilityFlag(
+                    code="aggregation-risk",
+                    summary="Aggregation hotspot",
+                    severity=4,
+                    source="model",
+                )
+            ],
+        ),
+        CandidateAssessment(
+            candidate_id="candidate-b",
+            sequence="ACDEFGHIKLMNPQRSTVWA",
+            metric_scores={"binding_score": 0.83},
+            manufacturability_score=0.78,
+            uncertainty=0.12,
+            evidence_support=0.82,
+            liabilities=[
+                LiabilityFlag(
+                    code="aggregation-risk",
+                    summary="Aggregation hotspot",
+                    severity=3,
+                    source="model",
+                )
+            ],
+        ),
+        CandidateAssessment(
+            candidate_id="candidate-c",
+            sequence="ACDEFGHIKLMNPQRSTVWF",
+            metric_scores={"binding_score": 0.81},
+            manufacturability_score=0.76,
+            uncertainty=0.15,
+            evidence_support=0.8,
+            liabilities=[
+                LiabilityFlag(
+                    code="immunogenicity-risk",
+                    summary="Potential immunogenicity signal",
+                    severity=2,
+                    source="model",
+                )
+            ],
+        ),
+    ]
+
+    selection = select_portfolio_shortlist(
+        candidates,
+        [build_risk_profile(candidate) for candidate in candidates],
+        policy=PortfolioSelectionPolicy(
+            policy_id="diverse-shortlist",
+            selection_size=2,
+            max_candidates_per_liability_code=1,
+        ),
+    )
+
+    assert selection.selected_candidate_ids == ["candidate-a", "candidate-c"]
+    assert selection.deferred_candidate_ids == ["candidate-b"]

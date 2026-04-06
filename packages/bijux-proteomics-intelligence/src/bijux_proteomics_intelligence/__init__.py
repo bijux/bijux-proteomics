@@ -22,8 +22,11 @@ from bijux_proteomics_intelligence.candidates import (
     CandidateRiskProfile,
     CandidateScreeningResult,
     CandidateStatus,
+    PortfolioSelectionPolicy,
+    PortfolioSelectionResult,
     build_risk_profile,
     portfolio_status,
+    select_portfolio_shortlist,
 )
 from bijux_proteomics_intelligence.evaluators import (
     ScenarioAction,
@@ -54,6 +57,8 @@ __all__ = [
     "JsonModel",
     "LiabilityFlag",
     "OptimizationAxis",
+    "PortfolioSelectionPolicy",
+    "PortfolioSelectionResult",
     "RankingPolicy",
     "RankedCandidate",
     "ScenarioAction",
@@ -67,5 +72,6 @@ __all__ = [
     "evaluate_for_scale_up",
     "evaluate_for_synthesis",
     "portfolio_status",
+    "select_portfolio_shortlist",
     "prioritize_candidates",
 ]
