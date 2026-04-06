@@ -5,9 +5,19 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import CandidateId, JsonModel
+
+
+class RejectionReasonCode(StrEnum):
+    """Stable rejection reason categories."""
+
+    LOW_METRIC_FRACTION = "low_metric_fraction"
+    LOW_EVIDENCE_SUPPORT = "low_evidence_support"
+    LOW_MANUFACTURABILITY = "low_manufacturability"
 
 
 class CandidateRejection(JsonModel):
@@ -19,6 +29,14 @@ class CandidateRejection(JsonModel):
     reasons: list[str] = Field(
         default_factory=list,
         description="Concrete reasons for rejection.",
+    )
+    reason_codes: list[RejectionReasonCode] = Field(
+        default_factory=list,
+        description="Stable reason codes for downstream automation.",
+    )
+    blocking: bool = Field(
+        default=True,
+        description="Whether this rejection blocks progression for the candidate.",
     )
 
 

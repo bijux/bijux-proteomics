@@ -12,7 +12,11 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
 from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
-from bijux_proteomics_intelligence.outcomes import CandidateRejection, TieBreakExplanation
+from bijux_proteomics_intelligence.outcomes import (
+    CandidateRejection,
+    RejectionReasonCode,
+    TieBreakExplanation,
+)
 from bijux_proteomics_intelligence.policies import RankingFactor, RankingPolicy, TieBreakRule
 from bijux_proteomics_intelligence.serialization import JsonModel
 
@@ -253,22 +257,26 @@ def _screen_candidate(
     candidate: CandidateAssessment,
     program: ProgramSpec,
     profile: RankingPolicy,
-) -> tuple[bool, list[str], float]:
+) -> tuple[bool, list[str], list[RejectionReasonCode], float]:
     criterion_score = _criterion_score(candidate, program)
     threshold_count = max(len(program.success_criteria), 1)
     mean_fraction = criterion_score / threshold_count
     reasons: list[str] = []
+    reason_codes: list[RejectionReasonCode] = []
 
     if program.success_criteria and mean_fraction < profile.minimum_metric_fraction:
         reasons.append("below minimum criterion fraction")
+        reason_codes.append(RejectionReasonCode.LOW_METRIC_FRACTION)
     if candidate.evidence_support < profile.minimum_evidence_support:
         reasons.append("insufficient evidence support")
+        reason_codes.append(RejectionReasonCode.LOW_EVIDENCE_SUPPORT)
     if (
         profile.require_manufacturability_floor
         and candidate.manufacturability_score < profile.manufacturability_floor
     ):
         reasons.append("below manufacturability floor")
-    return (not reasons, reasons, criterion_score)
+        reason_codes.append(RejectionReasonCode.LOW_MANUFACTURABILITY)
+    return (not reasons, reasons, reason_codes, criterion_score)
 
 
 def prioritize_candidates(
@@ -282,7 +290,7 @@ def prioritize_candidates(
     rejected: list[str] = []
     rejections: list[CandidateRejection] = []
     for candidate in candidates:
-        passed, rejection_reasons, criterion_score = _screen_candidate(
+        passed, rejection_reasons, rejection_reason_codes, criterion_score = _screen_candidate(
             candidate,
             program,
             policy,
@@ -293,6 +301,7 @@ def prioritize_candidates(
                 CandidateRejection(
                     candidate_id=candidate.candidate_id,
                     reasons=rejection_reasons,
+                    reason_codes=rejection_reason_codes,
                 )
             )
             continue

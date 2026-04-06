@@ -13,6 +13,7 @@ from bijux_proteomics_intelligence import (
     OptimizationAxis,
     RankingFactor,
     PortfolioSelectionPolicy,
+    RejectionReasonCode,
     RankingPolicy,
     build_design_brief,
     prioritize_candidates,
@@ -165,6 +166,9 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
     ]
     assert ranking.rejected_candidates == ["candidate-c"]
     assert ranking.rejections[0].candidate_id == "candidate-c"
+    assert ranking.rejections[0].reason_codes == [
+        RejectionReasonCode.LOW_METRIC_FRACTION
+    ]
     assert ranking.ranked_candidates[0].explainability["confidence"] == 0.9
     assert ranking.ranked_candidates[0].explainability["factor_scores"] == {
         RankingFactor.CRITERIA.value: 0.7289,

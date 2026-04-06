@@ -47,6 +47,7 @@ from bijux_proteomics_intelligence.evaluators import (
 from bijux_proteomics_intelligence.policies import RankingFactor, RankingPolicy, TieBreakRule
 from bijux_proteomics_intelligence.outcomes import (
     CandidateRejection,
+    RejectionReasonCode,
     TieBreakExplanation,
 )
 from bijux_proteomics_intelligence.serialization import JsonModel
@@ -73,6 +74,7 @@ __all__ = [
     "RankingFactor",
     "RankingPolicy",
     "RankedCandidate",
+    "RejectionReasonCode",
     "RedesignPolicy",
     "ScenarioAction",
     "ScenarioEvaluation",
