@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling>=1.27.0,<1.28", "hatch-vcs>=0.4.0,<1.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bijux-proteomics-dev"
+dynamic = ["version"]
+description = "Repository-owned developer tooling for bijux-proteomics packages."
+readme = "README.md"
+requires-python = ">=3.11,<4"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "packaging>=24.0,<25.0",
+  "PyYAML>=6.0,<7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-dev"
+Repository = "https://github.com/bijux/bijux-proteomics"
+Documentation = "https://bijux.io/bijux-proteomics/bijux-proteomics-dev/"
+Issues = "https://github.com/bijux/bijux-proteomics/issues"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-dev/CHANGELOG.md"
+Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4.1,<9.0",
+  "pytest-asyncio>=1.0.0,<2.0",
+  "pytest-cov>=6.2.1,<7.0",
+  "pytest-timeout>=2.4.0,<3.0",
+  "hatch>=1.14.0,<2.0",
+  "pydantic>=2.12,<3.0",
+  "ruff>=0.6.8,<1.0",
+  "mypy>=1.11.2,<2.0",
+  "vulture>=2.7,<3.0",
+  "deptry>=0.10.0,<1.0",
+  "interrogate>=1.7.0,<2.0",
+  "bandit>=1.7.10,<2.0",
+  "pip-audit>=2.7.3,<3.0",
+  "build>=1.0.3,<2.0",
+  "codespell>=2.3.0,<3.0",
+]
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^v(?P<version>.*)$"
+raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
+fallback-version = "0.1.0"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bijux_proteomics_dev"]
+include = ["src/bijux_proteomics_dev/py.typed"]
+
+[tool.hatch.build.targets.wheel.package-data]
+"bijux_proteomics_dev" = ["py.typed"]
+
+[tool.hatch.build]
+include = [
+  "CHANGELOG.md",
+  "README.md",
+  "src/bijux_proteomics_dev/**",
+]
