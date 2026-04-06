@@ -90,6 +90,18 @@ class DecisionGateProfile(JsonModel):
     )
 
 
+class KnowledgeReviewTrend(JsonModel):
+    """Trend summary across a sequence of review deltas."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision tag under trend analysis.")
+    net_intelligence_delta: float = Field(..., description="Net intelligence-index change across deltas.")
+    improving_steps: int = Field(default=0, ge=0, description="Count of positive intelligence steps.")
+    regressing_steps: int = Field(default=0, ge=0, description="Count of negative intelligence steps.")
+    recommendation_change_count: int = Field(default=0, ge=0, description="Count of recommendation transitions.")
+
+
 def build_knowledge_review_packet(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim],
@@ -282,3 +294,22 @@ def extract_blocker_highlights(
         highlights.append((1, f"quality action: {recommendation}"))
     highlights.sort(key=lambda item: item[0], reverse=True)
     return [text for _, text in highlights[:limit]]
+
+
+def summarize_review_trend(deltas: list[KnowledgeReviewDelta]) -> KnowledgeReviewTrend:
+    """Summarize progression trend across ordered review deltas."""
+    if not deltas:
+        return KnowledgeReviewTrend(
+            decision_tag="unknown",
+            net_intelligence_delta=0.0,
+            improving_steps=0,
+            regressing_steps=0,
+            recommendation_change_count=0,
+        )
+    return KnowledgeReviewTrend(
+        decision_tag=deltas[-1].decision_tag,
+        net_intelligence_delta=round(sum(delta.intelligence_index_delta for delta in deltas), 4),
+        improving_steps=sum(1 for delta in deltas if delta.intelligence_index_delta > 0),
+        regressing_steps=sum(1 for delta in deltas if delta.intelligence_index_delta < 0),
+        recommendation_change_count=sum(1 for delta in deltas if delta.recommendation_changed),
+    )

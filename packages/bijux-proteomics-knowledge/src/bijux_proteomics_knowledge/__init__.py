@@ -75,11 +75,13 @@ from bijux_proteomics_knowledge.review import (
     MultiDecisionReadiness,
     KnowledgeReviewDelta,
     DecisionGateProfile,
+    KnowledgeReviewTrend,
     build_knowledge_review_packet,
     compare_review_packets,
     compute_decision_intelligence_index,
     summarize_multi_decision_readiness,
     extract_blocker_highlights,
+    summarize_review_trend,
 )
 from bijux_proteomics_knowledge.serialization import fingerprint_model, to_canonical_json
 from bijux_proteomics_knowledge.repositories import (
@@ -258,11 +260,13 @@ __all__ = [
     "MultiDecisionReadiness",
     "KnowledgeReviewDelta",
     "DecisionGateProfile",
+    "KnowledgeReviewTrend",
     "build_knowledge_review_packet",
     "compare_review_packets",
     "compute_decision_intelligence_index",
     "summarize_multi_decision_readiness",
     "extract_blocker_highlights",
+    "summarize_review_trend",
     "to_canonical_json",
     "fingerprint_model",
     "build_claim",

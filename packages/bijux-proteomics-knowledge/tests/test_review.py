@@ -13,6 +13,8 @@ from bijux_proteomics_knowledge import (
     build_knowledge_review_packet,
     compare_review_packets,
     DecisionGateProfile,
+    KnowledgeReviewPacket,
+    summarize_review_trend,
     summarize_multi_decision_readiness,
 )
 
@@ -190,3 +192,77 @@ def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
     )
 
     assert packet.gate_recommendation == "advance-with-targeted-gap-closure" or packet.gate_recommendation == "advance-with-evidence-hardening"
+
+
+def test_summarize_review_trend_accumulates_delta_direction() -> None:
+    delta_a = compare_review_packets(
+        KnowledgeReviewPacket.model_validate(
+            {
+                "target_id": "t",
+                "decision_tag": "progression",
+                "evidence_ranking": [],
+                "quality_audit": {
+                    "bundle_id": "b",
+                    "target_id": "t",
+                    "decision_tag": "progression",
+                    "trust_score": 0.5,
+                    "triangulation_score": 0.5,
+                    "low_context_records": [],
+                    "weak_quantitative_records": [],
+                    "conflict_count": 0,
+                    "recommendations": [],
+                },
+                "hypothesis_dossier": {
+                    "target_id": "t",
+                    "decision_tag": "progression",
+                    "supporting_claim_ids": [],
+                    "contradicting_claim_ids": [],
+                    "unresolved_claim_ids": [],
+                    "required_resolution_assays": [],
+                    "support_confidence_mean": 0.0,
+                },
+                "knowledge_gaps": [],
+                "conflict_clusters": [],
+                "gate_recommendation": "advance",
+                "executive_summary": [],
+                "blocker_highlights": [],
+                "decision_intelligence_index": 0.4,
+            }
+        ),
+        KnowledgeReviewPacket.model_validate(
+            {
+                "target_id": "t",
+                "decision_tag": "progression",
+                "evidence_ranking": [],
+                "quality_audit": {
+                    "bundle_id": "b",
+                    "target_id": "t",
+                    "decision_tag": "progression",
+                    "trust_score": 0.6,
+                    "triangulation_score": 0.6,
+                    "low_context_records": [],
+                    "weak_quantitative_records": [],
+                    "conflict_count": 0,
+                    "recommendations": [],
+                },
+                "hypothesis_dossier": {
+                    "target_id": "t",
+                    "decision_tag": "progression",
+                    "supporting_claim_ids": [],
+                    "contradicting_claim_ids": [],
+                    "unresolved_claim_ids": [],
+                    "required_resolution_assays": [],
+                    "support_confidence_mean": 0.0,
+                },
+                "knowledge_gaps": [],
+                "conflict_clusters": [],
+                "gate_recommendation": "advance",
+                "executive_summary": [],
+                "blocker_highlights": [],
+                "decision_intelligence_index": 0.6,
+            }
+        ),
+    )
+    trend = summarize_review_trend([delta_a])
+
+    assert trend.improving_steps == 1
