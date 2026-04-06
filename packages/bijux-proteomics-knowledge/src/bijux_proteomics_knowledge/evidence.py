@@ -425,6 +425,16 @@ class TrustPolicy(JsonModel):
         le=1.0,
         description="Penalty applied per duplicate group.",
     )
+    max_age_days_by_source: dict[EvidenceSourceType, int] = Field(
+        default_factory=lambda: {
+            EvidenceSourceType.LAB_ASSAY: 180,
+            EvidenceSourceType.LITERATURE: 365,
+            EvidenceSourceType.EXTERNAL_DATABASE: 120,
+            EvidenceSourceType.STRUCTURE_MODEL: 240,
+            EvidenceSourceType.CURATED_NOTE: 90,
+        },
+        description="Maximum preferred age in days by source type before evidence is considered stale.",
+    )
 
 
 class ConflictPolicy(JsonModel):
@@ -1121,14 +1131,23 @@ def stale_records(
     bundle: EvidenceBundle,
     *,
     now: datetime | None = None,
+    policy: TrustPolicy | None = None,
 ) -> list[EvidenceRecord]:
     """Return records whose explicit expiry has passed."""
     now = now or datetime.now(UTC)
-    return [
-        record
-        for record in bundle.records
-        if record.expires_at is not None and record.expires_at < now
-    ]
+    policy = policy or default_trust_policy()
+    stale: list[EvidenceRecord] = []
+    for record in bundle.records:
+        if record.expires_at is not None and record.expires_at < now:
+            stale.append(record)
+            continue
+        max_age_days = policy.max_age_days_by_source.get(record.source_type)
+        if max_age_days is None:
+            continue
+        age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
+        if age_days > max_age_days:
+            stale.append(record)
+    return stale
 
 
 def aging_records(
@@ -1136,16 +1155,27 @@ def aging_records(
     *,
     now: datetime | None = None,
     horizon_days: int = 30,
+    policy: TrustPolicy | None = None,
 ) -> list[EvidenceRecord]:
     """Return records that will expire soon enough to justify refresh planning."""
     now = now or datetime.now(UTC)
+    policy = policy or default_trust_policy()
     horizon = now + timedelta(days=horizon_days)
-    return [
-        record
-        for record in bundle.records
-        if record.expires_at is not None
-        and now <= record.expires_at <= horizon
-    ]
+    aging: list[EvidenceRecord] = []
+    for record in bundle.records:
+        if record.expires_at is not None and now <= record.expires_at <= horizon:
+            aging.append(record)
+            continue
+        if record.expires_at is not None:
+            continue
+        max_age_days = policy.max_age_days_by_source.get(record.source_type)
+        if max_age_days is None:
+            continue
+        age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
+        days_to_stale = max_age_days - age_days
+        if 0 <= days_to_stale <= horizon_days:
+            aging.append(record)
+    return aging
 
 
 def plan_evidence_refresh(
@@ -1153,11 +1183,13 @@ def plan_evidence_refresh(
     *,
     now: datetime | None = None,
     horizon_days: int = 30,
+    policy: TrustPolicy | None = None,
 ) -> BundleFreshnessReport:
     """Build a prioritized refresh plan for stale and aging evidence."""
     now = now or datetime.now(UTC)
-    stale = stale_records(bundle, now=now)
-    aging = aging_records(bundle, now=now, horizon_days=horizon_days)
+    policy = policy or default_trust_policy()
+    stale = stale_records(bundle, now=now, policy=policy)
+    aging = aging_records(bundle, now=now, horizon_days=horizon_days, policy=policy)
     refresh_needs: list[EvidenceRefreshNeed] = []
 
     for record in stale:

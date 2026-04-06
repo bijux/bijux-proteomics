@@ -764,6 +764,30 @@ def test_plan_evidence_refresh_prioritizes_stale_and_aging_records() -> None:
     )
 
 
+def test_stale_records_flags_old_records_without_explicit_expiry() -> None:
+    now = datetime(2026, 1, 10, tzinfo=UTC)
+    bundle = EvidenceBundle(
+        bundle_id="bundle-old-observed",
+        target_id="target-old-observed",
+        records=[
+            EvidenceRecord(
+                evidence_id="note-old",
+                kind=EvidenceKind.LITERATURE,
+                title="old note",
+                source="pmid",
+                source_type=EvidenceSourceType.CURATED_NOTE,
+                claim="legacy interpretation",
+                confidence=0.6,
+                strength=EvidenceStrength.SUPPORTING,
+                observed_at=now - timedelta(days=120),
+            )
+        ],
+    )
+
+    stale = stale_records(bundle, now=now)
+    assert [record.evidence_id for record in stale] == ["note-old"]
+
+
 def test_evaluate_quantitative_support_scores_high_quality_payload() -> None:
     report = evaluate_quantitative_support(
         QuantitativeSupport(
