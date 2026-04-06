@@ -326,6 +326,17 @@ class ParsedMutation(JsonModel):
     variant: str = Field(..., min_length=1, max_length=1, description="Variant residue.")
 
 
+class CandidateAssayAgendaItem(JsonModel):
+    """Assay agenda entry for one candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    priority: int = Field(..., ge=1, description="Relative agenda priority.")
+    assays: list[str] = Field(default_factory=list, description="Recommended assays for this candidate.")
+    rationale: list[str] = Field(default_factory=list, description="Rationale linked to candidate risk/context.")
+
+
 class ParetoFrontResult(JsonModel):
     """Pareto-optimal candidate set across competing objectives."""
 
@@ -798,3 +809,34 @@ def parse_mutation_token(token: str) -> ParsedMutation:
         position=position,
         variant=variant,
     )
+
+
+def build_candidate_assay_agenda(
+    profiles: list[CandidateScientificProfile],
+) -> list[CandidateAssayAgendaItem]:
+    """Build prioritized assay agenda from candidate scientific profiles."""
+    scored: list[tuple[CandidateScientificProfile, float]] = []
+    for profile in profiles:
+        score = (
+            profile.risk_profile.residual_risk
+            + (0.15 if profile.variant_context.elevated_conservation_risk else 0.0)
+            + (0.05 * len(profile.variant_context.affected_regions))
+        )
+        scored.append((profile, score))
+    ranked = sorted(scored, key=lambda item: item[1], reverse=True)
+    agenda: list[CandidateAssayAgendaItem] = []
+    for index, (profile, _) in enumerate(ranked, start=1):
+        assays = [
+            "binding_panel",
+            "selectivity_panel" if profile.variant_context.elevated_conservation_risk else "activity_panel",
+            "developability_panel" if profile.risk_profile.manufacturability_risk >= 0.4 else "stability_panel",
+        ]
+        agenda.append(
+            CandidateAssayAgendaItem(
+                candidate_id=profile.candidate_id,
+                priority=index,
+                assays=assays,
+                rationale=profile.assay_rationale,
+            )
+        )
+    return agenda

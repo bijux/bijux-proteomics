@@ -18,6 +18,7 @@ from bijux_proteomics_intelligence import (
     PortfolioRiskSummary,
     TransitionAuditIssue,
     ParsedMutation,
+    CandidateAssayAgendaItem,
     ParetoFrontResult,
     SequenceRiskSignals,
     LiabilityFlag,
@@ -27,6 +28,7 @@ from bijux_proteomics_intelligence import (
     summarize_portfolio_risk,
     validate_transition_history,
     parse_mutation_token,
+    build_candidate_assay_agenda,
     portfolio_status,
     sequence_risk_signals,
     select_pareto_candidates,
@@ -360,3 +362,30 @@ def test_parse_mutation_token_extracts_wild_type_position_and_variant() -> None:
 def test_parse_mutation_token_rejects_invalid_patterns() -> None:
     with pytest.raises(ValueError):
         parse_mutation_token("A12")
+
+
+def test_build_candidate_assay_agenda_prioritizes_higher_risk_profiles() -> None:
+    profile_high = build_candidate_scientific_profile(
+        CandidateAssessment(
+            candidate_id="candidate-high",
+            sequence="VVVVVVVVVVVVVVVVVVVV",
+            manufacturability_score=0.3,
+            evidence_support=0.6,
+        ),
+        [MutationAnnotation(mutation="A101V", region="active-site", expected_effect="stabilize", conservation_score=0.9)],
+    )
+    profile_low = build_candidate_scientific_profile(
+        CandidateAssessment(
+            candidate_id="candidate-low",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            manufacturability_score=0.9,
+            evidence_support=0.9,
+        ),
+        [MutationAnnotation(mutation="G20S", region="loop", expected_effect="tune", conservation_score=0.2)],
+    )
+
+    agenda = build_candidate_assay_agenda([profile_low, profile_high])
+
+    assert isinstance(agenda[0], CandidateAssayAgendaItem)
+    assert agenda[0].candidate_id == "candidate-high"
+    assert agenda[0].priority == 1
