@@ -1,5 +1,5 @@
 ---
-title: Runtime Handbook
+title: bijux-proteomics-knowledge
 audience: mixed
 type: index
 status: canonical
@@ -7,17 +7,18 @@ owner: bijux-proteomics-knowledge-docs
 last_reviewed: 2026-04-04
 ---
 
-# Runtime Handbook
+# bijux-proteomics-knowledge
 
-`bijux-proteomics-knowledge` is the execution authority layer in `bijux-proteomics`. Start
-here when the question is about run acceptance, replay policy, persistence, or
-runtime-facing boundaries that sit above the rest of the package family.
+`bijux-proteomics-knowledge` is the evidence and claim package in
+`bijux-proteomics`. Start here when the question is about evidence quality,
+claim state transitions, contradiction resolution, trust scoring, or readiness
+summaries for downstream decision layers.
 
 ## Read This Section When
 
-- you need the package-level entrypoint for runtime docs
-- you are checking execution, replay, or persistence behavior
-- you want the shortest route into the owned runtime documentation
+- you need the package-level entrypoint for evidence and claim contracts
+- you are checking contradiction handling, freshness, and trust logic
+- you want the shortest route into auditable knowledge-state behavior
 
 ## Main Paths
 

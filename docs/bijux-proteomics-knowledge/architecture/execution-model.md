@@ -55,7 +55,7 @@ flowchart TB
 
 ## Execution Anchors
 
-- entry surfaces: CLI entrypoint in src/bijux_proteomics_knowledge/interfaces/cli/entrypoint.py, HTTP app in src/bijux_proteomics_knowledge/api/v1, schema files in api/bijux-proteomics-knowledge/v1
+- entry surfaces: CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py, HTTP app in src/bijux_proteomics_knowledge/claims.py, knowledge contracts in src/bijux_proteomics_knowledge/schema.py
 - workflow modules: src/bijux_proteomics_knowledge/model, src/bijux_proteomics_knowledge/runtime, src/bijux_proteomics_knowledge/application
 - outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 

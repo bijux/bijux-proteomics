@@ -9,8 +9,10 @@ last_reviewed: 2026-04-04
 
 # Package Overview
 
-`bijux-proteomics-knowledge` exists so one durable part of the system can stay legible.
-Its job is to own governed execution and replay authority with auditable non-determinism handling, persistence, and package-to-package coordination.
+`bijux-proteomics-knowledge` exists so evidence and claim state remain explicit
+and reviewable. Its job is to own evidence bundle semantics, claim lifecycle
+logic, contradiction resolution policies, and review packet generation for
+cross-package decision support.
 
 If a reader cannot explain this package in one or two sentences after skimming
 this page, the package boundary is still too fuzzy and later pages will inherit
@@ -28,15 +30,15 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["replay and acceptability semantics"]
+    own1["evidence bundle semantics and trust scoring"]
     own1 --> page
-    own2["trace capture, runtime persistence, and execution-store behavior"]
+    own2["claim lifecycle and contradiction resolution logic"]
     own2 --> page
-    own3["flow execution authority"]
+    own3["review packet and readiness synthesis"]
     own3 --> page
-    limit1["agent composition policy"]
+    limit1["runtime orchestration policy"]
     page -.keeps outside.-> limit1
-    limit2["ingest and index domain ownership"]
+    limit2["candidate ranking and assay scheduling policy"]
     page -.keeps outside.-> limit2
     limit3["repository tooling and release support"]
     page -.keeps outside.-> limit3
@@ -54,15 +56,15 @@ flowchart LR
 
 ## What It Owns
 
-- flow execution authority
-- replay and acceptability semantics
-- trace capture, runtime persistence, and execution-store behavior
-- package-local CLI and API boundaries
+- evidence bundle semantics and trust policy
+- claim lifecycle and contradiction resolution behavior
+- readiness synthesis and review packet output contracts
+- serialization and schema compatibility for knowledge artifacts
 
 ## What It Does Not Own
 
-- agent composition policy
-- ingest and index domain ownership
+- runtime orchestration policy
+- candidate ranking and lab scheduling policy
 - repository tooling and release support
 
 ## Concrete Anchors

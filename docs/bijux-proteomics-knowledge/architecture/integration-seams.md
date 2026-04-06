@@ -54,9 +54,9 @@ flowchart RL
 
 ## Integration Surfaces
 
-- CLI entrypoint in src/bijux_proteomics_knowledge/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics_knowledge/api/v1
-- schema files in api/bijux-proteomics-knowledge/v1
+- CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py
+- HTTP app in src/bijux_proteomics_knowledge/claims.py
+- knowledge contracts in src/bijux_proteomics_knowledge/schema.py
 
 ## Adjacent Systems
 
