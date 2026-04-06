@@ -15,6 +15,7 @@ from bijux_proteomics_knowledge import (
     assess_decision_readiness,
     compute_bundle_trust,
     evidence_gaps,
+    triangulate_evidence,
 )
 from bijux_proteomics_foundation import (
     AssayId,
@@ -284,6 +285,19 @@ class NextAssayPriority(JsonModel):
     assay_id: AssayId = Field(..., description="Assay identifier.")
     score: float = Field(..., description="Priority score.")
     reasons: list[str] = Field(default_factory=list, description="Short rationale points.")
+
+
+class OrthogonalConfirmationPlan(JsonModel):
+    """Recommendation for orthogonal confirmation assays."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str = Field(..., min_length=1, description="Decision context evaluated.")
+    required: bool = Field(..., description="Whether orthogonal confirmation is required.")
+    suggested_assay_ids: list[str] = Field(
+        default_factory=list,
+        description="Assays suggested for orthogonal confirmation.",
+    )
 
 
 def dependency_order(
@@ -593,3 +607,25 @@ def prioritize_next_assays(
             )
         )
     return sorted(ranked, key=lambda item: item.score, reverse=True)
+
+
+def recommend_orthogonal_confirmation(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str = "progression",
+    minimum_convergence_score: float = 0.5,
+) -> OrthogonalConfirmationPlan:
+    """Recommend orthogonal assays when modality convergence is weak."""
+    triangulation = triangulate_evidence(bundle, decision_tag=decision_tag)
+    required = triangulation.convergence_score < minimum_convergence_score
+    suggested = [
+        assay.assay_id
+        for assay in program.assay_panel
+        if not assay.blocking
+    ][:3]
+    return OrthogonalConfirmationPlan(
+        decision_tag=decision_tag,
+        required=required,
+        suggested_assay_ids=suggested if required else [],
+    )

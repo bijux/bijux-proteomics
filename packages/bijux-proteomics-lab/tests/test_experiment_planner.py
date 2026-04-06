@@ -24,6 +24,7 @@ from bijux_proteomics_lab import (
     build_review_packet,
     plan_experiment_batches,
     prioritize_next_assays,
+    recommend_orthogonal_confirmation,
     recommend_next_cycle,
     schedule_experiment_plan,
     schedule_with_family_capacity,
@@ -444,3 +445,46 @@ def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
 def test_assay_family_priority_uses_scientific_execution_order() -> None:
     assert assay_family_priority(AssayFamily.BIOPHYSICAL) < assay_family_priority(AssayFamily.CELLULAR)
     assert assay_family_priority(AssayFamily.CELLULAR) < assay_family_priority(AssayFamily.DEVELOPABILITY)
+
+
+def test_recommend_orthogonal_confirmation_when_convergence_is_low() -> None:
+    program = create_program_spec(
+        program_id="prog-orth",
+        name="orthogonal plan",
+        objective="request orthogonal confirmation when evidence lacks convergence",
+        target_id="target-orth",
+        target_name="Target Orth",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="enforce orthogonal evidence checks",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="assay-a",
+            purpose="confirm with second modality",
+            readout="signal",
+            sample_kind="cellular",
+            blocking=False,
+        )
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-orth",
+        target_id="target-orth",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-only",
+                kind=EvidenceKind.LITERATURE,
+                title="single modality",
+                source="pmid",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+
+    plan = recommend_orthogonal_confirmation(program, bundle)
+
+    assert plan.required is True
+    assert plan.suggested_assay_ids == ["assay-a"]
