@@ -1,5 +1,5 @@
 ---
-title: Runtime Handbook
+title: bijux-proteomics-lab
 audience: mixed
 type: index
 status: canonical
@@ -7,17 +7,18 @@ owner: bijux-proteomics-lab-docs
 last_reviewed: 2026-04-04
 ---
 
-# Runtime Handbook
+# bijux-proteomics-lab
 
-`bijux-proteomics-lab` is the execution authority layer in `bijux-proteomics`. Start
-here when the question is about run acceptance, replay policy, persistence, or
-runtime-facing boundaries that sit above the rest of the package family.
+`bijux-proteomics-lab` is the assay planning and outcomes package in
+`bijux-proteomics`. Start here when the question is about experiment batch
+design, dependency scheduling, rerun strategy, or closed-loop transitions from
+assay observations into next-cycle planning.
 
 ## Read This Section When
 
-- you need the package-level entrypoint for runtime docs
-- you are checking execution, replay, or persistence behavior
-- you want the shortest route into the owned runtime documentation
+- you need the package-level entrypoint for planning and outcomes docs
+- you are checking assay scheduling, readiness, and rerun decisions
+- you want the shortest route into closed-loop lab execution contracts
 
 ## Main Paths
 

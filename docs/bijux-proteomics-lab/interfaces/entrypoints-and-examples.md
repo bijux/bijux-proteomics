@@ -27,17 +27,17 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["CLI entrypoint in src/bijux_proteomics_lab/interfaces/cli/entrypoint.py"]
+    surface1["CLI entrypoint in src/bijux_proteomics_lab/planning.py"]
     surface1 --> page
-    surface2["HTTP app in src/bijux_proteomics_lab/api/v1"]
+    surface2["HTTP app in src/bijux_proteomics_lab/outcomes.py"]
     surface2 --> page
-    surface3["schema files in api/bijux-proteomics-lab/v1"]
+    surface3["lab contracts in src/bijux_proteomics_lab/schema.py"]
     surface3 --> page
-    proof1["api/bijux-proteomics-lab/v1/schema.hash"]
+    proof1["src/bijux_proteomics_lab/schema.py"]
     page --> proof1
     proof2["execution store records"]
     page --> proof2
-    proof3["api/bijux-proteomics-lab/v1/schema.yaml"]
+    proof3["src/bijux_proteomics_lab/schema.py"]
     page --> proof3
     review1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
     review1 -.raises compatibility pressure on.-> page
@@ -53,21 +53,21 @@ flowchart TB
 
 ## Entrypoints
 
-- CLI entrypoint in src/bijux_proteomics_lab/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics_lab/api/v1
-- schema files in api/bijux-proteomics-lab/v1
+- CLI entrypoint in src/bijux_proteomics_lab/planning.py
+- HTTP app in src/bijux_proteomics_lab/outcomes.py
+- lab contracts in src/bijux_proteomics_lab/schema.py
 
 ## Example Anchors
 
 - examples/ for minimal flows, replay violations, and datasets
-- api/bijux-proteomics-lab/v1/schema.hash for schema integrity checks
+- src/bijux_proteomics_lab/schema.py for schema integrity checks
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/bijux_proteomics_lab/interfaces/cli/entrypoint.py
-- HTTP app in src/bijux_proteomics_lab/api/v1
-- schema files in api/bijux-proteomics-lab/v1
-- api/bijux-proteomics-lab/v1/schema.yaml
+- CLI entrypoint in src/bijux_proteomics_lab/planning.py
+- HTTP app in src/bijux_proteomics_lab/outcomes.py
+- lab contracts in src/bijux_proteomics_lab/schema.py
+- src/bijux_proteomics_lab/schema.py
 
 ## Use This Page When
 

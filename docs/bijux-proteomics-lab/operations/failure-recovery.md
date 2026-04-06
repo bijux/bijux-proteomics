@@ -29,9 +29,9 @@ flowchart TB
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     step1["packages/bijux-proteomics-lab/pyproject.toml"]
     step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics_lab/interfaces/cli/entrypoint.py"]
+    step2["CLI entrypoint in src/bijux_proteomics_lab/planning.py"]
     step2 --> page
-    step3["HTTP app in src/bijux_proteomics_lab/api/v1"]
+    step3["HTTP app in src/bijux_proteomics_lab/outcomes.py"]
     step3 --> page
     run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
     page --> run1
@@ -53,7 +53,7 @@ flowchart TB
 
 ## Recovery Anchors
 
-- interface surfaces: CLI entrypoint in src/bijux_proteomics_lab/interfaces/cli/entrypoint.py, HTTP app in src/bijux_proteomics_lab/api/v1, schema files in api/bijux-proteomics-lab/v1
+- interface surfaces: CLI entrypoint in src/bijux_proteomics_lab/planning.py, HTTP app in src/bijux_proteomics_lab/outcomes.py, lab contracts in src/bijux_proteomics_lab/schema.py
 - artifacts to inspect: execution store records, replay decision artifacts, non-determinism policy evaluations
 - tests to run: tests/unit for api, contracts, core, interfaces, model, and runtime, tests/e2e for governed flow behavior
 

@@ -55,7 +55,7 @@ flowchart RL
 
 ## Lifecycle Anchors
 
-- entry surfaces: CLI entrypoint in src/bijux_proteomics_lab/interfaces/cli/entrypoint.py, HTTP app in src/bijux_proteomics_lab/api/v1, schema files in api/bijux-proteomics-lab/v1
+- entry surfaces: CLI entrypoint in src/bijux_proteomics_lab/planning.py, HTTP app in src/bijux_proteomics_lab/outcomes.py, lab contracts in src/bijux_proteomics_lab/schema.py
 - code ownership: src/bijux_proteomics_lab/model, src/bijux_proteomics_lab/runtime, src/bijux_proteomics_lab/application
 - durable outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 

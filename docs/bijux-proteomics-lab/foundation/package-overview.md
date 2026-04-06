@@ -9,8 +9,10 @@ last_reviewed: 2026-04-04
 
 # Package Overview
 
-`bijux-proteomics-lab` exists so one durable part of the system can stay legible.
-Its job is to own governed execution and replay authority with auditable non-determinism handling, persistence, and package-to-package coordination.
+`bijux-proteomics-lab` exists so assay planning and experimental outcomes stay
+deterministic and reviewable. Its job is to own experiment batch construction,
+dependency-aware scheduling, outcome triage, and rerun recommendation logic
+that closes the loop from evidence to next assay cycles.
 
 If a reader cannot explain this package in one or two sentences after skimming
 this page, the package boundary is still too fuzzy and later pages will inherit
@@ -28,15 +30,15 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["replay and acceptability semantics"]
+    own1["experiment planning and dependency scheduling"]
     own1 --> page
-    own2["trace capture, runtime persistence, and execution-store behavior"]
+    own2["outcome assessment and rerun recommendation logic"]
     own2 --> page
-    own3["flow execution authority"]
+    own3["closed-loop transition from outcomes to next cycle"]
     own3 --> page
-    limit1["agent composition policy"]
+    limit1["runtime orchestration policy"]
     page -.keeps outside.-> limit1
-    limit2["ingest and index domain ownership"]
+    limit2["evidence claim adjudication policy"]
     page -.keeps outside.-> limit2
     limit3["repository tooling and release support"]
     page -.keeps outside.-> limit3
@@ -54,15 +56,15 @@ flowchart LR
 
 ## What It Owns
 
-- flow execution authority
-- replay and acceptability semantics
-- trace capture, runtime persistence, and execution-store behavior
-- package-local CLI and API boundaries
+- experiment planning and dependency scheduling behavior
+- outcome assessment and rerun recommendation contracts
+- closed-loop transition logic for next-cycle planning
+- batch-level readiness and triage semantics
 
 ## What It Does Not Own
 
-- agent composition policy
-- ingest and index domain ownership
+- runtime orchestration policy
+- evidence and claim adjudication policy
 - repository tooling and release support
 
 ## Concrete Anchors
