@@ -28,6 +28,7 @@ from bijux_proteomics_lab import (
     summarize_review_queue_workload,
     summarize_feedback_cycle_latency,
     detect_feedback_anomalies,
+    forecast_cycle_workload,
     ReviewQueueEntry,
     ReviewQueueQuery,
     recommend_rerun_policy,
@@ -482,6 +483,32 @@ def test_detect_feedback_anomalies_flags_cycle_and_assay_concentration() -> None
 
     assert report.high_volume_cycles == ["cycle-1"]
     assert report.dominant_assay_ids == ["assay-1"]
+
+
+def test_forecast_cycle_workload_estimates_pressure_from_history() -> None:
+    feedback = [
+        LabFeedbackRecord(
+            feedback_id=f"f{i}",
+            program_id="prog-forecast",
+            cycle_id=f"cycle-{(i // 2) + 1}",
+            summary="feedback",
+            created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        )
+        for i in range(6)
+    ]
+    queue = [
+        ReviewQueueEntry(program_id="prog-forecast", gate_id="gate-1", summary="blocked"),
+        ReviewQueueEntry(program_id="prog-forecast", gate_id="gate-2", summary="blocked"),
+    ]
+
+    forecast = forecast_cycle_workload(
+        program_id="prog-forecast",
+        feedback_records=feedback,
+        review_entries=queue,
+    )
+
+    assert forecast.forecast_feedback_count > 0
+    assert forecast.forecast_review_entries == 2
 
 
 def test_promote_batch_outcome_to_evidence_respects_quality_policy() -> None:

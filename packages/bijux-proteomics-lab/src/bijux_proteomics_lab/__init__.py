@@ -59,6 +59,7 @@ from bijux_proteomics_lab.repositories import (
     ReviewQueueWorkloadReport,
     FeedbackCycleLatencyReport,
     FeedbackAnomalyReport,
+    CycleWorkloadForecast,
     query_feedback_records,
     LabFeedbackTrendReport,
     summarize_feedback_trend,
@@ -67,6 +68,7 @@ from bijux_proteomics_lab.repositories import (
     summarize_review_queue_workload,
     summarize_feedback_cycle_latency,
     detect_feedback_anomalies,
+    forecast_cycle_workload,
 )
 from bijux_proteomics_lab.schema import (
     LabArtifactSchemaContract,
@@ -224,6 +226,7 @@ __all__ = [
     "ReviewQueueWorkloadReport",
     "FeedbackCycleLatencyReport",
     "FeedbackAnomalyReport",
+    "CycleWorkloadForecast",
     "ReviewQueueRepository",
     "query_feedback_records",
     "query_review_queue",
@@ -232,6 +235,7 @@ __all__ = [
     "summarize_review_queue_workload",
     "summarize_feedback_cycle_latency",
     "detect_feedback_anomalies",
+    "forecast_cycle_workload",
     "LabSchemaCompatibilityReport",
     "LabArtifactSchemaContract",
     "LabSchemaContractRegistry",

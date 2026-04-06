@@ -147,6 +147,18 @@ class FeedbackAnomalyReport(JsonModel):
     notes: list[str] = Field(default_factory=list, description="Anomaly interpretation notes.")
 
 
+class CycleWorkloadForecast(JsonModel):
+    """Forecasted workload for the next cycle from historical queue and feedback signals."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    forecast_feedback_count: int = Field(default=0, ge=0, description="Forecasted number of feedback records.")
+    forecast_review_entries: int = Field(default=0, ge=0, description="Forecasted review queue entries.")
+    pressure_score: float = Field(default=0.0, ge=0.0, le=1.0, description="Forecasted workload pressure score.")
+    notes: list[str] = Field(default_factory=list, description="Forecast interpretation notes.")
+
+
 class LabFeedbackRepository(Protocol):
     """Persistence contract for closed-loop feedback records."""
 
@@ -323,5 +335,40 @@ def detect_feedback_anomalies(
         program_id=program_id,
         high_volume_cycles=high_volume,
         dominant_assay_ids=dominant_assays,
+        notes=notes,
+    )
+
+
+def forecast_cycle_workload(
+    *,
+    program_id: str,
+    feedback_records: list[LabFeedbackRecord],
+    review_entries: list[ReviewQueueEntry],
+) -> CycleWorkloadForecast:
+    """Forecast next-cycle workload from recent cycle volumes."""
+    feedback_filtered = [record for record in feedback_records if record.program_id == program_id]
+    review_filtered = [entry for entry in review_entries if entry.program_id == program_id]
+    feedback_by_cycle: dict[str, int] = {}
+    for record in feedback_filtered:
+        feedback_by_cycle[record.cycle_id] = feedback_by_cycle.get(record.cycle_id, 0) + 1
+    feedback_values = sorted(feedback_by_cycle.values())
+    if feedback_values:
+        feedback_forecast = int(round(sum(feedback_values[-3:]) / min(3, len(feedback_values))))
+    else:
+        feedback_forecast = 0
+    review_forecast = len(review_filtered)
+    pressure_score = round(max(0.0, min((feedback_forecast * 0.08) + (review_forecast * 0.06), 1.0)), 4)
+    notes: list[str] = []
+    if pressure_score >= 0.7:
+        notes.append("forecast indicates high workload pressure")
+    if feedback_forecast == 0 and review_forecast == 0:
+        notes.append("limited workload signal in historical records")
+    if not notes:
+        notes.append("forecast is within normal operational range")
+    return CycleWorkloadForecast(
+        program_id=program_id,
+        forecast_feedback_count=feedback_forecast,
+        forecast_review_entries=review_forecast,
+        pressure_score=pressure_score,
         notes=notes,
     )
