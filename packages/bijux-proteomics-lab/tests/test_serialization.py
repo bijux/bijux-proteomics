@@ -3,7 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_lab import ExperimentPlan, diff_model_payloads, fingerprint_model, to_canonical_json
+from bijux_proteomics_foundation import DocumentSchema
+from bijux_proteomics_lab import (
+    ExperimentPlan,
+    build_canonical_artifact_envelope,
+    diff_model_payloads,
+    fingerprint_model,
+    to_canonical_json,
+)
 
 
 def test_lab_canonical_serialization_and_fingerprint_are_stable() -> None:
@@ -25,3 +32,16 @@ def test_diff_model_payloads_reports_changed_fields() -> None:
     assert diff["added_fields"] == []
     assert diff["removed_fields"] == []
     assert diff["changed_fields"] == ["evidence_gaps"]
+
+
+def test_build_canonical_artifact_envelope_includes_schema_and_fingerprint() -> None:
+    plan = ExperimentPlan(program_id="prog-env")
+    envelope = build_canonical_artifact_envelope(
+        plan,
+        artifact_kind="plan",
+        schema=DocumentSchema(created_by="bijux-proteomics-lab"),
+    )
+
+    assert envelope["artifact_kind"] == "plan"
+    assert "fingerprint" in envelope
+    assert "schema" in envelope

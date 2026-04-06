@@ -8,7 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
 def to_canonical_json(model: JsonModel) -> str:
@@ -40,4 +40,27 @@ def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str
     }
 
 
-__all__ = ["JsonModel", "to_canonical_json", "fingerprint_model", "diff_model_payloads"]
+def build_canonical_artifact_envelope(
+    model: JsonModel,
+    *,
+    artifact_kind: str,
+    schema: DocumentSchema,
+) -> dict[str, object]:
+    """Build canonical envelope for lab artifact transport and auditing."""
+    payload = model.to_dict()
+    fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    return {
+        "artifact_kind": artifact_kind,
+        "schema": schema.to_dict(),
+        "fingerprint": fingerprint,
+        "payload": payload,
+    }
+
+
+__all__ = [
+    "JsonModel",
+    "to_canonical_json",
+    "fingerprint_model",
+    "diff_model_payloads",
+    "build_canonical_artifact_envelope",
+]
