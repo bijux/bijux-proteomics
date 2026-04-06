@@ -31,6 +31,7 @@ from bijux_proteomics_intelligence import (
     validate_metric_catalog,
     summarize_liability_focus,
     summarize_uncertainty_pressure,
+    summarize_novelty_diversity,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -417,6 +418,55 @@ def test_summarize_uncertainty_pressure_identifies_low_confidence_cluster() -> N
 
     assert summary.candidate_count == 2
     assert "candidate-low" in summary.low_confidence_candidate_ids
+
+
+def test_summarize_novelty_diversity_reports_liability_diversity() -> None:
+    program = create_program_spec(
+        program_id="prog-diversity",
+        name="diversity summary",
+        objective="summarize novelty and liability diversity in ranking",
+        target_id="target-diversity",
+        target_name="Target Diversity",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="capture diversity pressure in ranked outputs",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        )
+    )
+    ranking = prioritize_candidates(
+        program,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-a",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.87},
+                manufacturability_score=0.8,
+                uncertainty=0.1,
+                evidence_support=0.8,
+                liabilities=[LiabilityFlag(code="aggregation", summary="agg", severity=3, source="model")],
+            ),
+            CandidateAssessment(
+                candidate_id="candidate-b",
+                sequence="ACDEFGHIKLMNPQRSTVWA",
+                metric_scores={"binding_score": 0.86},
+                manufacturability_score=0.79,
+                uncertainty=0.1,
+                evidence_support=0.8,
+                liabilities=[LiabilityFlag(code="safety", summary="safety", severity=3, source="model")],
+            ),
+        ],
+    )
+
+    summary = summarize_novelty_diversity(ranking)
+
+    assert summary.candidate_count == 2
+    assert summary.unique_liability_codes >= 2
 
 
 def test_candidate_score_breakdown_reports_weighted_contributions() -> None:

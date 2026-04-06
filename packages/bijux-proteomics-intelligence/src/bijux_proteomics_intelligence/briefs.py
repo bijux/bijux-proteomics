@@ -250,6 +250,25 @@ class UncertaintyPressureSummary(JsonModel):
     )
 
 
+class NoveltyDiversitySummary(JsonModel):
+    """Summary of sequence and liability diversity in ranked candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_count: int = Field(..., ge=0, description="Number of ranked candidates considered.")
+    unique_sequence_signatures: int = Field(
+        ...,
+        ge=0,
+        description="Number of unique lightweight sequence signatures across ranked candidates.",
+    )
+    unique_liability_codes: int = Field(
+        ...,
+        ge=0,
+        description="Number of unique liability blocker codes across ranked candidates.",
+    )
+    diversity_score: float = Field(..., ge=0.0, le=1.0, description="Normalized diversity score.")
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -588,4 +607,36 @@ def summarize_uncertainty_pressure(
         mean_confidence=mean_confidence,
         low_confidence_candidate_ids=low_confidence,
         uncertainty_pressure_high=len(low_confidence) >= max(1, len(ranking.ranked_candidates) // 2),
+    )
+
+
+def summarize_novelty_diversity(
+    ranking: CandidateRanking,
+) -> NoveltyDiversitySummary:
+    """Summarize diversity signals across ranked candidates."""
+    if not ranking.ranked_candidates:
+        return NoveltyDiversitySummary(
+            candidate_count=0,
+            unique_sequence_signatures=0,
+            unique_liability_codes=0,
+            diversity_score=0.0,
+        )
+    sequence_signatures = {
+        candidate.candidate_id.split("-")[0] + f":{candidate.candidate_id[-1:]}"
+        for candidate in ranking.ranked_candidates
+    }
+    liability_codes: set[str] = set()
+    for candidate in ranking.ranked_candidates:
+        blockers = candidate.explainability.get("blockers", [])
+        if isinstance(blockers, list):
+            for blocker in blockers:
+                liability_codes.add(str(blocker))
+    seq_ratio = len(sequence_signatures) / len(ranking.ranked_candidates)
+    liability_ratio = len(liability_codes) / max(len(ranking.ranked_candidates), 1)
+    diversity_score = round(min((seq_ratio * 0.5) + (liability_ratio * 0.5), 1.0), 4)
+    return NoveltyDiversitySummary(
+        candidate_count=len(ranking.ranked_candidates),
+        unique_sequence_signatures=len(sequence_signatures),
+        unique_liability_codes=len(liability_codes),
+        diversity_score=diversity_score,
     )
