@@ -6,10 +6,27 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
+from hashlib import sha256
 from pathlib import Path
 from typing import Any, Self
 
 from pydantic import BaseModel
+
+
+def _normalize_for_json(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            str(key): _normalize_for_json(inner)
+            for key, inner in sorted(value.items(), key=lambda item: str(item[0]))
+        }
+    if isinstance(value, list):
+        return [_normalize_for_json(item) for item in value]
+    if isinstance(value, tuple):
+        return [_normalize_for_json(item) for item in value]
+    if isinstance(value, datetime):
+        return value.isoformat().replace("+00:00", "Z")
+    return value
 
 
 class JsonModel(BaseModel):
@@ -17,16 +34,20 @@ class JsonModel(BaseModel):
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-compatible dictionary."""
-        return self.model_dump(mode="json")
+        return _normalize_for_json(self.model_dump(mode="json"))
 
     def to_json(self) -> str:
         """Return a formatted JSON string."""
-        return self.model_dump_json(indent=2)
+        return json.dumps(self.to_dict(), indent=2)
 
     def to_stable_json(self) -> str:
         """Return deterministically ordered JSON for reproducible diffs."""
-        payload = self.model_dump(mode="json")
-        return json.dumps(payload, indent=2, sort_keys=True)
+        return json.dumps(self.to_dict(), indent=2, sort_keys=True)
+
+    def content_fingerprint(self) -> str:
+        """Return a deterministic SHA-256 fingerprint for model content."""
+        stable = self.to_stable_json().encode("utf-8")
+        return sha256(stable).hexdigest()
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Self:

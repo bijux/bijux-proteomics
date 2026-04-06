@@ -82,6 +82,18 @@ def test_stable_json_is_sorted_for_reproducible_diffs(tmp_path: Path) -> None:
     assert schema_line < value_line
 
 
+def test_json_model_content_fingerprint_is_deterministic() -> None:
+    left = DemoDocument(value="demo")
+    right = DemoDocument.from_dict(
+        {
+            "value": "demo",
+            "document_schema": left.document_schema.to_dict(),
+        }
+    )
+
+    assert left.content_fingerprint() == right.content_fingerprint()
+
+
 class IdentifierHolder(BaseModel):
     program_id: ProgramId
 
