@@ -298,6 +298,30 @@ class MetricCoverageSummary(JsonModel):
     coverage_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of required metrics provided.")
 
 
+class CriterionSatisfactionItem(JsonModel):
+    """Per-criterion satisfaction entry for one candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    criterion_id: str = Field(..., min_length=1, description="Criterion identifier.")
+    metric: str = Field(..., min_length=1, description="Metric key.")
+    observed_value: float | None = Field(default=None, description="Observed candidate value.")
+    satisfied: bool = Field(..., description="Whether criterion is satisfied.")
+
+
+class CriterionSatisfactionVector(JsonModel):
+    """Per-candidate vector of criterion satisfaction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    items: list[CriterionSatisfactionItem] = Field(
+        default_factory=list,
+        description="Per-criterion satisfaction items.",
+    )
+    satisfied_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of criteria satisfied.")
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -721,4 +745,42 @@ def summarize_metric_coverage(
         provided_metrics=provided_metrics,
         missing_metrics=missing_metrics,
         coverage_fraction=coverage_fraction,
+    )
+
+
+def criterion_satisfaction_vector(
+    candidate: CandidateAssessment,
+    program: ProgramSpec,
+) -> CriterionSatisfactionVector:
+    """Build per-criterion satisfaction vector for one candidate."""
+    items: list[CriterionSatisfactionItem] = []
+    satisfied_count = 0
+    for criterion in program.success_criteria:
+        observed = candidate.metric_scores.get(criterion.metric)
+        if observed is None:
+            satisfied = False
+        elif criterion.direction is MeasurementDirection.MAXIMIZE:
+            satisfied = observed >= criterion.threshold
+        elif criterion.direction is MeasurementDirection.MINIMIZE:
+            satisfied = observed <= criterion.threshold
+        else:
+            upper = criterion.upper_threshold if criterion.upper_threshold is not None else criterion.threshold
+            lower = min(criterion.threshold, upper)
+            higher = max(criterion.threshold, upper)
+            satisfied = lower <= observed <= higher
+        if satisfied:
+            satisfied_count += 1
+        items.append(
+            CriterionSatisfactionItem(
+                criterion_id=criterion.criterion_id,
+                metric=criterion.metric,
+                observed_value=observed,
+                satisfied=satisfied,
+            )
+        )
+    fraction = round((satisfied_count / len(items)), 4) if items else 1.0
+    return CriterionSatisfactionVector(
+        candidate_id=candidate.candidate_id,
+        items=items,
+        satisfied_fraction=fraction,
     )

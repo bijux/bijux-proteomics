@@ -34,6 +34,7 @@ from bijux_proteomics_intelligence import (
     summarize_novelty_diversity,
     build_ranking_robustness_report,
     summarize_metric_coverage,
+    criterion_satisfaction_vector,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -556,6 +557,46 @@ def test_summarize_metric_coverage_reports_missing_required_metrics() -> None:
 
     assert summary.coverage_fraction == 0.5
     assert summary.missing_metrics == ["delta_tm"]
+
+
+def test_criterion_satisfaction_vector_tracks_per_criterion_pass_fail() -> None:
+    program = create_program_spec(
+        program_id="prog-criterion-vector",
+        name="criterion vector",
+        objective="show criterion-level satisfaction for candidates",
+        target_id="target-criterion-vector",
+        target_name="Target Criterion Vector",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="map pass fail by criterion",
+    )
+    program.success_criteria.extend(
+        [
+            SuccessCriterion(
+                criterion_id="binding",
+                metric="binding_score",
+                direction=MeasurementDirection.MAXIMIZE,
+                threshold=0.8,
+            ),
+            SuccessCriterion(
+                criterion_id="stability",
+                metric="delta_tm",
+                direction=MeasurementDirection.MAXIMIZE,
+                threshold=1.5,
+            ),
+        ]
+    )
+    vector = criterion_satisfaction_vector(
+        CandidateAssessment(
+            candidate_id="candidate-criterion-vector",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            metric_scores={"binding_score": 0.85, "delta_tm": 1.2},
+        ),
+        program,
+    )
+
+    assert vector.satisfied_fraction == 0.5
+    assert [item.satisfied for item in vector.items] == [True, False]
 
 
 def test_candidate_score_breakdown_reports_weighted_contributions() -> None:
