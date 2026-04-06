@@ -136,4 +136,62 @@ def test_migration_registry_applies_sequential_steps() -> None:
 
     assert migrated["document_schema"]["schema_version"] == "1.1.0"
     assert migrated["review_cadence"] == "weekly"
-    MigrationRegistry,
+
+
+def test_migration_registry_reports_registered_versions() -> None:
+    registry = MigrationRegistry()
+    registry.register(
+        SchemaMigration(
+            from_version="1.0.0",
+            to_version="1.1.0",
+            description="step one",
+            migrate=lambda payload: payload,
+        )
+    )
+    registry.register(
+        SchemaMigration(
+            from_version="1.1.0",
+            to_version="1.2.0",
+            description="step two",
+            migrate=lambda payload: payload,
+        )
+    )
+
+    assert registry.registered_versions() == ["1.0.0", "1.1.0", "1.2.0"]
+
+
+def test_migration_registry_validates_missing_path_with_diagnostics() -> None:
+    registry = MigrationRegistry()
+    registry.register(
+        SchemaMigration(
+            from_version="1.0.0",
+            to_version="1.1.0",
+            description="step one",
+            migrate=lambda payload: payload,
+        )
+    )
+
+    with pytest.raises(ValueError, match="known versions: 1.0.0, 1.1.0"):
+        registry.validate_path("1.0.0", "1.2.0")
+
+
+def test_migration_registry_detects_version_mismatch_in_step_output() -> None:
+    registry = MigrationRegistry()
+    registry.register(
+        SchemaMigration(
+            from_version="1.0.0",
+            to_version="1.1.0",
+            description="malformed step",
+            migrate=lambda payload: {
+                **payload,
+                "document_schema": {
+                    **payload["document_schema"],
+                    "schema_version": "1.0.0",
+                },
+            },
+        )
+    )
+    payload = {"document_schema": {"schema_version": "1.0.0"}}
+
+    with pytest.raises(ValueError, match="unexpected schema version"):
+        registry.migrate_to(payload, "1.1.0")

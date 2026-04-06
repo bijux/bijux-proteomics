@@ -36,16 +36,54 @@ class MigrationRegistry:
         """Register one migration by its source version."""
         self._migrations[migration.from_version] = migration
 
+    def registered_versions(self) -> list[str]:
+        """Return all versions that participate in known migration edges."""
+        versions = {
+            version
+            for migration in self._migrations.values()
+            for version in (migration.from_version, migration.to_version)
+        }
+        return sorted(versions)
+
+    def migration_path(self, from_version: str, target_version: str) -> list[SchemaMigration]:
+        """Return the ordered migration path needed to reach the target version."""
+        if from_version == target_version:
+            return []
+        path: list[SchemaMigration] = []
+        current = from_version
+        seen: set[str] = set()
+        while current != target_version:
+            if current in seen:
+                raise ValueError(
+                    f"detected migration cycle while resolving path from {from_version} to {target_version}"
+                )
+            seen.add(current)
+            step = self._migrations.get(current)
+            if step is None:
+                known = ", ".join(self.registered_versions()) or "none"
+                raise ValueError(
+                    f"missing migration step from {current} toward {target_version}; known versions: {known}"
+                )
+            path.append(step)
+            current = step.to_version
+        return path
+
+    def validate_path(self, from_version: str, target_version: str) -> None:
+        """Validate that the migration path exists and has no loops."""
+        self.migration_path(from_version, target_version)
+
     def migrate_to(self, payload: dict[str, Any], target_version: str) -> dict[str, Any]:
         """Apply sequential migrations until target version is reached."""
         current = payload.get("document_schema", {}).get("schema_version")
         if current is None:
             return payload
         result = dict(payload)
-        while current != target_version:
-            step = self._migrations.get(current)
-            if step is None:
-                raise ValueError(f"missing migration step from {current} to {target_version}")
+        for step in self.migration_path(current, target_version):
             result = step.migrate(result)
-            current = result["document_schema"]["schema_version"]
+            current = result.get("document_schema", {}).get("schema_version")
+            if current != step.to_version:
+                raise ValueError(
+                    "migration step produced an unexpected schema version: "
+                    f"expected {step.to_version}, got {current}"
+                )
         return result
