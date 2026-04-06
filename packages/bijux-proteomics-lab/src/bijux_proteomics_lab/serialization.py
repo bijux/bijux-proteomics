@@ -57,10 +57,21 @@ def build_canonical_artifact_envelope(
     }
 
 
+def verify_canonical_artifact_envelope(envelope: dict[str, object]) -> bool:
+    """Verify canonical envelope fingerprint integrity."""
+    payload = envelope.get("payload")
+    fingerprint = envelope.get("fingerprint")
+    if not isinstance(payload, dict) or not isinstance(fingerprint, str):
+        return False
+    expected = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    return expected == fingerprint
+
+
 __all__ = [
     "JsonModel",
     "to_canonical_json",
     "fingerprint_model",
     "diff_model_payloads",
     "build_canonical_artifact_envelope",
+    "verify_canonical_artifact_envelope",
 ]

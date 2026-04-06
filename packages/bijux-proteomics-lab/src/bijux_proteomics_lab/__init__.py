@@ -100,6 +100,7 @@ from bijux_proteomics_lab.serialization import (
     diff_model_payloads,
     fingerprint_model,
     to_canonical_json,
+    verify_canonical_artifact_envelope,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.planning import (
@@ -292,6 +293,7 @@ __all__ = [
     "fingerprint_model",
     "diff_model_payloads",
     "build_canonical_artifact_envelope",
+    "verify_canonical_artifact_envelope",
     "ReviewPacket",
     "ReviewRiskProfile",
     "ScheduledBatch",

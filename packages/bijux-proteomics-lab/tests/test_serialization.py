@@ -10,6 +10,7 @@ from bijux_proteomics_lab import (
     diff_model_payloads,
     fingerprint_model,
     to_canonical_json,
+    verify_canonical_artifact_envelope,
 )
 
 
@@ -45,3 +46,15 @@ def test_build_canonical_artifact_envelope_includes_schema_and_fingerprint() -> 
     assert envelope["artifact_kind"] == "plan"
     assert "fingerprint" in envelope
     assert "schema" in envelope
+
+
+def test_verify_canonical_artifact_envelope_detects_tampering() -> None:
+    plan = ExperimentPlan(program_id="prog-env")
+    envelope = build_canonical_artifact_envelope(
+        plan,
+        artifact_kind="plan",
+        schema=DocumentSchema(created_by="bijux-proteomics-lab"),
+    )
+    assert verify_canonical_artifact_envelope(envelope) is True
+    envelope["payload"] = {"program_id": "tampered"}
+    assert verify_canonical_artifact_envelope(envelope) is False
