@@ -15,6 +15,7 @@ SETUPTOOLS_VERSION ?= <82
 VENV ?= .venv
 VENV_PYTHON ?= $(if $(shell test -x "$(VENV)/bin/python" && echo yes),$(VENV)/bin/python,python3)
 ACT ?= $(if $(wildcard $(VENV)/bin/activate),$(VENV)/bin,)
+CONFIG_DIR ?= configs
 
 -include .env
 export

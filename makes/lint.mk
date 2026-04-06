@@ -25,8 +25,8 @@ RUFF_CACHE_DIR         ?= $(LINT_ARTIFACTS_DIR)/.ruff_cache
 MYPY_CACHE_DIR         ?= $(LINT_ARTIFACTS_DIR)/.mypy_cache
 LINT_SELF_MAKE         ?= $(MAKE)
 
-RUFF_CONFIG            ?= configs/ruff.toml
-MYPY_CONFIG            ?= configs/mypy.ini
+RUFF_CONFIG            ?= $(CONFIG_DIR)/ruff.toml
+MYPY_CONFIG            ?= $(CONFIG_DIR)/mypy.ini
 MYPY_FLAGS             ?= --strict
 PYDOCSTYLE_ARGS        ?= --convention=google --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107
 RADON_COMPLEXITY_MAX   ?=
