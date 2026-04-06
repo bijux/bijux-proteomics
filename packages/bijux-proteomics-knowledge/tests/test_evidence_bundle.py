@@ -9,6 +9,7 @@ from bijux_proteomics_knowledge import (
     aging_records,
     assess_decision_readiness,
     assess_context_completeness,
+    assess_scientific_context_completeness,
     assess_context_compatibility,
     assess_artifact_risk,
     attach_manual_notes,
@@ -791,6 +792,37 @@ def test_assess_context_completeness_scores_full_context_record() -> None:
             species="human",
             sample_type="whole-cell lysate",
             endpoint="viability rescue",
+        )
+    )
+
+    assert report.completeness_score == 1.0
+    assert report.missing_fields == []
+
+
+def test_assess_scientific_context_completeness_requires_extended_fields() -> None:
+    report = assess_scientific_context_completeness(
+        EvidenceRecord(
+            evidence_id="assay-science-1",
+            kind=EvidenceKind.CELLULAR,
+            title="Context-rich cellular assay",
+            source="lab",
+            claim="Candidate rescues pathway activity.",
+            confidence=0.86,
+            strength=EvidenceStrength.DECISIVE,
+            assay_modality="cellular",
+            biological_system="HEK293",
+            species="human",
+            sample_type="cell lysate",
+            endpoint="pathway rescue",
+            dose="1 uM",
+            timepoint="24 h",
+            perturbation="compound treatment",
+            control_design="vehicle control",
+            replicate_design="3 biological replicates",
+            normalization_method="median normalization",
+            sample_preparation="tryptic digest",
+            tissue_context="liver",
+            cell_line_context="HEK293",
         )
     )
 

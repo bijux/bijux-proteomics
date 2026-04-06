@@ -181,6 +181,33 @@ class EvidenceRecord(JsonModel):
         default=None,
         description="Primary endpoint measured by this evidence record.",
     )
+    dose: str | None = Field(default=None, description="Dose level or concentration used in the experiment.")
+    timepoint: str | None = Field(default=None, description="Measurement timepoint for the observed signal.")
+    perturbation: str | None = Field(default=None, description="Perturbation applied to the system.")
+    control_design: str | None = Field(
+        default=None,
+        description="Control arm design for the experiment.",
+    )
+    replicate_design: str | None = Field(
+        default=None,
+        description="Replicate design such as technical triplicate or biological duplicate.",
+    )
+    normalization_method: str | None = Field(
+        default=None,
+        description="Normalization method used for quantitative processing.",
+    )
+    sample_preparation: str | None = Field(
+        default=None,
+        description="Sample preparation method before measurement.",
+    )
+    tissue_context: str | None = Field(
+        default=None,
+        description="Tissue context used for the evidence generation.",
+    )
+    cell_line_context: str | None = Field(
+        default=None,
+        description="Cell line context when experiments are cell based.",
+    )
     quantitative_support: QuantitativeSupport | None = Field(
         default=None,
         description="Optional quantitative support payload for the claim.",
@@ -509,6 +536,16 @@ class EvidenceContextCompletenessReport(JsonModel):
     missing_fields: list[str] = Field(default_factory=list, description="Context fields that are missing.")
 
 
+class ScientificContextCompletenessReport(JsonModel):
+    """Completeness report for extended scientific context fields."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1, description="Evidence identifier.")
+    completeness_score: float = Field(..., ge=0.0, le=1.0, description="Scientific context completeness score.")
+    missing_fields: list[str] = Field(default_factory=list, description="Scientific context fields that are missing.")
+
+
 def summarize_bundle(bundle: EvidenceBundle) -> dict[str, object]:
     """Build a compact evidence summary."""
     by_kind = {kind.value: 0 for kind in EvidenceKind}
@@ -731,6 +768,40 @@ def assess_context_completeness(
     filled = len(required_fields) - len(missing_fields)
     score = round(filled / len(required_fields), 4)
     return EvidenceContextCompletenessReport(
+        evidence_id=record.evidence_id,
+        completeness_score=score,
+        missing_fields=missing_fields,
+    )
+
+
+def assess_scientific_context_completeness(
+    record: EvidenceRecord,
+) -> ScientificContextCompletenessReport:
+    """Assess completeness of extended scientific context for assay-grounded evidence."""
+    context_fields = {
+        "assay_modality": record.assay_modality,
+        "biological_system": record.biological_system,
+        "species": record.species,
+        "sample_type": record.sample_type,
+        "endpoint": record.endpoint,
+        "dose": record.dose,
+        "timepoint": record.timepoint,
+        "perturbation": record.perturbation,
+        "control_design": record.control_design,
+        "replicate_design": record.replicate_design,
+        "normalization_method": record.normalization_method,
+        "sample_preparation": record.sample_preparation,
+        "tissue_context": record.tissue_context,
+        "cell_line_context": record.cell_line_context,
+    }
+    missing_fields = [
+        field_name
+        for field_name, field_value in context_fields.items()
+        if field_value is None or not str(field_value).strip()
+    ]
+    filled = len(context_fields) - len(missing_fields)
+    score = round(filled / len(context_fields), 4)
+    return ScientificContextCompletenessReport(
         evidence_id=record.evidence_id,
         completeness_score=score,
         missing_fields=missing_fields,
