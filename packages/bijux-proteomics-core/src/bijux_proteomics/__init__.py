@@ -50,6 +50,7 @@ from bijux_proteomics.repositories import (
     evaluate_review_gate,
     evaluate_review_gates,
     ensure_review_clearance,
+    validate_review_decision,
 )
 from bijux_proteomics.runtime_adapter import (
     AgenticProteinsBackend,
@@ -114,6 +115,7 @@ __all__ = [
     "execute_program",
     "program_summary",
     "sequence_length",
+    "validate_review_decision",
     "validate_program",
     "validate_program_readiness",
     "validate_assay_dependencies",

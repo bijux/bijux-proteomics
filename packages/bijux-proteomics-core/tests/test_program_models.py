@@ -25,6 +25,7 @@ from bijux_proteomics import (
     evaluate_review_gates,
     ensure_review_clearance,
     program_summary,
+    validate_review_decision,
     validate_assay_dependencies,
     validate_program,
     validate_program_readiness,
@@ -257,6 +258,7 @@ def test_execute_program_request_rejects_missing_blocking_approval(tmp_path: Pat
                 outcome=ReviewOutcome.NEEDS_REVISION,
                 decided_by="scientist",
                 rationale="need stronger evidence",
+                reviewed_evidence_ids=["ev-1"],
             )
         ],
     )
@@ -483,6 +485,7 @@ def test_evaluate_review_gates_reports_missing_inputs_and_roles() -> None:
                 decided_by="scientist",
                 rationale="scientific case is strong",
                 reviewed_inputs=["review_packet"],
+                reviewed_evidence_ids=["ev-1"],
             )
         ],
     )
@@ -529,8 +532,24 @@ def test_evaluate_review_gates_reports_fully_approved_gate() -> None:
                 decided_by="scientist",
                 rationale="packet is complete",
                 reviewed_inputs=["review_packet"],
+                reviewed_evidence_ids=["ev-2"],
             )
         ],
     )
 
     assert evaluations[0].state is ReviewGateState.APPROVED
+
+
+def test_validate_review_decision_requires_evidence_refs_for_approval() -> None:
+    issues = validate_review_decision(
+        ReviewDecision(
+            program_id="prog-14",
+            gate_id="pre-synthesis",
+            outcome=ReviewOutcome.APPROVED,
+            decided_by="scientist",
+            rationale="packet is complete",
+            reviewed_inputs=["review_packet"],
+        )
+    )
+
+    assert issues == ["approved review decisions should reference supporting evidence ids"]

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Protocol
 
@@ -32,10 +33,18 @@ class ReviewDecision(JsonModel):
     gate_id: str = Field(..., min_length=1, description="Review gate identifier.")
     outcome: ReviewOutcome = Field(..., description="Decision outcome.")
     decided_by: str = Field(..., min_length=1, description="Decision owner.")
+    decided_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the decision was recorded.",
+    )
     rationale: str = Field(..., min_length=1, description="Why the decision was made.")
     reviewed_inputs: list[str] = Field(
         default_factory=list,
         description="Artifacts and evidence explicitly reviewed during signoff.",
+    )
+    reviewed_evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers explicitly referenced during signoff.",
     )
 
 
@@ -103,6 +112,18 @@ def ensure_review_clearance(
         for gate in program.review_gates
         if gate.blocking and gate.gate_id not in approved_gate_ids
     ]
+
+
+def validate_review_decision(decision: ReviewDecision) -> list[str]:
+    """Return semantic issues in a recorded review decision."""
+    issues: list[str] = []
+    if decision.outcome is ReviewOutcome.APPROVED and not decision.reviewed_inputs:
+        issues.append("approved review decisions should list the reviewed inputs")
+    if decision.outcome is ReviewOutcome.APPROVED and not decision.reviewed_evidence_ids:
+        issues.append("approved review decisions should reference supporting evidence ids")
+    if decision.outcome is ReviewOutcome.REJECTED and not decision.rationale.strip():
+        issues.append("rejected review decisions should include an explicit rationale")
+    return issues
 
 
 def evaluate_review_gate(
