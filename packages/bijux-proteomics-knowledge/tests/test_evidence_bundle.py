@@ -507,6 +507,8 @@ def test_decompose_evidence_quality_derives_confidence_components() -> None:
     quality = decompose_evidence_quality(record)
 
     assert quality.reproducibility >= 0.9
+    assert quality.statistical_support > 0.0
+    assert quality.context_match >= 0.7
     assert quality.context_relevance == 0.9
     assert 0.0 <= quality.derived_confidence <= 1.0
 

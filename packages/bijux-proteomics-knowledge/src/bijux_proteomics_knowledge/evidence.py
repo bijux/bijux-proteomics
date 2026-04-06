@@ -498,6 +498,9 @@ class EvidenceQualityDecomposition(JsonModel):
     assay_validity: float = Field(..., ge=0.0, le=1.0, description="Assay validity signal.")
     reproducibility: float = Field(..., ge=0.0, le=1.0, description="Reproducibility signal.")
     orthogonality: float = Field(..., ge=0.0, le=1.0, description="Orthogonal support signal.")
+    biological_relevance: float = Field(..., ge=0.0, le=1.0, description="Biological relevance signal.")
+    statistical_support: float = Field(..., ge=0.0, le=1.0, description="Statistical support signal.")
+    context_match: float = Field(..., ge=0.0, le=1.0, description="Context match signal.")
     context_relevance: float = Field(..., ge=0.0, le=1.0, description="Biological context relevance.")
     source_credibility: float = Field(..., ge=0.0, le=1.0, description="Source credibility signal.")
     recency: float = Field(..., ge=0.0, le=1.0, description="Recency signal.")
@@ -599,6 +602,10 @@ def decompose_evidence_quality(
     )
     reproducibility = min(1.0, 0.3 + (replicate_count / 5.0))
     orthogonality = min(1.0, 0.4 + (0.2 * len(set(record.decision_tags))))
+    biological_relevance = 1.0 if record.kind in {EvidenceKind.CELLULAR, EvidenceKind.PHENOTYPE} else 0.75
+    quantitative_report = evaluate_quantitative_support(record.quantitative_support)
+    statistical_support = quantitative_report.support_score
+    context_match = 0.95 if record.species and record.biological_system else 0.7
     context_relevance = 0.9 if record.biological_system else 0.6
     age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
     recency = 1.0 if age_days <= 30 else max(0.4, 1.0 - (age_days / 365.0))
@@ -606,8 +613,11 @@ def decompose_evidence_quality(
         (
             assay_validity * 0.2
             + reproducibility * 0.15
-            + orthogonality * 0.15
-            + context_relevance * 0.2
+            + orthogonality * 0.1
+            + biological_relevance * 0.15
+            + statistical_support * 0.1
+            + context_match * 0.1
+            + context_relevance * 0.1
             + source_credibility * 0.2
             + recency * 0.1
         ),
@@ -617,6 +627,9 @@ def decompose_evidence_quality(
         assay_validity=round(assay_validity, 4),
         reproducibility=round(reproducibility, 4),
         orthogonality=round(orthogonality, 4),
+        biological_relevance=round(biological_relevance, 4),
+        statistical_support=round(statistical_support, 4),
+        context_match=round(context_match, 4),
         context_relevance=round(context_relevance, 4),
         source_credibility=round(source_credibility, 4),
         recency=round(recency, 4),
