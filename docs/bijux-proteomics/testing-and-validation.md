@@ -32,6 +32,7 @@ flowchart TB
 ## Validation Layers
 
 - package-local unit, integration, e2e, and invariant suites
+- API contract checks in `apis/*/v1` enforced by `make api`, `make api-freeze`, and `make openapi-drift`
 - schema drift and packaging checks in `bijux-proteomics-dev`
 - repository CI workflows under `.github/workflows/`
 

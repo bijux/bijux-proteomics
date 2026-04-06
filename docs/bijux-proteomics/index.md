@@ -23,7 +23,7 @@ should go there instead of staying here.
 flowchart TB
     root["Repository handbook"]
     layout["workspace layout"]
-    schemas["shared schemas in api/"]
+    schemas["package contracts in apis/"]
     release["release and versioning rules"]
     docs["handbook shape and root docs"]
     checks["cross-package checks and CI fit"]
@@ -54,7 +54,7 @@ flowchart TB
 ## Use This Section For
 
 - Questions about why the repository is split the way it is.
-- Questions about root-managed assets such as `api/`, `Makefile`, shared CI,
+- Questions about root-managed assets such as `apis/`, `Makefile`, shared CI,
   and release conventions.
 - Questions about where the root should stop and a product package should take
   over.

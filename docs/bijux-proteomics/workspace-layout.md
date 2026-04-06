@@ -18,7 +18,7 @@ harder to see, it is working against the design instead of supporting it.
 flowchart TB
     repo["bijux-proteomics"]
     packages["packages/<br/>publishable distributions"]
-    apis["api/<br/>shared schemas and pinned artifacts"]
+    apis["apis/<br/>package OpenAPI contracts and pinned artifacts"]
     docs["docs/<br/>human-facing handbook"]
     makes["makes/ and Makefile<br/>workspace automation"]
     configs["configs/<br/>tooling configuration"]
@@ -35,7 +35,7 @@ flowchart TB
 ## Top-Level Directories
 
 - `packages/` for publishable Python distributions
-- `api/` for shared schema sources and pinned artifacts
+- `apis/` for per-package schema sources, pinned OpenAPI JSON, and schema digests
 - `docs/` for the canonical handbook
 - `makes/` and `Makefile` for workspace automation
 - `artifacts/` for generated or checked validation outputs
