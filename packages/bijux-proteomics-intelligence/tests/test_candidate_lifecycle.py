@@ -80,6 +80,7 @@ def test_transition_candidate_enforces_lifecycle_progression() -> None:
         CandidateStatus.PROPOSED,
         CandidateStatus.SCREENED,
         reason="screening completed",
+        evidence_ids=["ev-1"],
     )
 
     assert transition.candidate_id == "candidate-1"
@@ -95,4 +96,15 @@ def test_transition_candidate_rejects_invalid_jump() -> None:
             CandidateStatus.PROPOSED,
             CandidateStatus.ADVANCED,
             reason="skip directly to advancement",
+            evidence_ids=["ev-1"],
+        )
+
+
+def test_transition_candidate_requires_evidence_for_prioritization() -> None:
+    with pytest.raises(ValueError):
+        transition_candidate(
+            "candidate-1",
+            CandidateStatus.SCREENED,
+            CandidateStatus.PRIORITIZED,
+            reason="missing evidence refs",
         )

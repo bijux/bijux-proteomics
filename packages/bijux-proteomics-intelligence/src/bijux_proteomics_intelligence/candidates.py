@@ -125,6 +125,14 @@ class CandidateTransition(JsonModel):
     from_status: CandidateStatus = Field(..., description="Previous lifecycle status.")
     to_status: CandidateStatus = Field(..., description="New lifecycle status.")
     reason: str = Field(..., min_length=1, description="Why the transition happened.")
+    review_gate_id: str | None = Field(
+        default=None,
+        description="Optional review gate that authorized the transition.",
+    )
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence references supporting the transition.",
+    )
     changed_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         description="When the transition was recorded.",
@@ -258,6 +266,8 @@ def transition_candidate(
     next_status: CandidateStatus,
     *,
     reason: str,
+    review_gate_id: str | None = None,
+    evidence_ids: list[str] | None = None,
 ) -> CandidateTransition:
     """Transition a candidate through the allowed lifecycle states."""
     allowed = ALLOWED_CANDIDATE_TRANSITIONS.get(current_status, set())
@@ -265,11 +275,16 @@ def transition_candidate(
         raise ValueError(
             f"cannot move candidate from {current_status.value} to {next_status.value}"
         )
+    evidence_ids = evidence_ids or []
+    if next_status in {CandidateStatus.PRIORITIZED, CandidateStatus.ADVANCED} and not evidence_ids:
+        raise ValueError("prioritized or advanced transitions require evidence references")
     return CandidateTransition(
         candidate_id=candidate_id,
         from_status=current_status,
         to_status=next_status,
         reason=reason,
+        review_gate_id=review_gate_id,
+        evidence_ids=evidence_ids,
     )
 
 
