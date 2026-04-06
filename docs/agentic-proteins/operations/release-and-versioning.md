@@ -28,17 +28,17 @@ flowchart RL
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["HTTP app in src/agentic_proteins/api/v1"]
+    step1["HTTP surface in src/agentic_proteins/api/"]
     step1 --> page
     step2["packages/agentic-proteins/pyproject.toml"]
     step2 --> page
     step3["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     step3 --> page
-    run1["tests/regression and tests/smoke for replay and storage protection"]
+    run1["tests/regression for runtime guardrails and replay stability"]
     page --> run1
-    run2["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    run2["tests/unit and tests/integration for package contracts"]
     page --> run2
-    run3["tests/e2e for governed flow behavior"]
+    run3["tests/e2e for governed workflow behavior"]
     page --> run3
     release1["pyproject.toml"]
     run1 --> release1
@@ -60,8 +60,8 @@ flowchart RL
 
 ## Versioning Anchors
 
-- version file: `packages/agentic-proteins/src/agentic_proteins/_version.py`
-- tag pattern is configured in `packages/agentic-proteins/pyproject.toml`
+- version is resolved from Git tags through `hatch-vcs` in `packages/agentic-proteins/pyproject.toml`
+- release tags follow `v*` and publish workflows are triggered from those tags
 
 ## Concrete Anchors
 
