@@ -9,62 +9,36 @@ last_reviewed: 2026-04-04
 
 # Common Workflows
 
-Most work on `bijux-proteomics-knowledge` follows one of a few recurring paths.
-
-This page should make those paths feel familiar and repeatable. Readers should
-not have to rediscover the same workflow from scratch every time they debug,
-extend, or review the package.
-
-Treat the operations pages for `bijux-proteomics-knowledge` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
+Most work on `bijux-proteomics-knowledge` follows a small set of repeatable
+library-maintenance paths.
 
 ## Visual Summary
 
 ```mermaid
 flowchart TB
-    page["Common Workflows<br/>clarifies: repeat workflows | find diagnostics | release safely"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["packages/bijux-proteomics-knowledge/pyproject.toml"]
-    step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py"]
-    step2 --> page
-    step3["HTTP app in src/bijux_proteomics_knowledge/claims.py"]
-    step3 --> page
-    run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run1
-    run2["tests/e2e for governed flow behavior"]
-    page --> run2
-    run3["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run3
-    release1["README.md"]
-    run1 --> release1
-    release2["CHANGELOG.md"]
-    run2 --> release2
-    release3["pyproject.toml"]
-    run3 --> release3
-    class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    read["identify affected module: evidence/claims/resolution/review/graph"]
+    change["implement focused change"]
+    verify["run package tests and quality gates"]
+    sync["update docs + changelog + metadata"]
+    read --> change --> verify --> sync
 ```
 
 ## Recurring Paths
 
-- inspect the package README and section indexes first
-- follow an interface into the owning module group
-- run the owning tests before declaring the change complete
+1. Add or adjust evidence and claim behavior:
+`adapters.py` -> `evidence.py` -> `claims.py` -> tests.
+2. Change conflict policy logic:
+`resolution.py` -> `review.py` -> tests.
+3. Change serialization or schema compatibility:
+`schema.py`/`serialization.py` -> tests -> docs/changelog.
 
 ## Code Areas
 
-- `src/bijux_proteomics_knowledge/model` for durable runtime models
-- `src/bijux_proteomics_knowledge/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_knowledge/application` for orchestration and replay coordination
-- `src/bijux_proteomics_knowledge/verification` for runtime-level validation support
-- `src/bijux_proteomics_knowledge/interfaces` for CLI surfaces and manifest loading
-- `src/bijux_proteomics_knowledge/api` for HTTP application surfaces
+- `src/bijux_proteomics_knowledge/evidence.py` for evidence records and trust scoring
+- `src/bijux_proteomics_knowledge/claims.py` for claim state and lineage
+- `src/bijux_proteomics_knowledge/resolution.py` for conflict resolution policy
+- `src/bijux_proteomics_knowledge/review.py` for decision-facing summaries
+- `src/bijux_proteomics_knowledge/graph.py` for graph validation and trace paths
 
 ## Concrete Anchors
 
