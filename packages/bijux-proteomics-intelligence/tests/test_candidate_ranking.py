@@ -32,6 +32,7 @@ from bijux_proteomics_intelligence import (
     summarize_liability_focus,
     summarize_uncertainty_pressure,
     summarize_novelty_diversity,
+    build_ranking_robustness_report,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -467,6 +468,53 @@ def test_summarize_novelty_diversity_reports_liability_diversity() -> None:
 
     assert summary.candidate_count == 2
     assert summary.unique_liability_codes >= 2
+
+
+def test_build_ranking_robustness_report_combines_confidence_and_diversity() -> None:
+    program = create_program_spec(
+        program_id="prog-robustness",
+        name="robustness report",
+        objective="combine confidence pressure and diversity in one report",
+        target_id="target-robustness",
+        target_name="Target Robustness",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="evaluate ranking robustness",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.8,
+        )
+    )
+    ranking = prioritize_candidates(
+        program,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-a",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.9},
+                manufacturability_score=0.85,
+                uncertainty=0.1,
+                evidence_support=0.85,
+            ),
+            CandidateAssessment(
+                candidate_id="candidate-b",
+                sequence="ACDEFGHIKLMNPQRSTVWA",
+                metric_scores={"binding_score": 0.88},
+                manufacturability_score=0.8,
+                uncertainty=0.2,
+                evidence_support=0.8,
+            ),
+        ],
+    )
+
+    report = build_ranking_robustness_report(ranking)
+
+    assert report.robustness_score > 0.5
+    assert report.uncertainty_summary.candidate_count == 2
 
 
 def test_candidate_score_breakdown_reports_weighted_contributions() -> None:

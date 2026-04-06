@@ -269,6 +269,23 @@ class NoveltyDiversitySummary(JsonModel):
     diversity_score: float = Field(..., ge=0.0, le=1.0, description="Normalized diversity score.")
 
 
+class RankingRobustnessReport(JsonModel):
+    """Decision-facing robustness report for ranked candidate sets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    robustness_score: float = Field(..., ge=0.0, le=1.0, description="Overall robustness score.")
+    uncertainty_summary: UncertaintyPressureSummary = Field(
+        ...,
+        description="Uncertainty pressure summary used in robustness scoring.",
+    )
+    diversity_summary: NoveltyDiversitySummary = Field(
+        ...,
+        description="Diversity summary used in robustness scoring.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Short notes explaining robustness posture.")
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -639,4 +656,35 @@ def summarize_novelty_diversity(
         unique_sequence_signatures=len(sequence_signatures),
         unique_liability_codes=len(liability_codes),
         diversity_score=diversity_score,
+    )
+
+
+def build_ranking_robustness_report(
+    ranking: CandidateRanking,
+) -> RankingRobustnessReport:
+    """Build an integrated robustness report for ranked candidates."""
+    uncertainty = summarize_uncertainty_pressure(ranking)
+    diversity = summarize_novelty_diversity(ranking)
+    robustness = round(
+        max(
+            0.0,
+            min(
+                (uncertainty.mean_confidence * 0.6) + (diversity.diversity_score * 0.4),
+                1.0,
+            ),
+        ),
+        4,
+    )
+    notes: list[str] = []
+    if uncertainty.uncertainty_pressure_high:
+        notes.append("confidence pressure is high across ranked candidates")
+    if diversity.diversity_score < 0.5:
+        notes.append("candidate diversity is limited and may reduce portfolio resilience")
+    if not notes:
+        notes.append("ranking appears robust for current decision stage")
+    return RankingRobustnessReport(
+        robustness_score=robustness,
+        uncertainty_summary=uncertainty,
+        diversity_summary=diversity,
+        notes=notes,
     )
