@@ -22,6 +22,7 @@ from bijux_proteomics_lab import (
     query_feedback_records,
     recommend_rerun_policy,
     summarize_experiment_outcome,
+    summarize_observation,
 )
 
 
@@ -340,6 +341,22 @@ def test_summarize_experiment_outcome_counts_result_states() -> None:
     assert summary.failed_technical_count == 1
     assert summary.failed_reproducibility_count == 1
     assert summary.inconclusive_count == 1
+
+
+def test_summarize_observation_uses_replicate_statistics() -> None:
+    summary = summarize_observation(
+        AssayObservationRecord(
+            assay_id="assay-stat",
+            metric="activity_ratio",
+            value=1.0,
+            replicate_values=[0.8, 1.0, 1.2],
+            dispersion=0.2,
+        )
+    )
+
+    assert summary.replicate_count == 3
+    assert summary.mean_value == 1.0
+    assert summary.median_value == 1.0
 
 
 def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:

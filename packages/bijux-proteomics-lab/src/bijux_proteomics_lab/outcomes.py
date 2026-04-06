@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from statistics import mean, median
 
 from pydantic import ConfigDict, Field
 
@@ -209,6 +210,20 @@ class ExperimentOutcomeSummary(JsonModel):
     inconclusive_count: int = Field(..., ge=0, description="Count of inconclusive results.")
 
 
+class ObservationSummary(JsonModel):
+    """Replicate-aware summary of a lab observation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    metric: str = Field(..., min_length=1, description="Observed metric.")
+    mean_value: float = Field(..., description="Mean value across replicates.")
+    median_value: float = Field(..., description="Median value across replicates.")
+    replicate_count: int = Field(..., ge=1, description="Replicate count used for summary.")
+    dispersion: float | None = Field(default=None, ge=0.0, description="Reported or inferred dispersion.")
+    below_detection_limit: bool = Field(default=False, description="Whether signal is below detection.")
+
+
 def recommend_rerun_policy(outcome: ExperimentOutcome) -> RerunPolicy:
     """Recommend a rerun policy from observed failures."""
     if any(
@@ -390,4 +405,18 @@ def summarize_experiment_outcome(outcome: ExperimentOutcome) -> ExperimentOutcom
             if assay.result_state is AssayResultState.FAILED_REPRODUCIBILITY
         ),
         inconclusive_count=sum(1 for assay in outcome.assay_outcomes if assay.result_state is AssayResultState.INCONCLUSIVE),
+    )
+
+
+def summarize_observation(observation: AssayObservationRecord) -> ObservationSummary:
+    """Summarize replicate-level observation statistics for interpretation."""
+    values = observation.replicate_values or [observation.value]
+    return ObservationSummary(
+        assay_id=observation.assay_id,
+        metric=observation.metric,
+        mean_value=round(mean(values), 6),
+        median_value=round(median(values), 6),
+        replicate_count=len(values),
+        dispersion=observation.dispersion,
+        below_detection_limit=observation.below_detection_limit,
     )
