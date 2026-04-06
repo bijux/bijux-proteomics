@@ -28,17 +28,17 @@ flowchart RL
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["HTTP app in src/bijux_proteomics_foundation/schema.py"]
+    step1["Schema contracts in src/bijux_proteomics_foundation/schema.py"]
     step1 --> page
     step2["packages/bijux-proteomics-foundation/pyproject.toml"]
     step2 --> page
-    step3["CLI entrypoint in src/bijux_proteomics_foundation/__init__.py"]
+    step3["Serialization surface in src/bijux_proteomics_foundation/serialization.py"]
     step3 --> page
-    run1["tests/regression and tests/smoke for replay and storage protection"]
+    run1["tests/ for schema compatibility and migration behavior"]
     page --> run1
-    run2["tests/unit for api, contracts, core, interfaces, model, and runtime"]
+    run2["canonical serialization and fingerprint checks in tests/"]
     page --> run2
-    run3["tests/e2e for governed flow behavior"]
+    run3["cross-version document behavior checks in tests/"]
     page --> run3
     release1["pyproject.toml"]
     run1 --> release1
@@ -60,8 +60,8 @@ flowchart RL
 
 ## Versioning Anchors
 
-- version file: `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/_version.py`
-- tag pattern is configured in `packages/bijux-proteomics-foundation/pyproject.toml`
+- release version is explicit in `packages/bijux-proteomics-foundation/pyproject.toml`
+- release tags follow `v*` and publish workflows are triggered from those tags
 
 ## Concrete Anchors
 
