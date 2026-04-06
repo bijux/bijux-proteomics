@@ -207,6 +207,45 @@ def test_query_claims_filters_by_status_type_and_polarity() -> None:
     assert [claim.claim_id for claim in filtered] == ["claim-a"]
 
 
+def test_query_claims_supports_confidence_and_resolution_filters() -> None:
+    claims = [
+        build_claim(
+            claim_id="claim-open-high",
+            target_id="target-1",
+            statement="open claim",
+            evidence_ids=["ev-1"],
+            status=ClaimStatus.SUPPORTED,
+            confidence=0.82,
+            decision_impact="blocking_gate_input",
+            contradiction_group="group-1",
+        ),
+        build_claim(
+            claim_id="claim-closed-low",
+            target_id="target-1",
+            statement="closed claim",
+            evidence_ids=["ev-2"],
+            status=ClaimStatus.SUPPORTED,
+            confidence=0.51,
+            resolution_state=ClaimResolutionState.CLOSED,
+            decision_impact="supporting_context",
+            contradiction_group="group-2",
+        ),
+    ]
+
+    filtered = query_claims(
+        claims,
+        ClaimQuery(
+            target_id="target-1",
+            minimum_confidence=0.7,
+            resolution_state=ClaimResolutionState.OPEN,
+            decision_impact="blocking_gate_input",
+            contradiction_group="group-1",
+        ),
+    )
+
+    assert [claim.claim_id for claim in filtered] == ["claim-open-high"]
+
+
 def test_validate_claims_requires_mechanistic_structure_and_evidence() -> None:
     issues = validate_claims(
         [

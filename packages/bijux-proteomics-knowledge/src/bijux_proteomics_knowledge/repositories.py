@@ -10,7 +10,13 @@ from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_knowledge.claims import ClaimPolarity, ClaimStatus, ClaimType, EvidenceClaim
+from bijux_proteomics_knowledge.claims import (
+    ClaimPolarity,
+    ClaimResolutionState,
+    ClaimStatus,
+    ClaimType,
+    EvidenceClaim,
+)
 from bijux_proteomics_knowledge.evidence import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.resolution import ConflictResolution
 from bijux_proteomics_knowledge.serialization import JsonModel
@@ -87,6 +93,10 @@ class ClaimQuery(JsonModel):
     status: ClaimStatus | None = Field(default=None, description="Optional status filter.")
     claim_type: ClaimType | None = Field(default=None, description="Optional claim-type filter.")
     polarity: ClaimPolarity | None = Field(default=None, description="Optional polarity filter.")
+    resolution_state: ClaimResolutionState | None = Field(default=None, description="Optional resolution-state filter.")
+    minimum_confidence: float | None = Field(default=None, ge=0.0, le=1.0, description="Optional confidence floor.")
+    decision_impact: str | None = Field(default=None, description="Optional decision-impact filter.")
+    contradiction_group: str | None = Field(default=None, description="Optional contradiction-group filter.")
 
 
 def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[EvidenceClaim]:
@@ -98,4 +108,12 @@ def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[Evidenc
         filtered = [claim for claim in filtered if claim.claim_type is query.claim_type]
     if query.polarity is not None:
         filtered = [claim for claim in filtered if claim.polarity is query.polarity]
+    if query.resolution_state is not None:
+        filtered = [claim for claim in filtered if claim.resolution_state is query.resolution_state]
+    if query.minimum_confidence is not None:
+        filtered = [claim for claim in filtered if claim.confidence >= query.minimum_confidence]
+    if query.decision_impact is not None:
+        filtered = [claim for claim in filtered if claim.decision_impact == query.decision_impact]
+    if query.contradiction_group is not None:
+        filtered = [claim for claim in filtered if claim.contradiction_group == query.contradiction_group]
     return filtered
