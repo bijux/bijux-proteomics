@@ -35,6 +35,7 @@ from bijux_proteomics_lab import (
     plan_uncertainty_reduction_assays,
     recommend_next_best_experiment,
     PlanningPolicy,
+    OrthogonalPolicy,
     recommend_orthogonal_confirmation,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
@@ -728,6 +729,64 @@ def test_recommend_orthogonal_confirmation_when_convergence_is_low() -> None:
 
     assert plan.required is True
     assert plan.suggested_assay_ids == ["assay-a"]
+
+
+def test_recommend_orthogonal_confirmation_honors_required_modalities_policy() -> None:
+    program = create_program_spec(
+        program_id="prog-orth-policy",
+        name="orthogonal policy",
+        objective="enforce required modalities",
+        target_id="target-orth-policy",
+        target_name="Target",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="require modality coverage",
+    )
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="assay-b",
+            purpose="orthogonal assay",
+            readout="signal",
+            sample_kind="cellular",
+            blocking=False,
+        )
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-orth-policy",
+        target_id="target-orth-policy",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit",
+                kind=EvidenceKind.LITERATURE,
+                title="lit",
+                source="pmid",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    plan = recommend_orthogonal_confirmation(
+        program,
+        bundle,
+        policy=OrthogonalPolicy(
+            policy_id="strict-modalities",
+            required_modalities=[EvidenceKind.LITERATURE.value, EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
+        ),
+    )
+
+    assert plan.required is True
 
 
 def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist() -> None:

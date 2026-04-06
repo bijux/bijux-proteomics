@@ -423,6 +423,25 @@ class PlanningPolicy(JsonModel):
     )
 
 
+class OrthogonalPolicy(JsonModel):
+    """Policy configuration for orthogonal confirmation planning."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable orthogonal policy identifier.")
+    decision_tag: str = Field(default="progression", min_length=1, description="Decision tag under evaluation.")
+    minimum_convergence_score: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="Minimum acceptable convergence score.",
+    )
+    required_modalities: list[str] = Field(
+        default_factory=lambda: ["literature", "assay", "structure"],
+        description="Modalities expected before skipping orthogonal confirmation.",
+    )
+
+
 class DependencyCycleReport(JsonModel):
     """Cycle detection report for assay dependency graphs."""
 
@@ -987,17 +1006,25 @@ def recommend_orthogonal_confirmation(
     *,
     decision_tag: str = "progression",
     minimum_convergence_score: float = 0.5,
+    policy: OrthogonalPolicy | None = None,
 ) -> OrthogonalConfirmationPlan:
     """Recommend orthogonal assays when modality convergence is weak."""
-    triangulation = triangulate_evidence(bundle, decision_tag=decision_tag)
-    required = triangulation.convergence_score < minimum_convergence_score
+    policy = policy or OrthogonalPolicy(policy_id="default-orthogonal-policy")
+    effective_tag = policy.decision_tag if decision_tag == "progression" else decision_tag
+    effective_threshold = minimum_convergence_score if minimum_convergence_score != 0.5 else policy.minimum_convergence_score
+    triangulation = triangulate_evidence(
+        bundle,
+        decision_tag=effective_tag,
+        required_modalities=policy.required_modalities,
+    )
+    required = triangulation.convergence_score < effective_threshold or bool(triangulation.missing_required_modalities)
     suggested = [
         assay.assay_id
         for assay in program.assay_panel
         if not assay.blocking
     ][:3]
     return OrthogonalConfirmationPlan(
-        decision_tag=decision_tag,
+        decision_tag=effective_tag,
         required=required,
         suggested_assay_ids=suggested if required else [],
     )
