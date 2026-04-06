@@ -24,7 +24,7 @@ concurrency:
 
 env:
   DOCS_SITE_URL: https://bijux.io/bijux-proteomics/
-  DOCS_SITE_DIR: site
+  DOCS_SITE_DIR: artifacts/root/docs/site
 
 jobs:
   build:
