@@ -355,6 +355,18 @@ class InformationGainBreakdown(JsonModel):
     final_score: float = Field(..., ge=0.0, le=1.0, description="Combined information-gain score.")
 
 
+class GateImpactScore(JsonModel):
+    """Decision-gate impact score for an assay in the current experiment plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    batch_id: BatchId = Field(..., description="Batch containing the assay.")
+    blocking_gate_count: int = Field(..., ge=0, description="Count of blocking review gates tied to the batch.")
+    impact_score: float = Field(..., ge=0.0, le=1.0, description="Combined decision-gate impact score.")
+    rationale: list[str] = Field(default_factory=list, description="Human-readable impact rationale.")
+
+
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
 
@@ -1059,6 +1071,34 @@ def score_assay_information_gain(
         burden_penalty=burden_penalty,
         final_score=final_score,
     )
+
+
+def score_assay_gate_impact(plan: ExperimentPlan) -> list[GateImpactScore]:
+    """Score assay-level impact on decision gates using batch gate load and priority."""
+    results: list[GateImpactScore] = []
+    for batch in plan.batches:
+        gate_count = len(batch.blocking_review_gates)
+        base_impact = min(1.0, gate_count * 0.25)
+        priority_bonus = max(0.0, 0.2 - ((batch.priority - 1) * 0.03))
+        score = round(max(0.0, min(base_impact + priority_bonus, 1.0)), 4)
+        for assay_id in batch.assay_ids:
+            rationale: list[str] = []
+            if gate_count > 0:
+                rationale.append(f"batch blocks {gate_count} review gate(s)")
+            if batch.priority <= 2:
+                rationale.append("high-priority batch contributes to near-term decisioning")
+            if not rationale:
+                rationale.append("limited direct gate pressure")
+            results.append(
+                GateImpactScore(
+                    assay_id=assay_id,
+                    batch_id=batch.batch_id,
+                    blocking_gate_count=gate_count,
+                    impact_score=score,
+                    rationale=rationale,
+                )
+            )
+    return sorted(results, key=lambda item: item.impact_score, reverse=True)
 
 
 def recommend_orthogonal_confirmation(

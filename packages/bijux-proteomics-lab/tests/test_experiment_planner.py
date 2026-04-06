@@ -44,6 +44,7 @@ from bijux_proteomics_lab import (
     schedule_experiment_plan,
     schedule_with_family_capacity,
     score_assay_information_gain,
+    score_assay_gate_impact,
     summarize_schedule_pressure,
     prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
@@ -180,6 +181,35 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
 
     assert packet.ready_for_synthesis is False
     assert "failed assays: primary-binding" in packet.blocking_findings
+
+
+def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-1",
+        review_queue=[],
+        evidence_gaps=[],
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="gate-critical batch",
+                assay_ids=["a1"],
+                blocking_review_gates=["gate-a", "gate-b"],
+                priority=1,
+            ),
+            ExperimentBatch(
+                batch_id="b2",
+                objective="support batch",
+                assay_ids=["a2"],
+                blocking_review_gates=[],
+                priority=4,
+            ),
+        ],
+    )
+
+    scores = score_assay_gate_impact(plan)
+
+    assert scores[0].assay_id == "a1"
+    assert scores[0].impact_score > scores[1].impact_score
 
 
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
