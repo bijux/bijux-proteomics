@@ -1,0 +1,37 @@
+name: ci-bijux-proteomics-core
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/ci-bijux-proteomics-core.yml"
+      - ".github/workflows/ci-package.yml"
+      - "packages/bijux-proteomics-core/**"
+      - "configs/**"
+      - "makes/**"
+      - "Makefile"
+      - "pyproject.toml"
+  pull_request:
+    paths:
+      - ".github/workflows/ci-bijux-proteomics-core.yml"
+      - ".github/workflows/ci-package.yml"
+      - "packages/bijux-proteomics-core/**"
+      - "configs/**"
+      - "makes/**"
+      - "Makefile"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-package.yml
+    with:
+      package_slug: bijux-proteomics-core
+      cache_dependency_path: |
+        pyproject.toml
+      test_paths: packages/bijux-proteomics-core/tests
+      lint_dirs: packages/bijux-proteomics-core/src/bijux_proteomics
+      quality_paths: packages/bijux-proteomics-core/src/bijux_proteomics

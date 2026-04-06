@@ -1,0 +1,39 @@
+name: ci-agentic-proteins
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/ci-agentic-proteins.yml"
+      - ".github/workflows/ci-package.yml"
+      - "packages/agentic-proteins/**"
+      - "api/**"
+      - "configs/**"
+      - "makes/**"
+      - "Makefile"
+      - "pyproject.toml"
+  pull_request:
+    paths:
+      - ".github/workflows/ci-agentic-proteins.yml"
+      - ".github/workflows/ci-package.yml"
+      - "packages/agentic-proteins/**"
+      - "api/**"
+      - "configs/**"
+      - "makes/**"
+      - "Makefile"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-package.yml
+    with:
+      package_slug: agentic-proteins
+      cache_dependency_path: |
+        pyproject.toml
+      test_paths: packages/agentic-proteins/tests
+      lint_dirs: packages/agentic-proteins/src/agentic_proteins
+      quality_paths: packages/agentic-proteins/src/agentic_proteins

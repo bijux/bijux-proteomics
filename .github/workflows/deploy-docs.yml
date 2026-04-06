@@ -1,0 +1,76 @@
+name: deploy-docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deploy-docs.yml"
+      - "docs/**"
+      - "mkdocs.yml"
+      - "makes/**"
+      - "Makefile"
+      - "pyproject.toml"
+      - "packages/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy-docs-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCS_SITE_URL: https://bijux.github.io/bijux-proteomics/
+  DOCS_SITE_DIR: site
+
+jobs:
+  build:
+    name: Build docs site
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build documentation site
+        run: |
+          make install EXTRAS="dev"
+          make docs
+
+      - name: Validate published site assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "${DOCS_SITE_DIR}/index.html"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.DOCS_SITE_DIR }}
+
+  deploy:
+    name: Deploy docs site
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,84 @@
+name: build-release-artifacts
+
+on:
+  workflow_call:
+    inputs:
+      package_slug:
+        required: true
+        type: string
+      cache_dependency_path:
+        required: true
+        type: string
+      build_targets:
+        required: false
+        type: string
+        default: "build"
+      dist_subdir:
+        required: false
+        type: string
+        default: build
+      upload_paths:
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-release-artifacts-${{ inputs.package_slug }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+
+      - name: Install toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          make install EXTRAS="dev"
+
+      - name: Build release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for target in ${{ inputs.build_targets }}; do
+            make "$target"
+          done
+
+      - name: Stage publish artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage_dir=".github/tmp/${{ inputs.package_slug }}-dist"
+          mkdir -p "$stage_dir"
+          cp "artifacts/${{ inputs.dist_subdir }}"/*.whl "$stage_dir"/
+          cp "artifacts/${{ inputs.dist_subdir }}"/*.tar.gz "$stage_dir"/
+
+      - name: Upload publish artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.package_slug }}-pypi-dist
+          path: .github/tmp/${{ inputs.package_slug }}-dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.package_slug }}-release
+          path: ${{ inputs.upload_paths != '' && inputs.upload_paths || format('artifacts/{0}/*', inputs.dist_subdir) }}
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,0 +1,37 @@
+name: ci-bijux-proteomics-intelligence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/ci-bijux-proteomics-intelligence.yml"
+      - ".github/workflows/ci-package.yml"
+      - "packages/bijux-proteomics-intelligence/**"
+      - "configs/**"
+      - "makes/**"
+      - "Makefile"
+      - "pyproject.toml"
+  pull_request:
+    paths:
+      - ".github/workflows/ci-bijux-proteomics-intelligence.yml"
+      - ".github/workflows/ci-package.yml"
+      - "packages/bijux-proteomics-intelligence/**"
+      - "configs/**"
+      - "makes/**"
+      - "Makefile"
+      - "pyproject.toml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-package.yml
+    with:
+      package_slug: bijux-proteomics-intelligence
+      cache_dependency_path: |
+        pyproject.toml
+      test_paths: packages/bijux-proteomics-intelligence/tests
+      lint_dirs: packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence
+      quality_paths: packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence

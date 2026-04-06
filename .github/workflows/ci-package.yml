@@ -1,0 +1,169 @@
+name: ci-package
+
+on:
+  workflow_call:
+    inputs:
+      package_slug:
+        required: true
+        type: string
+      cache_dependency_path:
+        required: true
+        type: string
+      test_python_versions:
+        required: false
+        type: string
+        default: '["3.11"]'
+      test_paths:
+        required: true
+        type: string
+      lint_dirs:
+        required: true
+        type: string
+      quality_paths:
+        required: true
+        type: string
+      check_targets:
+        required: false
+        type: string
+        default: '["quality", "security", "docs", "api", "build", "sbom"]'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ inputs.package_slug }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{ fromJson(inputs.test_python_versions) }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+
+      - name: Install toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          make install EXTRAS="dev"
+
+      - name: Run tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          make test TEST_PATHS="${{ inputs.test_paths }}"
+
+      - name: Upload test artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.package_slug }}-test-py${{ matrix.python-version }}
+          path: artifacts/test
+          if-no-files-found: ignore
+          retention-days: 14
+
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(inputs.check_targets) }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+
+      - uses: actions/setup-node@v5
+        if: ${{ matrix.target == 'api' }}
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-java@v5
+        if: ${{ matrix.target == 'api' }}
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          make install EXTRAS="dev"
+
+      - name: Run ${{ matrix.target }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ matrix.target }}" in
+            quality)
+              make quality QUALITY_PATHS="${{ inputs.quality_paths }}"
+              ;;
+            security|docs|api|build|sbom)
+              make "${{ matrix.target }}"
+              ;;
+            *)
+              echo "Unknown target: ${{ matrix.target }}"
+              exit 2
+              ;;
+          esac
+
+      - name: Upload artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.package_slug }}-${{ matrix.target }}
+          path: artifacts/${{ matrix.target }}
+          if-no-files-found: ignore
+          retention-days: 14
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ${{ inputs.cache_dependency_path }}
+
+      - name: Install toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          make install EXTRAS="dev"
+
+      - name: Run lint
+        shell: bash
+        run: |
+          set -euo pipefail
+          make lint LINT_DIRS="${{ inputs.lint_dirs }}"
+
+      - name: Upload lint artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.package_slug }}-lint
+          path: artifacts/lint
+          if-no-files-found: ignore
+          retention-days: 14

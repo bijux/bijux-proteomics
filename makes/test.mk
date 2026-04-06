@@ -61,6 +61,7 @@ TEST_PYCACHE_PREFIX_ABS   := $(abspath $(TEST_PYCACHE_PREFIX))
 TEST_PYCACHE_ENV          := $(if $(strip $(TEST_PYCACHE_PREFIX)),PYTHONPYCACHEPREFIX="$(TEST_PYCACHE_PREFIX_ABS)",)
 
 PYTEST_FLAGS = \
+  --rootdir "$(abspath .)" \
   --junitxml "$(JUNIT_XML_ABS)" \
   --basetemp "$(TMP_DIR_ABS)" \
   --cov-config "$(COVCFG_ABS)" \
