@@ -39,13 +39,14 @@ ensure-venv: $(VENV) ## Ensure venv exists and deps are installed
 nlenv: ## Print activate command
 	@echo "Run: source $(ACT)/activate"
 
-manage_examples:
+##@ Repository
+manage_examples: ## Refresh example assets through the repository helper
 	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_examples
 
-manage_models:
+manage_models: ## Refresh model metadata through the repository helper
 	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_models
 
-help: ## Show this help
-	@awk 'BEGIN{FS=":.*##"; OFS="";} \
-	  /^[a-zA-Z0-9_.-]+:.*##/ {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}' \
-	  $(MAKEFILE_LIST)
+HELP_WIDTH := 22
+include $(ROOT_MAKEFILE_DIR)/bijux-py/help.mk
+
+help: ## Show generated repository commands from included make modules
