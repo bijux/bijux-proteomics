@@ -1,25 +1,17 @@
 ROOT_MAKEFILE_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
-include $(ROOT_MAKEFILE_DIR)/env.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root-env.mk
+include $(ROOT_MAKEFILE_DIR)/env.mk
 include $(ROOT_MAKEFILE_DIR)/packages.mk
 
-.DEFAULT_GOAL := help
-
+ROOT_DEV_PYTHONPATH := $(CURDIR)/packages/bijux-proteomics-dev/src
 ROOT_CHECK_VENV := $(CURDIR)/artifacts/.venv
-ROOT_CHECK_PYTHON := $(ROOT_CHECK_VENV)/bin/python
-ROOT_CHECK_STAMP := $(ROOT_ARTIFACTS_DIR)/.check-tools.stamp
-ROOT_DOCS_ARTIFACTS_DIR := $(ROOT_ARTIFACTS_DIR)/docs
-ROOT_DOCS_BUILD_SITE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/build-site
-ROOT_DOCS_CHECK_SITE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/check-site
-ROOT_DOCS_SERVE_SITE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/serve-site
-ROOT_DOCS_CACHE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/cache
-ROOT_DOCS_SERVE_CFG := $(ROOT_ARTIFACTS_DIR)/mkdocs.serve.yml
 ROOT_DOCS_DEV_ADDR ?= 127.0.0.1:8001
 COMMA := ,
 UV_GROUPS ?= $(if $(strip $(EXTRAS)),$(subst $(COMMA), ,$(EXTRAS)),dev)
 UV_SYNC_FLAGS := $(foreach group,$(UV_GROUPS),--group $(group))
 UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --python "$(PYTHON)" $(UV_SYNC_FLAGS)
+ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN := PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
 ROOT_TARGET_POST_quality = @$(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency
@@ -28,7 +20,7 @@ ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 -include .env
 export
 
-export PYTHONPATH := $(CURDIR)/packages/bijux-proteomics-dev/src$(if $(PYTHONPATH),:$(PYTHONPATH))
+include $(ROOT_MAKEFILE_DIR)/bijux-py/repository-root.mk
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root-package-dispatch.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root-docs.mk
@@ -39,41 +31,6 @@ include $(ROOT_MAKEFILE_DIR)/bijux-py/shared-bijux-py.mk
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
 	quality-docs-links quality-docs-consistency security-dependency-allowlist \
 	clean-root-artifacts root-check-env check-shared-bijux-py
-
-ROOT_FORBIDDEN_ARTIFACTS ?= \
-	"$(CURDIR)/.hypothesis" \
-	"$(CURDIR)/.pytest_cache" \
-	"$(CURDIR)/.ruff_cache" \
-	"$(CURDIR)/.mypy_cache" \
-	"$(CURDIR)/.coverage" \
-	"$(CURDIR)/.coverage."* \
-	"$(CURDIR)/.benchmarks" \
-	"$(CURDIR)/htmlcov" \
-	"$(CURDIR)/configs/.pytest_cache" \
-	"$(CURDIR)/configs/.ruff_cache" \
-	"$(CURDIR)/configs/.mypy_cache" \
-	"$(CURDIR)/configs/.hypothesis"
-
-$(ROOT_CHECK_STAMP): pyproject.toml uv.lock
-	@mkdir -p "$(ROOT_ARTIFACTS_DIR)"
-	@rm -rf "$(ROOT_CHECK_VENV)"
-	@echo "→ Syncing uv groups: $(UV_GROUPS)"
-	@$(UV_SYNC)
-	@touch "$(ROOT_CHECK_STAMP)"
-
-list:
-	@printf "%s\n" $(PRIMARY_PACKAGES)
-
-list-all:
-	@printf "%s\n" $(ALL_PACKAGES)
-
-ROOT_INSTALL_PREREQS := root-check-env
-ROOT_CHECK_ENV_PREREQS := pyproject.toml uv.lock $(ROOT_CHECK_STAMP)
-ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND := @rm -rf $(ROOT_FORBIDDEN_ARTIFACTS) || true
-ROOT_ALL_TARGETS := test lint quality security docs api build sbom
-ROOT_DEFINE_CLEAN := 0
-
-include $(ROOT_MAKEFILE_DIR)/bijux-py/root-lifecycle.mk
 
 ensure-venv: install ## Ensure the shared root environment exists and is synced
 
