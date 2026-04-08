@@ -11,6 +11,11 @@ include $(ROOT_MAKEFILE_DIR)/docs.mk
 include $(ROOT_MAKEFILE_DIR)/api.mk
 include $(ROOT_MAKEFILE_DIR)/architecture.mk
 
+ROOT_INSTALL_COMMAND := @$(SELF_MAKE) ensure-venv
+ROOT_ALL_TARGETS := clean install test lint quality security sbom build docs api
+
+include $(ROOT_MAKEFILE_DIR)/bijux-py/root-lifecycle.mk
+
 .PHONY: \
 	install ensure-venv nlenv \
 	clean clean-soft clean-venv \
@@ -26,9 +31,6 @@ ensure-venv: $(VENV) ## Ensure venv exists and deps are installed
 	echo "→ Ensuring dependencies in $(VENV) ..."; \
 	echo "→ Syncing uv groups: $(UV_GROUPS)"; \
 	$(UV_SYNC)
-
-install: ensure-venv ## Sync repository dependencies into the shared uv environment
-	@true
 
 nlenv: ## Print activate command
 	@echo "Run: source $(ACT)/activate"
@@ -48,9 +50,6 @@ clean-venv:
 	@$(RM) "$(VENV)"
 
 clean: clean-soft clean-venv ## Remove the uv environment and generated artifacts
-
-all: clean install test lint quality security sbom build docs api ## Full repository pipeline
-	@echo "✔ All targets completed"
 
 manage_examples:
 	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_examples

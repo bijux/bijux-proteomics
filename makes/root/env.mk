@@ -1,16 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-.DELETE_ON_ERROR:
-.DEFAULT_GOAL := all
-.SHELLFLAGS := -eu -o pipefail -c
-SHELL := bash
-
-PYTHON ?= python3.11
-UV ?= uv
-RM ?= rm -rf
-
-.NOTPARALLEL: all clean
+include $(ROOT_MAKEFILE_DIR)/bijux-py/root-env.mk
 
 VENV ?= .venv
 VENV_PYTHON ?= $(if $(shell test -x "$(VENV)/bin/python" && echo yes),$(VENV)/bin/python,python3)
@@ -26,7 +17,6 @@ PROJECT_DIR ?= $(CURDIR)
 PROJECT_SLUG ?= bijux-proteomics
 PROJECT_ARTIFACTS_DIR ?= artifacts
 MKDOCS_CFG ?= $(PROJECT_DIR)/mkdocs.yml
-SELF_MAKE ?= $(MAKE)
 
 -include .env
 export
