@@ -1,61 +1,109 @@
 ROOT_MAKEFILE_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
+include $(ROOT_MAKEFILE_DIR)/env.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root-env.mk
+include $(ROOT_MAKEFILE_DIR)/packages.mk
 
-PROJECT_DIR ?= $(CURDIR)
-PROJECT_SLUG ?= bijux-proteomics
-PROJECT_ARTIFACTS_DIR ?= artifacts
-CONFIG_DIR ?= configs
-VENV ?= $(ROOT_VENV)
-VENV_PYTHON ?= $(if $(shell test -x "$(VENV)/bin/python" && echo yes),$(VENV)/bin/python,python3)
-ACT ?= $(if $(wildcard $(VENV)/bin/activate),$(VENV)/bin,)
-DEV_PYTHONPATH ?= packages/bijux-proteomics-dev/src
-DEV_RUN ?= PYTHONPATH="$(DEV_PYTHONPATH)$${PYTHONPATH:+:$$PYTHONPATH}" "$(VENV_PYTHON)"
+.DEFAULT_GOAL := help
+
+ROOT_CHECK_VENV := $(CURDIR)/artifacts/.venv
+ROOT_CHECK_PYTHON := $(ROOT_CHECK_VENV)/bin/python
+ROOT_CHECK_STAMP := $(ROOT_ARTIFACTS_DIR)/.check-tools.stamp
+ROOT_DOCS_ARTIFACTS_DIR := $(ROOT_ARTIFACTS_DIR)/docs
+ROOT_DOCS_BUILD_SITE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/build-site
+ROOT_DOCS_CHECK_SITE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/check-site
+ROOT_DOCS_SERVE_SITE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/serve-site
+ROOT_DOCS_CACHE_DIR := $(ROOT_DOCS_ARTIFACTS_DIR)/cache
+ROOT_DOCS_SERVE_CFG := $(ROOT_ARTIFACTS_DIR)/mkdocs.serve.yml
+ROOT_DOCS_DEV_ADDR ?= 127.0.0.1:8001
 COMMA := ,
 UV_GROUPS ?= $(if $(strip $(EXTRAS)),$(subst $(COMMA), ,$(EXTRAS)),dev)
 UV_SYNC_FLAGS := $(foreach group,$(UV_GROUPS),--group $(group))
-UV_SYNC ?= UV_PROJECT_ENVIRONMENT=$(VENV) $(UV) sync --frozen --python $(PYTHON) $(UV_SYNC_FLAGS)
-MKDOCS_CFG ?= $(PROJECT_DIR)/mkdocs.yml
+UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --python "$(PYTHON)" $(UV_SYNC_FLAGS)
+DEV_RUN := PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
+DOCS_RENDER_SERVE_CONFIG := 0
+ROOT_TARGET_POST_quality = @$(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency
+ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 
 -include .env
 export
 
-include $(ROOT_MAKEFILE_DIR)/gates.mk
+export PYTHONPATH := $(CURDIR)/packages/bijux-proteomics-dev/src$(if $(PYTHONPATH),:$(PYTHONPATH))
+
+include $(ROOT_MAKEFILE_DIR)/bijux-py/root-package-dispatch.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/root-docs.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-py/shared-bijux-py.mk
 
-ROOT_INSTALL_COMMAND := @$(SELF_MAKE) ensure-venv
-ROOT_ALL_TARGETS := clean install test lint quality security sbom build docs api
-ROOT_CLEAN_COMMAND := @rm -rf "$(PROJECT_ARTIFACTS_DIR)" && \
-	find . -name ".DS_Store" -delete && \
-	find . -type d -name "__pycache__" -prune -exec rm -rf {} + && \
-	find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete && \
-	find . -type d -name "*.egg-info" -prune -exec rm -rf {} +
+.PHONY: \
+	help list list-all install lock lock-check lint quality security test docs docs-check docs-serve api build sbom clean all \
+	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
+	quality-docs-links quality-docs-consistency security-dependency-allowlist \
+	clean-root-artifacts root-check-env check-shared-bijux-py
+
+ROOT_FORBIDDEN_ARTIFACTS ?= \
+	"$(CURDIR)/.hypothesis" \
+	"$(CURDIR)/.pytest_cache" \
+	"$(CURDIR)/.ruff_cache" \
+	"$(CURDIR)/.mypy_cache" \
+	"$(CURDIR)/.coverage" \
+	"$(CURDIR)/.coverage."* \
+	"$(CURDIR)/.benchmarks" \
+	"$(CURDIR)/htmlcov" \
+	"$(CURDIR)/configs/.pytest_cache" \
+	"$(CURDIR)/configs/.ruff_cache" \
+	"$(CURDIR)/configs/.mypy_cache" \
+	"$(CURDIR)/configs/.hypothesis"
+
+$(ROOT_CHECK_STAMP): pyproject.toml uv.lock
+	@mkdir -p "$(ROOT_ARTIFACTS_DIR)"
+	@rm -rf "$(ROOT_CHECK_VENV)"
+	@echo "→ Syncing uv groups: $(UV_GROUPS)"
+	@$(UV_SYNC)
+	@touch "$(ROOT_CHECK_STAMP)"
+
+list:
+	@printf "%s\n" $(PRIMARY_PACKAGES)
+
+list-all:
+	@printf "%s\n" $(ALL_PACKAGES)
+
+ROOT_INSTALL_PREREQS := root-check-env
+ROOT_CHECK_ENV_PREREQS := pyproject.toml uv.lock $(ROOT_CHECK_STAMP)
+ROOT_CLEAN_ROOT_ARTIFACTS_COMMAND := @rm -rf $(ROOT_FORBIDDEN_ARTIFACTS) || true
+ROOT_ALL_TARGETS := test lint quality security docs api build sbom
+ROOT_DEFINE_CLEAN := 0
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root-lifecycle.mk
 
-.PHONY: \
-	install ensure-venv nlenv \
-	manage_examples manage_models \
-	all help
-
-$(VENV):
-	@echo "→ Creating virtualenv at '$(VENV)' with '$$(which $(PYTHON))' ..."
-	@$(UV) venv --python "$(PYTHON)" "$(VENV)"
-
-ensure-venv: $(VENV) ## Ensure venv exists and deps are installed
-	@set -e; \
-	echo "→ Ensuring dependencies in $(VENV) ..."; \
-	echo "→ Syncing uv groups: $(UV_GROUPS)"; \
-	$(UV_SYNC)
+ensure-venv: install ## Ensure the shared root environment exists and is synced
 
 nlenv: ## Print activate command
-	@echo "Run: source $(ACT)/activate"
+	@echo "Run: source $(ROOT_CHECK_VENV)/bin/activate"
+
+quality-docs-links: root-check-env ## Refresh docs link validation evidence
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.markdown_links
+
+quality-docs-consistency: root-check-env ## Refresh docs consistency evidence
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.consistency
+
+security-dependency-allowlist: root-check-env ## Validate the dependency allowlist
+	@$(DEV_RUN) -m bijux_proteomics_dev.security.dependency_allowlist
+
+api-freeze: root-check-env ## Enforce API schema freeze contracts
+	@$(DEV_RUN) -m bijux_proteomics_dev.api.freeze_contracts
+
+openapi-drift: root-check-env ## Detect breaking API schema changes without version bumps
+	@$(DEV_RUN) -m bijux_proteomics_dev.api.openapi_drift
+
+architecture-check: root-check-env ## Run architecture documentation and design-debt guards
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.architecture_docs
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.design_debt
 
 ##@ Repository
-manage_examples: ## Refresh example assets through the repository helper
+manage_examples: root-check-env ## Refresh example assets through the repository helper
 	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_examples
 
-manage_models: ## Refresh model metadata through the repository helper
+manage_models: root-check-env ## Refresh model metadata through the repository helper
 	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_models
 
 HELP_WIDTH := 22
