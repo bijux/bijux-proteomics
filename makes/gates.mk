@@ -110,6 +110,8 @@ include $(ROOT_MAKEFILE_DIR)/bijux-py/docs.mk
 
 API_MODE ?= freeze
 API_REPO_DIR := $(ROOT_MAKEFILE_DIR)/api
+API_FREEZE_COMMAND ?= $(DEV_RUN) -m bijux_proteomics_dev.api.freeze_contracts
+API_OPENAPI_DRIFT_COMMAND ?= $(DEV_RUN) -m bijux_proteomics_dev.api.openapi_drift
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/api.mk
 
