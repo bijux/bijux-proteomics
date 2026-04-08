@@ -136,8 +136,8 @@ models/
 examples
 examples/
 
-artifacts
-artifacts/
+artifacts/*
+!artifacts/.gitkeep
 
 .venv-esm/
 .venv-esm
