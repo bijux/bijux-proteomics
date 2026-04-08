@@ -1,24 +1,20 @@
-# Docs Configuration
+PROJECT_ARTIFACTS_DIR ?= artifacts
 DOCS_PYTHON ?= $(if $(wildcard $(VENV_PYTHON)),$(abspath $(VENV_PYTHON)),$(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),$(shell command -v python3 || command -v python)))
-
-.PHONY: docs docs-serve docs-deploy docs-clean
-
-docs:
-	@$(DOCS_PYTHON) -m mkdocs build --strict
-
+DOCS_SITE_DIR ?= $(PROJECT_ARTIFACTS_DIR)/root/docs/site
+DOCS_BUILD_SITE_DIR ?= $(DOCS_SITE_DIR)
+DOCS_CHECK_SITE_DIR ?= $(DOCS_SITE_DIR)
+DOCS_SERVE_SITE_DIR ?= $(DOCS_SITE_DIR)
+DOCS_CACHE_DIR ?= $(PROJECT_ARTIFACTS_DIR)/root/docs/.cache
+DOCS_BUILD_CONFIG_FILE ?= $(MKDOCS_CFG)
+DOCS_CHECK_CONFIG_FILE ?= $(MKDOCS_CFG)
+DOCS_SERVE_CONFIG_FILE ?= $(MKDOCS_CFG)
+DOCS_BUILD_PREPARE_TARGETS :=
+DOCS_CHECK_PREPARE_TARGETS :=
+DOCS_SERVE_PREPARE_TARGETS :=
+DOCS_BUILD_PRE_CLEAN_PATHS ?= site .cache
+DOCS_CHECK_PRE_CLEAN_PATHS ?= site .cache
+DOCS_EXTRA_CLEAN_PATHS ?= site .cache
 DOCS_ADDR ?= 127.0.0.1:8001
+DOCS_DEV_ADDR ?= $(DOCS_ADDR)
 
-docs-serve:
-	@$(DOCS_PYTHON) -m mkdocs serve -a $(DOCS_ADDR)
-
-docs-deploy:
-	@$(DOCS_PYTHON) -m mkdocs gh-deploy --force
-
-docs-clean:
-	@rm -rf site
-
-##@ Docs
-docs: ## Build MkDocs site locally (strict)
-docs-serve: ## Serve MkDocs site locally (DOCS_ADDR=127.0.0.1:8001)
-docs-deploy: ## Deploy MkDocs site to gh-pages
-docs-clean: ## Remove MkDocs output directory
+include $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/bijux-py/docs.mk

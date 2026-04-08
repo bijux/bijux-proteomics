@@ -22,6 +22,11 @@ COMMA := ,
 UV_GROUPS ?= $(if $(strip $(EXTRAS)),$(subst $(COMMA), ,$(EXTRAS)),dev)
 UV_SYNC_FLAGS := $(foreach group,$(UV_GROUPS),--group $(group))
 UV_SYNC ?= UV_PROJECT_ENVIRONMENT=$(VENV) $(UV) sync --frozen --python $(PYTHON) $(UV_SYNC_FLAGS)
+PROJECT_DIR ?= $(CURDIR)
+PROJECT_SLUG ?= bijux-proteomics
+PROJECT_ARTIFACTS_DIR ?= artifacts
+MKDOCS_CFG ?= $(PROJECT_DIR)/mkdocs.yml
+SELF_MAKE ?= $(MAKE)
 
 -include .env
 export
