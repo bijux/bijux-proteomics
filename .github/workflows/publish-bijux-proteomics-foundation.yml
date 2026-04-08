@@ -14,9 +14,7 @@ jobs:
     uses: ./.github/workflows/build-release-artifacts.yml
     with:
       package_slug: bijux-proteomics-foundation
-      cache_dependency_path: |
-        pyproject.toml
-        packages/bijux-proteomics-foundation/pyproject.toml
+      cache_dependency_path: uv.lock
       build_targets: "build-bijux-proteomics-foundation"
       package_dir: "packages/bijux-proteomics-foundation"
       dist_subdir: "build/bijux-proteomics-foundation"

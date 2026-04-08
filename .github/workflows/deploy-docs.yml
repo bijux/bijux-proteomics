@@ -43,6 +43,12 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v8
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

@@ -14,9 +14,7 @@ jobs:
     uses: ./.github/workflows/build-release-artifacts.yml
     with:
       package_slug: bijux-proteomics-intelligence
-      cache_dependency_path: |
-        pyproject.toml
-        packages/bijux-proteomics-intelligence/pyproject.toml
+      cache_dependency_path: uv.lock
       build_targets: "build-bijux-proteomics-intelligence"
       package_dir: "packages/bijux-proteomics-intelligence"
       dist_subdir: "build/bijux-proteomics-intelligence"

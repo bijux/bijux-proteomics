@@ -14,9 +14,7 @@ jobs:
     uses: ./.github/workflows/build-release-artifacts.yml
     with:
       package_slug: agentic-proteins
-      cache_dependency_path: |
-        pyproject.toml
-        packages/agentic-proteins/pyproject.toml
+      cache_dependency_path: uv.lock
       build_targets: "build-agentic-proteins sbom"
       package_dir: "packages/agentic-proteins"
       dist_subdir: "build/agentic-proteins"

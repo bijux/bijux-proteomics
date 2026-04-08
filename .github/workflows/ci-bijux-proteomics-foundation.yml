@@ -30,8 +30,7 @@ jobs:
     uses: ./.github/workflows/ci-package.yml
     with:
       package_slug: bijux-proteomics-foundation
-      cache_dependency_path: |
-        pyproject.toml
+      cache_dependency_path: uv.lock
       test_paths: packages/bijux-proteomics-foundation/tests
       lint_dirs: packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation
       quality_paths: packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation

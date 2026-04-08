@@ -30,8 +30,7 @@ jobs:
     uses: ./.github/workflows/ci-package.yml
     with:
       package_slug: bijux-proteomics-lab
-      cache_dependency_path: |
-        pyproject.toml
+      cache_dependency_path: uv.lock
       test_paths: packages/bijux-proteomics-lab/tests
       lint_dirs: packages/bijux-proteomics-lab/src/bijux_proteomics_lab
       quality_paths: packages/bijux-proteomics-lab/src/bijux_proteomics_lab

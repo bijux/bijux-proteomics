@@ -32,8 +32,7 @@ jobs:
     uses: ./.github/workflows/ci-package.yml
     with:
       package_slug: agentic-proteins
-      cache_dependency_path: |
-        pyproject.toml
+      cache_dependency_path: uv.lock
       test_paths: packages/agentic-proteins/tests
       lint_dirs: packages/agentic-proteins/src/agentic_proteins
       quality_paths: packages/agentic-proteins/src/agentic_proteins
