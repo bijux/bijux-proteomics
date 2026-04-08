@@ -13,12 +13,16 @@ include $(ROOT_MAKEFILE_DIR)/architecture.mk
 
 ROOT_INSTALL_COMMAND := @$(SELF_MAKE) ensure-venv
 ROOT_ALL_TARGETS := clean install test lint quality security sbom build docs api
+ROOT_CLEAN_COMMAND := @rm -rf "$(PROJECT_ARTIFACTS_DIR)" && \
+	find . -name ".DS_Store" -delete && \
+	find . -type d -name "__pycache__" -prune -exec rm -rf {} + && \
+	find . -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete && \
+	find . -type d -name "*.egg-info" -prune -exec rm -rf {} +
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root-lifecycle.mk
 
 .PHONY: \
 	install ensure-venv nlenv \
-	clean clean-soft clean-venv \
 	manage_examples manage_models \
 	all help
 
@@ -34,22 +38,6 @@ ensure-venv: $(VENV) ## Ensure venv exists and deps are installed
 
 nlenv: ## Print activate command
 	@echo "Run: source $(ACT)/activate"
-
-clean-soft: ## Remove build artifacts but keep venv
-	@echo "→ Cleaning (no .venv removal) ..."
-	@$(RM) \
-	  .pytest_cache htmlcov coverage.xml dist build *.egg-info .tox demo .tmp_home \
-	  .ruff_cache .mypy_cache .pytype .hypothesis .coverage.* .coverage .benchmarks \
-	  artifacts .cache || true
-	@if [ "$(OS)" != "Windows_NT" ]; then \
-	  find . -type d -name '__pycache__' -exec $(RM) {} +; \
-	fi
-
-clean-venv:
-	@echo "→ Cleaning ($(VENV)) ..."
-	@$(RM) "$(VENV)"
-
-clean: clean-soft clean-venv ## Remove the uv environment and generated artifacts
 
 manage_examples:
 	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_examples
