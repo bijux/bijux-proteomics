@@ -25,13 +25,13 @@ TEST_REAL_LOCAL_ARGS      ?= -m "real_local" -s -p no:cov
 TEST_CI_TARGETS           ?= test-unit
 TEST_RESET_PYCACHE        ?= 0
 TEST_SYNTAX_PATHS         ?=
-TEST_PYCACHE_PREFIX       ?=
+TEST_PYCACHE_PREFIX       ?= $(TEST_ARTIFACTS_DIR)/pycache
 TEST_COVERAGE_TARGETS     ?=
 TEST_COVERAGE_FAIL_UNDER  ?= 90
 TEST_SOURCE_PATH          ?= src
 TEST_SOURCE_PATHS         ?= $(TEST_SOURCE_PATH)
 TEST_COVERAGE_SOURCE      ?= $(TEST_SOURCE_PATHS)
-TEST_CLEAN_PATHS          ?= .hypothesis .benchmarks
+TEST_CLEAN_PATHS          ?=
 
 TEST_PYTHON               ?= $(if $(wildcard $(VENV_PYTHON)),$(abspath $(VENV_PYTHON)),$(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),$(PYTHON)))
 PYTEST                    ?= $(TEST_PYTHON) -m pytest
@@ -88,7 +88,7 @@ test:
 	@if [ "$(TEST_RESET_PYCACHE)" = "1" ]; then find . -type d -name '__pycache__' -exec rm -rf {} + >/dev/null 2>&1 || true; fi
 	@rm -rf "$(TMP_DIR_ABS)"
 	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
-	@rm -rf $(TEST_CLEAN_PATHS) || true
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
 	@echo "   • JUnit XML → $(JUNIT_XML_ABS)"
 	@echo "   • Hypothesis DB → $(HYPOTHESIS_DB_ABS)"
 	@echo "   • Using pytest → $(PYTEST)"
@@ -106,8 +106,7 @@ test:
 	  HYPOTHESIS_DATABASE_DIRECTORY="$(HYPOTHESIS_DB_ABS)" \
 	  $(TEST_PYCACHE_ENV) \
 	  sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" $(TEST_PATH_ARGS) $(TEST_MAIN_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" )
-	@rm -rf $(TEST_CLEAN_PATHS) || true
-	@rm -rf .pytest_cache || true
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
 
 test-unit:
 	@echo "→ Running unit tests only"
@@ -116,7 +115,7 @@ test-unit:
 	@echo "pytest cmd: $(PYTEST) -c '$(PYTEST_INI_ABS)' …"
 	@rm -rf "$(TMP_DIR_ABS)"
 	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
-	@rm -rf $(TEST_CLEAN_PATHS) || true
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
 	@echo "   • JUnit XML → $(JUNIT_XML_ABS)"
 	@echo "   • Hypothesis DB → $(HYPOTHESIS_DB_ABS)"
 	@echo "   • Using pytest → $(PYTEST)"
@@ -146,8 +145,7 @@ test-unit:
 	    $(TEST_PYCACHE_ENV) \
 	    sh -c '$(PYTEST) -c "$(PYTEST_INI_ABS)" $(TEST_PATH_ARGS) $(TEST_UNIT_FALLBACK_ARGS) $(PYTEST_FLAGS) '"$$BENCH_FLAGS" ); \
 	fi
-	@rm -rf $(TEST_CLEAN_PATHS) || true
-	@rm -rf .pytest_cache || true
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
 
 test-e2e:
 	@echo "→ Running end-to-end tests only"
@@ -155,7 +153,7 @@ test-e2e:
 	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
 	@rm -rf "$(TMP_DIR_ABS)"
 	@mkdir -p "$(TEST_ARTIFACTS_DIR)" "$(HYPOTHESIS_DB_DIR)" "$(BENCHMARK_DIR)" "$(TMP_DIR)" "$(COV_HTML_ABS)"
-	@rm -rf $(TEST_CLEAN_PATHS) || true
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
 	@if [ -n "$(TEST_PATHS_E2E)" ] && [ -d "$(TEST_PATHS_E2E)" ] && find "$(TEST_PATHS_E2E)" -type f -name 'test_*.py' | grep -q .; then \
 	  ( cd "$(TEST_ARTIFACTS_DIR)" && \
 	    PYTHONPATH="$(TEST_SOURCE_PATH_ABS)$${PYTHONPATH:+:$${PYTHONPATH}}" \
@@ -167,8 +165,7 @@ test-e2e:
 	else \
 	  echo "   • no $(TEST_PATHS_E2E); skipping"; \
 	fi
-	@rm -rf $(TEST_CLEAN_PATHS) || true
-	@rm -rf .pytest_cache || true
+	$(call clean_paths,$(TEST_CLEAN_PATHS))
 
 test-regression:
 	@echo "→ Running regression tests only"
@@ -189,7 +186,6 @@ test-regression:
 	  echo "   • no $(TEST_PATHS_REGRESSION); skipping"; \
 	fi
 	@rm -rf $(TEST_CLEAN_PATHS) || true
-	@rm -rf .pytest_cache || true
 
 test-evaluation:
 	@echo "→ Running evaluation tests only"
@@ -210,7 +206,6 @@ test-evaluation:
 	  echo "   • no $(TEST_PATHS_EVALUATION); skipping"; \
 	fi
 	@rm -rf $(TEST_CLEAN_PATHS) || true
-	@rm -rf .pytest_cache || true
 
 test-ci: $(TEST_CI_TARGETS)
 	@echo "✔ CI test categories completed"
@@ -255,7 +250,6 @@ real-local:
 	$(call run_make_targets,$(TEST_PRE_TARGETS),$(TEST_SELF_MAKE))
 	@$(PYTEST) $(PYTEST_INFO_FLAGS) --version
 	@$(PYTEST) -c "$(PYTEST_INI_ABS)" -o addopts= "$(TEST_REAL_LOCAL_ABS)" $(TEST_REAL_LOCAL_ARGS)
-	@rm -rf .pytest_cache || true
 
 ##@ Test
 test:            ## Run the full test suite with artifacts under $(PROJECT_ARTIFACTS_DIR)/test
