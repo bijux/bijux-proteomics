@@ -1,6 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2026 Bijan Mousavi
-
 PRANCE ?= $(if $(ACT),$(ACT)/prance,prance)
 OPENAPI_SPEC_VALIDATOR ?= $(if $(ACT),$(ACT)/openapi-spec-validator,openapi-spec-validator)
 ALL_API_SCHEMAS := $(shell find apis -type f -name "schema.yaml" 2>/dev/null)

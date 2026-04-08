@@ -1,6 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2026 Bijan Mousavi
-
 TEST_PATHS                ?= packages/agentic-proteins/tests packages/bijux-proteomics-dev/tests packages/bijux-proteomics-foundation/tests packages/bijux-proteomics-core/tests packages/bijux-proteomics-intelligence/tests packages/bijux-proteomics-knowledge/tests packages/bijux-proteomics-lab/tests
 TEST_PATHS_UNIT           ?= packages/agentic-proteins/tests/unit
 TEST_PATHS_E2E            ?= packages/agentic-proteins/tests/e2e

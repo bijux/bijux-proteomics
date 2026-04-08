@@ -1,6 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2026 Bijan Mousavi
-
 .PHONY: api api-install api-lint api-test api-clean openapi-drift
 
 api:
