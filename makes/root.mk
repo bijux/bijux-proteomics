@@ -21,7 +21,7 @@ MKDOCS_CFG ?= $(PROJECT_DIR)/mkdocs.yml
 export
 
 include $(ROOT_MAKEFILE_DIR)/gates.mk
-include $(ROOT_MAKEFILE_DIR)/bijux-py/standard.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/shared-bijux-py.mk
 
 ROOT_INSTALL_COMMAND := @$(SELF_MAKE) ensure-venv
 ROOT_ALL_TARGETS := clean install test lint quality security sbom build docs api
@@ -62,3 +62,4 @@ HELP_WIDTH := 22
 include $(ROOT_MAKEFILE_DIR)/bijux-py/help.mk
 
 help: ## Show generated repository commands from included make modules
+check-shared-bijux-py: ## Verify shared bijux-py make modules match across sibling repositories
