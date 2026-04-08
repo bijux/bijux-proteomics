@@ -20,15 +20,7 @@ MKDOCS_CFG ?= $(PROJECT_DIR)/mkdocs.yml
 -include .env
 export
 
-include $(ROOT_MAKEFILE_DIR)/test.mk
-include $(ROOT_MAKEFILE_DIR)/lint.mk
-include $(ROOT_MAKEFILE_DIR)/quality.mk
-include $(ROOT_MAKEFILE_DIR)/security.mk
-include $(ROOT_MAKEFILE_DIR)/build.mk
-include $(ROOT_MAKEFILE_DIR)/sbom.mk
-include $(ROOT_MAKEFILE_DIR)/docs.mk
-include $(ROOT_MAKEFILE_DIR)/api.mk
-include $(ROOT_MAKEFILE_DIR)/architecture.mk
+include $(ROOT_MAKEFILE_DIR)/gates.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-py/standard.mk
 
 ROOT_INSTALL_COMMAND := @$(SELF_MAKE) ensure-venv
