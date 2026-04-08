@@ -19,18 +19,15 @@ include $(ROOT_MAKEFILE_DIR)/architecture.mk
 
 $(VENV):
 	@echo "→ Creating virtualenv at '$(VENV)' with '$$(which $(PYTHON))' ..."
-	@$(PYTHON) -m venv "$(VENV)"
+	@$(UV) venv --python "$(PYTHON)" "$(VENV)"
 
 ensure-venv: $(VENV) ## Ensure venv exists and deps are installed
 	@set -e; \
 	echo "→ Ensuring dependencies in $(VENV) ..."; \
-	"$(VENV_PYTHON)" -m pip install --upgrade pip "setuptools$(SETUPTOOLS_VERSION)" wheel; \
-	EXTRAS="$${EXTRAS:-dev,local-esmfold}"; \
-	if [ -n "$$EXTRAS" ]; then SPEC=".[$$EXTRAS]"; else SPEC="."; fi; \
-	echo "→ Installing: $$SPEC"; \
-	"$(VENV_PYTHON)" -m pip install -e "$$SPEC"
+	echo "→ Syncing uv groups: $(UV_GROUPS)"; \
+	$(UV_SYNC)
 
-install: ensure-venv ## Install project into .venv (dev+nl+local-esmfold)
+install: ensure-venv ## Sync repository dependencies into the shared uv environment
 	@true
 
 nlenv: ## Print activate command
@@ -50,9 +47,9 @@ clean-venv:
 	@echo "→ Cleaning ($(VENV)) ..."
 	@$(RM) "$(VENV)"
 
-clean: clean-soft clean-venv ## Remove venv + artifacts
+clean: clean-soft clean-venv ## Remove the uv environment and generated artifacts
 
-all: clean install test lint quality security sbom build docs api ## Full pipeline
+all: clean install test lint quality security sbom build docs api ## Full repository pipeline
 	@echo "✔ All targets completed"
 
 manage_examples:

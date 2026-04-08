@@ -1,13 +1,18 @@
-[build-system]
-requires = [
-  "hatchling>=1.27.0,<1.28",
-  "hatch-fancy-pypi-readme>=24.2,<26.0",
-  "hatch-vcs>=0.4.0,<1.0"
-]
-build-backend = "hatchling.build"
+[project]
+name = "bijux-proteomics-repository"
+version = "0.1.0"
+description = "Repository workspace for bijux-proteomics."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
 
-[tool.bijux_proteomics]
-packages = [
+[project.urls]
+Documentation = "https://bijux.io/bijux-proteomics/"
+Repository = "https://github.com/bijux/bijux-proteomics"
+Issues = "https://github.com/bijux/bijux-proteomics/issues"
+
+[dependency-groups]
+dev = [
   "agentic-proteins",
   "bijux-proteomics-dev",
   "bijux-proteomics-foundation",
@@ -15,64 +20,46 @@ packages = [
   "bijux-proteomics-intelligence",
   "bijux-proteomics-knowledge",
   "bijux-proteomics-lab",
+  "types-PyYAML>=6.0.12,<7.0",
+  "PyYAML>=6.0,<7.0",
+  "types-orjson>=3.6.0,<4.0",
+  "types-colorama>=0.0.14,<1.0",
+  "types-psutil>=6.0.0,<7.0",
+  "typing-extensions>=4.5.0,<5.0",
+  "types-pexpect>=4.9.0,<5.0",
+  "pytest>=8.4.1,<9.0",
+  "pytest-cov>=6.2.1,<7.0",
+  "pytest-asyncio>=1.0.0,<2.0",
+  "pytest-timeout>=2.4.0,<3.0",
+  "pytest-rerunfailures>=13.0,<14.0",
+  "pytest-benchmark>=4.0.0,<5.0",
+  "pytest-mock>=3.14.1,<4.0",
+  "hypothesis>=6.103.0,<7.0",
+  "hypothesis-jsonschema>=0.23.0,<1.0",
+  "pexpect>=4.8.0,<5.0",
+  "pyfakefs>=5.9.0",
+  "httpx>=0.27.0,<1.0",
+  "ruff>=0.6.8,<1.0",
+  "mypy>=1.11.2,<2.0",
+  "pytype>=2024.10.11",
+  "codespell>=2.3.0,<3.0",
+  "pydocstyle>=6.2.1,<7.0",
+  "radon>=6.0.0",
+  "vulture>=2.7,<3.0",
+  "deptry>=0.10.0,<1.0",
+  "build>=1.0.3,<2.0",
+  "bandit>=1.7.10,<2.0",
+  "pip-audit>=2.7.3,<3.0",
+  "interrogate>=1.7.0,<2.0",
+  "mkdocs>=1.6.1,<2.0",
+  "mkdocs-material>=9.5.39,<10.0",
+  "mkdocs-autorefs>=1.1.0,<2.0",
+  "mkdocs-git-revision-date-localized-plugin>=1.4.0,<2.0",
+  "arq>=0.18",
+  "prance>=23.6.21.0",
+  "openapi-spec-validator>=0.7.1",
+  "twine>=6.1.0,<7.0",
 ]
-config_dir = "configs"
-make_dir = "makes"
-
-[project]
-name = "agentic-proteins"
-dynamic = ["version"]
-description = "Deterministic, artifact-first protein design runtime and CLI"
-readme = { file = "packages/agentic-proteins/README.md", content-type = "text/markdown" }
-license = { text = "Apache-2.0" }
-requires-python = ">=3.11"
-authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
-maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
-keywords = ["protein-design", "protein-structure", "esmfold", "rosettafold", "fastapi", "bioinformatics", "computational-biology", "cli", "reproducible-science", "auditability", "laboratory", "pipelines"]
-classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Environment :: Console",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: Developers",
-  "License :: OSI Approved :: Apache Software License",
-  "Operating System :: OS Independent",
-  "Operating System :: MacOS",
-  "Operating System :: POSIX",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Topic :: Scientific/Engineering :: Bio-Informatics",
-  "Topic :: Scientific/Engineering :: Chemistry",
-  "Topic :: Software Development :: Libraries",
-  "Topic :: Utilities",
-]
-dependencies = [
-  "requests>=2.31",
-  "biopython>=1.83",
-  "numpy>=1.26,<2.0",
-  "click>=8.1",
-  "fastapi>=0.115",
-  "uvicorn>=0.30",
-  "pydantic>=2.0.2",
-  "loguru>=0.7",
-  "slowapi>=0.1",
-  "boto3>=1.34",
-]
-
-[project.urls]
-Homepage = "https://bijux.io/bijux-proteomics/"
-Website = "https://bijux.io/"
-Documentation = "https://bijux.io/bijux-proteomics/"
-Repository = "https://github.com/bijux/bijux-proteomics"
-Issues = "https://github.com/bijux/bijux-proteomics/issues"
-Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/CHANGELOG.md"
-Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
-
-[project.optional-dependencies]
 local-esmfold = [
   "transformers>=4.53.2",
   "tokenizers>=0.14",
@@ -88,82 +75,35 @@ nl = [
   "langchain-huggingface>=0.3.1",
 ]
 api = [
-    "openprotein-python>=0.8.8"
-]
-dev = [
-  "types-PyYAML>=6.0.12,<7.0",
-  "PyYAML>=6.0,<7.0",
-  "types-orjson>=3.6.0,<4.0",
-  "types-colorama>=0.0.14,<1.0",
-  "types-psutil>=6.0.0,<7.0",
-  "typing-extensions>=4.5.0,<5.0",
-  "types-pexpect>=4.9.0,<5.0",
-
-  "pytest>=8.4.1,<9.0",
-  "pytest-cov>=6.2.1,<7.0",
-  "pytest-asyncio>=1.0.0,<2.0",
-  "pytest-timeout>=2.4.0,<3.0",
-  "pytest-rerunfailures>=13.0,<14.0",
-  "pytest-benchmark>=4.0.0,<5.0",
-  "pytest-mock>=3.14.1,<4.0",
-  "hypothesis>=6.103.0,<7.0",
-  "hypothesis-jsonschema>=0.23.0,<1.0",
-  "pexpect>=4.8.0,<5.0",
-  "pyfakefs>=5.9.0",
-  "httpx>=0.27.0,<1.0",
-
-  "ruff>=0.6.8,<1.0",
-  "mypy>=1.11.2,<2.0",
-  "pytype>=2024.10.11",
-  "codespell>=2.3.0,<3.0",
-  "pydocstyle>=6.2.1,<7.0",
-  "radon>=6.0.0",
-
-  "vulture>=2.7,<3.0",
-  "deptry>=0.10.0,<1.0",
-
-  "build>=1.0.3,<2.0",
-  "bandit>=1.7.10,<2.0",
-  "pip-audit>=2.7.3,<3.0",
-
-  "interrogate>=1.7.0,<2.0",
-
-  "mkdocs>=1.6.1,<2.0",
-  "mkdocs-material>=9.5.39,<10.0",
-  "mkdocs-autorefs>=1.1.0,<2.0",
-  "mkdocs-git-revision-date-localized-plugin>=1.4.0,<2.0",
-
-  "arq[redis]>=0.18",
+  "openprotein-python>=0.8.8",
 ]
 
-
-[tool.hatch.build]
-include = [
-  "README.md",
-  "packages/agentic-proteins/README.md",
-  "packages/agentic-proteins/CHANGELOG.md",
-  "LICENSE",
-  "packages/agentic-proteins/src/agentic_proteins/py.typed",
+[tool.bijux_proteomics]
+packages = [
+  "agentic-proteins",
+  "bijux-proteomics-dev",
+  "bijux-proteomics-foundation",
+  "bijux-proteomics-core",
+  "bijux-proteomics-intelligence",
+  "bijux-proteomics-knowledge",
+  "bijux-proteomics-lab",
 ]
+docs_package = "bijux-proteomics-dev"
+config_dir = "configs"
+make_dir = "makes"
 
-[tool.hatch.version]
-source = "vcs"
+[tool.uv.sources]
+agentic-proteins = { workspace = true }
+bijux-proteomics-dev = { workspace = true }
+bijux-proteomics-foundation = { workspace = true }
+bijux-proteomics-core = { workspace = true }
+bijux-proteomics-intelligence = { workspace = true }
+bijux-proteomics-knowledge = { workspace = true }
+bijux-proteomics-lab = { workspace = true }
 
-[tool.hatch.build.targets.wheel]
-packages = ["packages/agentic-proteins/src/agentic_proteins"]
-zip-safe = false
+[tool.uv.workspace]
+members = ["packages/*"]
 
-[tool.hatch.build.targets.wheel.package-data]
-"agentic_proteins" = ["py.typed"]
-
-[tool.hatch.metadata.hooks.fancy-pypi-readme]
-content-type = "text/markdown"
-fragments = [
-  { path = "README.md" },
-  { path = "packages/agentic-proteins/CHANGELOG.md" },
-]
-
-# --8<-- [start:deptry]
 [tool.deptry]
 optional_dependencies_dev_groups = ["dev"]
 ignore = ["DEP002", "DEP003"]
@@ -184,21 +124,14 @@ known_first_party = [
 "openprotein-python" = ["openprotein"]
 "mkdocs-autorefs" = ["mkdocs_autorefs"]
 "mkdocs-git-revision-date-localized-plugin" = ["mkdocs_git_revision_date_localized_plugin"]
-# --8<-- [end:deptry]
 
-# --8<-- [start:interrogate]
 [tool.interrogate]
 fail-under = 32
 color = true
-# --8<-- [end:interrogate]
 
-# --8<-- [start:bandit]
 [tool.bandit]
 skips = ["B404", "B311"]
-exclude_dirs = [".venv","tests","artifacts",".pytest_cache",".ruff_cache"]
-# --8<-- [end:bandit]
-[project.scripts]
-agentic-proteins = "agentic_proteins.interfaces.cli:cli"
+exclude_dirs = [".venv", "tests", "artifacts", ".pytest_cache", ".ruff_cache"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

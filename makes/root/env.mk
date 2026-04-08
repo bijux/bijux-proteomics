@@ -7,8 +7,8 @@
 SHELL := bash
 
 PYTHON ?= python3.11
+UV ?= uv
 RM ?= rm -rf
-SETUPTOOLS_VERSION ?= <82
 
 .NOTPARALLEL: all clean
 
@@ -18,6 +18,10 @@ ACT ?= $(if $(wildcard $(VENV)/bin/activate),$(VENV)/bin,)
 CONFIG_DIR ?= configs
 DEV_PYTHONPATH ?= packages/bijux-proteomics-dev/src
 DEV_RUN ?= PYTHONPATH="$(DEV_PYTHONPATH)$${PYTHONPATH:+:$$PYTHONPATH}" "$(VENV_PYTHON)"
+COMMA := ,
+UV_GROUPS ?= $(if $(strip $(EXTRAS)),$(subst $(COMMA), ,$(EXTRAS)),dev)
+UV_SYNC_FLAGS := $(foreach group,$(UV_GROUPS),--group $(group))
+UV_SYNC ?= UV_PROJECT_ENVIRONMENT=$(VENV) $(UV) sync --frozen --python $(PYTHON) $(UV_SYNC_FLAGS)
 
 -include .env
 export

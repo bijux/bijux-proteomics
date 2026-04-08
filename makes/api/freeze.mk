@@ -13,7 +13,8 @@ api: api-install api-lint api-freeze openapi-drift
 
 api-install:
 	@echo "→ Installing API tooling"
-	@"$(VENV_PYTHON)" -m pip install --quiet --upgrade prance openapi-spec-validator
+	@"$(VENV_PYTHON)" -m prance --version >/dev/null
+	@"$(VENV_PYTHON)" -m openapi_spec_validator --help >/dev/null
 
 api-lint:
 	@if [ -z "$(ALL_API_SCHEMAS)" ]; then echo "✘ No OpenAPI schemas found under apis/*/v1/schema.yaml"; exit 1; fi
