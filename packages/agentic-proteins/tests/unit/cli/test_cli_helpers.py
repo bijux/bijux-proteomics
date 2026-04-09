@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, cast
 
 from agentic_proteins.interfaces import cli as cli_module
 from agentic_proteins.interfaces.cli import cli
@@ -50,6 +51,7 @@ def test_build_run_config_limits() -> None:
         execution_mode="auto",
     )
     assert config.predictors_enabled == ["local_esmfold"]
+    assert config.resource_limits is not None
     assert config.resource_limits["gpu_seconds"] == 1.0
     with pytest.raises(ValueError, match="--rounds must be >= 1"):
         cli_module._build_run_config(
@@ -121,7 +123,7 @@ def test_cli_run_json_success(monkeypatch: pytest.MonkeyPatch) -> None:
         lambda *_: {"run_id": "run-1"},
     )
     monkeypatch.setattr(
-        cli_module.RunOutput,
+        cast(Any, cli_module).RunOutput,
         "model_validate",
         lambda *_: SimpleNamespace(run_id="run-1"),
     )
@@ -144,7 +146,7 @@ def test_cli_resume_json_success(monkeypatch: pytest.MonkeyPatch) -> None:
         lambda *_: {"run_id": "run-2"},
     )
     monkeypatch.setattr(
-        cli_module.RunOutput,
+        cast(Any, cli_module).RunOutput,
         "model_validate",
         lambda *_: SimpleNamespace(run_id="run-2"),
     )
@@ -206,7 +208,7 @@ def test_cli_api_serve_uses_uvicorn(monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_create_app(config: object) -> str:
         return "app"
 
-    monkeypatch.setattr(cli_module.uvicorn, "run", fake_run)
+    monkeypatch.setattr(cast(Any, cli_module).uvicorn, "run", fake_run)
     monkeypatch.setattr("agentic_proteins.api.create_app", fake_create_app)
     result = runner.invoke(cli, ["api", "serve", "--port", "9000"])
     assert result.exit_code == 0
@@ -292,10 +294,10 @@ def test_cli_reproduce_success_json(
             return candidate_id
 
     class _Manager:
-        def __init__(self, *_args, **_kwargs) -> None:
+        def __init__(self, *_args: object, **_kwargs: object) -> None:
             return None
 
-        def run_candidate(self, *_args, **_kwargs) -> None:
+        def run_candidate(self, *_args: object, **_kwargs: object) -> None:
             return None
 
     monkeypatch.setattr(cli_module, "CandidateStore", lambda *_: _Store())
@@ -333,10 +335,10 @@ def test_resume_candidate_validation_and_flow(
             return candidate_id
 
     class _Manager:
-        def __init__(self, *_args, **_kwargs) -> None:
+        def __init__(self, *_args: object, **_kwargs: object) -> None:
             return None
 
-        def run_candidate(self, candidate: str) -> dict:
+        def run_candidate(self, candidate: str) -> dict[str, str]:
             return {"run_id": f"run-{candidate}"}
 
     monkeypatch.setattr(cli_module, "CandidateStore", lambda *_: _Store())
