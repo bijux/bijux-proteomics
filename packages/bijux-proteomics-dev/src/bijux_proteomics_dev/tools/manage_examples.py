@@ -116,7 +116,8 @@ def _get(url: str, timeout: float = HTTP_TIMEOUT) -> requests.Response:
                 time.sleep(0.6 * attempt)
             else:
                 raise
-    assert last_err is not None
+    if last_err is None:
+        raise RuntimeError("request retries exhausted without a captured error")
     raise last_err  # just in case
 
 
@@ -244,7 +245,7 @@ def write_chain_subset_structure(
 
 
 def _md5(s: str) -> str:
-    return hashlib.md5(s.encode("utf-8")).hexdigest()
+    return hashlib.md5(s.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
 def parse_target(t: str) -> Tuple[str, Optional[List[str]]]:

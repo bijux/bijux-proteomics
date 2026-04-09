@@ -26,11 +26,13 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+import stat
 import shutil
-import subprocess
 import sys
 import textwrap
 from typing import Callable, Optional
+
+from bijux_proteomics_dev.trusted_process import TrustedCommandError, run_text
 
 # --- Dependency Checks ---
 try:
@@ -75,23 +77,33 @@ def run(cmd: list[str], cwd: Optional[Path] = None) -> str:
     """Runs a command, captures output, and raises an error on failure."""
     log(f" > Running: {' '.join(cmd)}")
     try:
-        proc = subprocess.run(
-            cmd, cwd=cwd, check=True, capture_output=True, text=True, encoding="utf-8"
+        proc = run_text(
+            _resolve_command(cmd),
+            cwd=cwd,
+            check=True,
+            capture_output=True,
         )
         return proc.stdout.strip()
-    except subprocess.CalledProcessError as e:
+    except TrustedCommandError as error:
         error_message = f"""
-Command failed (exit code {e.returncode}): {" ".join(cmd)}
+Command failed (exit code {error.returncode}): {" ".join(cmd)}
 --- STDOUT ---
-{e.stdout}
+{error.stdout}
 --- STDERR ---
-{e.stderr}
+{error.stderr}
 """
-        raise RuntimeError(error_message) from e
+        raise RuntimeError(error_message) from error
     except FileNotFoundError:
         raise RuntimeError(
             f"Command '{cmd[0]}' not found. Is Docker installed and running?"
         ) from None
+
+
+def _resolve_command(cmd: list[str]) -> list[str]:
+    executable = shutil.which(cmd[0])
+    if executable is None:
+        raise FileNotFoundError(cmd[0])
+    return [executable, *cmd[1:]]
 
 
 def find_latest_version(model_root: Path) -> Path:
@@ -281,7 +293,10 @@ def prepare_esmfold(
     (root_dir / "esmfold.Dockerfile").write_text(_ESMFOLD_DOCKERFILE)
     wrapper_path = root_dir / "run_esmfold.py"
     wrapper_path.write_text(_ESMFOLD_WRAPPER)
-    os.chmod(wrapper_path, 0o755)
+    os.chmod(
+        wrapper_path,
+        stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR,
+    )
     log(" - Wrote ESMFold Dockerfile and inference script.")
 
 
