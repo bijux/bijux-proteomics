@@ -1,7 +1,7 @@
 PACKAGE_KIND ?= repository-python
 MYPY_CONFIG ?= $(MONOREPO_ROOT)/configs/mypy.ini
 API_MODE ?= freeze
-ENABLE_MYPY ?= 0
+ENABLE_MYPY ?= 1
 PYDOCSTYLE_ARGS ?= --convention=google --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107
 ENABLE_PYDOCSTYLE ?= 1
 QUALITY_MYPY_CONFIG ?= $(MYPY_CONFIG)
