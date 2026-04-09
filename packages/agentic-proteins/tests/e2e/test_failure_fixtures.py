@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import importlib
 from pathlib import Path
+from typing import Any
 
 from agentic_proteins.core.failures import FailureType
 from agentic_proteins.runtime import RunManager
@@ -12,6 +13,7 @@ from agentic_proteins.runtime.context import RunStatus
 from agentic_proteins.runtime.infra import RunConfig
 from agentic_proteins.tools.base import Tool
 from agentic_proteins.tools.schemas import InvocationInput, ToolError, ToolResult
+import pytest
 
 
 class TimeoutTool(Tool):
@@ -76,14 +78,17 @@ def test_corrupt_output_maps_failure(tmp_path: Path) -> None:
     assert (run_dir / "error.json").exists()
 
 
-def test_invalid_plan_maps_failure(tmp_path: Path, monkeypatch) -> None:
+def test_invalid_plan_maps_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     class _InvalidPlan:
-        tasks: dict = {}
-        dependencies: dict = {}
-        entry_tasks: list = []
-        exit_conditions: list = []
+        tasks: dict[str, Any] = {}
+        dependencies: dict[str, list[str]] = {}
+        entry_tasks: list[str] = []
+        exit_conditions: list[str] = []
 
-        def model_dump(self, mode: str | None = None) -> dict:
+        def model_dump(self, mode: str | None = None) -> dict[str, Any]:
             return {
                 "tasks": {},
                 "dependencies": {},
@@ -95,7 +100,7 @@ def test_invalid_plan_maps_failure(tmp_path: Path, monkeypatch) -> None:
         def __init__(self) -> None:
             self.plan = _InvalidPlan()
 
-    def _bad_plan(_self, _payload):
+    def _bad_plan(_self: object, _payload: object) -> _PlannerOutput:
         return _PlannerOutput()
 
     planner_mod = importlib.import_module("agentic_proteins.agents.planning.planner")
