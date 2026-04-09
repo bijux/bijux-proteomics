@@ -1,8 +1,32 @@
+---
+title: Maintainer Handbook
+audience: mixed
+type: index
+status: canonical
+owner: bijux-proteomics-dev-docs
+last_reviewed: 2026-04-10
+---
+
 # Maintainer Handbook
 
 `bijux-proteomics-maintain` is the handbook root for repository-owned
 maintenance work.
 
-It points readers toward the maintainer package, shared operational guidance,
-and the repository surfaces that keep quality, schema, docs, release, and
-security expectations visible.
+This section exists so repository health stays inspectable. Quality gates,
+schema drift checks, docs integrity checks, release support, and workflow
+contracts should be readable from checked-in docs instead of being rediscovered
+through CI logs and shell glue.
+
+## Sections In This Handbook
+
+- [bijux-proteomics-dev](bijux-proteomics-dev/index.md)
+
+## Purpose
+
+This page gives maintainers a stable starting point for repository-health
+documentation.
+
+## Stability
+
+Keep it aligned with the section roots that actually exist under
+`docs/bijux-proteomics-maintain/`.

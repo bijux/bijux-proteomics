@@ -377,9 +377,14 @@ nav:
           - Risk Register: bijux-proteomics-lab/quality/risk-register.md
   - Maintainer Handbook:
       - Maintainer Handbook: bijux-proteomics-maintain/index.md
-      - Foundation: bijux-proteomics-maintain/foundation.md
-      - Architecture: bijux-proteomics-maintain/architecture.md
-      - Interfaces: bijux-proteomics-maintain/interfaces.md
-      - Operations: bijux-proteomics-maintain/operations.md
-      - Tooling Map: bijux-proteomics-maintain/tooling-map.md
-      - Quality: bijux-proteomics-maintain/quality.md
+      - bijux-proteomics-dev:
+          - bijux-proteomics-dev: bijux-proteomics-maintain/bijux-proteomics-dev/index.md
+          - Package Overview: bijux-proteomics-maintain/bijux-proteomics-dev/package-overview.md
+          - Scope and Non-Goals: bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals.md
+          - Module Map: bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+          - Quality Gates: bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates.md
+          - Security Gates: bijux-proteomics-maintain/bijux-proteomics-dev/security-gates.md
+          - Schema Governance: bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance.md
+          - Release Support: bijux-proteomics-maintain/bijux-proteomics-dev/release-support.md
+          - Documentation Integrity: bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity.md
+          - Operating Guidelines: bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md
