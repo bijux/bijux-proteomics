@@ -24,6 +24,8 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
+  "agentic-proteins>=0.3.1",
+  "huggingface-hub>=0.24,<1.0",
   "packaging>=24.0,<25.0",
   "PyYAML>=6.0,<7.0",
 ]

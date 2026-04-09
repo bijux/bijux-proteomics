@@ -1,8 +1,8 @@
 [tool.deptry]
-optional_dependencies_dev_groups = ["dev"]
+pep621_dev_dependency_groups = ["dev"]
 ignore = ["DEP002", "DEP003"]
 extend_exclude = ["docs", "apis", "artifacts", "site"]
-package_module_name_map = { "agentic-proteins" = "agentic_proteins", "bijux-proteomics-core" = "bijux_proteomics", "bijux-proteomics-dev" = "bijux_proteomics_dev", "bijux-proteomics-foundation" = "bijux_proteomics_foundation", "bijux-proteomics-intelligence" = "bijux_proteomics_intelligence", "bijux-proteomics-knowledge" = "bijux_proteomics_knowledge", "bijux-proteomics-lab" = "bijux_proteomics_lab", "einops" = "einops", "langchain-core" = "langchain_core", "langchain-community" = "langchain_community", "langchain-huggingface" = "langchain_huggingface", "mkdocs-autorefs" = "mkdocs_autorefs", "mkdocs-git-revision-date-localized-plugin" = "mkdocs_git_revision_date_localized_plugin", "openprotein-python" = "openprotein", "pyfakefs" = "pyfakefs", "pytest-mock" = "pytest_mock", "tokenizers" = "tokenizers", "torch" = "torch", "transformers" = "transformers" }
+package_module_name_map = { "agentic-proteins" = "agentic_proteins", "bijux-proteomics-core" = "bijux_proteomics", "bijux-proteomics-dev" = "bijux_proteomics_dev", "bijux-proteomics-foundation" = "bijux_proteomics_foundation", "bijux-proteomics-intelligence" = "bijux_proteomics_intelligence", "bijux-proteomics-knowledge" = "bijux_proteomics_knowledge", "bijux-proteomics-lab" = "bijux_proteomics_lab", "boto3" = "boto3", "einops" = "einops", "huggingface-hub" = "huggingface_hub", "langchain-core" = "langchain_core", "langchain-community" = "langchain_community", "langchain-huggingface" = "langchain_huggingface", "mkdocs-autorefs" = "mkdocs_autorefs", "mkdocs-git-revision-date-localized-plugin" = "mkdocs_git_revision_date_localized_plugin", "openprotein-python" = "openprotein", "pyfakefs" = "pyfakefs", "pytest-mock" = "pytest_mock", "slowapi" = "slowapi", "tokenizers" = "tokenizers", "torch" = "torch", "transformers" = "transformers" }
 
 [tool.repo_deptry.packages."agentic-proteins"]
 known_first_party = ["agentic_proteins"]
@@ -15,6 +15,7 @@ ignore = ["DEP002", "DEP003"]
 [tool.repo_deptry.packages."bijux-proteomics-core"]
 known_first_party = ["bijux_proteomics"]
 ignore = ["DEP002", "DEP003"]
+per_rule_ignores = { DEP001 = ["agentic_proteins"] }
 
 [tool.repo_deptry.packages."bijux-proteomics-intelligence"]
 known_first_party = ["bijux_proteomics_intelligence"]
