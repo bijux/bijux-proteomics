@@ -43,6 +43,15 @@ plugins:
   - redirects:
       redirect_maps:
         bijux-proteomics-dev/index.md: bijux-proteomics-maintain/index.md
+        bijux-proteomics-dev/package-overview.md: bijux-proteomics-maintain/bijux-proteomics-dev/package-overview.md
+        bijux-proteomics-dev/scope-and-non-goals.md: bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals.md
+        bijux-proteomics-dev/module-map.md: bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/operating-guidelines.md: bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md
+        bijux-proteomics-dev/quality-gates.md: bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates.md
+        bijux-proteomics-dev/security-gates.md: bijux-proteomics-maintain/bijux-proteomics-dev/security-gates.md
+        bijux-proteomics-dev/schema-governance.md: bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance.md
+        bijux-proteomics-dev/release-support.md: bijux-proteomics-maintain/bijux-proteomics-dev/release-support.md
+        bijux-proteomics-dev/documentation-integrity.md: bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity.md
         bijux-proteomics-dev/foundation.md: bijux-proteomics-maintain/bijux-proteomics-dev/package-overview.md
         bijux-proteomics-dev/architecture.md: bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
         bijux-proteomics-dev/interfaces.md: bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
