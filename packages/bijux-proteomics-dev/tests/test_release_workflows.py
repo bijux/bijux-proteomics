@@ -12,7 +12,7 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def _workflow(path: Path) -> dict:
+def _workflow(path: Path) -> dict[str, object]:
     with path.open("r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle)
     assert isinstance(data, dict)

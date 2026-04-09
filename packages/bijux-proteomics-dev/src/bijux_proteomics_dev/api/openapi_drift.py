@@ -7,12 +7,19 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+from typing import Any
 
 import yaml
 
+Schema = dict[str, Any]
 
-def _load_schema(text: str) -> dict:
-    return yaml.safe_load(text) or {}
+
+def _as_schema(value: object) -> Schema:
+    return value if isinstance(value, dict) else {}
+
+
+def _load_schema(text: str) -> Schema:
+    return _as_schema(yaml.safe_load(text))
 
 
 def _git_show(repo_root: Path, path: str) -> str | None:
@@ -34,12 +41,12 @@ def _git_show(repo_root: Path, path: str) -> str | None:
     return completed.stdout
 
 
-def _extract_fields(schema: dict) -> set[str]:
+def _extract_fields(schema: Schema) -> set[str]:
     fields: set[str] = set()
-    components = schema.get("components", {})
-    schemas = components.get("schemas", {})
+    components = _as_schema(schema.get("components"))
+    schemas = _as_schema(components.get("schemas"))
     for name, payload in schemas.items():
-        props = (payload or {}).get("properties", {}) or {}
+        props = _as_schema(_as_schema(payload).get("properties"))
         for prop in props:
             fields.add(f"{name}.{prop}")
     return fields

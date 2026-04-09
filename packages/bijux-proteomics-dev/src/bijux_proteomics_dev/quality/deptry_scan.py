@@ -11,11 +11,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tomllib
+from typing import Any
 
-try:
-    import tomllib
-except ModuleNotFoundError:  # pragma: no cover
-    import tomli as tomllib
+TomlTable = dict[str, Any]
+
+
+def _as_table(value: object) -> TomlTable:
+    return value if isinstance(value, dict) else {}
 
 
 def parse_args() -> argparse.Namespace:
@@ -69,16 +72,17 @@ def resolve_deptry_command(deptry_bin: str, project_dir: Path) -> list[str]:
 
 
 def merge_deptry_config(
-    config_path: Path, package_slug: str, package_pyproject: dict[str, object]
-) -> dict[str, object]:
+    config_path: Path, package_slug: str, package_pyproject: TomlTable
+) -> TomlTable:
     root_config = tomllib.loads(config_path.read_text(encoding="utf-8"))
-    base_config = root_config.get("tool", {}).get("deptry", {})
-    package_configs = (
-        root_config.get("tool", {}).get("repo_deptry", {}).get("packages", {})
+    tool_table = _as_table(root_config.get("tool"))
+    base_config = _as_table(tool_table.get("deptry"))
+    package_configs = _as_table(
+        _as_table(tool_table.get("repo_deptry")).get("packages")
     )
-    package_override = package_configs.get(package_slug, {})
+    package_override = _as_table(package_configs.get(package_slug))
 
-    merged_config: dict[str, object] = dict(base_config)
+    merged_config: TomlTable = dict(base_config)
     for key, value in package_override.items():
         current = merged_config.get(key)
         if isinstance(current, list) and isinstance(value, list):
@@ -90,8 +94,8 @@ def merge_deptry_config(
 
     if "known_first_party" not in merged_config:
         merged_config["known_first_party"] = [package_slug.replace("-", "_")]
-    optional_dependencies = package_pyproject.get("project", {}).get(
-        "optional-dependencies", {}
+    optional_dependencies = _as_table(
+        _as_table(package_pyproject.get("project")).get("optional-dependencies")
     )
     available_groups = set(optional_dependencies)
     for key in ("pep621_dev_dependency_groups", "optional_dependencies_dev_groups"):
