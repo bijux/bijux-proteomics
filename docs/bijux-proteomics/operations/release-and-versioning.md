@@ -16,6 +16,10 @@ Version resolution currently follows two patterns in this repository: Hatch VCS
 for `agentic-proteins` and `bijux-proteomics-dev`, and explicit versions for
 the remaining publishable packages.
 
+For the Hatch VCS packages, version is resolved from Git tags through `hatch-vcs`.
+For the remaining publishable packages, the release version is explicit in each
+package `pyproject.toml`.
+
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
