@@ -3,8 +3,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-import subprocess
+import shutil
 import sys
+
+from bijux_proteomics_dev.trusted_process import run_text
+
+
+def _git_executable() -> str:
+    resolved = shutil.which("git")
+    if resolved is None:
+        raise SystemExit("git executable not found")
+    return resolved
 
 
 def _parse_version(text: str) -> str | None:
@@ -18,9 +27,11 @@ def _parse_version(text: str) -> str | None:
 
 def _git_show(path: str) -> str | None:
     try:
-        return subprocess.check_output(
-            ["git", "show", f"HEAD~1:{path}"], text=True
-        ).strip()
+        return run_text(
+            [_git_executable(), "show", f"HEAD~1:{path}"],
+            check=True,
+            capture_output=True,
+        ).stdout.strip()
     except Exception:
         return None
 
@@ -41,9 +52,11 @@ def run(repo_root: Path) -> int:
     if current_version == previous_version:
         return 0
     try:
-        changed_files = subprocess.check_output(
-            ["git", "diff", "--name-only", "HEAD~1..HEAD"], text=True
-        ).splitlines()
+        changed_files = run_text(
+            [_git_executable(), "diff", "--name-only", "HEAD~1..HEAD"],
+            check=True,
+            capture_output=True,
+        ).stdout.splitlines()
     except Exception:
         return 0
     if str(changelog.relative_to(repo_root)) not in changed_files:
