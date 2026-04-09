@@ -24,6 +24,7 @@ from agentic_proteins.core.observations import (
     PlanMetadata,
 )
 from agentic_proteins.domain.candidates.schema import Candidate
+from agentic_proteins.domain.metrics.quality import QCStatus
 from agentic_proteins.state.schemas import StateSnapshot
 
 
@@ -75,7 +76,9 @@ def test_quality_control_decide() -> None:
 def test_critic_decide() -> None:
     critic = CriticAgent()
     qc_output = QualityControlAgentOutput(
-        status="acceptable", confidence_deltas=[], constraint_violations=[]
+        status=QCStatus.ACCEPTABLE,
+        confidence_deltas=[],
+        constraint_violations=[],
     )
     output = critic.decide(
         CriticAgentInput(
@@ -95,7 +98,9 @@ def test_critic_decide() -> None:
 def test_coordinator_decide_limits() -> None:
     coordinator = CoordinatorAgent()
     qc_output = QualityControlAgentOutput(
-        status="acceptable", confidence_deltas=[], constraint_violations=[]
+        status=QCStatus.ACCEPTABLE,
+        confidence_deltas=[],
+        constraint_violations=[],
     )
     critic = CriticAgent()
     critic_output = critic.decide(

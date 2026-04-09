@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from typing import Any, cast
 
 from agentic_proteins.agents.planning.schemas import Plan, TaskSpec
 from agentic_proteins.core.decisions import Decision
@@ -87,7 +88,7 @@ def test_snapshot_does_not_mutate_inputs() -> None:
 
 def test_memory_store_interface_is_abstract() -> None:
     with pytest.raises(TypeError):
-        MemoryStore()
+        cast(Any, MemoryStore)()
 
 
 def test_state_snapshot_fields() -> None:

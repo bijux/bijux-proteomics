@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 import random
+from typing import Any
 
 from agentic_proteins.biology.pathway import PathwayContract, PathwayExecutor
 from agentic_proteins.biology.protein_agent import (
@@ -118,7 +120,7 @@ def test_counterfactual_rejects_no_improvement() -> None:
         source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
     )
 
-    def metric(events: list[object]) -> float:
+    def metric(events: Sequence[Any]) -> float:
         return float(len(events))
 
     assert (

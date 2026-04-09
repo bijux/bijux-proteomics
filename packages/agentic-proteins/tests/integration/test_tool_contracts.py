@@ -113,11 +113,20 @@ def test_tool_invocation_spec_json_ready() -> None:
 
 
 def test_decision_requires_tool_invocation_specs() -> None:
+    spec = ToolInvocationSpec(
+        invocation_id="inv1",
+        tool_name="sequence_validator",
+        tool_version="1.0",
+        inputs=[InvocationInput(name="seq", value="ACD")],
+        expected_outputs=[],
+        constraints=[],
+        origin_task_id="t1",
+    )
     with pytest.raises(ValueError):
         Decision(
             agent_name="planner",
             rationale="r",
-            requested_tools=["sequence_validator"],
+            requested_tools=[spec],
             confidence=0.1,
         )
 

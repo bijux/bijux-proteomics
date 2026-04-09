@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from agentic_proteins.biology.pathway import PathwayExecutor
 from agentic_proteins.biology.protein_agent import (
@@ -157,11 +157,12 @@ def test_pathway_executor_propagates_outputs() -> None:
 
 def test_signal_payload_rejects_non_string_metadata_keys() -> None:
     with pytest.raises(ValidationError):
+        invalid_metadata = cast(dict[str, Any], {1: "bad"})
         SignalPayload(
             source_id="p1",
             targets=("p1",),
             signal_type=SignalType.ACTIVATE,
-            metadata={1: "bad"},
+            metadata=invalid_metadata,
         )
 
 

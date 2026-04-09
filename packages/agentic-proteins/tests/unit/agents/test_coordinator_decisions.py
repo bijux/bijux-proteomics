@@ -9,6 +9,7 @@ from agentic_proteins.agents.schemas import (
 )
 from agentic_proteins.core.decisions import Decision
 from agentic_proteins.core.execution import LoopLimits, LoopState
+from agentic_proteins.domain.metrics.quality import QCStatus
 
 
 def test_coordinator_rejects_opaque_decision() -> None:
@@ -63,13 +64,13 @@ def test_coordinator_handles_critic_and_qc_outputs() -> None:
     assert result.decision == CoordinatorDecisionType.REPLAN
 
     payload = CoordinatorAgentInput(
-        qc_output=QualityControlAgentOutput(status="reject"),
+        qc_output=QualityControlAgentOutput(status=QCStatus.REJECT),
     )
     result = agent.decide(payload)
     assert result.decision == CoordinatorDecisionType.TERMINATE
 
     payload = CoordinatorAgentInput(
-        qc_output=QualityControlAgentOutput(status="needs_human"),
+        qc_output=QualityControlAgentOutput(status=QCStatus.NEEDS_HUMAN),
     )
     result = agent.decide(payload)
     assert result.decision == CoordinatorDecisionType.TERMINATE

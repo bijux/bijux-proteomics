@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, cast
+
 from agentic_proteins.biology.signals import SignalPayload, SignalType
 from pydantic import ValidationError
 import pytest
@@ -21,10 +23,11 @@ def test_signal_payload_rejects_blank_targets() -> None:
 
 def test_signal_payload_rejects_non_string_metadata_keys() -> None:
     with pytest.raises(ValidationError):
+        invalid_metadata = cast(dict[str, Any], {1: "bad"})
         SignalPayload(
             source_id="p1",
             signal_type=SignalType.ACTIVATE,
-            metadata={1: "bad"},
+            metadata=invalid_metadata,
         )
 
 

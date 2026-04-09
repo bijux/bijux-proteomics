@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from agentic_proteins.biology.pathway import PathwayContract
 from agentic_proteins.biology.protein_agent import (
     ProteinAgent,
     ProteinConstraints,
@@ -49,7 +50,11 @@ def test_validate_proposal_rejects_invalid_fields() -> None:
         rationale="test",
         action=LLMAction.TUNE_PROBABILITY,
     )
-    assert not regulator.validate_proposal(proposal, agent=agent, contract=object())
+    assert not regulator.validate_proposal(
+        proposal,
+        agent=agent,
+        contract=PathwayContract(),
+    )
 
     proposal = Proposal(
         target="p1",
@@ -59,7 +64,11 @@ def test_validate_proposal_rejects_invalid_fields() -> None:
         rationale="test",
         action=LLMAction.TUNE_PROBABILITY,
     )
-    assert not regulator.validate_proposal(proposal, agent=agent, contract=object())
+    assert not regulator.validate_proposal(
+        proposal,
+        agent=agent,
+        contract=PathwayContract(),
+    )
 
 
 def test_approve_manual_requires_hook() -> None:

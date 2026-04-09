@@ -8,6 +8,7 @@ import inspect
 import os
 from pathlib import Path
 import sys
+from typing import Any
 from unittest.mock import patch
 
 from agentic_proteins.agents.planning.schemas import PlanDecision
@@ -79,12 +80,16 @@ def test_agents_import_purity(monkeypatch: pytest.MonkeyPatch) -> None:
     original_getenv = os.getenv
     original_getitem = os.environ.__class__.__getitem__
 
-    def _blocked_getenv(key, *_args, **_kwargs):
+    def _blocked_getenv(
+        key: str,
+        *_args: object,
+        **_kwargs: object,
+    ) -> str | None:
         if key in allowed_keys:
             return original_getenv(key)
         raise AssertionError("Environment variables must not be read at import time.")
 
-    def _blocked_getitem(_self, _key):
+    def _blocked_getitem(_self: Any, _key: str) -> str:
         if _key in allowed_keys:
             try:
                 return original_getitem(os.environ, _key)

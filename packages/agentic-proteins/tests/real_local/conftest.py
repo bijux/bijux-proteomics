@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -23,7 +24,7 @@ def ARTIFACTS_DIR(ROOT: Path) -> Path:
 
 
 @pytest.fixture()
-def run_output_dir(ARTIFACTS_DIR: Path) -> callable:
+def run_output_dir(ARTIFACTS_DIR: Path) -> Callable[[str, str], Path]:
     """Create and return a per-run output directory."""
 
     def _make(case_name: str, provider: str) -> Path:

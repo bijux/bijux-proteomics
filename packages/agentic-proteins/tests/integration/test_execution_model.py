@@ -13,6 +13,7 @@ from agentic_proteins.execution.schemas import (
     ExecutionTask,
     RetryPolicy,
 )
+from agentic_proteins.memory import MemoryStore
 from agentic_proteins.memory.schemas import MemoryRecord, MemoryScope, ToolResultPayload
 from agentic_proteins.registry.agents import AgentRegistry
 from agentic_proteins.tools.schemas import (
@@ -145,7 +146,7 @@ def test_integrate_execution_result_appends_to_store() -> None:
         exit_conditions=["done"],
     )
 
-    class FakeStore:
+    class FakeStore(MemoryStore):
         def __init__(self) -> None:
             self.records: list[MemoryRecord] = []
 
