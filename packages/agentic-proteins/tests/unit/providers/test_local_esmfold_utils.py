@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 from agentic_proteins.providers.errors import PredictionError
 import pytest
@@ -107,15 +108,15 @@ def test_predict_missing_outputs(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(provider, "_check_circuit", lambda: None)
 
     class _Inputs:
-        def to(self, _device: str) -> dict[str, torch.Tensor]:
+        def to(self, _device: str) -> dict[str, Any]:
             return {"input_ids": torch.ones((1, 1))}
 
     class _Tokenizer:
-        def __call__(self, *_args, **_kwargs) -> _Inputs:
+        def __call__(self, *_args: object, **_kwargs: object) -> _Inputs:
             return _Inputs()
 
     class _Model:
-        def __call__(self, **_kwargs):
+        def __call__(self, **_kwargs: object) -> object:
             return type("Out", (), {"positions": None, "plddt": None})()
 
     def _load_model() -> None:
@@ -134,15 +135,15 @@ def test_predict_success_minimal(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
 
     class _Inputs:
-        def to(self, _device: str) -> dict[str, torch.Tensor]:
+        def to(self, _device: str) -> dict[str, Any]:
             return {"input_ids": torch.ones((1, 3))}
 
     class _Tokenizer:
-        def __call__(self, *_args, **_kwargs) -> _Inputs:
+        def __call__(self, *_args: object, **_kwargs: object) -> _Inputs:
             return _Inputs()
 
     class _Model:
-        def __call__(self, **_kwargs):
+        def __call__(self, **_kwargs: object) -> object:
             positions = torch.zeros((3, 4, 3))
             plddt = torch.ones((3, 4))
             return type("Out", (), {"positions": positions, "plddt": plddt})()

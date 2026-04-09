@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import sys
 import types
+from typing import Any, cast
 
 from agentic_proteins.providers import factory as factory_module
 from agentic_proteins.providers.errors import PredictionError
@@ -54,7 +55,11 @@ def test_create_provider_branches(monkeypatch: pytest.MonkeyPatch) -> None:
             HeuristicStructureProvider,
         )
         assert (
-            factory_module.create_provider("api_openprotein_esmfold").model == "esmfold"
+            cast(
+                DummyProvider,
+                factory_module.create_provider("api_openprotein_esmfold"),
+            ).model
+            == "esmfold"
         )
         assert isinstance(
             factory_module.create_provider("api_colabfold"), DummyProvider
@@ -73,10 +78,11 @@ def test_create_provider_branches(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_provider_requirements(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(factory_module.util, "find_spec", lambda _: None)
-    monkeypatch.setattr(factory_module.os, "getenv", lambda *_: "")
-    monkeypatch.setattr(factory_module.os.path, "exists", lambda *_: False)
-    monkeypatch.setattr(factory_module.shutil, "which", lambda *_: None)
+    factory_helpers = cast(Any, factory_module)
+    monkeypatch.setattr(factory_helpers.util, "find_spec", lambda _: None)
+    monkeypatch.setattr(factory_helpers.os, "getenv", lambda *_: "")
+    monkeypatch.setattr(factory_helpers.os.path, "exists", lambda *_: False)
+    monkeypatch.setattr(factory_helpers.shutil, "which", lambda *_: None)
     errors = factory_module.provider_requirements("local_rosettafold")
     assert "missing_dependency:torch" in errors
     assert any(item.startswith("missing_weights:") for item in errors)

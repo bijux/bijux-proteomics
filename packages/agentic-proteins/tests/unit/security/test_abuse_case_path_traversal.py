@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from agentic_proteins.domain.candidates import CandidateStore
 import pytest
 
 
-def test_abuse_case_path_traversal_blocked(tmp_path) -> None:
+def test_abuse_case_path_traversal_blocked(tmp_path: Path) -> None:
     store = CandidateStore(tmp_path / "candidate_store")
     with pytest.raises(ValueError):
         store.get_candidate("../secrets")

@@ -6,9 +6,12 @@ from __future__ import annotations
 from agentic_proteins.providers import factory
 from agentic_proteins.runtime.infra import capabilities
 from agentic_proteins.runtime.infra.capabilities import validate_runtime_capabilities
+import pytest
 
 
-def test_capabilities_auto_requires_gpu_budget(monkeypatch) -> None:
+def test_capabilities_auto_requires_gpu_budget(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(factory, "cuda_available", lambda: False)
     monkeypatch.setattr(
         capabilities, "provider_requirements", lambda _provider_name: []
@@ -24,7 +27,7 @@ def test_capabilities_auto_requires_gpu_budget(monkeypatch) -> None:
     assert not warnings
 
 
-def test_capabilities_cpu_mode_warns(monkeypatch) -> None:
+def test_capabilities_cpu_mode_warns(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(factory, "cuda_available", lambda: False)
     monkeypatch.setattr(
         capabilities, "provider_requirements", lambda _provider_name: []

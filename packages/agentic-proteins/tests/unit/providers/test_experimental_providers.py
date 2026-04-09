@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import sys
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, cast
 
 from agentic_proteins.providers.errors import PredictionError
 from agentic_proteins.providers.experimental import _async_utils, colabfold
@@ -14,9 +14,12 @@ from agentic_proteins.providers.experimental.openprotein import APIOpenProteinPr
 import pytest
 from requests.exceptions import RequestException
 
+ASYNC_UTILS = cast(Any, _async_utils)
+COLABFOLD = cast(Any, colabfold)
+
 
 def test_sleep_with_backoff_deadline_passed(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(_async_utils.time, "sleep", lambda _s: None)
+    monkeypatch.setattr(ASYNC_UTILS.time, "sleep", lambda _s: None)
     backoff, slept = _async_utils.sleep_with_backoff(deadline=0.0, backoff=1.0)
     assert backoff == 1.0
     assert slept == 0.0
@@ -25,9 +28,9 @@ def test_sleep_with_backoff_deadline_passed(monkeypatch: pytest.MonkeyPatch) -> 
 def test_sleep_with_retry_after_uses_retry_after(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(_async_utils.time, "sleep", lambda _s: None)
-    monkeypatch.setattr(_async_utils.secrets.SystemRandom, "random", lambda _self: 0.0)
-    deadline = _async_utils.time.time() + 10.0
+    monkeypatch.setattr(ASYNC_UTILS.time, "sleep", lambda _s: None)
+    monkeypatch.setattr(ASYNC_UTILS.secrets.SystemRandom, "random", lambda _self: 0.0)
+    deadline = ASYNC_UTILS.time.time() + 10.0
     backoff, slept = _async_utils.sleep_with_retry_after(
         deadline=deadline, backoff=1.0, retry_after=3.0
     )
@@ -38,7 +41,7 @@ def test_sleep_with_retry_after_uses_retry_after(
 def test_sleep_with_retry_after_deadline_passed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(_async_utils.time, "sleep", lambda _s: None)
+    monkeypatch.setattr(ASYNC_UTILS.time, "sleep", lambda _s: None)
     backoff, slept = _async_utils.sleep_with_retry_after(
         deadline=0.0, backoff=2.0, retry_after=1.0
     )
@@ -68,13 +71,13 @@ class _FakeSession:
         self._get_response = get_response
         self.headers: dict[str, str] = {}
 
-    def mount(self, *_args, **_kwargs) -> None:
+    def mount(self, *_args: object, **_kwargs: object) -> None:
         return None
 
-    def post(self, *_args, **_kwargs) -> _FakeResponse:
+    def post(self, *_args: object, **_kwargs: object) -> _FakeResponse:
         return self._post_response
 
-    def get(self, *_args, **_kwargs) -> _FakeResponse:
+    def get(self, *_args: object, **_kwargs: object) -> _FakeResponse:
         return self._get_response
 
     def close(self) -> None:
@@ -87,7 +90,7 @@ def test_colabfold_predict_success(monkeypatch: pytest.MonkeyPatch) -> None:
         status_code=200,
         payload={"status": "SUCCESS", "result": {"models": [{"pdb": "PDB"}]}},
     )
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     monkeypatch.setattr(
         colabfold, "sleep_with_backoff", lambda *args, **kwargs: (1.0, 0.0)
     )
@@ -103,19 +106,19 @@ def test_colabfold_predict_success(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_colabfold_healthcheck_ok(monkeypatch: pytest.MonkeyPatch) -> None:
     post = _FakeResponse(status_code=200, payload={})
     poll = _FakeResponse(status_code=200, payload={})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     provider = colabfold.APIColabFoldProvider(api_url="http://example")
     assert provider.healthcheck() is True
 
 
 def test_colabfold_healthcheck_failure(monkeypatch: pytest.MonkeyPatch) -> None:
     class _FailSession(_FakeSession):
-        def get(self, *_args, **_kwargs):
+        def get(self, *_args: object, **_kwargs: object) -> _FakeResponse:
             raise RequestException("down")
 
     post = _FakeResponse(status_code=200, payload={"job_id": "job-1"})
     poll = _FakeResponse(status_code=200, payload={})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FailSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FailSession(post, poll))
     provider = colabfold.APIColabFoldProvider(api_url="http://example")
     assert provider.healthcheck() is False
 
@@ -123,7 +126,7 @@ def test_colabfold_healthcheck_failure(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_colabfold_predict_missing_job_id(monkeypatch: pytest.MonkeyPatch) -> None:
     post = _FakeResponse(status_code=200, payload={"status": "ok"})
     poll = _FakeResponse(status_code=200, payload={})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     provider = colabfold.APIColabFoldProvider(api_url="http://example")
     with pytest.raises(PredictionError, match="job_id"):
         provider.predict("ACD", timeout=5.0)
@@ -136,7 +139,7 @@ def test_colabfold_predict_bad_json(monkeypatch: pytest.MonkeyPatch) -> None:
 
     post = _BadResponse(status_code=200, payload={})
     poll = _FakeResponse(status_code=200, payload={})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     provider = colabfold.APIColabFoldProvider(api_url="http://example")
     with pytest.raises(PredictionError, match="Invalid JSON"):
         provider.predict("ACD", timeout=5.0)
@@ -145,7 +148,7 @@ def test_colabfold_predict_bad_json(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_colabfold_predict_auth_error(monkeypatch: pytest.MonkeyPatch) -> None:
     post = _FakeResponse(status_code=401, payload={})
     poll = _FakeResponse(status_code=500, payload={})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     provider = colabfold.APIColabFoldProvider(api_url="http://example")
     with pytest.raises(PredictionError, match="Authentication failed"):
         provider.predict("ACD", timeout=5.0)
@@ -154,7 +157,7 @@ def test_colabfold_predict_auth_error(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_colabfold_predict_missing_status(monkeypatch: pytest.MonkeyPatch) -> None:
     post = _FakeResponse(status_code=200, payload={"job_id": "job-4"})
     poll = _FakeResponse(status_code=200, payload={"result": {}})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     monkeypatch.setattr(
         colabfold, "sleep_with_backoff", lambda *args, **kwargs: (1.0, 0.0)
     )
@@ -169,7 +172,7 @@ def test_colabfold_predict_missing_pdb(monkeypatch: pytest.MonkeyPatch) -> None:
         status_code=200,
         payload={"status": "SUCCESS", "result": {"models": [{"pdb": 123}]}},
     )
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     monkeypatch.setattr(
         colabfold, "sleep_with_backoff", lambda *args, **kwargs: (1.0, 0.0)
     )
@@ -184,7 +187,7 @@ def test_colabfold_predict_empty_pdb(monkeypatch: pytest.MonkeyPatch) -> None:
         status_code=200,
         payload={"status": "SUCCESS", "result": {"models": [{"pdb": ""}]}},
     )
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     monkeypatch.setattr(
         colabfold, "sleep_with_backoff", lambda *args, **kwargs: (1.0, 0.0)
     )
@@ -202,7 +205,7 @@ def test_colabfold_predict_request_id(monkeypatch: pytest.MonkeyPatch) -> None:
         payload={"status": "SUCCESS", "result": {"models": [{"pdb": "PDB"}]}},
         headers={"x-request-id": "req-2"},
     )
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     monkeypatch.setattr(
         colabfold, "sleep_with_backoff", lambda *args, **kwargs: (1.0, 0.0)
     )
@@ -220,11 +223,11 @@ def test_colabfold_rate_limit_retries(monkeypatch: pytest.MonkeyPatch) -> None:
     poll = _FakeResponse(status_code=200, payload={})
 
     class _RetrySession(_FakeSession):
-        def post(self, *_args, **_kwargs) -> _FakeResponse:
+        def post(self, *_args: object, **_kwargs: object) -> _FakeResponse:
             return self._post_response
 
     monkeypatch.setattr(
-        colabfold.requests, "Session", lambda: _RetrySession(post, poll)
+        COLABFOLD.requests, "Session", lambda: _RetrySession(post, poll)
     )
     monkeypatch.setattr(colabfold, "_time_left", lambda _deadline: 10.0)
     monkeypatch.setattr(
@@ -265,7 +268,7 @@ def test_openprotein_requires_credentials(monkeypatch: pytest.MonkeyPatch) -> No
 
 def test_openprotein_has_attr_handles_exception() -> None:
     class _Boom:
-        def __getattr__(self, _name):
+        def __getattr__(self, _name: str) -> Any:
             raise RuntimeError("boom")
 
     assert APIOpenProteinProvider._has_attr(_Boom(), "fold") is False
@@ -273,7 +276,7 @@ def test_openprotein_has_attr_handles_exception() -> None:
 
 def test_openprotein_debug_dump_handles_exception() -> None:
     class _Boom:
-        def __dir__(self):
+        def __dir__(self) -> list[str]:
             raise RuntimeError("boom")
 
     assert APIOpenProteinProvider._debug_dump(_Boom()) == "<dir() failed>"
@@ -293,7 +296,7 @@ def test_openprotein_pick_submit_fn_direct() -> None:
         def esmfold(self, sequence: str) -> str:
             return sequence
 
-    fn, kw = provider._pick_submit_fn(_NS(), SimpleNamespace())
+    fn, kw = cast(Any, provider)._pick_submit_fn(_NS(), SimpleNamespace())
     assert callable(fn)
     assert "sequence" in kw
 
@@ -310,7 +313,7 @@ def test_openprotein_pick_submit_fn_get_model() -> None:
         def get_model(self, _name: str) -> _Model:
             return _Model()
 
-    fn, kw = provider._pick_submit_fn(_NS(), SimpleNamespace())
+    fn, kw = cast(Any, provider)._pick_submit_fn(_NS(), SimpleNamespace())
     assert callable(fn)
     assert "sequence" in kw
 
@@ -319,7 +322,7 @@ def test_openprotein_wait_and_get_pdb_from_results_dict() -> None:
     provider = APIOpenProteinProvider.__new__(APIOpenProteinProvider)
 
     class _Fold:
-        def get_results(self, _job_id: str):
+        def get_results(self, _job_id: str) -> dict[str, list[dict[str, str]]]:
             return {"models": [{"pdb": "PDB"}]}
 
     provider.session = SimpleNamespace(fold=_Fold())
@@ -345,13 +348,13 @@ def test_openprotein_wait_and_get_pdb_wait_session() -> None:
     provider = APIOpenProteinProvider.__new__(APIOpenProteinProvider)
 
     class _Fold:
-        def get_results(self, _job_id: str):
+        def get_results(self, _job_id: str) -> dict[str, str]:
             return {"pdb_text": "PDB"}
 
     class _Session:
         fold = _Fold()
 
-        def wait_until_done(self, *_args, **_kwargs) -> None:
+        def wait_until_done(self, *_args: object, **_kwargs: object) -> None:
             raise TypeError("bad args")
 
     provider.session = _Session()
@@ -366,11 +369,11 @@ def test_openprotein_wait_and_get_pdb_session_handle() -> None:
     provider = APIOpenProteinProvider.__new__(APIOpenProteinProvider)
 
     class _Handle:
-        def get_results(self):
+        def get_results(self) -> dict[str, str]:
             return {"pdb": "PDB"}
 
     class _Session:
-        def get(self, _job_id: str):
+        def get(self, _job_id: str) -> _Handle:
             return _Handle()
 
     provider.session = _Session()
@@ -388,7 +391,7 @@ def test_openprotein_wait_and_get_pdb_attr_result() -> None:
         pdb = "PDB"
 
     class _Fold:
-        def get_results(self, _job_id: str):
+        def get_results(self, _job_id: str) -> _Result:
             return _Result()
 
     provider.session = SimpleNamespace(fold=_Fold())
@@ -435,7 +438,7 @@ def test_openprotein_pick_submit_fn_fallback_create() -> None:
         def create(self, sequence: str, model_name: str) -> str:
             return f"{sequence}:{model_name}"
 
-    fn, kw = provider._pick_submit_fn(_NS(), SimpleNamespace())
+    fn, kw = cast(Any, provider)._pick_submit_fn(_NS(), SimpleNamespace())
     assert callable(fn)
     assert "model_name" in kw
 
@@ -444,13 +447,13 @@ def test_openprotein_wait_and_get_pdb_from_job_json() -> None:
     provider = APIOpenProteinProvider.__new__(APIOpenProteinProvider)
 
     class _Fold:
-        def get_results(self, _job_id: str):
+        def get_results(self, _job_id: str) -> dict[str, str]:
             return {"pdb": "PDB"}
 
     class _Session:
         fold = _Fold()
 
-        def wait_until_done(self, *_args, **_kwargs) -> None:
+        def wait_until_done(self, *_args: object, **_kwargs: object) -> None:
             return None
 
     provider.session = _Session()
@@ -469,10 +472,10 @@ def test_openprotein_predict_uses_structure_namespace(
         job_id = "job-3"
 
     class _Structure:
-        def create(self, sequence: str, model_name: str):
+        def create(self, sequence: str, model_name: str) -> _Job:
             return _Job()
 
-        def get_results(self, _job_id: str):
+        def get_results(self, _job_id: str) -> dict[str, str]:
             return {"pdb": "PDB"}
 
     class _Session:
@@ -523,7 +526,7 @@ def test_openprotein_pick_submit_fn_session_method() -> None:
         def structure_predict(self, sequence: str, model_name: str) -> str:
             return f"{sequence}:{model_name}"
 
-    fn, kw = provider._pick_submit_fn(SimpleNamespace(), _Session())
+    fn, kw = cast(Any, provider)._pick_submit_fn(SimpleNamespace(), _Session())
     assert callable(fn)
     assert "model_name" in kw
 
@@ -543,13 +546,13 @@ def test_openprotein_pick_submit_fn_get_model_fails_then_fallback() -> None:
     provider.model = "esmfold"
 
     class _NS:
-        def get_model(self, _name: str):
+        def get_model(self, _name: str) -> object:
             raise KeyError("missing")
 
         def create(self, sequence: str, model_name: str) -> str:
             return f"{sequence}:{model_name}"
 
-    fn, kw = provider._pick_submit_fn(_NS(), SimpleNamespace())
+    fn, kw = cast(Any, provider)._pick_submit_fn(_NS(), SimpleNamespace())
     assert callable(fn)
     assert "model_name" in kw
 
@@ -558,13 +561,13 @@ def test_openprotein_pick_submit_fn_missing() -> None:
     provider = APIOpenProteinProvider.__new__(APIOpenProteinProvider)
     provider.model = "esmfold"
     with pytest.raises(PredictionError, match="No submit function"):
-        provider._pick_submit_fn(SimpleNamespace(), SimpleNamespace())
+        cast(Any, provider)._pick_submit_fn(SimpleNamespace(), SimpleNamespace())
 
 
 def test_colabfold_poll_error_status(monkeypatch: pytest.MonkeyPatch) -> None:
     post = _FakeResponse(status_code=200, payload={"job_id": "job-1"})
     poll = _FakeResponse(status_code=200, payload={"status": "ERROR", "error": "fail"})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     monkeypatch.setattr(
         colabfold, "sleep_with_backoff", lambda *args, **kwargs: (1.0, 0.0)
     )
@@ -576,7 +579,7 @@ def test_colabfold_poll_error_status(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_colabfold_poll_invalid_result(monkeypatch: pytest.MonkeyPatch) -> None:
     post = _FakeResponse(status_code=200, payload={"job_id": "job-2"})
     poll = _FakeResponse(status_code=200, payload={"status": "SUCCESS", "result": {}})
-    monkeypatch.setattr(colabfold.requests, "Session", lambda: _FakeSession(post, poll))
+    monkeypatch.setattr(COLABFOLD.requests, "Session", lambda: _FakeSession(post, poll))
     monkeypatch.setattr(
         colabfold, "sleep_with_backoff", lambda *args, **kwargs: (1.0, 0.0)
     )

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import random
+from typing import cast
 
 from agentic_proteins.biology.pathway import PathwayContract, PathwayExecutor
 from agentic_proteins.biology.protein_agent import (
@@ -36,7 +37,7 @@ def _agent(agent_id: str) -> ProteinAgent:
 
 def _run_pathway(agent_count: int) -> None:
     agents = [_agent(f"p{idx}") for idx in range(agent_count)]
-    edges = {agent.agent_id: () for agent in agents}
+    edges = {agent.agent_id: cast(tuple[str, ...], ()) for agent in agents}
     contract = PathwayContract(
         max_incoming_signals=agent_count,
         max_outgoing_signals=agent_count,
