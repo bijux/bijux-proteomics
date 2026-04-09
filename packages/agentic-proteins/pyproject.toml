@@ -48,6 +48,25 @@ Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 [project.scripts]
 agentic-proteins = "agentic_proteins.interfaces.cli:cli"
 
+[project.optional-dependencies]
+api = [
+  "openprotein-python>=0.8.8",
+]
+local-esmfold = [
+  "transformers>=4.53.2",
+  "tokenizers>=0.14",
+  "torch>=2.8",
+  "einops>=0.7",
+]
+local-rosettafold = [
+  "torch>=2.8",
+]
+nl = [
+  "langchain-core>=0.2",
+  "langchain-community>=0.2",
+  "langchain-huggingface>=0.3.1",
+]
+
 [tool.hatch.version]
 source = "vcs"
 tag-pattern = "^v(?P<version>.*)$"
