@@ -467,7 +467,7 @@ class LocalESMFoldProvider(BaseProvider):
                 raise PredictionError(
                     f"ESMFold inference failed: {str(e)}", code="INFERENCE_ERROR"
                 ) from e
+        return None
 
     def close(self) -> None:
         """Closes the provider."""
-        pass

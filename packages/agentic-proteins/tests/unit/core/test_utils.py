@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import math
 import textwrap
-from typing import Tuple
 
 import agentic_proteins.domain as U
 from agentic_proteins.domain.structure import structure as structure_mod
@@ -21,7 +20,7 @@ def _pdb_n_residues(
     start_serial: int = 1,
     start_resseq: int = 1,
     bfactor: float = 80.0,
-    offset: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    offset: tuple[float, float, float] = (0.0, 0.0, 0.0),
 ) -> str:
     """
     Build a minimal PDB with `n` ALA residues, single CA atom per residue.
@@ -50,7 +49,7 @@ def _pdb_three_residues(
     b2_a: float = 80.0,
     b2_b: float | None = None,  # altloc B for CA at res 2
     b3: float = 70.0,
-    offset: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    offset: tuple[float, float, float] = (0.0, 0.0, 0.0),
 ) -> str:
     ox, oy, oz = offset
     lines = []

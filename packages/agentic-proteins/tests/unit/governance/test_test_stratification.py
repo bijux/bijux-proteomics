@@ -39,13 +39,13 @@ def test_e2e_tests_use_local_executor_only() -> None:
         content = path.read_text()
         if "agentic_proteins.execution.runtime.executor import" in content:
             for line in content.splitlines():
-                if "agentic_proteins.execution.runtime.executor import" in line:
-                    if "LocalExecutor" not in line or "Executor" in line.replace(
-                        "LocalExecutor", ""
-                    ):
-                        raise AssertionError(
-                            f"E2E tests must import LocalExecutor only: {path}"
-                        )
+                if "agentic_proteins.execution.runtime.executor import" in line and (
+                    "LocalExecutor" not in line
+                    or "Executor" in line.replace("LocalExecutor", "")
+                ):
+                    raise AssertionError(
+                        f"E2E tests must import LocalExecutor only: {path}"
+                    )
         if "agentic_proteins.execution.runtime.executor.Executor" in content:
             raise AssertionError(f"E2E tests must not use Executor directly: {path}")
 

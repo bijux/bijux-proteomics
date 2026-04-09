@@ -432,9 +432,7 @@ def test_rosetta_init_requires_docker_when_enabled(providers_module, monkeypatch
 
 def test_rosetta_healthcheck_docker_false_path(providers_module, monkeypatch, tmp_path):
     P = providers_module
-    monkeypatch.setattr(
-        P.os.path, "exists", lambda p: True if "rf.py" in str(p) else False
-    )
+    monkeypatch.setattr(P.os.path, "exists", lambda p: "rf.py" in str(p))
     monkeypatch.setattr(P.os, "access", lambda p, m: True)
     r = P.LocalRoseTTAFoldProvider(
         docker=False,

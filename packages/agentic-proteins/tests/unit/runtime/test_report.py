@@ -16,74 +16,74 @@ import pytest
 
 
 def _pri(**kw) -> R.PrimarySummary:
-    d = dict(
-        length=5,
-        aa_composition={"A": 20, "C": 20, "D": 20, "E": 20, "F": 20},
-        gravy=0.1,
-        isoelectric_point=6.8,
-        pct_disorder=10.0,
-        pct_low_complexity=5.0,
-        has_signal_peptide=True,
-        has_tm_segments=False,
-    )
+    d = {
+        "length": 5,
+        "aa_composition": {"A": 20, "C": 20, "D": 20, "E": 20, "F": 20},
+        "gravy": 0.1,
+        "isoelectric_point": 6.8,
+        "pct_disorder": 10.0,
+        "pct_low_complexity": 5.0,
+        "has_signal_peptide": True,
+        "has_tm_segments": False,
+    }
     d.update(kw)
     return R.PrimarySummary(**d)
 
 
 def _sec(**kw) -> R.SecondarySummary:
-    d = dict(
-        pct_helix=30.0,
-        pct_sheet=20.0,
-        pct_coil=50.0,
-        ss8_pct={R.SS8.H: 30.0, R.SS8.E: 20.0, R.SS8.C: 50.0},
-        q3=85.0,
-        q8=None,
-        sov99=None,
-    )
+    d = {
+        "pct_helix": 30.0,
+        "pct_sheet": 20.0,
+        "pct_coil": 50.0,
+        "ss8_pct": {R.SS8.H: 30.0, R.SS8.E: 20.0, R.SS8.C: 50.0},
+        "q3": 85.0,
+        "q8": None,
+        "sov99": None,
+    }
     d.update(kw)
     return R.SecondarySummary(**d)
 
 
 def _ter(**kw) -> R.TertiarySummary:
-    d = dict(
-        mean_plddt=80.0,
-        plddt_bands={
+    d = {
+        "mean_plddt": 80.0,
+        "plddt_bands": {
             R.PLDDTBand.GE90: 10.0,
             R.PLDDTBand.B70_90: 60.0,
             R.PLDDTBand.B50_70: 20.0,
             R.PLDDTBand.LT50: 10.0,
         },
-        pae_median=6.5,
-        pae_q90=12.0,
-        rg=18.2,
-        sasa=12345.0,
-        hbonds=12,
-        rama_outliers_pct=2.0,
-        clashscore=8.7,
-        rmsd=2.1,
-        gdt_ts=75.0,
-        gdt_ha=60.0,
-        tm_score=0.55,
-        lddt=0.62,
-        n_interfaces=1,
-        buried_sasa=456.0,
-        irmsd=1.8,
-        dockq=0.42,
-    )
+        "pae_median": 6.5,
+        "pae_q90": 12.0,
+        "rg": 18.2,
+        "sasa": 12345.0,
+        "hbonds": 12,
+        "rama_outliers_pct": 2.0,
+        "clashscore": 8.7,
+        "rmsd": 2.1,
+        "gdt_ts": 75.0,
+        "gdt_ha": 60.0,
+        "tm_score": 0.55,
+        "lddt": 0.62,
+        "n_interfaces": 1,
+        "buried_sasa": 456.0,
+        "irmsd": 1.8,
+        "dockq": 0.42,
+    }
     d.update(kw)
     return R.TertiarySummary(**d)
 
 
 def _metrics(**kw) -> R.Metrics:
-    d = dict(
-        primary=_pri(),
-        secondary=_sec(),
-        tertiary=_ter(),
-        ref_residues=10,
-        n_matched_pairs=8,
-        seq_identity=0.6,
-        gap_fraction=0.1,
-    )
+    d = {
+        "primary": _pri(),
+        "secondary": _sec(),
+        "tertiary": _ter(),
+        "ref_residues": 10,
+        "n_matched_pairs": 8,
+        "seq_identity": 0.6,
+        "gap_fraction": 0.1,
+    }
     d.update(kw)
     return R.Metrics(**d)
 
@@ -91,15 +91,15 @@ def _metrics(**kw) -> R.Metrics:
 def _report(**kw) -> R.Report:
     metrics = kw.get("metrics", _metrics())
     warnings = kw.get("warnings", R.compute_report_warnings(metrics))
-    d = dict(
-        provider="P",
-        metrics=metrics,
-        notes="n",
-        low_conf_segments=((2, 10),),
-        warnings=warnings,
-        links={"pdb": "http://x"},
-        provenance={"ts": "t"},
-    )
+    d = {
+        "provider": "P",
+        "metrics": metrics,
+        "notes": "n",
+        "low_conf_segments": ((2, 10),),
+        "warnings": warnings,
+        "links": {"pdb": "http://x"},
+        "provenance": {"ts": "t"},
+    }
     d.update(kw)
     return R.Report(**d)
 
@@ -114,7 +114,7 @@ def test_json_safe_various_and_errors():
     assert R.json_safe(np.inf) is None
     assert R.json_safe({"a": np.nan, "b": [1, (2, 3)]}) == {"a": None, "b": [1, [2, 3]]}
     with pytest.raises(TypeError):
-        R.json_safe(set([1, 2]))
+        R.json_safe({1, 2})
 
 
 def test_fmt_and_fmt_pct():
@@ -437,7 +437,7 @@ def test_compare_outputs_and_significance_flags():
 
 
 def test_assert_band_sum_pass_and_fail():
-    bands_good = {b: 25.0 for b in R.PLDDTBand}
+    bands_good = dict.fromkeys(R.PLDDTBand, 25.0)
     R.assert_band_sum(bands_good)
     with pytest.raises(AssertionError):
         R.assert_band_sum(

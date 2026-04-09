@@ -157,8 +157,7 @@ def test_cpu_fallback_small_protein(ROOT: Path, run_output_dir: callable) -> Non
     assert "mean_plddt" in outputs, "mean_plddt missing from report outputs"
     warnings = run_output.get("warnings", [])
     assert any(
-        w.startswith("cpu_mode:local_esmfold")
-        or w.startswith("cpu_fallback:local_esmfold")
+        w.startswith(("cpu_mode:local_esmfold", "cpu_fallback:local_esmfold"))
         for w in warnings
     ), "CPU fallback warning not recorded"
 

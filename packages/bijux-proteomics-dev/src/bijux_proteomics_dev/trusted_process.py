@@ -16,6 +16,7 @@ class TrustedCommandError(RuntimeError):
     def __init__(
         self, command: Sequence[CommandArg], error: subprocess.CalledProcessError
     ):
+        """Capture the failed trusted command with its subprocess details."""
         self.command = [os.fspath(part) for part in command]
         self.returncode = error.returncode
         self.stdout = error.stdout

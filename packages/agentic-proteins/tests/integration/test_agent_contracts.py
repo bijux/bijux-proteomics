@@ -234,13 +234,10 @@ def test_agents_import_only_allowed_domains() -> None:
         content = path.read_text()
         for line in content.splitlines():
             stripped = line.lstrip()
-            if stripped.startswith("from agentic_proteins.") or stripped.startswith(
-                "import agentic_proteins."
-            ):
-                if not stripped.startswith(allowed_prefixes):
-                    raise AssertionError(
-                        f"Agent import outside allowed domains: {path}"
-                    )
+            if stripped.startswith(
+                ("from agentic_proteins.", "import agentic_proteins.")
+            ) and not stripped.startswith(allowed_prefixes):
+                raise AssertionError(f"Agent import outside allowed domains: {path}")
 
 
 def test_capability_coverage() -> None:

@@ -23,6 +23,7 @@ Requires: requests, biopython
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable, Iterable
 import hashlib
 from io import StringIO
 import json
@@ -33,14 +34,7 @@ import textwrap
 import time
 from typing import (
     Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
     Protocol,
-    Set,
-    Tuple,
     cast,
 )
 
@@ -124,7 +118,7 @@ def _get(url: str, timeout: float = HTTP_TIMEOUT) -> requests.Response:
 # ------------------- RCSB HELPERS -------------------
 
 
-def fetch_structure_text(pdb_id: str) -> Tuple[str, str]:
+def fetch_structure_text(pdb_id: str) -> tuple[str, str]:
     """Return (format, text) where format is 'pdb' or 'cif'."""
     pdb_url = f"https://files.rcsb.org/download/{pdb_id.upper()}.pdb"
     cif_url = f"https://files.rcsb.org/download/{pdb_id.upper()}.cif"
@@ -142,8 +136,8 @@ def fetch_entry_fasta(pdb_id: str) -> str:
     return _get(url).text
 
 
-def parse_fasta_per_chain(fasta_text: str) -> Dict[str, str]:
-    chain_to_seq: Dict[str, str] = {}
+def parse_fasta_per_chain(fasta_text: str) -> dict[str, str]:
+    chain_to_seq: dict[str, str] = {}
     saw_any = False
 
     for rec in SeqIoParse(StringIO(fasta_text), "fasta"):
@@ -198,12 +192,12 @@ def parse_fasta_per_chain(fasta_text: str) -> Dict[str, str]:
     return chain_to_seq
 
 
-def detect_protein_chains(structure_text: str, fmt: str) -> List[str]:
+def detect_protein_chains(structure_text: str, fmt: str) -> list[str]:
     """Find chain IDs that contain amino acid residues."""
     parser_factory = PdbParserFactory if fmt == "pdb" else MmcifParserFactory
     parser = parser_factory(QUIET=True)
     structure = parser.get_structure("entry", StringIO(structure_text))
-    chains: Set[str] = set()
+    chains: set[str] = set()
     for chain in structure.get_chains():
         for res in chain:
             if IsAminoAcid(res):
@@ -216,7 +210,7 @@ def detect_protein_chains(structure_text: str, fmt: str) -> List[str]:
 
 
 class ChainSelect:
-    def __init__(self, wanted: Set[str]):
+    def __init__(self, wanted: set[str]):
         super().__init__()
         self.wanted = wanted
 
@@ -225,7 +219,7 @@ class ChainSelect:
 
 
 def write_chain_subset_structure(
-    structure_text: str, fmt: str, chains: List[str], out_path: pathlib.Path
+    structure_text: str, fmt: str, chains: list[str], out_path: pathlib.Path
 ) -> None:
     parser_factory = PdbParserFactory if fmt == "pdb" else MmcifParserFactory
     parser = parser_factory(QUIET=True)
@@ -248,7 +242,7 @@ def _md5(s: str) -> str:
     return hashlib.md5(s.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
-def parse_target(t: str) -> Tuple[str, Optional[List[str]]]:
+def parse_target(t: str) -> tuple[str, list[str] | None]:
     """'4krp:B,C' -> ('4krp', ['B','C']); '1ubq' -> ('1ubq', None)"""
     s = t.strip()
     if ":" in s:
@@ -290,7 +284,7 @@ def prepare_example(
         raise RuntimeError(f"No FASTA chains parsed for {pdb_id}")
     detected_chains = detect_protein_chains(structure_text, fmt)
     if not detected_chains:
-        detected_chains = sorted(list(fasta_chains.keys()))  # fallback
+        detected_chains = sorted(fasta_chains.keys())  # fallback
 
     # determine chains to process
     chains = user_chains or detected_chains
@@ -316,7 +310,7 @@ def prepare_example(
         "pdb_id": pdb_id.upper(),
         "chains_requested": user_chains,
         "chains_detected": detected_chains,
-        "fasta_chains_available": sorted(list(fasta_chains.keys())),
+        "fasta_chains_available": sorted(fasta_chains.keys()),
         "structure_format": fmt,
         "sources": {
             "structure_url": f"https://files.rcsb.org/download/{pdb_id.upper()}.{fmt}",

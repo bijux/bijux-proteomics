@@ -75,7 +75,7 @@ class NoopStructuredLogger(StructuredLogger):
         **fields: Any,
     ) -> None:
         """log."""
-        return None
+        return
 
     def scope(self, component: str) -> StructuredLogger:
         """scope."""

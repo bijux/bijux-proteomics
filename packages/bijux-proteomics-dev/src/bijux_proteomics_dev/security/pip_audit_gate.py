@@ -14,7 +14,7 @@ IS_STRICT = os.getenv("SECURITY_STRICT", "1") == "1"
 
 def _load_report(path: str) -> list[dict[str, Any]]:
     try:
-        with open(path, "r", encoding="utf-8") as file:
+        with open(path, encoding="utf-8") as file:
             data = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError) as error:
         message = f"ERROR: pip-audit JSON missing/unreadable at '{path}': {error!s}"

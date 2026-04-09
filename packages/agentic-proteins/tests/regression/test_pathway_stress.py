@@ -36,7 +36,7 @@ def _agent(agent_id: str) -> ProteinAgent:
 
 def _run_pathway(agent_count: int) -> None:
     agents = [_agent(f"p{idx}") for idx in range(agent_count)]
-    edges = {agent.agent_id: tuple() for agent in agents}
+    edges = {agent.agent_id: () for agent in agents}
     contract = PathwayContract(
         max_incoming_signals=agent_count,
         max_outgoing_signals=agent_count,

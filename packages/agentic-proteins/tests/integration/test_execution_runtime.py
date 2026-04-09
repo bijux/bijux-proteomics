@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 import time
-from typing import Iterator
 
 from agentic_proteins.core.execution import ExecutionTask
 from agentic_proteins.core.tooling import (
@@ -50,8 +50,7 @@ def _task(timeout_ms: int = 0) -> ExecutionTask:
 
 
 def _time_sequence(values: list[float]) -> Iterator[float]:
-    for value in values:
-        yield value
+    yield from values
     while True:
         yield values[-1]
 

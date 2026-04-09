@@ -78,7 +78,7 @@ class BaseProvider:
 
     def close(self) -> None:
         """Closes the provider."""
-        return None
+        return
 
 
 def _time_left(deadline: float) -> float:

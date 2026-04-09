@@ -24,13 +24,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable
 import os
 from pathlib import Path
 import shutil
 import stat
 import sys
 import textwrap
-from typing import Callable, Optional
 
 from bijux_proteomics_dev.trusted_process import TrustedCommandError, run_text
 
@@ -73,7 +73,7 @@ def ensure_dir(p: Path) -> None:
     p.mkdir(parents=True, exist_ok=True)
 
 
-def run(cmd: list[str], cwd: Optional[Path] = None) -> str:
+def run(cmd: list[str], cwd: Path | None = None) -> str:
     """Runs a command, captures output, and raises an error on failure."""
     log(f" > Running: {' '.join(cmd)}")
     try:
@@ -261,8 +261,8 @@ _ESMFOLD_WRAPPER = textwrap.dedent("""\
 def prepare_esmfold(
     root_dir: Path,
     repo_id: str,
-    revision: Optional[str],
-    hf_token: Optional[str],
+    revision: str | None,
+    hf_token: str | None,
     force: bool,
 ) -> None:
     log("\n--- [ESMFold] Preparing Assets ---")
@@ -304,7 +304,7 @@ def prepare_esmfold(
 
 
 def prepare_rosettafold(
-    root_dir: Path, github_repo: str, weights_url: Optional[str], force: bool
+    root_dir: Path, github_repo: str, weights_url: str | None, force: bool
 ) -> None:
     log("\n--- [RoseTTAFold] Preparing Assets ---")
     ensure_dir(root_dir)
