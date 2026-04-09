@@ -1,0 +1,29 @@
+---
+title: Change Management
+audience: mixed
+type: explanation
+status: canonical
+owner: bijux-proteomics-docs
+last_reviewed: 2026-04-10
+---
+
+# Change Management
+
+The repository should make change easier to reason about, not easier to hide.
+
+## Expectations
+
+- split repository-wide work into reviewable batches with durable commit intent
+- update the relevant handbook pages in the same change series as the behavior
+- keep file and directory names descriptive enough that later readers do not
+  need private project history to decode them
+- use redirects or explicit metadata updates when documentation paths move
+
+## Purpose
+
+This page explains how shared repository changes should be packaged and carried
+through to completion.
+
+## Stability
+
+Update it only when the repository’s change discipline genuinely shifts.

@@ -31,10 +31,17 @@ nav:
           - Documentation System: bijux-proteomics/foundation/documentation-system.md
           - Change Principles: bijux-proteomics/foundation/change-principles.md
           - Decision Rules: bijux-proteomics/foundation/decision-rules.md
-      - API and Schema Governance: bijux-proteomics/api-and-schema-governance.md
-      - Local Development: bijux-proteomics/local-development.md
-      - Testing and Validation: bijux-proteomics/testing-and-validation.md
-      - Release and Versioning: bijux-proteomics/release-and-versioning.md
+      - Operations:
+          - Operations: bijux-proteomics/operations/index.md
+          - Local Development: bijux-proteomics/operations/local-development.md
+          - Testing and Validation: bijux-proteomics/operations/testing-and-validation.md
+          - Release and Versioning: bijux-proteomics/operations/release-and-versioning.md
+          - API and Schema Governance: bijux-proteomics/operations/api-and-schema-governance.md
+          - Contributor Workflows: bijux-proteomics/operations/contributor-workflows.md
+          - Automation Surfaces: bijux-proteomics/operations/automation-surfaces.md
+          - Artifact Governance: bijux-proteomics/operations/artifact-governance.md
+          - Review Expectations: bijux-proteomics/operations/review-expectations.md
+          - Change Management: bijux-proteomics/operations/change-management.md
   - agentic-proteins:
       - Overview: agentic-proteins/index.md
       - Foundation:

@@ -39,25 +39,16 @@ flowchart TB
     root -.must not become.-> shadow
 ```
 
-## Foundation Pages
+## Handbook Sections
 
 - [Foundation](foundation/index.md)
-- [Platform Overview](foundation/platform-overview.md)
-- [Repository Scope](foundation/repository-scope.md)
-- [Workspace Layout](foundation/workspace-layout.md)
-- [Package Map](foundation/package-map.md)
-- [Ownership Model](foundation/ownership-model.md)
-- [Domain Language](foundation/domain-language.md)
-- [Documentation System](foundation/documentation-system.md)
-- [Change Principles](foundation/change-principles.md)
-- [Decision Rules](foundation/decision-rules.md)
+- [Operations](operations/index.md)
 
-## Current Operations Pages
+## What This Section Covers
 
-- [API and Schema Governance](api-and-schema-governance.md)
-- [Local Development](local-development.md)
-- [Testing and Validation](testing-and-validation.md)
-- [Release and Versioning](release-and-versioning.md)
+- the package split and repository ownership model
+- shared automation, validation, release, and review guidance
+- the root-level rules that no one package can explain honestly on its own
 
 ## Use This Section For
 
