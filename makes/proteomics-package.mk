@@ -1,4 +1,4 @@
-include $(ROOT_MAKE_DIR)/bijux-py/package-freeze-python.mk
+include $(ROOT_MAKE_DIR)/bijux-py/package/freeze-python.mk
 
 MYPY_CONFIG ?= $(MONOREPO_ROOT)/configs/mypy.ini
 PYDOCSTYLE_ARGS ?= --convention=google --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107

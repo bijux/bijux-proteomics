@@ -1,5 +1,5 @@
-include $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/../bijux-py/package-profile.mk
-include $(ROOT_MAKE_DIR)/bijux-py/package-python.mk
+include $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/../bijux-py/package/profile.mk
+include $(ROOT_MAKE_DIR)/bijux-py/package/python.mk
 
 PACKAGE_IMPORT_NAME := bijux_proteomics_dev
 PACKAGE_INSTALL_SPEC := .[dev]
@@ -17,4 +17,4 @@ SECURITY_IGNORE_IDS := PYSEC-2022-42969 CVE-2025-68463
 SECURITY_BANDIT_SKIP_IDS := B311
 PACKAGE_ALL_TARGETS := clean install test lint quality security build sbom
 
-include $(ROOT_MAKE_DIR)/bijux-py/package-gates.mk
+include $(ROOT_MAKE_DIR)/bijux-py/package/gates.mk

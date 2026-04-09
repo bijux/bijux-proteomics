@@ -1,6 +1,6 @@
 ROOT_MAKEFILE_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
-include $(ROOT_MAKEFILE_DIR)/bijux-py/root-env.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/root/env.mk
 include $(ROOT_MAKEFILE_DIR)/env.mk
 include $(ROOT_MAKEFILE_DIR)/packages.mk
 
@@ -20,13 +20,13 @@ ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 -include .env
 export
 
-include $(ROOT_MAKEFILE_DIR)/bijux-py/repository-root.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/root.mk
 
-include $(ROOT_MAKEFILE_DIR)/bijux-py/root-package-dispatch.mk
-include $(ROOT_MAKEFILE_DIR)/bijux-py/root-docs.mk
-include $(ROOT_MAKEFILE_DIR)/bijux-py/repository-config-layout.mk
-include $(ROOT_MAKEFILE_DIR)/bijux-py/repository-make-layout.mk
-include $(ROOT_MAKEFILE_DIR)/bijux-py/shared-bijux-py.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/root/package-dispatch.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/root/docs.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/config-layout.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/make-layout.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/bijux.mk
 
 .PHONY: \
 	help list list-all install lock lock-check lint quality security test docs docs-check docs-serve api build sbom clean all \
@@ -66,7 +66,7 @@ manage_models: root-check-env ## Refresh model metadata through the repository h
 	@$(DEV_RUN) -m bijux_proteomics_dev.tools.manage_models
 
 HELP_WIDTH := 22
-include $(ROOT_MAKEFILE_DIR)/bijux-py/help.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/ci/help.mk
 
 help: ## Show generated repository commands from included make modules
 check-shared-bijux-py: ## Verify shared bijux-py make modules match across sibling repositories
