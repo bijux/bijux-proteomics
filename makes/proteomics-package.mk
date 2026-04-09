@@ -1,5 +1,4 @@
-include $(ROOT_MAKE_DIR)/bijux-py/package/repository-python.mk
-
+PACKAGE_KIND ?= repository-python
 MYPY_CONFIG ?= $(MONOREPO_ROOT)/configs/mypy.ini
 API_MODE ?= freeze
 ENABLE_MYPY ?= 0

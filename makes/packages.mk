@@ -9,4 +9,4 @@ PACKAGE_RECORDS := \
 	bijux-proteomics-lab|primary,check,buildable,sbom,api|bijux-proteomics-lab.mk \
 	bijux-proteomics-dev|check|bijux-proteomics-dev.mk
 
-include $(ROOT_MAKEFILE_DIR)/bijux-py/package/catalog.mk
+include $(ROOT_MAKEFILE_DIR)/bijux-py/package-catalog.mk
