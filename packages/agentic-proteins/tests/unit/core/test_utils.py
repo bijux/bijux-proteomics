@@ -8,9 +8,9 @@ import textwrap
 from typing import Any, cast
 
 import agentic_proteins.domain as U
+from agentic_proteins.domain.structure import structure as structure_mod
 import numpy as np
 import pytest
-from agentic_proteins.domain.structure import structure as structure_mod
 
 # ------------------------ tiny PDB builders ------------------------
 

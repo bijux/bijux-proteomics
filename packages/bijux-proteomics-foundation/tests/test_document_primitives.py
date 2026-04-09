@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 from bijux_proteomics_foundation import (
     ContractConflictError,
     ContractNotFoundError,
@@ -26,6 +25,7 @@ from bijux_proteomics_foundation import (
     ensure_identifier_kind,
 )
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+import pytest
 
 
 class DemoDocument(JsonModel):

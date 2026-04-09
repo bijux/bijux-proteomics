@@ -6,7 +6,6 @@ from __future__ import annotations
 from datetime import timedelta
 from pathlib import Path
 
-import pytest
 from bijux_proteomics import (
     DecisionQuery,
     DuplicateReviewDecisionError,
@@ -60,6 +59,7 @@ from bijux_proteomics.programs import (
     build_assay_grounded_criteria,
 )
 from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
+import pytest
 
 
 def test_create_program_spec_enforces_sequence_contract() -> None:
