@@ -6,6 +6,8 @@ from __future__ import annotations
 from datetime import timedelta
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics import (
     DecisionQuery,
     DuplicateReviewDecisionError,
@@ -45,6 +47,7 @@ from bijux_proteomics import (
     validate_program_readiness,
     validate_review_decision,
 )
+from bijux_proteomics.constraints import ConstraintCategory
 from bijux_proteomics.programs import (
     AssayRequirement,
     LiabilityCategory,
@@ -58,7 +61,6 @@ from bijux_proteomics.programs import (
     build_assay_grounded_criteria,
 )
 from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
-import pytest
 
 
 def test_create_program_spec_enforces_sequence_contract() -> None:
@@ -89,7 +91,7 @@ def test_program_summary_counts_scientific_parts() -> None:
     program.constraints.append(
         ScientificConstraint(
             constraint_id="surface-charge",
-            category="developability",
+            category=ConstraintCategory.DEVELOPABILITY,
             statement="do not add a strongly hydrophobic surface patch",
             rationale="reduce aggregation risk",
         )
@@ -726,7 +728,7 @@ def test_validate_program_requires_mitigation_for_blocking_constraints() -> None
     program.constraints.append(
         ScientificConstraint(
             constraint_id="constraint-1",
-            category="developability",
+            category=ConstraintCategory.DEVELOPABILITY,
             statement="avoid severe aggregation hotspots",
             rationale="aggregation blocks manufacturability",
             blocker=True,

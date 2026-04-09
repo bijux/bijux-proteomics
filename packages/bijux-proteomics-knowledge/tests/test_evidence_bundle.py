@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from typing import cast
 
 from bijux_proteomics_knowledge import (
     BundleFreshnessReport,
@@ -88,12 +90,13 @@ def test_summarize_bundle_counts_records_by_kind() -> None:
     )
 
     summary = summarize_bundle(bundle)
+    by_kind = cast(dict[str, int], summary["by_kind"])
 
     assert summary["record_count"] == 2
     assert summary["decisive_records"] == 1
     assert summary["schema_version"] == "1.0.0"
-    assert summary["by_kind"]["literature"] == 1
-    assert summary["by_kind"]["assay"] == 1
+    assert by_kind["literature"] == 1
+    assert by_kind["assay"] == 1
 
 
 def test_evidence_gaps_reports_missing_kinds() -> None:
@@ -234,7 +237,7 @@ def test_assess_decision_readiness_reports_blockers() -> None:
     )
 
 
-def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path) -> None:
+def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path: Path) -> None:
     bundle = EvidenceBundle(
         bundle_id="bundle-1",
         target_id="target-1",

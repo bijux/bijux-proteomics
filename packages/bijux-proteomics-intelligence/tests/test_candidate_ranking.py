@@ -9,6 +9,7 @@ from bijux_proteomics import (
     SuccessCriterion,
     create_program_spec,
 )
+from bijux_proteomics.constraints import ConstraintCategory
 from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
@@ -73,7 +74,7 @@ def test_build_design_brief_surfaces_blockers_and_evidence_gaps() -> None:
     program.constraints.append(
         ScientificConstraint(
             constraint_id="surface-hydrophobics",
-            category="developability",
+            category=ConstraintCategory.DEVELOPABILITY,
             statement="avoid broad hydrophobic surface patches",
             rationale="reduce aggregation risk",
             threshold=0.3,
