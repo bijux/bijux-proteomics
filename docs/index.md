@@ -4,61 +4,100 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-10
 ---
 
 # Bijux Proteomics
 
-`bijux-proteomics` is split on purpose. It is easier to understand, review, and
-trust when runtime authority, program contracts, intelligence, evidence, and
-lab planning stay separate instead of dissolving into one vague codebase.
+`bijux-proteomics` is a deliberately split system for deterministic protein
+runtime execution, shared contracts, decision intelligence, evidence handling,
+and lab orchestration. The split is the architecture, not a packaging detail.
 
-This landing page is for orientation. A reader should be able to skim it,
-decide where their question belongs, and move on without needing a meeting.
+This site is meant to stand on its own. A new reader should be able to answer
+three questions quickly: why the repository is split, which package owns the
+current concern, and which checked-in files prove the story being told.
 
-## How To Read The Site
+<div class="bijux-callout"><strong>Start with the package split, not the file tree.</strong>
+Foundation keeps shared payload meaning stable. Core defines program and
+lifecycle contracts. Knowledge tracks claims and evidence state. Intelligence
+turns those inputs into inspectable decisions. Lab carries assay planning and
+outcomes. <code>agentic-proteins</code> governs execution and replay. The
+repository handbook exists to explain how those responsibilities fit together
+without pretending they are one thing.</div>
+
+<div class="bijux-panel-grid">
+  <div class="bijux-panel"><h3>Whole-System Idea</h3><p>Use the root pages to understand why the repository is split and how the proteomics packages fit into one accountable flow.</p></div>
+  <div class="bijux-panel"><h3>Honesty Rule</h3><p>The docs are only useful if they send readers back to code, schema artifacts, tests, and workflows quickly enough to verify the claims.</p></div>
+  <div class="bijux-panel"><h3>Fast Reading Path</h3><p>Open the repository handbook for cross-package questions, one product handbook for owned behavior, and the maintainer handbook for repository health.</p></div>
+</div>
+
+<div class="bijux-quicklinks">
+<a class="md-button md-button--primary" href="bijux-proteomics/">Open the repository handbook</a>
+<a class="md-button" href="bijux-proteomics-maintain/">Open maintenance docs</a>
+</div>
+
+## Visual Summary
 
 ```mermaid
-flowchart LR
-    start["Start with the question you have"]
-    repo["Repository handbook<br/>shared rules and system fit"]
-    runtime["agentic-proteins<br/>runtime orchestration and replay authority"]
-    foundation["bijux-proteomics-foundation<br/>shared schema and serialization primitives"]
-    core["bijux-proteomics-core<br/>program definitions and lifecycle contracts"]
-    intelligence["bijux-proteomics-intelligence<br/>candidate ranking and explainability"]
-    knowledge["bijux-proteomics-knowledge<br/>evidence, claims, and contradiction handling"]
-    lab["bijux-proteomics-lab<br/>experiment planning and outcome loops"]
-
-    start --> repo
-    start --> runtime
-    start --> foundation
-    start --> core
-    start --> intelligence
-    start --> knowledge
-    start --> lab
+flowchart TB
+    page["Bijux Proteomics<br/>clarifies: repository section | maintainer section | package handbooks"]
+    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
+    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
+    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
+    detail1["why the split exists"]
+    detail1 --> page
+    detail2["where each package takes authority"]
+    detail2 --> page
+    detail3["which handbook branch to open first"]
+    detail3 --> page
+    detail4["maintainer work"]
+    detail4 --> page
+    detail5["questions that do not belong on the landing page"]
+    detail5 --> page
+    next1["repository handbook"]
+    page --> next1
+    next2["product package docs"]
+    page --> next2
+    next3["maintainer docs"]
+    page --> next3
+    class page page;
+    class detail1,detail2,detail3,detail4,detail5 anchor;
+    class next1,next2,next3 action;
 ```
 
 ## Start Here
 
-- Open the [Repository Handbook](bijux-proteomics/index.md) when the question
-  crosses package boundaries or touches shared repository rules.
-- Open one product package when the question is about owned behavior, public
-  surfaces, workflows, or proof inside that package.
+- open [bijux-proteomics](bijux-proteomics/index.md) when the question crosses
+  package boundaries or touches shared governance
+- open one product package when you need ownership, interfaces, operations, or
+  proof for one package
+- open [bijux-proteomics-maintain](bijux-proteomics-maintain/index.md) for
+  repository automation, schema enforcement, and maintainer-only guardrails
 
-## Package Handbooks
+## Package Flow
 
-- [`agentic-proteins`](agentic-proteins/index.md) owns runtime execution,
-  orchestration, replay, and operator-facing runtime surfaces.
-- [`bijux-proteomics-foundation`](bijux-proteomics-foundation/index.md) owns
-  schema compatibility helpers and canonical payload serialization primitives.
-- [`bijux-proteomics-core`](bijux-proteomics-core/index.md) owns program
-  definitions, constraints, and lifecycle contract models.
-- [`bijux-proteomics-intelligence`](bijux-proteomics-intelligence/index.md)
-  owns candidate scoring, ranking, and explainable decision outputs.
-- [`bijux-proteomics-knowledge`](bijux-proteomics-knowledge/index.md) owns
-  evidence records, claim state, and contradiction resolution boundaries.
-- [`bijux-proteomics-lab`](bijux-proteomics-lab/index.md) owns experiment
-  planning, assay outcomes, and closed-loop lab-facing artifacts.
+| Package | Owns | Open It When |
+| --- | --- | --- |
+| `agentic-proteins` | runtime execution, replay, and operator-facing orchestration | you need the execution authority layer |
+| `bijux-proteomics-foundation` | schema compatibility and canonical serialization primitives | you are changing shared payload meaning |
+| `bijux-proteomics-core` | program definitions, constraints, and lifecycle contracts | you are changing program or gate behavior |
+| `bijux-proteomics-intelligence` | scoring, ranking, and explainable decision logic | you are tuning recommendations or policy |
+| `bijux-proteomics-knowledge` | evidence records, claim state, and contradiction handling | the work concerns trust or evidence state |
+| `bijux-proteomics-lab` | experiment planning, assay outcomes, and closed-loop lab artifacts | the work concerns lab execution or outcome promotion |
 
-The root docs should shorten conversations, not create new documentation
-ceremony.
+## Documentation Scope
+
+- the `bijux-proteomics` repository handbook
+- the `bijux-proteomics-maintain` maintainer handbook
+- the product package handbooks published from this repository
+
+## Purpose
+
+This page is the front door to the handbook. Its job is to make the split
+legible quickly enough that a reader can choose the right next section before
+they drown in detail.
+
+## Stability
+
+Keep it aligned with the sections rendered in `docs/`, the packages that still
+ship from this repository, and the reasons the split exists.
