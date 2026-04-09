@@ -28,7 +28,7 @@ sequenceDiagram
     participant Commit as commit message
     participant Tag as git tag (v*)
     participant Build as build-release-artifacts workflow
-    participant Publish as publish-<package> workflow
+    participant Publish as publish workflow
     participant PyPI as PyPI package
 
     Change->>Commit: describe durable intent

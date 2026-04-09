@@ -24,10 +24,15 @@ def _workflow(path: Path) -> dict[str, Any]:
     return data
 
 
-def test_publish_workflows_cover_all_release_packages() -> None:
-    root = _repo_root()
-    workflows = root / ".github" / "workflows"
+def _matrix_include(job: dict[str, Any]) -> list[dict[str, Any]]:
+    strategy = _as_dict(job.get("strategy"))
+    matrix = _as_dict(strategy.get("matrix"))
+    include = matrix.get("include")
+    return include if isinstance(include, list) else []
 
+
+def test_publish_workflow_covers_all_release_packages() -> None:
+    root = _repo_root()
     expected = {
         "agentic-proteins",
         "bijux-proteomics-foundation",
@@ -37,29 +42,43 @@ def test_publish_workflows_cover_all_release_packages() -> None:
         "bijux-proteomics-lab",
     }
 
-    found = {
-        path.name.removeprefix("publish-").removesuffix(".yml")
-        for path in workflows.glob("publish-*.yml")
+    workflow = _workflow(root / ".github" / "workflows" / "publish.yml")
+    jobs = _as_dict(workflow.get("jobs"))
+    build = _as_dict(jobs.get("build"))
+    publish = _as_dict(jobs.get("publish"))
+
+    assert build.get("uses") == "./.github/workflows/build-release-artifacts.yml"
+    assert publish.get("needs") == "build"
+    assert publish.get("environment", {}).get("name") == "pypi"
+
+    build_found = {
+        entry["package_slug"]
+        for entry in _matrix_include(build)
+        if "package_slug" in entry
+    }
+    publish_found = {
+        entry["package_slug"]
+        for entry in _matrix_include(publish)
+        if "package_slug" in entry
     }
 
-    assert expected.issubset(found)
+    assert build_found == expected
+    assert publish_found == expected
 
 
-def test_publish_workflows_use_package_scoped_builds() -> None:
+def test_publish_workflow_uses_package_scoped_builds_and_sboms() -> None:
     root = _repo_root()
-    workflows = root / ".github" / "workflows"
+    workflow = _workflow(root / ".github" / "workflows" / "publish.yml")
+    build = _as_dict(_as_dict(workflow.get("jobs")).get("build"))
 
-    for path in workflows.glob("publish-*.yml"):
-        workflow = _workflow(path)
-        build_with = _as_dict(
-            _as_dict(_as_dict(workflow.get("jobs")).get("build")).get("with")
-        )
-        package_slug = build_with.get("package_slug")
+    for entry in _matrix_include(build):
+        package_slug = entry.get("package_slug")
         assert isinstance(package_slug, str)
-        if package_slug == "agentic-proteins":
-            package_dir = "packages/agentic-proteins"
-        else:
-            package_dir = f"packages/{package_slug}"
-
-        assert build_with.get("package_dir") == package_dir
-        assert build_with.get("dist_subdir") == f"build/{package_slug}"
+        package_dir = (
+            "packages/agentic-proteins"
+            if package_slug == "agentic-proteins"
+            else f"packages/{package_slug}"
+        )
+        assert entry.get("package_dir") == package_dir
+        assert entry.get("artifacts_dir") == f"artifacts/{package_slug}"
+        assert entry.get("build_targets") == "build sbom"

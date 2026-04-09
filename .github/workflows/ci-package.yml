@@ -6,30 +6,28 @@ on:
       package_slug:
         required: true
         type: string
-      cache_dependency_path:
+      package_dir:
+        required: true
+        type: string
+      artifacts_dir:
         required: true
         type: string
       test_python_versions:
         required: false
         type: string
         default: '["3.11"]'
-      test_paths:
-        required: true
-        type: string
-      lint_dirs:
-        required: true
-        type: string
-      quality_paths:
-        required: true
-        type: string
       check_targets:
         required: false
         type: string
         default: '["quality", "security", "docs", "api", "build", "sbom"]'
-      build_target:
+      api_toolchain_targets:
         required: false
         type: string
-        default: "build"
+        default: '["api"]'
+      post_test_command:
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -39,6 +37,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  ARTIFACTS_DIR: ${{ inputs.artifacts_dir }}
   PYTHONUNBUFFERED: "1"
 
 jobs:
@@ -59,41 +58,33 @@ jobs:
       - uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
-          cache-dependency-glob: ${{ inputs.cache_dependency_path }}
+          cache-dependency-glob: uv.lock
 
-      - name: Install toolchain
+      - name: Install package toolchain
         shell: bash
         run: |
           set -euo pipefail
-          make install EXTRAS="dev"
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
+          make -f "$makefile" -C "${{ inputs.package_dir }}" install
 
       - name: Run tests
         shell: bash
         run: |
           set -euo pipefail
-          coverage_module=""
-          case "${{ inputs.package_slug }}" in
-            agentic-proteins) coverage_module="agentic_proteins" ;;
-            bijux-proteomics-core) coverage_module="bijux_proteomics" ;;
-            bijux-proteomics-foundation) coverage_module="bijux_proteomics_foundation" ;;
-            bijux-proteomics-intelligence) coverage_module="bijux_proteomics_intelligence" ;;
-            bijux-proteomics-knowledge) coverage_module="bijux_proteomics_knowledge" ;;
-            bijux-proteomics-lab) coverage_module="bijux_proteomics_lab" ;;
-            *) coverage_module="" ;;
-          esac
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
+          make -f "$makefile" -C "${{ inputs.package_dir }}" test
 
-          if [ -n "$coverage_module" ]; then
-            make test TEST_PATHS="${{ inputs.test_paths }}" PYTEST_ADDOPTS_EXTRA="--cov-reset --cov=$coverage_module"
-          else
-            make test TEST_PATHS="${{ inputs.test_paths }}"
-          fi
+      - name: Run post-test validation
+        if: ${{ inputs.post_test_command != '' }}
+        shell: bash
+        run: ${{ inputs.post_test_command }}
 
       - name: Upload test artifacts
         if: ${{ always() }}
         uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.package_slug }}-test-py${{ matrix.python-version }}
-          path: artifacts/test
+          path: ${{ env.ARTIFACTS_DIR }}/test
           if-no-files-found: ignore
           retention-days: 14
 
@@ -114,51 +105,39 @@ jobs:
       - uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
-          cache-dependency-glob: ${{ inputs.cache_dependency_path }}
+          cache-dependency-glob: uv.lock
 
       - uses: actions/setup-node@v5
-        if: ${{ matrix.target == 'api' }}
+        if: ${{ contains(fromJson(inputs.api_toolchain_targets), matrix.target) }}
         with:
           node-version: "20"
 
       - uses: actions/setup-java@v5
-        if: ${{ matrix.target == 'api' }}
+        if: ${{ contains(fromJson(inputs.api_toolchain_targets), matrix.target) }}
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Install toolchain
+      - name: Install package toolchain
         shell: bash
         run: |
           set -euo pipefail
-          make install EXTRAS="dev"
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
+          make -f "$makefile" -C "${{ inputs.package_dir }}" install
 
       - name: Run ${{ matrix.target }}
         shell: bash
         run: |
           set -euo pipefail
-          case "${{ matrix.target }}" in
-            quality)
-              make quality QUALITY_PATHS="${{ inputs.quality_paths }}"
-              ;;
-            build)
-              make "${{ inputs.build_target }}"
-              ;;
-            security|docs|api|sbom)
-              make "${{ matrix.target }}"
-              ;;
-            *)
-              echo "Unknown target: ${{ matrix.target }}"
-              exit 2
-              ;;
-          esac
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
+          make -f "$makefile" -C "${{ inputs.package_dir }}" ${{ matrix.target }}
 
       - name: Upload artifacts
-        if: ${{ always() }}
+        if: ${{ always() && hashFiles(format('{0}/{1}/**', env.ARTIFACTS_DIR, matrix.target)) != '' }}
         uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.package_slug }}-${{ matrix.target }}
-          path: artifacts/${{ matrix.target }}
+          path: ${{ env.ARTIFACTS_DIR }}/${{ matrix.target }}
           if-no-files-found: ignore
           retention-days: 14
 
@@ -175,25 +154,27 @@ jobs:
       - uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
-          cache-dependency-glob: ${{ inputs.cache_dependency_path }}
+          cache-dependency-glob: uv.lock
 
-      - name: Install toolchain
+      - name: Install package toolchain
         shell: bash
         run: |
           set -euo pipefail
-          make install EXTRAS="dev"
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
+          make -f "$makefile" -C "${{ inputs.package_dir }}" install
 
       - name: Run lint
         shell: bash
         run: |
           set -euo pipefail
-          make lint LINT_DIRS="${{ inputs.lint_dirs }}"
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
+          make -f "$makefile" -C "${{ inputs.package_dir }}" lint
 
       - name: Upload lint artifacts
         if: ${{ always() }}
         uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.package_slug }}-lint
-          path: artifacts/lint
+          path: ${{ env.ARTIFACTS_DIR }}/lint
           if-no-files-found: ignore
           retention-days: 14

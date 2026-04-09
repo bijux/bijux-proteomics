@@ -6,25 +6,20 @@ on:
       package_slug:
         required: true
         type: string
-      cache_dependency_path:
+      package_dir:
+        required: true
+        type: string
+      artifacts_dir:
         required: true
         type: string
       build_targets:
         required: false
         type: string
         default: "build"
-      package_dir:
-        required: false
-        type: string
-        default: "."
       dist_subdir:
         required: false
         type: string
         default: build
-      upload_paths:
-        required: false
-        type: string
-        default: ""
 
 permissions:
   contents: read
@@ -36,6 +31,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ARTIFACTS_DIR: ${{ inputs.artifacts_dir }}
 
     steps:
       - uses: actions/checkout@v5
@@ -49,20 +46,22 @@ jobs:
       - uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
-          cache-dependency-glob: ${{ inputs.cache_dependency_path }}
+          cache-dependency-glob: uv.lock
 
-      - name: Install toolchain
+      - name: Install package toolchain
         shell: bash
         run: |
           set -euo pipefail
-          make install EXTRAS="dev"
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
+          make -f "$makefile" -C "${{ inputs.package_dir }}" install
 
       - name: Build release artifacts
         shell: bash
         run: |
           set -euo pipefail
+          makefile="${GITHUB_WORKSPACE}/makes/packages/$(basename '${{ inputs.package_dir }}').mk"
           for target in ${{ inputs.build_targets }}; do
-            make "$target" PACKAGE_DIR="${{ inputs.package_dir }}"
+            make -f "$makefile" -C "${{ inputs.package_dir }}" "$target"
           done
 
       - name: Stage publish artifacts
@@ -71,8 +70,8 @@ jobs:
           set -euo pipefail
           stage_dir=".github/tmp/${{ inputs.package_slug }}-dist"
           mkdir -p "$stage_dir"
-          cp "artifacts/${{ inputs.dist_subdir }}"/*.whl "$stage_dir"/
-          cp "artifacts/${{ inputs.dist_subdir }}"/*.tar.gz "$stage_dir"/
+          cp "${ARTIFACTS_DIR}/${{ inputs.dist_subdir }}"/*.whl "$stage_dir"/
+          cp "${ARTIFACTS_DIR}/${{ inputs.dist_subdir }}"/*.tar.gz "$stage_dir"/
 
       - name: Upload publish artifacts
         uses: actions/upload-artifact@v6
@@ -86,6 +85,6 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.package_slug }}-release
-          path: ${{ inputs.upload_paths != '' && inputs.upload_paths || format('artifacts/{0}/*', inputs.dist_subdir) }}
+          path: ${{ env.ARTIFACTS_DIR }}
           if-no-files-found: ignore
           retention-days: 14

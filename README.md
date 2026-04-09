@@ -2,12 +2,9 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI: agentic-proteins](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-agentic-proteins.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-agentic-proteins.yml)
-[![CI: foundation](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-foundation.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-foundation.yml)
-[![CI: core](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-core.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-core.yml)
-[![CI: intelligence](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-intelligence.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-intelligence.yml)
-[![CI: knowledge](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-knowledge.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-knowledge.yml)
-[![CI: lab](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-lab.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/ci-bijux-proteomics-lab.yml)
+[![Verify](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
+[![Publish](https://github.com/bijux/bijux-proteomics/actions/workflows/publish.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/publish.yml)
+[![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
 
 [![agentic-proteins](https://img.shields.io/pypi/v/agentic-proteins?label=agentic--proteins&logo=pypi)](https://pypi.org/project/agentic-proteins/)
 [![bijux-proteomics-foundation](https://img.shields.io/pypi/v/bijux-proteomics-foundation?label=foundation&logo=pypi)](https://pypi.org/project/bijux-proteomics-foundation/)

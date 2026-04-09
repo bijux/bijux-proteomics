@@ -24,26 +24,53 @@ def _workflow(path: Path) -> dict[str, Any]:
     return data
 
 
-def test_ci_workflows_define_package_build_targets() -> None:
+def _matrix_include(job: dict[str, Any]) -> list[dict[str, Any]]:
+    strategy = _as_dict(job.get("strategy"))
+    matrix = _as_dict(strategy.get("matrix"))
+    include = matrix.get("include")
+    return include if isinstance(include, list) else []
+
+
+def test_workflow_tree_is_standardized() -> None:
     root = _repo_root()
     workflows = root / ".github" / "workflows"
-    package_ci_files = sorted(workflows.glob("ci-*.yml"))
-
-    for path in package_ci_files:
-        if path.name == "ci-package.yml":
-            continue
-        workflow = _workflow(path)
-        ci_job = _as_dict(_as_dict(workflow.get("jobs")).get("ci"))
-        uses = ci_job.get("uses")
-        assert uses == "./.github/workflows/ci-package.yml"
-        build_target = _as_dict(ci_job.get("with")).get("build_target")
-        assert isinstance(build_target, str)
-        assert build_target.startswith("build-")
+    found = {path.name for path in workflows.glob("*.yml")}
+    assert found == {
+        "build-release-artifacts.yml",
+        "ci-package.yml",
+        "deploy-docs.yml",
+        "publish.yml",
+        "verify.yml",
+    }
 
 
-def test_agentic_workflow_watches_apis_directory() -> None:
+def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
     root = _repo_root()
-    path = root / ".github" / "workflows" / "ci-agentic-proteins.yml"
-    content = path.read_text(encoding="utf-8")
-    assert '"apis/**"' in content
-    assert '"api/**"' not in content
+    workflow = _workflow(root / ".github" / "workflows" / "verify.yml")
+    jobs = _as_dict(workflow.get("jobs"))
+    repository = _as_dict(jobs.get("repository"))
+    package = _as_dict(jobs.get("package"))
+
+    assert repository.get("name") == "repository-contracts"
+    assert package.get("uses") == "./.github/workflows/ci-package.yml"
+    assert package.get("needs") == "repository"
+
+    verify_packages = {
+        entry["package_slug"] for entry in _matrix_include(package) if "package_slug" in entry
+    }
+    assert verify_packages == {
+        "agentic-proteins",
+        "bijux-proteomics-foundation",
+        "bijux-proteomics-core",
+        "bijux-proteomics-intelligence",
+        "bijux-proteomics-knowledge",
+        "bijux-proteomics-lab",
+        "bijux-proteomics-dev",
+    }
+
+    dev = next(
+        entry
+        for entry in _matrix_include(package)
+        if entry.get("package_slug") == "bijux-proteomics-dev"
+    )
+    assert dev.get("check_targets") == '["quality", "security", "build", "sbom"]'
