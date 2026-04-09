@@ -82,16 +82,17 @@ surface.
 
 ## Release Model
 
-- publishing is tag-driven: pushing `vX.Y.Z` triggers package publish workflows
+- publishing is tag-driven: pushing `vX.Y.Z` triggers the shared `publish.yml` workflow
 - each publishable package owns its release notes in `packages/<package>/CHANGELOG.md`
 - root `CHANGELOG.md` is only for repository-wide changes that span packages or shared automation
-- trusted publishing is used in package publish workflows; no manual PyPI token step is required in the workflow definition
+- `publish.yml` builds and publishes each package through its matrix entries
+- `publish.yml` uses `PYPI_API_TOKEN` when it uploads package artifacts to PyPI
 
 Recommended release order:
 
 1. Update package `README.md`, `pyproject.toml`, and package `CHANGELOG.md`.
 2. Run `make lint test quality security`.
-3. Push the release tag (`vX.Y.Z`) and verify package publish workflows complete.
+3. Push the release tag (`vX.Y.Z`) and verify the shared `publish.yml` workflow completes.
 
 ## Repository Boundaries
 

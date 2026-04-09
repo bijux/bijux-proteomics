@@ -42,7 +42,7 @@ sequenceDiagram
 
 - root commit rules live in `pyproject.toml`
 - package versions are resolved per package (Hatch VCS or explicit version)
-- publish workflows are tag-triggered (`v*`) and package-specific
+- the shared `publish.yml` workflow is tag-triggered (`v*`) and publishes one matrix entry per package
 - every publishable package keeps its own `CHANGELOG.md`
 - the root `CHANGELOG.md` only records repository-wide changes that span more
   than one package or alter shared release machinery
