@@ -39,17 +39,25 @@ flowchart TB
     root -.must not become.-> shadow
 ```
 
-## Pages In This Section
+## Foundation Pages
 
-- [Platform Overview](platform-overview.md)
-- [Repository Scope](repository-scope.md)
-- [Workspace Layout](workspace-layout.md)
-- [Package Map](package-map.md)
+- [Foundation](foundation/index.md)
+- [Platform Overview](foundation/platform-overview.md)
+- [Repository Scope](foundation/repository-scope.md)
+- [Workspace Layout](foundation/workspace-layout.md)
+- [Package Map](foundation/package-map.md)
+- [Ownership Model](foundation/ownership-model.md)
+- [Domain Language](foundation/domain-language.md)
+- [Documentation System](foundation/documentation-system.md)
+- [Change Principles](foundation/change-principles.md)
+- [Decision Rules](foundation/decision-rules.md)
+
+## Current Operations Pages
+
 - [API and Schema Governance](api-and-schema-governance.md)
 - [Local Development](local-development.md)
 - [Testing and Validation](testing-and-validation.md)
 - [Release and Versioning](release-and-versioning.md)
-- [Documentation System](documentation-system.md)
 
 ## Use This Section For
 

@@ -20,19 +20,21 @@ nav:
   - Home: index.md
   - Repository Handbook:
       - Repository Handbook: bijux-proteomics/index.md
-      - Platform Overview: bijux-proteomics/platform-overview.md
-      - Repository Scope: bijux-proteomics/repository-scope.md
-      - Workspace Layout: bijux-proteomics/workspace-layout.md
-      - Package Map: bijux-proteomics/package-map.md
-      - API Contracts: bijux-proteomics/apis.md
+      - Foundation:
+          - Foundation: bijux-proteomics/foundation/index.md
+          - Platform Overview: bijux-proteomics/foundation/platform-overview.md
+          - Repository Scope: bijux-proteomics/foundation/repository-scope.md
+          - Workspace Layout: bijux-proteomics/foundation/workspace-layout.md
+          - Package Map: bijux-proteomics/foundation/package-map.md
+          - Ownership Model: bijux-proteomics/foundation/ownership-model.md
+          - Domain Language: bijux-proteomics/foundation/domain-language.md
+          - Documentation System: bijux-proteomics/foundation/documentation-system.md
+          - Change Principles: bijux-proteomics/foundation/change-principles.md
+          - Decision Rules: bijux-proteomics/foundation/decision-rules.md
       - API and Schema Governance: bijux-proteomics/api-and-schema-governance.md
       - Local Development: bijux-proteomics/local-development.md
       - Testing and Validation: bijux-proteomics/testing-and-validation.md
       - Release and Versioning: bijux-proteomics/release-and-versioning.md
-      - Documentation System: bijux-proteomics/documentation-system.md
-      - Architecture Invariants: bijux-proteomics/architecture-invariants.md
-      - Design Debt Ledger: bijux-proteomics/design-debt-ledger.md
-      - Dependency Allowlist: bijux-proteomics/dependency-allowlist.md
   - agentic-proteins:
       - Overview: agentic-proteins/index.md
       - Foundation:
