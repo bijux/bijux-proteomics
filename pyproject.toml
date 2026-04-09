@@ -105,27 +105,6 @@ bijux-proteomics-lab = { workspace = true }
 [tool.uv.workspace]
 members = ["packages/*"]
 
-[tool.deptry]
-optional_dependencies_dev_groups = ["dev"]
-ignore = ["DEP002", "DEP003"]
-known_first_party = [
-  "agentic_proteins",
-  "bijux_proteomics_dev",
-  "bijux_proteomics_foundation",
-  "bijux_proteomics",
-  "bijux_proteomics_intelligence",
-  "bijux_proteomics_knowledge",
-  "bijux_proteomics_lab",
-]
-
-[tool.deptry.package_module_name_map]
-"langchain-core" = ["langchain_core"]
-"langchain-community" = ["langchain_community"]
-"langchain-huggingface" = ["langchain_huggingface"]
-"openprotein-python" = ["openprotein"]
-"mkdocs-autorefs" = ["mkdocs_autorefs"]
-"mkdocs-git-revision-date-localized-plugin" = ["mkdocs_git_revision_date_localized_plugin"]
-
 [tool.interrogate]
 fail-under = 32
 color = true

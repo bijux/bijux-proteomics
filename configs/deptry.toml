@@ -2,7 +2,7 @@
 pep621_dev_dependency_groups = ["dev"]
 ignore = ["DEP002", "DEP003"]
 extend_exclude = ["docs", "apis", "artifacts", "site"]
-package_module_name_map = { "langchain-core" = "langchain_core", "langchain-community" = "langchain_community", "langchain-huggingface" = "langchain_huggingface", "openprotein-python" = "openprotein", "mkdocs-autorefs" = "mkdocs_autorefs", "mkdocs-git-revision-date-localized-plugin" = "mkdocs_git_revision_date_localized_plugin" }
+package_module_name_map = { "agentic-proteins" = "agentic_proteins", "bijux-proteomics-core" = "bijux_proteomics", "bijux-proteomics-dev" = "bijux_proteomics_dev", "bijux-proteomics-foundation" = "bijux_proteomics_foundation", "bijux-proteomics-intelligence" = "bijux_proteomics_intelligence", "bijux-proteomics-knowledge" = "bijux_proteomics_knowledge", "bijux-proteomics-lab" = "bijux_proteomics_lab", "langchain-core" = "langchain_core", "langchain-community" = "langchain_community", "langchain-huggingface" = "langchain_huggingface", "mkdocs-autorefs" = "mkdocs_autorefs", "mkdocs-git-revision-date-localized-plugin" = "mkdocs_git_revision_date_localized_plugin", "openprotein-python" = "openprotein" }
 
 [tool.repo_deptry.packages."agentic-proteins"]
 known_first_party = ["agentic_proteins"]
