@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import pytest
-
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.constraints import (
     ConstraintCategory,

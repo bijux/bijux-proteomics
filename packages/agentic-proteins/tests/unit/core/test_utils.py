@@ -7,10 +7,9 @@ import math
 import textwrap
 from typing import Any, cast
 
+import agentic_proteins.domain as U
 import numpy as np
 import pytest
-
-import agentic_proteins.domain as U
 from agentic_proteins.domain.structure import structure as structure_mod
 
 # ------------------------ tiny PDB builders ------------------------
@@ -116,7 +115,9 @@ def test_per_residue_plddt_ss_without_mkdssp(monkeypatch: pytest.MonkeyPatch) ->
     assert sss == ["C", "C", "C"]
 
 
-def test_secondary_summary_from_structure_counts(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_secondary_summary_from_structure_counts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     pdb = _pdb_three_residues()
     s = U.load_structure_from_pdb_text(pdb)
     monkeypatch.setattr(cast(Any, structure_mod).shutil, "which", lambda _: None)
