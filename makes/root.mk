@@ -12,7 +12,7 @@ UV_GROUPS ?= $(if $(strip $(EXTRAS)),$(subst $(COMMA), ,$(EXTRAS)),dev)
 UV_SYNC_FLAGS := $(foreach group,$(UV_GROUPS),--group $(group))
 UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --python "$(PYTHON)" $(UV_SYNC_FLAGS)
 ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
-DEV_RUN := PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
+DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
 ROOT_TARGET_POST_quality = @$(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
@@ -29,7 +29,7 @@ include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/make-layout.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-py/bijux.mk
 
 .PHONY: \
-	help list list-all install lock lock-check lint quality security test docs docs-check docs-serve api build sbom clean all \
+	help list list-all install lock lock-check fmt lint quality security test docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
 	quality-docs-links quality-docs-consistency security-dependency-allowlist \
 	clean-root-artifacts root-check-env check-shared-bijux-py

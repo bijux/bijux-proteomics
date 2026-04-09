@@ -1,4 +1,7 @@
 ROOT_PACKAGE_PROFILE_DIR ?= $(ROOT_MAKEFILE_DIR)/packages
+ROOT_PACKAGE_TARGETS ?= test fmt lint quality security api build sbom clean
+ROOT_TARGET_GROUPS_fmt ?= check
+ROOT_TARGET_SHARED_ENV_fmt ?= 1
 
 PACKAGE_RECORDS := \
 	agentic-proteins|primary,check,buildable,sbom,api|agentic-proteins.mk \
