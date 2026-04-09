@@ -14,8 +14,9 @@ clarity, not paperwork.
 
 The root pages are intentionally hand-authored. They are meant for humans who
 are trying to understand the whole system quickly. Developer-side tooling that
-helps maintain docs belongs in `bijux-proteomics-dev`, not in a root `scripts/`
-directory and not in the published reader experience.
+helps maintain docs belongs in `bijux-proteomics-dev` and the
+`bijux-proteomics-maintain` handbook, not in a root `scripts/` directory and
+not in the published reader experience.
 
 ## Handbook Shape
 

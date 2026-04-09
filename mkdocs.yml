@@ -375,11 +375,11 @@ nav:
           - Change Validation: bijux-proteomics-lab/quality/change-validation.md
           - Known Limitations: bijux-proteomics-lab/quality/known-limitations.md
           - Risk Register: bijux-proteomics-lab/quality/risk-register.md
-  - bijux-proteomics-dev:
-      - Overview: bijux-proteomics-dev/index.md
-      - Foundation: bijux-proteomics-dev/foundation.md
-      - Architecture: bijux-proteomics-dev/architecture.md
-      - Interfaces: bijux-proteomics-dev/interfaces.md
-      - Operations: bijux-proteomics-dev/operations.md
-      - Tooling Map: bijux-proteomics-dev/tooling-map.md
-      - Quality: bijux-proteomics-dev/quality.md
+  - Maintainer Handbook:
+      - Maintainer Handbook: bijux-proteomics-maintain/index.md
+      - Foundation: bijux-proteomics-maintain/foundation.md
+      - Architecture: bijux-proteomics-maintain/architecture.md
+      - Interfaces: bijux-proteomics-maintain/interfaces.md
+      - Operations: bijux-proteomics-maintain/operations.md
+      - Tooling Map: bijux-proteomics-maintain/tooling-map.md
+      - Quality: bijux-proteomics-maintain/quality.md
