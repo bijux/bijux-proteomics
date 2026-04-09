@@ -11,7 +11,7 @@ Choose the narrowest correct home for every change:
 - package runtime behavior belongs in the owning package under `packages/`
 - repository-wide automation belongs in `makes/`
 - shared tool policy belongs in `configs/`
-- checked-in API contracts belong in `api/`
+- checked-in API contracts belong in the repository API contract directory
 - repository governance and handbook content belong at the root or in `docs/`
 
 If the same rule would need to be copied into multiple packages, that is a sign
@@ -50,8 +50,9 @@ Typical validation flows:
 - package-scoped changes: `make -C packages/<package> <target>`
 - repository package dispatch changes: `make <target> PACKAGE=<package>`
 
-If you touch APIs, checked-in schemas, or publish flows, verify the resulting
-artifacts rather than assuming the repository state stayed consistent.
+If you touch checked-in API contracts, schemas, or publish flows, verify the
+resulting artifacts rather than assuming the repository state stayed
+consistent.
 
 ## Commits
 

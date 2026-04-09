@@ -1,6 +1,6 @@
 # Code of Conduct
 
-`bijux-proteomics` should be a place where people can collaborate directly,
+This repository should be a place where people can collaborate directly,
 critically, and respectfully. We care about clarity, rigor, and honest review,
 and none of those require hostility.
 

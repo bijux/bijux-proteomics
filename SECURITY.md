@@ -13,9 +13,9 @@ Security reports may cover:
 - shared automation under `makes/`
 - published release artifacts generated from this repository
 
-This policy also covers checked-in API contracts under `api/` when the issue
-could mislead operators, weaken validation, or permit unsafe behavior at an
-integration boundary.
+This policy also covers checked-in API contracts when the issue could mislead
+operators, weaken validation, or permit unsafe behavior at an integration
+boundary.
 
 ## What To Report
 
