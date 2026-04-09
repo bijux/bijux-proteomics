@@ -21,6 +21,7 @@ through CI logs and shell glue.
 
 - [bijux-proteomics-dev](bijux-proteomics-dev/index.md)
 - [makes](makes/index.md)
+- [gh-workflows](gh-workflows/index.md)
 
 ## Purpose
 

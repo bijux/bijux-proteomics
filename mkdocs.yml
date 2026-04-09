@@ -399,3 +399,9 @@ nav:
           - Package Contracts: bijux-proteomics-maintain/makes/package-contracts.md
           - Release Surfaces: bijux-proteomics-maintain/makes/release-surfaces.md
           - Authoring Rules: bijux-proteomics-maintain/makes/authoring-rules.md
+      - gh-workflows:
+          - gh-workflows: bijux-proteomics-maintain/gh-workflows/index.md
+          - verify: bijux-proteomics-maintain/gh-workflows/verify.md
+          - reusable-workflows: bijux-proteomics-maintain/gh-workflows/reusable-workflows.md
+          - deploy-docs: bijux-proteomics-maintain/gh-workflows/deploy-docs.md
+          - publish: bijux-proteomics-maintain/gh-workflows/publish.md
