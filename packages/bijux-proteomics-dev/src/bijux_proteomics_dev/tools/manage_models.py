@@ -26,8 +26,8 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
-import stat
 import shutil
+import stat
 import sys
 import textwrap
 from typing import Callable, Optional

@@ -13,7 +13,9 @@ CommandArg = str | os.PathLike[str]
 class TrustedCommandError(RuntimeError):
     """Raised when a trusted command exits with a non-zero status."""
 
-    def __init__(self, command: Sequence[CommandArg], error: subprocess.CalledProcessError):
+    def __init__(
+        self, command: Sequence[CommandArg], error: subprocess.CalledProcessError
+    ):
         self.command = [os.fspath(part) for part in command]
         self.returncode = error.returncode
         self.stdout = error.stdout

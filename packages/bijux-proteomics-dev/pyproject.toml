@@ -81,3 +81,10 @@ include = [
   "README.md",
   "src/bijux_proteomics_dev/**",
 ]
+
+[tool.interrogate]
+fail-under = 32
+verbose = 0
+ignore-init-method = true
+ignore-private = true
+ignore-semiprivate = true
