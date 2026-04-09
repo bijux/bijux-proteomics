@@ -92,6 +92,12 @@ def test_release_docs_match_shared_publish_workflow_contract() -> None:
     ).read_text(encoding="utf-8")
 
     assert "shared `publish.yml` workflow" in readme
-    assert "`publish.yml` builds and publishes each package through its matrix entries" in readme
+    assert (
+        "`publish.yml` builds and publishes each package through its matrix entries"
+        in readme
+    )
     assert "`PYPI_API_TOKEN`" in readme
-    assert "shared `publish.yml` workflow is tag-triggered (`v*`) and publishes one matrix entry per package" in release_doc
+    assert (
+        "shared `publish.yml` workflow is tag-triggered (`v*`) and publishes one matrix entry per package"
+        in release_doc
+    )

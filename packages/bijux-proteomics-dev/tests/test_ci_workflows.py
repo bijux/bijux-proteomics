@@ -71,7 +71,9 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
     assert package.get("needs") == "repository"
 
     verify_packages = {
-        entry["package_slug"] for entry in _matrix_include(package) if "package_slug" in entry
+        entry["package_slug"]
+        for entry in _matrix_include(package)
+        if "package_slug" in entry
     }
     assert verify_packages == {
         "agentic-proteins",
@@ -115,6 +117,8 @@ def test_markdown_workflow_links_track_checked_in_workflow_tree() -> None:
                 )
 
     root_readme = (root / "README.md").read_text(encoding="utf-8")
-    root_workflows = {match.group("workflow") for match in WORKFLOW_URL_RE.finditer(root_readme)}
+    root_workflows = {
+        match.group("workflow") for match in WORKFLOW_URL_RE.finditer(root_readme)
+    }
     assert {"verify.yml", "publish.yml", "deploy-docs.yml"} <= root_workflows
     assert not failures, "workflow doc links failed:\n" + "\n".join(failures)
