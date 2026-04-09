@@ -30,7 +30,7 @@ import shutil
 import subprocess
 import sys
 import textwrap
-from typing import Optional
+from typing import Callable, Optional
 
 # --- Dependency Checks ---
 try:
@@ -113,7 +113,7 @@ def get_latest_hf_revision(repo_id: str) -> str:
     main_branch = next((b for b in refs.branches if b.name == "main"), None)
     if not main_branch:
         raise RuntimeError(f"Could not find 'main' branch in repo '{repo_id}'")
-    return main_branch.target_commit
+    return str(main_branch.target_commit)
 
 
 def get_latest_github_commit(repo_slug: str) -> str:
@@ -126,7 +126,13 @@ def get_latest_github_commit(repo_slug: str) -> str:
     try:
         r = requests.get(api_url, timeout=30, headers=headers)
         r.raise_for_status()
-        return r.json()["sha"]
+        payload = r.json()
+        if not isinstance(payload, dict):
+            raise RuntimeError(f"Unexpected GitHub response payload for {repo_slug}")
+        sha = payload.get("sha")
+        if not isinstance(sha, str):
+            raise RuntimeError(f"Missing commit SHA in GitHub response for {repo_slug}")
+        return sha
     except requests.RequestException as e:
         raise RuntimeError(f"Failed to fetch latest commit for {repo_slug}: {e}") from e
 
@@ -316,8 +322,10 @@ def prepare_rosettafold(
 # ----------------------------- BUILD & TEST PIPELINE -----------------------------
 
 
-def build_and_test_pipeline(model_name: str, force_build: bool, no_test: bool):
+def build_and_test_pipeline(model_name: str, force_build: bool, no_test: bool) -> None:
     """Orchestrates the build and test sequence for a given model."""
+    build_fn: Callable[[bool], None]
+    test_fn: Callable[[], None]
     if model_name == "esmfold":
         build_fn, test_fn = build_esmfold_image, smoke_test_esmfold
     elif model_name == "rosettafold":
@@ -334,7 +342,7 @@ def build_and_test_pipeline(model_name: str, force_build: bool, no_test: bool):
         sys.exit(1)
 
 
-def build_esmfold_image(force: bool):
+def build_esmfold_image(force: bool) -> None:
     log("\n--- [ESMFold] Building Docker Image ---")
     image_tag = "esmfold-agentic-proteins:latest"
     dockerfile_path = ESMFOLD_ROOT / "esmfold.Dockerfile"
@@ -351,7 +359,7 @@ def build_esmfold_image(force: bool):
     log(f" - Successfully built {image_tag}")
 
 
-def build_rosettafold_image(force: bool):
+def build_rosettafold_image(force: bool) -> None:
     log("\n--- [RoseTTAFold] Building Docker Image ---")
     image_tag = "rosettafold-agentic-proteins:latest"
     version_dir = find_latest_version(ROSETTA_ROOT)
@@ -383,7 +391,7 @@ def build_rosettafold_image(force: bool):
     log(f"  - Successfully built {image_tag}")
 
 
-def smoke_test_esmfold():
+def smoke_test_esmfold() -> None:
     log("\n--- [ESMFold] Running Smoke Test ---")
     image_tag, test_dir = (
         "esmfold-agentic-proteins:latest",
@@ -418,7 +426,7 @@ def smoke_test_esmfold():
     log(f" - Smoke test passed. Output PDB found in {test_dir}")
 
 
-def smoke_test_rosettafold():
+def smoke_test_rosettafold() -> None:
     log("\n--- [RoseTTAFold] Running Smoke Test ---")
     image_tag = "rosettafold-agentic-proteins:latest"
     out = run(
@@ -442,7 +450,7 @@ def smoke_test_rosettafold():
 # ----------------------------- MAIN CLI -----------------------------
 
 
-def main():
+def main() -> None:
     p = argparse.ArgumentParser(
         description="Prepare, build, and test protein folding model environments.",
         formatter_class=argparse.RawTextHelpFormatter,

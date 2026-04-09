@@ -31,13 +31,49 @@ import random
 import re
 import textwrap
 import time
-from typing import Dict, List, Optional, Set, Tuple
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Protocol,
+    Set,
+    Tuple,
+    cast,
+)
 
 from Bio import SeqIO
-from Bio.PDB import PDBIO, PDBParser, Select
 from Bio.PDB.MMCIFParser import MMCIFParser
+from Bio.PDB.PDBIO import PDBIO
+from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import is_aa
 import requests
+
+
+class StructureParser(Protocol):
+    """Typed protocol for Bio.PDB parser instances used by this script."""
+
+    def get_structure(self, structure_id: str, handle: StringIO) -> Any:
+        """Parse a structure from an in-memory text stream."""
+
+
+class StructureWriter(Protocol):
+    """Typed protocol for the subset of PDBIO used by this script."""
+
+    def set_structure(self, structure: Any) -> None:
+        """Load a structure before saving it."""
+
+    def save(self, filename: str, select: object | None = None) -> None:
+        """Write the structure to disk."""
+
+
+SeqIoParse = cast(Callable[[StringIO, str], Iterable[Any]], SeqIO.parse)
+IsAminoAcid = cast(Callable[[Any], bool], is_aa)
+PdbParserFactory = cast(Callable[..., StructureParser], PDBParser)
+MmcifParserFactory = cast(Callable[..., StructureParser], MMCIFParser)
+PdbIoFactory = cast(Callable[[], StructureWriter], PDBIO)
 
 # ------------------- CONFIG -------------------
 
@@ -68,7 +104,7 @@ _session.headers.update({"User-Agent": USER_AGENT})
 
 
 def _get(url: str, timeout: float = HTTP_TIMEOUT) -> requests.Response:
-    last_err = None
+    last_err: requests.RequestException | None = None
     for attempt in range(1, HTTP_RETRIES + 1):
         try:
             r = _session.get(url, timeout=timeout)
@@ -80,6 +116,7 @@ def _get(url: str, timeout: float = HTTP_TIMEOUT) -> requests.Response:
                 time.sleep(0.6 * attempt)
             else:
                 raise
+    assert last_err is not None
     raise last_err  # just in case
 
 
@@ -108,7 +145,7 @@ def parse_fasta_per_chain(fasta_text: str) -> Dict[str, str]:
     chain_to_seq: Dict[str, str] = {}
     saw_any = False
 
-    for rec in SeqIO.parse(StringIO(fasta_text), "fasta"):
+    for rec in SeqIoParse(StringIO(fasta_text), "fasta"):
         saw_any = True
         desc = rec.description.lstrip("> ").strip()
         parts = [p.strip() for p in desc.split("|")]
@@ -147,7 +184,9 @@ def parse_fasta_per_chain(fasta_text: str) -> Dict[str, str]:
 
     if not chain_to_seq and saw_any:
         try:
-            first_desc = next(SeqIO.parse(StringIO(fasta_text), "fasta")).description
+            first_desc = next(
+                iter(SeqIoParse(StringIO(fasta_text), "fasta"))
+            ).description
             print(
                 "  ! FASTA headers unrecognized. First header was:",
                 (first_desc or "")[:140],
@@ -160,16 +199,14 @@ def parse_fasta_per_chain(fasta_text: str) -> Dict[str, str]:
 
 def detect_protein_chains(structure_text: str, fmt: str) -> List[str]:
     """Find chain IDs that contain amino acid residues."""
-    if fmt == "pdb":
-        parser = PDBParser(QUIET=True)
-    else:
-        parser = MMCIFParser(QUIET=True)
+    parser_factory = PdbParserFactory if fmt == "pdb" else MmcifParserFactory
+    parser = parser_factory(QUIET=True)
     structure = parser.get_structure("entry", StringIO(structure_text))
     chains: Set[str] = set()
     for chain in structure.get_chains():
         for res in chain:
-            if is_aa(res):
-                chains.add(chain.id)
+            if IsAminoAcid(res):
+                chains.add(str(chain.id))
                 break
     return sorted(chains)
 
@@ -177,30 +214,28 @@ def detect_protein_chains(structure_text: str, fmt: str) -> List[str]:
 # ------------------- STRUCTURE CHAIN WRITER -------------------
 
 
-class ChainSelect(Select):
+class ChainSelect:
     def __init__(self, wanted: Set[str]):
         super().__init__()
         self.wanted = wanted
 
-    def accept_chain(self, chain):
+    def accept_chain(self, chain: Any) -> bool:
         return chain.id in self.wanted
 
 
 def write_chain_subset_structure(
     structure_text: str, fmt: str, chains: List[str], out_path: pathlib.Path
 ) -> None:
-    if fmt == "pdb":
-        parser = PDBParser(QUIET=True)
-    else:
-        parser = MMCIFParser(QUIET=True)
+    parser_factory = PdbParserFactory if fmt == "pdb" else MmcifParserFactory
+    parser = parser_factory(QUIET=True)
     structure = parser.get_structure("entry", StringIO(structure_text))
-    present = {c.id for c in structure.get_chains()}
+    present = {str(c.id) for c in structure.get_chains()}
     missing = [c for c in chains if c not in present]
     if missing:
         raise RuntimeError(
             f"Requested chain(s) not present in structure: {','.join(missing)}"
         )
-    io = PDBIO()
+    io = PdbIoFactory()
     io.set_structure(structure)
     io.save(str(out_path), select=ChainSelect(set(chains)))
 
@@ -216,10 +251,10 @@ def parse_target(t: str) -> Tuple[str, Optional[List[str]]]:
     """'4krp:B,C' -> ('4krp', ['B','C']); '1ubq' -> ('1ubq', None)"""
     s = t.strip()
     if ":" in s:
-        pdb_id, chains = s.split(":", 1)
-        chains = re.split(r"[,+]", chains.strip())
-        chains = [c.strip() for c in chains if c.strip()]
-        return pdb_id.lower(), chains
+        pdb_id, chain_spec = s.split(":", 1)
+        chain_values = re.split(r"[,+]", chain_spec.strip())
+        cleaned_chains = [chain.strip() for chain in chain_values if chain.strip()]
+        return pdb_id.lower(), cleaned_chains
     return s.lower(), None
 
 
@@ -324,7 +359,7 @@ def prepare_example(
         print(f"  ✓ combined {combo_name}: PDB ✓ (+ multi-FASTA if available)")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare PDB examples from RCSB")
     parser.add_argument(
         "--targets",

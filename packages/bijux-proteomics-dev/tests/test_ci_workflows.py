@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -12,7 +13,11 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def _workflow(path: Path) -> dict[str, object]:
+def _as_dict(value: object) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _workflow(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle)
     assert isinstance(data, dict)
@@ -28,9 +33,10 @@ def test_ci_workflows_define_package_build_targets() -> None:
         if path.name == "ci-package.yml":
             continue
         workflow = _workflow(path)
-        uses = workflow["jobs"]["ci"]["uses"]
+        ci_job = _as_dict(_as_dict(workflow.get("jobs")).get("ci"))
+        uses = ci_job.get("uses")
         assert uses == "./.github/workflows/ci-package.yml"
-        build_target = workflow["jobs"]["ci"]["with"].get("build_target")
+        build_target = _as_dict(ci_job.get("with")).get("build_target")
         assert isinstance(build_target, str)
         assert build_target.startswith("build-")
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -12,7 +13,11 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def _workflow(path: Path) -> dict[str, object]:
+def _as_dict(value: object) -> dict[str, Any]:
+    return value if isinstance(value, dict) else {}
+
+
+def _workflow(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         data = yaml.safe_load(handle)
     assert isinstance(data, dict)
@@ -46,12 +51,15 @@ def test_publish_workflows_use_package_scoped_builds() -> None:
 
     for path in workflows.glob("publish-*.yml"):
         workflow = _workflow(path)
-        build_with = workflow["jobs"]["build"]["with"]
-        package_slug = build_with["package_slug"]
+        build_with = _as_dict(
+            _as_dict(_as_dict(workflow.get("jobs")).get("build")).get("with")
+        )
+        package_slug = build_with.get("package_slug")
+        assert isinstance(package_slug, str)
         if package_slug == "agentic-proteins":
             package_dir = "packages/agentic-proteins"
         else:
             package_dir = f"packages/{package_slug}"
 
-        assert build_with["package_dir"] == package_dir
-        assert build_with["dist_subdir"] == f"build/{package_slug}"
+        assert build_with.get("package_dir") == package_dir
+        assert build_with.get("dist_subdir") == f"build/{package_slug}"
