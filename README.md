@@ -63,7 +63,7 @@ surface.
 ## Start Here
 
 - Repository handbook: [`docs/index.md`](docs/index.md)
-- API contract handbook: [`docs/bijux-proteomics/apis.md`](docs/bijux-proteomics/apis.md)
+- API contract handbook: [`docs/bijux-proteomics/operations/api-and-schema-governance.md`](docs/bijux-proteomics/operations/api-and-schema-governance.md)
 - Runtime package: [`packages/agentic-proteins/README.md`](packages/agentic-proteins/README.md)
 - Domain core: [`packages/bijux-proteomics-core/README.md`](packages/bijux-proteomics-core/README.md)
 - Intelligence package: [`packages/bijux-proteomics-intelligence/README.md`](packages/bijux-proteomics-intelligence/README.md)

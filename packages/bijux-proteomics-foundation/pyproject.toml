@@ -36,7 +36,7 @@ dependencies = ["pydantic>=2.0.2"]
 
 [project.urls]
 Homepage = "https://bijux.io/bijux-proteomics/"
-Documentation = "https://bijux.io/bijux-proteomics/"
+Documentation = "https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/CHANGELOG.md"
