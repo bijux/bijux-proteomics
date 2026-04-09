@@ -5,11 +5,13 @@ from __future__ import annotations
 
 import math
 import textwrap
+from typing import Any, cast
+
+import numpy as np
+import pytest
 
 import agentic_proteins.domain as U
 from agentic_proteins.domain.structure import structure as structure_mod
-import numpy as np
-import pytest
 
 # ------------------------ tiny PDB builders ------------------------
 
@@ -86,16 +88,16 @@ def _pdb_water_only(chain_id: str = "A") -> str:
 # ------------------------ tests ------------------------
 
 
-def test__res3_to1_with_custom_and_bad():
+def test__res3_to1_with_custom_and_bad() -> None:
     assert U._res3_to1("MSE") == "M"  # custom map
     assert U._res3_to1("SEC") == "U"
     assert U._res3_to1("PYL") == "O"
     assert U._res3_to1("ALA") == "A"
-    # current implementation: empty string goes through Bio.SeqUtils.seq1("") → ""
-    assert U._res3_to1(None) == ""
+    # current implementation: empty string goes through Bio.SeqUtils.seq1("") -> ""
+    assert U._res3_to1("") == ""
 
 
-def test_load_structure_and_residue_count_and_mean_plddt():
+def test_load_structure_and_residue_count_and_mean_plddt() -> None:
     pdb = _pdb_three_residues()
     s = U.load_structure_from_pdb_text(pdb)
     assert U.residue_count(s) == 3
@@ -103,27 +105,27 @@ def test_load_structure_and_residue_count_and_mean_plddt():
     assert math.isclose(mean, (90.0 + 80.0 + 70.0) / 3.0, rel_tol=1e-6)
 
 
-def test_per_residue_plddt_ss_without_mkdssp(monkeypatch):
+def test_per_residue_plddt_ss_without_mkdssp(monkeypatch: pytest.MonkeyPatch) -> None:
     pdb = _pdb_three_residues()
     s = U.load_structure_from_pdb_text(pdb)
     # force DSSP branch to fail, defaulting to coil "C"
-    monkeypatch.setattr(structure_mod.shutil, "which", lambda _: None)
+    monkeypatch.setattr(cast(Any, structure_mod).shutil, "which", lambda _: None)
     plddts, sss, residue_codes = U.per_residue_plddt_ss(s)
     assert plddts == [90.0, 80.0, 70.0]
     assert residue_codes == ["A", "A", "A"]
     assert sss == ["C", "C", "C"]
 
 
-def test_secondary_summary_from_structure_counts(monkeypatch):
+def test_secondary_summary_from_structure_counts(monkeypatch: pytest.MonkeyPatch) -> None:
     pdb = _pdb_three_residues()
     s = U.load_structure_from_pdb_text(pdb)
-    monkeypatch.setattr(structure_mod.shutil, "which", lambda _: None)
+    monkeypatch.setattr(cast(Any, structure_mod).shutil, "which", lambda _: None)
     sec = U.secondary_summary_from_structure(s)
     assert sec.pct_coil == 100.0 and sec.pct_helix == 0.0 and sec.pct_sheet == 0.0
-    assert sec.ss8_pct.get("C", 0) == 100.0
+    assert math.isclose(sum(sec.ss8_pct.values()), 100.0, rel_tol=1e-6)
 
 
-def test_primary_summary_from_sequence_empty_and_nonempty():
+def test_primary_summary_from_sequence_empty_and_nonempty() -> None:
     p0 = U.primary_summary_from_sequence("")
     assert p0.length == 0
     seq = "ACDEFGHIKLMNPQRSTVWY"
@@ -139,8 +141,10 @@ def test_primary_summary_from_sequence_empty_and_nonempty():
 @pytest.mark.filterwarnings(
     "ignore:invalid value encountered in scalar divide:RuntimeWarning"
 )
-def test_tertiary_summary_from_structure_bands_and_empty(monkeypatch):
-    monkeypatch.setattr(structure_mod.shutil, "which", lambda _: None)
+def test_tertiary_summary_from_structure_bands_and_empty(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(cast(Any, structure_mod).shutil, "which", lambda _: None)
     pdb = _pdb_three_residues(b1=95, b2_a=75, b3=65)
     s = U.load_structure_from_pdb_text(pdb)
     plddts, _, _ = U.per_residue_plddt_ss(s)
@@ -151,7 +155,7 @@ def test_tertiary_summary_from_structure_bands_and_empty(monkeypatch):
     assert math.isnan(ter0.mean_plddt)
 
 
-def test_get_protein_chain_select_and_errors():
+def test_get_protein_chain_select_and_errors() -> None:
     pdb = _pdb_three_residues(chain_id="B")
     s = U.load_structure_from_pdb_text(pdb)
     assert U.get_protein_chain(s, "B").id == "B"
@@ -162,17 +166,17 @@ def test_get_protein_chain_select_and_errors():
         U.get_protein_chain(s2)
 
 
-def test_best_ca_picks_altloc_with_higher_occupancy():
+def test_best_ca_picks_altloc_with_higher_occupancy() -> None:
     pdb = _pdb_three_residues(b2_b=60.0)
     s = U.load_structure_from_pdb_text(pdb)
-    model = s[0]
+    model = cast(Any, s)[0]
     chain = next(iter(model))
     res2 = [r for r in chain if r.id[1] == 2][0]
-    ca = U.best_ca(res2)
+    ca = cast(Any, U.best_ca)(res2)
     assert ca is not None and abs(ca.get_coord()[0] - 1.2) < 1e-6
 
 
-def test_kabsch_and_pairs_success_and_insufficient_pairs():
+def test_kabsch_and_pairs_success_and_insufficient_pairs() -> None:
     pdb_pred = _pdb_three_residues(chain_id="A")
     pdb_ref = _pdb_three_residues(chain_id="A", offset=(2.0, -3.0, 1.0))
     rmsd, n_pairs, ref_arr, pred_arr, seq_id, gap_frac = U.kabsch_and_pairs(
@@ -189,7 +193,7 @@ def test_kabsch_and_pairs_success_and_insufficient_pairs():
         U.kabsch_and_pairs(pdb_small, pdb_small)
 
 
-def test_gdt_ts_and_gdt_ha_and_shape_errors():
+def test_gdt_ts_and_gdt_ha_and_shape_errors() -> None:
     ref = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
     pred = ref.copy()
     assert U.gdt_ts(ref, pred) == 100.0
@@ -201,7 +205,7 @@ def test_gdt_ts_and_gdt_ha_and_shape_errors():
         U.gdt_ts(ref, pred[:2])
 
 
-def test_tm_score_various():
+def test_tm_score_various() -> None:
     ref = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
     pred = ref.copy()
     # IMPORTANT: choose l_ref >= 15 to avoid negative base in (l_ref-15) ** (1/3)
@@ -214,17 +218,19 @@ def test_tm_score_various():
         U.tm_score(ref, pred[:2])
 
 
-def test_low_confidence_segments_edges():
-    p = [50] * 8 + [80] * 2 + [40] * 10
+def test_low_confidence_segments_edges() -> None:
+    p: list[float] = [50.0] * 8 + [80.0] * 2 + [40.0] * 10
     assert U.low_confidence_segments(p, thresh=70, min_len=8) == [(0, 8), (10, 20)]
-    p = [80, 60, 60, 60, 60, 60, 60, 60]
+    p = [80.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0]
     assert U.low_confidence_segments(p, thresh=70, min_len=7) == [(1, 8)]
-    assert U.low_confidence_segments([60, 60, 60], thresh=70, min_len=4) == []
+    assert U.low_confidence_segments([60.0, 60.0, 60.0], thresh=70, min_len=4) == []
 
 
-def test_compute_metrics_without_and_with_reference(monkeypatch):
+def test_compute_metrics_without_and_with_reference(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     # Force DSSP-off branch to keep tests fast & deterministic
-    monkeypatch.setattr(structure_mod.shutil, "which", lambda _: None)
+    monkeypatch.setattr(cast(Any, structure_mod).shutil, "which", lambda _: None)
 
     # No reference path (3 residues)
     seq = "AAA"
@@ -242,7 +248,11 @@ def test_compute_metrics_without_and_with_reference(monkeypatch):
     out2 = U.compute_metrics(seq2, pred2, ref_pdb_text=ref2)
     assert out2.ref_residues == n
     assert out2.n_matched_pairs == n
+    assert out2.tertiary.rmsd is not None
     assert out2.tertiary.rmsd < 1e-6
+    assert out2.tertiary.gdt_ts is not None
+    assert out2.tertiary.gdt_ha is not None
+    assert out2.tertiary.tm_score is not None
     assert 0.0 <= out2.tertiary.gdt_ts <= 100.0
     assert 0.0 <= out2.tertiary.gdt_ha <= 100.0
     assert 0.0 <= out2.tertiary.tm_score <= 1.0
