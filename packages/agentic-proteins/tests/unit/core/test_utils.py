@@ -109,9 +109,9 @@ def test_per_residue_plddt_ss_without_mkdssp(monkeypatch):
     s = U.load_structure_from_pdb_text(pdb)
     # force DSSP branch to fail, defaulting to coil "C"
     monkeypatch.setattr(structure_mod.shutil, "which", lambda _: None)
-    plddts, sss, aas = U.per_residue_plddt_ss(s)
+    plddts, sss, residue_codes = U.per_residue_plddt_ss(s)
     assert plddts == [90.0, 80.0, 70.0]
-    assert aas == ["A", "A", "A"]
+    assert residue_codes == ["A", "A", "A"]
     assert sss == ["C", "C", "C"]
 
 

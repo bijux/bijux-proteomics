@@ -11,7 +11,7 @@ import numpy as np
 PDB_TEXT = """\
 ATOM      1  CA  ALA A   1       0.000   0.000   0.000  1.00 10.00           C
 ATOM      2  CA  GLY A   2       1.500   0.000   0.000  1.00 20.00           C
-ATOM      3  CA  SER A   3       3.000   0.000   0.000  1.00 30.00           C
+ATOM      3  CA  THR A   3       3.000   0.000   0.000  1.00 30.00           C
 TER
 END
 """
@@ -28,10 +28,10 @@ def test_basic_structure_metrics() -> None:
             message="parse error at line 1: This file does not seem to be an mmCIF file",
             category=UserWarning,
         )
-        plddts, sss, aas = structure_module.per_residue_plddt_ss(structure)
+        plddts, sss, residue_codes = structure_module.per_residue_plddt_ss(structure)
         assert plddts == [10.0, 20.0, 30.0]
         assert len(sss) == 3
-        assert aas == ["A", "G", "S"]
+        assert residue_codes == ["A", "G", "T"]
         secondary = structure_module.secondary_summary_from_structure(structure)
         assert secondary.pct_coil == 100.0
         tertiary = structure_module.tertiary_summary_from_structure(structure, plddts)
