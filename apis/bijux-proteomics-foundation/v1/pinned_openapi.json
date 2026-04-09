@@ -2,7 +2,7 @@
   "components": {
     "schemas": {
       "HealthResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "status": {
             "const": "ok",
@@ -15,7 +15,7 @@
         "type": "object"
       },
       "ReadyResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "package": {
             "const": "bijux-proteomics-foundation",

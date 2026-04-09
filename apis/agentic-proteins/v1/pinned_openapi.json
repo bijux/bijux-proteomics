@@ -2,19 +2,19 @@
   "components": {
     "schemas": {
       "ApiCandidate": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "candidate_id": {
             "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
-            "minLength": "1",
+            "minLength": 1,
             "type": "string"
           },
           "confidence": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "created_at": {
-            "example": "2025-01-01T00:00:00Z",
+            "example": "2025-01-01T00:00:00+00:00",
             "type": "string"
           },
           "flags": {
@@ -30,12 +30,12 @@
             "type": "object"
           },
           "provenance": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "sequence": {
             "example": "ACDEFGHIKLMNPQRSTVWY",
-            "minLength": "1",
+            "minLength": 1,
             "type": "string"
           },
           "structures": {
@@ -58,10 +58,10 @@
         "type": "object"
       },
       "ApiCandidateStructure": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "metadata": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "metrics": {
@@ -71,7 +71,7 @@
             "type": "object"
           },
           "pdb_text": {
-            "nullable": "true",
+            "nullable": true,
             "type": "string"
           },
           "provider": {
@@ -90,10 +90,10 @@
         "type": "object"
       },
       "ApiEnvelope": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "data": {
-            "nullable": "true",
+            "nullable": true,
             "oneOf": [
               {
                 "$ref": "#/components/schemas/RunResponse"
@@ -114,7 +114,7 @@
             "type": "object"
           },
           "error": {
-            "nullable": "true",
+            "nullable": true,
             "oneOf": [
               {
                 "$ref": "#/components/schemas/ErrorResponse"
@@ -123,7 +123,7 @@
             "type": "object"
           },
           "meta": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "status": {
@@ -143,16 +143,16 @@
         "type": "object"
       },
       "CompareRequest": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "run_id_a": {
             "example": "artifacts/run-a",
-            "minLength": "1",
+            "minLength": 1,
             "type": "string"
           },
           "run_id_b": {
             "example": "artifacts/run-b",
-            "minLength": "1",
+            "minLength": 1,
             "type": "string"
           }
         },
@@ -163,23 +163,23 @@
         "type": "object"
       },
       "CompareResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "candidate_trajectories": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "final_outcome": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "iteration_deltas": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "run_ids": {
             "additionalProperties": {
-              "nullable": "true",
+              "nullable": true,
               "type": "string"
             },
             "type": "object"
@@ -194,7 +194,7 @@
         "type": "object"
       },
       "ErrorResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "detail": {
             "example": "Provide sequence or sequence_file.",
@@ -205,7 +205,7 @@
             "type": "string"
           },
           "status": {
-            "example": "422",
+            "example": 422,
             "type": "integer"
           },
           "title": {
@@ -227,7 +227,7 @@
         "type": "object"
       },
       "HealthResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "status": {
             "example": "ok",
@@ -240,7 +240,7 @@
         "type": "object"
       },
       "InspectResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "artifacts": {
             "additionalProperties": {
@@ -253,7 +253,7 @@
           },
           "qc_status": {
             "example": "acceptable",
-            "nullable": "true",
+            "nullable": true,
             "type": "string"
           }
         },
@@ -264,10 +264,10 @@
         "type": "object"
       },
       "ReadyResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "providers": {
-            "additionalProperties": "true",
+            "additionalProperties": true,
             "type": "object"
           },
           "status": {
@@ -282,7 +282,7 @@
         "type": "object"
       },
       "ResumeRequest": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "oneOf": [
           {
             "required": [
@@ -298,13 +298,13 @@
         "properties": {
           "artifacts_dir": {
             "example": "artifacts",
-            "nullable": "true",
+            "nullable": true,
             "type": "string"
           },
           "candidate_id": {
             "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
-            "minLength": "1",
-            "nullable": "true",
+            "minLength": 1,
+            "nullable": true,
             "type": "string"
           },
           "execution_mode": {
@@ -314,26 +314,26 @@
           },
           "provider": {
             "example": "heuristic_proxy",
-            "nullable": "true",
+            "nullable": true,
             "type": "string"
           },
           "rounds": {
-            "default": "1",
-            "example": "1",
-            "minimum": "1",
+            "default": 1,
+            "example": 1,
+            "minimum": 1,
             "type": "integer"
           },
           "run_id": {
             "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
-            "minLength": "1",
-            "nullable": "true",
+            "minLength": 1,
+            "nullable": true,
             "type": "string"
           }
         },
         "type": "object"
       },
       "RunRequest": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "oneOf": [
           {
             "required": [
@@ -349,12 +349,12 @@
         "properties": {
           "artifacts_dir": {
             "example": "artifacts",
-            "nullable": "true",
+            "nullable": true,
             "type": "string"
           },
           "dry_run": {
-            "default": "false",
-            "example": "false",
+            "default": false,
+            "example": false,
             "type": "boolean"
           },
           "execution_mode": {
@@ -364,37 +364,37 @@
           },
           "ground_truth": {
             "example": "AF2",
-            "nullable": "true",
+            "nullable": true,
             "type": "string"
           },
           "provider": {
             "example": "heuristic_proxy",
-            "nullable": "true",
+            "nullable": true,
             "type": "string"
           },
           "rounds": {
-            "default": "1",
-            "example": "1",
-            "minimum": "1",
+            "default": 1,
+            "example": 1,
+            "minimum": 1,
             "type": "integer"
           },
           "sequence": {
             "example": "ACDEFGHIKLMNPQRSTVWY",
-            "minLength": "1",
-            "nullable": "true",
+            "minLength": 1,
+            "nullable": true,
             "type": "string"
           },
           "sequence_file": {
             "example": "tests/fixtures/proteins/small_enzyme.fasta",
-            "minLength": "1",
-            "nullable": "true",
+            "minLength": 1,
+            "nullable": true,
             "type": "string"
           }
         },
         "type": "object"
       },
       "RunResponse": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "artifacts_dir": {
             "example": "artifacts/9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
@@ -402,7 +402,7 @@
           },
           "candidate_id": {
             "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
-            "minLength": "1",
+            "minLength": 1,
             "type": "string"
           },
           "command": {
@@ -418,8 +418,8 @@
             "type": "string"
           },
           "failure": {
-            "example": "null",
-            "nullable": "true",
+            "example": null,
+            "nullable": true,
             "type": "string"
           },
           "outcome": {
@@ -441,7 +441,7 @@
           },
           "run_id": {
             "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
-            "minLength": "1",
+            "minLength": 1,
             "type": "string"
           },
           "tool_status": {
@@ -490,7 +490,7 @@
         "type": "object"
       },
       "VersionInfo": {
-        "additionalProperties": "false",
+        "additionalProperties": false,
         "properties": {
           "app": {
             "example": "0.1.0",
@@ -538,7 +538,7 @@
               }
             }
           },
-          "required": "true"
+          "required": true
         },
         "responses": {
           "200": {
@@ -640,7 +640,7 @@
           {
             "in": "path",
             "name": "candidate_id",
-            "required": "true",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -720,7 +720,7 @@
               }
             }
           },
-          "required": "true"
+          "required": true
         },
         "responses": {
           "200": {
@@ -808,7 +808,7 @@
               }
             }
           },
-          "required": "true"
+          "required": true
         },
         "responses": {
           "200": {
