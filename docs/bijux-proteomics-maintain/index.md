@@ -20,6 +20,7 @@ through CI logs and shell glue.
 ## Sections In This Handbook
 
 - [bijux-proteomics-dev](bijux-proteomics-dev/index.md)
+- [makes](makes/index.md)
 
 ## Purpose
 

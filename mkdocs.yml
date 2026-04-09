@@ -388,3 +388,14 @@ nav:
           - Release Support: bijux-proteomics-maintain/bijux-proteomics-dev/release-support.md
           - Documentation Integrity: bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity.md
           - Operating Guidelines: bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md
+      - makes:
+          - makes: bijux-proteomics-maintain/makes/index.md
+          - Make System Overview: bijux-proteomics-maintain/makes/make-system-overview.md
+          - Root Entrypoints: bijux-proteomics-maintain/makes/root-entrypoints.md
+          - Environment Model: bijux-proteomics-maintain/makes/environment-model.md
+          - Repository Layout: bijux-proteomics-maintain/makes/repository-layout.md
+          - Package Dispatch: bijux-proteomics-maintain/makes/package-dispatch.md
+          - CI Targets: bijux-proteomics-maintain/makes/ci-targets.md
+          - Package Contracts: bijux-proteomics-maintain/makes/package-contracts.md
+          - Release Surfaces: bijux-proteomics-maintain/makes/release-surfaces.md
+          - Authoring Rules: bijux-proteomics-maintain/makes/authoring-rules.md
