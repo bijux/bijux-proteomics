@@ -112,7 +112,7 @@ def test_tool_invocation_spec_json_ready() -> None:
     spec.model_dump_json()
 
 
-def test_decision_requires_tool_invocation_specs() -> None:
+def test_decision_accepts_structured_tool_invocation_specs() -> None:
     spec = ToolInvocationSpec(
         invocation_id="inv1",
         tool_name="sequence_validator",
@@ -122,13 +122,13 @@ def test_decision_requires_tool_invocation_specs() -> None:
         constraints=[],
         origin_task_id="t1",
     )
-    with pytest.raises(ValueError):
-        Decision(
-            agent_name="planner",
-            rationale="r",
-            requested_tools=[spec],
-            confidence=0.1,
-        )
+    decision = Decision(
+        agent_name="planner",
+        rationale="r",
+        requested_tools=[spec],
+        confidence=0.1,
+    )
+    assert decision.requested_tools == [spec]
 
 
 def test_agents_do_not_import_tools_package() -> None:

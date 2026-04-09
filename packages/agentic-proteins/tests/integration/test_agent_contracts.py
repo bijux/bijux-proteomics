@@ -59,15 +59,19 @@ def _repo_files(root: Path) -> set[Path]:
         package_tests_root(),
         root / "docs",
         root / "makes",
-        root / "artifacts",
     ]
     files: set[Path] = set()
     for scan_root in scan_roots:
         if not scan_root.exists():
             continue
-        for path in scan_root.rglob("*"):
-            if path.is_file():
-                files.add(path)
+        for dirpath, _dirnames, filenames in os.walk(
+            scan_root,
+            onerror=lambda _error: None,
+        ):
+            for filename in filenames:
+                path = Path(dirpath) / filename
+                if path.is_file():
+                    files.add(path)
     return files
 
 
