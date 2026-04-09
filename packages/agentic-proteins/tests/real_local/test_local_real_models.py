@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import json
 from pathlib import Path
 import subprocess
 import sys
 import time
+from typing import Any, cast
 
 from agentic_proteins.core.fingerprints import hash_payload
 from agentic_proteins.domain.structure.structure import kabsch_and_pairs, tm_score
@@ -46,7 +48,7 @@ def _run_cli(
     provider: str,
     fasta: Path,
     execution_mode: str,
-) -> dict:
+) -> dict[str, Any]:
     cmd = [
         sys.executable,
         "-m",
@@ -73,7 +75,7 @@ def _run_cli(
     assert proc.returncode == 0, (
         f"CLI failed.\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
     )
-    return json.loads(proc.stdout)
+    return cast(dict[str, Any], json.loads(proc.stdout))
 
 
 @pytest.mark.real
@@ -82,7 +84,10 @@ def _run_cli(
 @pytest.mark.parametrize("case", REAL_CASES)
 @pytest.mark.parametrize("provider", LOCAL_PROVIDERS)
 def test_real_local_prediction(
-    ROOT: Path, run_output_dir: callable, case: dict, provider: str
+    ROOT: Path,
+    run_output_dir: Callable[[str, str], Path],
+    case: dict[str, str],
+    provider: str,
 ) -> None:
     """Run real local models and assert artifacts/metrics are produced."""
     capabilities = PROVIDER_CAPABILITIES.get(provider)
@@ -115,7 +120,7 @@ def test_real_local_prediction(
     assert predicted_pdb.stat().st_size > 500, "Predicted PDB is suspiciously small"
     assert report_json.exists(), "No report.json produced"
 
-    report = artifacts_payload["report"] or {}
+    report = cast(dict[str, Any], artifacts_payload["report"] or {})
     outputs = report.get("summary", {}).get("outputs", {})
     assert "mean_plddt" in outputs, "mean_plddt missing from report outputs"
 
@@ -133,7 +138,10 @@ def test_real_local_prediction(
 @pytest.mark.real_local
 @pytest.mark.slow
 @pytest.mark.timeout(0)
-def test_cpu_fallback_small_protein(ROOT: Path, run_output_dir: callable) -> None:
+def test_cpu_fallback_small_protein(
+    ROOT: Path,
+    run_output_dir: Callable[[str, str], Path],
+) -> None:
     """Run a small protein on CPU and verify fallback warning + runtime bound."""
     if not PROVIDER_CAPABILITIES["local_esmfold"].supports_cpu:
         pytest.skip("CPU fallback not supported for local_esmfold")
@@ -151,8 +159,8 @@ def test_cpu_fallback_small_protein(ROOT: Path, run_output_dir: callable) -> Non
     run_id = payload["run_id"]
     run_dir = outdir / run_id
     artifacts_payload = assert_valid_run_artifacts(run_dir)
-    run_output = artifacts_payload["run_output"]
-    report_payload = artifacts_payload["report"] or {}
+    run_output = cast(dict[str, Any], artifacts_payload["run_output"])
+    report_payload = cast(dict[str, Any], artifacts_payload["report"] or {})
     outputs = report_payload.get("summary", {}).get("outputs", {})
     assert "mean_plddt" in outputs, "mean_plddt missing from report outputs"
     warnings = run_output.get("warnings", [])
@@ -164,7 +172,10 @@ def test_cpu_fallback_small_protein(ROOT: Path, run_output_dir: callable) -> Non
 
 @pytest.mark.real_local
 @pytest.mark.timeout(0)
-def test_artifact_contract_local_esmfold(ROOT: Path, run_output_dir: callable) -> None:
+def test_artifact_contract_local_esmfold(
+    ROOT: Path,
+    run_output_dir: Callable[[str, str], Path],
+) -> None:
     """Verify report schema + hash stability + artifact presence."""
     fasta = ROOT / "examples/ex02_1ubq_A/seq_1ubq_chainA.fasta"
     assert fasta.exists(), f"Missing FASTA: {fasta}"
@@ -181,7 +192,7 @@ def test_artifact_contract_local_esmfold(ROOT: Path, run_output_dir: callable) -
     assert predicted_pdb.exists(), "Missing predicted.pdb"
     assert report_json.exists(), "Missing report.json"
 
-    report_payload = json.loads(report_json.read_text())
+    report_payload = cast(dict[str, Any], json.loads(report_json.read_text()))
     summary = report_payload.get("summary", {})
     outputs = summary.get("outputs", {})
     assert summary, "Report summary missing"
@@ -199,7 +210,10 @@ def test_artifact_contract_local_esmfold(ROOT: Path, run_output_dir: callable) -
 @pytest.mark.real_local
 @pytest.mark.gpu
 @pytest.mark.timeout(0)
-def test_missing_weights_fail_cleanly(ROOT: Path, run_output_dir: callable) -> None:
+def test_missing_weights_fail_cleanly(
+    ROOT: Path,
+    run_output_dir: Callable[[str, str], Path],
+) -> None:
     """Ensure missing weights fail cleanly without partial artifacts."""
     if not cuda_available():
         pytest.skip("GPU required for local_rosettafold")

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from agentic_proteins.api import AppConfig, create_app
@@ -35,7 +36,10 @@ def _run_summary(workflow_state: str = "paused") -> dict[str, Any]:
     }
 
 
-def test_resume_by_run_id(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_resume_by_run_id(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     summary = _run_summary()
     summaries = [summary, summary]
 
@@ -56,7 +60,10 @@ def test_resume_by_run_id(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
     assert payload["error"] is None
 
 
-def test_resume_done_conflict(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_resume_done_conflict(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     summary = _run_summary(workflow_state="done")
 
     monkeypatch.setattr(resume_endpoint, "_load_run_summary", lambda *_: summary)

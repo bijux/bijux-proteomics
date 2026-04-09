@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import inspect as inspect_endpoint
@@ -14,7 +15,10 @@ import pytest
 pytestmark = pytest.mark.api
 
 
-def test_inspect_candidate(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_inspect_candidate(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     candidate = Candidate(candidate_id="run-123-c0", sequence="ACDE")
 
     monkeypatch.setattr(inspect_endpoint, "_inspect_candidate", lambda *_: candidate)

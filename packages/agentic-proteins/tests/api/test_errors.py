@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api.errors import HumanReviewRequiredError
 from agentic_proteins.api.v1.endpoints import inspect as inspect_endpoint
@@ -13,7 +15,10 @@ import pytest
 pytestmark = pytest.mark.api
 
 
-def test_invalid_input_maps_to_422(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_invalid_input_maps_to_422(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     monkeypatch.setattr(
         run_endpoint,
         "_read_sequence",
@@ -30,7 +35,10 @@ def test_invalid_input_maps_to_422(monkeypatch: pytest.MonkeyPatch, tmp_path) ->
     assert payload["error"]["status"] == 422
 
 
-def test_not_found_maps_to_404(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_not_found_maps_to_404(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     monkeypatch.setattr(
         inspect_endpoint,
         "_inspect_candidate",
@@ -48,7 +56,8 @@ def test_not_found_maps_to_404(monkeypatch: pytest.MonkeyPatch, tmp_path) -> Non
 
 
 def test_human_review_required_maps_to_202(
-    monkeypatch: pytest.MonkeyPatch, tmp_path
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     monkeypatch.setattr(
         run_endpoint,

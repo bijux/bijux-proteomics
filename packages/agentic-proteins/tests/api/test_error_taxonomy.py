@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api import errors as api_errors
@@ -15,7 +16,7 @@ import pytest
 def _write_summary(base_dir: Path, run_id: str, workflow_state: str) -> None:
     run_dir = base_dir / "artifacts" / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
-    summary = {
+    summary: dict[str, Any] = {
         "run_id": run_id,
         "candidate_id": f"{run_id}-c0",
         "command": "run",
@@ -44,7 +45,12 @@ def _write_summary(base_dir: Path, run_id: str, workflow_state: str) -> None:
     ],
 )
 def test_api_error_taxonomy(
-    tmp_path: Path, monkeypatch, method: str, path: str, payload, expected_status: int
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+    path: str,
+    payload: dict[str, Any] | None,
+    expected_status: int,
 ) -> None:
     app = create_app(AppConfig(base_dir=tmp_path, docs_enabled=False))
     if expected_status == 409:
@@ -52,7 +58,7 @@ def test_api_error_taxonomy(
     if expected_status == 500:
         from agentic_proteins.api.v1.endpoints import run as run_endpoint
 
-        def _boom(*_args, **_kwargs):
+        def _boom(*_args: object, **_kwargs: object) -> object:
             raise KeyError("boom")
 
         monkeypatch.setattr(run_endpoint, "_run_sequence", _boom)

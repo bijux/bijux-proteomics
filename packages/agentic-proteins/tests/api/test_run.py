@@ -4,7 +4,8 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from pathlib import Path
+from typing import Any, cast
 
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import run as run_endpoint
@@ -53,7 +54,8 @@ def _strip_timestamps(payload: Any) -> Any:
 
 
 def test_run_endpoint_returns_summary(
-    monkeypatch: pytest.MonkeyPatch, tmp_path
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     summary = _run_summary()
 
@@ -73,7 +75,10 @@ def test_run_endpoint_returns_summary(
     assert payload["error"] is None
 
 
-def test_run_endpoint_human_review(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_run_endpoint_human_review(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     summary = _run_summary(workflow_state="awaiting_human_review")
 
     monkeypatch.setattr(run_endpoint, "_read_sequence", lambda *_: "ACDE")
@@ -92,7 +97,10 @@ def test_run_endpoint_human_review(monkeypatch: pytest.MonkeyPatch, tmp_path) ->
     assert payload["error"] is None
 
 
-def test_cli_api_parity(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_cli_api_parity(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
     summary = _run_summary()
 
     class _RunOutput:
@@ -105,7 +113,9 @@ def test_cli_api_parity(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
     monkeypatch.setattr(cli_module, "_run_sequence", lambda *_: {"run_id": "run-123"})
     monkeypatch.setattr(cli_module, "_load_run_summary", lambda *_: summary)
     monkeypatch.setattr(
-        cli_module.RunOutput, "model_validate", lambda *_: _RunOutput("run-123")
+        cast(Any, cli_module).RunOutput,
+        "model_validate",
+        lambda *_: _RunOutput("run-123"),
     )
 
     monkeypatch.setattr(run_endpoint, "_read_sequence", lambda *_: "ACDE")

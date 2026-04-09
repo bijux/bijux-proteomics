@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, cast
 
 from agentic_proteins.api.app import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import compare as compare_module
 from agentic_proteins.api.v1.endpoints import resume as resume_module
 from agentic_proteins.api.v1.endpoints import run as run_module
 from fastapi.testclient import TestClient
+import pytest
 
 
 def _client(tmp_path: Path) -> TestClient:
@@ -17,7 +19,10 @@ def _client(tmp_path: Path) -> TestClient:
     return TestClient(app)
 
 
-def test_compare_endpoint_success(tmp_path: Path, monkeypatch) -> None:
+def test_compare_endpoint_success(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         compare_module,
         "_compare_runs_payload",
@@ -34,10 +39,13 @@ def test_compare_endpoint_success(tmp_path: Path, monkeypatch) -> None:
     assert response.json()["data"]["run_ids"]["run_a"] == "a"
 
 
-def test_run_endpoint_success_and_review(tmp_path: Path, monkeypatch) -> None:
+def test_run_endpoint_success_and_review(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(run_module, "_read_sequence", lambda *_: "ACDE")
     monkeypatch.setattr(run_module, "_validate_sequence", lambda *_: None)
-    monkeypatch.setattr(run_module, "_build_run_config", lambda *_: object())
+    monkeypatch.setattr(run_module, "_build_run_config", lambda *_: cast(Any, object()))
     monkeypatch.setattr(run_module, "_run_sequence", lambda *_: {"run_id": "run-1"})
     monkeypatch.setattr(
         run_module,
@@ -84,7 +92,10 @@ def test_run_endpoint_success_and_review(tmp_path: Path, monkeypatch) -> None:
     assert response.status_code == 202
 
 
-def test_resume_endpoint_success(tmp_path: Path, monkeypatch) -> None:
+def test_resume_endpoint_success(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         resume_module, "_resume_candidate", lambda *_: {"run_id": "run-3"}
     )

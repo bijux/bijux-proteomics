@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 from agentic_proteins.api import errors as errors_module
 from fastapi import status
 import pytest
@@ -36,7 +38,8 @@ def test_raise_http_error_payload() -> None:
         errors_module.raise_http_error(ValueError("bad"), instance="/run")
     err = excinfo.value
     assert err.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
-    assert err.payload["error"]["title"] == "Validation error"
+    payload = cast(dict[str, Any], err.payload)
+    assert payload["error"]["title"] == "Validation error"
 
 
 def test_error_envelopes() -> None:
