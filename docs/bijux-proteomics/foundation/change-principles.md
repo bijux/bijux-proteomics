@@ -22,6 +22,12 @@ more featureful.
   years later
 - keep repository automation explicit about what it touches and why
 
+## Architecture Invariants
+
+- package boundaries remain explicit and import directions stay acyclic
+- domain runtime code and maintainer tooling stay in separate packages
+- repository-wide checks remain deterministic for identical repository state
+
 ## Purpose
 
 This page records the principles that should guide repository-wide change.

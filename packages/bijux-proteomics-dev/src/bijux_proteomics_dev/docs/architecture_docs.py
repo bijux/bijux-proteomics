@@ -6,8 +6,8 @@ from pathlib import Path
 import sys
 
 REQUIRED_DOCS = (
-    "docs/bijux-proteomics/architecture-invariants.md",
-    "docs/bijux-proteomics/design-debt-ledger.md",
+    "docs/bijux-proteomics/foundation/change-principles.md",
+    "docs/bijux-proteomics/operations/change-management.md",
 )
 
 

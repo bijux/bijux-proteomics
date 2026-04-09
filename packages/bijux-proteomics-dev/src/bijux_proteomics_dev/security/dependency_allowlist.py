@@ -15,13 +15,16 @@ def _normalize(dependency: str) -> str:
 
 def run(repo_root: Path) -> int:
     pyproject = repo_root / "pyproject.toml"
-    allowlist_path = repo_root / "docs/bijux-proteomics/dependency-allowlist.md"
+    allowlist_path = (
+        repo_root / "docs/bijux-proteomics/operations/artifact-governance.md"
+    )
     if not pyproject.exists():
         print("pyproject.toml missing.", file=sys.stderr)
         return 1
     if not allowlist_path.exists():
         print(
-            "Allowlist missing: docs/bijux-proteomics/dependency-allowlist.md",
+            "Allowlist missing: "
+            "docs/bijux-proteomics/operations/artifact-governance.md",
             file=sys.stderr,
         )
         return 1
@@ -29,9 +32,15 @@ def run(repo_root: Path) -> int:
     dependencies = data.get("project", {}).get("dependencies", [])
     required = {_normalize(dependency) for dependency in dependencies}
     allowlist = set()
+    in_allowlist = False
     for line in allowlist_path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
-        if stripped.startswith("- "):
+        if stripped == "## Dependency Allowlist":
+            in_allowlist = True
+            continue
+        if in_allowlist and stripped.startswith("## "):
+            break
+        if in_allowlist and stripped.startswith("- "):
             allowlist.add(stripped[2:].strip().lower())
     missing = sorted(required - allowlist)
     if missing:

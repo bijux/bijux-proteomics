@@ -20,6 +20,22 @@ artifacts, and disposable build output.
   policy
 - generated local or CI output under `artifacts/`
 
+## Dependency Allowlist
+
+The dependency allowlist used by `bijux_proteomics_dev.security.dependency_allowlist`
+is recorded here so repository policy stays visible.
+
+- requests
+- biopython
+- numpy
+- click
+- fastapi
+- uvicorn
+- pydantic
+- loguru
+- slowapi
+- boto3
+
 ## Purpose
 
 This page explains how the repository distinguishes durable reference artifacts

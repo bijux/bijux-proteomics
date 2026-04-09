@@ -19,6 +19,12 @@ The repository should make change easier to reason about, not easier to hide.
   need private project history to decode them
 - use redirects or explicit metadata updates when documentation paths move
 
+## Design Debt Ledger
+
+- no active design debt entries why: repository debt stays empty until a
+  constrained exception is explicitly approved exit: keep this section empty
+  except approved debt items
+
 ## Purpose
 
 This page explains how shared repository changes should be packaged and carried

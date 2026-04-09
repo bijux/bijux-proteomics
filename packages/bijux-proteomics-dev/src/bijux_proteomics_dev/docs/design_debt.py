@@ -7,17 +7,24 @@ import sys
 
 
 def run(repo_root: Path) -> int:
-    path = repo_root / "docs/bijux-proteomics/design-debt-ledger.md"
+    path = repo_root / "docs/bijux-proteomics/operations/change-management.md"
     if not path.exists():
         print(
-            "Missing design debt ledger: docs/bijux-proteomics/design-debt-ledger.md",
+            "Missing design debt ledger: "
+            "docs/bijux-proteomics/operations/change-management.md",
             file=sys.stderr,
         )
         return 1
     items: list[str] = []
+    in_ledger = False
     for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
-        if stripped.startswith("- "):
+        if stripped == "## Design Debt Ledger":
+            in_ledger = True
+            continue
+        if in_ledger and stripped.startswith("## "):
+            break
+        if in_ledger and stripped.startswith("- "):
             items.append(stripped)
     if len(items) > 10:
         print("Design debt ledger exceeds 10 items.", file=sys.stderr)

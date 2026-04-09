@@ -40,6 +40,28 @@ theme:
 plugins:
   - search
   - autorefs
+  - redirects:
+      redirect_maps:
+        bijux-proteomics-dev/index.md: bijux-proteomics-maintain/index.md
+        bijux-proteomics-dev/foundation.md: bijux-proteomics-maintain/bijux-proteomics-dev/package-overview.md
+        bijux-proteomics-dev/architecture.md: bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/interfaces.md: bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/operations.md: bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md
+        bijux-proteomics-dev/tooling-map.md: bijux-proteomics-maintain/bijux-proteomics-dev/module-map.md
+        bijux-proteomics-dev/quality.md: bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates.md
+        bijux-proteomics/platform-overview.md: bijux-proteomics/foundation/platform-overview.md
+        bijux-proteomics/repository-scope.md: bijux-proteomics/foundation/repository-scope.md
+        bijux-proteomics/workspace-layout.md: bijux-proteomics/foundation/workspace-layout.md
+        bijux-proteomics/package-map.md: bijux-proteomics/foundation/package-map.md
+        bijux-proteomics/documentation-system.md: bijux-proteomics/foundation/documentation-system.md
+        bijux-proteomics/api-and-schema-governance.md: bijux-proteomics/operations/api-and-schema-governance.md
+        bijux-proteomics/apis.md: bijux-proteomics/operations/api-and-schema-governance.md
+        bijux-proteomics/local-development.md: bijux-proteomics/operations/local-development.md
+        bijux-proteomics/testing-and-validation.md: bijux-proteomics/operations/testing-and-validation.md
+        bijux-proteomics/release-and-versioning.md: bijux-proteomics/operations/release-and-versioning.md
+        bijux-proteomics/architecture-invariants.md: bijux-proteomics/foundation/change-principles.md
+        bijux-proteomics/design-debt-ledger.md: bijux-proteomics/operations/change-management.md
+        bijux-proteomics/dependency-allowlist.md: bijux-proteomics/operations/artifact-governance.md
   - git-revision-date-localized:
       enable_creation_date: false
       fallback_to_build_date: true
