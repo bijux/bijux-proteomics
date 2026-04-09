@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -13,11 +15,23 @@ def _load_schema(text: str) -> dict:
     return yaml.safe_load(text) or {}
 
 
-def _git_show(path: str) -> str | None:
-    try:
-        return subprocess.check_output(["git", "show", f"HEAD~1:{path}"], text=True)
-    except Exception:
+def _git_show(repo_root: Path, path: str) -> str | None:
+    git_bin = shutil.which("git")
+    if git_bin is None:
         return None
+    path_parts = Path(path).parts
+    if Path(path).is_absolute() or ".." in path_parts:
+        return None
+    try:
+        completed = subprocess.run(
+            [git_bin, "-C", str(repo_root), "show", f"HEAD~1:{path}"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return None
+    return completed.stdout
 
 
 def _extract_fields(schema: dict) -> set[str]:
@@ -41,7 +55,7 @@ def run(repo_root: Path) -> int:
     for schema_path in schema_paths:
         rel = schema_path.relative_to(repo_root).as_posix()
         current_schema = _load_schema(schema_path.read_text(encoding="utf-8"))
-        previous_text = _git_show(rel)
+        previous_text = _git_show(repo_root, rel)
         if not previous_text:
             continue
         previous_schema = _load_schema(previous_text)
@@ -65,8 +79,22 @@ def run(repo_root: Path) -> int:
     return 0
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Detect breaking OpenAPI changes without version bumps."
+    )
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path.cwd(),
+        help="Repository root that contains the apis/ contract tree.",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
-    return run(Path.cwd())
+    args = parse_args()
+    return run(args.repo_root.resolve())
 
 
 if __name__ == "__main__":
