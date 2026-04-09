@@ -3,29 +3,43 @@ line-length = 88
 respect-gitignore = true
 src = [
   "packages/agentic-proteins/src",
-  "packages/bijux-proteomics-dev/src",
-  "packages/bijux-proteomics-foundation/src",
-  "packages/bijux-proteomics-core/src",
-  "packages/bijux-proteomics-intelligence/src",
-  "packages/bijux-proteomics-knowledge/src",
-  "packages/bijux-proteomics-lab/src",
   "packages/agentic-proteins/tests",
-  "packages/bijux-proteomics-dev/tests",
-  "packages/bijux-proteomics-foundation/tests",
+  "packages/bijux-proteomics-core/src",
   "packages/bijux-proteomics-core/tests",
+  "packages/bijux-proteomics-dev/src",
+  "packages/bijux-proteomics-dev/tests",
+  "packages/bijux-proteomics-foundation/src",
+  "packages/bijux-proteomics-foundation/tests",
+  "packages/bijux-proteomics-intelligence/src",
   "packages/bijux-proteomics-intelligence/tests",
+  "packages/bijux-proteomics-knowledge/src",
   "packages/bijux-proteomics-knowledge/tests",
+  "packages/bijux-proteomics-lab/src",
   "packages/bijux-proteomics-lab/tests",
 ]
-
 exclude = [
-  ".git", ".hg", ".mypy_cache", ".pytest_cache", ".ruff_cache", ".tox", ".venv",
-  "build", "dist", "docs", "htmlcov", "__pycache__", "migrations", "*.egg-info"
+  ".git",
+  ".hg",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".tox",
+  ".venv",
+  "artifacts",
+  "build",
+  "dist",
+  "docs/report",
+  "htmlcov",
+  "__pycache__",
+  "migrations",
+  "node_modules",
+  "*.egg-info",
+  "site",
 ]
 
 [lint]
-select = ["E","F","I","B","UP","SIM","PT","N","A","C4","S","TID","PERF"]
-ignore = ["E501","E203"]
+select = ["E", "F", "I", "B", "UP", "SIM", "PT", "N", "A", "C4", "S", "TID", "PERF"]
+ignore = ["E501", "E203"]
 
 [lint.per-file-ignores]
 "packages/*/tests/**" = ["S101"]
@@ -33,15 +47,6 @@ ignore = ["E501","E203"]
 
 [lint.isort]
 force-sort-within-sections = true
-known-first-party = [
-  "agentic_proteins",
-  "bijux_proteomics_dev",
-  "bijux_proteomics_foundation",
-  "bijux_proteomics",
-  "bijux_proteomics_intelligence",
-  "bijux_proteomics_knowledge",
-  "bijux_proteomics_lab",
-]
 required-imports = ["from __future__ import annotations"]
 
 [lint.flake8-tidy-imports]
