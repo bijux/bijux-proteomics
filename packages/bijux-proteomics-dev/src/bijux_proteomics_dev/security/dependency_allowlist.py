@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 import re
 import sys
 import tomllib
-from pathlib import Path
 
 
 def _normalize(dependency: str) -> str:

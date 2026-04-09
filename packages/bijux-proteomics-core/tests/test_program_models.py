@@ -6,60 +6,59 @@ from __future__ import annotations
 from datetime import timedelta
 from pathlib import Path
 
-import pytest
-
 from bijux_proteomics import (
+    DecisionQuery,
+    DuplicateReviewDecisionError,
     ExecutionRequest,
+    ProgramContext,
+    ProgramDeliveryContext,
     ProgramExecutionRequest,
+    ProgramNotFoundError,
+    ProgramPortfolioContext,
+    ProgramRevisionConflictError,
     ProgramSpec,
+    ProgramValidationError,
+    ProgramValidationIssue,
     ReviewDecision,
     ReviewGateBlockedError,
-    ReviewOutcome,
-    ProgramValidationIssue,
-    ProgramValidationError,
-    ProgramContext,
-    DecisionQuery,
-    ProgramDeliveryContext,
-    DuplicateReviewDecisionError,
-    ProgramNotFoundError,
-    ProgramRevisionConflictError,
-    ProgramPortfolioContext,
     ReviewGateEvaluation,
     ReviewGateState,
+    ReviewOutcome,
     StageEligibility,
-    decision_timeline,
-    criterion_passes,
+    assess_stage_eligibility,
     create_program_spec,
-    evaluate_review_gates,
+    criterion_passes,
+    decision_timeline,
+    ensure_program_revision,
     ensure_review_clearance,
+    ensure_unique_gate_decision,
+    evaluate_review_gates,
     latest_gate_decision,
     list_decisions_by_outcome,
     list_gate_decisions,
-    query_decisions,
     program_summary,
-    revise_program,
-    assess_stage_eligibility,
-    ensure_unique_gate_decision,
-    ensure_program_revision,
+    query_decisions,
     require_program,
-    validate_review_decision,
+    revise_program,
     validate_assay_dependencies,
     validate_program,
     validate_program_readiness,
+    validate_review_decision,
 )
-from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
 from bijux_proteomics.programs import (
     AssayRequirement,
-    ProgramLiability,
     LiabilityCategory,
-    build_assay_grounded_criteria,
     MeasurementDirection,
     MetricFamily,
+    ProgramLiability,
     ProgramStage,
     ReviewGate,
     ScientificConstraint,
     SuccessCriterion,
+    build_assay_grounded_criteria,
 )
+from bijux_proteomics.runtime_adapter import MissingExecutionBackendError
+import pytest
 
 
 def test_create_program_spec_enforces_sequence_contract() -> None:
@@ -278,7 +277,9 @@ def test_ensure_review_clearance_lists_blocking_gates_without_approval() -> None
     assert [gate.gate_id for gate in blocked] == ["pre-synthesis"]
 
 
-def test_execute_program_request_rejects_missing_blocking_approval(tmp_path: Path) -> None:
+def test_execute_program_request_rejects_missing_blocking_approval(
+    tmp_path: Path,
+) -> None:
     program = create_program_spec(
         program_id="prog-5",
         name="gated execution",
@@ -396,18 +397,27 @@ def test_validate_program_detects_missing_review_and_assay_modeling() -> None:
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="review-gates-missing",
-        message="review and lab-ready programs should define review gates",
-    ) in issues
-    assert ProgramValidationIssue(
-        code="assay-panel-missing",
-        message="lab-ready programs should define an assay panel",
-    ) in issues
-    assert ProgramValidationIssue(
-        code="translational-assumptions-missing",
-        message="lab-ready programs should define translational assumptions",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="review-gates-missing",
+            message="review and lab-ready programs should define review gates",
+        )
+        in issues
+    )
+    assert (
+        ProgramValidationIssue(
+            code="assay-panel-missing",
+            message="lab-ready programs should define an assay panel",
+        )
+        in issues
+    )
+    assert (
+        ProgramValidationIssue(
+            code="translational-assumptions-missing",
+            message="lab-ready programs should define translational assumptions",
+        )
+        in issues
+    )
 
 
 def test_validate_program_readiness_flags_unmapped_review_inputs() -> None:
@@ -434,18 +444,27 @@ def test_validate_program_readiness_flags_unmapped_review_inputs() -> None:
 
     issues = validate_program_readiness(program)
 
-    assert ProgramValidationIssue(
-        code="review-input-unmapped",
-        message="review gate 'progression-review' references unmapped inputs: missing-packet",
-    ) in issues
-    assert ProgramValidationIssue(
-        code="target-class-missing",
-        message="review and lab-ready programs should define target_class",
-    ) in issues
-    assert ProgramValidationIssue(
-        code="target-localization-missing",
-        message="review and lab-ready programs should define target subcellular_localization",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="review-input-unmapped",
+            message="review gate 'progression-review' references unmapped inputs: missing-packet",
+        )
+        in issues
+    )
+    assert (
+        ProgramValidationIssue(
+            code="target-class-missing",
+            message="review and lab-ready programs should define target_class",
+        )
+        in issues
+    )
+    assert (
+        ProgramValidationIssue(
+            code="target-localization-missing",
+            message="review and lab-ready programs should define target subcellular_localization",
+        )
+        in issues
+    )
 
 
 def test_validate_program_readiness_flags_duplicate_gate_inputs() -> None:
@@ -471,13 +490,18 @@ def test_validate_program_readiness_flags_duplicate_gate_inputs() -> None:
 
     issues = validate_program_readiness(program)
 
-    assert ProgramValidationIssue(
-        code="review-inputs-duplicate",
-        message="review gate 'pre-review' repeats one or more decision inputs",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="review-inputs-duplicate",
+            message="review gate 'pre-review' repeats one or more decision inputs",
+        )
+        in issues
+    )
 
 
-def test_validate_program_readiness_requires_blocking_assays_for_blocking_gates() -> None:
+def test_validate_program_readiness_requires_blocking_assays_for_blocking_gates() -> (
+    None
+):
     program = create_program_spec(
         program_id="prog-10c",
         name="blocking assay alignment",
@@ -510,10 +534,13 @@ def test_validate_program_readiness_requires_blocking_assays_for_blocking_gates(
 
     issues = validate_program_readiness(program)
 
-    assert ProgramValidationIssue(
-        code="blocking-gate-needs-blocking-assays",
-        message="blocking review gate 'lab-gate' references non-blocking assays: primary-binding",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="blocking-gate-needs-blocking-assays",
+            message="blocking review gate 'lab-gate' references non-blocking assays: primary-binding",
+        )
+        in issues
+    )
 
 
 def test_validate_assay_dependencies_flags_unmapped_success_metrics() -> None:
@@ -547,12 +574,15 @@ def test_validate_assay_dependencies_flags_unmapped_success_metrics() -> None:
 
     issues = validate_assay_dependencies(program)
 
-    assert ProgramValidationIssue(
-        code="criterion-without-assay",
-        message=(
-            "success criterion 'binding' does not map to any assay readout or assay identifier"
-        ),
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="criterion-without-assay",
+            message=(
+                "success criterion 'binding' does not map to any assay readout or assay identifier"
+            ),
+        )
+        in issues
+    )
 
 
 def test_validate_assay_dependencies_requires_upper_bound_for_bound_criteria() -> None:
@@ -586,10 +616,13 @@ def test_validate_assay_dependencies_requires_upper_bound_for_bound_criteria() -
 
     issues = validate_assay_dependencies(program)
 
-    assert ProgramValidationIssue(
-        code="bound-criterion-upper-threshold-missing",
-        message="bound criterion 'stability-window' should declare an upper_threshold",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="bound-criterion-upper-threshold-missing",
+            message="bound criterion 'stability-window' should declare an upper_threshold",
+        )
+        in issues
+    )
 
 
 def test_validate_program_flags_duplicate_criterion_ids() -> None:
@@ -622,10 +655,13 @@ def test_validate_program_flags_duplicate_criterion_ids() -> None:
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="criterion-ids-duplicate",
-        message="success criteria should use unique identifiers",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="criterion-ids-duplicate",
+            message="success criteria should use unique identifiers",
+        )
+        in issues
+    )
 
 
 def test_validate_program_enforces_identifier_prefix_contracts() -> None:
@@ -660,14 +696,20 @@ def test_validate_program_enforces_identifier_prefix_contracts() -> None:
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="program-id-prefix-invalid",
-        message="program_id should use a 'prog-' prefix",
-    ) in issues
-    assert ProgramValidationIssue(
-        code="target-id-prefix-invalid",
-        message="target_id should use a 'target-' prefix",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="program-id-prefix-invalid",
+            message="program_id should use a 'prog-' prefix",
+        )
+        in issues
+    )
+    assert (
+        ProgramValidationIssue(
+            code="target-id-prefix-invalid",
+            message="target_id should use a 'target-' prefix",
+        )
+        in issues
+    )
 
 
 def test_validate_program_requires_mitigation_for_blocking_constraints() -> None:
@@ -693,13 +735,18 @@ def test_validate_program_requires_mitigation_for_blocking_constraints() -> None
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="constraint-mitigation-missing",
-        message="blocking constraint 'constraint-1' should define a mitigation_plan",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="constraint-mitigation-missing",
+            message="blocking constraint 'constraint-1' should define a mitigation_plan",
+        )
+        in issues
+    )
 
 
-def test_validate_program_requires_owner_and_evidence_for_blocking_liabilities() -> None:
+def test_validate_program_requires_owner_and_evidence_for_blocking_liabilities() -> (
+    None
+):
     program = create_program_spec(
         program_id="prog-liability",
         name="liability governance",
@@ -724,14 +771,20 @@ def test_validate_program_requires_owner_and_evidence_for_blocking_liabilities()
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="liability-owner-missing",
-        message="blocking liability 'liability-x' should declare owner_role",
-    ) in issues
-    assert ProgramValidationIssue(
-        code="liability-evidence-missing",
-        message="blocking liability 'liability-x' should reference supporting evidence ids",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="liability-owner-missing",
+            message="blocking liability 'liability-x' should declare owner_role",
+        )
+        in issues
+    )
+    assert (
+        ProgramValidationIssue(
+            code="liability-evidence-missing",
+            message="blocking liability 'liability-x' should reference supporting evidence ids",
+        )
+        in issues
+    )
 
 
 def test_validate_program_requires_assay_mapping_for_success_criteria() -> None:
@@ -766,13 +819,18 @@ def test_validate_program_requires_assay_mapping_for_success_criteria() -> None:
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="criterion-assay-unmapped",
-        message="success criteria are missing mapped assay readouts: expression_yield",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="criterion-assay-unmapped",
+            message="success criteria are missing mapped assay readouts: expression_yield",
+        )
+        in issues
+    )
 
 
-def test_validate_program_requires_assay_reference_for_blocking_liability_mitigation() -> None:
+def test_validate_program_requires_assay_reference_for_blocking_liability_mitigation() -> (
+    None
+):
     program = create_program_spec(
         program_id="prog-liability-mitigation",
         name="liability mitigation mapping",
@@ -807,10 +865,13 @@ def test_validate_program_requires_assay_reference_for_blocking_liability_mitiga
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="liability-mitigation-assay-unmapped",
-        message="blocking liability 'liability-safety' mitigation should reference a planned assay_id",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="liability-mitigation-assay-unmapped",
+            message="blocking liability 'liability-safety' mitigation should reference a planned assay_id",
+        )
+        in issues
+    )
 
 
 def test_success_criterion_supports_metric_family_and_bounds() -> None:
@@ -853,10 +914,13 @@ def test_validate_program_requires_assay_evidence_for_gated_review() -> None:
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="review-needs-assay-evidence",
-        message="programs with review gates should include assay evidence needs",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="review-needs-assay-evidence",
+            message="programs with review gates should include assay evidence needs",
+        )
+        in issues
+    )
 
 
 def test_validate_program_requires_scientific_context_for_review_stage() -> None:
@@ -885,14 +949,20 @@ def test_validate_program_requires_scientific_context_for_review_stage() -> None
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="modality-context-missing",
-        message="review and lab-ready programs should define modality_context",
-    ) in issues
-    assert ProgramValidationIssue(
-        code="key-unknowns-missing",
-        message="review and lab-ready programs should define key_unknowns",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="modality-context-missing",
+            message="review and lab-ready programs should define modality_context",
+        )
+        in issues
+    )
+    assert (
+        ProgramValidationIssue(
+            code="key-unknowns-missing",
+            message="review and lab-ready programs should define key_unknowns",
+        )
+        in issues
+    )
 
 
 def test_validate_program_requires_critical_failure_modes_for_lab_ready() -> None:
@@ -923,13 +993,18 @@ def test_validate_program_requires_critical_failure_modes_for_lab_ready() -> Non
 
     issues = validate_program(program)
 
-    assert ProgramValidationIssue(
-        code="critical-failure-modes-missing",
-        message="lab-ready programs should define critical_failure_modes",
-    ) in issues
+    assert (
+        ProgramValidationIssue(
+            code="critical-failure-modes-missing",
+            message="lab-ready programs should define critical_failure_modes",
+        )
+        in issues
+    )
 
 
-def test_execute_program_rejects_invalid_program_before_backend_use(tmp_path: Path) -> None:
+def test_execute_program_rejects_invalid_program_before_backend_use(
+    tmp_path: Path,
+) -> None:
     class StubBackend:
         def execute(self, request: ExecutionRequest) -> dict[str, object]:
             return {"backend": "stub"}
@@ -1058,7 +1133,9 @@ def test_validate_review_decision_requires_evidence_refs_for_approval() -> None:
         )
     )
 
-    assert issues == ["approved review decisions should reference supporting evidence ids"]
+    assert issues == [
+        "approved review decisions should reference supporting evidence ids"
+    ]
 
 
 def test_latest_gate_decision_and_timeline_are_time_ordered() -> None:

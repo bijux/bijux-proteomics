@@ -8,7 +8,9 @@ from tests.helpers.paths import repo_root
 
 def test_conceptual_onboarding_passes() -> None:
     root = repo_root()
-    text = (root / "docs" / "agentic-proteins" / "foundation" / "domain-language.md").read_text()
+    text = (
+        root / "docs" / "agentic-proteins" / "foundation" / "domain-language.md"
+    ).read_text()
     required = (
         "Domain Language",
         "Package Vocabulary Anchors",

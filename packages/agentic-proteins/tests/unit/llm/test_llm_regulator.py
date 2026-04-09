@@ -5,19 +5,22 @@ from __future__ import annotations
 
 import random
 
-import pytest
-
 from agentic_proteins.biology.pathway import PathwayContract, PathwayExecutor
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.regulator import (
     ApprovalMode,
-    LLMAuthorityBoundary,
     LLMAction,
+    LLMAuthorityBoundary,
     LLMRegulator,
     PermissionMode,
     Proposal,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalType
+import pytest
 
 
 def _constraints() -> ProteinConstraints:
@@ -79,7 +82,10 @@ def test_proposal_validator_rejects_unknown_parameter() -> None:
         rationale="bad",
         action=LLMAction.TUNE_PROBABILITY,
     )
-    assert regulator.validate_proposal(proposal, agent=agent, contract=PathwayContract()) is False
+    assert (
+        regulator.validate_proposal(proposal, agent=agent, contract=PathwayContract())
+        is False
+    )
 
 
 def test_manual_approval_requires_hook() -> None:
@@ -108,7 +114,9 @@ def test_counterfactual_rejects_no_improvement() -> None:
         rationale="no change",
         action=LLMAction.ADJUST_THRESHOLD,
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+    )
 
     def metric(events: list[object]) -> float:
         return float(len(events))

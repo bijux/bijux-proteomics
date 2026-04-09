@@ -13,12 +13,12 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     LiabilityNodeInput,
     NormalizedEvidenceInput,
-    UnresolvedQuestion,
     QuantitativeSupport,
+    UnresolvedQuestion,
     attach_evidence_inputs,
-    ingest_inputs_with_report,
     build_evidence_graph,
     extract_decision_subgraph,
+    ingest_inputs_with_report,
     trace_decision_paths,
     validate_evidence_graph,
 )
@@ -148,7 +148,9 @@ def test_trace_decision_paths_returns_terminal_paths() -> None:
 
 
 def test_validate_evidence_graph_reports_dangling_edges() -> None:
-    graph = build_evidence_graph(EvidenceBundle(bundle_id="bundle-gv", target_id="target-gv"))
+    graph = build_evidence_graph(
+        EvidenceBundle(bundle_id="bundle-gv", target_id="target-gv")
+    )
     broken = graph.model_copy(
         update={
             "edges": graph.edges

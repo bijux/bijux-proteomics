@@ -3,14 +3,15 @@
 
 from __future__ import annotations
 
-import pytest
+from importlib import import_module
 
 from agentic_proteins.providers.errors import PredictionError
-
+import pytest
 
 torch = pytest.importorskip("torch")
-
-from agentic_proteins.providers.local.esmfold import LocalESMFoldProvider
+LocalESMFoldProvider = import_module(
+    "agentic_proteins.providers.local.esmfold"
+).LocalESMFoldProvider
 
 
 def test_format_atom_name_alignment() -> None:

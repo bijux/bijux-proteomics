@@ -6,8 +6,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from agentic_proteins.core.failures import FailureType
 from agentic_proteins.core.tooling import ToolError
 from agentic_proteins.domain.candidates.model import Candidate
@@ -31,9 +29,7 @@ def test_map_failure_type_variants() -> None:
         == FailureType.TOOL_TIMEOUT.value
     )
     err = ToolError(error_type="oom", message="boom")
-    assert (
-        artifacts_module.map_failure_type("failure", err) == FailureType.OOM.value
-    )
+    assert artifacts_module.map_failure_type("failure", err) == FailureType.OOM.value
     err = ToolError(error_type="invalid_output", message="boom")
     assert (
         artifacts_module.map_failure_type("failure", err)
@@ -41,7 +37,8 @@ def test_map_failure_type_variants() -> None:
     )
     err = ToolError(error_type="tool_error", message="boom")
     assert (
-        artifacts_module.map_failure_type("failure", err) == FailureType.TOOL_CRASH.value
+        artifacts_module.map_failure_type("failure", err)
+        == FailureType.TOOL_CRASH.value
     )
     assert artifacts_module.map_failure_type("success", None) == ""
 

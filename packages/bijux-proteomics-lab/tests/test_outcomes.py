@@ -2,6 +2,7 @@
 # Copyright © 2025 Bijan Mousavi
 
 from __future__ import annotations
+
 from datetime import UTC, datetime
 
 from bijux_proteomics_lab import (
@@ -12,46 +13,46 @@ from bijux_proteomics_lab import (
     AssayObservationRecord,
     AssayOutcome,
     AssayResultState,
-    QcState,
+    BatchPromotionPolicy,
     ExperimentOutcome,
     FailureClass,
-    RerunPolicy,
-    evaluate_assay_acceptance,
     LabFeedbackQuery,
     LabFeedbackRecord,
+    ObservationQualityProfile,
     OutcomePromotionPolicy,
-    promote_outcome_to_evidence,
-    query_feedback_records,
-    summarize_feedback_trend,
-    query_review_queue,
-    summarize_review_queue,
-    summarize_review_queue_workload,
-    summarize_feedback_cycle_latency,
-    detect_feedback_anomalies,
-    forecast_cycle_workload,
-    summarize_feedback_lineage_coverage,
-    summarize_review_queue_sla,
+    OutcomeReliabilityTier,
+    QcState,
+    RerunPolicy,
     ReviewQueueEntry,
     ReviewQueueQuery,
-    recommend_rerun_policy,
-    summarize_experiment_outcome,
-    summarize_observation,
-    assess_evidence_promotion_readiness,
-    recommend_claim_belief_deltas,
     assess_batch_outcome,
-    validate_assay_observation_record,
-    generate_feedback_records_from_outcome,
-    promote_batch_outcome_to_evidence,
-    triage_assay_failure,
-    triage_batch_failures,
-    consolidate_claim_belief_updates,
+    assess_evidence_promotion_readiness,
     assess_observation_quality,
-    BatchPromotionPolicy,
-    ObservationQualityProfile,
     assess_outcome_reliability,
-    OutcomeReliabilityTier,
     build_batch_readiness_matrix,
     build_batch_rerun_plan,
+    consolidate_claim_belief_updates,
+    detect_feedback_anomalies,
+    evaluate_assay_acceptance,
+    forecast_cycle_workload,
+    generate_feedback_records_from_outcome,
+    promote_batch_outcome_to_evidence,
+    promote_outcome_to_evidence,
+    query_feedback_records,
+    query_review_queue,
+    recommend_claim_belief_deltas,
+    recommend_rerun_policy,
+    summarize_experiment_outcome,
+    summarize_feedback_cycle_latency,
+    summarize_feedback_lineage_coverage,
+    summarize_feedback_trend,
+    summarize_observation,
+    summarize_review_queue,
+    summarize_review_queue_sla,
+    summarize_review_queue_workload,
+    triage_assay_failure,
+    triage_batch_failures,
+    validate_assay_observation_record,
 )
 
 
@@ -376,7 +377,9 @@ def test_query_feedback_records_filters_by_cycle_and_assay() -> None:
 
     filtered = query_feedback_records(
         records,
-        LabFeedbackQuery(program_id="prog-1", cycle_id="cycle-1", related_assay_id="a1"),
+        LabFeedbackQuery(
+            program_id="prog-1", cycle_id="cycle-1", related_assay_id="a1"
+        ),
     )
 
     assert [record.feedback_id for record in filtered] == ["f1"]
@@ -485,7 +488,12 @@ def test_detect_feedback_anomalies_flags_cycle_and_assay_concentration() -> None
         )
     ]
 
-    report = detect_feedback_anomalies(records, program_id="prog-anom", cycle_volume_threshold=5, assay_dominance_ratio=0.7)
+    report = detect_feedback_anomalies(
+        records,
+        program_id="prog-anom",
+        cycle_volume_threshold=5,
+        assay_dominance_ratio=0.7,
+    )
 
     assert report.high_volume_cycles == ["cycle-1"]
     assert report.dominant_assay_ids == ["assay-1"]
@@ -503,8 +511,12 @@ def test_forecast_cycle_workload_estimates_pressure_from_history() -> None:
         for i in range(6)
     ]
     queue = [
-        ReviewQueueEntry(program_id="prog-forecast", gate_id="gate-1", summary="blocked"),
-        ReviewQueueEntry(program_id="prog-forecast", gate_id="gate-2", summary="blocked"),
+        ReviewQueueEntry(
+            program_id="prog-forecast", gate_id="gate-1", summary="blocked"
+        ),
+        ReviewQueueEntry(
+            program_id="prog-forecast", gate_id="gate-2", summary="blocked"
+        ),
     ]
 
     forecast = forecast_cycle_workload(
@@ -584,7 +596,9 @@ def test_promote_batch_outcome_to_evidence_respects_quality_policy() -> None:
     promoted, report = promote_batch_outcome_to_evidence(
         outcome,
         target_id="target-1",
-        batch_policy=BatchPromotionPolicy(policy_id="strict", minimum_quality_score=0.8),
+        batch_policy=BatchPromotionPolicy(
+            policy_id="strict", minimum_quality_score=0.8
+        ),
         quality_profiles={
             "assay-1": ObservationQualityProfile(
                 assay_id="assay-1",
@@ -771,7 +785,9 @@ def test_evaluate_assay_acceptance_marks_below_detection_as_inconclusive() -> No
     assert outcome.failure_class is FailureClass.INTERPRETATION
 
 
-def test_promote_outcome_to_evidence_adds_uncertainty_tags_for_inconclusive_results() -> None:
+def test_promote_outcome_to_evidence_adds_uncertainty_tags_for_inconclusive_results() -> (
+    None
+):
     payload = promote_outcome_to_evidence(
         AssayOutcome(
             assay_id="activity-assay",
@@ -848,7 +864,9 @@ def test_summarize_observation_uses_replicate_statistics() -> None:
     assert summary.median_value == 1.0
 
 
-def test_assess_evidence_promotion_readiness_blocks_uncertain_inconclusive_outcomes() -> None:
+def test_assess_evidence_promotion_readiness_blocks_uncertain_inconclusive_outcomes() -> (
+    None
+):
     readiness = assess_evidence_promotion_readiness(
         AssayOutcome(
             assay_id="assay-promote",
@@ -955,7 +973,9 @@ def test_generate_feedback_records_from_outcome_preserves_assay_lineage() -> Non
     assert records[0].related_evidence_ids == ["assay:batch-feedback:assay-1"]
 
 
-def test_promote_batch_outcome_to_evidence_reports_promoted_and_blocked_assays() -> None:
+def test_promote_batch_outcome_to_evidence_reports_promoted_and_blocked_assays() -> (
+    None
+):
     payloads, report = promote_batch_outcome_to_evidence(
         ExperimentOutcome(
             batch_id="batch-promote",
@@ -982,11 +1002,15 @@ def test_promote_batch_outcome_to_evidence_reports_promoted_and_blocked_assays()
         target_id="target-promote",
     )
 
-    assert [payload.evidence_id for payload in payloads] == ["assay:batch-promote:assay-pass"]
+    assert [payload.evidence_id for payload in payloads] == [
+        "assay:batch-promote:assay-pass"
+    ]
     assert report.blocked_assay_ids == ["assay-fail"]
 
 
-def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> None:
+def test_evaluate_assay_acceptance_marks_high_dispersion_as_reproducibility_failure() -> (
+    None
+):
     outcome = evaluate_assay_acceptance(
         AssayDefinition(
             assay_id="binding-assay",

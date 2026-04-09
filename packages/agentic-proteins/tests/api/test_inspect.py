@@ -5,12 +5,11 @@ from __future__ import annotations
 
 import json
 
-import pytest
-from fastapi.testclient import TestClient
-
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import inspect as inspect_endpoint
 from agentic_proteins.domain.candidates.schema import Candidate
+from fastapi.testclient import TestClient
+import pytest
 
 pytestmark = pytest.mark.api
 
@@ -22,9 +21,7 @@ def test_inspect_candidate(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
 
     run_dir = tmp_path / "artifacts" / "run-123"
     run_dir.mkdir(parents=True)
-    (run_dir / "run_summary.json").write_text(
-        json.dumps({"qc_status": "acceptable"})
-    )
+    (run_dir / "run_summary.json").write_text(json.dumps({"qc_status": "acceptable"}))
     monkeypatch.setattr(
         inspect_endpoint,
         "_load_run_summary",

@@ -3,7 +3,12 @@
 
 from __future__ import annotations
 
-from bijux_proteomics import ReviewGate, ScientificConstraint, SuccessCriterion, create_program_spec
+from bijux_proteomics import (
+    ReviewGate,
+    ScientificConstraint,
+    SuccessCriterion,
+    create_program_spec,
+)
 from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
@@ -11,37 +16,37 @@ from bijux_proteomics_intelligence import (
     CandidateRanking,
     CandidateRejection,
     CandidateScoreBreakdown,
+    LiabilityFlag,
     LiabilityFocusSummary,
     MetricDefinition,
     MetricDirection,
-    build_risk_profile,
-    LiabilityFlag,
     OptimizationAxis,
-    RankingFactor,
     PortfolioSelectionPolicy,
-    RejectionReasonCode,
-    RankingPolicy,
     RankedCandidate,
+    RankingFactor,
+    RankingPolicy,
+    RejectionReasonCode,
     ScientificMetricClass,
+    audit_metric_catalog,
     build_design_brief,
+    build_ranking_diagnostics,
+    build_ranking_robustness_report,
+    build_rejection_action_plan,
+    build_risk_profile,
+    candidate_score_breakdown,
+    classify_metric_name,
+    criterion_satisfaction_vector,
     prioritize_candidates,
     select_portfolio_shortlist,
     summarize_candidate_explainability,
-    candidate_score_breakdown,
-    classify_metric_name,
-    build_rejection_action_plan,
+    summarize_liability_focus,
+    summarize_metric_coverage,
+    summarize_novelty_diversity,
+    summarize_ranking_drift,
     summarize_rejections,
-    audit_metric_catalog,
+    summarize_uncertainty_pressure,
     validate_factor_weights,
     validate_metric_catalog,
-    summarize_liability_focus,
-    summarize_uncertainty_pressure,
-    summarize_novelty_diversity,
-    build_ranking_robustness_report,
-    summarize_metric_coverage,
-    criterion_satisfaction_vector,
-    summarize_ranking_drift,
-    build_ranking_diagnostics,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -62,7 +67,9 @@ def test_build_design_brief_surfaces_blockers_and_evidence_gaps() -> None:
         organism="human",
         mechanism="stabilize active-state packing",
     )
-    program.target.blocked_outcomes.append("aggregation hotspot around the active-site loop")
+    program.target.blocked_outcomes.append(
+        "aggregation hotspot around the active-site loop"
+    )
     program.constraints.append(
         ScientificConstraint(
             constraint_id="surface-hydrophobics",
@@ -254,7 +261,9 @@ def test_prioritize_candidates_applies_profile_hard_filters() -> None:
         ),
     )
 
-    assert [item.candidate_id for item in ranking.ranked_candidates] == ["candidate-keep"]
+    assert [item.candidate_id for item in ranking.ranked_candidates] == [
+        "candidate-keep"
+    ]
     assert ranking.rejected_candidates == ["candidate-hard-filter"]
 
 
@@ -301,7 +310,9 @@ def test_prioritize_candidates_rejects_low_metric_coverage() -> None:
     )
 
     assert ranking.rejected_candidates == ["candidate-missing-metric"]
-    assert ranking.rejections[0].reason_codes == [RejectionReasonCode.LOW_METRIC_COVERAGE]
+    assert ranking.rejections[0].reason_codes == [
+        RejectionReasonCode.LOW_METRIC_COVERAGE
+    ]
 
 
 def test_select_portfolio_shortlist_preserves_liability_diversity() -> None:
@@ -505,7 +516,11 @@ def test_summarize_novelty_diversity_reports_liability_diversity() -> None:
                 manufacturability_score=0.8,
                 uncertainty=0.1,
                 evidence_support=0.8,
-                liabilities=[LiabilityFlag(code="aggregation", summary="agg", severity=3, source="model")],
+                liabilities=[
+                    LiabilityFlag(
+                        code="aggregation", summary="agg", severity=3, source="model"
+                    )
+                ],
             ),
             CandidateAssessment(
                 candidate_id="candidate-b",
@@ -514,7 +529,11 @@ def test_summarize_novelty_diversity_reports_liability_diversity() -> None:
                 manufacturability_score=0.79,
                 uncertainty=0.1,
                 evidence_support=0.8,
-                liabilities=[LiabilityFlag(code="safety", summary="safety", severity=3, source="model")],
+                liabilities=[
+                    LiabilityFlag(
+                        code="safety", summary="safety", severity=3, source="model"
+                    )
+                ],
             ),
         ],
     )
@@ -739,13 +758,22 @@ def test_classify_metric_name_uses_typed_metric_classes() -> None:
     assert classify_metric_name("binding_score") is ScientificMetricClass.AFFINITY
     assert classify_metric_name("delta_tm") is ScientificMetricClass.STABILITY
     assert classify_metric_name("tox_signal") is ScientificMetricClass.SAFETY
-    assert classify_metric_name("target_engagement_ratio") is ScientificMetricClass.TARGET_ENGAGEMENT
-    assert classify_metric_name("pathway_phospho_response") is ScientificMetricClass.PATHWAY_EFFECT
-    assert classify_metric_name("proteomics_fold_change") is ScientificMetricClass.ABUNDANCE_MODULATION
+    assert (
+        classify_metric_name("target_engagement_ratio")
+        is ScientificMetricClass.TARGET_ENGAGEMENT
+    )
+    assert (
+        classify_metric_name("pathway_phospho_response")
+        is ScientificMetricClass.PATHWAY_EFFECT
+    )
+    assert (
+        classify_metric_name("proteomics_fold_change")
+        is ScientificMetricClass.ABUNDANCE_MODULATION
+    )
 
 
 def test_candidate_rejection_supports_reopen_action_guidance() -> None:
-    rejection = ranking = prioritize_candidates(
+    rejection = prioritize_candidates(
         create_program_spec(
             program_id="prog-reject",
             name="rejection details",
@@ -788,7 +816,9 @@ def test_build_rejection_action_plan_maps_reason_codes_to_experiments() -> None:
         )
     )
 
-    assert "collect orthogonal evidence across at least two modalities" in plan.experiments
+    assert (
+        "collect orthogonal evidence across at least two modalities" in plan.experiments
+    )
 
 
 def test_build_rejection_action_plan_handles_low_metric_coverage_reason() -> None:
@@ -800,7 +830,10 @@ def test_build_rejection_action_plan_handles_low_metric_coverage_reason() -> Non
         )
     )
 
-    assert "collect missing criterion-linked assay metrics before reranking" in plan.experiments
+    assert (
+        "collect missing criterion-linked assay metrics before reranking"
+        in plan.experiments
+    )
 
 
 def test_summarize_rejections_counts_reason_codes() -> None:
@@ -813,7 +846,10 @@ def test_summarize_rejections_counts_reason_codes() -> None:
             ),
             CandidateRejection(
                 candidate_id="c2",
-                reason_codes=[RejectionReasonCode.LOW_EVIDENCE_SUPPORT, RejectionReasonCode.LOW_METRIC_COVERAGE],
+                reason_codes=[
+                    RejectionReasonCode.LOW_EVIDENCE_SUPPORT,
+                    RejectionReasonCode.LOW_METRIC_COVERAGE,
+                ],
                 blocking=False,
             ),
         ]

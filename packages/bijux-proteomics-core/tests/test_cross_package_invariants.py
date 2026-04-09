@@ -21,7 +21,9 @@ def test_core_only_reaches_agentic_runtime_through_runtime_adapter() -> None:
 
 
 def test_knowledge_does_not_depend_on_intelligence_or_lab() -> None:
-    knowledge_root = Path("packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge")
+    knowledge_root = Path(
+        "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge"
+    )
     for path in knowledge_root.rglob("*.py"):
         content = _read(path)
         assert "bijux_proteomics_intelligence" not in content

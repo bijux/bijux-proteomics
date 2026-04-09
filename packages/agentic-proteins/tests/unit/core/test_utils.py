@@ -7,14 +7,13 @@ import math
 import textwrap
 from typing import Tuple
 
+import agentic_proteins.domain as U
+from agentic_proteins.domain.structure import structure as structure_mod
 import numpy as np
 import pytest
 
-import agentic_proteins.domain as U
-from agentic_proteins.domain.structure import structure as structure_mod
-
-
 # ------------------------ tiny PDB builders ------------------------
+
 
 def _pdb_n_residues(
     n: int,
@@ -57,20 +56,20 @@ def _pdb_three_residues(
     lines = []
     # res 1
     lines.append(
-        f"ATOM      1  CA  ALA {chain_id}   1    {0.0+ox:8.3f}{0.0+oy:8.3f}{0.0+oz:8.3f}  1.00{b1:6.2f}           C"
+        f"ATOM      1  CA  ALA {chain_id}   1    {0.0 + ox:8.3f}{0.0 + oy:8.3f}{0.0 + oz:8.3f}  1.00{b1:6.2f}           C"
     )
     # res 2 (altloc A)
     lines.append(
-        f"ATOM      2  CA AALA {chain_id}   2    {1.0+ox:8.3f}{0.0+oy:8.3f}{0.0+oz:8.3f}  0.50{b2_a:6.2f}           C"
+        f"ATOM      2  CA AALA {chain_id}   2    {1.0 + ox:8.3f}{0.0 + oy:8.3f}{0.0 + oz:8.3f}  0.50{b2_a:6.2f}           C"
     )
     # res 2 (altloc B)
     if b2_b is not None:
         lines.append(
-            f"ATOM      3  CA BALA {chain_id}   2    {1.2+ox:8.3f}{0.0+oy:8.3f}{0.0+oz:8.3f}  0.80{b2_b:6.2f}           C"
+            f"ATOM      3  CA BALA {chain_id}   2    {1.2 + ox:8.3f}{0.0 + oy:8.3f}{0.0 + oz:8.3f}  0.80{b2_b:6.2f}           C"
         )
     # res 3
     lines.append(
-        f"ATOM      4  CA  ALA {chain_id}   3    {0.0+ox:8.3f}{1.0+oy:8.3f}{0.0+oz:8.3f}  1.00{b3:6.2f}           C"
+        f"ATOM      4  CA  ALA {chain_id}   3    {0.0 + ox:8.3f}{1.0 + oy:8.3f}{0.0 + oz:8.3f}  1.00{b3:6.2f}           C"
     )
     lines.append("TER")
     lines.append("END")
@@ -87,8 +86,9 @@ def _pdb_water_only(chain_id: str = "A") -> str:
 
 # ------------------------ tests ------------------------
 
+
 def test__res3_to1_with_custom_and_bad():
-    assert U._res3_to1("MSE") == "M"   # custom map
+    assert U._res3_to1("MSE") == "M"  # custom map
     assert U._res3_to1("SEC") == "U"
     assert U._res3_to1("PYL") == "O"
     assert U._res3_to1("ALA") == "A"
@@ -137,7 +137,9 @@ def test_primary_summary_from_sequence_empty_and_nonempty():
 
 
 @pytest.mark.filterwarnings("ignore:Mean of empty slice:RuntimeWarning")
-@pytest.mark.filterwarnings("ignore:invalid value encountered in scalar divide:RuntimeWarning")
+@pytest.mark.filterwarnings(
+    "ignore:invalid value encountered in scalar divide:RuntimeWarning"
+)
 def test_tertiary_summary_from_structure_bands_and_empty(monkeypatch):
     monkeypatch.setattr(structure_mod.shutil, "which", lambda _: None)
     pdb = _pdb_three_residues(b1=95, b2_a=75, b3=65)
@@ -189,9 +191,7 @@ def test_kabsch_and_pairs_success_and_insufficient_pairs():
 
 
 def test_gdt_ts_and_gdt_ha_and_shape_errors():
-    ref = np.array([[0.0, 0.0, 0.0],
-                    [1.0, 0.0, 0.0],
-                    [0.0, 1.0, 0.0]])
+    ref = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
     pred = ref.copy()
     assert U.gdt_ts(ref, pred) == 100.0
     assert U.gdt_ha(ref, pred) == 100.0
@@ -203,9 +203,7 @@ def test_gdt_ts_and_gdt_ha_and_shape_errors():
 
 
 def test_tm_score_various():
-    ref = np.array([[0.0, 0.0, 0.0],
-                    [1.0, 0.0, 0.0],
-                    [0.0, 1.0, 0.0]])
+    ref = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
     pred = ref.copy()
     # IMPORTANT: choose l_ref >= 15 to avoid negative base in (l_ref-15) ** (1/3)
     t = U.tm_score(ref, pred, l_ref=30)
@@ -218,7 +216,7 @@ def test_tm_score_various():
 
 
 def test_low_confidence_segments_edges():
-    p = [50]*8 + [80]*2 + [40]*10
+    p = [50] * 8 + [80] * 2 + [40] * 10
     assert U.low_confidence_segments(p, thresh=70, min_len=8) == [(0, 8), (10, 20)]
     p = [80, 60, 60, 60, 60, 60, 60, 60]
     assert U.low_confidence_segments(p, thresh=70, min_len=7) == [(1, 8)]
@@ -241,7 +239,7 @@ def test_compute_metrics_without_and_with_reference(monkeypatch):
     n = 20
     seq2 = "A" * n
     pred2 = _pdb_n_residues(n, chain_id="A", bfactor=85.0)
-    ref2  = _pdb_n_residues(n, chain_id="A", bfactor=85.0, offset=(1.0, 2.0, -1.0))
+    ref2 = _pdb_n_residues(n, chain_id="A", bfactor=85.0, offset=(1.0, 2.0, -1.0))
     out2 = U.compute_metrics(seq2, pred2, ref_pdb_text=ref2)
     assert out2.ref_residues == n
     assert out2.n_matched_pairs == n

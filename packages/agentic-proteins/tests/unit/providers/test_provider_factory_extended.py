@@ -6,11 +6,10 @@ from __future__ import annotations
 import sys
 import types
 
-import pytest
-
 from agentic_proteins.providers import factory as factory_module
 from agentic_proteins.providers.errors import PredictionError
 from agentic_proteins.providers.heuristic import HeuristicStructureProvider
+import pytest
 
 
 def _install_module(name: str, **attrs: object) -> None:
@@ -22,9 +21,11 @@ def _install_module(name: str, **attrs: object) -> None:
 
 def test_create_provider_branches(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(factory_module, "_require_module", lambda *_: None)
+
     class DummyProvider:
         def __init__(self, model: str | None = None) -> None:
             self.model = model
+
     modules = [
         "agentic_proteins.providers.experimental.openprotein",
         "agentic_proteins.providers.experimental.colabfold",
@@ -52,10 +53,18 @@ def test_create_provider_branches(monkeypatch: pytest.MonkeyPatch) -> None:
             factory_module.create_provider("heuristic_proxy"),
             HeuristicStructureProvider,
         )
-        assert factory_module.create_provider("api_openprotein_esmfold").model == "esmfold"
-        assert isinstance(factory_module.create_provider("api_colabfold"), DummyProvider)
-        assert isinstance(factory_module.create_provider("local_esmfold"), DummyProvider)
-        assert isinstance(factory_module.create_provider("local_rosettafold"), DummyProvider)
+        assert (
+            factory_module.create_provider("api_openprotein_esmfold").model == "esmfold"
+        )
+        assert isinstance(
+            factory_module.create_provider("api_colabfold"), DummyProvider
+        )
+        assert isinstance(
+            factory_module.create_provider("local_esmfold"), DummyProvider
+        )
+        assert isinstance(
+            factory_module.create_provider("local_rosettafold"), DummyProvider
+        )
         with pytest.raises(PredictionError, match="Unknown provider"):
             factory_module.create_provider("missing")
     finally:

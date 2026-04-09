@@ -6,9 +6,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from fastapi.testclient import TestClient
-
 from agentic_proteins.api import AppConfig, create_app
+from fastapi.testclient import TestClient
 
 
 def test_correlation_id_in_logs(tmp_path: Path) -> None:

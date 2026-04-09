@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-import pytest
-
 from agentic_proteins.domain.candidates import CandidateStore
+import pytest
 
 
 def test_abuse_case_path_traversal_blocked(tmp_path) -> None:

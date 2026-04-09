@@ -6,7 +6,11 @@ from __future__ import annotations
 import random
 
 from agentic_proteins.biology.pathway import PathwayContract, PathwayExecutor
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
 
 

@@ -8,8 +8,8 @@ from bijux_proteomics_lab import (
     LabArtifactSchemaContract,
     LabSchemaContractRegistry,
     build_lab_schema_upgrade_advisory,
-    evaluate_lab_artifact_with_registry,
     evaluate_lab_artifact_schema_contract,
+    evaluate_lab_artifact_with_registry,
     evaluate_lab_schema_compatibility,
     lint_lab_schema_contract_registry,
 )

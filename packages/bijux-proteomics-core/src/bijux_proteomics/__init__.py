@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.constraints import (
     ConstraintCategory,
@@ -95,7 +97,6 @@ from bijux_proteomics.validation import (
     validate_program,
     validate_program_readiness,
 )
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 __all__ = [
     "AssayRequirement",

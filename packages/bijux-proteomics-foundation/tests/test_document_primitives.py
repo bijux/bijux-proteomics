@@ -5,28 +5,27 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
-
 from bijux_proteomics_foundation import (
-    MigrationRegistry,
-    SchemaCompatibility,
     ContractConflictError,
     ContractNotFoundError,
     ContractValidationError,
     DocumentSchema,
     FoundationContractError,
+    IdentifierKind,
+    JsonModel,
     MigrationExecutionError,
     MigrationPathError,
-    JsonModel,
-    IdentifierKind,
+    MigrationRegistry,
     ProgramId,
+    SchemaCompatibility,
     SchemaMigration,
     assess_schema_compatibility,
-    classify_identifier,
     build_identifier,
+    classify_identifier,
     ensure_identifier_kind,
 )
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
+import pytest
 
 
 class DemoDocument(JsonModel):
@@ -98,7 +97,9 @@ def test_stable_json_is_sorted_for_reproducible_diffs(tmp_path: Path) -> None:
     lines = path.read_text().splitlines()
 
     value_line = next(index for index, line in enumerate(lines) if '"value"' in line)
-    schema_line = next(index for index, line in enumerate(lines) if '"document_schema"' in line)
+    schema_line = next(
+        index for index, line in enumerate(lines) if '"document_schema"' in line
+    )
     assert schema_line < value_line
 
 
@@ -153,9 +154,17 @@ def test_foundation_contract_errors_share_common_base() -> None:
 
 
 def test_assess_schema_compatibility_uses_major_minor_semantics() -> None:
-    assert assess_schema_compatibility("1.2.0", "1.1.0") is SchemaCompatibility.COMPATIBLE
-    assert assess_schema_compatibility("1.0.0", "1.1.0") is SchemaCompatibility.FORWARD_INCOMPATIBLE
-    assert assess_schema_compatibility("2.0.0", "1.9.0") is SchemaCompatibility.BACKWARD_INCOMPATIBLE
+    assert (
+        assess_schema_compatibility("1.2.0", "1.1.0") is SchemaCompatibility.COMPATIBLE
+    )
+    assert (
+        assess_schema_compatibility("1.0.0", "1.1.0")
+        is SchemaCompatibility.FORWARD_INCOMPATIBLE
+    )
+    assert (
+        assess_schema_compatibility("2.0.0", "1.9.0")
+        is SchemaCompatibility.BACKWARD_INCOMPATIBLE
+    )
 
 
 def test_migration_registry_applies_sequential_steps() -> None:

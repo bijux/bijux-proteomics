@@ -3,10 +3,9 @@
 
 from __future__ import annotations
 
-import pytest
-from fastapi import status
-
 from agentic_proteins.api import errors as errors_module
+from fastapi import status
+import pytest
 
 
 def test_map_exception_variants() -> None:

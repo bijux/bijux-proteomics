@@ -5,17 +5,17 @@ from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
     ClaimStatus,
+    DecisionGateProfile,
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceStrength,
+    KnowledgeReviewPacket,
     build_claim,
     build_knowledge_review_packet,
     compare_review_packets,
-    DecisionGateProfile,
-    KnowledgeReviewPacket,
-    summarize_review_trend,
     summarize_multi_decision_readiness,
+    summarize_review_trend,
 )
 
 
@@ -59,7 +59,10 @@ def test_build_knowledge_review_packet_returns_integrated_sections() -> None:
     assert packet.decision_tag == "progression"
     assert len(packet.evidence_ranking) == 1
     assert packet.hypothesis_dossier.supporting_claim_ids == ["claim-review-1"]
-    assert any(gap.gap_code == "open-claims-require-resolution" for gap in packet.knowledge_gaps)
+    assert any(
+        gap.gap_code == "open-claims-require-resolution"
+        for gap in packet.knowledge_gaps
+    )
     assert packet.gate_recommendation in {
         "hold-for-conflict-resolution",
         "advance-with-targeted-gap-closure",
@@ -142,11 +145,15 @@ def test_compare_review_packets_reports_delta() -> None:
     improved_bundle = bundle.model_copy(
         update={
             "records": [
-                bundle.records[0].model_copy(update={"confidence": 0.9, "strength": EvidenceStrength.DECISIVE})
+                bundle.records[0].model_copy(
+                    update={"confidence": 0.9, "strength": EvidenceStrength.DECISIVE}
+                )
             ]
         }
     )
-    current = build_knowledge_review_packet(improved_bundle, claims, decision_tag="progression")
+    current = build_knowledge_review_packet(
+        improved_bundle, claims, decision_tag="progression"
+    )
     delta = compare_review_packets(previous, current)
 
     assert delta.decision_tag == "progression"
@@ -191,7 +198,10 @@ def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
         ),
     )
 
-    assert packet.gate_recommendation == "advance-with-targeted-gap-closure" or packet.gate_recommendation == "advance-with-evidence-hardening"
+    assert (
+        packet.gate_recommendation == "advance-with-targeted-gap-closure"
+        or packet.gate_recommendation == "advance-with-evidence-hardening"
+    )
 
 
 def test_summarize_review_trend_accumulates_delta_direction() -> None:

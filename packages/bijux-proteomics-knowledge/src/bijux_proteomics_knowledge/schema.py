@@ -5,10 +5,9 @@
 
 from __future__ import annotations
 
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics_foundation import DocumentSchema as SchemaMetadata
 from bijux_proteomics_foundation import JsonModel
+from pydantic import ConfigDict, Field
 
 
 class KnowledgeSchemaProfile(JsonModel):

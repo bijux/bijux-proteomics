@@ -8,7 +8,9 @@ from agentic_proteins.domain.candidates.model import Candidate
 
 
 def test_filter_candidates_accepts_valid() -> None:
-    candidate = Candidate(candidate_id="c1", sequence="ACD", metrics={"mean_plddt": 80.0})
+    candidate = Candidate(
+        candidate_id="c1", sequence="ACD", metrics={"mean_plddt": 80.0}
+    )
     assert filter_candidates([candidate]) == [candidate]
 
 
@@ -28,5 +30,7 @@ def test_filter_candidates_rejects_qc_flag() -> None:
 
 
 def test_filter_candidates_rejects_low_plddt() -> None:
-    candidate = Candidate(candidate_id="c4", sequence="ACD", metrics={"mean_plddt": 10.0})
+    candidate = Candidate(
+        candidate_id="c4", sequence="ACD", metrics={"mean_plddt": 10.0}
+    )
     assert filter_candidates([candidate]) == []

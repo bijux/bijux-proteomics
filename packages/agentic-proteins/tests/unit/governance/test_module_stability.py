@@ -14,6 +14,6 @@ def test_module_stability_annotations() -> None:
     for module_path, expected in STABILITY_EXPECTATIONS.items():
         module = importlib.import_module(module_path)
         actual = getattr(module, "__stability__", None)
-        assert (
-            actual == expected
-        ), f"Stability annotation missing or mismatched for {module_path}."
+        assert actual == expected, (
+            f"Stability annotation missing or mismatched for {module_path}."
+        )

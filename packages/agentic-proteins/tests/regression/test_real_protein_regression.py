@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 import json
+from pathlib import Path
 
 from agentic_proteins.tools.heuristic import HeuristicStructureTool
 from agentic_proteins.tools.schemas import InvocationInput

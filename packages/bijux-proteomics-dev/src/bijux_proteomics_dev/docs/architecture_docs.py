@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
+import sys
 
 REQUIRED_DOCS = (
     "docs/bijux-proteomics/architecture-invariants.md",

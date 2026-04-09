@@ -5,10 +5,8 @@ from __future__ import annotations
 
 import warnings
 
-import numpy as np
-
 from agentic_proteins.domain.structure import structure as structure_module
-
+import numpy as np
 
 PDB_TEXT = """\
 ATOM      1  CA  ALA A   1       0.000   0.000   0.000  1.00 10.00           C

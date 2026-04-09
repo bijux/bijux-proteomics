@@ -25,16 +25,16 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
 import textwrap
-from pathlib import Path
 from typing import Optional
 
 # --- Dependency Checks ---
 try:
-    from huggingface_hub import snapshot_download, list_repo_refs
+    from huggingface_hub import list_repo_refs, snapshot_download
 
     HF_OK = True
 except ImportError:
@@ -91,7 +91,7 @@ Command failed (exit code {e.returncode}): {" ".join(cmd)}
     except FileNotFoundError:
         raise RuntimeError(
             f"Command '{cmd[0]}' not found. Is Docker installed and running?"
-        )
+        ) from None
 
 
 def find_latest_version(model_root: Path) -> Path:
@@ -276,7 +276,7 @@ def prepare_esmfold(
     wrapper_path = root_dir / "run_esmfold.py"
     wrapper_path.write_text(_ESMFOLD_WRAPPER)
     os.chmod(wrapper_path, 0o755)
-    log(f" - Wrote ESMFold Dockerfile and inference script.")
+    log(" - Wrote ESMFold Dockerfile and inference script.")
 
 
 # ----------------------------- ROSETTAFOLD SECTION -----------------------------

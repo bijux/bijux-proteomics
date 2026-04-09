@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import pytest
-
 from agentic_proteins.providers.base import ProviderCapabilities
 from agentic_proteins.runtime.infra import capabilities
+import pytest
 
 
 def test_validate_runtime_capabilities_unknown_provider() -> None:
@@ -27,7 +26,9 @@ def test_validate_runtime_capabilities_no_providers() -> None:
     assert warnings == []
 
 
-def test_validate_runtime_capabilities_gpu_required(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_validate_runtime_capabilities_gpu_required(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(capabilities, "cuda_available", lambda: False)
     monkeypatch.setattr(
         capabilities,

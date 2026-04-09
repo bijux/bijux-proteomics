@@ -5,13 +5,14 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-import pytest
-
 from agentic_proteins.providers import factory
 from agentic_proteins.providers.errors import PredictionError
+import pytest
 
 
-def test_provider_requirements_openprotein_missing_env(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_provider_requirements_openprotein_missing_env(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.delenv("OPENPROTEIN_USER", raising=False)
     monkeypatch.delenv("OPENPROTEIN_PASSWORD", raising=False)
 
@@ -37,7 +38,9 @@ def test_provider_requirements_rosettafold_missing_weights_and_docker(
     assert "missing_dependency:docker" in errors
 
 
-def test_require_module_raises_prediction_error(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_require_module_raises_prediction_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(factory.util, "find_spec", lambda _name: None)
     with pytest.raises(PredictionError, match="Missing dependency"):
         factory._require_module("missing", "pip install missing")

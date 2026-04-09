@@ -9,14 +9,13 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import cast
 
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics_foundation import (
     DocumentSchema,
     EvidenceId,
     JsonModel,
     TargetId,
 )
+from pydantic import ConfigDict, Field
 
 
 class EvidenceKind(StrEnum):

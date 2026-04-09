@@ -6,14 +6,11 @@ from __future__ import annotations
 import importlib
 import inspect
 import os
-import sys
 from pathlib import Path
+import sys
 from unittest.mock import patch
 
-import pytest
-
-from agentic_proteins.registry.agents import AgentRegistry
-from agentic_proteins.core.decisions import Decision
+from agentic_proteins.agents.planning.schemas import PlanDecision
 from agentic_proteins.agents.schemas import (
     CoordinatorAgentOutput,
     CriticAgentOutput,
@@ -23,10 +20,11 @@ from agentic_proteins.agents.schemas import (
     QualityControlAgentOutput,
     ReportingAgentOutput,
 )
-from agentic_proteins.agents.planning.schemas import PlanDecision
+from agentic_proteins.core.decisions import Decision
+from agentic_proteins.registry.agents import AgentRegistry
 from agentic_proteins.validation.agents import ALLOWED_TOOL_NAMESPACE, validate_agent
+import pytest
 from tests.helpers.paths import package_tests_root, repo_root
-
 
 AGENT_MODULES = [
     "agentic_proteins.agents.planning.planner",
@@ -98,11 +96,15 @@ def test_agents_import_purity(monkeypatch: pytest.MonkeyPatch) -> None:
     before_files = _repo_files(root)
     before_modules = set(sys.modules)
 
-    with patch.object(os, "getenv", _blocked_getenv), patch.object(
-        os.environ.__class__,
-        "__getitem__",
-        _blocked_getitem,
-    ), patch.object(os.environ, "get", _blocked_getenv):
+    with (
+        patch.object(os, "getenv", _blocked_getenv),
+        patch.object(
+            os.environ.__class__,
+            "__getitem__",
+            _blocked_getitem,
+        ),
+        patch.object(os.environ, "get", _blocked_getenv),
+    ):
         for module in AGENT_MODULES:
             importlib.import_module(module)
 
@@ -114,7 +116,9 @@ def test_agents_import_purity(monkeypatch: pytest.MonkeyPatch) -> None:
 
     heavy = {"torch", "jax", "jaxlib", "tensorflow"}
     newly_imported = after_modules - before_modules
-    assert not (heavy & newly_imported), "Heavy libraries must not be imported at module load."
+    assert not (heavy & newly_imported), (
+        "Heavy libraries must not be imported at module load."
+    )
 
 
 def test_validate_agent_contracts() -> None:
@@ -137,7 +141,9 @@ def test_registry_explicit_registration() -> None:
 
 
 def test_validate_requested_tools_rejects_unknown() -> None:
-    module = importlib.import_module("agentic_proteins.agents.analysis.sequence_analysis")
+    module = importlib.import_module(
+        "agentic_proteins.agents.analysis.sequence_analysis"
+    )
     agent = module.SequenceAnalysisAgent()
     with pytest.raises(ValueError):
         agent.validate_requested_tools({"not_registered_tool"})
@@ -228,9 +234,13 @@ def test_agents_import_only_allowed_domains() -> None:
         content = path.read_text()
         for line in content.splitlines():
             stripped = line.lstrip()
-            if stripped.startswith("from agentic_proteins.") or stripped.startswith("import agentic_proteins."):
+            if stripped.startswith("from agentic_proteins.") or stripped.startswith(
+                "import agentic_proteins."
+            ):
                 if not stripped.startswith(allowed_prefixes):
-                    raise AssertionError(f"Agent import outside allowed domains: {path}")
+                    raise AssertionError(
+                        f"Agent import outside allowed domains: {path}"
+                    )
 
 
 def test_capability_coverage() -> None:
@@ -242,7 +252,9 @@ def test_capability_coverage() -> None:
             capability_map.setdefault(capability, []).append(agent_cls.name)
 
     assert capability_map, "No capabilities declared."
-    duplicates = {cap: agents for cap, agents in capability_map.items() if len(agents) > 1}
+    duplicates = {
+        cap: agents for cap, agents in capability_map.items() if len(agents) > 1
+    }
     assert not duplicates, f"Duplicated capabilities detected: {duplicates}"
 
 

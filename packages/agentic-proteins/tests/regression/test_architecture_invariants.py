@@ -25,31 +25,31 @@ def test_invariant_determinism(tmp_path: Path) -> None:
     config = RunConfig(seed=7)
     first = RunManager(tmp_path / "run_a", config).run(sequence)
     second = RunManager(tmp_path / "run_b", config).run(sequence)
-    assert (
-        first["plan_fingerprint"] == second["plan_fingerprint"]
-    ), "Determinism invariant violated: plan fingerprint drifted."
-    assert (
-        first["tool_status"] == second["tool_status"]
-    ), "Determinism invariant violated: tool status drifted."
-    assert (
-        first["report"] == second["report"]
-    ), "Determinism invariant violated: report drifted."
+    assert first["plan_fingerprint"] == second["plan_fingerprint"], (
+        "Determinism invariant violated: plan fingerprint drifted."
+    )
+    assert first["tool_status"] == second["tool_status"], (
+        "Determinism invariant violated: tool status drifted."
+    )
+    assert first["report"] == second["report"], (
+        "Determinism invariant violated: report drifted."
+    )
 
 
 def test_invariant_state_transitions() -> None:
     machine = RunStateMachine()
-    assert (
-        machine.state == RunLifecycleState.PLANNED
-    ), "State transition invariant violated: initial state drifted."
-    assert (
-        machine.transition("execute") == RunLifecycleState.EXECUTING
-    ), "State transition invariant violated: execute transition drifted."
-    assert (
-        machine.transition("evaluate") == RunLifecycleState.EVALUATED
-    ), "State transition invariant violated: evaluate transition drifted."
-    assert (
-        machine.transition("invalid") == RunLifecycleState.EVALUATED
-    ), "State transition invariant violated: invalid transition should not advance."
+    assert machine.state == RunLifecycleState.PLANNED, (
+        "State transition invariant violated: initial state drifted."
+    )
+    assert machine.transition("execute") == RunLifecycleState.EXECUTING, (
+        "State transition invariant violated: execute transition drifted."
+    )
+    assert machine.transition("evaluate") == RunLifecycleState.EVALUATED, (
+        "State transition invariant violated: evaluate transition drifted."
+    )
+    assert machine.transition("invalid") == RunLifecycleState.EVALUATED, (
+        "State transition invariant violated: invalid transition should not advance."
+    )
 
 
 def test_invariant_artifact_immutability(tmp_path: Path) -> None:
@@ -66,25 +66,27 @@ def test_invariant_artifact_immutability(tmp_path: Path) -> None:
     )
     original_hashes = _artifact_hashes(original_root / run_id)
     reproduced_hashes = _artifact_hashes(reproduced_root / run_id)
-    assert (
-        original_hashes == reproduced_hashes
-    ), "Artifact immutability invariant violated: hashes drifted."
+    assert original_hashes == reproduced_hashes, (
+        "Artifact immutability invariant violated: hashes drifted."
+    )
 
 
 def test_invariant_provider_isolation(tmp_path: Path) -> None:
     sequence = "ACDEFGHIK"
     result = RunManager(tmp_path, RunConfig(seed=1)).run(sequence)
     tool_versions = result["version_info"]["tool_versions"]
-    assert (
-        set(tool_versions) == {"heuristic_proxy"}
-    ), "Provider isolation invariant violated: unexpected provider executed."
+    assert set(tool_versions) == {"heuristic_proxy"}, (
+        "Provider isolation invariant violated: unexpected provider executed."
+    )
 
 
 def test_invariant_failure_containment(tmp_path: Path) -> None:
     result = RunManager(tmp_path, RunConfig()).run("")
     run_id = result["run_id"]
     artifacts_dir = tmp_path / "artifacts" / run_id / "artifacts"
-    assert artifacts_dir.exists(), "Failure containment invariant violated: artifacts missing."
-    assert (
-        list(artifacts_dir.glob("*.json")) == []
-    ), "Failure containment invariant violated: artifacts written after failure."
+    assert artifacts_dir.exists(), (
+        "Failure containment invariant violated: artifacts missing."
+    )
+    assert list(artifacts_dir.glob("*.json")) == [], (
+        "Failure containment invariant violated: artifacts written after failure."
+    )

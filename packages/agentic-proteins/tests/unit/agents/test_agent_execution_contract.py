@@ -13,6 +13,6 @@ def test_agent_execution_contract_is_complete() -> None:
         "failure_semantics",
         "failure_disable",
     }
-    assert required.issubset(
-        AGENT_EXECUTION_CONTRACT
-    ), "Agent execution contract must list step, transitions, and failure semantics."
+    assert required.issubset(AGENT_EXECUTION_CONTRACT), (
+        "Agent execution contract must list step, transitions, and failure semantics."
+    )

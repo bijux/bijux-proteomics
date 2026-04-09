@@ -6,7 +6,11 @@ from __future__ import annotations
 import random
 
 from agentic_proteins.biology.pathway import PathwayContract, PathwayExecutor
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.signals import SignalPayload, SignalType
 
 
@@ -31,7 +35,9 @@ def test_execution_cost_records_tick_metrics() -> None:
         seed=4,
         measure_costs=True,
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+    )
     executor.step([signal])
     cost = executor.cost_log[-1]
     assert cost.agent_count == 1

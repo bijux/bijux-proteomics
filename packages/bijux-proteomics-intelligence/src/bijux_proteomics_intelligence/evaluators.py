@@ -7,13 +7,13 @@ from __future__ import annotations
 
 from enum import StrEnum
 
+from bijux_proteomics.programs import ProgramSpec
+from bijux_proteomics_knowledge import DecisionReadiness
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.programs import ProgramSpec
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
 from bijux_proteomics_intelligence.serialization import JsonModel
-from bijux_proteomics_knowledge import DecisionReadiness
 
 
 class ScenarioAction(StrEnum):

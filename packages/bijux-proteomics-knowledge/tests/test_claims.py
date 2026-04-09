@@ -5,32 +5,32 @@ from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
     ClaimPolarity,
+    ClaimQuery,
     ClaimResolutionState,
     ClaimStatus,
     ClaimType,
-    ClaimQuery,
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
-    build_claim,
-    close_claim,
-    link_evidence_to_claim,
-    build_decision_lineage,
-    strengthen_claim,
-    build_hypothesis_dossier,
-    apply_resolution_assay_outcome,
     ResolutionAssayOutcome,
-    identify_knowledge_gaps,
-    evaluate_claim_consistency,
-    evaluate_mechanistic_completeness,
-    build_contradiction_matrix,
+    apply_resolution_assay_outcome,
     audit_claim_evidence_links,
+    build_claim,
+    build_contradiction_matrix,
+    build_decision_lineage,
+    build_hypothesis_dossier,
+    close_claim,
+    evaluate_claim_consistency,
     evaluate_claim_falsifiability,
+    evaluate_mechanistic_completeness,
+    identify_knowledge_gaps,
+    link_evidence_to_claim,
+    query_claims,
+    strengthen_claim,
     validate_claims,
     weaken_claim,
-    query_claims,
 )
 
 
@@ -71,7 +71,9 @@ def test_build_decision_lineage_links_supported_claims_to_evidence() -> None:
         polarity=ClaimPolarity.CONTRADICTING,
     )
 
-    lineage = build_decision_lineage(bundle, [claim, contradicting_claim], "progression")
+    lineage = build_decision_lineage(
+        bundle, [claim, contradicting_claim], "progression"
+    )
 
     assert lineage.claim_ids == ["claim-1"]
     assert lineage.disputed_claim_ids == ["claim-2"]
@@ -170,8 +172,12 @@ def test_claim_strength_update_helpers_adjust_confidence() -> None:
         status=ClaimStatus.SUPPORTED,
         confidence=0.5,
     )
-    strengthened, gain = strengthen_claim(claim, delta=0.2, rationale="new orthogonal assay")
-    weakened, loss = weaken_claim(strengthened, delta=0.4, rationale="contradictory evidence")
+    strengthened, gain = strengthen_claim(
+        claim, delta=0.2, rationale="new orthogonal assay"
+    )
+    weakened, loss = weaken_claim(
+        strengthened, delta=0.4, rationale="contradictory evidence"
+    )
 
     assert gain.updated_confidence == 0.7
     assert loss.updated_confidence == 0.3
@@ -315,7 +321,9 @@ def test_validate_claims_requires_balanced_contradiction_group() -> None:
         ]
     )
 
-    assert any(issue.code == "contradiction-group-polarity-unbalanced" for issue in issues)
+    assert any(
+        issue.code == "contradiction-group-polarity-unbalanced" for issue in issues
+    )
 
 
 def test_validate_claims_rejects_closed_claim_with_insufficient_status() -> None:
@@ -527,9 +535,14 @@ def test_build_contradiction_matrix_marks_group_opposition() -> None:
         contradiction_group="cg-1",
         resolution_assays=["assay"],
     )
-    matrix = build_contradiction_matrix(bundle, [claim_a, claim_b], decision_tag="progression")
+    matrix = build_contradiction_matrix(
+        bundle, [claim_a, claim_b], decision_tag="progression"
+    )
 
-    assert matrix.relations["claim-matrix-a|claim-matrix-b"] == "same-group-opposing-polarity"
+    assert (
+        matrix.relations["claim-matrix-a|claim-matrix-b"]
+        == "same-group-opposing-polarity"
+    )
 
 
 def test_audit_claim_evidence_links_reports_missing_bundle_references() -> None:

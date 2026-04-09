@@ -7,7 +7,6 @@ import re
 
 from tests.helpers.paths import repo_root
 
-
 ALLOWED_SECTION_ORDER = [
     "Overview",
     "Contracts",
@@ -16,7 +15,12 @@ ALLOWED_SECTION_ORDER = [
     "Extension Points",
     "Exit Criteria",
 ]
-FRONT_MATTER_FIELDS = ("**Scope:**", "**Audience:**", "**Guarantees:**", "**Non-Goals:**")
+FRONT_MATTER_FIELDS = (
+    "**Scope:**",
+    "**Audience:**",
+    "**Guarantees:**",
+    "**Non-Goals:**",
+)
 CODE_REF_RE = re.compile(
     r"((packages/(?:agentic-proteins/(?:src/agentic_proteins|tests)|bijux-proteomics-[a-z-]+/tests|bijux-proteomics-dev/src/bijux_proteomics_dev)/[A-Za-z0-9_./-]+\.py|apis/[A-Za-z0-9_./-]+\.yaml)"
 )

@@ -4,11 +4,11 @@
 from __future__ import annotations
 
 import os
-import subprocess
-import types
 from pathlib import Path
+import subprocess
 import sys
 import time
+import types
 
 import pytest
 import requests
@@ -28,9 +28,11 @@ def providers_module(monkeypatch):
 
     from agentic_proteins.providers import base as providers_base
     from agentic_proteins.providers import errors as providers_errors
-    from agentic_proteins.providers.local import esmfold as providers_esmfold
     from agentic_proteins.providers.experimental import colabfold as providers_colabfold
-    from agentic_proteins.providers.experimental import openprotein as providers_openprotein
+    from agentic_proteins.providers.experimental import (
+        openprotein as providers_openprotein,
+    )
+    from agentic_proteins.providers.local import esmfold as providers_esmfold
     from agentic_proteins.providers.local import rosettafold as providers_rosettafold
 
     # Mock transformers if not installed
@@ -86,6 +88,7 @@ def providers_module(monkeypatch):
 
 # Tests: Base & helpers
 
+
 def test_prediction_error_and_result(providers_module):
     P = providers_module
     e = P.PredictionError("x", code="Y")
@@ -106,6 +109,7 @@ def test_time_left(providers_module, monkeypatch):
 
 # LocalESMFold: init & utils
 
+
 def test_local_esm_init(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider(model_path="models/esmfold")
@@ -118,7 +122,9 @@ def test_positions_to_backbone_pdb_errors(providers_module):
     prov = P.LocalESMFoldProvider()
     # wrong rank
     with pytest.raises(P.PredictionError) as ei:
-        prov._positions_to_backbone_pdb("AAAA", torch.tensor([1, 2, 3]), torch.tensor([0.9] * 4))
+        prov._positions_to_backbone_pdb(
+            "AAAA", torch.tensor([1, 2, 3]), torch.tensor([0.9] * 4)
+        )
     assert ei.value.code == "INVALID_OUTPUT_SHAPE"
     # wrong shape L mismatch
     with pytest.raises(P.PredictionError) as ei:
@@ -127,7 +133,9 @@ def test_positions_to_backbone_pdb_errors(providers_module):
     assert ei.value.code == "INVALID_OUTPUT_SHAPE"
     # less than 4 atoms
     with pytest.raises(P.PredictionError) as ei:
-        pos = torch.tensor([[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]] for _ in range(2)])  # (2,3,3)
+        pos = torch.tensor(
+            [[[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]] for _ in range(2)]
+        )  # (2,3,3)
         prov._positions_to_backbone_pdb("AA", pos, torch.tensor([0.9, 0.9]))
     assert ei.value.code == "INVALID_OUTPUT_SHAPE"
 
@@ -136,8 +144,12 @@ def test_positions_to_backbone_pdb_success(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
     # (L=2, A=4, 3)
-    pos = torch.tensor([[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
-                        [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]])
+    pos = torch.tensor(
+        [
+            [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
+            [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]],
+        ]
+    )
     pld = torch.tensor([0.95, 0.5])
     pdb = prov._positions_to_backbone_pdb("AA", pos, pld)
     assert "ATOM" in pdb and "MODEL" in pdb and "ENDMDL" in pdb
@@ -148,7 +160,9 @@ def test_positions_to_backbone_pdb_success(providers_module):
 def test_positions_to_backbone_pdb_non_finite_skips_atom(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
-    pos = torch.tensor([[[0.0, 0.0, 0.0], [float('nan'), 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]])
+    pos = torch.tensor(
+        [[[0.0, 0.0, 0.0], [float("nan"), 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]]
+    )
     pld = torch.tensor([0.9])
     pdb = prov._positions_to_backbone_pdb("A", pos, pld)
     assert pdb.count("ATOM") == 3  # skipped the nan coord atom
@@ -157,7 +171,9 @@ def test_positions_to_backbone_pdb_non_finite_skips_atom(providers_module):
 def test_positions_to_backbone_pdb_plddt_scale(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
-    pos = torch.tensor([[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]])
+    pos = torch.tensor(
+        [[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]]
+    )
     # 0..100 scale
     pld = torch.tensor([90.0])
     pdb = prov._positions_to_backbone_pdb("A", pos, pld)
@@ -167,12 +183,13 @@ def test_positions_to_backbone_pdb_plddt_scale(providers_module):
     pdb = prov._positions_to_backbone_pdb("A", pos, pld)
     assert "90.00" in pdb
     # non-finite plddt -> 0.0
-    pld = torch.tensor([float('nan')])
+    pld = torch.tensor([float("nan")])
     pdb = prov._positions_to_backbone_pdb("A", pos, pld)
     assert " 0.00" in pdb
 
 
 # _to_per_res_plddt shapes
+
 
 def test_to_per_res_plddt_1d_ok(providers_module):
     P = providers_module
@@ -196,9 +213,7 @@ def test_to_per_res_plddt_2d_atom_last(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
     # (L=3, A=4)
-    t = torch.tensor([[0.1, 0.2, 0.3, 0.4],
-                      [0.5, 0.6, 0.7, 0.8],
-                      [0.9, 1.0, 1.0, 1.0]])
+    t = torch.tensor([[0.1, 0.2, 0.3, 0.4], [0.5, 0.6, 0.7, 0.8], [0.9, 1.0, 1.0, 1.0]])
     out = prov._to_per_res_plddt(t, L=3, A=4)
     assert out.shape == (3,)
     assert torch.allclose(out, torch.tensor([0.2, 0.6, 1.0]))  # CA idx=1
@@ -208,10 +223,9 @@ def test_to_per_res_plddt_2d_transposed(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
     # (A=4, L=3)
-    t = torch.tensor([[0.1, 0.5, 0.9],
-                      [0.2, 0.6, 1.0],
-                      [0.3, 0.7, 1.0],
-                      [0.4, 0.8, 1.0]])
+    t = torch.tensor(
+        [[0.1, 0.5, 0.9], [0.2, 0.6, 1.0], [0.3, 0.7, 1.0], [0.4, 0.8, 1.0]]
+    )
     out = prov._to_per_res_plddt(t, L=3, A=4)
     assert out.shape == (3,)
     assert torch.allclose(out, torch.tensor([0.2, 0.6, 1.0]))  # CA idx=1
@@ -239,8 +253,7 @@ def test_to_per_res_plddt_3d_ok(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
     # (L=2, A=4, 1) -> squeeze to (L, A) then CA
-    t = torch.tensor([[[0.1], [0.2], [0.3], [0.4]],
-                      [[0.5], [0.6], [0.7], [0.8]]])
+    t = torch.tensor([[[0.1], [0.2], [0.3], [0.4]], [[0.5], [0.6], [0.7], [0.8]]])
     out = prov._to_per_res_plddt(t, L=2, A=4)
     assert out.shape == (2,)
     assert torch.allclose(out, torch.tensor([0.2, 0.6]))
@@ -250,8 +263,7 @@ def test_to_per_res_plddt_3d_mean_if_no_ca(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
     # (L=2, A=3, 1) -> mean over atoms since A not 14/37, ca_idx=1 ok
-    t = torch.tensor([[[0.1], [0.2], [0.3]],
-                      [[0.5], [0.6], [0.7]]])
+    t = torch.tensor([[[0.1], [0.2], [0.3]], [[0.5], [0.6], [0.7]]])
     out = prov._to_per_res_plddt(t, L=2, A=3)
     assert torch.allclose(out, torch.tensor([0.2, 0.6]))  # CA=0.2,0.6
 
@@ -277,9 +289,9 @@ def test_to_per_res_plddt_rank_bad(providers_module):
 def test_to_per_res_plddt_scale_and_finite(providers_module):
     P = providers_module
     prov = P.LocalESMFoldProvider()
-    t = torch.tensor([50.0, float('nan'), 100.0])
+    t = torch.tensor([50.0, float("nan"), 100.0])
     out = prov._to_per_res_plddt(t, L=3, A=1)
-    expected = torch.tensor([0.5, float('nan'), 1.0])
+    expected = torch.tensor([0.5, float("nan"), 1.0])
     assert out.shape == expected.shape
     assert torch.allclose(out, expected, equal_nan=True)
 
@@ -305,6 +317,7 @@ def test_to_per_res_plddt_4d_peel(providers_module):
 
 
 # LocalESMFold: healthcheck & load
+
 
 def test_local_esm_healthcheck_failure(providers_module, monkeypatch):
     P = providers_module
@@ -350,7 +363,9 @@ def test_local_esm_load_model_failure(providers_module, monkeypatch):
     def raise_exc(*a, **k):
         raise Exception("load fail")
 
-    sys.modules["transformers"].EsmForProteinFolding = types.SimpleNamespace(from_pretrained=raise_exc)
+    sys.modules["transformers"].EsmForProteinFolding = types.SimpleNamespace(
+        from_pretrained=raise_exc
+    )
 
     with pytest.raises(P.PredictionError) as ei:
         prov._load_model()
@@ -358,6 +373,7 @@ def test_local_esm_load_model_failure(providers_module, monkeypatch):
 
 
 # predict() main paths
+
 
 def test_local_esm_predict_empty_sequence(providers_module):
     P = providers_module
@@ -379,10 +395,15 @@ def test_local_esm_predict_too_long(providers_module, monkeypatch):
 def test_local_esm_circuit_breaker(providers_module, monkeypatch):
     P = providers_module
     prov = P.LocalESMFoldProvider()
+
     def mock_infer(**k):
         raise RuntimeError("boom")
+
     prov.model = mock_infer
-    prov.tokenizer = lambda *a, **k: {"input_ids": torch.tensor([[1]]), "attention_mask": torch.tensor([[1]])}
+    prov.tokenizer = lambda *a, **k: {
+        "input_ids": torch.tensor([[1]]),
+        "attention_mask": torch.tensor([[1]]),
+    }
     prov._model_loaded = True
     for _ in range(prov.MAX_FAILS):
         with pytest.raises(P.PredictionError):
@@ -398,7 +419,9 @@ def test_local_esm_circuit_breaker(providers_module, monkeypatch):
         prov.predict("A", timeout=5)
     assert prov._circuit_open is True
 
+
 # LocalRoseTTAFold----
+
 
 def test_rosetta_init_requires_docker_when_enabled(providers_module, monkeypatch):
     P = providers_module
@@ -407,12 +430,17 @@ def test_rosetta_init_requires_docker_when_enabled(providers_module, monkeypatch
         P.LocalRoseTTAFoldProvider(docker=True)
 
 
-
 def test_rosetta_healthcheck_docker_false_path(providers_module, monkeypatch, tmp_path):
     P = providers_module
-    monkeypatch.setattr(P.os.path, "exists", lambda p: True if "rf.py" in str(p) else False)
+    monkeypatch.setattr(
+        P.os.path, "exists", lambda p: True if "rf.py" in str(p) else False
+    )
     monkeypatch.setattr(P.os, "access", lambda p, m: True)
-    r = P.LocalRoseTTAFoldProvider(docker=False, executable=str(tmp_path / "rf.py"), weights_path=str(tmp_path / "w.pt"))
+    r = P.LocalRoseTTAFoldProvider(
+        docker=False,
+        executable=str(tmp_path / "rf.py"),
+        weights_path=str(tmp_path / "w.pt"),
+    )
     (tmp_path / "rf.py").touch()
     (tmp_path / "w.pt").touch()
     assert r.healthcheck() is True
@@ -421,7 +449,9 @@ def test_rosetta_healthcheck_docker_false_path(providers_module, monkeypatch, tm
 def test_rosetta_healthcheck_docker_true_success(providers_module, monkeypatch):
     P = providers_module
     r = P.LocalRoseTTAFoldProvider(docker=True, weights_path="w.pt")
-    monkeypatch.setattr(P.shutil, "which", lambda x: "/usr/bin/docker" if x == "docker" else None)
+    monkeypatch.setattr(
+        P.shutil, "which", lambda x: "/usr/bin/docker" if x == "docker" else None
+    )
     monkeypatch.setattr(P.os, "access", lambda p, m: True)
 
     def mock_run(cmd, *_args, **_kwargs):
@@ -437,8 +467,10 @@ def test_rosetta_healthcheck_docker_fail(providers_module, monkeypatch):
     P = providers_module
     r = P.LocalRoseTTAFoldProvider(docker=True)
     monkeypatch.setattr(P.shutil, "which", lambda x: "/usr/bin/docker")
+
     def raise_exc(*a, **k):
         raise Exception("docker fail")
+
     monkeypatch.setattr(P.subprocess, "run", raise_exc)
     assert r.healthcheck() is False
 
@@ -455,8 +487,10 @@ def test_rosetta_predict_timeout_before_setup(providers_module, monkeypatch):
 def test_rosetta_predict_subprocess_error(providers_module, monkeypatch, tmp_path):
     P = providers_module
     r = P.LocalRoseTTAFoldProvider(docker=False)
+
     def mock_run(*a, **k):
         return types.SimpleNamespace(returncode=1, stdout="out", stderr="err")
+
     monkeypatch.setattr(P.subprocess, "run", mock_run)
     with pytest.raises(P.PredictionError) as ei:
         r.predict("AAAA", timeout=10.0)
@@ -466,8 +500,10 @@ def test_rosetta_predict_subprocess_error(providers_module, monkeypatch, tmp_pat
 def test_rosetta_predict_no_pdb_output(providers_module, monkeypatch, tmp_path):
     P = providers_module
     r = P.LocalRoseTTAFoldProvider(docker=False)
+
     def mock_run(*a, **k):
         return types.SimpleNamespace(returncode=0, stdout="", stderr="")
+
     monkeypatch.setattr(P.subprocess, "run", mock_run)
     monkeypatch.setattr(Path, "glob", lambda self, p: [])
     with pytest.raises(P.PredictionError) as ei:
@@ -477,15 +513,20 @@ def test_rosetta_predict_no_pdb_output(providers_module, monkeypatch, tmp_path):
 
 def test_rosetta_predict_success(providers_module, monkeypatch, tmp_path):
     P = providers_module
-    r = P.LocalRoseTTAFoldProvider(docker=False, executable="rf.py", weights_path="w.pt")
+    r = P.LocalRoseTTAFoldProvider(
+        docker=False, executable="rf.py", weights_path="w.pt"
+    )
+
     def mock_run(*a, **k):
         return types.SimpleNamespace(returncode=0, stdout="ok", stderr="")
+
     def _glob(self, pat):
         if pat == "*.pdb":
             p = self / "x.pdb"
             p.write_text("PDB")
             return [p]
         return []
+
     monkeypatch.setattr(P.subprocess, "run", mock_run)
     monkeypatch.setattr(Path, "glob", _glob)
     out = r.predict("AAAA", timeout=10.0)
@@ -496,14 +537,17 @@ def test_rosetta_predict_docker_success(providers_module, monkeypatch, tmp_path)
     P = providers_module
     r = P.LocalRoseTTAFoldProvider(docker=True, weights_path=str(tmp_path / "w.pt"))
     monkeypatch.setattr(P.os.path, "dirname", lambda p: str(tmp_path))
+
     def mock_run(*a, **k):
         return types.SimpleNamespace(returncode=0, stdout="ok", stderr="")
+
     def _glob(self, pat):
         if pat == "*.pdb":
             p = self / "x.pdb"
             p.write_text("PDB")
             return [p]
         return []
+
     monkeypatch.setattr(P.subprocess, "run", mock_run)
     monkeypatch.setattr(Path, "glob", _glob)
     out = r.predict("AAAA", timeout=10.0)
@@ -513,8 +557,10 @@ def test_rosetta_predict_docker_success(providers_module, monkeypatch, tmp_path)
 def test_rosetta_predict_timeout_subprocess(providers_module, monkeypatch):
     P = providers_module
     r = P.LocalRoseTTAFoldProvider(docker=False)
+
     def timeout_run(*a, **k):
         raise subprocess.TimeoutExpired("cmd", 1.0)
+
     monkeypatch.setattr(P.subprocess, "run", timeout_run)
     with pytest.raises(P.PredictionError) as ei:
         r.predict("A", timeout=1.0)
@@ -522,6 +568,7 @@ def test_rosetta_predict_timeout_subprocess(providers_module, monkeypatch):
 
 
 # APIColabFoldProvider
+
 
 def test_colabfold_init(providers_module, monkeypatch):
     P = providers_module
@@ -534,8 +581,10 @@ def test_colabfold_init(providers_module, monkeypatch):
 def test_colabfold_healthcheck_success(providers_module, monkeypatch):
     P = providers_module
     prov = P.APIColabFoldProvider()
+
     def mock_get(*a, **k):
         return types.SimpleNamespace(status_code=200)
+
     monkeypatch.setattr(prov.session, "get", mock_get)
     assert prov.healthcheck() is True
 
@@ -543,7 +592,9 @@ def test_colabfold_healthcheck_success(providers_module, monkeypatch):
 def test_colabfold_healthcheck_fail(providers_module, monkeypatch):
     P = providers_module
     prov = P.APIColabFoldProvider()
+
     def mock_get(*a, **k):
         raise requests.RequestException("fail")
+
     monkeypatch.setattr(prov.session, "get", mock_get)
     assert prov.healthcheck() is False

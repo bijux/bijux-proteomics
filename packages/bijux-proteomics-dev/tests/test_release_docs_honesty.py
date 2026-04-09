@@ -30,7 +30,9 @@ def test_release_docs_use_real_versioning_language() -> None:
     for doc_path in _release_docs():
         text = doc_path.read_text(encoding="utf-8")
         has_explicit_version = "release version is explicit in" in text
-        has_vcs_version = "version is resolved from Git tags through `hatch-vcs`" in text
+        has_vcs_version = (
+            "version is resolved from Git tags through `hatch-vcs`" in text
+        )
         assert has_explicit_version or has_vcs_version, (
             f"missing concrete versioning anchor in {doc_path}"
         )

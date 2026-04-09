@@ -15,7 +15,4 @@ def test_surface_area_budget() -> None:
         len(surface_area.EXTENSION_POINTS)
         <= surface_area.SURFACE_CAPS["extension_points"]
     )
-    assert (
-        len(surface_area.CONFIG_KNOBS)
-        <= surface_area.SURFACE_CAPS["config_knobs"]
-    )
+    assert len(surface_area.CONFIG_KNOBS) <= surface_area.SURFACE_CAPS["config_knobs"]

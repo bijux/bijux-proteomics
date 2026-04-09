@@ -4,22 +4,30 @@
 from __future__ import annotations
 
 from bijux_proteomics.assays import AssayRequirement
+from bijux_proteomics.constraints import (
+    ConstraintCategory,
+    ScientificConstraint,
+    assess_constraint_risk,
+    build_protein_native_constraints,
+)
 from bijux_proteomics.context import (
     ProgramContext,
     ProgramDeliveryContext,
     ProgramPortfolioContext,
 )
-from bijux_proteomics.constraints import ScientificConstraint
-from bijux_proteomics.constraints import ConstraintCategory
-from bijux_proteomics.constraints import assess_constraint_risk
-from bijux_proteomics.constraints import build_protein_native_constraints
 from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
-import pytest
-
 from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
-from bijux_proteomics.lifecycle import ProgramLifecycle, advance_stage, allowed_next_stages
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
-from bijux_proteomics.operating_model import DecisionOwnerRole, OperatingModel, ReviewCadence
+from bijux_proteomics.lifecycle import (
+    ProgramLifecycle,
+    advance_stage,
+    allowed_next_stages,
+)
+from bijux_proteomics.operating_model import (
+    DecisionOwnerRole,
+    OperatingModel,
+    ReviewCadence,
+)
 from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
@@ -31,12 +39,13 @@ from bijux_proteomics.targets import (
     ProteinMotif,
     ProteinTarget,
     PtmHotspot,
-    TractabilityFlag,
     TargetAnnotation,
     TargetOutcome,
+    TractabilityFlag,
     summarize_tractability,
     target_summary,
 )
+import pytest
 
 
 def test_domain_modules_define_program_components() -> None:
@@ -176,10 +185,18 @@ def test_target_summary_includes_target_class_and_isoform_context() -> None:
         domains=[ProteinDomain(domain_id="d1", name="Kinase", start=1, end=100)],
         motifs=[ProteinMotif(motif_id="m1", name="H-loop", pattern="HRD", start=50)],
         ptm_hotspots=[PtmHotspot(site="S42", modification="phosphorylation")],
-        complex_memberships=[ComplexMembership(complex_id="cx-1", role="catalytic core")],
-        tractability_flags=[TractabilityFlag(code="tractable", summary="known binders")],
+        complex_memberships=[
+            ComplexMembership(complex_id="cx-1", role="catalytic core")
+        ],
+        tractability_flags=[
+            TractabilityFlag(code="tractable", summary="known binders")
+        ],
         mechanism_liabilities=[
-            MechanismLiability(liability_id="liab-1", summary="allosteric risk", severity=OutcomeSeverity.HIGH)
+            MechanismLiability(
+                liability_id="liab-1",
+                summary="allosteric risk",
+                severity=OutcomeSeverity.HIGH,
+            )
         ],
     )
 
@@ -212,14 +229,22 @@ def test_summarize_tractability_flags_high_severity() -> None:
     target = ProteinTarget(
         target_id="target-tract",
         name="Target",
-        sequence=ProteinSequence(target_id="target-tract", residues="ACDEFGHIKLMNPQRSTVWY"),
+        sequence=ProteinSequence(
+            target_id="target-tract", residues="ACDEFGHIKLMNPQRSTVWY"
+        ),
         organism="human",
         mechanism="stabilize fold",
         tractability_flags=[
-            TractabilityFlag(code="risk-1", summary="hard to express", severity=OutcomeSeverity.HIGH)
+            TractabilityFlag(
+                code="risk-1", summary="hard to express", severity=OutcomeSeverity.HIGH
+            )
         ],
         mechanism_liabilities=[
-            MechanismLiability(liability_id="liab-1", summary="allosteric risk", severity=OutcomeSeverity.HIGH)
+            MechanismLiability(
+                liability_id="liab-1",
+                summary="allosteric risk",
+                severity=OutcomeSeverity.HIGH,
+            )
         ],
     )
 
@@ -259,7 +284,9 @@ def test_program_spec_supports_modality_unknowns_and_failure_modes() -> None:
         target=ProteinTarget(
             target_id="target-rich-context",
             name="Target Rich Context",
-            sequence=ProteinSequence(target_id="target-rich-context", residues="ACDEFGHIKLMNPQRSTVWY"),
+            sequence=ProteinSequence(
+                target_id="target-rich-context", residues="ACDEFGHIKLMNPQRSTVWY"
+            ),
             organism="human",
             mechanism="stabilize target conformation",
         ),

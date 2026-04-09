@@ -3,18 +3,25 @@
 
 from __future__ import annotations
 
-import pytest
-
 from agentic_proteins.agents.planning.compiler import compile_plan_to_execution
+from agentic_proteins.agents.planning.schemas import Plan, TaskSpec
+from agentic_proteins.core.decisions import Decision
 from agentic_proteins.execution.compiler.boundary import evaluate_failure
 from agentic_proteins.execution.runtime.integration import integrate_execution_result
-from agentic_proteins.core.decisions import Decision
-from agentic_proteins.execution.schemas import ExecutionGraph, ExecutionTask, RetryPolicy
+from agentic_proteins.execution.schemas import (
+    ExecutionGraph,
+    ExecutionTask,
+    RetryPolicy,
+)
 from agentic_proteins.memory.schemas import MemoryRecord, MemoryScope, ToolResultPayload
-from agentic_proteins.agents.planning.schemas import Plan, TaskSpec
-from agentic_proteins.tools.schemas import InvocationInput, ToolInvocationSpec, ToolResult
-from agentic_proteins.validation.state import validate_execution_graph
 from agentic_proteins.registry.agents import AgentRegistry
+from agentic_proteins.tools.schemas import (
+    InvocationInput,
+    ToolInvocationSpec,
+    ToolResult,
+)
+from agentic_proteins.validation.state import validate_execution_graph
+import pytest
 
 
 def register_planner() -> None:
@@ -117,7 +124,9 @@ def test_failure_policy() -> None:
         metrics=[],
         error=None,
     )
-    assert evaluate_failure(result, fatal_errors=set(), replan_errors=set()) == "continue"
+    assert (
+        evaluate_failure(result, fatal_errors=set(), replan_errors=set()) == "continue"
+    )
 
 
 def test_integrate_execution_result_appends_to_store() -> None:

@@ -6,13 +6,11 @@ from __future__ import annotations
 import importlib
 import re
 
-import pytest
-
-from agentic_proteins.registry.agents import AgentRegistry
-from agentic_proteins.agents.schemas import PlannerAgentInput
 from agentic_proteins.agents.planning.schemas import Plan, PlanDecision, TaskSpec
 from agentic_proteins.agents.planning.validation import validate_plan
-
+from agentic_proteins.agents.schemas import PlannerAgentInput
+from agentic_proteins.registry.agents import AgentRegistry
+import pytest
 
 AGENT_MODULES = [
     "agentic_proteins.agents.planning.planner",
@@ -66,7 +64,9 @@ def test_plan_validation_cycles_and_unknown_agents() -> None:
         required_capabilities=["planning"],
     )
     with pytest.raises(ValueError):
-        validate_plan(Plan(tasks={}, dependencies={}, entry_tasks=[], exit_conditions=[]))
+        validate_plan(
+            Plan(tasks={}, dependencies={}, entry_tasks=[], exit_conditions=[])
+        )
 
     with pytest.raises(ValueError):
         validate_plan(

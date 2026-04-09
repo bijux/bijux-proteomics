@@ -3,10 +3,13 @@
 
 from __future__ import annotations
 
-import pytest
-
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
+import pytest
 
 
 def test_contributor_misuse_invalid_transition_blocked() -> None:
@@ -31,7 +34,5 @@ def test_contributor_misuse_invalid_transition_blocked() -> None:
         targets=("p1",),
         scope=SignalScope.LOCAL,
     )
-    with pytest.raises(
-        ValueError, match="Degraded proteins cannot transition"
-    ):
+    with pytest.raises(ValueError, match="Degraded proteins cannot transition"):
         agent.apply_signal(signal)

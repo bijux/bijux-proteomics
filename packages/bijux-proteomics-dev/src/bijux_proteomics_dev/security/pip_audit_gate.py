@@ -62,7 +62,9 @@ def _fmt_table(rows: list[tuple[str, str, str, str]], header: tuple[str, ...]) -
             widths[index] = max(widths[index], len(cell))
 
     def fmt_row(columns: tuple[str, ...] | tuple[str, str, str, str]) -> str:
-        return "  ".join(cell.ljust(widths[index]) for index, cell in enumerate(columns))
+        return "  ".join(
+            cell.ljust(widths[index]) for index, cell in enumerate(columns)
+        )
 
     separator = "  ".join("-" * width for width in widths)
     return "\n".join([fmt_row(header), separator, *(fmt_row(row) for row in rows)])
@@ -115,7 +117,9 @@ def main() -> None:
     if IS_STRICT:
         print(f"STRICT: failing due to remaining vulnerabilities. See {REPORT_PATH}")
         sys.exit(1)
-    print(f"NON-STRICT: not failing despite remaining vulnerabilities. See {REPORT_PATH}")
+    print(
+        f"NON-STRICT: not failing despite remaining vulnerabilities. See {REPORT_PATH}"
+    )
     sys.exit(0)
 
 

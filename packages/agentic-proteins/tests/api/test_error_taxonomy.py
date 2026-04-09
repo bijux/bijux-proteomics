@@ -6,11 +6,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-from fastapi.testclient import TestClient
-
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api import errors as api_errors
+from fastapi.testclient import TestClient
+import pytest
 
 
 def _write_summary(base_dir: Path, run_id: str, workflow_state: str) -> None:

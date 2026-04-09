@@ -4,44 +4,43 @@
 from __future__ import annotations
 
 from bijux_proteomics_intelligence import (
+    CandidateAssayAgendaItem,
     CandidateAssessment,
     CandidateDecision,
+    CandidateLifecycleSummary,
     CandidatePortfolio,
     CandidateProposal,
     CandidateRiskProfile,
+    CandidateScientificProfile,
     CandidateStatus,
     CandidateTransition,
-    CandidateLifecycleSummary,
-    CandidateScientificProfile,
     CandidateVariantContext,
+    LiabilityFlag,
     MutationAnnotation,
     MutationBurdenSignals,
-    PortfolioRiskSummary,
-    TransitionAuditIssue,
-    ParsedMutation,
-    CandidateAssayAgendaItem,
-    PortfolioMutationBurdenSummary,
     ParetoFrontResult,
+    ParsedMutation,
+    PortfolioMutationBurdenSummary,
+    PortfolioRiskSummary,
     SequenceRiskSignals,
-    LiabilityFlag,
-    build_risk_profile,
-    build_candidate_scientific_profile,
-    mutation_burden_signals,
-    summarize_portfolio_risk,
-    validate_transition_history,
-    parse_mutation_token,
-    build_mutation_annotations,
+    TransitionAuditIssue,
     build_candidate_assay_agenda,
-    summarize_portfolio_mutation_burden,
+    build_candidate_scientific_profile,
+    build_mutation_annotations,
+    build_risk_profile,
+    mutation_burden_signals,
+    parse_mutation_token,
     portfolio_status,
-    sequence_risk_signals,
     select_pareto_candidates,
-    summarize_variant_context,
-    summarize_mutation_risk,
+    sequence_risk_signals,
     summarize_candidate_lifecycle,
+    summarize_mutation_risk,
+    summarize_portfolio_mutation_burden,
+    summarize_portfolio_risk,
+    summarize_variant_context,
     transition_candidate,
+    validate_transition_history,
 )
-
 import pytest
 
 
@@ -254,8 +253,18 @@ def test_summarize_mutation_risk_flags_multi_region_conserved_risk() -> None:
     context = summarize_variant_context(
         "candidate-risk",
         [
-            MutationAnnotation(mutation="A101V", region="core", expected_effect="stabilize", conservation_score=0.9),
-            MutationAnnotation(mutation="G205S", region="loop", expected_effect="tune", conservation_score=0.85),
+            MutationAnnotation(
+                mutation="A101V",
+                region="core",
+                expected_effect="stabilize",
+                conservation_score=0.9,
+            ),
+            MutationAnnotation(
+                mutation="G205S",
+                region="loop",
+                expected_effect="tune",
+                conservation_score=0.85,
+            ),
         ],
     )
 
@@ -336,7 +345,9 @@ def test_mutation_burden_signals_capture_conserved_and_region_spread() -> None:
 def test_summarize_portfolio_risk_reports_high_risk_candidates_and_channel() -> None:
     summary = summarize_portfolio_risk(
         [
-            CandidateRiskProfile(candidate_id="c1", residual_risk=0.62, safety_risk=0.7),
+            CandidateRiskProfile(
+                candidate_id="c1", residual_risk=0.62, safety_risk=0.7
+            ),
             CandidateRiskProfile(candidate_id="c2", residual_risk=0.3, safety_risk=0.2),
         ],
         high_risk_threshold=0.5,
@@ -392,7 +403,10 @@ def test_build_mutation_annotations_supports_position_maps() -> None:
         conservation_by_position={10: 0.91, 20: 0.42},
     )
 
-    assert [annotation.region for annotation in annotations] == ["active-site", "interface"]
+    assert [annotation.region for annotation in annotations] == [
+        "active-site",
+        "interface",
+    ]
     assert annotations[0].conservation_score == 0.91
 
 
@@ -404,7 +418,14 @@ def test_build_candidate_assay_agenda_prioritizes_higher_risk_profiles() -> None
             manufacturability_score=0.3,
             evidence_support=0.6,
         ),
-        [MutationAnnotation(mutation="A101V", region="active-site", expected_effect="stabilize", conservation_score=0.9)],
+        [
+            MutationAnnotation(
+                mutation="A101V",
+                region="active-site",
+                expected_effect="stabilize",
+                conservation_score=0.9,
+            )
+        ],
     )
     profile_low = build_candidate_scientific_profile(
         CandidateAssessment(
@@ -413,7 +434,14 @@ def test_build_candidate_assay_agenda_prioritizes_higher_risk_profiles() -> None
             manufacturability_score=0.9,
             evidence_support=0.9,
         ),
-        [MutationAnnotation(mutation="G20S", region="loop", expected_effect="tune", conservation_score=0.2)],
+        [
+            MutationAnnotation(
+                mutation="G20S",
+                region="loop",
+                expected_effect="tune",
+                conservation_score=0.2,
+            )
+        ],
     )
 
     agenda = build_candidate_assay_agenda([profile_low, profile_high])
@@ -428,11 +456,25 @@ def test_summarize_portfolio_mutation_burden_aggregates_contexts() -> None:
         [
             summarize_variant_context(
                 "c1",
-                [MutationAnnotation(mutation="A10V", region="core", expected_effect="stabilize", conservation_score=0.9)],
+                [
+                    MutationAnnotation(
+                        mutation="A10V",
+                        region="core",
+                        expected_effect="stabilize",
+                        conservation_score=0.9,
+                    )
+                ],
             ),
             summarize_variant_context(
                 "c2",
-                [MutationAnnotation(mutation="G20S", region="loop", expected_effect="tune", conservation_score=0.2)],
+                [
+                    MutationAnnotation(
+                        mutation="G20S",
+                        region="loop",
+                        expected_effect="tune",
+                        conservation_score=0.2,
+                    )
+                ],
             ),
         ]
     )

@@ -6,8 +6,16 @@
 
 from __future__ import annotations
 
-from agentic_proteins.biology.pathway import ExecutionMode, PathwayContract, PathwayExecutor
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.pathway import (
+    ExecutionMode,
+    PathwayContract,
+    PathwayExecutor,
+)
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
 
 
@@ -59,7 +67,9 @@ def main() -> None:
         scope=SignalScope.GLOBAL,
     )
     executor.step([activate])
-    print("After activation:", agent_a.internal_state.value, agent_b.internal_state.value)
+    print(
+        "After activation:", agent_a.internal_state.value, agent_b.internal_state.value
+    )
 
     degrade = SignalPayload(
         signal_type=SignalType.MISFOLD,

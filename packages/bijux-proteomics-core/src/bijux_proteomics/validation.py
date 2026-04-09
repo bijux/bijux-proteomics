@@ -5,14 +5,14 @@
 
 from __future__ import annotations
 
-from pydantic import ConfigDict, Field
-
-from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics_foundation import (
     IdentifierKind,
     JsonModel,
     ensure_identifier_kind,
 )
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
 
 
 class ProgramValidationIssue(JsonModel):

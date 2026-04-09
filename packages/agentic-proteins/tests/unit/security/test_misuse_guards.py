@@ -5,11 +5,14 @@ from __future__ import annotations
 
 import random
 
-import pytest
-
 from agentic_proteins.biology.pathway import PathwayExecutor
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.signals import SignalType
+import pytest
 
 
 def test_invariant_bypass_is_blocked() -> None:

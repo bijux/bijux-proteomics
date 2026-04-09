@@ -3,12 +3,15 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-
+from agentic_proteins.core.observations import Observation, ObservationSource
 from agentic_proteins.execution.runtime.executor import materialize_observation
 from agentic_proteins.execution.schemas import ExecutionTask, RetryPolicy
-from agentic_proteins.core.observations import Observation, ObservationSource
-from agentic_proteins.tools.schemas import InvocationInput, ToolInvocationSpec, ToolMetric, ToolResult
+from agentic_proteins.tools.schemas import (
+    InvocationInput,
+    ToolInvocationSpec,
+    ToolMetric,
+    ToolResult,
+)
 
 
 def test_materialize_observation() -> None:

@@ -7,9 +7,8 @@ from __future__ import annotations
 
 import re
 
-from pydantic import ConfigDict, Field, field_validator
-
 from bijux_proteomics_foundation import JsonModel, TargetId
+from pydantic import ConfigDict, Field, field_validator
 
 _SEQUENCE_RE = re.compile(r"^[ACDEFGHIKLMNPQRSTVWY]+$")
 

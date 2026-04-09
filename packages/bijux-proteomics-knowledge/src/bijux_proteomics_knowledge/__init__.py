@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 from bijux_proteomics_knowledge.adapters import (
     AssayResultIngestionAdapter,
     IngestionReport,

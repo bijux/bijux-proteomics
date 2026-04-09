@@ -4,15 +4,14 @@
 from __future__ import annotations
 
 import json
-from types import SimpleNamespace
 from pathlib import Path
-
-import pytest
-from click.testing import CliRunner
+from types import SimpleNamespace
 
 from agentic_proteins.interfaces import cli as cli_module
 from agentic_proteins.interfaces.cli import cli
 from agentic_proteins.runtime.infra import RunConfig
+from click.testing import CliRunner
+import pytest
 
 
 def test_read_sequence_from_fasta(tmp_path: Path) -> None:
@@ -115,9 +114,7 @@ def test_cli_run_json_success(monkeypatch: pytest.MonkeyPatch) -> None:
     runner = CliRunner()
     monkeypatch.setattr(cli_module, "_read_sequence", lambda *_: "ACD")
     monkeypatch.setattr(cli_module, "_validate_sequence", lambda *_: None)
-    monkeypatch.setattr(
-        cli_module, "_build_run_config", lambda *_, **__: RunConfig()
-    )
+    monkeypatch.setattr(cli_module, "_build_run_config", lambda *_, **__: RunConfig())
     monkeypatch.setattr(
         cli_module,
         "_run_sequence",
@@ -229,7 +226,11 @@ def test_cli_reproduce_missing_run_returns_error() -> None:
 
 def test_cli_run_error_paths(monkeypatch: pytest.MonkeyPatch) -> None:
     runner = CliRunner()
-    monkeypatch.setattr(cli_module, "_read_sequence", lambda *_: (_ for _ in ()).throw(ValueError("boom")))
+    monkeypatch.setattr(
+        cli_module,
+        "_read_sequence",
+        lambda *_: (_ for _ in ()).throw(ValueError("boom")),
+    )
     result = runner.invoke(cli, ["run", "--sequence", "ACD", "--json"])
     assert result.exit_code != 0
     payload = json.loads(result.output)
@@ -304,7 +305,9 @@ def test_cli_reproduce_success_json(
     with runner.isolated_filesystem():
         run_dir = Path("artifacts") / "run-1"
         run_dir.mkdir(parents=True)
-        (run_dir / "run_summary.json").write_text(json.dumps({"candidate_id": "cand-1"}))
+        (run_dir / "run_summary.json").write_text(
+            json.dumps({"candidate_id": "cand-1"})
+        )
         (run_dir / "config.json").write_text(json.dumps(RunConfig().model_dump()))
         result = runner.invoke(cli, ["reproduce", "run-1", "--json"])
     assert result.exit_code == 0
@@ -338,9 +341,7 @@ def test_resume_candidate_validation_and_flow(
 
     monkeypatch.setattr(cli_module, "CandidateStore", lambda *_: _Store())
     monkeypatch.setattr(cli_module, "RunManager", _Manager)
-    monkeypatch.setattr(
-        cli_module, "_build_run_config", lambda *_, **__: RunConfig()
-    )
+    monkeypatch.setattr(cli_module, "_build_run_config", lambda *_, **__: RunConfig())
 
     result = cli_module._resume_candidate(
         tmp_path,
@@ -353,11 +354,13 @@ def test_resume_candidate_validation_and_flow(
     assert result["run_id"] == "run-cand-1"
 
 
-def test_cli_helpers_emit_and_paths(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_cli_helpers_emit_and_paths(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     cli_module._emit_json_payload({"ok": True}, pretty=True)
-    assert "\"ok\": true" in capsys.readouterr().out
+    assert '"ok": true' in capsys.readouterr().out
     cli_module._emit_json_payload({"ok": True}, pretty=False)
-    assert "\"ok\": true" in capsys.readouterr().out
+    assert '"ok": true' in capsys.readouterr().out
 
     output_path = tmp_path / "out.txt"
     cli_module._write_output(output_path, "payload")

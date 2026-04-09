@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
+import sys
 
 
 def run(repo_root: Path) -> int:
@@ -24,7 +24,9 @@ def run(repo_root: Path) -> int:
         return 1
     for item in items:
         if "why:" not in item or "exit:" not in item:
-            print("Design debt items must include why: and exit: fields.", file=sys.stderr)
+            print(
+                "Design debt items must include why: and exit: fields.", file=sys.stderr
+            )
             return 1
     return 0
 

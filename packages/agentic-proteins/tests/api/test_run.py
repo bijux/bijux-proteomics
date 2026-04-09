@@ -6,14 +6,13 @@ from __future__ import annotations
 import json
 from typing import Any
 
-import pytest
-from click.testing import CliRunner
-from fastapi.testclient import TestClient
-
 from agentic_proteins.api import AppConfig, create_app
+from agentic_proteins.api.v1.endpoints import run as run_endpoint
 from agentic_proteins.interfaces import cli as cli_module
 from agentic_proteins.interfaces.cli import cli
-from agentic_proteins.api.v1.endpoints import run as run_endpoint
+from click.testing import CliRunner
+from fastapi.testclient import TestClient
+import pytest
 
 pytestmark = pytest.mark.api
 
@@ -53,7 +52,9 @@ def _strip_timestamps(payload: Any) -> Any:
     return payload
 
 
-def test_run_endpoint_returns_summary(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_run_endpoint_returns_summary(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
     summary = _run_summary()
 
     monkeypatch.setattr(run_endpoint, "_read_sequence", lambda *_: "ACDE")

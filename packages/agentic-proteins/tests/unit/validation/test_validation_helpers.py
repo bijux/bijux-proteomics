@@ -6,11 +6,12 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 
-import pytest
-from pydantic import BaseModel
-
 from agentic_proteins.core.execution import ExecutionGraph, ExecutionTask
-from agentic_proteins.core.tooling import SchemaDefinition, ToolContract, ToolInvocationSpec
+from agentic_proteins.core.tooling import (
+    SchemaDefinition,
+    ToolContract,
+    ToolInvocationSpec,
+)
 from agentic_proteins.memory.schemas import MemoryScope
 from agentic_proteins.registry.agents import AgentRegistry
 from agentic_proteins.registry.tools import ToolRegistry
@@ -18,6 +19,8 @@ from agentic_proteins.state.schemas import StateSnapshot
 from agentic_proteins.validation import agents as agents_module
 from agentic_proteins.validation import state as state_module
 from agentic_proteins.validation import tools as tools_module
+from pydantic import BaseModel
+import pytest
 
 
 class ExampleEnum(Enum):
@@ -79,18 +82,26 @@ def test_validate_tool_contracts() -> None:
     )
     tools_module.validate_tool_contract(contract)
     with pytest.raises(ValueError, match="Input schema"):
-        tools_module.validate_tool_contract(contract.model_copy(update={"input_schema": "bad"}))
+        tools_module.validate_tool_contract(
+            contract.model_copy(update={"input_schema": "bad"})
+        )
     with pytest.raises(ValueError, match="Output schema"):
-        tools_module.validate_tool_contract(contract.model_copy(update={"output_schema": "bad"}))
+        tools_module.validate_tool_contract(
+            contract.model_copy(update={"output_schema": "bad"})
+        )
     with pytest.raises(ValueError, match="non-empty"):
         empty = SchemaDefinition.model_construct(schema_name="in", json_schema="")
         tools_module.validate_tool_contract(
             contract.model_copy(update={"input_schema": empty})
         )
     with pytest.raises(ValueError, match="cost estimate"):
-        tools_module.validate_tool_contract(contract.model_copy(update={"cost_estimate": 0.0}))
+        tools_module.validate_tool_contract(
+            contract.model_copy(update={"cost_estimate": 0.0})
+        )
     with pytest.raises(ValueError, match="latency estimate"):
-        tools_module.validate_tool_contract(contract.model_copy(update={"latency_estimate_ms": 0}))
+        tools_module.validate_tool_contract(
+            contract.model_copy(update={"latency_estimate_ms": 0})
+        )
 
 
 def test_validate_tools_for_agents() -> None:
@@ -128,9 +139,11 @@ def test_validate_agent_and_registry() -> None:
 def test_validate_agents_and_critic_input() -> None:
     _register_tool()
     agents_module.validate_agents_and_tools([_agent_class()])
+
     class CriticPayload:
         critic_name = "critic"
         target_agent_name = "critic"
+
     with pytest.raises(ValueError, match="may not evaluate"):
         agents_module.validate_critic_input(CriticPayload())
     ToolRegistry.clear()
@@ -163,8 +176,12 @@ def test_validate_state_and_execution_graph() -> None:
     graph = ExecutionGraph(tasks={"t1": task}, dependencies={}, entry_tasks=["t1"])
     state_module.validate_execution_graph(graph)
     with pytest.raises(ValueError, match="Unknown execution entry task"):
-        state_module.validate_execution_graph(graph.model_copy(update={"entry_tasks": ["missing"]}))
-    cyclic = ExecutionGraph(tasks={"t1": task}, dependencies={"t1": ["t1"]}, entry_tasks=["t1"])
+        state_module.validate_execution_graph(
+            graph.model_copy(update={"entry_tasks": ["missing"]})
+        )
+    cyclic = ExecutionGraph(
+        tasks={"t1": task}, dependencies={"t1": ["t1"]}, entry_tasks=["t1"]
+    )
     with pytest.raises(ValueError, match="cycle"):
         state_module.validate_execution_graph(cyclic)
 

@@ -7,24 +7,27 @@ import json
 from pathlib import Path
 from time import perf_counter
 
-import pytest
-
-from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
-from agentic_proteins.agents.verification.critic import CriticAgent
 from agentic_proteins.agents.analysis.failure_analysis import FailureAnalysisAgent
-from agentic_proteins.agents.verification.input_validation import InputValidationAgent
+from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
 from agentic_proteins.agents.planning.planner import PlannerAgent
-from agentic_proteins.agents.verification.quality_control import QualityControlAgent
 from agentic_proteins.agents.reporting.reporting import ReportingAgent
+from agentic_proteins.agents.verification.critic import CriticAgent
+from agentic_proteins.agents.verification.input_validation import InputValidationAgent
+from agentic_proteins.agents.verification.quality_control import QualityControlAgent
 from agentic_proteins.execution.evaluation.evaluation import (
     EvaluationRunner,
     HeuristicBoundary,
 )
+from agentic_proteins.execution.evaluation.schemas import EvaluationCase
 from agentic_proteins.registry.agents import AgentRegistry
 from agentic_proteins.registry.tools import ToolRegistry
-from agentic_proteins.execution.evaluation.schemas import EvaluationCase
-from agentic_proteins.tools.schemas import SchemaDefinition, ToolContract, ToolDeterminism
 from agentic_proteins.tools.heuristic import HeuristicStructureTool
+from agentic_proteins.tools.schemas import (
+    SchemaDefinition,
+    ToolContract,
+    ToolDeterminism,
+)
+import pytest
 
 
 def register_agents() -> None:
@@ -48,7 +51,9 @@ def register_tools() -> None:
             tool_name=HeuristicStructureTool.name,
             version=HeuristicStructureTool.version,
             input_schema=SchemaDefinition(schema_name="dummy_input", json_schema="{}"),
-            output_schema=SchemaDefinition(schema_name="dummy_output", json_schema="{}"),
+            output_schema=SchemaDefinition(
+                schema_name="dummy_output", json_schema="{}"
+            ),
             failure_modes=[],
             cost_estimate=1.0,
             latency_estimate_ms=1,
@@ -62,6 +67,7 @@ def load_cases() -> list[EvaluationCase]:
     path = Path(__file__).resolve().parent / "benchmarks" / "cases.json"
     payload = json.loads(path.read_text())
     return [EvaluationCase.model_validate(item) for item in payload]
+
 
 def _load_time_budget() -> float:
     path = Path(__file__).resolve().parent / "time_budget.json"

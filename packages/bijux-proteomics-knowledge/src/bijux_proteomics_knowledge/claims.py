@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from enum import StrEnum
 
+from bijux_proteomics_foundation import EvidenceId, JsonModel, TargetId
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import EvidenceId, JsonModel, TargetId
 from bijux_proteomics_knowledge.evidence import EvidenceBundle
 
 

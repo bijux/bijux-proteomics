@@ -8,9 +8,9 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from enum import StrEnum
 
+from bijux_proteomics_foundation import CandidateId, ProgramId
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import CandidateId, ProgramId
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, LiabilityFlag
 from bijux_proteomics_intelligence.serialization import JsonModel
 

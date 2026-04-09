@@ -3,13 +3,12 @@
 
 from __future__ import annotations
 
-import pytest
-from pydantic import ValidationError
-
+from agentic_proteins.agents.schemas import CoordinatorDecisionType
 from agentic_proteins.domain.candidates.schema import Candidate
 from agentic_proteins.domain.metrics.quality import QCStatus
 from agentic_proteins.runtime.context import RunOutput, RunStatus, VersionInfo
-from agentic_proteins.agents.schemas import CoordinatorDecisionType
+from pydantic import ValidationError
+import pytest
 
 
 def test_candidate_requires_identifier() -> None:

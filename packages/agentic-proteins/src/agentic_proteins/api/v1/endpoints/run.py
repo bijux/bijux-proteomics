@@ -8,9 +8,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, status
-from fastapi.responses import JSONResponse
-
 from agentic_proteins.api.deps import get_base_dir
 from agentic_proteins.api.errors import ok_envelope, raise_http_error
 from agentic_proteins.api.v1.schema import (
@@ -27,6 +24,8 @@ from agentic_proteins.interfaces.cli import (
     _run_sequence,
     _validate_sequence,
 )
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 

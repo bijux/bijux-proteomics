@@ -7,58 +7,63 @@ from pathlib import Path
 
 from bijux_proteomics import create_program_spec
 from bijux_proteomics.programs import AssayRequirement, ReviewGate
-from bijux_proteomics_knowledge import EvidenceBundle, EvidenceKind, EvidenceRecord, EvidenceStrength
+from bijux_proteomics_knowledge import (
+    EvidenceBundle,
+    EvidenceKind,
+    EvidenceRecord,
+    EvidenceStrength,
+)
 from bijux_proteomics_lab import (
     AssayDependency,
     AssayFamily,
+    AssayIntent,
     AssayObservation,
     AssayOutcome,
     AssayResultState,
-    assess_dependency_integrity,
-    assay_family_priority,
-    dependency_order,
-    dependency_critical_path,
-    detect_dependency_cycle,
+    ConflictAssayPolicy,
     ExperimentBatch,
+    ExperimentOutcome,
     ExperimentPlan,
     FamilyCapacity,
     LabCapacity,
     MaterialInventory,
     MaterialRequirement,
+    OrthogonalPolicy,
+    PlanningPolicy,
     ProgressDecision,
     RerunPolicy,
+    assay_family_priority,
+    assess_dependency_integrity,
+    assess_gate_coverage_gaps,
     assess_material_constraints,
+    build_lab_cycle_brief,
     build_review_packet,
     build_review_risk_profile,
-    plan_experiment_batches,
-    prioritize_next_assays,
+    compare_schedule_scenarios,
+    dependency_critical_path,
+    dependency_order,
+    derive_lab_execution_directive,
+    detect_dependency_cycle,
+    estimate_assay_execution_burden,
+    map_assay_contradiction_pressure,
     plan_conflict_resolution_assays,
+    plan_experiment_batches,
+    plan_hypothesis_falsification_assays,
+    plan_material_reservations,
     plan_uncertainty_reduction_assays,
+    prioritize_batches_by_material_feasibility,
+    prioritize_next_assays,
     recommend_next_best_experiment,
-    PlanningPolicy,
-    OrthogonalPolicy,
-    ConflictAssayPolicy,
-    recommend_orthogonal_confirmation,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
+    recommend_orthogonal_confirmation,
     schedule_experiment_plan,
     schedule_with_family_capacity,
-    score_assay_information_gain,
     score_assay_gate_impact,
-    estimate_assay_execution_burden,
-    build_lab_cycle_brief,
-    plan_hypothesis_falsification_assays,
-    AssayIntent,
+    score_assay_information_gain,
     summarize_assay_portfolio_balance,
-    plan_material_reservations,
-    derive_lab_execution_directive,
-    assess_gate_coverage_gaps,
-    map_assay_contradiction_pressure,
-    compare_schedule_scenarios,
     summarize_schedule_pressure,
-    prioritize_batches_by_material_feasibility,
     validate_experiment_plan,
-    ExperimentOutcome,
 )
 
 
@@ -119,7 +124,11 @@ def test_plan_experiment_batches_prioritizes_blocking_assays() -> None:
     plan = plan_experiment_batches(
         program,
         bundle,
-        dependencies=[AssayDependency(assay_id="expression-screen", requires_assay_id="primary-binding")],
+        dependencies=[
+            AssayDependency(
+                assay_id="expression-screen", requires_assay_id="primary-binding"
+            )
+        ],
     )
 
     assert [batch.batch_id for batch in plan.batches] == [
@@ -304,8 +313,16 @@ def test_plan_hypothesis_falsification_assays_prioritizes_counter_assays() -> No
     plan = plan_hypothesis_falsification_assays(
         hypothesis="binder stability mechanism is causal",
         intents=[
-            AssayIntent(assay_id="a1", objective="orthogonal counter-check for mechanism", prerequisite_assay_ids=[]),
-            AssayIntent(assay_id="a2", objective="supporting readout", prerequisite_assay_ids=["a1"]),
+            AssayIntent(
+                assay_id="a1",
+                objective="orthogonal counter-check for mechanism",
+                prerequisite_assay_ids=[],
+            ),
+            AssayIntent(
+                assay_id="a2",
+                objective="supporting readout",
+                prerequisite_assay_ids=["a1"],
+            ),
         ],
         contradictions=["activity increased while engagement dropped"],
     )
@@ -322,7 +339,11 @@ def test_summarize_assay_portfolio_balance_flags_concentration() -> None:
                 objective="binding sweep",
                 assay_ids=["a1", "a2", "a3"],
                 priority=1,
-                assay_sample_kinds={"a1": "biophysical", "a2": "biophysical", "a3": "biophysical"},
+                assay_sample_kinds={
+                    "a1": "biophysical",
+                    "a2": "biophysical",
+                    "a3": "biophysical",
+                },
             ),
             ExperimentBatch(
                 batch_id="b2",
@@ -414,8 +435,16 @@ def test_assess_gate_coverage_gaps_reports_uncovered_queue_gates() -> None:
 def test_map_assay_contradiction_pressure_orders_highest_pressure_first() -> None:
     rows = map_assay_contradiction_pressure(
         intents=[
-            AssayIntent(assay_id="a1", objective="resolve contradiction", prerequisite_assay_ids=[]),
-            AssayIntent(assay_id="a2", objective="secondary check", prerequisite_assay_ids=["a1"]),
+            AssayIntent(
+                assay_id="a1",
+                objective="resolve contradiction",
+                prerequisite_assay_ids=[],
+            ),
+            AssayIntent(
+                assay_id="a2",
+                objective="secondary check",
+                prerequisite_assay_ids=["a1"],
+            ),
         ],
         contradiction_count=3,
     )
@@ -648,7 +677,9 @@ def test_summarize_schedule_pressure_reports_utilization_and_deferred_assays() -
             )
         ],
     )
-    capacity = LabCapacity(cycle_id="cycle-pressure", max_batches=1, max_assays_per_batch=2)
+    capacity = LabCapacity(
+        cycle_id="cycle-pressure", max_batches=1, max_assays_per_batch=2
+    )
     scheduled = schedule_experiment_plan(plan, capacity)
     report = summarize_schedule_pressure(scheduled, capacity)
 
@@ -680,8 +711,18 @@ def test_prioritize_batches_by_material_feasibility_promotes_ready_batches() -> 
     ranked = prioritize_batches_by_material_feasibility(
         plan,
         requirements=[
-            MaterialRequirement(material_id="protein-stock", sample_kind="protein", minimum_units=1, unit="mg"),
-            MaterialRequirement(material_id="cell-stock", sample_kind="cells", minimum_units=10, unit="ml"),
+            MaterialRequirement(
+                material_id="protein-stock",
+                sample_kind="protein",
+                minimum_units=1,
+                unit="mg",
+            ),
+            MaterialRequirement(
+                material_id="cell-stock",
+                sample_kind="cells",
+                minimum_units=10,
+                unit="ml",
+            ),
         ],
         inventory=[
             MaterialInventory(material_id="protein-stock", available_units=5),
@@ -698,8 +739,12 @@ def test_validate_experiment_plan_reports_duplicate_and_empty_batches() -> None:
         ExperimentPlan(
             program_id="prog-validate",
             batches=[
-                ExperimentBatch(batch_id="b1", objective="o1", assay_ids=["a1"], priority=2),
-                ExperimentBatch(batch_id="b1", objective="o2", assay_ids=[], priority=1),
+                ExperimentBatch(
+                    batch_id="b1", objective="o1", assay_ids=["a1"], priority=2
+                ),
+                ExperimentBatch(
+                    batch_id="b1", objective="o2", assay_ids=[], priority=1
+                ),
             ],
         )
     )
@@ -777,7 +822,9 @@ def test_recommend_next_cycle_from_outcome_holds_on_technical_failures() -> None
         organism="human",
         mechanism="defer decisions until technical issues are resolved",
     )
-    bundle = EvidenceBundle(bundle_id="bundle-outcome-hold", target_id="target-outcome-hold", records=[])
+    bundle = EvidenceBundle(
+        bundle_id="bundle-outcome-hold", target_id="target-outcome-hold", records=[]
+    )
     outcome = ExperimentOutcome(
         batch_id="batch-outcome-hold",
         assay_outcomes=[
@@ -809,7 +856,11 @@ def test_recommend_next_cycle_from_outcome_redesigns_on_biological_failures() ->
         organism="human",
         mechanism="use biological outcomes to drive redesign",
     )
-    bundle = EvidenceBundle(bundle_id="bundle-outcome-redesign", target_id="target-outcome-redesign", records=[])
+    bundle = EvidenceBundle(
+        bundle_id="bundle-outcome-redesign",
+        target_id="target-outcome-redesign",
+        records=[],
+    )
     outcome = ExperimentOutcome(
         batch_id="batch-outcome-redesign",
         assay_outcomes=[
@@ -969,7 +1020,11 @@ def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
     ranked = prioritize_next_assays(
         program,
         bundle,
-        [AssayObservation(assay_id="a-support", metric="yield", value=1.0, passed=True)],
+        [
+            AssayObservation(
+                assay_id="a-support", metric="yield", value=1.0, passed=True
+            )
+        ],
     )
 
     assert ranked[0].assay_id == "a-block"
@@ -977,8 +1032,12 @@ def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
 
 
 def test_assay_family_priority_uses_scientific_execution_order() -> None:
-    assert assay_family_priority(AssayFamily.BIOPHYSICAL) < assay_family_priority(AssayFamily.CELLULAR)
-    assert assay_family_priority(AssayFamily.CELLULAR) < assay_family_priority(AssayFamily.DEVELOPABILITY)
+    assert assay_family_priority(AssayFamily.BIOPHYSICAL) < assay_family_priority(
+        AssayFamily.CELLULAR
+    )
+    assert assay_family_priority(AssayFamily.CELLULAR) < assay_family_priority(
+        AssayFamily.DEVELOPABILITY
+    )
 
 
 def test_recommend_orthogonal_confirmation_when_convergence_is_low() -> None:
@@ -1075,14 +1134,20 @@ def test_recommend_orthogonal_confirmation_honors_required_modalities_policy() -
         bundle,
         policy=OrthogonalPolicy(
             policy_id="strict-modalities",
-            required_modalities=[EvidenceKind.LITERATURE.value, EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
+            required_modalities=[
+                EvidenceKind.LITERATURE.value,
+                EvidenceKind.ASSAY.value,
+                EvidenceKind.STRUCTURE.value,
+            ],
         ),
     )
 
     assert plan.required is True
 
 
-def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist() -> None:
+def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist() -> (
+    None
+):
     program = create_program_spec(
         program_id="prog-conflict",
         name="conflict plan",
@@ -1148,8 +1213,20 @@ def test_plan_conflict_resolution_assays_honors_policy_suggestion_limit() -> Non
     )
     program.assay_panel.extend(
         [
-            AssayRequirement(assay_id="a1", purpose="p1", readout="r1", sample_kind="cell", blocking=True),
-            AssayRequirement(assay_id="a2", purpose="p2", readout="r2", sample_kind="cell", blocking=False),
+            AssayRequirement(
+                assay_id="a1",
+                purpose="p1",
+                readout="r1",
+                sample_kind="cell",
+                blocking=True,
+            ),
+            AssayRequirement(
+                assay_id="a2",
+                purpose="p2",
+                readout="r2",
+                sample_kind="cell",
+                blocking=False,
+            ),
         ]
     )
     bundle = EvidenceBundle(
@@ -1208,7 +1285,9 @@ def test_plan_uncertainty_reduction_assays_returns_ranked_backlog() -> None:
         )
     )
     bundle = EvidenceBundle(bundle_id="bundle-ur", target_id="target-ur")
-    plan = plan_uncertainty_reduction_assays(program, bundle, [], decision_tag="progression")
+    plan = plan_uncertainty_reduction_assays(
+        program, bundle, [], decision_tag="progression"
+    )
 
     assert "assay-ur-1" in plan.prioritized_assay_ids
     assert 0.0 <= plan.residual_uncertainty <= 1.0
@@ -1247,7 +1326,9 @@ def test_recommend_next_best_experiment_respects_dependencies() -> None:
         program,
         EvidenceBundle(bundle_id="bundle-nbe", target_id="target-nbe"),
         [],
-        dependencies=[AssayDependency(assay_id="assay-main", requires_assay_id="assay-prereq")],
+        dependencies=[
+            AssayDependency(assay_id="assay-main", requires_assay_id="assay-prereq")
+        ],
     )
 
     assert recommendation is not None

@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from enum import StrEnum
 
+from bijux_proteomics_foundation import TargetId
 from pydantic import BaseModel, ConfigDict, Field
 
 from bijux_proteomics.sequences import ProteinSequence
-from bijux_proteomics_foundation import TargetId
 
 
 class OutcomeSeverity(StrEnum):

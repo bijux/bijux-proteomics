@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import random
 
-import pytest
-
-from agentic_proteins.biology.pathway import ExecutionMode, PathwayContract, PathwayExecutor
+from agentic_proteins.biology.pathway import (
+    ExecutionMode,
+    PathwayContract,
+    PathwayExecutor,
+)
 from agentic_proteins.biology.protein_agent import (
     ProteinAgent,
     ProteinConstraints,
@@ -16,6 +18,7 @@ from agentic_proteins.biology.protein_agent import (
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
 from agentic_proteins.biology.validation import validate_transition
+import pytest
 
 
 def _constraints(energy: float = 1.0) -> ProteinConstraints:
@@ -35,7 +38,9 @@ def _transitions() -> dict[tuple[ProteinState, SignalType], ProteinState]:
 
 
 def test_transition_validator_blocks_invalid_recovery() -> None:
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+    )
     with pytest.raises(ValueError):
         validate_transition(ProteinState.DEGRADED, signal, ProteinState.ACTIVE)
 
@@ -48,7 +53,9 @@ def test_invariants_fail_fast_on_negative_energy() -> None:
         rng=random.Random(1),
         energy=0.5,
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+    )
     with pytest.raises(ValueError):
         agent.apply_signal(signal)
 
@@ -61,7 +68,11 @@ def test_no_output_without_activation() -> None:
         rng=random.Random(2),
     )
     with pytest.raises(ValueError):
-        agent.emit(SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE))
+        agent.emit(
+            SignalPayload(
+                source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+            )
+        )
 
 
 def test_directional_signal_routing() -> None:
@@ -100,7 +111,9 @@ def test_deterministic_replay_event_log() -> None:
         contract=PathwayContract(),
         seed=17,
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+    )
     executor.step([signal])
     replay_log = executor.replay([signal])
     assert executor.event_log == replay_log
@@ -117,7 +130,9 @@ def test_lifecycle_management_degrades_and_removes() -> None:
     agent.allow_direct_mutation()
     agent.internal_state = ProteinState.ACTIVE
     agent.deny_direct_mutation()
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.DEGRADE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.DEGRADE
+    )
     assert agent.apply_signal(signal) is ProteinState.DEGRADED
     agent.remove()
     assert agent.disabled is True
@@ -147,7 +162,9 @@ def test_failure_observability_records_cause() -> None:
         transitions=_transitions(),
         rng=random.Random(7),
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.DEGRADE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.DEGRADE
+    )
     agent.apply_signal(signal)
     assert agent.failure_events
     assert agent.failure_events[0].cause == "missing transition rule"
@@ -170,7 +187,12 @@ def test_brutal_extension_invariants_hold() -> None:
         rng=random.Random(8),
         energy=1.0,
     )
-    signal = SignalPayload(source_id="pX", targets=("pX",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="pX", targets=("pX",), signal_type=SignalType.ACTIVATE
+    )
     with pytest.raises(ValueError):
         agent.apply_signal(signal)
-    assert ProteinFailure.INVALID_TRANSITION in agent.failure_modes or agent.disabled is True
+    assert (
+        ProteinFailure.INVALID_TRANSITION in agent.failure_modes
+        or agent.disabled is True
+    )

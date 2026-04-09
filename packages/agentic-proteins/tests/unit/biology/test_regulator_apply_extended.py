@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-import pytest
-
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.regulator import (
     ApprovalMode,
-    LLMAuthorityBoundary,
     LLMAction,
+    LLMAuthorityBoundary,
     LLMRegulator,
     PermissionMode,
     Proposal,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalType
+import pytest
 
 
 def _agent() -> ProteinAgent:

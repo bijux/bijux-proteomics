@@ -5,9 +5,8 @@ from __future__ import annotations
 
 import re
 
-import click
-
 from agentic_proteins.interfaces.cli import cli
+import click
 from tests.helpers.paths import repo_root
 
 

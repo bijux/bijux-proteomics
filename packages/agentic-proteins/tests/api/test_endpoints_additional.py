@@ -5,12 +5,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi.testclient import TestClient
-
 from agentic_proteins.api.app import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import compare as compare_module
-from agentic_proteins.api.v1.endpoints import run as run_module
 from agentic_proteins.api.v1.endpoints import resume as resume_module
+from agentic_proteins.api.v1.endpoints import run as run_module
+from fastapi.testclient import TestClient
 
 
 def _client(tmp_path: Path) -> TestClient:
@@ -86,7 +85,9 @@ def test_run_endpoint_success_and_review(tmp_path: Path, monkeypatch) -> None:
 
 
 def test_resume_endpoint_success(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setattr(resume_module, "_resume_candidate", lambda *_: {"run_id": "run-3"})
+    monkeypatch.setattr(
+        resume_module, "_resume_candidate", lambda *_: {"run_id": "run-3"}
+    )
     monkeypatch.setattr(
         resume_module,
         "_load_run_summary",

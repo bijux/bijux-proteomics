@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge import EvidenceBundle, fingerprint_model, to_canonical_json
+from bijux_proteomics_knowledge import (
+    EvidenceBundle,
+    fingerprint_model,
+    to_canonical_json,
+)
 
 
 def test_canonical_serialization_and_fingerprint_are_stable() -> None:

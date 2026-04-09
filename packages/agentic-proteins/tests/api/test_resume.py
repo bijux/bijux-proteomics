@@ -5,11 +5,10 @@ from __future__ import annotations
 
 from typing import Any
 
-import pytest
-from fastapi.testclient import TestClient
-
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import resume as resume_endpoint
+from fastapi.testclient import TestClient
+import pytest
 
 pytestmark = pytest.mark.api
 
@@ -40,8 +39,12 @@ def test_resume_by_run_id(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
     summary = _run_summary()
     summaries = [summary, summary]
 
-    monkeypatch.setattr(resume_endpoint, "_resume_candidate", lambda *_: {"run_id": "run-123"})
-    monkeypatch.setattr(resume_endpoint, "_load_run_summary", lambda *_: summaries.pop(0))
+    monkeypatch.setattr(
+        resume_endpoint, "_resume_candidate", lambda *_: {"run_id": "run-123"}
+    )
+    monkeypatch.setattr(
+        resume_endpoint, "_load_run_summary", lambda *_: summaries.pop(0)
+    )
 
     client = TestClient(create_app(AppConfig(base_dir=tmp_path)))
     response = client.post("/api/v1/resume", json={"run_id": "run-123"})

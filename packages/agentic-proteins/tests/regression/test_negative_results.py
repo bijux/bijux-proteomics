@@ -5,19 +5,26 @@ from __future__ import annotations
 
 import random
 
-import pytest
-
-from agentic_proteins.biology.pathway import ExecutionMode, PathwayContract, PathwayExecutor
-from agentic_proteins.biology.protein_agent import ProteinAgent, ProteinConstraints, ProteinState
+from agentic_proteins.biology.pathway import (
+    ExecutionMode,
+    PathwayContract,
+    PathwayExecutor,
+)
+from agentic_proteins.biology.protein_agent import (
+    ProteinAgent,
+    ProteinConstraints,
+    ProteinState,
+)
 from agentic_proteins.biology.regulator import (
     ApprovalMode,
-    LLMAuthorityBoundary,
     LLMAction,
+    LLMAuthorityBoundary,
     LLMRegulator,
     PermissionMode,
     Proposal,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalType
+import pytest
 
 
 def _constraints() -> ProteinConstraints:
@@ -74,7 +81,9 @@ def test_llm_makes_pathway_worse() -> None:
         action=LLMAction.ADJUST_THRESHOLD,
     )
     assert regulator.apply(proposal, agent=agent) is True
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+    )
     with pytest.raises(ValueError):
         executor.step([signal])
 
@@ -90,6 +99,8 @@ def test_recovery_impossible_from_degraded() -> None:
     agent.allow_direct_mutation()
     agent.internal_state = ProteinState.DEGRADED
     agent.deny_direct_mutation()
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+    )
     with pytest.raises(ValueError):
         agent.apply_signal(signal)

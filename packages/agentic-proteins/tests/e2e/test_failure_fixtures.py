@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import importlib
+from pathlib import Path
 
 from agentic_proteins.core.failures import FailureType
 from agentic_proteins.runtime import RunManager
@@ -54,7 +53,10 @@ def test_invalid_sequence_rejected(tmp_path: Path) -> None:
 
 
 def test_tool_timeout_maps_failure(tmp_path: Path) -> None:
-    config = RunConfig(predictors_enabled=["timeout_tool"], resource_limits={"gpu_seconds": 0.0, "cpu_seconds": 0.0})
+    config = RunConfig(
+        predictors_enabled=["timeout_tool"],
+        resource_limits={"gpu_seconds": 0.0, "cpu_seconds": 0.0},
+    )
     manager = RunManager(tmp_path, config)
     result = manager.run("ACDE", tool=TimeoutTool())
     assert result["failure_type"] == FailureType.TOOL_TIMEOUT.value
@@ -63,7 +65,10 @@ def test_tool_timeout_maps_failure(tmp_path: Path) -> None:
 
 
 def test_corrupt_output_maps_failure(tmp_path: Path) -> None:
-    config = RunConfig(predictors_enabled=["corrupt_tool"], resource_limits={"gpu_seconds": 0.0, "cpu_seconds": 0.0})
+    config = RunConfig(
+        predictors_enabled=["corrupt_tool"],
+        resource_limits={"gpu_seconds": 0.0, "cpu_seconds": 0.0},
+    )
     manager = RunManager(tmp_path, config)
     result = manager.run("ACDE", tool=CorruptOutputTool())
     assert result["failure_type"] == FailureType.INVALID_OUTPUT.value

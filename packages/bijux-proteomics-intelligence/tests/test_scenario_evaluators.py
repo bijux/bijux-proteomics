@@ -4,10 +4,6 @@
 from __future__ import annotations
 
 from bijux_proteomics import create_program_spec
-from bijux_proteomics_knowledge import (
-    DecisionReadiness,
-    EvidenceCoverage,
-)
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     CandidateRanking,
@@ -15,28 +11,32 @@ from bijux_proteomics_intelligence import (
     EvaluatorPolicyBundle,
     HoldPolicyConfig,
     HypothesisStatus,
-    ProgressionPolicyConfig,
     ProgressionPolicy,
+    ProgressionPolicyConfig,
     RankedCandidate,
+    RedesignPolicyConfig,
     ScaleUpPolicy,
     ScenarioAction,
-    evaluate_portfolio_balance,
-    summarize_scenario_consensus,
-    build_intelligence_review_packet,
-    summarize_hold_pressure,
-    summarize_scenario_confidence_spread,
-    summarize_assessment_metric_coverage,
-    derive_decision_escalation_flags,
-    build_final_decision_recommendation,
-    summarize_unresolved_question_ledger,
-    build_advanced_review_packet,
-    RedesignPolicyConfig,
     SynthesisPolicy,
+    build_advanced_review_packet,
+    build_final_decision_recommendation,
+    build_intelligence_review_packet,
+    derive_decision_escalation_flags,
+    evaluate_all_scenarios,
     evaluate_for_progression,
     evaluate_for_redesign,
     evaluate_for_scale_up,
     evaluate_for_synthesis,
-    evaluate_all_scenarios,
+    evaluate_portfolio_balance,
+    summarize_assessment_metric_coverage,
+    summarize_hold_pressure,
+    summarize_scenario_confidence_spread,
+    summarize_scenario_consensus,
+    summarize_unresolved_question_ledger,
+)
+from bijux_proteomics_knowledge import (
+    DecisionReadiness,
+    EvidenceCoverage,
 )
 
 
@@ -49,7 +49,13 @@ def _ready_state() -> DecisionReadiness:
         coverage=EvidenceCoverage(
             bundle_id="bundle-1",
             target_id="target-1",
-            by_kind={"literature": 1, "structure": 1, "assay": 2, "pathway": 0, "safety": 0},
+            by_kind={
+                "literature": 1,
+                "structure": 1,
+                "assay": 2,
+                "pathway": 0,
+                "safety": 0,
+            },
             missing_kinds=[],
             decisive_records=2,
             mean_confidence=0.85,
@@ -100,7 +106,9 @@ def test_evaluate_for_progression_holds_when_top_candidate_has_many_blockers() -
                 candidate_id="candidate-1",
                 score=1.2,
                 rank=1,
-                explainability={"blockers": ["agg risk", "off-target risk", "yield risk"]},
+                explainability={
+                    "blockers": ["agg risk", "off-target risk", "yield risk"]
+                },
             )
         ],
     )
@@ -108,7 +116,11 @@ def test_evaluate_for_progression_holds_when_top_candidate_has_many_blockers() -
     evaluation = evaluate_for_progression(program, ranking, _ready_state())
 
     assert evaluation.action is ScenarioAction.HOLD
-    assert evaluation.unresolved_questions == ["agg risk", "off-target risk", "yield risk"]
+    assert evaluation.unresolved_questions == [
+        "agg risk",
+        "off-target risk",
+        "yield risk",
+    ]
 
 
 def test_evaluate_for_progression_holds_when_top_candidate_confidence_is_low() -> None:
@@ -217,7 +229,9 @@ def test_evaluate_for_synthesis_holds_when_top_candidate_confidence_is_low() -> 
 def test_evaluate_for_synthesis_redesigns_on_safety_channel_risk() -> None:
     ranking = CandidateRanking(
         program_id="prog-safety",
-        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+        ranked_candidates=[
+            RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)
+        ],
     )
     risks = [
         CandidateRiskProfile(
@@ -236,7 +250,9 @@ def test_evaluate_for_synthesis_redesigns_on_safety_channel_risk() -> None:
 def test_evaluate_for_scale_up_holds_on_safety_channel_risk() -> None:
     ranking = CandidateRanking(
         program_id="prog-scale-safety",
-        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+        ranked_candidates=[
+            RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)
+        ],
     )
     risks = [
         CandidateRiskProfile(
@@ -346,7 +362,9 @@ def test_evaluate_all_scenarios_returns_grouped_actions() -> None:
     )
     ranking = CandidateRanking(
         program_id="prog-3",
-        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+        ranked_candidates=[
+            RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)
+        ],
     )
     risks = [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.1)]
 
@@ -423,10 +441,18 @@ def test_summarize_scenario_consensus_reports_conflicting_actions() -> None:
     )
     ranking = CandidateRanking(
         program_id="prog-consensus",
-        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+        ranked_candidates=[
+            RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)
+        ],
     )
-    risks = [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.1, safety_risk=0.4)]
-    grouped = evaluate_all_scenarios(program, ranking, _ready_state(), risks, policies=EvaluatorPolicyBundle())
+    risks = [
+        CandidateRiskProfile(
+            candidate_id="candidate-1", residual_risk=0.1, safety_risk=0.4
+        )
+    ]
+    grouped = evaluate_all_scenarios(
+        program, ranking, _ready_state(), risks, policies=EvaluatorPolicyBundle()
+    )
 
     consensus = summarize_scenario_consensus(grouped)
 
@@ -447,10 +473,18 @@ def test_build_intelligence_review_packet_combines_consensus_and_portfolio() -> 
     )
     ranking = CandidateRanking(
         program_id="prog-packet",
-        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+        ranked_candidates=[
+            RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)
+        ],
     )
-    risks = [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)]
-    grouped = evaluate_all_scenarios(program, ranking, _ready_state(), risks, policies=EvaluatorPolicyBundle())
+    risks = [
+        CandidateRiskProfile(
+            candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+        )
+    ]
+    grouped = evaluate_all_scenarios(
+        program, ranking, _ready_state(), risks, policies=EvaluatorPolicyBundle()
+    )
 
     packet = build_intelligence_review_packet(grouped, ranking, risks)
 
@@ -473,10 +507,16 @@ def test_summarize_hold_pressure_counts_hold_actions() -> None:
         ),
         CandidateRanking(
             program_id="prog-hold-pressure",
-            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+            ranked_candidates=[
+                RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+            ],
         ),
         _ready_state(),
-        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.1, safety_risk=0.6)],
+        [
+            CandidateRiskProfile(
+                candidate_id="candidate-1", residual_risk=0.1, safety_risk=0.6
+            )
+        ],
         policies=EvaluatorPolicyBundle(),
     )
 
@@ -500,10 +540,16 @@ def test_summarize_scenario_confidence_spread_reports_range() -> None:
         ),
         CandidateRanking(
             program_id="prog-confidence-spread",
-            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+            ranked_candidates=[
+                RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+            ],
         ),
         _ready_state(),
-        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        [
+            CandidateRiskProfile(
+                candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+            )
+        ],
         policies=EvaluatorPolicyBundle(),
     )
 
@@ -527,10 +573,16 @@ def test_derive_decision_escalation_flags_triggers_human_review() -> None:
         ),
         CandidateRanking(
             program_id="prog-escalation",
-            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+            ranked_candidates=[
+                RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+            ],
         ),
         _ready_state(),
-        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        [
+            CandidateRiskProfile(
+                candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+            )
+        ],
         policies=EvaluatorPolicyBundle(),
     )
 
@@ -553,10 +605,16 @@ def test_build_final_decision_recommendation_uses_consensus_and_escalation() -> 
         ),
         CandidateRanking(
             program_id="prog-final-recommendation",
-            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+            ranked_candidates=[
+                RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+            ],
         ),
         _ready_state(),
-        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        [
+            CandidateRiskProfile(
+                candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+            )
+        ],
         policies=EvaluatorPolicyBundle(),
     )
 
@@ -580,10 +638,16 @@ def test_summarize_unresolved_question_ledger_prioritizes_frequent_questions() -
         ),
         CandidateRanking(
             program_id="prog-ledger",
-            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+            ranked_candidates=[
+                RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+            ],
         ),
         _ready_state(),
-        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        [
+            CandidateRiskProfile(
+                candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+            )
+        ],
         policies=EvaluatorPolicyBundle(),
     )
 
@@ -607,10 +671,16 @@ def test_build_advanced_review_packet_includes_escalation_and_ledger() -> None:
         ),
         CandidateRanking(
             program_id="prog-advanced-packet",
-            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+            ranked_candidates=[
+                RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+            ],
         ),
         _ready_state(),
-        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        [
+            CandidateRiskProfile(
+                candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+            )
+        ],
         policies=EvaluatorPolicyBundle(),
     )
 
@@ -618,9 +688,15 @@ def test_build_advanced_review_packet_includes_escalation_and_ledger() -> None:
         grouped,
         CandidateRanking(
             program_id="prog-advanced-packet",
-            ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+            ranked_candidates=[
+                RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+            ],
         ),
-        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)],
+        [
+            CandidateRiskProfile(
+                candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+            )
+        ],
     )
 
     assert packet.base_packet.notes

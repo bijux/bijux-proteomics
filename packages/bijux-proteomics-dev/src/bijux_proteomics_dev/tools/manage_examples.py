@@ -24,20 +24,20 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from io import StringIO
 import json
 import pathlib
 import random
 import re
 import textwrap
 import time
-from io import StringIO
 from typing import Dict, List, Optional, Set, Tuple
 
-import requests
 from Bio import SeqIO
 from Bio.PDB import PDBIO, PDBParser, Select
 from Bio.PDB.MMCIFParser import MMCIFParser
 from Bio.PDB.Polypeptide import is_aa
+import requests
 
 # ------------------- CONFIG -------------------
 

@@ -3,13 +3,16 @@ from __future__ import annotations
 import time
 from typing import Iterator
 
-import pytest
-
-from agentic_proteins.core.tooling import InvocationInput, ToolInvocationSpec, ToolResult
 from agentic_proteins.core.execution import ExecutionTask
+from agentic_proteins.core.tooling import (
+    InvocationInput,
+    ToolInvocationSpec,
+    ToolResult,
+)
 from agentic_proteins.execution.compiler.boundary import ToolBoundary, evaluate_failure
 from agentic_proteins.execution.runtime.executor import LocalExecutor
 from agentic_proteins.tools.base import Tool
+import pytest
 
 
 class _DummyTool(Tool):
@@ -69,7 +72,9 @@ def test_local_executor_no_boundary() -> None:
     assert result.error.error_type == "no_boundary"
 
 
-def test_local_executor_timeout_after_execution(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_local_executor_timeout_after_execution(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     seq = _time_sequence([0.0, 0.0, 2.0, 2.1])
     monkeypatch.setattr(time, "time", lambda: next(seq))
     boundary = ToolBoundary({("dummy", "v1"): _DummyTool()})

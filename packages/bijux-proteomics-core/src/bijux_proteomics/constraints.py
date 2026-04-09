@@ -7,9 +7,8 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
-
 from bijux_proteomics_foundation import EvidenceId
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ConstraintCategory(StrEnum):

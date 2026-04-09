@@ -4,9 +4,7 @@
 from __future__ import annotations
 
 import random
-
-import pytest
-from pydantic import ValidationError
+from typing import TYPE_CHECKING
 
 from agentic_proteins.biology.pathway import PathwayExecutor
 from agentic_proteins.biology.protein_agent import (
@@ -17,6 +15,11 @@ from agentic_proteins.biology.protein_agent import (
     ProteinState,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
+from pydantic import ValidationError
+import pytest
+
+if TYPE_CHECKING:
+    from agentic_proteins.biology.pathway import PathwayContract
 
 
 def _constraints() -> ProteinConstraints:
@@ -61,7 +64,9 @@ def test_invalid_transition_disables_agent() -> None:
         transitions=_transitions(),
         rng=random.Random(1),
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.DEGRADE)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.DEGRADE
+    )
     assert agent.apply_signal(signal) is ProteinState.INACTIVE
     assert agent.disabled is True
     assert ProteinFailure.INVALID_TRANSITION in agent.failure_modes
@@ -74,7 +79,9 @@ def test_inhibition_condition_overrides_transition() -> None:
         transitions=_transitions(),
         rng=random.Random(2),
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.INHIBIT)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.INHIBIT
+    )
     assert agent.apply_signal(signal) is ProteinState.INHIBITED
     assert agent.lifecycle is ProteinLifecycle.INHIBITED
 
@@ -86,7 +93,9 @@ def test_misfold_disables_and_degrades() -> None:
         transitions=_transitions(),
         rng=random.Random(3),
     )
-    signal = SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.MISFOLD)
+    signal = SignalPayload(
+        source_id="p1", targets=("p1",), signal_type=SignalType.MISFOLD
+    )
     assert agent.apply_signal(signal) is ProteinState.DEGRADED
     assert agent.disabled is True
     assert ProteinFailure.MISFOLD in agent.failure_modes
@@ -136,7 +145,11 @@ def test_pathway_executor_propagates_outputs() -> None:
         contract=_contract(),
     )
     outputs = executor.step(
-        [SignalPayload(source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE)]
+        [
+            SignalPayload(
+                source_id="p1", targets=("p1",), signal_type=SignalType.ACTIVATE
+            )
+        ]
     )
     assert len(outputs) == 1
     assert outputs[0].signal_type is SignalType.ACTIVATE
@@ -152,7 +165,7 @@ def test_signal_payload_rejects_non_string_metadata_keys() -> None:
         )
 
 
-def _contract() -> "PathwayContract":
+def _contract() -> PathwayContract:
     from agentic_proteins.biology.pathway import PathwayContract
 
     return PathwayContract(max_coupling=3, forbid_cycles=True)

@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-import pytest
-
 from agentic_proteins.runtime.infra import capabilities as capabilities_module
+import pytest
 
 
 def test_validate_runtime_capabilities_variants(

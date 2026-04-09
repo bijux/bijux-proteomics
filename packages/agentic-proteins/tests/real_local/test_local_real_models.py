@@ -4,19 +4,20 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 import subprocess
 import sys
 import time
-from pathlib import Path
 
-import pytest
-from agentic_proteins.domain.structure.structure import kabsch_and_pairs, tm_score
 from agentic_proteins.core.fingerprints import hash_payload
+from agentic_proteins.domain.structure.structure import kabsch_and_pairs, tm_score
 from agentic_proteins.providers.factory import (
     PROVIDER_CAPABILITIES,
     cuda_available,
     provider_requirements,
 )
+import pytest
+
 from tests.helpers.artifacts import assert_valid_run_artifacts
 
 REAL_CASES = [
@@ -69,7 +70,9 @@ def _run_cli(
     )
     (outdir / "stdout.txt").write_text(proc.stdout)
     (outdir / "stderr.txt").write_text(proc.stderr)
-    assert proc.returncode == 0, f"CLI failed.\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+    assert proc.returncode == 0, (
+        f"CLI failed.\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+    )
     return json.loads(proc.stdout)
 
 
@@ -154,16 +157,15 @@ def test_cpu_fallback_small_protein(ROOT: Path, run_output_dir: callable) -> Non
     assert "mean_plddt" in outputs, "mean_plddt missing from report outputs"
     warnings = run_output.get("warnings", [])
     assert any(
-        w.startswith("cpu_mode:local_esmfold") or w.startswith("cpu_fallback:local_esmfold")
+        w.startswith("cpu_mode:local_esmfold")
+        or w.startswith("cpu_fallback:local_esmfold")
         for w in warnings
     ), "CPU fallback warning not recorded"
 
 
 @pytest.mark.real_local
 @pytest.mark.timeout(0)
-def test_artifact_contract_local_esmfold(
-    ROOT: Path, run_output_dir: callable
-) -> None:
+def test_artifact_contract_local_esmfold(ROOT: Path, run_output_dir: callable) -> None:
     """Verify report schema + hash stability + artifact presence."""
     fasta = ROOT / "examples/ex02_1ubq_A/seq_1ubq_chainA.fasta"
     assert fasta.exists(), f"Missing FASTA: {fasta}"
@@ -188,7 +190,9 @@ def test_artifact_contract_local_esmfold(
     assert "mean_plddt" in outputs, "mean_plddt missing from report outputs"
 
     hash_a = hash_payload(report_payload)
-    reencoded = json.loads(json.dumps(report_payload, sort_keys=True, separators=(",", ":")))
+    reencoded = json.loads(
+        json.dumps(report_payload, sort_keys=True, separators=(",", ":"))
+    )
     hash_b = hash_payload(reencoded)
     assert hash_a == hash_b, "Report hash is not stable across serialization"
 
@@ -196,9 +200,7 @@ def test_artifact_contract_local_esmfold(
 @pytest.mark.real_local
 @pytest.mark.gpu
 @pytest.mark.timeout(0)
-def test_missing_weights_fail_cleanly(
-    ROOT: Path, run_output_dir: callable
-) -> None:
+def test_missing_weights_fail_cleanly(ROOT: Path, run_output_dir: callable) -> None:
     """Ensure missing weights fail cleanly without partial artifacts."""
     if not cuda_available():
         pytest.skip("GPU required for local_rosettafold")

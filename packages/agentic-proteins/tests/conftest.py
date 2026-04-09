@@ -15,7 +15,9 @@ for path in (ROOT, PACKAGE_ROOT):
         sys.path.insert(0, str(path))
 
 
-def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
     for item in items:
         path = Path(str(item.fspath))
         parts = path.parts

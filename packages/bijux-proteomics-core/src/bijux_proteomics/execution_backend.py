@@ -8,9 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Protocol
 
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics_foundation import JsonModel
+from pydantic import ConfigDict, Field
 
 
 class ExecutionRequest(JsonModel):

@@ -6,20 +6,25 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
-from agentic_proteins.agents.verification.critic import CriticAgent
-from agentic_proteins.agents.verification.quality_control import QualityControlAgent
 from agentic_proteins.agents.schemas import (
     CoordinatorAgentInput,
     CoordinatorDecisionType,
     CriticAgentInput,
+    OutputReference,
     QualityControlAgentInput,
     QualityControlAgentOutput,
-    OutputReference,
 )
+from agentic_proteins.agents.verification.critic import CriticAgent
+from agentic_proteins.agents.verification.quality_control import QualityControlAgent
 from agentic_proteins.core.execution import LoopLimits, LoopState
-from agentic_proteins.core.observations import EvaluationInput, Observation, ObservationSource, PlanMetadata
-from agentic_proteins.state.schemas import StateSnapshot
+from agentic_proteins.core.observations import (
+    EvaluationInput,
+    Observation,
+    ObservationSource,
+    PlanMetadata,
+)
 from agentic_proteins.domain.candidates.schema import Candidate
+from agentic_proteins.state.schemas import StateSnapshot
 
 
 def sample_state() -> StateSnapshot:
@@ -69,12 +74,16 @@ def test_quality_control_decide() -> None:
 
 def test_critic_decide() -> None:
     critic = CriticAgent()
-    qc_output = QualityControlAgentOutput(status="acceptable", confidence_deltas=[], constraint_violations=[])
+    qc_output = QualityControlAgentOutput(
+        status="acceptable", confidence_deltas=[], constraint_violations=[]
+    )
     output = critic.decide(
         CriticAgentInput(
             critic_name="critic",
             target_agent_name="quality_control",
-            target_output=OutputReference(agent_name="qc", output_id="o1", schema_version="1.0"),
+            target_output=OutputReference(
+                agent_name="qc", output_id="o1", schema_version="1.0"
+            ),
             prior_decisions=[],
             qc_output=qc_output,
             observations=[],
@@ -85,13 +94,17 @@ def test_critic_decide() -> None:
 
 def test_coordinator_decide_limits() -> None:
     coordinator = CoordinatorAgent()
-    qc_output = QualityControlAgentOutput(status="acceptable", confidence_deltas=[], constraint_violations=[])
+    qc_output = QualityControlAgentOutput(
+        status="acceptable", confidence_deltas=[], constraint_violations=[]
+    )
     critic = CriticAgent()
     critic_output = critic.decide(
         CriticAgentInput(
             critic_name="critic",
             target_agent_name="quality_control",
-            target_output=OutputReference(agent_name="qc", output_id="o1", schema_version="1.0"),
+            target_output=OutputReference(
+                agent_name="qc", output_id="o1", schema_version="1.0"
+            ),
             prior_decisions=[],
             qc_output=qc_output,
             observations=[],
@@ -104,7 +117,9 @@ def test_coordinator_decide_limits() -> None:
             qc_output=qc_output,
             critic_output=critic_output,
             replanning_trigger=None,
-            loop_limits=LoopLimits(max_replans=0, max_executions_per_plan=0, max_uncertainty=0.0),
+            loop_limits=LoopLimits(
+                max_replans=0, max_executions_per_plan=0, max_uncertainty=0.0
+            ),
             loop_state=LoopState(replans=1, executions=0, uncertainty=0.0),
         )
     )

@@ -5,12 +5,10 @@ from __future__ import annotations
 
 import importlib
 import re
-from pathlib import Path
 
-import pytest
-
-from agentic_proteins.registry.tools import ToolRegistry
 from agentic_proteins.agents.schemas import PlannerAgentInput
+from agentic_proteins.core.decisions import Decision
+from agentic_proteins.registry.tools import ToolRegistry
 from agentic_proteins.tools.schemas import (
     InvocationInput,
     OutputExpectation,
@@ -20,8 +18,8 @@ from agentic_proteins.tools.schemas import (
     ToolInvocationSpec,
     ToolResult,
 )
-from agentic_proteins.core.decisions import Decision
 from agentic_proteins.validation.tools import validate_tools_for_agents
+import pytest
 from tests.helpers.paths import repo_root
 
 

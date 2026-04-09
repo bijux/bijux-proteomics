@@ -7,9 +7,8 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics_foundation import EvidenceId, JsonModel
+from pydantic import ConfigDict, Field
 
 
 class LiabilityCategory(StrEnum):

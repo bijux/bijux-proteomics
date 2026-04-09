@@ -3,19 +3,22 @@
 
 from __future__ import annotations
 
-import pytest
-from fastapi.testclient import TestClient
-
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api.errors import HumanReviewRequiredError
 from agentic_proteins.api.v1.endpoints import inspect as inspect_endpoint
 from agentic_proteins.api.v1.endpoints import run as run_endpoint
+from fastapi.testclient import TestClient
+import pytest
 
 pytestmark = pytest.mark.api
 
 
 def test_invalid_input_maps_to_422(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
-    monkeypatch.setattr(run_endpoint, "_read_sequence", lambda *_: (_ for _ in ()).throw(ValueError("bad seq")))
+    monkeypatch.setattr(
+        run_endpoint,
+        "_read_sequence",
+        lambda *_: (_ for _ in ()).throw(ValueError("bad seq")),
+    )
 
     client = TestClient(create_app(AppConfig(base_dir=tmp_path)))
     response = client.post("/api/v1/run", json={"sequence": "ACDE"})
@@ -44,7 +47,9 @@ def test_not_found_maps_to_404(monkeypatch: pytest.MonkeyPatch, tmp_path) -> Non
     assert payload["error"]["status"] == 404
 
 
-def test_human_review_required_maps_to_202(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+def test_human_review_required_maps_to_202(
+    monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
     monkeypatch.setattr(
         run_endpoint,
         "_run_sequence",

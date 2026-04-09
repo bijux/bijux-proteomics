@@ -5,29 +5,35 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
-from agentic_proteins.agents.verification.critic import CriticAgent
 from agentic_proteins.agents.analysis.failure_analysis import FailureAnalysisAgent
-from agentic_proteins.agents.verification.input_validation import InputValidationAgent
-from agentic_proteins.agents.planning.planner import PlannerAgent
-from agentic_proteins.agents.verification.quality_control import QualityControlAgent
-from agentic_proteins.agents.reporting.reporting import ReportingAgent
+from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
 from agentic_proteins.agents.planning.compiler import compile_plan_to_execution
-from agentic_proteins.registry.agents import AgentRegistry
-from agentic_proteins.registry.tools import ToolRegistry
+from agentic_proteins.agents.planning.planner import PlannerAgent
+from agentic_proteins.agents.reporting.reporting import ReportingAgent
 from agentic_proteins.agents.schemas import (
     CoordinatorAgentInput,
     CoordinatorDecisionType,
     CriticAgentInput,
+    OutputReference,
     PlannerAgentInput,
     QualityControlAgentInput,
-    OutputReference,
 )
+from agentic_proteins.agents.verification.critic import CriticAgent
+from agentic_proteins.agents.verification.input_validation import InputValidationAgent
+from agentic_proteins.agents.verification.quality_control import QualityControlAgent
 from agentic_proteins.core.decisions import Decision
 from agentic_proteins.core.execution import LoopLimits, LoopState
-from agentic_proteins.core.observations import EvaluationInput, Observation, ObservationSource, PlanMetadata
-from agentic_proteins.state.schemas import StateSnapshot
+from agentic_proteins.core.observations import (
+    EvaluationInput,
+    Observation,
+    ObservationSource,
+    PlanMetadata,
+)
 from agentic_proteins.domain.candidates.schema import Candidate
+from agentic_proteins.registry.agents import AgentRegistry
+from agentic_proteins.registry.tools import ToolRegistry
+from agentic_proteins.state.schemas import StateSnapshot
+from agentic_proteins.tools.heuristic import HeuristicStructureTool
 from agentic_proteins.tools.schemas import (
     InvocationInput,
     OutputExpectation,
@@ -37,10 +43,10 @@ from agentic_proteins.tools.schemas import (
     ToolInvocationSpec,
     ToolResult,
 )
-from agentic_proteins.tools.heuristic import HeuristicStructureTool
 
-
-EXPECTED_PLAN_FINGERPRINT = "5c8d191d1402048a72ec671240516f1e36286e38f5b0ba9006c35ff26cdeaa04"
+EXPECTED_PLAN_FINGERPRINT = (
+    "5c8d191d1402048a72ec671240516f1e36286e38f5b0ba9006c35ff26cdeaa04"
+)
 
 
 def register_agents() -> None:
@@ -64,7 +70,9 @@ def register_tools() -> None:
             tool_name=HeuristicStructureTool.name,
             version=HeuristicStructureTool.version,
             input_schema=SchemaDefinition(schema_name="dummy_input", json_schema="{}"),
-            output_schema=SchemaDefinition(schema_name="dummy_output", json_schema="{}"),
+            output_schema=SchemaDefinition(
+                schema_name="dummy_output", json_schema="{}"
+            ),
             failure_modes=[],
             cost_estimate=1.0,
             latency_estimate_ms=1,
@@ -142,7 +150,9 @@ def test_regression_plan_and_decision_fingerprint() -> None:
     evaluation = EvaluationInput(
         observations=[observation],
         prior_state=prior_state,
-        plan_metadata=PlanMetadata(plan_fingerprint=plan.fingerprint(), plan_id="plan-1"),
+        plan_metadata=PlanMetadata(
+            plan_fingerprint=plan.fingerprint(), plan_id="plan-1"
+        ),
         constraints=[],
     )
 
@@ -160,7 +170,9 @@ def test_regression_plan_and_decision_fingerprint() -> None:
         CriticAgentInput(
             critic_name="critic",
             target_agent_name="quality_control",
-            target_output=OutputReference(agent_name="qc", output_id="qc-1", schema_version="1.0"),
+            target_output=OutputReference(
+                agent_name="qc", output_id="qc-1", schema_version="1.0"
+            ),
             prior_decisions=[],
             qc_output=qc_output,
             observations=[observation],
@@ -174,7 +186,9 @@ def test_regression_plan_and_decision_fingerprint() -> None:
             qc_output=qc_output,
             critic_output=critic_output,
             replanning_trigger=None,
-            loop_limits=LoopLimits(max_replans=1, max_executions_per_plan=1, max_uncertainty=1.0),
+            loop_limits=LoopLimits(
+                max_replans=1, max_executions_per_plan=1, max_uncertainty=1.0
+            ),
             loop_state=LoopState(replans=0, executions=1, uncertainty=0.0),
         )
     )

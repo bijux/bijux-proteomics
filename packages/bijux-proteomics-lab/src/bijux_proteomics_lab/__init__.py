@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
 from bijux_proteomics_lab.outcomes import (
     AcceptanceOperator,
     AssayAcceptanceRule,

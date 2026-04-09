@@ -6,55 +6,54 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics_knowledge import (
-    aging_records,
-    assess_decision_readiness,
-    assess_context_completeness,
-    assess_scientific_context_completeness,
-    assess_context_compatibility,
-    audit_knowledge_quality,
-    summarize_quantitative_coverage,
-    rank_evidence_for_decision,
-    evaluate_modality_coverage,
-    summarize_evidence_provenance,
-    ContextScoringProfile,
-    query_evidence_records,
-    EvidenceRecordQuery,
-    plan_evidence_collection,
-    validate_quantitative_support_payload,
-    validate_bundle_integrity,
-    normalize_bundle_decision_tags,
-    assess_artifact_risk,
-    attach_manual_notes,
     BundleFreshnessReport,
-    ConflictPolicy,
-    compute_bundle_trust,
-    coverage_report,
-    deduplicate_records,
+    ContextScoringProfile,
     EvidenceBundle,
     EvidenceConflict,
     EvidenceExtractionMethod,
-    EvidenceRefreshNeed,
-    EvidenceRefreshPriority,
     EvidenceKind,
     EvidenceOrigin,
     EvidenceRecord,
-    ProteomicsArtifactFlags,
+    EvidenceRecordQuery,
+    EvidenceRefreshNeed,
+    EvidenceRefreshPriority,
     EvidenceSourceType,
     EvidenceStrength,
     ManualEvidenceNote,
+    ProteomicsArtifactFlags,
     QuantitativeSupport,
     TrustPolicy,
-    default_trust_policy,
-    default_conflict_policy,
+    aging_records,
+    assess_artifact_risk,
+    assess_context_compatibility,
+    assess_context_completeness,
+    assess_decision_readiness,
+    assess_scientific_context_completeness,
+    attach_manual_notes,
+    audit_knowledge_quality,
+    compute_bundle_trust,
+    coverage_report,
     decompose_evidence_quality,
-    evidence_gaps,
+    deduplicate_records,
+    default_conflict_policy,
+    default_trust_policy,
+    evaluate_modality_coverage,
     evaluate_quantitative_support,
+    evidence_gaps,
     flag_conflicting_evidence,
+    normalize_bundle_decision_tags,
+    plan_evidence_collection,
     plan_evidence_refresh,
+    query_evidence_records,
+    rank_evidence_for_decision,
     score_evidence_record,
     stale_records,
     summarize_bundle,
+    summarize_evidence_provenance,
+    summarize_quantitative_coverage,
     triangulate_evidence,
+    validate_bundle_integrity,
+    validate_quantitative_support_payload,
 )
 
 
@@ -138,7 +137,10 @@ def test_evidence_gaps_supports_proteomics_specific_kinds() -> None:
 
     gaps = evidence_gaps(
         bundle,
-        [EvidenceKind.DIFFERENTIAL_PROTEOMICS.value, EvidenceKind.PHOSPHOPROTEOMICS.value],
+        [
+            EvidenceKind.DIFFERENTIAL_PROTEOMICS.value,
+            EvidenceKind.PHOSPHOPROTEOMICS.value,
+        ],
     )
 
     assert gaps == [EvidenceKind.PHOSPHOPROTEOMICS.value]
@@ -226,7 +228,10 @@ def test_assess_decision_readiness_reports_blockers() -> None:
 
     assert readiness.ready is False
     assert "missing required evidence kinds: structure, assay" in readiness.blockers
-    assert "not enough decisive evidence for an irreversible decision" in readiness.blockers
+    assert (
+        "not enough decisive evidence for an irreversible decision"
+        in readiness.blockers
+    )
 
 
 def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path) -> None:
@@ -345,7 +350,9 @@ def test_compute_bundle_trust_uses_explicit_trust_policy() -> None:
         strength=EvidenceStrength.SUPPORTING,
         expires_at=now + timedelta(days=10),
     )
-    bundle = EvidenceBundle(bundle_id="bundle-policy", target_id="target-policy", records=[record])
+    bundle = EvidenceBundle(
+        bundle_id="bundle-policy", target_id="target-policy", records=[record]
+    )
 
     default_score = compute_bundle_trust(bundle, now=now).trust_score
     strict_policy = default_trust_policy().model_copy(
@@ -358,7 +365,9 @@ def test_compute_bundle_trust_uses_explicit_trust_policy() -> None:
         }
     )
 
-    strict_score = compute_bundle_trust(bundle, now=now, policy=strict_policy).trust_score
+    strict_score = compute_bundle_trust(
+        bundle, now=now, policy=strict_policy
+    ).trust_score
 
     assert isinstance(strict_policy, TrustPolicy)
     assert strict_score < default_score
@@ -503,7 +512,11 @@ def test_record_scoring_and_helpers_are_exposed_for_policy_use() -> None:
         strength=EvidenceStrength.SUPPORTING,
         expires_at=now + timedelta(days=30),
     )
-    bundle = EvidenceBundle(bundle_id="bundle-3", target_id="target-3", records=[record, record.model_copy(update={"evidence_id": "lit-2"})])
+    bundle = EvidenceBundle(
+        bundle_id="bundle-3",
+        target_id="target-3",
+        records=[record, record.model_copy(update={"evidence_id": "lit-2"})],
+    )
 
     assert score_evidence_record(record, now=now) > 0.0
     assert stale_records(bundle, now=now) == []
@@ -679,7 +692,11 @@ def test_triangulate_evidence_scores_modality_convergence() -> None:
     report = triangulate_evidence(
         bundle,
         decision_tag="progression",
-        required_modalities=[EvidenceKind.LITERATURE.value, EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
+        required_modalities=[
+            EvidenceKind.LITERATURE.value,
+            EvidenceKind.ASSAY.value,
+            EvidenceKind.STRUCTURE.value,
+        ],
     )
 
     assert report.modality_diversity == 2
@@ -777,7 +794,9 @@ def test_attach_manual_notes_creates_curated_evidence_records() -> None:
     assert updated.records[0].source_type is EvidenceSourceType.CURATED_NOTE
     assert updated.records[0].curator == "review-scientist"
     assert updated.records[0].biological_system == "HEK293"
-    assert updated.records[0].extraction_method is EvidenceExtractionMethod.MANUAL_CURATION
+    assert (
+        updated.records[0].extraction_method is EvidenceExtractionMethod.MANUAL_CURATION
+    )
 
 
 def test_plan_evidence_refresh_prioritizes_stale_and_aging_records() -> None:
@@ -813,7 +832,9 @@ def test_plan_evidence_refresh_prioritizes_stale_and_aging_records() -> None:
 
     freshness = plan_evidence_refresh(bundle, now=now, horizon_days=7)
 
-    assert aging_records(bundle, now=now, horizon_days=7)[0].evidence_id == "assay-urgent"
+    assert (
+        aging_records(bundle, now=now, horizon_days=7)[0].evidence_id == "assay-urgent"
+    )
     assert freshness == BundleFreshnessReport(
         bundle_id="bundle-5",
         target_id="target-5",
@@ -994,7 +1015,9 @@ def test_audit_knowledge_quality_surfaces_bundle_level_recommendations() -> None
                 endpoint="activity_ratio",
                 confidence=0.82,
                 strength=EvidenceStrength.SUPPORTING,
-                quantitative_support=QuantitativeSupport(replicate_count=2, coefficient_of_variation=0.55),
+                quantitative_support=QuantitativeSupport(
+                    replicate_count=2, coefficient_of_variation=0.55
+                ),
             )
         ],
     )
@@ -1028,7 +1051,9 @@ def test_rank_evidence_for_decision_prioritizes_context_and_quality() -> None:
                 sample_type="cell lysate",
                 confidence=0.85,
                 strength=EvidenceStrength.DECISIVE,
-                quantitative_support=QuantitativeSupport(replicate_count=4, coefficient_of_variation=0.2, p_value=0.01),
+                quantitative_support=QuantitativeSupport(
+                    replicate_count=4, coefficient_of_variation=0.2, p_value=0.01
+                ),
             ),
             EvidenceRecord(
                 evidence_id="rank-low",

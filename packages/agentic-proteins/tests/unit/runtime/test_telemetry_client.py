@@ -3,9 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from agentic_proteins.runtime.infra.telemetry import TelemetryClient
+import pytest
 
 
 def test_telemetry_client_records_and_flushes(tmp_path: Path) -> None:

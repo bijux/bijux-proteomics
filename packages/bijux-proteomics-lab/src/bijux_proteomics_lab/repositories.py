@@ -8,9 +8,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Protocol
 
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics_foundation import GateId, JsonModel, ProgramId
+from pydantic import ConfigDict, Field
 
 
 class ReviewQueueEntry(JsonModel):

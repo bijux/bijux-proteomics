@@ -26,7 +26,9 @@ def test_lab_canonical_serialization_and_fingerprint_are_stable() -> None:
 
 def test_diff_model_payloads_reports_changed_fields() -> None:
     left = ExperimentPlan(program_id="prog-ser", evidence_gaps=["structure"])
-    right = ExperimentPlan(program_id="prog-ser", evidence_gaps=["structure", "cellular"])
+    right = ExperimentPlan(
+        program_id="prog-ser", evidence_gaps=["structure", "cellular"]
+    )
 
     diff = diff_model_payloads(left, right)
 

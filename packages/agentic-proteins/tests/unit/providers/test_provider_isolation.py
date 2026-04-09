@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import importlib.util
+from pathlib import Path
 import pkgutil
 import re
-from pathlib import Path
 
 
 def _provider_sources() -> list[str]:
@@ -35,4 +35,4 @@ def test_providers_do_not_write_outside_workspace() -> None:
         for match in pattern.findall(source):
             if match.startswith(allowed_prefixes):
                 continue
-            assert False, f"Disallowed absolute path in provider: {match}"
+            raise AssertionError(f"Disallowed absolute path in provider: {match}")

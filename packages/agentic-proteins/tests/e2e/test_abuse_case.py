@@ -18,7 +18,9 @@ def test_strict_mode_blocks_defaults(tmp_path: Path) -> None:
 
 
 def test_incompatible_tool_combo(tmp_path: Path) -> None:
-    config = RunConfig(predictors_enabled=["local_esmfold"], resource_limits={"gpu_seconds": 0.0})
+    config = RunConfig(
+        predictors_enabled=["local_esmfold"], resource_limits={"gpu_seconds": 0.0}
+    )
     manager = RunManager(tmp_path, config)
     result = manager.run("ACDE")
     assert result["failure_type"] == FailureType.CAPABILITY_MISSING.value

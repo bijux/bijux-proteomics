@@ -17,7 +17,7 @@ def test_state_snapshot_roundtrip_from_artifacts(tmp_path: Path) -> None:
     result = manager.run("ACDE")
     workspace = RunWorkspace.for_run(tmp_path, result["run_id"])
 
-    artifacts_payload = assert_valid_run_artifacts(workspace.run_dir)
+    assert_valid_run_artifacts(workspace.run_dir)
     state_payload = json.loads(workspace.state_path.read_text())
     artifacts = state_payload.get("artifacts", [])
     assert artifacts

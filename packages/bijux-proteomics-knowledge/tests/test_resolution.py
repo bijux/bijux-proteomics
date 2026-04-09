@@ -6,26 +6,26 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from bijux_proteomics_knowledge import (
-    ClaimStatus,
     ClaimResolutionRecord,
+    ClaimStatus,
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
+    QuantitativeSupport,
     ResolutionAction,
     ResolutionPolicy,
-    QuantitativeSupport,
+    ResolutionRecordQuery,
     apply_resolution_updates,
-    cluster_conflicts,
-    preview_resolution_impact,
     build_claim,
+    build_resolution_escalation_queue,
+    cluster_conflicts,
+    compare_resolution_policies,
+    preview_resolution_impact,
+    query_resolution_records,
     resolve_conflicts,
     summarize_resolutions,
-    query_resolution_records,
-    ResolutionRecordQuery,
-    compare_resolution_policies,
-    build_resolution_escalation_queue,
 )
 
 

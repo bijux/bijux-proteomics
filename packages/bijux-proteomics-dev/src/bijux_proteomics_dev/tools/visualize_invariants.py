@@ -6,7 +6,12 @@
 
 from __future__ import annotations
 
-from agentic_proteins.biology import PathwayExecutor, ProteinAgent, SignalPayload, SignalType
+from agentic_proteins.biology import (
+    PathwayExecutor,
+    ProteinAgent,
+    SignalPayload,
+    SignalType,
+)
 from agentic_proteins.biology.protein_agent import ProteinConstraints, ProteinState
 
 
