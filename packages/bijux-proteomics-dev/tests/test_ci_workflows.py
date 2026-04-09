@@ -4,9 +4,15 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 from typing import Any
 
 import yaml
+
+WORKFLOW_URL_RE = re.compile(
+    r"https://github\.com/(?P<repo>[^/\s]+/[^/\s]+)/actions/workflows/"
+    r"(?P<workflow>[A-Za-z0-9_.-]+)"
+)
 
 
 def _repo_root() -> Path:
@@ -29,6 +35,15 @@ def _matrix_include(job: dict[str, Any]) -> list[dict[str, Any]]:
     matrix = _as_dict(strategy.get("matrix"))
     include = matrix.get("include")
     return include if isinstance(include, list) else []
+
+
+def _workflow_docs(root: Path) -> list[Path]:
+    package_root = root / "packages"
+    return [
+        root / "README.md",
+        *sorted(package_root.glob("*/README.md")),
+        *sorted(package_root.glob("*/docs/maintainer/pypi.md")),
+    ]
 
 
 def test_workflow_tree_is_standardized() -> None:
@@ -74,3 +89,32 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
         if entry.get("package_slug") == "bijux-proteomics-dev"
     )
     assert dev.get("check_targets") == '["quality", "security", "build", "sbom"]'
+
+
+def test_markdown_workflow_links_track_checked_in_workflow_tree() -> None:
+    root = _repo_root()
+    expected_repo = "bijux/bijux-proteomics"
+    expected_workflows = {
+        path.name for path in (root / ".github" / "workflows").glob("*.yml")
+    }
+    failures: list[str] = []
+
+    for path in _workflow_docs(root):
+        text = path.read_text(encoding="utf-8")
+        for match in WORKFLOW_URL_RE.finditer(text):
+            repo_slug = match.group("repo")
+            workflow_name = match.group("workflow")
+            if repo_slug != expected_repo:
+                failures.append(
+                    f"{path.relative_to(root)}: expected repo slug "
+                    f"{expected_repo}, found {repo_slug}"
+                )
+            if workflow_name not in expected_workflows:
+                failures.append(
+                    f"{path.relative_to(root)}: unknown workflow {workflow_name}"
+                )
+
+    root_readme = (root / "README.md").read_text(encoding="utf-8")
+    root_workflows = {match.group("workflow") for match in WORKFLOW_URL_RE.finditer(root_readme)}
+    assert {"verify.yml", "publish.yml", "deploy-docs.yml"} <= root_workflows
+    assert not failures, "workflow doc links failed:\n" + "\n".join(failures)

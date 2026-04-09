@@ -82,3 +82,16 @@ def test_publish_workflow_uses_package_scoped_builds_and_sboms() -> None:
         assert entry.get("package_dir") == package_dir
         assert entry.get("artifacts_dir") == f"artifacts/{package_slug}"
         assert entry.get("build_targets") == "build sbom"
+
+
+def test_release_docs_match_shared_publish_workflow_contract() -> None:
+    root = _repo_root()
+    readme = (root / "README.md").read_text(encoding="utf-8")
+    release_doc = (
+        root / "docs" / "bijux-proteomics" / "release-and-versioning.md"
+    ).read_text(encoding="utf-8")
+
+    assert "shared `publish.yml` workflow" in readme
+    assert "`publish.yml` builds and publishes each package through its matrix entries" in readme
+    assert "`PYPI_API_TOKEN`" in readme
+    assert "shared `publish.yml` workflow is tag-triggered (`v*`) and publishes one matrix entry per package" in release_doc
