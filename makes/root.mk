@@ -5,7 +5,7 @@ include $(ROOT_MAKEFILE_DIR)/env.mk
 include $(ROOT_MAKEFILE_DIR)/packages.mk
 
 ROOT_DEV_PYTHONPATH := $(CURDIR)/packages/bijux-proteomics-dev/src
-ROOT_CHECK_VENV := $(CURDIR)/artifacts/.venv
+ROOT_CHECK_VENV := $(ROOT_ARTIFACTS_DIR)/check-venv
 ROOT_DOCS_DEV_ADDR ?= 127.0.0.1:8001
 COMMA := ,
 UV_GROUPS ?= $(if $(strip $(EXTRAS)),$(subst $(COMMA), ,$(EXTRAS)),dev)
