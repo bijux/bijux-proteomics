@@ -146,10 +146,9 @@ def test_reusable_release_workflow_stages_nested_dist_outputs() -> None:
         in release_script
     )
     assert 'sbom_dir="${ARTIFACTS_DIR}/sbom"' in release_script
-    assert (
-        'asset_name="${{ inputs.package_slug }}-sbom-$(basename "$file_path")"'
-        in release_script
-    )
+    assert '${{ inputs.package_slug }}-sbom-prod.cdx.json' in release_script
+    assert '${{ inputs.package_slug }}-sbom-dev.cdx.json' in release_script
+    assert '${{ inputs.package_slug }}-sbom-summary.txt' in release_script
     assert ".github/tmp/${{ inputs.package_slug }}-release/**/*" in str(
         build_job.get("steps", [])
     )

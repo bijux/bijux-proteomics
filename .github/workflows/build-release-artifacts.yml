@@ -109,7 +109,20 @@ jobs:
           sbom_dir="${ARTIFACTS_DIR}/sbom"
           if [ -d "$sbom_dir" ]; then
             while IFS= read -r -d '' file_path; do
-              asset_name="${{ inputs.package_slug }}-sbom-$(basename "$file_path")"
+              case "$(basename "$file_path")" in
+                *.prod.cdx.json)
+                  asset_name="${{ inputs.package_slug }}-sbom-prod.cdx.json"
+                  ;;
+                *.dev.cdx.json)
+                  asset_name="${{ inputs.package_slug }}-sbom-dev.cdx.json"
+                  ;;
+                summary.txt)
+                  asset_name="${{ inputs.package_slug }}-sbom-summary.txt"
+                  ;;
+                *)
+                  continue
+                  ;;
+              esac
               cp "$file_path" "$stage_dir/$asset_name"
             done < <(find "$sbom_dir" -type f -print0 | sort -z)
           fi
