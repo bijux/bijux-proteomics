@@ -5,6 +5,9 @@
 [![Verify](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
 [![Publish](https://github.com/bijux/bijux-proteomics/actions/workflows/publish.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/publish.yml)
 [![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
+[![Release](https://img.shields.io/github/v/release/bijux/bijux-proteomics?display_name=tag&label=release)](https://github.com/bijux/bijux-proteomics/releases)
+[![GHCR bundles](https://img.shields.io/badge/ghcr-06%20bundles-181717?logo=github)](https://github.com/orgs/bijux/packages?repo_name=bijux-proteomics)
+[![Published packages](https://img.shields.io/badge/published%20packages-06-2563EB)](https://github.com/bijux/bijux-proteomics/tree/main/packages)
 
 [![agentic-proteins](https://img.shields.io/pypi/v/agentic-proteins?label=agentic--proteins&logo=pypi)](https://pypi.org/project/agentic-proteins/)
 [![bijux-proteomics-foundation](https://img.shields.io/pypi/v/bijux-proteomics-foundation?label=foundation&logo=pypi)](https://pypi.org/project/bijux-proteomics-foundation/)
@@ -27,6 +30,11 @@ decision intelligence, evidence governance, and lab planning.
 The goal is not just to run a protein pipeline once. The goal is to keep
 behavior reviewable and reproducible as the system evolves.
 
+This repository publishes `06` packages. Each release tag builds one staged
+bundle per package, uploads distributions to PyPI, publishes release bundles to
+`ghcr.io/bijux/bijux-proteomics/<package>`, and attaches the same staged assets
+to the GitHub Release.
+
 ## Why `bijux-proteomics` Exists
 
 Protein programs become difficult to trust when execution logic, domain models,
@@ -43,6 +51,8 @@ surface.
 - lab orchestration boundaries in `bijux-proteomics-lab`
 
 ## Package Map
+
+The `06` publishable packages in this repository are:
 
 | Package | Role | PyPI | Docs | Source |
 | --- | --- | --- | --- | --- |
