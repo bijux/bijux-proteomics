@@ -14,7 +14,9 @@ Release-facing make behavior should be visible before CI calls it.
 The repository keeps release-related logic in places such as `makes/publish.mk`,
 `makes/bijux-py/repository/publish.mk`, and the build and sbom fragments that
 shape artifact creation. Those files are part of the release contract and
-should be understandable without opening workflow YAML first.
+should be understandable without opening workflow YAML first. The root publish
+makefile now declares the repository-owned version resolver and publication
+guard modules that keep tagged releases and staged artifacts aligned.
 
 ## Release Anchors
 

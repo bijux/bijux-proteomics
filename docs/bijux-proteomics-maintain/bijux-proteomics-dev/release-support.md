@@ -19,6 +19,8 @@ that repository automation is actually enforcing.
 ## Current Release Surfaces
 
 - `release/changelog_version.py`
+- `release/version_resolver.py`
+- `release/publication_guard.py`
 - package metadata checks in repository tests
 - root commit conventions configured through commitizen
 
