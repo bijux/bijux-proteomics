@@ -1,8 +1,8 @@
 PACKAGE_KIND := python
 PACKAGE_IMPORT_NAME := bijux_proteomics_dev
 PACKAGE_INSTALL_SPEC := .[dev]
-RUFF_CONFIG := $(MONOREPO_ROOT)/configs/ruff.toml
-MYPY_CONFIG := $(MONOREPO_ROOT)/configs/mypy.ini
+RUFF_CONFIG = $(MONOREPO_ROOT)/configs/ruff.toml
+MYPY_CONFIG = $(MONOREPO_ROOT)/configs/mypy.ini
 ENABLE_PYDOCSTYLE := 0
 TEST_PATHS := tests
 TEST_SOURCE_PATHS := src
