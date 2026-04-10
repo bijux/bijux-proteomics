@@ -241,6 +241,13 @@ def test_header_navigation_uses_canonical_path_contract(rendered_docs: Path) -> 
     assert "data-bijux-detail-root=" not in text
 
 
+def test_hub_navigation_excludes_private_sites(rendered_docs: Path) -> None:
+    text = _page_text(rendered_docs, "index.html")
+
+    assert 'href="https://bijux.io/bijux-core/"' in text
+    assert "bijux-genomics" not in text
+
+
 def test_rendered_header_marks_active_navigation_links(rendered_docs: Path) -> None:
     text = _page_text(rendered_docs, "bijux-proteomics-lab/operations/index.html")
 
@@ -417,3 +424,12 @@ def test_section_pages_keep_sidebar_scoped_to_current_third_row(
     assert page.active_detail_tabs == expected_active_detail
     assert page.sidebar_title == expected_sidebar_title
     assert page.sidebar_links == expected_sidebar_links
+
+
+def test_navigation_sync_prefers_authored_active_links() -> None:
+    script = (
+        REPO_ROOT / "docs" / "assets" / "javascripts" / "navigation-sync.js"
+    ).read_text(encoding="utf-8")
+
+    assert "[data-bijux-site-path][aria-current='page']" in script
+    assert "[data-bijux-detail-path][aria-current='page']" in script
