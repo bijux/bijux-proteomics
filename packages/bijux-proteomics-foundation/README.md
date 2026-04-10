@@ -70,7 +70,8 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 
 ## Documentation
 
-- [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/ARCHITECTURE.md)
-- [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/BOUNDARIES.md)
-- [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/CONTRACTS.md)
-- [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/docs/maintainer/pypi.md)
+- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/foundation/ownership-boundary/)
+- [Architecture overview](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/architecture/)
+- [Interface contracts](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/interfaces/)
+- [Release and versioning](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/operations/release-and-versioning/)

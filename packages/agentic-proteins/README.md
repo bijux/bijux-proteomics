@@ -84,7 +84,8 @@ It does not own cross-package scientific governance:
 
 ## Documentation
 
-- [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/ARCHITECTURE.md)
-- [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/BOUNDARIES.md)
-- [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/CONTRACTS.md)
-- [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/docs/maintainer/pypi.md)
+- [Package guide](https://bijux.io/bijux-proteomics/agentic-proteins/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/agentic-proteins/foundation/ownership-boundary/)
+- [Architecture overview](https://bijux.io/bijux-proteomics/agentic-proteins/architecture/)
+- [Interface contracts](https://bijux.io/bijux-proteomics/agentic-proteins/interfaces/)
+- [Release and versioning](https://bijux.io/bijux-proteomics/agentic-proteins/operations/release-and-versioning/)
