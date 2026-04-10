@@ -125,6 +125,15 @@ def test_reusable_workflow_jobs_are_package_scoped() -> None:
     )
 
 
+def test_docs_deploy_workflow_watches_shared_mkdocs_contract() -> None:
+    root = _repo_root()
+    workflow = _workflow(root / ".github" / "workflows" / "deploy-docs.yml")
+    on_block = _workflow_on(workflow)
+
+    push_paths = _as_dict(on_block.get("push")).get("paths", [])
+    assert "mkdocs.shared.yml" in push_paths
+
+
 def test_markdown_workflow_links_track_checked_in_workflow_tree() -> None:
     root = _repo_root()
     expected_repo = "bijux/bijux-proteomics"
