@@ -29,15 +29,17 @@ def _pyproject(package_name: str) -> dict[str, Any]:
     with (REPO_ROOT / "packages" / package_name / "pyproject.toml").open(
         "rb"
     ) as handle:
-        return cast(dict[str, Any], tomllib.load(handle))
+        data = tomllib.load(handle)
+    assert isinstance(data, dict)
+    return data
 
 
 def test_publishable_packages_define_hatch_vcs_fallback_versions() -> None:
     failures: list[str] = []
 
     for package_name in _package_names():
-        version_config = _pyproject(package_name).get("tool", {}).get("hatch", {}).get(
-            "version", {}
+        version_config = (
+            _pyproject(package_name).get("tool", {}).get("hatch", {}).get("version", {})
         )
         if version_config.get("fallback-version") != EXPECTED_FALLBACK_VERSION:
             failures.append(package_name)

@@ -25,11 +25,12 @@ MERMAID_RESERVED_IDS = {
 class _RenderedNavigationParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
-        self._stack: list[tuple[str, set[str]]] = []
+        self._stack: list[tuple[str, dict[str, str], set[str]]] = []
         self._capture: str | None = None
+        self._capture_tag: str | None = None
         self._buffer: list[str] = []
         self._detail_depth: int | None = None
-        self._primary_sidebar_depth: int | None = None
+        self._scoped_nav_depth: int | None = None
         self.detail_tabs: list[str] = []
         self.active_detail_tabs: list[str] = []
         self.sidebar_links: list[str] = []
@@ -42,13 +43,13 @@ class _RenderedNavigationParser(HTMLParser):
     ) -> None:
         attr_map = {name: value or "" for name, value in attrs}
         classes = set(attr_map.get("class", "").split())
-        self._stack.append((tag, classes))
+        self._stack.append((tag, attr_map, classes))
         depth = len(self._stack)
 
         if "bijux-detail-tabs" in classes and "hidden" not in attr_map:
             self._detail_depth = depth
-        if "md-sidebar--primary" in classes:
-            self._primary_sidebar_depth = depth
+        if attr_map.get("data-bijux-nav-variant") == "scoped":
+            self._scoped_nav_depth = depth
 
         if tag == "a":
             if self._detail_depth is not None:
@@ -57,24 +58,33 @@ class _RenderedNavigationParser(HTMLParser):
                     if self._inside("bijux-tabs__item--active")
                     else "detail_tabs"
                 )
+                self._capture_tag = tag
                 self._buffer = []
             elif (
-                self._primary_sidebar_depth is not None
+                self._scoped_nav_depth is not None
                 and self._inside("md-nav__list")
+                and not self._inside("md-nav__source")
                 and not self._inside("md-sidebar--secondary")
             ):
                 self._capture = "sidebar_links"
+                self._capture_tag = tag
                 self._buffer = []
         elif (
             tag == "label"
             and "md-nav__title" in classes
-            and self._primary_sidebar_depth is not None
+            and self._scoped_nav_depth is not None
         ):
             self._capture = "sidebar_title"
+            self._capture_tag = tag
             self._buffer = []
 
     def handle_endtag(self, tag: str) -> None:
-        if self._capture and self._stack and self._stack[-1][0] == tag:
+        if (
+            self._capture
+            and self._capture_tag == tag
+            and self._stack
+            and self._stack[-1][0] == tag
+        ):
             text = " ".join(" ".join(self._buffer).split())
             if text:
                 if self._capture == "detail_tabs":
@@ -87,12 +97,13 @@ class _RenderedNavigationParser(HTMLParser):
                 elif self._capture == "sidebar_title":
                     self.sidebar_title = text
             self._capture = None
+            self._capture_tag = None
             self._buffer = []
 
         if self._detail_depth == len(self._stack):
             self._detail_depth = None
-        if self._primary_sidebar_depth == len(self._stack):
-            self._primary_sidebar_depth = None
+        if self._scoped_nav_depth == len(self._stack):
+            self._scoped_nav_depth = None
 
         if self._stack:
             self._stack.pop()
@@ -102,7 +113,7 @@ class _RenderedNavigationParser(HTMLParser):
             self._buffer.append(data)
 
     def _inside(self, class_name: str) -> bool:
-        return any(class_name in classes for _, classes in self._stack)
+        return any(class_name in classes for _, _, classes in self._stack)
 
 
 @pytest.fixture(scope="session")
@@ -127,8 +138,21 @@ def rendered_docs(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 def _parse_navigation(site_dir: Path, relative_path: str) -> _RenderedNavigationParser:
+    text = (site_dir / relative_path).read_text(encoding="utf-8")
     parser = _RenderedNavigationParser()
-    parser.feed((site_dir / relative_path).read_text(encoding="utf-8"))
+    parser.feed(text)
+    if parser.sidebar_title is None:
+        match = re.search(
+            r'data-bijux-nav-variant="scoped".*?<label class="md-nav__title"[^>]*>'
+            r".*?</a>\s*([^<]+?)\s*</label>",
+            text,
+            re.DOTALL,
+        )
+        if match:
+            parser.sidebar_title = " ".join(match.group(1).split())
+    parser.sidebar_links = [
+        link for link in parser.sidebar_links if "bijux/bijux-proteomics" not in link
+    ]
     return parser
 
 
@@ -270,7 +294,7 @@ def test_primary_sidebar_does_not_use_lifted_nav_mode(rendered_docs: Path) -> No
         rendered_docs, "bijux-proteomics-intelligence/interfaces/index.html"
     )
 
-    assert '<nav class="md-nav md-nav--primary"' in text
+    assert 'data-bijux-nav-variant="scoped"' in text
     assert '<nav class="md-nav md-nav--primary md-nav--lifted"' not in text
 
 

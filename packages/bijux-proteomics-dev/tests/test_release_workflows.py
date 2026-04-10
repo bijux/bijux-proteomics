@@ -141,9 +141,15 @@ def test_reusable_release_workflow_stages_nested_dist_outputs() -> None:
 
     assert 'find "$dist_dir" -type f' in stage_script
     assert "No publish artifacts found under $dist_dir" in stage_script
-    assert 'asset_name="${{ inputs.package_slug }}-dist-$(basename "$file_path")"' in release_script
+    assert (
+        'asset_name="${{ inputs.package_slug }}-dist-$(basename "$file_path")"'
+        in release_script
+    )
     assert 'sbom_dir="${ARTIFACTS_DIR}/sbom"' in release_script
-    assert 'asset_name="${{ inputs.package_slug }}-sbom-$(basename "$file_path")"' in release_script
+    assert (
+        'asset_name="${{ inputs.package_slug }}-sbom-$(basename "$file_path")"'
+        in release_script
+    )
     assert ".github/tmp/${{ inputs.package_slug }}-release/**/*" in str(
         build_job.get("steps", [])
     )

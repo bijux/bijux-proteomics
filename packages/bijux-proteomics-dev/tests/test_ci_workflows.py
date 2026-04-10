@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
-from typing import Any
+from typing import Any, cast
 
 import yaml
 
@@ -31,7 +31,9 @@ def _workflow(path: Path) -> dict[str, Any]:
 
 
 def _workflow_on(workflow: dict[str, Any]) -> dict[str, Any]:
-    event_block = workflow.get("on", workflow.get(True))
+    event_block = workflow.get("on")
+    if event_block is None:
+        event_block = cast(dict[object, Any], workflow).get(True)
     return _as_dict(event_block)
 
 
@@ -100,7 +102,10 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
     rendered = (root / ".github" / "workflows" / "verify.yml").read_text(
         encoding="utf-8"
     )
-    assert '["quality", "security", "docs", "api", "openapi-drift", "build", "sbom"]' in rendered
+    assert (
+        '["quality", "security", "docs", "api", "openapi-drift", "build", "sbom"]'
+        in rendered
+    )
     assert '["api", "openapi-drift"]' in rendered
 
     push_paths = _as_dict(on_block.get("push")).get("paths", [])
@@ -126,7 +131,9 @@ def test_reusable_workflow_jobs_are_package_scoped() -> None:
     assert _as_dict(ci_jobs.get("checks")).get("name") == (
         "checks-${{ inputs.package_slug }}-${{ matrix.target }}"
     )
-    assert _as_dict(ci_jobs.get("lint")).get("name") == "lint-${{ inputs.package_slug }}"
+    assert (
+        _as_dict(ci_jobs.get("lint")).get("name") == "lint-${{ inputs.package_slug }}"
+    )
     assert _as_dict(build_jobs.get("build")).get("name") == (
         "build-release-artifacts-${{ inputs.package_slug }}"
     )
