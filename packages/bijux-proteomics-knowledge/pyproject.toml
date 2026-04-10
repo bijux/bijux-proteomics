@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Evidence, trust, and contradiction-resolution models for auditable proteomics decision knowledge graphs"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">=3.11"
+requires-python = ">=3.11,<4"
 authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 keywords = [

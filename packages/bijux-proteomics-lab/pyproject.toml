@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Assay planning, schedule-aware experiment orchestration, and outcome interpretation for lab-in-the-loop proteomics"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-requires-python = ">=3.11"
+requires-python = ">=3.11,<4"
 authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 keywords = [
