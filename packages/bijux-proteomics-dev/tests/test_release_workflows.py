@@ -84,6 +84,20 @@ def test_publish_workflow_uses_package_scoped_builds_and_sboms() -> None:
         assert entry.get("build_targets") == "build sbom"
 
 
+def test_reusable_release_workflow_stages_nested_dist_outputs() -> None:
+    root = _repo_root()
+    workflow = _workflow(root / ".github" / "workflows" / "build-release-artifacts.yml")
+    build_job = _as_dict(_as_dict(workflow.get("jobs")).get("build"))
+    stage_step = next(
+        step for step in build_job.get("steps", [])
+        if step.get("name") == "Stage publish artifacts"
+    )
+    stage_script = stage_step.get("run", "")
+
+    assert 'find "$dist_dir" -type f' in stage_script
+    assert "No publish artifacts found under $dist_dir" in stage_script
+
+
 def test_release_docs_match_shared_publish_workflow_contract() -> None:
     root = _repo_root()
     readme = (root / "README.md").read_text(encoding="utf-8")
