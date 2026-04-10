@@ -20,6 +20,10 @@ It runs on `main` when docs-related files change and can also be started
 manually. The job tree stays small on purpose: build the strict site, validate
 the published assets, then deploy the Pages artifact.
 
+The asset validation step checks both the generated homepage and the checked-in
+browser icon files under `docs/assets/site-icons/` after they are copied into
+the built site output.
+
 ## Workflow Anchors
 
 - `.github/workflows/deploy-docs.yml`

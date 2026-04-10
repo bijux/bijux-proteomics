@@ -63,6 +63,9 @@ jobs:
         run: |
           set -euo pipefail
           test -f "${DOCS_SITE_DIR}/index.html"
+          test -f "${DOCS_SITE_DIR}/assets/site-icons/favicon.ico"
+          test -f "${DOCS_SITE_DIR}/assets/site-icons/apple-touch-icon.png"
+          test -f "${DOCS_SITE_DIR}/assets/site-icons/apple-touch-icon-precomposed.png"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

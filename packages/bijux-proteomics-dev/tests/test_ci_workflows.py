@@ -136,9 +136,15 @@ def test_docs_deploy_workflow_watches_shared_mkdocs_contract() -> None:
     root = _repo_root()
     workflow = _workflow(root / ".github" / "workflows" / "deploy-docs.yml")
     on_block = _workflow_on(workflow)
+    rendered = (root / ".github" / "workflows" / "deploy-docs.yml").read_text(
+        encoding="utf-8"
+    )
 
     push_paths = _as_dict(on_block.get("push")).get("paths", [])
     assert "mkdocs.shared.yml" in push_paths
+    assert "assets/site-icons/favicon.ico" in rendered
+    assert "assets/site-icons/apple-touch-icon.png" in rendered
+    assert "assets/site-icons/apple-touch-icon-precomposed.png" in rendered
 
 
 def test_markdown_workflow_links_track_checked_in_workflow_tree() -> None:
