@@ -71,9 +71,9 @@ It does not define runtime product APIs or proteomics domain behavior.
 
 ## Documentation
 
-- [Package guide](docs/index.md)
-- [Scope](docs/SCOPE.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Contracts](docs/CONTRACTS.md)
-- [Tests](docs/TESTS.md)
+- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/)
+- [Scope and non-goals](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
+- [Module map](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)
+- [Quality gates](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/)
+- [Release support](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/release-support/)
 - [Changelog](CHANGELOG.md)

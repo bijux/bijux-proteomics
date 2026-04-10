@@ -44,15 +44,15 @@ surface.
 
 ## Package Map
 
-| Package | Role | PyPI | Source |
-| --- | --- | --- | --- |
-| `agentic-proteins` | Runtime execution surfaces (CLI and HTTP) plus deterministic run artifacts | <https://pypi.org/project/agentic-proteins/> | [`packages/agentic-proteins`](packages/agentic-proteins) |
-| `bijux-proteomics-foundation` | Shared contracts, identifiers, and canonical serialization primitives | <https://pypi.org/project/bijux-proteomics-foundation/> | [`packages/bijux-proteomics-foundation`](packages/bijux-proteomics-foundation) |
-| `bijux-proteomics-core` | Program models, lifecycle transitions, and review-gate domain logic | <https://pypi.org/project/bijux-proteomics-core/> | [`packages/bijux-proteomics-core`](packages/bijux-proteomics-core) |
-| `bijux-proteomics-intelligence` | Candidate evaluation, scoring policy, and recommendation logic | <https://pypi.org/project/bijux-proteomics-intelligence/> | [`packages/bijux-proteomics-intelligence`](packages/bijux-proteomics-intelligence) |
-| `bijux-proteomics-knowledge` | Evidence graphs, trust scoring, and conflict resolution policy | <https://pypi.org/project/bijux-proteomics-knowledge/> | [`packages/bijux-proteomics-knowledge`](packages/bijux-proteomics-knowledge) |
-| `bijux-proteomics-lab` | Lab planning, scheduling decisions, and outcome promotion workflows | <https://pypi.org/project/bijux-proteomics-lab/> | [`packages/bijux-proteomics-lab`](packages/bijux-proteomics-lab) |
-| `bijux-proteomics-dev` | Repository maintenance tooling for quality, security, docs, release, and API gates | not published on PyPI (maintainer package) | [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev) |
+| Package | Role | PyPI | Docs | Source |
+| --- | --- | --- | --- | --- |
+| `agentic-proteins` | Runtime execution surfaces (CLI and HTTP) plus deterministic run artifacts | <https://pypi.org/project/agentic-proteins/> | <https://bijux.io/bijux-proteomics/agentic-proteins/> | [`packages/agentic-proteins`](packages/agentic-proteins) |
+| `bijux-proteomics-foundation` | Shared contracts, identifiers, and canonical serialization primitives | <https://pypi.org/project/bijux-proteomics-foundation/> | <https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/> | [`packages/bijux-proteomics-foundation`](packages/bijux-proteomics-foundation) |
+| `bijux-proteomics-core` | Program models, lifecycle transitions, and review-gate domain logic | <https://pypi.org/project/bijux-proteomics-core/> | <https://bijux.io/bijux-proteomics/bijux-proteomics-core/> | [`packages/bijux-proteomics-core`](packages/bijux-proteomics-core) |
+| `bijux-proteomics-intelligence` | Candidate evaluation, scoring policy, and recommendation logic | <https://pypi.org/project/bijux-proteomics-intelligence/> | <https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/> | [`packages/bijux-proteomics-intelligence`](packages/bijux-proteomics-intelligence) |
+| `bijux-proteomics-knowledge` | Evidence graphs, trust scoring, and conflict resolution policy | <https://pypi.org/project/bijux-proteomics-knowledge/> | <https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/> | [`packages/bijux-proteomics-knowledge`](packages/bijux-proteomics-knowledge) |
+| `bijux-proteomics-lab` | Lab planning, scheduling decisions, and outcome promotion workflows | <https://pypi.org/project/bijux-proteomics-lab/> | <https://bijux.io/bijux-proteomics/bijux-proteomics-lab/> | [`packages/bijux-proteomics-lab`](packages/bijux-proteomics-lab) |
+| `bijux-proteomics-dev` | Repository maintenance tooling for quality, security, docs, release, and API gates | not published on PyPI (maintainer package) | <https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/> | [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev) |
 
 ## What This Repository Is Not
 
@@ -62,15 +62,15 @@ surface.
 
 ## Start Here
 
-- Repository handbook: [`docs/index.md`](docs/index.md)
-- API contract handbook: [`docs/bijux-proteomics/operations/api-and-schema-governance.md`](docs/bijux-proteomics/operations/api-and-schema-governance.md)
-- Runtime package: [`packages/agentic-proteins/README.md`](packages/agentic-proteins/README.md)
-- Domain core: [`packages/bijux-proteomics-core/README.md`](packages/bijux-proteomics-core/README.md)
-- Intelligence package: [`packages/bijux-proteomics-intelligence/README.md`](packages/bijux-proteomics-intelligence/README.md)
-- Knowledge package: [`packages/bijux-proteomics-knowledge/README.md`](packages/bijux-proteomics-knowledge/README.md)
-- Lab package: [`packages/bijux-proteomics-lab/README.md`](packages/bijux-proteomics-lab/README.md)
-- Foundation primitives: [`packages/bijux-proteomics-foundation/README.md`](packages/bijux-proteomics-foundation/README.md)
-- Maintainer tooling: [`packages/bijux-proteomics-dev/README.md`](packages/bijux-proteomics-dev/README.md)
+- Repository handbook: <https://bijux.io/bijux-proteomics/>
+- API contract handbook: <https://bijux.io/bijux-proteomics/bijux-proteomics/operations/api-and-schema-governance/>
+- Runtime package: <https://bijux.io/bijux-proteomics/agentic-proteins/>
+- Domain core: <https://bijux.io/bijux-proteomics/bijux-proteomics-core/>
+- Intelligence package: <https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/>
+- Knowledge package: <https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/>
+- Lab package: <https://bijux.io/bijux-proteomics/bijux-proteomics-lab/>
+- Foundation primitives: <https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/>
+- Maintainer tooling: <https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/>
 
 ## Common Commands
 
