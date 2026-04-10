@@ -89,7 +89,8 @@ def test_reusable_release_workflow_stages_nested_dist_outputs() -> None:
     workflow = _workflow(root / ".github" / "workflows" / "build-release-artifacts.yml")
     build_job = _as_dict(_as_dict(workflow.get("jobs")).get("build"))
     stage_step = next(
-        step for step in build_job.get("steps", [])
+        step
+        for step in build_job.get("steps", [])
         if step.get("name") == "Stage publish artifacts"
     )
     stage_script = stage_step.get("run", "")
