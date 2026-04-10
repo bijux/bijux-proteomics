@@ -16,7 +16,9 @@ artifact creation consistent across packages.
 `build-release-artifacts.yml` defines the reusable artifact-build contract used
 by publication flow. Grouping them together makes their role clear: they are
 workflow building blocks rather than top-level entrypoints, so they run through
-their callers instead of appearing as separate manual workflows.
+their callers instead of appearing as separate manual workflows. Their job names
+stay package-scoped so the Actions UI shows which package and check actually
+ran.
 
 ## Workflow Anchors
 
@@ -26,8 +28,8 @@ their callers instead of appearing as separate manual workflows.
 
 ## Purpose
 
-This page explains the reusable workflow contracts that other workflows depend
-on.
+Use this page to see which workflows are building blocks and which top-level
+workflows call them.
 
 ## Stability
 

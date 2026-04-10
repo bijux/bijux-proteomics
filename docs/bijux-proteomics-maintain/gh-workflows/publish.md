@@ -17,6 +17,10 @@ job is not to decide what to release from scratch, but to publish the staged
 artifact set defined by the release process and versioning rules already
 established in the repository.
 
+It runs for version tags and manual dispatch. The job tree stays split by
+package so PyPI publication, GHCR bundle publication, and release asset staging
+can proceed in parallel after the shared build stage completes.
+
 ## Workflow Anchors
 
 - `.github/workflows/publish.yml`
@@ -32,8 +36,8 @@ established in the repository.
 
 ## Purpose
 
-This page explains the repository publication workflow and its dependency on
-the reusable artifact-build layer.
+Use this page to understand which release surfaces are published and how the
+tag-driven job tree is split.
 
 ## Stability
 

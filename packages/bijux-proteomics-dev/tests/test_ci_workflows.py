@@ -93,6 +93,27 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
     assert dev.get("check_targets") == '["quality", "security", "build", "sbom"]'
 
 
+def test_reusable_workflow_jobs_are_package_scoped() -> None:
+    root = _repo_root()
+    ci_workflow = _workflow(root / ".github" / "workflows" / "ci-package.yml")
+    build_workflow = _workflow(
+        root / ".github" / "workflows" / "build-release-artifacts.yml"
+    )
+    ci_jobs = _as_dict(ci_workflow.get("jobs"))
+    build_jobs = _as_dict(build_workflow.get("jobs"))
+
+    assert _as_dict(ci_jobs.get("tests")).get("name") == (
+        "tests-${{ inputs.package_slug }}-py${{ matrix.python-version }}"
+    )
+    assert _as_dict(ci_jobs.get("checks")).get("name") == (
+        "checks-${{ inputs.package_slug }}-${{ matrix.target }}"
+    )
+    assert _as_dict(ci_jobs.get("lint")).get("name") == "lint-${{ inputs.package_slug }}"
+    assert _as_dict(build_jobs.get("build")).get("name") == (
+        "build-release-artifacts-${{ inputs.package_slug }}"
+    )
+
+
 def test_markdown_workflow_links_track_checked_in_workflow_tree() -> None:
     root = _repo_root()
     expected_repo = "bijux/bijux-proteomics"

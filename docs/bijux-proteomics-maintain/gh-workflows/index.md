@@ -9,12 +9,17 @@ last_reviewed: 2026-04-10
 
 # gh-workflows
 
-The workflow section explains the GitHub Actions contracts that verify, build,
-publish, and document the repository.
+The workflow section explains the GitHub Actions entrypoints and reusable
+building blocks that verify, publish, and document the repository.
 
-These pages are about the repository-visible workflow layer, not generic CI
-concepts. They should help a maintainer move from a workflow file name to the
-job it carries and the make or package surfaces it coordinates.
+Use these pages when you need to know which workflow starts on push, pull
+request, tag, or manual dispatch, and how that entrypoint fans out into
+repository checks, package matrices, or documentation publication.
+
+The top-level entrypoints are `verify.yml` for pushes and pull requests,
+`deploy-docs.yml` for handbook publication from `main`, and `publish.yml` for
+release tags. `ci-package.yml` and `build-release-artifacts.yml` are reusable
+workflows called by those entrypoints rather than standalone manual surfaces.
 
 ## Pages In This Section
 
@@ -25,8 +30,8 @@ job it carries and the make or package surfaces it coordinates.
 
 ## Purpose
 
-This page routes readers into the workflow documentation that backs the
-repository’s GitHub Actions layer.
+Use this section to find the workflow file, trigger, and job tree behind a
+repository automation concern.
 
 ## Stability
 
