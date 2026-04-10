@@ -97,7 +97,7 @@ The `06` publishable packages in this repository are:
 - root `CHANGELOG.md` is only for repository-wide changes that span packages or shared automation
 - `publish.yml` builds and publishes each package through its matrix entries
 - `publish.yml` also publishes one GHCR bundle per package and assembles a GitHub Release from the staged assets
-- `publish.yml` uses `PYPI_API_TOKEN` when it uploads package artifacts to PyPI
+- `publish.yml` uses PyPI trusted publishing with the GitHub Actions OIDC token
 
 Recommended release order:
 

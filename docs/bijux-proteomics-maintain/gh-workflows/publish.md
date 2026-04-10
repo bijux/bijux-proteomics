@@ -30,7 +30,7 @@ can proceed in parallel after the shared build stage completes.
 ## Current Job Tree
 
 - `build` creates one staged release bundle per publishable package
-- `publish_pypi` uploads the Python distributions to PyPI
+- `publish_pypi` uploads the Python distributions to PyPI through trusted publishing
 - `publish_ghcr` publishes the staged release bundle to GHCR as an OCI artifact
 - `release` creates the repository GitHub Release and attaches the staged assets
 

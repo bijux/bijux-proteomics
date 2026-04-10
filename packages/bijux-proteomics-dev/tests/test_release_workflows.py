@@ -52,6 +52,10 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     assert build.get("uses") == "./.github/workflows/build-release-artifacts.yml"
     assert publish_pypi.get("needs") == "build"
     assert publish_pypi.get("environment", {}).get("name") == "pypi"
+    assert publish_pypi.get("permissions") == {
+        "contents": "read",
+        "id-token": "write",
+    }
     assert publish_ghcr.get("needs") == "build"
     assert publish_ghcr.get("permissions") == {
         "contents": "read",
@@ -59,6 +63,18 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     }
     assert release.get("needs") == ["build", "publish_pypi", "publish_ghcr"]
     assert release.get("permissions") == {"contents": "write"}
+
+    publish_pypi_steps = publish_pypi.get("steps", [])
+    assert any(
+        isinstance(step, dict)
+        and step.get("uses") == "pypa/gh-action-pypi-publish@release/v1"
+        and step.get("with", {}).get("packages-dir")
+        for step in publish_pypi_steps
+    )
+    assert all(
+        isinstance(step, dict) and "password" not in step.get("with", {})
+        for step in publish_pypi_steps
+    )
 
     build_found = {
         entry["package_slug"]
@@ -137,7 +153,7 @@ def test_release_docs_match_shared_publish_workflow_contract() -> None:
         "`publish.yml` builds and publishes each package through its matrix entries"
         in readme
     )
-    assert "`PYPI_API_TOKEN`" in readme
+    assert "PyPI trusted publishing" in readme
     assert "`publish.yml` also publishes one GHCR bundle per package" in readme
     assert (
         "`publish.yml` is tag-triggered and fans out into build, PyPI, GHCR, and GitHub Release jobs"

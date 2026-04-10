@@ -70,6 +70,7 @@ jobs:
       name: pypi
     permissions:
       contents: read
+      id-token: write
 
     steps:
       - name: Download publish artifacts
@@ -81,7 +82,6 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: .github/tmp/${{ matrix.package_slug }}-dist
           skip-existing: true
 

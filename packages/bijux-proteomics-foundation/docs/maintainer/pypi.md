@@ -24,6 +24,6 @@ Release checklist:
 1. Confirm `README.md` reflects current package ownership and boundaries.
 2. Verify package version in `pyproject.toml` is intentionally set.
 3. Run `make lint test quality security` from repository root.
-4. Verify `.github/workflows/publish.yml` is configured for tag-triggered publish (`v*`) with `PYPI_API_TOKEN`-based publishing.
+4. Verify `.github/workflows/publish.yml` is configured for tag-triggered publish (`v*`) with PyPI trusted publishing.
 5. Create and push the release tag (`vX.Y.Z`) after changelog and metadata are final.
 6. Confirm the publish workflow uploaded and released both wheel and sdist artifacts.
