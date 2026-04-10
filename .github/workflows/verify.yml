@@ -67,6 +67,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Non-dev packages inherit the shared docs/api/build/security/sbom surface.
           - package_slug: agentic-proteins
             package_dir: packages/agentic-proteins
             artifacts_dir: artifacts/agentic-proteins
