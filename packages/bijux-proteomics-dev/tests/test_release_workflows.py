@@ -88,7 +88,11 @@ def test_release_docs_match_shared_publish_workflow_contract() -> None:
     root = _repo_root()
     readme = (root / "README.md").read_text(encoding="utf-8")
     release_doc = (
-        root / "docs" / "bijux-proteomics" / "release-and-versioning.md"
+        root
+        / "docs"
+        / "bijux-proteomics"
+        / "operations"
+        / "release-and-versioning.md"
     ).read_text(encoding="utf-8")
 
     assert "shared `publish.yml` workflow" in readme
@@ -97,7 +101,4 @@ def test_release_docs_match_shared_publish_workflow_contract() -> None:
         in readme
     )
     assert "`PYPI_API_TOKEN`" in readme
-    assert (
-        "shared `publish.yml` workflow is tag-triggered (`v*`) and publishes one matrix entry per package"
-        in release_doc
-    )
+    assert "`publish.yml` is tag-triggered and publishes one matrix entry per package" in release_doc
