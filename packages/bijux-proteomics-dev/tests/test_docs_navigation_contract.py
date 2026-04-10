@@ -248,6 +248,13 @@ def test_hub_navigation_excludes_private_sites(rendered_docs: Path) -> None:
     assert "bijux-genomics" not in text
 
 
+def test_repository_site_tab_uses_repository_label(rendered_docs: Path) -> None:
+    text = _page_text(rendered_docs, "bijux-proteomics/index.html")
+
+    assert ">Repository<" in text
+    assert ">Maintainer<" in text
+
+
 def test_rendered_header_marks_active_navigation_links(rendered_docs: Path) -> None:
     text = _page_text(rendered_docs, "bijux-proteomics-lab/operations/index.html")
 
