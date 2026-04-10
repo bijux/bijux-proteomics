@@ -11,6 +11,8 @@ Versioning.
 
 - Maintainer package dependency floor now requires `agentic-proteins>=0.3.2`
   for synchronized release checks.
+- Release workflow contract tests now follow the enforced Ruff formatting
+  baseline.
 
 ## [0.3.1] - 2026-04-06
 

@@ -18,6 +18,8 @@ change contributor and maintainer workflows across the repository.
   matching the release-gate execution model.
 - Workspace lock metadata now reflects the current package extras and
   maintainer-tool dependencies used by release checks.
+- Release workflow contract tests now follow the enforced Ruff formatting
+  baseline.
 
 ## 0.3.1 - 2026-04-06
 
