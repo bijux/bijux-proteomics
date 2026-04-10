@@ -79,7 +79,14 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     assert any(
         isinstance(step, dict)
         and step.get("uses") == "softprops/action-gh-release@v2"
-        and step.get("with", {}).get("overwrite_files") is False
+        and step.get("with", {}).get("overwrite_files") is True
+        for step in release_steps
+    )
+    assert any(
+        isinstance(step, dict)
+        and step.get("name") == "Reset existing GitHub release"
+        and "gh release delete" in step.get("run", "")
+        and step.get("env", {}).get("GH_TOKEN") == "${{ github.token }}"
         for step in release_steps
     )
 
@@ -146,9 +153,9 @@ def test_reusable_release_workflow_stages_nested_dist_outputs() -> None:
         in release_script
     )
     assert 'sbom_dir="${ARTIFACTS_DIR}/sbom"' in release_script
-    assert '${{ inputs.package_slug }}-sbom-prod.cdx.json' in release_script
-    assert '${{ inputs.package_slug }}-sbom-dev.cdx.json' in release_script
-    assert '${{ inputs.package_slug }}-sbom-summary.txt' in release_script
+    assert "${{ inputs.package_slug }}-sbom-prod.cdx.json" in release_script
+    assert "${{ inputs.package_slug }}-sbom-dev.cdx.json" in release_script
+    assert "${{ inputs.package_slug }}-sbom-summary.txt" in release_script
     assert ".github/tmp/${{ inputs.package_slug }}-release/**/*" in str(
         build_job.get("steps", [])
     )
