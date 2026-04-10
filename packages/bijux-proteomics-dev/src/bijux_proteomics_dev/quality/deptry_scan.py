@@ -47,7 +47,7 @@ def parse_args() -> argparse.Namespace:
 def resolve_relative_command(command: list[str], project_dir: Path) -> list[str]:
     executable = Path(command[0]).expanduser()
     if executable.is_absolute():
-        return [os.fspath(executable.resolve()), *command[1:]]
+        return [os.fspath(executable), *command[1:]]
     if len(executable.parts) == 1:
         resolved = shutil.which(command[0])
         if resolved is None:
