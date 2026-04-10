@@ -8,6 +8,15 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## 0.3.3 - 2026-04-10
+
+### Changed
+
+- Publishable package fallback versions and cross-package dependency floors now
+  align with the synchronized `v0.3.3` proteomics release line.
+- Packaging contract checks now treat `0.3.3` as the current public fallback
+  version for tag-derived builds.
+
 ## 0.3.2 - 2026-04-10
 
 ### Fixed

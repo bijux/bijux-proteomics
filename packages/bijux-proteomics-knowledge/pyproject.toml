@@ -34,7 +34,7 @@ classifiers = [
 ]
 dependencies = [
   "pydantic>=2.0.2",
-  "bijux-proteomics-foundation>=0.3.2",
+  "bijux-proteomics-foundation>=0.3.3",
 ]
 
 [project.urls]
@@ -48,7 +48,7 @@ Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 [tool.hatch.version]
 source = "vcs"
 tag-pattern = "^v(?P<version>.*)$"
-fallback-version = "0.3.2"
+fallback-version = "0.3.3"
 raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]
