@@ -97,6 +97,11 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
         if entry.get("package_slug") == "bijux-proteomics-dev"
     )
     assert dev.get("check_targets") == '["quality", "security", "build", "sbom"]'
+    rendered = (root / ".github" / "workflows" / "verify.yml").read_text(
+        encoding="utf-8"
+    )
+    assert '["quality", "security", "docs", "api", "openapi-drift", "build", "sbom"]' in rendered
+    assert '["api", "openapi-drift"]' in rendered
 
     push_paths = _as_dict(on_block.get("push")).get("paths", [])
     pull_request_paths = _as_dict(on_block.get("pull_request")).get("paths", [])
