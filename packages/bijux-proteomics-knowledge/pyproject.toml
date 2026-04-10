@@ -34,7 +34,7 @@ classifiers = [
 ]
 dependencies = [
   "pydantic>=2.0.2",
-  "bijux-proteomics-foundation>=0.3.1",
+  "bijux-proteomics-foundation>=0.3.2",
 ]
 
 [project.urls]
