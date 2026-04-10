@@ -9,6 +9,17 @@ import sys
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+MERMAID_RESERVED_IDS = {
+    "class",
+    "classdef",
+    "click",
+    "default",
+    "end",
+    "graph",
+    "linkstyle",
+    "style",
+    "subgraph",
+}
 
 
 class _RenderedNavigationParser(HTMLParser):
@@ -125,6 +136,26 @@ def _page_text(site_dir: Path, relative_path: str) -> str:
     return (site_dir / relative_path).read_text(encoding="utf-8")
 
 
+def _iter_mermaid_blocks() -> list[tuple[Path, str]]:
+    blocks: list[tuple[Path, str]] = []
+    for path in (REPO_ROOT / "docs").rglob("*.md"):
+        text = path.read_text(encoding="utf-8")
+        blocks.extend(
+            (path.relative_to(REPO_ROOT), match.group(1))
+            for match in re.finditer(r"```mermaid\n([\s\S]*?)\n```", text)
+        )
+    return blocks
+
+
+def _declared_mermaid_node_ids(block: str) -> set[str]:
+    ids: set[str] = set()
+    for line in block.splitlines():
+        match = re.match(r"\s*([A-Za-z_][A-Za-z0-9_-]*)\s*\[", line)
+        if match:
+            ids.add(match.group(1).lower())
+    return ids
+
+
 def test_product_package_detail_tabs_follow_authored_order(
     rendered_docs: Path,
 ) -> None:
@@ -139,6 +170,21 @@ def test_product_package_detail_tabs_follow_authored_order(
         "Quality",
     ]
     assert page.active_detail_tabs == ["Home"]
+
+
+def test_docs_mermaid_diagrams_avoid_reserved_node_ids() -> None:
+    failures = []
+
+    for path, block in _iter_mermaid_blocks():
+        reserved_ids = sorted(
+            MERMAID_RESERVED_IDS.intersection(_declared_mermaid_node_ids(block))
+        )
+        if reserved_ids:
+            failures.append(f"{path}: reserved Mermaid ids {', '.join(reserved_ids)}")
+
+    assert not failures, "Mermaid diagrams use reserved node ids:\n" + "\n".join(
+        failures
+    )
 
 
 @pytest.mark.parametrize(

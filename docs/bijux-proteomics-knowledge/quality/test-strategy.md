@@ -21,14 +21,14 @@ explains why these tests exist, not just where they live.
 flowchart LR
     claims["test_claims.py"]
     evidence["test_evidence_bundle.py"]
-    graph["test_evidence_graph.py"]
+    evidence_graph_tests["test_evidence_graph.py"]
     resolution["test_resolution.py"]
     review["test_review.py"]
     schema["test_schema.py + test_serialization.py"]
     claims --> review
     evidence --> claims
     claims --> resolution
-    evidence --> graph
+    evidence --> evidence_graph_tests
     schema --> evidence
 ```
 

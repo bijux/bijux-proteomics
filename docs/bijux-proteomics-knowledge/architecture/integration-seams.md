@@ -24,13 +24,13 @@ flowchart RL
     evidence["evidence.py"]
     claims["claims.py"]
     resolution["resolution.py"]
-    graph["graph.py"]
+    evidence_graph["graph.py"]
     review["review.py"]
     repositories["repositories.py"]
     adapters --> evidence
     evidence --> claims
     claims --> resolution
-    claims --> graph
+    claims --> evidence_graph
     resolution --> review
     repositories --> review
 ```
