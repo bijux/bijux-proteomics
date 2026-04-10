@@ -12,7 +12,11 @@ last_reviewed: 2026-04-10
 The root documentation site is the canonical handbook for repository and
 package behavior. It should help a new reader understand the package split,
 choose the right handbook branch, and verify claims from checked-in assets
-without needing a private walkthrough.
+without guesswork.
+
+Use the docs as orientation first and proof map second. Repository pages should
+explain cross-package concerns, while package pages, schemas, tests, and
+release artifacts carry the detailed evidence behind specific claims.
 
 ## Handbook Shape
 
@@ -30,7 +34,8 @@ without needing a private walkthrough.
 
 ## Purpose
 
-This page explains the structure and honesty rule of the proteomics handbook.
+Use this page to understand how the handbook is organized and where
+repository-level guidance should stop.
 
 ## Stability
 

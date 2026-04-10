@@ -13,9 +13,9 @@ last_reviewed: 2026-04-10
 runtime execution, shared contracts, decision intelligence, evidence handling,
 and lab orchestration. The split is the architecture, not a packaging detail.
 
-This site is meant to stand on its own. A new reader should be able to answer
-three questions quickly: why the repository is split, which package owns the
-current concern, and which checked-in files prove the story being told.
+Start here when you need repository-level orientation. A new reader should be
+able to see why the repository is split, which package owns the current
+concern, and which checked-in files back the explanation.
 
 [![Release](https://img.shields.io/github/v/release/bijux/bijux-proteomics?display_name=tag&label=release)](https://github.com/bijux/bijux-proteomics/releases)
 [![GHCR bundles](https://img.shields.io/badge/ghcr-06%20bundles-181717?logo=github)](https://github.com/orgs/bijux/packages?repo_name=bijux-proteomics)
@@ -45,7 +45,7 @@ without pretending they are one thing.</div>
 
 <div class="bijux-panel-grid">
   <div class="bijux-panel"><h3>Whole-System Idea</h3><p>Use the root pages to understand why the repository is split and how the proteomics packages fit into one accountable flow.</p></div>
-  <div class="bijux-panel"><h3>Honesty Rule</h3><p>The docs are only useful if they send readers back to code, schema artifacts, tests, and workflows quickly enough to verify the claims.</p></div>
+  <div class="bijux-panel"><h3>Honesty Rule</h3><p>Use the docs as a map, then verify the claim in code, schema artifacts, tests, or workflows before treating it as settled.</p></div>
   <div class="bijux-panel"><h3>Fast Reading Path</h3><p>Open the repository handbook for cross-package questions, one product handbook for owned behavior, and the maintainer handbook for repository health.</p></div>
 </div>
 
@@ -111,9 +111,8 @@ flowchart TB
 
 ## Purpose
 
-This page is the front door to the handbook. Its job is to make the split
-legible quickly enough that a reader can choose the right next section before
-they drown in detail.
+Use this page to get oriented quickly, choose the right handbook branch, and
+move to the files that carry the detailed proof.
 
 ## Stability
 
