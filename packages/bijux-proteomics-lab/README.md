@@ -71,7 +71,8 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
 
 ## Documentation
 
-- [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/ARCHITECTURE.md)
-- [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/BOUNDARIES.md)
-- [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/CONTRACTS.md)
-- [PyPI maintainer notes](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/maintainer/pypi.md)
+- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/foundation/ownership-boundary/)
+- [Architecture overview](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/architecture/)
+- [Interface contracts](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/interfaces/)
+- [Release and versioning](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/operations/release-and-versioning/)
