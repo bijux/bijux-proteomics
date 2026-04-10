@@ -2,6 +2,15 @@
 
 All notable changes for `bijux-proteomics-lab` are recorded here.
 
+## 0.3.2 - 2026-04-10
+
+### Fixed
+
+- Internal dependency floors now require
+  `bijux-proteomics-foundation>=0.3.2`,
+  `bijux-proteomics-core>=0.3.2`, and
+  `bijux-proteomics-knowledge>=0.3.2` for synchronized release installs.
+
 ## 0.3.1 - 2026-04-06
 
 ### Added

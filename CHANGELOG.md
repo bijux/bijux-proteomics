@@ -8,6 +8,17 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## 0.3.2 - 2026-04-10
+
+### Fixed
+
+- Internal package dependency floors now align with the synchronized `0.3.2`
+  proteomics release line.
+- Tox checks now delegate installation ownership to the repository make system,
+  matching the release-gate execution model.
+- Workspace lock metadata now reflects the current package extras and
+  maintainer-tool dependencies used by release checks.
+
 ## 0.3.1 - 2026-04-06
 
 ### Added
