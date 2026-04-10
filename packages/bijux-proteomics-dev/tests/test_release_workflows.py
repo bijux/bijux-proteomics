@@ -45,25 +45,40 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     workflow = _workflow(root / ".github" / "workflows" / "publish.yml")
     jobs = _as_dict(workflow.get("jobs"))
     build = _as_dict(jobs.get("build"))
-    publish = _as_dict(jobs.get("publish"))
+    publish_pypi = _as_dict(jobs.get("publish_pypi"))
+    publish_ghcr = _as_dict(jobs.get("publish_ghcr"))
+    release = _as_dict(jobs.get("release"))
 
     assert build.get("uses") == "./.github/workflows/build-release-artifacts.yml"
-    assert publish.get("needs") == "build"
-    assert publish.get("environment", {}).get("name") == "pypi"
+    assert publish_pypi.get("needs") == "build"
+    assert publish_pypi.get("environment", {}).get("name") == "pypi"
+    assert publish_ghcr.get("needs") == "build"
+    assert publish_ghcr.get("permissions") == {
+        "contents": "read",
+        "packages": "write",
+    }
+    assert release.get("needs") == ["build", "publish_pypi", "publish_ghcr"]
+    assert release.get("permissions") == {"contents": "write"}
 
     build_found = {
         entry["package_slug"]
         for entry in _matrix_include(build)
         if "package_slug" in entry
     }
-    publish_found = {
+    publish_pypi_found = {
         entry["package_slug"]
-        for entry in _matrix_include(publish)
+        for entry in _matrix_include(publish_pypi)
+        if "package_slug" in entry
+    }
+    publish_ghcr_found = {
+        entry["package_slug"]
+        for entry in _matrix_include(publish_ghcr)
         if "package_slug" in entry
     }
 
     assert build_found == expected
-    assert publish_found == expected
+    assert publish_pypi_found == expected
+    assert publish_ghcr_found == expected
 
 
 def test_publish_workflow_uses_package_scoped_builds_and_sboms() -> None:
@@ -94,9 +109,20 @@ def test_reusable_release_workflow_stages_nested_dist_outputs() -> None:
         if step.get("name") == "Stage publish artifacts"
     )
     stage_script = stage_step.get("run", "")
+    release_step = next(
+        step
+        for step in build_job.get("steps", [])
+        if step.get("name") == "Stage GitHub release assets"
+    )
+    release_script = release_step.get("run", "")
 
     assert 'find "$dist_dir" -type f' in stage_script
     assert "No publish artifacts found under $dist_dir" in stage_script
+    assert 'mkdir -p "$stage_dir/dist"' in release_script
+    assert 'sbom_dir="${ARTIFACTS_DIR}/sbom"' in release_script
+    assert ".github/tmp/${{ inputs.package_slug }}-release/**/*" in str(
+        build_job.get("steps", [])
+    )
 
 
 def test_release_docs_match_shared_publish_workflow_contract() -> None:
@@ -112,7 +138,8 @@ def test_release_docs_match_shared_publish_workflow_contract() -> None:
         in readme
     )
     assert "`PYPI_API_TOKEN`" in readme
+    assert "`publish.yml` also publishes one GHCR bundle per package" in readme
     assert (
-        "`publish.yml` is tag-triggered and publishes one matrix entry per package"
+        "`publish.yml` is tag-triggered and fans out into build, PyPI, GHCR, and GitHub Release jobs"
         in release_doc
     )

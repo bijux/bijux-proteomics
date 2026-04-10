@@ -15,7 +15,8 @@ artifact creation consistent across packages.
 `ci-package.yml` defines the reusable package-check contract, while
 `build-release-artifacts.yml` defines the reusable artifact-build contract used
 by publication flow. Grouping them together makes their role clear: they are
-workflow building blocks rather than top-level entrypoints.
+workflow building blocks rather than top-level entrypoints, so they run through
+their callers instead of appearing as separate manual workflows.
 
 ## Workflow Anchors
 

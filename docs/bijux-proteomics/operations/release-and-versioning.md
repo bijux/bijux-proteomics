@@ -24,7 +24,7 @@ package `pyproject.toml`.
 
 - root commit rules live in `pyproject.toml`
 - package versions are resolved per package
-- `publish.yml` is tag-triggered and publishes one matrix entry per package
+- `publish.yml` is tag-triggered and fans out into build, PyPI, GHCR, and GitHub Release jobs
 - each publishable package owns its own `CHANGELOG.md`
 
 ## Purpose
