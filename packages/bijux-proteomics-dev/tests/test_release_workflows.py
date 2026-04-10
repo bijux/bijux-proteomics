@@ -63,6 +63,7 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     }
     assert release.get("needs") == ["build", "publish_pypi", "publish_ghcr"]
     assert release.get("permissions") == {"contents": "write"}
+    release_steps = release.get("steps", [])
 
     publish_pypi_steps = publish_pypi.get("steps", [])
     assert any(
@@ -74,6 +75,12 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     assert all(
         isinstance(step, dict) and "password" not in step.get("with", {})
         for step in publish_pypi_steps
+    )
+    assert any(
+        isinstance(step, dict)
+        and step.get("uses") == "softprops/action-gh-release@v2"
+        and step.get("with", {}).get("overwrite_files") is False
+        for step in release_steps
     )
 
     build_found = {
