@@ -1,7 +1,7 @@
 include $(ROOT_MAKE_DIR)/proteomics-package.mk
 
 PACKAGE_IMPORT_NAME := agentic_proteins
-PACKAGE_INSTALL_PYTHON_PACKAGES := $(MONOREPO_ROOT)/packages/bijux-proteomics-dev
+PACKAGE_INSTALL_PYTHON_PACKAGES := "$(MONOREPO_ROOT)/packages/bijux-proteomics-dev[dev]"
 TEST_PATHS_UNIT := tests/unit
 TEST_PATHS_E2E := tests/e2e
 TEST_PATHS_REGRESSION := tests/regression
