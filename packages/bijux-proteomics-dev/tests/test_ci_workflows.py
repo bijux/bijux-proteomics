@@ -107,6 +107,8 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
     pull_request_paths = _as_dict(on_block.get("pull_request")).get("paths", [])
     assert "mkdocs.shared.yml" in push_paths
     assert "mkdocs.shared.yml" in pull_request_paths
+    assert "tox.ini" in push_paths
+    assert "tox.ini" in pull_request_paths
 
 
 def test_reusable_workflow_jobs_are_package_scoped() -> None:
