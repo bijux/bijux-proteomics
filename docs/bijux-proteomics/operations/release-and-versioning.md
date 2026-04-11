@@ -12,9 +12,7 @@ last_reviewed: 2026-04-10
 The repository uses conventional commit messages and package-local release
 metadata so release intent remains understandable years later.
 
-Every publishable package in this repository resolves version from Git tags
-through `hatch-vcs`, with a checked-in fallback version for source trees that
-are outside a release tag context.
+For every publishable package in this repository, version is resolved from Git tags through `hatch-vcs`, with a checked-in fallback version for source trees that are outside a release tag context.
 
 ## Shared Release Facts
 
