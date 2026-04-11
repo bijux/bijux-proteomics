@@ -24,7 +24,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "agentic-proteins>=0.3.3",
+  "agentic-proteins>=0.3.4",
   "biopython>=1.85,<2.0",
   "huggingface-hub>=0.24,<1.0",
   "packaging>=24.0,<25.0",
@@ -73,7 +73,7 @@ dev = [
 source = "vcs"
 tag-pattern = "^v(?P<version>.*)$"
 raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
-fallback-version = "0.1.0"
+fallback-version = "0.3.4"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bijux_proteomics_dev"]

@@ -5,6 +5,20 @@ All notable changes to `bijux-proteomics-dev` are documented in this file.
 The format follows Keep a Changelog and this package follows Semantic
 Versioning.
 
+## [0.3.4] - 2026-04-11
+
+### Fixed
+
+- Maintainer package dependency floor now requires `agentic-proteins>=0.3.4`
+  for synchronized release checks.
+
+## [0.3.3] - 2026-04-10
+
+### Fixed
+
+- Maintainer package dependency floor now requires `agentic-proteins>=0.3.3`
+  for synchronized release checks.
+
 ## [0.3.2] - 2026-04-10
 
 ### Fixed

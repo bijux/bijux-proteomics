@@ -2,6 +2,20 @@
 
 All notable changes for `agentic-proteins` are recorded here.
 
+## 0.3.4 - 2026-04-11
+
+### Changed
+
+- Release history now records the synchronized `v0.3.4` proteomics publication
+  line used by the shared tag-driven release workflow.
+
+## 0.3.3 - 2026-04-10
+
+### Changed
+
+- Release history now records the synchronized `v0.3.3` proteomics publication
+  line used by the shared tag-driven release workflow.
+
 ## 0.3.2 - 2026-04-10
 
 ### Changed

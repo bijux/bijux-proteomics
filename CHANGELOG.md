@@ -8,6 +8,16 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## 0.3.4 - 2026-04-11
+
+### Changed
+
+- Publishable package fallback versions, maintainer dependency floors, and
+  repository version metadata now align with the synchronized `v0.3.4`
+  proteomics release line.
+- Repository release guidance now describes the current tag-driven
+  `hatch-vcs` version model used across all publishable packages.
+
 ## 0.3.3 - 2026-04-10
 
 ### Changed

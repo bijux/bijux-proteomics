@@ -2,6 +2,20 @@
 
 All notable changes for `bijux-proteomics-core` are recorded here.
 
+## 0.3.4 - 2026-04-11
+
+### Fixed
+
+- Internal dependency floor now requires
+  `bijux-proteomics-foundation>=0.3.4` for synchronized release installs.
+
+## 0.3.3 - 2026-04-10
+
+### Fixed
+
+- Internal dependency floor now requires
+  `bijux-proteomics-foundation>=0.3.3` for synchronized release installs.
+
 ## 0.3.2 - 2026-04-10
 
 ### Fixed

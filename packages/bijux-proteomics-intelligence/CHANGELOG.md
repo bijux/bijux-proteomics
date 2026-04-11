@@ -2,6 +2,24 @@
 
 All notable changes for `bijux-proteomics-intelligence` are recorded here.
 
+## 0.3.4 - 2026-04-11
+
+### Fixed
+
+- Internal dependency floors now require
+  `bijux-proteomics-foundation>=0.3.4`,
+  `bijux-proteomics-core>=0.3.4`, and
+  `bijux-proteomics-knowledge>=0.3.4` for synchronized release installs.
+
+## 0.3.3 - 2026-04-10
+
+### Fixed
+
+- Internal dependency floors now require
+  `bijux-proteomics-foundation>=0.3.3`,
+  `bijux-proteomics-core>=0.3.3`, and
+  `bijux-proteomics-knowledge>=0.3.3` for synchronized release installs.
+
 ## 0.3.2 - 2026-04-10
 
 ### Fixed
