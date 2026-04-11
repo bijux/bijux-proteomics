@@ -31,13 +31,16 @@ include $(ROOT_MAKEFILE_DIR)/bijux-py/bijux.mk
 .PHONY: \
 	help list list-all install lock lock-check fmt lint quality security test docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
-	quality-docs-links quality-docs-consistency security-dependency-allowlist \
+	sync-badges quality-docs-links quality-docs-consistency security-dependency-allowlist \
 	clean-root-artifacts root-check-env check-shared-bijux-py
 
 ensure-venv: install ## Ensure the shared root environment exists and is synced
 
 nlenv: ## Print activate command
 	@echo "Run: source $(ROOT_CHECK_VENV)/bin/activate"
+
+sync-badges: root-check-env ## Render shared badge blocks into managed README surfaces
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.badge_sync sync
 
 quality-docs-links: root-check-env ## Refresh docs link validation evidence
 	@$(DEV_RUN) -m bijux_proteomics_dev.docs.markdown_links

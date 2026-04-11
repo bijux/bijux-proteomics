@@ -52,6 +52,7 @@ nav:
   - Home: index.md
   - Repository Handbook:
       - Repository Handbook: bijux-proteomics/index.md
+      - Badge Catalog: badges.md
       - Foundation:
           - Foundation: bijux-proteomics/foundation/index.md
           - Platform Overview: bijux-proteomics/foundation/platform-overview.md
@@ -428,6 +429,7 @@ nav:
           - Schema Governance: bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance.md
           - Release Support: bijux-proteomics-maintain/bijux-proteomics-dev/release-support.md
           - Documentation Integrity: bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity.md
+          - Badge Catalog: badges.md
           - Operating Guidelines: bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md
       - makes:
           - makes: bijux-proteomics-maintain/makes/index.md

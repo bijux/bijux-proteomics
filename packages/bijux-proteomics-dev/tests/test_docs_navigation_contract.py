@@ -237,6 +237,7 @@ def test_repository_detail_tabs_keep_home_first(rendered_docs: Path) -> None:
 
     assert page.detail_tabs == [
         "Home",
+        "Badge Catalog",
         "Foundation",
         "Operations",
     ]
@@ -366,6 +367,7 @@ def test_maintenance_dev_leaf_pages_keep_section_sidebar(
         "Schema Governance",
         "Release Support",
         "Documentation Integrity",
+        "Badge Catalog",
         "Operating Guidelines",
     ]
 
