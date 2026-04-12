@@ -17,6 +17,9 @@
   --bijux-nav-indicator: linear-gradient(90deg, rgba(245, 158, 11, 0.95), rgba(45, 212, 191, 0.95));
   --bijux-nav-active-shadow: 0 14px 28px rgba(15, 23, 42, 0.18);
   --bijux-focus-ring: rgba(15, 118, 110, 0.22);
+  --bijux-mermaid-text: #142033;
+  --bijux-mermaid-label-bg: #eef8f7;
+  --bijux-mermaid-line: #356275;
 }
 
 [data-md-color-scheme="default"] {
@@ -69,6 +72,9 @@
   --bijux-nav-indicator: linear-gradient(90deg, rgba(251, 191, 36, 0.92), rgba(103, 232, 249, 0.92));
   --bijux-nav-active-shadow: 0 18px 34px rgba(2, 6, 23, 0.48);
   --bijux-focus-ring: rgba(103, 232, 249, 0.24);
+  --bijux-mermaid-text: #e7eef5;
+  --bijux-mermaid-label-bg: #0f2432;
+  --bijux-mermaid-line: #9ec4d1;
 }
 
 [data-md-color-scheme="slate"] .md-main {
@@ -282,6 +288,30 @@ html {
   margin: 0 auto;
   height: auto;
   max-width: 100%;
+}
+
+.md-typeset .mermaid svg text,
+.md-typeset .mermaid svg tspan,
+.md-typeset .mermaid svg .nodeLabel,
+.md-typeset .mermaid svg .label,
+.md-typeset .mermaid svg .edgeLabel,
+.md-typeset .mermaid svg .messageText,
+.md-typeset .mermaid svg .actor {
+  color: var(--bijux-mermaid-text) !important;
+  fill: var(--bijux-mermaid-text) !important;
+}
+
+.md-typeset .mermaid svg .edgeLabel rect,
+.md-typeset .mermaid svg .labelBkg {
+  fill: var(--bijux-mermaid-label-bg) !important;
+}
+
+.md-typeset .mermaid svg .flowchart-link,
+.md-typeset .mermaid svg .marker,
+.md-typeset .mermaid svg .messageLine0,
+.md-typeset .mermaid svg .messageLine1,
+.md-typeset .mermaid svg .loopLine {
+  stroke: var(--bijux-mermaid-line) !important;
 }
 
 .bijux-map-frame {
