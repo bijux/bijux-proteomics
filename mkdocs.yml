@@ -52,7 +52,6 @@ nav:
   - Home: index.md
   - Repository Handbook:
       - Repository Handbook: bijux-proteomics/index.md
-      - Badge Catalog: badges.md
       - Foundation:
           - Foundation: bijux-proteomics/foundation/index.md
           - Platform Overview: bijux-proteomics/foundation/platform-overview.md
