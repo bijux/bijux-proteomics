@@ -14,7 +14,7 @@
 
 {% if current_page and current_page.parent and current_page.parent.children %}
   {% for child in current_page.parent.children %}
-    {% if not child.children %}
+    {% if not child.children and not child.is_index and child.title not in ["Home", "Overview", current_page.parent.title] %}
       {% set _ = scoped.items.append(child) %}
     {% endif %}
   {% endfor %}
@@ -22,7 +22,7 @@
   {% set scoped.visible = scoped.items | length > 0 %}
 {% elif active_root.item and active_root.item.children %}
   {% for child in active_root.item.children %}
-    {% if not child.children %}
+    {% if not child.children and not child.is_index and child.title not in ["Home", "Overview", active_root.item.title] %}
       {% set _ = scoped.items.append(child) %}
     {% endif %}
   {% endfor %}
