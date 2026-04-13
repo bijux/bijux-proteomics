@@ -237,7 +237,6 @@ def test_repository_detail_tabs_keep_home_first(rendered_docs: Path) -> None:
 
     assert page.detail_tabs == [
         "Home",
-        "Badge Catalog",
         "Foundation",
         "Operations",
     ]
