@@ -8,6 +8,11 @@ import re
 MD_REF_RE = re.compile(r"([A-Za-z0-9_./-]+\.md)")
 
 
+def _is_non_nav_doc(rel: Path) -> bool:
+    parts = rel.parts
+    return len(parts) >= 3 and parts[0] == "assets" and rel.name == "README.md"
+
+
 def nav_refs(mkdocs_path: Path) -> set[Path]:
     if not mkdocs_path.exists():
         return set()
@@ -44,6 +49,8 @@ def run(repo_root: Path) -> int:
 
     for doc in sorted(docs_dir.rglob("*.md")):
         rel = doc.relative_to(docs_dir)
+        if _is_non_nav_doc(rel):
+            continue
         if rel not in references:
             failures.append(f"orphan_doc: {rel}")
 
