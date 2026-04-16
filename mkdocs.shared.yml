@@ -116,6 +116,8 @@ extra:
   bijux:
     repository: bijux-proteomics
     docs_package: bijux-proteomics-dev
+    nav_mode: default
+    theme_key: bijux:theme
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/bijux
