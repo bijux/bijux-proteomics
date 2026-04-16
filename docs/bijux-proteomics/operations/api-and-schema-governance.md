@@ -13,6 +13,19 @@ Shared API artifacts live under `apis/` so contract review does not depend on
 reverse-engineering Python modules. Code and tracked schema files should tell
 one public story.
 
+```mermaid
+flowchart TD
+    A[Package public behavior] --> B[tracked schema in apis/*/v1]
+    B --> C[pinned OpenAPI JSON + digests]
+    C --> D[drift checks]
+    D --> E[review]
+    E --> F[merge]
+    F --> A
+
+    X[code changes without schema movement] --> D
+    Y[schema changes without intent] --> D
+```
+
 ## Current Contract Roots
 
 - `apis/agentic-proteins/v1/`
