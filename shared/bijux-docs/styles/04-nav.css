@@ -334,9 +334,20 @@
 
 .md-sidebar--primary .md-nav__link,
 .md-sidebar--primary .md-nav__container > .md-nav__link {
+  align-items: center;
   border-radius: 0.75rem;
+  display: flex;
   min-height: 2.4rem;
+  padding-block: 0.52rem;
   transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.md-sidebar--primary .md-nav__link .md-ellipsis,
+.md-sidebar--primary .md-nav__container > .md-nav__link .md-ellipsis {
+  align-items: center;
+  display: inline-flex;
+  line-height: 1.3;
+  min-height: 1.3em;
 }
 
 .md-sidebar--primary .md-nav__link:hover,
