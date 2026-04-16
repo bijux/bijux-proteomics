@@ -21,35 +21,17 @@ Treat the operations pages for `bijux-proteomics-foundation` as the package's ex
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    page["Installation and Setup<br/>clarifies: repeat workflows | find diagnostics | release safely"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["packages/bijux-proteomics-foundation/pyproject.toml"]
-    step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics_foundation/__init__.py"]
-    step2 --> page
-    step3["HTTP app in src/bijux_proteomics_foundation/schema.py"]
-    step3 --> page
-    run1["tests/e2e for governed flow behavior"]
-    page --> run1
-    run2["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run2
-    run3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run3
-    release1["README.md"]
-    run1 --> release1
-    release2["CHANGELOG.md"]
-    run2 --> release2
-    release3["pyproject.toml"]
-    run3 --> release3
-    class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+sequenceDiagram
+    participant Dev as Maintainer
+    participant Repo as Repository
+    participant Env as Environment
+    participant Tool as Tooling
+    Dev->>Repo: clone repository
+    Dev->>Env: create local environment
+    Dev->>Tool: install dependencies
+    Tool-->>Dev: commands available
+    Dev->>Tool: run setup verification
+    Tool-->>Dev: ready for package workflows
 ```
 
 ## Package Metadata Anchors
