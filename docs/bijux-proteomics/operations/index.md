@@ -17,6 +17,20 @@ behavior. They should help a maintainer move from a question about setup,
 validation, release flow, automation, or review posture to the checked-in files
 that carry that work today.
 
+```mermaid
+mindmap
+  root((Operations))
+    Local Development
+    Testing and Validation
+    Release and Versioning
+    API and Schema Governance
+    Contributor Workflows
+    Automation Surfaces
+    Artifact Governance
+    Review Expectations
+    Change Management
+```
+
 ## Pages In This Section
 
 - [Local Development](local-development.md)
