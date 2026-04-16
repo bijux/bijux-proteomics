@@ -185,20 +185,27 @@ function firstColorValue(element, cssName) {
   return "";
 }
 
-function applyDarkContrastNormalization(root) {
-  if (!isDarkScheme()) {
-    return;
-  }
-
-  const palettes = {
-    nodeFill: "#122b3c",
-    nodeStroke: "#5dbbb5",
-    clusterFill: "#0f2536",
-    clusterStroke: "#4a9f9a",
-    lineStroke: "#9ab9c6",
-    edgeLabelBg: "#0f2334",
-    text: "#e6eef7",
-  };
+function applyContrastNormalization(root) {
+  const dark = isDarkScheme();
+  const palettes = dark
+    ? {
+        nodeFill: "#122b3c",
+        nodeStroke: "#5dbbb5",
+        clusterFill: "#0f2536",
+        clusterStroke: "#4a9f9a",
+        lineStroke: "#9ab9c6",
+        edgeLabelBg: "#0f2334",
+        text: "#e6eef7",
+      }
+    : {
+        nodeFill: "#dceef3",
+        nodeStroke: "#4a8a99",
+        clusterFill: "#ebf5f8",
+        clusterStroke: "#6ea4b0",
+        lineStroke: "#5c7f8f",
+        edgeLabelBg: "#edf5f8",
+        text: "#1c3443",
+      };
 
   for (const svg of root.querySelectorAll(".mermaid svg")) {
     const shapes = svg.querySelectorAll("rect, circle, ellipse, polygon, path, line, polyline");
@@ -230,8 +237,8 @@ function applyDarkContrastNormalization(root) {
         el.style.fill = palettes.clusterFill;
       } else if (inNode) {
         el.style.fill = palettes.nodeFill;
-      } else if (hasFill && fillLum > 0.24) {
-        // Generic fallback for unknown Mermaid shape classes that are too bright.
+      } else if (hasFill && ((dark && fillLum > 0.24) || (!dark && fillLum < 0.55))) {
+        // Generic fallback for unknown Mermaid shape classes with poor mode contrast.
         el.style.fill = palettes.nodeFill;
       }
 
@@ -290,15 +297,15 @@ document$.subscribe(() => {
     nodes,
   });
   const applyNormalization = () => {
-    applyDarkContrastNormalization(document);
-    requestAnimationFrame(() => applyDarkContrastNormalization(document));
-    setTimeout(() => applyDarkContrastNormalization(document), 120);
+    applyContrastNormalization(document);
+    requestAnimationFrame(() => applyContrastNormalization(document));
+    setTimeout(() => applyContrastNormalization(document), 120);
   };
 
   applyNormalization();
 });
 
 window.addEventListener("bijux:theme-change", () => {
-  setTimeout(() => applyDarkContrastNormalization(document), 0);
-  setTimeout(() => applyDarkContrastNormalization(document), 120);
+  setTimeout(() => applyContrastNormalization(document), 0);
+  setTimeout(() => applyContrastNormalization(document), 120);
 });
