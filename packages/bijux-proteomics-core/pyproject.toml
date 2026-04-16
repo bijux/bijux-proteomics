@@ -62,6 +62,7 @@ include = [
   "docs/maintainer/pypi.md",
   "src/bijux_proteomics/py.typed",
 ]
+force-include = { "LICENSE" = "LICENSE", "NOTICE" = "NOTICE" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bijux_proteomics"]

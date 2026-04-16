@@ -80,7 +80,7 @@ include = [
   "docs/maintainer/pypi.md",
   "src/agentic_proteins/py.typed",
 ]
-force-include = { "../../LICENSE" = "LICENSE" }
+force-include = { "LICENSE" = "LICENSE", "NOTICE" = "NOTICE" }
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentic_proteins"]

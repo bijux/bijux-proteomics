@@ -88,6 +88,7 @@ include = [
   "README.md",
   "src/bijux_proteomics_dev/**",
 ]
+force-include = { "LICENSE" = "LICENSE", "NOTICE" = "NOTICE" }
 
 [tool.interrogate]
 fail-under = 32
