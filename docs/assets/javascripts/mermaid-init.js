@@ -5,31 +5,31 @@ function isDarkScheme() {
 function getMermaidThemeVariables() {
   if (isDarkScheme()) {
     return {
-      primaryColor: "#123342",
+      primaryColor: "#163c4c",
       primaryTextColor: "#e7eef5",
-      primaryBorderColor: "#5ec4be",
-      lineColor: "#9ec4d1",
-      secondaryColor: "#0f2432",
-      tertiaryColor: "#153040",
+      primaryBorderColor: "#7ddad4",
+      lineColor: "#b7d8e2",
+      secondaryColor: "#112c3c",
+      tertiaryColor: "#19384a",
       background: "#0b1120",
-      mainBkg: "#153040",
-      secondBkg: "#112738",
-      tertiaryBkg: "#0f2030",
+      mainBkg: "#19384a",
+      secondBkg: "#132f40",
+      tertiaryBkg: "#102838",
       textColor: "#e7eef5",
       labelTextColor: "#e7eef5",
-      edgeLabelBackground: "#0f2432",
-      nodeBorder: "#5ec4be",
-      clusterBkg: "#102536",
-      clusterBorder: "#4ca9a8",
+      edgeLabelBackground: "#1a3345",
+      nodeBorder: "#7ddad4",
+      clusterBkg: "#11293a",
+      clusterBorder: "#5cc3bd",
       titleColor: "#f4f8ff",
       actorTextColor: "#e7eef5",
-      actorLineColor: "#9ec4d1",
-      signalColor: "#9ec4d1",
+      actorLineColor: "#b7d8e2",
+      signalColor: "#b7d8e2",
       signalTextColor: "#e7eef5",
       noteTextColor: "#e7eef5",
-      noteBkgColor: "#153040",
-      noteBorderColor: "#5ec4be",
-      activationBorderColor: "#6ccfc4",
+      noteBkgColor: "#1a3a4d",
+      noteBorderColor: "#7ddad4",
+      activationBorderColor: "#7ddad4",
       sequenceNumberColor: "#e7eef5",
     };
   }
@@ -65,11 +65,33 @@ function getMermaidThemeVariables() {
 }
 
 function buildMermaidConfig() {
+  const darkThemeCss = `
+    .label, .label text, .nodeLabel, .edgeLabel, .edgeLabel p {
+      fill: #e7eef5 !important;
+      color: #e7eef5 !important;
+    }
+    .edgeLabel rect {
+      fill: #1a3345 !important;
+      opacity: 1 !important;
+    }
+    .cluster rect {
+      fill: #11293a !important;
+      stroke: #5cc3bd !important;
+    }
+    .node rect, .node circle, .node ellipse, .node polygon, .node path {
+      stroke: #7ddad4 !important;
+    }
+    .flowchart-link, .marker, .marker path, .path {
+      stroke: #b7d8e2 !important;
+    }
+  `;
+
   return {
     startOnLoad: false,
     securityLevel: "loose",
     theme: "base",
     themeVariables: getMermaidThemeVariables(),
+    themeCSS: isDarkScheme() ? darkThemeCss : "",
   };
 }
 
