@@ -33,13 +33,14 @@
     {% for child in parent_item.children %}
       {% set child_path = bijux_nav.first_page_path(child) | trim %}
       {% set child_active = child.active or (current_page and child.pages and current_page in child.pages) %}
-      {% if child.children %}
+      {% set child_is_section = child.children and not child.is_page %}
+      {% if child_is_section %}
         {% set _ = row.items.append(child) %}
         {% set row.has_section = true %}
       {% elif child_path == parent_home_path %}
         {% set _ = row.items.append(child) %}
       {% endif %}
-      {% if not row.active_child and child.children and child_active %}
+      {% if not row.active_child and child_is_section and child_active %}
         {% set row.active_child = child %}
       {% endif %}
     {% endfor %}
