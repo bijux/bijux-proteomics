@@ -15,6 +15,22 @@ When terms drift, readers stop knowing whether they are talking about a package
 contract, a repository rule, or a maintainer-only concern. That confusion
 rebuilds architectural blur even when the tree still looks tidy.
 
+```mermaid
+graph TD
+    A[Stable language] --> B[repository handbook]
+    A --> C[maintainer handbook]
+    A --> D[canonical package]
+    A --> E[proof surface]
+
+    B --> B1[cross-package governance]
+    C --> C1[repo-health automation]
+    D --> D1[publishable distribution]
+    E --> E1[files that verify a claim]
+
+    X[term drift] --> Y[reader confusion]
+    Y --> Z[misrouted work and unclear review]
+```
+
 ## Terms That Should Stay Stable
 
 - `repository handbook` for cross-package governance and structure
