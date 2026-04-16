@@ -21,35 +21,16 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Integration Seams<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["orchestration and replay coordination"]
-    module1 --> page
-    module2["durable runtime models"]
-    module2 --> page
-    module3["execution engines and lifecycle logic"]
-    module3 --> page
-    code1["src/bijux_proteomics_foundation/runtime"]
-    page --> code1
-    code2["src/bijux_proteomics_foundation/application"]
-    page --> code2
-    code3["src/bijux_proteomics_foundation/model"]
-    page --> code3
-    pressure1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/e2e for governed flow behavior"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/regression and tests/smoke for replay and storage protection"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+flowchart LR
+    adjacent[other packages and tooling] --> api[API and import surface]
+    operators[operators and automation] --> cfg[configuration surface]
+    artifacts[artifact consumers] --> contracts[artifact contracts]
+    api --> core[foundation core]
+    cfg --> core
+    contracts --> core
+    core --> serialization[serialization boundary]
+    core --> identity[identity primitives]
+    core --> compatibility[compatibility helpers]
 ```
 
 ## Integration Surfaces
