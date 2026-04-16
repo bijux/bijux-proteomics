@@ -17,26 +17,34 @@ and where cross-package rules begin and end.
 If a reader can answer their question honestly from one package handbook, they
 should go there instead of staying here.
 
-## What The Root Actually Owns
-
 ```mermaid
-flowchart TB
-    root["Repository handbook"]
-    layout["workspace layout"]
-    schemas["package contracts in apis/"]
-    release["release and versioning rules"]
-    docs["handbook shape and root docs"]
-    checks["cross-package checks and CI fit"]
-    packages["package-local behavior"]
-    shadow["shadow implementation at the root"]
+flowchart LR
+    subgraph Root[Repository handbook owns]
+        docs[handbook structure]
+        apis[tracked API artifacts]
+        ci[shared CI and validation]
+        rel[release conventions]
+    end
 
-    layout --> root
-    schemas --> root
-    release --> root
-    docs --> root
-    checks --> root
-    root -.does not own.-> packages
-    root -.must not become.-> shadow
+    subgraph Packages[Packages own]
+        runtime[runtime behavior]
+        models[domain models]
+        policy[package-local policy]
+        tests[package tests]
+    end
+
+    docs --> Root
+    apis --> Root
+    ci --> Root
+    rel --> Root
+
+    runtime --> Packages
+    models --> Packages
+    policy --> Packages
+    tests --> Packages
+
+    Root -. must not absorb .-> runtime
+    Root -. must not absorb .-> models
 ```
 
 ## Handbook Sections
