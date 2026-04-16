@@ -20,35 +20,11 @@ Treat the quality pages for `bijux-proteomics-foundation` as the proof frame aro
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    page["Invariants<br/>clarifies: see proof | see limitations | judge done-ness"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    proof1 --> page
-    proof2["tests/e2e for governed flow behavior"]
-    proof2 --> page
-    proof3["tests/regression and tests/smoke for replay and storage protection"]
-    proof3 --> page
-    risk1["CHANGELOG.md"]
-    risk1 -.keeps trust honest.-> page
-    risk2["pyproject.toml"]
-    risk2 -.keeps trust honest.-> page
-    risk3["README.md"]
-    risk3 -.keeps trust honest.-> page
-    bar1["done means defended behavior"]
-    page --> bar1
-    bar2["package trust after change"]
-    page --> bar2
-    bar3["proof before confidence"]
-    page --> bar3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class risk1,risk2,risk3 caution;
-    class bar1,bar2,bar3 action;
+flowchart LR
+    inv1["canonical identity remains stable"] --> inv2["payload shape remains explicit"]
+    inv2 --> inv3["serialization stays deterministic"]
+    inv3 --> inv4["compatibility paths stay reviewable"]
+    inv4 --> trust["cross-package trust"]
 ```
 
 ## Invariant Anchors
