@@ -27,3 +27,22 @@ serialization contracts used by multiple packages.
 - [Interfaces](interfaces/index.md)
 - [Operations](operations/index.md)
 - [Quality](quality/index.md)
+
+## Visual Summary
+
+```mermaid
+flowchart TB
+    pkg["bijux-proteomics-foundation"] --> f["Foundation"]
+    pkg --> a["Architecture"]
+    pkg --> i["Interfaces"]
+    pkg --> o["Operations"]
+    pkg --> q["Quality"]
+    f --> id["identity primitives"]
+    f --> ser["serialization contracts"]
+    a --> mods["module structure"]
+    a --> exec["execution flow"]
+    i --> api["APIs and imports"]
+    i --> data["schemas and artifacts"]
+    o --> run["setup, diagnostics, release"]
+    q --> proof["tests, invariants, risks"]
+```
