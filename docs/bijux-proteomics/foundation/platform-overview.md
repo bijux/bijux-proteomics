@@ -19,6 +19,20 @@ lifecycle contracts. Knowledge tracks evidence and claims. Intelligence turns
 those inputs into inspectable decisions. Lab turns decisions into assay work.
 `agentic-proteins` governs execution, replay, and final runtime behavior.
 
+```mermaid
+flowchart LR
+    foundation[bijux-proteomics-foundation\nshared primitives]
+    core[bijux-proteomics-core\nprogram contracts]
+    knowledge[bijux-proteomics-knowledge\nevidence + claims]
+    intelligence[bijux-proteomics-intelligence\ndecision support]
+    lab[bijux-proteomics-lab\nassay execution]
+    agentic[agentic-proteins\nruntime orchestration]
+
+    foundation --> core --> knowledge --> intelligence --> lab --> agentic
+    foundation -. stabilizes .-> intelligence
+    core -. constrains .-> lab
+```
+
 ## Why The Split Matters
 
 - ownership is clearer during review
