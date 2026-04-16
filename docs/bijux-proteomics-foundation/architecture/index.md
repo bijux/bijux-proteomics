@@ -18,35 +18,20 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 ## Visual Summary
 
 ```mermaid
-flowchart LR
-    page["Architecture<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["schema and identifier invariants"]
-    module1 --> page
-    module2["serialization and migration compatibility"]
-    module2 --> page
-    module3["error taxonomy and package export stability"]
-    module3 --> page
-    code1["src/bijux_proteomics_foundation/schema.py and ids.py"]
-    page --> code1
-    code2["src/bijux_proteomics_foundation/serialization.py and migrations.py"]
-    page --> code2
-    code3["src/bijux_proteomics_foundation/errors.py and __init__.py"]
-    page --> code3
-    pressure1["tests for document primitives and package-level type contracts"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["cross-package tests that consume foundation schemas and ids"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["lint and type gates protecting long-lived boundary compatibility"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+mindmap
+  root((Architecture))
+    Structure
+      module map
+      code navigation
+      dependency direction
+    Runtime
+      execution model
+      error model
+      state and persistence
+    Evolution
+      extensibility model
+      integration seams
+      architecture risks
 ```
 
 ## Pages in This Section
