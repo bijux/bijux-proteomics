@@ -67,9 +67,15 @@ function getMermaidThemeVariables() {
 
 function buildMermaidConfig() {
   const darkThemeCss = `
-    .label, .label text, .nodeLabel, .edgeLabel, .edgeLabel p {
+    .label, .label text, .nodeLabel, .edgeLabel, .edgeLabel p,
+    span.nodeLabel, .cluster-label text {
       fill: #eaf2fa !important;
       color: #eaf2fa !important;
+    }
+    foreignObject div, foreignObject span, .labelBkg {
+      color: #eaf2fa !important;
+      fill: #eaf2fa !important;
+      background: transparent !important;
     }
     .edgeLabel rect {
       fill: #102334 !important;
@@ -80,7 +86,8 @@ function buildMermaidConfig() {
       stroke: #4ba8a2 !important;
     }
     .node rect, .node circle, .node ellipse, .node polygon, .node path,
-    .classBox, .stateGroup rect, .stateGroup path {
+    .classBox, .stateGroup rect, .stateGroup path,
+    rect.basic, rect.label-container {
       fill: #122b3c !important;
       stroke: #6fc7c2 !important;
     }
