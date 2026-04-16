@@ -22,35 +22,18 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Change Principles<br/>clarifies: own the right work | name the boundary | compare neighbors"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["trace capture, runtime persistence, and execution-store behavior"]
-    own1 --> page
-    own2["flow execution authority"]
-    own2 --> page
-    own3["replay and acceptability semantics"]
-    own3 --> page
-    limit1["ingest and index domain ownership"]
-    page -.keeps outside.-> limit1
-    limit2["repository tooling and release support"]
-    page -.keeps outside.-> limit2
-    limit3["agent composition policy"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-foundation/tests"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-foundation"]
-    page --> anchor3
-    class page page;
-    class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+flowchart TD
+    proposal["proposed change"] --> q1{"changes package boundary?"}
+    q1 -->|yes| boundary["update ownership and scope docs"]
+    q1 -->|no| q2{"changes contract or payload shape?"}
+    q2 -->|yes| compat["review compatibility and versioning"]
+    q2 -->|no| q3{"internal-only refinement?"}
+    q3 -->|yes| local["keep change local and tested"]
+    q3 -->|no| review["escalate design review"]
+    boundary --> review
+    compat --> review
+    local --> done["merge with proof"]
+    review --> done
 ```
 
 ## Principles
