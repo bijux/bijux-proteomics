@@ -12,6 +12,20 @@ last_reviewed: 2026-04-10
 Root review should be sharper than purely local code review because repository
 changes can alter how the whole package family is built, read, or released.
 
+```mermaid
+flowchart TD
+    review[Root change under review]
+    surface{Right owning surface?}
+    proof{Docs + automation + proof moved together?}
+    smuggle{Smuggling product behavior into root?}
+    intent{Commit intent durable and clear?}
+
+    review --> surface --> proof --> smuggle --> intent
+    smuggle -- yes --> block[Request redesign]
+    smuggle -- no --> pass[Continue review]
+    intent --> approve[Approve when evidence is coherent]
+```
+
 ## Root Review Expectations
 
 - confirm the owning repository surface is still the right one for the change
