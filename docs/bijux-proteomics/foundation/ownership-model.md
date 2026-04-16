@@ -17,6 +17,21 @@ only what genuinely crosses package boundaries: shared docs structure, schema
 governance, validation coordination, and release framing. The maintenance
 handbook exists for repository health, not for product behavior.
 
+```mermaid
+flowchart TB
+    A[Repository handbook + root automation]
+    B[Maintainer tooling<br/>packages/bijux-proteomics-dev]
+    C[Product packages]
+    D[Runtime / domain behavior]
+
+    A --> B --> C --> D
+
+    A1[repository governance] -.-> A
+    B1[checks / validation / repo health] -.-> B
+    C1[package contracts / APIs] -.-> C
+    D1[execution and product logic] -.-> D
+```
+
 ## Ownership Layers
 
 - product behavior belongs in `packages/agentic-proteins` and
