@@ -130,3 +130,7 @@ The root keeps repository-owned concerns explicit:
 
 That split is intentional: package runtime code stays local to packages, and
 repository governance stays visible and reviewable at the root.
+
+## License
+
+This repository is licensed under the Apache License 2.0. Copyright 2026 Bijan Mousavi <bijan@bijux.io>. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
