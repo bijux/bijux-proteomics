@@ -30,8 +30,11 @@
     const activeSiteLink = document.querySelector(
       ".bijux-site-tabs .bijux-tabs__item--active a"
     );
-    const activeNestedLink = document.querySelector(
-      "[data-bijux-nested-strip]:not([hidden]) .bijux-tabs__item--active a"
+    const activeDetailLink = document.querySelector(
+      "[data-bijux-detail-strip]:not([hidden]) .bijux-tabs__item--active a"
+    );
+    const activeCourseLink = document.querySelector(
+      "[data-bijux-course-strip]:not([hidden]) .bijux-tabs__item--active a"
     );
     const activeSidebarLink = document.querySelector(
       ".md-sidebar--primary .md-nav__link--active"
@@ -39,7 +42,8 @@
 
     centerLinkInScrollableTabs(activeHubLink);
     centerLinkInScrollableTabs(activeSiteLink);
-    centerLinkInScrollableTabs(activeNestedLink);
+    centerLinkInScrollableTabs(activeDetailLink);
+    centerLinkInScrollableTabs(activeCourseLink);
     activeSidebarLink?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 

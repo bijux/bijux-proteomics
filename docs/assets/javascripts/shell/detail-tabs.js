@@ -7,7 +7,7 @@
       return;
     }
     const hasVisibleDetailStrip = document.querySelector(
-      "[data-bijux-nested-strip]"
+      "[data-bijux-detail-strip]:not([hidden]), [data-bijux-course-strip]:not([hidden])"
     );
     header.setAttribute(
       "data-bijux-detail-visible",
@@ -15,71 +15,195 @@
     );
   }
 
-  function syncNestedStripActiveState() {
+  function syncDetailStripVisibility() {
     const navState = shell.navState;
     if (!navState) {
       return;
     }
 
     const activeSitePath = navState.syncSiteTabActiveState();
-    const currentPath = navState.normalizePath(window.location.pathname);
-    let parentPath = activeSitePath;
+    for (const strip of document.querySelectorAll("[data-bijux-detail-strip]")) {
+      const rootPath = navState.normalizePath(
+        strip.getAttribute("data-bijux-detail-root-path") || "/"
+      );
+      strip.hidden = rootPath !== activeSitePath;
+    }
+  }
 
-    for (const strip of document.querySelectorAll("[data-bijux-nested-strip]")) {
+  function syncDetailStripActiveState() {
+    const navState = shell.navState;
+    if (!navState) {
+      return;
+    }
+
+    const currentPath = navState.normalizePath(window.location.pathname);
+    const strips = document.querySelectorAll("[data-bijux-detail-strip]:not([hidden])");
+
+    for (const strip of strips) {
+      const authoredActiveLink = strip.querySelector(
+        "a[data-bijux-detail-path][aria-current='page'], .bijux-tabs__item--active a[data-bijux-detail-path]"
+      );
+
       for (const item of strip.querySelectorAll(".bijux-tabs__item")) {
         item.classList.remove("bijux-tabs__item--active");
       }
 
-      for (const link of strip.querySelectorAll("a[data-bijux-strip-path]")) {
+      for (const link of strip.querySelectorAll("a[data-bijux-detail-path]")) {
         link.removeAttribute("aria-current");
       }
 
-      const stripParentPath = navState.normalizePath(
-        strip.getAttribute("data-bijux-strip-parent-path") || "/"
+      const matchedLink = navState.bestMatchingLink(
+        strip,
+        "data-bijux-detail-path",
+        currentPath,
+        "a[data-bijux-detail-path]"
       );
-      const stripMatchesParent = parentPath && stripParentPath === parentPath;
-      strip.hidden = !stripMatchesParent;
 
-      if (!stripMatchesParent) {
-        continue;
+      let activeLink = matchedLink;
+
+      if (!activeLink && authoredActiveLink) {
+        activeLink = {
+          path: navState.normalizePath(
+            authoredActiveLink.getAttribute("data-bijux-detail-path") || "/"
+          ),
+          node: authoredActiveLink,
+        };
       }
 
-      const authoredActiveLink = strip.querySelector(
-        "a[data-bijux-strip-path][aria-current='page'], .bijux-tabs__item--active a[data-bijux-strip-path]"
-      );
-      let activeLink = navState.bestMatchingLink(
-        strip,
-        "data-bijux-strip-path",
-        currentPath,
-        "a[data-bijux-strip-path]"
-      );
+      if (!activeLink) {
+        const parentPath = navState.normalizePath(
+          strip.getAttribute("data-bijux-detail-root-path") || "/"
+        );
+        const homeLink = strip.querySelector(
+          `a[data-bijux-detail-path="${parentPath}"]`
+        );
+        if (homeLink) {
+          activeLink = {
+            path: parentPath,
+            node: homeLink,
+          };
+        }
+      }
+
+      if (!activeLink) {
+        const firstLink = strip.querySelector("a[data-bijux-detail-path]");
+        if (firstLink) {
+          activeLink = {
+            path: navState.normalizePath(
+              firstLink.getAttribute("data-bijux-detail-path") || "/"
+            ),
+            node: firstLink,
+          };
+        }
+      }
 
       if (activeLink) {
         activeLink.node
           .closest(".bijux-tabs__item")
           ?.classList.add("bijux-tabs__item--active");
         activeLink.node.setAttribute("aria-current", "page");
-        parentPath = activeLink.path;
-        continue;
+      }
+    }
+  }
+
+  function activeDetailPath() {
+    const navState = shell.navState;
+    if (!navState) {
+      return null;
+    }
+
+    const activeStrip = document.querySelector("[data-bijux-detail-strip]:not([hidden])");
+    if (!activeStrip) {
+      return null;
+    }
+
+    const activeLink = navState.bestMatchingLink(
+      activeStrip,
+      "data-bijux-detail-path",
+      navState.normalizePath(window.location.pathname),
+      "a[data-bijux-detail-path]"
+    );
+    if (activeLink) {
+      return activeLink.path;
+    }
+
+    const authoredActiveLink = activeStrip.querySelector(
+      "a[data-bijux-detail-path][aria-current='page'], .bijux-tabs__item--active a[data-bijux-detail-path]"
+    );
+    if (authoredActiveLink) {
+      return navState.normalizePath(
+        authoredActiveLink.getAttribute("data-bijux-detail-path") || "/"
+      );
+    }
+
+    return null;
+  }
+
+  function syncCourseStripVisibility() {
+    const navState = shell.navState;
+    if (!navState) {
+      return;
+    }
+
+    const currentPath = navState.normalizePath(window.location.pathname);
+    const activeProgramPath = activeDetailPath();
+    for (const strip of document.querySelectorAll("[data-bijux-course-strip]")) {
+      const rootPath = navState.normalizePath(
+        strip.getAttribute("data-bijux-course-root-path") || "/"
+      );
+      const activeCourseLink = navState.bestMatchingLink(
+        strip,
+        "data-bijux-course-path",
+        currentPath,
+        "a[data-bijux-course-path]"
+      );
+      strip.hidden = rootPath !== activeProgramPath && !activeCourseLink;
+    }
+  }
+
+  function syncCourseStripActiveState() {
+    const navState = shell.navState;
+    if (!navState) {
+      return;
+    }
+
+    const currentPath = navState.normalizePath(window.location.pathname);
+    const strips = document.querySelectorAll("[data-bijux-course-strip]:not([hidden])");
+
+    for (const strip of strips) {
+      const authoredActiveLink = strip.querySelector(
+        "a[data-bijux-course-path][aria-current='page'], .bijux-tabs__item--active a[data-bijux-course-path]"
+      );
+
+      for (const item of strip.querySelectorAll(".bijux-tabs__item")) {
+        item.classList.remove("bijux-tabs__item--active");
       }
 
-      if (authoredActiveLink) {
-        authoredActiveLink
+      for (const link of strip.querySelectorAll("a[data-bijux-course-path]")) {
+        link.removeAttribute("aria-current");
+      }
+
+      let activeLink = navState.bestMatchingLink(
+        strip,
+        "data-bijux-course-path",
+        currentPath,
+        "a[data-bijux-course-path]"
+      );
+
+      if (!activeLink && authoredActiveLink) {
+        activeLink = {
+          path: navState.normalizePath(
+            authoredActiveLink.getAttribute("data-bijux-course-path") || "/"
+          ),
+          node: authoredActiveLink,
+        };
+      }
+
+      if (activeLink) {
+        activeLink.node
           .closest(".bijux-tabs__item")
           ?.classList.add("bijux-tabs__item--active");
-        authoredActiveLink.setAttribute("aria-current", "page");
-        parentPath = navState.normalizePath(
-          authoredActiveLink.getAttribute("data-bijux-strip-path") || "/"
-        );
-        continue;
-      }
-      const firstLink = strip.querySelector("a[data-bijux-strip-path]");
-      if (firstLink) {
-        firstLink.closest(".bijux-tabs__item")?.classList.add("bijux-tabs__item--active");
-        firstLink.setAttribute("aria-current", "page");
-        parentPath = navState.normalizePath(
-          firstLink.getAttribute("data-bijux-strip-path") || "/"
-        );
+        activeLink.node.setAttribute("aria-current", "page");
       }
     }
   }
@@ -107,12 +231,12 @@
     }
 
     const strips = document.querySelectorAll(
-      "[data-bijux-nested-strip]:not([hidden])"
+      "[data-bijux-detail-strip]:not([hidden]), [data-bijux-course-strip]:not([hidden])"
     );
 
     for (const strip of strips) {
       const activeLink = strip.querySelector(
-        "a[data-bijux-strip-path][aria-current='page']"
+        "a[data-bijux-detail-path][aria-current='page'], a[data-bijux-course-path][aria-current='page']"
       );
 
       if (!activeLink) {
@@ -120,7 +244,8 @@
       }
 
       const activePath = navState.normalizePath(
-        activeLink.getAttribute("data-bijux-strip-path") ||
+        activeLink.getAttribute("data-bijux-detail-path") ||
+          activeLink.getAttribute("data-bijux-course-path") ||
           "/"
       );
 
@@ -131,7 +256,8 @@
 
       for (const option of select.options) {
         const optionPath = navState.normalizePath(
-          option.getAttribute("data-bijux-strip-path") ||
+          option.getAttribute("data-bijux-detail-path") ||
+            option.getAttribute("data-bijux-course-path") ||
             option.value ||
             "/"
         );
@@ -141,7 +267,10 @@
   }
 
   function runDetailTabsSync() {
-    syncNestedStripActiveState();
+    syncDetailStripVisibility();
+    syncDetailStripActiveState();
+    syncCourseStripVisibility();
+    syncCourseStripActiveState();
     syncDetailStripPresence();
     syncDetailSelectState();
     bindDetailSelectNavigation();
@@ -149,7 +278,11 @@
 
   shell.detailTabs = {
     syncDetailStripPresence,
-    syncNestedStripActiveState,
+    syncDetailStripVisibility,
+    syncDetailStripActiveState,
+    activeDetailPath,
+    syncCourseStripVisibility,
+    syncCourseStripActiveState,
     syncDetailSelectState,
     bindDetailSelectNavigation,
     runDetailTabsSync,
