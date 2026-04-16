@@ -18,6 +18,25 @@ Use the docs as orientation first and proof map second. Repository pages should
 explain cross-package concerns, while package pages, schemas, tests, and
 release artifacts carry the detailed evidence behind specific claims.
 
+```mermaid
+flowchart TD
+    site[Docs site]
+    landing[landing page]
+    repo[repository handbook]
+    pkg[package handbooks]
+    maintain[maintainer handbook]
+    proof[schemas tests metadata workflows]
+
+    site --> landing
+    site --> repo
+    site --> pkg
+    site --> maintain
+
+    repo -->|orientation| proof
+    pkg -->|detailed behavior| proof
+    maintain -->|repo health checks| proof
+```
+
 ## Handbook Shape
 
 - one landing page for site orientation
