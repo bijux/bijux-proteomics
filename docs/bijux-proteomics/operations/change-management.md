@@ -11,6 +11,16 @@ last_reviewed: 2026-04-10
 
 The repository should make change easier to reason about, not easier to hide.
 
+```mermaid
+timeline
+    title Repository change management flow
+    Proposal : define durable intent
+    Batch 1 : make reviewable repository change
+    Batch 2 : update docs, schemas, and proof surfaces
+    Review : confirm names, redirects, and scope remain clear
+    Completion : merge only when explanation and behavior match
+```
+
 ## Expectations
 
 - split repository-wide work into reviewable batches with durable commit intent
