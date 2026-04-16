@@ -22,35 +22,15 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Dependencies and Adjacencies<br/>clarifies: own the right work | name the boundary | compare neighbors"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["trace capture, runtime persistence, and execution-store behavior"]
-    own1 --> page
-    own2["flow execution authority"]
-    own2 --> page
-    own3["replay and acceptability semantics"]
-    own3 --> page
-    limit1["repository tooling and release support"]
-    page -.keeps outside.-> limit1
-    limit2["agent composition policy"]
-    page -.keeps outside.-> limit2
-    limit3["ingest and index domain ownership"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-foundation"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-foundation/tests"]
-    page --> anchor3
-    class page page;
-    class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+graph TD
+    foundation[bijux-proteomics-foundation]
+    foundation --> core[bijux-proteomics-core]
+    foundation --> intelligence[bijux-proteomics-intelligence]
+    foundation --> knowledge[bijux-proteomics-knowledge]
+    foundation --> lab[bijux-proteomics-lab]
+
+    dev[bijux-proteomics-dev] -. validates .-> foundation
+    contracts[API schemas and contracts] <--> foundation
 ```
 
 ## Direct Dependency Themes
