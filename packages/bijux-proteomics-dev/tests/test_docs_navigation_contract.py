@@ -254,6 +254,7 @@ def test_repository_foundation_leaf_pages_keep_section_sidebar(
     assert page.active_detail_tabs == ["Foundation"]
     assert page.sidebar_title == "Foundation"
     assert page.sidebar_links == [
+        "Foundation",
         "Platform Overview",
         "Repository Scope",
         "Workspace Layout",
@@ -277,6 +278,7 @@ def test_repository_operations_leaf_pages_keep_section_sidebar(
     assert page.active_detail_tabs == ["Operations"]
     assert page.sidebar_title == "Operations"
     assert page.sidebar_links == [
+        "Operations",
         "Local Development",
         "Testing and Validation",
         "Release and Versioning",
@@ -358,6 +360,7 @@ def test_maintenance_dev_leaf_pages_keep_section_sidebar(
     assert page.active_detail_tabs == ["bijux-proteomics-dev"]
     assert page.sidebar_title == "bijux-proteomics-dev"
     assert page.sidebar_links == [
+        "bijux-proteomics-dev",
         "Package Overview",
         "Scope and Non-Goals",
         "Module Map",
@@ -382,6 +385,7 @@ def test_maintenance_make_leaf_pages_keep_section_sidebar(
     assert page.active_detail_tabs == ["makes"]
     assert page.sidebar_title == "makes"
     assert page.sidebar_links == [
+        "makes",
         "Make System Overview",
         "Root Entrypoints",
         "Environment Model",
@@ -405,6 +409,7 @@ def test_maintenance_workflow_leaf_pages_keep_section_sidebar(
     assert page.active_detail_tabs == ["gh-workflows"]
     assert page.sidebar_title == "gh-workflows"
     assert page.sidebar_links == [
+        "gh-workflows",
         "verify",
         "reusable-workflows",
         "deploy-docs",
@@ -421,6 +426,7 @@ def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) 
     assert page.active_detail_tabs == ["Architecture"]
     assert page.sidebar_title == "Architecture"
     assert page.sidebar_links == [
+        "Architecture",
         "Module Map",
         "Dependency Direction",
         "Execution Model",
@@ -446,6 +452,7 @@ def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) 
             ["Interfaces"],
             "Interfaces",
             [
+                "Interfaces",
                 "CLI Surface",
                 "API Surface",
                 "Configuration Surface",
@@ -462,6 +469,7 @@ def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) 
             ["Interfaces"],
             "Interfaces",
             [
+                "Interfaces",
                 "CLI Surface",
                 "API Surface",
                 "Configuration Surface",
@@ -478,6 +486,7 @@ def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) 
             ["Operations"],
             "Operations",
             [
+                "Operations",
                 "Installation and Setup",
                 "Local Development",
                 "Common Workflows",
@@ -509,6 +518,13 @@ def test_navigation_sync_prefers_authored_active_links() -> None:
     script = (
         REPO_ROOT / "docs" / "assets" / "javascripts" / "navigation-sync.js"
     ).read_text(encoding="utf-8")
+    nav_state = (
+        REPO_ROOT / "docs" / "assets" / "javascripts" / "shell" / "nav-state.js"
+    ).read_text(encoding="utf-8")
+    detail_tabs = (
+        REPO_ROOT / "docs" / "assets" / "javascripts" / "shell" / "detail-tabs.js"
+    ).read_text(encoding="utf-8")
 
-    assert "[data-bijux-site-path][aria-current='page']" in script
-    assert "[data-bijux-detail-path][aria-current='page']" in script
+    assert "window.bijuxShell?.bootstrap?.ensureBound" in script
+    assert "[data-bijux-site-path][aria-current='page']" in nav_state
+    assert "[data-bijux-detail-path][aria-current='page']" in detail_tabs
