@@ -14,6 +14,21 @@ metadata so release intent remains understandable years later.
 
 For every publishable package in this repository, version is resolved from Git tags through `hatch-vcs`, with a checked-in fallback version for source trees that are outside a release tag context.
 
+```mermaid
+sequenceDiagram
+    participant Dev as Maintainer
+    participant Git as Git tags
+    participant Hatch as hatch-vcs
+    participant CI as publish.yml
+    participant Targets as PyPI/GHCR/GitHub Release
+
+    Dev->>Git: create version tag
+    Git->>Hatch: resolve package versions
+    Git->>CI: trigger publish workflow
+    CI->>Targets: build and publish artifacts
+    CI->>Targets: publish release metadata
+```
+
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
