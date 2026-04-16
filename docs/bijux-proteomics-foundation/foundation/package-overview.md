@@ -24,34 +24,17 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 
 ```mermaid
 flowchart LR
-    page["Package Overview<br/>clarifies: own the right work | name the boundary | compare neighbors"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["schema profiles and compatibility checks"]
-    own1 --> page
-    own2["canonical serialization and deterministic fingerprints"]
-    own2 --> page
-    own3["identifier and migration primitives"]
-    own3 --> page
-    limit1["runtime orchestration policy"]
-    page -.keeps outside.-> limit1
-    limit2["candidate-scoring and evidence policy"]
-    page -.keeps outside.-> limit2
-    limit3["repository tooling and release support"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-foundation"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-foundation/tests"]
-    page --> anchor3
-    class page page;
-    class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+    inputs[Shared package inputs] --> foundation[Foundation package]
+    foundation --> models[types and models]
+    foundation --> contracts[schemas and contracts]
+    foundation --> ids[identifiers and naming]
+    foundation --> validation[validation primitives]
+    foundation --> imports[stable imports]
+
+    core[core package] --> foundation
+    intelligence[intelligence package] --> foundation
+    knowledge[knowledge package] --> foundation
+    lab[lab package] --> foundation
 ```
 
 ## What It Owns
