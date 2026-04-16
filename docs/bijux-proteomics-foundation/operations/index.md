@@ -18,35 +18,21 @@ Treat the operations pages for `bijux-proteomics-foundation` as the package's ex
 ## Visual Summary
 
 ```mermaid
-flowchart LR
-    page["Operations<br/>clarifies: repeat workflows | find diagnostics | release safely"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["public package exports in src/bijux_proteomics_foundation/__init__.py"]
-    step1 --> page
-    step2["schema and serialization boundaries in src/bijux_proteomics_foundation"]
-    step2 --> page
-    step3["packages/bijux-proteomics-foundation/pyproject.toml"]
-    step3 --> page
-    run1["packages/bijux-proteomics-foundation/tests/test_document_primitives.py"]
-    page --> run1
-    run2["cross-package tests that consume foundation contracts"]
-    page --> run2
-    run3["type, lint, and packaging gates for compatibility discipline"]
-    page --> run3
-    release1["CHANGELOG.md"]
-    run1 --> release1
-    release2["pyproject.toml"]
-    run2 --> release2
-    release3["README.md"]
-    run3 --> release3
-    class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+mindmap
+  root((Operations))
+    Setup
+      installation
+      local development
+    Run
+      common workflows
+      deployment boundaries
+    Diagnose
+      observability
+      failure recovery
+      performance
+    Ship
+      release and versioning
+      security and safety
 ```
 
 ## Pages in This Section
