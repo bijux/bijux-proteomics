@@ -12,6 +12,21 @@ last_reviewed: 2026-04-10
 Repository automation should be visible in named surfaces, not hidden behind
 tribal shortcuts.
 
+```mermaid
+flowchart TD
+    A[Automation in repository] --> B[Makefile]
+    A --> C[makes/]
+    A --> D[.github/workflows/]
+    A --> E[packages/bijux-proteomics-dev]
+
+    B --> B1[top-level entrypoint]
+    C --> C1[structured make fragments]
+    D --> D1[CI / docs / release automation]
+    E --> E1[code-bearing maintainer automation]
+
+    X[hidden ad hoc scripts] -. forbidden .-> A
+```
+
 ## Core Automation Surfaces
 
 - `Makefile` as the top-level repository entrypoint
