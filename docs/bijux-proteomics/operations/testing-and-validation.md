@@ -13,6 +13,19 @@ Validation in `bijux-proteomics` is layered: packages protect their own
 behavior, while the repository protects the seams between packages, schema
 artifacts, docs, and release conventions.
 
+```mermaid
+flowchart TB
+    pkg[package-local tests]
+    api[API contract checks under apis/*/v1]
+    docs[docs and metadata checks]
+    wf[GitHub workflows]
+    promise[prose promises]
+
+    pkg --> api --> docs --> wf
+    promise -. incomplete without .-> pkg
+    promise -. incomplete without .-> docs
+```
+
 ## Validation Layers
 
 - package-local unit, integration, and invariant suites
