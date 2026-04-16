@@ -13,6 +13,22 @@ Local work should begin in the owning package and escalate to root automation
 only when the change genuinely crosses package, schema, or repository
 boundaries.
 
+```mermaid
+flowchart LR
+    edit[Need to make a change]
+    pkg{Only one package?}
+    docs{Spans schemas, docs, or shared automation?}
+
+    edit --> pkg
+    pkg -- yes --> local[Work in owning package directory]
+    pkg -- no --> docs
+    docs -- yes --> root[Use root automation and shared docs]
+    docs -- no --> local
+
+    local --> proof[Update docs with code]
+    root --> proof
+```
+
 ## Working Rules
 
 - make package-local changes in the owning package directory
