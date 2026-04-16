@@ -22,34 +22,13 @@ Treat the quality pages for `bijux-proteomics-foundation` as the proof frame aro
 
 ```mermaid
 flowchart LR
-    page["Dependency Governance<br/>clarifies: see proof | see limitations | judge done-ness"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/e2e for governed flow behavior"]
-    proof1 --> page
-    proof2["tests/regression and tests/smoke for replay and storage protection"]
-    proof2 --> page
-    proof3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    proof3 --> page
-    risk1["pyproject.toml"]
-    risk1 -.keeps trust honest.-> page
-    risk2["README.md"]
-    risk2 -.keeps trust honest.-> page
-    risk3["CHANGELOG.md"]
-    risk3 -.keeps trust honest.-> page
-    bar1["package trust after change"]
-    page --> bar1
-    bar2["proof before confidence"]
-    page --> bar2
-    bar3["done means defended behavior"]
-    page --> bar3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class risk1,risk2,risk3 caution;
-    class bar1,bar2,bar3 action;
+    dep["new or changed dependency"] --> q1{"needed for package purpose?"}
+    q1 -->|no| reject["reject"]
+    q1 -->|yes| q2{"fits dependency direction?"}
+    q2 -->|no| redesign["redesign placement"]
+    q2 -->|yes| q3{"risk acceptable?"}
+    q3 -->|no| mitigate["pin, isolate, or replace"]
+    q3 -->|yes| accept["accept with review note"]
 ```
 
 ## Current Dependency Themes
