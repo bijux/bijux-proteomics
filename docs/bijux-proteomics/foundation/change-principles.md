@@ -12,6 +12,19 @@ last_reviewed: 2026-04-10
 Root-level change should leave the repository easier to explain, not merely
 more featureful.
 
+```mermaid
+flowchart LR
+    A[Proposed repository change] --> B{Moves behavior toward owner?}
+    B -->|No| X[Reject or rethink]
+    B -->|Yes| C{Docs, schema, tests, and automation updated together?}
+    C -->|No| X
+    C -->|Yes| D{Names remain durable?}
+    D -->|No| X
+    D -->|Yes| E{Automation explicit and deterministic?}
+    E -->|No| X
+    E -->|Yes| F[Accept for review]
+```
+
 ## Principles
 
 - prefer moving behavior toward the owning package rather than broadening root
