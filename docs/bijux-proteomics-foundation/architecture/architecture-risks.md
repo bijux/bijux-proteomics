@@ -20,35 +20,19 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 ## Visual Summary
 
 ```mermaid
-flowchart LR
-    page["Architecture Risks<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["execution engines and lifecycle logic"]
-    module1 --> page
-    module2["orchestration and replay coordination"]
-    module2 --> page
-    module3["durable runtime models"]
-    module3 --> page
-    code1["src/bijux_proteomics_foundation/model"]
-    page --> code1
-    code2["src/bijux_proteomics_foundation/runtime"]
-    page --> code2
-    code3["src/bijux_proteomics_foundation/application"]
-    page --> code3
-    pressure1["tests/e2e for governed flow behavior"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/regression and tests/smoke for replay and storage protection"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+quadrantChart
+    title Foundation Architecture Risks
+    x-axis Low impact --> High impact
+    y-axis Low likelihood --> High likelihood
+    quadrant-1 Watch
+    quadrant-2 Critical
+    quadrant-3 Minor
+    quadrant-4 Structural debt
+    "Type sprawl": [0.68, 0.61]
+    "Schema drift": [0.88, 0.76]
+    "Ambiguous identifiers": [0.80, 0.67]
+    "Leaky public exports": [0.74, 0.59]
+    "Version confusion": [0.77, 0.72]
 ```
 
 ## Risk Signals
