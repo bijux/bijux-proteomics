@@ -58,6 +58,7 @@ def test_workflow_tree_is_standardized() -> None:
     workflows = root / ".github" / "workflows"
     found = {path.name for path in workflows.glob("*.yml")}
     assert found == {
+        "bijux-std-checks.yml",
         "build-release-artifacts.yml",
         "ci-package.yml",
         "deploy-docs.yml",
