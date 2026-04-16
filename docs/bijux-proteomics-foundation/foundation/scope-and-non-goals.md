@@ -23,34 +23,14 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 
 ```mermaid
 flowchart TB
-    page["Scope and Non-Goals<br/>clarifies: own the right work | name the boundary | compare neighbors"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["flow execution authority"]
-    own1 --> page
-    own2["replay and acceptability semantics"]
-    own2 --> page
-    own3["trace capture, runtime persistence, and execution-store behavior"]
-    own3 --> page
-    limit1["agent composition policy"]
-    page -.keeps outside.-> limit1
-    limit2["ingest and index domain ownership"]
-    page -.keeps outside.-> limit2
-    limit3["repository tooling and release support"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-foundation/tests"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-foundation"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"]
-    page --> anchor3
-    class page page;
-    class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+    scope["in scope"] --> s1["canonical schema"]
+    scope --> s2["stable identifiers"]
+    scope --> s3["deterministic serialization"]
+    scope --> s4["compatibility utilities"]
+    nonscope["non-goals"] --> n1["business workflow"]
+    nonscope --> n2["service orchestration"]
+    nonscope --> n3["deployment automation"]
+    nonscope --> n4["package-specific policy"]
 ```
 
 ## In Scope
