@@ -132,7 +132,7 @@
         {% endif %}
       {% endfor %}
     {% endif %}
-    {% if detail_items and detail_items.list %}
+    {% if detail_items and detail_items.list and detail_items.list | length > 1 %}
       {% set is_hidden = "" if nav_item.active else "hidden" %}
       <nav class="bijux-detail-tabs" aria-label="{{ nav_item.title }} sections" data-bijux-nav-row="program" data-bijux-detail-strip data-bijux-detail-root-path="{{ bijux_nav.first_page_path(nav_item) | trim }}" {{ is_hidden }}>
         <div class="md-grid">
@@ -181,7 +181,7 @@
             {% endif %}
           {% endfor %}
         {% endif %}
-        {% if course_item.children and course_detail_items.list %}
+        {% if course_item.children and course_detail_items.list and course_detail_items.list | length > 1 %}
           {% set course_active = course_item.active or (current_page and course_item.pages and current_page in course_item.pages) %}
           {% set is_hidden = "" if nav_item.active and course_active else "hidden" %}
           <nav class="bijux-detail-tabs bijux-course-tabs" aria-label="{{ course_item.title }} course sections" data-bijux-nav-row="course" data-bijux-course-strip data-bijux-course-root-path="{{ bijux_nav.first_page_path(course_item) | trim }}" data-bijux-course-title="{{ course_item.title }}" {{ is_hidden }}>
