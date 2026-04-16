@@ -12,6 +12,26 @@ last_reviewed: 2026-04-10
 The top-level tree should help readers place work quickly. If the layout makes
 ownership harder to see, it is working against the design.
 
+```mermaid
+flowchart TB
+    repo[bijux-proteomics]
+    repo --> packages[packages/]
+    repo --> apis[apis/]
+    repo --> docs[docs/]
+    repo --> makes[makes/ + Makefile]
+    repo --> configs[configs/]
+    repo --> artifacts[artifacts/]
+
+    packages --> p1[publishable distributions]
+    packages --> p2[maintainer tooling]
+    apis --> a1[schema sources]
+    apis --> a2[pinned OpenAPI + digests]
+    docs --> d1[canonical handbook]
+    makes --> m1[shared automation]
+    configs --> c1[tool config]
+    artifacts --> r1[generated output only]
+```
+
 ## Top-Level Directories
 
 - `packages/` for publishable Python distributions and maintainer tooling
