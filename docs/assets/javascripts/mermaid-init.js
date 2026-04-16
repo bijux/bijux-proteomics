@@ -201,40 +201,47 @@ function applyDarkContrastNormalization(root) {
   };
 
   for (const svg of root.querySelectorAll(".mermaid svg")) {
-    const nodeShapes = svg.querySelectorAll(
-      ".node rect, .node circle, .node ellipse, .node polygon, .node path, " +
-        ".classBox, .stateGroup rect, .stateGroup path, rect.basic, rect.label-container",
-    );
-    for (const el of nodeShapes) {
+    const shapes = svg.querySelectorAll("rect, circle, ellipse, polygon, path, line, polyline");
+    for (const el of shapes) {
+      const className = (el.getAttribute("class") || "").toLowerCase();
       const fill = firstColorValue(el, "fill");
-      if (relativeLuminance(parseColor(fill)) > 0.35 || !fill) {
+      const stroke = firstColorValue(el, "stroke");
+      const fillLum = relativeLuminance(parseColor(fill));
+      const hasFill = !!fill && fill !== "none" && fill !== "transparent";
+      const hasStroke = !!stroke && stroke !== "none" && stroke !== "transparent";
+
+      const inEdgeLabel =
+        !!el.closest(".edgeLabel") ||
+        className.includes("edgelabel") ||
+        className.includes("labelbkg") ||
+        className.includes("relationshiplabelbox");
+      const inCluster = !!el.closest(".cluster") || className.includes("cluster");
+      const inNode =
+        !!el.closest(".node, .classGroup, .stateGroup") ||
+        className.includes("node") ||
+        className.includes("classbox") ||
+        className.includes("label-container") ||
+        className.includes("basic");
+
+      if (inEdgeLabel) {
+        el.style.fill = palettes.edgeLabelBg;
+        el.style.opacity = "1";
+      } else if (inCluster) {
+        el.style.fill = palettes.clusterFill;
+      } else if (inNode) {
+        el.style.fill = palettes.nodeFill;
+      } else if (hasFill && fillLum > 0.24) {
+        // Generic fallback for unknown Mermaid shape classes that are too bright.
         el.style.fill = palettes.nodeFill;
       }
-      el.style.stroke = palettes.nodeStroke;
-    }
 
-    const clusterShapes = svg.querySelectorAll(".cluster rect, .cluster polygon");
-    for (const el of clusterShapes) {
-      el.style.fill = palettes.clusterFill;
-      el.style.stroke = palettes.clusterStroke;
-    }
-
-    const lines = svg.querySelectorAll(
-      ".flowchart-link, .edgePath .path, .path, .marker path, line, polyline, path",
-    );
-    for (const el of lines) {
-      const cls = (el.getAttribute("class") || "").toLowerCase();
-      const isNodeGeometry =
-        cls.includes("node") || cls.includes("classbox") || cls.includes("label-container");
-      if (!isNodeGeometry) {
+      if (inCluster) {
+        el.style.stroke = palettes.clusterStroke;
+      } else if (inNode) {
+        el.style.stroke = palettes.nodeStroke;
+      } else if (hasStroke || !hasFill) {
         el.style.stroke = palettes.lineStroke;
       }
-    }
-
-    const edgeLabelBg = svg.querySelectorAll(".edgeLabel rect, .labelBkg, .relationshipLabelBox");
-    for (const el of edgeLabelBg) {
-      el.style.fill = palettes.edgeLabelBg;
-      el.style.opacity = "1";
     }
 
     const labels = svg.querySelectorAll(
@@ -282,6 +289,16 @@ document$.subscribe(() => {
   mermaid.run({
     nodes,
   });
+  const applyNormalization = () => {
+    applyDarkContrastNormalization(document);
+    requestAnimationFrame(() => applyDarkContrastNormalization(document));
+    setTimeout(() => applyDarkContrastNormalization(document), 120);
+  };
 
-  applyDarkContrastNormalization(document);
+  applyNormalization();
+});
+
+window.addEventListener("bijux:theme-change", () => {
+  setTimeout(() => applyDarkContrastNormalization(document), 0);
+  setTimeout(() => applyDarkContrastNormalization(document), 120);
 });
