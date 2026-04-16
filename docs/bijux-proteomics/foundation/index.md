@@ -16,6 +16,20 @@ A reader should be able to leave this section with a durable understanding of
 the package split, the ownership model, the shared vocabulary, and the change
 rules that keep the repository legible over time.
 
+```mermaid
+mindmap
+  root((Foundation))
+    Platform Overview
+    Repository Scope
+    Workspace Layout
+    Package Map
+    Ownership Model
+    Domain Language
+    Documentation System
+    Change Principles
+    Decision Rules
+```
+
 ## Pages In This Section
 
 - [Platform Overview](platform-overview.md)
