@@ -5,32 +5,33 @@ function isDarkScheme() {
 function getMermaidThemeVariables() {
   if (isDarkScheme()) {
     return {
-      primaryColor: "#163c4c",
-      primaryTextColor: "#e7eef5",
-      primaryBorderColor: "#7ddad4",
-      lineColor: "#b7d8e2",
-      secondaryColor: "#112c3c",
-      tertiaryColor: "#19384a",
+      darkMode: true,
+      primaryColor: "#112838",
+      primaryTextColor: "#eaf2fa",
+      primaryBorderColor: "#6fc7c2",
+      lineColor: "#a9c8d4",
+      secondaryColor: "#0f2332",
+      tertiaryColor: "#132c3d",
       background: "#0b1120",
-      mainBkg: "#19384a",
-      secondBkg: "#132f40",
-      tertiaryBkg: "#102838",
-      textColor: "#e7eef5",
-      labelTextColor: "#e7eef5",
-      edgeLabelBackground: "#1a3345",
-      nodeBorder: "#7ddad4",
-      clusterBkg: "#11293a",
-      clusterBorder: "#5cc3bd",
+      mainBkg: "#122b3c",
+      secondBkg: "#0f2434",
+      tertiaryBkg: "#0d2030",
+      textColor: "#eaf2fa",
+      labelTextColor: "#eaf2fa",
+      edgeLabelBackground: "#102334",
+      nodeBorder: "#6fc7c2",
+      clusterBkg: "#0f2536",
+      clusterBorder: "#4ba8a2",
       titleColor: "#f4f8ff",
-      actorTextColor: "#e7eef5",
-      actorLineColor: "#b7d8e2",
-      signalColor: "#b7d8e2",
-      signalTextColor: "#e7eef5",
-      noteTextColor: "#e7eef5",
-      noteBkgColor: "#1a3a4d",
-      noteBorderColor: "#7ddad4",
-      activationBorderColor: "#7ddad4",
-      sequenceNumberColor: "#e7eef5",
+      actorTextColor: "#eaf2fa",
+      actorLineColor: "#a9c8d4",
+      signalColor: "#a9c8d4",
+      signalTextColor: "#eaf2fa",
+      noteTextColor: "#eaf2fa",
+      noteBkgColor: "#132b3c",
+      noteBorderColor: "#6fc7c2",
+      activationBorderColor: "#6fc7c2",
+      sequenceNumberColor: "#eaf2fa",
     };
   }
 
@@ -67,22 +68,31 @@ function getMermaidThemeVariables() {
 function buildMermaidConfig() {
   const darkThemeCss = `
     .label, .label text, .nodeLabel, .edgeLabel, .edgeLabel p {
-      fill: #e7eef5 !important;
-      color: #e7eef5 !important;
+      fill: #eaf2fa !important;
+      color: #eaf2fa !important;
     }
     .edgeLabel rect {
-      fill: #1a3345 !important;
+      fill: #102334 !important;
       opacity: 1 !important;
     }
     .cluster rect {
-      fill: #11293a !important;
-      stroke: #5cc3bd !important;
+      fill: #0f2536 !important;
+      stroke: #4ba8a2 !important;
     }
-    .node rect, .node circle, .node ellipse, .node polygon, .node path {
-      stroke: #7ddad4 !important;
+    .node rect, .node circle, .node ellipse, .node polygon, .node path,
+    .classBox, .stateGroup rect, .stateGroup path {
+      fill: #122b3c !important;
+      stroke: #6fc7c2 !important;
     }
-    .flowchart-link, .marker, .marker path, .path {
-      stroke: #b7d8e2 !important;
+    .flowchart-link, .marker, .marker path, .path, .edgePath .path {
+      stroke: #a9c8d4 !important;
+    }
+    .relationshipLabelBox {
+      fill: #102334 !important;
+      opacity: 1 !important;
+    }
+    .legend text, .classTitle, .state-title {
+      fill: #eaf2fa !important;
     }
   `;
 
