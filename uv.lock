@@ -70,7 +70,7 @@ requires-dist = [
     { name = "langchain-core", marker = "extra == 'nl'", specifier = ">=0.2" },
     { name = "langchain-huggingface", marker = "extra == 'nl'", specifier = ">=0.3.1" },
     { name = "loguru", specifier = ">=0.7" },
-    { name = "numpy", specifier = ">=1.26,<2.0" },
+    { name = "numpy", specifier = ">=1.26,<3.0" },
     { name = "openprotein-python", marker = "extra == 'api'", specifier = ">=0.8.8" },
     { name = "pydantic", specifier = ">=2.0.2" },
     { name = "requests", specifier = ">=2.31" },
@@ -464,7 +464,7 @@ requires-dist = [
     { name = "codespell", marker = "extra == 'dev'", specifier = ">=2.3.0,<3.0" },
     { name = "deptry", marker = "extra == 'dev'", specifier = ">=0.10.0,<1.0" },
     { name = "hatch", marker = "extra == 'dev'", specifier = ">=1.14.0,<2.0" },
-    { name = "huggingface-hub", specifier = ">=0.24,<1.0" },
+    { name = "huggingface-hub", specifier = ">=0.24,<2.0" },
     { name = "interrogate", marker = "extra == 'dev'", specifier = ">=1.7.0,<2.0" },
     { name = "mkdocs", marker = "extra == 'dev'", specifier = ">=1.6.1,<2.0" },
     { name = "mkdocs-autorefs", marker = "extra == 'dev'", specifier = ">=1.4.4,<2.0" },
@@ -472,14 +472,14 @@ requires-dist = [
     { name = "mkdocs-material", marker = "extra == 'dev'", specifier = ">=9.5.39,<10.0" },
     { name = "mkdocs-redirects", marker = "extra == 'dev'", specifier = ">=1.2,<2.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11.2,<2.0" },
-    { name = "packaging", specifier = ">=24.0,<25.0" },
+    { name = "packaging", specifier = ">=24.0,<27.0" },
     { name = "pip-audit", marker = "extra == 'dev'", specifier = ">=2.7.3,<3.0" },
     { name = "pydantic", marker = "extra == 'dev'", specifier = ">=2.12,<3.0" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = ">=6.3.0,<7.0" },
     { name = "pymdown-extensions", marker = "extra == 'dev'", specifier = ">=10.8,<11.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.1,<9.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.3,<10.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=1.0.0,<2.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.2.1,<7.0" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.2.1,<8.0" },
     { name = "pytest-timeout", marker = "extra == 'dev'", specifier = ">=2.4.0,<3.0" },
     { name = "pyyaml", specifier = ">=6.0,<7.0" },
     { name = "radon", marker = "extra == 'dev'", specifier = ">=6.0.1,<7.0" },
@@ -659,12 +659,12 @@ dev = [
     { name = "prance", specifier = ">=23.6.21.0" },
     { name = "pydocstyle", specifier = ">=6.2.1,<7.0" },
     { name = "pyfakefs", specifier = ">=5.9.0" },
-    { name = "pytest", specifier = ">=8.4.1,<9.0" },
+    { name = "pytest", specifier = ">=8.4.1,<10.0" },
     { name = "pytest-asyncio", specifier = ">=1.0.0,<2.0" },
-    { name = "pytest-benchmark", specifier = ">=4.0.0,<5.0" },
-    { name = "pytest-cov", specifier = ">=6.2.1,<7.0" },
+    { name = "pytest-benchmark", specifier = ">=4.0.0,<6.0" },
+    { name = "pytest-cov", specifier = ">=6.2.1,<8.0" },
     { name = "pytest-mock", specifier = ">=3.14.1,<4.0" },
-    { name = "pytest-rerunfailures", specifier = ">=13.0,<14.0" },
+    { name = "pytest-rerunfailures", specifier = ">=13.0,<17.0" },
     { name = "pytest-timeout", specifier = ">=2.4.0,<3.0" },
     { name = "pytype", specifier = ">=2024.10.11" },
     { name = "pyyaml", specifier = ">=6.0,<7.0" },
@@ -674,7 +674,7 @@ dev = [
     { name = "types-colorama", specifier = ">=0.0.14,<1.0" },
     { name = "types-orjson", specifier = ">=3.6.0,<4.0" },
     { name = "types-pexpect", specifier = ">=4.9.0,<5.0" },
-    { name = "types-psutil", specifier = ">=6.0.0,<7.0" },
+    { name = "types-psutil", specifier = ">=6.0.0,<8.0" },
     { name = "types-pyyaml", specifier = ">=6.0.12,<7.0" },
     { name = "typing-extensions", specifier = ">=4.5.0,<5.0" },
     { name = "vulture", specifier = ">=2.7,<3.0" },
@@ -3462,11 +3462,11 @@ wheels = [
 
 [[package]]
 name = "packaging"
-version = "24.2"
+version = "25.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d0/63/68dbb6eb2de9cb10ee4c9c14a0148804425e13c4fb20d61cce69f53106da/packaging-24.2.tar.gz", hash = "sha256:c228a6dc5e932d346bc5739379109d49e8853dd8223571c7c5b55260edc0b97f", size = 163950, upload-time = "2024-11-08T09:47:47.202Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727, upload-time = "2025-04-19T11:48:59.673Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/ef/eb23f262cca3c0c4eb7ab1933c3b1f03d021f2c48f54763065b6f0e321be/packaging-24.2-py3-none-any.whl", hash = "sha256:09abb1bccd265c01f4a3aa3f7a7db064b36514d2cba19a2f694fe6150451a759", size = 65451, upload-time = "2024-11-08T09:47:44.722Z" },
+    { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469, upload-time = "2025-04-19T11:48:57.875Z" },
 ]
 
 [[package]]
@@ -4039,7 +4039,7 @@ wheels = [
 
 [[package]]
 name = "pytest"
-version = "8.4.2"
+version = "9.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -4048,9 +4048,9 @@ dependencies = [
     { name = "pluggy" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a3/5c/00a0e072241553e1a7496d638deababa67c5058571567b92a7eaa258397c/pytest-8.4.2.tar.gz", hash = "sha256:86c0d0b93306b961d58d62a4db4879f27fe25513d4b969df351abdddb3c30e01", size = 1519618, upload-time = "2025-09-04T14:34:22.711Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7d/0d/549bd94f1a0a402dc8cf64563a117c0f3765662e2e668477624baeec44d5/pytest-9.0.3.tar.gz", hash = "sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c", size = 1572165, upload-time = "2026-04-07T17:16:18.027Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/a4/20da314d277121d6534b3a980b29035dcd51e6744bd79075a6ce8fa4eb8d/pytest-8.4.2-py3-none-any.whl", hash = "sha256:872f880de3fc3a5bdc88a11b39c9710c3497a547cfa9320bc3c5e62fbf272e79", size = 365750, upload-time = "2025-09-04T14:34:20.226Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/24/a372aaf5c9b7208e7112038812994107bc65a84cd00e0354a88c2c77a617/pytest-9.0.3-py3-none-any.whl", hash = "sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9", size = 375249, upload-time = "2026-04-07T17:16:16.13Z" },
 ]
 
 [[package]]
@@ -4068,29 +4068,29 @@ wheels = [
 
 [[package]]
 name = "pytest-benchmark"
-version = "4.0.0"
+version = "5.2.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "py-cpuinfo" },
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/28/08/e6b0067efa9a1f2a1eb3043ecd8a0c48bfeb60d3255006dcc829d72d5da2/pytest-benchmark-4.0.0.tar.gz", hash = "sha256:fb0785b83efe599a6a956361c0691ae1dbb5318018561af10f3e915caa0048d1", size = 334641, upload-time = "2022-10-25T21:21:55.686Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/24/34/9f732b76456d64faffbef6232f1f9dbec7a7c4999ff46282fa418bd1af66/pytest_benchmark-5.2.3.tar.gz", hash = "sha256:deb7317998a23c650fd4ff76e1230066a76cb45dcece0aca5607143c619e7779", size = 341340, upload-time = "2025-11-09T18:48:43.215Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4d/a1/3b70862b5b3f830f0422844f25a823d0470739d994466be9dbbbb414d85a/pytest_benchmark-4.0.0-py3-none-any.whl", hash = "sha256:fdb7db64e31c8b277dff9850d2a2556d8b60bcb0ea6524e36e28ffd7c87f71d6", size = 43951, upload-time = "2022-10-25T21:21:53.208Z" },
+    { url = "https://files.pythonhosted.org/packages/33/29/e756e715a48959f1c0045342088d7ca9762a2f509b945f362a316e9412b7/pytest_benchmark-5.2.3-py3-none-any.whl", hash = "sha256:bc839726ad20e99aaa0d11a127445457b4219bdb9e80a1afc4b51da7f96b0803", size = 45255, upload-time = "2025-11-09T18:48:39.765Z" },
 ]
 
 [[package]]
 name = "pytest-cov"
-version = "6.3.0"
+version = "7.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "coverage", extra = ["toml"] },
     { name = "pluggy" },
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/30/4c/f883ab8f0daad69f47efdf95f55a66b51a8b939c430dadce0611508d9e99/pytest_cov-6.3.0.tar.gz", hash = "sha256:35c580e7800f87ce892e687461166e1ac2bcb8fb9e13aea79032518d6e503ff2", size = 70398, upload-time = "2025-09-06T15:40:14.361Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/51/a849f96e117386044471c8ec2bd6cfebacda285da9525c9106aeb28da671/pytest_cov-7.1.0.tar.gz", hash = "sha256:30674f2b5f6351aa09702a9c8c364f6a01c27aae0c1366ae8016160d1efc56b2", size = 55592, upload-time = "2026-03-21T20:11:16.284Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/b4/bb7263e12aade3842b938bc5c6958cae79c5ee18992f9b9349019579da0f/pytest_cov-6.3.0-py3-none-any.whl", hash = "sha256:440db28156d2468cafc0415b4f8e50856a0d11faefa38f30906048fe490f1749", size = 25115, upload-time = "2025-09-06T15:40:12.44Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/7a/d968e294073affff457b041c2be9868a40c1c71f4a35fcc1e45e5493067b/pytest_cov-7.1.0-py3-none-any.whl", hash = "sha256:a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678", size = 22876, upload-time = "2026-03-21T20:11:14.438Z" },
 ]
 
 [[package]]
