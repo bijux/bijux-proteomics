@@ -76,7 +76,7 @@ local-rosettafold = [
 ]
 nl = [
   "langchain-core>=0.2",
-  "langchain-community>=0.2",
+  "langchain-community>=0.3.27",
   "langchain-huggingface>=0.3.1",
 ]
 api = [
