@@ -66,7 +66,7 @@ dev = [
   "twine>=6.1.0,<7.0",
 ]
 local-esmfold = [
-  "transformers>=4.53.2",
+  "transformers>=5.0.0rc3",
   "tokenizers>=0.14",
   "torch>=2.8",
   "einops>=0.7",
@@ -75,9 +75,11 @@ local-rosettafold = [
   "torch>=2.8",
 ]
 nl = [
-  "langchain-core>=0.2",
-  "langchain-community>=0.2",
-  "langchain-huggingface>=0.3.1",
+  "langchain-core>=1.2.22",
+  "langchain-community>=0.3.27",
+  "langchain-huggingface>=1.2.1",
+  "langchain-text-splitters>=1.1.2",
+  "langsmith>=0.7.31",
 ]
 api = [
   "openprotein-python>=0.8.8",
