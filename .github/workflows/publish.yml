@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - name: Download publish artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: ${{ matrix.package_slug }}-pypi-dist
           path: .github/tmp/${{ matrix.package_slug }}-dist
@@ -105,7 +105,7 @@ jobs:
 
     steps:
       - name: Download release artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           name: ${{ matrix.package_slug }}-release
           path: .github/tmp/${{ matrix.package_slug }}-release
@@ -151,7 +151,7 @@ jobs:
 
     steps:
       - name: Download staged release assets
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v8
         with:
           pattern: "*-release"
           path: .github/tmp/release-assets
