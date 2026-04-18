@@ -50,3 +50,5 @@ packages/*/artifacts/
 *.swo
 
 # Repo-specific
+
+artifacts/bijux-docs/
