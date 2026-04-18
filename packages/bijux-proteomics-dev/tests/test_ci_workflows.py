@@ -63,6 +63,7 @@ def test_workflow_tree_is_standardized() -> None:
         "ci.yml",
         "deploy-docs.yml",
         "publish.yml",
+        "release-github.yml",
         "verify.yml",
     }
 

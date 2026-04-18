@@ -33,7 +33,7 @@ sequenceDiagram
 
 - root commit rules live in `pyproject.toml`
 - package versions are resolved per package from the shared `v*` tag line
-- `publish.yml` is tag-triggered and fans out into build, PyPI, GHCR, and GitHub Release jobs
+- `publish.yml` is tag-triggered and fans out into build, PyPI, and GHCR jobs while `release-github.yml` publishes the GitHub Release
 - each publishable package owns its own `CHANGELOG.md`
 
 ## Purpose

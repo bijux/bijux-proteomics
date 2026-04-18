@@ -161,35 +161,11 @@ jobs:
       - build
       - publish_pypi
       - publish_ghcr
-    runs-on: ubuntu-latest
     permissions:
       contents: write
-
-    steps:
-      - name: Download staged release assets
-        uses: actions/download-artifact@v8
-        with:
-          pattern: "*-release"
-          path: .github/tmp/release-assets
-
-      - name: Reset existing GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            gh release delete "${GITHUB_REF_NAME}" \
-              --repo "${GITHUB_REPOSITORY}" \
-              --yes
-          else
-            echo "No existing GitHub release for ${GITHUB_REF_NAME}; creating a fresh release."
-          fi
-
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@v3
-        with:
-          files: .github/tmp/release-assets/**/*
-          overwrite_files: true
-          fail_on_unmatched_files: true
-          generate_release_notes: true
+    uses: ./.github/workflows/release-github.yml
+    with:
+      artifact_pattern: "*-release"
+      artifact_path: .github/tmp/release-assets
+      release_files_glob: .github/tmp/release-assets/**/*
+      fail_on_unmatched_files: true

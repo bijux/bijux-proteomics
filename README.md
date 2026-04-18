@@ -105,10 +105,12 @@ maintaining the workspace rather than for end-user installation.
 ## Release Model
 
 - publishing is tag-driven: pushing `vX.Y.Z` triggers the shared `publish.yml` workflow
+- GitHub release publication is handled by the shared `release-github.yml` workflow
 - each publishable package owns its release notes in `packages/<package>/CHANGELOG.md`
 - root `CHANGELOG.md` is only for repository-wide changes that span packages or shared automation
 - `publish.yml` builds and publishes each package through its matrix entries
-- `publish.yml` also publishes one GHCR bundle per package and assembles a GitHub Release from the staged assets
+- `publish.yml` also publishes one GHCR bundle per package
+- `release-github.yml` assembles the GitHub Release from staged assets
 - `publish.yml` uses PyPI trusted publishing with the GitHub Actions OIDC token
 
 Recommended release order:

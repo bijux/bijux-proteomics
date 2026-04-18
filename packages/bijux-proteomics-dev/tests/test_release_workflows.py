@@ -63,7 +63,13 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     }
     assert release.get("needs") == ["build", "publish_pypi", "publish_ghcr"]
     assert release.get("permissions") == {"contents": "write"}
-    release_steps = release.get("steps", [])
+    assert release.get("uses") == "./.github/workflows/release-github.yml"
+    assert release.get("with") == {
+        "artifact_pattern": "*-release",
+        "artifact_path": ".github/tmp/release-assets",
+        "release_files_glob": ".github/tmp/release-assets/**/*",
+        "fail_on_unmatched_files": True,
+    }
 
     publish_pypi_steps = publish_pypi.get("steps", [])
     assert any(
@@ -85,20 +91,6 @@ def test_publish_workflow_covers_all_release_packages() -> None:
         and step.get("with", {}).get("password") == "${{ secrets.PYPI_API_TOKEN }}"
         for step in publish_pypi_steps
     )
-    assert any(
-        isinstance(step, dict)
-        and step.get("uses") == "softprops/action-gh-release@v3"
-        and step.get("with", {}).get("overwrite_files") is True
-        for step in release_steps
-    )
-    assert any(
-        isinstance(step, dict)
-        and step.get("name") == "Reset existing GitHub release"
-        and "gh release delete" in step.get("run", "")
-        and step.get("env", {}).get("GH_TOKEN") == "${{ github.token }}"
-        for step in release_steps
-    )
-
     build_found = {
         entry["package_slug"]
         for entry in _matrix_include(build)
@@ -187,7 +179,8 @@ def test_release_docs_match_shared_publish_workflow_contract() -> None:
     )
     assert "PyPI trusted publishing" in readme
     assert "`publish.yml` also publishes one GHCR bundle per package" in readme
+    assert "shared `release-github.yml` workflow" in readme
     assert (
-        "`publish.yml` is tag-triggered and fans out into build, PyPI, GHCR, and GitHub Release jobs"
+        "`publish.yml` is tag-triggered and fans out into build, PyPI, and GHCR jobs while `release-github.yml` publishes the GitHub Release"
         in release_doc
     )
