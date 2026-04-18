@@ -8,6 +8,16 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## Unreleased
+
+### Changed
+
+- Repository GHCR summary badge links now target the repo-scoped packages view
+  in `docs/badges.md`, with generated README and docs landing pages
+  synchronized from that source.
+- Contributor automation identity guidance now explicitly documents role
+  boundaries for `bijux`, `dependabot[bot]`, and `github-actions[bot]`.
+
 ## 0.3.4 - 2026-04-11
 
 ### Changed
