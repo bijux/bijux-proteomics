@@ -17,6 +17,15 @@ change contributor and maintainer workflows across the repository.
   synchronized from that source.
 - Contributor automation identity guidance now explicitly documents role
   boundaries for `bijux`, `dependabot[bot]`, and `github-actions[bot]`.
+- Shared docs shell, checks, and standards contracts continue to synchronize
+  from `bijux-std`, including shared tooling path updates and checksum refreshes.
+- Main-branch governance policy and dependency bot policy are now codified in
+  repository governance records.
+
+### Fixed
+
+- Security dependency floors and locked transitive dependency pins were updated
+  to close current advisories across Python and Node tooling surfaces.
 
 ## 0.3.4 - 2026-04-11
 
