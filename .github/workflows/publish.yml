@@ -53,53 +53,18 @@ jobs:
       dist_subdir: ${{ matrix.dist_subdir || 'build' }}
 
   publish_pypi:
-    name: publish-pypi-${{ matrix.package_slug }}
+    name: publish-pypi
     needs: build
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - package_slug: agentic-proteins
-            publish_auth: trusted
-          - package_slug: bijux-proteomics-foundation
-            publish_auth: trusted
-          - package_slug: bijux-proteomics-core
-            publish_auth: trusted
-          - package_slug: bijux-proteomics-intelligence
-            publish_auth: trusted
-          - package_slug: bijux-proteomics-knowledge
-            publish_auth: trusted
-          - package_slug: bijux-proteomics-lab
-            publish_auth: trusted
-    environment:
-      name: pypi
+    uses: ./.github/workflows/release-pypi.yml
+    with:
+      enabled: true
+      mode: artifact
+      package_matrix_json: >-
+        [{"package_slug":"agentic-proteins","publish_auth":"trusted"},{"package_slug":"bijux-proteomics-foundation","publish_auth":"trusted"},{"package_slug":"bijux-proteomics-core","publish_auth":"trusted"},{"package_slug":"bijux-proteomics-intelligence","publish_auth":"trusted"},{"package_slug":"bijux-proteomics-knowledge","publish_auth":"trusted"},{"package_slug":"bijux-proteomics-lab","publish_auth":"trusted"}]
     permissions:
       contents: read
       id-token: write
-
-    steps:
-      - name: Download publish artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: ${{ matrix.package_slug }}-pypi-dist
-          path: .github/tmp/${{ matrix.package_slug }}-dist
-
-      - name: Publish to PyPI (trusted publisher)
-        if: ${{ matrix.publish_auth == 'trusted' }}
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: .github/tmp/${{ matrix.package_slug }}-dist
-          skip-existing: true
-
-      - name: Publish to PyPI (token bootstrap)
-        if: ${{ matrix.publish_auth == 'token' }}
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: .github/tmp/${{ matrix.package_slug }}-dist
-          skip-existing: true
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+    secrets: inherit
 
   publish_ghcr:
     name: publish-ghcr-${{ matrix.package_slug }}
