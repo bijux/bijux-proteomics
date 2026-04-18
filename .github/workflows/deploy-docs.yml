@@ -51,7 +51,7 @@ jobs:
           cache-dependency-glob: uv.lock
 
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Build documentation site
         run: |
