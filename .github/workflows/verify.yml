@@ -54,9 +54,7 @@ jobs:
           cache-dependency-glob: uv.lock
       - name: "Verify repository automation contracts"
         shell: bash
-        run: "set -euo pipefail
-make check-shared-bijux-py check-config-layout check-make-layout help
-"
+        run: "set -euo pipefail make check-shared-bijux-py check-config-layout check-make-layout help "
   package:
     name: "${{ matrix.package_slug }}"
     needs: repository
