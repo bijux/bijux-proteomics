@@ -1,8 +1,8 @@
 name: verify
-
-on:
+true:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - ".github/workflows/**"
       - "apis/**"
@@ -10,14 +10,15 @@ on:
       - "docs/**"
       - "makes/**"
       - "packages/**"
-      - "Makefile"
-      - "mkdocs.shared.yml"
-      - "mkdocs.yml"
-      - "pyproject.toml"
-      - "tox.ini"
-      - "uv.lock"
+      - Makefile
+      - mkdocs.shared.yml
+      - mkdocs.yml
+      - pyproject.toml
+      - tox.ini
+      - uv.lock
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths:
       - ".github/workflows/**"
       - "apis/**"
@@ -25,53 +26,44 @@ on:
       - "docs/**"
       - "makes/**"
       - "packages/**"
-      - "Makefile"
-      - "mkdocs.shared.yml"
-      - "mkdocs.yml"
-      - "pyproject.toml"
-      - "tox.ini"
-      - "uv.lock"
-  workflow_dispatch:
-
+      - Makefile
+      - mkdocs.shared.yml
+      - mkdocs.yml
+      - pyproject.toml
+      - tox.ini
+      - uv.lock
+  workflow_dispatch: null
 permissions:
   contents: read
-
 concurrency:
-  group: verify-${{ github.ref }}
+  group: "verify-${{ github.ref }}"
   cancel-in-progress: true
-
 jobs:
   repository:
     name: repository-contracts
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-python@v6
+      - uses: "actions/checkout@v6"
+      - uses: "actions/setup-python@v6"
         with:
-          python-version: "3.11"
-
-      - uses: astral-sh/setup-uv@v8.1.0
+          python-version: 3.11
+      - uses: "astral-sh/setup-uv@v8.1.0"
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
-
-      - name: Verify repository automation contracts
+      - name: "Verify repository automation contracts"
         shell: bash
-        run: |
-          set -euo pipefail
-          make check-shared-bijux-py check-config-layout check-make-layout help
-
+        run: "set -euo pipefail
+make check-shared-bijux-py check-config-layout check-make-layout help
+"
   package:
-    name: ${{ matrix.package_slug }}
+    name: "${{ matrix.package_slug }}"
     needs: repository
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Non-dev packages inherit the shared docs/api/build/security/sbom surface.
           - package_slug: agentic-proteins
             package_dir: packages/agentic-proteins
             artifacts_dir: artifacts/agentic-proteins
@@ -93,13 +85,13 @@ jobs:
           - package_slug: bijux-proteomics-dev
             package_dir: packages/bijux-proteomics-dev
             artifacts_dir: artifacts/bijux-proteomics-dev
-            check_targets: '["quality", "security", "build", "sbom"]'
+            check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
     uses: ./.github/workflows/ci-package.yml
     with:
-      package_slug: ${{ matrix.package_slug }}
-      package_dir: ${{ matrix.package_dir }}
-      artifacts_dir: ${{ matrix.artifacts_dir }}
-      test_python_versions: ${{ matrix.test_python_versions || '["3.11"]' }}
-      check_targets: ${{ matrix.check_targets || '["quality", "security", "docs", "api", "openapi-drift", "build", "sbom"]' }}
-      api_toolchain_targets: ${{ matrix.api_toolchain_targets || '["api", "openapi-drift"]' }}
-      post_test_command: ${{ matrix.post_test_command || '' }}
+      package_slug: "${{ matrix.package_slug }}"
+      package_dir: "${{ matrix.package_dir }}"
+      artifacts_dir: "${{ matrix.artifacts_dir }}"
+      test_python_versions: "${{ matrix.test_python_versions || '[\"3.11\"]' }}"
+      check_targets: "${{ matrix.check_targets || '[\"quality\", \"security\", \"docs\", \"api\", \"openapi-drift\", \"build\", \"sbom\"]' }}"
+      api_toolchain_targets: "${{ matrix.api_toolchain_targets || '[\"api\", \"openapi-drift\"]' }}"
+      post_test_command: "${{ matrix.post_test_command || '' }}"
