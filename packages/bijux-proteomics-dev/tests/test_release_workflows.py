@@ -78,7 +78,7 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     )
     assert any(
         isinstance(step, dict)
-        and step.get("uses") == "softprops/action-gh-release@v2"
+        and step.get("uses") == "softprops/action-gh-release@v3"
         and step.get("with", {}).get("overwrite_files") is True
         for step in release_steps
     )
