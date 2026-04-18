@@ -72,8 +72,17 @@ def test_publish_workflow_covers_all_release_packages() -> None:
         and step.get("with", {}).get("packages-dir")
         for step in publish_pypi_steps
     )
-    assert all(
-        isinstance(step, dict) and "password" not in step.get("with", {})
+    assert any(
+        isinstance(step, dict)
+        and step.get("name") == "Publish to PyPI (trusted publisher)"
+        and step.get("if") == "${{ matrix.publish_auth == 'trusted' }}"
+        for step in publish_pypi_steps
+    )
+    assert any(
+        isinstance(step, dict)
+        and step.get("name") == "Publish to PyPI (token bootstrap)"
+        and step.get("if") == "${{ matrix.publish_auth == 'token' }}"
+        and step.get("with", {}).get("password") == "${{ secrets.PYPI_API_TOKEN }}"
         for step in publish_pypi_steps
     )
     assert any(
@@ -109,6 +118,9 @@ def test_publish_workflow_covers_all_release_packages() -> None:
     assert build_found == expected
     assert publish_pypi_found == expected
     assert publish_ghcr_found == expected
+    assert all(
+        entry.get("publish_auth") == "trusted" for entry in _matrix_include(publish_pypi)
+    )
 
 
 def test_publish_workflow_uses_package_scoped_builds_and_sboms() -> None:
