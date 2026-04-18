@@ -38,7 +38,7 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 	help list list-all install lock lock-check fmt lint quality security test docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
 	sync-badges quality-docs-links quality-docs-consistency security-dependency-allowlist \
-	clean-root-artifacts root-check-env check-shared-bijux-py
+	clean-root-artifacts root-check-env check-bijux-standard
 
 ensure-venv: install ## Ensure the shared root environment exists and is synced
 
@@ -78,6 +78,6 @@ HELP_WIDTH := 22
 include $(ROOT_MAKEFILE_DIR)/bijux-py/ci/help.mk
 
 help: ## Show generated repository commands from included make modules
-check-shared-bijux-py: ## Verify shared bijux-py make modules match across sibling repositories
+check-bijux-standard: ## Verify shared bijux-py make modules match across sibling repositories
 check-config-layout: ## Validate the repository config tree shape and required tool configs
 check-make-layout: ## Validate the repository make tree shape and required entrypoints

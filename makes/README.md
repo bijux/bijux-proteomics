@@ -129,7 +129,7 @@ configs/
 ## Verification
 
 - `make help`, `make list`, and `make list-all` expose the root command surface
-- `make check-shared-bijux-py` verifies local mirror integrity and shared
+- `make check-bijux-standard` verifies local mirror integrity and shared
   byte-identity across repositories
 - `make check-config-layout` verifies that the repository exports the expected
   shared config surface

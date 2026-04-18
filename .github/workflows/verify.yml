@@ -62,7 +62,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          make check-shared-bijux-py check-config-layout check-make-layout help
+          make check-bijux-standard check-config-layout check-make-layout help
 
   package:
     name: ${{ matrix.package_slug }}
