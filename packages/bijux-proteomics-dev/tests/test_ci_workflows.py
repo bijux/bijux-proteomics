@@ -60,7 +60,7 @@ def test_workflow_tree_is_standardized() -> None:
     assert found == {
         "bijux-std-checks.yml",
         "build-release-artifacts.yml",
-        "ci-package.yml",
+        "ci.yml",
         "deploy-docs.yml",
         "publish.yml",
         "verify.yml",
@@ -76,7 +76,7 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
     package = _as_dict(jobs.get("package"))
 
     assert repository.get("name") == "repository-contracts"
-    assert package.get("uses") == "./.github/workflows/ci-package.yml"
+    assert package.get("uses") == "./.github/workflows/ci.yml"
     assert package.get("needs") == "repository"
 
     verify_packages = {
@@ -119,7 +119,7 @@ def test_verify_workflow_uses_repo_contracts_and_package_matrix() -> None:
 
 def test_reusable_workflow_jobs_are_package_scoped() -> None:
     root = _repo_root()
-    ci_workflow = _workflow(root / ".github" / "workflows" / "ci-package.yml")
+    ci_workflow = _workflow(root / ".github" / "workflows" / "ci.yml")
     build_workflow = _workflow(
         root / ".github" / "workflows" / "build-release-artifacts.yml"
     )

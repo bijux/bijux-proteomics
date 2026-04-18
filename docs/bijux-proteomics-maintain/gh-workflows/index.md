@@ -18,7 +18,7 @@ repository checks, package matrices, or documentation publication.
 
 The top-level entrypoints are `verify.yml` for pushes and pull requests,
 `deploy-docs.yml` for handbook publication from `main`, and `publish.yml` for
-release tags. `ci-package.yml` and `build-release-artifacts.yml` are reusable
+release tags. `ci.yml` and `build-release-artifacts.yml` are reusable
 workflows called by those entrypoints rather than standalone manual surfaces.
 
 ## Pages In This Section
