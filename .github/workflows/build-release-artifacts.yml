@@ -35,20 +35,23 @@ concurrency:
 jobs:
   build:
     name: build-release-artifacts-${{ inputs.package_slug }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       ARTIFACTS_DIR: ${{ inputs.artifacts_dir }}
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v6
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
         with:
           python-version: "3.11"
 
-      - uses: astral-sh/setup-uv@v8.1.0
+      - name: Setup uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -88,7 +91,7 @@ jobs:
             find "$dist_dir" -type f \( -name '*.whl' -o -name '*.tar.gz' \) -print0 | sort -z
           )
           if [ "${#dist_files[@]}" -eq 0 ]; then
-            echo "✘ No publish artifacts found under $dist_dir"
+            echo "No publish artifacts found under $dist_dir" >&2
             find "${ARTIFACTS_DIR}" -maxdepth 4 -type f | sort || true
             exit 1
           fi
@@ -128,7 +131,7 @@ jobs:
           fi
 
       - name: Upload publish artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ inputs.package_slug }}-pypi-dist
           path: .github/tmp/${{ inputs.package_slug }}-dist/*
@@ -136,7 +139,7 @@ jobs:
           retention-days: 14
 
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ inputs.package_slug }}-release
           path: .github/tmp/${{ inputs.package_slug }}-release/**/*
