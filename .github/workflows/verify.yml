@@ -1,8 +1,8 @@
 name: verify
-
-on:
+true:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - ".github/workflows/**"
       - "apis/**"
@@ -10,14 +10,15 @@ on:
       - "docs/**"
       - "makes/**"
       - "packages/**"
-      - "Makefile"
-      - "mkdocs.shared.yml"
-      - "mkdocs.yml"
-      - "pyproject.toml"
-      - "tox.ini"
-      - "uv.lock"
+      - Makefile
+      - mkdocs.shared.yml
+      - mkdocs.yml
+      - pyproject.toml
+      - tox.ini
+      - uv.lock
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths:
       - ".github/workflows/**"
       - "apis/**"
@@ -25,36 +26,32 @@ on:
       - "docs/**"
       - "makes/**"
       - "packages/**"
-      - "Makefile"
-      - "mkdocs.shared.yml"
-      - "mkdocs.yml"
-      - "pyproject.toml"
-      - "tox.ini"
-      - "uv.lock"
-  workflow_dispatch:
-
+      - Makefile
+      - mkdocs.shared.yml
+      - mkdocs.yml
+      - pyproject.toml
+      - tox.ini
+      - uv.lock
+  workflow_dispatch: null
 permissions:
   contents: read
-
 concurrency:
-  group: verify-${{ github.ref }}
+  group: "verify-${{ github.ref }}"
   cancel-in-progress: true
-
 jobs:
   run:
     uses: ./.github/workflows/reusable-verify-python-packages.yml
     with:
       repository_timeout_minutes: 30
-      package_matrix_json: >-
-        [
-          {"package_slug":"agentic-proteins","package_dir":"packages/agentic-proteins","artifacts_dir":"artifacts/agentic-proteins"},
-          {"package_slug":"bijux-proteomics-foundation","package_dir":"packages/bijux-proteomics-foundation","artifacts_dir":"artifacts/bijux-proteomics-foundation"},
-          {"package_slug":"bijux-proteomics-core","package_dir":"packages/bijux-proteomics-core","artifacts_dir":"artifacts/bijux-proteomics-core"},
-          {"package_slug":"bijux-proteomics-intelligence","package_dir":"packages/bijux-proteomics-intelligence","artifacts_dir":"artifacts/bijux-proteomics-intelligence"},
-          {"package_slug":"bijux-proteomics-knowledge","package_dir":"packages/bijux-proteomics-knowledge","artifacts_dir":"artifacts/bijux-proteomics-knowledge"},
-          {"package_slug":"bijux-proteomics-lab","package_dir":"packages/bijux-proteomics-lab","artifacts_dir":"artifacts/bijux-proteomics-lab"},
-          {"package_slug":"bijux-proteomics-dev","package_dir":"packages/bijux-proteomics-dev","artifacts_dir":"artifacts/bijux-proteomics-dev","check_targets":"[\"quality\", \"security\", \"build\", \"sbom\"]"}
-        ]
-      default_test_python_versions: '["3.11"]'
-      default_check_targets: '["quality", "security", "docs", "api", "openapi-drift", "build", "sbom"]'
-      default_api_toolchain_targets: '["api", "openapi-drift"]'
+      package_matrix_json: "[
+  {\"package_slug\":\"agentic-proteins\",\"package_dir\":\"packages/agentic-proteins\",\"artifacts_dir\":\"artifacts/agentic-proteins\"},
+  {\"package_slug\":\"bijux-proteomics-foundation\",\"package_dir\":\"packages/bijux-proteomics-foundation\",\"artifacts_dir\":\"artifacts/bijux-proteomics-foundation\"},
+  {\"package_slug\":\"bijux-proteomics-core\",\"package_dir\":\"packages/bijux-proteomics-core\",\"artifacts_dir\":\"artifacts/bijux-proteomics-core\"},
+  {\"package_slug\":\"bijux-proteomics-intelligence\",\"package_dir\":\"packages/bijux-proteomics-intelligence\",\"artifacts_dir\":\"artifacts/bijux-proteomics-intelligence\"},
+  {\"package_slug\":\"bijux-proteomics-knowledge\",\"package_dir\":\"packages/bijux-proteomics-knowledge\",\"artifacts_dir\":\"artifacts/bijux-proteomics-knowledge\"},
+  {\"package_slug\":\"bijux-proteomics-lab\",\"package_dir\":\"packages/bijux-proteomics-lab\",\"artifacts_dir\":\"artifacts/bijux-proteomics-lab\"},
+  {\"package_slug\":\"bijux-proteomics-dev\",\"package_dir\":\"packages/bijux-proteomics-dev\",\"artifacts_dir\":\"artifacts/bijux-proteomics-dev\",\"check_targets\":\"[\\\"quality\\\", \\\"security\\\", \\\"build\\\", \\\"sbom\\\"]\"}
+]"
+      default_test_python_versions: "[\"3.11\"]"
+      default_check_targets: "[\"quality\", \"security\", \"docs\", \"api\", \"openapi-drift\", \"build\", \"sbom\"]"
+      default_api_toolchain_targets: "[\"api\", \"openapi-drift\"]"
