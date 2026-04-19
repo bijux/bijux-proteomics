@@ -8,6 +8,23 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## 0.3.5 - 2026-04-19
+
+### Changed
+
+- Repository release automation now uses dedicated `release-artifacts`,
+  `release-pypi`, `release-ghcr`, and `release-github` workflows instead of the
+  legacy `publish.yml` entrypoint.
+- Release environment contracts now define artifact build and publication
+  matrices for all public proteomics packages in one shared standards source.
+
+### Fixed
+
+- Repository standards manifests and workflow inventory references now align
+  with current `bijux-std` governance data and release workflow allowlists.
+- Badge templates now publish release status from dedicated `release-pypi.yml`,
+  `release-ghcr.yml`, and `release-github.yml` workflows.
+
 ## 0.3.4 - 2026-04-11
 
 ### Changed
