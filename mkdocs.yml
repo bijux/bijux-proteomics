@@ -449,4 +449,4 @@ nav:
           - verify: bijux-proteomics-maintain/gh-workflows/verify.md
           - reusable-workflows: bijux-proteomics-maintain/gh-workflows/reusable-workflows.md
           - deploy-docs: bijux-proteomics-maintain/gh-workflows/deploy-docs.md
-          - publish: bijux-proteomics-maintain/gh-workflows/publish.md
+          - release-workflows: bijux-proteomics-maintain/gh-workflows/release-workflows.md

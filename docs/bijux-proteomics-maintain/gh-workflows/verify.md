@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-19
 ---
 
 # verify
@@ -16,9 +16,8 @@ package matrix are healthy enough to trust on pushes and pull requests. That
 makes it the broadest CI truth for day-to-day repository changes.
 
 The job tree is intentionally split. `repository` runs shared automation
-contracts first, `package` fans out by package through `ci-package.yml`, and
-each reusable package run splits again into package-scoped `tests`, `checks`,
-and `lint` jobs.
+contracts first, `package` fans out by package through `ci.yml`, and each
+package run uses the shared `bijux-std` reusable CI workflow.
 
 ## Workflow Anchors
 

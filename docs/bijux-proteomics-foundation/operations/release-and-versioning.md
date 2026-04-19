@@ -26,7 +26,7 @@ sequenceDiagram
     participant Tests as Validation
     participant Notes as Changelog
     participant Tag as Version tag
-    participant Publish as Publish workflow
+    participant Publish as Release workflows
     Dev->>Tests: run package proof set
     Tests-->>Dev: passing evidence
     Dev->>Notes: update release notes
@@ -44,7 +44,7 @@ sequenceDiagram
 ## Versioning Anchors
 
 - release version is explicit in `packages/bijux-proteomics-foundation/pyproject.toml`
-- release tags follow `v*` and publish workflows are triggered from those tags
+- release tags follow `v*` and release workflows are triggered from those tags
 
 ## Concrete Anchors
 

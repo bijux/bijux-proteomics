@@ -19,21 +19,22 @@ sequenceDiagram
     participant Dev as Maintainer
     participant Git as Git tags
     participant Hatch as hatch-vcs
-    participant CI as publish.yml
+    participant CI as release-artifacts.yml
     participant Targets as PyPI/GHCR/GitHub Release
 
     Dev->>Git: create version tag
     Git->>Hatch: resolve package versions
-    Git->>CI: trigger publish workflow
-    CI->>Targets: build and publish artifacts
-    CI->>Targets: publish release metadata
+    Git->>CI: trigger release orchestration
+    CI->>Targets: build release artifacts
+    CI->>Targets: publish through release-pypi.yml, release-ghcr.yml, and release-github.yml
 ```
 
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
 - package versions are resolved per package from the shared `v*` tag line
-- `publish.yml` is tag-triggered and fans out into build, PyPI, GHCR, and GitHub Release jobs
+- `release-artifacts.yml` is tag-triggered and orchestrates package build,
+  PyPI publication, GHCR publication, and GitHub release publication workflows
 - each publishable package owns its own `CHANGELOG.md`
 
 ## Purpose
