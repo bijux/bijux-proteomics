@@ -283,7 +283,6 @@ def prepare_esmfold(
             repo_id=repo_id,
             revision=latest_rev,
             local_dir=version_dir,
-            local_dir_use_symlinks=False,
             token=hf_token,
             etag_timeout=60,
         )
