@@ -198,21 +198,12 @@ def _render_package_badges(
     return "\n\n".join(section for section in sections if section)
 
 
-def _render_maintainer_badges(catalog: dict[str, str]) -> str:
-    return catalog["maintainer-summary"]
-
-
 def iter_badge_targets() -> tuple[BadgeTarget, ...]:
     """Enumerate documentation surfaces that consume managed badge blocks."""
     workspace = _workspace_metadata()
-    docs_package = cast(str, workspace["docs_package"])
     targets = [
         BadgeTarget(path=REPO_ROOT / "README.md", kind="repository"),
         BadgeTarget(path=REPO_ROOT / "docs" / "index.md", kind="repository"),
-        BadgeTarget(
-            path=REPO_ROOT / "packages" / docs_package / "README.md",
-            kind="maintainer",
-        ),
     ]
     targets.extend(
         BadgeTarget(
@@ -231,8 +222,6 @@ def render_badge_block(target: BadgeTarget) -> str:
     records = public_package_records()
     if target.kind == "repository":
         return _render_repository_badges(catalog, records)
-    if target.kind == "maintainer":
-        return _render_maintainer_badges(catalog)
     if target.kind == "package" and target.package_slug is not None:
         record = next(
             record for record in records if record.package_slug == target.package_slug

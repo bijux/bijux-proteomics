@@ -10,20 +10,19 @@ last_reviewed: 2026-04-11
 # Badge Catalog
 
 `docs/badges.md` is the single source of truth for shared badge templates across
-the managed documentation surfaces in this repository. Update the named
-templates here, then run `make sync-badges` so the root README, the docs
-landing page, and the managed package README surfaces publish the same badge
-contract.
+the repository README surfaces. Update the named templates here, then run
+`make sync-badges` so the root README, the docs landing page, and every public
+package README publish the same badge contract.
 
-Do not hand-edit badge blocks inside managed surfaces. Those files consume the
+Do not hand-edit badge blocks inside README files. Those files consume the
 templates below through generated badge sections.
 
 If a README surface needs package links outside the managed badge section, use
-plain markdown links or icon links instead of inline badge markdown.
+plain markdown links instead of inline badge markdown.
 
 Generated badge sections always render in this order:
 
-1. surface summary badges when the surface owns them
+1. surface summary badges
 2. one line of `PyPI` badges for every public package
 3. one line of `GHCR` badges for every public package
 4. one line of `Documentation` badges for every public package
@@ -59,18 +58,6 @@ Link policy for GHCR badges is fixed here as part of the contract:
 [![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 <!-- bijux-proteomics-badges:package-summary:end -->
-
-## Maintainer Summary
-
-<!-- bijux-proteomics-badges:maintainer-summary:start -->
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://github.com/bijux/bijux-proteomics)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![Verify](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
-[![Release PyPI](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
-[![Release GHCR](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
-[![Release GitHub](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
-[![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
-<!-- bijux-proteomics-badges:maintainer-summary:end -->
 
 ## Family PyPI Badge
 
