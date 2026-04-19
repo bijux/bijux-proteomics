@@ -8,10 +8,12 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
-## 0.3.6 - 2026-04-19
+## 0.3.6 - 2026-04-20
 
 ### Changed
 
+- Prepared the `v0.3.6` release line by aligning fallback versions and inter-package dependency floors across the repository.
+- Synchronized release automation and governance with the latest `bijux-std` shared standards baseline.
 - Docs synchronization and docs source-of-truth checks now resolve directly
   from `.bijux/shared/bijux-docs/tooling`.
 - Shared make-layer and standards checks now reference `.bijux/shared/*`
@@ -19,6 +21,8 @@ change contributor and maintainer workflows across the repository.
 
 ### Fixed
 
+- `release-pypi.yml` now uses parse-safe publication gating for token/bootstrap checks.
+- Protected workflow policy checks now accept shared-manifest-driven standards updates through approved control paths.
 - Removed the legacy root `internal/` docs tooling directory to eliminate
   outdated dual-path maintenance.
 
