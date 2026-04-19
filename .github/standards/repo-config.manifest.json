@@ -897,7 +897,7 @@
         "release-github",
         "release-pypi"
       ],
-      "pinned_std_sha": "c240e0629f69cabe675d4bb43f75e8a072e69cec"
+      "pinned_std_sha": "71a4c8189d077e39886b4a018f3812049895d1b0"
     },
     {
       "name": "bijux-core",
@@ -1382,16 +1382,16 @@
               "timeout-minutes": 45,
               "steps": [
                 {
-                  "uses": "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8"
+                  "uses": "actions/checkout@v6"
                 },
                 {
-                  "uses": "actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548",
+                  "uses": "actions/setup-python@v6",
                   "with": {
                     "python-version": 3.11
                   }
                 },
                 {
-                  "uses": "astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b",
+                  "uses": "astral-sh/setup-uv@v8.1.0",
                   "with": {
                     "enable-cache": true,
                     "cache-dependency-glob": "uv.lock"
@@ -1437,7 +1437,7 @@
                   ]
                 }
               },
-              "uses": "./.github/workflows/reusable-ci-python-packages.yml",
+              "uses": "./.github/workflows/ci-package.yml",
               "with": {
                 "package_slug": "${{ matrix.package_slug }}",
                 "package_dir": "${{ matrix.package_dir }}",
@@ -1697,6 +1697,68 @@
         ]
       },
       "workflow_wrappers": {
+        "ci": {
+          "name": "ci",
+          "on": {
+            "workflow_call": {
+              "inputs": {
+                "package_slug": {
+                  "required": true,
+                  "type": "string"
+                },
+                "package_dir": {
+                  "required": true,
+                  "type": "string"
+                },
+                "artifacts_dir": {
+                  "required": true,
+                  "type": "string"
+                },
+                "test_python_versions": {
+                  "required": false,
+                  "type": "string",
+                  "default": "[\"3.11\"]"
+                },
+                "check_targets": {
+                  "required": false,
+                  "type": "string",
+                  "default": "[\"quality\", \"security\", \"docs\", \"api\", \"build\", \"sbom\"]"
+                },
+                "api_toolchain_targets": {
+                  "required": false,
+                  "type": "string",
+                  "default": "[\"api\"]"
+                },
+                "post_test_command": {
+                  "required": false,
+                  "type": "string",
+                  "default": ""
+                }
+              }
+            }
+          },
+          "permissions": {
+            "contents": "read"
+          },
+          "concurrency": {
+            "group": "ci-${{ inputs.package_slug }}-${{ github.ref }}",
+            "cancel-in-progress": true
+          },
+          "jobs": {
+            "package": {
+              "uses": "bijux/bijux-std/.github/workflows/reusable-ci-python-packages.yml@c240e0629f69cabe675d4bb43f75e8a072e69cec",
+              "with": {
+                "package_slug": "${{ inputs.package_slug }}",
+                "package_dir": "${{ inputs.package_dir }}",
+                "artifacts_dir": "${{ inputs.artifacts_dir }}",
+                "test_python_versions": "${{ inputs.test_python_versions }}",
+                "check_targets": "${{ inputs.check_targets }}",
+                "api_toolchain_targets": "${{ inputs.api_toolchain_targets }}",
+                "post_test_command": "${{ inputs.post_test_command }}"
+              }
+            }
+          }
+        },
         "verify": {
           "name": "verify",
           "on": {
@@ -1834,68 +1896,6 @@
               }
             }
           }
-        },
-        "ci": {
-          "name": "ci",
-          "on": {
-            "workflow_call": {
-              "inputs": {
-                "package_slug": {
-                  "required": true,
-                  "type": "string"
-                },
-                "package_dir": {
-                  "required": true,
-                  "type": "string"
-                },
-                "artifacts_dir": {
-                  "required": true,
-                  "type": "string"
-                },
-                "test_python_versions": {
-                  "required": false,
-                  "type": "string",
-                  "default": "[\"3.11\"]"
-                },
-                "check_targets": {
-                  "required": false,
-                  "type": "string",
-                  "default": "[\"quality\", \"security\", \"docs\", \"api\", \"build\", \"sbom\"]"
-                },
-                "api_toolchain_targets": {
-                  "required": false,
-                  "type": "string",
-                  "default": "[\"api\"]"
-                },
-                "post_test_command": {
-                  "required": false,
-                  "type": "string",
-                  "default": ""
-                }
-              }
-            }
-          },
-          "permissions": {
-            "contents": "read"
-          },
-          "concurrency": {
-            "group": "ci-${{ inputs.package_slug }}-${{ github.ref }}",
-            "cancel-in-progress": true
-          },
-          "jobs": {
-            "package": {
-              "uses": "bijux/bijux-std/.github/workflows/reusable-ci-python-packages.yml@c240e0629f69cabe675d4bb43f75e8a072e69cec",
-              "with": {
-                "package_slug": "${{ inputs.package_slug }}",
-                "package_dir": "${{ inputs.package_dir }}",
-                "artifacts_dir": "${{ inputs.artifacts_dir }}",
-                "test_python_versions": "${{ inputs.test_python_versions }}",
-                "check_targets": "${{ inputs.check_targets }}",
-                "api_toolchain_targets": "${{ inputs.api_toolchain_targets }}",
-                "post_test_command": "${{ inputs.post_test_command }}"
-              }
-            }
-          }
         }
       },
       "workflow_allowlist": [
@@ -1905,7 +1905,8 @@
         "release-ghcr",
         "release-github",
         "release-pypi"
-      ]
+      ],
+      "pinned_std_sha": "c240e0629f69cabe675d4bb43f75e8a072e69cec"
     },
     {
       "name": "bijux-std",
