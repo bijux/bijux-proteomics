@@ -7,11 +7,11 @@ import sys
 
 
 def run(repo_root: Path) -> int:
-    path = repo_root / "docs/bijux-proteomics/operations/change-management.md"
+    path = repo_root / "docs/01-bijux-proteomics/operations/change-management.md"
     if not path.exists():
         print(
             "Missing design debt ledger: "
-            "docs/bijux-proteomics/operations/change-management.md",
+            "docs/01-bijux-proteomics/operations/change-management.md",
             file=sys.stderr,
         )
         return 1

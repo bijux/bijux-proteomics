@@ -91,7 +91,7 @@ def _handbook_layout(section_root: Path) -> tuple[list[str], list[str], dict[str
 
 def test_repository_handbook_layout_is_sectioned() -> None:
     root_markdown, section_dirs, section_counts = _handbook_layout(
-        REPO_ROOT / "docs" / "bijux-proteomics"
+        REPO_ROOT / "docs" / "01-bijux-proteomics"
     )
 
     assert root_markdown == ["index.md"]
@@ -104,7 +104,7 @@ def test_repository_handbook_layout_is_sectioned() -> None:
 
 def test_maintenance_handbook_layout_is_sectioned() -> None:
     root_markdown, section_dirs, section_counts = _handbook_layout(
-        REPO_ROOT / "docs" / "bijux-proteomics-maintain"
+        REPO_ROOT / "docs" / "08-bijux-proteomics-maintain"
     )
 
     assert root_markdown == ["index.md"]

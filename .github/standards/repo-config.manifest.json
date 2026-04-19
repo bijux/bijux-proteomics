@@ -543,34 +543,44 @@
           "type": "json",
           "value": [
             {
-              "package_slug": "bijux-canon-runtime"
+              "package_slug": "bijux-canon-runtime",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-canon-agent"
+              "package_slug": "bijux-canon-agent",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-canon-ingest"
+              "package_slug": "bijux-canon-ingest",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-canon-reason"
+              "package_slug": "bijux-canon-reason",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-canon-index"
+              "package_slug": "bijux-canon-index",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "agentic-flows"
+              "package_slug": "agentic-flows",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-agent"
+              "package_slug": "bijux-agent",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-rag"
+              "package_slug": "bijux-rag",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-rar"
+              "package_slug": "bijux-rar",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-vex"
+              "package_slug": "bijux-vex",
+              "publish_auth": "trusted"
             }
           ]
         },
@@ -1695,7 +1705,7 @@
                   ]
                 }
               },
-              "uses": "./.github/workflows/ci-package.yml",
+              "uses": "./.github/workflows/ci.yml",
               "with": {
                 "package_slug": "${{ matrix.package_slug }}",
                 "package_dir": "${{ matrix.package_dir }}",
@@ -1784,22 +1794,28 @@
           "type": "json",
           "value": [
             {
-              "package_slug": "agentic-proteins"
+              "package_slug": "agentic-proteins",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-proteomics-foundation"
+              "package_slug": "bijux-proteomics-foundation",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-proteomics-core"
+              "package_slug": "bijux-proteomics-core",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-proteomics-intelligence"
+              "package_slug": "bijux-proteomics-intelligence",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-proteomics-knowledge"
+              "package_slug": "bijux-proteomics-knowledge",
+              "publish_auth": "trusted"
             },
             {
-              "package_slug": "bijux-proteomics-lab"
+              "package_slug": "bijux-proteomics-lab",
+              "publish_auth": "trusted"
             }
           ]
         },

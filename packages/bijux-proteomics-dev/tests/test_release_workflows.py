@@ -14,7 +14,11 @@ def test_release_docs_match_split_release_workflow_contract() -> None:
     root = _repo_root()
     readme = (root / "README.md").read_text(encoding="utf-8")
     release_doc = (
-        root / "docs" / "bijux-proteomics" / "operations" / "release-and-versioning.md"
+        root
+        / "docs"
+        / "01-bijux-proteomics"
+        / "operations"
+        / "release-and-versioning.md"
     ).read_text(encoding="utf-8")
 
     assert "release-artifacts.yml" in readme

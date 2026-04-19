@@ -43,12 +43,12 @@ concern, and which checked-in files back the explanation.
 [![bijux-proteomics-knowledge](https://img.shields.io/badge/knowledge-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge)
 [![bijux-proteomics-lab](https://img.shields.io/badge/lab-ghcr-181717?logo=github)](https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab)
 
-[![agentic-proteins docs](https://img.shields.io/badge/docs-agentic--proteins-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/agentic-proteins/)
-[![bijux-proteomics-foundation docs](https://img.shields.io/badge/docs-foundation-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/)
-[![bijux-proteomics-core docs](https://img.shields.io/badge/docs-core-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-core/)
-[![bijux-proteomics-intelligence docs](https://img.shields.io/badge/docs-intelligence-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/)
-[![bijux-proteomics-knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
-[![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/bijux-proteomics-lab/)
+[![agentic-proteins docs](https://img.shields.io/badge/docs-agentic--proteins-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
+[![bijux-proteomics-foundation docs](https://img.shields.io/badge/docs-foundation-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+[![bijux-proteomics-core docs](https://img.shields.io/badge/docs-core-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+[![bijux-proteomics-intelligence docs](https://img.shields.io/badge/docs-intelligence-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+[![bijux-proteomics-knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+[![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
 <div class="bijux-callout"><strong>Start with the package split, not the file tree.</strong>
@@ -66,8 +66,8 @@ without pretending they are one thing.</div>
 </div>
 
 <div class="bijux-quicklinks">
-<a class="md-button md-button--primary" href="bijux-proteomics/">Open the repository handbook</a>
-<a class="md-button" href="bijux-proteomics-maintain/">Open maintenance docs</a>
+<a class="md-button md-button--primary" href="01-bijux-proteomics/">Open the repository handbook</a>
+<a class="md-button" href="08-bijux-proteomics-maintain/">Open maintenance docs</a>
 </div>
 
 ## Visual Summary
@@ -101,11 +101,11 @@ flowchart TB
 
 ## Start Here
 
-- open [bijux-proteomics](bijux-proteomics/index.md) when the question crosses
+- open [bijux-proteomics](01-bijux-proteomics/index.md) when the question crosses
   package boundaries or touches shared governance
 - open one product package when you need ownership, interfaces, operations, or
   proof for one package
-- open [bijux-proteomics-maintain](bijux-proteomics-maintain/index.md) for
+- open [bijux-proteomics-maintain](08-bijux-proteomics-maintain/index.md) for
   repository automation, schema enforcement, and maintainer-only guardrails
 
 ## Package Flow
