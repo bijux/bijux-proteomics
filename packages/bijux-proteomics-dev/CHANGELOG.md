@@ -5,6 +5,21 @@ All notable changes to `bijux-proteomics-dev` are documented in this file.
 The format follows Keep a Changelog and this package follows Semantic
 Versioning.
 
+## [0.3.5] - 2026-04-19
+
+### Changed
+
+- Repository workflow contract tests now validate the canon-aligned workflow
+  tree (`automerge-pr.yml`, `ci.yml`, split release workflows) and reject
+  legacy workflow references.
+- Badge synchronization now follows the same catalog contract shape as
+  `bijux-canon`, including repository and public-package generated surfaces.
+
+### Fixed
+
+- Maintainer handbook navigation and release documentation contracts now resolve
+  `gh-workflows/release-workflows` routes and split release workflow names.
+
 ## [0.3.4] - 2026-04-11
 
 ### Fixed

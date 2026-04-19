@@ -12,18 +12,19 @@ change contributor and maintainer workflows across the repository.
 
 ### Changed
 
-- Repository release automation now uses dedicated `release-artifacts`,
-  `release-pypi`, `release-ghcr`, and `release-github` workflows instead of the
-  legacy `publish.yml` entrypoint.
-- Release environment contracts now define artifact build and publication
-  matrices for all public proteomics packages in one shared standards source.
+- Repository workflow topology now mirrors `bijux-canon`, including
+  `automerge-pr.yml`, `ci.yml`, and split release workflows for artifacts,
+  PyPI, GHCR, and GitHub releases.
+- Maintainer release and workflow handbook pages now describe the split release
+  model and reference only checked-in workflow files.
 
 ### Fixed
 
-- Repository standards manifests and workflow inventory references now align
-  with current `bijux-std` governance data and release workflow allowlists.
-- Badge templates now publish release status from dedicated `release-pypi.yml`,
-  `release-ghcr.yml`, and `release-github.yml` workflows.
+- Legacy references to removed workflows (`publish.yml`,
+  `build-release-artifacts.yml`, and `ci-package.yml`) were removed from root
+  docs, maintainer docs, and workflow contract tests.
+- Badge templates and generated README badge blocks now follow the same catalog
+  model used in `bijux-canon`.
 
 ## 0.3.4 - 2026-04-11
 
