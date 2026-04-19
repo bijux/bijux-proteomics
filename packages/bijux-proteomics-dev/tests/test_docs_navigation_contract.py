@@ -331,7 +331,9 @@ def test_repository_site_tab_uses_repository_label(rendered_docs: Path) -> None:
 def test_rendered_header_marks_active_navigation_links(rendered_docs: Path) -> None:
     text = _page_text(rendered_docs, "07-bijux-proteomics-lab/operations/index.html")
 
-    assert 'data-bijux-site-path="/07-bijux-proteomics-lab/" aria-current="page"' in text
+    assert (
+        'data-bijux-site-path="/07-bijux-proteomics-lab/" aria-current="page"' in text
+    )
     assert (
         'data-bijux-detail-path="/07-bijux-proteomics-lab/operations/" '
         'aria-current="page"' in text
