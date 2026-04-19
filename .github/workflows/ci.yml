@@ -1,0 +1,45 @@
+name: ci
+on:
+  workflow_call:
+    inputs:
+      package_slug:
+        required: true
+        type: string
+      package_dir:
+        required: true
+        type: string
+      artifacts_dir:
+        required: true
+        type: string
+      test_python_versions:
+        required: false
+        type: string
+        default: "[\"3.11\"]"
+      check_targets:
+        required: false
+        type: string
+        default: "[\"quality\", \"security\", \"docs\", \"api\", \"build\", \"sbom\"]"
+      api_toolchain_targets:
+        required: false
+        type: string
+        default: "[\"api\"]"
+      post_test_command:
+        required: false
+        type: string
+        default: ""
+permissions:
+  contents: read
+concurrency:
+  group: "ci-${{ inputs.package_slug }}-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  package:
+    uses: bijux/bijux-std/.github/workflows/reusable-ci-python-packages.yml@c240e0629f69cabe675d4bb43f75e8a072e69cec
+    with:
+      package_slug: "${{ inputs.package_slug }}"
+      package_dir: "${{ inputs.package_dir }}"
+      artifacts_dir: "${{ inputs.artifacts_dir }}"
+      test_python_versions: "${{ inputs.test_python_versions }}"
+      check_targets: "${{ inputs.check_targets }}"
+      api_toolchain_targets: "${{ inputs.api_toolchain_targets }}"
+      post_test_command: "${{ inputs.post_test_command }}"

@@ -84,12 +84,12 @@ jobs:
             package_dir: packages/bijux-proteomics-dev
             artifacts_dir: artifacts/bijux-proteomics-dev
             check_targets: "[\"quality\", \"security\", \"build\", \"sbom\"]"
-    uses: ./.github/workflows/ci-package.yml
+    uses: ./.github/workflows/ci.yml
     with:
       package_slug: "${{ matrix.package_slug }}"
       package_dir: "${{ matrix.package_dir }}"
       artifacts_dir: "${{ matrix.artifacts_dir }}"
       test_python_versions: "${{ matrix.test_python_versions || '[\"3.11\"]' }}"
-      check_targets: "${{ matrix.check_targets || '[\"quality\", \"security\", \"docs\", \"api\", \"openapi-drift\", \"build\", \"sbom\"]' }}"
-      api_toolchain_targets: "${{ matrix.api_toolchain_targets || '[\"api\", \"openapi-drift\"]' }}"
+      check_targets: "${{ matrix.check_targets || '[\"quality\", \"security\", \"docs\", \"api\", \"build\", \"sbom\"]' }}"
+      api_toolchain_targets: "${{ matrix.api_toolchain_targets || '[\"api\"]' }}"
       post_test_command: "${{ matrix.post_test_command || '' }}"

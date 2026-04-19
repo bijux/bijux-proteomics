@@ -1,6 +1,10 @@
 name: github-policy
 
 on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
   pull_request:
     branches: [main]
 
@@ -20,11 +24,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          base_ref="${{ github.base_ref }}"
-          git fetch --no-tags --prune --depth=1 origin "${base_ref}"
-          git diff --name-only "origin/${base_ref}...HEAD" > /tmp/changed-files.txt
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_ref="${{ github.base_ref }}"
+            git fetch --no-tags --prune --depth=1 origin "${base_ref}"
+            git diff --name-only "origin/${base_ref}...HEAD" > /tmp/changed-files.txt
+          else
+            before_sha="${{ github.event.before }}"
+            if [[ -n "${before_sha}" && "${before_sha}" != "0000000000000000000000000000000000000000" ]]; then
+              git diff --name-only "${before_sha}...${GITHUB_SHA}" > /tmp/changed-files.txt
+            else
+              git diff-tree --no-commit-id --name-only -r "${GITHUB_SHA}" > /tmp/changed-files.txt
+            fi
+          fi
 
       - name: Enforce protected .github change policy
+        if: ${{ github.event_name == 'pull_request' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -58,5 +72,4 @@ jobs:
           set -euo pipefail
           python3 .github/scripts/check_pinned_actions.py \
             --manifest-managed .github/standards/repo-config.manifest.json \
-            .github/workflows/bijux-std.yml \
-            shared/bijux-gh/workflows
+            .github/workflows
