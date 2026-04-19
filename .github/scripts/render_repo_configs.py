@@ -8,19 +8,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[3]
-SCRIPT_REPO_ROOT = Path(__file__).resolve().parents[2]
-MANIFEST_PATH = SCRIPT_REPO_ROOT / ".github/standards/repo-config.manifest.json"
-
-
-def resolve_repo_root(repo_name: str) -> Path:
-    if SCRIPT_REPO_ROOT.name == repo_name:
-        return SCRIPT_REPO_ROOT
-
-    candidate = ROOT / repo_name
-    if candidate.exists():
-        return candidate
-
-    raise FileNotFoundError(f"Unable to resolve repository root for '{repo_name}'")
+MANIFEST_PATH = ROOT / "bijux-std/.github/standards/repo-config.manifest.json"
 
 
 def yaml_scalar(value: Any) -> str:
@@ -32,7 +20,7 @@ def yaml_scalar(value: Any) -> str:
         return "null"
 
     text = str(value)
-    if re.fullmatch(r"[A-Za-z0-9_./:@-]+", text):
+    if re.fullmatch(r"[A-Za-z0-9_./:-]+", text):
         return text
     escaped = text.replace('\\', '\\\\').replace('"', '\\"')
     return f'"{escaped}"'
@@ -44,9 +32,6 @@ def dump_yaml(obj: Any, indent: int = 0) -> list[str]:
 
     if isinstance(obj, dict):
         for key, value in obj.items():
-            if value is None:
-                lines.append(f"{pad}{key}:")
-                continue
             if isinstance(value, (dict, list)):
                 lines.append(f"{pad}{key}:")
                 lines.extend(dump_yaml(value, indent + 2))
@@ -116,7 +101,7 @@ def write_if_needed(path: Path, content: str) -> None:
 
 def render_repo(repo_name: str, manifest: dict) -> None:
     repo = find_repo_config(manifest, repo_name)
-    repo_root = resolve_repo_root(repo_name)
+    repo_root = ROOT / repo_name
 
     release_path = repo_root / ".github/release.env"
     release_content = render_release_env(repo.get("release_env", []))

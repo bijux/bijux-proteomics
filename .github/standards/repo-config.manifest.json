@@ -4,9 +4,9 @@
     "version": 1,
     "managed_workflows": [
       {
-        "id": "release-artifacts",
-        "source": "shared/bijux-gh/workflows/release-artifacts.yml",
-        "consumer_runtime": ".github/workflows/release-artifacts.yml"
+        "id": "build-release-artifacts",
+        "source": "shared/bijux-gh/workflows/build-release-artifacts.yml",
+        "consumer_runtime": ".github/workflows/build-release-artifacts.yml"
       },
       {
         "id": "deploy-docs",
@@ -17,6 +17,11 @@
         "id": "github-policy",
         "source": "shared/bijux-gh/workflows/github-policy.yml",
         "consumer_runtime": ".github/workflows/github-policy.yml"
+      },
+      {
+        "id": "release-artifacts",
+        "source": "shared/bijux-gh/workflows/release-artifacts.yml",
+        "consumer_runtime": ".github/workflows/release-artifacts.yml"
       },
       {
         "id": "release-crates",
@@ -282,7 +287,7 @@
       "workflow_wrappers": {
         "ci": {
           "name": "CI",
-          "on": {
+          "true": {
             "push": {
               "branches": [
                 "main"
@@ -328,7 +333,6 @@
       "workflow_allowlist": [
         "deploy-docs",
         "github-policy",
-        "release-artifacts",
         "release-crates",
         "release-github",
         "reusable-ci-rust-stack"
@@ -337,175 +341,22 @@
     },
     {
       "name": "bijux-canon",
-      "release_env": [
-        {
-          "key": "BIJUX_RELEASE_ENABLED",
-          "type": "bool",
-          "value": true
-        },
-        {
-          "key": "BIJUX_GHCR_RELEASE_ENABLED",
-          "type": "bool",
-          "value": true
-        },
-        {
-          "key": "BIJUX_PYPI_ENABLED",
-          "type": "bool",
-          "value": true
-        },
-        {
-          "key": "BIJUX_RELEASE_BUILD_MATRIX_JSON",
-          "type": "json",
-          "value": [
-            {
-              "package_slug": "bijux-canon-runtime",
-              "package_dir": "packages/bijux-canon-runtime",
-              "artifacts_dir": "artifacts/bijux-canon-runtime",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-canon-agent",
-              "package_dir": "packages/bijux-canon-agent",
-              "artifacts_dir": "artifacts/bijux-canon-agent",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-canon-ingest",
-              "package_dir": "packages/bijux-canon-ingest",
-              "artifacts_dir": "artifacts/bijux-canon-ingest",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-canon-reason",
-              "package_dir": "packages/bijux-canon-reason",
-              "artifacts_dir": "artifacts/bijux-canon-reason",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-canon-index",
-              "package_dir": "packages/bijux-canon-index",
-              "artifacts_dir": "artifacts/bijux-canon-index",
-              "build_targets": "build sbom",
-              "dist_subdir": "release"
-            },
-            {
-              "package_slug": "agentic-flows",
-              "package_dir": "packages/compat-agentic-flows",
-              "artifacts_dir": "artifacts/compat-agentic-flows",
-              "makefile_path": "makes/packages/compat-package.mk",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-agent",
-              "package_dir": "packages/compat-bijux-agent",
-              "artifacts_dir": "artifacts/compat-bijux-agent",
-              "makefile_path": "makes/packages/compat-package.mk",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-rag",
-              "package_dir": "packages/compat-bijux-rag",
-              "artifacts_dir": "artifacts/compat-bijux-rag",
-              "makefile_path": "makes/packages/compat-package.mk",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-rar",
-              "package_dir": "packages/compat-bijux-rar",
-              "artifacts_dir": "artifacts/compat-bijux-rar",
-              "makefile_path": "makes/packages/compat-package.mk",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-vex",
-              "package_dir": "packages/compat-bijux-vex",
-              "artifacts_dir": "artifacts/compat-bijux-vex",
-              "makefile_path": "makes/packages/compat-package.mk",
-              "build_targets": "build sbom"
-            }
-          ]
-        },
-        {
-          "key": "BIJUX_PYPI_MODE",
-          "type": "string",
-          "value": "artifact"
-        },
-        {
-          "key": "BIJUX_PYPI_PACKAGE_MATRIX_JSON",
-          "type": "json",
-          "value": [
-            {
-              "package_slug": "bijux-canon-runtime"
-            },
-            {
-              "package_slug": "bijux-canon-agent"
-            },
-            {
-              "package_slug": "bijux-canon-ingest"
-            },
-            {
-              "package_slug": "bijux-canon-reason"
-            },
-            {
-              "package_slug": "bijux-canon-index"
-            },
-            {
-              "package_slug": "agentic-flows"
-            },
-            {
-              "package_slug": "bijux-agent"
-            },
-            {
-              "package_slug": "bijux-rag"
-            },
-            {
-              "package_slug": "bijux-rar"
-            },
-            {
-              "package_slug": "bijux-vex"
-            }
-          ]
-        },
-        {
-          "key": "BIJUX_GHCR_RELEASE_PACKAGE_MATRIX_JSON",
-          "type": "json",
-          "value": [
-            {
-              "package_slug": "bijux-canon-runtime"
-            },
-            {
-              "package_slug": "bijux-canon-agent"
-            },
-            {
-              "package_slug": "bijux-canon-ingest"
-            },
-            {
-              "package_slug": "bijux-canon-reason"
-            },
-            {
-              "package_slug": "bijux-canon-index"
-            },
-            {
-              "package_slug": "agentic-flows"
-            },
-            {
-              "package_slug": "bijux-agent"
-            },
-            {
-              "package_slug": "bijux-rag"
-            },
-            {
-              "package_slug": "bijux-rar"
-            },
-            {
-              "package_slug": "bijux-vex"
-            }
-          ]
-        }
-      ],
+      "release_env": [],
       "dependabot": {
         "version": 2,
         "updates": [
+          {
+            "package-ecosystem": "github-actions",
+            "directory": "/",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "github_actions"
+            ]
+          },
           {
             "package-ecosystem": "npm",
             "directory": "/configs",
@@ -689,71 +540,9 @@
         ]
       },
       "workflow_wrappers": {
-        "ci": {
-          "name": "ci",
-          "on": {
-            "workflow_call": {
-              "inputs": {
-                "package_slug": {
-                  "required": true,
-                  "type": "string"
-                },
-                "package_dir": {
-                  "required": true,
-                  "type": "string"
-                },
-                "artifacts_dir": {
-                  "required": true,
-                  "type": "string"
-                },
-                "test_python_versions": {
-                  "required": false,
-                  "type": "string",
-                  "default": "[\"3.11\"]"
-                },
-                "check_targets": {
-                  "required": false,
-                  "type": "string",
-                  "default": "[\"quality\", \"security\", \"docs\", \"api\", \"build\", \"sbom\"]"
-                },
-                "api_toolchain_targets": {
-                  "required": false,
-                  "type": "string",
-                  "default": "[\"api\"]"
-                },
-                "post_test_command": {
-                  "required": false,
-                  "type": "string",
-                  "default": ""
-                }
-              }
-            }
-          },
-          "permissions": {
-            "contents": "read"
-          },
-          "concurrency": {
-            "group": "ci-${{ inputs.package_slug }}-${{ github.ref }}",
-            "cancel-in-progress": true
-          },
-          "jobs": {
-            "package": {
-              "uses": "bijux/bijux-std/.github/workflows/reusable-ci-python-packages.yml@c240e0629f69cabe675d4bb43f75e8a072e69cec",
-              "with": {
-                "package_slug": "${{ inputs.package_slug }}",
-                "package_dir": "${{ inputs.package_dir }}",
-                "artifacts_dir": "${{ inputs.artifacts_dir }}",
-                "test_python_versions": "${{ inputs.test_python_versions }}",
-                "check_targets": "${{ inputs.check_targets }}",
-                "api_toolchain_targets": "${{ inputs.api_toolchain_targets }}",
-                "post_test_command": "${{ inputs.post_test_command }}"
-              }
-            }
-          }
-        },
         "verify": {
           "name": "verify",
-          "on": {
+          "true": {
             "push": {
               "branches": [
                 "main"
@@ -808,16 +597,16 @@
               "timeout-minutes": 30,
               "steps": [
                 {
-                  "uses": "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd"
+                  "uses": "actions/checkout@v5"
                 },
                 {
-                  "uses": "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405",
+                  "uses": "actions/setup-python@v6",
                   "with": {
                     "python-version": 3.11
                   }
                 },
                 {
-                  "uses": "astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b",
+                  "uses": "astral-sh/setup-uv@v8.1.0",
                   "with": {
                     "enable-cache": true,
                     "cache-dependency-glob": "uv.lock"
@@ -875,7 +664,7 @@
                   ]
                 }
               },
-              "uses": "./.github/workflows/ci.yml",
+              "uses": "./.github/workflows/ci-package.yml",
               "with": {
                 "package_slug": "${{ matrix.package_slug }}",
                 "package_dir": "${{ matrix.package_dir }}",
@@ -891,13 +680,8 @@
       },
       "workflow_allowlist": [
         "deploy-docs",
-        "github-policy",
-        "release-artifacts",
-        "release-ghcr",
-        "release-github",
-        "release-pypi"
-      ],
-      "pinned_std_sha": "c240e0629f69cabe675d4bb43f75e8a072e69cec"
+        "github-policy"
+      ]
     },
     {
       "name": "bijux-core",
@@ -958,7 +742,7 @@
       "workflow_wrappers": {
         "ci": {
           "name": "CI",
-          "on": {
+          "true": {
             "push": {
               "branches": [
                 "main"
@@ -1327,7 +1111,7 @@
       "workflow_wrappers": {
         "verify": {
           "name": "verify",
-          "on": {
+          "true": {
             "push": {
               "branches": [
                 "main"
@@ -1453,124 +1237,12 @@
       },
       "workflow_allowlist": [
         "deploy-docs",
-        "github-policy",
-        "reusable-ci-python-packages"
+        "github-policy"
       ]
     },
     {
       "name": "bijux-proteomics",
-      "release_env": [
-        {
-          "key": "BIJUX_RELEASE_ENABLED",
-          "type": "bool",
-          "value": true
-        },
-        {
-          "key": "BIJUX_GHCR_RELEASE_ENABLED",
-          "type": "bool",
-          "value": true
-        },
-        {
-          "key": "BIJUX_PYPI_ENABLED",
-          "type": "bool",
-          "value": true
-        },
-        {
-          "key": "BIJUX_RELEASE_BUILD_MATRIX_JSON",
-          "type": "json",
-          "value": [
-            {
-              "package_slug": "agentic-proteins",
-              "package_dir": "packages/agentic-proteins",
-              "artifacts_dir": "artifacts/agentic-proteins",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-proteomics-foundation",
-              "package_dir": "packages/bijux-proteomics-foundation",
-              "artifacts_dir": "artifacts/bijux-proteomics-foundation",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-proteomics-core",
-              "package_dir": "packages/bijux-proteomics-core",
-              "artifacts_dir": "artifacts/bijux-proteomics-core",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-proteomics-intelligence",
-              "package_dir": "packages/bijux-proteomics-intelligence",
-              "artifacts_dir": "artifacts/bijux-proteomics-intelligence",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-proteomics-knowledge",
-              "package_dir": "packages/bijux-proteomics-knowledge",
-              "artifacts_dir": "artifacts/bijux-proteomics-knowledge",
-              "build_targets": "build sbom"
-            },
-            {
-              "package_slug": "bijux-proteomics-lab",
-              "package_dir": "packages/bijux-proteomics-lab",
-              "artifacts_dir": "artifacts/bijux-proteomics-lab",
-              "build_targets": "build sbom"
-            }
-          ]
-        },
-        {
-          "key": "BIJUX_PYPI_MODE",
-          "type": "string",
-          "value": "artifact"
-        },
-        {
-          "key": "BIJUX_PYPI_PACKAGE_MATRIX_JSON",
-          "type": "json",
-          "value": [
-            {
-              "package_slug": "agentic-proteins"
-            },
-            {
-              "package_slug": "bijux-proteomics-foundation"
-            },
-            {
-              "package_slug": "bijux-proteomics-core"
-            },
-            {
-              "package_slug": "bijux-proteomics-intelligence"
-            },
-            {
-              "package_slug": "bijux-proteomics-knowledge"
-            },
-            {
-              "package_slug": "bijux-proteomics-lab"
-            }
-          ]
-        },
-        {
-          "key": "BIJUX_GHCR_RELEASE_PACKAGE_MATRIX_JSON",
-          "type": "json",
-          "value": [
-            {
-              "package_slug": "agentic-proteins"
-            },
-            {
-              "package_slug": "bijux-proteomics-foundation"
-            },
-            {
-              "package_slug": "bijux-proteomics-core"
-            },
-            {
-              "package_slug": "bijux-proteomics-intelligence"
-            },
-            {
-              "package_slug": "bijux-proteomics-knowledge"
-            },
-            {
-              "package_slug": "bijux-proteomics-lab"
-            }
-          ]
-        }
-      ],
+      "release_env": [],
       "dependabot": {
         "version": 2,
         "updates": [
@@ -1699,7 +1371,7 @@
       "workflow_wrappers": {
         "verify": {
           "name": "verify",
-          "on": {
+          "true": {
             "push": {
               "branches": [
                 "main"
@@ -1838,11 +1510,7 @@
       },
       "workflow_allowlist": [
         "deploy-docs",
-        "github-policy",
-        "release-artifacts",
-        "release-ghcr",
-        "release-github",
-        "release-pypi"
+        "github-policy"
       ]
     },
     {

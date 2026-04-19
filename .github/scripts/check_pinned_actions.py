@@ -35,10 +35,7 @@ def gather_workflow_files(raw_paths: list[str]) -> tuple[list[Path], list[str]]:
             missing.append(raw_path)
             continue
         if path.is_dir():
-            recursive_matches = sorted(path.rglob("*.yml")) + sorted(path.rglob("*.yaml"))
-            for item in recursive_matches:
-                if not item.is_file():
-                    continue
+            for item in sorted(path.glob("*.yml")) + sorted(path.glob("*.yaml")):
                 resolved = item.resolve()
                 if resolved in seen:
                     continue
