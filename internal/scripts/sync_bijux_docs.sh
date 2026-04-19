@@ -3,6 +3,9 @@ set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 shared_root="${repo_root}/shared/bijux-docs"
+if [[ ! -d "${shared_root}" && -d "${repo_root}/.bijux/shared/bijux-docs" ]]; then
+  shared_root="${repo_root}/.bijux/shared/bijux-docs"
+fi
 
 sync_file() {
   local src="$1"
