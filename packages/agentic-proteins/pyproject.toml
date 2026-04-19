@@ -39,7 +39,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://bijux.io/bijux-proteomics/"
 Website = "https://bijux.io/"
-Documentation = "https://bijux.io/bijux-proteomics/agentic-proteins/"
+Documentation = "https://bijux.io/bijux-proteomics/02-agentic-proteins/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/agentic-proteins/CHANGELOG.md"

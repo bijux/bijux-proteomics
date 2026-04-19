@@ -40,7 +40,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://bijux.io/bijux-proteomics/"
-Documentation = "https://bijux.io/bijux-proteomics/bijux-proteomics-core/"
+Documentation = "https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/"
 Repository = "https://github.com/bijux/bijux-proteomics"
 Issues = "https://github.com/bijux/bijux-proteomics/issues"
 Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/CHANGELOG.md"
