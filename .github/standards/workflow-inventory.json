@@ -35,21 +35,6 @@
       "id": "release-pypi",
       "source": "shared/bijux-gh/workflows/release-pypi.yml",
       "consumer_runtime": ".github/workflows/release-pypi.yml"
-    },
-    {
-      "id": "reusable-ci-python-packages",
-      "source": "shared/bijux-gh/workflows/reusable-ci-python-packages.yml",
-      "consumer_runtime": ".github/workflows/reusable-ci-python-packages.yml"
-    },
-    {
-      "id": "reusable-ci-rust-stack",
-      "source": "shared/bijux-gh/workflows/reusable-ci-rust-stack.yml",
-      "consumer_runtime": ".github/workflows/reusable-ci-rust-stack.yml"
-    },
-    {
-      "id": "reusable-verify-python-packages",
-      "source": "shared/bijux-gh/workflows/reusable-verify-python-packages.yml",
-      "consumer_runtime": ".github/workflows/reusable-verify-python-packages.yml"
     }
   ]
 }
