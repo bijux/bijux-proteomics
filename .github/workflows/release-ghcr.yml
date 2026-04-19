@@ -339,6 +339,11 @@ jobs:
             "${archive_path}:${archive_media_type}"
 
           push_latest='${{ matrix.push_latest || needs.resolve.outputs.push_latest }}'
-          if [[ "${push_latest}" == "true" ]]; then
+          normalized_tag="${release_tag#v}"
+          is_prerelease="false"
+          if [[ "${normalized_tag}" == *-* ]]; then
+            is_prerelease="true"
+          fi
+          if [[ "${push_latest}" == "true" && "${is_prerelease}" != "true" ]]; then
             oras tag "${package_ref}:${release_tag}" latest
           fi
