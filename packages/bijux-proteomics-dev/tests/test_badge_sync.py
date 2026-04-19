@@ -22,7 +22,6 @@ def test_badge_catalog_exposes_expected_templates() -> None:
         "family-docs-badge",
         "family-ghcr-badge",
         "family-pypi-badge",
-        "maintainer-summary",
         "package-summary",
         "repository-summary",
     }
@@ -64,18 +63,6 @@ def test_package_badge_block_prioritizes_the_current_distribution() -> None:
     )
 
 
-def test_maintainer_badge_block_uses_summary_contract() -> None:
-    rendered = render_badge_block(
-        BadgeTarget(
-            path=Path("packages/bijux-proteomics-dev/README.md"),
-            kind="maintainer",
-        )
-    )
-    assert rendered.count("https://img.shields.io/pypi/v/") == 0
-    assert rendered.count("/pkgs/container/") == 0
-    assert "actions/workflows/verify.yml/badge.svg" in rendered
-
-
 def test_badge_surfaces_are_synchronized() -> None:
     assert synchronize_badges(check=True) == []
 
@@ -90,7 +77,6 @@ def test_managed_surfaces_only_use_generated_badges() -> None:
         Path("packages/bijux-proteomics-intelligence/README.md"),
         Path("packages/bijux-proteomics-knowledge/README.md"),
         Path("packages/bijux-proteomics-lab/README.md"),
-        Path("packages/bijux-proteomics-dev/README.md"),
     ]
     for path in targets:
         text = path.read_text(encoding="utf-8")

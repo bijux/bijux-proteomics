@@ -8,6 +8,24 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## 0.3.5 - 2026-04-19
+
+### Changed
+
+- Repository workflow topology now mirrors `bijux-canon`, including
+  `automerge-pr.yml`, `ci.yml`, and split release workflows for artifacts,
+  PyPI, GHCR, and GitHub releases.
+- Maintainer release and workflow handbook pages now describe the split release
+  model and reference only checked-in workflow files.
+
+### Fixed
+
+- Legacy references to removed workflows (`publish.yml`,
+  `build-release-artifacts.yml`, and `ci-package.yml`) were removed from root
+  docs, maintainer docs, and workflow contract tests.
+- Badge templates and generated README badge blocks now follow the same catalog
+  model used in `bijux-canon`.
+
 ## 0.3.4 - 2026-04-11
 
 ### Changed

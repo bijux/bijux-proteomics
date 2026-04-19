@@ -61,7 +61,7 @@ flowchart RL
 ## Versioning Anchors
 
 - release version is explicit in `packages/bijux-proteomics-lab/pyproject.toml`
-- release tags follow `v*` and publish workflows are triggered from those tags
+- release tags follow `v*` and release workflows are triggered from those tags
 
 ## Concrete Anchors
 

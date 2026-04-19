@@ -4,7 +4,9 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
 [![Verify](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
-[![Publish](https://github.com/bijux/bijux-proteomics/actions/workflows/publish.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/publish.yml)
+[![Release PyPI](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
+[![Release GHCR](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
+[![Release GitHub](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
 [![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
 [![Release](https://img.shields.io/github/v/release/bijux/bijux-proteomics?display_name=tag&label=release)](https://github.com/bijux/bijux-proteomics/releases)
 [![GHCR packages](https://img.shields.io/badge/ghcr-6%20packages-181717?logo=github)](https://github.com/bijux?tab=packages&repo_name=bijux-proteomics)
@@ -104,18 +106,18 @@ maintaining the workspace rather than for end-user installation.
 
 ## Release Model
 
-- publishing is tag-driven: pushing `vX.Y.Z` triggers the shared `publish.yml` workflow
+- publishing is tag-driven: pushing `vX.Y.Z` triggers the release workflow split
 - each publishable package owns its release notes in `packages/<package>/CHANGELOG.md`
 - root `CHANGELOG.md` is only for repository-wide changes that span packages or shared automation
-- `publish.yml` builds and publishes each package through its matrix entries
-- `publish.yml` also publishes one GHCR bundle per package and assembles a GitHub Release from the staged assets
-- `publish.yml` uses PyPI trusted publishing with the GitHub Actions OIDC token
+- `release-artifacts.yml` builds each package artifact bundle, then calls `release-pypi.yml`, `release-ghcr.yml`, and `release-github.yml`
+- `release-ghcr.yml` publishes one GHCR bundle per package and `release-github.yml` assembles the GitHub Release from staged assets
+- `release-pypi.yml` uses PyPI trusted publishing with the GitHub Actions OIDC token
 
 Recommended release order:
 
 1. Update package `README.md`, `pyproject.toml`, and package `CHANGELOG.md`.
 2. Run `make lint test quality security`.
-3. Push the release tag (`vX.Y.Z`) and verify the shared `publish.yml` workflow completes.
+3. Push the release tag (`vX.Y.Z`) and verify the release workflow split completes.
 
 ## Repository Boundaries
 

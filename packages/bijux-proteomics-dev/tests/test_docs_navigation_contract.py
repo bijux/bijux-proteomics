@@ -403,7 +403,7 @@ def test_maintenance_workflow_leaf_pages_keep_section_sidebar(
 ) -> None:
     page = _parse_navigation(
         rendered_docs,
-        "bijux-proteomics-maintain/gh-workflows/publish/index.html",
+        "bijux-proteomics-maintain/gh-workflows/release-workflows/index.html",
     )
 
     assert page.active_detail_tabs == ["gh-workflows"]
@@ -413,7 +413,7 @@ def test_maintenance_workflow_leaf_pages_keep_section_sidebar(
         "verify",
         "reusable-workflows",
         "deploy-docs",
-        "publish",
+        "release-workflows",
     ]
 
 

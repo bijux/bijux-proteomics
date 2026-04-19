@@ -2,6 +2,14 @@
 
 All notable changes for `bijux-proteomics-lab` are recorded here.
 
+## 0.3.5 - 2026-04-19
+
+### Changed
+
+- Maintainer release documentation now references the split repository release
+  workflows (`release-artifacts.yml`, `release-pypi.yml`, `release-ghcr.yml`,
+  `release-github.yml`) instead of legacy publish workflow names.
+
 ## 0.3.4 - 2026-04-11
 
 ### Fixed
