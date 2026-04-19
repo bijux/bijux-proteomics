@@ -183,7 +183,7 @@ def _declared_mermaid_node_ids(block: str) -> set[str]:
 def test_product_package_detail_tabs_follow_authored_order(
     rendered_docs: Path,
 ) -> None:
-    page = _parse_navigation(rendered_docs, "bijux-proteomics-core/index.html")
+    page = _parse_navigation(rendered_docs, "04-bijux-proteomics-core/index.html")
 
     assert page.detail_tabs == [
         "Home",
@@ -215,10 +215,10 @@ def test_docs_mermaid_diagrams_avoid_reserved_node_ids() -> None:
     "relative_path",
     [
         "index.html",
-        "bijux-proteomics/index.html",
-        "agentic-proteins/index.html",
-        "bijux-proteomics-core/index.html",
-        "bijux-proteomics-maintain/index.html",
+        "01-bijux-proteomics/index.html",
+        "02-agentic-proteins/index.html",
+        "04-bijux-proteomics-core/index.html",
+        "08-bijux-proteomics-maintain/index.html",
     ],
 )
 def test_overview_pages_hide_primary_sidebar(
@@ -233,7 +233,7 @@ def test_overview_pages_hide_primary_sidebar(
 
 
 def test_repository_detail_tabs_keep_home_first(rendered_docs: Path) -> None:
-    page = _parse_navigation(rendered_docs, "bijux-proteomics/index.html")
+    page = _parse_navigation(rendered_docs, "01-bijux-proteomics/index.html")
 
     assert page.detail_tabs == [
         "Home",
@@ -248,7 +248,7 @@ def test_repository_foundation_leaf_pages_keep_section_sidebar(
 ) -> None:
     page = _parse_navigation(
         rendered_docs,
-        "bijux-proteomics/foundation/package-map/index.html",
+        "01-bijux-proteomics/foundation/package-map/index.html",
     )
 
     assert page.active_detail_tabs == ["Foundation"]
@@ -272,7 +272,7 @@ def test_repository_operations_leaf_pages_keep_section_sidebar(
 ) -> None:
     page = _parse_navigation(
         rendered_docs,
-        "bijux-proteomics/operations/review-expectations/index.html",
+        "01-bijux-proteomics/operations/review-expectations/index.html",
     )
 
     assert page.active_detail_tabs == ["Operations"]
@@ -293,7 +293,7 @@ def test_repository_operations_leaf_pages_keep_section_sidebar(
 
 def test_primary_sidebar_does_not_use_lifted_nav_mode(rendered_docs: Path) -> None:
     text = _page_text(
-        rendered_docs, "bijux-proteomics-intelligence/interfaces/index.html"
+        rendered_docs, "05-bijux-proteomics-intelligence/interfaces/index.html"
     )
 
     assert 'data-bijux-nav-variant="scoped"' in text
@@ -301,14 +301,14 @@ def test_primary_sidebar_does_not_use_lifted_nav_mode(rendered_docs: Path) -> No
 
 
 def test_header_navigation_uses_canonical_path_contract(rendered_docs: Path) -> None:
-    text = _page_text(rendered_docs, "bijux-proteomics-core/interfaces/index.html")
+    text = _page_text(rendered_docs, "04-bijux-proteomics-core/interfaces/index.html")
 
     assert 'data-bijux-site-path="/"' in text
-    assert 'data-bijux-site-path="/bijux-proteomics-core/"' in text
-    assert 'data-bijux-site-path="/bijux-proteomics-maintain/"' in text
-    assert 'data-bijux-detail-root-path="/bijux-proteomics-core/"' in text
-    assert 'data-bijux-detail-path="/bijux-proteomics-core/interfaces/"' in text
-    assert 'data-bijux-detail-path="/bijux-proteomics-core/architecture/"' in text
+    assert 'data-bijux-site-path="/04-bijux-proteomics-core/"' in text
+    assert 'data-bijux-site-path="/08-bijux-proteomics-maintain/"' in text
+    assert 'data-bijux-detail-root-path="/04-bijux-proteomics-core/"' in text
+    assert 'data-bijux-detail-path="/04-bijux-proteomics-core/interfaces/"' in text
+    assert 'data-bijux-detail-path="/04-bijux-proteomics-core/architecture/"' in text
     assert "data-bijux-site-target" not in text
     assert "data-bijux-detail-target" not in text
     assert "data-bijux-detail-root=" not in text
@@ -322,24 +322,24 @@ def test_hub_navigation_excludes_private_sites(rendered_docs: Path) -> None:
 
 
 def test_repository_site_tab_uses_repository_label(rendered_docs: Path) -> None:
-    text = _page_text(rendered_docs, "bijux-proteomics/index.html")
+    text = _page_text(rendered_docs, "01-bijux-proteomics/index.html")
 
     assert re.search(r">\s*Repository\s*<", text)
     assert re.search(r">\s*Maintainer\s*<", text)
 
 
 def test_rendered_header_marks_active_navigation_links(rendered_docs: Path) -> None:
-    text = _page_text(rendered_docs, "bijux-proteomics-lab/operations/index.html")
+    text = _page_text(rendered_docs, "07-bijux-proteomics-lab/operations/index.html")
 
-    assert 'data-bijux-site-path="/bijux-proteomics-lab/" aria-current="page"' in text
+    assert 'data-bijux-site-path="/07-bijux-proteomics-lab/" aria-current="page"' in text
     assert (
-        'data-bijux-detail-path="/bijux-proteomics-lab/operations/" '
+        'data-bijux-detail-path="/07-bijux-proteomics-lab/operations/" '
         'aria-current="page"' in text
     )
 
 
 def test_maintainer_detail_tabs_keep_expected_sections(rendered_docs: Path) -> None:
-    page = _parse_navigation(rendered_docs, "bijux-proteomics-maintain/index.html")
+    page = _parse_navigation(rendered_docs, "08-bijux-proteomics-maintain/index.html")
 
     assert page.detail_tabs == [
         "Home",
@@ -354,7 +354,7 @@ def test_maintenance_dev_leaf_pages_keep_section_sidebar(
 ) -> None:
     page = _parse_navigation(
         rendered_docs,
-        "bijux-proteomics-maintain/bijux-proteomics-dev/security-gates/index.html",
+        "08-bijux-proteomics-maintain/bijux-proteomics-dev/security-gates/index.html",
     )
 
     assert page.active_detail_tabs == ["bijux-proteomics-dev"]
@@ -379,7 +379,7 @@ def test_maintenance_make_leaf_pages_keep_section_sidebar(
 ) -> None:
     page = _parse_navigation(
         rendered_docs,
-        "bijux-proteomics-maintain/makes/package-dispatch/index.html",
+        "08-bijux-proteomics-maintain/makes/package-dispatch/index.html",
     )
 
     assert page.active_detail_tabs == ["makes"]
@@ -403,7 +403,7 @@ def test_maintenance_workflow_leaf_pages_keep_section_sidebar(
 ) -> None:
     page = _parse_navigation(
         rendered_docs,
-        "bijux-proteomics-maintain/gh-workflows/release-workflows/index.html",
+        "08-bijux-proteomics-maintain/gh-workflows/release-workflows/index.html",
     )
 
     assert page.active_detail_tabs == ["gh-workflows"]
@@ -420,7 +420,7 @@ def test_maintenance_workflow_leaf_pages_keep_section_sidebar(
 def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) -> None:
     page = _parse_navigation(
         rendered_docs,
-        "bijux-proteomics-core/architecture/code-navigation/index.html",
+        "04-bijux-proteomics-core/architecture/code-navigation/index.html",
     )
 
     assert page.active_detail_tabs == ["Architecture"]
@@ -448,7 +448,7 @@ def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) 
     ),
     [
         (
-            "bijux-proteomics-core/interfaces/index.html",
+            "04-bijux-proteomics-core/interfaces/index.html",
             ["Interfaces"],
             "Interfaces",
             [
@@ -465,7 +465,7 @@ def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) 
             ],
         ),
         (
-            "bijux-proteomics-core/interfaces/api-surface/index.html",
+            "04-bijux-proteomics-core/interfaces/api-surface/index.html",
             ["Interfaces"],
             "Interfaces",
             [
@@ -482,7 +482,7 @@ def test_leaf_pages_keep_sidebar_scoped_to_current_section(rendered_docs: Path) 
             ],
         ),
         (
-            "agentic-proteins/operations/index.html",
+            "02-agentic-proteins/operations/index.html",
             ["Operations"],
             "Operations",
             [

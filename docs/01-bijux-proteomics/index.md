@@ -75,12 +75,12 @@ flowchart LR
 
 ## Package Handbooks
 
-- [agentic-proteins](../agentic-proteins/foundation/index.md)
-- [bijux-proteomics-foundation](../bijux-proteomics-foundation/foundation/index.md)
-- [bijux-proteomics-core](../bijux-proteomics-core/foundation/index.md)
-- [bijux-proteomics-intelligence](../bijux-proteomics-intelligence/foundation/index.md)
-- [bijux-proteomics-knowledge](../bijux-proteomics-knowledge/foundation/index.md)
-- [bijux-proteomics-lab](../bijux-proteomics-lab/foundation/index.md)
+- [agentic-proteins](../02-agentic-proteins/foundation/index.md)
+- [bijux-proteomics-foundation](../03-bijux-proteomics-foundation/foundation/index.md)
+- [bijux-proteomics-core](../04-bijux-proteomics-core/foundation/index.md)
+- [bijux-proteomics-intelligence](../05-bijux-proteomics-intelligence/foundation/index.md)
+- [bijux-proteomics-knowledge](../06-bijux-proteomics-knowledge/foundation/index.md)
+- [bijux-proteomics-lab](../07-bijux-proteomics-lab/foundation/index.md)
 
 The job of this section is simple: help readers understand the system without
 letting the root pretend it owns behavior that belongs elsewhere.

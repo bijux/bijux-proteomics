@@ -16,7 +16,7 @@ def _normalize(dependency: str) -> str:
 def run(repo_root: Path) -> int:
     pyproject = repo_root / "pyproject.toml"
     allowlist_path = (
-        repo_root / "docs/bijux-proteomics/operations/artifact-governance.md"
+        repo_root / "docs/01-bijux-proteomics/operations/artifact-governance.md"
     )
     if not pyproject.exists():
         print("pyproject.toml missing.", file=sys.stderr)
@@ -24,7 +24,7 @@ def run(repo_root: Path) -> int:
     if not allowlist_path.exists():
         print(
             "Allowlist missing: "
-            "docs/bijux-proteomics/operations/artifact-governance.md",
+            "docs/01-bijux-proteomics/operations/artifact-governance.md",
             file=sys.stderr,
         )
         return 1
