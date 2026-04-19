@@ -26,6 +26,10 @@ on:
         description: "JSON array for artifact mode publication matrix"
         required: false
         type: string
+      allow_token_bootstrap_on_missing:
+        description: "Allow token bootstrap only when package does not yet exist on PyPI"
+        required: false
+        type: boolean
   workflow_call:
     inputs:
       release_tag:
@@ -64,6 +68,10 @@ on:
         required: false
         type: boolean
         default: true
+      allow_token_bootstrap_on_missing:
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -88,6 +96,7 @@ jobs:
       environment_name: ${{ steps.config.outputs.environment_name }}
       publish_auth_default: ${{ steps.config.outputs.publish_auth_default }}
       skip_existing: ${{ steps.config.outputs.skip_existing }}
+      allow_token_bootstrap_on_missing: ${{ steps.config.outputs.allow_token_bootstrap_on_missing }}
       wait_for_ci_command: ${{ steps.config.outputs.wait_for_ci_command }}
       plan_command: ${{ steps.config.outputs.plan_command }}
       prepare_command: ${{ steps.config.outputs.prepare_command }}
@@ -119,8 +128,10 @@ jobs:
           INPUT_PUBLISH_AUTH_DEFAULT: ${{ inputs.publish_auth_default || '' }}
           INPUT_ENABLED_RAW: ${{ toJSON(inputs.enabled) }}
           INPUT_SKIP_EXISTING_RAW: ${{ toJSON(inputs.skip_existing) }}
+          INPUT_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING_RAW: ${{ toJSON(inputs.allow_token_bootstrap_on_missing) }}
           DISPATCH_ENABLED_RAW: ${{ github.event.inputs.enabled || '' }}
           DISPATCH_SKIP_EXISTING_RAW: ${{ github.event.inputs.skip_existing || '' }}
+          DISPATCH_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING_RAW: ${{ github.event.inputs.allow_token_bootstrap_on_missing || '' }}
         run: |
           set -euo pipefail
 
@@ -227,6 +238,10 @@ jobs:
           if [[ -z "${input_skip_existing}" ]]; then
             input_skip_existing="$(normalize_bool_optional "${DISPATCH_SKIP_EXISTING_RAW}")"
           fi
+          input_allow_token_bootstrap_on_missing="$(normalize_bool_optional "${INPUT_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING_RAW}")"
+          if [[ -z "${input_allow_token_bootstrap_on_missing}" ]]; then
+            input_allow_token_bootstrap_on_missing="$(normalize_bool_optional "${DISPATCH_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING_RAW}")"
+          fi
 
           release_tag="$(from_values "${INPUT_RELEASE_TAG}" "${BIJUX_PYPI_RELEASE_TAG:-}" "${{ vars.BIJUX_PYPI_RELEASE_TAG || '' }}" "$default_tag")"
           enabled="$(bool_from_values "${input_enabled}" "${BIJUX_PYPI_ENABLED:-}" "${{ vars.BIJUX_PYPI_ENABLED || '' }}" "false")"
@@ -238,6 +253,7 @@ jobs:
           environment_name="$(from_values "${INPUT_ENVIRONMENT_NAME}" "${BIJUX_PYPI_ENVIRONMENT_NAME:-}" "${{ vars.BIJUX_PYPI_ENVIRONMENT_NAME || '' }}" "")"
           publish_auth_default="$(from_values "${INPUT_PUBLISH_AUTH_DEFAULT}" "${BIJUX_PYPI_PUBLISH_AUTH_DEFAULT:-}" "${{ vars.BIJUX_PYPI_PUBLISH_AUTH_DEFAULT || '' }}" "trusted")"
           skip_existing="$(bool_from_values "${input_skip_existing}" "${BIJUX_PYPI_SKIP_EXISTING:-}" "${{ vars.BIJUX_PYPI_SKIP_EXISTING || '' }}" "true")"
+          allow_token_bootstrap_on_missing="$(bool_from_values "${input_allow_token_bootstrap_on_missing}" "${BIJUX_PYPI_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING:-}" "${{ vars.BIJUX_PYPI_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING || '' }}" "true")"
 
           wait_for_ci_command="$(from_values "" "${BIJUX_PYPI_WAIT_FOR_CI_COMMAND:-}" "${{ vars.BIJUX_PYPI_WAIT_FOR_CI_COMMAND || '' }}" "")"
           plan_command="$(from_values "" "${BIJUX_PYPI_PLAN_COMMAND:-}" "${{ vars.BIJUX_PYPI_PLAN_COMMAND || '' }}" "")"
@@ -273,6 +289,7 @@ jobs:
             echo "environment_name=${environment_name}"
             echo "publish_auth_default=${publish_auth_default}"
             echo "skip_existing=${skip_existing}"
+            echo "allow_token_bootstrap_on_missing=${allow_token_bootstrap_on_missing}"
             echo "wait_for_ci_command=${wait_for_ci_command}"
             echo "plan_command=${plan_command}"
             echo "prepare_command=${prepare_command}"
@@ -372,7 +389,7 @@ jobs:
           skip-existing: ${{ needs.resolve.outputs.skip_existing == 'true' }}
 
       - name: Validate token bootstrap prerequisites
-        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.exists == 'false')) && secrets.PYPI_API_TOKEN == '' }}
+        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && needs.resolve.outputs.allow_token_bootstrap_on_missing == 'true' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.exists == 'false')) && secrets.PYPI_API_TOKEN == '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -381,7 +398,7 @@ jobs:
 
       - name: Publish to PyPI (token bootstrap)
         id: token_publish
-        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.exists == 'false')) && secrets.PYPI_API_TOKEN != '' }}
+        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && needs.resolve.outputs.allow_token_bootstrap_on_missing == 'true' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.exists == 'false')) && secrets.PYPI_API_TOKEN != '' }}
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
         with:
           packages-dir: .github/tmp/${{ matrix.package_slug }}-dist
