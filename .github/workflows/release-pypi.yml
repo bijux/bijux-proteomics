@@ -334,6 +334,14 @@ jobs:
           if [[ -z "${mode}" ]]; then
             mode='${{ needs.resolve.outputs.publish_auth_default }}'
           fi
+          case "${mode}" in
+            trusted|token) ;;
+            *)
+              echo "Unsupported publish auth mode: ${mode}" >&2
+              echo "Expected one of: trusted, token" >&2
+              exit 1
+              ;;
+          esac
           echo "mode=${mode}" >> "$GITHUB_OUTPUT"
 
       - name: Download publish artifacts
