@@ -87,7 +87,7 @@ on:
       delete_existing_release:
         required: false
         type: boolean
-        default: true
+        default: false
       fail_on_unmatched_files:
         required: false
         type: boolean
@@ -271,7 +271,7 @@ jobs:
           python_version="$(from_values "${INPUT_PYTHON_VERSION}" "${BIJUX_RELEASE_PYTHON_VERSION:-}" "${{ vars.BIJUX_RELEASE_PYTHON_VERSION || '' }}" "3.11")"
           setup_rust="$(bool_from_values "${input_setup_rust}" "${BIJUX_RELEASE_SETUP_RUST:-}" "${{ vars.BIJUX_RELEASE_SETUP_RUST || '' }}" "false")"
           rust_toolchain="$(from_values "${INPUT_RUST_TOOLCHAIN}" "${BIJUX_RELEASE_RUST_TOOLCHAIN:-}" "${{ vars.BIJUX_RELEASE_RUST_TOOLCHAIN || '' }}" "stable")"
-          delete_existing_release="$(bool_from_values "${input_delete_existing_release}" "${BIJUX_RELEASE_DELETE_EXISTING:-}" "${{ vars.BIJUX_RELEASE_DELETE_EXISTING || '' }}" "true")"
+          delete_existing_release="$(bool_from_values "${input_delete_existing_release}" "${BIJUX_RELEASE_DELETE_EXISTING:-}" "${{ vars.BIJUX_RELEASE_DELETE_EXISTING || '' }}" "false")"
           fail_on_unmatched_files="$(bool_from_values "${input_fail_on_unmatched_files}" "${BIJUX_RELEASE_FAIL_ON_UNMATCHED_FILES:-}" "${{ vars.BIJUX_RELEASE_FAIL_ON_UNMATCHED_FILES || '' }}" "false")"
           generate_release_notes="$(bool_from_values "${input_generate_release_notes}" "${BIJUX_RELEASE_GENERATE_RELEASE_NOTES:-}" "${{ vars.BIJUX_RELEASE_GENERATE_RELEASE_NOTES || '' }}" "true")"
 
