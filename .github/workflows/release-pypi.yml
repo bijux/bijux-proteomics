@@ -250,7 +250,7 @@ jobs:
           package_matrix_json="$(from_values "${INPUT_PACKAGE_MATRIX_JSON}" "${BIJUX_PYPI_PACKAGE_MATRIX_JSON:-}" "${{ vars.BIJUX_PYPI_PACKAGE_MATRIX_JSON || '' }}" "[]")"
           allowed_packages="$(from_values "" "${BIJUX_PYPI_ALLOWED_PACKAGES:-}" "${{ vars.BIJUX_PYPI_ALLOWED_PACKAGES || '' }}" "")"
           artifact_suffix="$(from_values "${INPUT_ARTIFACT_SUFFIX}" "${BIJUX_PYPI_ARTIFACT_SUFFIX:-}" "${{ vars.BIJUX_PYPI_ARTIFACT_SUFFIX || '' }}" "-pypi-dist")"
-          environment_name="$(from_values "${INPUT_ENVIRONMENT_NAME}" "${BIJUX_PYPI_ENVIRONMENT_NAME:-}" "${{ vars.BIJUX_PYPI_ENVIRONMENT_NAME || '' }}" "")"
+          environment_name="$(from_values "${INPUT_ENVIRONMENT_NAME}" "${BIJUX_PYPI_ENVIRONMENT_NAME:-}" "${{ vars.BIJUX_PYPI_ENVIRONMENT_NAME || '' }}" "pypi")"
           publish_auth_default="$(from_values "${INPUT_PUBLISH_AUTH_DEFAULT}" "${BIJUX_PYPI_PUBLISH_AUTH_DEFAULT:-}" "${{ vars.BIJUX_PYPI_PUBLISH_AUTH_DEFAULT || '' }}" "trusted")"
           skip_existing="$(bool_from_values "${input_skip_existing}" "${BIJUX_PYPI_SKIP_EXISTING:-}" "${{ vars.BIJUX_PYPI_SKIP_EXISTING || '' }}" "true")"
           allow_token_bootstrap_on_missing="$(bool_from_values "${input_allow_token_bootstrap_on_missing}" "${BIJUX_PYPI_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING:-}" "${{ vars.BIJUX_PYPI_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING || '' }}" "true")"
@@ -333,6 +333,8 @@ jobs:
       - build
     if: ${{ needs.resolve.outputs.enabled == 'true' && needs.resolve.outputs.mode == 'artifact' }}
     runs-on: ubuntu-24.04
+    environment:
+      name: ${{ matrix.environment_name || needs.resolve.outputs.environment_name }}
     permissions:
       contents: read
       id-token: write
