@@ -258,6 +258,11 @@ jobs:
           skip_existing="$(bool_from_values "${input_skip_existing}" "${BIJUX_PYPI_SKIP_EXISTING:-}" "${{ vars.BIJUX_PYPI_SKIP_EXISTING || '' }}" "true")"
           allow_token_bootstrap_on_missing="$(bool_from_values "${input_allow_token_bootstrap_on_missing}" "${BIJUX_PYPI_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING:-}" "${{ vars.BIJUX_PYPI_ALLOW_TOKEN_BOOTSTRAP_ON_MISSING || '' }}" "true")"
 
+          if [[ "${enabled}" == "true" && -n "${release_tag}" && "${release_tag}" != v* ]]; then
+            echo "release_tag must start with 'v' when release-pypi is enabled: ${release_tag}" >&2
+            exit 1
+          fi
+
           wait_for_ci_command="$(from_values "" "${BIJUX_PYPI_WAIT_FOR_CI_COMMAND:-}" "${{ vars.BIJUX_PYPI_WAIT_FOR_CI_COMMAND || '' }}" "")"
           plan_command="$(from_values "" "${BIJUX_PYPI_PLAN_COMMAND:-}" "${{ vars.BIJUX_PYPI_PLAN_COMMAND || '' }}" "")"
           prepare_command="$(from_values "" "${BIJUX_PYPI_PREPARE_COMMAND:-}" "${{ vars.BIJUX_PYPI_PREPARE_COMMAND || '' }}" "")"
@@ -377,12 +382,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          package_name='${{ matrix.package_name || matrix.package_slug }}'
-          if curl --silent --show-error --fail "https://pypi.org/pypi/${package_name}/json" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            exit 0
+          package_name='${{ matrix.package_name || '' }}'
+          if [[ -z "${package_name}" ]]; then
+            dist_path="$(find .github/tmp/${{ matrix.package_slug }}-dist -maxdepth 1 -type f \( -name '*.whl' -o -name '*.tar.gz' \) | sort | head -n 1)"
+            if [[ -n "${dist_path}" ]]; then
+              file_name="$(basename "${dist_path}")"
+              package_name="${file_name%%-*}"
+              package_name="${package_name//_/-}"
+            fi
           fi
-          echo "exists=false" >> "$GITHUB_OUTPUT"
+          if [[ -z "${package_name}" ]]; then
+            package_name='${{ matrix.package_slug }}'
+          fi
+          status_code="$(curl --silent --show-error --location --retry 2 --retry-delay 1 --output /dev/null --write-out '%{http_code}' "https://pypi.org/pypi/${package_name}/json" || true)"
+          case "${status_code}" in
+            200)
+              echo "exists=true" >> "$GITHUB_OUTPUT"
+              echo "probe_status=exists" >> "$GITHUB_OUTPUT"
+              ;;
+            404)
+              echo "exists=false" >> "$GITHUB_OUTPUT"
+              echo "probe_status=missing" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "exists=unknown" >> "$GITHUB_OUTPUT"
+              echo "probe_status=error" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
 
       - name: Publish to PyPI (trusted publisher)
         id: trusted_publish
@@ -394,7 +420,7 @@ jobs:
           skip-existing: ${{ needs.resolve.outputs.skip_existing == 'true' }}
 
       - name: Validate token bootstrap prerequisites
-        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && needs.resolve.outputs.allow_token_bootstrap_on_missing == 'true' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.exists == 'false')) && secrets.PYPI_API_TOKEN == '' }}
+        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && needs.resolve.outputs.allow_token_bootstrap_on_missing == 'true' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.probe_status == 'missing')) && secrets.PYPI_API_TOKEN == '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -403,13 +429,22 @@ jobs:
 
       - name: Publish to PyPI (token bootstrap)
         id: token_publish
-        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && needs.resolve.outputs.allow_token_bootstrap_on_missing == 'true' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.exists == 'false')) && secrets.PYPI_API_TOKEN != '' }}
+        if: ${{ (steps.auth.outputs.mode == 'token' || (steps.auth.outputs.mode != 'token' && needs.resolve.outputs.allow_token_bootstrap_on_missing == 'true' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.probe_status == 'missing')) && secrets.PYPI_API_TOKEN != '' }}
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
         with:
           packages-dir: .github/tmp/${{ matrix.package_slug }}-dist
           skip-existing: ${{ needs.resolve.outputs.skip_existing == 'true' }}
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Fail on indeterminate PyPI probe
+        if: ${{ steps.auth.outputs.mode != 'token' && steps.trusted_publish.outcome == 'failure' && steps.pypi_project.outputs.probe_status == 'error' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Trusted publish failed and PyPI probe result was indeterminate." >&2
+          echo "Refusing token bootstrap for safety; retry later or force token mode explicitly." >&2
+          exit 1
 
       - name: Validate publish mode resolution
         if: ${{ steps.auth.outputs.mode != 'token' && steps.trusted_publish.outcome == 'failure' && steps.token_publish.outcome != 'success' }}

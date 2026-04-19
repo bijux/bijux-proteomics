@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -83,6 +84,37 @@ LEGACY_MANAGED_SHARED_PATHS = {
 def run(cmd: list[str], cwd: Path | None = None) -> str:
     result = subprocess.run(cmd, cwd=cwd, check=True, text=True, capture_output=True)
     return result.stdout.strip()
+
+
+def verify_shared_checksums(repo_dir: Path) -> None:
+    checksum_file = repo_dir / ".github/bijux-std-shared.sha256"
+    if not checksum_file.exists():
+        raise FileNotFoundError(f"Missing checksum file: {checksum_file}")
+
+    failures: list[str] = []
+    for raw_line in checksum_file.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        parts = line.split(maxsplit=1)
+        if len(parts) != 2:
+            failures.append(f"Malformed checksum line: {raw_line}")
+            continue
+        expected, relative_path = parts
+        path = repo_dir / relative_path
+        if not path.exists():
+            failures.append(f"Missing managed file: {relative_path}")
+            continue
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != expected:
+            failures.append(f"Checksum mismatch: {relative_path}")
+
+    if failures:
+        details = "\n".join(f"  - {item}" for item in failures)
+        raise RuntimeError(
+            "Managed shared checksums verification failed:\n"
+            f"{details}"
+        )
 
 
 def load_manifest() -> dict[str, Any]:
@@ -285,7 +317,7 @@ def main() -> None:
         if args.advance_std_sha:
             write_std_pin(repo, std_sha)
 
-        subprocess.run(["sha256sum", "--check", ".github/bijux-std-shared.sha256"], cwd=repo_dir, check=True)
+        verify_shared_checksums(repo_dir)
 
         if not has_changes(repo):
             continue

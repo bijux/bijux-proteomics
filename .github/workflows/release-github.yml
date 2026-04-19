@@ -103,7 +103,6 @@ on:
 permissions:
   contents: write
   actions: read
-  packages: write
 
 concurrency:
   group: release-github-${{ github.ref }}
@@ -277,6 +276,11 @@ jobs:
           delete_existing_release="$(bool_from_values "${input_delete_existing_release}" "${BIJUX_RELEASE_DELETE_EXISTING:-}" "${{ vars.BIJUX_RELEASE_DELETE_EXISTING || '' }}" "false")"
           fail_on_unmatched_files="$(bool_from_values "${input_fail_on_unmatched_files}" "${BIJUX_RELEASE_FAIL_ON_UNMATCHED_FILES:-}" "${{ vars.BIJUX_RELEASE_FAIL_ON_UNMATCHED_FILES || '' }}" "false")"
           generate_release_notes="$(bool_from_values "${input_generate_release_notes}" "${BIJUX_RELEASE_GENERATE_RELEASE_NOTES:-}" "${{ vars.BIJUX_RELEASE_GENERATE_RELEASE_NOTES || '' }}" "true")"
+
+          if [[ "${enabled}" == "true" && -n "${release_tag}" && "${release_tag}" != v* ]]; then
+            echo "release_tag must start with 'v' when release-github is enabled: ${release_tag}" >&2
+            exit 1
+          fi
 
           build_matrix_json="$(validate_build_matrix "${build_matrix_json}")"
           if [[ "${enabled}" == "true" && "${build_matrix_json}" == "[]" ]]; then

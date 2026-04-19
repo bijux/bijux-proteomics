@@ -1906,7 +1906,7 @@
         "release-github",
         "release-pypi"
       ],
-      "pinned_std_sha": "c240e0629f69cabe675d4bb43f75e8a072e69cec"
+      "pinned_std_sha": "71a4c8189d077e39886b4a018f3812049895d1b0"
     },
     {
       "name": "bijux-std",

@@ -234,6 +234,11 @@ jobs:
           archive_media_type="$(from_values "${INPUT_ARCHIVE_MEDIA_TYPE}" "${BIJUX_GHCR_RELEASE_ARCHIVE_MEDIA_TYPE:-}" "${{ vars.BIJUX_GHCR_RELEASE_ARCHIVE_MEDIA_TYPE || '' }}" "application/gzip")"
           oras_version="$(from_values "${INPUT_ORAS_VERSION}" "${BIJUX_GHCR_RELEASE_ORAS_VERSION:-}" "${{ vars.BIJUX_GHCR_RELEASE_ORAS_VERSION || '' }}" "1.2.3")"
 
+          if [[ "${enabled}" == "true" && -n "${release_tag}" && "${release_tag}" != v* ]]; then
+            echo "release_tag must start with 'v' when release-ghcr is enabled: ${release_tag}" >&2
+            exit 1
+          fi
+
           build_matrix_json="$(filter_matrix "${build_matrix_json}" "${allowed_packages}")"
           package_matrix_json="$(filter_matrix "${package_matrix_json}" "${allowed_packages}")"
 
