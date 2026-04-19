@@ -118,9 +118,7 @@ def test_verify_workflow_uses_repo_contract_job_and_package_matrix() -> None:
     assert found == EXPECTED_VERIFY_PACKAGES
 
     dev = next(
-        entry
-        for entry in include
-        if entry["package_slug"] == "bijux-proteomics-dev"
+        entry for entry in include if entry["package_slug"] == "bijux-proteomics-dev"
     )
     assert dev["check_targets"] == '["quality", "security", "build", "sbom"]'
 
@@ -162,34 +160,34 @@ def test_release_workflows_replace_legacy_publish_workflow() -> None:
     }
 
 
-def test_reusable_workflows_use_uv_cache_contract() -> None:
+def test_ci_workflow_jobs_use_uv_cache_contract() -> None:
     ci_wrapper = _workflow(WORKFLOWS_DIR / "ci.yml")
     verify_workflow = _workflow(WORKFLOWS_DIR / "verify.yml")
     build_workflow = _workflow(WORKFLOWS_DIR / "release-artifacts.yml")
     docs_workflow = _workflow(WORKFLOWS_DIR / "deploy-docs.yml")
-
-    ci_uses = str(ci_wrapper["jobs"]["package"]["uses"])
-    assert ci_uses.startswith(
-        "bijux/bijux-std/.github/workflows/reusable-ci-python-packages.yml@"
-    )
+    ci_jobs = _as_dict(ci_wrapper.get("jobs"))
+    assert {"tests", "checks", "lint"} <= set(ci_jobs)
 
     assert verify_workflow["jobs"]["repository"]["name"] == "repository-contracts"
     assert build_workflow["jobs"]["build"]["name"] == (
         "release-artifacts-${{ inputs.package_slug }}"
     )
 
-    reusable_jobs = [
+    cache_checked_jobs = [
+        ci_jobs["tests"],
+        ci_jobs["checks"],
+        ci_jobs["lint"],
         verify_workflow["jobs"]["repository"],
         build_workflow["jobs"]["build"],
         docs_workflow["jobs"]["build"],
     ]
 
-    for job in reusable_jobs:
+    for job in cache_checked_jobs:
         if "uses" in job:
             continue
         steps = job.get("steps", [])
         assert any(_uses_setup_uv_with_lock_cache(step) for step in steps), (
-            "reusable workflow job is missing setup-uv"
+            "workflow job is missing setup-uv"
         )
 
     inputs = _workflow_call_inputs(ci_wrapper)

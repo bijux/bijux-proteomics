@@ -200,7 +200,6 @@ def _render_package_badges(
 
 def iter_badge_targets() -> tuple[BadgeTarget, ...]:
     """Enumerate documentation surfaces that consume managed badge blocks."""
-    workspace = _workspace_metadata()
     targets = [
         BadgeTarget(path=REPO_ROOT / "README.md", kind="repository"),
         BadgeTarget(path=REPO_ROOT / "docs" / "index.md", kind="repository"),
