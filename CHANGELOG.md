@@ -13,7 +13,7 @@ change contributor and maintainer workflows across the repository.
 ### Changed
 
 - Prepared the `v0.3.6` release line by aligning fallback versions and inter-package dependency floors across the repository.
-- Synchronized release automation and governance with the latest `bijux-std` shared standards baseline.
+- Synchronized release automation and governance with the `bijux-std v0.1.3` shared standards baseline.
 - Docs synchronization and docs source-of-truth checks now resolve directly
   from `.bijux/shared/bijux-docs/tooling`.
 - Shared make-layer and standards checks now reference `.bijux/shared/*`
