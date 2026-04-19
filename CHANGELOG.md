@@ -8,6 +8,20 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
+## 0.3.6 - 2026-04-19
+
+### Changed
+
+- Docs synchronization and docs source-of-truth checks now resolve directly
+  from `.bijux/shared/bijux-docs/tooling`.
+- Shared make-layer and standards checks now reference `.bijux/shared/*`
+  paths as the single repository source.
+
+### Fixed
+
+- Removed the legacy root `internal/` docs tooling directory to eliminate
+  outdated dual-path maintenance.
+
 ## 0.3.5 - 2026-04-19
 
 ### Changed
