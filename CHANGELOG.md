@@ -8,10 +8,16 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
-## 0.3.6 - 2026-04-19
+## Unreleased
 
 ### Changed
 
+- GitHub workflow and standards governance were synchronized with shared
+  `bijux-std` contracts, including split release lanes and protected-change
+  policy enforcement for managed automation surfaces.
+- Documentation information architecture moved to numbered handbook roots
+  (`docs/01-...` through `docs/08-...`), and repository docs links were
+  aligned to those canonical paths.
 - Docs synchronization and docs source-of-truth checks now resolve directly
   from `.bijux/shared/bijux-docs/tooling`.
 - Shared make-layer and standards checks now reference `.bijux/shared/*`
@@ -21,6 +27,8 @@ change contributor and maintainer workflows across the repository.
 
 - Removed the legacy root `internal/` docs tooling directory to eliminate
   outdated dual-path maintenance.
+- Quality gate execution now resolves deptry through the shared root check
+  environment, and tox no longer overrides make-layer virtualenv wiring.
 
 ## 0.3.5 - 2026-04-19
 
