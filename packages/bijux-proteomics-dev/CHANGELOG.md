@@ -5,6 +5,18 @@ All notable changes to `bijux-proteomics-dev` are documented in this file.
 The format follows Keep a Changelog and this package follows Semantic
 Versioning.
 
+## [Unreleased]
+
+### Changed
+
+- Documentation governance helpers now resolve repository handbook contracts
+  from numbered docs roots (for example `docs/01-bijux-proteomics/...`) rather
+  than legacy flat handbook paths.
+- Docs publication and navigation contract tests now validate numbered site
+  paths across repository, package, and maintainer sections.
+- Package metadata documentation links now point to the numbered maintainer
+  route `08-bijux-proteomics-maintain/bijux-proteomics-dev/`.
+
 ## [0.3.5] - 2026-04-19
 
 ### Changed

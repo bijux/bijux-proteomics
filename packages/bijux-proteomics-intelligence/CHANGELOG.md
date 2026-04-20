@@ -2,6 +2,14 @@
 
 All notable changes for `bijux-proteomics-intelligence` are recorded here.
 
+## Unreleased
+
+### Changed
+
+- README docs badges and package metadata documentation links now point to the
+  numbered handbook route `05-bijux-proteomics-intelligence` for stable docs
+  navigation.
+
 ## 0.3.5 - 2026-04-19
 
 ### Changed
