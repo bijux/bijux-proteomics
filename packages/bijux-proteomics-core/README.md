@@ -85,8 +85,8 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
 
 ## Documentation
 
-- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-core/)
-- [Ownership boundary](https://bijux.io/bijux-proteomics/bijux-proteomics-core/foundation/ownership-boundary/)
-- [Architecture overview](https://bijux.io/bijux-proteomics/bijux-proteomics-core/architecture/)
-- [Interface contracts](https://bijux.io/bijux-proteomics/bijux-proteomics-core/interfaces/)
-- [Release and versioning](https://bijux.io/bijux-proteomics/bijux-proteomics-core/operations/release-and-versioning/)
+- [Package guide](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
+- [Architecture overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)
+- [Interface contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/)
+- [Release and versioning](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/release-and-versioning/)

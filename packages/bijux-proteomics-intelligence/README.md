@@ -77,8 +77,8 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
 
 ## Documentation
 
-- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/)
-- [Ownership boundary](https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/foundation/ownership-boundary/)
-- [Architecture overview](https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/architecture/)
-- [Interface contracts](https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/interfaces/)
-- [Release and versioning](https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/operations/release-and-versioning/)
+- [Package guide](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/)
+- [Architecture overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
+- [Interface contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/)
+- [Release and versioning](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/release-and-versioning/)

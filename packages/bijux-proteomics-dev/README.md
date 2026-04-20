@@ -55,9 +55,9 @@ It does not define runtime product APIs or proteomics domain behavior.
 
 ## Documentation
 
-- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/)
-- [Scope and non-goals](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
-- [Module map](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)
-- [Quality gates](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/)
-- [Release support](https://bijux.io/bijux-proteomics/bijux-proteomics-maintain/bijux-proteomics-dev/release-support/)
+- [Package guide](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
+- [Scope and non-goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
+- [Module map](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)
+- [Quality gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/)
+- [Release support](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support/)
 - [Changelog](CHANGELOG.md)
