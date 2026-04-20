@@ -34,11 +34,11 @@ def test_repository_badge_block_renders_all_public_badge_groups() -> None:
     assert rendered.count("https://img.shields.io/pypi/v/") == 6
     assert rendered.count("/pkgs/container/") == 6
     assert rendered.count("https://bijux.io/bijux-proteomics/") == 6
-    assert "https://github.com/bijux?tab=packages" in rendered
     assert (
-        "https://github.com/orgs/bijux/packages?repo_name=bijux-proteomics"
-        not in rendered
+        "https://github.com/bijux?tab=packages&repo_name=bijux-proteomics"
+        in rendered
     )
+    assert "https://github.com/bijux?tab=packages)" not in rendered
 
 
 def test_package_badge_block_prioritizes_the_current_distribution() -> None:
