@@ -12,6 +12,17 @@ change contributor and maintainer workflows across the repository.
 
 ### Changed
 
+- No unreleased changes yet.
+
+## 0.3.5 - 2026-04-20
+
+### Changed
+
+- Repository workflow topology now mirrors `bijux-canon`, including
+  `automerge-pr.yml`, `ci.yml`, and split release workflows for artifacts,
+  PyPI, GHCR, and GitHub releases.
+- Maintainer release and workflow handbook pages now describe the split release
+  model and reference only checked-in workflow files.
 - GitHub workflow and standards governance were synchronized with shared
   `bijux-std` contracts, including split release lanes and protected-change
   policy enforcement for managed automation surfaces.
@@ -25,28 +36,15 @@ change contributor and maintainer workflows across the repository.
 
 ### Fixed
 
-- Removed the legacy root `internal/` docs tooling directory to eliminate
-  outdated dual-path maintenance.
-- Quality gate execution now resolves deptry through the shared root check
-  environment, and tox no longer overrides make-layer virtualenv wiring.
-
-## 0.3.5 - 2026-04-19
-
-### Changed
-
-- Repository workflow topology now mirrors `bijux-canon`, including
-  `automerge-pr.yml`, `ci.yml`, and split release workflows for artifacts,
-  PyPI, GHCR, and GitHub releases.
-- Maintainer release and workflow handbook pages now describe the split release
-  model and reference only checked-in workflow files.
-
-### Fixed
-
 - Legacy references to removed workflows (`publish.yml`,
   `build-release-artifacts.yml`, and `ci-package.yml`) were removed from root
   docs, maintainer docs, and workflow contract tests.
 - Badge templates and generated README badge blocks now follow the same catalog
   model used in `bijux-canon`.
+- Removed the legacy root `internal/` docs tooling directory to eliminate
+  outdated dual-path maintenance.
+- Quality gate execution now resolves deptry through the shared root check
+  environment, and tox no longer overrides make-layer virtualenv wiring.
 
 ## 0.3.4 - 2026-04-11
 

@@ -6,16 +6,17 @@ All notable changes for `agentic-proteins` are recorded here.
 
 ### Changed
 
-- README docs badges and package metadata documentation links now point to the
-  numbered handbook route `02-agentic-proteins` for stable docs navigation.
+- No unreleased changes yet.
 
-## 0.3.5 - 2026-04-19
+## 0.3.5 - 2026-04-20
 
 ### Changed
 
 - Maintainer release documentation now references the split repository release
   workflows (`release-artifacts.yml`, `release-pypi.yml`, `release-ghcr.yml`,
   `release-github.yml`) instead of legacy publish workflow names.
+- README docs badges and package metadata documentation links now point to the
+  numbered handbook route `02-agentic-proteins` for stable docs navigation.
 
 ## 0.3.4 - 2026-04-11
 
