@@ -79,8 +79,8 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 
 ## Documentation
 
-- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/)
-- [Ownership boundary](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/foundation/ownership-boundary/)
-- [Architecture overview](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/architecture/)
-- [Interface contracts](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/interfaces/)
-- [Release and versioning](https://bijux.io/bijux-proteomics/bijux-proteomics-knowledge/operations/release-and-versioning/)
+- [Package guide](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/)
+- [Architecture overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)
+- [Interface contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/)
+- [Release and versioning](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/release-and-versioning/)

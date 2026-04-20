@@ -86,15 +86,15 @@ maintaining the workspace rather than for end-user installation.
 
 ## Start Here
 
-- Repository handbook: <https://bijux.io/bijux-proteomics/>
-- API contract handbook: <https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/>
-- Runtime package: <https://bijux.io/bijux-proteomics/02-agentic-proteins/>
-- Domain core: <https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/>
-- Intelligence package: <https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/>
-- Knowledge package: <https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/>
-- Lab package: <https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/>
-- Foundation primitives: <https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/>
-- Maintainer tooling: <https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/>
+- Repository handbook: [Repository handbook](https://bijux.io/bijux-proteomics/)
+- API contract handbook: [API and schema governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
+- Runtime package: [Runtime package handbook](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
+- Domain core: [Core package handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+- Intelligence package: [Intelligence package handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+- Knowledge package: [Knowledge package handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+- Lab package: [Lab package handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+- Foundation primitives: [Foundation package handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+- Maintainer tooling: [Maintainer tooling handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
 
 ## Common Commands
 
