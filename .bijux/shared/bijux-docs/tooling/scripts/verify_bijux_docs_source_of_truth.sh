@@ -137,7 +137,6 @@ if [[ ! -f "${local_manifest}" ]]; then
 fi
 
 local_dirs=(
-<<<<<<<< HEAD:.bijux/shared/bijux-docs/tooling/scripts/verify_bijux_docs_source_of_truth.sh
   "${shared_prefix}/bijux-docs"
   "${shared_prefix}/bijux-makes-py"
   "${shared_prefix}/bijux-checks"
@@ -145,16 +144,6 @@ local_dirs=(
 
 if [[ -d "${repo_root}/${shared_prefix}/bijux-gh" ]]; then
   local_dirs+=("${shared_prefix}/bijux-gh")
-========
-  "shared/bijux-docs"
-  "shared/bijux-makes-py"
-  "shared/bijux-checks"
-  "shared/bijux-docs-tooling"
-)
-
-if [[ -d "${repo_root}/shared/bijux-gh-py" ]]; then
-  local_dirs+=("shared/bijux-gh-py")
->>>>>>>> main-sync-pr:shared/bijux-docs-tooling/scripts/verify_bijux_docs_source_of_truth.sh
 fi
 
 for dir_rel in "${local_dirs[@]}"; do
@@ -168,16 +157,10 @@ std_manifest="${std_root}/shared/shared-dir-sha256.txt"
 if [[ -f "${std_manifest}" ]]; then
   for dir_rel in "${local_dirs[@]}"; do
     local_manifest_sha="$(manifest_sha_for_dir "${local_manifest}" "${dir_rel}")"
-<<<<<<<< HEAD:.bijux/shared/bijux-docs/tooling/scripts/verify_bijux_docs_source_of_truth.sh
     std_dir_rel="${dir_rel#.bijux/}"
     std_manifest_sha="$(manifest_sha_for_dir "${std_manifest}" "${std_dir_rel}")"
     if [[ -z "${std_manifest_sha}" ]]; then
       echo "ERROR: bijux-std manifest missing ${std_dir_rel}" >&2
-========
-    std_manifest_sha="$(manifest_sha_for_dir "${std_manifest}" "${dir_rel}")"
-    if [[ -z "${std_manifest_sha}" ]]; then
-      echo "ERROR: bijux-std manifest missing ${dir_rel}" >&2
->>>>>>>> main-sync-pr:shared/bijux-docs-tooling/scripts/verify_bijux_docs_source_of_truth.sh
       exit 1
     fi
     if [[ "${local_manifest_sha}" != "${std_manifest_sha}" ]]; then
