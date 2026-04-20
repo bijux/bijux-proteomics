@@ -77,8 +77,8 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 
 ## Documentation
 
-- [Package guide](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/)
-- [Ownership boundary](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/foundation/ownership-boundary/)
-- [Architecture overview](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/architecture/)
-- [Interface contracts](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/interfaces/)
-- [Release and versioning](https://bijux.io/bijux-proteomics/bijux-proteomics-foundation/operations/release-and-versioning/)
+- [Package guide](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/)
+- [Architecture overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)
+- [Interface contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/)
+- [Release and versioning](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/release-and-versioning/)
