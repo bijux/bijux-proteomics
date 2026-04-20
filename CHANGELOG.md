@@ -8,21 +8,13 @@ release notes belong to each distribution under `packages/`.
 Use this changelog for workspace changes that affect multiple packages or
 change contributor and maintainer workflows across the repository.
 
-## 0.3.6 - 2026-04-19
+## Unreleased
 
 ### Changed
 
-- Docs synchronization and docs source-of-truth checks now resolve directly
-  from `.bijux/shared/bijux-docs/tooling`.
-- Shared make-layer and standards checks now reference `.bijux/shared/*`
-  paths as the single repository source.
+- No unreleased changes yet.
 
-### Fixed
-
-- Removed the legacy root `internal/` docs tooling directory to eliminate
-  outdated dual-path maintenance.
-
-## 0.3.5 - 2026-04-19
+## 0.3.5 - 2026-04-20
 
 ### Changed
 
@@ -31,6 +23,16 @@ change contributor and maintainer workflows across the repository.
   PyPI, GHCR, and GitHub releases.
 - Maintainer release and workflow handbook pages now describe the split release
   model and reference only checked-in workflow files.
+- GitHub workflow and standards governance were synchronized with shared
+  `bijux-std` contracts, including split release lanes and protected-change
+  policy enforcement for managed automation surfaces.
+- Documentation information architecture moved to numbered handbook roots
+  (`docs/01-...` through `docs/08-...`), and repository docs links were
+  aligned to those canonical paths.
+- Docs synchronization and docs source-of-truth checks now resolve directly
+  from `.bijux/shared/bijux-docs/tooling`.
+- Shared make-layer and standards checks now reference `.bijux/shared/*`
+  paths as the single repository source.
 
 ### Fixed
 
@@ -39,6 +41,10 @@ change contributor and maintainer workflows across the repository.
   docs, maintainer docs, and workflow contract tests.
 - Badge templates and generated README badge blocks now follow the same catalog
   model used in `bijux-canon`.
+- Removed the legacy root `internal/` docs tooling directory to eliminate
+  outdated dual-path maintenance.
+- Quality gate execution now resolves deptry through the shared root check
+  environment, and tox no longer overrides make-layer virtualenv wiring.
 
 ## 0.3.4 - 2026-04-11
 

@@ -5,7 +5,13 @@ All notable changes to `bijux-proteomics-dev` are documented in this file.
 The format follows Keep a Changelog and this package follows Semantic
 Versioning.
 
-## [0.3.5] - 2026-04-19
+## [Unreleased]
+
+### Changed
+
+- No unreleased changes yet.
+
+## [0.3.5] - 2026-04-20
 
 ### Changed
 
@@ -14,6 +20,13 @@ Versioning.
   legacy workflow references.
 - Badge synchronization now follows the same catalog contract shape as
   `bijux-canon`, including repository and public-package generated surfaces.
+- Documentation governance helpers now resolve repository handbook contracts
+  from numbered docs roots (for example `docs/01-bijux-proteomics/...`) rather
+  than legacy flat handbook paths.
+- Docs publication and navigation contract tests now validate numbered site
+  paths across repository, package, and maintainer sections.
+- Package metadata documentation links now point to the numbered maintainer
+  route `08-bijux-proteomics-maintain/bijux-proteomics-dev/`.
 
 ### Fixed
 
