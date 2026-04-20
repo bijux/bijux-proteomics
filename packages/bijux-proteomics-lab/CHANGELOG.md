@@ -20,7 +20,7 @@ All notable changes for `bijux-proteomics-lab` are recorded here.
 - `release-pypi.yml` now uses parse-safe publication gating for token/bootstrap checks.
 - Protected workflow policy checks now accept shared-manifest-driven standards updates through approved control paths.
 
-## 0.3.5 - 2026-04-20
+## 0.3.5 - 2026-04-19
 
 ### Changed
 
