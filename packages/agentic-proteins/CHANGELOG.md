@@ -8,6 +8,18 @@ All notable changes for `agentic-proteins` are recorded here.
 
 - No unreleased changes yet.
 
+## 0.3.6 - 2026-04-20
+
+### Changed
+
+- Prepared the `v0.3.6` release line by aligning fallback versions and inter-package dependency floors across the repository.
+- Synchronized release automation and governance with the `bijux-std v0.1.3` shared standards baseline.
+
+### Fixed
+
+- `release-pypi.yml` now uses parse-safe publication gating for token/bootstrap checks.
+- Protected workflow policy checks now accept shared-manifest-driven standards updates through approved control paths.
+
 ## 0.3.5 - 2026-04-20
 
 ### Changed

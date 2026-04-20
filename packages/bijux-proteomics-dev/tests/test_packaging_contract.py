@@ -5,7 +5,7 @@ import tomllib
 from typing import Any, cast
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-EXPECTED_FALLBACK_VERSION = "0.3.4"
+EXPECTED_FALLBACK_VERSION = "0.3.6"
 EXPECTED_REQUIRES_PYTHON = ">=3.11,<4"
 
 
