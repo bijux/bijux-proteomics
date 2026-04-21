@@ -32,6 +32,15 @@ This package does not own:
 - scoring policy semantics and recommendation semantics
 - lab planning semantics and experiment promotion semantics
 
+## Canonical ownership matrix
+
+- `bijux-proteomics-foundation`: identifiers, schemas, canonical serialization, and shared error primitives
+- `bijux-proteomics-core`: domain models, lifecycle semantics, and runtime-agnostic execution contracts
+- `bijux-proteomics-knowledge`: evidence records, claims, trust semantics, and conflict resolution semantics
+- `bijux-proteomics-intelligence`: scoring, ranking, policy, and recommendation semantics
+- `bijux-proteomics-lab`: experiment planning and outcome promotion semantics
+- `bijux-proteomics-runtime`: runtime orchestration, interfaces, providers, state machines, and run artifacts
+
 ## Dependency direction law
 
 Lower layers must not import runtime modules.
@@ -45,6 +54,12 @@ The following package families must not import `bijux_proteomics_runtime`:
 - `bijux_proteomics_lab*`
 
 Runtime adapts lower layers. Lower layers remain runtime-agnostic.
+
+## Adapter rule
+
+Runtime must use adapter and mapper modules when translating lower-layer domain
+objects into runtime interface payloads. Lower layers must not expose runtime
+shapes or import runtime contracts.
 
 ## Migration staging law
 
