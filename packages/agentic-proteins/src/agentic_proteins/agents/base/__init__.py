@@ -1,7 +1,3 @@
-"""Agent base contracts."""
+"""Compatibility forwarding module for canonical runtime agent ownership."""
 
-from __future__ import annotations
-
-from agentic_proteins.agents.base.base import AgentRole, DecisionModel
-
-__all__ = ["AgentRole", "DecisionModel"]
+from bijux_proteomics_runtime.agents.base import *  # noqa: F401,F403
