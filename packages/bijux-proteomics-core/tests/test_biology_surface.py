@@ -16,6 +16,5 @@ def test_biology_surface_smoke() -> None:
         transitions={(ProteinState.INACTIVE, SignalType.ACTIVATE): ProteinState.ACTIVE},
     )
     signal = SignalPayload(source_id="kinase", signal_type=SignalType.ACTIVATE)
-    out = agent.receive(signal)
-    assert out is not None
-    assert out.signal_type is SignalType.ACTIVATE
+    state = agent.apply_signal(signal)
+    assert state is ProteinState.ACTIVE
