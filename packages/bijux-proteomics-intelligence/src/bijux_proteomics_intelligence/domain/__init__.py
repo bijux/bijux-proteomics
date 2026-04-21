@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from bijux_proteomics_intelligence.domain.metrics import compute_metrics
-from bijux_proteomics_intelligence.domain.sequence import (
+from bijux_proteomics.domain.sequence import (
     HYDROPATHY,
     PKA_C_TERM,
     PKA_N_TERM,
     PKA_SIDE,
     primary_summary_from_sequence,
 )
-from bijux_proteomics_intelligence.domain.structure import (
+from bijux_proteomics.domain.structure import (
     _res3_to1,
     best_ca,
     gdt_ha,

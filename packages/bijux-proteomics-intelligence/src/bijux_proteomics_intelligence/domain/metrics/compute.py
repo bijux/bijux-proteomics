@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.domain.sequence import primary_summary_from_sequence
-from bijux_proteomics_intelligence.domain.structure import (
+from bijux_proteomics.domain.sequence import primary_summary_from_sequence
+from bijux_proteomics.domain.structure import (
     gdt_ha,
     gdt_ts,
     kabsch_and_pairs,
