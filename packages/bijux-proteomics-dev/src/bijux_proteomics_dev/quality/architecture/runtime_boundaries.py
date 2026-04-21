@@ -193,7 +193,11 @@ def check_lower_layer_runtime_imports(policy: RuntimeBoundaryPolicy) -> list[str
 
 def run(repo_root: Path) -> int:
     policy = load_policy(repo_root)
-    failures = check_lower_layer_runtime_imports(policy)
+    failures = [
+        *check_lower_layer_runtime_imports(policy),
+        *check_agentic_compat_forwarding(policy),
+        *check_runtime_type_collisions(policy),
+    ]
 
     if failures:
         print("runtime-boundary-check failed")
