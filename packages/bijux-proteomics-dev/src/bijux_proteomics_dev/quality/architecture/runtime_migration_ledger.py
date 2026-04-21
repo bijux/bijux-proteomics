@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
+import argparse
 import csv
 from typing import Any
 
@@ -141,8 +142,59 @@ def write_summary(rows: list[LedgerRow]) -> None:
     LEDGER_SUMMARY_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def run() -> int:
+def _csv_text(rows: list[LedgerRow]) -> str:
+    lines = ["module_path,bucket,owner_package,reason"]
+    for row in rows:
+        escaped = [
+            row.module_path.replace('"', '""'),
+            row.bucket.replace('"', '""'),
+            row.owner_package.replace('"', '""'),
+            row.reason.replace('"', '""'),
+        ]
+        lines.append(",".join(f'"{value}"' for value in escaped))
+    return "\n".join(lines) + "\n"
+
+
+def _summary_text(rows: list[LedgerRow]) -> str:
+    counts = _bucket_counts(rows)
+    lines = [
+        "# agentic-proteins Module Migration Ledger Summary",
+        "",
+        f"- total modules: {len(rows)}",
+    ]
+    for bucket in sorted(counts):
+        lines.append(f"- {bucket}: {counts[bucket]}")
+    lines.append("")
+    lines.append("## Owner package distribution")
+    lines.append("")
+
+    owners: dict[str, int] = {}
+    for row in rows:
+        owners[row.owner_package] = owners.get(row.owner_package, 0) + 1
+    for owner in sorted(owners):
+        lines.append(f"- {owner}: {owners[owner]}")
+    return "\n".join(lines) + "\n"
+
+
+def _is_up_to_date(rows: list[LedgerRow]) -> bool:
+    if not LEDGER_CSV_PATH.exists() or not LEDGER_SUMMARY_PATH.exists():
+        return False
+    expected_csv = _csv_text(rows)
+    expected_summary = _summary_text(rows)
+    return (
+        LEDGER_CSV_PATH.read_text(encoding="utf-8") == expected_csv
+        and LEDGER_SUMMARY_PATH.read_text(encoding="utf-8") == expected_summary
+    )
+
+
+def run(check: bool = False) -> int:
     rows = build_ledger()
+    if check:
+        if _is_up_to_date(rows):
+            print(f"migration ledger is up to date for {len(rows)} modules")
+            return 0
+        print("migration ledger is stale; regenerate with runtime_migration_ledger")
+        return 1
     write_ledger(rows)
     write_summary(rows)
     print(f"generated migration ledger for {len(rows)} modules")
@@ -150,4 +202,13 @@ def run() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(run())
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the agentic-proteins migration ledger."
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Fail if generated ledger outputs are not up to date.",
+    )
+    args = parser.parse_args()
+    raise SystemExit(run(check=args.check))
