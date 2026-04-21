@@ -10,6 +10,7 @@ Versioning.
 ### Added
 
 - Added runtime boundary automation that enforces lower-layer import direction, compat forwarding policy for `agentic-proteins`, and runtime type ownership collision checks.
+- Added runtime migration ledger generation and coverage enforcement for full `agentic-proteins` module classification with owner and reason fields.
 
 ### Changed
 

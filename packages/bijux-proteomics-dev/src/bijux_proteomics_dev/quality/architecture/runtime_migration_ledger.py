@@ -5,6 +5,7 @@ from fnmatch import fnmatch
 from pathlib import Path
 import argparse
 import csv
+import io
 from typing import Any
 
 try:
@@ -143,16 +144,12 @@ def write_summary(rows: list[LedgerRow]) -> None:
 
 
 def _csv_text(rows: list[LedgerRow]) -> str:
-    lines = ["module_path,bucket,owner_package,reason"]
+    buffer = io.StringIO(newline="")
+    writer = csv.writer(buffer)
+    writer.writerow(["module_path", "bucket", "owner_package", "reason"])
     for row in rows:
-        escaped = [
-            row.module_path.replace('"', '""'),
-            row.bucket.replace('"', '""'),
-            row.owner_package.replace('"', '""'),
-            row.reason.replace('"', '""'),
-        ]
-        lines.append(",".join(f'"{value}"' for value in escaped))
-    return "\n".join(lines) + "\n"
+        writer.writerow([row.module_path, row.bucket, row.owner_package, row.reason])
+    return buffer.getvalue()
 
 
 def _summary_text(rows: list[LedgerRow]) -> str:
@@ -179,10 +176,11 @@ def _summary_text(rows: list[LedgerRow]) -> str:
 def _is_up_to_date(rows: list[LedgerRow]) -> bool:
     if not LEDGER_CSV_PATH.exists() or not LEDGER_SUMMARY_PATH.exists():
         return False
-    expected_csv = _csv_text(rows)
+    expected_csv = _csv_text(rows).replace("\r\n", "\n")
     expected_summary = _summary_text(rows)
     return (
-        LEDGER_CSV_PATH.read_text(encoding="utf-8") == expected_csv
+        LEDGER_CSV_PATH.read_text(encoding="utf-8").replace("\r\n", "\n")
+        == expected_csv
         and LEDGER_SUMMARY_PATH.read_text(encoding="utf-8") == expected_summary
     )
 
