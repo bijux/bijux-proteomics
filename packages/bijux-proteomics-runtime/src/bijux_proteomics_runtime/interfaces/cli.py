@@ -11,6 +11,13 @@ import json
 from pathlib import Path
 from typing import Any, Literal
 
+
+def _package_version() -> str:
+    try:
+        return importlib.metadata.version("bijux-proteomics-runtime")
+    except importlib.metadata.PackageNotFoundError:
+        return "0+local"
+
 import click
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import uvicorn
@@ -257,11 +264,11 @@ def _artifact_hashes(run_dir: Path) -> dict[str, str]:
 
 @click.group()
 @click.version_option(
-    version=importlib.metadata.version("bijux-proteomics-runtime"),
+    version=_package_version(),
     package_name="agentic-proteins",
 )
 def cli() -> None:
-    """Agentic Proteins CLI (lab-oriented)."""
+    """bijux-proteomics-runtime CLI (lab-oriented)."""
 
 
 @cli.command("run")
