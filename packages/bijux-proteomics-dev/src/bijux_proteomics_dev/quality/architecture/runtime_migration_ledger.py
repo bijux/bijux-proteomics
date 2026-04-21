@@ -11,7 +11,15 @@ try:
 except ModuleNotFoundError:  # pragma: no cover
     import tomli as tomllib
 
-REPO_ROOT = Path(__file__).resolve().parents[5]
+def _repo_root() -> Path:
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        if (parent / "pyproject.toml").exists() and (parent / "packages").exists():
+            return parent
+    raise RuntimeError("Unable to resolve repository root for runtime migration ledger")
+
+
+REPO_ROOT = _repo_root()
 MODULE_ROOT = REPO_ROOT / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
 RULES_PATH = REPO_ROOT / "configs" / "runtime-boundaries" / "migration-ledger" / "rules.toml"
 LEDGER_CSV_PATH = (
