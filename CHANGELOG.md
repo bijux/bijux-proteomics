@@ -14,6 +14,16 @@ change contributor and maintainer workflows across the repository.
 
 - No unreleased changes yet.
 
+## 0.3.7 - 2026-04-21
+
+### Changed
+
+- Updated root and package README link text to readable markdown hyperlinks and aligned package docs URL references with canonical numbered handbook routes.
+
+### Fixed
+
+- GitHub policy workflow now handles non-commit `before` SHAs on tag-push events so policy checks stay stable during release tagging.
+
 ## 0.3.6 - 2026-04-20
 
 ### Changed
