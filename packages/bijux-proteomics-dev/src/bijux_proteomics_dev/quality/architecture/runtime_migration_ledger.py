@@ -4,8 +4,12 @@ from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
 import csv
-import tomllib
 from typing import Any
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover
+    import tomli as tomllib
 
 REPO_ROOT = Path(__file__).resolve().parents[5]
 MODULE_ROOT = REPO_ROOT / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
