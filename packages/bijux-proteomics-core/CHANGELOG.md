@@ -8,6 +8,12 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 
 - No unreleased changes yet.
 
+## 0.3.7 - 2026-04-21
+
+### Changed
+
+- Updated package README links to readable markdown hyperlink text and aligned handbook navigation references with canonical proteomics docs routes.
+
 ## 0.3.6 - 2026-04-20
 
 ### Changed

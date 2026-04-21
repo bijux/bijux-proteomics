@@ -35,8 +35,7 @@ def test_repository_badge_block_renders_all_public_badge_groups() -> None:
     assert rendered.count("/pkgs/container/") == 6
     assert rendered.count("https://bijux.io/bijux-proteomics/") == 6
     assert (
-        "https://github.com/bijux?tab=packages&repo_name=bijux-proteomics"
-        in rendered
+        "https://github.com/bijux?tab=packages&repo_name=bijux-proteomics" in rendered
     )
     assert "https://github.com/bijux?tab=packages)" not in rendered
 

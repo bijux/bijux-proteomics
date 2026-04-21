@@ -11,6 +11,16 @@ Versioning.
 
 - No unreleased changes yet.
 
+## [0.3.7] - 2026-04-21
+
+### Changed
+
+- Updated package README links to readable markdown hyperlink text and aligned maintainer navigation references with canonical proteomics docs routes.
+
+### Fixed
+
+- Tag-push policy checks now handle non-commit `before` SHAs in workflow governance validation.
+
 ## [0.3.6] - 2026-04-20
 
 ### Changed
