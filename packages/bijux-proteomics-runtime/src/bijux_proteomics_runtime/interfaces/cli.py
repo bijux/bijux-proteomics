@@ -15,8 +15,8 @@ import click
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
-from agentic_proteins.domain.candidates import CandidateStore
-from agentic_proteins.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.domain.candidates import CandidateStore
+from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.runtime import RunManager
 from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
 from bijux_proteomics_runtime.runtime.control import compare_runs
