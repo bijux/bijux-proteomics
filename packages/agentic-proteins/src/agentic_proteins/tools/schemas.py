@@ -1,32 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime tool ownership."""
 
-"""Tool contract schemas."""
-
-from __future__ import annotations
-
-from agentic_proteins.core.tooling import (
-    InvocationInput,
-    OutputExpectation,
-    SchemaDefinition,
-    ToolContract,
-    ToolDescriptor,
-    ToolDeterminism,
-    ToolError,
-    ToolInvocationSpec,
-    ToolMetric,
-    ToolResult,
-)
-
-__all__ = [
-    "InvocationInput",
-    "OutputExpectation",
-    "SchemaDefinition",
-    "ToolContract",
-    "ToolDeterminism",
-    "ToolDescriptor",
-    "ToolError",
-    "ToolInvocationSpec",
-    "ToolMetric",
-    "ToolResult",
-]
+from bijux_proteomics_runtime.tools.schemas import *  # noqa: F401,F403
