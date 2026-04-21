@@ -1,16 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime provider ownership."""
 
-"""Experimental provider implementations."""
-
-from __future__ import annotations
-
-from agentic_proteins.core.stability import experimental
-from agentic_proteins.providers.experimental.colabfold import APIColabFoldProvider
-from agentic_proteins.providers.experimental.openprotein import APIOpenProteinProvider
-
-experimental()
-
-EXPERIMENTAL = True
-
-__all__ = ["APIOpenProteinProvider", "APIColabFoldProvider", "EXPERIMENTAL"]
+from bijux_proteomics_runtime.providers.experimental.__init__ import *  # noqa: F401,F403
