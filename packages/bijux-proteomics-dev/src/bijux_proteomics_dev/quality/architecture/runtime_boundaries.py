@@ -23,7 +23,7 @@ class RuntimeImportPolicy:
 @dataclass(frozen=True)
 class CompatForwardingPolicy:
     package_root: Path
-    forwarding_target_prefix: str
+    forwarding_target_prefixes: tuple[str, ...]
     non_forwarding_allowlist_path: Path
 
 
@@ -50,6 +50,12 @@ def load_policy(repo_root: Path) -> RuntimeBoundaryPolicy:
     raw = _load_toml(repo_root / "configs" / "runtime-boundaries" / "policy.toml")
     imports = raw["imports"]
     compat = raw["compat"]
+    compat_prefixes_raw = compat.get("forwarding_target_prefixes")
+    compat_prefixes: tuple[str, ...]
+    if compat_prefixes_raw is not None:
+        compat_prefixes = tuple(str(item) for item in compat_prefixes_raw)
+    else:
+        compat_prefixes = (str(compat["forwarding_target_prefix"]),)
     ownership = raw["runtime_type_ownership"]
     return RuntimeBoundaryPolicy(
         runtime_imports=RuntimeImportPolicy(
@@ -60,7 +66,7 @@ def load_policy(repo_root: Path) -> RuntimeBoundaryPolicy:
         ),
         compat_forwarding=CompatForwardingPolicy(
             package_root=repo_root / str(compat["package_root"]),
-            forwarding_target_prefix=str(compat["forwarding_target_prefix"]),
+            forwarding_target_prefixes=compat_prefixes,
             non_forwarding_allowlist_path=repo_root
             / str(compat["non_forwarding_allowlist_path"]),
         ),
@@ -87,7 +93,14 @@ def _allowlist(path: Path) -> set[str]:
     return values
 
 
-def _is_forwarding_module(tree: ast.Module, target_prefix: str) -> bool:
+def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) -> bool:
+    def _matches_target(module_name: str) -> bool:
+        return any(
+            module_name == target_prefix
+            or module_name.startswith(f"{target_prefix}.")
+            for target_prefix in target_prefixes
+        )
+
     for node in tree.body:
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
             if isinstance(node.value.value, str):
@@ -101,15 +114,12 @@ def _is_forwarding_module(tree: ast.Module, target_prefix: str) -> bool:
             return False
         if isinstance(node, ast.Import):
             imported = [alias.name for alias in node.names]
-            if all(
-                name == target_prefix or name.startswith(f"{target_prefix}.")
-                for name in imported
-            ):
+            if all(_matches_target(name) for name in imported):
                 continue
             return False
         if isinstance(node, ast.ImportFrom):
             module = node.module or ""
-            if module == target_prefix or module.startswith(f"{target_prefix}."):
+            if _matches_target(module):
                 continue
             return False
         return False
@@ -125,7 +135,7 @@ def check_agentic_compat_forwarding(policy: RuntimeBoundaryPolicy) -> list[str]:
             continue
         relative_path = path.relative_to(policy.compat_forwarding.package_root).as_posix()
         tree = parse_python_module(path).tree
-        if _is_forwarding_module(tree, policy.compat_forwarding.forwarding_target_prefix):
+        if _is_forwarding_module(tree, policy.compat_forwarding.forwarding_target_prefixes):
             continue
         if relative_path not in allowlist:
             failures.append(
