@@ -1,15 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime core ownership."""
 
-"""Identifier helpers."""
-
-from __future__ import annotations
-
-from typing import Any
-
-from agentic_proteins.core.fingerprints import hash_payload
-
-
-def deterministic_id(namespace: str, payload: dict[str, Any]) -> str:
-    """deterministic_id."""
-    return f"{namespace}_{hash_payload(payload)}"
+from bijux_proteomics_runtime.core.identifiers import *  # noqa: F401,F403
