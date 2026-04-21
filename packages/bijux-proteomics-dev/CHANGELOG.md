@@ -7,9 +7,13 @@ Versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Added runtime boundary automation that enforces lower-layer import direction, compat forwarding policy for `agentic-proteins`, and runtime type ownership collision checks.
+
 ### Changed
 
-- No unreleased changes yet.
+- Repository quality flow now includes a dedicated `make quality-runtime-boundaries` gate.
 
 ## [0.3.7] - 2026-04-21
 
