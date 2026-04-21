@@ -23,7 +23,7 @@ flowchart TD
     Q --> R5[evidence / claims / contradictions]
     Q --> R6[assay planning / outcomes / promotion]
 
-    R1 --> P1[agentic-proteins]
+    R1 --> P1[bijux-proteomics-runtime]
     R2 --> P2[bijux-proteomics-foundation]
     R3 --> P3[bijux-proteomics-core]
     R4 --> P4[bijux-proteomics-intelligence]
@@ -35,7 +35,8 @@ flowchart TD
 
 | Package | Core role | Open it when |
 | --- | --- | --- |
-| `agentic-proteins` | runtime orchestration, replay, and operator-facing execution | the question is about running, replaying, or governing execution |
+| `bijux-proteomics-runtime` | canonical runtime orchestration, replay, and operator-facing execution | the question is about running, replaying, or governing execution |
+| `agentic-proteins` | compatibility package for existing runtime imports and entrypoints | the work is preserving legacy runtime paths during migration |
 | `bijux-proteomics-foundation` | shared schema compatibility and canonical serialization primitives | the issue spans payload meaning, identifiers, or migration helpers |
 | `bijux-proteomics-core` | program models, lifecycle contracts, and gate semantics | you are changing target, gate, or program-state behavior |
 | `bijux-proteomics-intelligence` | candidate scoring, ranking policy, and decision support | you are tuning recommendation logic or explainability |

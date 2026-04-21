@@ -31,9 +31,9 @@ def test_repository_badge_block_renders_all_public_badge_groups() -> None:
     rendered = render_badge_block(
         BadgeTarget(path=Path("README.md"), kind="repository")
     )
-    assert rendered.count("https://img.shields.io/pypi/v/") == 6
-    assert rendered.count("/pkgs/container/") == 6
-    assert rendered.count("https://bijux.io/bijux-proteomics/") == 6
+    assert rendered.count("https://img.shields.io/pypi/v/") == 7
+    assert rendered.count("/pkgs/container/") == 7
+    assert rendered.count("https://bijux.io/bijux-proteomics/") == 7
     assert (
         "https://github.com/bijux?tab=packages&repo_name=bijux-proteomics" in rendered
     )
