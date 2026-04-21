@@ -1,22 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical intelligence sequence ownership."""
 
-"""Sequence domain exports."""
-
-from __future__ import annotations
-
-from agentic_proteins.domain.sequence.summary import (
-    HYDROPATHY,
-    PKA_C_TERM,
-    PKA_N_TERM,
-    PKA_SIDE,
-    primary_summary_from_sequence,
-)
-
-__all__ = [
-    "HYDROPATHY",
-    "PKA_C_TERM",
-    "PKA_N_TERM",
-    "PKA_SIDE",
-    "primary_summary_from_sequence",
-]
+from bijux_proteomics_intelligence.domain.sequence import *  # noqa: F401,F403
