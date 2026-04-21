@@ -6,6 +6,7 @@ from bijux_proteomics_runtime.runtime.adapters.candidates import (
     Candidate,
     CandidateStore,
     DomainCandidate,
+    CandidateSelection,
     candidate_payload,
     candidate_to_domain,
     rank_candidates,
@@ -22,6 +23,7 @@ from bijux_proteomics_runtime.runtime.adapters.quality import MetricValue, QCSta
 
 __all__ = [
     "Candidate",
+    "CandidateSelection",
     "CandidateStore",
     "DomainCandidate",
     "LoopContext",

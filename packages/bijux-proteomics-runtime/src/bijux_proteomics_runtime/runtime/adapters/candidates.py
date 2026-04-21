@@ -9,7 +9,10 @@ from bijux_proteomics_intelligence.domain.candidates import (
     select_candidates,
     update_candidate_from_result,
 )
-from bijux_proteomics_intelligence.domain.candidates.model import Candidate as DomainCandidate
+from bijux_proteomics_intelligence.domain.candidates.model import (
+    Candidate as DomainCandidate,
+    CandidateSelection,
+)
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 
 
@@ -27,6 +30,7 @@ def candidate_payload(candidate: Candidate) -> dict[str, object]:
 __all__ = [
     "Candidate",
     "CandidateStore",
+    "CandidateSelection",
     "DomainCandidate",
     "candidate_payload",
     "candidate_to_domain",

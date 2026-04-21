@@ -53,14 +53,14 @@ from agentic_proteins.core.tooling import (
     ToolInvocationSpec,
     ToolResult,
 )
-from bijux_proteomics_intelligence.design_loop.loop import LoopContext, LoopRunner
-from bijux_proteomics_intelligence.domain.candidates import (
+from bijux_proteomics_runtime.runtime.adapters import LoopContext, LoopRunner
+from bijux_proteomics_runtime.runtime.adapters import (
     CandidateStore,
     candidate_to_domain,
     update_candidate_from_result,
 )
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
-from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
+from bijux_proteomics_runtime.runtime.adapters import Candidate
+from bijux_proteomics_runtime.runtime.adapters import QCStatus
 from agentic_proteins.execution.compiler.boundary import ToolBoundary
 from agentic_proteins.execution.runtime.executor import (
     LocalExecutor,
