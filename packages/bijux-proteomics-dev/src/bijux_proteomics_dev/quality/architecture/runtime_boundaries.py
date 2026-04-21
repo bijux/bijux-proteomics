@@ -10,6 +10,7 @@ from bijux_proteomics_dev.quality.architecture.scanner import (
     import_references,
     iter_python_files,
     parse_python_module,
+    top_level_class_names,
 )
 
 
@@ -27,9 +28,17 @@ class CompatForwardingPolicy:
 
 
 @dataclass(frozen=True)
+class RuntimeTypeOwnershipPolicy:
+    runtime_root: Path
+    canonical_roots: tuple[Path, ...]
+    runtime_type_overlap_allowlist_path: Path
+
+
+@dataclass(frozen=True)
 class RuntimeBoundaryPolicy:
     runtime_imports: RuntimeImportPolicy
     compat_forwarding: CompatForwardingPolicy
+    runtime_type_ownership: RuntimeTypeOwnershipPolicy
 
 
 def _load_toml(path: Path) -> dict[str, Any]:
@@ -41,6 +50,7 @@ def load_policy(repo_root: Path) -> RuntimeBoundaryPolicy:
     raw = _load_toml(repo_root / "configs" / "runtime-boundaries" / "policy.toml")
     imports = raw["imports"]
     compat = raw["compat"]
+    ownership = raw["runtime_type_ownership"]
     return RuntimeBoundaryPolicy(
         runtime_imports=RuntimeImportPolicy(
             runtime_import_prefix=str(imports["runtime_import_prefix"]),
@@ -53,6 +63,14 @@ def load_policy(repo_root: Path) -> RuntimeBoundaryPolicy:
             forwarding_target_prefix=str(compat["forwarding_target_prefix"]),
             non_forwarding_allowlist_path=repo_root
             / str(compat["non_forwarding_allowlist_path"]),
+        ),
+        runtime_type_ownership=RuntimeTypeOwnershipPolicy(
+            runtime_root=repo_root / str(ownership["runtime_root"]),
+            canonical_roots=tuple(
+                repo_root / str(item) for item in ownership["canonical_roots"]
+            ),
+            runtime_type_overlap_allowlist_path=repo_root
+            / str(ownership["runtime_type_overlap_allowlist_path"]),
         ),
     )
 
@@ -112,6 +130,43 @@ def check_agentic_compat_forwarding(policy: RuntimeBoundaryPolicy) -> list[str]:
         if relative_path not in allowlist:
             failures.append(
                 f"{path}: compat package module is not forwarding-only ({relative_path})"
+            )
+
+    return failures
+
+
+def _class_index(root: Path) -> dict[str, list[str]]:
+    classes: dict[str, list[str]] = {}
+    for path in iter_python_files(root):
+        tree = parse_python_module(path).tree
+        for class_name in top_level_class_names(tree):
+            classes.setdefault(class_name, []).append(str(path))
+    return classes
+
+
+def check_runtime_type_collisions(policy: RuntimeBoundaryPolicy) -> list[str]:
+    failures: list[str] = []
+    allowlist = _allowlist(
+        policy.runtime_type_ownership.runtime_type_overlap_allowlist_path
+    )
+    runtime_classes = _class_index(policy.runtime_type_ownership.runtime_root)
+
+    canonical_classes: dict[str, list[str]] = {}
+    for root in policy.runtime_type_ownership.canonical_roots:
+        for class_name, paths in _class_index(root).items():
+            canonical_classes.setdefault(class_name, []).extend(paths)
+
+    for class_name, runtime_paths in sorted(runtime_classes.items()):
+        if class_name in allowlist:
+            continue
+        if class_name not in canonical_classes:
+            continue
+        for runtime_path in runtime_paths:
+            canonical_sources = ", ".join(sorted(canonical_classes[class_name]))
+            failures.append(
+                "runtime type collision: "
+                f"class '{class_name}' in {runtime_path} duplicates canonical owner "
+                f"types from {canonical_sources}"
             )
 
     return failures
