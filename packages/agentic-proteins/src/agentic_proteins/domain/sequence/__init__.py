@@ -1,3 +1,3 @@
-"""Compatibility forwarding module for canonical intelligence sequence ownership."""
+"""Compatibility forwarding module for canonical core sequence ownership."""
 
-from bijux_proteomics_intelligence.domain.sequence import *  # noqa: F401,F403
+from bijux_proteomics.domain.sequence import *  # noqa: F401,F403
