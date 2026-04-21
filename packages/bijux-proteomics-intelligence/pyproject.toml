@@ -35,7 +35,6 @@ classifiers = [
 dependencies = [
   "pydantic>=2.0.2",
   "numpy>=1.26,<3.0",
-  "biopython>=1.83",
   "loguru>=0.7",
   "bijux-proteomics-foundation>=0.3.6",
   "bijux-proteomics-core>=0.3.6",
