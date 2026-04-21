@@ -1,4 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime API ownership."""
 
-"""API v1."""
+from bijux_proteomics_runtime.api.v1.__init__ import *  # noqa: F401,F403
