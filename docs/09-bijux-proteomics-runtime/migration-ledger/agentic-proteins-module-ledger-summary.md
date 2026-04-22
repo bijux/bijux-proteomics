@@ -1,8 +1,8 @@
 # agentic-proteins Module Migration Ledger Summary
 
-- total modules: 147
+- total modules: 148
 - domain_ownership: 30
-- runtime_execution_ownership: 53
+- runtime_execution_ownership: 54
 - runtime_support_internal_review: 64
 
 ## Owner package distribution
@@ -11,4 +11,4 @@
 - bijux-proteomics-core: 12
 - bijux-proteomics-intelligence: 16
 - bijux-proteomics-knowledge: 2
-- bijux-proteomics-runtime: 116
+- bijux-proteomics-runtime: 117

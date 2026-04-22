@@ -28,6 +28,7 @@ api/deps.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime in
 api/errors.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
 api/middleware.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
 api/v1/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
+api/v1/endpoints/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
 api/v1/endpoints/compare.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
 api/v1/endpoints/inspect.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
 api/v1/endpoints/resume.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
