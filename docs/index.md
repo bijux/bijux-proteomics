@@ -58,7 +58,8 @@ concern, and which checked-in files back the explanation.
 Foundation keeps shared payload meaning stable. Core defines program and
 lifecycle contracts. Knowledge tracks claims and evidence state. Intelligence
 turns those inputs into inspectable decisions. Lab carries assay planning and
-outcomes. <code>agentic-proteins</code> governs execution and replay. The
+outcomes. <code>bijux-proteomics-runtime</code> governs execution and replay.
+<code>agentic-proteins</code> preserves compatibility entrypoints. The
 repository handbook exists to explain how those responsibilities fit together
 without pretending they are one thing.</div>
 
@@ -115,7 +116,8 @@ flowchart TB
 
 | Package | Owns | Open It When |
 | --- | --- | --- |
-| `agentic-proteins` | runtime execution, replay, and operator-facing orchestration | you need the execution authority layer |
+| `bijux-proteomics-runtime` | runtime execution, replay, and operator-facing orchestration | you need the execution authority layer |
+| `agentic-proteins` | compatibility forwarding package for legacy runtime imports and entrypoints | you need migration-safe legacy import or CLI paths |
 | `bijux-proteomics-foundation` | schema compatibility and canonical serialization primitives | you are changing shared payload meaning |
 | `bijux-proteomics-core` | program definitions, constraints, and lifecycle contracts | you are changing program or gate behavior |
 | `bijux-proteomics-intelligence` | scoring, ranking, and explainable decision logic | you are tuning recommendations or policy |
