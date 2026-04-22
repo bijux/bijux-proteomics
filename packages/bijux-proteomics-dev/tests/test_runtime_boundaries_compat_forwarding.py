@@ -17,7 +17,7 @@ def test_agentic_compat_forwarding_is_enforced_by_allowlist_contract() -> None:
     assert not failures, "agentic compat forwarding violations:\n" + "\n".join(failures)
 
 
-def test_agentic_compat_allowlist_is_not_empty() -> None:
+def test_agentic_compat_allowlist_is_empty_in_strict_mode() -> None:
     policy = load_policy(REPO_ROOT)
     allowlist_path = policy.compat_forwarding.non_forwarding_allowlist_path
     entries = [
@@ -25,4 +25,4 @@ def test_agentic_compat_allowlist_is_not_empty() -> None:
         for line in allowlist_path.read_text(encoding="utf-8").splitlines()
         if line.strip() and not line.strip().startswith("#")
     ]
-    assert entries, "compat allowlist should capture current non-forwarding modules"
+    assert not entries, "strict compat mode requires zero allowlisted non-forwarding modules"

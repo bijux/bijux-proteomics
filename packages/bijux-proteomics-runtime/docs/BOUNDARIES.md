@@ -68,3 +68,4 @@ land in `bijux-proteomics-runtime` first, then legacy `agentic-proteins` module
 paths become compatibility forwarders.
 
 Compatibility package modules are not canonical ownership surfaces.
+Compatibility package modules are forwarding-only surfaces in strict mode.
