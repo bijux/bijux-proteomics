@@ -9,8 +9,9 @@ last_reviewed: 2026-04-04
 
 # Package Overview
 
-`agentic-proteins` exists so one durable part of the system can stay legible.
-Its job is to own governed execution and replay authority with auditable non-determinism handling, persistence, and package-to-package coordination.
+`agentic-proteins` exists to preserve compatibility while canonical runtime
+ownership lives in `bijux-proteomics-runtime`. Its job is forwarding legacy
+imports and entrypoints without carrying canonical execution or domain logic.
 
 If a reader cannot explain this package in one or two sentences after skimming
 this page, the package boundary is still too fuzzy and later pages will inherit
@@ -28,15 +29,15 @@ flowchart LR
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["replay and acceptability semantics"]
+    own1["legacy import and CLI forwarding"]
     own1 --> page
-    own2["trace capture, runtime persistence, and execution-store behavior"]
+    own2["compatibility-safe migration path"]
     own2 --> page
-    own3["flow execution authority"]
+    own3["no canonical execution ownership"]
     own3 --> page
-    limit1["agent composition policy"]
+    limit1["runtime execution authority"]
     page -.keeps outside.-> limit1
-    limit2["ingest and index domain ownership"]
+    limit2["domain ownership and semantics"]
     page -.keeps outside.-> limit2
     limit3["repository tooling and release support"]
     page -.keeps outside.-> limit3
@@ -54,14 +55,13 @@ flowchart LR
 
 ## What It Owns
 
-- flow execution authority for protein candidate loops
-- replay and acceptability semantics
-- trace capture, runtime persistence, and execution-store behavior
-- package-local CLI and API boundaries
-- deterministic hand-off points for intelligence, knowledge, and lab packages
+- compatibility forwarding for legacy runtime imports
+- compatibility CLI and API entrypoint preservation
+- migration-safe path for older consumers during canonical runtime adoption
 
 ## What It Does Not Own
 
+- canonical runtime execution authority
 - scoring policy and candidate ranking logic
 - evidence curation and contradiction resolution logic
 - assay planning and outcome adjudication logic
@@ -85,7 +85,7 @@ Use `Package Overview` to decide whether a change makes `agentic-proteins` easie
 
 ## What This Page Answers
 
-- what problem `agentic-proteins` is supposed to own on purpose
+- what compatibility role `agentic-proteins` is supposed to own on purpose
 - where the package boundary stops, even when nearby code looks tempting
 - which neighboring package seams deserve comparison before the boundary is changed
 
