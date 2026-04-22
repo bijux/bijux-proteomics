@@ -28,7 +28,8 @@ flowchart TD
 
 ## Current Contract Roots
 
-- `apis/agentic-proteins/v1/`
+- `apis/bijux-proteomics-runtime/v1/` (canonical runtime API ownership)
+- `apis/agentic-proteins/v1/` (compatibility mirror for legacy runtime path)
 - `apis/bijux-proteomics-foundation/v1/`
 - `apis/bijux-proteomics-core/v1/`
 - `apis/bijux-proteomics-intelligence/v1/`
