@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from importlib import metadata
 
-from agentic_proteins.domain.confidence import low_confidence_segments
-from agentic_proteins.report import Metrics, Report
+from bijux_proteomics_intelligence.report import Metrics, Report
+from bijux_proteomics_knowledge.confidence import low_confidence_segments
 
 __all__ = [
     "Report",
