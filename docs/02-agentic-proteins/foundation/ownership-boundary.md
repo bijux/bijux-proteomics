@@ -28,13 +28,13 @@ flowchart TB
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["flow execution authority"]
+    own1["legacy import forwarding"]
     own1 --> page
-    own2["replay and acceptability semantics"]
+    own2["compatibility CLI and API entrypoints"]
     own2 --> page
-    own3["trace capture, runtime persistence, and execution-store behavior"]
+    own3["migration-safe import surfaces"]
     own3 --> page
-    limit1["ingest and index domain ownership"]
+    limit1["canonical runtime execution authority"]
     page -.keeps outside.-> limit1
     limit2["repository tooling and release support"]
     page -.keeps outside.-> limit2
@@ -54,17 +54,15 @@ flowchart TB
 
 ## Owned Code Areas
 
-- `src/agentic_proteins/model` for durable runtime models
-- `src/agentic_proteins/runtime` for execution engines and lifecycle logic
-- `src/agentic_proteins/application` for orchestration and replay coordination
-- `src/agentic_proteins/verification` for runtime-level validation support
-- `src/agentic_proteins/interfaces` for CLI surfaces and manifest loading
-- `src/agentic_proteins/api` for HTTP application surfaces
+- `src/agentic_proteins/interfaces` for compatibility CLI forwarding
+- `src/agentic_proteins/api` for compatibility API forwarding
+- `src/agentic_proteins/**` forwarding modules that preserve legacy import
+  paths while delegating behavior to canonical packages
 
 ## Adjacent Systems
 
-- governs the other canonical packages instead of replacing their local ownership
-- is the final authority for run acceptance, replay evaluation, and stored evidence
+- defers runtime authority to `bijux-proteomics-runtime`
+- defers domain authority to foundation/core/knowledge/intelligence/lab
 
 ## Concrete Anchors
 

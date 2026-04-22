@@ -1986,8 +1986,16 @@
           "value": [
             {
               "package_slug": "agentic-proteins",
+              "release_role": "compat",
               "package_dir": "packages/agentic-proteins",
               "artifacts_dir": "artifacts/agentic-proteins",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "bijux-proteomics-runtime",
+              "release_role": "canonical-runtime",
+              "package_dir": "packages/bijux-proteomics-runtime",
+              "artifacts_dir": "artifacts/bijux-proteomics-runtime",
               "build_targets": "build sbom"
             },
             {
@@ -2032,7 +2040,12 @@
           "type": "json",
           "value": [
             {
-              "package_slug": "agentic-proteins"
+              "package_slug": "agentic-proteins",
+              "release_role": "compat"
+            },
+            {
+              "package_slug": "bijux-proteomics-runtime",
+              "release_role": "canonical-runtime"
             },
             {
               "package_slug": "bijux-proteomics-foundation"
@@ -2056,7 +2069,12 @@
           "type": "json",
           "value": [
             {
-              "package_slug": "agentic-proteins"
+              "package_slug": "agentic-proteins",
+              "release_role": "compat"
+            },
+            {
+              "package_slug": "bijux-proteomics-runtime",
+              "release_role": "canonical-runtime"
             },
             {
               "package_slug": "bijux-proteomics-foundation"

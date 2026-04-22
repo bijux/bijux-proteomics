@@ -1,0 +1,553 @@
+openapi: 3.0.3
+info:
+  title: agentic-proteins API schemas
+  version: 1.0.0
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+servers:
+  - url: /
+security: []
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: health
+      responses:
+        '200':
+          description: Health response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+  /ready:
+    get:
+      summary: Readiness check
+      operationId: ready
+      responses:
+        '200':
+          description: Readiness response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+  /run:
+    post:
+      summary: Run a sequence
+      operationId: runSequence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+      responses:
+        '200':
+          description: Run completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '202':
+          description: Run awaiting human review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+  /resume:
+    post:
+      summary: Resume a run
+      operationId: resumeRun
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeRequest'
+      responses:
+        '200':
+          description: Run resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '202':
+          description: Run awaiting human review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+  /inspect/{candidate_id}:
+    get:
+      summary: Inspect a candidate
+      operationId: inspectCandidate
+      parameters:
+        - in: path
+          name: candidate_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Candidate inspection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+  /compare:
+    post:
+      summary: Compare runs
+      operationId: compareRuns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompareRequest'
+      responses:
+        '200':
+          description: Comparison report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, detail, instance]
+      properties:
+        type:
+          type: string
+          example: https://bijux-cli.dev/docs/errors/validation-error
+        title:
+          type: string
+          example: Validation error
+        status:
+          type: integer
+          example: 422
+        detail:
+          type: string
+          example: Provide sequence or sequence_file.
+        instance:
+          type: string
+          example: http://127.0.0.1:8000/api/v1/run
+    VersionInfo:
+      type: object
+      additionalProperties: false
+      required: [app, git_commit, tool_versions]
+      properties:
+        app:
+          type: string
+          example: 0.1.0
+        git_commit:
+          type: string
+          example: unknown
+        tool_versions:
+          type: object
+          additionalProperties:
+            type: string
+          example: {}
+    RunResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - run_id
+        - candidate_id
+        - command
+        - execution_status
+        - workflow_state
+        - outcome
+        - provider
+        - tool_status
+        - qc_status
+        - artifacts_dir
+        - warnings
+        - version
+      properties:
+        run_id:
+          type: string
+          minLength: 1
+          example: 9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d
+        candidate_id:
+          type: string
+          minLength: 1
+          example: 9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0
+        command:
+          type: string
+          example: run
+        execution_status:
+          type: string
+          enum: [completed, errored, aborted]
+        workflow_state:
+          type: string
+          enum: [running, paused, awaiting_human_review, done]
+        outcome:
+          type: string
+          enum: [accepted, rejected, needs_review, inconclusive]
+        provider:
+          type: string
+          example: heuristic_proxy
+        tool_status:
+          type: string
+          enum: [success, degraded, failed, skipped]
+        qc_status:
+          type: string
+          example: acceptable
+        artifacts_dir:
+          type: string
+          example: artifacts/9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d
+        warnings:
+          type: array
+          items:
+            type: string
+          example: []
+        failure:
+          type: string
+          nullable: true
+          example: null
+        version:
+          $ref: '#/components/schemas/VersionInfo'
+    RunRequest:
+      oneOf:
+        - required: [sequence]
+        - required: [sequence_file]
+      type: object
+      additionalProperties: false
+      properties:
+        sequence:
+          type: string
+          minLength: 1
+          nullable: true
+          example: ACDEFGHIKLMNPQRSTVWY
+        sequence_file:
+          type: string
+          minLength: 1
+          nullable: true
+          example: tests/fixtures/proteins/small_enzyme.fasta
+        ground_truth:
+          type: string
+          nullable: true
+          example: AF2
+        rounds:
+          type: integer
+          minimum: 1
+          default: 1
+          example: 1
+        provider:
+          type: string
+          nullable: true
+          example: heuristic_proxy
+        artifacts_dir:
+          type: string
+          nullable: true
+          example: artifacts
+        dry_run:
+          type: boolean
+          default: false
+          example: false
+        execution_mode:
+          type: string
+          default: auto
+          example: auto
+    ResumeRequest:
+      oneOf:
+        - required: [run_id]
+        - required: [candidate_id]
+      type: object
+      additionalProperties: false
+      properties:
+        run_id:
+          type: string
+          minLength: 1
+          nullable: true
+          example: 9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d
+        candidate_id:
+          type: string
+          minLength: 1
+          nullable: true
+          example: 9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0
+        rounds:
+          type: integer
+          minimum: 1
+          default: 1
+          example: 1
+        provider:
+          type: string
+          nullable: true
+          example: heuristic_proxy
+        artifacts_dir:
+          type: string
+          nullable: true
+          example: artifacts
+        execution_mode:
+          type: string
+          default: auto
+          example: auto
+    CompareRequest:
+      type: object
+      additionalProperties: false
+      required: [run_id_a, run_id_b]
+      properties:
+        run_id_a:
+          type: string
+          minLength: 1
+          example: artifacts/run-a
+        run_id_b:
+          type: string
+          minLength: 1
+          example: artifacts/run-b
+    CompareResponse:
+      type: object
+      additionalProperties: false
+      required: [run_ids, final_outcome, candidate_trajectories, iteration_deltas]
+      properties:
+        run_ids:
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+        final_outcome:
+          type: object
+          additionalProperties: true
+        candidate_trajectories:
+          type: object
+          additionalProperties: true
+        iteration_deltas:
+          type: object
+          additionalProperties: true
+    ApiCandidateStructure:
+      type: object
+      additionalProperties: false
+      required: [structure_id, provider]
+      properties:
+        structure_id:
+          type: string
+          example: 9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0-s0
+        provider:
+          type: string
+          example: heuristic_proxy
+        pdb_text:
+          type: string
+          nullable: true
+        metrics:
+          type: object
+          additionalProperties:
+            type: number
+        metadata:
+          type: object
+          additionalProperties: true
+    ApiCandidate:
+      type: object
+      additionalProperties: false
+      required: [candidate_id, sequence, structures, metrics, flags, provenance, confidence, created_at]
+      properties:
+        candidate_id:
+          type: string
+          minLength: 1
+          example: 9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0
+        sequence:
+          type: string
+          minLength: 1
+          example: ACDEFGHIKLMNPQRSTVWY
+        structures:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiCandidateStructure'
+        metrics:
+          type: object
+          additionalProperties:
+            type: number
+        flags:
+          type: array
+          items:
+            type: string
+        provenance:
+          type: object
+          additionalProperties: true
+        confidence:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          example: 2025-01-01T00:00:00Z
+    InspectResponse:
+      type: object
+      additionalProperties: false
+      required: [candidate, artifacts]
+      properties:
+        candidate:
+          $ref: '#/components/schemas/ApiCandidate'
+        qc_status:
+          type: string
+          nullable: true
+          example: acceptable
+        artifacts:
+          type: object
+          additionalProperties:
+            type: string
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          example: ok
+    ReadyResponse:
+      type: object
+      additionalProperties: false
+      required: [status, providers]
+      properties:
+        status:
+          type: string
+          example: ok
+        providers:
+          type: object
+          additionalProperties: true
+    ApiEnvelope:
+      type: object
+      additionalProperties: false
+      required: [status, data, error, meta]
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/RunResponse'
+            - $ref: '#/components/schemas/InspectResponse'
+            - $ref: '#/components/schemas/CompareResponse'
+            - $ref: '#/components/schemas/HealthResponse'
+            - $ref: '#/components/schemas/ReadyResponse'
+          type: object
+          nullable: true
+        error:
+          oneOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+          type: object
+          nullable: true
+        meta:
+          type: object
+          additionalProperties: true
