@@ -17,7 +17,8 @@ Read the platform as a chain of responsibilities rather than as a directory
 list. Foundation stabilizes shared payload meaning. Core defines program and
 lifecycle contracts. Knowledge tracks evidence and claims. Intelligence turns
 those inputs into inspectable decisions. Lab turns decisions into assay work.
-`agentic-proteins` governs execution, replay, and final runtime behavior.
+`bijux-proteomics-runtime` governs execution, replay, and final runtime
+behavior. `agentic-proteins` remains as a compatibility surface.
 
 ```mermaid
 flowchart LR
@@ -26,9 +27,10 @@ flowchart LR
     knowledge[bijux-proteomics-knowledge\nevidence + claims]
     intelligence[bijux-proteomics-intelligence\ndecision support]
     lab[bijux-proteomics-lab\nassay execution]
-    agentic[agentic-proteins\nruntime orchestration]
+    runtime[bijux-proteomics-runtime\nruntime orchestration]
+    compat[agentic-proteins\ncompatibility forwarding]
 
-    foundation --> core --> knowledge --> intelligence --> lab --> agentic
+    foundation --> core --> knowledge --> intelligence --> lab --> runtime --> compat
     foundation -. stabilizes .-> intelligence
     core -. constrains .-> lab
 ```
