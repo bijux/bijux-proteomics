@@ -48,7 +48,6 @@ def provider_metadata() -> dict[str, ProviderMetadata]:
     try:
         from bijux_proteomics_runtime.providers.experimental import (
             APIColabFoldProvider,
-            APIOpenProteinProvider,
         )
 
         metadata[APIColabFoldProvider.name] = APIColabFoldProvider.metadata

@@ -11,13 +11,6 @@ import json
 from pathlib import Path
 from typing import Any, Literal
 
-
-def _package_version() -> str:
-    try:
-        return importlib.metadata.version("bijux-proteomics-runtime")
-    except importlib.metadata.PackageNotFoundError:
-        return "0+local"
-
 import click
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import uvicorn
@@ -29,6 +22,13 @@ from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
 from bijux_proteomics_runtime.runtime.control import compare_runs
 from bijux_proteomics_runtime.runtime.infra import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+
+
+def _package_version() -> str:
+    try:
+        return importlib.metadata.version("bijux-proteomics-runtime")
+    except importlib.metadata.PackageNotFoundError:
+        return "0+local"
 
 
 def _read_sequence(sequence: str | None, fasta: Path | None) -> str:
