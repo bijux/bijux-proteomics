@@ -24,7 +24,7 @@ keywords = [
   "reproducibility",
 ]
 dependencies = [
-  "bijux-proteomics-runtime>=0.3.6",
+  "bijux-proteomics-runtime>=0.3.6,<0.4.0",
 ]
 
 [project.urls]
@@ -41,16 +41,16 @@ agentic-proteins = "agentic_proteins.interfaces.cli:cli"
 
 [project.optional-dependencies]
 api = [
-  "bijux-proteomics-runtime[api]>=0.3.6",
+  "bijux-proteomics-runtime[api]>=0.3.6,<0.4.0",
 ]
 local-esmfold = [
-  "bijux-proteomics-runtime[local-esmfold]>=0.3.6",
+  "bijux-proteomics-runtime[local-esmfold]>=0.3.6,<0.4.0",
 ]
 local-rosettafold = [
-  "bijux-proteomics-runtime[local-rosettafold]>=0.3.6",
+  "bijux-proteomics-runtime[local-rosettafold]>=0.3.6,<0.4.0",
 ]
 nl = [
-  "bijux-proteomics-runtime[nl]>=0.3.6",
+  "bijux-proteomics-runtime[nl]>=0.3.6,<0.4.0",
 ]
 
 [tool.hatch.version]

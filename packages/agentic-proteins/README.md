@@ -32,27 +32,19 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`agentic-proteins` provides the deterministic execution engine for protein
-design workflows, including replayable runtime artifacts, policy-safe runtime
-state transitions, CLI automation, and API boundaries.
+`agentic-proteins` is a strict compatibility package.
 
-Use this package when you need production execution behavior, traceable
-artifacts for auditability, or runtime integration points for agentic and
-lab-in-the-loop protein design systems.
+Canonical runtime ownership is `bijux-proteomics-runtime`.
 
-## Why teams pick this package
+This package keeps legacy import and CLI entrypoints available while forwarding
+all implementation surfaces to canonical packages.
 
-- reproducible execution with deterministic run state and replay-oriented controls
-- inspectable artifacts for scientific review, incident analysis, and compliance
-- integration-ready boundaries for CLI usage, API orchestration, and provider wiring
-- clear runtime contracts that keep orchestration behavior stable across releases
+## Compatibility contract
 
-## Typical use cases
-
-- run deterministic protein design loops in CI, batch systems, or orchestrators
-- capture run artifacts as evidence for downstream review and approval workflows
-- expose runtime capabilities through CLI or HTTP integration surfaces
-- enforce provider capability checks before expensive or irreversible execution
+- forwards runtime surfaces to `bijux-proteomics-runtime`
+- forwards domain surfaces to canonical lower-layer packages
+- contains no canonical runtime or domain implementation
+- exists to preserve migration safety for existing integrations
 
 ## Installation
 
@@ -66,36 +58,19 @@ pip install agentic-proteins
 agentic-proteins --help
 ```
 
-Import-driven usage starts from the runtime and design loop modules:
+Prefer canonical imports for new integrations:
 
 ```python
-from agentic_proteins.runtime import models as runtime_models
-from agentic_proteins.design_loop import orchestrator
+from bijux_proteomics_runtime.interfaces.cli import cli
 ```
 
-## Package boundaries
+Legacy imports continue to work via forwarding:
 
-This package owns runtime execution, lifecycle state, run artifacts, and runtime-facing entrypoints.
-
-It does not own cross-package scientific governance:
-
-- domain lifecycle and review-gate semantics live in `bijux-proteomics-core`
-- ranking and scenario reasoning live in `bijux-proteomics-intelligence`
-- evidence trust and contradiction resolution live in `bijux-proteomics-knowledge`
-- lab scheduling and rerun planning live in `bijux-proteomics-lab`
-
-## Source guide
-
-- [`src/agentic_proteins/runtime`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/runtime) for runtime lifecycle and execution control
-- [`src/agentic_proteins/design_loop`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/design_loop) for design-loop orchestration
-- [`src/agentic_proteins/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/interfaces) for CLI surfaces
-- [`src/agentic_proteins/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/src/agentic_proteins/api) for HTTP-facing boundaries
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins/tests) for executable behavior expectations
+```python
+from agentic_proteins.interfaces.cli import cli
+```
 
 ## Documentation
 
-- [Package guide](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
-- [Ownership boundary](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/ownership-boundary/)
-- [Architecture overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/)
-- [Interface contracts](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/)
-- [Release and versioning](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/release-and-versioning/)
+- [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+- [Compatibility package docs](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
