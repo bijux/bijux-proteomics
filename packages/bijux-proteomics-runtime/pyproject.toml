@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling>=1.27.0,<1.30", "hatch-vcs>=0.4.0,<1.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bijux-proteomics-runtime"
+dynamic = ["version"]
+description = "Canonical execution runtime for orchestrating proteomics workflows through CLI, API, provider binding, and deterministic run control"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11,<4"
+authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+keywords = [
+  "proteomics",
+  "runtime",
+  "orchestration",
+  "determinism",
+  "replay",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "click>=8.1",
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "pydantic>=2.0.2",
+  "bijux-proteomics-foundation>=0.3.6",
+  "bijux-proteomics-core>=0.3.6",
+  "bijux-proteomics-knowledge>=0.3.6",
+  "bijux-proteomics-intelligence>=0.3.6",
+  "bijux-proteomics-lab>=0.3.6",
+]
+
+[project.urls]
+Homepage = "https://bijux.io/bijux-proteomics/"
+Documentation = "https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/"
+Repository = "https://github.com/bijux/bijux-proteomics"
+Issues = "https://github.com/bijux/bijux-proteomics/issues"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/CHANGELOG.md"
+Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
+
+[project.scripts]
+bijux-proteomics-runtime = "bijux_proteomics_runtime.interfaces.cli:cli"
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^v(?P<version>.*)$"
+fallback-version = "0.3.6"
+raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
+
+[tool.hatch.build]
+include = [
+  "README.md",
+  "CHANGELOG.md",
+  "docs/maintainer/pypi.md",
+  "src/bijux_proteomics_runtime/py.typed",
+]
+force-include = { "LICENSE" = "LICENSE", "NOTICE" = "NOTICE" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bijux_proteomics_runtime"]
+
+[tool.hatch.build.targets.wheel.package-data]
+"bijux_proteomics_runtime" = ["py.typed"]

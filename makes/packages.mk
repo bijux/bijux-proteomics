@@ -7,6 +7,7 @@ PACKAGE_RECORDS := \
 	agentic-proteins|primary,check,buildable,sbom,api|agentic-proteins.mk \
 	bijux-proteomics-foundation|primary,check,buildable,sbom,api|bijux-proteomics-foundation.mk \
 	bijux-proteomics-core|primary,check,buildable,sbom,api|bijux-proteomics-core.mk \
+	bijux-proteomics-runtime|primary,check,buildable,sbom,api|bijux-proteomics-runtime.mk \
 	bijux-proteomics-intelligence|primary,check,buildable,sbom,api|bijux-proteomics-intelligence.mk \
 	bijux-proteomics-knowledge|primary,check,buildable,sbom,api|bijux-proteomics-knowledge.mk \
 	bijux-proteomics-lab|primary,check,buildable,sbom,api|bijux-proteomics-lab.mk \

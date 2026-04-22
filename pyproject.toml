@@ -21,6 +21,7 @@ dev = [
   "bijux-proteomics-dev",
   "bijux-proteomics-foundation",
   "bijux-proteomics-core",
+  "bijux-proteomics-runtime",
   "bijux-proteomics-intelligence",
   "bijux-proteomics-knowledge",
   "bijux-proteomics-lab",
@@ -92,6 +93,7 @@ packages = [
   "bijux-proteomics-dev",
   "bijux-proteomics-foundation",
   "bijux-proteomics-core",
+  "bijux-proteomics-runtime",
   "bijux-proteomics-intelligence",
   "bijux-proteomics-knowledge",
   "bijux-proteomics-lab",
@@ -105,6 +107,7 @@ agentic-proteins = { workspace = true }
 bijux-proteomics-dev = { workspace = true }
 bijux-proteomics-foundation = { workspace = true }
 bijux-proteomics-core = { workspace = true }
+bijux-proteomics-runtime = { workspace = true }
 bijux-proteomics-intelligence = { workspace = true }
 bijux-proteomics-knowledge = { workspace = true }
 bijux-proteomics-lab = { workspace = true }

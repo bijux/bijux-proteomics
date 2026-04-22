@@ -28,6 +28,7 @@ EXPECTED_VERIFY_PACKAGES = {
     "agentic-proteins",
     "bijux-proteomics-foundation",
     "bijux-proteomics-core",
+    "bijux-proteomics-runtime",
     "bijux-proteomics-intelligence",
     "bijux-proteomics-knowledge",
     "bijux-proteomics-lab",
