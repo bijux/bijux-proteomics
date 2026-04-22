@@ -22,7 +22,7 @@ from bijux_proteomics_runtime.core.observations import (
     ReplanningTriggerType,
 )
 from bijux_proteomics_runtime.memory.schemas import MemoryScope
-from agentic_proteins.validation.agents import validate_agent
+from bijux_proteomics_runtime.validation.agents import validate_agent
 
 
 class CoordinatorAgent(AgentRole):

@@ -10,7 +10,7 @@ from bijux_proteomics_runtime.agents.planning.validation import validate_plan
 from bijux_proteomics_runtime.core.decisions import Decision
 from bijux_proteomics_runtime.core.execution import ExecutionGraph, ExecutionTask, RetryPolicy
 from bijux_proteomics_runtime.core.tooling import ToolInvocationSpec
-from agentic_proteins.validation.state import validate_execution_graph
+from bijux_proteomics_runtime.validation.state import validate_execution_graph
 
 
 def compile_plan_to_execution(plan: Plan, decisions: list[Decision]) -> ExecutionGraph:

@@ -16,7 +16,7 @@ from bijux_proteomics_runtime.agents.schemas import (
     ReportingAgentOutput,
 )
 from bijux_proteomics_runtime.memory.schemas import MemoryScope
-from agentic_proteins.validation.agents import validate_agent
+from bijux_proteomics_runtime.validation.agents import validate_agent
 
 
 class ReportingAgent(AgentRole):

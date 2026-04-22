@@ -17,7 +17,7 @@ from bijux_proteomics_runtime.agents.schemas import (
 )
 from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
 from bijux_proteomics_runtime.memory.schemas import MemoryScope
-from agentic_proteins.validation.agents import validate_agent
+from bijux_proteomics_runtime.validation.agents import validate_agent
 
 
 class QualityControlAgent(AgentRole):
