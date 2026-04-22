@@ -1,8 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime agent ownership."""
 
-"""Agent package exports."""
-
-from __future__ import annotations
-
-__all__: list[str] = []
+from bijux_proteomics_runtime.agents import *  # noqa: F401,F403

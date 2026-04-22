@@ -1,26 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime execution ownership."""
 
-"""Observation and evaluation schemas."""
-
-from __future__ import annotations
-
-from agentic_proteins.core.observations import (
-    EvaluationInput,
-    Observation,
-    ObservationMetric,
-    ObservationSource,
-    PlanMetadata,
-    ReplanningTrigger,
-    ReplanningTriggerType,
-)
-
-__all__ = [
-    "EvaluationInput",
-    "Observation",
-    "ObservationMetric",
-    "ObservationSource",
-    "PlanMetadata",
-    "ReplanningTrigger",
-    "ReplanningTriggerType",
-]
+from bijux_proteomics_runtime.execution.evaluation.observations import *  # noqa: F401,F403

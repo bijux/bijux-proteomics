@@ -18,7 +18,7 @@ from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
 
 
 @dataclass
-class LoopState:
+class DesignLoopState:
     """Loop state shared between iterative design-loop components."""
 
     replans: int = 0
@@ -49,7 +49,7 @@ class PipelineRunner(Protocol):
     """PipelineRunner."""
 
     def run_iteration(
-        self, candidate: Candidate, loop_state: LoopState
+        self, candidate: Candidate, loop_state: DesignLoopState
     ) -> PipelineResultProtocol:
         """Run one loop iteration for a candidate."""
         ...
@@ -144,7 +144,7 @@ class LoopRunner:
             self._context.config.get("loop_improvement_threshold", 0.5)
         )
         max_cost = float(self._context.config.get("loop_max_cost", 1.0))
-        loop_state = LoopState(
+        loop_state = DesignLoopState(
             replans=0,
             executions=0,
             uncertainty=0.0,

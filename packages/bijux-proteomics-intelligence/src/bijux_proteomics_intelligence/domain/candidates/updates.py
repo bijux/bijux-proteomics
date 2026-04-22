@@ -9,21 +9,21 @@ from typing import Protocol
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate, CandidateStructure
 
 
-class InvocationInput(Protocol):
+class InvocationInputLike(Protocol):
     """Minimal invocation input contract used by candidate updates."""
 
     name: str
     value: str
 
 
-class ToolResult(Protocol):
+class ToolResultLike(Protocol):
     """Minimal tool result contract used by candidate updates."""
 
     status: str
-    outputs: list[InvocationInput]
+    outputs: list[InvocationInputLike]
 
 
-def metrics_from_outputs(outputs: list[InvocationInput]) -> dict[str, float]:
+def metrics_from_outputs(outputs: list[InvocationInputLike]) -> dict[str, float]:
     """metrics_from_outputs."""
     metrics: dict[str, float] = {}
     for item in outputs:
@@ -38,7 +38,7 @@ def update_candidate_from_result(
     candidate: Candidate,
     tool_name: str,
     tool_version: str,
-    result: ToolResult,
+    result: ToolResultLike,
     plan_fingerprint: str,
     iteration_index: int,
 ) -> Candidate:

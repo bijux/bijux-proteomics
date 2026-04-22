@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import Protocol
 
 
-class InvocationInput(Protocol):
+class InvocationInputLike(Protocol):
     """Protocol surface used by quality metric validation."""
 
     name: str
@@ -16,7 +16,7 @@ class InvocationInput(Protocol):
 REQUIRED_STRUCTURE_METRICS = {"sequence_length", "mean_plddt", "helix_pct", "sheet_pct"}
 
 
-def validate_structure_metrics(outputs: list[InvocationInput]) -> bool:
+def validate_structure_metrics(outputs: list[InvocationInputLike]) -> bool:
     """validate_structure_metrics."""
     available = {item.name for item in outputs}
     return REQUIRED_STRUCTURE_METRICS.issubset(available)

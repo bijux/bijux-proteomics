@@ -1,5 +1,3 @@
-"""Execution evaluation helpers."""
+"""Compatibility forwarding module for canonical runtime execution ownership."""
 
-from __future__ import annotations
-
-__all__: list[str] = []
+from bijux_proteomics_runtime.execution.evaluation import *  # noqa: F401,F403

@@ -1,12 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime execution ownership."""
 
-"""Execution domain exports."""
-
-from __future__ import annotations
-
-from agentic_proteins.core.stability import sealed
-
-sealed()
-
-__all__: list[str] = []
+from bijux_proteomics_runtime.execution import *  # noqa: F401,F403
