@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from agentic_proteins.core.tooling import ToolContract
+from bijux_proteomics_runtime.core.tooling import ToolContract
 
 
 class ToolRegistry:

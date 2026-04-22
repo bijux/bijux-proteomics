@@ -17,6 +17,7 @@ import uvicorn
 
 from bijux_proteomics_intelligence.domain.candidates import CandidateStore
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_runtime.runtime_identity import runtime_banner
 from bijux_proteomics_runtime.runtime import RunManager
 from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
 from bijux_proteomics_runtime.runtime.control import compare_runs
@@ -265,10 +266,16 @@ def _artifact_hashes(run_dir: Path) -> dict[str, str]:
 @click.group()
 @click.version_option(
     version=_package_version(),
-    package_name="agentic-proteins",
+    package_name="bijux-proteomics-runtime",
 )
 def cli() -> None:
     """bijux-proteomics-runtime CLI (lab-oriented)."""
+
+
+@cli.command("identity")
+def identity_command() -> None:
+    """identity_command."""
+    click.echo(runtime_banner())
 
 
 @cli.command("run")

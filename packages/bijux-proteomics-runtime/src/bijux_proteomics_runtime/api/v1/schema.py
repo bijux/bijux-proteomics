@@ -9,8 +9,8 @@ from typing import Any, Literal
 
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 
-from agentic_proteins.core.failures import FailureType
-from agentic_proteins.core.status import (
+from bijux_proteomics_runtime.core.failures import FailureType
+from bijux_proteomics_runtime.core.status import (
     ExecutionStatus,
     Outcome,
     ToolStatus,
@@ -197,6 +197,7 @@ class HealthResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     status: str = Field(..., description="Health status.")
+    runtime: str = Field(..., description="Canonical runtime identity.")
 
 
 class ReadyResponse(BaseModel):
@@ -205,6 +206,7 @@ class ReadyResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     status: str = Field(..., description="Readiness status.")
+    runtime: str = Field(..., description="Canonical runtime identity.")
     providers: dict[str, Any] = Field(
         default_factory=dict, description="Provider readiness details."
     )

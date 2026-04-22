@@ -201,10 +201,28 @@ def check_lower_layer_runtime_imports(policy: RuntimeBoundaryPolicy) -> list[str
     return failures
 
 
+def check_runtime_imports_compat_package(policy: RuntimeBoundaryPolicy) -> list[str]:
+    failures: list[str] = []
+    compat_import_prefix = "agentic_proteins"
+
+    for path in iter_python_files(policy.runtime_type_ownership.runtime_root):
+        module = parse_python_module(path)
+        for imported in import_references(module.tree):
+            if imported == compat_import_prefix or imported.startswith(
+                f"{compat_import_prefix}."
+            ):
+                failures.append(
+                    f"{path}: runtime package imports compat module '{imported}'"
+                )
+
+    return failures
+
+
 def run(repo_root: Path) -> int:
     policy = load_policy(repo_root)
     failures = [
         *check_lower_layer_runtime_imports(policy),
+        *check_runtime_imports_compat_package(policy),
         *check_agentic_compat_forwarding(policy),
         *check_runtime_type_collisions(policy),
     ]

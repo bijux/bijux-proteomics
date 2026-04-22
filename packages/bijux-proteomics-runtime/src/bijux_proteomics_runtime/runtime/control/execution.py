@@ -13,14 +13,16 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any
 
-from agentic_proteins.agents.analysis.failure_analysis import FailureAnalysisAgent
-from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
-from agentic_proteins.agents.planning.compiler import compile_plan_to_execution
-from agentic_proteins.agents.planning.generation import generate_plan
-from agentic_proteins.agents.planning.planner import PlannerAgent
-from agentic_proteins.agents.planning.validation import PlanningValidator
-from agentic_proteins.agents.reporting.reporting import ReportingAgent
-from agentic_proteins.agents.schemas import (
+from bijux_proteomics_runtime.agents.analysis.failure_analysis import (
+    FailureAnalysisAgent,
+)
+from bijux_proteomics_runtime.agents.execution.coordinator import CoordinatorAgent
+from bijux_proteomics_runtime.agents.planning.compiler import compile_plan_to_execution
+from bijux_proteomics_runtime.agents.planning.generation import generate_plan
+from bijux_proteomics_runtime.agents.planning.planner import PlannerAgent
+from bijux_proteomics_runtime.agents.planning.validation import PlanningValidator
+from bijux_proteomics_runtime.agents.reporting.reporting import ReportingAgent
+from bijux_proteomics_runtime.agents.schemas import (
     CoordinatorAgentInput,
     CoordinatorDecisionType,
     CriticAgentInput,
@@ -29,25 +31,29 @@ from agentic_proteins.agents.schemas import (
     ReportingAgentInput,
     RequestParameter,
 )
-from agentic_proteins.agents.verification.critic import CriticAgent
-from agentic_proteins.agents.verification.input_validation import InputValidationAgent
-from agentic_proteins.agents.verification.quality_control import QualityControlAgent
-from agentic_proteins.core.decisions import Decision
-from agentic_proteins.core.execution import (
+from bijux_proteomics_runtime.agents.verification.critic import CriticAgent
+from bijux_proteomics_runtime.agents.verification.input_validation import (
+    InputValidationAgent,
+)
+from bijux_proteomics_runtime.agents.verification.quality_control import (
+    QualityControlAgent,
+)
+from bijux_proteomics_runtime.core.decisions import Decision
+from bijux_proteomics_runtime.core.execution import (
     ExecutionContext,
     LoopLimits,
     LoopState,
     ResourceLimits,
 )
-from agentic_proteins.core.failures import FailureType, suggest_next_action
-from agentic_proteins.core.observations import EvaluationInput, PlanMetadata
-from agentic_proteins.core.status import (
+from bijux_proteomics_runtime.core.failures import FailureType, suggest_next_action
+from bijux_proteomics_runtime.core.observations import EvaluationInput, PlanMetadata
+from bijux_proteomics_runtime.core.status import (
     ExecutionStatus,
     Outcome,
     ToolStatus,
     WorkflowState,
 )
-from agentic_proteins.core.tooling import (
+from bijux_proteomics_runtime.core.tooling import (
     InvocationInput,
     ToolError,
     ToolInvocationSpec,
@@ -61,12 +67,12 @@ from bijux_proteomics_runtime.runtime.adapters import (
 )
 from bijux_proteomics_runtime.runtime.adapters import Candidate
 from bijux_proteomics_runtime.runtime.adapters import QCStatus
-from agentic_proteins.execution.compiler.boundary import ToolBoundary
-from agentic_proteins.execution.runtime.executor import (
+from bijux_proteomics_runtime.execution.compiler.boundary import ToolBoundary
+from bijux_proteomics_runtime.execution.runtime.executor import (
     LocalExecutor,
     materialize_observation,
 )
-from agentic_proteins.execution.validation import validate_outputs
+from bijux_proteomics_runtime.execution.validation import validate_outputs
 from bijux_proteomics_runtime.registry.agents import AgentRegistry
 from bijux_proteomics_runtime.runtime.context import (
     ErrorDetail,

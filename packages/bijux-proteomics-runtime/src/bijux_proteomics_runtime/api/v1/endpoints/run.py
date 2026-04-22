@@ -16,7 +16,7 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RunRequest,
     RunResponse,
 )
-from agentic_proteins.core.status import WorkflowState
+from bijux_proteomics_runtime.core.status import WorkflowState
 from bijux_proteomics_runtime.interfaces.cli import (
     _build_run_config,
     _load_run_summary,

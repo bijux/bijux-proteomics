@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from agentic_proteins.core.stability import sealed
+from bijux_proteomics_runtime.core.stability import sealed
 from bijux_proteomics_runtime.runtime.control.execution import RunManager
 
 sealed()

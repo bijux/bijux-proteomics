@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from agentic_proteins.core.stability import stable
+from bijux_proteomics_runtime.core.stability import stable
 
 stable()
 

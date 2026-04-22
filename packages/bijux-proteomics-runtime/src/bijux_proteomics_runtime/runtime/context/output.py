@@ -9,7 +9,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from agentic_proteins.agents.schemas import CoordinatorDecisionType
+from bijux_proteomics_runtime.agents.schemas import CoordinatorDecisionType
 from bijux_proteomics_runtime.runtime.adapters import QCStatus
 
 
