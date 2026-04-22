@@ -1,13 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime API ownership."""
 
-"""HTTP API entry points."""
-
-from __future__ import annotations
-
-from agentic_proteins.api.app import AppConfig, create_app
-from agentic_proteins.core.stability import stable
-
-stable()
-
-__all__ = ["AppConfig", "create_app"]
+from bijux_proteomics_runtime.api.__init__ import *  # noqa: F401,F403

@@ -1,12 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime interface ownership."""
 
-"""Interface modules."""
-
-from __future__ import annotations
-
-from agentic_proteins.core.stability import stable
-
-stable()
-
-__all__: list[str] = []
+from bijux_proteomics_runtime.interfaces.__init__ import *  # noqa: F401,F403

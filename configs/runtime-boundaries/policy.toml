@@ -10,7 +10,14 @@ lower_layer_roots = [
 
 [compat]
 package_root = "packages/agentic-proteins/src/agentic_proteins"
-forwarding_target_prefix = "bijux_proteomics_runtime"
+forwarding_target_prefixes = [
+  "bijux_proteomics_runtime",
+  "bijux_proteomics",
+  "bijux_proteomics_knowledge",
+  "bijux_proteomics_intelligence",
+  "bijux_proteomics_lab",
+  "bijux_proteomics_foundation",
+]
 non_forwarding_allowlist_path = "configs/runtime-boundaries/agentic-non-forwarding-allowlist.txt"
 
 [runtime_type_ownership]

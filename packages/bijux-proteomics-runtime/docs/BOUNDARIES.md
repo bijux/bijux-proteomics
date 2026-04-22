@@ -36,8 +36,7 @@ This package does not own:
 
 Lower layers must not import runtime modules.
 
-Specifically, the following package families must not import
-`bijux_proteomics_runtime`:
+The following package families must not import `bijux_proteomics_runtime`:
 
 - `bijux_proteomics_foundation*`
 - `bijux_proteomics*` (core)
@@ -46,3 +45,11 @@ Specifically, the following package families must not import
 - `bijux_proteomics_lab*`
 
 Runtime adapts lower layers. Lower layers remain runtime-agnostic.
+
+## Migration staging law
+
+During staged migration from `agentic-proteins`, canonical runtime surfaces must
+land in `bijux-proteomics-runtime` first, then legacy `agentic-proteins` module
+paths become compatibility forwarders.
+
+Compatibility package modules are not canonical ownership surfaces.

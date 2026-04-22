@@ -1,13 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for runtime replay determinism ownership."""
 
-"""Hashing helpers."""
-
-from __future__ import annotations
-
-import hashlib
-
-
-def sha256_hex(payload: str) -> str:
-    """Return a hex SHA256 digest for the payload."""
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+from bijux_proteomics_runtime.core.hashing import *  # noqa: F401,F403

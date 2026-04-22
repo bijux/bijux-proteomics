@@ -1,11 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical state ownership."""
 
-"""State domain exports."""
-
-from __future__ import annotations
-
-from agentic_proteins.state.schemas import StateSnapshot
-from agentic_proteins.state.snapshot import snapshot_state
-
-__all__ = ["StateSnapshot", "snapshot_state"]
+from bijux_proteomics_runtime.state.__init__ import *  # noqa: F401,F403

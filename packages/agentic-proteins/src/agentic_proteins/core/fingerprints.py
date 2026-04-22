@@ -1,21 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for runtime replay determinism ownership."""
 
-"""Fingerprint utilities."""
-
-from __future__ import annotations
-
-import hashlib
-import json
-from typing import Any
-
-
-def stable_json(payload: dict[str, Any]) -> str:
-    """stable_json."""
-    return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
-
-
-def hash_payload(payload: dict[str, Any]) -> str:
-    """hash_payload."""
-    data = stable_json(payload)
-    return hashlib.sha256(data.encode()).hexdigest()
+from bijux_proteomics_runtime.core.fingerprints import *  # noqa: F401,F403
