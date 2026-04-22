@@ -15,7 +15,7 @@ UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --pyt
 ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
-ROOT_TARGET_POST_quality = @$(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries
+ROOT_TARGET_POST_quality = @$(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 
 -include .env
@@ -57,6 +57,9 @@ quality-docs-consistency: root-check-env ## Refresh docs consistency evidence
 
 quality-runtime-boundaries: root-check-env ## Enforce runtime boundary contracts
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_boundaries
+
+quality-runtime-migration-ledger: root-check-env ## Validate agentic migration ledger coverage and freshness
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_migration_ledger --check
 
 security-dependency-allowlist: root-check-env ## Validate the dependency allowlist
 	@$(DEV_RUN) -m bijux_proteomics_dev.security.dependency_allowlist

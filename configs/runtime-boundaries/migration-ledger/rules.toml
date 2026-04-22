@@ -1,0 +1,169 @@
+# Ordered rule set for classifying agentic-proteins modules during migration.
+
+[[rule]]
+pattern = "__init__.py"
+bucket = "runtime_support_internal_review"
+owner_package = "agentic-proteins-compat"
+reason = "Top-level package export surface remains in compat layer during migration and requires explicit forwarding review."
+
+[[rule]]
+pattern = "api/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "HTTP runtime interface and API wiring belong to canonical runtime ownership."
+
+[[rule]]
+pattern = "interfaces/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership."
+
+[[rule]]
+pattern = "providers/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Provider binding and execution adapters are runtime responsibilities."
+
+[[rule]]
+pattern = "runtime/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime control, state coordination, and workspace execution orchestration belong to runtime."
+
+[[rule]]
+pattern = "state/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution snapshots and runtime state persistence are runtime-owned concerns."
+
+[[rule]]
+pattern = "sandbox/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution sandboxing is runtime infrastructure ownership."
+
+[[rule]]
+pattern = "execution/runtime/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution runtime drivers are canonical runtime execution surfaces."
+
+[[rule]]
+pattern = "execution/compiler/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution boundary compilation belongs to runtime orchestration boundaries."
+
+[[rule]]
+pattern = "execution/__init__.py"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution package aggregation likely belongs in runtime but requires dependency review before final lock."
+
+[[rule]]
+pattern = "execution/evaluation/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Evaluation helpers are runtime-adjacent and need semantic review to separate orchestration from domain scoring meaning."
+
+[[rule]]
+pattern = "execution/schemas.py"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution schemas may mix transport and domain semantics and require ownership split review."
+
+[[rule]]
+pattern = "execution/validation.py"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution validation appears runtime-adjacent but needs review to avoid domain logic leakage."
+
+[[rule]]
+pattern = "agents/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement."
+
+[[rule]]
+pattern = "core/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment."
+
+[[rule]]
+pattern = "memory/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime memory support may contain mixed orchestration and domain persistence assumptions and requires review."
+
+[[rule]]
+pattern = "registry/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Registry surfaces are runtime-support utilities pending explicit ownership decomposition."
+
+[[rule]]
+pattern = "report/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Reporting utilities need review to split runtime artifact summaries from scientific/domain evaluation outputs."
+
+[[rule]]
+pattern = "tools/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping."
+
+[[rule]]
+pattern = "validation/**"
+bucket = "runtime_support_internal_review"
+owner_package = "bijux-proteomics-runtime"
+reason = "Validation helpers are mixed runtime-support surfaces that require semantic placement review."
+
+[[rule]]
+pattern = "biology/**"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-core"
+reason = "Biology and regulator semantics express domain truth and must move to canonical lower-layer domain ownership."
+
+[[rule]]
+pattern = "design_loop/**"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
+
+[[rule]]
+pattern = "domain/candidates/**"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
+
+[[rule]]
+pattern = "domain/confidence/**"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-knowledge"
+reason = "Confidence segmentation expresses evidence/trust semantics and belongs in knowledge ownership."
+
+[[rule]]
+pattern = "domain/metrics/**"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership."
+
+[[rule]]
+pattern = "domain/sequence/**"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-core"
+reason = "Sequence domain constraints and summaries are core domain model ownership."
+
+[[rule]]
+pattern = "domain/structure/**"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-core"
+reason = "Structure domain representations are canonical program-domain ownership concerns."
+
+[[rule]]
+pattern = "domain/__init__.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-core"
+reason = "Domain package aggregation belongs to canonical lower-layer domain ownership rather than runtime."
