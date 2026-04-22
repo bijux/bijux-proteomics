@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import asdict
+from dataclasses import is_dataclass
 from pathlib import Path
 
 from click.testing import CliRunner
@@ -10,6 +12,16 @@ from agentic_proteins.interfaces.cli import cli as compat_cli
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.interfaces.cli import cli as runtime_cli
+
+
+def _config_payload(config: object) -> dict[str, object]:
+    if is_dataclass(config):
+        return asdict(config)
+    if hasattr(config, "model_dump"):
+        return getattr(config, "model_dump")()
+    if hasattr(config, "dict"):
+        return getattr(config, "dict")()
+    raise TypeError(f"Unsupported config model type: {type(config)!r}")
 
 
 def test_compat_cli_import_forwards_to_runtime_symbol() -> None:
@@ -28,7 +40,7 @@ def test_compat_and_runtime_api_factory_are_equivalent() -> None:
     base_dir = Path.cwd()
     compat_config = CompatAppConfig(base_dir=base_dir, docs_enabled=False)
     runtime_config = RuntimeAppConfig(base_dir=base_dir, docs_enabled=False)
-    assert compat_config.model_dump() == runtime_config.model_dump()
+    assert _config_payload(compat_config) == _config_payload(runtime_config)
 
     compat_app = compat_create_app(compat_config)
     runtime_app = runtime_create_app(runtime_config)
