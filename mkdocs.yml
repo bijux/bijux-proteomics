@@ -419,6 +419,11 @@ nav:
           - Change Validation: 07-bijux-proteomics-lab/quality/change-validation.md
           - Known Limitations: 07-bijux-proteomics-lab/quality/known-limitations.md
           - Risk Register: 07-bijux-proteomics-lab/quality/risk-register.md
+  - bijux-proteomics-runtime:
+      - Overview: 09-bijux-proteomics-runtime/index.md
+      - Migration Ledger:
+          - Migration Ledger: 09-bijux-proteomics-runtime/migration-ledger/README.md
+          - Agentic Module Ledger Summary: 09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md
   - Maintainer Handbook:
       - Maintainer Handbook: 08-bijux-proteomics-maintain/index.md
       - bijux-proteomics-dev:
