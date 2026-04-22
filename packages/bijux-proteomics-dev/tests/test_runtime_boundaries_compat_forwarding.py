@@ -26,3 +26,16 @@ def test_agentic_compat_allowlist_is_empty_in_strict_mode() -> None:
         if line.strip() and not line.strip().startswith("#")
     ]
     assert not entries, "strict compat mode requires zero allowlisted non-forwarding modules"
+
+
+def test_agentic_compat_forwarders_use_module_paths_not_init_modules() -> None:
+    policy = load_policy(REPO_ROOT)
+    failures: list[str] = []
+    for path in sorted(policy.compat_forwarding.package_root.rglob("*.py")):
+        content = path.read_text(encoding="utf-8")
+        if ".__init__ import *" in content:
+            failures.append(str(path.relative_to(REPO_ROOT)))
+    assert not failures, (
+        "compat forwarding modules must import package paths instead of __init__ modules:\n"
+        + "\n".join(failures)
+    )
