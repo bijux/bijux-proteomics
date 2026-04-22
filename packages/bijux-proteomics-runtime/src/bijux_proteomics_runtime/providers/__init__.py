@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from agentic_proteins.core.stability import experimental
+from bijux_proteomics_runtime.core.stability import experimental
 from bijux_proteomics_runtime.providers.base import (
     BaseProvider,
     PredictionResult,

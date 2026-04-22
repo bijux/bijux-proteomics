@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from agentic_proteins.core.failures import FailureType, suggest_next_action
+from bijux_proteomics_runtime.core.failures import FailureType, suggest_next_action
 from bijux_proteomics_runtime.core.hashing import sha256_hex
 from bijux_proteomics_runtime.runtime.adapters import Candidate
 from bijux_proteomics_runtime.runtime.adapters import (

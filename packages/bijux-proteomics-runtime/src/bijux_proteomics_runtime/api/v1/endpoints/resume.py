@@ -16,7 +16,7 @@ from bijux_proteomics_runtime.api.v1.schema import (
     ResumeRequest,
     RunResponse,
 )
-from agentic_proteins.core.status import WorkflowState
+from bijux_proteomics_runtime.core.status import WorkflowState
 from bijux_proteomics_runtime.interfaces.cli import _load_run_summary, _resume_candidate
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
