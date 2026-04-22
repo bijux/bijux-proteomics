@@ -10,7 +10,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from agentic_proteins.core.decisions import Decision
-from agentic_proteins.domain.metrics.quality import MetricValue
+from bijux_proteomics_runtime.runtime.adapters import MetricValue
 
 
 class ArtifactMetadata(BaseModel):

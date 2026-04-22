@@ -1,10 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical intelligence metric ownership."""
 
-"""Metrics domain exports."""
-
-from __future__ import annotations
-
-from agentic_proteins.domain.metrics.compute import compute_metrics
-
-__all__ = ["compute_metrics"]
+from bijux_proteomics_intelligence.domain.metrics import *  # noqa: F401,F403

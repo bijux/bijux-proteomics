@@ -41,3 +41,17 @@ flowchart TD
 - Runtime composes lower layers but never redefines their domain truth.
 - Runtime adapts lower-layer models for execution and transport boundaries.
 - Runtime keeps operator interfaces stable while internal orchestration evolves.
+
+## Adapter topology
+
+Runtime adapter modules are the only place where lower-layer domain objects are
+translated into runtime interface payloads.
+
+- `runtime/adapters/candidates.py`: candidate model mapping and selection wiring
+- `runtime/adapters/quality.py`: quality and reliability mapping
+- `runtime/adapters/memory.py`: memory record mapping
+- `runtime/adapters/design_loop.py`: design-loop orchestration contracts
+- `runtime/adapters/lab.py`: lab planning and evidence-promotion entrypoints
+
+This keeps lower packages runtime-agnostic and prevents upward leakage of
+runtime-specific schemas.

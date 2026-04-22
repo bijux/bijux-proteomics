@@ -1,11 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime memory ownership."""
 
-"""Memory domain exports."""
-
-from __future__ import annotations
-
-from agentic_proteins.memory.schemas import MemoryRecord, MemoryScope
-from agentic_proteins.memory.store import MemoryStore
-
-__all__ = ["MemoryRecord", "MemoryScope", "MemoryStore"]
+from bijux_proteomics_runtime.memory import *  # noqa: F401,F403

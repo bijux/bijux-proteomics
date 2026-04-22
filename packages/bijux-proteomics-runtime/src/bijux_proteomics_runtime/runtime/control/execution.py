@@ -53,21 +53,21 @@ from agentic_proteins.core.tooling import (
     ToolInvocationSpec,
     ToolResult,
 )
-from agentic_proteins.design_loop.loop import LoopContext, LoopRunner
-from agentic_proteins.domain.candidates import (
+from bijux_proteomics_runtime.runtime.adapters import LoopContext, LoopRunner
+from bijux_proteomics_runtime.runtime.adapters import (
     CandidateStore,
     candidate_to_domain,
     update_candidate_from_result,
 )
-from agentic_proteins.domain.candidates.schema import Candidate
-from agentic_proteins.domain.metrics.quality import QCStatus
+from bijux_proteomics_runtime.runtime.adapters import Candidate
+from bijux_proteomics_runtime.runtime.adapters import QCStatus
 from agentic_proteins.execution.compiler.boundary import ToolBoundary
 from agentic_proteins.execution.runtime.executor import (
     LocalExecutor,
     materialize_observation,
 )
 from agentic_proteins.execution.validation import validate_outputs
-from agentic_proteins.registry.agents import AgentRegistry
+from bijux_proteomics_runtime.registry.agents import AgentRegistry
 from bijux_proteomics_runtime.runtime.context import (
     ErrorDetail,
     RunContext,
@@ -95,8 +95,8 @@ from bijux_proteomics_runtime.runtime.infra import (
 from bijux_proteomics_runtime.runtime.infra.capabilities import validate_runtime_capabilities
 from bijux_proteomics_runtime.runtime.workspace import write_json_atomic, write_text_atomic
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
-from agentic_proteins.tools.base import Tool
-from agentic_proteins.tools.heuristic import HeuristicStructureTool
+from bijux_proteomics_runtime.tools.base import Tool
+from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
 
 
 @dataclass

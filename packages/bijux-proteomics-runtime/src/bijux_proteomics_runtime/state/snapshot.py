@@ -11,7 +11,7 @@ from typing import Protocol
 
 from agentic_proteins.core.decisions import Decision
 from bijux_proteomics_runtime.core.hashing import sha256_hex
-from agentic_proteins.memory.schemas import MemoryRecord
+from bijux_proteomics_runtime.runtime.adapters import MemoryRecord
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
 
 

@@ -1,10 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical knowledge confidence ownership."""
 
-"""Confidence domain exports."""
-
-from __future__ import annotations
-
-from agentic_proteins.domain.confidence.segments import low_confidence_segments
-
-__all__ = ["low_confidence_segments"]
+from bijux_proteomics_knowledge.confidence import *  # noqa: F401,F403

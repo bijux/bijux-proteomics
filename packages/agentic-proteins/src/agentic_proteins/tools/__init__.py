@@ -1,14 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime tool ownership."""
 
-"""Tools package exports."""
-
-from __future__ import annotations
-
-from agentic_proteins.tools.base import Tool
-from agentic_proteins.tools.heuristic import HeuristicStructureTool
-
-__all__ = [
-    "HeuristicStructureTool",
-    "Tool",
-]
+from bijux_proteomics_runtime.tools import *  # noqa: F401,F403

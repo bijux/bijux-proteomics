@@ -7,6 +7,14 @@ It owns runtime control surfaces (CLI, API, provider binding, replay,
 determinism, and runtime workspace/artifact lifecycle) while depending on lower
 packages for domain meaning.
 
+Runtime uses explicit adapter modules for lower-package contracts and keeps
+domain ownership in canonical lower layers:
+
+- `core`: biology, sequence, and structure semantics
+- `knowledge`: confidence, evidence, and trust semantics
+- `intelligence`: candidate scoring, ranking, and loop policy semantics
+- `lab`: experiment planning and outcome promotion semantics
+
 ## Package docs
 
 - [Architecture](../../packages/bijux-proteomics-runtime/docs/ARCHITECTURE.md)

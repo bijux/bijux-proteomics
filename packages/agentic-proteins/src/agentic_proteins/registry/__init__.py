@@ -1,4 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime registry ownership."""
 
-"""Registry package."""
+from bijux_proteomics_runtime.registry import *  # noqa: F401,F403

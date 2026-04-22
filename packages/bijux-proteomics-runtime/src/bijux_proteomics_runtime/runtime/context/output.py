@@ -10,7 +10,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field
 
 from agentic_proteins.agents.schemas import CoordinatorDecisionType
-from agentic_proteins.domain.metrics.quality import QCStatus
+from bijux_proteomics_runtime.runtime.adapters import QCStatus
 
 
 class RunStatus(StrEnum):
