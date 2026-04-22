@@ -6,7 +6,6 @@ from pathlib import Path
 import argparse
 import csv
 import io
-from typing import Any
 
 try:
     import tomllib
