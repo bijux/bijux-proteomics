@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass
 from pathlib import Path
-import ast
 import tomllib
 from typing import Any
 
@@ -96,15 +96,17 @@ def _allowlist(path: Path) -> set[str]:
 def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) -> bool:
     def _matches_target(module_name: str) -> bool:
         return any(
-            module_name == target_prefix
-            or module_name.startswith(f"{target_prefix}.")
+            module_name == target_prefix or module_name.startswith(f"{target_prefix}.")
             for target_prefix in target_prefixes
         )
 
     for node in tree.body:
-        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
-            if isinstance(node.value.value, str):
-                continue
+        if (
+            isinstance(node, ast.Expr)
+            and isinstance(node.value, ast.Constant)
+            and isinstance(node.value.value, str)
+        ):
+            continue
         if isinstance(node, ast.Assign):
             if any(
                 isinstance(target, ast.Name) and target.id == "__all__"
@@ -133,9 +135,13 @@ def check_agentic_compat_forwarding(policy: RuntimeBoundaryPolicy) -> list[str]:
     for path in iter_python_files(policy.compat_forwarding.package_root):
         if path.name == "__init__.py":
             continue
-        relative_path = path.relative_to(policy.compat_forwarding.package_root).as_posix()
+        relative_path = path.relative_to(
+            policy.compat_forwarding.package_root
+        ).as_posix()
         tree = parse_python_module(path).tree
-        if _is_forwarding_module(tree, policy.compat_forwarding.forwarding_target_prefixes):
+        if _is_forwarding_module(
+            tree, policy.compat_forwarding.forwarding_target_prefixes
+        ):
             continue
         if relative_path not in allowlist:
             failures.append(

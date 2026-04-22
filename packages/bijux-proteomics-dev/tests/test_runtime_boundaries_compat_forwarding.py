@@ -7,7 +7,6 @@ from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
     load_policy,
 )
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -25,7 +24,9 @@ def test_agentic_compat_allowlist_is_empty_in_strict_mode() -> None:
         for line in allowlist_path.read_text(encoding="utf-8").splitlines()
         if line.strip() and not line.strip().startswith("#")
     ]
-    assert not entries, "strict compat mode requires zero allowlisted non-forwarding modules"
+    assert not entries, (
+        "strict compat mode requires zero allowlisted non-forwarding modules"
+    )
 
 
 def test_agentic_compat_forwarders_use_module_paths_not_init_modules() -> None:

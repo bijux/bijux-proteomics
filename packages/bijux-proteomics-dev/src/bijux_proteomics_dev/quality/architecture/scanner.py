@@ -40,6 +40,5 @@ def top_level_class_names(tree: ast.Module) -> list[str]:
     return [
         node.name
         for node in tree.body
-        if isinstance(node, ast.ClassDef)
-        and not node.name.startswith("_")
+        if isinstance(node, ast.ClassDef) and not node.name.startswith("_")
     ]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 import csv
+from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MODULE_ROOT = REPO_ROOT / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
