@@ -31,13 +31,13 @@ flowchart TB
     surface1 --> page
     surface2["HTTP app in src/agentic_proteins/api/v1"]
     surface2 --> page
-    surface3["shared API schema in apis/agentic-proteins/v1"]
+    surface3["canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1"]
     surface3 --> page
-    proof1["apis/agentic-proteins/v1/schema.yaml"]
+    proof1["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof1
     proof2["execution store records"]
     page --> proof2
-    proof3["apis/agentic-proteins/v1/schema.yaml"]
+    proof3["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof3
     review1["tests/e2e for governed flow behavior"]
     review1 -.raises compatibility pressure on.-> page
@@ -53,7 +53,7 @@ flowchart TB
 
 ## Workflow Anchors
 
-- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, shared API schema in apis/agentic-proteins/v1
+- entry surfaces: CLI entrypoint in src/agentic_proteins/interfaces/cli.py, HTTP app in src/agentic_proteins/api/v1, canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
 - durable outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
 - validation backstops: tests/unit for api, contracts, core, interfaces, model, and runtime, tests/e2e for governed flow behavior
 
@@ -61,8 +61,8 @@ flowchart TB
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in apis/agentic-proteins/v1
-- apis/agentic-proteins/v1/schema.yaml
+- canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
 ## Use This Page When
 

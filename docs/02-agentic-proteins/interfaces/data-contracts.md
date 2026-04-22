@@ -28,7 +28,7 @@ flowchart RL
     classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
     classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["shared API schema in apis/agentic-proteins/v1"]
+    surface1["canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1"]
     surface1 --> page
     surface2["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     surface2 --> page
@@ -36,9 +36,9 @@ flowchart RL
     surface3 --> page
     proof1["execution store records"]
     page --> proof1
-    proof2["apis/agentic-proteins/v1/schema.yaml"]
+    proof2["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof2
-    proof3["apis/agentic-proteins/v1/schema.yaml"]
+    proof3["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof3
     review1["tests/e2e for governed flow behavior"]
     review1 -.raises compatibility pressure on.-> page
@@ -54,8 +54,8 @@ flowchart RL
 
 ## Contract Anchors
 
-- apis/agentic-proteins/v1/schema.yaml
-- apis/agentic-proteins/v1/schema.yaml
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
 ## Artifact Anchors
 
@@ -67,8 +67,8 @@ flowchart RL
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in apis/agentic-proteins/v1
-- apis/agentic-proteins/v1/schema.yaml
+- canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
 ## Use This Page When
 

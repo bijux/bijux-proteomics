@@ -32,13 +32,13 @@ flowchart TB
     surface1 --> page
     surface2["HTTP app in src/agentic_proteins/api/v1"]
     surface2 --> page
-    surface3["shared API schema in apis/agentic-proteins/v1"]
+    surface3["canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1"]
     surface3 --> page
-    proof1["apis/agentic-proteins/v1/schema.yaml"]
+    proof1["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof1
     proof2["execution store records"]
     page --> proof2
-    proof3["apis/agentic-proteins/v1/schema.yaml"]
+    proof3["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof3
     review1["tests/regression and tests/smoke for replay and storage protection"]
     review1 -.raises compatibility pressure on.-> page
@@ -54,21 +54,21 @@ flowchart TB
 
 ## API Artifacts
 
-- apis/agentic-proteins/v1/schema.yaml
-- apis/agentic-proteins/v1/schema.yaml
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
 ## Boundary Modules
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in apis/agentic-proteins/v1
+- canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
 
 ## Concrete Anchors
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/v1
-- shared API schema in apis/agentic-proteins/v1
-- apis/agentic-proteins/v1/schema.yaml
+- canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
 ## Use This Page When
 
