@@ -78,9 +78,6 @@ jobs:
           - package_slug: bijux-proteomics-core
             package_dir: packages/bijux-proteomics-core
             artifacts_dir: artifacts/bijux-proteomics-core
-          - package_slug: bijux-proteomics-runtime
-            package_dir: packages/bijux-proteomics-runtime
-            artifacts_dir: artifacts/bijux-proteomics-runtime
           - package_slug: bijux-proteomics-intelligence
             package_dir: packages/bijux-proteomics-intelligence
             artifacts_dir: artifacts/bijux-proteomics-intelligence
