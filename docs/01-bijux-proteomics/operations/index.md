@@ -24,6 +24,7 @@ mindmap
     Testing and Validation
     Release and Versioning
     API and Schema Governance
+    Runtime Migration Validation
     Contributor Workflows
     Automation Surfaces
     Artifact Governance
@@ -37,6 +38,7 @@ mindmap
 - [Testing and Validation](testing-and-validation.md)
 - [Release and Versioning](release-and-versioning.md)
 - [API and Schema Governance](api-and-schema-governance.md)
+- [Runtime Migration Validation](runtime-migration-validation.md)
 - [Contributor Workflows](contributor-workflows.md)
 - [Automation Surfaces](automation-surfaces.md)
 - [Artifact Governance](artifact-governance.md)
