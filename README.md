@@ -118,12 +118,14 @@ maintaining the workspace rather than for end-user installation.
 - `release-artifacts.yml` builds each package artifact bundle, then calls `release-pypi.yml`, `release-ghcr.yml`, and `release-github.yml`
 - `release-ghcr.yml` publishes one GHCR bundle per package and `release-github.yml` assembles the GitHub Release from staged assets
 - `release-pypi.yml` uses PyPI trusted publishing with the GitHub Actions OIDC token
+- coordinated release language must keep `bijux-proteomics-runtime` as canonical and `agentic-proteins` as compatibility
 
 Recommended release order:
 
 1. Update package `README.md`, `pyproject.toml`, and package `CHANGELOG.md`.
 2. Run `make lint test quality security`.
-3. Push the release tag (`vX.Y.Z`) and verify the release workflow split completes.
+3. Run `make quality-runtime-migration-validation`.
+4. Push the release tag (`vX.Y.Z`) and verify the release workflow split completes.
 
 ## Repository Boundaries
 
