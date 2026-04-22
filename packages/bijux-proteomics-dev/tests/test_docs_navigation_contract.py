@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 
 import pytest
 
@@ -118,7 +119,9 @@ class _RenderedNavigationParser(HTMLParser):
 
 @pytest.fixture(scope="session")
 def rendered_docs(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    site_dir = tmp_path_factory.mktemp("docs-site")
+    artifacts_root = REPO_ROOT / "artifacts" / "bijux-proteomics-dev" / "test"
+    artifacts_root.mkdir(parents=True, exist_ok=True)
+    site_dir = Path(tempfile.mkdtemp(prefix="docs-site-", dir=artifacts_root))
     subprocess.run(
         [
             sys.executable,
@@ -283,6 +286,7 @@ def test_repository_operations_leaf_pages_keep_section_sidebar(
         "Testing and Validation",
         "Release and Versioning",
         "API and Schema Governance",
+        "Runtime Migration Validation",
         "Contributor Workflows",
         "Automation Surfaces",
         "Artifact Governance",

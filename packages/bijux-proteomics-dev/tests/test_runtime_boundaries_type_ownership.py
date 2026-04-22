@@ -7,7 +7,6 @@ from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
     load_policy,
 )
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 

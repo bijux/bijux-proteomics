@@ -4,7 +4,6 @@ from pathlib import Path
 
 from bijux_proteomics_dev.quality.architecture.runtime_boundaries import run
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 

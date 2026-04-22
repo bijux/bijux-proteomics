@@ -98,7 +98,7 @@ def test_repository_handbook_layout_is_sectioned() -> None:
     assert section_dirs == ["foundation", "operations"]
     assert section_counts == {
         "foundation": 10,
-        "operations": 10,
+        "operations": 11,
     }
 
 

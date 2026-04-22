@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from fnmatch import fnmatch
-from pathlib import Path
 import argparse
 import csv
+from dataclasses import dataclass
+from fnmatch import fnmatch
 import io
+from pathlib import Path
+import tomllib
 
-try:
-    import tomllib
-except ModuleNotFoundError:  # pragma: no cover
-    import tomli as tomllib
 
 def _repo_root() -> Path:
     current = Path(__file__).resolve()
@@ -22,7 +19,9 @@ def _repo_root() -> Path:
 
 REPO_ROOT = _repo_root()
 MODULE_ROOT = REPO_ROOT / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
-RULES_PATH = REPO_ROOT / "configs" / "runtime-boundaries" / "migration-ledger" / "rules.toml"
+RULES_PATH = (
+    REPO_ROOT / "configs" / "runtime-boundaries" / "migration-ledger" / "rules.toml"
+)
 LEDGER_CSV_PATH = (
     REPO_ROOT
     / "docs"
@@ -109,7 +108,9 @@ def write_ledger(rows: list[LedgerRow]) -> None:
         writer = csv.writer(handle)
         writer.writerow(["module_path", "bucket", "owner_package", "reason"])
         for row in rows:
-            writer.writerow([row.module_path, row.bucket, row.owner_package, row.reason])
+            writer.writerow(
+                [row.module_path, row.bucket, row.owner_package, row.reason]
+            )
 
 
 def _bucket_counts(rows: list[LedgerRow]) -> dict[str, int]:
