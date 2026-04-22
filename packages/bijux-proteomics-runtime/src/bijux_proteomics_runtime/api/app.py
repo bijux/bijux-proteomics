@@ -26,6 +26,7 @@ from bijux_proteomics_runtime.api.v1.router import router as v1_router
 from bijux_proteomics_runtime.api.v1.schema import ApiEnvelope
 from bijux_proteomics_runtime.providers import provider_metadata
 from bijux_proteomics_runtime.providers.factory import provider_requirements
+from bijux_proteomics_runtime.runtime_identity import runtime_banner
 
 
 @dataclass(frozen=True)
@@ -120,7 +121,7 @@ def create_app(config: AppConfig) -> FastAPI:
     @app.get("/api/v1/health", tags=["health"], response_model=ApiEnvelope)
     def health() -> dict[str, str]:
         """health."""
-        return ok_envelope({"status": "ok"})
+        return ok_envelope({"status": "ok", "runtime": runtime_banner()})
 
     @app.get("/ready", tags=["health"], response_model=ApiEnvelope)
     @app.get("/api/v1/ready", tags=["health"], response_model=ApiEnvelope)
@@ -136,7 +137,13 @@ def create_app(config: AppConfig) -> FastAPI:
         except Exception as exc:  # noqa: BLE001
             providers = {"error": {"detail": str(exc)}}
             status_value = "degraded"
-        return ok_envelope({"status": status_value, "providers": providers})
+        return ok_envelope(
+            {
+                "status": status_value,
+                "runtime": runtime_banner(),
+                "providers": providers,
+            }
+        )
 
     app.include_router(v1_router, prefix="/api/v1")
     return app
