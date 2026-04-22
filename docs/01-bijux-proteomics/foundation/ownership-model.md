@@ -34,8 +34,9 @@ flowchart TB
 
 ## Ownership Layers
 
-- product behavior belongs in `packages/agentic-proteins` and
-  `packages/bijux-proteomics-*`
+- canonical runtime behavior belongs in `packages/bijux-proteomics-runtime`
+- compatibility forwarding behavior belongs in `packages/agentic-proteins`
+- domain behavior belongs in `packages/bijux-proteomics-*` lower-layer packages
 - shared governance belongs in the repository handbook and root automation
 - maintainer automation belongs in `packages/bijux-proteomics-dev` and the
   maintenance handbook

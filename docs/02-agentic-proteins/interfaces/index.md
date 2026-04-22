@@ -27,13 +27,13 @@ flowchart LR
     classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
     surface1["HTTP app in src/agentic_proteins/api/app.py"]
     surface1 --> page
-    surface2["shared API schema in apis/agentic-proteins/v1"]
+    surface2["canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1"]
     surface2 --> page
     surface3["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
     surface3 --> page
-    proof1["apis/agentic-proteins/v1/schema.yaml"]
+    proof1["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof1
-    proof2["apis/agentic-proteins/v1/schema.yaml"]
+    proof2["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
     page --> proof2
     proof3["execution store records"]
     page --> proof3
@@ -72,8 +72,8 @@ flowchart LR
 
 - CLI entrypoint in src/agentic_proteins/interfaces/cli.py
 - HTTP app in src/agentic_proteins/api/app.py
-- shared API schema in apis/agentic-proteins/v1
-- apis/agentic-proteins/v1/schema.yaml
+- canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
+- apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
 ## Use This Page When
 
