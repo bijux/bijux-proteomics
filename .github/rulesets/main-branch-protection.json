@@ -33,13 +33,16 @@
         "strict_required_status_checks_policy": true,
         "required_status_checks": [
           {
-            "context": "checks (standard)"
+            "context": "std / standard"
           },
           {
-            "context": "checks (report)"
+            "context": "std / report"
           }
         ]
       }
+    },
+    {
+      "type": "merge_queue"
     }
   ],
   "bypass_actors": [
