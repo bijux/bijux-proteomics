@@ -68,7 +68,7 @@ class LocalRoseTTAFoldProvider(BaseProvider):
                     return False
 
                 subprocess.run(  # noqa: S603  # nosec B603
-                    [docker_bin, "image", "inspect", self.docker_image],  # type: ignore[list-item]
+                    [docker_bin, "image", "inspect", self.docker_image],
                     capture_output=True,
                     check=True,
                     timeout=5,
@@ -76,7 +76,7 @@ class LocalRoseTTAFoldProvider(BaseProvider):
                 # Check GPU visibility
                 subprocess.run(  # noqa: S603  # nosec B603
                     [
-                        docker_bin,  # type: ignore[list-item]
+                        docker_bin,
                         "run",
                         "--rm",
                         "--gpus",
@@ -93,7 +93,7 @@ class LocalRoseTTAFoldProvider(BaseProvider):
                 # Check writable /workspace
                 with tempfile.TemporaryDirectory() as temp_dir:
                     test_cmd = [
-                        docker_bin,  # type: ignore[list-item]
+                        docker_bin,
                         "run",
                         "--rm",
                         "-v",

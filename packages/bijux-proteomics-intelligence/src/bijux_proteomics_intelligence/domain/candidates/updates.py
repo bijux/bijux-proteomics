@@ -6,7 +6,11 @@
 from __future__ import annotations
 
 from typing import Protocol
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate, CandidateStructure
+
+from bijux_proteomics_intelligence.domain.candidates.schema import (
+    Candidate,
+    CandidateStructure,
+)
 
 
 class InvocationInputLike(Protocol):

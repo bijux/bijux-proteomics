@@ -8,7 +8,6 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from enum import StrEnum
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.assays import AssayRequirement
@@ -20,6 +19,7 @@ from bijux_proteomics.operating_model import OperatingModel
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.sequences import ProteinSequence
 from bijux_proteomics.targets import ProteinTarget
+from bijux_proteomics_foundation import DocumentSchema, JsonModel, ProgramId
 
 
 class EvidenceNeed(StrEnum):

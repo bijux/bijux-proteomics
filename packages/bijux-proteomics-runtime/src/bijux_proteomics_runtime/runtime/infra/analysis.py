@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
 
@@ -25,12 +26,12 @@ class ToolStats:
 class RunAnalysis:
     """RunAnalysis."""
 
-    candidate_timeline: dict[str, list[dict]] = field(default_factory=dict)
+    candidate_timeline: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     tool_stats: dict[str, ToolStats] = field(default_factory=dict)
-    iteration_deltas: list[dict] = field(default_factory=list)
+    iteration_deltas: list[dict[str, Any]] = field(default_factory=list)
 
     def record_candidate_event(
-        self, candidate_id: str, event: str, payload: dict | None = None
+        self, candidate_id: str, event: str, payload: dict[str, Any] | None = None
     ) -> None:
         """record_candidate_event."""
         entry = {

@@ -7,13 +7,14 @@ import importlib
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from agentic_proteins.core.failures import FailureType
 from agentic_proteins.runtime import RunManager
 from agentic_proteins.runtime.context import RunStatus
 from agentic_proteins.runtime.infra import RunConfig
 from agentic_proteins.tools.base import Tool
 from agentic_proteins.tools.schemas import InvocationInput, ToolError, ToolResult
-import pytest
 
 
 class TimeoutTool(Tool):

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -98,7 +99,7 @@ class Plan(BaseModel):
         payload = json.dumps(normalized, sort_keys=True, separators=(",", ":"))
         return sha256_hex(payload)
 
-    def explain(self) -> dict:
+    def explain(self) -> dict[str, Any]:
         """explain."""
         tasks_list = [
             {

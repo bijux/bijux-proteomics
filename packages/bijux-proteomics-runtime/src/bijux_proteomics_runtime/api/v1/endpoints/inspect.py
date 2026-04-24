@@ -8,6 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
+from fastapi import APIRouter, Depends, Request
+
 from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import raise_http_error
 from bijux_proteomics_runtime.api.v1.schema import (
@@ -16,9 +18,11 @@ from bijux_proteomics_runtime.api.v1.schema import (
     ErrorResponse,
     InspectResponse,
 )
-from bijux_proteomics_runtime.interfaces.cli import _inspect_candidate, _load_run_summary
+from bijux_proteomics_runtime.interfaces.cli import (
+    _inspect_candidate,
+    _load_run_summary,
+)
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
-from fastapi import APIRouter, Depends, Request
 
 router = APIRouter()
 

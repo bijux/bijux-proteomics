@@ -6,9 +6,10 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any, cast
 
+import pytest
+
 from agentic_proteins.providers import factory
 from agentic_proteins.providers.errors import PredictionError
-import pytest
 
 
 def test_provider_requirements_openprotein_missing_env(

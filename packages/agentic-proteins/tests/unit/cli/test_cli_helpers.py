@@ -8,11 +8,12 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
 
+from click.testing import CliRunner
+import pytest
+
 from agentic_proteins.interfaces import cli as cli_module
 from agentic_proteins.interfaces.cli import cli
 from agentic_proteins.runtime.infra import RunConfig
-from click.testing import CliRunner
-import pytest
 
 
 def test_read_sequence_from_fasta(tmp_path: Path) -> None:

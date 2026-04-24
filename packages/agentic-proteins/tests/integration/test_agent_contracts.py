@@ -11,6 +11,8 @@ import sys
 from typing import Any
 from unittest.mock import patch
 
+import pytest
+
 from agentic_proteins.agents.planning.schemas import PlanDecision
 from agentic_proteins.agents.schemas import (
     CoordinatorAgentOutput,
@@ -24,7 +26,6 @@ from agentic_proteins.agents.schemas import (
 from agentic_proteins.core.decisions import Decision
 from agentic_proteins.registry.agents import AgentRegistry
 from agentic_proteins.validation.agents import ALLOWED_TOOL_NAMESPACE, validate_agent
-import pytest
 from tests.helpers.paths import package_tests_root, repo_root
 
 AGENT_MODULES = [

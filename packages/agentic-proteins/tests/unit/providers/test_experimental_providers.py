@@ -8,11 +8,12 @@ import sys
 from types import SimpleNamespace
 from typing import Any, cast
 
+import pytest
+from requests.exceptions import RequestException
+
 from agentic_proteins.providers.errors import PredictionError
 from agentic_proteins.providers.experimental import _async_utils, colabfold
 from agentic_proteins.providers.experimental.openprotein import APIOpenProteinProvider
-import pytest
-from requests.exceptions import RequestException
 
 ASYNC_UTILS = cast(Any, _async_utils)
 COLABFOLD = cast(Any, colabfold)

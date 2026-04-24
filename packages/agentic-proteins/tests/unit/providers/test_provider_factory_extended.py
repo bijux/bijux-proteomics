@@ -7,10 +7,11 @@ import sys
 import types
 from typing import Any, cast
 
+import pytest
+
 from agentic_proteins.providers import factory as factory_module
 from agentic_proteins.providers.errors import PredictionError
 from agentic_proteins.providers.heuristic import HeuristicStructureProvider
-import pytest
 
 
 def _install_module(name: str, **attrs: object) -> None:

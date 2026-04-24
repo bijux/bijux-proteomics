@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.runtime.context.context import RunContext, create_run_context
+from bijux_proteomics_runtime.runtime.context.context import (
+    RunContext,
+    create_run_context,
+)
 from bijux_proteomics_runtime.runtime.context.lifecycle import RunLifecycleState
 from bijux_proteomics_runtime.runtime.context.output import (
     ErrorDetail,

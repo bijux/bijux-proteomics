@@ -11,6 +11,8 @@ import sys
 import time
 from typing import Any, cast
 
+import pytest
+
 from agentic_proteins.core.fingerprints import hash_payload
 from agentic_proteins.domain.structure.structure import kabsch_and_pairs, tm_score
 from agentic_proteins.providers.factory import (
@@ -18,8 +20,6 @@ from agentic_proteins.providers.factory import (
     cuda_available,
     provider_requirements,
 )
-import pytest
-
 from tests.helpers.artifacts import assert_valid_run_artifacts
 
 REAL_CASES = [

@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import random
 
+import pytest
+
 from agentic_proteins.biology.pathway import (
     ExecutionMode,
     PathwayContract,
@@ -24,7 +26,6 @@ from agentic_proteins.biology.regulator import (
     Proposal,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalType
-import pytest
 
 
 def _constraints() -> ProteinConstraints:

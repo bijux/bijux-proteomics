@@ -57,11 +57,13 @@ def primary_summary_from_sequence(sequence: str) -> PrimarySummary:
     n = len(sequence)
     if n == 0:
         return PrimarySummary(length=0)
-    aa_composition = {}
+    aa_counts: dict[str, int] = {}
     for aa in sequence:
-        aa_composition[aa] = aa_composition.get(aa, 0) + 1
-    aa_composition = {k: 100.0 * v / n for k, v in aa_composition.items()}
-    gravy = np.mean([HYDROPATHY.get(aa, 0.0) for aa in sequence])
+        aa_counts[aa] = aa_counts.get(aa, 0) + 1
+    aa_composition: dict[str, float] = {
+        key: 100.0 * count / n for key, count in aa_counts.items()
+    }
+    gravy = float(np.mean([HYDROPATHY.get(aa, 0.0) for aa in sequence]))
     # Simple pI approximation (average pKa)
     pos = sum(sequence.count(aa) for aa in "KRH")
     neg = sum(sequence.count(aa) for aa in "DEC")

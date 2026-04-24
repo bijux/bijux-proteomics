@@ -6,21 +6,22 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.domain.metrics.quality import (
+    MetricValue,
+    QCStatus,
+    ToolReliability,
+)
 from bijux_proteomics_runtime.agents.planning.schemas import PlanDecision
 from bijux_proteomics_runtime.core.decisions import Decision, DecisionExplanation
 from bijux_proteomics_runtime.core.observations import (
     EvaluationInput,
     Observation,
     ReplanningTrigger,
-)
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
-from bijux_proteomics_intelligence.domain.metrics.quality import (
-    MetricValue,
-    QCStatus,
-    ToolReliability,
 )
 from bijux_proteomics_runtime.memory.schemas import MemoryScope
 
@@ -377,7 +378,9 @@ class ReportingAgentOutput(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    summary: dict = Field(default_factory=dict, description="Summary report payload.")
+    summary: dict[str, Any] = Field(
+        default_factory=dict, description="Summary report payload."
+    )
     confidence_statement: str = Field(
         "", description="Structured confidence statement."
     )

@@ -3,10 +3,11 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agentic_proteins.core.execution import ExecutionGraph, ExecutionTask
 from agentic_proteins.core.tooling import ToolInvocationSpec
 from agentic_proteins.validation import state as state_module
-import pytest
 
 
 def _task(task_id: str) -> ExecutionTask:

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Protocol
 
 
@@ -13,10 +14,11 @@ class InvocationInputLike(Protocol):
 
     name: str
 
+
 REQUIRED_STRUCTURE_METRICS = {"sequence_length", "mean_plddt", "helix_pct", "sheet_pct"}
 
 
-def validate_structure_metrics(outputs: list[InvocationInputLike]) -> bool:
+def validate_structure_metrics(outputs: Sequence[InvocationInputLike]) -> bool:
     """validate_structure_metrics."""
     available = {item.name for item in outputs}
     return REQUIRED_STRUCTURE_METRICS.issubset(available)

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import asdict
-from dataclasses import is_dataclass
+from dataclasses import asdict, is_dataclass
 from pathlib import Path
+from typing import Any, cast
 
 from click.testing import CliRunner
 
@@ -16,11 +16,11 @@ from bijux_proteomics_runtime.interfaces.cli import cli as runtime_cli
 
 def _config_payload(config: object) -> dict[str, object]:
     if is_dataclass(config):
-        return asdict(config)
+        return cast(dict[str, object], asdict(cast(Any, config)))
     if hasattr(config, "model_dump"):
-        return getattr(config, "model_dump")()
+        return cast(dict[str, object], cast(Any, config).model_dump())
     if hasattr(config, "dict"):
-        return getattr(config, "dict")()
+        return cast(dict[str, object], cast(Any, config).dict())
     raise TypeError(f"Unsupported config model type: {type(config)!r}")
 
 
@@ -45,4 +45,6 @@ def test_compat_and_runtime_api_factory_are_equivalent() -> None:
     compat_app = compat_create_app(compat_config)
     runtime_app = runtime_create_app(runtime_config)
     assert compat_app.title == runtime_app.title
-    assert [route.path for route in compat_app.routes] == [route.path for route in runtime_app.routes]
+    assert [getattr(route, "path", "") for route in compat_app.routes] == [
+        getattr(route, "path", "") for route in runtime_app.routes
+    ]

@@ -33,12 +33,12 @@ class InputValidationAgent(AgentRole):
     write_scopes: ClassVar[set[MemoryScope]] = {MemoryScope.SESSION}
 
     @classmethod
-    def input_schema(cls) -> dict:
+    def input_schema(cls) -> dict[str, object]:
         """input_schema."""
         return InputValidationAgentInput.model_json_schema()
 
     @classmethod
-    def output_schema(cls) -> dict:
+    def output_schema(cls) -> dict[str, object]:
         """output_schema."""
         return InputValidationAgentOutput.model_json_schema()
 

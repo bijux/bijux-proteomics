@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Protocol, get_args, get_origin
+from typing import Any, Protocol, cast, get_args, get_origin
 
 from pydantic import BaseModel
 
@@ -38,7 +38,7 @@ class _AgentRoleLike(Protocol):
     latency_budget_ms: int
     read_scopes: set[MemoryScope]
     write_scopes: set[MemoryScope]
-    input_model: object
+    input_model: type[BaseModel]
 
 
 class _CriticInputLike(Protocol):
@@ -48,32 +48,33 @@ class _CriticInputLike(Protocol):
     target_agent_name: str
 
 
-def validate_agent(agent: type[_AgentRoleLike]) -> None:
+def validate_agent(agent: type[Any]) -> None:
     """validate_agent."""
-    if not agent.capabilities:
+    role = cast(type[_AgentRoleLike], agent)
+    if not role.capabilities:
         raise ValueError("Agent capabilities must not be empty.")
-    if not agent.allowed_tools.issubset(ALLOWED_TOOL_NAMESPACE):
-        invalid = agent.allowed_tools - ALLOWED_TOOL_NAMESPACE
+    if not role.allowed_tools.issubset(ALLOWED_TOOL_NAMESPACE):
+        invalid = role.allowed_tools - ALLOWED_TOOL_NAMESPACE
         raise ValueError(
             f"Agent uses tools outside registry namespace: {sorted(invalid)}"
         )
-    if agent.cost_budget <= 0:
+    if role.cost_budget <= 0:
         raise ValueError("Agent cost budget must be > 0.")
-    if agent.latency_budget_ms <= 0:
+    if role.latency_budget_ms <= 0:
         raise ValueError("Agent latency budget must be > 0.")
-    if not agent.read_scopes.issubset(set(MemoryScope)):
+    if not role.read_scopes.issubset(set(MemoryScope)):
         raise ValueError("Agent read scopes must be valid MemoryScope values.")
-    if not agent.write_scopes.issubset(set(MemoryScope)):
+    if not role.write_scopes.issubset(set(MemoryScope)):
         raise ValueError("Agent write scopes must be valid MemoryScope values.")
-    if agent.name == "critic" and MemoryScope.PERSISTENT in agent.write_scopes:
+    if role.name == "critic" and MemoryScope.PERSISTENT in role.write_scopes:
         raise ValueError("Critic agents may not write persistent memory.")
-    payload = _minimal_payload(agent.input_model)
-    agent.input_model.model_validate(payload)
+    payload = _minimal_payload(role.input_model)
+    role.input_model.model_validate(payload)
 
 
-def _minimal_payload(model: type[BaseModel]) -> dict:
+def _minimal_payload(model: type[BaseModel]) -> dict[str, object]:
     """_minimal_payload."""
-    payload: dict = {}
+    payload: dict[str, object] = {}
     for name, field in model.model_fields.items():
         if not field.is_required():
             continue

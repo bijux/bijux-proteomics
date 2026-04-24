@@ -9,10 +9,16 @@ import io
 import os
 import shutil
 import tempfile
+from typing import Any, cast
 
 from Bio.Align import PairwiseAligner
 from Bio.Align.substitution_matrices import load as load_subst
-from Bio.PDB import DSSP, PDBIO, PDBParser, Polypeptide, Structure, Superimposer
+from Bio.PDB.DSSP import DSSP
+from Bio.PDB.PDBIO import PDBIO
+from Bio.PDB.PDBParser import PDBParser
+from Bio.PDB.Polypeptide import Polypeptide
+from Bio.PDB.Structure import Structure
+from Bio.PDB.Superimposer import Superimposer
 from Bio.SeqUtils import seq1
 from loguru import logger
 import numpy as np
@@ -27,20 +33,37 @@ _RES3_CUSTOM = {
 }
 
 
+def _seq1_safe(resname: str, *, custom_map: dict[str, str] | None = None) -> str:
+    return cast(
+        str,
+        seq1(resname, custom_map=custom_map or {}),  # type: ignore[no-untyped-call]
+    )
+
+
+def _is_aa_safe(residue: Any, *, standard: bool = True) -> bool:
+    return cast(
+        bool,
+        Polypeptide.is_aa(residue, standard=standard),  # type: ignore[attr-defined]
+    )
+
+
 def _res3_to1(resname: str) -> str:
     """Convert a 3-letter residue to 1-letter; return 'X' on failure."""
     name = (resname or "").strip().upper()
     try:
-        return seq1(name, custom_map=_RES3_CUSTOM)
+        return _seq1_safe(name, custom_map=_RES3_CUSTOM)
     except Exception:
         return "X"
 
 
 def load_structure_from_pdb_text(pdb_text: str) -> Structure:
     """Loads a protein structure from PDB text."""
-    parser = PDBParser(QUIET=True)
+    parser = PDBParser(QUIET=True)  # type: ignore[no-untyped-call]
     handle = io.StringIO(pdb_text)
-    return parser.get_structure("pred", handle)
+    return cast(
+        Structure,
+        parser.get_structure("pred", handle),  # type: ignore[no-untyped-call]
+    )
 
 
 def residue_count(structure: Structure) -> int:
@@ -52,9 +75,8 @@ def residue_count(structure: Structure) -> int:
     Returns:
         The count of standard amino acid residues.
     """
-    return sum(
-        1 for r in structure.get_residues() if Polypeptide.is_aa(r, standard=True)
-    )
+    residues = [r for r in structure.get_residues() if _is_aa_safe(r, standard=True)]  # type: ignore[no-untyped-call]
+    return len(residues)
 
 
 def mean_plddt_from_ca_bfactor(structure: Structure) -> float:
@@ -67,8 +89,8 @@ def mean_plddt_from_ca_bfactor(structure: Structure) -> float:
         The mean pLDDT value, or NaN if no B-factors found.
     """
     b = []
-    for res in structure.get_residues():
-        if Polypeptide.is_aa(res, standard=True) and res.has_id("CA"):
+    for res in structure.get_residues():  # type: ignore[no-untyped-call]
+        if _is_aa_safe(res, standard=True) and res.has_id("CA"):
             ca = res["CA"]
             bf = ca.get_bfactor()
             if bf is not None:
@@ -87,9 +109,7 @@ def per_residue_plddt_ss(
     Returns:
         Tuple of (plddts, secondary structures, amino acids).
     """
-    residues = [
-        r for r in structure.get_residues() if Polypeptide.is_aa(r, standard=True)
-    ]
+    residues = [r for r in structure.get_residues() if _is_aa_safe(r, standard=True)]  # type: ignore[no-untyped-call]
 
     residues = [r for r in residues if getattr(r, "id", ("",))[0] == " "]
     amino_acids = [_res3_to1(r.get_resname()) for r in residues]
@@ -111,11 +131,11 @@ def per_residue_plddt_ss(
             raise RuntimeError("mkdssp not found on PATH")
         with tempfile.TemporaryDirectory() as tmpd:
             p = os.path.join(tmpd, "model.pdb")
-            io_writer = PDBIO()
-            io_writer.set_structure(structure)
-            io_writer.save(p)
+            io_writer = PDBIO()  # type: ignore[no-untyped-call]
+            io_writer.set_structure(structure)  # type: ignore[no-untyped-call]
+            io_writer.save(p)  # type: ignore[no-untyped-call]
             model = structure[0]
-            dssp = DSSP(model, p, dssp="mkdssp")
+            dssp = DSSP(model, p, dssp="mkdssp")  # type: ignore[no-untyped-call]
 
             ss_map = {}
             for (chain_id, res_id), props in dssp.property_dict.items():
@@ -127,7 +147,7 @@ def per_residue_plddt_ss(
             idx = 0
             for ch in model:
                 for r in ch:
-                    if Polypeptide.is_aa(r, standard=True):
+                    if _is_aa_safe(r, standard=True):
                         key = (ch.id, r.id[1], (r.id[2] or " ").strip())
                         sss[idx] = ss_map.get(key, "C")
                         idx += 1
@@ -150,7 +170,7 @@ def secondary_summary_from_structure(structure: Structure) -> SecondarySummary:
     n = len(sss)
     if n == 0:
         return SecondarySummary()
-    ss8_counts = {}
+    ss8_counts: dict[str, int] = {}
     helix = sheet = coil = 0
     for s in sss:
         ss8_counts[s] = ss8_counts.get(s, 0) + 1
@@ -181,7 +201,7 @@ def tertiary_summary_from_structure(
     Returns:
         TertiarySummary object.
     """
-    mean_plddt = np.mean(plddts)
+    mean_plddt = float(np.mean(plddts))
     # Bands
     bands = {"≥90": 0, "70–90": 0, "50–70": 0, "<50": 0}
     for p in plddts:
@@ -229,9 +249,7 @@ def tertiary_summary_from_structure(
     )
 
 
-def get_protein_chain(
-    structure: Structure, chain_id: str | None = None
-) -> Structure.Child:
+def get_protein_chain(structure: Structure, chain_id: str | None = None) -> Any:
     """Selects a protein chain from the structure.
 
     Args:
@@ -250,12 +268,12 @@ def get_protein_chain(
             return model[chain_id]
         raise ValueError(f"Chain {chain_id} not found")
     for chain in model:
-        if any(Polypeptide.is_aa(res, standard=True) for res in chain):
+        if any(_is_aa_safe(res, standard=True) for res in chain):
             return chain
     raise ValueError("No protein chain found")
 
 
-def best_ca(res):
+def best_ca(res: Any) -> Any | None:
     """Selects the best CA atom from a residue based on occupancy and altloc.
 
     Args:
@@ -291,24 +309,24 @@ def kabsch_and_pairs(
     Raises:
         ValueError: On alignment failure or insufficient pairs.
     """
-    parser = PDBParser(QUIET=True)
-    s_pred = parser.get_structure("pred", io.StringIO(pdb_pred_text))
-    s_ref = parser.get_structure("ref", io.StringIO(pdb_ref_text))
+    parser = PDBParser(QUIET=True)  # type: ignore[no-untyped-call]
+    s_pred = parser.get_structure("pred", io.StringIO(pdb_pred_text))  # type: ignore[no-untyped-call]
+    s_ref = parser.get_structure("ref", io.StringIO(pdb_ref_text))  # type: ignore[no-untyped-call]
     chain_pred = get_protein_chain(s_pred, pred_chain)
     chain_ref = get_protein_chain(s_ref, ref_chain)
-    pred_residues = [r for r in chain_pred if Polypeptide.is_aa(r, standard=True)]
-    ref_residues = [r for r in chain_ref if Polypeptide.is_aa(r, standard=True)]
-    seq_pred = "".join(seq1(r.get_resname()) for r in pred_residues)
-    seq_ref = "".join(seq1(r.get_resname()) for r in ref_residues)
+    pred_residues = [r for r in chain_pred if _is_aa_safe(r, standard=True)]
+    ref_residues = [r for r in chain_ref if _is_aa_safe(r, standard=True)]
+    seq_pred = "".join(_seq1_safe(r.get_resname()) for r in pred_residues)
+    seq_ref = "".join(_seq1_safe(r.get_resname()) for r in ref_residues)
     # Local alignment for flexible proteins
-    aligner = PairwiseAligner()
+    aligner = PairwiseAligner()  # type: ignore[no-untyped-call]
     aligner.mode = "local"
-    aligner.substitution_matrix = load_subst("BLOSUM62")
+    aligner.substitution_matrix = load_subst("BLOSUM62")  # type: ignore[no-untyped-call]
     aligner.open_gap_score = -8.0
     aligner.extend_gap_score = -0.2
     aligner.target_internal_open_gap_score = -8.0
     aligner.query_internal_open_gap_score = -8.0
-    alignments = aligner.align(seq_pred, seq_ref)
+    alignments = aligner.align(seq_pred, seq_ref)  # type: ignore[no-untyped-call]
     if not alignments:
         raise ValueError("No alignment possible")
     alignment = alignments[0]
@@ -340,23 +358,25 @@ def kabsch_and_pairs(
     if n_pairs < 3:
         raise ValueError(f"Insufficient CA pairs: {n_pairs}")
     # Superimpose
-    sup = Superimposer()
+    sup = Superimposer()  # type: ignore[no-untyped-call]
     ref_atoms = [a for a, _ in ca_pairs]
     pred_atoms = [a for _, a in ca_pairs]
-    sup.set_atoms(ref_atoms, pred_atoms)
-    rmsd = sup.rms
+    sup.set_atoms(ref_atoms, pred_atoms)  # type: ignore[no-untyped-call]
+    rmsd = float(sup.rms or 0.0)
     # Coords: Original for ref, transformed for pred (no extra centering—Superimposer handles it)
     ref_arr = np.array([a.get_coord() for a, _ in ca_pairs])
     pred_arr_orig = np.array([a.get_coord() for _, a in ca_pairs])
-    rotation = sup.rotran[0]
-    translation = sup.rotran[1]
+    rotran = cast(tuple[np.ndarray, np.ndarray] | None, sup.rotran)
+    if rotran is None:
+        raise ValueError("Superimposer did not produce a rigid transform.")
+    rotation, translation = rotran
     pred_arr_aligned = np.dot(pred_arr_orig, rotation) + translation
     return rmsd, n_pairs, ref_arr, pred_arr_aligned, seq_id, gap_frac
 
 
 def _pairwise_dist(p_coords: np.ndarray, q_coords: np.ndarray) -> np.ndarray:
     """Computes pairwise Euclidean distances between coordinate arrays."""
-    return np.linalg.norm(p_coords - q_coords, axis=1)
+    return cast(np.ndarray, np.linalg.norm(p_coords - q_coords, axis=1))
 
 
 def gdt_ts(ref_coords: np.ndarray, pred_coords: np.ndarray) -> float:
@@ -368,7 +388,7 @@ def gdt_ts(ref_coords: np.ndarray, pred_coords: np.ndarray) -> float:
     if n_total == 0:
         return 0.0
     fractions = [(d <= t).sum() / n_total for t in (1.0, 2.0, 4.0, 8.0)]
-    return 100.0 * np.mean(fractions)
+    return float(100.0 * np.mean(fractions))
 
 
 def gdt_ha(ref_coords: np.ndarray, pred_coords: np.ndarray) -> float:
@@ -378,7 +398,7 @@ def gdt_ha(ref_coords: np.ndarray, pred_coords: np.ndarray) -> float:
     if n_total == 0:
         return 0.0
     fractions = [(d <= t).sum() / n_total for t in (0.5, 1.0, 2.0, 4.0)]
-    return 100.0 * np.mean(fractions)
+    return float(100.0 * np.mean(fractions))
 
 
 def tm_score(

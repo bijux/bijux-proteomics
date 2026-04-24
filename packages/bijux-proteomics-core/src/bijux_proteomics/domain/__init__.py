@@ -24,7 +24,11 @@ from bijux_proteomics.domain.structure import (
     tertiary_summary_from_structure,
     tm_score,
 )
-from bijux_proteomics.domain.summary import PrimarySummary, SecondarySummary, TertiarySummary
+from bijux_proteomics.domain.summary import (
+    PrimarySummary,
+    SecondarySummary,
+    TertiarySummary,
+)
 
 __all__ = [
     "HYDROPATHY",
