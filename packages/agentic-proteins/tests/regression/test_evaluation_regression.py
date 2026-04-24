@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 from time import perf_counter
 
+import pytest
+
 from agentic_proteins.agents.analysis.failure_analysis import FailureAnalysisAgent
 from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
 from agentic_proteins.agents.planning.planner import PlannerAgent
@@ -27,7 +29,6 @@ from agentic_proteins.tools.schemas import (
     ToolContract,
     ToolDeterminism,
 )
-import pytest
 
 
 def register_agents() -> None:

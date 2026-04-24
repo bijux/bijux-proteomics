@@ -6,11 +6,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from fastapi.testclient import TestClient
+import pytest
+
 from agentic_proteins.api import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import inspect as inspect_endpoint
 from agentic_proteins.domain.candidates.schema import Candidate
-from fastapi.testclient import TestClient
-import pytest
 
 pytestmark = pytest.mark.api
 

@@ -3,6 +3,8 @@ from __future__ import annotations
 from collections.abc import Iterator
 import time
 
+import pytest
+
 from agentic_proteins.core.execution import ExecutionTask
 from agentic_proteins.core.tooling import (
     InvocationInput,
@@ -12,7 +14,6 @@ from agentic_proteins.core.tooling import (
 from agentic_proteins.execution.compiler.boundary import ToolBoundary, evaluate_failure
 from agentic_proteins.execution.runtime.executor import LocalExecutor
 from agentic_proteins.tools.base import Tool
-import pytest
 
 
 class _DummyTool(Tool):

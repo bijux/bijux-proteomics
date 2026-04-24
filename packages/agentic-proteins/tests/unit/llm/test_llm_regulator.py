@@ -7,6 +7,8 @@ from collections.abc import Sequence
 import random
 from typing import Any
 
+import pytest
+
 from agentic_proteins.biology.pathway import PathwayContract, PathwayExecutor
 from agentic_proteins.biology.protein_agent import (
     ProteinAgent,
@@ -22,7 +24,6 @@ from agentic_proteins.biology.regulator import (
     Proposal,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalType
-import pytest
 
 
 def _constraints() -> ProteinConstraints:

@@ -7,10 +7,11 @@ from copy import deepcopy
 import json
 from typing import Any, cast
 
-import agentic_proteins.report as R
-import agentic_proteins.report.render as render
 import numpy as np
 import pytest
+
+import agentic_proteins.report as R
+import agentic_proteins.report.render as render
 
 # ---------- helpers ----------
 

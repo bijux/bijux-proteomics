@@ -26,6 +26,7 @@ def __getattr__(name: str) -> Any:
         return low_confidence_segments
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
+
 try:
     __version__ = metadata.version("agentic-proteins")
 except metadata.PackageNotFoundError:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from agentic_proteins.biology.pathway import (
     ExecutionMode,
     PathwayContract,
@@ -12,7 +14,6 @@ from agentic_proteins.biology.protein_agent import (
 )
 from agentic_proteins.biology.regulator import LLMAction, Proposal
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
-import pytest
 
 
 def _agent(agent_id: str, state: ProteinState = ProteinState.INACTIVE) -> ProteinAgent:

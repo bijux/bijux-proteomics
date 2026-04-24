@@ -16,7 +16,7 @@ import pytest
 import requests
 
 try:
-    import torch  # type: ignore[import-not-found]
+    import torch
 except ImportError:  # pragma: no cover - optional dependency
     torch = None
 
