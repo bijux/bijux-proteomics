@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.domain.metrics.quality import MetricValue, QCStatus, ToolReliability
+from bijux_proteomics_intelligence.domain.metrics.quality import (
+    MetricValue,
+    QCStatus,
+    ToolReliability,
+)
 
 
 def qc_status_value(status: QCStatus) -> str:

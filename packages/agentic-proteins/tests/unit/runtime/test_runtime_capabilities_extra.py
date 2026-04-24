@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import pytest
+
 from agentic_proteins.providers.base import ProviderCapabilities
 from agentic_proteins.runtime.infra import capabilities
-import pytest
 
 
 def test_validate_runtime_capabilities_unknown_provider() -> None:

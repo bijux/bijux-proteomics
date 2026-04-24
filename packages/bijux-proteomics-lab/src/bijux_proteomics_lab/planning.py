@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from enum import StrEnum
 
+from pydantic import ConfigDict, Field
+
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.programs import ProgramSpec
 from bijux_proteomics_foundation import (
@@ -25,8 +27,6 @@ from bijux_proteomics_knowledge import (
     flag_conflicting_evidence,
     triangulate_evidence,
 )
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics_lab.outcomes import (
     AssayResultState,
     ExperimentOutcome,

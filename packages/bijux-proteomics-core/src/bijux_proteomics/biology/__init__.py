@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.biology.pathway import ExecutionMode, PathwayContract, PathwayExecutor
+from bijux_proteomics.biology.pathway import (
+    ExecutionMode,
+    PathwayContract,
+    PathwayExecutor,
+)
 from bijux_proteomics.biology.protein_agent import (
     FailureEvent,
     ProteinAgent,

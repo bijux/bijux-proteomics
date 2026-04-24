@@ -6,8 +6,9 @@ from __future__ import annotations
 from importlib import import_module
 from typing import Any
 
-from agentic_proteins.providers.errors import PredictionError
 import pytest
+
+from agentic_proteins.providers.errors import PredictionError
 
 torch = pytest.importorskip("torch")
 LocalESMFoldProvider = import_module(

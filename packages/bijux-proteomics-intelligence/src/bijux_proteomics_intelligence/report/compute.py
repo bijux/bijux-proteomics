@@ -145,7 +145,11 @@ class TertiarySummary:
 
     def __post_init__(self) -> None:
         """__post_init__."""
-        object.__setattr__(self, "plddt_bands", self._normalize_bands(self.plddt_bands))
+        object.__setattr__(
+            self,
+            "plddt_bands",
+            self._normalize_bands(cast(Mapping[object, object], self.plddt_bands)),
+        )
         band_sum = sum(self.plddt_bands.values())
         if abs(band_sum - 100.0) > 1e-6:
             logger.warning(
@@ -166,14 +170,14 @@ class TertiarySummary:
                 )
 
     def _normalize_bands(
-        self, bands: Mapping[str, float]
+        self, bands: Mapping[object, object]
     ) -> dict[PLDDTBand, Percentage]:
         """_normalize_bands."""
         norm_bands: dict[PLDDTBand, Percentage] = {}
         for band in PLDDTBand.__members__.values():
             k = band.value
             alt_k = k.replace("≥", ">=").replace("–", "-")
-            v = bands.get(k, bands.get(alt_k, 0.0))
+            v = bands.get(k, bands.get(alt_k, bands.get(band, 0.0)))
             pv = (
                 float(v)
                 if isinstance(v, numbers.Real) and np.isfinite(float(v))
@@ -255,7 +259,10 @@ def compute_report_warnings(metrics: Metrics) -> list[str]:
         warnings.append(
             "Unusual GRAVY score; potential aggregation or solubility issues"
         )
-    if any(np.isnan(v) for v in [metrics.tertiary.mean_plddt, metrics.primary.gravy]):
+    if any(
+        value is not None and np.isnan(value)
+        for value in [metrics.tertiary.mean_plddt, metrics.primary.gravy]
+    ):
         warnings.append("NaN values clipped; check input data")
     return warnings
 
@@ -270,11 +277,11 @@ def compare_reports(report: Report, other: Report) -> dict[str, Any]:
     """compare_reports."""
     a, b = report.metrics, other.metrics
 
-    def d(x, y):
+    def d(x: float | int | None, y: float | int | None) -> float | None:
         """d."""
         return None if (x is None or y is None) else (float(x) - float(y))
 
-    def delta_pct(x, y):
+    def delta_pct(x: float | int | None, y: float | int | None) -> float | None:
         """delta_pct."""
         if x is None or y is None or y == 0:
             return None
@@ -284,7 +291,7 @@ def compare_reports(report: Report, other: Report) -> dict[str, Any]:
         """is_significant."""
         return delta is not None and abs(delta) > thresh
 
-    comp = {
+    comp: dict[str, Any] = {
         "diff": [],
         "primary": {
             "length_delta": d(a.primary.length, b.primary.length),
@@ -316,11 +323,9 @@ def compare_reports(report: Report, other: Report) -> dict[str, Any]:
         },
     }
 
-    for section, fields in [
-        ("primary", comp["primary"]),
-        ("secondary", comp["secondary"]),
-        ("tertiary", comp["tertiary"]),
-    ]:
+    for section in ("primary", "secondary", "tertiary"):
+        fields = cast(dict[str, Any], comp[section])
+        diff_items = cast(list[dict[str, Any]], comp["diff"])
         for k, v in fields.items():
             if "_delta" in k:
                 old = getattr(b, k.replace("_delta", ""), None)
@@ -328,7 +333,7 @@ def compare_reports(report: Report, other: Report) -> dict[str, Any]:
                 delta = v
                 pct = fields.get(k + "_pct", None)
                 sig = is_significant(abs(delta or 0), thresh=5.0 if "pct" in k else 0.1)
-                comp["diff"].append(
+                diff_items.append(
                     {
                         "path": f"metrics/{section}/{k.replace('_delta', '')}",
                         "old": old,
@@ -340,10 +345,12 @@ def compare_reports(report: Report, other: Report) -> dict[str, Any]:
                 )
 
     parts = []
-    if comp["tertiary"]["tm_score_self"] is not None:
-        parts.append(f"TM={comp['tertiary']['tm_score_self']:.3f}")
-    if comp["tertiary"]["rmsd_self"] is not None:
-        parts.append(f"RMSD={comp['tertiary']['rmsd_self']:.2f} Å")
+    tm_score_self = a.tertiary.tm_score
+    rmsd_self = a.tertiary.rmsd
+    if tm_score_self is not None:
+        parts.append(f"TM={tm_score_self:.3f}")
+    if rmsd_self is not None:
+        parts.append(f"RMSD={rmsd_self:.2f} Å")
     if a.secondary.q3 is not None:
         parts.append(f"Q3={a.secondary.q3:.1f}%")
     if a.tertiary.pae_median is not None:

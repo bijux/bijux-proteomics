@@ -13,6 +13,7 @@ from bijux_proteomics_runtime.agents.base import AgentRole
 from bijux_proteomics_runtime.agents.planning.schemas import (
     EvaluationCriterion,
     MutationPlan,
+    Plan,
     PlanningHypothesis,
 )
 from bijux_proteomics_runtime.agents.schemas import (
@@ -38,12 +39,12 @@ class PlannerAgent(AgentRole):
     write_scopes: ClassVar[set[MemoryScope]] = {MemoryScope.SESSION}
 
     @classmethod
-    def input_schema(cls) -> dict:
+    def input_schema(cls) -> dict[str, object]:
         """input_schema."""
         return PlannerAgentInput.model_json_schema()
 
     @classmethod
-    def output_schema(cls) -> dict:
+    def output_schema(cls) -> dict[str, object]:
         """output_schema."""
         return PlannerAgentOutput.model_json_schema()
 
@@ -65,24 +66,26 @@ class PlannerAgent(AgentRole):
         """decide."""
         planner_input = PlannerAgentInput.model_validate(payload)
         task_id = "plan_task_1"
-        plan = {
-            "tasks": {
-                task_id: {
-                    "task_id": task_id,
-                    "agent_name": self.name,
-                    "objective": "design_candidate",
-                    "inputs": [],
-                    "expected_outputs": [],
-                    "constraints": [],
-                    "required_capabilities": ["planning"],
-                    "cost_estimate": self.cost_budget,
-                    "latency_estimate_ms": self.latency_budget_ms,
-                }
-            },
-            "dependencies": {task_id: []},
-            "entry_tasks": [task_id],
-            "exit_conditions": ["plan_ready"],
-        }
+        plan = Plan.model_validate(
+            {
+                "tasks": {
+                    task_id: {
+                        "task_id": task_id,
+                        "agent_name": self.name,
+                        "objective": "design_candidate",
+                        "inputs": [],
+                        "expected_outputs": [],
+                        "constraints": [],
+                        "required_capabilities": ["planning"],
+                        "cost_estimate": self.cost_budget,
+                        "latency_estimate_ms": self.latency_budget_ms,
+                    }
+                },
+                "dependencies": {task_id: []},
+                "entry_tasks": [task_id],
+                "exit_conditions": ["plan_ready"],
+            }
+        )
         hypotheses = [
             PlanningHypothesis(
                 hypothesis_id="hyp-1",

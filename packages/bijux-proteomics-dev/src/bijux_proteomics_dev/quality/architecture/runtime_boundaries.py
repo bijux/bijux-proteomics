@@ -100,6 +100,7 @@ def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) ->
             for target_prefix in target_prefixes
         )
 
+    module_aliases: set[str] = set()
     for node in tree.body:
         if (
             isinstance(node, ast.Expr)
@@ -113,15 +114,27 @@ def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) ->
                 for target in node.targets
             ):
                 continue
+            if (
+                all(isinstance(target, ast.Name) for target in node.targets)
+                and isinstance(node.value, ast.Attribute)
+                and isinstance(node.value.value, ast.Name)
+                and node.value.value.id in module_aliases
+            ):
+                continue
             return False
         if isinstance(node, ast.Import):
-            imported = [alias.name for alias in node.names]
-            if all(_matches_target(name) for name in imported):
+            if all(_matches_target(alias.name) for alias in node.names):
+                for alias in node.names:
+                    if alias.asname:
+                        module_aliases.add(alias.asname)
                 continue
             return False
         if isinstance(node, ast.ImportFrom):
             module = node.module or ""
             if _matches_target(module):
+                for alias in node.names:
+                    if alias.asname:
+                        module_aliases.add(alias.asname)
                 continue
             return False
         return False

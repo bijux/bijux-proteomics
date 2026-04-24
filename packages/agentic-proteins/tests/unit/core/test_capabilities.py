@@ -3,10 +3,11 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agentic_proteins.providers import factory
 from agentic_proteins.runtime.infra import capabilities
 from agentic_proteins.runtime.infra.capabilities import validate_runtime_capabilities
-import pytest
 
 
 def test_capabilities_auto_requires_gpu_budget(

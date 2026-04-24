@@ -48,7 +48,9 @@ def create_provider(name: str) -> BaseProvider:
     if name == "local_esmfold":
         _require_module("torch", "pip install agentic-proteins[local-esmfold]")
         _require_module("transformers", "pip install agentic-proteins[local-esmfold]")
-        from bijux_proteomics_runtime.providers.local.esmfold import LocalESMFoldProvider
+        from bijux_proteomics_runtime.providers.local.esmfold import (
+            LocalESMFoldProvider,
+        )
 
         return LocalESMFoldProvider()
     if name == "local_rosettafold":

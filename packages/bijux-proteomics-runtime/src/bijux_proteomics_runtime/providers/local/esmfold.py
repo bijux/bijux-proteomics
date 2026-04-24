@@ -10,7 +10,6 @@ import threading
 import time
 from typing import Any
 
-from Bio.SeqUtils import seq3
 from loguru import logger
 import torch
 
@@ -21,6 +20,29 @@ from bijux_proteomics_runtime.providers.base import (
     _time_left,
 )
 from bijux_proteomics_runtime.providers.errors import PredictionError
+
+AA3_BY_AA1: dict[str, str] = {
+    "A": "ALA",
+    "R": "ARG",
+    "N": "ASN",
+    "D": "ASP",
+    "C": "CYS",
+    "Q": "GLN",
+    "E": "GLU",
+    "G": "GLY",
+    "H": "HIS",
+    "I": "ILE",
+    "L": "LEU",
+    "K": "LYS",
+    "M": "MET",
+    "F": "PHE",
+    "P": "PRO",
+    "S": "SER",  # codespell:ignore SER
+    "T": "THR",
+    "W": "TRP",
+    "Y": "TYR",
+    "V": "VAL",
+}
 
 
 class LocalESMFoldProvider(BaseProvider):
@@ -201,7 +223,7 @@ class LocalESMFoldProvider(BaseProvider):
         for i in range(seq_len):
             # 3-letter residue name
             try:
-                res_name = seq3(sequence[i]).upper()
+                res_name = AA3_BY_AA1.get(sequence[i].upper(), "UNK")
             except Exception:
                 res_name = "UNK"
             if len(res_name) != 3:
@@ -336,7 +358,7 @@ class LocalESMFoldProvider(BaseProvider):
 
     def predict(
         self, sequence: str, timeout: float = 180.0, seed: int | None = 42
-    ) -> PredictionResult | None:
+    ) -> PredictionResult:
         """Predict the protein structure.
 
         Args:
@@ -390,9 +412,9 @@ class LocalESMFoldProvider(BaseProvider):
                     with torch.inference_mode():
                         if self.device == "cuda":
                             with torch.cuda.amp.autocast():
-                                outputs = self.model(**inputs)  # type: ignore[operator]
+                                outputs = self.model(**inputs)
                         else:
-                            outputs = self.model(**inputs)  # type: ignore[operator]
+                            outputs = self.model(**inputs)
                     if _time_left(deadline) <= 0:
                         raise PredictionError("Timeout after inference", code="TIMEOUT")
                 # ---- Normalize model outputs ------------------------------------
@@ -467,7 +489,10 @@ class LocalESMFoldProvider(BaseProvider):
                 raise PredictionError(
                     f"ESMFold inference failed: {str(e)}", code="INFERENCE_ERROR"
                 ) from e
-        return None
+        raise PredictionError(
+            "ESMFold prediction failed without a terminal outcome.",
+            code="INFERENCE_ERROR",
+        )
 
     def close(self) -> None:
         """Closes the provider."""

@@ -38,16 +38,17 @@ class AgentRole(ABC):
         """validate_memory_write."""
         unauthorized = scopes - self.write_scopes
         if unauthorized:
-            raise ValueError(f"Write scopes not allowed: {sorted(unauthorized)}")
+            unauthorized_values = sorted(scope.value for scope in unauthorized)
+            raise ValueError(f"Write scopes not allowed: {unauthorized_values}")
 
     @classmethod
     @abstractmethod
-    def input_schema(cls) -> dict:
+    def input_schema(cls) -> dict[str, object]:
         """Return a strict JSON schema for agent inputs."""
 
     @classmethod
     @abstractmethod
-    def output_schema(cls) -> dict:
+    def output_schema(cls) -> dict[str, object]:
         """Return a strict JSON schema for agent outputs."""
 
     @classmethod

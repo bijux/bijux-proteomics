@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from agentic_proteins.biology.signals import SignalPayload, SignalType
 from pydantic import ValidationError
 import pytest
+
+from agentic_proteins.biology.signals import SignalPayload, SignalType
 
 
 def test_signal_payload_rejects_blank_source() -> None:

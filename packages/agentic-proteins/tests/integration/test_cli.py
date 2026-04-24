@@ -6,8 +6,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentic_proteins.interfaces.cli import cli
 from click.testing import CliRunner
+
+from agentic_proteins.interfaces.cli import cli
 
 
 def test_cli_run_requires_sequence_or_fasta() -> None:

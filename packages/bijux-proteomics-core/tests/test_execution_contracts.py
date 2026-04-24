@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from bijux_proteomics.execution_contracts import CandidateLike, ExecutionIteration, ToolResultLike
+from bijux_proteomics.execution_contracts import (
+    CandidateLike,
+    ExecutionIteration,
+    ToolResultLike,
+)
 
 
 def test_execution_contract_symbols_are_importable() -> None:

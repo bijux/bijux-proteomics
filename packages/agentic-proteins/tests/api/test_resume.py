@@ -6,10 +6,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from agentic_proteins.api import AppConfig, create_app
-from agentic_proteins.api.v1.endpoints import resume as resume_endpoint
 from fastapi.testclient import TestClient
 import pytest
+
+from agentic_proteins.api import AppConfig, create_app
+from agentic_proteins.api.v1.endpoints import resume as resume_endpoint
 
 pytestmark = pytest.mark.api
 

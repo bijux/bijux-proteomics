@@ -6,6 +6,9 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING, Any, cast
 
+from pydantic import ValidationError
+import pytest
+
 from agentic_proteins.biology.pathway import PathwayExecutor
 from agentic_proteins.biology.protein_agent import (
     ProteinAgent,
@@ -15,8 +18,6 @@ from agentic_proteins.biology.protein_agent import (
     ProteinState,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
-from pydantic import ValidationError
-import pytest
 
 if TYPE_CHECKING:
     from agentic_proteins.biology.pathway import PathwayContract

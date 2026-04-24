@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import JsonModel
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_knowledge.claims import (
     EvidenceClaim,
     HypothesisDossier,

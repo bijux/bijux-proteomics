@@ -6,6 +6,9 @@ from __future__ import annotations
 from datetime import datetime
 from enum import Enum
 
+from pydantic import BaseModel
+import pytest
+
 from agentic_proteins.core.execution import ExecutionGraph, ExecutionTask
 from agentic_proteins.core.tooling import (
     SchemaDefinition,
@@ -19,8 +22,6 @@ from agentic_proteins.state.schemas import StateSnapshot
 from agentic_proteins.validation import agents as agents_module
 from agentic_proteins.validation import state as state_module
 from agentic_proteins.validation import tools as tools_module
-from pydantic import BaseModel
-import pytest
 
 
 class ExampleEnum(Enum):

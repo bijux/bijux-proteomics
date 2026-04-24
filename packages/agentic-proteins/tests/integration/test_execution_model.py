@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agentic_proteins.agents.planning.compiler import compile_plan_to_execution
 from agentic_proteins.agents.planning.schemas import Plan, TaskSpec
 from agentic_proteins.core.decisions import Decision
@@ -22,7 +24,6 @@ from agentic_proteins.tools.schemas import (
     ToolResult,
 )
 from agentic_proteins.validation.state import validate_execution_graph
-import pytest
 
 
 def register_planner() -> None:

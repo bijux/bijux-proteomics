@@ -5,8 +5,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import GateId
 from pydantic import BaseModel, ConfigDict, Field
+
+from bijux_proteomics_foundation import GateId
 
 
 class ReviewGate(BaseModel):

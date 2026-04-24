@@ -19,69 +19,47 @@ members = [
     "bijux-proteomics-knowledge",
     "bijux-proteomics-lab",
     "bijux-proteomics-repository",
+    "bijux-proteomics-runtime",
 ]
 
 [[package]]
 name = "agentic-proteins"
 source = { editable = "packages/agentic-proteins" }
 dependencies = [
-    { name = "biopython" },
-    { name = "boto3" },
-    { name = "click" },
-    { name = "fastapi" },
-    { name = "loguru" },
-    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
-    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
-    { name = "pydantic" },
-    { name = "requests" },
-    { name = "slowapi" },
-    { name = "uvicorn" },
+    { name = "bijux-proteomics-core" },
+    { name = "bijux-proteomics-foundation" },
+    { name = "bijux-proteomics-intelligence" },
+    { name = "bijux-proteomics-knowledge" },
+    { name = "bijux-proteomics-lab" },
+    { name = "bijux-proteomics-runtime" },
 ]
 
 [package.optional-dependencies]
 api = [
-    { name = "openprotein-python" },
+    { name = "bijux-proteomics-runtime", extra = ["api"] },
 ]
 local-esmfold = [
-    { name = "einops" },
-    { name = "tokenizers" },
-    { name = "torch" },
-    { name = "transformers" },
+    { name = "bijux-proteomics-runtime", extra = ["local-esmfold"] },
 ]
 local-rosettafold = [
-    { name = "torch" },
+    { name = "bijux-proteomics-runtime", extra = ["local-rosettafold"] },
 ]
 nl = [
-    { name = "langchain-community" },
-    { name = "langchain-core" },
-    { name = "langchain-huggingface" },
-    { name = "langchain-text-splitters" },
-    { name = "langsmith" },
+    { name = "bijux-proteomics-runtime", extra = ["nl"] },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "biopython", specifier = ">=1.83" },
-    { name = "boto3", specifier = ">=1.34" },
-    { name = "click", specifier = ">=8.1" },
-    { name = "einops", marker = "extra == 'local-esmfold'", specifier = ">=0.7" },
-    { name = "fastapi", specifier = ">=0.115" },
-    { name = "langchain-community", marker = "extra == 'nl'", specifier = ">=0.3.27" },
-    { name = "langchain-core", marker = "extra == 'nl'", specifier = ">=1.2.22" },
-    { name = "langchain-huggingface", marker = "extra == 'nl'", specifier = ">=1.2.1" },
-    { name = "langchain-text-splitters", marker = "extra == 'nl'", specifier = ">=1.1.2" },
-    { name = "langsmith", marker = "extra == 'nl'", specifier = ">=0.7.31" },
-    { name = "loguru", specifier = ">=0.7" },
-    { name = "numpy", specifier = ">=1.26,<3.0" },
-    { name = "openprotein-python", marker = "extra == 'api'", specifier = ">=0.8.8" },
-    { name = "pydantic", specifier = ">=2.0.2" },
-    { name = "requests", specifier = ">=2.31" },
-    { name = "slowapi", specifier = ">=0.1" },
-    { name = "tokenizers", marker = "extra == 'local-esmfold'", specifier = ">=0.14" },
-    { name = "torch", marker = "extra == 'local-esmfold'", specifier = ">=2.8" },
-    { name = "torch", marker = "extra == 'local-rosettafold'", specifier = ">=2.8" },
-    { name = "transformers", marker = "extra == 'local-esmfold'", specifier = ">=5.0.0rc3" },
-    { name = "uvicorn", specifier = ">=0.30" },
+    { name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" },
+    { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
+    { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
+    { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
+    { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
+    { name = "bijux-proteomics-runtime", editable = "packages/bijux-proteomics-runtime" },
+    { name = "bijux-proteomics-runtime", extras = ["api"], marker = "extra == 'api'", editable = "packages/bijux-proteomics-runtime" },
+    { name = "bijux-proteomics-runtime", extras = ["local-esmfold"], marker = "extra == 'local-esmfold'", editable = "packages/bijux-proteomics-runtime" },
+    { name = "bijux-proteomics-runtime", extras = ["local-rosettafold"], marker = "extra == 'local-rosettafold'", editable = "packages/bijux-proteomics-runtime" },
+    { name = "bijux-proteomics-runtime", extras = ["nl"], marker = "extra == 'nl'", editable = "packages/bijux-proteomics-runtime" },
 ]
 provides-extras = ["api", "local-esmfold", "local-rosettafold", "nl"]
 
@@ -405,14 +383,21 @@ name = "bijux-proteomics-core"
 source = { editable = "packages/bijux-proteomics-core" }
 dependencies = [
     { name = "bijux-proteomics-foundation" },
+    { name = "biopython" },
     { name = "click" },
+    { name = "loguru" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
     { name = "pydantic" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
+    { name = "biopython", specifier = ">=1.83" },
     { name = "click", specifier = ">=8.1" },
+    { name = "loguru", specifier = ">=0.7" },
+    { name = "numpy", specifier = ">=1.26,<3.0" },
     { name = "pydantic", specifier = ">=2.0.2" },
 ]
 
@@ -510,6 +495,9 @@ dependencies = [
     { name = "bijux-proteomics-core" },
     { name = "bijux-proteomics-foundation" },
     { name = "bijux-proteomics-knowledge" },
+    { name = "loguru" },
+    { name = "numpy", version = "1.26.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
     { name = "pydantic" },
 ]
 
@@ -518,6 +506,8 @@ requires-dist = [
     { name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" },
     { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
     { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
+    { name = "loguru", specifier = ">=0.7" },
+    { name = "numpy", specifier = ">=1.26,<3.0" },
     { name = "pydantic", specifier = ">=2.0.2" },
 ]
 
@@ -571,6 +561,7 @@ dev = [
     { name = "bijux-proteomics-intelligence" },
     { name = "bijux-proteomics-knowledge" },
     { name = "bijux-proteomics-lab" },
+    { name = "bijux-proteomics-runtime" },
     { name = "build" },
     { name = "codespell" },
     { name = "deptry" },
@@ -641,6 +632,7 @@ dev = [
     { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
     { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
     { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
+    { name = "bijux-proteomics-runtime", editable = "packages/bijux-proteomics-runtime" },
     { name = "build", specifier = ">=1.0.3,<2.0" },
     { name = "codespell", specifier = ">=2.3.0,<3.0" },
     { name = "deptry", specifier = ">=0.10.0,<1.0" },
@@ -696,6 +688,75 @@ nl = [
 ]
 
 [[package]]
+name = "bijux-proteomics-runtime"
+source = { editable = "packages/bijux-proteomics-runtime" }
+dependencies = [
+    { name = "bijux-proteomics-core" },
+    { name = "bijux-proteomics-foundation" },
+    { name = "bijux-proteomics-intelligence" },
+    { name = "bijux-proteomics-knowledge" },
+    { name = "bijux-proteomics-lab" },
+    { name = "biopython" },
+    { name = "click" },
+    { name = "fastapi" },
+    { name = "loguru" },
+    { name = "pydantic" },
+    { name = "requests" },
+    { name = "slowapi" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+api = [
+    { name = "openprotein-python" },
+]
+local-esmfold = [
+    { name = "einops" },
+    { name = "tokenizers" },
+    { name = "torch" },
+    { name = "transformers" },
+]
+local-rosettafold = [
+    { name = "torch" },
+]
+nl = [
+    { name = "langchain-community" },
+    { name = "langchain-core" },
+    { name = "langchain-huggingface" },
+    { name = "langchain-text-splitters" },
+    { name = "langsmith" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" },
+    { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
+    { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
+    { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
+    { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
+    { name = "biopython", specifier = ">=1.83" },
+    { name = "click", specifier = ">=8.1" },
+    { name = "einops", marker = "extra == 'local-esmfold'", specifier = ">=0.7" },
+    { name = "fastapi", specifier = ">=0.115" },
+    { name = "langchain-community", marker = "extra == 'nl'", specifier = ">=0.3.27" },
+    { name = "langchain-core", marker = "extra == 'nl'", specifier = ">=1.2.22" },
+    { name = "langchain-huggingface", marker = "extra == 'nl'", specifier = ">=1.2.1" },
+    { name = "langchain-text-splitters", marker = "extra == 'nl'", specifier = ">=1.1.2" },
+    { name = "langsmith", marker = "extra == 'nl'", specifier = ">=0.7.31" },
+    { name = "loguru", specifier = ">=0.7" },
+    { name = "openprotein-python", marker = "extra == 'api'", specifier = ">=0.8.8" },
+    { name = "pydantic", specifier = ">=2.0.2" },
+    { name = "requests", specifier = ">=2.31" },
+    { name = "slowapi", specifier = ">=0.1" },
+    { name = "tokenizers", marker = "extra == 'local-esmfold'", specifier = ">=0.14" },
+    { name = "torch", marker = "extra == 'local-esmfold'", specifier = ">=2.8" },
+    { name = "torch", marker = "extra == 'local-rosettafold'", specifier = ">=2.8" },
+    { name = "transformers", marker = "extra == 'local-esmfold'", specifier = ">=5.0.0rc3" },
+    { name = "uvicorn", specifier = ">=0.30" },
+]
+provides-extras = ["api", "local-esmfold", "local-rosettafold", "nl"]
+
+[[package]]
 name = "biopython"
 version = "1.87"
 source = { registry = "https://pypi.org/simple" }
@@ -739,34 +800,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c4/cf/85379f13b76f3a69bca86b60237978af17d6aa0bc5998978c3b8cf05abb2/boolean_py-5.0.tar.gz", hash = "sha256:60cbc4bad079753721d32649545505362c754e121570ada4658b852a3a318d95", size = 37047, upload-time = "2025-04-03T10:39:49.734Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e5/ca/78d423b324b8d77900030fa59c4aa9054261ef0925631cd2501dd015b7b7/boolean_py-5.0-py3-none-any.whl", hash = "sha256:ef28a70bd43115208441b53a045d1549e2f0ec6e3d08a9d142cbc41c1938e8d9", size = 26577, upload-time = "2025-04-03T10:39:48.449Z" },
-]
-
-[[package]]
-name = "boto3"
-version = "1.42.85"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "botocore" },
-    { name = "jmespath" },
-    { name = "s3transfer" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/31/9d/a9a7b5a9351e3ff0baae01136f71ba6fc4652fe0dc2da3b0a8ebdfc1be44/boto3-1.42.85.tar.gz", hash = "sha256:1cd3dcbfaba85c6071ba9397c1804b6a94a1a97031b8f1993fdba27c0c5d6eba", size = 112769, upload-time = "2026-04-07T19:40:53.834Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/ab/3167b8ec3cf1d87ad08d2ad5f15823a22945cae7870798274c283c3a18f1/boto3-1.42.85-py3-none-any.whl", hash = "sha256:4f6ac066e41d18ec33f532253fac0f35e0fdca373724458f983ce3d531340b7a", size = 140556, upload-time = "2026-04-07T19:40:52.186Z" },
-]
-
-[[package]]
-name = "botocore"
-version = "1.42.85"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "jmespath" },
-    { name = "python-dateutil" },
-    { name = "urllib3" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0a/ac/7f14b05cf43e4baae99f4570b02e10b2aebf242dfd86245523340390c834/botocore-1.42.85.tar.gz", hash = "sha256:2ee61f80b7724a143e16d0a85408ef5fa20b99dce7a3c8ec5d25cc8dced164c1", size = 15159562, upload-time = "2026-04-07T19:40:43.831Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/16/f3/c1fbaff4c509c616fd01f44357283a8992f10b3a05d932b22e602aa3a221/botocore-1.42.85-py3-none-any.whl", hash = "sha256:828b67722caeb7e240eefedee74050e803d1fa102958ead9c4009101eefd5381", size = 14839741, upload-time = "2026-04-07T19:40:40.733Z" },
 ]
 
 [[package]]
@@ -2023,15 +2056,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/df/bf/f7da0350254c0ed7c72f3e33cef02e048281fec7ecec5f032d4aac52226b/jinja2-3.1.6.tar.gz", hash = "sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d", size = 245115, upload-time = "2025-03-05T20:05:02.478Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl", hash = "sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67", size = 134899, upload-time = "2025-03-05T20:05:00.369Z" },
-]
-
-[[package]]
-name = "jmespath"
-version = "1.1.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d3/59/322338183ecda247fb5d1763a6cbe46eff7222eaeebafd9fa65d4bf5cb11/jmespath-1.1.0.tar.gz", hash = "sha256:472c87d80f36026ae83c6ddd0f1d05d4e510134ed462851fd5f754c8c3cbb88d", size = 27377, upload-time = "2026-01-22T16:35:26.279Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/2f/967ba146e6d58cf6a652da73885f52fc68001525b4197effc174321d70b4/jmespath-1.1.0-py3-none-any.whl", hash = "sha256:a5663118de4908c91729bea0acadca56526eb2698e83de10cd116ae0f4e97c64", size = 20419, upload-time = "2026-01-22T16:35:24.919Z" },
 ]
 
 [[package]]
@@ -4654,18 +4678,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/88/3d/1364fcde8656962782aa9ea93c92d98682b1ecec2f184e625a965ad3b4a6/ruff-0.15.9-py3-none-win32.whl", hash = "sha256:bde6ff36eaf72b700f32b7196088970bf8fdb2b917b7accd8c371bfc0fd573ec", size = 10583382, upload-time = "2026-04-02T18:17:04.261Z" },
     { url = "https://files.pythonhosted.org/packages/4c/56/5c7084299bd2cacaa07ae63a91c6f4ba66edc08bf28f356b24f6b717c799/ruff-0.15.9-py3-none-win_amd64.whl", hash = "sha256:45a70921b80e1c10cf0b734ef09421f71b5aa11d27404edc89d7e8a69505e43d", size = 11744969, upload-time = "2026-04-02T18:16:59.611Z" },
     { url = "https://files.pythonhosted.org/packages/03/36/76704c4f312257d6dbaae3c959add2a622f63fcca9d864659ce6d8d97d3d/ruff-0.15.9-py3-none-win_arm64.whl", hash = "sha256:0694e601c028fd97dc5c6ee244675bc241aeefced7ef80cd9c6935a871078f53", size = 11005870, upload-time = "2026-04-02T18:17:15.773Z" },
-]
-
-[[package]]
-name = "s3transfer"
-version = "0.16.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "botocore" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/05/04/74127fc843314818edfa81b5540e26dd537353b123a4edc563109d8f17dd/s3transfer-0.16.0.tar.gz", hash = "sha256:8e990f13268025792229cd52fa10cb7163744bf56e719e0b9cb925ab79abf920", size = 153827, upload-time = "2025-12-01T02:30:59.114Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/fc/51/727abb13f44c1fcf6d145979e1535a35794db0f6e450a0cb46aa24732fe2/s3transfer-0.16.0-py3-none-any.whl", hash = "sha256:18e25d66fed509e3868dc1572b3f427ff947dd2c56f844a5bf09481ad3f3b2fe", size = 86830, upload-time = "2025-12-01T02:30:57.729Z" },
 ]
 
 [[package]]

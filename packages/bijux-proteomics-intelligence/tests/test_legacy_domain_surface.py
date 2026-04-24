@@ -5,6 +5,8 @@ from bijux_proteomics_intelligence.domain.metrics.quality import ConfidenceVecto
 
 
 def test_legacy_domain_candidate_model_smoke() -> None:
-    candidate = Candidate(candidate_id="cand-1", sequence="ACDE", confidence=ConfidenceVector())
+    candidate = Candidate(
+        candidate_id="cand-1", sequence="ACDE", confidence=ConfidenceVector()
+    )
     assert candidate.candidate_id == "cand-1"
     assert candidate.sequence == "ACDE"

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_dev.quality.architecture import runtime_migration_validation
+from pytest import MonkeyPatch
 
+from bijux_proteomics_dev.quality.architecture import runtime_migration_validation
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -19,11 +20,11 @@ def test_release_matrix_loader_reads_json_list() -> None:
 def test_release_matrix_check_requires_runtime_and_compat_entries() -> None:
     result = runtime_migration_validation._check_release_matrices(REPO_ROOT)
     assert result.ok
-    assert "canonical runtime" in result.detail
+    assert "compatibility and core release packages" in result.detail
 
 
 def test_runtime_migration_runner_succeeds_with_stubbed_checks(
-    monkeypatch: object,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
         runtime_migration_validation,

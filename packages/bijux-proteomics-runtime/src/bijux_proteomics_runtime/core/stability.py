@@ -25,11 +25,14 @@ def _mark(level: StabilityLevel) -> None:
     caller = frame.f_back.f_back if frame.f_back else None
     if caller is None:
         raise RuntimeError("Unable to resolve caller module for stability mark.")
-    module_name = caller.f_globals.get("__name__")
+    module_name_obj = caller.f_globals.get("__name__")
+    if not isinstance(module_name_obj, str):
+        raise RuntimeError("Unable to resolve caller module name for stability mark.")
+    module_name = module_name_obj
     module = sys.modules.get(module_name)
     if module is None:
         raise RuntimeError("Unable to resolve caller module for stability mark.")
-    module.__stability__ = level
+    module.__dict__["__stability__"] = level
 
 
 def stable() -> None:

@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import re
 
-from bijux_proteomics_foundation import JsonModel, TargetId
 from pydantic import ConfigDict, Field, field_validator
+
+from bijux_proteomics_foundation import JsonModel, TargetId
 
 _SEQUENCE_RE = re.compile(r"^[ACDEFGHIKLMNPQRSTVWY]+$")
 
@@ -26,6 +27,7 @@ class ProteinSequence(JsonModel):
     @field_validator("residues")
     @classmethod
     def _validate_residues(cls, value: str) -> str:
+        """Normalize and validate canonical amino-acid residue symbols."""
         sequence = value.strip().upper()
         if not _SEQUENCE_RE.fullmatch(sequence):
             raise ValueError("residues must contain only canonical amino-acid symbols")

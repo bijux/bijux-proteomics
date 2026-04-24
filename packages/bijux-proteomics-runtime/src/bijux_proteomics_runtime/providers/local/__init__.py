@@ -9,7 +9,9 @@ __all__ = []
 
 try:
     from bijux_proteomics_runtime.providers.local.esmfold import LocalESMFoldProvider
-    from bijux_proteomics_runtime.providers.local.rosettafold import LocalRoseTTAFoldProvider
+    from bijux_proteomics_runtime.providers.local.rosettafold import (
+        LocalRoseTTAFoldProvider,
+    )
 
     __all__ = ["LocalESMFoldProvider", "LocalRoseTTAFoldProvider"]
 except ImportError:
