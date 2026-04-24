@@ -12,17 +12,19 @@ import time
 import uuid
 
 from fastapi import Request, Response
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
     """Attach a request id header for tracing."""
 
-    async def dispatch(self, request: Request, call_next) -> Response:  # type: ignore[override]
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         """Inject a request id for correlation across logs."""
         request_id = request.headers.get("x-request-id", str(uuid.uuid4()))
         request.state.request_id = request_id
-        response = await call_next(request)
+        response: Response = await call_next(request)
         response.headers["x-request-id"] = request_id
         return response
 
@@ -30,7 +32,9 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
 class RequestLogMiddleware(BaseHTTPMiddleware):
     """Log request/response metadata with correlation id."""
 
-    async def dispatch(self, request: Request, call_next) -> Response:  # type: ignore[override]
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         """Log request lifecycle."""
         start = time.perf_counter()
         request_id = request.headers.get("x-request-id") or getattr(
@@ -51,7 +55,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
                     "path": request.url.path,
                 },
             )
-        response = await call_next(request)
+        response: Response = await call_next(request)
         if log_path is not None:
             _write_log(
                 log_path,

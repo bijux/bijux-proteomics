@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from agentic_proteins.domain.candidates.schema import Candidate
 from agentic_proteins.domain.candidates.store import CandidateStore
-import pytest
 
 
 def _candidate(candidate_id: str) -> Candidate:

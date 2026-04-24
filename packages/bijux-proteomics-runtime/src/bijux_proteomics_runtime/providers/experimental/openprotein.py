@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 import os
 import sys
+from typing import Any
 
 from loguru import logger
 
@@ -67,7 +69,7 @@ class APIOpenProteinProvider(BaseProvider):
     # ----------------------------- helpers ---------------------------------
 
     @staticmethod
-    def _has_attr(obj, name: str) -> bool:
+    def _has_attr(obj: object, name: str) -> bool:
         """Safely check attribute existence; returns False on errors."""
         try:
             return hasattr(obj, name)
@@ -75,7 +77,7 @@ class APIOpenProteinProvider(BaseProvider):
             return False
 
     @staticmethod
-    def _debug_dump(obj) -> str:
+    def _debug_dump(obj: object) -> str:
         """Return comma-separated public attribute names for debug output."""
         try:
             return ", ".join(sorted(n for n in dir(obj) if not n.startswith("_")))
@@ -86,7 +88,7 @@ class APIOpenProteinProvider(BaseProvider):
         """Map friendly model alias to the API's canonical model id."""
         return self._MODEL_MAP.get(self.model, self.model)
 
-    def _find_structure_namespace(self, sess):
+    def _find_structure_namespace(self, sess: Any) -> Any | None:
         """Prefer new-style `sess.fold`, fall back to older `sess.structure`."""
         if self._has_attr(sess, "fold"):
             return sess.fold
@@ -94,7 +96,9 @@ class APIOpenProteinProvider(BaseProvider):
             return sess.structure
         return None
 
-    def _pick_submit_fn(self, ns, sess):
+    def _pick_submit_fn(
+        self, ns: Any, sess: Any
+    ) -> tuple[Callable[..., object], dict[str, Any]]:
         """Return (callable, kwargs_template) for submitting a job.
 
         Tries, in order:
@@ -137,19 +141,22 @@ class APIOpenProteinProvider(BaseProvider):
             "No submit function found in OpenProtein client.", code="CLIENT_MISMATCH"
         )
 
-    def _wait_and_get_pdb(self, job, timeout: float) -> str | None:
+    def _wait_and_get_pdb(self, job: Any, timeout: float) -> str | None:
         """Try job-level helpers first; else session.wait/wait_until_done then fold.get_results(job_id)."""
         # 1) Direct job methods
         for getter in ("wait_for_pdb", "result_pdb", "get_pdb", "pdb", "download_pdb"):
             fn = getattr(job, getter, None)
             if callable(fn):
                 try:
-                    return fn(timeout=timeout)
+                    result = fn(timeout=timeout)
+                    return result if isinstance(result, str) else None
                 except TypeError:
                     try:
-                        return fn(seconds=timeout)
+                        result = fn(seconds=timeout)
+                        return result if isinstance(result, str) else None
                     except Exception:
-                        return fn()
+                        result = fn()
+                        return result if isinstance(result, str) else None
         # 2) Fallback: wait + fetch by id
         job_id = (
             getattr(job, "job_id", None)
@@ -158,7 +165,7 @@ class APIOpenProteinProvider(BaseProvider):
         )
         if not job_id and hasattr(job, "json"):
             try:
-                j = job.json()  # type: ignore[attr-defined]
+                j = job.json()
             except (AttributeError, TypeError, ValueError) as e:
                 # Client may not implement .json(), or returns non-JSON/invalid
                 logger.debug(f"openprotein job.json() failed: {e!r}")
@@ -177,24 +184,24 @@ class APIOpenProteinProvider(BaseProvider):
             if callable(wait_done):
                 try:
                     # some SDKs accept the job object
-                    wait_done(job, timeout=timeout)  # type: ignore[arg-type]
+                    wait_done(job, timeout=timeout)
                 except (TypeError, ValueError) as e:
                     logger.debug(
                         f"wait_until_done(job, ...) failed: {e!r}; retrying with job_id={job_id!r}"
                     )
                     try:
-                        wait_done(job_id, timeout=timeout)  # type: ignore[arg-type]
+                        wait_done(job_id, timeout=timeout)
                     except Exception as e2:  # keep broad here but log
                         logger.debug(f"wait_until_done(job_id, ...) failed: {e2!r}")
             elif callable(wait_simple):
                 try:
-                    wait_simple(job, timeout=timeout)  # type: ignore[arg-type]
+                    wait_simple(job, timeout=timeout)
                 except (TypeError, ValueError) as e:
                     logger.debug(
                         f"wait(job, ...) failed: {e!r}; retrying with job_id={job_id!r}"
                     )
                     try:
-                        wait_simple(job_id, timeout=timeout)  # type: ignore[arg-type]
+                        wait_simple(job_id, timeout=timeout)
                     except Exception as e2:
                         logger.debug(f"wait(job_id, ...) failed: {e2!r}")
             else:
@@ -242,8 +249,10 @@ class APIOpenProteinProvider(BaseProvider):
                         v = m0.get(k)
                         if isinstance(v, str) and v.strip():
                             return v
-        elif hasattr(res, "pdb") and isinstance(res.pdb, str) and res.pdb.strip():
-            return res.pdb
+        elif hasattr(res, "pdb"):
+            pdb_value = getattr(res, "pdb", None)
+            if isinstance(pdb_value, str) and pdb_value.strip():
+                return pdb_value
 
         return None
 

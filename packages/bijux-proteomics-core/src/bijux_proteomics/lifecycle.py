@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from bijux_proteomics_foundation import JsonModel, ProgramId
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
 from bijux_proteomics.program_spec import ProgramStage
+from bijux_proteomics_foundation import JsonModel, ProgramId
 
 
 class LifecycleTransition(JsonModel):

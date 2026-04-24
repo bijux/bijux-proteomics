@@ -6,12 +6,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, cast
 
+from fastapi.testclient import TestClient
+import pytest
+
 from agentic_proteins.api.app import AppConfig, create_app
 from agentic_proteins.api.v1.endpoints import compare as compare_module
 from agentic_proteins.api.v1.endpoints import resume as resume_module
 from agentic_proteins.api.v1.endpoints import run as run_module
-from fastapi.testclient import TestClient
-import pytest
 
 
 def _client(tmp_path: Path) -> TestClient:

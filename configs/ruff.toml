@@ -16,6 +16,8 @@ src = [
   "packages/bijux-proteomics-knowledge/tests",
   "packages/bijux-proteomics-lab/src",
   "packages/bijux-proteomics-lab/tests",
+  "packages/bijux-proteomics-runtime/src",
+  "packages/bijux-proteomics-runtime/tests",
 ]
 exclude = [
   ".git",
@@ -46,6 +48,18 @@ ignore = ["E501", "E203"]
 
 [lint.isort]
 force-sort-within-sections = true
+known-first-party = [
+  "agentic_proteins",
+  "bijux_proteomics",
+  "bijux_proteomics_core",
+  "bijux_proteomics_dev",
+  "bijux_proteomics_foundation",
+  "bijux_proteomics_intelligence",
+  "bijux_proteomics_knowledge",
+  "bijux_proteomics_lab",
+  "bijux_proteomics_runtime",
+  "tests",
+]
 
 [lint.mccabe]
 max-complexity = 10

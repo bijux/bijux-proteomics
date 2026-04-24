@@ -5,8 +5,10 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_intelligence.domain.metrics.validation import (
+    validate_structure_metrics,
+)
 from bijux_proteomics_runtime.core.tooling import InvocationInput
-from bijux_proteomics_intelligence.domain.metrics.validation import validate_structure_metrics
 
 
 def validate_outputs(outputs: list[InvocationInput]) -> bool:

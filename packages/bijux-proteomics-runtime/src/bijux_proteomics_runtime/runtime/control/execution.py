@@ -11,7 +11,7 @@ import importlib.metadata
 import json
 from pathlib import Path
 from time import perf_counter
-from typing import Any
+from typing import Any, cast
 
 from bijux_proteomics_runtime.agents.analysis.failure_analysis import (
     FailureAnalysisAgent,
@@ -59,14 +59,6 @@ from bijux_proteomics_runtime.core.tooling import (
     ToolInvocationSpec,
     ToolResult,
 )
-from bijux_proteomics_runtime.runtime.adapters import LoopContext, LoopRunner
-from bijux_proteomics_runtime.runtime.adapters import (
-    CandidateStore,
-    candidate_to_domain,
-    update_candidate_from_result,
-)
-from bijux_proteomics_runtime.runtime.adapters import Candidate
-from bijux_proteomics_runtime.runtime.adapters import QCStatus
 from bijux_proteomics_runtime.execution.compiler.boundary import ToolBoundary
 from bijux_proteomics_runtime.execution.runtime.executor import (
     LocalExecutor,
@@ -74,6 +66,14 @@ from bijux_proteomics_runtime.execution.runtime.executor import (
 )
 from bijux_proteomics_runtime.execution.validation import validate_outputs
 from bijux_proteomics_runtime.registry.agents import AgentRegistry
+from bijux_proteomics_runtime.runtime.adapters import (
+    Candidate,
+    CandidateStore,
+    LoopContext,
+    LoopRunner,
+    QCStatus,
+    update_candidate_from_result,
+)
 from bijux_proteomics_runtime.runtime.context import (
     ErrorDetail,
     RunContext,
@@ -98,8 +98,13 @@ from bijux_proteomics_runtime.runtime.infra import (
     RunConfig,
     ToolReliabilityTracker,
 )
-from bijux_proteomics_runtime.runtime.infra.capabilities import validate_runtime_capabilities
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic, write_text_atomic
+from bijux_proteomics_runtime.runtime.infra.capabilities import (
+    validate_runtime_capabilities,
+)
+from bijux_proteomics_runtime.runtime.workspace import (
+    write_json_atomic,
+    write_text_atomic,
+)
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
 from bijux_proteomics_runtime.tools.base import Tool
 from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
@@ -124,7 +129,7 @@ class PipelineResult:
     candidate: Candidate
     plan_fingerprint: str
     tool_status: str
-    report: dict
+    report: dict[str, Any]
     qc_status: QCStatus
     coordinator_decision: CoordinatorDecisionType
     failure_type: str
@@ -272,7 +277,7 @@ class PipelineExecutor:
 
         planning_start = perf_counter()
         planner = PlannerAgent()
-        plan_output = generate_plan(planner, "predict_structure")
+        plan_output = generate_plan(cast(Any, planner), "predict_structure")
         plan = plan_output.plan
         plan_duration_ms = (perf_counter() - planning_start) * 1000.0
         write_json_atomic(
@@ -438,7 +443,7 @@ class PipelineExecutor:
             candidate,
             self._tool.name,
             self._tool.version,
-            result,
+            cast(Any, result),
             plan_fingerprint,
             loop_state.iteration_index,
         )
@@ -627,28 +632,27 @@ class RuntimeStateMachine:
         self._loop_context = LoopContext(
             config=run_context.config,
             telemetry=run_context.telemetry,
-            logger=run_context.logger.scope("loop"),
+            logger=cast(Any, run_context.logger.scope("loop")),
             analysis_path=run_context.workspace.analysis_path,
         )
         self._loop_runner = LoopRunner(
-            self._loop_context, self._executor, self._analysis
+            self._loop_context, cast(Any, self._executor), self._analysis
         )
         self._state_machine = RunStateMachine()
 
-    def run(self, candidate: Candidate) -> dict:
+    def run(self, candidate: Candidate) -> dict[str, Any]:
         """run."""
         self._state_machine.transition("execute")
         result = self._loop_runner.run(candidate)
         self._state_machine.transition("evaluate")
-        return self._finalize(result)
+        return self._finalize(cast(PipelineResult, result))
 
-    def _finalize(self, result: PipelineResult) -> dict:
+    def _finalize(self, result: PipelineResult) -> dict[str, Any]:
         """_finalize."""
-        candidate_protein = candidate_to_domain(result.candidate)
         require_human = bool(self._run_context.config.get("require_human_decision"))
         if require_human:
             selection = require_human_decision(
-                [candidate_protein], self._run_context.workspace, top_n=1
+                [result.candidate], self._run_context.workspace, top_n=1
             )
             lifecycle_state = RunLifecycleState.HUMAN_REVIEW.value
             frozen_ids = selection.frozen_ids
@@ -718,7 +722,7 @@ class RunManager:
 
     def run(
         self, sequence: str, tool: Tool | None = None, run_id: str | None = None
-    ) -> dict:
+    ) -> dict[str, Any]:
         """run."""
         try:
             RunRequest.model_validate({"sequence": sequence})
@@ -740,7 +744,7 @@ class RunManager:
         candidate: Candidate,
         tool: Tool | None = None,
         run_id: str | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """run_candidate."""
         context, warnings = create_run_context(
             self._base_dir, self._config, run_id=run_id
@@ -792,7 +796,7 @@ class RunManager:
         context: RunContext,
         warnings: list[str],
         tool: Tool | None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """_run_with_context."""
         start = perf_counter()
         run_logger = context.logger.scope("run")
@@ -846,13 +850,13 @@ class RunManager:
         context: RunContext,
         warnings: list[str],
         selected_tool: Tool,
-        result: dict,
+        result: dict[str, Any],
         status: str,
         failure_type: str,
         command: str,
         start: float | None = None,
-        run_logger: object | None = None,
-    ) -> dict:
+        run_logger: Any | None = None,
+    ) -> dict[str, Any]:
         """Finalize run output and summary artifacts."""
         version_info = _version_info(selected_tool)
         if status != "failure":
@@ -923,7 +927,7 @@ class RunManager:
         warnings: list[str],
         tool: Tool | None,
         explicit_tool: bool = False,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """_run_with_candidate."""
         if warnings:
             run_logger = context.logger.scope("run")
@@ -980,7 +984,7 @@ class RunManager:
         warnings: list[str],
         failure_type: str,
         tool: Tool | None = None,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """_fail_fast."""
         context.telemetry.record_event("run_start")
         context.telemetry.observe("run_total_ms", 0.0)
@@ -1049,7 +1053,7 @@ def _build_run_summary(
     warnings: list[str],
     version_info: VersionInfo,
     provider_name: str,
-) -> dict:
+) -> dict[str, Any]:
     """Build the stable run summary contract."""
     execution_status = (
         ExecutionStatus.ERRORED.value
@@ -1127,7 +1131,7 @@ def _version_info(tool: Tool | None) -> VersionInfo:
     )
 
 
-def _select_structure_tool(config: dict) -> Tool:
+def _select_structure_tool(config: dict[str, Any]) -> Tool:
     """Select a structure tool based on enabled providers."""
     enabled = config.get("predictors_enabled", []) or []
     provider_name = enabled[0] if enabled else HeuristicStructureTool.name
@@ -1143,7 +1147,7 @@ def _ensure_telemetry_costs(context: RunContext) -> None:
 
 def run_flow(
     candidate: Candidate, run_context: RunContext, tool: Tool | None = None
-) -> dict:
+) -> dict[str, Any]:
     """Run the canonical agentic flow end-to-end."""
     machine = RuntimeStateMachine(run_context, tool)
     return machine.run(candidate)

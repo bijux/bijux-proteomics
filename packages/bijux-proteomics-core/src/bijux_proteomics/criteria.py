@@ -7,8 +7,9 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from bijux_proteomics_foundation import EvidenceId
 from pydantic import BaseModel, ConfigDict, Field
+
+from bijux_proteomics_foundation import EvidenceId
 
 
 class MeasurementDirection(StrEnum):

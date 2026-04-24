@@ -8,7 +8,11 @@ from __future__ import annotations
 from bijux_proteomics_runtime.agents.planning.schemas import Plan
 from bijux_proteomics_runtime.agents.planning.validation import validate_plan
 from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.core.execution import ExecutionGraph, ExecutionTask, RetryPolicy
+from bijux_proteomics_runtime.core.execution import (
+    ExecutionGraph,
+    ExecutionTask,
+    RetryPolicy,
+)
 from bijux_proteomics_runtime.core.tooling import ToolInvocationSpec
 from bijux_proteomics_runtime.validation.state import validate_execution_graph
 
@@ -18,18 +22,23 @@ def compile_plan_to_execution(plan: Plan, decisions: list[Decision]) -> Executio
     validate_plan(plan)
     invocation_map: dict[str, ToolInvocationSpec] = {}
     for decision in decisions:
-        for invocation in decision.requested_tools:
-            if invocation.origin_task_id not in plan.tasks:
+        for requested_invocation in decision.requested_tools:
+            if requested_invocation.origin_task_id not in plan.tasks:
                 raise ValueError(
-                    f"Tool invocation references unknown task {invocation.origin_task_id}."
+                    f"Tool invocation references unknown task {requested_invocation.origin_task_id}."
                 )
-            existing = invocation_map.get(invocation.origin_task_id)
-            if existing is None or invocation.invocation_id < existing.invocation_id:
-                invocation_map[invocation.origin_task_id] = invocation
+            existing = invocation_map.get(requested_invocation.origin_task_id)
+            if (
+                existing is None
+                or requested_invocation.invocation_id < existing.invocation_id
+            ):
+                invocation_map[requested_invocation.origin_task_id] = (
+                    requested_invocation
+                )
 
     tasks: dict[str, ExecutionTask] = {}
     for task_id in sorted(plan.tasks.keys()):
-        invocation = invocation_map.get(task_id)
+        invocation: ToolInvocationSpec | None = invocation_map.get(task_id)
         if invocation is None:
             raise ValueError(f"Missing tool invocation for task {task_id}.")
         tasks[task_id] = ExecutionTask(

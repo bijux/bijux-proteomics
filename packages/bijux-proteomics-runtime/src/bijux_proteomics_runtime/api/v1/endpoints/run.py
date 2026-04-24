@@ -8,6 +8,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
+
 from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import ok_envelope, raise_http_error
 from bijux_proteomics_runtime.api.v1.schema import (
@@ -24,8 +27,6 @@ from bijux_proteomics_runtime.interfaces.cli import (
     _run_sequence,
     _validate_sequence,
 )
-from fastapi import APIRouter, Depends, Request, status
-from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -45,7 +46,7 @@ def run_endpoint(
     payload: RunRequest,
     request: Request,
     base_dir: Annotated[Path, Depends(get_base_dir)],
-) -> ApiEnvelope:
+) -> ApiEnvelope | JSONResponse:
     """run_endpoint."""
     try:
         sequence_path = None
@@ -69,7 +70,10 @@ def run_endpoint(
             payload.execution_mode,
         )
         result = _run_sequence(base_dir, seq, config)
-        run_id = result.get("run_id")
+        run_id_obj = result.get("run_id")
+        if not isinstance(run_id_obj, str) or not run_id_obj:
+            raise ValueError("run output missing run_id")
+        run_id = run_id_obj
         summary = _load_run_summary(base_dir, run_id, artifacts_dir)
         response = RunResponse.model_validate(summary)
     except Exception as exc:  # noqa: BLE001

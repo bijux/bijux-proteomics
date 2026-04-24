@@ -19,4 +19,7 @@ def test_runtime_api_health_endpoint() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "ok"
-    assert payload["data"]["runtime"] == "bijux-proteomics-runtime canonical runtime surface"
+    assert (
+        payload["data"]["runtime"]
+        == "bijux-proteomics-runtime canonical runtime surface"
+    )

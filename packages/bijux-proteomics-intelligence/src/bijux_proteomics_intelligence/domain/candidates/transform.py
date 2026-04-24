@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.domain.candidates.model import Candidate as DomainCandidate
+from bijux_proteomics_intelligence.domain.candidates.model import (
+    Candidate as DomainCandidate,
+)
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 
 

@@ -11,9 +11,9 @@ import time
 from typing import Any
 
 from loguru import logger
-import requests  # type: ignore[import-untyped]
-from requests.adapters import HTTPAdapter  # type: ignore[import-untyped]
-from requests.exceptions import RequestException  # type: ignore[import-untyped]
+import requests
+from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
 from urllib3.util.retry import Retry
 
 from bijux_proteomics_runtime.providers.base import (
@@ -55,7 +55,7 @@ class APIColabFoldProvider(BaseProvider):
             or ""
         ).strip()
         self.headers = {"Authorization": f"Bearer {self.token}"} if self.token else {}
-        self.session = requests.Session()  # type: ignore[attr-defined]
+        self.session = requests.Session()
         retry = Retry(
             total=5,
             connect=5,

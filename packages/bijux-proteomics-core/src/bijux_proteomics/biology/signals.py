@@ -38,6 +38,7 @@ class SignalPayload(BaseModel):
     @field_validator("source_id")
     @classmethod
     def _validate_source_id(cls, value: str) -> str:
+        """Enforce a non-empty source identifier for traceable signaling."""
         if not value.strip():
             raise ValueError("Signal source_id must be non-empty.")
         return value
@@ -45,6 +46,7 @@ class SignalPayload(BaseModel):
     @field_validator("targets")
     @classmethod
     def _validate_targets(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        """Reject blank target identifiers in signal fan-out payloads."""
         if any(not target.strip() for target in value):
             raise ValueError("Signal target ids must be non-empty.")
         return value
@@ -52,6 +54,7 @@ class SignalPayload(BaseModel):
     @field_validator("metadata")
     @classmethod
     def _validate_metadata(cls, value: dict[str, Any]) -> dict[str, Any]:
+        """Ensure metadata keys are JSON-serializable string identifiers."""
         for key in value:
             if not isinstance(key, str):
                 raise TypeError("Signal metadata keys must be strings.")

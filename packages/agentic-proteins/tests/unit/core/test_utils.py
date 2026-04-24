@@ -7,10 +7,11 @@ import math
 import textwrap
 from typing import Any, cast
 
-import agentic_proteins.domain as U
-from agentic_proteins.domain.structure import structure as structure_mod
 import numpy as np
 import pytest
+
+import agentic_proteins.domain as U
+from agentic_proteins.domain.structure import structure as structure_mod
 
 # ------------------------ tiny PDB builders ------------------------
 
@@ -153,6 +154,7 @@ def test_tertiary_summary_from_structure_bands_and_empty(
     assert abs(sum(ter.plddt_bands.values()) - 100.0) < 1e-6
     # empty list → mean is NaN; check with isnan
     ter0 = U.tertiary_summary_from_structure(s, [])
+    assert ter0.mean_plddt is not None
     assert math.isnan(ter0.mean_plddt)
 
 

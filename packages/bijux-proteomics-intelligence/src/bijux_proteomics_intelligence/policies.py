@@ -7,8 +7,9 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from pydantic import ConfigDict, Field
+
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
 class TieBreakRule(StrEnum):
