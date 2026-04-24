@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 COMPAT_INTERFACES_DIR = REPO_ROOT / "docs" / "02-agentic-proteins" / "interfaces"
 

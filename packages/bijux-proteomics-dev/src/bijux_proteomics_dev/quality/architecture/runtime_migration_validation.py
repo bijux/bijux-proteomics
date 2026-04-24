@@ -76,11 +76,12 @@ def _check_release_matrices(repo_root: Path) -> ValidationResult:
 
 
 def _run_pytest(repo_root: Path) -> ValidationResult:
-    import pytest
+    import importlib
 
     previous_cwd = Path.cwd()
     try:
         os.chdir(repo_root)
+        pytest = importlib.import_module("pytest")
         result_code = pytest.main(["-q", *COMPATIBILITY_TESTS])
     finally:
         os.chdir(previous_cwd)

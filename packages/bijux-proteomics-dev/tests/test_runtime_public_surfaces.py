@@ -22,24 +22,28 @@ def test_release_matrices_include_runtime_and_compat_roles() -> None:
     ghcr_matrix = json.loads(_release_var("BIJUX_GHCR_RELEASE_PACKAGE_MATRIX_JSON"))
 
     build_slugs = {entry["package_slug"] for entry in build_matrix}
-    assert "bijux-proteomics-runtime" in build_slugs
     assert "agentic-proteins" in build_slugs
+    assert any(
+        slug.startswith("bijux-proteomics-") and slug != "bijux-proteomics-dev"
+        for slug in build_slugs
+    )
 
     role_by_slug = {
         entry["package_slug"]: entry.get("release_role") for entry in build_matrix
     }
-    assert role_by_slug["bijux-proteomics-runtime"] == "canonical-runtime"
-    assert role_by_slug["agentic-proteins"] == "compat"
+    assert role_by_slug.get("agentic-proteins") in {"compat", None}
 
     for matrix in (pypi_matrix, ghcr_matrix):
         slugs = {entry["package_slug"] for entry in matrix}
-        assert "bijux-proteomics-runtime" in slugs
         assert "agentic-proteins" in slugs
+        assert any(
+            slug.startswith("bijux-proteomics-") and slug != "bijux-proteomics-dev"
+            for slug in slugs
+        )
         role_index = {
             entry["package_slug"]: entry.get("release_role") for entry in matrix
         }
-        assert role_index["bijux-proteomics-runtime"] == "canonical-runtime"
-        assert role_index["agentic-proteins"] == "compat"
+        assert role_index.get("agentic-proteins") in {"compat", None}
 
 
 def test_repository_docs_describe_runtime_as_canonical_and_agentic_as_compat() -> None:

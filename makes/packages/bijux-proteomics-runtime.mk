@@ -10,5 +10,6 @@ TEST_REAL_LOCAL_PATH :=
 TEST_MAIN_ARGS :=
 TEST_CI_TARGETS := test-unit
 TEST_COVERAGE_FAIL_UNDER := 60
+CODESPELL := $(if $(ACT),$(ACT)/codespell,codespell) -L SER
 
 include $(abspath $(dir $(firstword $(MAKEFILE_LIST))))/../bijux-py/package.mk
