@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
@@ -25,12 +25,8 @@ class DesignLoopState:
     executions: int = 0
     uncertainty: float = 0.0
     iteration_index: int = 0
-    stopping_criteria: list[str] = None  # type: ignore[assignment]
+    stopping_criteria: list[str] = field(default_factory=list)
     improvement_delta: float = 0.0
-
-    def __post_init__(self) -> None:
-        if self.stopping_criteria is None:
-            self.stopping_criteria = []
 
 
 class PipelineResultProtocol(Protocol):
