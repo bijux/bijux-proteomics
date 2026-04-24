@@ -17,12 +17,12 @@ import uvicorn
 
 from bijux_proteomics_intelligence.domain.candidates import CandidateStore
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
-from bijux_proteomics_runtime.runtime_identity import runtime_banner
 from bijux_proteomics_runtime.runtime import RunManager
 from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
 from bijux_proteomics_runtime.runtime.control import compare_runs
 from bijux_proteomics_runtime.runtime.infra import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.runtime_identity import runtime_banner
 
 
 def _package_version() -> str:
@@ -117,7 +117,7 @@ def _validate_sequence(sequence: str) -> None:
     RunRequest.model_validate({"sequence": sequence})
 
 
-def _run_sequence(base_dir: Path, sequence: str, config: RunConfig) -> dict:
+def _run_sequence(base_dir: Path, sequence: str, config: RunConfig) -> dict[str, Any]:
     """_run_sequence."""
     manager = RunManager(base_dir, config)
     return manager.run(sequence)
@@ -130,7 +130,7 @@ def _resume_candidate(
     provider: str | None,
     artifacts_dir: Path | None,
     execution_mode: str,
-) -> dict:
+) -> dict[str, Any]:
     """_resume_candidate."""
     if rounds < 1:
         raise ValueError("--rounds must be >= 1")
@@ -148,7 +148,7 @@ def _resume_candidate(
     return manager.run_candidate(candidate)
 
 
-def _compare_runs_payload(run_a: Path, run_b: Path) -> dict:
+def _compare_runs_payload(run_a: Path, run_b: Path) -> dict[str, Any]:
     """_compare_runs_payload."""
     return compare_runs(run_a, run_b)
 
@@ -196,7 +196,7 @@ def _artifact_paths(
     }
 
 
-def _emit_json_payload(payload: dict | list | str, pretty: bool) -> None:
+def _emit_json_payload(payload: dict[str, Any] | list[Any] | str, pretty: bool) -> None:
     """_emit_json_payload."""
     if pretty:
         click.echo(json.dumps(payload, indent=2, sort_keys=True, default=str))
@@ -213,7 +213,8 @@ def _load_run_summary(
         run_id,
         artifacts_root_override=artifacts_dir,
     )
-    return json.loads(workspace.run_summary_path.read_text())
+    payload = json.loads(workspace.run_summary_path.read_text())
+    return payload if isinstance(payload, dict) else {}
 
 
 def _load_run_config(run_dir: Path) -> RunConfig:

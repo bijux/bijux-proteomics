@@ -8,6 +8,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
+
 from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import ok_envelope, raise_http_error
 from bijux_proteomics_runtime.api.v1.schema import (
@@ -18,8 +21,6 @@ from bijux_proteomics_runtime.api.v1.schema import (
 )
 from bijux_proteomics_runtime.core.status import WorkflowState
 from bijux_proteomics_runtime.interfaces.cli import _load_run_summary, _resume_candidate
-from fastapi import APIRouter, Depends, Request, status
-from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -45,7 +46,7 @@ def resume_endpoint(
     payload: ResumeRequest,
     request: Request,
     base_dir: Annotated[Path, Depends(get_base_dir)],
-) -> ApiEnvelope:
+) -> ApiEnvelope | JSONResponse:
     """resume_endpoint."""
     try:
         artifacts_dir = None
@@ -70,6 +71,8 @@ def resume_endpoint(
             workflow_state = summary.get("workflow_state")
             if workflow_state == WorkflowState.DONE.value:
                 raise RuntimeError(f"Run {run_id} already completed.")
+        if candidate_id is None:
+            raise ValueError("candidate_id could not be resolved")
         result = _resume_candidate(
             base_dir,
             candidate_id,
@@ -78,7 +81,10 @@ def resume_endpoint(
             artifacts_dir,
             payload.execution_mode,
         )
-        run_id = result.get("run_id")
+        run_id_obj = result.get("run_id")
+        if not isinstance(run_id_obj, str) or not run_id_obj:
+            raise ValueError("resume output missing run_id")
+        run_id = run_id_obj
         summary = _load_run_summary(base_dir, run_id, artifacts_dir)
         response = RunResponse.model_validate(summary)
     except Exception as exc:  # noqa: BLE001

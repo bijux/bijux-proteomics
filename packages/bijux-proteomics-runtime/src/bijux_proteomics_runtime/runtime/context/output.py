@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -55,7 +56,7 @@ class RunOutput(BaseModel):
     failure_type: str = Field(..., min_length=1, description="Failure type code.")
     plan_fingerprint: str = Field(..., min_length=1, description="Plan fingerprint.")
     tool_status: str = Field(..., min_length=1, description="Tool execution status.")
-    report: dict = Field(default_factory=dict, description="Report payload.")
+    report: dict[str, Any] = Field(default_factory=dict, description="Report payload.")
     qc_status: QCStatus = Field(QCStatus.REJECT, description="QC status.")
     coordinator_decision: CoordinatorDecisionType = Field(
         CoordinatorDecisionType.TERMINATE,

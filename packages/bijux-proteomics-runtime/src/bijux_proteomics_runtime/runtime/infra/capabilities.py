@@ -22,15 +22,19 @@ KNOWN_PROVIDERS = {
 
 
 def validate_runtime_capabilities(
-    config: dict, allow_unknown: bool = False
+    config: dict[str, object], allow_unknown: bool = False
 ) -> tuple[list[str], list[str]]:
     """Return (errors, warnings) for capability checks."""
     errors: list[str] = []
     warnings: list[str] = []
-    enabled = config.get("predictors_enabled", []) or []
+    enabled_obj = config.get("predictors_enabled", []) or []
+    enabled = enabled_obj if isinstance(enabled_obj, list) else []
     if not enabled:
         return ["no_providers_enabled"], warnings
-    execution_mode = (config.get("execution_mode") or "auto").lower()
+    execution_mode_obj = config.get("execution_mode", "auto")
+    execution_mode = (
+        execution_mode_obj if isinstance(execution_mode_obj, str) else "auto"
+    ).lower()
     for provider_name in enabled:
         if provider_name not in KNOWN_PROVIDERS and not allow_unknown:
             errors.append(f"unknown_provider:{provider_name}")
@@ -38,7 +42,10 @@ def validate_runtime_capabilities(
         capabilities = PROVIDER_CAPABILITIES.get(provider_name)
         if capabilities:
             gpu_ok = cuda_available()
-            resource_limits = config.get("resource_limits", {})
+            resource_limits_obj = config.get("resource_limits", {})
+            resource_limits = (
+                resource_limits_obj if isinstance(resource_limits_obj, dict) else {}
+            )
             gpu_seconds = float(resource_limits.get("gpu_seconds", 0.0))
             if execution_mode == "gpu":
                 if not gpu_ok:

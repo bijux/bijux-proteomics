@@ -5,10 +5,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request, status
+from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -21,7 +22,10 @@ from bijux_proteomics_runtime.api.errors import (
     ok_envelope,
     validation_error,
 )
-from bijux_proteomics_runtime.api.middleware import RequestIdMiddleware, RequestLogMiddleware
+from bijux_proteomics_runtime.api.middleware import (
+    RequestIdMiddleware,
+    RequestLogMiddleware,
+)
 from bijux_proteomics_runtime.api.v1.router import router as v1_router
 from bijux_proteomics_runtime.api.v1.schema import ApiEnvelope
 from bijux_proteomics_runtime.providers import provider_metadata
@@ -62,7 +66,9 @@ def create_app(config: AppConfig) -> FastAPI:
     app.add_middleware(RequestLogMiddleware)
 
     @app.middleware("http")
-    async def _method_guard(request: Request, call_next) -> JSONResponse:
+    async def _method_guard(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """Return 405 for unsupported methods on known routes."""
         scope = request.scope
         if scope.get("type") == "http":
@@ -72,8 +78,9 @@ def create_app(config: AppConfig) -> FastAPI:
                 match, _ = route.matches(scope)
                 if match in {Match.FULL, Match.PARTIAL}:
                     matched = True
-                    if route.methods:
-                        allowed_methods.update(route.methods)
+                    route_methods = getattr(route, "methods", None)
+                    if route_methods:
+                        allowed_methods.update(route_methods)
             if matched and request.method not in allowed_methods:
                 allow_header = ", ".join(sorted(allowed_methods))
                 payload = method_not_allowed(
@@ -119,15 +126,15 @@ def create_app(config: AppConfig) -> FastAPI:
 
     @app.get("/health", tags=["health"], response_model=ApiEnvelope)
     @app.get("/api/v1/health", tags=["health"], response_model=ApiEnvelope)
-    def health() -> dict[str, str]:
+    def health() -> dict[str, object]:
         """health."""
         return ok_envelope({"status": "ok", "runtime": runtime_banner()})
 
     @app.get("/ready", tags=["health"], response_model=ApiEnvelope)
     @app.get("/api/v1/ready", tags=["health"], response_model=ApiEnvelope)
-    def ready() -> dict[str, str]:
+    def ready() -> dict[str, object]:
         """ready."""
-        providers = {}
+        providers: dict[str, object] = {}
         try:
             for name in provider_metadata():
                 providers[name] = {
@@ -135,7 +142,7 @@ def create_app(config: AppConfig) -> FastAPI:
                 }
             status_value = "ok"
         except Exception as exc:  # noqa: BLE001
-            providers = {"error": {"detail": str(exc)}}
+            providers = {"error": [str(exc)]}
             status_value = "degraded"
         return ok_envelope(
             {

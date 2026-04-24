@@ -34,12 +34,12 @@ class CriticAgent(AgentRole):
     write_scopes: ClassVar[set[MemoryScope]] = {MemoryScope.EPHEMERAL}
 
     @classmethod
-    def input_schema(cls) -> dict:
+    def input_schema(cls) -> dict[str, object]:
         """input_schema."""
         return CriticAgentInput.model_json_schema()
 
     @classmethod
-    def output_schema(cls) -> dict:
+    def output_schema(cls) -> dict[str, object]:
         """output_schema."""
         return CriticAgentOutput.model_json_schema()
 
