@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.domain.metrics import compute_metrics
 from bijux_proteomics.domain.sequence import (
     HYDROPATHY,
     PKA_C_TERM,
@@ -25,6 +24,7 @@ from bijux_proteomics.domain.structure import (
     tertiary_summary_from_structure,
     tm_score,
 )
+from bijux_proteomics_intelligence.domain.metrics import compute_metrics
 from bijux_proteomics_knowledge.confidence import low_confidence_segments
 
 __all__ = [

@@ -8,6 +8,8 @@ from __future__ import annotations
 from enum import StrEnum
 from statistics import mean, median
 
+from pydantic import ConfigDict, Field
+
 from bijux_proteomics_foundation import AssayId, BatchId, JsonModel
 from bijux_proteomics_knowledge import (
     EvidenceKind,
@@ -15,8 +17,6 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
     NormalizedEvidenceInput,
 )
-from pydantic import ConfigDict, Field
-
 from bijux_proteomics_lab.repositories import LabFeedbackRecord
 
 

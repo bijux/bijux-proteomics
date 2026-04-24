@@ -21,7 +21,9 @@ from bijux_proteomics_intelligence.domain.candidates.store import (
     CandidateStore,
     CandidateVersion,
 )
-from bijux_proteomics_intelligence.domain.candidates.transform import candidate_to_domain
+from bijux_proteomics_intelligence.domain.candidates.transform import (
+    candidate_to_domain,
+)
 from bijux_proteomics_intelligence.domain.candidates.updates import (
     metrics_from_outputs,
     update_candidate_from_result,
