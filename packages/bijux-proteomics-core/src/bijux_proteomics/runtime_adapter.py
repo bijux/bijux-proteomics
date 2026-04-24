@@ -14,6 +14,7 @@ class AgenticProteinsBackend:
     """Execution backend backed by the Agentic Proteins runtime."""
 
     def execute(self, request: ExecutionRequest) -> dict[str, Any]:
+        """Execute a core request through the runtime RunManager entrypoint."""
         from agentic_proteins.runtime import RunManager
         from agentic_proteins.runtime.infra import RunConfig
 

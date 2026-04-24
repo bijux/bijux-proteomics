@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from bijux_proteomics.biology.protein_agent import ProteinAgent
 from bijux_proteomics.biology.signals import SignalPayload
 
-if False:  # pragma: no cover - type checking only
+if TYPE_CHECKING:
     from bijux_proteomics.biology.pathway import PathwayContract, PathwayExecutor
 
 
@@ -90,30 +90,25 @@ class LLMRegulator:
 
     model_id: str
     temperature: float = 0.0
-    authority: LLMAuthorityBoundary | None = None
+    authority: LLMAuthorityBoundary = field(
+        default_factory=lambda: LLMAuthorityBoundary(
+            allowed_actions=(
+                LLMAction.TUNE_PROBABILITY,
+                LLMAction.ADJUST_THRESHOLD,
+                LLMAction.SUGGEST_WEIGHT,
+            ),
+            forbidden_actions=(),
+            permission=PermissionMode.READ_ONLY,
+        )
+    )
     approval_mode: ApprovalMode = ApprovalMode.AUTO_APPROVE
     approval_hook: Callable[[Proposal], bool] | None = None
-    failure_modes: list[LLMFailureMode] = None  # type: ignore[assignment]
-    observations: list[LLMObservation] = None  # type: ignore[assignment]
-    prompt_log: list[str] = None  # type: ignore[assignment]
+    failure_modes: list[LLMFailureMode] = field(default_factory=list)
+    observations: list[LLMObservation] = field(default_factory=list)
+    prompt_log: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        if self.failure_modes is None:
-            self.failure_modes = []
-        if self.observations is None:
-            self.observations = []
-        if self.prompt_log is None:
-            self.prompt_log = []
-        if self.authority is None:
-            self.authority = LLMAuthorityBoundary(
-                allowed_actions=(
-                    LLMAction.TUNE_PROBABILITY,
-                    LLMAction.ADJUST_THRESHOLD,
-                    LLMAction.SUGGEST_WEIGHT,
-                ),
-                forbidden_actions=(),
-                permission=PermissionMode.READ_ONLY,
-            )
+        pass
 
     def propose(self, prompt: str, proposal: Proposal | None) -> Proposal | None:
         self.prompt_log.append(prompt)

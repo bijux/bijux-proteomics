@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from bijux_proteomics.biology import ProteinConstraints, ProteinState, SignalPayload, SignalType
+from bijux_proteomics.biology import (
+    ProteinConstraints,
+    ProteinState,
+    SignalPayload,
+    SignalType,
+)
 from bijux_proteomics.biology.protein_agent import ProteinAgent
 
 

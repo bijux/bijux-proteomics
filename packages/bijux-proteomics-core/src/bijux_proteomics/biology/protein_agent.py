@@ -108,21 +108,26 @@ class ProteinAgent:
 
     @property
     def internal_state(self) -> ProteinState:
+        """Expose the current internal state with mutation guards."""
         return self._internal_state
 
     @internal_state.setter
     def internal_state(self, value: ProteinState) -> None:
+        """Allow state transitions only inside controlled transition flows."""
         if not self._allow_direct_mutation and not self._in_transition:
             raise ValueError("Direct state mutation is forbidden.")
         self._internal_state = value
 
     def allow_direct_mutation(self) -> None:
+        """Temporarily lift direct-mutation guardrails for controlled internals."""
         self._allow_direct_mutation = True
 
     def deny_direct_mutation(self) -> None:
+        """Re-enable strict mutation guardrails after controlled updates."""
         self._allow_direct_mutation = False
 
     def clone(self) -> ProteinAgent:
+        """Create a deterministic reset clone that preserves static configuration."""
         return ProteinAgent(
             agent_id=self.agent_id,
             internal_state=self._initial_state,
@@ -136,13 +141,16 @@ class ProteinAgent:
         )
 
     def tunable_parameters(self) -> set[str]:
+        """List supported tunable parameter names for regulator updates."""
         return {"transition_probabilities", "noise_sigma", "energy_cost"}
 
     @property
     def disabled(self) -> bool:
+        """Return whether the agent has been administratively disabled."""
         return self._disabled
 
     def record_memory(self, key: str, value: Any, *, decay_steps: int) -> None:
+        """Store bounded short-term memory with expiration semantics."""
         if decay_steps <= 0:
             return
         if len(self._memory) >= self._memory_capacity:
@@ -153,10 +161,12 @@ class ProteinAgent:
         self._memory[key] = _MemoryItem(value=value, remaining_steps=decay_steps)
 
     def get_memory(self, key: str) -> Any | None:
+        """Read a memory entry if it remains active."""
         item = self._memory.get(key)
         return None if item is None else item.value
 
     def decay_memory(self) -> None:
+        """Advance one decay step and evict expired memory entries."""
         expired = []
         for key, item in self._memory.items():
             item.remaining_steps -= 1

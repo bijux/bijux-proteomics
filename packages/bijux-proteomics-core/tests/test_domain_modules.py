@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.constraints import (
     ConstraintCategory,
@@ -45,7 +47,6 @@ from bijux_proteomics.targets import (
     summarize_tractability,
     target_summary,
 )
-import pytest
 
 
 def test_domain_modules_define_program_components() -> None:
