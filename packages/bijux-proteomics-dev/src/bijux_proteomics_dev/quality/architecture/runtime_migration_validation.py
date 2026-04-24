@@ -1,18 +1,20 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 import json
+import os
 from pathlib import Path
-import subprocess
-import sys
-from typing import Callable
 
 from bijux_proteomics_dev.api.freeze_contracts import run as run_api_freeze
-from bijux_proteomics_dev.quality.architecture.runtime_boundaries import run as run_runtime_boundaries
-from bijux_proteomics_dev.quality.architecture.runtime_migration_ledger import run as run_migration_ledger
+from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
+    run as run_runtime_boundaries,
+)
+from bijux_proteomics_dev.quality.architecture.runtime_migration_ledger import (
+    run as run_migration_ledger,
+)
 
-
-REQUIRED_RELEASE_SLUGS = ("bijux-proteomics-runtime", "agentic-proteins")
+REQUIRED_RELEASE_SLUGS = ("agentic-proteins",)
 COMPATIBILITY_TESTS = (
     "packages/agentic-proteins/tests/unit/compat/test_import_forwarding.py",
     "packages/bijux-proteomics-dev/tests/test_runtime_boundaries_compat_forwarding.py",
@@ -52,8 +54,14 @@ def _check_release_matrices(repo_root: Path) -> ValidationResult:
         matrix = _load_release_matrix(repo_root, variable)
         slugs = {str(entry.get("package_slug", "")).strip() for entry in matrix}
         missing = [slug for slug in REQUIRED_RELEASE_SLUGS if slug not in slugs]
+        has_core_release = any(
+            slug.startswith("bijux-proteomics-") and slug != "bijux-proteomics-dev"
+            for slug in slugs
+        )
         if missing:
             missing_by_matrix[variable] = missing
+        elif not has_core_release:
+            missing_by_matrix[variable] = ["bijux-proteomics-* release package"]
     if missing_by_matrix:
         return ValidationResult(
             name="release-matrices",
@@ -63,27 +71,25 @@ def _check_release_matrices(repo_root: Path) -> ValidationResult:
     return ValidationResult(
         name="release-matrices",
         ok=True,
-        detail="release matrices include canonical runtime and compatibility packages",
+        detail="release matrices include compatibility and core release packages",
     )
 
 
 def _run_pytest(repo_root: Path) -> ValidationResult:
-    cmd = [sys.executable, "-m", "pytest", "-q", *COMPATIBILITY_TESTS]
-    result = subprocess.run(
-        cmd,
-        cwd=repo_root,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        output = "\n".join(
-            line for line in (result.stdout + "\n" + result.stderr).splitlines()[-20:]
-        )
+    import pytest
+
+    previous_cwd = Path.cwd()
+    try:
+        os.chdir(repo_root)
+        result_code = pytest.main(["-q", *COMPATIBILITY_TESTS])
+    finally:
+        os.chdir(previous_cwd)
+
+    if result_code != 0:
         return ValidationResult(
             name="compatibility-tests",
             ok=False,
-            detail=output,
+            detail=f"compatibility test failures (exit code {result_code})",
         )
     return ValidationResult(
         name="compatibility-tests",
@@ -94,7 +100,9 @@ def _run_pytest(repo_root: Path) -> ValidationResult:
 
 def _check(name: str, fn: Callable[[], int], success_detail: str) -> ValidationResult:
     code = fn()
-    return ValidationResult(name=name, ok=code == 0, detail=success_detail if code == 0 else "failed")
+    return ValidationResult(
+        name=name, ok=code == 0, detail=success_detail if code == 0 else "failed"
+    )
 
 
 def run(repo_root: Path) -> int:
@@ -117,7 +125,7 @@ def run(repo_root: Path) -> int:
         _check(
             "release-matrices",
             lambda: 0 if _check_release_matrices(repo_root).ok else 1,
-            "release matrices include canonical runtime and compatibility packages",
+            "release matrices include compatibility and core release packages",
         ),
         _run_pytest(repo_root),
     ]
