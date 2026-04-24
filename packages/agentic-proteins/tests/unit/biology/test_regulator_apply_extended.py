@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from agentic_proteins.biology.pathway import PathwayContract
 from agentic_proteins.biology.protein_agent import (
     ProteinAgent,
@@ -15,7 +17,6 @@ from agentic_proteins.biology.regulator import (
     Proposal,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalType
-import pytest
 
 
 def _agent() -> ProteinAgent:

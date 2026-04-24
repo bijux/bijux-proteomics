@@ -6,11 +6,12 @@ from __future__ import annotations
 import importlib
 import re
 
+import pytest
+
 from agentic_proteins.agents.planning.schemas import Plan, PlanDecision, TaskSpec
 from agentic_proteins.agents.planning.validation import validate_plan
 from agentic_proteins.agents.schemas import PlannerAgentInput
 from agentic_proteins.registry.agents import AgentRegistry
-import pytest
 
 AGENT_MODULES = [
     "agentic_proteins.agents.planning.planner",

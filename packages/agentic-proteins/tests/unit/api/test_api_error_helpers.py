@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from typing import Any, cast
 
-from agentic_proteins.api import errors as errors_module
 from fastapi import status
 import pytest
+
+from agentic_proteins.api import errors as errors_module
 
 
 def test_map_exception_variants() -> None:

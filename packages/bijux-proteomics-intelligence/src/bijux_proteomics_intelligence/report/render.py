@@ -7,9 +7,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import asdict
+import importlib
 import json
 import os
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 
@@ -24,13 +25,21 @@ from bijux_proteomics_intelligence.report.compute import (
 )
 from bijux_proteomics_intelligence.report.model import Report
 
-try:
-    from langchain_community.llms import HuggingFaceHub
-    from langchain_core.prompts import PromptTemplate
+SummaryGenerator = Callable[[Report], str]
+TextGenerator = Callable[[str], str]
 
-    LANGCHAIN_AVAILABLE = True
-except ImportError:
-    LANGCHAIN_AVAILABLE = False
+
+def _load_langchain_dependencies() -> tuple[type[Any], type[Any]] | None:
+    try:
+        llms = importlib.import_module("langchain_community.llms")
+        prompts = importlib.import_module("langchain_core.prompts")
+    except ImportError:
+        return None
+    hub = getattr(llms, "HuggingFaceHub", None)
+    prompt_template = getattr(prompts, "PromptTemplate", None)
+    if hub is None or prompt_template is None:
+        return None
+    return hub, prompt_template
 
 
 def from_json(s: str) -> Report:
@@ -349,24 +358,26 @@ def confidence_summary(report: Report) -> str:
     return f"Unreliable ({dist_str}); validate experimentally, especially {segs_str}."
 
 
-def nl_summary(report: Report, generator: Callable | None = None) -> str:
+def nl_summary(report: Report, generator: SummaryGenerator | None = None) -> str:
     """nl_summary."""
     if generator:
         try:
-            return generator(report)
+            return str(generator(report))
         except Exception as exc:  # noqa: BLE001
             return f"NL summary failed: {str(exc)}"
     api_token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
     if not api_token:
         return "NL summary unavailable: HF_TOKEN or HUGGINGFACEHUB_API_TOKEN not set."
-    if not LANGCHAIN_AVAILABLE:
+    dependencies = _load_langchain_dependencies()
+    if dependencies is None:
         return "NL summary unavailable: LangChain dependencies not installed or import failed."
+    hugging_face_hub, prompt_template = dependencies
 
     repo = os.getenv("HF_REPO_ID", "google/flan-t5-large")
     temp = float(os.getenv("HF_TEMPERATURE", "0.1"))
     max_new = int(os.getenv("HF_MAX_NEW_TOKENS", "256"))
 
-    llm = HuggingFaceHub(
+    llm = hugging_face_hub(
         repo_id=repo,
         huggingfacehub_api_token=api_token,
         model_kwargs={
@@ -384,7 +395,7 @@ def nl_summary(report: Report, generator: Callable | None = None) -> str:
     Notes: {notes}
     ---\nSummary:
     """
-    prompt = PromptTemplate.from_template(template)
+    prompt = prompt_template.from_template(template)
     inputs = {
         "provider": report.provider,
         "metrics": json.dumps(json_safe(asdict(report.metrics)), ensure_ascii=False),
@@ -394,7 +405,7 @@ def nl_summary(report: Report, generator: Callable | None = None) -> str:
 
     try:
         formatted = prompt.format(**inputs)
-        return llm(formatted)
+        return str(cast(TextGenerator, llm)(formatted))
     except Exception:
         return "NL summary unavailable."
 

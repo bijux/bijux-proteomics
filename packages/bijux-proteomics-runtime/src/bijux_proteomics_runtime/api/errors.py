@@ -6,9 +6,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal, NoReturn
 
 from fastapi import status
+from pydantic import AnyUrl
 
 from bijux_proteomics_runtime.api.v1.schema import ApiEnvelope, ErrorResponse
 
@@ -41,16 +42,20 @@ _ERROR_TITLES: dict[ErrorType, str] = {
     "unexpected": "Internal server error",
 }
 
-_ERROR_TYPES: dict[ErrorType, str] = {
-    "invalid_input": "https://bijux-cli.dev/docs/errors/validation-error",
-    "not_found": "https://bijux-cli.dev/docs/errors/not-found",
-    "conflict": "https://bijux-cli.dev/docs/errors/conflict",
-    "human_review_required": "https://bijux-cli.dev/docs/errors/human-review-required",
-    "unexpected": "https://bijux-cli.dev/docs/errors/internal-error",
+_ERROR_TYPES: dict[ErrorType, AnyUrl] = {
+    "invalid_input": AnyUrl("https://bijux-cli.dev/docs/errors/validation-error"),
+    "not_found": AnyUrl("https://bijux-cli.dev/docs/errors/not-found"),
+    "conflict": AnyUrl("https://bijux-cli.dev/docs/errors/conflict"),
+    "human_review_required": AnyUrl(
+        "https://bijux-cli.dev/docs/errors/human-review-required"
+    ),
+    "unexpected": AnyUrl("https://bijux-cli.dev/docs/errors/internal-error"),
 }
 
-_METHOD_NOT_ALLOWED_TYPE = "https://bijux-cli.dev/docs/errors/method-not-allowed"
-_BAD_REQUEST_TYPE = "https://bijux-cli.dev/docs/errors/bad-request"
+_METHOD_NOT_ALLOWED_TYPE = AnyUrl(
+    "https://bijux-cli.dev/docs/errors/method-not-allowed"
+)
+_BAD_REQUEST_TYPE = AnyUrl("https://bijux-cli.dev/docs/errors/bad-request")
 
 
 def map_exception(exc: Exception) -> tuple[int, ErrorType]:
@@ -68,7 +73,7 @@ def map_exception(exc: Exception) -> tuple[int, ErrorType]:
 
 def _build_error(
     error_type: ErrorType, status_code: int, detail: str, instance: str
-) -> dict:
+) -> dict[str, Any]:
     """_build_error."""
     return ErrorResponse(
         type=_ERROR_TYPES[error_type],
@@ -79,7 +84,7 @@ def _build_error(
     ).model_dump(mode="json")
 
 
-def raise_http_error(exc: Exception, instance: str) -> None:
+def raise_http_error(exc: Exception, instance: str) -> NoReturn:
     """raise_http_error."""
     status_code, error_type = map_exception(exc)
     detail = _build_error(error_type, status_code, str(exc), instance)
@@ -92,7 +97,7 @@ def raise_http_error(exc: Exception, instance: str) -> None:
     raise ApiError(status_code=status_code, payload=payload) from exc
 
 
-def validation_error(detail: str, instance: str) -> dict:
+def validation_error(detail: str, instance: str) -> dict[str, Any]:
     """validation_error."""
     error = _build_error(
         "invalid_input", status.HTTP_422_UNPROCESSABLE_CONTENT, detail, instance
@@ -105,7 +110,7 @@ def validation_error(detail: str, instance: str) -> dict:
     ).model_dump(mode="json")
 
 
-def method_not_allowed(detail: str, instance: str) -> dict:
+def method_not_allowed(detail: str, instance: str) -> dict[str, Any]:
     """method_not_allowed."""
     error = ErrorResponse(
         type=_METHOD_NOT_ALLOWED_TYPE,
@@ -122,7 +127,7 @@ def method_not_allowed(detail: str, instance: str) -> dict:
     ).model_dump(mode="json")
 
 
-def http_error(status_code: int, detail: str, instance: str) -> dict:
+def http_error(status_code: int, detail: str, instance: str) -> dict[str, Any]:
     """http_error."""
     title = "HTTP error"
     error_type = _ERROR_TYPES["unexpected"]
@@ -153,11 +158,8 @@ def http_error(status_code: int, detail: str, instance: str) -> dict:
     ).model_dump(mode="json")
 
 
-def ok_envelope(data: dict, meta: dict | None = None) -> dict:
+def ok_envelope(
+    data: dict[str, Any], meta: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """ok_envelope."""
-    return ApiEnvelope(
-        status="ok",
-        data=data,
-        error=None,
-        meta=meta or {},
-    ).model_dump(mode="json")
+    return {"status": "ok", "data": data, "error": None, "meta": meta or {}}

@@ -196,7 +196,10 @@ class CandidateStore:
     @staticmethod
     def _read_json(path: Path) -> dict[str, Any]:
         """_read_json."""
-        return json.loads(path.read_text())
+        payload = json.loads(path.read_text())
+        if not isinstance(payload, dict):
+            raise ValueError(f"Expected JSON object at {path}")
+        return payload
 
     @staticmethod
     def _ensure_safe_id(value: str, label: str) -> None:

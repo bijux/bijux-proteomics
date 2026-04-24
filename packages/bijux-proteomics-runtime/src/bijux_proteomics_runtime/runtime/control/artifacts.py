@@ -13,9 +13,11 @@ from typing import Any
 
 from bijux_proteomics_runtime.core.failures import FailureType, suggest_next_action
 from bijux_proteomics_runtime.core.hashing import sha256_hex
-from bijux_proteomics_runtime.runtime.adapters import Candidate
+from bijux_proteomics_runtime.core.tooling import ToolError
 from bijux_proteomics_runtime.runtime.adapters import (
+    Candidate,
     CandidateSelection,
+    candidate_to_domain,
     select_candidates,
 )
 from bijux_proteomics_runtime.runtime.context import RunContext
@@ -27,7 +29,7 @@ from bijux_proteomics_runtime.runtime.workspace import (
 from bijux_proteomics_runtime.state.schemas import ArtifactMetadata
 
 
-def map_failure_type(status: str, error) -> str:
+def map_failure_type(status: str, error: ToolError | None) -> str:
     """map_failure_type."""
     if status == "success":
         return ""
@@ -43,7 +45,7 @@ def map_failure_type(status: str, error) -> str:
 
 
 def write_failure_artifacts(
-    run_context: RunContext, failure_type: FailureType, details: dict
+    run_context: RunContext, failure_type: FailureType, details: dict[str, Any]
 ) -> None:
     """write_failure_artifacts."""
     payload = {
@@ -80,7 +82,8 @@ def write_artifact(
 def load_artifact(workspace: RunWorkspace, artifact_id: str) -> dict[str, Any]:
     """load_artifact."""
     path = workspace.artifact_items_dir / f"{artifact_id}.json"
-    return json.loads(path.read_text())
+    payload = json.loads(path.read_text())
+    return payload if isinstance(payload, dict) else {}
 
 
 @dataclass
@@ -144,9 +147,9 @@ class TelemetryHooks:
     def record_execution_snapshot(
         self,
         iteration_index: int,
-        state: dict,
-        decisions: list[dict],
-        tool_outputs: list[dict],
+        state: dict[str, Any],
+        decisions: list[dict[str, Any]],
+        tool_outputs: list[dict[str, Any]],
     ) -> None:
         """record_execution_snapshot."""
         self._execution_snapshots.record(
@@ -208,7 +211,9 @@ def require_human_decision(
     top_n: int = 3,
 ) -> CandidateSelection:
     """require_human_decision."""
-    selection = select_candidates(candidates, top_n=top_n)
+    selection = select_candidates(
+        [candidate_to_domain(candidate) for candidate in candidates], top_n=top_n
+    )
     _write_json(workspace.candidate_selection_path, selection_as_dict(selection))
     _write_json(
         workspace.human_decision_path,
@@ -271,7 +276,8 @@ def _load_run(path: Path) -> dict[str, Any]:
     else:
         workspace = _workspace_for_dir(path)
         target = workspace.run_output_path if workspace else path / "run_output.json"
-    return json.loads(target.read_text())
+    payload = json.loads(target.read_text())
+    return payload if isinstance(payload, dict) else {}
 
 
 def _load_analysis(path: Path) -> dict[str, Any]:
@@ -283,7 +289,8 @@ def _load_analysis(path: Path) -> dict[str, Any]:
         target = workspace.analysis_path if workspace else path / "analysis.json"
     if not target.exists():
         return {}
-    return json.loads(target.read_text())
+    payload = json.loads(target.read_text())
+    return payload if isinstance(payload, dict) else {}
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:

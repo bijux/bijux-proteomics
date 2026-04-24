@@ -17,6 +17,6 @@ domain ownership in canonical lower layers:
 
 ## Package docs
 
-- [Architecture](../../packages/bijux-proteomics-runtime/docs/ARCHITECTURE.md)
-- [Boundaries](../../packages/bijux-proteomics-runtime/docs/BOUNDARIES.md)
-- [Contracts](../../packages/bijux-proteomics-runtime/docs/CONTRACTS.md)
+- [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/ARCHITECTURE.md)
+- [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/BOUNDARIES.md)
+- [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/CONTRACTS.md)

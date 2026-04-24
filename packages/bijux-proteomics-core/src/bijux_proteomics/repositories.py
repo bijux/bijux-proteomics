@@ -9,12 +9,12 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Protocol
 
-from bijux_proteomics_foundation import ContractConflictError, ContractNotFoundError
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.program_spec import ProgramSpec
 from bijux_proteomics.reviews import ReviewGate
 from bijux_proteomics.serialization import JsonModel
+from bijux_proteomics_foundation import ContractConflictError, ContractNotFoundError
 
 
 class ReviewOutcome(StrEnum):

@@ -3,13 +3,14 @@
 
 from __future__ import annotations
 
+import pytest
+
 from agentic_proteins.biology.protein_agent import (
     ProteinAgent,
     ProteinConstraints,
     ProteinState,
 )
 from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
-import pytest
 
 
 def test_contributor_misuse_invalid_transition_blocked() -> None:

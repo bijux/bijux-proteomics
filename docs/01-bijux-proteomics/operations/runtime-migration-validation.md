@@ -25,7 +25,7 @@ This command verifies:
 - runtime boundary contracts (lower layers cannot import runtime)
 - migration ledger freshness and full module coverage
 - API freeze contracts under `apis/*/v1`
-- release matrix inclusion of canonical runtime and compatibility packages
+- release matrix inclusion of compatibility and core release packages
 - compatibility import, CLI, and API parity tests
 
 ## Coordinated Release Checklist
@@ -43,9 +43,9 @@ Use this order for coordinated release readiness:
    - `BIJUX_RELEASE_BUILD_MATRIX_JSON`
    - `BIJUX_PYPI_PACKAGE_MATRIX_JSON`
    - `BIJUX_GHCR_RELEASE_PACKAGE_MATRIX_JSON`
-5. Confirm canonical versus compatibility release language:
-   - `bijux-proteomics-runtime` as canonical runtime package
+5. Confirm release package language:
    - `agentic-proteins` as compatibility package
+   - `bijux-proteomics-*` packages as core release packages
 6. Execute release dry-run workflows or controlled tag release.
 
 ## Purpose

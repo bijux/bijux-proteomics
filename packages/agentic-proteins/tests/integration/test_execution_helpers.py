@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.metadata
 from pathlib import Path
 
+import pytest
+
 from agentic_proteins.runtime.context import (
     RunLifecycleState,
     VersionInfo,
@@ -14,7 +16,6 @@ from agentic_proteins.runtime.control.execution import (
     _select_structure_tool,
     _version_info,
 )
-import pytest
 
 
 def test_build_run_summary_maps_status(tmp_path: Path) -> None:

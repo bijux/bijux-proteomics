@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 import json
 
+from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.agents.execution.coordinator import CoordinatorAgent
 from bijux_proteomics_runtime.agents.planning.compiler import compile_plan_to_execution
 from bijux_proteomics_runtime.agents.planning.planner import PlannerAgent
@@ -19,7 +20,9 @@ from bijux_proteomics_runtime.agents.schemas import (
     QualityControlAgentInput,
 )
 from bijux_proteomics_runtime.agents.verification.critic import CriticAgent
-from bijux_proteomics_runtime.agents.verification.quality_control import QualityControlAgent
+from bijux_proteomics_runtime.agents.verification.quality_control import (
+    QualityControlAgent,
+)
 from bijux_proteomics_runtime.core.decisions import Decision
 from bijux_proteomics_runtime.core.execution import (
     ExecutionContext,
@@ -29,7 +32,6 @@ from bijux_proteomics_runtime.core.execution import (
 )
 from bijux_proteomics_runtime.core.hashing import sha256_hex
 from bijux_proteomics_runtime.core.observations import EvaluationInput, PlanMetadata
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.execution.compiler.boundary import ExecutionBoundary
 from bijux_proteomics_runtime.execution.evaluation.schemas import (
     AgentScorecard,
@@ -45,7 +47,11 @@ from bijux_proteomics_runtime.execution.runtime.executor import (
 from bijux_proteomics_runtime.registry.agents import AgentRegistry
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
 from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
-from bijux_proteomics_runtime.tools.schemas import InvocationInput, ToolInvocationSpec
+from bijux_proteomics_runtime.tools.schemas import (
+    InvocationInput,
+    ToolInvocationSpec,
+    ToolResult,
+)
 
 
 class HeuristicBoundary(ExecutionBoundary):
@@ -55,7 +61,7 @@ class HeuristicBoundary(ExecutionBoundary):
         """__init__."""
         self._tool = HeuristicStructureTool()
 
-    def execute(self, invocation: ToolInvocationSpec):
+    def execute(self, invocation: ToolInvocationSpec) -> ToolResult:
         """execute."""
         return self._tool.run(invocation.invocation_id, invocation.inputs)
 
@@ -70,7 +76,7 @@ class EvaluationRunner:
     def run(self, cases: list[EvaluationCase]) -> EvaluationReport:
         """run."""
         results: list[EvaluationResult] = []
-        scorecard_inputs: dict[str, list[dict]] = {}
+        scorecard_inputs: dict[str, list[dict[str, object]]] = {}
 
         for case in cases:
             if not AgentRegistry.list():
@@ -266,13 +272,19 @@ class EvaluationRunner:
         return EvaluationReport(results=results, scorecards=scorecards)
 
 
-def _aggregate_scorecards(per_agent: dict[str, list[dict]]) -> list[AgentScorecard]:
+def _aggregate_scorecards(
+    per_agent: dict[str, list[dict[str, object]]],
+) -> list[AgentScorecard]:
     """_aggregate_scorecards."""
     scorecards: list[AgentScorecard] = []
     for agent_name, items in sorted(per_agent.items()):
         cases = len(items)
         failure_count = sum(1 for item in items if item["failure"])
-        uncertainty_total = sum(float(item["uncertainty"]) for item in items)
+        uncertainty_total = 0.0
+        for item in items:
+            uncertainty_value = item.get("uncertainty", 0.0)
+            if isinstance(uncertainty_value, (int, float)):
+                uncertainty_total += float(uncertainty_value)
         try:
             agent_cls = AgentRegistry.get(agent_name)
             cost_total = agent_cls.cost_budget * cases

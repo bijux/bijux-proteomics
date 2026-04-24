@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_intelligence import (
     CandidateAssayAgendaItem,
     CandidateAssessment,
@@ -41,7 +43,6 @@ from bijux_proteomics_intelligence import (
     transition_candidate,
     validate_transition_history,
 )
-import pytest
 
 
 def test_build_risk_profile_rolls_liabilities_into_residual_risk() -> None:

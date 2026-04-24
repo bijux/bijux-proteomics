@@ -6,8 +6,9 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any, cast
 
-from agentic_proteins.providers import factory
 import pytest
+
+from agentic_proteins.providers import factory
 
 
 def test_provider_requirements_missing_weights(

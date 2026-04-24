@@ -5,26 +5,32 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.agents.planning.schemas import Plan
 from bijux_proteomics.domain.sequence.validation import validate_sequence
+from bijux_proteomics_runtime.agents.planning.schemas import Plan
 from bijux_proteomics_runtime.registry.agents import AgentRegistry
+from bijux_proteomics_runtime.runtime.adapters import Candidate
 
 
 class PlanningValidator:
     """PlanningValidator."""
 
-    def validate_candidate(self, candidate) -> list[str]:
+    def validate_candidate(self, candidate: Candidate) -> list[str]:
         """validate_candidate."""
         return validate_sequence(candidate.sequence)
 
-    def validate_tool_enabled(self, tool_name: str, config: dict) -> list[str]:
+    def validate_tool_enabled(
+        self, tool_name: str, config: dict[str, object]
+    ) -> list[str]:
         """validate_tool_enabled."""
-        enabled = set(config.get("predictors_enabled", []))
+        enabled_obj = config.get("predictors_enabled", [])
+        enabled = set(enabled_obj) if isinstance(enabled_obj, list) else set()
         if enabled and tool_name not in enabled:
             return ["tool_disabled"]
         return []
 
-    def validate_tool_compatibility(self, tool_name: str, config: dict) -> list[str]:
+    def validate_tool_compatibility(
+        self, tool_name: str, config: dict[str, object]
+    ) -> list[str]:
         """validate_tool_compatibility."""
         return _validate_compatibility(tool_name, config)
 
@@ -80,7 +86,7 @@ def _assert_acyclic(plan: Plan, task_ids: set[str]) -> None:
         visit(node)
 
 
-def _validate_compatibility(tool_name: str, config: dict) -> list[str]:
+def _validate_compatibility(tool_name: str, config: dict[str, object]) -> list[str]:
     """_validate_compatibility."""
     matrix = {
         "heuristic_proxy": {
@@ -106,7 +112,8 @@ def _validate_compatibility(tool_name: str, config: dict) -> list[str]:
         tool_name, {"requires_gpu": False, "min_gpu_seconds": 0.0, "supports_cpu": True}
     )
     execution_mode = config.get("execution_mode", "auto")
-    limits = config.get("resource_limits", {})
+    limits_obj = config.get("resource_limits", {})
+    limits = limits_obj if isinstance(limits_obj, dict) else {}
     gpu_seconds = float(limits.get("gpu_seconds", 0.0))
     errors: list[str] = []
     if requirements.get("supports_cpu", False):

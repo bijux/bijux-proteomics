@@ -6,8 +6,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics.interfaces.cli import cli
 from click.testing import CliRunner
+
+from bijux_proteomics.interfaces.cli import cli
 
 
 def test_program_template_writes_manifest() -> None:

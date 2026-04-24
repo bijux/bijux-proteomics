@@ -59,9 +59,11 @@ security-audit:
 	@set -e; \
 	JSON_RC=0; \
 	TEXT_RC=0; \
+	USE_TEXT_GATE=0; \
 	$(SECURITY_PYTHON_ENV) $(PIP_AUDIT) $(SECURITY_IGNORE_FLAGS) $(PIP_AUDIT_CONSOLE_FLAGS) $(PIP_AUDIT_INPUTS) \
 	  -f json -o "$(PIPA_JSON)" >/dev/null 2>&1 || JSON_RC=$$?; \
 	if [ -n "$(strip $(SECURITY_PIP_AUDIT_TEXT_COMMAND))" ]; then \
+	  USE_TEXT_GATE=1; \
 	  PIPA_JSON="$(PIPA_JSON)" \
 	  SECURITY_STRICT="$(SECURITY_STRICT)" \
 	  SECURITY_IGNORE_IDS="$(SECURITY_IGNORE_IDS)" \
@@ -74,7 +76,8 @@ security-audit:
 	fi; \
 	cat "$(PIPA_TXT)"; \
 	RC=$$TEXT_RC; \
-	if [ $$RC -eq 0 ]; then RC=$$JSON_RC; fi; \
+	if [ "$$USE_TEXT_GATE" = "0" ] && [ $$RC -eq 0 ]; then RC=$$JSON_RC; fi; \
+	if [ "$$USE_TEXT_GATE" = "1" ] && [ $$RC -eq 0 ] && [ $$JSON_RC -gt 1 ]; then RC=$$JSON_RC; fi; \
 	if [ $$RC -gt 1 ]; then echo "! pip-audit invocation failed (rc=$$RC)"; fi; \
 	if [ $$RC -ne 0 ] && [ "$(SECURITY_STRICT)" = "1" ]; then exit $$RC; fi
 

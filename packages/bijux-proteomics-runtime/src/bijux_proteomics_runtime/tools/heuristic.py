@@ -8,7 +8,11 @@ from __future__ import annotations
 from bijux_proteomics_runtime.providers.factory import create_provider
 from bijux_proteomics_runtime.providers.heuristic import HeuristicStructureProvider
 from bijux_proteomics_runtime.tools.base import Tool
-from bijux_proteomics_runtime.tools.schemas import InvocationInput, ToolMetric, ToolResult
+from bijux_proteomics_runtime.tools.schemas import (
+    InvocationInput,
+    ToolMetric,
+    ToolResult,
+)
 
 
 class HeuristicStructureTool(Tool):

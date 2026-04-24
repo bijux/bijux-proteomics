@@ -9,13 +9,13 @@ from typing import ClassVar
 
 from pydantic import BaseModel
 
+from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
 from bijux_proteomics_runtime.agents.base import AgentRole
 from bijux_proteomics_runtime.agents.schemas import (
     AgentMetadata,
     QualityControlAgentInput,
     QualityControlAgentOutput,
 )
-from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
 from bijux_proteomics_runtime.memory.schemas import MemoryScope
 from bijux_proteomics_runtime.validation.agents import validate_agent
 
@@ -34,12 +34,12 @@ class QualityControlAgent(AgentRole):
     write_scopes: ClassVar[set[MemoryScope]] = {MemoryScope.SESSION}
 
     @classmethod
-    def input_schema(cls) -> dict:
+    def input_schema(cls) -> dict[str, object]:
         """input_schema."""
         return QualityControlAgentInput.model_json_schema()
 
     @classmethod
-    def output_schema(cls) -> dict:
+    def output_schema(cls) -> dict[str, object]:
         """output_schema."""
         return QualityControlAgentOutput.model_json_schema()
 
