@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import json
 import re
 import sys
+import json
 from pathlib import Path
 
 USE_PATTERN = re.compile(r"^\s*-\s*uses:\s*([^\s#]+)")

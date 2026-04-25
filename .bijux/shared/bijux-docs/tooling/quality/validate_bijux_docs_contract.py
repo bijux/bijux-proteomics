@@ -3,10 +3,9 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import yaml
+from pathlib import Path
+import sys
 
 
 class MkDocsLoader(yaml.SafeLoader):
