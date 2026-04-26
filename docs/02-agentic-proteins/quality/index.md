@@ -21,7 +21,7 @@ This section keeps readers with a narrow quality lens: a compatibility
 package is trustworthy when it forwards deliberately, fails loudly when the
 bridge breaks, and does not hide retirement debt behind green checks alone.
 
-## Pages in This Section
+## Pages In This Section
 
 - [Test Strategy](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/test-strategy/)
 - [Invariants](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/invariants/)

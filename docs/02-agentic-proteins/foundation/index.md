@@ -21,7 +21,7 @@ This section keeps one thing clear: `agentic-proteins` survives to make
 migration safer, not to compete with the canonical runtime package for new
 design ownership.
 
-## Pages in This Section
+## Pages In This Section
 
 - [Package Overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/scope-and-non-goals/)

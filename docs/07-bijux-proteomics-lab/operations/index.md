@@ -23,9 +23,7 @@ operations. It is how maintainers repeatedly inspect planning inputs,
 review queue pressure, outcome promotion readiness, and rerun paths
 without inventing a new workflow each time.
 
-## Start Here
-
-## Pages in This Section
+## Pages In This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/installation-and-setup/)
 - [Local Development](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/local-development/)

@@ -20,8 +20,6 @@ The foundation pages answer one hard question quickly: why does a
 separate lab package exist at all, instead of burying this behavior inside
 recommendation logic, runtime orchestration, or knowledge promotion?
 
-## Start Here
-
 ## Pages In This Section
 
 - [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)

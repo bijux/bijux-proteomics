@@ -24,8 +24,6 @@ its own, and it does not replace runtime execution. It owns the lab-side
 questions that sit between those two layers: what to run, in what order,
 with which gates, and what to do after the outcome lands.
 
-## Start Here
-
 ## What This Package Owns
 
 - experiment planning from candidate pressure, readiness, and review gates

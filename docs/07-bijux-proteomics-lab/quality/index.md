@@ -21,8 +21,6 @@ The proof burden here is specific. Reviewers need confidence that plans
 stay deterministic, outcomes stay interpretable, schema contracts stay
 honest, and artifact serialization stays reproducible enough to audit.
 
-## Start Here
-
 ## Pages In This Section
 
 - [Test Strategy](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/test-strategy/)

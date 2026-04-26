@@ -13,7 +13,7 @@ This section explains how maintainers run, validate, diagnose, and release `biju
 
 Intelligence packages are easy to operate badly because the output often looks plausible before it is actually trustworthy. These pages should show how to repeat the real workflow: confirm policy behavior, inspect decision artifacts, and ship changes without surprising downstream readers.
 
-## Pages in This Section
+## Pages In This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/installation-and-setup/)
 - [Local Development](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/local-development/)

@@ -20,8 +20,6 @@ The important caller-facing question here is straightforward: which plan,
 outcome, feedback, schema, and serialization surfaces are stable enough
 to use without reading the whole package every time?
 
-## Start Here
-
 ## Published Interface Pages
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/cli-surface/)

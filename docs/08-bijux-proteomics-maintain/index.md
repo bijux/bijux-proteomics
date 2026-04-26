@@ -59,15 +59,6 @@ This page routes one repository-health question immediately: does the rule live 
 - when the correct route is to leave maintainer docs and hand the question back
   to a product package handbook
 
-## Start Here
-
-- open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the concern is
-  helper code, schema drift, release support, or repository-health checks
-- open [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/) when the concern is a shared command surface,
-  package dispatch, or CI target family
-- open [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the concern is GitHub Actions
-  triggers, job trees, or docs and release publication
-
 ## Concrete Anchors
 
 - `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/` for maintainer

@@ -24,8 +24,6 @@ inspectable recommendation: candidates are scored, scenarios are compared,
 outcomes are summarized, and explanations are produced without pretending that
 the package also owns evidence truth or execution.
 
-## Start Here
-
 ## Open This Section When
 
 - you need the package entrypoint for scoring and recommendation logic

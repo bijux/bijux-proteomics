@@ -21,7 +21,7 @@ The point of this section is not to glorify the legacy architecture. It is to
 make the remaining bridge explicit enough that readers can tell which structure
 still matters and which structure is only being tolerated until migration ends.
 
-## Pages in This Section
+## Pages In This Section
 
 - [Module Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/dependency-direction/)

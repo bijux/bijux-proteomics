@@ -22,9 +22,7 @@ enough that the main question is not "which layer among twenty?" but
 "which file owns planning, which file owns outcomes, and where are the
 contracts that keep the loop deterministic?"
 
-## Start Here
-
-## Pages in This Section
+## Pages In This Section
 
 - [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/dependency-direction/)

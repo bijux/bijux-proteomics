@@ -22,7 +22,7 @@ This section makes one posture obvious: operational work here exists to
 keep migration safe and temporary, not to expand the long-term operating center
 of the repository.
 
-## Pages in This Section
+## Pages In This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/installation-and-setup/)
 - [Local Development](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/local-development/)

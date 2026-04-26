@@ -23,8 +23,6 @@ layer that keeps identifiers, schema metadata, migrations, errors, and
 deterministic serialization compatible enough for the rest of the family to
 exchange meaning safely.
 
-## Start Here
-
 ## Open This Section When
 
 - you need the package entrypoint for schema and payload contracts

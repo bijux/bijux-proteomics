@@ -22,8 +22,6 @@ assays, targets, constraints, lifecycle states, readiness rules, execution
 contracts, and validation logic that the rest of the stack must obey before it
 adds policy.
 
-## Start Here
-
 ## Open This Section When
 
 - you need the package entrypoint for program and gate contracts
