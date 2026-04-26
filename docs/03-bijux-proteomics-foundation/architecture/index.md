@@ -46,26 +46,26 @@ flowchart LR
 
 ## Start Here
 
-- open [Module Map](module-map.md) for the shortest route to ownership by file
+- open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/) for the shortest route to ownership by file
   and responsibility
-- open [Execution Model](execution-model.md) when the question is how schema,
+- open [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/) when the question is how schema,
   serialization, and migration logic connect in practice
-- open [Integration Seams](integration-seams.md) when a change may affect how
+- open [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/) when a change may affect how
   downstream packages consume shared contracts
-- open [Architecture Risks](architecture-risks.md) when structural simplicity is
+- open [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/) when structural simplicity is
   under pressure from compatibility work
 
 ## Pages In This Section
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/)
+- [Dependency Direction](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/dependency-direction/)
+- [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/)
+- [State and Persistence](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/state-and-persistence/)
+- [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/)
+- [Error Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/error-model/)
+- [Extensibility Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/extensibility-model/)
+- [Code Navigation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/code-navigation/)
+- [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/)
 
 ## Use This Section When
 
@@ -84,13 +84,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) when the structural issue is really
+- open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when the structural issue is really
   an ownership question
-- open [Interfaces](../interfaces/index.md) when architecture reaches a caller
+- open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/) when architecture reaches a caller
   facing contract or compatibility promise
-- open [Operations](../operations/index.md) when structure affects repeatable
+- open [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/) when structure affects repeatable
   validation and release workflows
-- open [Quality](../quality/index.md) when you need proof that the documented
+- open [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/) when you need proof that the documented
   structure is still protected
 
 ## Concrete Anchors

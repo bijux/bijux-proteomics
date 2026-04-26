@@ -50,15 +50,15 @@ flowchart LR
 
 ## Pages in This Section
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- [Module Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/module-map/)
+- [Dependency Direction](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/dependency-direction/)
+- [Execution Model](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/execution-model/)
+- [State and Persistence](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/state-and-persistence/)
+- [Integration Seams](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/integration-seams/)
+- [Error Model](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/error-model/)
+- [Extensibility Model](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/extensibility-model/)
+- [Code Navigation](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/code-navigation/)
+- [Architecture Risks](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/architecture-risks/)
 
 ## Use This Section When
 
@@ -83,10 +83,10 @@ migration safer, that is usually a sign the work belongs elsewhere.
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/) when you need the package boundary and ownership story first
+- [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/) when the question becomes caller-facing, schema-facing, or contract-facing
+- [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/) when the question becomes procedural, environmental, diagnostic, or release-oriented
+- [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/) when the question becomes proof, risk, trust, or review sufficiency
 
 ## Concrete Anchors
 

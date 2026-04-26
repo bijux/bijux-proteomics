@@ -45,26 +45,26 @@ flowchart LR
 
 ## Start Here
 
-- open [Installation and Setup](installation-and-setup.md) when you need a
+- open [Installation and Setup](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/installation-and-setup/) when you need a
   clean local environment for contract work
-- open [Common Workflows](common-workflows.md) when the goal is to change or
+- open [Common Workflows](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/common-workflows/) when the goal is to change or
   validate shared schema behavior repeatably
-- open [Failure Recovery](failure-recovery.md) when a serialization or migration
+- open [Failure Recovery](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/failure-recovery/) when a serialization or migration
   change has already gone wrong
-- open [Release and Versioning](release-and-versioning.md) when the contract
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/release-and-versioning/) when the contract
   change may affect downstream package compatibility
 
 ## Pages In This Section
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- [Installation and Setup](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/installation-and-setup/)
+- [Local Development](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/local-development/)
+- [Common Workflows](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/common-workflows/)
+- [Observability and Diagnostics](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/observability-and-diagnostics/)
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/performance-and-scaling/)
+- [Failure Recovery](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/failure-recovery/)
+- [Release and Versioning](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/release-and-versioning/)
+- [Security and Safety](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/security-and-safety/)
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/deployment-boundaries/)
 
 ## Use This Section When
 
@@ -83,13 +83,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) when operational pain may really be
+- open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when operational pain may really be
   a boundary mistake
-- open [Architecture](../architecture/index.md) when workflow pain reveals a
+- open [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/) when workflow pain reveals a
   structural problem in schema, serialization, or migration logic
-- open [Interfaces](../interfaces/index.md) when a workflow depends on a public
+- open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/) when a workflow depends on a public
   import, schema, or artifact contract
-- open [Quality](../quality/index.md) when the question becomes whether the
+- open [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/) when the question becomes whether the
   workflow is sufficiently validated and reviewed
 
 ## Concrete Anchors

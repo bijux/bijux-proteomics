@@ -49,15 +49,15 @@ flowchart LR
 
 ## Pages in This Section
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)
+- [Dependency Direction](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/dependency-direction/)
+- [Execution Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/execution-model/)
+- [State and Persistence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/state-and-persistence/)
+- [Integration Seams](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/integration-seams/)
+- [Error Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/error-model/)
+- [Extensibility Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/extensibility-model/)
+- [Code Navigation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/code-navigation/)
+- [Architecture Risks](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/architecture-risks/)
 
 ## What This Section Clarifies
 
@@ -83,13 +83,13 @@ flowchart LR
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary and
+- [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/) when you need the package boundary and
   ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes what a caller
+- [Interfaces](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/) when the question becomes what a caller
   can rely on
-- [Operations](../operations/index.md) when the question becomes how maintainers
+- [Operations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/) when the question becomes how maintainers
   repeat planning and outcome workflows
-- [Quality](../quality/index.md) when the question becomes whether structural
+- [Quality](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/) when the question becomes whether structural
   claims still have enough proof behind them
 
 ## Concrete Anchors

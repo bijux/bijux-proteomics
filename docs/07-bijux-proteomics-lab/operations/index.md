@@ -48,15 +48,15 @@ flowchart LR
 
 ## Pages in This Section
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- [Installation and Setup](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/installation-and-setup/)
+- [Local Development](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/local-development/)
+- [Common Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/common-workflows/)
+- [Observability and Diagnostics](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/observability-and-diagnostics/)
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/performance-and-scaling/)
+- [Failure Recovery](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/failure-recovery/)
+- [Release and Versioning](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/release-and-versioning/)
+- [Security and Safety](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/security-and-safety/)
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/deployment-boundaries/)
 
 ## What This Section Clarifies
 
@@ -81,13 +81,13 @@ flowchart LR
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when an operational problem may really be
+- [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/) when an operational problem may really be
   a boundary problem
-- [Architecture](../architecture/index.md) when the workflow problem points to a
+- [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/) when the workflow problem points to a
   module-ownership issue
-- [Interfaces](../interfaces/index.md) when the workflow depends on a specific
+- [Interfaces](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/) when the workflow depends on a specific
   contract or artifact shape
-- [Quality](../quality/index.md) when the real question is whether the workflow
+- [Quality](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/) when the real question is whether the workflow
   is sufficiently proven
 
 ## Concrete Anchors

@@ -47,26 +47,26 @@ flowchart LR
 
 ## Start Here
 
-- open [Test Strategy](test-strategy.md) for the broad proof story behind
+- open [Test Strategy](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/test-strategy/) for the broad proof story behind
   shared payload meaning
-- open [Invariants](invariants.md) when the key question is what must not drift
+- open [Invariants](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/invariants/) when the key question is what must not drift
   in schemas, identifiers, or fingerprints
-- open [Change Validation](change-validation.md) when you need the minimum
+- open [Change Validation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/change-validation/) when you need the minimum
   evidence for a safe contract change
-- open [Risk Register](risk-register.md) when compatibility limits matter more
+- open [Risk Register](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/risk-register/) when compatibility limits matter more
   than pass/fail status
 
 ## Pages In This Section
 
-- [Test Strategy](test-strategy.md)
-- [Invariants](invariants.md)
-- [Review Checklist](review-checklist.md)
-- [Documentation Standards](documentation-standards.md)
-- [Definition of Done](definition-of-done.md)
-- [Dependency Governance](dependency-governance.md)
-- [Change Validation](change-validation.md)
-- [Known Limitations](known-limitations.md)
-- [Risk Register](risk-register.md)
+- [Test Strategy](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/test-strategy/)
+- [Invariants](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/invariants/)
+- [Review Checklist](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/review-checklist/)
+- [Documentation Standards](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/documentation-standards/)
+- [Definition of Done](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/definition-of-done/)
+- [Dependency Governance](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/dependency-governance/)
+- [Change Validation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/change-validation/)
+- [Known Limitations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/known-limitations/)
+- [Risk Register](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/risk-register/)
 
 ## Use This Section When
 
@@ -85,13 +85,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) when uncertainty about ownership is
+- open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when uncertainty about ownership is
   masquerading as a quality issue
-- open [Architecture](../architecture/index.md) when missing proof points to
+- open [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/) when missing proof points to
   structural drift
-- open [Interfaces](../interfaces/index.md) when trust depends on a specific
+- open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/) when trust depends on a specific
   shared contract surface
-- open [Operations](../operations/index.md) when the needed evidence is really a
+- open [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/) when the needed evidence is really a
   repeatable validation or release workflow
 
 ## Concrete Anchors

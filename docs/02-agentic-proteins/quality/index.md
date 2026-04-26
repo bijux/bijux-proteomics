@@ -50,15 +50,15 @@ flowchart LR
 
 ## Pages in This Section
 
-- [Test Strategy](test-strategy.md)
-- [Invariants](invariants.md)
-- [Review Checklist](review-checklist.md)
-- [Documentation Standards](documentation-standards.md)
-- [Definition of Done](definition-of-done.md)
-- [Dependency Governance](dependency-governance.md)
-- [Change Validation](change-validation.md)
-- [Known Limitations](known-limitations.md)
-- [Risk Register](risk-register.md)
+- [Test Strategy](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/test-strategy/)
+- [Invariants](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/invariants/)
+- [Review Checklist](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/review-checklist/)
+- [Documentation Standards](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/documentation-standards/)
+- [Definition of Done](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/definition-of-done/)
+- [Dependency Governance](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/dependency-governance/)
+- [Change Validation](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/change-validation/)
+- [Known Limitations](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/known-limitations/)
+- [Risk Register](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/risk-register/)
 
 ## Use This Section When
 
@@ -82,10 +82,10 @@ would justify retiring it tomorrow.
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
+- [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/) when you need the package boundary and ownership story first
+- [Architecture](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/) when the question becomes structural, modular, or execution-oriented
+- [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/) when the question becomes caller-facing, schema-facing, or contract-facing
+- [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/) when the question becomes procedural, environmental, diagnostic, or release-oriented
 
 ## Concrete Anchors
 

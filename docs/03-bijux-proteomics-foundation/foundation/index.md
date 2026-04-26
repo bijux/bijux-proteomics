@@ -46,24 +46,24 @@ flowchart LR
 
 ## Start Here
 
-- open [Package Overview](package-overview.md) for the shortest explanation of
+- open [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/) for the shortest explanation of
   what the shared meaning layer owns
-- open [Ownership Boundary](ownership-boundary.md) when the issue may actually
+- open [Ownership Boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/) when the issue may actually
   belong in core, knowledge, intelligence, lab, or runtime
-- open [Lifecycle Overview](lifecycle-overview.md) when the key question is how
+- open [Lifecycle Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/lifecycle-overview/) when the key question is how
   identifiers, payloads, and migrations stay stable over time
 
 ## Pages In This Section
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Ownership Boundary](ownership-boundary.md)
-- [Repository Fit](repository-fit.md)
-- [Capability Map](capability-map.md)
-- [Domain Language](domain-language.md)
-- [Lifecycle Overview](lifecycle-overview.md)
-- [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
-- [Change Principles](change-principles.md)
+- [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/scope-and-non-goals/)
+- [Ownership Boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/repository-fit/)
+- [Capability Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/capability-map/)
+- [Domain Language](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/domain-language/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/lifecycle-overview/)
+- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/dependencies-and-adjacencies/)
+- [Change Principles](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/change-principles/)
 
 ## Use This Section When
 
@@ -84,13 +84,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Architecture](../architecture/index.md) when you need the structural
+- open [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/) when you need the structural
   map behind schema, serialization, and migration code
-- open [Interfaces](../interfaces/index.md) when the question is about imports,
+- open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/) when the question is about imports,
   contracts, or compatibility promises
-- open [Operations](../operations/index.md) when you need repeatable maintainer
+- open [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/) when you need repeatable maintainer
   workflows for shared contract changes
-- open [Quality](../quality/index.md) when you need evidence that the shared
+- open [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/) when you need evidence that the shared
   meaning layer is actually protected
 
 ## Concrete Anchors

@@ -47,24 +47,24 @@ flowchart LR
 
 ## Start Here
 
-- open [Package Overview](package-overview.md) for the shortest explanation of
+- open [Package Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/) for the shortest explanation of
   what the contract layer owns
-- open [Ownership Boundary](ownership-boundary.md) when the issue may actually
+- open [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/) when the issue may actually
   belong in foundation, intelligence, lab, or runtime instead
-- open [Lifecycle Overview](lifecycle-overview.md) when the real question is
+- open [Lifecycle Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lifecycle-overview/) when the real question is
   how programs move through states and readiness checks
 
 ## Pages In This Section
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Ownership Boundary](ownership-boundary.md)
-- [Repository Fit](repository-fit.md)
-- [Capability Map](capability-map.md)
-- [Domain Language](domain-language.md)
-- [Lifecycle Overview](lifecycle-overview.md)
-- [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
-- [Change Principles](change-principles.md)
+- [Package Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/scope-and-non-goals/)
+- [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/repository-fit/)
+- [Capability Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/capability-map/)
+- [Domain Language](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/domain-language/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/lifecycle-overview/)
+- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dependencies-and-adjacencies/)
+- [Change Principles](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/change-principles/)
 
 ## Use This Section When
 
@@ -84,13 +84,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Architecture](../architecture/index.md) when you need the structural
+- open [Architecture](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/) when you need the structural
   map behind program, lifecycle, and validation code
-- open [Interfaces](../interfaces/index.md) when the question is about public
+- open [Interfaces](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/) when the question is about public
   contract surfaces
-- open [Operations](../operations/index.md) when you need repeatable workflows
+- open [Operations](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/) when you need repeatable workflows
   for contract changes or validation runs
-- open [Quality](../quality/index.md) when you need evidence that the durable
+- open [Quality](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/) when you need evidence that the durable
   contract is actually protected
 
 ## Concrete Anchors

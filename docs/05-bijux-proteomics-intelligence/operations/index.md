@@ -45,15 +45,15 @@ flowchart LR
 
 ## Pages in This Section
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- [Installation and Setup](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/installation-and-setup/)
+- [Local Development](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/local-development/)
+- [Common Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/common-workflows/)
+- [Observability and Diagnostics](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/observability-and-diagnostics/)
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/performance-and-scaling/)
+- [Failure Recovery](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/failure-recovery/)
+- [Release and Versioning](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/release-and-versioning/)
+- [Security and Safety](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/security-and-safety/)
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/deployment-boundaries/)
 
 ## Start Here
 
@@ -61,10 +61,10 @@ Use this section when you need the checked-in operating procedure for the packag
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/) when you need the package boundary and ownership story first
+- [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when the question becomes structural, modular, or execution-oriented
+- [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) when the question becomes caller-facing, schema-facing, or contract-facing
+- [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) when the question becomes proof, risk, trust, or review sufficiency
 
 ## Concrete Anchors
 
@@ -87,7 +87,7 @@ Use this section when you need the checked-in operating procedure for the packag
 
 ## When To Leave This Section
 
-Move to [Interfaces](../interfaces/index.md) when an operational step depends on an exposed import, file shape, or artifact guarantee. Move to [Architecture](../architecture/index.md) when a workflow problem reveals that candidate state, evaluator structure, or design-loop ownership is misunderstood. Move to [Quality](../quality/index.md) when the central question becomes whether the validation bar is high enough rather than how to execute it.
+Move to [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) when an operational step depends on an exposed import, file shape, or artifact guarantee. Move to [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when a workflow problem reveals that candidate state, evaluator structure, or design-loop ownership is misunderstood. Move to [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) when the central question becomes whether the validation bar is high enough rather than how to execute it.
 
 ## Reader Takeaway
 

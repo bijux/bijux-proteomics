@@ -51,15 +51,15 @@ flowchart LR
 
 ## Pages in This Section
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- [Installation and Setup](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/installation-and-setup/)
+- [Local Development](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/local-development/)
+- [Common Workflows](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/common-workflows/)
+- [Observability and Diagnostics](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/observability-and-diagnostics/)
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/performance-and-scaling/)
+- [Failure Recovery](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/failure-recovery/)
+- [Release and Versioning](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/release-and-versioning/)
+- [Security and Safety](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/security-and-safety/)
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/deployment-boundaries/)
 
 ## Use This Section When
 
@@ -84,10 +84,10 @@ canonical runtime handbook is the better long-term home.
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/) when you need the package boundary and ownership story first
+- [Architecture](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/) when the question becomes structural, modular, or execution-oriented
+- [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/) when the question becomes caller-facing, schema-facing, or contract-facing
+- [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/) when the question becomes proof, risk, trust, or review sufficiency
 
 ## Concrete Anchors
 

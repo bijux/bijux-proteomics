@@ -45,24 +45,24 @@ flowchart LR
 
 ## Start Here
 
-- open [Module Map](module-map.md) for the shortest route from filenames to
+- open [Module Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/module-map/) for the shortest route from filenames to
   owned behavior
-- open [Execution Model](execution-model.md) when you need the flow from
+- open [Execution Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/execution-model/) when you need the flow from
   candidate input to reviewed recommendation
-- open [State and Persistence](state-and-persistence.md) when the question is
+- open [State and Persistence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/state-and-persistence/) when the question is
   which decisions, outcomes, and reports become durable
 
 ## Pages In This Section
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- [Module Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/module-map/)
+- [Dependency Direction](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/dependency-direction/)
+- [Execution Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/execution-model/)
+- [State and Persistence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/state-and-persistence/)
+- [Integration Seams](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/integration-seams/)
+- [Error Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/error-model/)
+- [Extensibility Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/extensibility-model/)
+- [Code Navigation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/code-navigation/)
+- [Architecture Risks](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/architecture-risks/)
 
 ## Use This Section When
 
@@ -79,12 +79,12 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) for package purpose and ownership
-- open [Interfaces](../interfaces/index.md) for imports, artifacts, and
+- open [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/) for package purpose and ownership
+- open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) for imports, artifacts, and
   explainability contracts
-- open [Operations](../operations/index.md) for workflows, diagnostics, and
+- open [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/) for workflows, diagnostics, and
   release procedures
-- open [Quality](../quality/index.md) for invariants, tests, and decision-risk
+- open [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) for invariants, tests, and decision-risk
   pressure
 
 ## Concrete Anchors
