@@ -64,14 +64,14 @@ flowchart LR
 - [Change Principles](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/change-principles/)
 - [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
 
-## Use This Section When
+## Open This Section When
 
 - you need the package-family rationale before reading package-local docs
 - you are deciding whether a concern belongs at the repository root or inside
   one package handbook
 - you need shared vocabulary for discussing boundaries, docs, or change scope
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is already about one package’s API, runtime, evidence, or
   lab behavior

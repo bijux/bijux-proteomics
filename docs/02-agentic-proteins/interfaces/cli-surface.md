@@ -59,7 +59,7 @@ flowchart LR
 - canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
 - apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
-## Use This Page When
+## Open This Page When
 
 - you need the public command, API, import, schema, or artifact surface
 - you are checking whether a caller can safely rely on a given entrypoint or shape

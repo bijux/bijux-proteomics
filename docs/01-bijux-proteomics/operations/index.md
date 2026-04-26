@@ -67,7 +67,7 @@ flowchart LR
 - [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/)
 - [Change Management](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/change-management/)
 
-## Use This Section When
+## Open This Section When
 
 - the question is about repository-wide setup, validation, release posture,
   shared automation, or review rules

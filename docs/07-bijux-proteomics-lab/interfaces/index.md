@@ -63,13 +63,13 @@ flowchart LR
   or exchange lab outputs
 - which serialization helpers exist to keep payloads deterministic and auditable
 
-## Use This Section When
+## Open This Section When
 
 - you need the public import, schema, or artifact surface
 - you are checking whether a caller can safely rely on a given entrypoint or shape
 - you want the contract-facing side of the package before building on it
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is whether the package should own the behavior at all
 - the real question is how the internal files are arranged

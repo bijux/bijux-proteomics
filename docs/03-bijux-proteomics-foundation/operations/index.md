@@ -66,7 +66,7 @@ flowchart LR
 - [Security and Safety](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/security-and-safety/)
 - [Deployment Boundaries](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/deployment-boundaries/)
 
-## Use This Section When
+## Open This Section When
 
 - you need repeatable maintainer instructions for schema, serialization, or
   migration changes
@@ -75,7 +75,7 @@ flowchart LR
 - you are diagnosing drift between expected shared meaning and actual package
   output
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is which public contract exists or what it promises
 - you need ownership or structural context before you can act safely

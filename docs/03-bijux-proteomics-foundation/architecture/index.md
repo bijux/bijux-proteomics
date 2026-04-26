@@ -67,7 +67,7 @@ flowchart LR
 - [Code Navigation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to trace structural ownership before refactoring shared contract code
 - you are checking whether compatibility helpers still support a clear module
@@ -75,7 +75,7 @@ flowchart LR
 - you need to understand how exported meaning is assembled before downstream
   packages consume it
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the question is mainly about public imports, schema contracts, or artifacts
 - the issue is operational, such as validation workflow or release handling

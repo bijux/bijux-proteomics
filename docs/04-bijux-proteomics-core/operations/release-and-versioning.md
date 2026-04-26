@@ -62,7 +62,7 @@ flowchart LR
 - `packages/bijux-proteomics-core/README.md` for local package framing
 - `packages/bijux-proteomics-core/tests` for executable operational backstops
 
-## Use This Page When
+## Open This Page When
 
 - you are installing, running, diagnosing, or releasing the package
 - you need repeatable operational anchors rather than architectural framing

@@ -66,7 +66,7 @@ flowchart LR
 - [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/dependencies-and-adjacencies/)
 - [Change Principles](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/change-principles/)
 
-## Use This Section When
+## Open This Section When
 
 - you need the durable ownership story before reading code or command surfaces
 - you are deciding whether a rule is part of the core contract or only a
@@ -74,7 +74,7 @@ flowchart LR
 - you need the package vocabulary for programs, lifecycle transitions,
   readiness, and validation
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the question is already about commands, imports, schemas, or artifacts
 - the real issue is operational, such as running validations or releasing the

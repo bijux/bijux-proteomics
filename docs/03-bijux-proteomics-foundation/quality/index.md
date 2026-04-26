@@ -68,7 +68,7 @@ flowchart LR
 - [Known Limitations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/known-limitations/)
 - [Risk Register](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/risk-register/)
 
-## Use This Section When
+## Open This Section When
 
 - you need evidence that shared payload meaning is stable enough for downstream
   use
@@ -77,7 +77,7 @@ flowchart LR
 - you are reviewing whether passing checks are actually sufficient for a
   cross-package contract change
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is which contract exists or what it promises
 - you need package-boundary or structural context before you can judge proof

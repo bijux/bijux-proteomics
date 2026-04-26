@@ -63,7 +63,7 @@ Add extension points where the package already expects variation, and document t
 - `src/bijux_proteomics_lab/runtime` for execution engines and lifecycle logic
 - `src/bijux_proteomics_lab/application` for orchestration and replay coordination
 
-## Use This Page When
+## Open This Page When
 
 - you are tracing structure, execution flow, or dependency pressure
 - you need to understand how modules fit before refactoring

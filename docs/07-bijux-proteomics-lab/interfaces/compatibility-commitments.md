@@ -63,7 +63,7 @@ Breaking changes must be visible in code, docs, and validation together.
 - lab contracts in src/bijux_proteomics_lab/schema.py
 - src/bijux_proteomics_lab/schema.py
 
-## Use This Page When
+## Open This Page When
 
 - you need the public command, API, import, schema, or artifact surface
 - you are checking whether a caller can safely rely on a given entrypoint or shape

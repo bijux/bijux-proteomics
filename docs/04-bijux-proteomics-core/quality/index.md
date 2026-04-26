@@ -67,7 +67,7 @@ flowchart LR
 - [Known Limitations](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/known-limitations/)
 - [Risk Register](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/risk-register/)
 
-## Use This Section When
+## Open This Section When
 
 - you need evidence that core rules are stable enough for downstream use
 - a change touches lifecycle, readiness, validation, or execution contracts
@@ -75,7 +75,7 @@ flowchart LR
 - you are reviewing whether green checks are actually sufficient for a contract
   change with stack-wide impact
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is which contract exists or what it promises
 - you need boundary or structural context before you can judge proof

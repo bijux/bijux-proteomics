@@ -73,13 +73,13 @@ Use this section when you need the checked-in operating procedure for the packag
 - `src/bijux_proteomics_intelligence/report/` for report computation and rendering outputs
 - `packages/bijux-proteomics-intelligence/tests` for the executable backstops that keep workflows honest
 
-## Use This Page When
+## Open This Page When
 
 - you are installing, running, diagnosing, or releasing intelligence workflows
 - you need repeatable procedure for validating policy changes, evaluator behavior, or generated artifacts
 - you are responding to drift between expected recommendation behavior and actual outputs
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - you are deciding whether an import or artifact is a public contract
 - you are trying to understand where ranking logic or evaluator structure lives in code

@@ -56,7 +56,7 @@ flowchart LR
 - `packages/agentic-proteins/README.md` for local package framing
 - `packages/agentic-proteins/tests` for executable operational backstops
 
-## Use This Page When
+## Open This Page When
 
 - you are installing, running, diagnosing, or releasing the package
 - you need repeatable operational anchors rather than architectural framing

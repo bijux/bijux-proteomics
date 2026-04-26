@@ -68,13 +68,13 @@ flowchart LR
 - where structural drift would show up first if ownership starts bleeding
   across files
 
-## Use This Section When
+## Open This Section When
 
 - you are tracing structure, execution flow, or dependency pressure
 - you need to understand how modules fit before refactoring
 - you are reviewing design drift rather than one isolated bug
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is whether the package should own the behavior at all
 - the real question is which import, schema, or artifact contract callers may

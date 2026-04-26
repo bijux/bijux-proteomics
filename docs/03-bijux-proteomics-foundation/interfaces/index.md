@@ -67,7 +67,7 @@ flowchart LR
 - [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to know which shared-contract surface is intentional and supported
 - downstream packages depend on schema meaning, identifiers, serialized output,
@@ -75,7 +75,7 @@ flowchart LR
 - you are reviewing whether a change creates compatibility pressure beyond one
   local package
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is why shared meaning belongs in this package at all
 - you need structural layout or compatibility-helper organization first

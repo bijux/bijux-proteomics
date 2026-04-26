@@ -58,7 +58,7 @@ flowchart LR
 - `src/agentic_proteins/runtime/context` for run context and output contracts
 - `src/agentic_proteins/agents` for orchestration and decision roles
 
-## Use This Page When
+## Open This Page When
 
 - you are tracing structure, execution flow, or dependency pressure
 - you need to understand how modules fit before refactoring

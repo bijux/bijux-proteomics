@@ -65,7 +65,7 @@ flowchart LR
 - `packages/agentic-proteins/src/agentic_proteins` as the import boundary
 - `packages/agentic-proteins/tests` as the package proof surface
 
-## Use This Page When
+## Open This Page When
 
 - you need the package idea before the implementation detail
 - you are deciding whether work belongs here or in a neighboring package

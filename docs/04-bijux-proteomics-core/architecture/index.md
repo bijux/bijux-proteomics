@@ -67,7 +67,7 @@ flowchart LR
 - [Code Navigation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/architecture-risks/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to trace structural ownership before refactoring contract logic
 - you are checking whether lifecycle, domain, and runtime-adjacent code still
@@ -75,7 +75,7 @@ flowchart LR
 - you need to understand where contract logic ends and orchestration pressure
   begins
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the question is mainly about public commands, imports, schemas, or artifacts
 - the issue is operational, such as validation workflow or release handling

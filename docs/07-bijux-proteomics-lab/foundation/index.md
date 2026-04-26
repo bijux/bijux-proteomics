@@ -66,13 +66,13 @@ flowchart LR
 - which vocabulary and lifecycle stages reviewers should treat as deliberate
   package concepts rather than incidental implementation detail
 
-## Use This Section When
+## Open This Section When
 
 - you need the package idea before the implementation detail
 - you are deciding whether work belongs here or in a neighboring package
 - you want the shortest honest explanation of what this package is for
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the boundary question is already settled and you now need module-level
   structure

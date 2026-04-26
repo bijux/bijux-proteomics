@@ -62,7 +62,7 @@ flowchart LR
 - [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/dependencies-and-adjacencies/)
 - [Change Principles](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/change-principles/)
 
-## Use This Section When
+## Open This Section When
 
 - you need the package role before looking at modules, policies, or tests
 - you are deciding whether a rule is decision policy rather than evidence state
@@ -70,7 +70,7 @@ flowchart LR
 - a reader needs one page that explains why this package exists without reading
   the whole handbook
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the main question is where a module or result surface lives
 - you are deciding whether an import, artifact, or schema is a supported

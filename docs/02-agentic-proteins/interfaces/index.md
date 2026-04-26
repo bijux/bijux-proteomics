@@ -59,14 +59,14 @@ flowchart LR
 - [Public Imports](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/compatibility-commitments/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to know whether a legacy CLI, import, schema, or artifact surface is
   still preserved
 - you are checking whether a change would break migration-safe caller behavior
 - you need the compatibility contract before updating callers
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is about the canonical runtime interface rather than the
   preserved legacy alias
@@ -93,7 +93,7 @@ surface, that is the preferred long-term answer.
 - canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1
 - apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)
 
-## Use This Page When
+## Open This Page When
 
 - you need the public command, API, import, schema, or artifact surface
 - you are checking whether a caller can safely rely on a given entrypoint or shape

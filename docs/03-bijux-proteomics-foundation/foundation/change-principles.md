@@ -58,7 +58,7 @@ flowchart LR
 - `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation` as the import boundary
 - `packages/bijux-proteomics-foundation/tests` as the package proof surface
 
-## Use This Page When
+## Open This Page When
 
 - you need the package idea before the implementation detail
 - you are deciding whether work belongs here or in a neighboring package

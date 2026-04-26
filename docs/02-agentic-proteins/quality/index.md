@@ -60,7 +60,7 @@ flowchart LR
 - [Known Limitations](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/known-limitations/)
 - [Risk Register](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/risk-register/)
 
-## Use This Section When
+## Open This Section When
 
 - you are reviewing forwarding tests, alias coverage, compatibility limits, or
   retirement risk
@@ -68,7 +68,7 @@ flowchart LR
 - you are deciding whether bridge work is truly done instead of merely passing
   a narrow check
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real proof question belongs to the canonical runtime package
 - you are evaluating new product quality rather than legacy-surface safety
@@ -93,7 +93,7 @@ would justify retiring it tomorrow.
 - packages/agentic-proteins/tests/e2e and tests/regression for end-to-end and drift protection
 - README.md
 
-## Use This Page When
+## Open This Page When
 
 - you are reviewing tests, invariants, limitations, or ongoing risks
 - you need evidence that the documented contract is actually defended

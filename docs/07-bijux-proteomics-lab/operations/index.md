@@ -66,13 +66,13 @@ flowchart LR
 - where to look first when lab planning or outcome handling behaves
   unexpectedly
 
-## Use This Section When
+## Open This Section When
 
 - you are installing, running, diagnosing, or releasing the package
 - you need repeatable operational anchors rather than architectural framing
 - you are responding to package behavior in local work, CI, or incident pressure
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is whether the package should own the behavior at all
 - the real question is which import or artifact contract callers may depend on

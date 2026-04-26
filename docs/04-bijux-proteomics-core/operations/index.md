@@ -67,7 +67,7 @@ flowchart LR
 - [Security and Safety](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/security-and-safety/)
 - [Deployment Boundaries](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/deployment-boundaries/)
 
-## Use This Section When
+## Open This Section When
 
 - you need repeatable maintainer instructions for changing durable core rules
 - lifecycle, readiness, or program behavior has drifted and needs the first
@@ -75,7 +75,7 @@ flowchart LR
 - you are reviewing whether contract-changing workflows are actually
   reproducible
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is which public contract exists or what it promises
 - you need package-boundary or structural context before acting safely

@@ -64,7 +64,7 @@ flowchart LR
 - [Security and Safety](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/security-and-safety/)
 - [Deployment Boundaries](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/deployment-boundaries/)
 
-## Use This Section When
+## Open This Section When
 
 - you need a repeatable procedure for editing, validating, diagnosing, or
   releasing the package
@@ -72,7 +72,7 @@ flowchart LR
   output
 - you need to know which workflow keeps downstream evidence consumers safe
 
-## Move On When
+## Open Another Section When
 
 - the main question is package purpose or ownership
 - you are still deciding whether an import or payload shape is a contract

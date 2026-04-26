@@ -65,7 +65,7 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` as the import boundary
 - `packages/bijux-proteomics-knowledge/tests` as the package proof surface
 
-## Use This Page When
+## Open This Page When
 
 - you need the package idea before the implementation detail
 - you are deciding whether work belongs here or in a neighboring package

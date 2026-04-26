@@ -67,14 +67,14 @@ flowchart LR
 - [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to know which core surface is deliberate and supportable
 - higher packages depend on lifecycle, readiness, or program contracts
 - you are reviewing whether a change creates compatibility pressure across the
   proteomics stack
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is why the rule belongs in core at all
 - you need structural layout or contract-code organization first

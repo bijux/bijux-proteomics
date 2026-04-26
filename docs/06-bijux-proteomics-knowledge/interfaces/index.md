@@ -62,7 +62,7 @@ flowchart LR
 - [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/compatibility-commitments/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to know whether an import, schema, payload, or artifact shape is
   meant to be stable
@@ -70,7 +70,7 @@ flowchart LR
   serialization
 - a reviewer needs to separate explicit contracts from incidental visibility
 
-## Move On When
+## Open Another Section When
 
 - the main question is why the behavior belongs in the knowledge layer at all
 - the concern is mostly structural rather than contract-facing

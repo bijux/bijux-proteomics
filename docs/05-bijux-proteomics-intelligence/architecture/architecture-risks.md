@@ -65,7 +65,7 @@ flowchart LR
 - `src/bijux_proteomics_intelligence/runtime` for execution engines and lifecycle logic
 - `src/bijux_proteomics_intelligence/application` for orchestration and replay coordination
 
-## Use This Page When
+## Open This Page When
 
 - you are tracing structure, execution flow, or dependency pressure
 - you need to understand how modules fit before refactoring

@@ -64,7 +64,7 @@ flowchart LR
 - program schemas in src/bijux_proteomics/programs.py
 - src/bijux_proteomics/programs.py
 
-## Use This Page When
+## Open This Page When
 
 - you need the public command, API, import, schema, or artifact surface
 - you are checking whether a caller can safely rely on a given entrypoint or shape

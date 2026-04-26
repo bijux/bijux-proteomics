@@ -60,14 +60,14 @@ flowchart LR
 - [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/dependencies-and-adjacencies/)
 - [Change Principles](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/change-principles/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to know why a legacy surface still ships at all
 - you are checking whether a behavior belongs to compatibility forwarding or to
   canonical runtime ownership
 - you need the retirement boundary before reading package detail
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real question is about current runtime behavior inside
   `bijux-proteomics-runtime`
@@ -93,7 +93,7 @@ runtime handbook rather than here.
 - `packages/agentic-proteins/src/agentic_proteins` as the import boundary
 - `packages/agentic-proteins/tests` as the package proof surface
 
-## Use This Page When
+## Open This Page When
 
 - you need the package idea before the implementation detail
 - you are deciding whether work belongs here or in a neighboring package

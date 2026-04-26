@@ -65,7 +65,7 @@ flowchart LR
 - [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/dependencies-and-adjacencies/)
 - [Change Principles](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/change-principles/)
 
-## Use This Section When
+## Open This Section When
 
 - you need the durable ownership story before reading code or compatibility
   details
@@ -74,7 +74,7 @@ flowchart LR
 - you need the package vocabulary for schemas, fingerprints, identifiers, and
   migrations
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the question is already about public imports, schema contracts, or serialized
   artifacts

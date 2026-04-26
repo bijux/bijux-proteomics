@@ -60,14 +60,14 @@ flowchart LR
 - [Code Navigation](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/architecture-risks/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to understand how legacy imports and CLI paths still forward through
   the compatibility package
 - you are checking whether a structural change preserves a safe migration handoff
 - you need to see where the bridge structure creates review risk
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real concern is the canonical runtime architecture rather than the legacy
   forwarding shape
@@ -94,7 +94,7 @@ migration safer, that is usually a sign the work belongs elsewhere.
 - `src/agentic_proteins/runtime`, `src/agentic_proteins/state`, and `src/agentic_proteins/memory` for continuity and persistence
 - `src/agentic_proteins/core`, `src/agentic_proteins/api`, and `src/agentic_proteins/interfaces` for contracts and entry surfaces
 
-## Use This Page When
+## Open This Page When
 
 - you are tracing structure, execution flow, or dependency pressure
 - you need to understand how modules fit before refactoring

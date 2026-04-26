@@ -61,14 +61,14 @@ flowchart LR
 - [Security and Safety](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/security-and-safety/)
 - [Deployment Boundaries](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/deployment-boundaries/)
 
-## Use This Section When
+## Open This Section When
 
 - you are validating legacy imports, CLI aliases, or compatibility release
   behavior
 - you need to diagnose forwarding failures or retirement blockers
 - the question is operational and still specific to the compatibility bridge
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - the real workflow concern belongs to canonical runtime operations
 - you are treating the compatibility package as the preferred place for normal
@@ -95,7 +95,7 @@ canonical runtime handbook is the better long-term home.
 - `packages/agentic-proteins/README.md` for local package framing
 - `packages/agentic-proteins/tests` for executable operational backstops
 
-## Use This Page When
+## Open This Page When
 
 - you are installing, running, diagnosing, or releasing the package
 - you need repeatable operational anchors rather than architectural framing

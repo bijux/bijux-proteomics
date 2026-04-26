@@ -63,14 +63,14 @@ flowchart LR
 - [Code Navigation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/architecture-risks/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to know which module family owns a behavior before editing it
 - a review is about decomposition, dependency direction, or execution flow
 - you need to explain how evidence, claims, resolution, and review structure
   relate
 
-## Move On When
+## Open Another Section When
 
 - the main question is why the package owns the behavior at all
 - you are deciding whether a schema, import, or artifact is a public contract

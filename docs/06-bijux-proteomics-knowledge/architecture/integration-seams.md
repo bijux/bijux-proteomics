@@ -62,7 +62,7 @@ flowchart LR
 - `src/bijux_proteomics_knowledge/resolution.py`
 - `src/bijux_proteomics_knowledge/review.py`
 
-## Use This Page When
+## Open This Page When
 
 - you are tracing structure, execution flow, or dependency pressure
 - you need to understand how modules fit before refactoring

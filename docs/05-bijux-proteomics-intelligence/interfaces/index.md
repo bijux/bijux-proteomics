@@ -82,13 +82,13 @@ code.
 - `src/bijux_proteomics_intelligence/evaluators.py` and `src/bijux_proteomics_intelligence/policies.py` for callable contract pressure
 - `src/bijux_proteomics_intelligence/serialization.py` and `src/bijux_proteomics_intelligence/report/` for file and artifact shapes
 
-## Use This Page When
+## Open This Page When
 
 - you need the public import, artifact, or configuration surface for intelligence outputs
 - you are deciding whether a caller can safely depend on a recommendation, brief, report, or serialized structure
 - you want to separate intentional contracts from incidental module visibility
 
-## Do Not Use This Section When
+## Open Another Section When
 
 - you are trying to understand why ranking and evaluation logic is split across modules
 - you are debugging workflow steps, validation commands, or release procedure
