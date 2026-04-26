@@ -84,7 +84,7 @@ Use `Security and Safety` to decide whether a maintainer can repeat the package 
 
 ## Limits
 
-This page shows how `bijux-proteomics-knowledge` is operated today, but the checked-in commands, artifacts, and validation remain the source of truth. Use those assets to confirm the workflow in a real environment.
+Checked-in commands, artifacts, and validation remain the source of truth for this workflow.
 
 ## Read Next
 

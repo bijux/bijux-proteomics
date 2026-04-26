@@ -80,7 +80,7 @@ Use `Review Checklist` to decide whether `bijux-proteomics-knowledge` has actual
 
 ## Limits
 
-This page shows how `bijux-proteomics-knowledge` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+Tests, checks, and review practice remain the proof for this package. If they drift, this page is wrong.
 
 ## Read Next
 

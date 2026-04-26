@@ -90,7 +90,7 @@ Use `State and Persistence` to decide whether a structural change makes `bijux-p
 
 ## Limits
 
-This page describes the current structural model of `bijux-proteomics-lab`, but it does not guarantee that every import path or runtime path still obeys that model. Treat it as a map that must stay aligned with code and tests, not as an authority above them.
+Treat this page as a working structural map and keep it aligned with code and tests.
 
 ## Read Next
 
