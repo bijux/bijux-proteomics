@@ -58,7 +58,7 @@ compatibility burden.
 - you need current runtime operation or API behavior rather than legacy naming
 - you are looking for biological, evidence, or scoring semantics directly
 
-## Package Sections
+## Pages In This Package
 
 - [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/)
 - [Architecture](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/)
@@ -66,7 +66,7 @@ compatibility burden.
 - [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/)
 - [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/)
 
-## Cross-Package Handoffs
+## Neighboring Packages
 
 - open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the question is about current runtime behavior
 - open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the question is about migration policy or repository-wide release rules

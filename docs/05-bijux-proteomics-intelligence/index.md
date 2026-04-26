@@ -39,7 +39,7 @@ also owns evidence truth or execution.
 - you are expecting this package to settle biology or laboratory truth on its
   own
 
-## Package Sections
+## Pages In This Package
 
 - [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/)
 - [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
@@ -47,13 +47,13 @@ also owns evidence truth or execution.
 - [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/)
 - [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/)
 
-## Cross-Package Handoffs
+## Neighboring Packages
 
 - open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the real disagreement is about evidence or trust state
 - open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the rule belongs in a durable contract rather than a ranking policy
 - stay here when you need to understand why one candidate or path was recommended over another
 
-## What This Package Covers
+## What This Package Owns
 
 - where proteomics scoring and ordering policy is actually implemented
 - how scenario comparison and explainability artifacts are produced

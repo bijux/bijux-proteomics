@@ -35,7 +35,7 @@ validation logic that the rest of the stack must obey before it adds policy.
 - you are trying to smuggle downstream policy into a layer that should stay
   contract-focused
 
-## Package Sections
+## Pages In This Package
 
 - [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/)
 - [Architecture](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)
@@ -43,13 +43,13 @@ validation logic that the rest of the stack must obey before it adds policy.
 - [Operations](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/)
 - [Quality](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/)
 
-## Cross-Package Handoffs
+## Neighboring Packages
 
 - open [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/) when shared payload meaning is the real issue
 - open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking or recommendation policy
 - stay here when you need to know whether a rule is part of the durable contract or just a downstream policy choice
 
-## What This Package Covers
+## What This Package Owns
 
 - which proteomics rules stay stable across downstream package
   disagreements

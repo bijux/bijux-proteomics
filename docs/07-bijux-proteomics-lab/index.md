@@ -49,7 +49,7 @@ with which gates, and what to do after the outcome lands.
 - the real question is how promoted evidence changes trust or contradiction
   state
 
-## Package Sections
+## Pages In This Package
 
 - [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/)
 - [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/)
@@ -57,7 +57,7 @@ with which gates, and what to do after the outcome lands.
 - [Operations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/)
 - [Quality](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/)
 
-## Cross-Package Handoffs
+## Neighboring Packages
 
 - open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the unresolved question is recommendation policy
 - open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the unresolved question is evidence or contradiction state after an assay

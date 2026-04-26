@@ -36,7 +36,7 @@ enough for the rest of the family to exchange meaning safely.
 - you are treating this package as a generic utility layer instead of as a
   contract layer
 
-## Package Sections
+## Pages In This Package
 
 - [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
 - [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)
@@ -44,13 +44,13 @@ enough for the rest of the family to exchange meaning safely.
 - [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/)
 - [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/)
 
-## Cross-Package Handoffs
+## Neighboring Packages
 
 - open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the concern becomes program or lifecycle behavior
 - open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the concern becomes execution or replay
 - stay here when the real question is whether shared payload meaning changed
 
-## What This Package Covers
+## What This Package Owns
 
 - which identifier and schema rules are shared by the whole package family
 - how deterministic serialization is kept compatible enough for review and

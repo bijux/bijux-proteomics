@@ -57,13 +57,13 @@ supported it.
 - [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/)
 - [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/)
 
-## Cross-Package Handoffs
+## Neighboring Packages
 
 - open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking policy rather than evidence state
 - open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) when the concern becomes assay execution or planning
 - stay here when the real issue is whether the current claim state is justified and inspectable
 
-## What This Package Covers
+## What This Package Owns
 
 - where evidence records, claim state, contradiction handling, and trust
   summaries are actually owned
