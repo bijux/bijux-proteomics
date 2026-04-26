@@ -57,12 +57,12 @@ flowchart LR
 
 ## Start Here
 
-- use [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question
+- open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question
   starts from a legacy import or CLI path
-- use [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the runtime
+- open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the runtime
   question is really about repository-wide migration or release rules
-- use the package source references below when you need current runtime
-  structure, boundary, or contract detail from the checked-in package docs
+- open the published handbook pages below when you need runtime ownership,
+  migration, or lower-package context
 
 ## What Runtime Owns
 
@@ -108,16 +108,19 @@ runtime-agnostic.
 - `packages/bijux-proteomics-runtime/tests` for execution, API, provider, and
   compatibility proof
 
-## Runtime Source Documents
+## Published Runtime References
 
-- [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/ARCHITECTURE.md)
-- [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/BOUNDARIES.md)
-- [Contracts](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/CONTRACTS.md)
+- [Repository Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
+- [Foundation Handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+- [Core Handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+- [Intelligence Handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+- [Knowledge Handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+- [Lab Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 
 ## Migration Review Documents
 
-- [Migration Ledger](https://github.com/bijux/bijux-proteomics/blob/main/docs/09-bijux-proteomics-runtime/migration-ledger/README.md)
-- [Agentic Module Ledger Summary](https://github.com/bijux/bijux-proteomics/blob/main/docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md)
+- [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/)
+- [Agentic Module Ledger Summary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary/)
 
 ## Reader Takeaway
 
