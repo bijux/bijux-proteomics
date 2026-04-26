@@ -14,6 +14,22 @@ without hesitation. The root owns only what genuinely crosses package
 boundaries. Product packages own publishable behavior. The maintainer package
 owns repository-health automation.
 
+## Ownership Model
+
+```mermaid
+flowchart TB
+    root["root docs, release framing, tracked artifacts, validation coordination"]
+    maintain["bijux-proteomics-dev owns repository-health automation"]
+    product["canonical packages own publishable behavior"]
+    bridge["agentic-proteins owns temporary runtime forwarding"]
+
+    root --> maintain
+    root --> product
+    product --> bridge
+```
+
+This page should make the ownership layers easy to state in one breath. If a reviewer has to improvise who owns a behavior, the repository has already lost clarity.
+
 ## Ownership Layers
 
 - root docs, shared release framing, schema storage, and repository-wide
@@ -36,3 +52,7 @@ must move together without becoming the same thing.
 - `packages/bijux-proteomics-dev/` for maintainer automation
 - root files such as `Makefile`, `apis/`, and `.github/workflows/` when the
   change truly spans more than one package
+
+## Design Pressure
+
+The common drift is to describe several layers correctly in isolation while still letting one change claim authority from two or three of them at once.
