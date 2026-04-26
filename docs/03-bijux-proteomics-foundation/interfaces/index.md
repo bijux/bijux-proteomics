@@ -9,75 +9,32 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section shows which shared-contract surfaces are real promises: public
-imports, schema definitions, serialized artifacts, migration helpers, and
-examples that downstream packages can rely on safely.
+`bijux-proteomics-foundation` interfaces should tell a reader exactly which public surfaces are real, which are only compatibility bridges, and which nearby package actually owns the next step.
 
-These pages keep callers from hardening dependencies around incidental details.
-For the foundation package, that matters because one sloppy contract
-assumption can spread into every higher layer that consumes shared payloads or
-identifiers.
+## Start With
 
-## Start Here
+- open [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/) when the question starts from code
+- open [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/) when the question is really about payload meaning or compatibility
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/) before changing any documented public promise
 
-- open [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/) when the dependency starts from
-  Python entrypoints
-- open [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/) when the real question is payload
-  shape, identity, or schema meaning
-- open [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/) when callers rely on
-  serialized output or fingerprints
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/) when a change
-  may break shared cross-package assumptions
+## Section Pages
 
-## Pages In This Section
-
-- [CLI Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/cli-surface/)
-- [API Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/api-surface/)
-- [Configuration Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/configuration-surface/)
+- [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
 - [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/)
 - [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/)
+- [API Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/api-surface/)
+- [CLI Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/cli-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/configuration-surface/)
 - [Entrypoints and Examples](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/entrypoints-and-examples/)
 - [Operator Workflows](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/operator-workflows/)
-- [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/)
 
-## Open This Section When
+## What This Package Publishes
 
-- you need to know which shared-contract surface is intentional and supported
-- downstream packages depend on schema meaning, identifiers, serialized output,
-  or migration helpers
-- you are reviewing whether a change creates compatibility pressure beyond one
-  local package
+- shared Python imports, schema types, serialization helpers, and migration contracts
 
-## Open Another Section When
+## First Proof Check
 
-- the real question is why shared meaning belongs in this package at all
-- you need structural layout or compatibility-helper organization first
-- the issue is operational, such as validation workflow, release steps, or test
-  execution
-
-## Across This Package
-
-- open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when the contract issue is really a
-  boundary or ownership question
-- open [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/) when the surface depends on
-  schema, serialization, or migration structure
-- open [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/) when you need repeatable maintainer
-  workflows for contract changes
-- open [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/) when the real question is whether the
-  documented contract is sufficiently defended
-
-## Concrete Anchors
-
-- public exports in `src/bijux_proteomics_foundation/__init__.py`
-- schema contracts in `src/bijux_proteomics_foundation/schema.py`
-- serialization helpers in `src/bijux_proteomics_foundation/serialization.py`
-- migration helpers in `src/bijux_proteomics_foundation/migrations.py`
-
-## Bottom Line
-
-Open this section to separate stable shared contracts from whatever merely
-happens to be visible in implementation today. If another package cannot defend
-its dependency in terms of named imports, schemas, artifacts, examples, and
-tests, that dependency is not yet an honest public surface.
-
+- `src/bijux_proteomics_foundation/ids.py` and `schema.py`
+- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py`
+- `packages/bijux-proteomics-foundation/tests`

@@ -9,71 +9,32 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-Open this section when the question is what another package, tool, or reviewer
-can safely rely on from `bijux-proteomics-knowledge`: import surfaces, schema
-profiles, canonical JSON behavior, evidence bundles, claim records, and review
-artifacts.
+`bijux-proteomics-knowledge` interfaces should tell a reader exactly which public surfaces are real, which are only compatibility bridges, and which nearby package actually owns the next step.
 
-This package is library-first, but that does not make its contracts casual.
-When evidence and claim state move across package boundaries, import surfaces
-and serialized payloads become part of the review surface that later decisions
-depend on.
+## Start With
 
-## Start Here
+- open [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/) when the question starts from code
+- open [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/) when the question is really about payload meaning or compatibility
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/compatibility-commitments/) before changing any documented public promise
 
-- open [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/) for the package exports that callers
-  should depend on directly
-- open [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/) and [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
-  when the durable payload or review shape matters more than the import name
-- open [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/) when the question is
-  schema profile behavior rather than record semantics
+## Section Pages
 
-## Pages In This Section
-
-- [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/)
-- [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/)
-- [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/)
+- [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/)
 - [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
 - [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
+- [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/)
+- [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/)
 - [Entrypoints and Examples](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/entrypoints-and-examples/)
 - [Operator Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/operator-workflows/)
-- [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/compatibility-commitments/)
 
-## Open This Section When
+## What This Package Publishes
 
-- you need to know whether an import, schema, payload, or artifact shape is
-  meant to be stable
-- a change may affect downstream trust calculations, review packets, or bundle
-  serialization
-- a reviewer needs to separate explicit contracts from incidental visibility
+- canonical evidence imports, review payloads, repository-facing schemas, and contradiction-aware artifacts
 
-## Open Another Section When
+## First Proof Check
 
-- the main question is why the behavior belongs in the knowledge layer at all
-- the concern is mostly structural rather than contract-facing
-- the issue is procedural or proof-oriented rather than about supported surfaces
-
-## Across This Package
-
-- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
-- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for the structural seams behind
-  the public surfaces
-- open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflows, diagnostics, and
-  release procedures
-- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for compatibility evidence and review
-  pressure
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_knowledge/__init__.py` for public import exports
-- `src/bijux_proteomics_knowledge/schema.py` for schema compatibility contracts
-- `src/bijux_proteomics_knowledge/serialization.py` for canonical serialization rules
-- `src/bijux_proteomics_knowledge/evidence.py` and `claims.py` for core data surfaces
-
-## Bottom Line
-
-Open this section to judge whether a dependency on knowledge state is
-defensible. The bar is that imports, schema profiles, serialized payloads,
-artifacts, examples, and tests all agree about what a caller may rely on.
-
+- `src/bijux_proteomics_knowledge/claims.py`, `evidence.py`, and `graph.py`
+- `src/bijux_proteomics_knowledge/confidence/segments.py`, `resolution.py`, and `review.py`
+- `packages/bijux-proteomics-knowledge/tests`

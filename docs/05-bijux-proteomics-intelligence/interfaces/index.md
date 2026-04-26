@@ -9,75 +9,32 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section shows which imports, files, outputs, and configuration shapes in
-`bijux-proteomics-intelligence` are safe to depend on and which ones are only
-internal machinery.
+`bijux-proteomics-intelligence` interfaces should tell a reader exactly which public surfaces are real, which are only compatibility bridges, and which nearby package actually owns the next step.
 
-For many readers this page is the contract page that matters most. If a
-workflow, downstream package, or reviewer wants to rely on intelligence
-output, this section makes it obvious which surfaces are deliberate and which
-ones would be a mistake to hard-code against.
+## Start With
 
-## Pages In This Section
+- open [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/) when the question starts from code
+- open [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/) when the question is really about payload meaning or compatibility
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/compatibility-commitments/) before changing any documented public promise
 
-- [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/)
-- [API Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/api-surface/)
-- [Configuration Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/configuration-surface/)
+## Section Pages
+
+- [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/)
 - [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/)
 - [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
+- [API Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/api-surface/)
+- [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/configuration-surface/)
 - [Entrypoints and Examples](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/entrypoints-and-examples/)
 - [Operator Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/operator-workflows/)
-- [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/compatibility-commitments/)
 
-## Start Here
+## What This Package Publishes
 
-Read this section first when you need to know whether a downstream caller may
-safely import a type, parse an artifact, or expect a recommendation output to
-keep the same shape. `bijux-proteomics-intelligence` exposes decision-facing
-surfaces, so weak contract wording here quickly turns into brittle downstream
-code.
+- decision-layer imports, report artifacts, outcome payloads, and recommendation-facing examples
 
-## Read Across the Package
+## First Proof Check
 
-- [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/) when you need the package boundary and ownership story first
-- [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when the question becomes structural, modular, or execution-oriented
-- [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) when the question becomes proof, risk, trust, or review sufficiency
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_intelligence/__init__.py` for the public import surface
-- `src/bijux_proteomics_intelligence/briefs.py` and `src/bijux_proteomics_intelligence/outcomes.py` for decision-facing outputs
-- `src/bijux_proteomics_intelligence/evaluators.py` and `src/bijux_proteomics_intelligence/policies.py` for callable contract pressure
-- `src/bijux_proteomics_intelligence/serialization.py` and `src/bijux_proteomics_intelligence/report/` for file and artifact shapes
-
-## Open This Page When
-
-- you need the public import, artifact, or configuration surface for intelligence outputs
-- you are deciding whether a caller can safely depend on a recommendation, brief, report, or serialized structure
-- you want to separate intentional contracts from incidental module visibility
-
-## Open Another Section When
-
-- you are trying to understand why ranking and evaluation logic is split across modules
-- you are debugging workflow steps, validation commands, or release procedure
-- you are asking whether the current proof surface is strong enough for a risky change
-
-## When To Leave This Section
-
-Callers often start in interfaces and then discover they really need one of
-the adjacent sections. Open
-[Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
-when an exposed surface raises a structural question about candidate state,
-policies, or evaluators. Open
-[Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/)
-when the contract question becomes procedural, such as how a maintainer
-validates or ships a changed artifact. Open
-[Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/)
-when the real question is whether the contract is sufficiently defended by
-tests and review.
-
-## Bottom Line
-
-Treat this section as the contract map for `bijux-proteomics-intelligence`. If a surface cannot be traced to a documented import, artifact, configuration shape, example, and test-backed expectation, readers should assume it is not yet a stable dependency boundary.
+- `src/bijux_proteomics_intelligence/candidates.py`, `policies.py`, and `evaluators.py`
+- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, and `outcomes.py`
+- `packages/bijux-proteomics-intelligence/tests`

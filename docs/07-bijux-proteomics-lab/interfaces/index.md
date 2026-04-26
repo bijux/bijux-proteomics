@@ -9,73 +9,32 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section shows which imports, schemas, and artifacts
-`bijux-proteomics-lab` is prepared to stand behind as real surfaces.
+`bijux-proteomics-lab` interfaces should tell a reader exactly which public surfaces are real, which are only compatibility bridges, and which nearby package actually owns the next step.
 
-These pages show the public face of `bijux-proteomics-lab`. They help
-a caller separate deliberate contracts from incidental visibility before
-a dependency hardens around the wrong surface.
+## Start With
 
-The important caller-facing question here is straightforward: which plan,
-outcome, feedback, schema, and serialization surfaces are stable enough
-to use without reading the whole package every time?
+- open [Public Imports](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/public-imports/) when the question starts from code
+- open [Data Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/data-contracts/) when the question is really about payload meaning or compatibility
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/compatibility-commitments/) before changing any documented public promise
 
-## Pages In This Section
+## Section Pages
 
-- [CLI Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/cli-surface/)
-- [API Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/api-surface/)
-- [Configuration Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/configuration-surface/)
+- [Public Imports](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/public-imports/)
 - [Data Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/data-contracts/)
 - [Artifact Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/artifact-contracts/)
+- [API Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/api-surface/)
+- [CLI Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/cli-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/configuration-surface/)
 - [Entrypoints and Examples](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/entrypoints-and-examples/)
 - [Operator Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/operator-workflows/)
-- [Public Imports](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/public-imports/)
 - [Compatibility Commitments](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/compatibility-commitments/)
 
-## What This Section Clarifies
+## What This Package Publishes
 
-- which Python exports in `bijux_proteomics_lab` are meant to be stable public
-  entrypoints
-- which artifact kinds and schema rules callers must preserve when they store
-  or exchange lab outputs
-- which serialization helpers exist to keep payloads deterministic and auditable
+- planning and outcome imports, lab payloads, repository contracts, and operator-facing examples
 
-## Open This Section When
+## First Proof Check
 
-- you need the public import, schema, or artifact surface
-- you are checking whether a caller can safely rely on a given entrypoint or shape
-- you want the contract-facing side of the package before building on it
-
-## Open Another Section When
-
-- the real question is whether the package should own the behavior at all
-- the real question is how the internal files are arranged
-- the real question is which workflow a maintainer should run during planning or
-  outcome review
-
-## Read Across the Package
-
-- [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/) when you need the package boundary first
-- [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/) when a public-surface question turns
-  into a module-ownership question
-- [Operations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/) when the interface question becomes a
-  repeatable maintainer workflow
-- [Quality](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/) when the real concern is compatibility proof
-  and review sufficiency
-
-## Concrete Anchors
-
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/__init__.py`
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py`
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py`
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/schema.py`
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/serialization.py`
-- `packages/bijux-proteomics-lab/tests/test_schema.py` and
-  `packages/bijux-proteomics-lab/tests/test_serialization.py`
-
-## Bottom Line
-
-Use the interfaces section when you need to know what a caller may trust
-without treating every importable symbol as public. If a surface cannot be tied
-to a named export, artifact contract, or deterministic serialization rule, it
-should not be treated as stable.
+- `src/bijux_proteomics_lab/planning.py` and `outcomes.py`
+- `src/bijux_proteomics_lab/schema.py` and `serialization.py`
+- `packages/bijux-proteomics-lab/tests`
