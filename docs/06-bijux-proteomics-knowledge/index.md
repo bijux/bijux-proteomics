@@ -19,38 +19,47 @@ evidence and claim state that readers can audit later. It is the place
 to ask what is known, what conflicts, and how much trust the system can
 currently justify.
 
-## Visual Summary
+If someone opens only this page, they should understand that this package is
+where proteomics evidence becomes an auditable state: records are stored,
+claims are updated, conflicts are resolved, trust is summarized, and review can
+work backward from a recommendation to the evidence that supported it.
+
+## Start Here
 
 ```mermaid
 flowchart LR
-    records["evidence records"]
-    claims["claim state and<br/>contradiction handling"]
-    trust["freshness, confidence,<br/>and trust summaries"]
-    knowledge["bijux-proteomics-knowledge<br/>auditable evidence layer"]
-    intelligence["decision policy<br/>reads the evidence state"]
-    runtime["runtime surfaces<br/>current evidence-backed status"]
-    reviewers["reviewers can inspect<br/>why a claim is trusted"]
+    reader["reader question<br/>what is currently known, contested, or trusted?"]
+    evidence["evidence.py and adapters.py<br/>evidence records and normalization"]
+    claims["claims.py and resolution.py<br/>claim state and contradiction handling"]
+    review["review.py, graph.py, repositories.py<br/>audit, review, and lineage surfaces"]
+    consumers["intelligence and runtime read<br/>the resulting evidence state"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    records --> knowledge
-    claims --> knowledge
-    trust --> knowledge
-    knowledge --> intelligence
-    knowledge --> runtime
-    knowledge --> reviewers
-    class knowledge page;
-    class intelligence,runtime,reviewers positive;
-    class records,claims,trust anchor;
+    class reader page;
+    class evidence,claims,review,consumers positive;
+    reader --> evidence
+    evidence --> claims
+    claims --> review
+    review --> consumers
 ```
 
-## Read This Section When
+## Use This Section When
 
 - you need the package entrypoint for evidence and claim contracts
 - you are checking contradiction handling, freshness, or trust logic
 - you want the shortest route into auditable knowledge-state behavior
+
+## Do Not Use This Section When
+
+- the real question is already about ranking policy, experiment planning, or
+  runtime orchestration
+- you need durable core contracts or shared payload meaning rather than
+  evidence-state behavior
+- you are expecting this package to make policy decisions instead of to record
+  and justify evidence state
 
 ## Main Paths
 
@@ -66,18 +75,26 @@ flowchart LR
 - move to [bijux-proteomics-lab](../07-bijux-proteomics-lab/index.md) when the concern becomes assay execution or planning
 - stay here when the real issue is whether the current claim state is justified and inspectable
 
+## What This Package Clarifies
+
+- where evidence records, claim state, contradiction handling, and trust
+  summaries are actually owned
+- how review can inspect why a claim is currently trusted or blocked
+- which downstream consumers should read knowledge state rather than redefine
+  it
+
 ## Concrete Anchors
 
-- `packages/bijux-proteomics-knowledge` for the package root
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` for evidence ownership
-- `packages/bijux-proteomics-knowledge/tests` for contradiction and trust proof
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py`
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py`
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py`
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/review.py`
+- `packages/bijux-proteomics-knowledge/tests` for evidence, contradiction, and
+  trust proof
 
-## Purpose
+## Reader Takeaway
 
-This page gives readers the cleanest route into the package that owns
-evidence state instead of merely consuming it.
-
-## Stability
-
-Keep it aligned with the evidence, claim, and trust behavior that the
-package actually governs.
+Use this page when the unresolved question is what the system currently knows
+and how well it can justify that state. If the answer depends on choosing a
+path, scheduling an assay, or executing a run rather than on recording and
+auditing evidence, another package owns the next step.
