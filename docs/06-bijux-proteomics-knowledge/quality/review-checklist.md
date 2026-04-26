@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Review Checklist
@@ -20,35 +20,28 @@ Treat the quality pages for `bijux-proteomics-knowledge` as the proof frame arou
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Review Checklist<br/>clarifies: see proof | see limitations | judge done-ness"]
+flowchart LR
+    review1["evidence stays inspectable"]
+    review2["claim state stays reviewable"]
+    review3["trust outputs remain defensible"]
+    page["bijux-proteomics-knowledge<br/>review checklist"]
+    proof1["evidence tests"]
+    proof2["claim and contradiction checks"]
+    proof3["trust freshness checks"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    proof1["tests/regression and tests/smoke for replay and storage protection"]
-    proof1 --> page
-    proof2["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    proof2 --> page
-    proof3["tests/e2e for governed flow behavior"]
-    proof3 --> page
-    risk1["CHANGELOG.md"]
-    risk1 -.keeps trust honest.-> page
-    risk2["pyproject.toml"]
-    risk2 -.keeps trust honest.-> page
-    risk3["README.md"]
-    risk3 -.keeps trust honest.-> page
-    bar1["package trust after change"]
-    page --> bar1
-    bar2["proof before confidence"]
-    page --> bar2
-    bar3["done means defended behavior"]
-    page --> bar3
+    review1 --> page
+    review2 --> page
+    review3 --> page
+    page --> proof1
+    page --> proof2
+    page --> proof3
     class page page;
-    class proof1,proof2,proof3 positive;
-    class risk1,risk2,risk3 caution;
-    class bar1,bar2,bar3 action;
+    class review1,review2,review3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Checklist

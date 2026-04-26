@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Change Validation
@@ -20,11 +20,27 @@ Treat the quality pages for `bijux-proteomics-foundation` as the proof frame aro
 
 ```mermaid
 flowchart LR
-    change["change"] --> static["lint / types / schema checks"]
-    static --> unit["unit and focused tests"]
-    unit --> contract["contract / artifact validation"]
-    contract --> docs["docs updated if surface changed"]
-    docs --> decision["ready for review"]
+    proof1["schema contract tests"]
+    proof2["serialization fixtures"]
+    proof3["migration helper checks"]
+    page["bijux-proteomics-foundation<br/>change validation"]
+    accept1["shared meaning stays stable"]
+    accept2["changes are explicit"]
+    accept3["compatibility is defended"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    proof1 --> page
+    proof2 --> page
+    proof3 --> page
+    page --> accept1
+    page --> accept2
+    page --> accept3
+    class page page;
+    class proof1,proof2,proof3 positive;
+    class accept1,accept2,accept3 action;
 ```
 
 ## Validation Targets

@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Test Strategy
@@ -19,17 +19,27 @@ explains why these tests exist, not just where they live.
 
 ```mermaid
 flowchart LR
-    claims["test_claims.py"]
-    evidence["test_evidence_bundle.py"]
-    evidence_graph_tests["test_evidence_graph.py"]
-    resolution["test_resolution.py"]
-    review["test_review.py"]
-    schema["test_schema.py + test_serialization.py"]
-    claims --> review
-    evidence --> claims
-    claims --> resolution
-    evidence --> evidence_graph_tests
-    schema --> evidence
+    proof1["evidence tests"]
+    proof2["claim and contradiction checks"]
+    proof3["trust freshness checks"]
+    page["bijux-proteomics-knowledge<br/>test strategy"]
+    accept1["evidence stays inspectable"]
+    accept2["claim state stays reviewable"]
+    accept3["trust outputs remain defensible"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    proof1 --> page
+    proof2 --> page
+    proof3 --> page
+    page --> accept1
+    page --> accept2
+    page --> accept3
+    class page page;
+    class proof1,proof2,proof3 positive;
+    class accept1,accept2,accept3 action;
 ```
 
 ## Test Areas

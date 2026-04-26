@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Dependency Governance
@@ -22,13 +22,27 @@ Treat the quality pages for `bijux-proteomics-foundation` as the proof frame aro
 
 ```mermaid
 flowchart LR
-    dep["new or changed dependency"] --> q1{"needed for package purpose?"}
-    q1 -->|no| reject["reject"]
-    q1 -->|yes| q2{"fits dependency direction?"}
-    q2 -->|no| redesign["redesign placement"]
-    q2 -->|yes| q3{"risk acceptable?"}
-    q3 -->|no| mitigate["pin, isolate, or replace"]
-    q3 -->|yes| accept["accept with review note"]
+    review1["shared meaning stays stable"]
+    review2["changes are explicit"]
+    review3["compatibility is defended"]
+    page["bijux-proteomics-foundation<br/>dependency governance"]
+    proof1["schema contract tests"]
+    proof2["serialization fixtures"]
+    proof3["migration helper checks"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    review1 --> page
+    review2 --> page
+    review3 --> page
+    page --> proof1
+    page --> proof2
+    page --> proof3
+    class page page;
+    class review1,review2,review3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Current Dependency Themes

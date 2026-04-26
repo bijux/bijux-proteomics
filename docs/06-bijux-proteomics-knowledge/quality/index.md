@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Quality
@@ -20,12 +20,28 @@ real proof surface.
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    code["change in evidence/claims/resolution logic"]
-    tests["run package tests"]
-    docs["update README + docs + changelog if behavior changed"]
-    review["review risk and limitations"]
-    code --> tests --> docs --> review
+flowchart LR
+    proof1["evidence tests"]
+    proof2["claim and contradiction checks"]
+    proof3["trust freshness checks"]
+    page["Quality section<br/>proof, limits, and review bars"]
+    next1["tests and invariants"]
+    next2["review and validation"]
+    next3["limits and risks"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    proof1 --> page
+    proof2 --> page
+    proof3 --> page
+    page --> next1
+    page --> next2
+    page --> next3
+    class page page;
+    class proof1,proof2,proof3 positive;
+    class next1,next2,next3 anchor;
 ```
 
 ## Pages in This Section
