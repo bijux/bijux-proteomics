@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Release and Versioning
@@ -16,17 +16,15 @@ For every publishable package in this repository, version is resolved from Git t
 
 ```mermaid
 sequenceDiagram
-    participant Dev as Maintainer
-    participant Git as Git tags
+    participant Maintainer
+    participant GitTag as Git tag
     participant Hatch as hatch-vcs
-    participant CI as release-artifacts.yml
-    participant Targets as PyPI/GHCR/GitHub Release
-
-    Dev->>Git: create version tag
-    Git->>Hatch: resolve package versions
-    Git->>CI: trigger release orchestration
-    CI->>Targets: build release artifacts
-    CI->>Targets: publish through release-pypi.yml, release-ghcr.yml, and release-github.yml
+    participant Release as release orchestration
+    participant Targets as PyPI / GHCR / GitHub
+    Maintainer->>GitTag: create version tag
+    GitTag->>Hatch: resolve package versions
+    GitTag->>Release: trigger release workflows
+    Release->>Targets: build and publish artifacts
 ```
 
 ## Shared Release Facts

@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Workspace Layout
@@ -14,22 +14,27 @@ ownership harder to see, it is working against the design.
 
 ```mermaid
 flowchart TB
-    repo[bijux-proteomics]
-    repo --> packages[packages/]
-    repo --> apis[apis/]
-    repo --> docs[docs/]
-    repo --> makes[makes/ + Makefile]
-    repo --> configs[configs/]
-    repo --> artifacts[artifacts/]
-
-    packages --> p1[publishable distributions]
-    packages --> p2[maintainer tooling]
-    apis --> a1[schema sources]
-    apis --> a2[pinned OpenAPI + digests]
-    docs --> d1[canonical handbook]
-    makes --> m1[shared automation]
-    configs --> c1[tool config]
-    artifacts --> r1[generated output only]
+    repo["bijux-proteomics"]
+    packages["packages/<br/>publishable code"]
+    apis["apis/<br/>checked contract artifacts"]
+    docs["docs/<br/>canonical handbook"]
+    makes["Makefile and makes/<br/>shared automation"]
+    configs["configs/<br/>tool configuration"]
+    artifacts["artifacts/<br/>generated output only"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    repo --> packages
+    repo --> apis
+    repo --> docs
+    repo --> makes
+    repo --> configs
+    repo --> artifacts
+    class repo page;
+    class packages,apis,docs,makes,configs anchor;
+    class artifacts action;
 ```
 
 ## Top-Level Directories

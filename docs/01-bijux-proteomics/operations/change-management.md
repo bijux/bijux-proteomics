@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Change Management
@@ -15,10 +15,10 @@ The repository should make change easier to reason about, not easier to hide.
 timeline
     title Repository change management flow
     Proposal : define durable intent
-    Batch 1 : make reviewable repository change
-    Batch 2 : update docs, schemas, and proof surfaces
-    Review : confirm names, redirects, and scope remain clear
-    Completion : merge only when explanation and behavior match
+    Commit 1 : make one reviewable change
+    Commit 2 : update docs, schemas, and proof
+    Review : confirm names, scope, and ownership
+    Completion : merge when behavior and explanation agree
 ```
 
 ## Expectations

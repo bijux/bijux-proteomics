@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Documentation System
@@ -19,22 +19,28 @@ explain cross-package concerns, while package pages, schemas, tests, and
 release artifacts carry the detailed evidence behind specific claims.
 
 ```mermaid
-flowchart TD
-    site[Docs site]
-    landing[landing page]
-    repo[repository handbook]
-    pkg[package handbooks]
-    maintain[maintainer handbook]
-    proof[schemas tests metadata workflows]
-
+flowchart TB
+    site["Docs site"]
+    landing["landing page"]
+    repo["repository handbook"]
+    package["package handbooks"]
+    maintain["maintainer handbook"]
+    proof["schemas, tests, metadata, workflows"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
     site --> landing
     site --> repo
-    site --> pkg
+    site --> package
     site --> maintain
-
-    repo -->|orientation| proof
-    pkg -->|detailed behavior| proof
-    maintain -->|repo health checks| proof
+    repo --> proof
+    package --> proof
+    maintain --> proof
+    class site page;
+    class landing,repo,package,maintain anchor;
+    class proof action;
 ```
 
 ## Handbook Shape

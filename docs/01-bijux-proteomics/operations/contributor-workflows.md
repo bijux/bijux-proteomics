@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Contributor Workflows
@@ -13,23 +13,20 @@ Contributors should be able to move through the repository in a repeatable
 order.
 
 ```mermaid
-flowchart TB
-    subgraph Contributor
-        start[Read relevant handbook page]
-        edit[Make owned change]
-        docs[Update explanation]
-    end
-
-    subgraph Repository
-        root[root automation when work spans packages]
-        proof[Tests/schemas/docs move together]
-    end
-
-    start --> edit
-    edit -->|cross-package| root
-    edit -->|package-local| docs
-    root --> proof
-    docs --> proof
+flowchart LR
+    read["read the relevant handbook page"]
+    edit["make the owned change"]
+    route["package-local or root-level?"]
+    proof["update docs, schemas, and tests"]
+    review["submit coherent review unit"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    read --> edit --> route --> proof --> review
+    class review page;
+    class read,edit,route,proof anchor;
 ```
 
 ## Common Workflow Shape

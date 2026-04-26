@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Review Expectations
@@ -13,17 +13,20 @@ Root review should be sharper than purely local code review because repository
 changes can alter how the whole package family is built, read, or released.
 
 ```mermaid
-flowchart TD
-    review[Root change under review]
-    surface{Right owning surface?}
-    proof{Docs + automation + proof moved together?}
-    smuggle{Smuggling product behavior into root?}
-    intent{Commit intent durable and clear?}
-
-    review --> surface --> proof --> smuggle --> intent
-    smuggle -- yes --> block[Request redesign]
-    smuggle -- no --> pass[Continue review]
-    intent --> approve[Approve when evidence is coherent]
+flowchart LR
+    change["root change under review"]
+    owner["right owning surface?"]
+    coupled["docs, automation, and proof moved together?"]
+    scope["product behavior kept out of root?"]
+    approve["approve when evidence is coherent"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    change --> owner --> coupled --> scope --> approve
+    class approve page;
+    class change,owner,coupled,scope action;
 ```
 
 ## Root Review Expectations

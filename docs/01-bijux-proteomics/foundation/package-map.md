@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Package Map
@@ -15,20 +15,26 @@ program lifecycle.
 
 ```mermaid
 flowchart TD
-    Q[What kind of work is this?]
-    Q --> R1[runtime / replay / execution]
-    Q --> R2[schema / identifiers / serialization]
-    Q --> R3[targets / gates / lifecycle]
-    Q --> R4[ranking / scoring / recommendation]
-    Q --> R5[evidence / claims / contradictions]
-    Q --> R6[assay planning / outcomes / promotion]
-
-    R1 --> P1[bijux-proteomics-runtime]
-    R2 --> P2[bijux-proteomics-foundation]
-    R3 --> P3[bijux-proteomics-core]
-    R4 --> P4[bijux-proteomics-intelligence]
-    R5 --> P5[bijux-proteomics-knowledge]
-    R6 --> P6[bijux-proteomics-lab]
+    question["what kind of work is this?"]
+    runtime["runtime, replay, execution"]
+    foundation["schema, identifiers, serialization"]
+    core["programs, gates, lifecycle"]
+    intelligence["ranking, scoring, recommendations"]
+    knowledge["evidence, claims, contradictions"]
+    lab["assay planning, outcomes, promotion"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    question --> runtime
+    question --> foundation
+    question --> core
+    question --> intelligence
+    question --> knowledge
+    question --> lab
+    class question page;
+    class runtime,foundation,core,intelligence,knowledge,lab positive;
 ```
 
 ## Canonical Package Roles

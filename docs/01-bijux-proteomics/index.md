@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Repository Handbook
@@ -19,32 +19,25 @@ should go there instead of staying here.
 
 ```mermaid
 flowchart LR
-    subgraph Root[Repository handbook owns]
-        docs[handbook structure]
-        apis[tracked API artifacts]
-        ci[shared CI and validation]
-        rel[release conventions]
-    end
-
-    subgraph Packages[Packages own]
-        runtime[runtime behavior]
-        models[domain models]
-        policy[package-local policy]
-        tests[package tests]
-    end
-
-    docs --> Root
-    apis --> Root
-    ci --> Root
-    rel --> Root
-
-    runtime --> Packages
-    models --> Packages
-    policy --> Packages
-    tests --> Packages
-
-    Root -. must not absorb .-> runtime
-    Root -. must not absorb .-> models
+    questions["cross-package questions"]
+    root["Repository Handbook<br/>root-owned guidance"]
+    foundation["Foundation<br/>split, scope, language"]
+    operations["Operations<br/>validation, release, review"]
+    packages["Package handbooks<br/>owned behavior"]
+    maintain["Maintainer handbook<br/>repo health automation"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    questions --> root
+    root --> foundation
+    root --> operations
+    root --> packages
+    root --> maintain
+    class root page;
+    class foundation,operations anchor;
+    class packages,maintain positive;
 ```
 
 ## Handbook Sections
