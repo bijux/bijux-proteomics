@@ -19,38 +19,48 @@ lower-layer contracts it depends on. Intelligence turns evidence and
 program constraints into inspectable recommendations; it does not define
 the shared payload model or the execution machinery itself.
 
-## Visual Summary
+If someone opens only this page, they should understand that this package is
+where proteomics policy becomes an inspectable recommendation: candidates are
+scored, scenarios are compared, outcomes are summarized, and explanations are
+produced without pretending that the package also owns evidence truth or
+execution.
+
+## Start Here
 
 ```mermaid
 flowchart LR
-    evidence["knowledge evidence<br/>and trust signals"]
-    constraints["core gates and<br/>lifecycle constraints"]
-    scenarios["candidate and scenario<br/>comparison inputs"]
-    intelligence["bijux-proteomics-intelligence<br/>decision policy layer"]
-    explain["rankings and explanations"]
-    lab["lab planning choices"]
-    runtime["runtime orchestration<br/>uses the chosen path"]
+    reader["reader question<br/>why was this candidate or path recommended?"]
+    candidates["candidates.py and briefs.py<br/>candidate sets and brief outputs"]
+    policy["policies.py and evaluators.py<br/>scoring, weighting, and evaluation rules"]
+    outcomes["outcomes.py and serialization.py<br/>explanations and decision artifacts"]
+    consumers["lab and runtime consume<br/>the chosen path, not the policy itself"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    evidence --> intelligence
-    constraints --> intelligence
-    scenarios --> intelligence
-    intelligence --> explain
-    explain --> lab
-    explain --> runtime
-    class intelligence page;
-    class explain,lab,runtime positive;
-    class evidence,constraints,scenarios anchor;
+    class reader page;
+    class candidates,policy,outcomes,consumers positive;
+    reader --> candidates
+    candidates --> policy
+    policy --> outcomes
+    outcomes --> consumers
 ```
 
-## Read This Section When
+## Use This Section When
 
 - you need the package entrypoint for scoring and recommendation logic
 - you are checking ranking policy, scenario evaluation, or explanation outputs
 - you want the shortest route into inspectable decision behavior
+
+## Do Not Use This Section When
+
+- the real disagreement is about evidence quality or trust state rather than
+  decision policy
+- you need durable core contracts or runtime execution behavior instead of
+  recommendation logic
+- you are expecting this package to settle biology or laboratory truth on its
+  own
 
 ## Main Paths
 
@@ -66,18 +76,25 @@ flowchart LR
 - move to [bijux-proteomics-core](../04-bijux-proteomics-core/index.md) when the rule belongs in a durable contract rather than a ranking policy
 - stay here when you need to understand why one candidate or path was recommended over another
 
+## What This Package Clarifies
+
+- where proteomics scoring and ordering policy is actually implemented
+- how scenario comparison and explainability artifacts are produced
+- which recommendations should stay inspectable without pretending they are
+  upstream facts
+
 ## Concrete Anchors
 
-- `packages/bijux-proteomics-intelligence` for the package root
-- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence` for decision logic ownership
-- `packages/bijux-proteomics-intelligence/tests` for recommendation proof
+- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates.py`
+- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py`
+- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py`
+- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/outcomes.py`
+- `packages/bijux-proteomics-intelligence/tests` for ranking and
+  explainability proof
 
-## Purpose
+## Reader Takeaway
 
-This page helps readers locate the package that explains recommendations
-instead of just consuming them.
-
-## Stability
-
-Keep it aligned with the decision, ranking, and explainability behavior
-that the package actually owns.
+Use this page when the unresolved question is why a recommendation was made.
+If the answer depends on evidence truth, durable contract meaning, or run
+execution rather than on policy and explanation, intelligence should hand you
+to the correct package instead of pretending to own the whole story.
