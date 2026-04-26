@@ -43,11 +43,11 @@ flowchart LR
 
 ## Start Here
 
-- use [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/) for the shortest statement of
+- open [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/) for the shortest statement of
   the package role
-- use [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/) when the question is whether
+- open [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/) when the question is whether
   logic belongs in foundation, intelligence, lab, or runtime
-- use [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/) when you need the path from
+- open [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/) when you need the path from
   evidence ingestion to auditable readiness output
 
 ## Pages In Foundation
@@ -79,13 +79,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for module groups, execution
+- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for module groups, execution
   flow, and persistence seams
-- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for schemas, serialization,
+- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for schemas, serialization,
   artifacts, and import contracts
-- use [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for package workflows, diagnostics,
+- open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for package workflows, diagnostics,
   and release procedures
-- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for proof surfaces, invariants, and
+- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for proof surfaces, invariants, and
   limits
 
 ## Concrete Anchors

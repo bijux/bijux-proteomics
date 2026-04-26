@@ -97,13 +97,13 @@ code.
 ## When To Leave This Section
 
 Callers often start in interfaces and then discover they really need one of
-the adjacent sections. Move to
+the adjacent sections. Open
 [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
 when an exposed surface raises a structural question about candidate state,
-policies, or evaluators. Move to
+policies, or evaluators. Open
 [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/)
 when the contract question becomes procedural, such as how a maintainer
-validates or ships a changed artifact. Move to
+validates or ships a changed artifact. Open
 [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/)
 when the real question is whether the contract is sufficiently defended by
 tests and review.

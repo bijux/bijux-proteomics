@@ -18,7 +18,7 @@ should help a maintainer verify forwarding behavior, diagnose broken aliases,
 and judge retirement readiness without relying on CI archaeology or private
 migration habits.
 
-This section should make one posture obvious: operational work here exists to
+This section makes one posture obvious: operational work here exists to
 keep migration safe and temporary, not to expand the long-term operating center
 of the repository.
 
@@ -78,7 +78,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-This section exists to keep the bridge safe while it still ships. If an
+This section keeps keep the bridge safe while it still ships. If an
 operational question remains important after the legacy alias disappears, the
 canonical runtime handbook is the better long-term home.
 
@@ -123,8 +123,8 @@ This page shows how `agentic-proteins` is operated today, but the checked-in com
 
 ## Next Checks
 
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
+- open interfaces when the operational path depends on a specific surface contract
+- open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
 ## Purpose

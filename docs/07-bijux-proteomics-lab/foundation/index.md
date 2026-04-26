@@ -13,7 +13,7 @@ This section explains why `bijux-proteomics-lab` exists, what it owns on
 purpose, and where its boundary stops.
 
 Read this section first when you need the durable package story before code
-detail. A quick skim should make the role, the boundary, and the neighboring
+detail. A quick skim makes the role, the boundary, and the neighboring
 seams legible.
 
 The foundation pages answer one hard question quickly: why does a

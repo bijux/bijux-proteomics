@@ -87,7 +87,7 @@ Use this section when you need the checked-in operating procedure for the packag
 
 ## When To Leave This Section
 
-Move to [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) when an operational step depends on an exposed import, file shape, or artifact guarantee. Move to [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when a workflow problem reveals that candidate state, evaluator structure, or design-loop ownership is misunderstood. Move to [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) when the central question becomes whether the validation bar is high enough rather than how to execute it.
+Open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) when an operational step depends on an exposed import, file shape, or artifact guarantee. Open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when a workflow problem reveals that candidate state, evaluator structure, or design-loop ownership is misunderstood. Open [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) when the central question becomes whether the validation bar is high enough rather than how to execute it.
 
 ## Reader Takeaway
 

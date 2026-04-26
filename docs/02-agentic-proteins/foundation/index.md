@@ -14,10 +14,10 @@ surfaces it preserves on purpose, and where readers should stop treating it as
 the center of current runtime work.
 
 Read this section first when you need the durable compatibility story before
-code detail. A quick skim should make the bridge role, the retirement boundary,
+code detail. A quick skim makes the bridge role, the retirement boundary,
 and the handoff to `bijux-proteomics-runtime` legible.
 
-This section should leave one thing clear: `agentic-proteins` survives to make
+This section keeps one thing clear: `agentic-proteins` survives to make
 migration safer, not to compete with the canonical runtime package for new
 design ownership.
 
@@ -121,9 +121,9 @@ This page can explain the intended boundary of `agentic-proteins`, but it cannot
 
 ## Next Checks
 
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
+- open architecture when the question becomes structural rather than boundary-oriented
+- open interfaces when the question becomes contract-facing
+- open quality when the question becomes proof or review sufficiency
 
 ## Purpose
 

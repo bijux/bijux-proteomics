@@ -17,7 +17,7 @@ These pages explain the proof story for the bridge package. They should make
 trust, skepticism, and retirement pressure visible enough that passing checks
 do not get mistaken for sufficient migration evidence.
 
-This section should leave readers with a narrow quality lens: a compatibility
+This section keeps readers with a narrow quality lens: a compatibility
 package is trustworthy when it forwards deliberately, fails loudly when the
 bridge breaks, and does not hide retirement debt behind green checks alone.
 
@@ -121,9 +121,9 @@ This page shows how `agentic-proteins` earns trust today, but prose is not the s
 
 ## Next Checks
 
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
+- open foundation when the risk appears to be boundary confusion rather than missing tests
+- open architecture when the proof gap points to structural drift
+- open interfaces or operations when the proof question is really about a contract or workflow
 
 ## Purpose
 

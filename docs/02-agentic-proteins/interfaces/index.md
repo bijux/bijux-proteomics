@@ -16,7 +16,7 @@ These pages help a caller separate migration-safe preserved entrypoints from
 incidental visibility. The point is to show what still forwards deliberately
 and what should now send readers to `bijux-proteomics-runtime` instead.
 
-Readers should leave knowing whether they are still depending on a legacy
+This section shows whether they are still depending on a legacy
 surface, what it forwards to, and what kind of review is required before that
 surface changes.
 
@@ -76,7 +76,7 @@ flowchart LR
 ## Reader Takeaway
 
 This section is about what still forwards safely, not about where new
-dependencies should begin. If a caller can move to the canonical runtime
+dependencies should begin. If a caller can open the canonical runtime
 surface, that is the preferred long-term answer.
 
 ## Read Across the Package
@@ -121,8 +121,8 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 ## Next Checks
 
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
+- open operations when the caller-facing question becomes procedural or environmental
+- open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
 ## Purpose

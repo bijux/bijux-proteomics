@@ -19,7 +19,7 @@ page shows which preserved surface still exists, where the canonical owner now
 lives, and what proof must exist before the bridge is kept or removed.
 
 Legacy callers often arrive here first because they still remember the
-old package name. This page exists to move them quickly from that old
+old package name. This page routes them quickly from that old
 entrypoint to the current owner without hiding the remaining
 compatibility burden.
 

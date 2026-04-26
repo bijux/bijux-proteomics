@@ -77,7 +77,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-This section should help readers trace the remaining bridge structure quickly.
+This section helps readers trace the remaining bridge structure quickly.
 If a change makes the compatibility architecture more complex without making the
 migration safer, that is usually a sign the work belongs elsewhere.
 
@@ -118,13 +118,13 @@ Use `Architecture` to decide whether a structural change makes `agentic-proteins
 
 ## Honesty Boundary
 
-This page describes the current structural model of `agentic-proteins`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
+This page describes the current structural model of `agentic-proteins`, but it does not guarantee that every import path or runtime path still obeys that model. Treat it as a map that must stay aligned with code and tests, not as an authority above them.
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 

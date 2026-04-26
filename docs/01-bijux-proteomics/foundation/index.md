@@ -12,7 +12,7 @@ last_reviewed: 2026-04-26
 The foundation section explains why `bijux-proteomics` exists in this shape
 before it explains how the repository is operated.
 
-A reader should be able to leave this section with a durable understanding of
+Leave this section with a durable understanding of
 the package split, the ownership model, the shared vocabulary, and the change
 rules that keep the repository legible over time.
 
