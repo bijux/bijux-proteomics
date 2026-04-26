@@ -9,13 +9,13 @@ last_reviewed: 2026-04-26
 
 # Quality
 
-This section explains how `bijux-proteomics-lab` earns trust: which
-proof surfaces matter, which risks stay visible, and what done should
-mean after a real change.
+Open this section when you need to see how `bijux-proteomics-lab` earns
+trust: which proof surfaces matter, which risks stay visible, and what done
+should mean after a real change.
 
-These pages explain the proof story for `bijux-proteomics-lab`. They
-should make trust, skepticism, and review pressure visible enough that
-passing checks do not get mistaken for sufficient evidence.
+The proof story for `bijux-proteomics-lab` has to keep trust, skepticism, and
+review pressure visible enough that passing checks do not get mistaken for
+sufficient evidence.
 
 The proof burden here is specific. Reviewers need confidence that plans
 stay deterministic, outcomes stay interpretable, schema contracts stay
@@ -44,17 +44,17 @@ flowchart LR
     class planning,outcomes,contracts positive;
 ```
 
-## Pages in This Section
+## Pages In Quality
 
-- [Test Strategy](test-strategy.md)
-- [Invariants](invariants.md)
-- [Review Checklist](review-checklist.md)
-- [Documentation Standards](documentation-standards.md)
-- [Definition of Done](definition-of-done.md)
-- [Dependency Governance](dependency-governance.md)
-- [Change Validation](change-validation.md)
-- [Known Limitations](known-limitations.md)
-- [Risk Register](risk-register.md)
+- [Test Strategy](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/test-strategy/)
+- [Invariants](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/invariants/)
+- [Review Checklist](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/review-checklist/)
+- [Documentation Standards](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/documentation-standards/)
+- [Definition of Done](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/definition-of-done/)
+- [Dependency Governance](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/dependency-governance/)
+- [Change Validation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/change-validation/)
+- [Known Limitations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/known-limitations/)
+- [Risk Register](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/risk-register/)
 
 ## What This Section Clarifies
 
@@ -63,13 +63,13 @@ flowchart LR
 - which review questions still matter even when the current test set passes
 - what a reviewer should look for before calling a lab-package change complete
 
-## Use This Section When
+## Open This Section When
 
 - you are reviewing tests, invariants, limitations, or ongoing risks
 - you need evidence that the documented contract is actually defended
 - you are deciding whether a change is truly done rather than merely implemented
 
-## Do Not Use This Section When
+## Choose Another Section When
 
 - the real question is which package should own the behavior
 - the real question is how the package is structured
@@ -78,13 +78,13 @@ flowchart LR
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when the risk may really be boundary
+- [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/) when the risk may really be boundary
   confusion
-- [Architecture](../architecture/index.md) when the proof gap points to module
+- [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/) when the proof gap points to module
   drift
-- [Interfaces](../interfaces/index.md) when the proof question is really about
+- [Interfaces](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/) when the proof question is really about
   a public contract
-- [Operations](../operations/index.md) when the proof question is really about a
+- [Operations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/) when the proof question is really about a
   maintainer workflow
 
 ## Concrete Anchors
@@ -98,7 +98,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use the quality section when you need to decide whether the lab package has
+Open the quality section when you need to decide whether the lab package has
 earned trust after a change. Passing tests are part of that answer, but they
 are not the whole answer unless they still match the package boundary and its
 public contracts.

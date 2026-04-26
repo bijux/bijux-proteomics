@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Quality
 
-Use this section when the question is how `bijux-proteomics-knowledge` earns
+Open this section when the question is how `bijux-proteomics-knowledge` earns
 trust: which tests matter, which invariants must survive, what evidence and
 claim behavior needs explicit skepticism, and what counts as enough proof
 before downstream packages should rely on a change.
@@ -45,11 +45,11 @@ flowchart LR
 
 ## Start Here
 
-- use [Test Strategy](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/test-strategy/) for the proof layers that matter most
+- open [Test Strategy](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/test-strategy/) for the proof layers that matter most
   in this package
-- use [Change Validation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/change-validation/) when you need the concrete
+- open [Change Validation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/change-validation/) when you need the concrete
   validation bar for a change
-- use [Known Limitations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/known-limitations/) and [Risk Register](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/risk-register/)
+- open [Known Limitations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/known-limitations/) and [Risk Register](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/risk-register/)
   before assuming the knowledge layer proves more than it actually does
 
 ## Pages In Quality
@@ -64,7 +64,7 @@ flowchart LR
 - [Known Limitations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/known-limitations/)
 - [Risk Register](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/risk-register/)
 
-## Use This Section When
+## Open This Section When
 
 - you need to know what evidence should defend a knowledge-state change
 - a review is really about contradiction handling, trust summaries, or schema
@@ -84,26 +84,26 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/tests/test_resolution.py`
 - `packages/bijux-proteomics-knowledge/tests/test_review.py`
 
-## Read Across The Package
+## Read Across the Package
 
-- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and trust
+- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and trust
   boundaries
-- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when a proof gap points to
+- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when a proof gap points to
   structural drift
-- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when the evidence needs to defend an
+- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when the evidence needs to defend an
   import, schema, or artifact contract
-- use [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) when the validation bar depends on
+- open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) when the validation bar depends on
   a repeatable workflow
 
 ## Reader Takeaway
 
-Use `Quality` to ask whether the knowledge layer earned trust, not whether it
+Open `Quality` to ask whether the knowledge layer earned trust, not whether it
 merely changed state. The real bar is auditable evidence handling, defensible
 claim transitions, stable schema behavior, and explicit limits that remain
 visible after the change.
 
 ## What You Get
 
-This page gives you the tests, invariants, review, validation, and risk route
+Open this page for the tests, invariants, review, validation, and risk route
 through `bijux-proteomics-knowledge` before you inspect a specific trust
 surface.

@@ -15,7 +15,7 @@ is still unclear or unprotected.
 This page is where the package draws the line against false confidence. Done
 should mean that behavior, explanation, and proof all move together.
 
-These quality pages show how `bijux-proteomics-knowledge` earns trust and where skepticism still belongs.
+`bijux-proteomics-knowledge` earns trust through visible proof, and these are the places where skepticism still belongs.
 
 ## Visual Summary
 
@@ -56,7 +56,7 @@ flowchart LR
 - tests/e2e for governed flow behavior
 - README.md
 
-## Use This Page When
+## Open This Page When
 
 - you are reviewing tests, invariants, limitations, or ongoing risks
 - you need evidence that the documented contract is actually defended
@@ -84,13 +84,13 @@ This page shows how `bijux-proteomics-knowledge` earns trust today, but prose is
 
 ## Next Checks
 
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
+- open foundation when the risk appears to be boundary confusion rather than missing tests
+- open architecture when the proof gap points to structural drift
+- open interfaces or operations when the proof question is really about a contract or workflow
 
 ## Purpose
 
-This page records the package's completion threshold.
+This page shows the package's completion threshold.
 
 ## Stability
 

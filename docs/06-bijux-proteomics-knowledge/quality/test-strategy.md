@@ -58,7 +58,7 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/tests/test_resolution.py`
 - `packages/bijux-proteomics-knowledge/tests/test_review.py`
 
-## Use This Page When
+## Open This Page When
 
 - you are reviewing tests, invariants, limitations, or ongoing risks
 - you need evidence that the documented contract is actually defended
@@ -86,9 +86,9 @@ This page shows how `bijux-proteomics-knowledge` earns trust today, but prose is
 
 ## Next Checks
 
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
+- open foundation when the risk appears to be boundary confusion rather than missing tests
+- open architecture when the proof gap points to structural drift
+- open interfaces or operations when the proof question is really about a contract or workflow
 
 ## Purpose
 
