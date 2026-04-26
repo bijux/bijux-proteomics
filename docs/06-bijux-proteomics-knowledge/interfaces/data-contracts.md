@@ -98,7 +98,7 @@ This page can identify the intended public surfaces of `bijux-proteomics-knowled
 
 ## Purpose
 
-This page explains which structured shapes deserve compatibility review.
+This page shows which structured shapes deserve compatibility review.
 
 ## Stability
 

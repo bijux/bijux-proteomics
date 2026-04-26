@@ -12,11 +12,12 @@ last_reviewed: 2026-04-26
 HTTP-facing behavior should be discoverable from tracked schema files and the
 owning API modules.
 
-The goal of this page is clarity before code-reading. A reviewer should be able
-to see which API assets matter, where they live, and why a caller would treat
-them as stable enough to depend on.
+Readers should be able to see which API assets matter, where they live, and
+why a caller would treat them as stable enough to depend on before reading
+code.
 
-Treat the interfaces pages for `bijux-proteomics-foundation` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+These interface pages show what `bijux-proteomics-foundation` is prepared to
+defend before a dependency forms.
 
 ## Visual Summary
 
