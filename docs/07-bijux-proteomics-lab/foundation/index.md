@@ -12,6 +12,30 @@ last_reviewed: 2026-04-26
 The foundation section explains the durable role of `bijux-proteomics-lab` before it
 explains implementation detail. Use it to resolve why lab-facing decisions belong here instead of dissolving into ranking or runtime layers.
 
+```mermaid
+flowchart LR
+    recommendation["recommendations"]
+    assay_plan["assay plan"]
+    execution["experiment execution"]
+    outcome["captured outcomes"]
+    lab["lab foundation"]
+    knowledge["knowledge update"]
+
+    recommendation --> lab
+    assay_plan --> lab
+    lab --> execution
+    execution --> outcome
+    outcome --> lab
+    lab --> knowledge
+```
+
+## What This Section Protects
+
+- the experimental loop as something richer than task orchestration
+- outcome handling that stays connected to real assay intent
+- a boundary where lab judgment can stay distinct from scoring and runtime
+  mechanics
+
 ## Start With
 
 - Open [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/) for the shortest statement of
@@ -34,6 +58,13 @@ explains implementation detail. Use it to resolve why lab-facing decisions belon
 - [Lifecycle Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lifecycle-overview/)
 - [Domain Language](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/domain-language/)
 - [Change Principles](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/change-principles/)
+
+## What This Section Settles
+
+- when a behavior is truly lab-facing instead of merely operational
+- how plans and outcomes should stay legible as one loop
+- when a proposed change belongs back in intelligence or runtime instead of in
+  this package
 
 ## First Proof Check
 
