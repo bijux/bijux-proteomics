@@ -16,7 +16,8 @@ When configuration is documented well, maintainers can tell which behavior is
 meant to vary without editing code. When it is documented poorly, package
 behavior starts to feel magical or fragile.
 
-Treat the interfaces pages for `agentic-proteins` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+These interface pages show what `agentic-proteins` is prepared to defend
+before a dependency forms.
 
 ## Visual Summary
 
@@ -96,7 +97,8 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 ## Purpose
 
-This page explains where configuration enters the package and how it should be reviewed.
+This page shows where configuration enters the package and how configuration
+changes should be reviewed.
 
 ## Stability
 

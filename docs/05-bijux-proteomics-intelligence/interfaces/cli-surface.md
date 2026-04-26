@@ -14,10 +14,11 @@ should tell a reader which commands are deliberate entrypoints and which ones
 are just local implementation detail.
 
 Command surfaces tend to become contracts early, because people script them,
-share them in tickets, and paste them into automation. This page should make
-that contract status visible instead of accidental.
+share them in tickets, and paste them into automation. This page makes that
+contract status visible instead of accidental.
 
-Treat the interfaces pages for `bijux-proteomics-intelligence` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+These interface pages show what `bijux-proteomics-intelligence` is prepared to
+defend before a dependency forms.
 
 ## Visual Summary
 
@@ -92,7 +93,7 @@ This page can identify the intended public surfaces of `bijux-proteomics-intelli
 
 ## Purpose
 
-This page points maintainers toward the command entrypoints and their owning code.
+This page shows the command entrypoints and their owning code.
 
 ## Stability
 

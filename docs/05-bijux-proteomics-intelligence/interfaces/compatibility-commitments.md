@@ -12,11 +12,12 @@ last_reviewed: 2026-04-26
 Compatibility in `bijux-proteomics-intelligence` should be explicit: stable commands, tracked schemas,
 durable artifacts, and release notes that explain intentional breakage.
 
-This page should leave readers with a realistic sense of the compatibility bar.
+This page gives readers a realistic sense of the compatibility bar.
 It is more valuable to be clear about what triggers review than to sound
 generously stable while leaving the real boundary ambiguous.
 
-Treat the interfaces pages for `bijux-proteomics-intelligence` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+These interface pages show what `bijux-proteomics-intelligence` is prepared to
+defend before a dependency forms.
 
 ## Visual Summary
 
@@ -96,7 +97,7 @@ This page can identify the intended public surfaces of `bijux-proteomics-intelli
 
 ## Purpose
 
-This page describes what should trigger compatibility review for the package.
+This page shows what triggers compatibility review for the package.
 
 ## Stability
 
