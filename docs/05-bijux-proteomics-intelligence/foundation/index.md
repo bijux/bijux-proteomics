@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-Use this section when you need the durable answer to a simple question: why
+Open this section when you need the durable answer to a simple question: why
 does `bijux-proteomics-intelligence` exist between auditable knowledge state
 below and lab or runtime execution above?
 
@@ -43,24 +43,24 @@ flowchart LR
 
 ## Start Here
 
-- open [Package Overview](package-overview.md) for the shortest description of
+- open [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/) for the shortest description of
   the package role
-- open [Ownership Boundary](ownership-boundary.md) when the question is whether
+- open [Ownership Boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/) when the question is whether
   behavior belongs in knowledge, intelligence, lab, or runtime
-- open [Lifecycle Overview](lifecycle-overview.md) when you need the path from
+- open [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/) when you need the path from
   candidate inputs to recommended action
 
-## Pages In This Section
+## Pages In Foundation
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Ownership Boundary](ownership-boundary.md)
-- [Repository Fit](repository-fit.md)
-- [Capability Map](capability-map.md)
-- [Domain Language](domain-language.md)
-- [Lifecycle Overview](lifecycle-overview.md)
-- [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
-- [Change Principles](change-principles.md)
+- [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/scope-and-non-goals/)
+- [Ownership Boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/repository-fit/)
+- [Capability Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/capability-map/)
+- [Domain Language](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/domain-language/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/)
+- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/dependencies-and-adjacencies/)
+- [Change Principles](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/change-principles/)
 
 ## Use This Section When
 
@@ -79,13 +79,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Architecture](../architecture/index.md) for module groups, execution
+- open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) for module groups, execution
   flow, and dependency direction
-- open [Interfaces](../interfaces/index.md) for imports, artifacts, and
+- open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) for imports, artifacts, and
   explanation contracts
-- open [Operations](../operations/index.md) for workflows, diagnostics, and
+- open [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/) for workflows, diagnostics, and
   release procedures
-- open [Quality](../quality/index.md) for proof surfaces, invariants, and
+- open [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) for proof surfaces, invariants, and
   decision-risk pressure
 
 ## Concrete Anchors
@@ -96,12 +96,12 @@ flowchart LR
 
 ## Reader Takeaway
 
-`Foundation` should leave no doubt about the package boundary: knowledge tells
+`Foundation` leaves no doubt about the package boundary: knowledge tells
 us what the evidence currently supports, intelligence decides how to rank and
 explain options, lab turns the chosen path into work, and runtime governs how
 that work runs.
 
 ## Purpose
 
-This page introduces the intelligence foundation handbook and routes readers to
-the pages that explain purpose, scope, vocabulary, lifecycle, and boundaries.
+Open this page when you need the purpose, scope, vocabulary, lifecycle, and
+boundary route through `bijux-proteomics-intelligence`.
