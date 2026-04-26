@@ -9,72 +9,41 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-Open this section when you need the durable answer to a simple question: why
-does `bijux-proteomics-intelligence` exist between auditable knowledge state
-below and lab or runtime execution above?
+The foundation section explains the durable role of `bijux-proteomics-intelligence` before it
+explains implementation detail. Use it to resolve why decision policy belongs here without pretending to own evidence truth or execution.
 
-This package is where proteomics evidence and constraints become choices. It
-owns ranking policy, candidate comparison, scenario evaluation, explainability
-surfaces, and decision summaries that justify why one path should advance over
-another.
+## Start With
 
-## Start Here
+- Open [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/) for the shortest statement of
+  the package role.
+- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/) when the question is
+  whether a change belongs here or in a neighbor.
+- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/scope-and-non-goals/) when a proposed change
+  risks broadening the package.
+- Open [Capability Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/capability-map/) when you need the concrete work
+  the package is allowed to do.
 
-- open [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/) for the shortest description of
-  the package role
-- open [Ownership Boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/) when the question is whether
-  behavior belongs in knowledge, intelligence, lab, or runtime
-- open [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/) when you need the path from
-  candidate inputs to recommended action
-
-## Pages In This Section
+## Section Pages
 
 - [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/scope-and-non-goals/)
 - [Ownership Boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/)
-- [Repository Fit](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/repository-fit/)
 - [Capability Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/capability-map/)
-- [Domain Language](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/domain-language/)
-- [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/)
 - [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/dependencies-and-adjacencies/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/repository-fit/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/)
+- [Domain Language](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/domain-language/)
 - [Change Principles](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/change-principles/)
 
-## Open This Section When
+## First Proof Check
 
-- you need the package role before looking at modules, policies, or tests
-- you are deciding whether a rule is decision policy rather than evidence state
-  or lab execution
-- a reader needs one page that explains why this package exists without reading
-  the whole handbook
+- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
+- `packages/bijux-proteomics-intelligence/tests`
+- neighboring handbooks once the change crosses the local boundary
 
-## Open Another Section When
+## Neighbors
 
-- the main question is where a module or result surface lives
-- you are deciding whether an import, artifact, or schema is a supported
-  contract
-- the issue is procedural or proof-oriented rather than boundary-oriented
-
-## Across This Package
-
-- open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) for module groups, execution
-  flow, and dependency direction
-- open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) for imports, artifacts, and
-  explanation contracts
-- open [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/) for workflows, diagnostics, and
-  release procedures
-- open [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) for proof surfaces, invariants, and
-  decision-risk pressure
-
-## Concrete Anchors
-
-- `packages/bijux-proteomics-intelligence` as the package root
-- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence` as the import boundary
-- `packages/bijux-proteomics-intelligence/tests` as the package proof surface
-
-## Bottom Line
-
-`Foundation` leaves no doubt about the package boundary: knowledge tells
-us what the evidence currently supports, intelligence decides how to rank and
-explain options, lab turns the chosen path into work, and runtime governs how
-that work runs.
-
+- Open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+  when the question leaves scoring, ranking, scenarios, and explanations.
+- Open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+  when the issue is clearly outside this package's local role.
