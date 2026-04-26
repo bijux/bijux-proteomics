@@ -9,11 +9,17 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-This section explains why `agentic-proteins` exists, what it owns on purpose, and where its boundary stops.
+This section explains why `agentic-proteins` still exists, what compatibility
+surfaces it preserves on purpose, and where readers should stop treating it as
+the center of current runtime work.
 
-Read this section first when you need the durable package story before code detail. A quick skim should make the role, the boundary, and the neighboring seams legible.
+Read this section first when you need the durable compatibility story before
+code detail. A quick skim should make the bridge role, the retirement boundary,
+and the handoff to `bijux-proteomics-runtime` legible.
 
-Treat the foundation pages for `agentic-proteins` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+This section should leave one thing clear: `agentic-proteins` survives to make
+migration safer, not to compete with the canonical runtime package for new
+design ownership.
 
 ## Visual Summary
 
@@ -53,6 +59,26 @@ flowchart LR
 - [Lifecycle Overview](lifecycle-overview.md)
 - [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
 - [Change Principles](change-principles.md)
+
+## Use This Section When
+
+- you need to know why a legacy surface still ships at all
+- you are checking whether a behavior belongs to compatibility forwarding or to
+  canonical runtime ownership
+- you need the retirement boundary before reading package detail
+
+## Do Not Use This Section When
+
+- the real question is about current runtime behavior inside
+  `bijux-proteomics-runtime`
+- you are trying to design new product behavior or broaden the legacy package
+- you already know the issue is downstream of the compatibility bridge
+
+## Reader Takeaway
+
+This section is for understanding the compatibility boundary. If the question
+stays important after the legacy bridge is removed, it probably belongs in the
+runtime handbook rather than here.
 
 ## Read Across the Package
 
