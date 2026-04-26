@@ -96,7 +96,7 @@ flowchart LR
 - `packages/bijux-proteomics-lab/tests/test_schema.py` and
   `packages/bijux-proteomics-lab/tests/test_serialization.py`
 
-## Reader Takeaway
+## Bottom Line
 
 Use the interfaces section when you need to know what a caller may trust
 without treating every importable symbol as public. If a surface cannot be tied

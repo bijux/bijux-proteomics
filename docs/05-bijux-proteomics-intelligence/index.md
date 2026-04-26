@@ -91,7 +91,7 @@ flowchart LR
 - `packages/bijux-proteomics-intelligence/tests` for ranking and
   explainability proof
 
-## Reader Takeaway
+## Bottom Line
 
 Open this page when the unresolved question is why a recommendation was made.
 If the answer depends on evidence truth, durable contract meaning, or run

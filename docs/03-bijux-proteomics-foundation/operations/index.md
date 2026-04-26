@@ -99,7 +99,7 @@ flowchart LR
 - `packages/bijux-proteomics-foundation/tests` for executable operational
   backstops
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Operations` when you need a shared-contract workflow that can be repeated
 from checked-in instructions. If a schema or migration change only succeeds

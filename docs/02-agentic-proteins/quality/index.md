@@ -47,7 +47,7 @@ bridge breaks, and does not hide retirement debt behind green checks alone.
 - you are evaluating new product quality rather than legacy-surface safety
 - the issue is architectural or caller-facing rather than proof-facing
 
-## Reader Takeaway
+## Bottom Line
 
 Quality here is about safe preservation and safe exit. If the bridge still
 ships, readers should be able to see why it is trustworthy today and what proof

@@ -89,6 +89,6 @@ Use this section when you need the checked-in operating procedure for the packag
 
 Open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) when an operational step depends on an exposed import, file shape, or artifact guarantee. Open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when a workflow problem reveals that candidate state, evaluator structure, or design-loop ownership is misunderstood. Open [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) when the central question becomes whether the validation bar is high enough rather than how to execute it.
 
-## Reader Takeaway
+## Bottom Line
 
 Treat this section as the package procedure manual. If maintainers cannot repeat a ranking, explanation, or report-validation workflow from the checked-in assets named here, the workflow is still tribal knowledge and the documentation is not yet good enough.

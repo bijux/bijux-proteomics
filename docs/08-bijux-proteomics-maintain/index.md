@@ -100,7 +100,7 @@ flowchart LR
 - `docs/08-bijux-proteomics-maintain/` for the maintainer handbook tree this
   page is routing through
 
-## Reader Takeaway
+## Bottom Line
 
 This handbook makes repository-health work explicit and reviewable. It is not a
 shadow product layer, and it sends readers back to the product package docs as

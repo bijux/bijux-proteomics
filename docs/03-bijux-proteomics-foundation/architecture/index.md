@@ -102,7 +102,7 @@ flowchart LR
 - `src/bijux_proteomics_foundation/errors.py` and `__init__.py` for stable
   exported boundaries
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Architecture` to make the shared meaning layer legible enough that a
 reviewer can say where schema logic ends, where compatibility logic begins, and

@@ -94,7 +94,7 @@ flowchart LR
 - `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence` as the import boundary
 - `packages/bijux-proteomics-intelligence/tests` as the package proof surface
 
-## Reader Takeaway
+## Bottom Line
 
 `Foundation` leaves no doubt about the package boundary: knowledge tells
 us what the evidence currently supports, intelligence decides how to rank and

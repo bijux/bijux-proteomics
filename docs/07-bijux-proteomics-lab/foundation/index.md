@@ -103,7 +103,7 @@ flowchart LR
   `packages/bijux-proteomics-lab/tests/test_outcomes.py` for executable proof
   that the boundary is real
 
-## Reader Takeaway
+## Bottom Line
 
 Open the foundation section to decide whether a question truly belongs to the
 lab package before you spend time in lower-level detail. If the work does not

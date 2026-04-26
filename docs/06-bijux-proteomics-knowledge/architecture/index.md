@@ -97,7 +97,7 @@ flowchart LR
 - `src/bijux_proteomics_knowledge/review.py` and `confidence/` for review
   packets, confidence, and readiness summaries
 
-## Reader Takeaway
+## Bottom Line
 
 `Architecture` makes the knowledge package legible as a chain of named
 responsibilities. If evidence storage, claim semantics, contradiction handling,

@@ -92,7 +92,7 @@ flowchart LR
 - `packages/bijux-proteomics-foundation/tests` for compatibility and canonical
   payload proof
 
-## Reader Takeaway
+## Bottom Line
 
 Open this page when the unresolved question is whether proteomics packages still
 mean the same thing when they exchange payloads. If the answer depends on

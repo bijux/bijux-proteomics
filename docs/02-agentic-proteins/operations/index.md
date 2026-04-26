@@ -76,7 +76,7 @@ flowchart LR
 - the issue is about caller contracts or package structure rather than
   repeatable operations
 
-## Reader Takeaway
+## Bottom Line
 
 This section keeps keep the bridge safe while it still ships. If an
 operational question remains important after the legacy alias disappears, the

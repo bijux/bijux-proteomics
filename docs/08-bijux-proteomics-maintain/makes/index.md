@@ -74,7 +74,7 @@ flowchart LR
 - open [CI Targets](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/ci-targets/) or [Release Surfaces](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/release-surfaces/)
   when the concern is automation-facing rather than developer-facing
 
-## Reader Takeaway
+## Bottom Line
 
 This section lets a maintainer trace a command name to the owning make surface
 quickly. It prevents the make layer from feeling like a flat bag of targets

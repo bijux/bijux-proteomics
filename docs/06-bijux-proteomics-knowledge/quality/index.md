@@ -71,7 +71,7 @@ and auditable story.
 - open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) when the validation bar depends on
   a repeatable workflow
 
-## Reader Takeaway
+## Bottom Line
 
 Open `Quality` to ask whether the knowledge layer earned trust, not whether it
 merely changed state. The real bar is auditable evidence handling, defensible

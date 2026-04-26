@@ -99,7 +99,7 @@ flowchart LR
 - `packages/bijux-proteomics-lab/tests/test_experiment_planner.py`
 - `packages/bijux-proteomics-lab/tests/test_outcomes.py`
 
-## Reader Takeaway
+## Bottom Line
 
 Use the operations section when the question is how to repeat lab-package work
 reliably under change pressure. If the workflow still depends on tribal memory

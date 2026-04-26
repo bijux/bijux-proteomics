@@ -91,7 +91,7 @@ flowchart LR
 - `packages/bijux-proteomics-core/tests` for contract, lifecycle, and
   validation proof
 
-## Reader Takeaway
+## Bottom Line
 
 Open this page when the unresolved question is whether a rule belongs in the
 durable program contract or in a downstream policy package. If the answer

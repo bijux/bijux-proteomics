@@ -100,7 +100,7 @@ flowchart LR
 - public exports in `src/bijux_proteomics/__init__.py`
 - execution contract helpers in `src/bijux_proteomics/execution_contracts.py`
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Interfaces` to separate stable core contracts from whatever merely happens
 to be visible in the implementation. If another package cannot defend its

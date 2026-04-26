@@ -73,7 +73,7 @@ continue working while agreeing on the wrong payload meaning.
 - cross-package tests that consume foundation schema and id contracts
 - `README.md`
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Quality` to ask a stricter question than “did the suite pass?” In
 foundation, the real bar is whether shared payload meaning remains stable,

@@ -74,7 +74,7 @@ flowchart LR
 - you are trying to design new product behavior or broaden the legacy package
 - you already know the issue is downstream of the compatibility bridge
 
-## Reader Takeaway
+## Bottom Line
 
 This section is for understanding the compatibility boundary. If the question
 stays important after the legacy bridge is removed, it probably belongs in the

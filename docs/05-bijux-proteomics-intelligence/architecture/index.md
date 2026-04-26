@@ -98,7 +98,7 @@ flowchart LR
 - `src/bijux_proteomics_intelligence/design_loop/` and `outcomes.py` for
   convergence control and post-decision state
 
-## Reader Takeaway
+## Bottom Line
 
 `Architecture` makes the intelligence package legible as a decision
 system with named responsibilities. If candidate state, policy logic,

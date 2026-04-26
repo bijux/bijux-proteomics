@@ -95,7 +95,7 @@ flowchart LR
 - open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the real question becomes whether a
   change has been validated hard enough
 
-## Reader Takeaway
+## Bottom Line
 
 Open `Operations` to find workflows a maintainer can rerun and defend. If a
 procedure cannot show how it protects schema compatibility, evidence state, and

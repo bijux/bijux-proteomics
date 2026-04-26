@@ -98,7 +98,7 @@ flowchart LR
 - `packages/bijux-proteomics-core/README.md` for local package framing
 - `packages/bijux-proteomics-core/tests` for executable operational backstops
 
-## Reader Takeaway
+## Bottom Line
 
 Open `Operations` when you need a contract workflow that can be repeated from
 checked-in instructions. If a lifecycle or readiness change only succeeds

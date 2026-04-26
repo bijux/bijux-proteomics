@@ -100,7 +100,7 @@ flowchart LR
 - `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/schema.py`
 - `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/serialization.py`
 
-## Reader Takeaway
+## Bottom Line
 
 Use the architecture section when you need a file-level map of the lab loop.
 If a change makes it harder to explain why one of these files owns its current

@@ -97,7 +97,7 @@ flowchart LR
 - `Makefile` and `makes/` for root-owned process surfaces discussed later in
   the operations section
 
-## Reader Takeaway
+## Bottom Line
 
 Open the foundation section when the unresolved question is why the repository
 is organized as a family of accountable packages. If the answer depends on one

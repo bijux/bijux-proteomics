@@ -96,7 +96,7 @@ flowchart LR
 - `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py`
 - `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py`
 
-## Reader Takeaway
+## Bottom Line
 
 Open the quality section when you need to decide whether the lab package has
 earned trust after a change. Passing tests are part of that answer, but they

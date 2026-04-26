@@ -75,7 +75,7 @@ flowchart LR
   structure
 - the question is about product semantics rather than forwarding seams
 
-## Reader Takeaway
+## Bottom Line
 
 This section helps readers trace the remaining bridge structure quickly.
 If a change makes the compatibility architecture more complex without making the

@@ -115,7 +115,7 @@ flowchart LR
 - `docs/01-bijux-proteomics/operations/` for the checked-in process pages this
   section is routing to
 
-## Reader Takeaway
+## Bottom Line
 
 This section is for root-owned operational behavior that no single package can
 document honestly on its own. It helps readers find the governing process

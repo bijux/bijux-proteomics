@@ -101,7 +101,7 @@ flowchart LR
 - `packages/bijux-proteomics-foundation/tests` as the proof surface for shared
   contracts
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Foundation` to answer the ownership question with integrity:
 `bijux-proteomics-foundation` exists so every downstream package can agree on

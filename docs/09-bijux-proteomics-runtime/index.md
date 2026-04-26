@@ -122,7 +122,7 @@ runtime-agnostic.
 - [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/)
 - [Agentic Module Ledger Summary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary/)
 
-## Reader Takeaway
+## Bottom Line
 
 Open this handbook when the unresolved question is how proteomics work becomes a
 real run. Runtime should compose lower packages and make execution inspectable;

@@ -73,7 +73,7 @@ flowchart LR
 - you are designing a new public surface instead of preserving an old one
 - the concern is structural or operational rather than caller-facing
 
-## Reader Takeaway
+## Bottom Line
 
 This section is about what still forwards safely, not about where new
 dependencies should begin. If a caller can open the canonical runtime

@@ -76,7 +76,7 @@ flowchart LR
 - open [Schema Governance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance/) or
   [Release Support](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support/) when the issue is publication-facing
 
-## Reader Takeaway
+## Bottom Line
 
 Open `bijux-proteomics-dev` when repository-health behavior is implemented as
 helper code. If the question is really about shared command routing or

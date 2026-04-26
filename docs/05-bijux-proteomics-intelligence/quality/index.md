@@ -68,6 +68,6 @@ stability.
 
 Open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) when a proof question turns out to be a contract question about an import, artifact, or configuration shape. Open [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/) when you know what has to be proven and now need the repeatable procedure for proving it. Open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when a failing quality story reveals a deeper split-of-responsibility problem inside the package.
 
-## Reader Takeaway
+## Bottom Line
 
 Treat this section as the proof map for `bijux-proteomics-intelligence`. If a change touches ranking, evaluator behavior, explanation outputs, or compatibility forwarding, the work is not done until the relevant tests, review criteria, and visible limits still support the claim.

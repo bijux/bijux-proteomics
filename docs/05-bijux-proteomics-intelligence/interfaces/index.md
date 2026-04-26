@@ -108,6 +108,6 @@ validates or ships a changed artifact. Open
 when the real question is whether the contract is sufficiently defended by
 tests and review.
 
-## Reader Takeaway
+## Bottom Line
 
 Treat this section as the contract map for `bijux-proteomics-intelligence`. If a surface cannot be traced to a documented import, artifact, configuration shape, example, and test-backed expectation, readers should assume it is not yet a stable dependency boundary.

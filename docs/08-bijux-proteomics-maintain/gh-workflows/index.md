@@ -74,7 +74,7 @@ flowchart LR
 - open [reusable-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/reusable-workflows/) when the key question is job
   reuse or nested workflow composition
 
-## Reader Takeaway
+## Bottom Line
 
 This section makes workflow ownership visible enough that a maintainer can move
 from an automation symptom to the right workflow file without relying on CI

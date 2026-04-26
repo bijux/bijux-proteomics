@@ -101,7 +101,7 @@ flowchart LR
 - `src/bijux_proteomics/domain`, `biology`, `runtime_adapter.py`, and
   `interfaces/cli.py` for adjacent structural seams
 
-## Reader Takeaway
+## Bottom Line
 
 Open `Architecture` to make the contract layer legible enough that a reviewer
 can say where core rules live, how they flow, and where they meet neighboring

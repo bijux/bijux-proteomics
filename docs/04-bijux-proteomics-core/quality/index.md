@@ -73,7 +73,7 @@ while making decisions against the wrong lifecycle or readiness assumptions.
   `test_cross_package_invariants.py`
 - `README.md`
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Quality` to ask a stricter question than “did the suite pass?” In core,
 the real bar is whether durable program and lifecycle rules remain stable,

@@ -100,7 +100,7 @@ flowchart LR
 - serialization helpers in `src/bijux_proteomics_foundation/serialization.py`
 - migration helpers in `src/bijux_proteomics_foundation/migrations.py`
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Interfaces` to separate stable shared contracts from whatever merely
 happens to be visible in implementation today. If another package cannot defend

@@ -102,7 +102,7 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/tests` for evidence, contradiction, and
   trust proof
 
-## Reader Takeaway
+## Bottom Line
 
 Open this page when the unresolved question is what the system currently knows
 and how well it can justify that state. If the answer depends on choosing a

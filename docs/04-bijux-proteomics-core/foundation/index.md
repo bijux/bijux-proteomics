@@ -100,7 +100,7 @@ flowchart LR
 - `packages/bijux-proteomics-core/tests` as the proof surface for contract
   behavior
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Foundation` to answer the ownership question with integrity:
 `bijux-proteomics-core` exists so the rest of the proteomics stack can depend on

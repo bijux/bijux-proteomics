@@ -93,7 +93,7 @@ flowchart LR
 - `src/bijux_proteomics_knowledge/serialization.py` for canonical serialization rules
 - `src/bijux_proteomics_knowledge/evidence.py` and `claims.py` for core data surfaces
 
-## Reader Takeaway
+## Bottom Line
 
 Use `Interfaces` to judge whether a dependency on knowledge state is
 defensible. The bar is that imports, schema profiles, serialized payloads,

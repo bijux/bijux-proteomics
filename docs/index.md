@@ -170,7 +170,7 @@ planning and outcome promotion. Runtime governs how those parts execute,
 replay, and remain inspectable. `agentic-proteins` exists only to preserve old
 entrypoints long enough for callers to move safely to the canonical runtime.
 
-## Reader Takeaway
+## Bottom Line
 
 Open this page to understand the package family before drilling into one owned
 surface. Once one package clearly owns the behavior, the deeper handbook should

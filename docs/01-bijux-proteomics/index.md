@@ -109,7 +109,7 @@ flowchart LR
 - `apis/` and `.github/workflows/` for schema and validation review
 - `packages/` for the product boundaries this handbook must not blur
 
-## Reader Takeaway
+## Bottom Line
 
 This handbook exists to help readers understand the system without letting the
 root pretend it owns behavior that belongs elsewhere. If the current question

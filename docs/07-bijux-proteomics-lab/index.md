@@ -108,7 +108,7 @@ flowchart LR
   queue and feedback persistence contracts
 - `packages/bijux-proteomics-lab/tests` for planning and outcome proof
 
-## Reader Takeaway
+## Bottom Line
 
 Open this page when the unresolved question is how proteomics work crosses the line
 from recommended to executable, and how assay results re-enter the next cycle.

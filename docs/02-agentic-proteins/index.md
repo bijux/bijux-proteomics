@@ -107,7 +107,7 @@ flowchart LR
   forwarding surface that remains preserved
 - `packages/agentic-proteins/tests` for forwarding and compatibility proof
 
-## Reader Takeaway
+## Bottom Line
 
 `agentic-proteins` stays narrow, explicit, and temporary. If a legacy name
 still exists, this handbook must keep the forwarding target and the retirement

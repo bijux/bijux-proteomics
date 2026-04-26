@@ -94,7 +94,7 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` as the import boundary
 - `packages/bijux-proteomics-knowledge/tests` as the package proof surface
 
-## Reader Takeaway
+## Bottom Line
 
 `Foundation` should leave no doubt about the package boundary: foundation keeps
 shared payload meaning stable, knowledge records and evaluates evidence state,
