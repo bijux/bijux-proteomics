@@ -9,11 +9,17 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-This section explains how `agentic_proteins` is organized so a reviewer can follow structure, dependency direction, and execution flow without guessing.
+This section explains how `agentic_proteins` is organized as a compatibility
+bridge so a reviewer can follow forwarding structure, dependency pressure, and
+migration-safe execution flow without guessing.
 
-These pages turn `agentic-proteins` from a directory tree into a readable design map. Use them when a structural change needs to be grounded in named modules and real execution paths.
+These pages turn `agentic-proteins` from a legacy directory tree into a
+readable migration map. Use them when a structural change needs to be grounded
+in named forwarding surfaces and real handoffs to canonical runtime code.
 
-Treat the architecture pages for `agentic-proteins` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+The point of this section is not to glorify the legacy architecture. It is to
+make the remaining bridge explicit enough that readers can tell which structure
+still matters and which structure is only being tolerated until migration ends.
 
 ## Visual Summary
 
@@ -53,6 +59,27 @@ flowchart LR
 - [Extensibility Model](extensibility-model.md)
 - [Code Navigation](code-navigation.md)
 - [Architecture Risks](architecture-risks.md)
+
+## Use This Section When
+
+- you need to understand how legacy imports and CLI paths still forward through
+  the compatibility package
+- you are checking whether a structural change preserves a safe migration handoff
+- you need to see where the bridge structure creates review risk
+
+## Do Not Use This Section When
+
+- the real concern is the canonical runtime architecture rather than the legacy
+  forwarding shape
+- you are treating the compatibility package as a preferred place for new
+  structure
+- the question is about product semantics rather than forwarding seams
+
+## Reader Takeaway
+
+This section should help readers trace the remaining bridge structure quickly.
+If a change makes the compatibility architecture more complex without making the
+migration safer, that is usually a sign the work belongs elsewhere.
 
 ## Read Across the Package
 
