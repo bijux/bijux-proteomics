@@ -18,6 +18,33 @@ family instead of collapsing into a blur of shared code and mixed ownership. If
 that question is unresolved, the rest of the handbook will only restate the
 same confusion in smaller pieces.
 
+```mermaid
+flowchart LR
+    monolith["one large package<br/>fast local convenience<br/>blurred ownership"]
+    discipline["family of packages<br/>slower boundary decisions<br/>clear accountability"]
+    meaning["shared meaning"]
+    rules["durable rules"]
+    evidence["evidence state"]
+    judgment["decision policy"]
+    assay["lab action"]
+    execution["runtime control"]
+
+    monolith -. drifts into .-> monolith
+    discipline --> meaning
+    discipline --> rules
+    discipline --> evidence
+    discipline --> judgment
+    discipline --> assay
+    discipline --> execution
+```
+
+## Why This Section Matters
+
+- it explains why the split is a quality decision, not only a packaging choice
+- it gives reviewers a language for stopping ownership drift early
+- it helps the reader see the family as a designed system instead of a pile of
+  sibling packages
+
 ## Start With
 
 - Open [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/)
@@ -40,6 +67,13 @@ same confusion in smaller pieces.
 - [Documentation System](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/documentation-system/)
 - [Change Principles](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/change-principles/)
 - [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
+
+## What This Section Settles
+
+- why one concern becomes a package boundary while another stays local
+- how package seams protect meaning, reviewability, and change control
+- when a reader should stop using repository-level theory and move to a package
+  handbook
 
 ## First Proof Check
 
