@@ -12,6 +12,26 @@ last_reviewed: 2026-04-26
 Use this runbook to prove that runtime migration work did not quietly break
 canonical execution, legacy compatibility, or release coverage.
 
+## Validation Model
+
+```mermaid
+flowchart TB
+    change["runtime migration change"]
+    boundary["runtime boundary contracts"]
+    ledger["migration ledger freshness and coverage"]
+    release["release matrix and artifact coverage"]
+    parity["compatibility parity checks"]
+    verdict["migration is releasable or blocked"]
+
+    change --> boundary
+    boundary --> ledger
+    ledger --> release
+    release --> parity
+    parity --> verdict
+```
+
+This page should make migration validation feel like a release gate with several linked proofs, not one extra command at the end of a release checklist.
+
 ## Validation Command
 
 Run the dedicated suite from repository root:
@@ -44,3 +64,7 @@ make quality-runtime-migration-validation
 - `make quality-runtime-migration-validation`
 - release workflow inputs and tracked API artifacts
 - migration ledger outputs under `docs/09-bijux-proteomics-runtime/migration-ledger/`
+
+## Design Pressure
+
+The common drift is to run the migration suite as a ritual without checking whether the ledger, release matrices, and compatibility proofs still tell the same story.
