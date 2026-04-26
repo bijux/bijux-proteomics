@@ -11,20 +11,35 @@ last_reviewed: 2026-04-26
 
 `agentic-proteins` is the strict compatibility package in
 `bijux-proteomics`. It preserves legacy runtime imports and entrypoints long
-enough for callers to migrate to `bijux-proteomics-runtime`. It is a bridge,
-not a center of new development.
+enough for callers to migrate to `bijux-proteomics-runtime`. Its value is not
+new capability. Its value is controlled continuity while the old surface is
+retired without breaking downstream users in the dark.
+
+```mermaid
+flowchart LR
+    callers["legacy callers<br/>imports, CLI paths, API usage"]
+    bridge["agentic-proteins<br/>compatibility forwarding"]
+    runtime["bijux-proteomics-runtime<br/>canonical execution"]
+    lower["foundation, core, knowledge,<br/>intelligence, lab"]
+
+    callers --> bridge
+    bridge --> runtime
+    runtime --> lower
+    bridge -. retire when callers move .-> runtime
+```
+
+## Why This Package Still Matters
+
+- it absorbs migration pain so the canonical runtime can keep moving
+- it keeps legacy entrypoints visible instead of burying them in silent shims
+- it provides a defensible retirement surface: each preserved path should have
+  a reason to exist, not only inertia
 
 ## What It Owns
 
 - compatibility forwarding for legacy runtime imports
 - preserved legacy CLI and API entrypoints while migration is still justified
 - the proof bar for keeping or retiring those preserved surfaces
-
-## What It Refuses
-
-- new canonical runtime behavior
-- evidence, scoring, or lab semantics
-- repository-health automation
 
 ## Start With
 
@@ -35,6 +50,12 @@ not a center of new development.
 - Open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
   as soon as the question becomes current execution behavior rather than legacy
   forwarding.
+
+## What Should Make A Reader Suspicious
+
+- a feature that is attractive even without any legacy caller
+- business logic growing inside the bridge instead of inside runtime
+- compatibility wording that no longer points to a real migration path
 
 ## First Proof Check
 
