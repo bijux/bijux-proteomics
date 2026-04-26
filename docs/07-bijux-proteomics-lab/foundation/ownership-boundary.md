@@ -9,94 +9,21 @@ last_reviewed: 2026-04-26
 
 # Ownership Boundary
 
-Ownership in `bijux-proteomics-lab` should be visible in checked-in structure, not
-only in prose. The source tree shows where the package expects work to live, and
-the tests show whether that expectation is protected when the code changes.
+Lab-facing decisions belong here instead of dissolving into ranking or general runtime execution.
 
-Open this page when a change proposal feels plausible in more than one package
-and someone needs a concrete reason to keep the work here or move it elsewhere.
+## Keep It Here When
 
-The foundation pages are the durable package description for `bijux-proteomics-lab`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+- the change strengthens the package's named role
+- the best proof lives in this package's source tree and tests
+- neighboring packages would become less honest if they absorbed the behavior
 
-## Visual Summary
+## Move It Elsewhere When
 
-```mermaid
-flowchart LR
-    own1["batch planning"]
-    own2["dependency scheduling"]
-    own3["outcome promotion"]
-    boundary["Ownership boundary<br/>for bijux-proteomics-lab"]
-    handoff1["bijux-proteomics-intelligence"]
-    handoff2["bijux-proteomics-knowledge"]
-    handoff3["bijux-proteomics-runtime"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1 --> boundary
-    own2 --> boundary
-    own3 --> boundary
-    boundary --> handoff1
-    boundary --> handoff2
-    boundary --> handoff3
-    class boundary page;
-    class own1,own2,own3 positive;
-    class handoff1,handoff2,handoff3 caution;
-```
+- the change mainly alters a neighbor's public contract
+- the package becomes a convenience layer instead of an accountable owner
+- the proof surface is mostly outside this package already
 
-## Owned Code Areas
+## First Proof Check
 
-- `src/bijux_proteomics_lab/model` for durable runtime models
-- `src/bijux_proteomics_lab/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_lab/application` for orchestration and replay coordination
-- `src/bijux_proteomics_lab/verification` for runtime-level validation support
-- `src/bijux_proteomics_lab/interfaces` for CLI surfaces and manifest loading
-- `src/bijux_proteomics_lab/api` for HTTP application surfaces
-
-## Adjacent Systems
-
-- governs the other canonical packages instead of replacing their local ownership
-- is the final authority for run acceptance, replay evaluation, and stored evidence
-
-## Concrete Anchors
-
-- `packages/bijux-proteomics-lab` as the package root
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab` as the import boundary
-- `packages/bijux-proteomics-lab/tests` as the package proof surface
-
-## Open This Page When
-
-- you need the package idea before the implementation detail
-- you are deciding whether work belongs here or in a neighboring package
-- you want the shortest honest explanation of what this package is for
-
-## Decision Rule
-
-Use `Ownership Boundary` to decide whether a change makes `bijux-proteomics-lab` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
-
-## What You Can Resolve Here
-
-- what problem `bijux-proteomics-lab` owns on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before the boundary is changed
-
-## Review Focus
-
-- compare the stated boundary with the modules, artifacts, and tests that uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
-
-## Limits
-
-This page shows the intended boundary of `bijux-proteomics-lab`, but it cannot
-prove that boundary by itself. The real proof still lives in the code, tests,
-and neighboring package seams that either support or contradict the story told
-here.
-
-## Read Next
-
-- open architecture when the question becomes structural rather than boundary-oriented
-- open interfaces when the question becomes contract-facing
-- open quality when the question becomes proof or review sufficiency
-
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab`
+- `packages/bijux-proteomics-lab/tests`
