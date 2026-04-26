@@ -43,24 +43,24 @@ flowchart LR
 
 ## Start Here
 
-- open [Public Imports](public-imports.md) for the package exports that callers
+- use [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/) for the package exports that callers
   should depend on directly
-- open [Data Contracts](data-contracts.md) and [Artifact Contracts](artifact-contracts.md)
+- use [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/) and [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
   when the durable payload or review shape matters more than the import name
-- open [Configuration Surface](configuration-surface.md) when the question is
+- use [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/) when the question is
   schema profile behavior rather than record semantics
 
-## Pages In This Section
+## Pages In Interfaces
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/)
+- [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/)
+- [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
+- [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/entrypoints-and-examples/)
+- [Operator Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/operator-workflows/)
+- [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/)
+- [Compatibility Commitments](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/compatibility-commitments/)
 
 ## Use This Section When
 
@@ -70,7 +70,7 @@ flowchart LR
   serialization
 - a reviewer needs to separate explicit contracts from incidental visibility
 
-## Do Not Use This Section When
+## Move On When
 
 - the main question is why the behavior belongs in the knowledge layer at all
 - the concern is mostly structural rather than contract-facing
@@ -78,12 +78,12 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) for package purpose and ownership
-- open [Architecture](../architecture/index.md) for the structural seams behind
+- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
+- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for the structural seams behind
   the public surfaces
-- open [Operations](../operations/index.md) for workflows, diagnostics, and
+- use [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflows, diagnostics, and
   release procedures
-- open [Quality](../quality/index.md) for compatibility evidence and review
+- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for compatibility evidence and review
   pressure
 
 ## Concrete Anchors
@@ -99,8 +99,8 @@ Use `Interfaces` to judge whether a dependency on knowledge state is
 defensible. The bar is that imports, schema profiles, serialized payloads,
 artifacts, examples, and tests all agree about what a caller may rely on.
 
-## Purpose
+## What You Get
 
-This page introduces the knowledge interfaces handbook and routes readers to
-the pages that explain imports, schemas, artifacts, and compatibility
-commitments.
+This page gives you the import, schema, artifact, and compatibility route
+through `bijux-proteomics-knowledge` before you inspect a specific contract
+surface.
