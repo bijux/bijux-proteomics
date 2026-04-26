@@ -78,8 +78,3 @@ merely changed state. The real bar is auditable evidence handling, defensible
 claim transitions, stable schema behavior, and explicit limits that remain
 visible after the change.
 
-## What You Get
-
-Open this page for the tests, invariants, review, validation, and risk route
-through `bijux-proteomics-knowledge` before you inspect a specific trust
-surface.

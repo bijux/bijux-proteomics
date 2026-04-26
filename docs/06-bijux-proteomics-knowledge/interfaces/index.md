@@ -99,7 +99,3 @@ Use `Interfaces` to judge whether a dependency on knowledge state is
 defensible. The bar is that imports, schema profiles, serialized payloads,
 artifacts, examples, and tests all agree about what a caller may rely on.
 
-## What You Get
-
-This page shows the published interface routes through
-`bijux-proteomics-knowledge` before you inspect a specific contract surface.

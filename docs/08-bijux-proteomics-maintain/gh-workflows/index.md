@@ -80,7 +80,3 @@ This section makes workflow ownership visible enough that a maintainer can move
 from an automation symptom to the right workflow file without relying on CI
 archaeology.
 
-## What You Get
-
-This page gives you the route from an automation symptom to the workflow page
-that explains the owning trigger and job tree.

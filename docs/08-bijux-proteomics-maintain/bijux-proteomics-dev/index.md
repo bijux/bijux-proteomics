@@ -82,7 +82,3 @@ Open `bijux-proteomics-dev` when repository-health behavior is implemented as
 helper code. If the question is really about shared command routing or
 workflow entrypoints, open `makes/` or `gh-workflows/` instead.
 
-## What You Get
-
-This page gives you the fastest route from a repository-health rule to the
-helper package page that explains the owning module or policy surface.

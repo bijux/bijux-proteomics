@@ -101,7 +101,3 @@ Open `Operations` to find workflows a maintainer can rerun and defend. If a
 procedure cannot show how it protects schema compatibility, evidence state, and
 review output, it is not ready to serve as the package’s operating memory.
 
-## What You Get
-
-Open this page when you need the setup, workflow, diagnostics, release, and
-safety route through `bijux-proteomics-knowledge`.

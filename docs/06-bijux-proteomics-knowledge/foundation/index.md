@@ -100,8 +100,3 @@ flowchart LR
 shared payload meaning stable, knowledge records and evaluates evidence state,
 intelligence chooses among options, and lab turns chosen work into outcomes.
 
-## What You Get
-
-This page gives you the purpose, scope, vocabulary, lifecycle, and boundary
-route into `bijux-proteomics-knowledge` before you move on to structure,
-contracts, operations, or proof.

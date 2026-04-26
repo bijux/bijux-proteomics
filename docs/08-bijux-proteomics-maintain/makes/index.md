@@ -80,7 +80,3 @@ This section lets a maintainer trace a command name to the owning make surface
 quickly. It prevents the make layer from feeling like a flat bag of targets
 with hidden routing rules.
 
-## What You Get
-
-This page gives you the route from a shared command name to the page that
-explains the owning Make surface.

@@ -104,7 +104,3 @@ responsibilities. If evidence storage, claim semantics, contradiction handling,
 and review output start blending together, the package becomes harder to trust
 as an auditable state layer.
 
-## What You Get
-
-Open this page when you need the module, dependency, execution, and
-durable-state route through `bijux-proteomics-knowledge`.
