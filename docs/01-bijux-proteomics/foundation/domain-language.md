@@ -13,6 +13,27 @@ Stable language is part of repository design. When terminology drifts, readers
 stop knowing whether they are talking about repository policy, maintainer
 automation, runtime execution, or product semantics.
 
+## Language Model
+
+```mermaid
+flowchart TB
+    term["term appears in docs or review"]
+    owner{"does it point to one owner?"}
+    layer{"repository, maintainer, runtime, or product layer clear?"}
+    proof{"reader can find the proof surface?"}
+    keep["keep the term stable"]
+
+    term --> owner
+    owner -->|yes| layer
+    owner -->|no| reject1["replace the term"]
+    layer -->|yes| proof
+    layer -->|no| reject2["replace the term"]
+    proof -->|yes| keep
+    proof -->|no| reject3["replace the term"]
+```
+
+This page should help a reviewer test terminology against ownership and proof, not just against preference. If a term muddies the layer or owner, it is doing design damage.
+
 ## Terms To Keep Stable
 
 - `repository handbook` for cross-package governance and root-owned assets
@@ -36,3 +57,7 @@ automation, runtime execution, or product semantics.
 
 Compare the term with the owning handbook, package directory, or workflow file.
 If the term makes ownership harder to name, it is the wrong term.
+
+## Design Pressure
+
+The easy failure is to keep familiar words that sound convenient in conversation but make the system harder to route and verify on the page.
