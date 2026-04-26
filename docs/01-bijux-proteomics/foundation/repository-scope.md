@@ -55,7 +55,7 @@ flowchart LR
 
 ## Purpose
 
-This page explains what the repository root is allowed to own.
+This page shows what the repository root is allowed to own.
 
 ## Stability
 

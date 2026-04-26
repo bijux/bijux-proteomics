@@ -37,7 +37,7 @@ timeline
 
 ## Purpose
 
-This page explains how shared repository changes should be packaged and carried
+This page shows how shared repository changes should be packaged and carried
 through to completion.
 
 ## Stability

@@ -42,8 +42,8 @@ flowchart TB
 
 ## Purpose
 
-This page explains where repository automation is allowed to live and how it
-should stay reviewable.
+This page shows where repository automation is allowed to live and how it
+stays reviewable.
 
 ## Stability
 

@@ -59,7 +59,7 @@ is recorded here so repository policy stays visible.
 
 ## Purpose
 
-This page explains how the repository distinguishes durable reference artifacts
+This page shows how the repository distinguishes durable reference artifacts
 from generated workflow output.
 
 ## Stability

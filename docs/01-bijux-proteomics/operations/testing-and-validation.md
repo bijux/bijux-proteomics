@@ -44,7 +44,7 @@ detect its drift.
 
 ## Purpose
 
-This page explains the relationship between package truth and repository truth.
+This page shows the relationship between package truth and repository truth.
 
 ## Stability
 

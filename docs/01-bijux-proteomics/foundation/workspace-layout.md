@@ -53,7 +53,7 @@ when it explains the workspace itself.
 
 ## Purpose
 
-This page explains the top-level directory split that supports the repository
+This page shows the top-level directory split that supports the repository
 ownership model.
 
 ## Stability

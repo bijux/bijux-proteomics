@@ -48,8 +48,8 @@ flowchart LR
 
 ## Purpose
 
-This page explains how repository-level API artifacts stay synchronized with
-the code that claims to implement them.
+This page shows how repository-level API artifacts stay synchronized with the
+code that claims to implement them.
 
 ## Stability
 
