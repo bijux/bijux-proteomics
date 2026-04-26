@@ -12,6 +12,28 @@ last_reviewed: 2026-04-26
 The foundation section explains the durable role of `bijux-proteomics-foundation` before it
 explains implementation detail. Use it to resolve why shared meaning belongs here before downstream packages add policy or execution.
 
+```mermaid
+flowchart LR
+    ids["identifiers"]
+    payloads["shared payloads"]
+    schema["schema compatibility"]
+    migrations["migrations"]
+    foundation["foundation section"]
+    downstream["core, knowledge,<br/>intelligence, lab, runtime"]
+
+    ids --> foundation
+    payloads --> foundation
+    schema --> foundation
+    migrations --> foundation
+    foundation --> downstream
+```
+
+## What This Section Protects
+
+- one family-level meaning for shared objects and records
+- visible migration discipline instead of silent schema drift
+- a clean handoff from common semantics to downstream policy and execution
+
 ## Start With
 
 - Open [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/) for the shortest statement of
@@ -34,6 +56,12 @@ explains implementation detail. Use it to resolve why shared meaning belongs her
 - [Lifecycle Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/lifecycle-overview/)
 - [Domain Language](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/domain-language/)
 - [Change Principles](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/change-principles/)
+
+## What This Section Settles
+
+- why a concern belongs in shared meaning instead of in a downstream package
+- when compatibility pressure justifies a foundation-layer change
+- how much downstream code should be allowed to depend on shared primitives
 
 ## First Proof Check
 
