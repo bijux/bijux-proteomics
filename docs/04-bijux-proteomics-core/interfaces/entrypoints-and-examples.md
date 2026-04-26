@@ -15,7 +15,8 @@ with concrete examples.
 Examples are doing real work here. They let an impatient reader test whether the
 package story is credible without reconstructing usage from source alone.
 
-Treat the interfaces pages for `bijux-proteomics-core` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+These interface pages show what `bijux-proteomics-core` is prepared to defend
+before a dependency forms.
 
 ## Visual Summary
 
@@ -96,7 +97,7 @@ This page can identify the intended public surfaces of `bijux-proteomics-core`, 
 
 ## Purpose
 
-This page records where maintainers can find real invocation examples instead of inventing them from scratch.
+This page shows where readers can find real invocation examples.
 
 ## Stability
 

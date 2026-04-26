@@ -15,7 +15,8 @@ This page connects interface prose to real use. A reader should leave with a
 picture of how commands, APIs, inputs, and outputs hang together in a workflow
 an operator can actually repeat.
 
-Treat the interfaces pages for `agentic-proteins` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+These interface pages show what `agentic-proteins` is prepared to defend
+before a dependency forms.
 
 ## Visual Summary
 
@@ -91,7 +92,8 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 ## Purpose
 
-This page connects package interfaces to the workflows an operator actually performs.
+This page shows how package interfaces connect to workflows an operator can
+actually perform.
 
 ## Stability
 
