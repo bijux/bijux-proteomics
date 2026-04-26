@@ -9,29 +9,55 @@ last_reviewed: 2026-04-26
 
 # Operations
 
-`bijux-proteomics-lab` operations should tell a maintainer how to prove, release, and recover the package without confusing that job with work owned elsewhere.
+`bijux-proteomics-lab` operations is where practical execution pressure shows
+up. Maintainers here are proving that planning logic remains executable under
+real constraints, that outcome handling remains traceable, and that rerun logic
+does not drift away from actual assay work.
 
-## Start With
+```mermaid
+flowchart LR
+    change["planning or outcome change"]
+    plan["check planning and dependency behavior"]
+    execute["check schedule and record handling"]
+    interpret["check outcome and rerun interpretation"]
+    feedback["check feedback into repository workflows"]
+    release["publish updated lab operations surface"]
 
-- open [Local Development](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/local-development/) when you are actively changing package behavior
-- open [Common Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/common-workflows/) when you need the normal operating path
-- open [Release and Versioning](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/release-and-versioning/) before treating a change as publishable
-
-## Section Pages
-
-- [Installation and Setup](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/installation-and-setup/)
-- [Local Development](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/local-development/)
-- [Common Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/common-workflows/)
-- [Deployment Boundaries](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/deployment-boundaries/)
-- [Failure Recovery](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/failure-recovery/)
-- [Observability and Diagnostics](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/observability-and-diagnostics/)
-- [Performance and Scaling](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/performance-and-scaling/)
-- [Release and Versioning](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/release-and-versioning/)
-- [Security and Safety](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/security-and-safety/)
+    change --> plan --> execute --> interpret --> feedback --> release
+```
 
 ## What Operations Means Here
 
-- planning workflow clarity, outcome-promotion proof, and stable handling of lab records
+- operational truth is whether work can still be planned and interpreted under
+  constraints, not whether a model looks tidy in isolation
+- lab breakage often appears first as awkward schedules or ambiguous outcomes,
+  not as immediate crashes
+- release confidence depends on preserving the loop from recommended work to
+  observed result and back again
+
+## Start With
+
+- open [Common Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/common-workflows/)
+  when you need the normal route from change to lab-proof release
+- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/observability-and-diagnostics/)
+  when planning output, schedule behavior, or outcomes stop matching lab reality
+- open [Failure Recovery](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/failure-recovery/)
+  when a plan, execution record, or rerun interpretation already needs repair
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/release-and-versioning/)
+  before publishing any change that affects planning semantics or outcome
+  promotion
+
+## Route From Operational Pressure
+
+- [Local Development](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/local-development/)
+  and [Installation and Setup](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/installation-and-setup/)
+  for reproducible lab-planning work
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/deployment-boundaries/)
+  and [Security and Safety](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/security-and-safety/)
+  for the boundaries around operational records and external integrations
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/performance-and-scaling/)
+  when schedule volume, batching complexity, or outcome processing becomes the
+  bottleneck
 
 ## First Proof Check
 
