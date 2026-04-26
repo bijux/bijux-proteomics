@@ -11,6 +11,23 @@ last_reviewed: 2026-04-26
 
 `bijux-proteomics-core` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
+## Trust Model
+
+```mermaid
+flowchart LR
+    invariants["invariants"]
+    tests["test strategy"]
+    validation["change validation"]
+    risks["risk register and limitations"]
+    decision["trust or block the change"]
+
+    invariants --> tests --> validation --> risks --> decision
+```
+
+This page should show core quality as contract defense, not general confidence.
+The package stays trustworthy when program, target, and lifecycle meaning
+remain explicit enough for downstream packages to build on safely.
+
 ## Start With
 
 - open [Invariants](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/invariants/) before changing package meaning
@@ -38,3 +55,9 @@ last_reviewed: 2026-04-26
 - `packages/bijux-proteomics-core/tests`
 - `src/bijux_proteomics/program_spec.py` and `targets.py`
 - `src/bijux_proteomics/lifecycle.py` and `validation.py`
+
+## Design Pressure
+
+Core quality weakens when implementation changes are easier to describe than
+the contract they move. The section has to keep durable semantics and proof in
+the same line of sight.
