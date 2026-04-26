@@ -12,6 +12,29 @@ last_reviewed: 2026-04-26
 The foundation section explains the durable role of `bijux-proteomics-intelligence` before it
 explains implementation detail. Use it to resolve why decision policy belongs here without pretending to own evidence truth or execution.
 
+```mermaid
+flowchart LR
+    evidence["evidence input"]
+    constraints["program constraints"]
+    policy["scoring and scenario policy"]
+    explanation["explanations"]
+    intelligence["intelligence foundation"]
+    action["downstream action"]
+
+    evidence --> intelligence
+    constraints --> intelligence
+    policy --> intelligence
+    intelligence --> explanation
+    intelligence --> action
+```
+
+## What This Section Protects
+
+- a visible seam between fact and judgment
+- recommendation logic that can be argued about instead of merely obeyed
+- explanation surfaces that stay tied to policy rather than pretending to be
+  raw evidence
+
 ## Start With
 
 - Open [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/) for the shortest statement of
@@ -34,6 +57,13 @@ explains implementation detail. Use it to resolve why decision policy belongs he
 - [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/)
 - [Domain Language](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/domain-language/)
 - [Change Principles](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/change-principles/)
+
+## What This Section Settles
+
+- when a rule is a judgment policy rather than a knowledge claim
+- which recommendation behavior belongs here before runtime or lab acts on it
+- when a proposed change is really about evidence truth or workflow rules and
+  should leave this package
 
 ## First Proof Check
 
