@@ -14,14 +14,20 @@ family. It owns how work runs, how operators and services invoke that work, and
 how runs remain inspectable and reproducible. It does not own the scientific
 meaning of proteins, evidence, scoring, or lab planning.
 
-This section is for readers who need a clear answer to three questions:
+This page is for readers who need a fast, honest answer to three questions:
 
 - what the runtime package owns
 - what lower packages still own
 - how migration from legacy `agentic-proteins` modules is being reviewed
 
+The runtime is where the package family becomes executable for operators and
+services. Lower packages define meaning, contracts, evidence, decisions, and
+lab outcomes. Runtime composes those surfaces into runs, tracks artifacts and
+state, and keeps the execution path inspectable enough to reproduce and review.
+
 ```mermaid
 flowchart LR
+    reader["reader question<br/>what turns proteomics logic into a real run?"]
     operator["operator or service request"]
     runtime["bijux-proteomics-runtime<br/>CLI, API, providers, replay, artifacts"]
     foundation["foundation<br/>shared schemas and primitives"]
@@ -34,9 +40,11 @@ flowchart LR
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class operator,page runtime;
+    class reader page;
     class foundation,core,knowledge,intelligence,lab positive;
+    class runtime anchor;
     class ledger caution;
+    reader --> operator
     operator --> runtime
     runtime --> foundation
     runtime --> core
@@ -45,6 +53,15 @@ flowchart LR
     runtime --> lab
     runtime -.reviews legacy placement through.-> ledger
 ```
+
+## Start Here
+
+- open [agentic-proteins](../02-agentic-proteins/index.md) when the question
+  starts from a legacy import or CLI path
+- open [Repository Handbook](../01-bijux-proteomics/index.md) when the runtime
+  question is really about repository-wide migration or release rules
+- open the package source references below when you need current runtime
+  structure, boundary, or contract detail from the checked-in package docs
 
 ## What Runtime Owns
 
@@ -71,6 +88,25 @@ runtime-agnostic.
 - you need the stable runtime ownership and contract references before editing
   code or docs
 
+## Do Not Use This Section When
+
+- the real question already belongs to one lower package's biological,
+  evidence, decision, or lab semantics
+- you need repository automation detail rather than runtime behavior
+- you are trying to preserve a legacy entrypoint without checking whether the
+  canonical runtime surface already replaced it
+
+## Concrete Anchors
+
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces/cli.py`
+  for operator entrypoints
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/` for
+  HTTP runtime surfaces
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/`
+  for execution control, adapters, and workspaces
+- `packages/bijux-proteomics-runtime/tests` for execution, API, provider, and
+  compatibility proof
+
 ## Source Package Documents
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/ARCHITECTURE.md)
@@ -81,3 +117,9 @@ runtime-agnostic.
 
 - [Migration Ledger](migration-ledger/README.md)
 - [Agentic Module Ledger Summary](migration-ledger/agentic-proteins-module-ledger-summary.md)
+
+## Reader Takeaway
+
+Use this handbook when the unresolved question is how proteomics work becomes a
+real run. Runtime should compose lower packages and make execution inspectable;
+it should not quietly absorb the domain meaning that those packages already own.
