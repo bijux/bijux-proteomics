@@ -11,6 +11,24 @@ last_reviewed: 2026-04-26
 
 Documentation standards should protect the reader from filler, drift, and false confidence.
 
+For `bijux-proteomics-foundation`, documentation quality is mostly about explaining shared meaning before implementation detail and showing how that meaning travels across package boundaries.
+
+## Documentation Model
+
+```mermaid
+flowchart TB
+    meaning["shared meaning"]
+    examples["cross-package type and schema examples"]
+    compatibility["release-critical compatibility notes"]
+    reader["reader can predict downstream impact"]
+
+    meaning --> examples
+    examples --> compatibility
+    compatibility --> reader
+```
+
+This page should keep the documentation anchored on contract travel, not local code tours. If the docs stop helping readers predict downstream impact, they are already drifting.
+
 ## Review Rules
 
 - docs should describe shared meaning before implementation detail
@@ -22,3 +40,7 @@ Documentation standards should protect the reader from filler, drift, and false 
 - `packages/bijux-proteomics-foundation/tests`
 - `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
 - `src/bijux_proteomics_foundation/serialization.py`
+
+## Design Pressure
+
+The easy failure is to document foundation like a utility library and bury the cross-package contract story that readers actually need.
