@@ -11,6 +11,23 @@ last_reviewed: 2026-04-26
 
 `bijux-proteomics-foundation` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
+## Trust Model
+
+```mermaid
+flowchart LR
+    invariants["invariants"]
+    tests["test strategy"]
+    validation["change validation"]
+    risks["risk register and limitations"]
+    decision["trust or block the change"]
+
+    invariants --> tests --> validation --> risks --> decision
+```
+
+This page should frame quality as the review surface for shared meanings. The
+foundation package is trustworthy only when identifiers, schemas, migrations,
+and serialization rules stay stable enough for downstream packages to reuse.
+
 ## Start With
 
 - open [Invariants](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/invariants/) before changing package meaning
@@ -38,3 +55,9 @@ last_reviewed: 2026-04-26
 - `packages/bijux-proteomics-foundation/tests`
 - `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
 - `src/bijux_proteomics_foundation/serialization.py`
+
+## Design Pressure
+
+Foundation quality fails when shared meaning can drift quietly behind migration
+or serialization helpers. The section has to keep canonical meaning and
+downstream proof tightly linked.
