@@ -9,29 +9,26 @@ last_reviewed: 2026-04-26
 
 # Change Management
 
-The repository makes change easier to reason about, not easier to hide.
+The repository should make change easier to reason about, not easier to hide.
+A good change set preserves ownership, keeps proof close, and uses commit
+boundaries that remain legible long after the context is gone.
 
-```mermaid
-timeline
-    title Repository change management flow
-    Proposal : define durable intent
-    Commit 1 : make one reviewable change
-    Commit 2 : update docs, schemas, and proof
-    Review : confirm names, scope, and ownership
-    Completion : merge when behavior and explanation agree
-```
+## Change Rules
 
-## Expectations
+- split repository-wide work into reviewable units with durable commit intent
+- update the relevant handbook pages in the same change series as behavior
+- keep names and paths understandable without private project history
+- move redirects, metadata, or tracked contracts together with the behavior
+  they explain
 
-- split repository-wide work into reviewable batches with durable commit intent
-- update the relevant handbook pages in the same change series as the behavior
-- keep file and directory names descriptive enough that later readers do not
-  need private project history to decode them
-- use redirects or explicit metadata updates when documentation paths move
+## Fast Rejection Gates
 
-## Design Debt Ledger
+- the change has no clear owner
+- docs, schema artifacts, and checks are drifting apart
+- commit scope is broad enough that one failure hides another
 
-- no active design debt entries why: repository debt stays empty until a
-  constrained exception is explicitly approved exit: keep this section empty
-  except approved debt items
+## First Proof Check
 
+- staged diff boundaries before commit
+- the matching handbook pages
+- the tests, tracked artifacts, or workflow surfaces that prove the change

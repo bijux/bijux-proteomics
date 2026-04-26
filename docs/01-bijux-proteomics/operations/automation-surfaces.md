@@ -10,33 +10,26 @@ last_reviewed: 2026-04-26
 # Automation Surfaces
 
 Repository automation should be visible in named surfaces, not hidden behind
-tribal shortcuts.
-
-```mermaid
-flowchart TB
-    auto["Repository automation"]
-    makefile["Makefile<br/>entrypoint"]
-    makes["makes/<br/>shared fragments"]
-    workflows[".github/workflows/<br/>CI and release"]
-    devpkg["bijux-proteomics-dev<br/>code-bearing helpers"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    auto --> makefile
-    auto --> makes
-    auto --> workflows
-    auto --> devpkg
-    class auto page;
-    class makefile,makes,workflows,devpkg anchor;
-```
+habit. A maintainer should be able to tell whether a rule lives in root make
+routing, workflow orchestration, or code-bearing helper logic.
 
 ## Core Automation Surfaces
 
-- `Makefile` as the top-level repository entrypoint
-- `makes/` as the structured library of shared make fragments
+- `Makefile` as the top-level entrypoint
+- `makes/` as the structured library of shared fragments
 - `.github/workflows/` as the published CI, docs, and release automation
 - `packages/bijux-proteomics-dev` as the code-bearing home for maintainer
   helpers
 
+## Review Priority
+
+Check automation in the order that failure would spread: top-level workflow or
+make entrypoint first, helper code second, and downstream package effects third.
+That keeps reviewers focused on the surface that can misroute the whole family.
+
+## First Proof Check
+
+- `Makefile`
+- `makes/`
+- `.github/workflows/`
+- `packages/bijux-proteomics-dev/`
