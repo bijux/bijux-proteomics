@@ -9,40 +9,48 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section explains the surfaces `bijux-proteomics-knowledge` is prepared to
-support over time.
+Use this section when the question is what another package, tool, or reviewer
+can safely rely on from `bijux-proteomics-knowledge`: import surfaces, schema
+profiles, canonical JSON behavior, evidence bundles, claim records, and review
+artifacts.
 
-The package is library-first. The dependable interfaces are import contracts and
-data shapes, not a packaged CLI or HTTP service.
+This package is library-first, but that does not make its contracts casual.
+When evidence and claim state move across package boundaries, import surfaces
+and serialized payloads become part of the review surface that later decisions
+depend on.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    s1["evidence APIs"]
-    s2["claim schemas"]
-    s3["review artifacts"]
-    page["Interfaces section<br/>caller-facing contracts"]
-    next1["commands and APIs"]
-    next2["data and artifacts"]
-    next3["compatibility expectations"]
+    imports["public imports and exported models"]
+    schemas["schema compatibility and payload profiles"]
+    serialization["canonical JSON and serialization rules"]
+    artifacts["evidence bundles, claims, and review artifacts"]
+    reader["reader question<br/>which knowledge surfaces are real contracts?"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    s1 --> page
-    s2 --> page
-    s3 --> page
-    page --> next1
-    page --> next2
-    page --> next3
-    class page page;
-    class s1,s2,s3 positive;
-    class next1,next2,next3 anchor;
+    class imports,page reader;
+    class schemas,serialization positive;
+    class artifacts anchor;
+    imports --> reader
+    schemas --> reader
+    serialization --> reader
+    artifacts --> reader
 ```
 
-## Pages in This Section
+## Start Here
+
+- open [Public Imports](public-imports.md) for the package exports that callers
+  should depend on directly
+- open [Data Contracts](data-contracts.md) and [Artifact Contracts](artifact-contracts.md)
+  when the durable payload or review shape matters more than the import name
+- open [Configuration Surface](configuration-surface.md) when the question is
+  schema profile behavior rather than record semantics
+
+## Pages In This Section
 
 - [CLI Surface](cli-surface.md)
 - [API Surface](api-surface.md)
@@ -54,12 +62,29 @@ flowchart LR
 - [Public Imports](public-imports.md)
 - [Compatibility Commitments](compatibility-commitments.md)
 
-## Read Across the Package
+## Use This Section When
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- you need to know whether an import, schema, payload, or artifact shape is
+  meant to be stable
+- a change may affect downstream trust calculations, review packets, or bundle
+  serialization
+- a reviewer needs to separate explicit contracts from incidental visibility
+
+## Do Not Use This Section When
+
+- the main question is why the behavior belongs in the knowledge layer at all
+- the concern is mostly structural rather than contract-facing
+- the issue is procedural or proof-oriented rather than about supported surfaces
+
+## Read Across The Package
+
+- open [Foundation](../foundation/index.md) for package purpose and ownership
+- open [Architecture](../architecture/index.md) for the structural seams behind
+  the public surfaces
+- open [Operations](../operations/index.md) for workflows, diagnostics, and
+  release procedures
+- open [Quality](../quality/index.md) for compatibility evidence and review
+  pressure
 
 ## Concrete Anchors
 
@@ -68,42 +93,14 @@ flowchart LR
 - `src/bijux_proteomics_knowledge/serialization.py` for canonical serialization rules
 - `src/bijux_proteomics_knowledge/evidence.py` and `claims.py` for core data surfaces
 
-## Use This Page When
+## Reader Takeaway
 
-- you need the public command, API, import, schema, or artifact surface
-- you are checking whether a caller can safely rely on a given entrypoint or shape
-- you want the contract-facing side of the package before building on it
-
-## Decision Rule
-
-Use `Interfaces` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
-
-## What This Page Answers
-
-- which import paths and payload shapes callers can rely on
-- where compatibility pressure is highest when models evolve
-- what should trigger explicit compatibility review
-
-## Reviewer Lens
-
-- compare commands, schemas, imports, and artifacts against the documented surface one by one
-- check whether a seemingly local change actually needs compatibility review
-- confirm that examples still point to real entrypoints and not to stale habits
-
-## Honesty Boundary
-
-This page can identify the intended public surfaces of `bijux-proteomics-knowledge`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
-
-## Next Checks
-
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+Use `Interfaces` to judge whether a dependency on knowledge state is
+defensible. The bar is that imports, schema profiles, serialized payloads,
+artifacts, examples, and tests all agree about what a caller may rely on.
 
 ## Purpose
 
-This page explains how to use the interfaces section for `bijux-proteomics-knowledge` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+This page introduces the knowledge interfaces handbook and routes readers to
+the pages that explain imports, schemas, artifacts, and compatibility
+commitments.
