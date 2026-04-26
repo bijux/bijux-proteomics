@@ -16,30 +16,41 @@ A reader should be able to leave this section with a durable understanding of
 the package split, the ownership model, the shared vocabulary, and the change
 rules that keep the repository legible over time.
 
+This section should answer one question decisively: why is this repository a
+package family instead of one large proteomics codebase with blurred ownership?
+If that answer still feels vague after this page, the rest of the handbook will
+only inherit the same confusion.
+
 ```mermaid
 flowchart LR
-    topic1["platform overview"]
-    topic2["scope, ownership, and layout"]
-    topic3["language, docs, and change rules"]
-    foundation["Repository foundation<br/>why the split exists"]
-    next1["package map"]
-    next2["decision rules"]
-    next3["operations handbook"]
+    reader["reader question<br/>why is proteomics split this way?"]
+    split["repository split<br/>foundation, core, intelligence,<br/>knowledge, lab, runtime"]
+    ownership["ownership model<br/>which package decides what"]
+    language["shared language<br/>terms, docs, change rules"]
+    decisions["change decisions<br/>what belongs where"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    topic1 --> foundation
-    topic2 --> foundation
-    topic3 --> foundation
-    foundation --> next1
-    foundation --> next2
-    foundation --> next3
-    class foundation page;
-    class topic1,topic2,topic3 positive;
-    class next1,next2,next3 anchor;
+    class reader page;
+    class split,ownership,language,decisions positive;
+    reader --> split
+    split --> ownership
+    ownership --> language
+    language --> decisions
 ```
+
+## Start Here
+
+- open [Platform Overview](platform-overview.md) for the shortest explanation
+  of what the repository is trying to be
+- open [Package Map](package-map.md) when the key question is which package owns
+  which concern
+- open [Ownership Model](ownership-model.md) when a proposed change may cross a
+  package boundary
+- open [Decision Rules](decision-rules.md) when you need the repository’s
+  actual bar for changing the split
 
 ## Pages In This Section
 
@@ -53,11 +64,42 @@ flowchart LR
 - [Change Principles](change-principles.md)
 - [Decision Rules](decision-rules.md)
 
-## Purpose
+## Use This Section When
 
-This page gives readers a clean starting point for the repository foundation.
+- you need the package-family rationale before reading package-local docs
+- you are deciding whether a concern belongs at the repository root or inside
+  one package handbook
+- you need shared vocabulary for discussing boundaries, docs, or change scope
 
-## Stability
+## Do Not Use This Section When
 
-Keep it aligned with the actual foundation topics that define the repository
-boundary and package split.
+- the real question is already about one package’s API, runtime, evidence, or
+  lab behavior
+- the issue is mainly operational and you need repeatable workflows rather than
+  ownership framing
+- you already know the package boundary and now need code or validation detail
+
+## What This Section Clarifies
+
+- why the current package split exists instead of a flatter or more entangled
+  repository
+- how the repository distinguishes shared meaning, durable contracts, evidence
+  state, ranking policy, lab planning, and execution
+- which root-level rules should stay stable so the package handbooks can remain
+  honest
+
+## Concrete Anchors
+
+- `docs/` for the root handbook structure that mirrors the package split
+- `packages/` for the package-family surface this section is explaining
+- `packages/bijux-proteomics-dev/` for repository-health support that should
+  not be confused with product-package ownership
+- `Makefile` and `makes/` for root-owned process surfaces discussed later in
+  the operations section
+
+## Reader Takeaway
+
+Use the foundation section when the unresolved question is why the repository
+is organized as a family of accountable packages. If the answer depends on one
+package’s local behavior rather than on the split itself, this section should
+hand you off quickly instead of pretending root docs own the detail.
