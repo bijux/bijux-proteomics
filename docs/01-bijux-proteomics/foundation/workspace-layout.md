@@ -9,45 +9,27 @@ last_reviewed: 2026-04-26
 
 # Workspace Layout
 
-The top-level tree helps readers place work quickly. If the layout makes
-ownership harder to see, it is working against the design.
+The workspace layout is part of the repository's review model. It separates
+product packages, maintainer automation, tracked API artifacts, docs, and root
+process surfaces so a reviewer can tell what kind of change is being made
+before reading implementation detail.
 
-```mermaid
-flowchart TB
-    repo["bijux-proteomics"]
-    packages["packages/<br/>publishable code"]
-    apis["apis/<br/>checked contract artifacts"]
-    docs["docs/<br/>canonical handbook"]
-    makes["Makefile and makes/<br/>shared automation"]
-    configs["configs/<br/>tool configuration"]
-    artifacts["artifacts/<br/>generated output only"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    repo --> packages
-    repo --> apis
-    repo --> docs
-    repo --> makes
-    repo --> configs
-    repo --> artifacts
-    class repo page;
-    class packages,apis,docs,makes,configs anchor;
-    class artifacts action;
-```
+## Layout Layers
 
-## Top-Level Directories
+- `packages/` for publishable product packages and the maintainer helper package
+- `docs/` for the public handbook split that mirrors the architecture
+- `apis/` for tracked API and contract artifacts
+- `Makefile`, `makes/`, and `.github/workflows/` for repository-wide process
+  and automation surfaces
+- `artifacts/` for generated local or CI output that is not governed source
 
-- `packages/` for publishable Python distributions and maintainer tooling
-- `apis/` for checked schema sources, pinned OpenAPI JSON, and digests
-- `docs/` for the canonical handbook
-- `makes/` and `Makefile` for repository automation
-- `configs/` for shared tool configuration
-- `artifacts/` for generated validation output
+## Why Layout Matters
 
-## Layout Rule
+This structure is not just current arrangement. It protects the distinction
+between owned source, tracked contracts, public explanation, and generated run
+output. When those categories mix, boundary review gets weaker.
 
-A concern should live at the root only when it serves more than one package or
-when it explains the workspace itself.
+## First Proof Check
 
+- the directory layer where a proposed change lands
+- the matching handbook branch that should explain that layer
