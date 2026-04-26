@@ -17,30 +17,42 @@ behavior. They should help a maintainer move from a question about setup,
 validation, release flow, automation, or review posture to the checked-in files
 that carry that work today.
 
+This section should make one distinction obvious: root operations exist to
+coordinate the repository as a whole, not to re-describe package-local runtime,
+evidence, or lab procedures that already have their own handbooks.
+
 ```mermaid
 flowchart LR
-    work1["local development and contributors"]
-    work2["validation, release, and governance"]
-    work3["automation, artifacts, and review"]
-    ops["Repository operations<br/>repeatable root workflows"]
-    next1["workflow pages"]
-    next2["migration validation"]
-    next3["review expectations"]
+    reader["reader question<br/>which root-owned workflow governs this work?"]
+    setup["local setup and contributor flow"]
+    validation["shared validation,<br/>schema governance, migration checks"]
+    release["release, automation,<br/>artifact, and review posture"]
+    rootops["root-owned operations<br/>repeatable repository workflows"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    work1 --> ops
-    work2 --> ops
-    work3 --> ops
-    ops --> next1
-    ops --> next2
-    ops --> next3
-    class ops page;
-    class work1,work2,work3 positive;
-    class next1,next2,next3 anchor;
+    class reader page;
+    class setup,validation,release,rootops positive;
+    reader --> rootops
+    rootops --> setup
+    rootops --> validation
+    rootops --> release
 ```
+
+## Start Here
+
+- open [Local Development](local-development.md) when the concern is repeatable
+  local setup and contributor flow
+- open [Testing and Validation](testing-and-validation.md) or
+  [Runtime Migration Validation](runtime-migration-validation.md) when the
+  issue is repository-wide proof rather than one package test
+- open [Release and Versioning](release-and-versioning.md) or
+  [Automation Surfaces](automation-surfaces.md) when the concern is publication
+  or root-owned automation
+- open [Review Expectations](review-expectations.md) when the real question is
+  what evidence and scope discipline a root-level change needs
 
 ## Pages In This Section
 
@@ -71,6 +83,15 @@ flowchart LR
 - you are looking for maintainer helper implementation details rather than root
   repository process
 
+## What This Section Clarifies
+
+- which workflows are genuinely root-owned and therefore cannot be documented
+  honestly by any one package
+- where setup, validation, release, and review expectations are governed above
+  package level
+- when the right answer is to leave the root handbook and drop into a package
+  handbook instead
+
 ## Choose The Next Page By Question
 
 - open [Local Development](local-development.md) or
@@ -84,17 +105,18 @@ flowchart LR
   [Review Expectations](review-expectations.md) when the concern is shared team
   process
 
+## Concrete Anchors
+
+- `Makefile` and `makes/` for root-owned command routing
+- `.github/workflows/` for automation surfaces discussed from the repository
+  point of view
+- `packages/bijux-proteomics-dev/` for helper-code enforcement that supports
+  these root workflows
+- `docs/01-bijux-proteomics/operations/` for the checked-in process pages this
+  section is routing to
+
 ## Reader Takeaway
 
 This section is for root-owned operational behavior that no single package can
 document honestly on its own. It should help readers find the governing process
 quickly without letting the repository root pretend it owns package behavior.
-
-## Purpose
-
-This page gives maintainers the shortest route into repository-wide operational
-guidance.
-
-## Stability
-
-Keep it aligned with the operational topics that actually matter at the root.
