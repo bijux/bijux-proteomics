@@ -9,37 +9,42 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-This section explains how `bijux_proteomics_lab` is organized so a reviewer can follow structure, dependency direction, and execution flow without guessing.
+This section explains how `bijux_proteomics_lab` is organized so a
+reviewer can follow structure, dependency direction, and execution flow
+without guessing.
 
-These pages turn `bijux-proteomics-lab` from a directory tree into a readable design map. Use them when a structural change needs to be grounded in named modules and real execution paths.
+These pages should turn `bijux-proteomics-lab` from a directory listing
+into a readable design map. Use them when a structural change needs to
+be grounded in named modules and real execution paths.
 
-Treat the architecture pages for `bijux-proteomics-lab` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+The architectural story here is compact on purpose. The package is small
+enough that the main question is not "which layer among twenty?" but
+"which file owns planning, which file owns outcomes, and where are the
+contracts that keep the loop deterministic?"
 
-## Visual Summary
+## Start Here
 
 ```mermaid
 flowchart LR
-    m1["planning and scheduling"]
-    m2["execution outcomes"]
-    m3["promotion decisions"]
-    section["Architecture section<br/>structure and execution map"]
-    next1["module map"]
-    next2["execution and seams"]
-    next3["risks and navigation"]
+    question["reader question<br/>which module owns this lab behavior?"]
+    planning["planning.py<br/>plans, batches, schedules,<br/>review packets"]
+    outcomes["outcomes.py<br/>results, reruns, promotion<br/>readiness, triage"]
+    repositories["repositories.py<br/>feedback and review queue<br/>persistence contracts"]
+    contracts["schema.py + serialization.py<br/>artifact contracts and canonical payloads"]
+    section["Architecture<br/>module ownership and seams"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    m1 --> section
-    m2 --> section
-    m3 --> section
-    section --> next1
-    section --> next2
-    section --> next3
-    class section page;
-    class m1,m2,m3 positive;
-    class next1,next2,next3 anchor;
+    question --> section
+    section --> planning
+    section --> outcomes
+    section --> repositories
+    section --> contracts
+    class question page;
+    class section anchor;
+    class planning,outcomes,repositories,contracts positive;
 ```
 
 ## Pages in This Section
@@ -54,55 +59,49 @@ flowchart LR
 - [Code Navigation](code-navigation.md)
 - [Architecture Risks](architecture-risks.md)
 
-## Read Across the Package
+## What This Section Clarifies
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- which source files carry the main planning, outcome, persistence, and
+  contract responsibilities
+- how the closed loop moves from plan construction to observed outcome and back
+  into feedback
+- where structural drift would show up first if ownership starts bleeding
+  across files
 
-## Concrete Anchors
-
-- `src/bijux_proteomics_lab/model` for durable runtime models
-- `src/bijux_proteomics_lab/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_lab/application` for orchestration and replay coordination
-
-## Use This Page When
+## Use This Section When
 
 - you are tracing structure, execution flow, or dependency pressure
 - you need to understand how modules fit before refactoring
 - you are reviewing design drift rather than one isolated bug
 
-## Decision Rule
+## Do Not Use This Section When
 
-Use `Architecture` to decide whether a structural change makes `bijux-proteomics-lab` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
+- the real question is whether the package should own the behavior at all
+- the real question is which import, schema, or artifact contract callers may
+  depend on
+- the real question is whether the current structure is sufficiently tested
 
-## What This Page Answers
+## Read Across the Package
 
-- how `bijux-proteomics-lab` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
+- [Foundation](../foundation/index.md) when you need the package boundary and
+  ownership story first
+- [Interfaces](../interfaces/index.md) when the question becomes what a caller
+  can rely on
+- [Operations](../operations/index.md) when the question becomes how maintainers
+  repeat planning and outcome workflows
+- [Quality](../quality/index.md) when the question becomes whether structural
+  claims still have enough proof behind them
 
-## Reviewer Lens
+## Concrete Anchors
 
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/repositories.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/schema.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/serialization.py`
 
-## Honesty Boundary
+## Reader Takeaway
 
-This page describes the current structural model of `bijux-proteomics-lab`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
-
-## Purpose
-
-This page explains how to use the architecture section for `bijux-proteomics-lab` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+Use the architecture section when you need a file-level map of the lab loop.
+If a change makes it harder to explain why one of these files owns its current
+responsibility, the design is drifting even if the code still passes.
