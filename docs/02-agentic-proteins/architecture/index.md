@@ -9,19 +9,15 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-This section explains how `agentic_proteins` is organized as a compatibility
-bridge so a reviewer can follow forwarding structure, dependency pressure, and
-migration-safe execution flow without guessing.
+`agentic-proteins` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb runtime ownership or lower-package scientific meaning.
 
-These pages turn `agentic-proteins` from a legacy directory tree into a
-readable migration map. Use them when a structural change needs to be grounded
-in named forwarding surfaces and real handoffs to canonical runtime code.
+## Start With
 
-The point of this section is not to glorify the legacy architecture. It is to
-make the remaining bridge explicit enough that readers can tell which structure
-still matters and which structure is only being tolerated until migration ends.
+- open [Module Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/module-map/) when you need the fastest route from filenames to owned module families
+- open [Execution Model](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/execution-model/) when the question is how a legacy import, CLI call, or API request flows through compatibility modules and reaches the canonical runtime seam
+- open [Integration Seams](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/integration-seams/) when a change may cross into runtime ownership or lower-package scientific meaning
 
-## Pages In This Section
+## Section Pages
 
 - [Module Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/dependency-direction/)
@@ -33,69 +29,12 @@ still matters and which structure is only being tolerated until migration ends.
 - [Code Navigation](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/architecture-risks/)
 
-## Open This Section When
+## First Proof Check
 
-- you need to understand how legacy imports and CLI paths still forward through
-  the compatibility package
-- you are checking whether a structural change preserves a safe migration handoff
-- you need to see where the bridge structure creates review risk
+- `src/agentic_proteins/interfaces/`, `api/`, and `runtime/` for the public-to-runtime path
+- `src/agentic_proteins/core/`, `execution/`, and `validation/` for legacy control logic
+- `src/agentic_proteins/providers/`, `memory/`, and `report/` for remaining adapter and artifact seams
 
-## Open Another Section When
+## Boundary Test
 
-- the real concern is the canonical runtime architecture rather than the legacy
-  forwarding shape
-- you are treating the compatibility package as a preferred place for new
-  structure
-- the question is about product semantics rather than forwarding seams
-
-## Bottom Line
-
-This section helps readers trace the remaining bridge structure quickly.
-If a change makes the compatibility architecture more complex without making the
-migration safer, that is usually a sign the work belongs elsewhere.
-
-## Read Across the Package
-
-- [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/) when you need the package boundary and ownership story first
-- [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/) when the question becomes proof, risk, trust, or review sufficiency
-
-## Concrete Anchors
-
-- `src/agentic_proteins/execution` and `src/agentic_proteins/design_loop` for lifecycle and loop orchestration
-- `src/agentic_proteins/runtime`, `src/agentic_proteins/state`, and `src/agentic_proteins/memory` for continuity and persistence
-- `src/agentic_proteins/core`, `src/agentic_proteins/api`, and `src/agentic_proteins/interfaces` for contracts and entry surfaces
-
-## Open This Page When
-
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
-
-## Decision Rule
-
-Open this section to decide whether a structural change makes `agentic-proteins` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What You Can Resolve Here
-
-- how `agentic-proteins` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
-
-## Review Focus
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Limits
-
-Treat this page as a working structural map and keep it aligned with code and tests.
-
-## Read Next
-
-- open interfaces when the review reaches a public or operator-facing seam
-- open operations when the concern becomes repeatable runtime behavior
-- open quality when you need proof that the documented structure is still protected
-
+If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.

@@ -9,26 +9,15 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-Open this section when the question is structural: which modules own evidence
-bundles, claim state, conflict resolution, review packets, schema
-compatibility, and graph relationships, and how those pieces fit together
-without turning the knowledge layer into a vague storage bucket.
+`bijux-proteomics-knowledge` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb recommendation policy or runtime storage concerns.
 
-`bijux-proteomics-knowledge` is feature-oriented rather than framework-layered.
-Evidence enters through adapters, becomes structured records and bundles, moves
-through claim and resolution logic, and ends up in review and readiness
-surfaces that other packages can inspect.
+## Start With
 
-## Start Here
+- open [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/) when you need the fastest route from filenames to owned module families
+- open [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/) when the question is how evidence enters through claim and graph structures, then moves through confidence and resolution paths into reviewable outputs
+- open [Integration Seams](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/integration-seams/) when a change may cross into recommendation policy or runtime storage concerns
 
-- open [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/) for the shortest route from filenames to
-  owned behavior
-- open [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/) when you need the flow from
-  ingested evidence to reviewed knowledge state
-- open [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/) when the question is
-  which records, repositories, or summaries become durable
-
-## Pages In This Section
+## Section Pages
 
 - [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/dependency-direction/)
@@ -40,44 +29,12 @@ surfaces that other packages can inspect.
 - [Code Navigation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/architecture-risks/)
 
-## Open This Section When
+## First Proof Check
 
-- you need to know which module family owns a behavior before editing it
-- a review is about decomposition, dependency direction, or execution flow
-- you need to explain how evidence, claims, resolution, and review structure
-  relate
+- `src/bijux_proteomics_knowledge/claims.py`, `evidence.py`, and `graph.py` for canonical knowledge structures
+- `src/bijux_proteomics_knowledge/confidence/segments.py`, `resolution.py`, and `review.py` for trust and contradiction handling
+- `src/bijux_proteomics_knowledge/repositories.py`, `schema.py`, and `serialization.py` for durable boundaries
 
-## Open Another Section When
+## Boundary Test
 
-- the main question is why the package owns the behavior at all
-- you are deciding whether a schema, import, or artifact is a public contract
-- the issue is procedural or proof-oriented rather than structural
-
-## Across This Package
-
-- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
-- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for import, schema, serialization,
-  and artifact contracts
-- open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflow, diagnostics, and
-  release procedures
-- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for invariants, tests, and structure-risk
-  pressure
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_knowledge/adapters.py` for input normalization and
-  ingestion helpers
-- `src/bijux_proteomics_knowledge/evidence.py`, `repositories.py`, and
-  `serialization.py` for durable record and bundle state
-- `src/bijux_proteomics_knowledge/claims.py`, `graph.py`, and `resolution.py`
-  for claim lifecycle, contradiction handling, and dependency relationships
-- `src/bijux_proteomics_knowledge/review.py` and `confidence/` for review
-  packets, confidence, and readiness summaries
-
-## Bottom Line
-
-`Architecture` makes the knowledge package legible as a chain of named
-responsibilities. If evidence storage, claim semantics, contradiction handling,
-and review output start blending together, the package becomes harder to trust
-as an auditable state layer.
-
+If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.

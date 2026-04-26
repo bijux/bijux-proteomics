@@ -9,28 +9,15 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-Open this section when the important question is how the shared meaning layer is
-assembled: where schema ownership lives, how serialization and fingerprinting
-flow through the package, and where migrations and compatibility helpers fit
-into that structure.
+`bijux-proteomics-foundation` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb package-specific domain policy or workflow logic.
 
-These pages should let reviewers trace shared-contract logic through real
-modules instead of inferring the design from filenames alone. The goal is to
-make structural responsibility visible enough that schema, id, and migration
-changes can be reviewed with confidence.
+## Start With
 
-## Start Here
+- open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/) when you need the fastest route from filenames to owned module families
+- open [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/) when the question is how shared payload meaning moves through ids, schemas, serialization, and migration helpers without picking up policy
+- open [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/) when a change may cross into package-specific domain policy or workflow logic
 
-- open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/) for the shortest route to ownership by file
-  and responsibility
-- open [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/) when the question is how schema,
-  serialization, and migration logic connect in practice
-- open [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/) when a change may affect how
-  downstream packages consume shared contracts
-- open [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/) when structural simplicity is
-  under pressure from compatibility work
-
-## Pages In This Section
+## Section Pages
 
 - [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/dependency-direction/)
@@ -42,45 +29,12 @@ changes can be reviewed with confidence.
 - [Code Navigation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/)
 
-## Open This Section When
+## First Proof Check
 
-- you need to trace structural ownership before refactoring shared contract code
-- you are checking whether compatibility helpers still support a clear module
-  boundary
-- you need to understand how exported meaning is assembled before downstream
-  packages consume it
+- `src/bijux_proteomics_foundation/ids.py` and `schema.py` for stable shared meaning
+- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py` for transport and compatibility structure
+- `src/bijux_proteomics_foundation/errors.py` for shared failure vocabulary
 
-## Open Another Section When
+## Boundary Test
 
-- the question is mainly about public imports, schema contracts, or artifacts
-- the issue is operational, such as validation workflow or release handling
-- you need tests, risk posture, or definition-of-done criteria more than a
-  structural map
-
-## Across This Package
-
-- open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when the structural issue is really
-  an ownership question
-- open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/) when architecture reaches a caller
-  facing contract or compatibility promise
-- open [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/) when structure affects repeatable
-  validation and release workflows
-- open [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/) when you need proof that the documented
-  structure is still protected
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_foundation/schema.py` and `ids.py` for schema and
-  identifier contracts
-- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py` for
-  compatibility flows
-- `src/bijux_proteomics_foundation/errors.py` and `__init__.py` for stable
-  exported boundaries
-
-## Bottom Line
-
-Open this section to make the shared meaning layer legible enough that a
-reviewer can say where schema logic ends, where compatibility logic begins, and
-how those two stay connected. If the answer only works when you already know
-the package by memory, the structure is too implicit.
-
+If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.

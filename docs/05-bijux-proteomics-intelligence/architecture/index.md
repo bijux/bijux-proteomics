@@ -9,26 +9,15 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-Open this section when the question is structural: which modules own candidate
-state, ranking policy, scenario evaluators, design-loop control,
-explainability, and decision outcomes, and how those parts cooperate without
-blurring policy, reporting, and domain semantics together.
+`bijux-proteomics-intelligence` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb knowledge-evidence semantics or lab execution decisions.
 
-`bijux-proteomics-intelligence` is easiest to read as a decision system.
-Candidate and metric models define the decision substrate, policies and
-evaluators score it, briefs and reports explain the result, and design-loop
-logic tracks whether progress is converging or stalling.
+## Start With
 
-## Start Here
+- open [Module Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/module-map/) when you need the fastest route from filenames to owned module families
+- open [Execution Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/execution-model/) when the question is how candidate inputs move through policies and evaluators into reports and reviewed outcomes
+- open [Integration Seams](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/integration-seams/) when a change may cross into knowledge-evidence semantics or lab execution decisions
 
-- open [Module Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/module-map/) for the shortest route from filenames to
-  owned behavior
-- open [Execution Model](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/execution-model/) when you need the flow from
-  candidate input to reviewed recommendation
-- open [State and Persistence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/state-and-persistence/) when the question is
-  which decisions, outcomes, and reports become durable
-
-## Pages In This Section
+## Section Pages
 
 - [Module Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/dependency-direction/)
@@ -40,44 +29,12 @@ logic tracks whether progress is converging or stalling.
 - [Code Navigation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/code-navigation/)
 - [Architecture Risks](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/architecture-risks/)
 
-## Open This Section When
+## First Proof Check
 
-- you need to know which module family owns a behavior before editing it
-- a review is about decomposition, decision flow, or module drift
-- you need to explain how candidate models, policies, evaluators, and decision
-  outputs relate
+- `src/bijux_proteomics_intelligence/candidates.py` and `domain/candidates/` for decision inputs
+- `src/bijux_proteomics_intelligence/policies.py`, `evaluators.py`, and `domain/metrics/` for scoring structure
+- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, `outcomes.py`, and `design_loop/` for explainability and control
 
-## Open Another Section When
+## Boundary Test
 
-- the main question is why the package owns the behavior at all
-- you are deciding whether an import, artifact, or schema is a public contract
-- the issue is procedural or proof-oriented rather than structural
-
-## Across This Package
-
-- open [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/) for package purpose and ownership
-- open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) for imports, artifacts, and
-  explainability contracts
-- open [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/) for workflows, diagnostics, and
-  release procedures
-- open [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) for invariants, tests, and decision-risk
-  pressure
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_intelligence/candidates.py` and `domain/candidates/`
-  for candidate state and portfolio logic
-- `src/bijux_proteomics_intelligence/policies.py` and `domain/metrics/` for
-  ranking factors, metrics, and policy constraints
-- `src/bijux_proteomics_intelligence/evaluators.py`, `briefs.py`, and
-  `report/` for scenario scoring and explainability outputs
-- `src/bijux_proteomics_intelligence/design_loop/` and `outcomes.py` for
-  convergence control and post-decision state
-
-## Bottom Line
-
-`Architecture` makes the intelligence package legible as a decision
-system with named responsibilities. If candidate state, policy logic,
-evaluators, and explainability outputs start blending together, the package
-becomes harder to trust as the place where recommendations are justified.
-
+If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.
