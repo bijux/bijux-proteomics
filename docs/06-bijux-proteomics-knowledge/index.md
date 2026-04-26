@@ -10,7 +10,7 @@ last_reviewed: 2026-04-26
 # bijux-proteomics-knowledge
 
 `bijux-proteomics-knowledge` is the evidence and claim package in
-`bijux-proteomics`. Start here when the question is about evidence
+`bijux-proteomics`. Use this handbook when the question is about evidence
 quality, claim state transitions, contradiction resolution, trust
 scoring, or readiness summaries consumed by downstream decision layers.
 
@@ -24,7 +24,7 @@ where proteomics evidence becomes an auditable state: records are stored,
 claims are updated, conflicts are resolved, trust is summarized, and review can
 work backward from a recommendation to the evidence that supported it.
 
-## Start Here
+## Visual Summary
 
 ```mermaid
 flowchart LR
@@ -46,13 +46,24 @@ flowchart LR
     review --> consumers
 ```
 
+## Start Here
+
+- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) when the question is why the
+  knowledge layer exists or where its boundary stops
+- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when you need the
+  module map for evidence, claims, resolution, and review behavior
+- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when the question is
+  about imports, schemas, payloads, or review artifacts
+- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the issue is whether the
+  current knowledge state is defended strongly enough to trust
+
 ## Use This Section When
 
 - you need the package entrypoint for evidence and claim contracts
 - you are checking contradiction handling, freshness, or trust logic
 - you want the shortest route into auditable knowledge-state behavior
 
-## Do Not Use This Section When
+## Move On When
 
 - the real question is already about ranking policy, experiment planning, or
   runtime orchestration
@@ -61,18 +72,18 @@ flowchart LR
 - you are expecting this package to make policy decisions instead of to record
   and justify evidence state
 
-## Main Paths
+## Pages In This Handbook
 
-- [Foundation](foundation/index.md)
-- [Architecture](architecture/index.md)
-- [Interfaces](interfaces/index.md)
-- [Operations](operations/index.md)
-- [Quality](quality/index.md)
+- [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
+- [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)
+- [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/)
+- [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/)
+- [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/)
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-intelligence](../05-bijux-proteomics-intelligence/index.md) when the question becomes ranking policy rather than evidence state
-- move to [bijux-proteomics-lab](../07-bijux-proteomics-lab/index.md) when the concern becomes assay execution or planning
+- move to [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking policy rather than evidence state
+- move to [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) when the concern becomes assay execution or planning
 - stay here when the real issue is whether the current claim state is justified and inspectable
 
 ## What This Package Clarifies
