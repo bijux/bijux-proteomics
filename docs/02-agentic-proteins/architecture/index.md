@@ -126,10 +126,3 @@ This page describes the current structural model of `agentic-proteins`, but it d
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page explains how to use the architecture section for `agentic-proteins` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.

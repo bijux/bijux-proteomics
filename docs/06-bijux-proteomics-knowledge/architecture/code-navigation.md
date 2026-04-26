@@ -105,10 +105,3 @@ This page describes the current structural model of `bijux-proteomics-knowledge`
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page shortens the path from an issue report to the relevant code.
-
-## Stability
-
-Keep it aligned with the real source tree and current test layout.

@@ -98,10 +98,3 @@ This page describes the current structural model of `bijux-proteomics-core`, but
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page keeps architectural review focused on durable package risks instead of transient churn.
-
-## Stability
-
-Keep it aligned with the package structure and known review concerns.

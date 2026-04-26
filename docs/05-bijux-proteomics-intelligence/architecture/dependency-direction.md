@@ -98,10 +98,3 @@ This page describes the current structural model of `bijux-proteomics-intelligen
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page makes dependency direction explicit enough to review during refactors.
-
-## Stability
-
-Keep it aligned with current imports and directory responsibilities.

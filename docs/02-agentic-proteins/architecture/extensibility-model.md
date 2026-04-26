@@ -95,10 +95,3 @@ This page describes the current structural model of `agentic-proteins`, but it d
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page helps maintainers extend the package without smearing responsibilities together.
-
-## Stability
-
-Keep it aligned with the package seams that actually support extension today.

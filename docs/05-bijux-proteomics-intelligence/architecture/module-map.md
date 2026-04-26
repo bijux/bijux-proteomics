@@ -90,10 +90,3 @@ This page describes the current structural model of `bijux-proteomics-intelligen
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page provides a shortest-path code map for the package.
-
-## Stability
-
-Keep it aligned with the actual source directories under `packages/bijux-proteomics-intelligence`.

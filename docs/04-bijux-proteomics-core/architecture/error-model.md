@@ -97,10 +97,3 @@ This page describes the current structural model of `bijux-proteomics-core`, but
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page shows how to reason about failures in architecture review.
-
-## Stability
-
-Keep it aligned with the actual error-handling behavior and tests.

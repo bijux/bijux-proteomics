@@ -98,10 +98,3 @@ This page describes the current structural model of `bijux-proteomics-lab`, but 
 - open operations when the concern becomes repeatable runtime behavior
 - open quality when you need proof that the documented structure is still protected
 
-## Purpose
-
-This page marks the package's state and artifact boundary.
-
-## Stability
-
-Keep it aligned with the actual artifact shapes and serialized outputs.
