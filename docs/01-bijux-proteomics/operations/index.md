@@ -9,32 +9,25 @@ last_reviewed: 2026-04-26
 
 # Operations
 
-The operations section explains how the repository is run, reviewed, and kept
-coherent after the ownership model is already clear.
+The operations section covers repository work that sits above one package:
+setup that spans several surfaces, shared validation, release coordination,
+review discipline, and runtime migration checks. It should help a maintainer
+find the governing process without blurring package-local behavior into root
+process prose.
 
-These pages are about repeatable repository work rather than package-local
-behavior. They help a maintainer move from a question about setup,
-validation, release flow, automation, or review posture to the checked-in files
-that carry that work today.
+## Start With
 
-This section makes one distinction obvious: root operations exist to
-coordinate the repository as a whole, not to re-describe package-local runtime,
-evidence, or lab procedures that already have their own handbooks.
+- Open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/)
+  when the first question is how to make and validate a change locally.
+- Open [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/)
+  when the question is which checks prove which change class.
+- Open [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/)
+  when the concern is publishable output, tags, or compatibility-sensitive
+  version movement.
+- Open [Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
+  when runtime migration proof is the release blocker.
 
-## Start Here
-
-- open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/) when the concern is repeatable
-  local setup and contributor flow
-- open [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/) or
-  [Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/) when the
-  issue is repository-wide proof rather than one package test
-- open [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/) or
-  [Automation Surfaces](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/automation-surfaces/) when the concern is publication
-  or root-owned automation
-- open [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/) when the real question is
-  what evidence and scope discipline a root-level change needs
-
-## Pages In This Section
+## Section Pages
 
 - [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/)
 - [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/)
@@ -47,56 +40,15 @@ evidence, or lab procedures that already have their own handbooks.
 - [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/)
 - [Change Management](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/change-management/)
 
-## Open This Section When
+## First Proof Check
 
-- the question is about repository-wide setup, validation, release posture,
-  shared automation, or review rules
-- the answer should come from root-owned workflows rather than one product
-  package handbook
-- you need to know which checked-in operational page owns a shared process
+- `Makefile` and `makes/` for root command routing
+- `.github/workflows/` for shared automation and release orchestration
+- `packages/bijux-proteomics-dev/` when helper code carries the operational
+  rule
 
-## Do Not Start Here When
+## Boundary
 
-- the concern is really about one package's internal contract, API, or runtime
-  behavior
-- the question can already be answered honestly from a single package handbook
-- you are looking for maintainer helper implementation details rather than root
-  repository process
-
-## What This Section Clarifies
-
-- which workflows are genuinely root-owned and therefore cannot be documented
-  honestly by any one package
-- where setup, validation, release, and review expectations are governed above
-  package level
-- when the right answer is to leave the root handbook and drop into a package
-  handbook instead
-
-## Choose The Next Page By Question
-
-- open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/) or
-  [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/) when the concern is
-  repeatable local work
-- open [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/) or
-  [API and Schema Governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/) when the concern is
-  publication or contract discipline
-- open [Contributor Workflows](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/contributor-workflows/),
-  [Automation Surfaces](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/automation-surfaces/), or
-  [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/) when the concern is shared team
-  process
-
-## Concrete Anchors
-
-- `Makefile` and `makes/` for root-owned command routing
-- `.github/workflows/` for automation surfaces discussed from the repository
-  point of view
-- `packages/bijux-proteomics-dev/` for helper-code enforcement that supports
-  these root workflows
-- `docs/01-bijux-proteomics/operations/` for the checked-in process pages this
-  section is routing to
-
-## Bottom Line
-
-This section is for root-owned operational behavior that no single package can
-document honestly on its own. It helps readers find the governing process
-quickly without letting the repository root pretend it owns package behavior.
+If a package handbook can explain the workflow honestly from package-local
+commands, tests, and contracts, the repository operations section should not try
+to own it.

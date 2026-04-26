@@ -4,47 +4,43 @@ audience: mixed
 type: runbook
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-22
+last_reviewed: 2026-04-26
 ---
 
 # Runtime Migration Validation
 
-Use this runbook to validate canonical runtime migration integrity before
-shipping release tags.
+Use this runbook to prove that runtime migration work did not quietly break
+canonical execution, legacy compatibility, or release coverage.
 
 ## Validation Command
 
-Run the full migration validation suite from repository root:
+Run the dedicated suite from repository root:
 
 ```bash
 make quality-runtime-migration-validation
 ```
 
-This command verifies:
+## What It Proves
 
-- runtime boundary contracts (lower layers cannot import runtime)
-- migration ledger freshness and full module coverage
-- API freeze contracts under `apis/*/v1`
-- release matrix inclusion of compatibility and core release packages
-- compatibility import, CLI, and API parity tests
+- lower-layer packages do not import runtime by accident
+- the migration ledger is fresh and covers the full legacy module set
+- tracked API artifacts under `apis/*/v1` still match runtime expectations
+- release matrices still include both canonical runtime and compatibility
+  surfaces where required
+- compatibility import, CLI, and API parity tests still hold
 
-## Coordinated Release Checklist
+## Coordinated Release Order
 
-Use this order for coordinated release readiness:
+1. confirm package metadata and changelog entries for every affected package
+2. run shared repository checks such as `make quality`, `make security`, and
+   `make test`
+3. run `make quality-runtime-migration-validation`
+4. verify release matrix variables and workflow coverage
+5. confirm release language still names `agentic-proteins` as compatibility and
+   `bijux-proteomics-runtime` as the canonical execution owner
 
-1. Confirm package metadata and changelog entries for all impacted packages.
-2. Run repository checks:
-   - `make quality`
-   - `make security`
-   - `make test`
-3. Run migration validation:
-   - `make quality-runtime-migration-validation`
-4. Verify release matrix coverage:
-   - `BIJUX_RELEASE_BUILD_MATRIX_JSON`
-   - `BIJUX_PYPI_PACKAGE_MATRIX_JSON`
-   - `BIJUX_GHCR_RELEASE_PACKAGE_MATRIX_JSON`
-5. Confirm release package language:
-   - `agentic-proteins` as compatibility package
-   - `bijux-proteomics-*` packages as core release packages
-6. Execute release dry-run workflows or controlled tag release.
+## First Proof Check
 
+- `make quality-runtime-migration-validation`
+- release workflow inputs and tracked API artifacts
+- migration ledger outputs under `docs/09-bijux-proteomics-runtime/migration-ledger/`
