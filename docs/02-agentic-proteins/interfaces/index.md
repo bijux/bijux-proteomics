@@ -9,11 +9,16 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section explains which commands, APIs, imports, schemas, and artifacts `agentic-proteins` is prepared to stand behind as real surfaces.
+This section explains which commands, APIs, imports, schemas, and artifacts
+`agentic-proteins` still preserves as compatibility surfaces.
 
-These pages explain the public face of `agentic-proteins`. They help a caller separate deliberate contracts from incidental visibility before a dependency hardens around the wrong surface.
+These pages help a caller separate migration-safe preserved entrypoints from
+incidental visibility. The point is to show what still forwards deliberately
+and what should now send readers to `bijux-proteomics-runtime` instead.
 
-Treat the interfaces pages for `agentic-proteins` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+This section should make compatibility pressure explicit. Readers should leave
+knowing whether they are still depending on a legacy surface, what it forwards
+to, and what kind of review is required before that surface changes.
 
 ## Visual Summary
 
@@ -53,6 +58,26 @@ flowchart LR
 - [Operator Workflows](operator-workflows.md)
 - [Public Imports](public-imports.md)
 - [Compatibility Commitments](compatibility-commitments.md)
+
+## Use This Section When
+
+- you need to know whether a legacy CLI, import, schema, or artifact surface is
+  still preserved
+- you are checking whether a change would break migration-safe caller behavior
+- you need the compatibility contract before updating callers
+
+## Do Not Use This Section When
+
+- the real question is about the canonical runtime interface rather than the
+  preserved legacy alias
+- you are designing a new public surface instead of preserving an old one
+- the concern is structural or operational rather than caller-facing
+
+## Reader Takeaway
+
+This section is about what still forwards safely, not about where new
+dependencies should begin. If a caller can move to the canonical runtime
+surface, that is the preferred long-term answer.
 
 ## Read Across the Package
 
