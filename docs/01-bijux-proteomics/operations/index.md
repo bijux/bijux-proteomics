@@ -16,23 +16,24 @@ find the governing process without blurring package-local behavior into root
 process prose.
 
 ```mermaid
-flowchart LR
-    change["change"]
-    local["local development<br/>make, package tests, docs"]
-    review["review discipline<br/>proof expectations"]
-    automation["automation<br/>workflows and CI"]
-    release["release and versioning"]
-    migration["runtime migration validation"]
-    publish["published artifacts"]
+flowchart TB
+    question["repository operations question"]
+    local["local development"]
+    validation["testing and validation"]
+    review["review expectations"]
+    automation["automation and artifact governance"]
+    release["release and migration checks"]
+    proof["checked operational proof surface"]
 
-    change --> local
-    local --> review
+    question --> local
+    local --> validation
+    validation --> review
     review --> automation
     automation --> release
-    release --> publish
-    automation --> migration
-    migration --> release
+    release --> proof
 ```
+
+This section should move a maintainer from an operational question to the exact proof surface that governs it. If it only lists topics, it leaves readers to reconstruct the workflow themselves.
 
 ## What This Section Is Really About
 
@@ -78,6 +79,10 @@ flowchart LR
 - `.github/workflows/` for shared automation and release orchestration
 - `packages/bijux-proteomics-dev/` when helper code carries the operational
   rule
+
+## Design Pressure
+
+The easy failure is to let repository operations read like a loose catalog instead of a governed sequence from local work to publishable proof.
 
 ## Boundary
 
