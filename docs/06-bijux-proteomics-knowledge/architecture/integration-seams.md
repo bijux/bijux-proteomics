@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Integration Seams
@@ -19,20 +19,28 @@ and where the package expects outside systems to meet it.
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    adapters["adapters.py"]
-    evidence["evidence.py"]
-    claims["claims.py"]
-    resolution["resolution.py"]
-    evidence_graph["graph.py"]
-    review["review.py"]
-    repositories["repositories.py"]
-    adapters --> evidence
-    evidence --> claims
-    claims --> resolution
-    claims --> evidence_graph
-    resolution --> review
-    repositories --> review
+flowchart LR
+    seam1["foundation payload seam"]
+    seam2["intelligence policy seam"]
+    seam3["runtime status seam"]
+    page["bijux-proteomics-knowledge<br/>integration seams"]
+    review1["caller expectations"]
+    review2["contract alignment"]
+    review3["drift checks"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    seam1 --> page
+    seam2 --> page
+    seam3 --> page
+    page --> review1
+    page --> review2
+    page --> review3
+    class page page;
+    class seam1,seam2,seam3 anchor;
+    class review1,review2,review3 action;
 ```
 
 ## Integration Surfaces

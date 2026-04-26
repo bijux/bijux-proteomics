@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # State and Persistence
@@ -21,15 +21,28 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 ## Visual Summary
 
 ```mermaid
-flowchart TD
-    semantic[semantic source] --> typed[typed model]
-    typed --> constrained[schema-constrained form]
-    constrained --> serialized[serialized representation]
-    serialized --> boundary[artifact or transport boundary]
-
-    reread[re-read] --> parse[parse]
-    parse --> validate[validate]
-    validate --> typed
+flowchart LR
+    st1["schema versions"]
+    st2["serialized payloads"]
+    st3["migration records"]
+    page["bijux-proteomics-foundation<br/>state and persistence"]
+    store1["tracked artifacts"]
+    store2["package code"]
+    store3["tests and review"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    st1 --> page
+    st2 --> page
+    st3 --> page
+    page --> store1
+    page --> store2
+    page --> store3
+    class page page;
+    class st1,st2,st3 positive;
+    class store1,store2,store3 anchor;
 ```
 
 ## Durable Surfaces

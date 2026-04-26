@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Module Map
@@ -21,17 +21,28 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    pkg[bijux_proteomics_foundation]
-    pkg --> ids[identity]
-    pkg --> schema[schema and models]
-    pkg --> compat[compatibility]
-    pkg --> ser[serialization]
-    pkg --> utils[support utilities]
-    schema --> records[payload records]
-    schema --> validators[contract validators]
-    compat --> migrations[version translation]
-    ser --> codecs[encoders and decoders]
+flowchart LR
+    m1["schema definitions"]
+    m2["serialization and fingerprints"]
+    m3["identifier and migration helpers"]
+    page["bijux-proteomics-foundation<br/>major module groups"]
+    code1["src/bijux_proteomics_foundation"]
+    code2["tests"]
+    code3["docs"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    m1 --> page
+    m2 --> page
+    m3 --> page
+    page --> code1
+    page --> code2
+    page --> code3
+    class page page;
+    class m1,m2,m3 positive;
+    class code1,code2,code3 anchor;
 ```
 
 ## Major Modules

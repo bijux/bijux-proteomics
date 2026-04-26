@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Architecture
@@ -18,20 +18,28 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 ## Visual Summary
 
 ```mermaid
-mindmap
-  root((Architecture))
-    Structure
-      module map
-      code navigation
-      dependency direction
-    Runtime
-      execution model
-      error model
-      state and persistence
-    Evolution
-      extensibility model
-      integration seams
-      architecture risks
+flowchart LR
+    m1["schema definitions"]
+    m2["serialization and fingerprints"]
+    m3["identifier and migration helpers"]
+    section["Architecture section<br/>structure and execution map"]
+    next1["module map"]
+    next2["execution and seams"]
+    next3["risks and navigation"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    m1 --> section
+    m2 --> section
+    m3 --> section
+    section --> next1
+    section --> next2
+    section --> next3
+    class section page;
+    class m1,m2,m3 positive;
+    class next1,next2,next3 anchor;
 ```
 
 ## Pages in This Section

@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # State and Persistence
@@ -21,35 +21,28 @@ Treat the architecture pages for `agentic-proteins` as a reviewer-facing map of 
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    page["State and Persistence<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
+flowchart LR
+    st1["preserved import paths"]
+    st2["preserved CLI names"]
+    st3["migration metadata"]
+    page["agentic-proteins<br/>state and persistence"]
+    store1["tracked artifacts"]
+    store2["package code"]
+    store3["tests and review"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    module1["durable runtime models"]
-    module1 --> page
-    module2["execution engines and lifecycle logic"]
-    module2 --> page
-    module3["orchestration and replay coordination"]
-    module3 --> page
-    code1["src/agentic_proteins/runtime"]
-    page --> code1
-    code2["src/agentic_proteins/application"]
-    page --> code2
-    code3["src/agentic_proteins/model"]
-    page --> code3
-    pressure1["tests/e2e for governed flow behavior"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/regression and tests/smoke for replay and storage protection"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    pressure3 -.tests whether this structure still holds.-> page
+    st1 --> page
+    st2 --> page
+    st3 --> page
+    page --> store1
+    page --> store2
+    page --> store3
     class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+    class st1,st2,st3 positive;
+    class store1,store2,store3 anchor;
 ```
 
 ## Durable Surfaces

@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Architecture
@@ -19,34 +19,27 @@ Treat the architecture pages for `agentic-proteins` as a reviewer-facing map of 
 
 ```mermaid
 flowchart LR
-    page["Architecture<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
+    m1["forwarding import surface"]
+    m2["legacy CLI bridge"]
+    m3["compatibility verification"]
+    section["Architecture section<br/>structure and execution map"]
+    next1["module map"]
+    next2["execution and seams"]
+    next3["risks and navigation"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    module1["execution lifecycle and orchestration flows"]
-    module1 --> page
-    module2["state, memory, and artifact continuity"]
-    module2 --> page
-    module3["contract and schema protection across API and tools"]
-    module3 --> page
-    code1["src/agentic_proteins/execution and src/agentic_proteins/design_loop"]
-    page --> code1
-    code2["src/agentic_proteins/runtime, src/agentic_proteins/state, src/agentic_proteins/memory"]
-    page --> code2
-    code3["src/agentic_proteins/core, src/agentic_proteins/api, src/agentic_proteins/interfaces"]
-    page --> code3
-    pressure1["tests/api and tests/integration for contract and boundary behavior"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/e2e for governed flow behavior"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/regression for drift detection across execution and memory behavior"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+    m1 --> section
+    m2 --> section
+    m3 --> section
+    section --> next1
+    section --> next2
+    section --> next3
+    class section page;
+    class m1,m2,m3 positive;
+    class next1,next2,next3 anchor;
 ```
 
 ## Pages in This Section

@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Extensibility Model
@@ -21,15 +21,27 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 
 ```mermaid
 flowchart LR
-    core[core contracts] --> schema_ext[schema extension points]
-    core --> compat_ext[compatibility helpers]
-    core --> ser_ext[serialization adapters]
-    schema_ext --> guard1[must preserve canonical shape]
-    compat_ext --> guard2[must preserve version story]
-    ser_ext --> guard3[must remain deterministic]
-    guard1 --> safe[safe extension]
-    guard2 --> safe
-    guard3 --> safe
+    guard1["keep helpers generic"]
+    guard2["preserve shared meaning"]
+    guard3["treat breakage as high-cost"]
+    page["bijux-proteomics-foundation<br/>extensibility model"]
+    ext1["new module"]
+    ext2["new policy hook"]
+    ext3["new integration seam"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    ext1 --> page
+    ext2 --> page
+    ext3 --> page
+    page --> guard1
+    page --> guard2
+    page --> guard3
+    class page page;
+    class ext1,ext2,ext3 anchor;
+    class guard1,guard2,guard3 action;
 ```
 
 ## Likely Extension Areas

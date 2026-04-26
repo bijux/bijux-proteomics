@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Dependency Direction
@@ -21,17 +21,28 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 ## Visual Summary
 
 ```mermaid
-graph LR
-    identifiers[identifiers] --> models[models]
-    models --> schemas[schemas]
-    models --> validation[validation]
-    schemas --> validation
-    models --> serialization[serialization]
-    validation --> exports[public exports]
-    serialization --> exports
-
-    downstream[downstream packages] --> exports
-    exports -. must not depend on downstream .-> downstream
+flowchart LR
+    up1["schema change requests"]
+    up2["compatibility requirements"]
+    up3["determinism constraints"]
+    page["bijux-proteomics-foundation<br/>dependency direction"]
+    down1["core and knowledge consumers"]
+    down2["runtime payload handling"]
+    down3["cross-package compatibility"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    up1 --> page
+    up2 --> page
+    up3 --> page
+    page --> down1
+    page --> down2
+    page --> down3
+    class page page;
+    class up1,up2,up3 anchor;
+    class down1,down2,down3 positive;
 ```
 
 ## Directional Reading Order

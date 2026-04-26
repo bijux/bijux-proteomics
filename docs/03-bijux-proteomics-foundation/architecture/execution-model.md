@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Execution Model
@@ -23,11 +23,27 @@ Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-fac
 
 ```mermaid
 flowchart LR
-    input[raw input] --> parse[parse]
-    parse --> normalize[normalize]
-    normalize --> validate[validate]
-    validate --> typed[materialize typed model]
-    typed --> export[serialize and export]
+    in1["schema change requests"]
+    in2["compatibility requirements"]
+    in3["determinism constraints"]
+    page["bijux-proteomics-foundation<br/>execution model"]
+    out1["core and knowledge consumers"]
+    out2["runtime payload handling"]
+    out3["cross-package compatibility"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    in1 --> page
+    in2 --> page
+    in3 --> page
+    page --> out1
+    page --> out2
+    page --> out3
+    class page page;
+    class in1,in2,in3 anchor;
+    class out1,out2,out3 positive;
 ```
 
 ## Execution Anchors

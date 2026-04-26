@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Architecture
@@ -19,19 +19,27 @@ graph semantics.
 
 ```mermaid
 flowchart LR
-    evidence["evidence.py"]
-    claims["claims.py"]
-    resolution["resolution.py"]
-    review["review.py"]
-    evidence_graph["graph.py"]
-    repositories["repositories.py"]
-    adapters["adapters.py"]
-    evidence --> claims
-    claims --> resolution
-    resolution --> review
-    claims --> evidence_graph
-    repositories --> review
-    adapters --> evidence
+    m1["evidence records"]
+    m2["claim transitions"]
+    m3["trust and contradiction evaluation"]
+    section["Architecture section<br/>structure and execution map"]
+    next1["module map"]
+    next2["execution and seams"]
+    next3["risks and navigation"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    m1 --> section
+    m2 --> section
+    m3 --> section
+    section --> next1
+    section --> next2
+    section --> next3
+    class section page;
+    class m1,m2,m3 positive;
+    class next1,next2,next3 anchor;
 ```
 
 ## Pages in This Section
