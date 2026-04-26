@@ -11,6 +11,23 @@ last_reviewed: 2026-04-26
 
 `bijux-proteomics-knowledge` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
+## Trust Model
+
+```mermaid
+flowchart LR
+    invariants["invariants"]
+    tests["test strategy"]
+    validation["change validation"]
+    risks["risk register and limitations"]
+    decision["trust or block the change"]
+
+    invariants --> tests --> validation --> risks --> decision
+```
+
+This page should frame knowledge quality as canonical evidence pressure. The
+package remains trustworthy when claims, confidence, contradiction handling,
+and review state stay explicit enough for others to consume without guessing.
+
 ## Start With
 
 - open [Invariants](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/invariants/) before changing package meaning
@@ -38,3 +55,9 @@ last_reviewed: 2026-04-26
 - `packages/bijux-proteomics-knowledge/tests`
 - `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
 - `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
+
+## Design Pressure
+
+Knowledge quality weakens when contradiction and uncertainty handling become
+harder to inspect than the claims they protect. The section has to keep truth
+and reviewability linked.
