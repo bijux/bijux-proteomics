@@ -9,72 +9,32 @@ last_reviewed: 2026-04-26
 
 # Quality
 
-Open this section when the question is how `bijux-proteomics-knowledge` earns
-trust: which tests matter, which invariants must survive, what evidence and
-claim behavior needs explicit skepticism, and what counts as enough proof
-before downstream packages should rely on a change.
+`bijux-proteomics-knowledge` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
-This package cannot hide behind a narrow green check. It has to show that
-evidence bundles, claim transitions, contradiction handling, confidence
-summaries, schema compatibility, and serialized artifacts still tell a coherent
-and auditable story.
+## Start With
 
-## Start Here
+- open [Invariants](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/invariants/) before changing package meaning
+- open [Change Validation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/change-validation/) when you need the minimum proof for a real edit
+- open [Risk Register](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/risk-register/) when the package boundary feels under pressure
 
-- open [Test Strategy](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/test-strategy/) for the proof layers that matter most
-  in this package
-- open [Change Validation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/change-validation/) when you need the concrete
-  validation bar for a change
-- open [Known Limitations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/known-limitations/) and [Risk Register](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/risk-register/)
-  before assuming the knowledge layer proves more than it actually does
+## Section Pages
 
-## Pages In This Section
-
-- [Test Strategy](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/test-strategy/)
 - [Invariants](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/invariants/)
-- [Review Checklist](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/review-checklist/)
-- [Documentation Standards](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/documentation-standards/)
+- [Test Strategy](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/test-strategy/)
+- [Change Validation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/change-validation/)
 - [Definition of Done](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/definition-of-done/)
 - [Dependency Governance](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/dependency-governance/)
-- [Change Validation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/change-validation/)
+- [Documentation Standards](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/documentation-standards/)
 - [Known Limitations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/known-limitations/)
+- [Review Checklist](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/review-checklist/)
 - [Risk Register](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/risk-register/)
 
-## Open This Section When
+## What Quality Means Here
 
-- you need to know what evidence should defend a knowledge-state change
-- a review is really about contradiction handling, trust summaries, or schema
-  safety
-- you need to decide whether a result is merely produced or actually justified
+- proving that evidence, claims, confidence, and contradiction handling remain canonical and reviewable
 
-## Open Another Section When
+## First Proof Check
 
-- the main problem is package ownership or boundary confusion
-- you are still locating modules or public contracts
-- the issue is mainly procedural rather than evidentiary
-
-## Concrete Anchors
-
-- `packages/bijux-proteomics-knowledge/tests/test_claims.py`
-- `packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py`
-- `packages/bijux-proteomics-knowledge/tests/test_resolution.py`
-- `packages/bijux-proteomics-knowledge/tests/test_review.py`
-
-## Read Across the Package
-
-- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and trust
-  boundaries
-- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when a proof gap points to
-  structural drift
-- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when the evidence needs to defend an
-  import, schema, or artifact contract
-- open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) when the validation bar depends on
-  a repeatable workflow
-
-## Bottom Line
-
-Open this section to ask whether the knowledge layer earned trust, not whether it
-merely changed state. The real bar is auditable evidence handling, defensible
-claim transitions, stable schema behavior, and explicit limits that remain
-visible after the change.
-
+- `packages/bijux-proteomics-knowledge/tests`
+- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
+- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
