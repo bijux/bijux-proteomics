@@ -9,10 +9,10 @@ last_reviewed: 2026-04-26
 
 # Repository Handbook
 
-This section is for the questions that no single package can answer on its
-own. The root is not a sixth product package. It is where we explain how the
-package family fits together, which assets genuinely live above one package,
-and where cross-package rules begin and end.
+Use this handbook for questions that no single package can answer on its own.
+The root is not a sixth product package. It explains how the package family
+fits together, which assets genuinely live above one package, and where
+cross-package rules begin and end.
 
 If a reader can answer their question honestly from one package handbook, they
 should go there instead of staying here.
@@ -47,20 +47,20 @@ flowchart LR
 
 ## Start Here
 
-- open [Foundation](foundation/index.md) when the question is why the package
+- use [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/) when the question is why the package
   split exists or where authority changes hands
-- open [Operations](operations/index.md) when the question is how repository
+- use [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/) when the question is how repository
   work is validated, released, or reviewed
 - move straight to a product handbook when the real issue is already local to
   one package boundary
-- move to [Maintainer Handbook](../08-bijux-proteomics-maintain/index.md) when
+- move to [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/) when
   the concern is CI, workflow fan-out, generated docs checks, or release
   tooling
 
-## Handbook Sections
+## Pages In This Handbook
 
-- [Foundation](foundation/index.md)
-- [Operations](operations/index.md)
+- [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
+- [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
 
 ## What This Handbook Owns
 
@@ -76,7 +76,7 @@ flowchart LR
 - maintainer-helper implementation detail that belongs in the maintainer
   handbook
 
-## Use This Section For
+## Use This Handbook When
 
 - questions about why the repository is split the way it is
 - questions about root-managed assets such as `apis/`, `Makefile`, shared CI,
@@ -84,7 +84,7 @@ flowchart LR
 - questions about where the root should stop and a product package should take
   over
 
-## Leave This Section For A Package Handbook When
+## Move On When
 
 - the answer lives mostly in one package's source tree, tests, or public
   surface
@@ -95,12 +95,12 @@ flowchart LR
 
 ## Package Handbooks
 
-- [agentic-proteins](../02-agentic-proteins/foundation/index.md)
-- [bijux-proteomics-foundation](../03-bijux-proteomics-foundation/foundation/index.md)
-- [bijux-proteomics-core](../04-bijux-proteomics-core/foundation/index.md)
-- [bijux-proteomics-intelligence](../05-bijux-proteomics-intelligence/foundation/index.md)
-- [bijux-proteomics-knowledge](../06-bijux-proteomics-knowledge/foundation/index.md)
-- [bijux-proteomics-lab](../07-bijux-proteomics-lab/foundation/index.md)
+- [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/)
+- [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
+- [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/)
+- [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/)
+- [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
+- [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/)
 
 ## Concrete Anchors
 
