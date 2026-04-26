@@ -49,15 +49,15 @@ flowchart LR
 
 ## Start Here
 
-- use [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the concern
+- open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the concern
   is helper code, schema drift, docs integrity, release support, or policy
   enforcement
-- use [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/) when the concern starts from a shared command,
+- open [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/) when the concern starts from a shared command,
   package dispatch path, or CI target family
-- use [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the issue starts from a
+- open [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the issue starts from a
   GitHub event, failed job tree, or publication trigger
 
-## Pages In This Handbook
+## Pages In Maintainer Handbook
 
 - [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
 - [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/)
@@ -88,11 +88,11 @@ flowchart LR
 
 ## Choose A Section
 
-- use [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the concern is
+- open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the concern is
   helper code, schema drift, release support, or repository-health checks
-- use [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/) when the concern is a shared command surface,
+- open [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/) when the concern is a shared command surface,
   package dispatch, or CI target family
-- use [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the concern is GitHub Actions
+- open [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the concern is GitHub Actions
   triggers, job trees, or docs and release publication
 
 ## Concrete Anchors

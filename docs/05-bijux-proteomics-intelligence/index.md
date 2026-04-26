@@ -62,18 +62,18 @@ flowchart LR
 - you are expecting this package to settle biology or laboratory truth on its
   own
 
-## Main Paths
+## Package Sections
 
-- [Foundation](foundation/index.md)
-- [Architecture](architecture/index.md)
-- [Interfaces](interfaces/index.md)
-- [Operations](operations/index.md)
-- [Quality](quality/index.md)
+- [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/)
+- [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
+- [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/)
+- [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/)
+- [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/)
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-knowledge](../06-bijux-proteomics-knowledge/index.md) when the real disagreement is about evidence or trust state
-- move to [bijux-proteomics-core](../04-bijux-proteomics-core/index.md) when the rule belongs in a durable contract rather than a ranking policy
+- move to [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the real disagreement is about evidence or trust state
+- move to [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the rule belongs in a durable contract rather than a ranking policy
 - stay here when you need to understand why one candidate or path was recommended over another
 
 ## What This Package Clarifies
@@ -94,7 +94,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use this page when the unresolved question is why a recommendation was made.
+Open this page when the unresolved question is why a recommendation was made.
 If the answer depends on evidence truth, durable contract meaning, or run
 execution rather than on policy and explanation, intelligence should hand you
 to the correct package instead of pretending to own the whole story.

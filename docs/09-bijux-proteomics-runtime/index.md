@@ -10,7 +10,7 @@ last_reviewed: 2026-04-26
 # Runtime Handbook
 
 `bijux-proteomics-runtime` is the execution layer for the proteomics package
-family. Use this handbook when you need to understand how work runs, how
+family. Open this handbook when you need to understand how work runs, how
 operators and services invoke that work, and how runs remain inspectable and
 reproducible. It does not own the scientific meaning of proteins, evidence,
 scoring, or lab planning.
@@ -124,6 +124,6 @@ runtime-agnostic.
 
 ## Reader Takeaway
 
-Use this handbook when the unresolved question is how proteomics work becomes a
+Open this handbook when the unresolved question is how proteomics work becomes a
 real run. Runtime should compose lower packages and make execution inspectable;
 it should not quietly absorb the domain meaning that those packages already own.

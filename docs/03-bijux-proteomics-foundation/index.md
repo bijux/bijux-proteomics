@@ -62,18 +62,18 @@ flowchart LR
 - you are treating this package as a generic utility layer instead of as a
   contract layer
 
-## Main Paths
+## Package Sections
 
-- [Foundation](foundation/index.md)
-- [Architecture](architecture/index.md)
-- [Interfaces](interfaces/index.md)
-- [Operations](operations/index.md)
-- [Quality](quality/index.md)
+- [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
+- [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)
+- [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/)
+- [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/)
+- [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/)
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-core](../04-bijux-proteomics-core/index.md) when the concern becomes program or lifecycle behavior
-- move to [bijux-proteomics-runtime](../09-bijux-proteomics-runtime/index.md) when the concern becomes execution or replay
+- move to [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the concern becomes program or lifecycle behavior
+- move to [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the concern becomes execution or replay
 - stay here when the real question is whether shared payload meaning changed
 
 ## What This Package Clarifies
@@ -95,7 +95,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use this page when the unresolved question is whether proteomics packages still
+Open this page when the unresolved question is whether proteomics packages still
 mean the same thing when they exchange payloads. If the answer depends on
 policy, workflow, or execution rather than on shared meaning, another package
 owns the decision.

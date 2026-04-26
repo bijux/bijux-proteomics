@@ -61,23 +61,23 @@ flowchart LR
 - you are trying to smuggle downstream policy into a layer that should stay
   contract-focused
 
-## Main Paths
+## Package Sections
 
-- [Foundation](foundation/index.md)
-- [Architecture](architecture/index.md)
-- [Interfaces](interfaces/index.md)
-- [Operations](operations/index.md)
-- [Quality](quality/index.md)
+- [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/)
+- [Architecture](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)
+- [Interfaces](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/)
+- [Operations](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/)
+- [Quality](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/)
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-foundation](../03-bijux-proteomics-foundation/index.md) when shared payload meaning is the real issue
-- move to [bijux-proteomics-intelligence](../05-bijux-proteomics-intelligence/index.md) when the question becomes ranking or recommendation policy
+- move to [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/) when shared payload meaning is the real issue
+- move to [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking or recommendation policy
 - stay here when you need to know whether a rule is part of the durable contract or just a downstream policy choice
 
 ## What This Package Clarifies
 
-- which proteomics rules are supposed to stay stable across downstream package
+- which proteomics rules stay stable across downstream package
   disagreements
 - how lifecycle, gate, and readiness logic is separated from policy layers
 - where execution-facing contracts stop being runtime details and start being
@@ -94,7 +94,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use this page when the unresolved question is whether a rule belongs in the
+Open this page when the unresolved question is whether a rule belongs in the
 durable program contract or in a downstream policy package. If the answer
 depends on evidence judgment, ranking preference, or lab tactics rather than on
 shared contract obligations, core should not quietly absorb it.

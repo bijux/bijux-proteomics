@@ -80,19 +80,19 @@ flowchart LR
 - the real question is how promoted evidence changes trust or contradiction
   state
 
-## Main Paths
+## Package Sections
 
-- [Foundation](foundation/index.md)
-- [Architecture](architecture/index.md)
-- [Interfaces](interfaces/index.md)
-- [Operations](operations/index.md)
-- [Quality](quality/index.md)
+- [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/)
+- [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/)
+- [Interfaces](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/)
+- [Operations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/)
+- [Quality](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/)
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-intelligence](../05-bijux-proteomics-intelligence/index.md) when the unresolved question is recommendation policy
-- move to [bijux-proteomics-knowledge](../06-bijux-proteomics-knowledge/index.md) when the unresolved question is evidence or contradiction state after an assay
-- move to [bijux-proteomics-runtime](../09-bijux-proteomics-runtime/index.md)
+- move to [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the unresolved question is recommendation policy
+- move to [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the unresolved question is evidence or contradiction state after an assay
+- move to [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
   when the unresolved question is run orchestration, operator entrypoints, or
   runtime artifacts
 - stay here when the real concern is how work is scheduled, rerun, or promoted after execution
@@ -110,7 +110,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Come here when the unresolved question is how proteomics work crosses the line
+Open this page when the unresolved question is how proteomics work crosses the line
 from recommended to executable, and how assay results re-enter the next cycle.
 If the question is really about meaning before planning or meaning after
 promotion, the canonical owner is a neighboring package, not this one.

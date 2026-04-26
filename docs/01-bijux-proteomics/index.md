@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Repository Handbook
 
-Use this handbook for questions that no single package can answer on its own.
+Open this handbook for questions that no single package can answer on its own.
 The root is not a sixth product package. It explains how the package family
 fits together, which assets genuinely live above one package, and where
 cross-package rules begin and end.
@@ -47,9 +47,9 @@ flowchart LR
 
 ## Start Here
 
-- use [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/) when the question is why the package
+- open [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/) when the question is why the package
   split exists or where authority changes hands
-- use [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/) when the question is how repository
+- open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/) when the question is how repository
   work is validated, released, or reviewed
 - move straight to a product handbook when the real issue is already local to
   one package boundary
@@ -57,7 +57,7 @@ flowchart LR
   the concern is CI, workflow fan-out, generated docs checks, or release
   tooling
 
-## Pages In This Handbook
+## Pages In Repository Handbook
 
 - [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
 - [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)

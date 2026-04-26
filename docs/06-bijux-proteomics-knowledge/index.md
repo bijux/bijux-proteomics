@@ -10,7 +10,7 @@ last_reviewed: 2026-04-26
 # bijux-proteomics-knowledge
 
 `bijux-proteomics-knowledge` is the evidence and claim package in
-`bijux-proteomics`. Use this handbook when the question is about evidence
+`bijux-proteomics`. Open this handbook when the question is about evidence
 quality, claim state transitions, contradiction resolution, trust
 scoring, or readiness summaries consumed by downstream decision layers.
 
@@ -48,13 +48,13 @@ flowchart LR
 
 ## Start Here
 
-- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) when the question is why the
+- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) when the question is why the
   knowledge layer exists or where its boundary stops
-- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when you need the
+- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when you need the
   module map for evidence, claims, resolution, and review behavior
-- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when the question is
+- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when the question is
   about imports, schemas, payloads, or review artifacts
-- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the issue is whether the
+- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the issue is whether the
   current knowledge state is defended strongly enough to trust
 
 ## Use This Section When
@@ -72,7 +72,7 @@ flowchart LR
 - you are expecting this package to make policy decisions instead of to record
   and justify evidence state
 
-## Pages In This Handbook
+## Pages In Knowledge Handbook
 
 - [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
 - [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)
@@ -105,7 +105,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use this page when the unresolved question is what the system currently knows
+Open this page when the unresolved question is what the system currently knows
 and how well it can justify that state. If the answer depends on choosing a
 path, scheduling an assay, or executing a run rather than on recording and
 auditing evidence, another package owns the next step.

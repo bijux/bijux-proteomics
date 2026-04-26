@@ -53,10 +53,10 @@ flowchart LR
     class legacyImport action;
 ```
 
-- open [bijux-proteomics-runtime](../09-bijux-proteomics-runtime/index.md)
+- open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
   when the question is about current execution behavior, providers, API, or
   CLI ownership
-- open [Repository Handbook](../01-bijux-proteomics/index.md) when the real
+- open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the real
   question is migration policy, release policy, or repository-wide governance
 - stay here only while the unresolved question is about preserved legacy names
   and the proof bar for keeping them
@@ -87,18 +87,18 @@ flowchart LR
 - you need current runtime operation or API behavior rather than legacy naming
 - you are looking for biological, evidence, or scoring semantics directly
 
-## Main Paths
+## Package Sections
 
-- [Foundation](foundation/index.md)
-- [Architecture](architecture/index.md)
-- [Interfaces](interfaces/index.md)
-- [Operations](operations/index.md)
-- [Quality](quality/index.md)
+- [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/)
+- [Architecture](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/)
+- [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/)
+- [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/)
+- [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/)
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-runtime](../09-bijux-proteomics-runtime/index.md) when the question is about current runtime behavior
-- move to [Repository Handbook](../01-bijux-proteomics/index.md) when the question is about migration policy or repository-wide release rules
+- move to [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the question is about current runtime behavior
+- move to [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the question is about migration policy or repository-wide release rules
 - stay here only while the question is about preserved legacy surfaces and their retirement bar
 
 ## Concrete Anchors
