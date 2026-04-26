@@ -77,6 +77,6 @@ contracts that keep the loop deterministic?"
 
 ## Bottom Line
 
-Use the architecture section when you need a file-level map of the lab loop.
+Open the architecture section when you need a file-level map of the lab loop.
 If a change makes it harder to explain why one of these files owns its current
 responsibility, the design is drifting even if the code still passes.

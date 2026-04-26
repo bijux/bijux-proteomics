@@ -14,15 +14,15 @@ last_reviewed: 2026-04-26
 scoring, portfolio ordering, scenario evaluation, or explainability
 outputs used to advance or redesign programs.
 
-Use this section to distinguish decision policy from the lower-layer contracts
-it depends on. Intelligence turns evidence and program constraints into
+This package separates decision policy from the lower-layer contracts it
+depends on. Intelligence turns evidence and program constraints into
 inspectable recommendations; it does not define the shared payload model or
 the execution machinery itself.
 
-This page shows that the package is where proteomics policy becomes an
-inspectable recommendation: candidates are scored, scenarios are compared,
-outcomes are summarized, and explanations are produced without pretending that
-the package also owns evidence truth or execution.
+This package is where proteomics policy becomes an inspectable
+recommendation: candidates are scored, scenarios are compared, outcomes are
+summarized, and explanations are produced without pretending that the package
+also owns evidence truth or execution.
 
 ## Open This Section When
 
@@ -53,7 +53,7 @@ the package also owns evidence truth or execution.
 - open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the rule belongs in a durable contract rather than a ranking policy
 - stay here when you need to understand why one candidate or path was recommended over another
 
-## What This Package Clarifies
+## What This Package Covers
 
 - where proteomics scoring and ordering policy is actually implemented
 - how scenario comparison and explainability artifacts are produced
@@ -71,7 +71,7 @@ the package also owns evidence truth or execution.
 
 ## Bottom Line
 
-Open this page when the unresolved question is why a recommendation was made.
+Open this page when the question is why a recommendation was made.
 If the answer depends on evidence truth, durable contract meaning, or run
 execution rather than on policy and explanation, intelligence should hand you
 to the correct package instead of pretending to own the whole story.

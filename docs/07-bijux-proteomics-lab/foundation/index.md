@@ -79,7 +79,7 @@ recommendation logic, runtime orchestration, or knowledge promotion?
 
 ## Bottom Line
 
-Open the foundation section to decide whether a question truly belongs to the
-lab package before you spend time in lower-level detail. If the work does not
-change planning, scheduling, rerun, or promotion readiness, it probably belongs
-somewhere else.
+Start with the foundation section when you need to decide whether a question
+truly belongs to the lab package before you spend time in lower-level detail.
+If the work does not change planning, scheduling, rerun, or promotion
+readiness, it probably belongs somewhere else.

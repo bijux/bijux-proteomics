@@ -14,11 +14,9 @@ maintenance work.
 
 Repository health stays inspectable here. Quality gates, schema drift checks, docs integrity checks, release support, and workflow contracts stay readable from checked-in docs instead of being rediscovered through CI logs and shell glue.
 
-This handbook is for work that sits above one product package boundary. It
-helps a maintainer answer a repository-health question quickly without
-mistaking shared automation for product behavior.
-
-This page routes one repository-health question immediately: does the rule live in maintainer helper code, the Make surface, or GitHub automation?
+This handbook covers repository work that sits above any one product package.
+It separates helper code, Make routing, and GitHub automation so
+repository-health rules stay reviewable.
 
 ## Start Here
 
@@ -50,7 +48,7 @@ This page routes one repository-health question immediately: does the rule live 
 - you already know the issue belongs to one package API, CLI, or schema
 - you are trying to understand product semantics rather than repository health
 
-## What This Handbook Clarifies
+## What This Handbook Covers
 
 - which repository-health questions belong to helper code, Make routing, or
   workflow automation
@@ -71,6 +69,6 @@ This page routes one repository-health question immediately: does the rule live 
 
 ## Bottom Line
 
-This handbook makes repository-health work explicit and reviewable. It is not a
-shadow product layer, and it sends readers back to the product package docs as
-soon as the question becomes user-facing behavior.
+Open this handbook when the question is about repository-health behavior above
+one product package. Leave it as soon as the issue becomes user-facing package
+behavior.

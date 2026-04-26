@@ -14,9 +14,8 @@ last_reviewed: 2026-04-26
 entrypoints long enough for callers to move safely to
 `bijux-proteomics-runtime`.
 
-Treat this package as a bridge, not as the center of new development. This
-page shows which preserved surface still exists, where the canonical owner now
-lives, and what proof must exist before the bridge is kept or removed.
+Treat this package as a bridge, not as the center of new development. It keeps
+the preserved surface, the canonical owner, and the retirement bar explicit.
 
 Legacy callers often arrive here first because they still remember the
 old package name. This page routes them quickly from that old
@@ -25,40 +24,13 @@ compatibility burden.
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>why does the old package name still exist?"]
-    legacyImport["legacy import names<br/>Metrics, Report,<br/>low_confidence_segments"]
-    compat["agentic-proteins<br/>strict forwarding bridge"]
-    knowledge["knowledge<br/>confidence ownership"]
-    intelligence["intelligence<br/>report ownership"]
-    runtime["runtime<br/>current execution authority"]
-    review["migration review<br/>keep, migrate, retire"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    reader --> legacyImport
-    legacyImport --> compat
-    compat --> knowledge
-    compat --> intelligence
-    compat -.redirect current runtime questions.-> runtime
-    compat --> review
-    class reader page;
-    class compat caution;
-    class knowledge,intelligence,runtime positive;
-    class review anchor;
-    class legacyImport action;
-```
-
 - open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
   when the question is about current execution behavior, providers, API, or
   CLI ownership
 - open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the real
   question is migration policy, release policy, or repository-wide governance
-- stay here only while the unresolved question is about preserved legacy names
-  and the proof bar for keeping them
+- stay here only while the question is about preserved legacy names and the
+  proof bar for keeping them
 
 ## What This Package Owns
 

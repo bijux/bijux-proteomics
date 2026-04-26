@@ -17,10 +17,9 @@ cross-package contracts that higher layers must respect.
 Core defines the durable program and lifecycle rules, but it does not own
 evidence policy, scoring policy, or lab execution details.
 
-This page shows that the package owns the durable program contract surface:
-assays, targets, constraints, lifecycle states, readiness rules, execution
-contracts, and validation logic that the rest of the stack must obey before it
-adds policy.
+This package owns the durable program contract surface: assays, targets,
+constraints, lifecycle states, readiness rules, execution contracts, and
+validation logic that the rest of the stack must obey before it adds policy.
 
 ## Open This Section When
 
@@ -50,7 +49,7 @@ adds policy.
 - open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking or recommendation policy
 - stay here when you need to know whether a rule is part of the durable contract or just a downstream policy choice
 
-## What This Package Clarifies
+## What This Package Covers
 
 - which proteomics rules stay stable across downstream package
   disagreements
@@ -69,7 +68,7 @@ adds policy.
 
 ## Bottom Line
 
-Open this page when the unresolved question is whether a rule belongs in the
+Open this page when the question is whether a rule belongs in the
 durable program contract or in a downstream policy package. If the answer
 depends on evidence judgment, ranking preference, or lab tactics rather than on
 shared contract obligations, core should not quietly absorb it.

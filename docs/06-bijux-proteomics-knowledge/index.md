@@ -18,10 +18,10 @@ Knowledge owns the recorded evidence and claim state that readers can audit
 later. It is the place to ask what is known, what conflicts, and how much
 trust the system can currently justify.
 
-This page shows that the package is where proteomics evidence becomes an
-auditable state: records are stored, claims are updated, conflicts are
-resolved, trust is summarized, and review can work backward from a
-recommendation to the evidence that supported it.
+This package is where proteomics evidence becomes an auditable state: records
+are stored, claims are updated, conflicts are resolved, trust is summarized,
+and review can work backward from a recommendation to the evidence that
+supported it.
 
 ## Start Here
 
@@ -63,7 +63,7 @@ recommendation to the evidence that supported it.
 - open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) when the concern becomes assay execution or planning
 - stay here when the real issue is whether the current claim state is justified and inspectable
 
-## What This Package Clarifies
+## What This Package Covers
 
 - where evidence records, claim state, contradiction handling, and trust
   summaries are actually owned
@@ -82,7 +82,7 @@ recommendation to the evidence that supported it.
 
 ## Bottom Line
 
-Open this page when the unresolved question is what the system currently knows
+Open this page when the question is what the system currently knows
 and how well it can justify that state. If the answer depends on choosing a
 path, scheduling an assay, or executing a run rather than on recording and
 auditing evidence, another package owns the next step.

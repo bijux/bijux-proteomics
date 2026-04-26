@@ -95,6 +95,6 @@ runtime-agnostic.
 
 ## Bottom Line
 
-Open this handbook when the unresolved question is how proteomics work becomes a
-real run. Runtime should compose lower packages and make execution inspectable;
-it should not quietly absorb the domain meaning that those packages already own.
+Open this handbook when the question is how proteomics work becomes a real
+run. Runtime should compose lower packages and keep execution inspectable; it
+should not quietly absorb the domain meaning those packages already own.

@@ -17,10 +17,10 @@ cross-package rules begin and end.
 If a reader can answer their question honestly from one package handbook, they
 should go there instead of staying here.
 
-The root is a coordination layer, not a shadow owner of product behavior. The
-repository exists to keep several package-level promises moving together
-without letting the root quietly absorb domain, runtime, or lab semantics that
-belong elsewhere.
+The root coordinates package boundaries, shared repository rules, and
+cross-package handoffs. It should explain how the package family fits together
+without quietly absorbing domain, runtime, or lab semantics that belong
+elsewhere.
 
 ## Start Here
 
@@ -88,7 +88,6 @@ belong elsewhere.
 
 ## Bottom Line
 
-This handbook exists to help readers understand the system without letting the
-root pretend it owns behavior that belongs elsewhere. If the current question
-can be answered honestly inside one product handbook, this root should route
-you there instead of trying to keep you.
+Open this handbook to choose the right package or repository-level surface. If
+one product handbook can answer the question honestly, leave the root and use
+that handbook.

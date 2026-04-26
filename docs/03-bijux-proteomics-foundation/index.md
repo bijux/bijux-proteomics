@@ -18,10 +18,9 @@ package family.
 This package stabilizes shared meaning so the higher packages can disagree
 about policy or workflow without disagreeing about what a payload is.
 
-This page shows that the package is not “misc shared utilities.” It is the
-layer that keeps identifiers, schema metadata, migrations, errors, and
-deterministic serialization compatible enough for the rest of the family to
-exchange meaning safely.
+This package is not “misc shared utilities.” It keeps identifiers, schema
+metadata, migrations, errors, and deterministic serialization compatible
+enough for the rest of the family to exchange meaning safely.
 
 ## Open This Section When
 
@@ -51,7 +50,7 @@ exchange meaning safely.
 - open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the concern becomes execution or replay
 - stay here when the real question is whether shared payload meaning changed
 
-## What This Package Clarifies
+## What This Package Covers
 
 - which identifier and schema rules are shared by the whole package family
 - how deterministic serialization is kept compatible enough for review and
@@ -70,7 +69,7 @@ exchange meaning safely.
 
 ## Bottom Line
 
-Open this page when the unresolved question is whether proteomics packages still
+Open this page when the question is whether proteomics packages still
 mean the same thing when they exchange payloads. If the answer depends on
 policy, workflow, or execution rather than on shared meaning, another package
 owns the decision.

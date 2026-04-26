@@ -14,9 +14,8 @@ last_reviewed: 2026-04-26
 batch design, dependency scheduling, rerun strategy, or closed-loop
 transitions from assay observations into next-cycle planning.
 
-This page shows where the repository turns recommended work into executable
-assay batches, and how observed outcomes are promoted back into the next
-decision cycle.
+This package turns recommended work into executable assay batches and promotes
+observed outcomes back into the next decision cycle.
 
 This package is the planning and feedback hinge between recommendation
 logic and the evidence system. It does not decide biological meaning on
@@ -80,7 +79,7 @@ with which gates, and what to do after the outcome lands.
 
 ## Bottom Line
 
-Open this page when the unresolved question is how proteomics work crosses the line
-from recommended to executable, and how assay results re-enter the next cycle.
-If the question is really about meaning before planning or meaning after
-promotion, the canonical owner is a neighboring package, not this one.
+Open this page when the question is how proteomics work crosses the line from
+recommended to executable, and how assay results re-enter the next cycle. If
+the question is really about meaning before planning or meaning after
+promotion, a neighboring package owns it.
