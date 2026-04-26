@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Change Principles
@@ -22,18 +22,28 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 ## Visual Summary
 
 ```mermaid
-flowchart TD
-    proposal["proposed change"] --> q1{"changes package boundary?"}
-    q1 -->|yes| boundary["update ownership and scope docs"]
-    q1 -->|no| q2{"changes contract or payload shape?"}
-    q2 -->|yes| compat["review compatibility and versioning"]
-    q2 -->|no| q3{"internal-only refinement?"}
-    q3 -->|yes| local["keep change local and tested"]
-    q3 -->|no| review["escalate design review"]
-    boundary --> review
-    compat --> review
-    local --> done["merge with proof"]
-    review --> done
+flowchart LR
+    driver1["preserve cross-package meaning"]
+    driver2["keep helpers generic"]
+    driver3["treat breakage as high-cost"]
+    pkg["bijux-proteomics-foundation<br/>change principles"]
+    proof1["code and tests"]
+    proof2["docs and contracts"]
+    proof3["neighboring package review"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    driver1 --> pkg
+    driver2 --> pkg
+    driver3 --> pkg
+    pkg --> proof1
+    pkg --> proof2
+    pkg --> proof3
+    class pkg page;
+    class driver1,driver2,driver3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Principles

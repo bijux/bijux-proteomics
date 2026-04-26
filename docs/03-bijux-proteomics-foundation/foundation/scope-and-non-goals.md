@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Scope and Non-Goals
@@ -22,15 +22,28 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    scope["in scope"] --> s1["canonical schema"]
-    scope --> s2["stable identifiers"]
-    scope --> s3["deterministic serialization"]
-    scope --> s4["compatibility utilities"]
-    nonscope["non-goals"] --> n1["business workflow"]
-    nonscope --> n2["service orchestration"]
-    nonscope --> n3["deployment automation"]
-    nonscope --> n4["package-specific policy"]
+flowchart LR
+    pkg["Scope boundary<br/>for bijux-proteomics-foundation"]
+    own1["schema profiles"]
+    own2["deterministic serialization"]
+    own3["identifier and migration helpers"]
+    out1["program policy"]
+    out2["service orchestration"]
+    out3["package-local ranking rules"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    own1 --> pkg
+    own2 --> pkg
+    own3 --> pkg
+    pkg -.stays outside.-> out1
+    pkg -.stays outside.-> out2
+    pkg -.stays outside.-> out3
+    class pkg page;
+    class own1,own2,own3 positive;
+    class out1,out2,out3 caution;
 ```
 
 ## In Scope

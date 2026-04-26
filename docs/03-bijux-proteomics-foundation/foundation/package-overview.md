@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Package Overview
@@ -24,17 +24,27 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 
 ```mermaid
 flowchart LR
-    inputs[Shared package inputs] --> foundation[Foundation package]
-    foundation --> models[types and models]
-    foundation --> contracts[schemas and contracts]
-    foundation --> ids[identifiers and naming]
-    foundation --> validation[validation primitives]
-    foundation --> imports[stable imports]
-
-    core[core package] --> foundation
-    intelligence[intelligence package] --> foundation
-    knowledge[knowledge package] --> foundation
-    lab[lab package] --> foundation
+    own1["schema profiles"]
+    own2["deterministic serialization"]
+    own3["identifier and migration helpers"]
+    pkg["bijux-proteomics-foundation<br/>durable package role"]
+    handoff1["bijux-proteomics-core"]
+    handoff2["bijux-proteomics-knowledge"]
+    handoff3["bijux-proteomics-runtime"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    own1 --> pkg
+    own2 --> pkg
+    own3 --> pkg
+    pkg --> handoff1
+    pkg --> handoff2
+    pkg --> handoff3
+    class pkg page;
+    class own1,own2,own3 positive;
+    class handoff1,handoff2,handoff3 anchor;
 ```
 
 ## What It Owns

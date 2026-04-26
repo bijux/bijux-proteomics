@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Package Overview
@@ -24,34 +24,27 @@ Treat the foundation pages for `bijux-proteomics-knowledge` as the package's dur
 
 ```mermaid
 flowchart LR
-    page["Package Overview<br/>clarifies: own the right work | name the boundary | compare neighbors"]
+    own1["evidence records"]
+    own2["claim transitions"]
+    own3["trust and contradiction handling"]
+    pkg["bijux-proteomics-knowledge<br/>durable package role"]
+    handoff1["bijux-proteomics-intelligence"]
+    handoff2["bijux-proteomics-lab"]
+    handoff3["bijux-proteomics-runtime"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1["evidence bundle semantics and trust scoring"]
-    own1 --> page
-    own2["claim lifecycle and contradiction resolution logic"]
-    own2 --> page
-    own3["review packet and readiness synthesis"]
-    own3 --> page
-    limit1["runtime orchestration policy"]
-    page -.keeps outside.-> limit1
-    limit2["candidate ranking and assay scheduling policy"]
-    page -.keeps outside.-> limit2
-    limit3["repository tooling and release support"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-knowledge"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-knowledge/tests"]
-    page --> anchor3
-    class page page;
+    own1 --> pkg
+    own2 --> pkg
+    own3 --> pkg
+    pkg --> handoff1
+    pkg --> handoff2
+    pkg --> handoff3
+    class pkg page;
     class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+    class handoff1,handoff2,handoff3 anchor;
 ```
 
 ## What It Owns

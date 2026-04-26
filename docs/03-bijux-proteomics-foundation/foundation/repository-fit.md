@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Repository Fit
@@ -22,19 +22,26 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 ## Visual Summary
 
 ```mermaid
-flowchart TD
-    repo[Repository]
-    repo --> foundation[Foundation package]
-    repo --> core[Core package]
-    repo --> intelligence[Intelligence package]
-    repo --> knowledge[Knowledge package]
-    repo --> lab[Lab package]
-
-    foundation --> shared[shared semantics]
-    core --> foundation
-    intelligence --> foundation
-    knowledge --> foundation
-    lab --> foundation
+flowchart LR
+    root["repository root"]
+    shared["shared docs, CI,<br/>and release rules"]
+    pkg["bijux-proteomics-foundation<br/>owned package boundary"]
+    adj1["bijux-proteomics-core"]
+    adj2["bijux-proteomics-knowledge"]
+    adj3["bijux-proteomics-runtime"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    root --> shared
+    root --> pkg
+    pkg --> adj1
+    pkg --> adj2
+    pkg --> adj3
+    class pkg page;
+    class shared anchor;
+    class adj1,adj2,adj3 positive;
 ```
 
 ## Repository Relationships

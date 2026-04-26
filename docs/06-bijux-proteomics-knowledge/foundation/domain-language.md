@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Domain Language
@@ -18,14 +18,28 @@ messages, and review conversations can describe the same idea without drift.
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    record["evidence record"]
-    bundle["evidence bundle"]
-    claim["evidence claim"]
-    conflict["evidence conflict"]
-    resolution["conflict resolution"]
-    readiness["decision readiness"]
-    record --> bundle --> claim --> conflict --> resolution --> readiness
+flowchart LR
+    term1["claim state"]
+    term2["contradiction"]
+    term3["trust summary"]
+    pkg["bijux-proteomics-knowledge<br/>domain language"]
+    reader1["reviewers"]
+    reader2["developers"]
+    reader3["maintainers"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    term1 --> pkg
+    term2 --> pkg
+    term3 --> pkg
+    pkg --> reader1
+    pkg --> reader2
+    pkg --> reader3
+    class pkg page;
+    class term1,term2,term3 anchor;
+    class reader1,reader2,reader3 positive;
 ```
 
 ## Package Vocabulary Anchors

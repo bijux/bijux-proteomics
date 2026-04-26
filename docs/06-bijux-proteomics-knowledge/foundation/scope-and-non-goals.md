@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Scope and Non-Goals
@@ -22,35 +22,28 @@ Treat the foundation pages for `bijux-proteomics-knowledge` as the package's dur
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    page["Scope and Non-Goals<br/>clarifies: own the right work | name the boundary | compare neighbors"]
+flowchart LR
+    pkg["Scope boundary<br/>for bijux-proteomics-knowledge"]
+    own1["evidence records"]
+    own2["claim transitions"]
+    own3["trust and contradiction handling"]
+    out1["ranking policy"]
+    out2["lab orchestration"]
+    out3["release automation"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1["flow execution authority"]
-    own1 --> page
-    own2["replay and acceptability semantics"]
-    own2 --> page
-    own3["trace capture, runtime persistence, and execution-store behavior"]
-    own3 --> page
-    limit1["agent composition policy"]
-    page -.keeps outside.-> limit1
-    limit2["ingest and index domain ownership"]
-    page -.keeps outside.-> limit2
-    limit3["repository tooling and release support"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-knowledge/tests"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-knowledge"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge"]
-    page --> anchor3
-    class page page;
+    own1 --> pkg
+    own2 --> pkg
+    own3 --> pkg
+    pkg -.stays outside.-> out1
+    pkg -.stays outside.-> out2
+    pkg -.stays outside.-> out3
+    class pkg page;
     class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+    class out1,out2,out3 caution;
 ```
 
 ## In Scope

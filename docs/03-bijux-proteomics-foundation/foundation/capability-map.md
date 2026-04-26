@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Capability Map
@@ -22,11 +22,27 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 
 ```mermaid
 flowchart LR
-    cap1[canonical payload shape] --> mod1[schema models]
-    cap2[stable identity] --> mod2[identity primitives]
-    cap3[deterministic serialization] --> mod3[serialization layer]
-    cap4[version compatibility] --> mod4[migration helpers]
-    cap5[artifact consistency] --> mod5[artifact contracts]
+    cap1["schema profiles"]
+    cap2["deterministic serialization"]
+    cap3["identifier and migration helpers"]
+    pkg["bijux-proteomics-foundation<br/>capability map"]
+    use1["bijux-proteomics-core"]
+    use2["bijux-proteomics-knowledge"]
+    use3["bijux-proteomics-runtime"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    cap1 --> pkg
+    cap2 --> pkg
+    cap3 --> pkg
+    pkg --> use1
+    pkg --> use2
+    pkg --> use3
+    class pkg page;
+    class cap1,cap2,cap3 positive;
+    class use1,use2,use3 anchor;
 ```
 
 ## Capability Map

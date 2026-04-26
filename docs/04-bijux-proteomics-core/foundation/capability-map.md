@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Capability Map
@@ -22,34 +22,27 @@ Treat the foundation pages for `bijux-proteomics-core` as the package's durable 
 
 ```mermaid
 flowchart LR
-    page["Capability Map<br/>clarifies: own the right work | name the boundary | compare neighbors"]
+    cap1["program contracts"]
+    cap2["lifecycle and readiness rules"]
+    cap3["deterministic validation"]
+    pkg["bijux-proteomics-core<br/>capability map"]
+    use1["bijux-proteomics-foundation"]
+    use2["bijux-proteomics-intelligence"]
+    use3["bijux-proteomics-runtime"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1["replay and acceptability semantics"]
-    own1 --> page
-    own2["trace capture, runtime persistence, and execution-store behavior"]
-    own2 --> page
-    own3["flow execution authority"]
-    own3 --> page
-    limit1["repository tooling and release support"]
-    page -.keeps outside.-> limit1
-    limit2["agent composition policy"]
-    page -.keeps outside.-> limit2
-    limit3["ingest and index domain ownership"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-core/tests"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-core"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-core/src/bijux_proteomics"]
-    page --> anchor3
-    class page page;
-    class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+    cap1 --> pkg
+    cap2 --> pkg
+    cap3 --> pkg
+    pkg --> use1
+    pkg --> use2
+    pkg --> use3
+    class pkg page;
+    class cap1,cap2,cap3 positive;
+    class use1,use2,use3 anchor;
 ```
 
 ## Capability Map

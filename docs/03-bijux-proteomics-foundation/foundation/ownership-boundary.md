@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Ownership Boundary
@@ -22,16 +22,27 @@ Treat the foundation pages for `bijux-proteomics-foundation` as the package's du
 
 ```mermaid
 flowchart LR
-    own[Owned by foundation] --> a1[shared types]
-    own --> a2[schemas]
-    own --> a3[identifier forms]
-    own --> a4[validation primitives]
-    own --> a5[stable imports]
-
-    not_owned[Not owned by foundation] --> b1[execution orchestration]
-    not_owned --> b2[domain scoring]
-    not_owned --> b3[lab workflows]
-    not_owned --> b4[repo-wide automation]
+    own1["schema profiles"]
+    own2["deterministic serialization"]
+    own3["identifier and migration helpers"]
+    boundary["Ownership boundary<br/>for bijux-proteomics-foundation"]
+    handoff1["bijux-proteomics-core"]
+    handoff2["bijux-proteomics-knowledge"]
+    handoff3["bijux-proteomics-runtime"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    own1 --> boundary
+    own2 --> boundary
+    own3 --> boundary
+    boundary --> handoff1
+    boundary --> handoff2
+    boundary --> handoff3
+    class boundary page;
+    class own1,own2,own3 positive;
+    class handoff1,handoff2,handoff3 caution;
 ```
 
 ## Owned Code Areas

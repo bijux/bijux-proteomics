@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Change Principles
@@ -22,35 +22,28 @@ Treat the foundation pages for `bijux-proteomics-core` as the package's durable 
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Change Principles<br/>clarifies: own the right work | name the boundary | compare neighbors"]
+flowchart LR
+    driver1["keep rules explicit"]
+    driver2["avoid policy drift"]
+    driver3["prove every contract change"]
+    pkg["bijux-proteomics-core<br/>change principles"]
+    proof1["code and tests"]
+    proof2["docs and contracts"]
+    proof3["neighboring package review"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1["trace capture, runtime persistence, and execution-store behavior"]
-    own1 --> page
-    own2["flow execution authority"]
-    own2 --> page
-    own3["replay and acceptability semantics"]
-    own3 --> page
-    limit1["ingest and index domain ownership"]
-    page -.keeps outside.-> limit1
-    limit2["repository tooling and release support"]
-    page -.keeps outside.-> limit2
-    limit3["agent composition policy"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/bijux-proteomics-core/src/bijux_proteomics"]
-    page --> anchor1
-    anchor2["packages/bijux-proteomics-core/tests"]
-    page --> anchor2
-    anchor3["packages/bijux-proteomics-core"]
-    page --> anchor3
-    class page page;
-    class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+    driver1 --> pkg
+    driver2 --> pkg
+    driver3 --> pkg
+    pkg --> proof1
+    pkg --> proof2
+    pkg --> proof3
+    class pkg page;
+    class driver1,driver2,driver3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Principles
