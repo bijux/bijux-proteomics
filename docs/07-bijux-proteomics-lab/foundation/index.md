@@ -9,37 +9,41 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-This section explains why `bijux-proteomics-lab` exists, what it owns on purpose, and where its boundary stops.
+This section explains why `bijux-proteomics-lab` exists, what it owns on
+purpose, and where its boundary stops.
 
-Read this section first when you need the durable package story before code detail. A quick skim should make the role, the boundary, and the neighboring seams legible.
+Read this section first when you need the durable package story before code
+detail. A quick skim should make the role, the boundary, and the neighboring
+seams legible.
 
-Treat the foundation pages for `bijux-proteomics-lab` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+The foundation pages should answer one hard question quickly: why does a
+separate lab package exist at all, instead of burying this behavior inside
+recommendation logic, runtime orchestration, or knowledge promotion?
 
-## Visual Summary
+## Start Here
 
 ```mermaid
 flowchart LR
-    own1["batch planning"]
-    own2["dependency scheduling"]
-    own3["outcome promotion"]
-    section["Foundation section<br/>package role and boundary"]
-    next1["Architecture"]
-    next2["Interfaces"]
-    next3["Operations and Quality"]
+    question["reader question<br/>why is there a dedicated lab package?"]
+    pressure["candidate pressure,<br/>review gates, material limits"]
+    section["Foundation<br/>role, boundary, non-goals"]
+    planning["planning and scheduling<br/>belong here"]
+    outcomes["outcome triage and<br/>promotion readiness<br/>belong here"]
+    neighbors["recommendation policy,<br/>runtime control, evidence meaning<br/>belong elsewhere"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1 --> section
-    own2 --> section
-    own3 --> section
-    section --> next1
-    section --> next2
-    section --> next3
-    class section page;
-    class own1,own2,own3 positive;
-    class next1,next2,next3 anchor;
+    question --> pressure
+    pressure --> section
+    section --> planning
+    section --> outcomes
+    section --> neighbors
+    class question page;
+    class section anchor;
+    class planning,outcomes positive;
+    class neighbors caution;
 ```
 
 ## Pages in This Section
@@ -54,55 +58,54 @@ flowchart LR
 - [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
 - [Change Principles](change-principles.md)
 
-## Read Across the Package
+## What This Section Clarifies
 
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- why planning, scheduling, rerun policy, and promotion readiness belong
+  together in one package
+- where this package stops and neighboring package ownership begins
+- which vocabulary and lifecycle stages reviewers should treat as deliberate
+  package concepts rather than incidental implementation detail
 
-## Concrete Anchors
-
-- `packages/bijux-proteomics-lab` as the package root
-- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab` as the import boundary
-- `packages/bijux-proteomics-lab/tests` as the package proof surface
-
-## Use This Page When
+## Use This Section When
 
 - you need the package idea before the implementation detail
 - you are deciding whether work belongs here or in a neighboring package
 - you want the shortest honest explanation of what this package is for
 
-## Decision Rule
+## Do Not Use This Section When
 
-Use `Foundation` to decide whether a change makes `bijux-proteomics-lab` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
+- the boundary question is already settled and you now need module-level
+  structure
+- the real question is what callers can rely on at the import, schema, or
+  artifact level
+- the real question is whether the package has enough proof for a change
 
-## What This Page Answers
+## Read Across the Package
 
-- what problem `bijux-proteomics-lab` is supposed to own on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before the boundary is changed
+- [Architecture](../architecture/index.md) when the question becomes how the
+  package is organized internally
+- [Interfaces](../interfaces/index.md) when the question becomes which imports,
+  artifacts, and schemas callers may trust
+- [Operations](../operations/index.md) when the question becomes how planning
+  and outcome workflows are repeated in practice
+- [Quality](../quality/index.md) when the question becomes what evidence proves
+  the package contract still holds
 
-## Reviewer Lens
+## Concrete Anchors
 
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py` for
+  the batch-planning and scheduling boundary
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py` for
+  the outcome-triage and promotion-readiness boundary
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/repositories.py` for
+  review-queue and feedback persistence contracts
+- `packages/bijux-proteomics-lab/tests/test_experiment_planner.py` and
+  `packages/bijux-proteomics-lab/tests/test_outcomes.py` for executable proof
+  that the boundary is real
 
-## Honesty Boundary
+## Reader Takeaway
 
-This page can explain the intended boundary of `bijux-proteomics-lab`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
-
-## Next Checks
-
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
-
-## Purpose
-
-This page explains how to use the foundation section for `bijux-proteomics-lab` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+Use the foundation section to decide whether a question truly belongs to the
+lab package before you spend time in lower-level detail. If the work does not
+change planning, scheduling, rerun, or promotion readiness, it probably belongs
+somewhere else.
