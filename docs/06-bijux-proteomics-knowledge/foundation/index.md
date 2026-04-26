@@ -43,24 +43,24 @@ flowchart LR
 
 ## Start Here
 
-- open [Package Overview](package-overview.md) for the shortest statement of
+- use [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/) for the shortest statement of
   the package role
-- open [Ownership Boundary](ownership-boundary.md) when the question is whether
+- use [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/) when the question is whether
   logic belongs in foundation, intelligence, lab, or runtime
-- open [Lifecycle Overview](lifecycle-overview.md) when you need the path from
+- use [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/) when you need the path from
   evidence ingestion to auditable readiness output
 
-## Pages In This Section
+## Pages In Foundation
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Ownership Boundary](ownership-boundary.md)
-- [Repository Fit](repository-fit.md)
-- [Capability Map](capability-map.md)
-- [Domain Language](domain-language.md)
-- [Lifecycle Overview](lifecycle-overview.md)
-- [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
-- [Change Principles](change-principles.md)
+- [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/scope-and-non-goals/)
+- [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/repository-fit/)
+- [Capability Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/capability-map/)
+- [Domain Language](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/domain-language/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/)
+- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/dependencies-and-adjacencies/)
+- [Change Principles](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/change-principles/)
 
 ## Use This Section When
 
@@ -70,7 +70,7 @@ flowchart LR
 - a reader needs one page that explains why the knowledge layer exists without
   reading the whole handbook
 
-## Do Not Use This Section When
+## Move On When
 
 - the main question is where a module or import surface lives
 - you are deciding whether a schema, artifact, or import is a supported
@@ -79,13 +79,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Architecture](../architecture/index.md) for module groups, execution
+- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for module groups, execution
   flow, and persistence seams
-- open [Interfaces](../interfaces/index.md) for schemas, serialization,
+- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for schemas, serialization,
   artifacts, and import contracts
-- open [Operations](../operations/index.md) for package workflows, diagnostics,
+- use [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for package workflows, diagnostics,
   and release procedures
-- open [Quality](../quality/index.md) for proof surfaces, invariants, and
+- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for proof surfaces, invariants, and
   limits
 
 ## Concrete Anchors
@@ -100,7 +100,8 @@ flowchart LR
 shared payload meaning stable, knowledge records and evaluates evidence state,
 intelligence chooses among options, and lab turns chosen work into outcomes.
 
-## Purpose
+## What You Get
 
-This page introduces the knowledge foundation handbook and routes readers to
-the pages that explain purpose, scope, vocabulary, lifecycle, and boundaries.
+This page gives you the purpose, scope, vocabulary, lifecycle, and boundary
+route into `bijux-proteomics-knowledge` before you move on to structure,
+contracts, operations, or proof.
