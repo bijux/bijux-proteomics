@@ -44,25 +44,25 @@ flowchart LR
 
 ## Start Here
 
-- open [Installation and Setup](installation-and-setup.md) for environment and
+- use [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/) for environment and
   package bootstrap expectations
-- open [Common Workflows](common-workflows.md) when you need the normal package
+- use [Common Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/common-workflows/) when you need the normal package
   edit-and-validate path
-- open [Observability and Diagnostics](observability-and-diagnostics.md) or
-  [Failure Recovery](failure-recovery.md) when evidence state or review output
+- use [Observability and Diagnostics](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/observability-and-diagnostics/) or
+  [Failure Recovery](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/failure-recovery/) when evidence state or review output
   is behaving unexpectedly
 
-## Pages In This Section
+## Pages In Operations
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/)
+- [Local Development](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/local-development/)
+- [Common Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/common-workflows/)
+- [Observability and Diagnostics](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/observability-and-diagnostics/)
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/performance-and-scaling/)
+- [Failure Recovery](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/failure-recovery/)
+- [Release and Versioning](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/release-and-versioning/)
+- [Security and Safety](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/security-and-safety/)
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/deployment-boundaries/)
 
 ## Use This Section When
 
@@ -72,7 +72,7 @@ flowchart LR
   output
 - you need to know which workflow keeps downstream evidence consumers safe
 
-## Do Not Use This Section When
+## Move On When
 
 - the main question is package purpose or ownership
 - you are still deciding whether an import or payload shape is a contract
@@ -87,12 +87,12 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) for package boundary and scope
-- open [Architecture](../architecture/index.md) when a workflow problem points
+- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package boundary and scope
+- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when a workflow problem points
   to a structural seam
-- open [Interfaces](../interfaces/index.md) when an operational path depends on
+- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when an operational path depends on
   a schema, import, or artifact contract
-- open [Quality](../quality/index.md) when the real question becomes whether a
+- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the real question becomes whether a
   change has been validated hard enough
 
 ## Reader Takeaway
@@ -101,8 +101,8 @@ Use `Operations` to find workflows a maintainer can rerun and defend. If a
 procedure cannot show how it protects schema compatibility, evidence state, and
 review output, it is not ready to serve as the package’s operating memory.
 
-## Purpose
+## What You Get
 
-This page introduces the knowledge operations handbook and routes readers to
-the pages that explain setup, workflows, diagnostics, release, and safety
-procedures.
+This page gives you the setup, workflow, diagnostics, release, and safety
+route through `bijux-proteomics-knowledge` before you open a specific
+operating page.
