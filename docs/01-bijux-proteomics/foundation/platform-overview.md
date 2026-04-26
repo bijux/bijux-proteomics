@@ -15,6 +15,29 @@ decision policy, lab planning, and execution are owned in different places.
 The split is not presentation polish. It is how the repository keeps authority
 visible.
 
+## Platform Model
+
+```mermaid
+flowchart LR
+    foundation["foundation"]
+    core["core"]
+    knowledge["knowledge"]
+    intelligence["intelligence"]
+    lab["lab"]
+    runtime["runtime"]
+    bridge["agentic-proteins"]
+
+    foundation --> core
+    foundation --> knowledge
+    core --> intelligence
+    knowledge --> intelligence
+    intelligence --> lab
+    runtime --> lab
+    bridge -. forwards to .-> runtime
+```
+
+This page should give the shortest honest explanation of the package chain. Readers should leave understanding why the split exists and how authority moves through it, not just memorizing package names.
+
 ## Responsibility Chain
 
 - `bijux-proteomics-foundation` stabilizes schema meaning, identifiers, and
@@ -43,3 +66,7 @@ without guessing which layer silently owns the decision.
 - product handbooks under `docs/02-...` through `docs/09-...`
 - `packages/` for the matching package directories
 - package tests and schema artifacts once one layer clearly owns the claim
+
+## Design Pressure
+
+The easy mistake is to explain the package family as a catalog of parts instead of an authority chain that keeps trust decisions legible.
