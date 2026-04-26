@@ -44,24 +44,24 @@ flowchart LR
 
 ## Start Here
 
-- open [Module Map](module-map.md) for the shortest route from filenames to
+- use [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/) for the shortest route from filenames to
   owned behavior
-- open [Execution Model](execution-model.md) when you need the flow from
+- use [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/) when you need the flow from
   ingested evidence to reviewed knowledge state
-- open [State and Persistence](state-and-persistence.md) when the question is
+- use [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/) when the question is
   which records, repositories, or summaries become durable
 
-## Pages In This Section
+## Pages In Architecture
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/)
+- [Dependency Direction](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/dependency-direction/)
+- [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/)
+- [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/)
+- [Integration Seams](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/integration-seams/)
+- [Error Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/error-model/)
+- [Extensibility Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/extensibility-model/)
+- [Code Navigation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/code-navigation/)
+- [Architecture Risks](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/architecture-risks/)
 
 ## Use This Section When
 
@@ -70,7 +70,7 @@ flowchart LR
 - you need to explain how evidence, claims, resolution, and review structure
   relate
 
-## Do Not Use This Section When
+## Move On When
 
 - the main question is why the package owns the behavior at all
 - you are deciding whether a schema, import, or artifact is a public contract
@@ -78,12 +78,12 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) for package purpose and ownership
-- open [Interfaces](../interfaces/index.md) for import, schema, serialization,
+- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
+- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for import, schema, serialization,
   and artifact contracts
-- open [Operations](../operations/index.md) for workflow, diagnostics, and
+- use [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflow, diagnostics, and
   release procedures
-- open [Quality](../quality/index.md) for invariants, tests, and structure-risk
+- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for invariants, tests, and structure-risk
   pressure
 
 ## Concrete Anchors
@@ -104,8 +104,8 @@ responsibilities. If evidence storage, claim semantics, contradiction handling,
 and review output start blending together, the package becomes harder to trust
 as an auditable state layer.
 
-## Purpose
+## What You Get
 
-This page introduces the knowledge architecture handbook and routes readers to
-the pages that explain module groups, dependency direction, execution flow, and
-durable state.
+This page gives you the module, dependency, execution, and durable-state route
+through `bijux-proteomics-knowledge` before you inspect a specific structural
+topic.
