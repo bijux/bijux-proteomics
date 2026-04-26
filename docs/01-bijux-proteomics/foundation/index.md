@@ -19,24 +19,22 @@ that question is unresolved, the rest of the handbook will only restate the
 same confusion in smaller pieces.
 
 ```mermaid
-flowchart LR
-    monolith["one large package<br/>fast local convenience<br/>blurred ownership"]
-    discipline["family of packages<br/>slower boundary decisions<br/>clear accountability"]
-    meaning["shared meaning"]
-    rules["durable rules"]
-    evidence["evidence state"]
-    judgment["decision policy"]
-    assay["lab action"]
-    execution["runtime control"]
+flowchart TB
+    question["cross-package question"]
+    platform["platform overview"]
+    package["package map"]
+    ownership["ownership model"]
+    rules["decision rules"]
+    handoff["handoff to the true owner"]
 
-    monolith -. drifts into .-> monolith
-    discipline --> meaning
-    discipline --> rules
-    discipline --> evidence
-    discipline --> judgment
-    discipline --> assay
-    discipline --> execution
+    question --> platform
+    platform --> package
+    package --> ownership
+    ownership --> rules
+    rules --> handoff
 ```
+
+This section should move a reader from system-level confusion to a package-level owner without making them guess which page settles what. If the foundation pages cannot do that, the rest of the handbook only spreads the confusion into smaller fragments.
 
 ## Why This Section Matters
 
@@ -81,6 +79,10 @@ flowchart LR
 - `docs/` for the handbook split mirroring those seams
 - root process surfaces such as `Makefile`, `makes/`, and `apis/` when a claim
   truly sits above one package
+
+## Design Pressure
+
+The easy failure is to keep the root foundation section descriptive but not decisive, which leaves readers with theory and no reliable route to the real owner.
 
 ## Boundary
 
