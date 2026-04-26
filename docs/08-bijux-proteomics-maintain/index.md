@@ -9,7 +9,32 @@ last_reviewed: 2026-04-26
 
 # Maintainer Handbook
 
-`bijux-proteomics-maintain` is the repository-health handbook. Open it when the question is above any one product package and the answer lives in maintainer helper code, workflow contracts, or the shared command surface.
+`bijux-proteomics-maintain` is the repository-health handbook. It explains how
+the repository keeps its promises alive: docs stay buildable, schemas stay
+checked, releases stay guarded, and shared commands stay understandable.
+
+Product packages carry the scientific and operational ideas. This handbook
+carries the discipline that stops those ideas from decaying into folklore.
+
+```mermaid
+flowchart TB
+    dev["bijux-proteomics-dev<br/>helper code"]
+    makes["make system<br/>shared command surface"]
+    workflows["github workflows<br/>automation and publication"]
+    contracts["apis, docs, releases,<br/>package verification"]
+    packages["product packages"]
+
+    dev --> contracts
+    makes --> contracts
+    workflows --> contracts
+    contracts --> packages
+```
+
+## What This Handbook Makes Visible
+
+- where repository rules are executable instead of merely stated
+- how local commands, CI, and release automation reinforce each other
+- why a multi-package repository can stay coherent over time
 
 ## Start With
 
@@ -23,9 +48,14 @@ last_reviewed: 2026-04-26
 - shared command routing and GitHub automation contracts
 - the boundary between package handbooks and repository-health surfaces
 
+## What It Should Never Become
+
+- a substitute for product-package documentation
+- a vague collection of release reminders
+- a place where automation hides without naming its real owner
+
 ## First Proof Check
 
 - `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/`
 - `.github/workflows/`
 - `Makefile` and `makes/`
-
