@@ -56,7 +56,7 @@ continue working while agreeing on the wrong payload meaning.
 - you need package-boundary or structural context before you can judge proof
 - the issue is about how to run the change rather than how to trust it
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when uncertainty about ownership is
   masquerading as a quality issue
@@ -75,7 +75,7 @@ continue working while agreeing on the wrong payload meaning.
 
 ## Bottom Line
 
-Use `Quality` to ask a stricter question than “did the suite pass?” In
+Open this section to ask a stricter question than “did the suite pass?” In
 foundation, the real bar is whether shared payload meaning remains stable,
 compatible, and honest about its limits before every downstream package treats
 it as common ground.

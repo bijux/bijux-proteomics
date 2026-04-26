@@ -73,7 +73,7 @@ and auditable story.
 
 ## Bottom Line
 
-Open `Quality` to ask whether the knowledge layer earned trust, not whether it
+Open this section to ask whether the knowledge layer earned trust, not whether it
 merely changed state. The real bar is auditable evidence handling, defensible
 claim transitions, stable schema behavior, and explicit limits that remain
 visible after the change.

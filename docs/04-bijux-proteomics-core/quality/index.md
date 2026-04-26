@@ -54,7 +54,7 @@ while making decisions against the wrong lifecycle or readiness assumptions.
 - you need boundary or structural context before you can judge proof
 - the issue is about how to run the change rather than how to trust it
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/) when uncertainty about ownership is
   masquerading as a quality issue
@@ -75,7 +75,7 @@ while making decisions against the wrong lifecycle or readiness assumptions.
 
 ## Bottom Line
 
-Use `Quality` to ask a stricter question than “did the suite pass?” In core,
+Open this section to ask a stricter question than “did the suite pass?” In core,
 the real bar is whether durable program and lifecycle rules remain stable,
 validated, and honest about their limits before the rest of the proteomics
 stack treats them as common ground.

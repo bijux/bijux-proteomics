@@ -74,7 +74,7 @@ would justify retiring it tomorrow.
 
 ## Decision Rule
 
-Use `Quality` to decide whether `agentic-proteins` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
+Open this section to decide whether `agentic-proteins` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
 
 ## What You Can Resolve Here
 
