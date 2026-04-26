@@ -1,11 +1,62 @@
 window.mermaidConfig = {
   startOnLoad: false,
   securityLevel: "loose",
+  theme: "base",
+  flowchart: {
+    htmlLabels: true,
+    useMaxWidth: false,
+    curve: "basis",
+  },
 };
 
 function activeMermaidTheme() {
   const scheme = document.body?.getAttribute("data-md-color-scheme") || "default";
-  return scheme === "slate" ? "dark" : "default";
+  if (scheme === "slate") {
+    return {
+      themeVariables: {
+        background: "#0b1120",
+        primaryColor: "#0f2030",
+        primaryTextColor: "#eaf2fa",
+        primaryBorderColor: "#7dd3fc",
+        secondaryColor: "#11273a",
+        secondaryTextColor: "#eaf2fa",
+        secondaryBorderColor: "#2dd4bf",
+        tertiaryColor: "#132a3d",
+        tertiaryTextColor: "#eaf2fa",
+        tertiaryBorderColor: "#fbbf24",
+        lineColor: "#9fb8c7",
+        textColor: "#eaf2fa",
+        mainBkg: "#0f2030",
+        nodeBkg: "#0f2030",
+        clusterBkg: "#102334",
+        clusterBorder: "#4ba8a2",
+        edgeLabelBackground: "#102334",
+        fontFamily: "IBM Plex Sans, ui-sans-serif, system-ui, sans-serif",
+      },
+    };
+  }
+  return {
+    themeVariables: {
+      background: "#f4f6f4",
+      primaryColor: "#eef6ff",
+      primaryTextColor: "#153145",
+      primaryBorderColor: "#2563eb",
+      secondaryColor: "#eefbf3",
+      secondaryTextColor: "#173622",
+      secondaryBorderColor: "#16a34a",
+      tertiaryColor: "#fff4da",
+      tertiaryTextColor: "#6b3410",
+      tertiaryBorderColor: "#d97706",
+      lineColor: "#446273",
+      textColor: "#153145",
+      mainBkg: "#eef6ff",
+      nodeBkg: "#eef6ff",
+      clusterBkg: "#f8fbff",
+      clusterBorder: "#7aa0b8",
+      edgeLabelBackground: "#ffffff",
+      fontFamily: "IBM Plex Sans, ui-sans-serif, system-ui, sans-serif",
+    },
+  };
 }
 
 function normalizeMermaidBlocks() {
@@ -44,7 +95,7 @@ function renderMermaidDiagrams() {
 
   mermaid.initialize({
     ...window.mermaidConfig,
-    theme: activeMermaidTheme(),
+    ...activeMermaidTheme(),
   });
 
   normalizeMermaidBlocks();

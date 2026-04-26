@@ -14,6 +14,25 @@
   --bijux-detail-border: rgba(15, 118, 110, 0.14);
   --bijux-detail-link: #2d4b5c;
   --bijux-detail-link-active-bg: rgba(13, 148, 136, 0.12);
+  --bijux-mermaid-page-fill: #eef6ff;
+  --bijux-mermaid-page-stroke: #2563eb;
+  --bijux-mermaid-page-text: #153145;
+  --bijux-mermaid-positive-fill: #eefbf3;
+  --bijux-mermaid-positive-stroke: #16a34a;
+  --bijux-mermaid-positive-text: #173622;
+  --bijux-mermaid-caution-fill: #fff1f2;
+  --bijux-mermaid-caution-stroke: #dc2626;
+  --bijux-mermaid-caution-text: #6b1d1d;
+  --bijux-mermaid-anchor-fill: #f4f0ff;
+  --bijux-mermaid-anchor-stroke: #7c3aed;
+  --bijux-mermaid-anchor-text: #47207f;
+  --bijux-mermaid-action-fill: #fff4da;
+  --bijux-mermaid-action-stroke: #d97706;
+  --bijux-mermaid-action-text: #6b3410;
+  --bijux-mermaid-edge: #446273;
+  --bijux-mermaid-label-bg: #ffffff;
+  --bijux-mermaid-cluster-fill: #f8fbff;
+  --bijux-mermaid-cluster-stroke: #7aa0b8;
 }
 
 [data-md-color-scheme="slate"] {
@@ -49,6 +68,25 @@
   --bijux-nav-indicator: linear-gradient(90deg, rgba(251, 191, 36, 0.92), rgba(103, 232, 249, 0.92));
   --bijux-nav-active-shadow: 0 18px 34px rgba(2, 6, 23, 0.48);
   --bijux-focus-ring: rgba(103, 232, 249, 0.24);
+  --bijux-mermaid-page-fill: #0f2030;
+  --bijux-mermaid-page-stroke: #7dd3fc;
+  --bijux-mermaid-page-text: #eaf2fa;
+  --bijux-mermaid-positive-fill: #122a23;
+  --bijux-mermaid-positive-stroke: #4ade80;
+  --bijux-mermaid-positive-text: #e7f9ee;
+  --bijux-mermaid-caution-fill: #33191d;
+  --bijux-mermaid-caution-stroke: #f87171;
+  --bijux-mermaid-caution-text: #ffe4e6;
+  --bijux-mermaid-anchor-fill: #211737;
+  --bijux-mermaid-anchor-stroke: #a78bfa;
+  --bijux-mermaid-anchor-text: #efe7ff;
+  --bijux-mermaid-action-fill: #35240f;
+  --bijux-mermaid-action-stroke: #fbbf24;
+  --bijux-mermaid-action-text: #fff0c2;
+  --bijux-mermaid-edge: #a9c8d4;
+  --bijux-mermaid-label-bg: #102334;
+  --bijux-mermaid-cluster-fill: #0f2536;
+  --bijux-mermaid-cluster-stroke: #4ba8a2;
 }
 
 [data-md-color-scheme="slate"] .bijux-hero {
@@ -130,57 +168,42 @@
   border-color: rgba(45, 212, 191, 0.16);
 }
 
-/* Force high-contrast Mermaid rendering in dark mode, regardless of per-diagram classDef/style declarations. */
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .node rect,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .node circle,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .node ellipse,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .node polygon,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .node path,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .classBox,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .stateGroup rect,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .stateGroup path,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg rect.basic,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg rect.label-container {
-  fill: #122b3c !important;
-  stroke: #6fc7c2 !important;
+.md-typeset .mermaid svg .flowchart-link,
+.md-typeset .mermaid svg .edgePath .path,
+.md-typeset .mermaid svg .path,
+.md-typeset .mermaid svg .marker,
+.md-typeset .mermaid svg .marker path,
+.md-typeset .mermaid svg line,
+.md-typeset .mermaid svg polyline {
+  stroke: var(--bijux-mermaid-edge) !important;
 }
 
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .cluster rect {
-  fill: #0f2536 !important;
-  stroke: #4ba8a2 !important;
+.md-typeset .mermaid svg .cluster rect {
+  fill: var(--bijux-mermaid-cluster-fill) !important;
+  stroke: var(--bijux-mermaid-cluster-stroke) !important;
 }
 
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .flowchart-link,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .edgePath .path,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .path,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .marker,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .marker path,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg line,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg polyline {
-  stroke: #a9c8d4 !important;
+.md-typeset .mermaid svg text,
+.md-typeset .mermaid svg tspan,
+.md-typeset .mermaid svg .label,
+.md-typeset .mermaid svg .label text,
+.md-typeset .mermaid svg .nodeLabel,
+.md-typeset .mermaid svg span.nodeLabel,
+.md-typeset .mermaid svg .edgeLabel,
+.md-typeset .mermaid svg .edgeLabel p,
+.md-typeset .mermaid svg .cluster-label text,
+.md-typeset .mermaid svg .classTitle,
+.md-typeset .mermaid svg .state-title,
+.md-typeset .mermaid svg foreignObject div,
+.md-typeset .mermaid svg foreignObject span {
+  color: var(--bijux-mermaid-page-text) !important;
+  fill: var(--bijux-mermaid-page-text) !important;
 }
 
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg text,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg tspan,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .label,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .label text,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .nodeLabel,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg span.nodeLabel,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .edgeLabel,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .edgeLabel p,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .cluster-label text,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .classTitle,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .state-title,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg foreignObject div,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg foreignObject span {
-  color: #eaf2fa !important;
-  fill: #eaf2fa !important;
-}
-
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .edgeLabel rect,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .labelBkg,
-[data-md-color-scheme="slate"] .md-typeset .mermaid svg .relationshipLabelBox {
-  fill: #102334 !important;
+.md-typeset .mermaid svg .edgeLabel rect,
+.md-typeset .mermaid svg .labelBkg,
+.md-typeset .mermaid svg .relationshipLabelBox {
+  fill: var(--bijux-mermaid-label-bg) !important;
   opacity: 1 !important;
 }
 
