@@ -10,11 +10,11 @@ last_reviewed: 2026-04-26
 # Documentation System
 
 The root documentation site is the canonical handbook for repository and
-package behavior. It should help a new reader understand the package split,
+package behavior. It helps a new reader understand the package split,
 choose the right handbook branch, and verify claims from checked-in assets
 without guesswork.
 
-Use the docs as orientation first and proof map second. Repository pages cover
+Open the docs as orientation first and proof map second. Repository pages cover
 cross-package concerns, while package pages, schemas, tests, and release
 artifacts carry the detailed evidence behind specific claims.
 

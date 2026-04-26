@@ -47,7 +47,7 @@ flowchart LR
 
 ## Purpose
 
-This page records the principles that should guide repository-wide change.
+This page shows the principles that guide repository-wide change.
 
 ## Stability
 

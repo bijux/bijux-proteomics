@@ -48,7 +48,7 @@ flowchart LR
 
 ## Purpose
 
-This page records the preferred development posture for the workspace.
+This page shows the preferred development posture for the workspace.
 
 ## Stability
 

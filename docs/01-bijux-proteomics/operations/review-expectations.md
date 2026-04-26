@@ -39,7 +39,7 @@ flowchart LR
 
 ## Purpose
 
-This page records the review bar for repository-wide changes.
+This page shows the review bar for repository-wide changes.
 
 ## Stability
 

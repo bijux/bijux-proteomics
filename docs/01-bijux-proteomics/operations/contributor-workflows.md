@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Contributor Workflows
 
-Contributors should be able to move through the repository in a repeatable
+Contributors can move through the repository in a repeatable
 order.
 
 ```mermaid
@@ -39,7 +39,7 @@ flowchart LR
 
 ## Purpose
 
-This page records the normal repository workflow shape so shared work requires
+This page shows the normal repository workflow shape so shared work requires
 less guesswork.
 
 ## Stability

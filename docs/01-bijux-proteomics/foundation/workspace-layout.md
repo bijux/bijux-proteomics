@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Workspace Layout
 
-The top-level tree should help readers place work quickly. If the layout makes
+The top-level tree helps readers place work quickly. If the layout makes
 ownership harder to see, it is working against the design.
 
 ```mermaid

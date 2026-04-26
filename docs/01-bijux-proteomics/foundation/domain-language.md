@@ -40,7 +40,7 @@ flowchart LR
     class reader1,reader2,reader3 positive;
 ```
 
-## Terms That Should Stay Stable
+## Terms That Stay Stable
 
 - `repository handbook` for cross-package governance and structure
 - `maintainer handbook` for repository-health automation and operations
@@ -50,7 +50,7 @@ flowchart LR
 
 ## Purpose
 
-This page records vocabulary that should remain consistent across docs, code,
+This page shows vocabulary that remains consistent across docs, code,
 metadata, and review conversations.
 
 ## Stability
