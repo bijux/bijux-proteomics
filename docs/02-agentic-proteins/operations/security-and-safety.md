@@ -9,86 +9,16 @@ last_reviewed: 2026-04-26
 
 # Security and Safety
 
-Security review in `agentic-proteins` should focus on the package's real boundary surfaces and outputs.
+Security guidance should protect the package boundary as well as the code path itself.
 
-This page keeps safety work concrete. A useful security discussion starts from
-the actual interfaces, artifacts, and authority the package holds, not from
-generic caution language detached from the codebase.
+## Operating Rules
 
-This page shows how `agentic-proteins` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+- security fixes should preserve the runtime handoff rather than fork it
+- treat stale compatibility surfaces as security liabilities when they prolong unnecessary exposure
+- do not add bridge-only secret or provider handling without runtime-owner review
 
-## Visual Summary
+## First Proof Check
 
-```mermaid
-flowchart LR
-    guard1["do not add new runtime features"]
-    guard2["keep the bridge narrow"]
-    guard3["retire unused aliases"]
-    page["agentic-proteins<br/>security and safety"]
-    proof1["compatibility tests"]
-    proof2["runtime handoff docs"]
-    proof3["package metadata"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    guard1 --> page
-    guard2 --> page
-    guard3 --> page
-    page --> proof1
-    page --> proof2
-    page --> proof3
-    class page page;
-    class guard1,guard2,guard3 action;
-    class proof1,proof2,proof3 anchor;
-```
-
-## Review Anchors
-
-- CLI entrypoint in src/agentic_proteins/interfaces/cli.py
-- HTTP app in src/agentic_proteins/api/v1
-- shared API schema in apis/agentic-proteins/v1
-
-## Safety Rule
-
-Any change that broadens package authority should update docs, tests, and release notes together.
-
-## Concrete Anchors
-
-- `packages/agentic-proteins/pyproject.toml` for package metadata
-- `packages/agentic-proteins/README.md` for local package framing
-- `packages/agentic-proteins/tests` for executable operational backstops
-
-## Open This Page When
-
-- you are installing, running, diagnosing, or releasing the package
-- you need repeatable operational anchors rather than architectural framing
-- you are responding to package behavior in local work, CI, or incident pressure
-
-## Decision Rule
-
-Use `Security and Safety` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
-
-## What You Can Resolve Here
-
-- how `agentic-proteins` is installed, run, diagnosed, and released in practice
-- which checked-in files and tests anchor the operational story
-- where a maintainer should look first when the package behaves differently
-
-## Review Focus
-
-- verify that setup, workflow, and release statements still match package metadata and current commands
-- check that operational guidance still points at real diagnostics and validation paths
-- confirm that maintainer advice still works under current local and CI expectations
-
-## Limits
-
-Checked-in commands, artifacts, and validation remain the source of truth for this workflow.
-
-## Read Next
-
-- open interfaces when the operational path depends on a specific surface contract
-- open quality when the question becomes whether the workflow is sufficiently proven
-- open architecture when operational complexity suggests a structural problem
-
+- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
+- `src/agentic_proteins/runtime/` and `providers/`
+- `packages/agentic-proteins/tests`
