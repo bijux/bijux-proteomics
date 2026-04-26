@@ -9,37 +9,59 @@ last_reviewed: 2026-04-26
 
 # Repository Handbook
 
-The repository handbook exists for questions that no single package can answer
-honestly on its own. It explains why the proteomics system is split, which
-assets genuinely live above one package boundary, and where repository authority
-must stop before it starts swallowing package behavior.
+This handbook explains the logic of the split. It is the place to answer
+questions that no single package can answer honestly on its own: why the family
+exists as multiple packages, which decisions belong above package boundaries,
+and where repository authority must stop before it starts flattening the
+product into one vague story.
 
-That boundary is the point of the root. If one package can explain the behavior
-fully, the reader should leave the repository handbook and use the owning
-package docs instead of treating the root as a catch-all explanation layer.
+The important discipline here is restraint. A repository root should make the
+whole system legible, then hand the reader to the true owner. If it keeps
+talking after that point, it becomes noise.
+
+```mermaid
+flowchart TB
+    root["repository handbook<br/>system split and cross-package logic"]
+    foundation["foundation<br/>shared meaning"]
+    core["core<br/>durable program rules"]
+    knowledge["knowledge<br/>evidence state"]
+    intelligence["intelligence<br/>decision policy"]
+    lab["lab<br/>assay loop"]
+    runtime["runtime<br/>execution control"]
+    maintain["maintainer handbook<br/>repository health"]
+
+    root --> foundation
+    root --> core
+    root --> knowledge
+    root --> intelligence
+    root --> lab
+    root --> runtime
+    root --> maintain
+```
+
+## What This Handbook Does Well
+
+- it shows why the system is layered instead of monolithic
+- it names the seams between meaning, rules, evidence, judgment, execution, and
+  lab action
+- it keeps the reader from blaming the wrong package for the wrong kind of
+  change
 
 ## Start With
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
-  when the question is why the split exists or where authority changes hands.
+  when the question is why the split exists and where authority changes hands.
 - Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
-  when the question is about repository-wide validation, release, review, or
-  shared automation.
+  when the question is how the repository validates, releases, and reviews work
+  across package boundaries.
 - Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
-  when the issue is implemented as helper code, make routing, or workflow
-  automation.
+  when the answer lives in helper code, make routing, or GitHub automation.
 
-## What The Root Owns
+## Questions This Handbook Owns
 
-- cross-package boundary rules and handoff logic
-- repository-wide workflow, validation, release, and artifact discipline
-- shared docs structure and other assets that sit above one package
-
-## What The Root Refuses
-
-- runtime execution behavior that belongs in `bijux-proteomics-runtime`
-- domain, evidence, scoring, or lab semantics that belong in product packages
-- maintainer implementation detail that belongs in `bijux-proteomics-dev`
+- Why is one concern a package boundary while another is only a module?
+- Which package should own a disputed behavior?
+- Which repository surfaces are truly shared and which are only adjacent?
 
 ## Product Handbooks
 
