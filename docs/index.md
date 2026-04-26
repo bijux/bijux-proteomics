@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Bijux Proteomics
@@ -78,29 +78,23 @@ without pretending they are one thing.</div>
 
 ```mermaid
 flowchart TB
-    page["Bijux Proteomics<br/>clarifies: repository section | maintainer section | package handbooks"]
+    home["Bijux Proteomics<br/>repository entry point"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    detail1["why the split exists"]
-    detail1 --> page
-    detail2["where each package takes authority"]
-    detail2 --> page
-    detail3["which handbook branch to open first"]
-    detail3 --> page
-    detail4["maintainer work"]
-    detail4 --> page
-    detail5["questions that do not belong on the landing page"]
-    detail5 --> page
-    next1["repository handbook"]
-    page --> next1
-    next2["product package docs"]
-    page --> next2
-    next3["maintainer docs"]
-    page --> next3
-    class page page;
-    class detail1,detail2,detail3,detail4,detail5 anchor;
-    class next1,next2,next3 action;
+    repo["Repository Handbook<br/>cross-package ownership and rules"]
+    packages["Package Handbooks<br/>product-specific behavior and contracts"]
+    maintain["Maintainer Handbook<br/>CI, tooling, and release health"]
+    runtime["Runtime Handbook<br/>canonical execution and migration context"]
+    examples["Choose one package<br/>foundation, core, intelligence, knowledge, or lab"]
+    home --> repo
+    home --> packages
+    home --> maintain
+    packages --> examples
+    packages --> runtime
+    class home page;
+    class repo,packages,maintain anchor;
+    class runtime,examples action;
 ```
 
 ## Start Here
