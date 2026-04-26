@@ -43,14 +43,14 @@ flowchart LR
 
 ## Start Here
 
-- use [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/) for the package exports that callers
+- open [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/) for the package exports that callers
   should depend on directly
-- use [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/) and [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
+- open [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/) and [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
   when the durable payload or review shape matters more than the import name
-- use [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/) when the question is
+- open [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/) when the question is
   schema profile behavior rather than record semantics
 
-## Pages In Interfaces
+## Published Interface Pages
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/)
 - [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/)
@@ -78,12 +78,12 @@ flowchart LR
 
 ## Read Across The Package
 
-- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
-- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for the structural seams behind
+- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
+- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for the structural seams behind
   the public surfaces
-- use [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflows, diagnostics, and
+- open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflows, diagnostics, and
   release procedures
-- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for compatibility evidence and review
+- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for compatibility evidence and review
   pressure
 
 ## Concrete Anchors
@@ -101,6 +101,5 @@ artifacts, examples, and tests all agree about what a caller may rely on.
 
 ## What You Get
 
-This page gives you the import, schema, artifact, and compatibility route
-through `bijux-proteomics-knowledge` before you inspect a specific contract
-surface.
+This page shows the published interface routes through
+`bijux-proteomics-knowledge` before you inspect a specific contract surface.

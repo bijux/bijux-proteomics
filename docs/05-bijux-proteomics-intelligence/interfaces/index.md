@@ -9,9 +9,14 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section explains which imports, files, outputs, and configuration shapes in `bijux-proteomics-intelligence` are safe to depend on and which ones are only internal machinery.
+This section shows which imports, files, outputs, and configuration shapes in
+`bijux-proteomics-intelligence` are safe to depend on and which ones are only
+internal machinery.
 
-For many readers this page is the contract page that matters most. If a workflow, downstream package, or reviewer wants to rely on intelligence output, this section should make it obvious which surfaces are deliberate and which ones would be a mistake to hard-code against.
+For many readers this page is the contract page that matters most. If a
+workflow, downstream package, or reviewer wants to rely on intelligence
+output, this section makes it obvious which surfaces are deliberate and which
+ones would be a mistake to hard-code against.
 
 ## Visual Summary
 
@@ -43,28 +48,32 @@ flowchart LR
     class callers,reviews,examples anchor;
 ```
 
-## Pages in This Section
+## Published Interface Pages
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/)
+- [API Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/api-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/configuration-surface/)
+- [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/)
+- [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/entrypoints-and-examples/)
+- [Operator Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/operator-workflows/)
+- [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/)
+- [Compatibility Commitments](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/compatibility-commitments/)
 
 ## Start Here
 
-Read this section first when you need to know whether a downstream caller may safely import a type, parse an artifact, or expect a recommendation output to keep the same shape. `bijux-proteomics-intelligence` exposes decision-facing surfaces, so weak contract wording here quickly turns into brittle downstream code.
+Read this section first when you need to know whether a downstream caller may
+safely import a type, parse an artifact, or expect a recommendation output to
+keep the same shape. `bijux-proteomics-intelligence` exposes decision-facing
+surfaces, so weak contract wording here quickly turns into brittle downstream
+code.
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/) when you need the package boundary and ownership story first
+- [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) when the question becomes structural, modular, or execution-oriented
+- [Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/) when the question becomes procedural, environmental, diagnostic, or release-oriented
+- [Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/) when the question becomes proof, risk, trust, or review sufficiency
 
 ## Concrete Anchors
 
@@ -87,7 +96,17 @@ Read this section first when you need to know whether a downstream caller may sa
 
 ## When To Leave This Section
 
-Callers often start in interfaces and then discover they really need one of the adjacent sections. Move to [Architecture](../architecture/index.md) when an exposed surface raises a structural question about candidate state, policies, or evaluators. Move to [Operations](../operations/index.md) when the contract question becomes procedural, such as how a maintainer validates or ships a changed artifact. Move to [Quality](../quality/index.md) when the real question is whether the contract is sufficiently defended by tests and review.
+Callers often start in interfaces and then discover they really need one of
+the adjacent sections. Move to
+[Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
+when an exposed surface raises a structural question about candidate state,
+policies, or evaluators. Move to
+[Operations](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/)
+when the contract question becomes procedural, such as how a maintainer
+validates or ships a changed artifact. Move to
+[Quality](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/)
+when the real question is whether the contract is sufficiently defended by
+tests and review.
 
 ## Reader Takeaway
 

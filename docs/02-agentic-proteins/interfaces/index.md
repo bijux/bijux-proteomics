@@ -16,9 +16,9 @@ These pages help a caller separate migration-safe preserved entrypoints from
 incidental visibility. The point is to show what still forwards deliberately
 and what should now send readers to `bijux-proteomics-runtime` instead.
 
-This section should make compatibility pressure explicit. Readers should leave
-knowing whether they are still depending on a legacy surface, what it forwards
-to, and what kind of review is required before that surface changes.
+Readers should leave knowing whether they are still depending on a legacy
+surface, what it forwards to, and what kind of review is required before that
+surface changes.
 
 ## Visual Summary
 
@@ -47,17 +47,17 @@ flowchart LR
     class next1,next2,next3 anchor;
 ```
 
-## Pages in This Section
+## Published Interface Pages
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- [CLI Surface](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/cli-surface/)
+- [API Surface](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/api-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/configuration-surface/)
+- [Data Contracts](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/data-contracts/)
+- [Artifact Contracts](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/artifact-contracts/)
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/entrypoints-and-examples/)
+- [Operator Workflows](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/operator-workflows/)
+- [Public Imports](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/public-imports/)
+- [Compatibility Commitments](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/compatibility-commitments/)
 
 ## Use This Section When
 
@@ -81,10 +81,10 @@ surface, that is the preferred long-term answer.
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/) when you need the package boundary and ownership story first
+- [Architecture](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/) when the question becomes structural, modular, or execution-oriented
+- [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/) when the question becomes procedural, environmental, diagnostic, or release-oriented
+- [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/) when the question becomes proof, risk, trust, or review sufficiency
 
 ## Concrete Anchors
 
@@ -127,7 +127,8 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 ## Purpose
 
-This page explains how to use the interfaces section for `agentic-proteins` without repeating the detail that belongs on the topic pages beneath it.
+This page shows the published interface routes for `agentic-proteins` and the
+legacy compatibility surfaces that still matter to callers.
 
 ## Stability
 

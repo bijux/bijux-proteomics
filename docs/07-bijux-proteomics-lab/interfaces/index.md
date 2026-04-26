@@ -9,10 +9,10 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section explains which imports, schemas, and artifacts
+This section shows which imports, schemas, and artifacts
 `bijux-proteomics-lab` is prepared to stand behind as real surfaces.
 
-These pages explain the public face of `bijux-proteomics-lab`. They help
+These pages show the public face of `bijux-proteomics-lab`. They help
 a caller separate deliberate contracts from incidental visibility before
 a dependency hardens around the wrong surface.
 
@@ -43,17 +43,17 @@ flowchart LR
     class imports,artifacts,serialization positive;
 ```
 
-## Pages in This Section
+## Published Interface Pages
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- [CLI Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/cli-surface/)
+- [API Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/api-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/configuration-surface/)
+- [Data Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/data-contracts/)
+- [Artifact Contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/artifact-contracts/)
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/entrypoints-and-examples/)
+- [Operator Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/operator-workflows/)
+- [Public Imports](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/public-imports/)
+- [Compatibility Commitments](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/compatibility-commitments/)
 
 ## What This Section Clarifies
 
@@ -78,12 +78,12 @@ flowchart LR
 
 ## Read Across the Package
 
-- [Foundation](../foundation/index.md) when you need the package boundary first
-- [Architecture](../architecture/index.md) when a public-surface question turns
+- [Foundation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/) when you need the package boundary first
+- [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/) when a public-surface question turns
   into a module-ownership question
-- [Operations](../operations/index.md) when the interface question becomes a
+- [Operations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/) when the interface question becomes a
   repeatable maintainer workflow
-- [Quality](../quality/index.md) when the real concern is compatibility proof
+- [Quality](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/) when the real concern is compatibility proof
   and review sufficiency
 
 ## Concrete Anchors

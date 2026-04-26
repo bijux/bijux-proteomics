@@ -9,12 +9,12 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-Use this section when the question is which core surfaces are real contracts:
-commands, imports, schemas, artifacts, and examples that other packages or
-operators can rely on when they build against durable program rules.
+This section shows which core surfaces are real contracts: commands, imports,
+schemas, artifacts, and examples that other packages or operators can rely on
+when they build against durable program rules.
 
-These pages should stop callers from depending on incidental implementation
-details when what they really need is the explicit contract layer. For core,
+These pages stop callers from depending on incidental implementation details
+when what they really need is the explicit contract layer. For core,
 that matters because lifecycle and readiness assumptions spread quickly into
 knowledge, intelligence, lab, and runtime behavior.
 
@@ -46,26 +46,26 @@ flowchart LR
 
 ## Start Here
 
-- open [CLI Surface](cli-surface.md) when the dependency begins with operator or
+- open [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/) when the dependency begins with operator or
   validation commands
-- open [Data Contracts](data-contracts.md) when the real question is lifecycle,
+- open [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/) when the real question is lifecycle,
   readiness, or program schema meaning
-- open [Public Imports](public-imports.md) when the caller depends on Python
+- open [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/) when the caller depends on Python
   entrypoints rather than CLI usage
-- open [Compatibility Commitments](compatibility-commitments.md) when a contract
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/) when a contract
   change may ripple into higher packages
 
-## Pages In This Section
+## Published Interface Pages
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/)
+- [API Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/api-surface/)
+- [Configuration Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/configuration-surface/)
+- [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/)
+- [Artifact Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/artifact-contracts/)
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/entrypoints-and-examples/)
+- [Operator Workflows](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/operator-workflows/)
+- [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
+- [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
 
 ## Use This Section When
 
@@ -83,13 +83,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) when the contract concern is really
+- open [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/) when the contract concern is really
   a boundary or ownership question
-- open [Architecture](../architecture/index.md) when the surface depends on
+- open [Architecture](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/) when the surface depends on
   deeper lifecycle, domain, or runtime-adjacent structure
-- open [Operations](../operations/index.md) when you need repeatable workflows
+- open [Operations](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/) when you need repeatable workflows
   for exercising or shipping core contracts
-- open [Quality](../quality/index.md) when the real issue is whether the
+- open [Quality](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/) when the real issue is whether the
   documented contract is sufficiently defended
 
 ## Concrete Anchors
@@ -109,6 +109,5 @@ and tests, that dependency is not yet an honest public surface.
 
 ## Purpose
 
-This page introduces the interfaces handbook for `bijux-proteomics-core` and
-routes readers to the command, import, contract, artifact, and compatibility
-pages that define the package's supported surfaces.
+This page shows the published interface routes for `bijux-proteomics-core` and
+the supported surfaces that higher packages and operators can rely on.
