@@ -52,7 +52,7 @@ compatibility burden.
 - you are validating forwarding boundaries and migration promises
 - you need to trace older runtime usage to the canonical runtime package
 
-## Open The Canonical Handbook When
+## Open The Canonical Package When
 
 - you are designing a new caller and can depend on the canonical package now
 - you need current runtime operation or API behavior rather than legacy naming
@@ -66,7 +66,7 @@ compatibility burden.
 - [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/)
 - [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/)
 
-## Neighboring Packages
+## Canonical Targets
 
 - open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the question is about current runtime behavior
 - open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the question is about migration policy or repository-wide release rules

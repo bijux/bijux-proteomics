@@ -79,7 +79,7 @@ runtime-agnostic.
 - `packages/bijux-proteomics-runtime/tests` for execution, API, provider, and
   compatibility proof
 
-## Published Runtime References
+## Related Handbooks
 
 - [Repository Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
 - [Foundation Handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
@@ -88,7 +88,7 @@ runtime-agnostic.
 - [Knowledge Handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
 - [Lab Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 
-## Migration Review Documents
+## Migration References
 
 - [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/)
 - [Agentic Module Ledger Summary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary/)
