@@ -15,6 +15,32 @@ review discipline, and runtime migration checks. It should help a maintainer
 find the governing process without blurring package-local behavior into root
 process prose.
 
+```mermaid
+flowchart LR
+    change["change"]
+    local["local development<br/>make, package tests, docs"]
+    review["review discipline<br/>proof expectations"]
+    automation["automation<br/>workflows and CI"]
+    release["release and versioning"]
+    migration["runtime migration validation"]
+    publish["published artifacts"]
+
+    change --> local
+    local --> review
+    review --> automation
+    automation --> release
+    release --> publish
+    automation --> migration
+    migration --> release
+```
+
+## What This Section Is Really About
+
+- how repository-wide work becomes trustworthy enough to publish
+- how local proof, CI proof, and release proof connect instead of competing
+- where migration validation becomes a first-class operational concern rather
+  than a forgotten appendix
+
 ## Start With
 
 - Open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/)
@@ -39,6 +65,12 @@ process prose.
 - [Artifact Governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/artifact-governance/)
 - [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/)
 - [Change Management](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/change-management/)
+
+## What This Section Settles
+
+- which repository process owns a given proof obligation
+- which checks belong before release-sensitive work can move forward
+- when migration pressure changes the normal release and validation story
 
 ## First Proof Check
 
