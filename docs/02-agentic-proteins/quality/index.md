@@ -11,6 +11,23 @@ last_reviewed: 2026-04-26
 
 `agentic-proteins` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
+## Trust Model
+
+```mermaid
+flowchart LR
+    invariants["invariants"]
+    tests["test strategy"]
+    validation["change validation"]
+    risks["risk register and limitations"]
+    decision["trust or block the change"]
+
+    invariants --> tests --> validation --> risks --> decision
+```
+
+This page should show quality as a trust path rather than a page list. For the
+legacy bridge package, trust means proving the bridge still forwards correctly
+and stays easier to retire instead of becoming a second product surface.
+
 ## Start With
 
 - open [Invariants](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/invariants/) before changing package meaning
@@ -38,3 +55,9 @@ last_reviewed: 2026-04-26
 - `packages/agentic-proteins/tests`
 - `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
 - `src/agentic_proteins/runtime/`
+
+## Design Pressure
+
+If the quality section reads like generic reassurance instead of a concrete
+bridge-proof path, the legacy package will linger on habit instead of staying
+reviewable and intentionally temporary.
