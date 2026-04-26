@@ -19,30 +19,6 @@ evidence bundles, claim transitions, contradiction handling, confidence
 summaries, schema compatibility, and serialized artifacts still tell a coherent
 and auditable story.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    bundles["evidence, bundle, and graph tests"]
-    claims["claim, resolution, and contradiction tests"]
-    trust["confidence, freshness, and review-summary checks"]
-    schemas["schema and serialization compatibility"]
-    risks["known limits and explicit risk register"]
-    reader["reader question<br/>what evidence makes this knowledge state trustworthy?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class bundles,page reader;
-    class claims,trust,schemas positive;
-    class risks caution;
-    bundles --> reader
-    claims --> reader
-    trust --> reader
-    schemas --> reader
-    risks --> reader
-```
-
 ## Start Here
 
 - open [Test Strategy](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/test-strategy/) for the proof layers that matter most

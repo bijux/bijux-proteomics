@@ -17,33 +17,6 @@ edit.
 
 These quality pages show how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    proof1["schema contract tests"]
-    proof2["serialization fixtures"]
-    proof3["migration helper checks"]
-    page["bijux-proteomics-foundation<br/>invariants"]
-    accept1["shared meaning stays stable"]
-    accept2["changes are explicit"]
-    accept3["compatibility is defended"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    proof1 --> page
-    proof2 --> page
-    proof3 --> page
-    page --> accept1
-    page --> accept2
-    page --> accept3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class accept1,accept2,accept3 action;
-```
-
 ## Invariant Anchors
 
 - package boundary stays explicit

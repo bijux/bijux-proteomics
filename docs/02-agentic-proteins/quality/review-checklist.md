@@ -17,33 +17,6 @@ contracts, or proof.
 
 These quality pages show how `agentic-proteins` earns trust and where skepticism still belongs.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    review1["compatibility still works"]
-    review2["new work stays elsewhere"]
-    review3["retirement is evidence-based"]
-    page["agentic-proteins<br/>review checklist"]
-    proof1["forwarding tests"]
-    proof2["alias coverage"]
-    proof3["retirement review checks"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    review1 --> page
-    review2 --> page
-    review3 --> page
-    page --> proof1
-    page --> proof2
-    page --> proof3
-    class page page;
-    class review1,review2,review3 action;
-    class proof1,proof2,proof3 anchor;
-```
-
 ## Checklist
 
 - did ownership stay inside the correct package boundary

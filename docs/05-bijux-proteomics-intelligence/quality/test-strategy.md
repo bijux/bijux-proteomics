@@ -17,33 +17,6 @@ explains why these tests exist, not just where they live.
 
 `bijux-proteomics-intelligence` earns trust through visible proof, and these are the places where skepticism still belongs.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    proof1["ranking tests"]
-    proof2["explanation checks"]
-    proof3["policy review cases"]
-    page["bijux-proteomics-intelligence<br/>test strategy"]
-    accept1["recommendations stay inspectable"]
-    accept2["policy changes stay reviewable"]
-    accept3["outputs remain reproducible enough to judge"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    proof1 --> page
-    proof2 --> page
-    proof3 --> page
-    page --> accept1
-    page --> accept2
-    page --> accept3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class accept1,accept2,accept3 action;
-```
-
 ## Test Areas
 
 - tests/unit for api, contracts, core, interfaces, model, and runtime

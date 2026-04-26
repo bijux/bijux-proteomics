@@ -17,33 +17,6 @@ These pages should keep reviewers honest about the cost of contract drift. If
 core rules slip quietly, intelligence, lab, and runtime can continue operating
 while making decisions against the wrong lifecycle or readiness assumptions.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    contracts["program contract tests"]
-    lifecycle["lifecycle and readiness invariants"]
-    crosspkg["cross-package invariant checks"]
-    review["review pressure<br/>what a safe contract change must show"]
-    risks["visible limitations<br/>known contract risks"]
-    downstream["downstream trust<br/>other packages build on this"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    contracts --> lifecycle
-    lifecycle --> crosspkg
-    crosspkg --> downstream
-    contracts --> review
-    crosspkg --> review
-    review --> risks
-    class downstream page;
-    class contracts,lifecycle,crosspkg positive;
-    class review action;
-    class risks caution;
-```
-
 ## Start Here
 
 - open [Test Strategy](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/test-strategy/) for the broad proof story behind core

@@ -18,33 +18,6 @@ These pages should keep reviewers honest about how expensive shared-contract
 drift can be. If foundation semantics slip quietly, downstream packages can
 continue working while agreeing on the wrong payload meaning.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    schema["schema contract tests"]
-    serial["serialization and fingerprint fixtures"]
-    migrate["migration and compatibility checks"]
-    review["review pressure<br/>what a safe shared change must show"]
-    risks["visible limitations<br/>known compatibility risks"]
-    downstream["downstream trust<br/>other packages build on this"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    schema --> serial
-    schema --> migrate
-    serial --> downstream
-    migrate --> review
-    serial --> review
-    review --> risks
-    class downstream page;
-    class schema,serial,migrate positive;
-    class review action;
-    class risks caution;
-```
-
 ## Start Here
 
 - open [Test Strategy](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/test-strategy/) for the broad proof story behind
