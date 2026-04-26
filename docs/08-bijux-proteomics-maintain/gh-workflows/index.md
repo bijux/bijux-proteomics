@@ -45,7 +45,7 @@ wrapper called by `verify.yml`.
   automation
 - you only need maintainer helper code rather than workflow entrypoints
 
-## Choose A Page
+## Start Here
 
 - open [verify](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/verify/) when the concern starts from push or pull request
   verification

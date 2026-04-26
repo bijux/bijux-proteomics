@@ -45,7 +45,7 @@ heavily on implicit CI behavior.
 - the issue belongs to shared Make routing or GitHub Actions trigger logic
 - you are looking for end-user behavior rather than repository-health helpers
 
-## Choose A Page
+## Start Here
 
 - open [Package Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview/) for the shortest statement of why
   this maintainer package exists

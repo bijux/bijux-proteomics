@@ -43,7 +43,7 @@ without having to reverse-engineer the whole tree from includes alone.
   layer
 - you only need one concrete package page and already know which page owns it
 
-## Choose A Page
+## Start Here
 
 - open [Make System Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/make-system-overview/) for the broad structure
   first

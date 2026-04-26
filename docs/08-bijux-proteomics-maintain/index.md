@@ -59,7 +59,7 @@ This page routes one repository-health question immediately: does the rule live 
 - when the correct route is to leave maintainer docs and hand the question back
   to a product package handbook
 
-## Choose A Section
+## Start Here
 
 - open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the concern is
   helper code, schema drift, release support, or repository-health checks
