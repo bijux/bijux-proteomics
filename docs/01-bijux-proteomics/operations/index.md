@@ -13,11 +13,11 @@ The operations section explains how the repository is run, reviewed, and kept
 coherent after the ownership model is already clear.
 
 These pages are about repeatable repository work rather than package-local
-behavior. They should help a maintainer move from a question about setup,
+behavior. They help a maintainer move from a question about setup,
 validation, release flow, automation, or review posture to the checked-in files
 that carry that work today.
 
-This section should make one distinction obvious: root operations exist to
+This section makes one distinction obvious: root operations exist to
 coordinate the repository as a whole, not to re-describe package-local runtime,
 evidence, or lab procedures that already have their own handbooks.
 
@@ -43,29 +43,29 @@ flowchart LR
 
 ## Start Here
 
-- open [Local Development](local-development.md) when the concern is repeatable
+- open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/) when the concern is repeatable
   local setup and contributor flow
-- open [Testing and Validation](testing-and-validation.md) or
-  [Runtime Migration Validation](runtime-migration-validation.md) when the
+- open [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/) or
+  [Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/) when the
   issue is repository-wide proof rather than one package test
-- open [Release and Versioning](release-and-versioning.md) or
-  [Automation Surfaces](automation-surfaces.md) when the concern is publication
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/) or
+  [Automation Surfaces](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/automation-surfaces/) when the concern is publication
   or root-owned automation
-- open [Review Expectations](review-expectations.md) when the real question is
+- open [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/) when the real question is
   what evidence and scope discipline a root-level change needs
 
-## Pages In This Section
+## Pages In Operations
 
-- [Local Development](local-development.md)
-- [Testing and Validation](testing-and-validation.md)
-- [Release and Versioning](release-and-versioning.md)
-- [API and Schema Governance](api-and-schema-governance.md)
-- [Runtime Migration Validation](runtime-migration-validation.md)
-- [Contributor Workflows](contributor-workflows.md)
-- [Automation Surfaces](automation-surfaces.md)
-- [Artifact Governance](artifact-governance.md)
-- [Review Expectations](review-expectations.md)
-- [Change Management](change-management.md)
+- [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/)
+- [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/)
+- [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/)
+- [API and Schema Governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
+- [Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
+- [Contributor Workflows](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/contributor-workflows/)
+- [Automation Surfaces](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/automation-surfaces/)
+- [Artifact Governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/artifact-governance/)
+- [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/)
+- [Change Management](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/change-management/)
 
 ## Use This Section When
 
@@ -94,15 +94,15 @@ flowchart LR
 
 ## Choose The Next Page By Question
 
-- open [Local Development](local-development.md) or
-  [Testing and Validation](testing-and-validation.md) when the concern is
+- open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/) or
+  [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/) when the concern is
   repeatable local work
-- open [Release and Versioning](release-and-versioning.md) or
-  [API and Schema Governance](api-and-schema-governance.md) when the concern is
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/release-and-versioning/) or
+  [API and Schema Governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/) when the concern is
   publication or contract discipline
-- open [Contributor Workflows](contributor-workflows.md),
-  [Automation Surfaces](automation-surfaces.md), or
-  [Review Expectations](review-expectations.md) when the concern is shared team
+- open [Contributor Workflows](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/contributor-workflows/),
+  [Automation Surfaces](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/automation-surfaces/), or
+  [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/) when the concern is shared team
   process
 
 ## Concrete Anchors
@@ -118,5 +118,5 @@ flowchart LR
 ## Reader Takeaway
 
 This section is for root-owned operational behavior that no single package can
-document honestly on its own. It should help readers find the governing process
+document honestly on its own. It helps readers find the governing process
 quickly without letting the repository root pretend it owns package behavior.

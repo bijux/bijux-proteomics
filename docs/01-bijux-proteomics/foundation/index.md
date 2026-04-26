@@ -16,7 +16,7 @@ A reader should be able to leave this section with a durable understanding of
 the package split, the ownership model, the shared vocabulary, and the change
 rules that keep the repository legible over time.
 
-This section should answer one question decisively: why is this repository a
+This section answers one question decisively: why is this repository a
 package family instead of one large proteomics codebase with blurred ownership?
 If that answer still feels vague after this page, the rest of the handbook will
 only inherit the same confusion.
@@ -43,26 +43,26 @@ flowchart LR
 
 ## Start Here
 
-- open [Platform Overview](platform-overview.md) for the shortest explanation
+- open [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/) for the shortest explanation
   of what the repository is trying to be
-- open [Package Map](package-map.md) when the key question is which package owns
+- open [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/) when the key question is which package owns
   which concern
-- open [Ownership Model](ownership-model.md) when a proposed change may cross a
+- open [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/) when a proposed change may cross a
   package boundary
-- open [Decision Rules](decision-rules.md) when you need the repository’s
+- open [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/) when you need the repository’s
   actual bar for changing the split
 
-## Pages In This Section
+## Pages In Foundation
 
-- [Platform Overview](platform-overview.md)
-- [Repository Scope](repository-scope.md)
-- [Workspace Layout](workspace-layout.md)
-- [Package Map](package-map.md)
-- [Ownership Model](ownership-model.md)
-- [Domain Language](domain-language.md)
-- [Documentation System](documentation-system.md)
-- [Change Principles](change-principles.md)
-- [Decision Rules](decision-rules.md)
+- [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/)
+- [Repository Scope](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-scope/)
+- [Workspace Layout](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workspace-layout/)
+- [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
+- [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
+- [Domain Language](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/domain-language/)
+- [Documentation System](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/documentation-system/)
+- [Change Principles](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/change-principles/)
+- [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
 
 ## Use This Section When
 
@@ -99,7 +99,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use the foundation section when the unresolved question is why the repository
+Open the foundation section when the unresolved question is why the repository
 is organized as a family of accountable packages. If the answer depends on one
 package’s local behavior rather than on the split itself, this section should
 hand you off quickly instead of pretending root docs own the detail.
