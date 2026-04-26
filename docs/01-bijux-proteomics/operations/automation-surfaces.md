@@ -13,6 +13,26 @@ Repository automation should be visible in named surfaces, not hidden behind
 habit. A maintainer should be able to tell whether a rule lives in root make
 routing, workflow orchestration, or code-bearing helper logic.
 
+## Automation Model
+
+```mermaid
+flowchart TB
+    rule["repository automation rule"]
+    makefile["Makefile entrypoint"]
+    makes["makes/ fragment"]
+    workflow["workflow orchestration"]
+    helper["bijux-proteomics-dev helper code"]
+    effect["downstream package effect"]
+
+    rule --> makefile
+    makefile --> makes
+    makes --> workflow
+    workflow --> helper
+    helper --> effect
+```
+
+This page should help a reviewer find the highest-leverage automation surface first. The system becomes much harder to debug when the top-level entrypoint, workflow layer, and helper code are treated like one undifferentiated blob.
+
 ## Core Automation Surfaces
 
 - `Makefile` as the top-level entrypoint
@@ -33,3 +53,7 @@ That keeps reviewers focused on the surface that can misroute the whole family.
 - `makes/`
 - `.github/workflows/`
 - `packages/bijux-proteomics-dev/`
+
+## Design Pressure
+
+The common drift is to look only at helper code while missing that the real misrouting problem started in the entrypoint or workflow layer above it.
