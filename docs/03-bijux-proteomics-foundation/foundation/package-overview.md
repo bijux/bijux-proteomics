@@ -98,10 +98,3 @@ This page can explain the intended boundary of `bijux-proteomics-foundation`, bu
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page gives the shortest honest description of what the package is for.
-
-## Stability
-
-Keep it aligned with the real package boundary described by the code and tests.

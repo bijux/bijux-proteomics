@@ -90,10 +90,3 @@ This page can explain the intended boundary of `agentic-proteins`, but it cannot
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page records the package-specific contribution posture.
-
-## Stability
-
-Update these principles only when the package operating model truly changes.

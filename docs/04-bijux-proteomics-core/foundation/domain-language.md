@@ -90,10 +90,3 @@ This page can explain the intended boundary of `bijux-proteomics-core`, but it c
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page records the naming anchors that should stay stable in docs, code, and review discussions.
-
-## Stability
-
-Keep it aligned with the package's real import names, directories, and artifact nouns.

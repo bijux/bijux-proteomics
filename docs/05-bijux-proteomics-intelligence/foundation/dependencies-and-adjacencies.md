@@ -103,11 +103,3 @@ the story told here.
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page shows which surrounding tools and packages
-`bijux-proteomics-intelligence` depends on to do its job.
-
-## Stability
-
-Keep it aligned with `pyproject.toml` and the actual package seams.

@@ -51,11 +51,3 @@ flowchart TB
 A concern should live at the root only when it serves more than one package or
 when it explains the workspace itself.
 
-## Purpose
-
-This page shows the top-level directory split that supports the repository
-ownership model.
-
-## Stability
-
-Keep it aligned with the real top-level directories and their current meaning.

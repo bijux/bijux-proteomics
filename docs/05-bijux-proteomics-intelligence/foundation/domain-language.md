@@ -95,11 +95,3 @@ the story told here.
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page shows the naming anchors that stay stable in docs, code, and review
-discussions.
-
-## Stability
-
-Keep it aligned with the package's real import names, directories, and artifact nouns.

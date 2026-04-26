@@ -102,10 +102,3 @@ the story told here.
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page keeps future work from leaking into the wrong package.
-
-## Stability
-
-Update it only when ownership truly moves into or out of `bijux-proteomics-intelligence`.

@@ -93,10 +93,3 @@ the story told here.
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page keeps the package lifecycle readable before a reader dives into implementation detail.
-
-## Stability
-
-Keep it aligned with the current entrypoints and produced outputs.

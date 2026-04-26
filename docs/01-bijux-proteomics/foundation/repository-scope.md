@@ -53,11 +53,3 @@ flowchart LR
 - quiet root helpers that bypass package APIs
 - undocumented exceptions to the package ownership model
 
-## Purpose
-
-This page shows what the repository root is allowed to own.
-
-## Stability
-
-Keep it aligned with the current division between repository governance and
-package-owned behavior.

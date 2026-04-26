@@ -45,11 +45,3 @@ flowchart LR
 - maintainer automation belongs in `packages/bijux-proteomics-dev` and the
   maintenance handbook
 
-## Purpose
-
-This page names the ownership layers that keep repository rules, product code,
-and maintainer tooling from blurring together.
-
-## Stability
-
-Update it only when authority genuinely moves between those layers.

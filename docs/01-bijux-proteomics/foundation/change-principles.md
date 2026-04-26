@@ -45,10 +45,3 @@ flowchart LR
 - domain runtime code and maintainer tooling stay in separate packages
 - repository-wide checks remain deterministic for identical repository state
 
-## Purpose
-
-This page shows the principles that guide repository-wide change.
-
-## Stability
-
-Update it only when the repository operating model changes in a real way.

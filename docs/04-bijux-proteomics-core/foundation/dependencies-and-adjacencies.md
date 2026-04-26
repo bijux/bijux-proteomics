@@ -98,10 +98,3 @@ This page can explain the intended boundary of `bijux-proteomics-core`, but it c
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page explains which surrounding tools and packages `bijux-proteomics-core` depends on to do its job.
-
-## Stability
-
-Keep it aligned with `pyproject.toml` and the actual package seams.

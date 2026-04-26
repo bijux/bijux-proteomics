@@ -54,12 +54,3 @@ flowchart TD
 - [bijux-proteomics-maintain](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
   for repository-health automation and maintainer docs
 
-## Purpose
-
-This page helps readers choose the owning package before they start diffing the
-whole repository.
-
-## Stability
-
-Keep it aligned with the packages that still ship from this repository and the
-roles they actually own.

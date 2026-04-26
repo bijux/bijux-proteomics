@@ -48,11 +48,3 @@ flowchart LR
 - `proof surface` for the files that let a reader verify a claim, such as
   tests, schema artifacts, metadata, or workflow definitions
 
-## Purpose
-
-This page shows vocabulary that remains consistent across docs, code,
-metadata, and review conversations.
-
-## Stability
-
-Change it only when the repository meaning of a term actually changes.

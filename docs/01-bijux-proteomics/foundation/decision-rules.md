@@ -19,12 +19,3 @@ The root makes routing decisions easier, not more political.
 - if the issue is about repository-health tooling, start in the maintainer
   handbook and `bijux-proteomics-dev`
 
-## Purpose
-
-This page gives maintainers durable rules for routing work to the right
-repository layer.
-
-## Stability
-
-Keep these rules aligned with how authority is actually divided across the
-repository.

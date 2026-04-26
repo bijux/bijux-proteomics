@@ -45,12 +45,3 @@ flowchart LR
 - package contracts stay narrower and easier to defend
 - cross-package seams stay visible instead of becoming accidental coupling
 
-## Purpose
-
-This page is the shortest whole-system explanation of the proteomics package
-family.
-
-## Stability
-
-Keep it aligned with the current package responsibilities and the reasons the
-split exists.

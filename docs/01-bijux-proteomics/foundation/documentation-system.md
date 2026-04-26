@@ -69,11 +69,3 @@ flowchart TB
 - separate repository docs from maintainer docs
 - update docs in the same change series as the behavior they explain
 
-## Purpose
-
-This page shows how the handbook is organized and where repository-level
-guidance should stop.
-
-## Stability
-
-Keep it aligned with the sections and navigation the site actually renders.

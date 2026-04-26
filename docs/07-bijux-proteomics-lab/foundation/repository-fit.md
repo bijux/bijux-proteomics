@@ -98,11 +98,3 @@ here.
 - open interfaces when the question becomes contract-facing
 - open quality when the question becomes proof or review sufficiency
 
-## Purpose
-
-This page shows how the package fits into the repository without restating
-repository-wide rules.
-
-## Stability
-
-Keep it aligned with the package's checked-in directories and actual neighboring packages.
