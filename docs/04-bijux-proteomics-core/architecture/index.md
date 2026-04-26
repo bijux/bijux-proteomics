@@ -9,25 +9,58 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-`bijux-proteomics-core` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb runtime orchestration or recommendation policy.
+`bijux-proteomics-core` architecture is where the repository's governing domain
+rules become explicit. This section should help a reader see how protein
+programs, lifecycle checks, assays, reviews, and execution contracts fit
+together before runtime or intelligence packages act on them.
+
+```mermaid
+flowchart LR
+    targets["targets and sequences"]
+    programs["program specs<br/>programs, context"]
+    assays["assays and criteria"]
+    reviews["reviews and liabilities"]
+    lifecycle["lifecycle and validation"]
+    execution["execution contracts"]
+    adapters["runtime adapter<br/>repository seams"]
+
+    targets --> programs
+    assays --> lifecycle
+    programs --> lifecycle
+    reviews --> lifecycle
+    lifecycle --> execution --> adapters
+```
+
+## Architectural Promise
+
+- program meaning is decided here before orchestration starts
+- lifecycle progression should be explainable from explicit contracts, not from
+  incidental runtime behavior
+- downstream packages may consume these rules, but they should not have to
+  reinvent them
 
 ## Start With
 
-- open [Module Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/module-map/) when you need the fastest route from filenames to owned module families
-- open [Execution Model](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/execution-model/) when the question is how program definitions and readiness rules move through contract modules without collapsing into runtime orchestration
-- open [Integration Seams](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/integration-seams/) when a change may cross into runtime orchestration or recommendation policy
+- open [Execution Model](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/execution-model/)
+  when the question is how program state becomes execution readiness without
+  collapsing into runtime orchestration
+- open [Module Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/module-map/)
+  when you need the owning domain files for a concrete noun such as review,
+  assay, program, or target
+- open [Integration Seams](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/integration-seams/)
+  when a change seems to pull runtime control or recommendation logic inward
 
-## Section Pages
+## Read This Section To Answer
 
-- [Module Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/module-map/)
-- [Dependency Direction](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/dependency-direction/)
-- [Execution Model](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/execution-model/)
-- [State and Persistence](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/state-and-persistence/)
-- [Integration Seams](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/integration-seams/)
-- [Error Model](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/error-model/)
-- [Extensibility Model](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/extensibility-model/)
-- [Code Navigation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/code-navigation/)
-- [Architecture Risks](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/architecture-risks/)
+- where stage progression authority actually lives:
+  [Lifecycle](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/execution-model/)
+  and [Validation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/error-model/)
+- how domain structures stay legible:
+  [State and Persistence](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/state-and-persistence/)
+  and [Code Navigation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/code-navigation/)
+- what can be safely extended:
+  [Extensibility Model](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/extensibility-model/)
+  and [Architecture Risks](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/architecture-risks/)
 
 ## First Proof Check
 
@@ -37,4 +70,5 @@ last_reviewed: 2026-04-26
 
 ## Boundary Test
 
-If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.
+If a rule changes who may advance a program or what counts as ready, the answer
+should be obvious in this package before any runtime workflow is consulted.
