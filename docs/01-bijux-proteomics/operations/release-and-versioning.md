@@ -13,6 +13,24 @@ Release discipline matters most where several publishable packages move
 together. In this repository, versioning should make compatibility-sensitive
 change visible rather than hide it behind generic release automation.
 
+## Release Model
+
+```mermaid
+flowchart TB
+    change["release-sensitive change"]
+    metadata["metadata and changelog movement"]
+    workflow["release workflows and matrices"]
+    compatibility["compatibility triggers stay explicit"]
+    publish["publishable output"]
+
+    change --> metadata
+    metadata --> workflow
+    workflow --> compatibility
+    compatibility --> publish
+```
+
+This page should make release work feel like compatibility communication, not just publication mechanics. If version movement hides what changed for readers or consumers, the release process is already under-explaining the risk.
+
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
@@ -32,3 +50,7 @@ several packages or external consumers depend on together.
 - package metadata and changelogs
 - release workflows under `.github/workflows/`
 - publication guard and version resolver helpers in `bijux-proteomics-dev`
+
+## Design Pressure
+
+The common failure is to let shared release automation make several package moves look routine when one of them is actually a compatibility event.
