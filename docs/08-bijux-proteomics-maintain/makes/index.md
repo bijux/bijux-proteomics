@@ -15,20 +15,20 @@ reused include stack, and the package or repository scope that target actually
 touches.
 
 ```mermaid
-flowchart LR
-    maintainer["maintainer target"]
+flowchart TB
+    question["maintainer command question"]
     root["Makefile"]
-    routing["root.mk, packages.mk,<br/>publish.mk, env.mk"]
-    shared["bijux-py shared fragments"]
-    package["package-specific fragments"]
-    work["docs, tests, quality,<br/>api, security, release"]
+    routing["root routing and include stack"]
+    dispatch["shared or package dispatch"]
+    proof["docs, tests, quality, api, security, release work"]
 
-    maintainer --> root --> routing
-    routing --> shared
-    routing --> package
-    shared --> work
-    package --> work
+    question --> root
+    root --> routing
+    routing --> dispatch
+    dispatch --> proof
 ```
+
+This section should let a maintainer move from a command name to the owning fragment and then to the real proof surface. If it cannot do that, the make layer is still acting like shell folklore.
 
 ## What This Surface Is For
 
@@ -64,3 +64,7 @@ flowchart LR
 - `Makefile`
 - `makes/root.mk`, `makes/packages.mk`, and `makes/publish.mk`
 - `makes/bijux-py/` and `makes/packages/`
+
+## Design Pressure
+
+The easy failure is to treat the make system as one convenience surface and lose the route from entrypoint to owner to proof.
