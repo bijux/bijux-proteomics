@@ -125,10 +125,3 @@ This page shows how `agentic-proteins` earns trust today, but prose is not the s
 - open architecture when the proof gap points to structural drift
 - open interfaces or operations when the proof question is really about a contract or workflow
 
-## Purpose
-
-This page explains how to use the quality section for `agentic-proteins` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.

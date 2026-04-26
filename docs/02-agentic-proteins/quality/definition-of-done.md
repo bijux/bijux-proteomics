@@ -88,10 +88,3 @@ This page shows how `agentic-proteins` earns trust today, but prose is not the s
 - open architecture when the proof gap points to structural drift
 - open interfaces or operations when the proof question is really about a contract or workflow
 
-## Purpose
-
-This page records the package's completion threshold.
-
-## Stability
-
-Keep it aligned with the package validation and release expectations.

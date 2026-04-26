@@ -88,10 +88,3 @@ This page shows how `bijux-proteomics-core` earns trust today, but prose is not 
 - open architecture when the proof gap points to structural drift
 - open interfaces or operations when the proof question is really about a contract or workflow
 
-## Purpose
-
-This page keeps package docs from drifting back into ad hoc structure.
-
-## Stability
-
-Update it only when the shared documentation system itself changes.

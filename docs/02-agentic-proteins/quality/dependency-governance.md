@@ -92,10 +92,3 @@ This page shows how `agentic-proteins` earns trust today, but prose is not the s
 - open architecture when the proof gap points to structural drift
 - open interfaces or operations when the proof question is really about a contract or workflow
 
-## Purpose
-
-This page shows why dependency review matters for the package.
-
-## Stability
-
-Keep it aligned with `pyproject.toml` and the package's real dependency posture.

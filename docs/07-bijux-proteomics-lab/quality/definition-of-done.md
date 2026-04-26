@@ -88,10 +88,3 @@ This page shows how `bijux-proteomics-lab` earns trust today, but prose is not t
 - open architecture when the proof gap points to structural drift
 - open interfaces or operations when the proof question is really about a contract or workflow
 
-## Purpose
-
-This page shows the package's completion threshold.
-
-## Stability
-
-Keep it aligned with the package validation and release expectations.

@@ -94,10 +94,3 @@ This page shows how `bijux-proteomics-knowledge` earns trust today, but prose is
 - open architecture when the proof gap points to structural drift
 - open interfaces or operations when the proof question is really about a contract or workflow
 
-## Purpose
-
-This page shows how to choose meaningful validation for package work.
-
-## Stability
-
-Keep it aligned with the package's current test layout and docs structure.

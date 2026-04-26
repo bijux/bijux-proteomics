@@ -95,10 +95,3 @@ This page shows how `bijux-proteomics-knowledge` earns trust today, but prose is
 - open architecture when the proof gap points to structural drift
 - open interfaces or operations when the proof question is really about a contract or workflow
 
-## Purpose
-
-This page shows the promises that should not drift casually.
-
-## Stability
-
-Keep it aligned with invariant-focused tests and documented package guarantees.
