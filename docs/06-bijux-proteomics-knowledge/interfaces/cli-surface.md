@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # CLI Surface
@@ -23,34 +23,27 @@ Treat the interfaces pages for `bijux-proteomics-knowledge` as the bridge betwee
 
 ```mermaid
 flowchart LR
-    page["CLI Surface<br/>clarifies: identify contracts | see caller impact | review compatibility"]
+    surf1["evidence APIs"]
+    surf2["claim schemas"]
+    surf3["review artifacts"]
+    page["bijux-proteomics-knowledge<br/>CLI surface"]
+    caller1["intelligence readers"]
+    caller2["runtime status surfaces"]
+    caller3["scientific reviewers"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    surface1["HTTP app in src/bijux_proteomics_knowledge/claims.py"]
-    surface1 --> page
-    surface2["knowledge contracts in src/bijux_proteomics_knowledge/schema.py"]
-    surface2 --> page
-    surface3["CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py"]
-    surface3 --> page
-    proof1["src/bijux_proteomics_knowledge/schema.py"]
-    page --> proof1
-    proof2["src/bijux_proteomics_knowledge/schema.py"]
-    page --> proof2
-    proof3["execution store records"]
-    page --> proof3
-    review1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    review1 -.raises compatibility pressure on.-> page
-    review2["tests/e2e for governed flow behavior"]
-    review2 -.raises compatibility pressure on.-> page
-    review3["tests/regression and tests/smoke for replay and storage protection"]
-    review3 -.raises compatibility pressure on.-> page
+    surf1 --> page
+    surf2 --> page
+    surf3 --> page
+    page --> caller1
+    page --> caller2
+    page --> caller3
     class page page;
-    class surface1,surface2,surface3 positive;
-    class proof1,proof2,proof3 anchor;
-    class review1,review2,review3 caution;
+    class surf1,surf2,surf3 positive;
+    class caller1,caller2,caller3 anchor;
 ```
 
 ## Command Facts

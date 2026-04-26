@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Data Contracts
@@ -21,35 +21,28 @@ Treat the interfaces pages for `bijux-proteomics-intelligence` as the bridge bet
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Data Contracts<br/>clarifies: identify contracts | see caller impact | review compatibility"]
+flowchart LR
+    contract1["ranking outputs"]
+    contract2["policy parameters"]
+    contract3["explanation expectations"]
+    page["bijux-proteomics-intelligence<br/>data contracts"]
+    proof1["package code"]
+    proof2["tests"]
+    proof3["example outputs"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    surface1["ranking contracts in src/bijux_proteomics_intelligence/policies.py"]
-    surface1 --> page
-    surface2["CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py"]
-    surface2 --> page
-    surface3["HTTP app in src/bijux_proteomics_intelligence/evaluators.py"]
-    surface3 --> page
-    proof1["execution store records"]
+    contract1 --> page
+    contract2 --> page
+    contract3 --> page
     page --> proof1
-    proof2["src/bijux_proteomics_intelligence/policies.py"]
     page --> proof2
-    proof3["src/bijux_proteomics_intelligence/policies.py"]
     page --> proof3
-    review1["tests/e2e for governed flow behavior"]
-    review1 -.raises compatibility pressure on.-> page
-    review2["tests/regression and tests/smoke for replay and storage protection"]
-    review2 -.raises compatibility pressure on.-> page
-    review3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    review3 -.raises compatibility pressure on.-> page
     class page page;
-    class surface1,surface2,surface3 positive;
+    class contract1,contract2,contract3 positive;
     class proof1,proof2,proof3 anchor;
-    class review1,review2,review3 caution;
 ```
 
 ## Contract Anchors

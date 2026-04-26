@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Data Contracts
@@ -19,15 +19,28 @@ as a contract rather than left implicit in implementation details.
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    schema["schema.py: compatibility reports and schema profile"]
-    serialization["serialization.py: canonical json + fingerprints"]
-    evidence["evidence.py: evidence bundle and record shapes"]
-    claims["claims.py: claim and lineage shapes"]
-    resolution["resolution.py: conflict resolution shapes"]
-    schema --> serialization
-    evidence --> claims --> resolution
-    schema --> evidence
+flowchart LR
+    contract1["claim state"]
+    contract2["trust summaries"]
+    contract3["contradiction handling"]
+    page["bijux-proteomics-knowledge<br/>data contracts"]
+    proof1["package code"]
+    proof2["tests"]
+    proof3["tracked artifacts"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    contract1 --> page
+    contract2 --> page
+    contract3 --> page
+    page --> proof1
+    page --> proof2
+    page --> proof3
+    class page page;
+    class contract1,contract2,contract3 positive;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Contract Anchors

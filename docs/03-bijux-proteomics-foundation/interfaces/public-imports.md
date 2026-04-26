@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Public Imports
@@ -22,12 +22,27 @@ Treat the interfaces pages for `bijux-proteomics-foundation` as the bridge betwe
 
 ```mermaid
 flowchart LR
-    callers["downstream code"] --> pub["public imports"]
-    pub --> ids["identity exports"]
-    pub --> models["schema model exports"]
-    pub --> compat["compatibility exports"]
-    pub --> ser["serialization exports"]
-    pub -.shields callers from.-> private["private helpers and layout churn"]
+    surf1["public imports"]
+    surf2["data contracts"]
+    surf3["artifact compatibility"]
+    page["bijux-proteomics-foundation<br/>public imports"]
+    caller1["downstream packages"]
+    caller2["schema reviewers"]
+    caller3["migration maintainers"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    surf1 --> page
+    surf2 --> page
+    surf3 --> page
+    page --> caller1
+    page --> caller2
+    page --> caller3
+    class page page;
+    class surf1,surf2,surf3 positive;
+    class caller1,caller2,caller3 anchor;
 ```
 
 ## Import Anchor

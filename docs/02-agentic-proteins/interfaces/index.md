@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Interfaces
@@ -19,34 +19,27 @@ Treat the interfaces pages for `agentic-proteins` as the bridge between implemen
 
 ```mermaid
 flowchart LR
-    page["Interfaces<br/>clarifies: identify contracts | see caller impact | review compatibility"]
+    s1["legacy imports"]
+    s2["legacy CLI entrypoints"]
+    s3["migration guidance"]
+    page["Interfaces section<br/>caller-facing contracts"]
+    next1["commands and APIs"]
+    next2["data and artifacts"]
+    next3["compatibility expectations"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    surface1["HTTP app in src/agentic_proteins/api/app.py"]
-    surface1 --> page
-    surface2["canonical API schema in apis/bijux-proteomics-runtime/v1 with compatibility mirror in apis/agentic-proteins/v1"]
-    surface2 --> page
-    surface3["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
-    surface3 --> page
-    proof1["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
-    page --> proof1
-    proof2["apis/bijux-proteomics-runtime/v1/schema.yaml (canonical) and apis/agentic-proteins/v1/schema.yaml (compatibility mirror)"]
-    page --> proof2
-    proof3["execution store records"]
-    page --> proof3
-    review1["tests/e2e for governed flow behavior"]
-    review1 -.raises compatibility pressure on.-> page
-    review2["tests/regression for compatibility and behavior drift detection"]
-    review2 -.raises compatibility pressure on.-> page
-    review3["tests/api, tests/integration, and tests/e2e for surface and workflow coverage"]
-    review3 -.raises compatibility pressure on.-> page
+    s1 --> page
+    s2 --> page
+    s3 --> page
+    page --> next1
+    page --> next2
+    page --> next3
     class page page;
-    class surface1,surface2,surface3 positive;
-    class proof1,proof2,proof3 anchor;
-    class review1,review2,review3 caution;
+    class s1,s2,s3 positive;
+    class next1,next2,next3 anchor;
 ```
 
 ## Pages in This Section
