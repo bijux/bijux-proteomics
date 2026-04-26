@@ -12,6 +12,30 @@ last_reviewed: 2026-04-26
 The foundation section explains the durable role of `bijux-proteomics-knowledge` before it
 explains implementation detail. Use it to resolve why evidence truth belongs here before decision or lab layers consume it.
 
+```mermaid
+flowchart TB
+    observations["observations"]
+    claims["claims"]
+    confidence["confidence"]
+    contradictions["contradictions"]
+    knowledge["knowledge foundation"]
+    consumers["intelligence, lab, runtime"]
+
+    observations --> claims
+    observations --> confidence
+    observations --> contradictions
+    claims --> knowledge
+    confidence --> knowledge
+    contradictions --> knowledge
+    knowledge --> consumers
+```
+
+## What This Section Protects
+
+- a stable place for truth claims before they become decisions
+- contradiction as structured information instead of something to hide
+- confidence semantics that downstream packages can consume without redefining
+
 ## Start With
 
 - Open [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/) for the shortest statement of
@@ -34,6 +58,13 @@ explains implementation detail. Use it to resolve why evidence truth belongs her
 - [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/)
 - [Domain Language](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/domain-language/)
 - [Change Principles](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/change-principles/)
+
+## What This Section Settles
+
+- when a change is really about evidence state rather than about downstream use
+- how confidence and contradiction should remain explicit
+- when a proposed change belongs in intelligence, lab, or runtime instead of
+  here
 
 ## First Proof Check
 
