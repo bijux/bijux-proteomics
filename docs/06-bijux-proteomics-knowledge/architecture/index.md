@@ -9,40 +9,49 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-This section maps the real module layout for `bijux-proteomics-knowledge`.
+Use this section when the question is structural: which modules own evidence
+bundles, claim state, conflict resolution, review packets, schema
+compatibility, and graph relationships, and how those pieces fit together
+without turning the knowledge layer into a vague storage bucket.
 
-The package is not split into `runtime/model/application` layers. The structure
-is feature-oriented around evidence, claims, conflict resolution, review, and
-graph semantics.
+`bijux-proteomics-knowledge` is feature-oriented rather than framework-layered.
+Evidence enters through adapters, becomes structured records and bundles, moves
+through claim and resolution logic, and ends up in review and readiness
+surfaces that other packages can inspect.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    m1["evidence records"]
-    m2["claim transitions"]
-    m3["trust and contradiction evaluation"]
-    section["Architecture section<br/>structure and execution map"]
-    next1["module map"]
-    next2["execution and seams"]
-    next3["risks and navigation"]
+    adapters["adapters and ingestion normalization"]
+    evidence["evidence, repositories, and bundle state"]
+    claims["claims, graph, and lineage"]
+    resolution["resolution and contradiction handling"]
+    review["review packets, confidence, and readiness"]
+    reader["reader question<br/>where does this knowledge behavior live?"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    m1 --> section
-    m2 --> section
-    m3 --> section
-    section --> next1
-    section --> next2
-    section --> next3
-    class section page;
-    class m1,m2,m3 positive;
-    class next1,next2,next3 anchor;
+    class adapters,page reader;
+    class evidence,claims,resolution positive;
+    class review anchor;
+    adapters --> evidence --> claims --> resolution --> review
+    evidence --> reader
+    claims --> reader
+    resolution --> reader
 ```
 
-## Pages in This Section
+## Start Here
+
+- open [Module Map](module-map.md) for the shortest route from filenames to
+  owned behavior
+- open [Execution Model](execution-model.md) when you need the flow from
+  ingested evidence to reviewed knowledge state
+- open [State and Persistence](state-and-persistence.md) when the question is
+  which records, repositories, or summaries become durable
+
+## Pages In This Section
 
 - [Module Map](module-map.md)
 - [Dependency Direction](dependency-direction.md)
@@ -54,56 +63,49 @@ flowchart LR
 - [Code Navigation](code-navigation.md)
 - [Architecture Risks](architecture-risks.md)
 
-## Read Across the Package
+## Use This Section When
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- you need to know which module family owns a behavior before editing it
+- a review is about decomposition, dependency direction, or execution flow
+- you need to explain how evidence, claims, resolution, and review structure
+  relate
+
+## Do Not Use This Section When
+
+- the main question is why the package owns the behavior at all
+- you are deciding whether a schema, import, or artifact is a public contract
+- the issue is procedural or proof-oriented rather than structural
+
+## Read Across The Package
+
+- open [Foundation](../foundation/index.md) for package purpose and ownership
+- open [Interfaces](../interfaces/index.md) for import, schema, serialization,
+  and artifact contracts
+- open [Operations](../operations/index.md) for workflow, diagnostics, and
+  release procedures
+- open [Quality](../quality/index.md) for invariants, tests, and structure-risk
+  pressure
 
 ## Concrete Anchors
 
-- `src/bijux_proteomics_knowledge/evidence.py` for evidence modeling and trust logic
-- `src/bijux_proteomics_knowledge/claims.py` for claim lifecycle and lineage behavior
-- `src/bijux_proteomics_knowledge/resolution.py` for conflict resolution policy behavior
-- `src/bijux_proteomics_knowledge/review.py` for review-packet and readiness summarization
+- `src/bijux_proteomics_knowledge/adapters.py` for input normalization and
+  ingestion helpers
+- `src/bijux_proteomics_knowledge/evidence.py`, `repositories.py`, and
+  `serialization.py` for durable record and bundle state
+- `src/bijux_proteomics_knowledge/claims.py`, `graph.py`, and `resolution.py`
+  for claim lifecycle, contradiction handling, and dependency relationships
+- `src/bijux_proteomics_knowledge/review.py` and `confidence/` for review
+  packets, confidence, and readiness summaries
 
-## Use This Page When
+## Reader Takeaway
 
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
-
-## Decision Rule
-
-Use `Architecture` to decide whether a structural change makes `bijux-proteomics-knowledge` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What This Page Answers
-
-- how the package is actually decomposed today
-- which modules are core dependency hubs
-- where structural drift is likely to create caller confusion
-
-## Reviewer Lens
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Honesty Boundary
-
-This page describes the current structural model of `bijux-proteomics-knowledge`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+`Architecture` should make the knowledge package legible as a chain of named
+responsibilities. If evidence storage, claim semantics, contradiction handling,
+and review output start blending together, the package becomes harder to trust
+as an auditable state layer.
 
 ## Purpose
 
-This page explains how to use the architecture section for `bijux-proteomics-knowledge` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+This page introduces the knowledge architecture handbook and routes readers to
+the pages that explain module groups, dependency direction, execution flow, and
+durable state.
