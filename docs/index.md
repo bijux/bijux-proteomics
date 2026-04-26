@@ -13,10 +13,9 @@ last_reviewed: 2026-04-26
 runtime execution, shared contracts, decision intelligence, evidence handling,
 and lab orchestration. The split is the architecture, not a packaging detail.
 
-Start here when you need repository-level orientation. A reader who opens only
-this page should still be able to answer three things quickly: why the split
-exists, which package owns the current concern, and where to go next without
-guessing from the tree.
+Start here for repository-level orientation: why the split exists, which
+package owns the current concern, and where to go next without guessing from
+the tree.
 
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
@@ -144,7 +143,7 @@ flowchart TB
 - `packages/` as the package split this page is explaining
 - `packages/bijux-proteomics-dev` as the maintainer-side implementation surface
 
-## Use This Page When
+## Open This Page When
 
 - you are orienting yourself before opening a repository, package, or
   maintainer page
@@ -152,7 +151,7 @@ flowchart TB
 - you are checking whether the published docs still cover the right repository
   surfaces
 
-## Do Not Use This Page When
+## Open A Deeper Handbook When
 
 - the real question already belongs to one package and you need exact
   interfaces, workflows, or tests
@@ -171,12 +170,8 @@ planning and outcome promotion. Runtime governs how those parts execute,
 replay, and remain inspectable. `agentic-proteins` exists only to preserve old
 entrypoints long enough for callers to move safely to the canonical runtime.
 
-## Purpose
+## Reader Takeaway
 
-This page gets readers oriented quickly, points them to the right handbook
-branch, and sends them toward the files that carry the detailed proof.
-
-## Stability
-
-Keep it aligned with the sections rendered in `docs/`, the packages that still
-ship from this repository, and the reasons the split exists.
+Open this page to understand the package family before drilling into one owned
+surface. Once one package clearly owns the behavior, the deeper handbook should
+carry the detailed contract, proof, and operating guidance.
