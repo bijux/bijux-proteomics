@@ -9,12 +9,12 @@ last_reviewed: 2026-04-26
 
 # Operations
 
-Use this section when the question is how to change core contracts repeatably:
+Open this section when the question is how to change core contracts repeatably:
 installing the package, running lifecycle and readiness validation, diagnosing
 contract drift, and releasing durable rules without surprising the rest of the
 stack.
 
-These pages should act as checked-in operating memory for a package whose rules
+These pages act as checked-in operating memory for a package whose rules
 other layers depend on. If core operational guidance is vague, downstream
 packages spend time rediscovering whether a failure is a real contract change or
 just a bad local run.
@@ -46,26 +46,26 @@ flowchart LR
 
 ## Start Here
 
-- open [Installation and Setup](installation-and-setup.md) when you need a
+- open [Installation and Setup](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/installation-and-setup/) when you need a
   clean local environment for contract work
-- open [Common Workflows](common-workflows.md) when the goal is to change or
+- open [Common Workflows](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/common-workflows/) when the goal is to change or
   validate core rules repeatably
-- open [Observability and Diagnostics](observability-and-diagnostics.md) when
+- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/observability-and-diagnostics/) when
   lifecycle or readiness behavior no longer matches expectation
-- open [Failure Recovery](failure-recovery.md) when a contract change has
+- open [Failure Recovery](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/failure-recovery/) when a contract change has
   already gone wrong
 
-## Pages In This Section
+## Pages In Operations
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- [Installation and Setup](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/installation-and-setup/)
+- [Local Development](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/local-development/)
+- [Common Workflows](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/common-workflows/)
+- [Observability and Diagnostics](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/observability-and-diagnostics/)
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/performance-and-scaling/)
+- [Failure Recovery](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/failure-recovery/)
+- [Release and Versioning](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/release-and-versioning/)
+- [Security and Safety](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/security-and-safety/)
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/deployment-boundaries/)
 
 ## Use This Section When
 
@@ -83,13 +83,13 @@ flowchart LR
 
 ## Read Across The Package
 
-- open [Foundation](../foundation/index.md) when operational pain may really be
+- open [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/) when operational pain may really be
   a boundary mistake
-- open [Architecture](../architecture/index.md) when workflow pain reveals a
+- open [Architecture](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/) when workflow pain reveals a
   structural problem in lifecycle or validation code
-- open [Interfaces](../interfaces/index.md) when a workflow depends on a public
+- open [Interfaces](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/) when a workflow depends on a public
   command, import, or contract surface
-- open [Quality](../quality/index.md) when the question becomes whether the
+- open [Quality](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/quality/) when the question becomes whether the
   workflow is sufficiently validated and reviewed
 
 ## Concrete Anchors
@@ -100,13 +100,12 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use `Operations` when you need a contract workflow that can be repeated from
+Open `Operations` when you need a contract workflow that can be repeated from
 checked-in instructions. If a lifecycle or readiness change only succeeds
 because somebody remembers an undocumented sequence, the operational story is
 not reliable enough for a package that defines durable rules.
 
 ## Purpose
 
-This page introduces the operations handbook for `bijux-proteomics-core` and
-routes readers to the setup, workflow, diagnostics, recovery, and release pages
-that define how the package is actually run.
+Open this page when you need the setup, workflow, diagnostics, recovery, and
+release route through `bijux-proteomics-core` operations.
