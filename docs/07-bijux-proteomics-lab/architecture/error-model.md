@@ -74,23 +74,23 @@ flowchart LR
 
 Use `Error Model` to decide whether a structural change makes `bijux-proteomics-lab` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
 
-## What This Page Answers
+## What You Can Resolve Here
 
 - how `bijux-proteomics-lab` is organized internally in terms a reviewer can follow
 - which modules carry the main execution and dependency story
 - where structural drift would show up before it becomes expensive
 
-## Reviewer Lens
+## Review Focus
 
 - trace the described execution path through the named modules instead of trusting the diagram alone
 - look for dependency direction or layering that now contradicts the documented seam
 - verify that the structural risks named here still match the current code shape
 
-## Honesty Boundary
+## Limits
 
 This page describes the current structural model of `bijux-proteomics-lab`, but it does not guarantee that every import path or runtime path still obeys that model. Treat it as a map that must stay aligned with code and tests, not as an authority above them.
 
-## Next Checks
+## Read Next
 
 - open interfaces when the review reaches a public or operator-facing seam
 - open operations when the concern becomes repeatable runtime behavior

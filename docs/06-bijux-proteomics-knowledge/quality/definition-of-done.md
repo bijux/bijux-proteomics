@@ -66,23 +66,23 @@ flowchart LR
 
 Use `Definition of Done` to decide whether `bijux-proteomics-knowledge` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
 
-## What This Page Answers
+## What You Can Resolve Here
 
 - what currently proves the `bijux-proteomics-knowledge` contract instead of merely describing it
 - which risks, limits, and assumptions still need explicit skepticism
 - what a reviewer should be able to say before accepting a change as done
 
-## Reviewer Lens
+## Review Focus
 
 - compare the documented proof story with the actual test layout and release posture
 - look for limitations or risks that should have moved with recent behavior changes
 - verify that the claimed done-ness standard still reflects real validation practice
 
-## Honesty Boundary
+## Limits
 
 This page shows how `bijux-proteomics-knowledge` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
-## Next Checks
+## Read Next
 
 - open foundation when the risk appears to be boundary confusion rather than missing tests
 - open architecture when the proof gap points to structural drift

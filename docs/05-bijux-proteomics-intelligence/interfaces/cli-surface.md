@@ -69,23 +69,23 @@ flowchart LR
 
 Use `CLI Surface` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
 
-## What This Page Answers
+## What You Can Resolve Here
 
 - which public or operator-facing surfaces `bijux-proteomics-intelligence` is really asking readers to trust
 - which schemas, artifacts, imports, or commands behave like contracts
 - what compatibility pressure a change to this surface would create
 
-## Reviewer Lens
+## Review Focus
 
 - compare commands, schemas, imports, and artifacts against the documented surface one by one
 - check whether a seemingly local change actually needs compatibility review
 - confirm that examples still point to real entrypoints and not to stale habits
 
-## Honesty Boundary
+## Limits
 
 This page can identify the intended public surfaces of `bijux-proteomics-intelligence`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
 
-## Next Checks
+## Read Next
 
 - open operations when the caller-facing question becomes procedural or environmental
 - open quality when compatibility or evidence of protection becomes the real issue

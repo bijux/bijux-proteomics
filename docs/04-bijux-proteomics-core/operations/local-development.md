@@ -68,23 +68,23 @@ flowchart LR
 
 Open `Local Development` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
 
-## What This Page Answers
+## What You Can Resolve Here
 
 - how `bijux-proteomics-core` is installed, run, diagnosed, and released in practice
 - which checked-in files and tests anchor the operational story
 - where a maintainer should look first when the package behaves differently
 
-## Reviewer Lens
+## Review Focus
 
 - verify that setup, workflow, and release statements still match package metadata and current commands
 - check that operational guidance still points at real diagnostics and validation paths
 - confirm that maintainer advice still works under current local and CI expectations
 
-## Honesty Boundary
+## Limits
 
 This page shows how `bijux-proteomics-core` is operated today, but the checked-in commands, artifacts, and validation remain the source of truth. Use those assets to confirm the workflow in a real environment.
 
-## Next Checks
+## Read Next
 
 - open interfaces when the operational path depends on a specific surface contract
 - open quality when the question becomes whether the workflow is sufficiently proven

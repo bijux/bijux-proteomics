@@ -76,23 +76,23 @@ flowchart LR
 
 Use `Capability Map` to decide whether a change makes `bijux-proteomics-core` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
 
-## What This Page Answers
+## What You Can Resolve Here
 
 - what problem `bijux-proteomics-core` is supposed to own on purpose
 - where the package boundary stops, even when nearby code looks tempting
 - which neighboring package seams deserve comparison before the boundary is changed
 
-## Reviewer Lens
+## Review Focus
 
 - compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
 - check that out-of-scope behavior is not quietly re-entering through convenience paths
 - confirm that the package story still matches the real repository layout and neighboring package docs
 
-## Honesty Boundary
+## Limits
 
 This page can explain the intended boundary of `bijux-proteomics-core`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
 
-## Next Checks
+## Read Next
 
 - open architecture when the question becomes structural rather than boundary-oriented
 - open interfaces when the question becomes contract-facing
