@@ -13,10 +13,12 @@ Ownership in `bijux-proteomics-lab` should be visible in checked-in structure, n
 only in prose. The source tree shows where the package expects work to live, and
 the tests show whether that expectation is protected when the code changes.
 
-Use this page when a change proposal feels plausible in more than one package
+Open this page when a change proposal feels plausible in more than one package
 and someone needs a concrete reason to keep the work here or move it elsewhere.
 
-Treat the foundation pages for `bijux-proteomics-lab` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+Read the foundation pages as the durable package description for
+`bijux-proteomics-lab`. If the package still feels blurry after this section,
+the boundary story is not clear enough yet.
 
 ## Visual Summary
 
@@ -77,25 +79,28 @@ Use `Ownership Boundary` to decide whether a change makes `bijux-proteomics-lab`
 
 ## What This Page Answers
 
-- what problem `bijux-proteomics-lab` is supposed to own on purpose
+- what problem `bijux-proteomics-lab` owns on purpose
 - where the package boundary stops, even when nearby code looks tempting
 - which neighboring package seams deserve comparison before the boundary is changed
 
 ## Reviewer Lens
 
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
+- compare the stated boundary with the modules, artifacts, and tests that uphold it
 - check that out-of-scope behavior is not quietly re-entering through convenience paths
 - confirm that the package story still matches the real repository layout and neighboring package docs
 
 ## Honesty Boundary
 
-This page can explain the intended boundary of `bijux-proteomics-lab`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
+This page shows the intended boundary of `bijux-proteomics-lab`, but it cannot
+prove that boundary by itself. The real proof still lives in the code, tests,
+and neighboring package seams that either support or contradict the story told
+here.
 
 ## Next Checks
 
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
+- open architecture when the question becomes structural rather than boundary-oriented
+- open interfaces when the question becomes contract-facing
+- open quality when the question becomes proof or review sufficiency
 
 ## Purpose
 

@@ -16,7 +16,7 @@ Read this section first when you need the durable package story before code
 detail. A quick skim should make the role, the boundary, and the neighboring
 seams legible.
 
-The foundation pages should answer one hard question quickly: why does a
+The foundation pages answer one hard question quickly: why does a
 separate lab package exist at all, instead of burying this behavior inside
 recommendation logic, runtime orchestration, or knowledge promotion?
 
@@ -46,17 +46,17 @@ flowchart LR
     class neighbors caution;
 ```
 
-## Pages in This Section
+## Pages In Foundation
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Ownership Boundary](ownership-boundary.md)
-- [Repository Fit](repository-fit.md)
-- [Capability Map](capability-map.md)
-- [Domain Language](domain-language.md)
-- [Lifecycle Overview](lifecycle-overview.md)
-- [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
-- [Change Principles](change-principles.md)
+- [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/scope-and-non-goals/)
+- [Ownership Boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/repository-fit/)
+- [Capability Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/capability-map/)
+- [Domain Language](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/domain-language/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/lifecycle-overview/)
+- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/dependencies-and-adjacencies/)
+- [Change Principles](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/change-principles/)
 
 ## What This Section Clarifies
 
@@ -82,13 +82,13 @@ flowchart LR
 
 ## Read Across the Package
 
-- [Architecture](../architecture/index.md) when the question becomes how the
+- open [Architecture](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/) when the question becomes how the
   package is organized internally
-- [Interfaces](../interfaces/index.md) when the question becomes which imports,
+- open [Interfaces](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/) when the question becomes which imports,
   artifacts, and schemas callers may trust
-- [Operations](../operations/index.md) when the question becomes how planning
+- open [Operations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/) when the question becomes how planning
   and outcome workflows are repeated in practice
-- [Quality](../quality/index.md) when the question becomes what evidence proves
+- open [Quality](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/) when the question becomes what evidence proves
   the package contract still holds
 
 ## Concrete Anchors
@@ -105,7 +105,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-Use the foundation section to decide whether a question truly belongs to the
+Open the foundation section to decide whether a question truly belongs to the
 lab package before you spend time in lower-level detail. If the work does not
 change planning, scheduling, rerun, or promotion readiness, it probably belongs
 somewhere else.
