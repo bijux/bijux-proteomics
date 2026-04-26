@@ -11,11 +11,12 @@ last_reviewed: 2026-04-26
 
 Architectural risk appears when the package boundary becomes hard to explain or hard to test.
 
-This page should keep risk language concrete. The right risks are the ones that
+This page keeps risk language concrete. The right risks are the ones that
 would make the package harder to reason about even if the current implementation
 still appears to work.
 
-Treat the architecture pages for `bijux-proteomics-core` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Read the architecture pages as a reviewer-facing map of structure and flow for
+`bijux-proteomics-core`. They shorten code reading without trying to replace it.
 
 ## Visual Summary
 
@@ -93,9 +94,9 @@ This page describes the current structural model of `bijux-proteomics-core`, but
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 

@@ -16,7 +16,8 @@ This page exists so integration changes do not feel mysterious. A reviewer shoul
 be able to say which seams are intentional, which ones carry compatibility risk,
 and where the package expects outside systems to meet it.
 
-Treat the architecture pages for `bijux-proteomics-core` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Read the architecture pages as a reviewer-facing map of structure and flow for
+`bijux-proteomics-core`. They shorten code reading without trying to replace it.
 
 ## Visual Summary
 
@@ -90,13 +91,13 @@ This page describes the current structural model of `bijux-proteomics-core`, but
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 
-This page explains where to look when integration behavior changes.
+This page shows where to look when integration behavior changes.
 
 ## Stability
 

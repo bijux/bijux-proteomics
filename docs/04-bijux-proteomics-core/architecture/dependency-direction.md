@@ -9,14 +9,15 @@ last_reviewed: 2026-04-26
 
 # Dependency Direction
 
-The package should keep dependency direction readable: domain intent near the center,
+The package keeps dependency direction readable: domain intent near the center,
 interfaces and infrastructure at the edges.
 
 This is not only an aesthetic preference. Clear dependency direction keeps
 refactors cheaper because reviewers can still tell which layers are allowed to
 know about which other layers.
 
-Treat the architecture pages for `bijux-proteomics-core` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Read the architecture pages as a reviewer-facing map of structure and flow for
+`bijux-proteomics-core`. They shorten code reading without trying to replace it.
 
 ## Visual Summary
 
@@ -94,9 +95,9 @@ This page describes the current structural model of `bijux-proteomics-core`, but
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 
