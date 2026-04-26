@@ -9,11 +9,17 @@ last_reviewed: 2026-04-26
 
 # Quality
 
-This section explains how `agentic-proteins` earns trust: which proof surfaces matter, which risks stay visible, and what done should mean after a real change.
+This section explains how `agentic-proteins` earns trust as a compatibility
+bridge: which forwarding proofs matter, which migration risks stay visible, and
+what done should mean before a preserved legacy surface is changed or removed.
 
-These pages explain the proof story for `agentic-proteins`. They should make trust, skepticism, and review pressure visible enough that passing checks do not get mistaken for sufficient evidence.
+These pages explain the proof story for the bridge package. They should make
+trust, skepticism, and retirement pressure visible enough that passing checks
+do not get mistaken for sufficient migration evidence.
 
-Treat the quality pages for `agentic-proteins` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
+This section should leave readers with a narrow quality lens: a compatibility
+package is trustworthy when it forwards deliberately, fails loudly when the
+bridge breaks, and does not hide retirement debt behind green checks alone.
 
 ## Visual Summary
 
@@ -53,6 +59,26 @@ flowchart LR
 - [Change Validation](change-validation.md)
 - [Known Limitations](known-limitations.md)
 - [Risk Register](risk-register.md)
+
+## Use This Section When
+
+- you are reviewing forwarding tests, alias coverage, compatibility limits, or
+  retirement risk
+- you need evidence that a preserved legacy surface is still defended honestly
+- you are deciding whether bridge work is truly done instead of merely passing
+  a narrow check
+
+## Do Not Use This Section When
+
+- the real proof question belongs to the canonical runtime package
+- you are evaluating new product quality rather than legacy-surface safety
+- the issue is architectural or caller-facing rather than proof-facing
+
+## Reader Takeaway
+
+Quality here is about safe preservation and safe exit. If the bridge still
+ships, readers should be able to see why it is trustworthy today and what proof
+would justify retiring it tomorrow.
 
 ## Read Across the Package
 
