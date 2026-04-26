@@ -29,7 +29,7 @@ identifiers.
 - open [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/) when a change
   may break shared cross-package assumptions
 
-## Published Interface Pages
+## Pages In This Section
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/cli-surface/)
 - [API Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/api-surface/)
@@ -56,7 +56,7 @@ identifiers.
 - the issue is operational, such as validation workflow, release steps, or test
   execution
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when the contract issue is really a
   boundary or ownership question
@@ -76,7 +76,7 @@ identifiers.
 
 ## Bottom Line
 
-Use `Interfaces` to separate stable shared contracts from whatever merely
+Open this section to separate stable shared contracts from whatever merely
 happens to be visible in implementation today. If another package cannot defend
 its dependency in terms of named imports, schemas, artifacts, examples, and
 tests, that dependency is not yet an honest public surface.

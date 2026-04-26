@@ -29,7 +29,7 @@ knowledge, intelligence, lab, and runtime behavior.
 - open [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/) when a contract
   change may ripple into higher packages
 
-## Published Interface Pages
+## Pages In This Section
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/)
 - [API Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/api-surface/)
@@ -55,7 +55,7 @@ knowledge, intelligence, lab, and runtime behavior.
 - the issue is operational, such as validation workflow, release steps, or test
   execution
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/) when the contract concern is really
   a boundary or ownership question
@@ -76,7 +76,7 @@ knowledge, intelligence, lab, and runtime behavior.
 
 ## Bottom Line
 
-Use `Interfaces` to separate stable core contracts from whatever merely happens
+Open this section to separate stable core contracts from whatever merely happens
 to be visible in the implementation. If another package cannot defend its
 dependency in terms of named commands, imports, schemas, artifacts, examples,
 and tests, that dependency is not yet an honest public surface.

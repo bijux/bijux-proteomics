@@ -28,7 +28,7 @@ depend on.
 - open [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/) when the question is
   schema profile behavior rather than record semantics
 
-## Published Interface Pages
+## Pages In This Section
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/)
 - [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/)
@@ -54,7 +54,7 @@ depend on.
 - the concern is mostly structural rather than contract-facing
 - the issue is procedural or proof-oriented rather than about supported surfaces
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
 - open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for the structural seams behind
@@ -73,7 +73,7 @@ depend on.
 
 ## Bottom Line
 
-Use `Interfaces` to judge whether a dependency on knowledge state is
+Open this section to judge whether a dependency on knowledge state is
 defensible. The bar is that imports, schema profiles, serialized payloads,
 artifacts, examples, and tests all agree about what a caller may rely on.
 

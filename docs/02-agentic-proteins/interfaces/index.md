@@ -20,7 +20,7 @@ This section shows whether they are still depending on a legacy
 surface, what it forwards to, and what kind of review is required before that
 surface changes.
 
-## Published Interface Pages
+## Pages In This Section
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/cli-surface/)
 - [API Surface](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/api-surface/)
@@ -74,7 +74,7 @@ surface, that is the preferred long-term answer.
 
 ## Decision Rule
 
-Use `Interfaces` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
+Open this section to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
 
 ## What You Can Resolve Here
 

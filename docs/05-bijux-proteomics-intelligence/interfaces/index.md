@@ -18,7 +18,7 @@ workflow, downstream package, or reviewer wants to rely on intelligence
 output, this section makes it obvious which surfaces are deliberate and which
 ones would be a mistake to hard-code against.
 
-## Published Interface Pages
+## Pages In This Section
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/)
 - [API Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/api-surface/)
