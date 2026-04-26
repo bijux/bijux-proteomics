@@ -56,7 +56,7 @@ just a bad local run.
 - you need package-boundary or structural context before acting safely
 - the issue is mainly about proof sufficiency rather than the workflow itself
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/) when operational pain may really be
   a boundary mistake
@@ -75,7 +75,7 @@ just a bad local run.
 
 ## Bottom Line
 
-Open `Operations` when you need a contract workflow that can be repeated from
+Open this section when you need a contract workflow that can be repeated from
 checked-in instructions. If a lifecycle or readiness change only succeeds
 because somebody remembers an undocumented sequence, the operational story is
 not reliable enough for a package that defines durable rules.

@@ -56,7 +56,7 @@ debugging breakage that should have been prevented before release.
 - you need ownership or structural context before you can act safely
 - the issue is mainly about proof sufficiency rather than the workflow itself
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when operational pain may really be
   a boundary mistake
@@ -76,7 +76,7 @@ debugging breakage that should have been prevented before release.
 
 ## Bottom Line
 
-Use `Operations` when you need a shared-contract workflow that can be repeated
+Open this section when you need a shared-contract workflow that can be repeated
 from checked-in instructions. If a schema or migration change only succeeds
 because somebody remembers an undocumented sequence, the operational story is
 not reliable enough for a cross-package dependency layer.

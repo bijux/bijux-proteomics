@@ -76,7 +76,7 @@ canonical runtime handbook is the better long-term home.
 
 ## Decision Rule
 
-Use `Operations` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
+Open this section to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
 
 ## What You Can Resolve Here
 

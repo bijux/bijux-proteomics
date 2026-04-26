@@ -61,7 +61,7 @@ summary silently drifts in a way downstream packages cannot explain.
 - `packages/bijux-proteomics-knowledge/tests` for executable operational backstops
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` for the import surface
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package boundary and scope
 - open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when a workflow problem points
@@ -73,7 +73,7 @@ summary silently drifts in a way downstream packages cannot explain.
 
 ## Bottom Line
 
-Open `Operations` to find workflows a maintainer can rerun and defend. If a
+Open this section to find workflows a maintainer can rerun and defend. If a
 procedure cannot show how it protects schema compatibility, evidence state, and
 review output, it is not ready to serve as the package’s operating memory.
 
