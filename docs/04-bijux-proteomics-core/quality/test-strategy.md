@@ -11,6 +11,26 @@ last_reviewed: 2026-04-26
 
 A useful test strategy names what evidence is needed and why shallow coverage is not enough.
 
+For `bijux-proteomics-core`, the test story should show how one durable rule stays singular across contracts, lifecycle behavior, and runtime-adjacent seams.
+
+## Strategy Model
+
+```mermaid
+flowchart TB
+    rule["durable core rule"]
+    contract["contract and schema tests"]
+    lifecycle["lifecycle and validation proof"]
+    seams["runtime-adjacent seam checks"]
+    release["release confidence"]
+
+    rule --> contract
+    contract --> lifecycle
+    lifecycle --> seams
+    seams --> release
+```
+
+This page should help a reader see why core tests exist in layers. The package becomes risky when proof of a rule is scattered across several test types but no page explains how they join up.
+
 ## Review Rules
 
 - favor contract, lifecycle, and schema tests that explain the rule being defended
@@ -22,3 +42,7 @@ A useful test strategy names what evidence is needed and why shallow coverage is
 - `packages/bijux-proteomics-core/tests`
 - `src/bijux_proteomics/program_spec.py` and `targets.py`
 - `src/bijux_proteomics/lifecycle.py` and `validation.py`
+
+## Design Pressure
+
+The common mistake is to accumulate regression tests without proving that lifecycle, schema, and execution contracts still agree about the same rule.
