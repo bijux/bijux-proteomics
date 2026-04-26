@@ -57,7 +57,7 @@ changes can be reviewed with confidence.
 - you need tests, risk posture, or definition-of-done criteria more than a
   structural map
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/) when the structural issue is really
   an ownership question
@@ -79,7 +79,7 @@ changes can be reviewed with confidence.
 
 ## Bottom Line
 
-Use `Architecture` to make the shared meaning layer legible enough that a
+Open this section to make the shared meaning layer legible enough that a
 reviewer can say where schema logic ends, where compatibility logic begins, and
 how those two stay connected. If the answer only works when you already know
 the package by memory, the structure is too implicit.

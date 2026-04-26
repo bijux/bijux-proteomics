@@ -75,7 +75,7 @@ migration safer, that is usually a sign the work belongs elsewhere.
 
 ## Decision Rule
 
-Use `Architecture` to decide whether a structural change makes `agentic-proteins` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
+Open this section to decide whether a structural change makes `agentic-proteins` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
 
 ## What You Can Resolve Here
 

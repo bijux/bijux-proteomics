@@ -53,7 +53,7 @@ surfaces that other packages can inspect.
 - you are deciding whether a schema, import, or artifact is a public contract
 - the issue is procedural or proof-oriented rather than structural
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
 - open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for import, schema, serialization,

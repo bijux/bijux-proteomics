@@ -53,7 +53,7 @@ logic tracks whether progress is converging or stalling.
 - you are deciding whether an import, artifact, or schema is a public contract
 - the issue is procedural or proof-oriented rather than structural
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/) for package purpose and ownership
 - open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/) for imports, artifacts, and

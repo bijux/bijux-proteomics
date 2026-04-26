@@ -56,7 +56,7 @@ changed without quietly blurring ownership boundaries.
 - the issue is operational, such as validation workflow or release handling
 - you need proof, risk posture, or done-ness criteria more than a structural map
 
-## Read Across The Package
+## Across This Package
 
 - open [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/) when the structural issue is really
   an ownership question
@@ -78,7 +78,7 @@ changed without quietly blurring ownership boundaries.
 
 ## Bottom Line
 
-Open `Architecture` to make the contract layer legible enough that a reviewer
+Open this section to make the contract layer legible enough that a reviewer
 can say where core rules live, how they flow, and where they meet neighboring
 surfaces. If that answer depends on private memory rather than the docs and
 code, the structure is too implicit.
