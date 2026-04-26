@@ -37,11 +37,3 @@ flowchart LR
   than one package
 - update explanation and proof in the same change series
 
-## Purpose
-
-This page shows the normal repository workflow shape so shared work requires
-less guesswork.
-
-## Stability
-
-Update it when the checked-in contributor path really changes.

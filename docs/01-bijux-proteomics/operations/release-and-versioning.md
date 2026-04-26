@@ -35,11 +35,3 @@ sequenceDiagram
   PyPI publication, GHCR publication, and GitHub release publication workflows
 - each publishable package owns its own `CHANGELOG.md`
 
-## Purpose
-
-This page connects repository-wide release conventions to the package release
-mechanism.
-
-## Stability
-
-Keep it aligned with the release tooling actually configured in the repository.

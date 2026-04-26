@@ -37,10 +37,3 @@ flowchart LR
   maintainer automation
 - prefer clear, durable commit intent over vague shorthand
 
-## Purpose
-
-This page shows the review bar for repository-wide changes.
-
-## Stability
-
-Keep it aligned with the actual root review posture and proof surfaces.

@@ -95,10 +95,3 @@ This page shows how `bijux-proteomics-lab` is operated today, but the checked-in
 - open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
-## Purpose
-
-This page records the posture for performance work in `bijux-proteomics-lab`.
-
-## Stability
-
-Keep it aligned with the package's actual performance-sensitive paths and validation surfaces.

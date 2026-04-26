@@ -88,10 +88,3 @@ This page shows how `bijux-proteomics-lab` is operated today, but the checked-in
 - open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
-## Purpose
-
-This page reminds maintainers that packages are publishable units, not just folders in one repo.
-
-## Stability
-
-Keep it aligned with the package's actual distributable surface.

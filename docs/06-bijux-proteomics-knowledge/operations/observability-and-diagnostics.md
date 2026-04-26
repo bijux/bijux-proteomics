@@ -92,10 +92,3 @@ This page shows how `bijux-proteomics-knowledge` is operated today, but the chec
 - open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
-## Purpose
-
-This page points readers toward the package's observable output and diagnostic support.
-
-## Stability
-
-Keep it aligned with the package modules and artifacts that currently support diagnosis.

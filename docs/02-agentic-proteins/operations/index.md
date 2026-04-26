@@ -127,10 +127,3 @@ This page shows how `agentic-proteins` is operated today, but the checked-in com
 - open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
-## Purpose
-
-This page shows the published operations routes for `agentic-proteins` and the workflows readers can inspect next.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.

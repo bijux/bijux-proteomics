@@ -57,11 +57,3 @@ is recorded here so repository policy stays visible.
 - slowapi
 - boto3
 
-## Purpose
-
-This page shows how the repository distinguishes durable reference artifacts
-from generated workflow output.
-
-## Stability
-
-Update it when the repository meaning of a tracked artifact class changes.

@@ -95,10 +95,3 @@ This page shows how `bijux-proteomics-core` is operated today, but the checked-i
 - open quality when the question becomes whether the workflow is sufficiently proven
 - open architecture when operational complexity suggests a structural problem
 
-## Purpose
-
-This page shows the posture for performance work in `bijux-proteomics-core`.
-
-## Stability
-
-Keep it aligned with the package's actual performance-sensitive paths and validation surfaces.

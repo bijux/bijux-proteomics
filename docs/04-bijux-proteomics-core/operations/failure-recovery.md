@@ -88,10 +88,3 @@ This page shows how `bijux-proteomics-core` is operated today, but the checked-i
 - open quality when the question becomes whether the workflow is sufficiently proven
 - open architecture when operational complexity suggests a structural problem
 
-## Purpose
-
-This page gives maintainers a durable frame for triaging package failures.
-
-## Stability
-
-Keep it aligned with the package entrypoints and diagnostic outputs.

@@ -46,11 +46,3 @@ flowchart LR
 - `tox.ini` for root validation environments
 - `Makefile` and `makes/` for common workflows
 
-## Purpose
-
-This page shows the preferred development posture for the workspace.
-
-## Stability
-
-Keep it aligned with the root automation files and workflow expectations that
-actually exist.

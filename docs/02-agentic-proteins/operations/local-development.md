@@ -90,10 +90,3 @@ This page shows how `agentic-proteins` is operated today, but the checked-in com
 - open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
-## Purpose
-
-This page records the package-local development posture.
-
-## Stability
-
-Keep it aligned with the actual test layout and maintenance workflow.

@@ -40,12 +40,3 @@ flowchart TB
 - `packages/bijux-proteomics-dev` as the code-bearing home for maintainer
   helpers
 
-## Purpose
-
-This page shows where repository automation is allowed to live and how it
-stays reviewable.
-
-## Stability
-
-Keep it aligned with the actual automation surfaces contributors are expected
-to use.

@@ -35,11 +35,3 @@ timeline
   constrained exception is explicitly approved exit: keep this section empty
   except approved debt items
 
-## Purpose
-
-This page shows how shared repository changes should be packaged and carried
-through to completion.
-
-## Stability
-
-Update it only when the repository’s change discipline genuinely shifts.

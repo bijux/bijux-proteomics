@@ -46,12 +46,3 @@ flowchart LR
 - pinned OpenAPI JSON and digests move only with reviewable intent
 - schema drift checks belong in tooling and tests, not in prose alone
 
-## Purpose
-
-This page shows how repository-level API artifacts stay synchronized with the
-code that claims to implement them.
-
-## Stability
-
-Keep it aligned with the real schema roots and drift checks under `apis/` and
-`bijux-proteomics-dev`.

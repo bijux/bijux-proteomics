@@ -42,10 +42,3 @@ flowchart LR
 A prose promise is incomplete until package tests or repository tooling can
 detect its drift.
 
-## Purpose
-
-This page shows the relationship between package truth and repository truth.
-
-## Stability
-
-Keep it aligned with the current test layout and validation workflows.
