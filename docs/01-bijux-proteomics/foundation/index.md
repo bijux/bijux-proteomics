@@ -52,7 +52,7 @@ flowchart LR
 - open [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/) when you need the repository’s
   actual bar for changing the split
 
-## Pages In Foundation
+## Pages In This Section
 
 - [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/)
 - [Repository Scope](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-scope/)

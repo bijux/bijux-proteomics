@@ -57,7 +57,7 @@ flowchart LR
   the concern is CI, workflow fan-out, generated docs checks, or release
   tooling
 
-## Pages In Repository Handbook
+## Pages In This Handbook
 
 - [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
 - [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)

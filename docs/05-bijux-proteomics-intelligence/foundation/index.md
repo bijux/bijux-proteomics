@@ -50,7 +50,7 @@ flowchart LR
 - open [Lifecycle Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/lifecycle-overview/) when you need the path from
   candidate inputs to recommended action
 
-## Pages In Foundation
+## Pages In This Section
 
 - [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/scope-and-non-goals/)

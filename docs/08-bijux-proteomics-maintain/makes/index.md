@@ -36,7 +36,7 @@ flowchart LR
     release --> reader
 ```
 
-## Pages In makes
+## Pages In This Section
 
 - [Make System Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/make-system-overview/)
 - [Root Entrypoints](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/root-entrypoints/)

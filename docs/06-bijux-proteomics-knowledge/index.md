@@ -71,7 +71,7 @@ flowchart LR
 - you are expecting this package to make policy decisions instead of to record
   and justify evidence state
 
-## Pages In Knowledge Handbook
+## Pages In This Handbook
 
 - [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
 - [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)

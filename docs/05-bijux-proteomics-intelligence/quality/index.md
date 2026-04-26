@@ -18,7 +18,7 @@ proof burden here has to stay explicit so a green check on one narrow path does
 not get mistaken for evidence that candidate selection, explanation outputs,
 and design-loop controls are all still sound.
 
-## Pages In Quality
+## Pages In This Section
 
 - [Test Strategy](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/test-strategy/)
 - [Invariants](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/invariants/)

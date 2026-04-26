@@ -50,7 +50,7 @@ flowchart LR
 - open [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/) when you need the path from
   evidence ingestion to auditable readiness output
 
-## Pages In Foundation
+## Pages In This Section
 
 - [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/scope-and-non-goals/)

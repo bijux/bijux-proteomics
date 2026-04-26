@@ -28,7 +28,7 @@ and auditable story.
 - open [Known Limitations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/known-limitations/) and [Risk Register](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/risk-register/)
   before assuming the knowledge layer proves more than it actually does
 
-## Pages In Quality
+## Pages In This Section
 
 - [Test Strategy](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/test-strategy/)
 - [Invariants](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/invariants/)

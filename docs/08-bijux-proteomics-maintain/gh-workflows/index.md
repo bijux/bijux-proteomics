@@ -40,7 +40,7 @@ flowchart LR
     reusable --> reader
 ```
 
-## Pages In gh-workflows
+## Pages In This Section
 
 - [verify](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/verify/)
 - [reusable-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/reusable-workflows/)

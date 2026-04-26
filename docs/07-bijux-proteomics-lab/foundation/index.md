@@ -46,7 +46,7 @@ flowchart LR
     class neighbors caution;
 ```
 
-## Pages In Foundation
+## Pages In This Section
 
 - [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/scope-and-non-goals/)

@@ -52,7 +52,7 @@ flowchart LR
 - open [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the issue starts from a
   GitHub event, failed job tree, or publication trigger
 
-## Pages In Maintainer Handbook
+## Pages In This Handbook
 
 - [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
 - [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/)

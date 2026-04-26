@@ -44,7 +44,7 @@ flowchart LR
     class planning,outcomes,contracts positive;
 ```
 
-## Pages In Quality
+## Pages In This Section
 
 - [Test Strategy](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/test-strategy/)
 - [Invariants](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/invariants/)

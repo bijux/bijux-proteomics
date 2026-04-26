@@ -54,7 +54,7 @@ flowchart LR
 - open [Review Expectations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/review-expectations/) when the real question is
   what evidence and scope discipline a root-level change needs
 
-## Pages In Operations
+## Pages In This Section
 
 - [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/)
 - [Testing and Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/testing-and-validation/)

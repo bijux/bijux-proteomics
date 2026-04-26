@@ -55,7 +55,7 @@ flowchart LR
 - open [Architecture Risks](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/architecture-risks/) when structural clarity is
   under pressure from runtime or biology complexity
 
-## Pages In Architecture
+## Pages In This Section
 
 - [Module Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/dependency-direction/)

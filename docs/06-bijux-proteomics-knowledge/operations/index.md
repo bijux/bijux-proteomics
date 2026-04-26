@@ -52,7 +52,7 @@ flowchart LR
   [Failure Recovery](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/failure-recovery/) when evidence state or review output
   is behaving unexpectedly
 
-## Pages In Operations
+## Pages In This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/)
 - [Local Development](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/local-development/)

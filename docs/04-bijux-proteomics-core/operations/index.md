@@ -55,7 +55,7 @@ flowchart LR
 - open [Failure Recovery](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/failure-recovery/) when a contract change has
   already gone wrong
 
-## Pages In Operations
+## Pages In This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/installation-and-setup/)
 - [Local Development](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/local-development/)

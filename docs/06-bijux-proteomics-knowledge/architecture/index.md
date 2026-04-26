@@ -51,7 +51,7 @@ flowchart LR
 - open [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/) when the question is
   which records, repositories, or summaries become durable
 
-## Pages In Architecture
+## Pages In This Section
 
 - [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/)
 - [Dependency Direction](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/dependency-direction/)
