@@ -25,7 +25,7 @@ not drift into wishful prose.
 
 ## Purpose
 
-This page explains where repository documentation integrity checks live.
+This page shows where repository documentation integrity checks live.
 
 ## Stability
 

@@ -27,7 +27,7 @@ build and publication stages.
 
 ## Purpose
 
-Use this page to see which workflows are building blocks and which top-level
+This page shows which workflows are building blocks and which top-level
 workflows call them.
 
 ## Stability

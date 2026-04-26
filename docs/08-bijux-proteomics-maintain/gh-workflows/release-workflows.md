@@ -38,8 +38,8 @@ The split keeps each publication surface explicit:
 
 ## Purpose
 
-Use this page to understand which release surfaces are published and how the
-tag-driven workflow split is organized.
+This page shows which release surfaces are published and how the tag-driven
+workflow split is organized.
 
 ## Stability
 

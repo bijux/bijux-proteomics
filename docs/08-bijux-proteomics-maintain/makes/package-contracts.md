@@ -23,7 +23,7 @@ copying target logic across many package files.
 
 ## Purpose
 
-This page explains where package-level make contracts are defined and reused.
+This page shows where package-level make contracts are defined and reused.
 
 ## Stability
 

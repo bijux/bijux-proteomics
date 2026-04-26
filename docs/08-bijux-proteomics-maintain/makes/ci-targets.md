@@ -27,7 +27,7 @@ fragments are the reusable command layer that the workflows depend on.
 
 ## Purpose
 
-This page explains where CI-oriented targets live in the make tree.
+This page shows where CI-oriented targets live in the make tree.
 
 ## Stability
 

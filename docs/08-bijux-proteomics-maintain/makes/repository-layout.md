@@ -26,8 +26,8 @@ into per-package bindings.
 
 ## Purpose
 
-This page explains how the make tree is partitioned so new targets can be
-placed correctly.
+This page shows how the make tree is partitioned so new targets can be placed
+correctly.
 
 ## Stability
 

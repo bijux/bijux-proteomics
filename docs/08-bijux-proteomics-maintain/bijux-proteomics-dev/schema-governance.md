@@ -25,7 +25,7 @@ checked-in API artifacts.
 
 ## Purpose
 
-This page explains why schema drift detection belongs in the maintainer package
+This page shows why schema drift detection belongs in the maintainer package
 instead of scattered shell scripts.
 
 ## Stability

@@ -25,8 +25,7 @@ assumptions that later targets depend on.
 
 ## Purpose
 
-This page explains where shared environment expectations live in the make
-system.
+This page shows where shared environment expectations live in the make system.
 
 ## Stability
 

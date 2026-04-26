@@ -27,8 +27,8 @@ package run uses the shared `bijux-std` reusable CI workflow.
 
 ## Purpose
 
-Use this page to understand when verification runs and how it branches from
-repository checks into package-level jobs.
+This page shows when verification runs and how it branches from repository
+checks into package-level jobs.
 
 ## Stability
 

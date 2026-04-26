@@ -24,7 +24,7 @@ and the workflow step that carry it.
 
 ## Purpose
 
-This page explains how the maintainer package participates in repository-wide
+This page shows how the maintainer package participates in repository-wide
 correctness and consistency.
 
 ## Stability
