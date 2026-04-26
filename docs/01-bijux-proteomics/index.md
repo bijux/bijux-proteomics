@@ -17,9 +17,14 @@ and where cross-package rules begin and end.
 If a reader can answer their question honestly from one package handbook, they
 should go there instead of staying here.
 
+This page should make the root feel like a coordination layer, not a shadow
+owner of product behavior. The repository exists to keep several package-level
+promises moving together without letting the root quietly absorb domain,
+runtime, or lab semantics that belong elsewhere.
+
 ```mermaid
 flowchart LR
-    questions["cross-package questions"]
+    reader["reader question<br/>is this rule shared or package-local?"]
     root["Repository Handbook<br/>root-owned guidance"]
     foundation["Foundation<br/>split, scope, language"]
     operations["Operations<br/>validation, release, review"]
@@ -30,7 +35,7 @@ flowchart LR
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    questions --> root
+    reader --> root
     root --> foundation
     root --> operations
     root --> packages
@@ -40,29 +45,51 @@ flowchart LR
     class packages,maintain positive;
 ```
 
+## Start Here
+
+- open [Foundation](foundation/index.md) when the question is why the package
+  split exists or where authority changes hands
+- open [Operations](operations/index.md) when the question is how repository
+  work is validated, released, or reviewed
+- move straight to a product handbook when the real issue is already local to
+  one package boundary
+- move to [Maintainer Handbook](../08-bijux-proteomics-maintain/index.md) when
+  the concern is CI, workflow fan-out, generated docs checks, or release
+  tooling
+
 ## Handbook Sections
 
 - [Foundation](foundation/index.md)
 - [Operations](operations/index.md)
 
-## What This Section Covers
+## What This Handbook Owns
 
-- the package split and repository ownership model
-- shared automation, validation, release, and review guidance
-- the root-level rules that no one package can explain honestly on its own
+- the shared explanation of why the root exists at all
+- repository-wide workflow, validation, release, and artifact rules
+- the seams where one package hands responsibility to another
+
+## What This Handbook Does Not Own
+
+- runtime execution behavior, provider semantics, or replay authority
+- foundation, core, intelligence, knowledge, or lab behavior inside those
+  package docs
+- maintainer-helper implementation detail that belongs in the maintainer
+  handbook
 
 ## Use This Section For
 
-- Questions about why the repository is split the way it is.
-- Questions about root-managed assets such as `apis/`, `Makefile`, shared CI,
-  and release conventions.
-- Questions about where the root should stop and a product package should take
-  over.
+- questions about why the repository is split the way it is
+- questions about root-managed assets such as `apis/`, `Makefile`, shared CI,
+  and release conventions
+- questions about where the root should stop and a product package should take
+  over
 
 ## Leave This Section For A Package Handbook When
 
-- the answer lives mostly in one package's source tree, tests, or public surface
-- the question is about one package's internal boundary rather than repository fit
+- the answer lives mostly in one package's source tree, tests, or public
+  surface
+- the question is about one package's internal boundary rather than repository
+  fit
 - you are tempted to describe behavior at the root that really belongs inside
   `packages/`
 
@@ -75,5 +102,16 @@ flowchart LR
 - [bijux-proteomics-knowledge](../06-bijux-proteomics-knowledge/foundation/index.md)
 - [bijux-proteomics-lab](../07-bijux-proteomics-lab/foundation/index.md)
 
-The job of this section is simple: help readers understand the system without
-letting the root pretend it owns behavior that belongs elsewhere.
+## Concrete Anchors
+
+- `pyproject.toml` for workspace metadata and package declarations
+- `Makefile` and `makes/` for root automation and release routing
+- `apis/` and `.github/workflows/` for schema and validation review
+- `packages/` for the product boundaries this handbook must not blur
+
+## Reader Takeaway
+
+The job of this handbook is simple: help readers understand the system without
+letting the root pretend it owns behavior that belongs elsewhere. If the
+current question can be answered honestly inside one product handbook, this
+root should route you there instead of trying to keep you.
