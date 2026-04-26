@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Deployment Boundaries
@@ -20,35 +20,28 @@ Treat the operations pages for `bijux-proteomics-intelligence` as the package's 
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    page["Deployment Boundaries<br/>clarifies: repeat workflows | find diagnostics | release safely"]
+flowchart LR
+    guard1["keep scoring inspectable"]
+    guard2["separate policy from contracts"]
+    guard3["trace recommendation drift"]
+    page["bijux-proteomics-intelligence<br/>deployment boundaries"]
+    proof1["example outputs"]
+    proof2["tests"]
+    proof3["package metadata"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    step1["packages/bijux-proteomics-intelligence/pyproject.toml"]
-    step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py"]
-    step2 --> page
-    step3["HTTP app in src/bijux_proteomics_intelligence/evaluators.py"]
-    step3 --> page
-    run1["tests/e2e for governed flow behavior"]
-    page --> run1
-    run2["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run2
-    run3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run3
-    release1["pyproject.toml"]
-    run1 --> release1
-    release2["README.md"]
-    run2 --> release2
-    release3["CHANGELOG.md"]
-    run3 --> release3
+    guard1 --> page
+    guard2 --> page
+    guard3 --> page
+    page --> proof1
+    page --> proof2
+    page --> proof3
     class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    class guard1,guard2,guard3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Boundary Facts

@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Operations
@@ -23,11 +23,27 @@ CLI or HTTP service surface. Operational work here mostly means:
 
 ```mermaid
 flowchart LR
-    change["change in evidence or claim behavior"]
-    tests["run package tests in packages/bijux-proteomics-knowledge/tests"]
-    metadata["verify pyproject + README + CHANGELOG"]
-    release["release via tag-triggered workflow"]
-    change --> tests --> metadata --> release
+    f1["review evidence inputs"]
+    f2["inspect claim state"]
+    f3["validate trust outputs"]
+    page["Operations section<br/>repeatable package workflows"]
+    next1["setup and workflows"]
+    next2["diagnostics and recovery"]
+    next3["release and deployment"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    f1 --> page
+    f2 --> page
+    f3 --> page
+    page --> next1
+    page --> next2
+    page --> next3
+    class page page;
+    class f1,f2,f3 positive;
+    class next1,next2,next3 anchor;
 ```
 
 ## Pages in This Section

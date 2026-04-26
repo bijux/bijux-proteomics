@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Failure Recovery
@@ -20,14 +20,28 @@ Treat the operations pages for `bijux-proteomics-foundation` as the package's ex
 ## Visual Summary
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Healthy
-    Healthy --> InvalidInput
-    Healthy --> DriftDetected
-    InvalidInput --> Corrected
-    DriftDetected --> Revalidated
-    Corrected --> Healthy
-    Revalidated --> Healthy
+flowchart LR
+    signal1["schema files"]
+    signal2["compatibility tests"]
+    signal3["package metadata"]
+    page["bijux-proteomics-foundation<br/>failure recovery"]
+    action1["trace the symptom"]
+    action2["check the contract"]
+    action3["leave review evidence"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    signal1 --> page
+    signal2 --> page
+    signal3 --> page
+    page --> action1
+    page --> action2
+    page --> action3
+    class page page;
+    class signal1,signal2,signal3 anchor;
+    class action1,action2,action3 action;
 ```
 
 ## Recovery Anchors

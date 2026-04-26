@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Release and Versioning
@@ -21,35 +21,28 @@ Treat the operations pages for `agentic-proteins` as the package's explicit oper
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Release and Versioning<br/>clarifies: repeat workflows | find diagnostics | release safely"]
+flowchart LR
+    guard1["do not add new runtime features"]
+    guard2["keep the bridge narrow"]
+    guard3["retire unused aliases"]
+    page["agentic-proteins<br/>release and versioning"]
+    proof1["compatibility tests"]
+    proof2["runtime handoff docs"]
+    proof3["package metadata"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    step1["HTTP surface in src/agentic_proteins/api/"]
-    step1 --> page
-    step2["packages/agentic-proteins/pyproject.toml"]
-    step2 --> page
-    step3["CLI entrypoint in src/agentic_proteins/interfaces/cli.py"]
-    step3 --> page
-    run1["tests/regression for runtime guardrails and replay stability"]
-    page --> run1
-    run2["tests/unit and tests/integration for package contracts"]
-    page --> run2
-    run3["tests/e2e for governed workflow behavior"]
-    page --> run3
-    release1["pyproject.toml"]
-    run1 --> release1
-    release2["README.md"]
-    run2 --> release2
-    release3["CHANGELOG.md"]
-    run3 --> release3
+    guard1 --> page
+    guard2 --> page
+    guard3 --> page
+    page --> proof1
+    page --> proof2
+    page --> proof3
     class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    class guard1,guard2,guard3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Release Anchors

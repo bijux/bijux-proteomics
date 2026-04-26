@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Common Workflows
@@ -15,12 +15,28 @@ library-maintenance paths.
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    read["identify affected module: evidence/claims/resolution/review/graph"]
-    change["implement focused change"]
-    verify["run package tests and quality gates"]
-    sync["update docs + changelog + metadata"]
-    read --> change --> verify --> sync
+flowchart LR
+    step1["review evidence inputs"]
+    step2["inspect claim state"]
+    step3["validate trust outputs"]
+    page["bijux-proteomics-knowledge<br/>common workflows"]
+    op1["scientific reviewers"]
+    op2["runtime readers"]
+    op3["release maintainers"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    step1 --> page
+    step2 --> page
+    step3 --> page
+    page --> op1
+    page --> op2
+    page --> op3
+    class page page;
+    class step1,step2,step3 positive;
+    class op1,op2,op3 anchor;
 ```
 
 ## Recurring Paths

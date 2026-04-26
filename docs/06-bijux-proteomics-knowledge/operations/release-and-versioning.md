@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Release and Versioning
@@ -21,35 +21,28 @@ Treat the operations pages for `bijux-proteomics-knowledge` as the package's exp
 ## Visual Summary
 
 ```mermaid
-flowchart RL
-    page["Release and Versioning<br/>clarifies: repeat workflows | find diagnostics | release safely"]
+flowchart LR
+    guard1["keep evidence inspectable"]
+    guard2["separate facts from policy"]
+    guard3["treat trust regressions seriously"]
+    page["bijux-proteomics-knowledge<br/>release and versioning"]
+    proof1["tracked artifacts"]
+    proof2["tests"]
+    proof3["package metadata"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    step1["Evidence and claim models in src/bijux_proteomics_knowledge/"]
-    step1 --> page
-    step2["packages/bijux-proteomics-knowledge/pyproject.toml"]
-    step2 --> page
-    step3["Conflict and review surfaces in src/bijux_proteomics_knowledge/"]
-    step3 --> page
-    run1["tests/ for evidence trust and freshness behavior"]
-    page --> run1
-    run2["claim graph and resolution checks in tests/"]
-    page --> run2
-    run3["knowledge review packet contract checks in tests/"]
-    page --> run3
-    release1["pyproject.toml"]
-    run1 --> release1
-    release2["README.md"]
-    run2 --> release2
-    release3["CHANGELOG.md"]
-    run3 --> release3
+    guard1 --> page
+    guard2 --> page
+    guard3 --> page
+    page --> proof1
+    page --> proof2
+    page --> proof3
     class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    class guard1,guard2,guard3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Release Anchors

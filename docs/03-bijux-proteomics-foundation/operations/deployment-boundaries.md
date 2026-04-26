@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Deployment Boundaries
@@ -20,13 +20,28 @@ Treat the operations pages for `bijux-proteomics-foundation` as the package's ex
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    foundation["foundation package"] --> owns1["library artifact"]
-    foundation --> owns2["schema / serialization behavior"]
-    platform["deployment platform"] --> owns3["runtime environment"]
-    platform --> owns4["service rollout"]
-    platform --> owns5["secret distribution"]
-    foundation -.does not own.-> owns4
+flowchart LR
+    guard1["preserve shared meaning"]
+    guard2["avoid package-local policy"]
+    guard3["treat schema breaks as high-cost"]
+    page["bijux-proteomics-foundation<br/>deployment boundaries"]
+    proof1["schema files"]
+    proof2["compatibility tests"]
+    proof3["package metadata"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    guard1 --> page
+    guard2 --> page
+    guard3 --> page
+    page --> proof1
+    page --> proof2
+    page --> proof3
+    class page page;
+    class guard1,guard2,guard3 action;
+    class proof1,proof2,proof3 anchor;
 ```
 
 ## Boundary Facts

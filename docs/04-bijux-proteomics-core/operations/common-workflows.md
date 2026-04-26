@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Common Workflows
@@ -20,35 +20,28 @@ Treat the operations pages for `bijux-proteomics-core` as the package's explicit
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    page["Common Workflows<br/>clarifies: repeat workflows | find diagnostics | release safely"]
+flowchart LR
+    step1["run program validation"]
+    step2["check lifecycle changes"]
+    step3["review readiness rules"]
+    page["bijux-proteomics-core<br/>common workflows"]
+    op1["runtime implementers"]
+    op2["policy reviewers"]
+    op3["release maintainers"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    step1["packages/bijux-proteomics-core/pyproject.toml"]
     step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics/interfaces/cli.py"]
     step2 --> page
-    step3["HTTP app in src/bijux_proteomics/programs.py"]
     step3 --> page
-    run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run1
-    run2["tests/e2e for governed flow behavior"]
-    page --> run2
-    run3["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run3
-    release1["README.md"]
-    run1 --> release1
-    release2["CHANGELOG.md"]
-    run2 --> release2
-    release3["pyproject.toml"]
-    run3 --> release3
+    page --> op1
+    page --> op2
+    page --> op3
     class page page;
     class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    class op1,op2,op3 anchor;
 ```
 
 ## Recurring Paths

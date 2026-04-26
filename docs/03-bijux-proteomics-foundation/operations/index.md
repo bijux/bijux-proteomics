@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Operations
@@ -18,21 +18,28 @@ Treat the operations pages for `bijux-proteomics-foundation` as the package's ex
 ## Visual Summary
 
 ```mermaid
-mindmap
-  root((Operations))
-    Setup
-      installation
-      local development
-    Run
-      common workflows
-      deployment boundaries
-    Diagnose
-      observability
-      failure recovery
-      performance
-    Ship
-      release and versioning
-      security and safety
+flowchart LR
+    f1["install schema helpers"]
+    f2["validate serialization changes"]
+    f3["review migration helpers"]
+    page["Operations section<br/>repeatable package workflows"]
+    next1["setup and workflows"]
+    next2["diagnostics and recovery"]
+    next3["release and deployment"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
+    f1 --> page
+    f2 --> page
+    f3 --> page
+    page --> next1
+    page --> next2
+    page --> next3
+    class page page;
+    class f1,f2,f3 positive;
+    class next1,next2,next3 anchor;
 ```
 
 ## Pages in This Section

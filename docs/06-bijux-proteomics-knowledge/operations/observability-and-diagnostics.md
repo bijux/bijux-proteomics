@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Observability and Diagnostics
@@ -20,34 +20,27 @@ Treat the operations pages for `bijux-proteomics-knowledge` as the package's exp
 
 ```mermaid
 flowchart LR
-    page["Observability and Diagnostics<br/>clarifies: repeat workflows | find diagnostics | release safely"]
+    signal1["tracked artifacts"]
+    signal2["tests"]
+    signal3["package metadata"]
+    page["bijux-proteomics-knowledge<br/>observability and diagnostics"]
+    action1["trace the symptom"]
+    action2["check the contract"]
+    action3["leave review evidence"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    step1["CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py"]
-    step1 --> page
-    step2["HTTP app in src/bijux_proteomics_knowledge/claims.py"]
-    step2 --> page
-    step3["packages/bijux-proteomics-knowledge/pyproject.toml"]
-    step3 --> page
-    run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run1
-    run2["tests/e2e for governed flow behavior"]
-    page --> run2
-    run3["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run3
-    release1["README.md"]
-    run1 --> release1
-    release2["CHANGELOG.md"]
-    run2 --> release2
-    release3["pyproject.toml"]
-    run3 --> release3
+    signal1 --> page
+    signal2 --> page
+    signal3 --> page
+    page --> action1
+    page --> action2
+    page --> action3
     class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    class signal1,signal2,signal3 anchor;
+    class action1,action2,action3 action;
 ```
 
 ## Diagnostic Anchors

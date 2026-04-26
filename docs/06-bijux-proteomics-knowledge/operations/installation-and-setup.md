@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Installation and Setup
@@ -21,35 +21,28 @@ Treat the operations pages for `bijux-proteomics-knowledge` as the package's exp
 ## Visual Summary
 
 ```mermaid
-flowchart TB
-    page["Installation and Setup<br/>clarifies: repeat workflows | find diagnostics | release safely"]
+flowchart LR
+    step1["review evidence inputs"]
+    step2["inspect claim state"]
+    step3["validate trust outputs"]
+    page["bijux-proteomics-knowledge<br/>installation and setup"]
+    op1["scientific reviewers"]
+    op2["runtime readers"]
+    op3["release maintainers"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    step1["packages/bijux-proteomics-knowledge/pyproject.toml"]
     step1 --> page
-    step2["CLI entrypoint in src/bijux_proteomics_knowledge/evidence.py"]
     step2 --> page
-    step3["HTTP app in src/bijux_proteomics_knowledge/claims.py"]
     step3 --> page
-    run1["tests/e2e for governed flow behavior"]
-    page --> run1
-    run2["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run2
-    run3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run3
-    release1["README.md"]
-    run1 --> release1
-    release2["CHANGELOG.md"]
-    run2 --> release2
-    release3["pyproject.toml"]
-    run3 --> release3
+    page --> op1
+    page --> op2
+    page --> op3
     class page page;
     class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    class op1,op2,op3 anchor;
 ```
 
 ## Package Metadata Anchors
