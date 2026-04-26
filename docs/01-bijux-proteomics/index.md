@@ -51,9 +51,9 @@ flowchart LR
   split exists or where authority changes hands
 - open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/) when the question is how repository
   work is validated, released, or reviewed
-- move straight to a product handbook when the real issue is already local to
-  one package boundary
-- move to [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/) when
+- open a product handbook when the real issue is already local to one package
+  boundary
+- open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/) when
   the concern is CI, workflow fan-out, generated docs checks, or release
   tooling
 
@@ -76,7 +76,7 @@ flowchart LR
 - maintainer-helper implementation detail that belongs in the maintainer
   handbook
 
-## Use This Handbook When
+## Open This Handbook When
 
 - questions about why the repository is split the way it is
 - questions about root-managed assets such as `apis/`, `Makefile`, shared CI,
@@ -84,7 +84,7 @@ flowchart LR
 - questions about where the root should stop and a product package should take
   over
 
-## Move On When
+## Open Another Handbook When
 
 - the answer lives mostly in one package's source tree, tests, or public
   surface
@@ -111,7 +111,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-The job of this handbook is simple: help readers understand the system without
-letting the root pretend it owns behavior that belongs elsewhere. If the
-current question can be answered honestly inside one product handbook, this
-root should route you there instead of trying to keep you.
+This handbook exists to help readers understand the system without letting the
+root pretend it owns behavior that belongs elsewhere. If the current question
+can be answered honestly inside one product handbook, this root should route
+you there instead of trying to keep you.
