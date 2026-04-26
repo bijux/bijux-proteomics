@@ -9,30 +9,27 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-The foundation section explains why `bijux-proteomics` exists in this shape
-before it explains how the repository is operated.
+The foundation section explains why `bijux-proteomics` is split the way it is.
+It is the place to resolve boundary questions before they become code drift,
+docs drift, or review confusion.
 
-Leave this section with a durable understanding of
-the package split, the ownership model, the shared vocabulary, and the change
-rules that keep the repository legible over time.
+The central question here is simple: why should this repository stay a package
+family instead of collapsing into a blur of shared code and mixed ownership. If
+that question is unresolved, the rest of the handbook will only restate the
+same confusion in smaller pieces.
 
-This section answers one question decisively: why is this repository a
-package family instead of one large proteomics codebase with blurred ownership?
-If that answer still feels vague after this page, the rest of the handbook will
-only inherit the same confusion.
+## Start With
 
-## Start Here
+- Open [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/)
+  for the shortest explanation of the full package chain.
+- Open [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
+  when the question is which package should own the work.
+- Open [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
+  when a change crosses root and package boundaries.
+- Open [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
+  when a reviewer needs a hard yes-or-no gate.
 
-- open [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/) for the shortest explanation
-  of what the repository is trying to be
-- open [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/) when the key question is which package owns
-  which concern
-- open [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/) when a proposed change may cross a
-  package boundary
-- open [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/) when you need the repository’s
-  actual bar for changing the split
-
-## Pages In This Section
+## Section Pages
 
 - [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/)
 - [Repository Scope](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-scope/)
@@ -44,42 +41,15 @@ only inherit the same confusion.
 - [Change Principles](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/change-principles/)
 - [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
 
-## Open This Section When
+## First Proof Check
 
-- you need the package-family rationale before reading package-local docs
-- you are deciding whether a concern belongs at the repository root or inside
-  one package handbook
-- you need shared vocabulary for discussing boundaries, docs, or change scope
+- `packages/` for the actual ownership seams
+- `docs/` for the handbook split mirroring those seams
+- root process surfaces such as `Makefile`, `makes/`, and `apis/` when a claim
+  truly sits above one package
 
-## Open Another Section When
+## Boundary
 
-- the real question is already about one package’s API, runtime, evidence, or
-  lab behavior
-- the issue is mainly operational and you need repeatable workflows rather than
-  ownership framing
-- you already know the package boundary and now need code or validation detail
-
-## What This Section Clarifies
-
-- why the current package split exists instead of a flatter or more entangled
-  repository
-- how the repository distinguishes shared meaning, durable contracts, evidence
-  state, ranking policy, lab planning, and execution
-- which root-level rules should stay stable so the package handbooks can remain
-  honest
-
-## Concrete Anchors
-
-- `docs/` for the root handbook structure that mirrors the package split
-- `packages/` for the package-family surface this section is explaining
-- `packages/bijux-proteomics-dev/` for repository-health support that should
-  not be confused with product-package ownership
-- `Makefile` and `makes/` for root-owned process surfaces discussed later in
-  the operations section
-
-## Bottom Line
-
-Open the foundation section when the unresolved question is why the repository
-is organized as a family of accountable packages. If the answer depends on one
-package’s local behavior rather than on the split itself, this section should
-hand you off quickly instead of pretending root docs own the detail.
+If the answer depends mostly on one package's source tree, tests, or public
+contracts, the root foundation section should hand the reader off instead of
+stretching repository prose to cover package-local behavior.

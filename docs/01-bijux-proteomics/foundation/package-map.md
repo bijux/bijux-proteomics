@@ -9,48 +9,31 @@ last_reviewed: 2026-04-26
 
 # Package Map
 
-The package map is the clearest explanation of the product idea in this
-repository. Each package owns one distinct responsibility in the protein
-program lifecycle.
+The package map is the shortest route from a cross-package question to the
+owning handbook. It should help a reviewer classify work before reading deep
+code.
 
-```mermaid
-flowchart TD
-    question["what kind of work is this?"]
-    runtime["runtime, replay, execution"]
-    foundation["schema, identifiers, serialization"]
-    core["programs, gates, lifecycle"]
-    intelligence["ranking, scoring, recommendations"]
-    knowledge["evidence, claims, contradictions"]
-    lab["assay planning, outcomes, promotion"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    question --> runtime
-    question --> foundation
-    question --> core
-    question --> intelligence
-    question --> knowledge
-    question --> lab
-    class question page;
-    class runtime,foundation,core,intelligence,knowledge,lab positive;
-```
+## Ownership Map
 
-## Canonical Package Roles
-
-| Package | Core role | Open it when |
+| Package | Owns | Use It When |
 | --- | --- | --- |
-| `bijux-proteomics-runtime` | canonical runtime orchestration, replay, and operator-facing execution | the question is about running, replaying, or governing execution |
-| `agentic-proteins` | compatibility package for existing runtime imports and entrypoints | the work is preserving legacy runtime paths during migration |
-| `bijux-proteomics-foundation` | shared schema compatibility and canonical serialization primitives | the issue spans payload meaning, identifiers, or migration helpers |
-| `bijux-proteomics-core` | program models, lifecycle contracts, and gate semantics | you are changing target, gate, or program-state behavior |
-| `bijux-proteomics-intelligence` | candidate scoring, ranking policy, and decision support | you are tuning recommendation logic or explainability |
-| `bijux-proteomics-knowledge` | evidence graphs, claims, and contradiction handling | the work concerns evidence trust or knowledge consistency |
-| `bijux-proteomics-lab` | assay planning, outcomes, and closed-loop lab decisions | the question concerns experiment execution or outcome promotion |
+| `bijux-proteomics-foundation` | shared payload meaning, identifiers, and serialization | the change affects what packages exchange |
+| `bijux-proteomics-core` | program contracts, lifecycle state, and gates | the change affects durable workflow rules |
+| `bijux-proteomics-knowledge` | evidence state, claims, confidence, and contradictions | the dispute is about trust or evidence truth |
+| `bijux-proteomics-intelligence` | scoring, ranking, scenarios, and explanations | the change affects recommendation policy |
+| `bijux-proteomics-lab` | assay planning, lab execution, and outcome handling | the work concerns experiments or outcome promotion |
+| `bijux-proteomics-runtime` | execution, replay, providers, and operator entrypoints | the work concerns running the system |
+| `agentic-proteins` | temporary legacy forwarding to runtime | the question starts from an old import or CLI path |
 
 ## Shared Non-Product Surfaces
 
-- [bijux-proteomics-maintain](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
-  for repository-health automation and maintainer docs
+- the [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
+  for cross-package rules and root-owned assets
+- the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
+  for repository-health automation
 
+## First Proof Check
+
+- the matching package under `packages/`
+- the matching handbook branch under `docs/`
+- package tests that prove the package really owns the claimed behavior
