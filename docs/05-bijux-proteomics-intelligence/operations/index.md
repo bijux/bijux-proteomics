@@ -9,37 +9,38 @@ last_reviewed: 2026-04-26
 
 # Operations
 
-This section explains how to install, run, diagnose, and release `bijux-proteomics-intelligence` from checked-in workflow guidance instead of team memory.
+This section explains how maintainers run, validate, diagnose, and release `bijux-proteomics-intelligence` without falling back to private habits or CI archaeology.
 
-These pages are the checked-in operating memory for `bijux-proteomics-intelligence`. They should let a maintainer move from setup to diagnosis to release without relying on CI archaeology or private habits.
-
-Treat the operations pages for `bijux-proteomics-intelligence` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
+Intelligence packages are easy to operate badly because the output often looks plausible before it is actually trustworthy. These pages should show how to repeat the real workflow: confirm policy behavior, inspect decision artifacts, and ship changes without surprising downstream readers.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    f1["configure ranking behavior"]
-    f2["inspect recommendation outputs"]
-    f3["review explainability changes"]
-    page["Operations section<br/>repeatable package workflows"]
-    next1["setup and workflows"]
-    next2["diagnostics and recovery"]
-    next3["release and deployment"]
+    maintainer["maintainer workflow<br/>prepare, run, inspect, release"]
+    inputs["candidate and policy inputs"]
+    decisions["decision outputs and reports"]
+    checks["tests and diagnostic checks"]
+    page["Operations landing page<br/>repeatable package procedure"]
+    setup["setup and local workflows"]
+    recovery["diagnostics and recovery"]
+    release["release and deployment boundaries"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    f1 --> page
-    f2 --> page
-    f3 --> page
-    page --> next1
-    page --> next2
-    page --> next3
+    maintainer --> page
+    inputs --> page
+    decisions --> page
+    checks --> page
+    page --> setup
+    page --> recovery
+    page --> release
     class page page;
-    class f1,f2,f3 positive;
-    class next1,next2,next3 anchor;
+    class maintainer action;
+    class inputs,decisions,checks positive;
+    class setup,recovery,release anchor;
 ```
 
 ## Pages in This Section
@@ -54,6 +55,10 @@ flowchart LR
 - [Security and Safety](security-and-safety.md)
 - [Deployment Boundaries](deployment-boundaries.md)
 
+## Start Here
+
+Use this section when you need the checked-in operating procedure for the package, not just the abstract contract. The operational question for `bijux-proteomics-intelligence` is not merely how to run code, but how to confirm that candidate ranking, evaluator behavior, and generated reports still line up after a change.
+
 ## Read Across the Package
 
 - [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
@@ -64,45 +69,26 @@ flowchart LR
 ## Concrete Anchors
 
 - `packages/bijux-proteomics-intelligence/pyproject.toml` for package metadata
-- `packages/bijux-proteomics-intelligence/README.md` for local package framing
-- `packages/bijux-proteomics-intelligence/tests` for executable operational backstops
+- `src/bijux_proteomics_intelligence/design_loop/` for convergence and stagnation procedure
+- `src/bijux_proteomics_intelligence/report/` for report computation and rendering outputs
+- `packages/bijux-proteomics-intelligence/tests` for the executable backstops that keep workflows honest
 
 ## Use This Page When
 
-- you are installing, running, diagnosing, or releasing the package
-- you need repeatable operational anchors rather than architectural framing
-- you are responding to package behavior in local work, CI, or incident pressure
+- you are installing, running, diagnosing, or releasing intelligence workflows
+- you need repeatable procedure for validating policy changes, evaluator behavior, or generated artifacts
+- you are responding to drift between expected recommendation behavior and actual outputs
 
-## Decision Rule
+## Do Not Use This Section When
 
-Use `Operations` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
+- you are deciding whether an import or artifact is a public contract
+- you are trying to understand where ranking logic or evaluator structure lives in code
+- you are asking whether the available proof is sufficient for a risky merge or release
 
-## What This Page Answers
+## When To Leave This Section
 
-- how `bijux-proteomics-intelligence` is installed, run, diagnosed, and released in practice
-- which checked-in files and tests anchor the operational story
-- where a maintainer should look first when the package behaves differently
+Move to [Interfaces](../interfaces/index.md) when an operational step depends on an exposed import, file shape, or artifact guarantee. Move to [Architecture](../architecture/index.md) when a workflow problem reveals that candidate state, evaluator structure, or design-loop ownership is misunderstood. Move to [Quality](../quality/index.md) when the central question becomes whether the validation bar is high enough rather than how to execute it.
 
-## Reviewer Lens
+## Reader Takeaway
 
-- verify that setup, workflow, and release statements still match package metadata and current commands
-- check that operational guidance still points at real diagnostics and validation paths
-- confirm that maintainer advice still works under current local and CI expectations
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-intelligence` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
-
-## Next Checks
-
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
-
-## Purpose
-
-This page explains how to use the operations section for `bijux-proteomics-intelligence` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+Treat this section as the package procedure manual. If maintainers cannot repeat a ranking, explanation, or report-validation workflow from the checked-in assets named here, the workflow is still tribal knowledge and the documentation is not yet good enough.
