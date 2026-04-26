@@ -9,40 +9,53 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section explains which commands, APIs, imports, schemas, and artifacts `bijux-proteomics-core` is prepared to stand behind as real surfaces.
+Use this section when the question is which core surfaces are real contracts:
+commands, imports, schemas, artifacts, and examples that other packages or
+operators can rely on when they build against durable program rules.
 
-These pages explain the public face of `bijux-proteomics-core`. They help a caller separate deliberate contracts from incidental visibility before a dependency hardens around the wrong surface.
-
-Treat the interfaces pages for `bijux-proteomics-core` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+These pages should stop callers from depending on incidental implementation
+details when what they really need is the explicit contract layer. For core,
+that matters because lifecycle and readiness assumptions spread quickly into
+knowledge, intelligence, lab, and runtime behavior.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    s1["program APIs"]
-    s2["configuration surfaces"]
-    s3["contract artifacts"]
-    page["Interfaces section<br/>caller-facing contracts"]
-    next1["commands and APIs"]
-    next2["data and artifacts"]
-    next3["compatibility expectations"]
+    cli["CLI and operator entrypoints"]
+    imports["public imports"]
+    schemas["program and lifecycle schemas"]
+    artifacts["contract artifacts<br/>and examples"]
+    workflows["operator workflows<br/>how contracts are exercised"]
+    review["compatibility review<br/>what changes need extra care"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    s1 --> page
-    s2 --> page
-    s3 --> page
-    page --> next1
-    page --> next2
-    page --> next3
-    class page page;
-    class s1,s2,s3 positive;
-    class next1,next2,next3 anchor;
+    cli --> schemas
+    imports --> schemas
+    schemas --> artifacts
+    artifacts --> workflows
+    schemas --> review
+    class schemas page;
+    class cli,imports,artifacts positive;
+    class workflows anchor;
+    class review action;
 ```
 
-## Pages in This Section
+## Start Here
+
+- open [CLI Surface](cli-surface.md) when the dependency begins with operator or
+  validation commands
+- open [Data Contracts](data-contracts.md) when the real question is lifecycle,
+  readiness, or program schema meaning
+- open [Public Imports](public-imports.md) when the caller depends on Python
+  entrypoints rather than CLI usage
+- open [Compatibility Commitments](compatibility-commitments.md) when a contract
+  change may ripple into higher packages
+
+## Pages In This Section
 
 - [CLI Surface](cli-surface.md)
 - [API Surface](api-surface.md)
@@ -54,56 +67,48 @@ flowchart LR
 - [Public Imports](public-imports.md)
 - [Compatibility Commitments](compatibility-commitments.md)
 
-## Read Across the Package
+## Use This Section When
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- you need to know which core surface is deliberate and supportable
+- higher packages depend on lifecycle, readiness, or program contracts
+- you are reviewing whether a change creates compatibility pressure across the
+  proteomics stack
+
+## Do Not Use This Section When
+
+- the real question is why the rule belongs in core at all
+- you need structural layout or contract-code organization first
+- the issue is operational, such as validation workflow, release steps, or test
+  execution
+
+## Read Across The Package
+
+- open [Foundation](../foundation/index.md) when the contract concern is really
+  a boundary or ownership question
+- open [Architecture](../architecture/index.md) when the surface depends on
+  deeper lifecycle, domain, or runtime-adjacent structure
+- open [Operations](../operations/index.md) when you need repeatable workflows
+  for exercising or shipping core contracts
+- open [Quality](../quality/index.md) when the real issue is whether the
+  documented contract is sufficiently defended
 
 ## Concrete Anchors
 
-- CLI entrypoint in src/bijux_proteomics/interfaces/cli.py
-- HTTP app in src/bijux_proteomics/programs.py
-- program schemas in src/bijux_proteomics/programs.py
-- src/bijux_proteomics/programs.py
+- CLI entrypoint in `src/bijux_proteomics/interfaces/cli.py`
+- core contracts in `src/bijux_proteomics/programs.py`,
+  `lifecycle.py`, and `validation.py`
+- public exports in `src/bijux_proteomics/__init__.py`
+- execution contract helpers in `src/bijux_proteomics/execution_contracts.py`
 
-## Use This Page When
+## Reader Takeaway
 
-- you need the public command, API, import, schema, or artifact surface
-- you are checking whether a caller can safely rely on a given entrypoint or shape
-- you want the contract-facing side of the package before building on it
-
-## Decision Rule
-
-Use `Interfaces` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
-
-## What This Page Answers
-
-- which public or operator-facing surfaces `bijux-proteomics-core` is really asking readers to trust
-- which schemas, artifacts, imports, or commands behave like contracts
-- what compatibility pressure a change to this surface would create
-
-## Reviewer Lens
-
-- compare commands, schemas, imports, and artifacts against the documented surface one by one
-- check whether a seemingly local change actually needs compatibility review
-- confirm that examples still point to real entrypoints and not to stale habits
-
-## Honesty Boundary
-
-This page can identify the intended public surfaces of `bijux-proteomics-core`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
-
-## Next Checks
-
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+Use `Interfaces` to separate stable core contracts from whatever merely happens
+to be visible in the implementation. If another package cannot defend its
+dependency in terms of named commands, imports, schemas, artifacts, examples,
+and tests, that dependency is not yet an honest public surface.
 
 ## Purpose
 
-This page explains how to use the interfaces section for `bijux-proteomics-core` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+This page introduces the interfaces handbook for `bijux-proteomics-core` and
+routes readers to the command, import, contract, artifact, and compatibility
+pages that define the package's supported surfaces.
