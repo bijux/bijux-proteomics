@@ -11,6 +11,21 @@ last_reviewed: 2026-04-26
 
 Invariants are the claims that must remain true for the package to stay worth trusting.
 
+## Invariant Model
+
+```mermaid
+flowchart LR
+    recommendation["recommendation meaning stays explainable"]
+    ownership["decision logic does not re-own evidence or lab behavior"]
+    outputs["reports and outcomes justify why the system moved"]
+
+    recommendation --> ownership --> outputs
+```
+
+This page should make intelligence invariants feel like explanation constraints.
+The package is only worth trusting if recommendation movement can still be
+reconstructed from policy, evaluation, and report surfaces.
+
 ## Review Rules
 
 - recommendations must stay explainable through candidates, policies, evaluators, and outputs
@@ -22,3 +37,9 @@ Invariants are the claims that must remain true for the package to stay worth tr
 - `packages/bijux-proteomics-intelligence/tests`
 - `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
 - `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+
+## Design Pressure
+
+Intelligence invariants fail when recommendation behavior drifts faster than
+the system can explain it. The package has to keep decision ownership and
+explanatory output tightly coupled.
