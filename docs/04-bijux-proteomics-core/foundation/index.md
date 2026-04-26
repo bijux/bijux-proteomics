@@ -9,40 +9,52 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-This section explains why `bijux-proteomics-core` exists, what it owns on purpose, and where its boundary stops.
+`bijux-proteomics-core` exists to define durable program rules: target models,
+lifecycle states, readiness conditions, and validation boundaries that the rest
+of the proteomics stack has to respect. Use this section when the key question
+is why a rule belongs to the core contract layer instead of a downstream policy
+package.
 
-Read this section first when you need the durable package story before code detail. A quick skim should make the role, the boundary, and the neighboring seams legible.
-
-Treat the foundation pages for `bijux-proteomics-core` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+These pages should help readers separate durable contract from flexible policy.
+When this section is clear, it becomes obvious why intelligence may rank or lab
+may plan differently, but neither gets to rewrite the underlying lifecycle or
+program meaning on its own.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    own1["program contracts"]
-    own2["lifecycle and readiness rules"]
-    own3["deterministic validation"]
-    section["Foundation section<br/>package role and boundary"]
-    next1["Architecture"]
-    next2["Interfaces"]
-    next3["Operations and Quality"]
+    programs["target and program contracts"]
+    lifecycle["lifecycle and readiness rules"]
+    validation["deterministic validation logic"]
+    contracts["durable contract layer"]
+    boundary["boundary<br/>ranking and execution policy start later"]
+    reader["reader question<br/>is this a core rule or downstream policy?"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1 --> section
-    own2 --> section
-    own3 --> section
-    section --> next1
-    section --> next2
-    section --> next3
-    class section page;
-    class own1,own2,own3 positive;
-    class next1,next2,next3 anchor;
+    programs --> contracts
+    lifecycle --> contracts
+    validation --> contracts
+    contracts --> boundary
+    contracts --> reader
+    class contracts page;
+    class programs,lifecycle,validation positive;
+    class reader anchor;
+    class boundary caution;
 ```
 
-## Pages in This Section
+## Start Here
+
+- open [Package Overview](package-overview.md) for the shortest explanation of
+  what the contract layer owns
+- open [Ownership Boundary](ownership-boundary.md) when the issue may actually
+  belong in foundation, intelligence, lab, or runtime instead
+- open [Lifecycle Overview](lifecycle-overview.md) when the real question is
+  how programs move through states and readiness checks
+
+## Pages In This Section
 
 - [Package Overview](package-overview.md)
 - [Scope and Non-Goals](scope-and-non-goals.md)
@@ -54,55 +66,50 @@ flowchart LR
 - [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
 - [Change Principles](change-principles.md)
 
-## Read Across the Package
+## Use This Section When
 
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- you need the durable ownership story before reading code or command surfaces
+- you are deciding whether a rule is part of the core contract or only a
+  downstream choice
+- you need the package vocabulary for programs, lifecycle transitions,
+  readiness, and validation
+
+## Do Not Use This Section When
+
+- the question is already about commands, imports, schemas, or artifacts
+- the real issue is operational, such as running validations or releasing the
+  package
+- you already know the boundary and need proof, risk posture, or review
+  criteria instead
+
+## Read Across The Package
+
+- open [Architecture](../architecture/index.md) when you need the structural
+  map behind program, lifecycle, and validation code
+- open [Interfaces](../interfaces/index.md) when the question is about public
+  contract surfaces
+- open [Operations](../operations/index.md) when you need repeatable workflows
+  for contract changes or validation runs
+- open [Quality](../quality/index.md) when you need evidence that the durable
+  contract is actually protected
 
 ## Concrete Anchors
 
 - `packages/bijux-proteomics-core` as the package root
 - `packages/bijux-proteomics-core/src/bijux_proteomics` as the import boundary
-- `packages/bijux-proteomics-core/tests` as the package proof surface
+- `packages/bijux-proteomics-core/tests` as the proof surface for contract
+  behavior
 
-## Use This Page When
+## Reader Takeaway
 
-- you need the package idea before the implementation detail
-- you are deciding whether work belongs here or in a neighboring package
-- you want the shortest honest explanation of what this package is for
-
-## Decision Rule
-
-Use `Foundation` to decide whether a change makes `bijux-proteomics-core` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
-
-## What This Page Answers
-
-- what problem `bijux-proteomics-core` is supposed to own on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before the boundary is changed
-
-## Reviewer Lens
-
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
-
-## Honesty Boundary
-
-This page can explain the intended boundary of `bijux-proteomics-core`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
-
-## Next Checks
-
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
+Use `Foundation` to answer the ownership question with integrity:
+`bijux-proteomics-core` exists so the rest of the proteomics stack can depend on
+one stable program and lifecycle contract. If a proposal broadens this package
+without making that contract story clearer, it is probably crossing the
+boundary rather than improving it.
 
 ## Purpose
 
-This page explains how to use the foundation section for `bijux-proteomics-core` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+This page introduces the foundation handbook for `bijux-proteomics-core` and
+routes readers to the boundary, language, and lifecycle pages that explain why
+the package exists.
