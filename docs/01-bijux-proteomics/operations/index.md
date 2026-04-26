@@ -55,6 +55,41 @@ flowchart LR
 - [Review Expectations](review-expectations.md)
 - [Change Management](change-management.md)
 
+## Use This Section When
+
+- the question is about repository-wide setup, validation, release posture,
+  shared automation, or review rules
+- the answer should come from root-owned workflows rather than one product
+  package handbook
+- you need to know which checked-in operational page owns a shared process
+
+## Do Not Start Here When
+
+- the concern is really about one package's internal contract, API, or runtime
+  behavior
+- the question can already be answered honestly from a single package handbook
+- you are looking for maintainer helper implementation details rather than root
+  repository process
+
+## Choose The Next Page By Question
+
+- open [Local Development](local-development.md) or
+  [Testing and Validation](testing-and-validation.md) when the concern is
+  repeatable local work
+- open [Release and Versioning](release-and-versioning.md) or
+  [API and Schema Governance](api-and-schema-governance.md) when the concern is
+  publication or contract discipline
+- open [Contributor Workflows](contributor-workflows.md),
+  [Automation Surfaces](automation-surfaces.md), or
+  [Review Expectations](review-expectations.md) when the concern is shared team
+  process
+
+## Reader Takeaway
+
+This section is for root-owned operational behavior that no single package can
+document honestly on its own. It should help readers find the governing process
+quickly without letting the repository root pretend it owns package behavior.
+
 ## Purpose
 
 This page gives maintainers the shortest route into repository-wide operational
