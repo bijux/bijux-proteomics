@@ -11,6 +11,26 @@ last_reviewed: 2026-04-26
 
 A useful test strategy names what evidence is needed and why shallow coverage is not enough.
 
+For `bijux-proteomics-knowledge`, the test story should show how the package handles imperfect evidence without hiding contradiction, confidence, or review-state drift.
+
+## Strategy Model
+
+```mermaid
+flowchart TB
+    records["claims and evidence records"]
+    meaning["contradiction and confidence tests"]
+    review["review-state and persistence proof"]
+    fixtures["imperfect and conflicting fixtures"]
+    release["release confidence"]
+
+    records --> meaning
+    meaning --> review
+    review --> fixtures
+    fixtures --> release
+```
+
+This page should make it obvious that the package is not defending one ideal path. The real proof comes from preserving meaning under messy evidence and stored-state pressure.
+
 ## Review Rules
 
 - favor contradiction, confidence, and review-state tests over generic coverage claims
@@ -22,3 +42,7 @@ A useful test strategy names what evidence is needed and why shallow coverage is
 - `packages/bijux-proteomics-knowledge/tests`
 - `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
 - `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
+
+## Design Pressure
+
+The common drift is to optimize for storage or coverage shape while leaving contradiction handling and downstream interpretation less clearly defended.
