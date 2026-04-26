@@ -87,7 +87,7 @@ without pretending they are one thing.</div>
   for
   repository automation, schema enforcement, and maintainer-only guardrails
 
-## Package Flow
+## Package Handbooks
 
 | Package | Owns | Open It When |
 | --- | --- | --- |
