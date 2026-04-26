@@ -16,7 +16,7 @@ This page exists to keep setup honest. A maintainer should be able to tell which
 files actually define installation truth and which dependencies are merely
 present in the environment for unrelated reasons.
 
-Treat the operations pages for `bijux-proteomics-lab` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
+These operations pages show how `bijux-proteomics-lab` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -90,7 +90,7 @@ Use `Installation and Setup` to decide whether a maintainer can repeat the packa
 
 ## Honesty Boundary
 
-This page explains how `bijux-proteomics-lab` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
+This page shows how `bijux-proteomics-lab` is operated today, but the checked-in commands, artifacts, and validation remain the source of truth. Use those assets to confirm the workflow in a real environment.
 
 ## Next Checks
 

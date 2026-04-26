@@ -119,7 +119,7 @@ Use `Operations` to decide whether a maintainer can repeat the package workflow 
 
 ## Honesty Boundary
 
-This page explains how `agentic-proteins` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
+This page shows how `agentic-proteins` is operated today, but the checked-in commands, artifacts, and validation remain the source of truth. Use those assets to confirm the workflow in a real environment.
 
 ## Next Checks
 
@@ -129,7 +129,7 @@ This page explains how `agentic-proteins` is expected to be operated, but it doe
 
 ## Purpose
 
-This page explains how to use the operations section for `agentic-proteins` without repeating the detail that belongs on the topic pages beneath it.
+This page shows the published operations routes for `agentic-proteins` and the workflows readers can inspect next.
 
 ## Stability
 

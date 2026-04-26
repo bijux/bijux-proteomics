@@ -11,11 +11,11 @@ last_reviewed: 2026-04-26
 
 Failure recovery starts with knowing which artifacts, interfaces, and tests expose the problem.
 
-This page should help a maintainer stabilize the situation before they try to
+This page helps readers stabilize the situation before they try to
 improve it. The first question is not always how to fix the bug; it is how to
 locate the right evidence quickly.
 
-Treat the operations pages for `bijux-proteomics-core` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
+These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -80,7 +80,7 @@ Use `Failure Recovery` to decide whether a maintainer can repeat the package wor
 
 ## Honesty Boundary
 
-This page explains how `bijux-proteomics-core` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
+This page shows how `bijux-proteomics-core` is operated today, but the checked-in commands, artifacts, and validation remain the source of truth. Use those assets to confirm the workflow in a real environment.
 
 ## Next Checks
 

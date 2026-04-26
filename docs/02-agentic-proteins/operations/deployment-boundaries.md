@@ -15,7 +15,7 @@ The point of this page is to protect the idea that packages are publishable
 units. Even inside a monorepo, deployment assumptions should stay narrow enough
 that the package can still be understood and operated as its own surface.
 
-Treat the operations pages for `agentic-proteins` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
+These operations pages show how `agentic-proteins` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -80,7 +80,7 @@ Use `Deployment Boundaries` to decide whether a maintainer can repeat the packag
 
 ## Honesty Boundary
 
-This page explains how `agentic-proteins` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
+This page shows how `agentic-proteins` is operated today, but the checked-in commands, artifacts, and validation remain the source of truth. Use those assets to confirm the workflow in a real environment.
 
 ## Next Checks
 
