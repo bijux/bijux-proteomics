@@ -14,6 +14,24 @@ repository-wide validation and release framing, tracked API artifacts, and other
 assets that genuinely cross package boundaries. It should not become a backup
 owner for product behavior.
 
+## Scope Model
+
+```mermaid
+flowchart TB
+    root["root surface"]
+    docs["docs and handbook routing"]
+    apis["tracked contract artifacts"]
+    process["make, workflow, and release coordination"]
+    product["product behavior"]
+
+    root --> docs
+    root --> apis
+    root --> process
+    product -. stays out of root .-> root
+```
+
+This page should help a reviewer reject the common excuse that something belongs at the root because several packages touch it. Shared touch does not equal shared ownership.
+
 ## Root Scope
 
 - handbook structure and cross-package routing under `docs/`
@@ -39,3 +57,7 @@ as shared ownership.
 
 - root files only when the rule truly spans several packages
 - otherwise the owning package handbook, code, and tests
+
+## Design Pressure
+
+The common drift is to broaden root scope one convenience change at a time until product behavior has no clean owner anymore.
