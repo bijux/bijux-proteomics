@@ -9,40 +9,48 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-This section explains why `bijux-proteomics-knowledge` exists, what it owns on purpose, and where its boundary stops.
+Use this section when you need the durable answer to a simple question: why
+does `bijux-proteomics-knowledge` exist as its own package between shared
+payload contracts below and decision or lab policy above?
 
-Read this section first when you need the durable package story before code detail. A quick skim should make the role, the boundary, and the neighboring seams legible.
-
-Treat the foundation pages for `bijux-proteomics-knowledge` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+This package is where proteomics evidence stops being merely available and
+starts becoming auditable knowledge. It owns evidence records, claim state,
+conflict resolution, trust summaries, and review packets that later packages
+consume when they decide what to recommend or promote.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    own1["evidence records"]
-    own2["claim transitions"]
-    own3["trust and contradiction handling"]
-    section["Foundation section<br/>package role and boundary"]
-    next1["Architecture"]
-    next2["Interfaces"]
-    next3["Operations and Quality"]
+    inputs["literature, assay, and manual evidence inputs"]
+    records["evidence bundles and evidence records"]
+    claims["claim state, lineage, and contradiction handling"]
+    trust["trust, freshness, and readiness summaries"]
+    handoff["intelligence and lab consume inspected knowledge state"]
+    reader["reader question<br/>what belongs in the knowledge layer?"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1 --> section
-    own2 --> section
-    own3 --> section
-    section --> next1
-    section --> next2
-    section --> next3
-    class section page;
-    class own1,own2,own3 positive;
-    class next1,next2,next3 anchor;
+    class inputs,page reader;
+    class records,claims,trust positive;
+    class handoff anchor;
+    inputs --> records --> claims --> trust --> handoff
+    records --> reader
+    claims --> reader
+    trust --> reader
 ```
 
-## Pages in This Section
+## Start Here
+
+- open [Package Overview](package-overview.md) for the shortest statement of
+  the package role
+- open [Ownership Boundary](ownership-boundary.md) when the question is whether
+  logic belongs in foundation, intelligence, lab, or runtime
+- open [Lifecycle Overview](lifecycle-overview.md) when you need the path from
+  evidence ingestion to auditable readiness output
+
+## Pages In This Section
 
 - [Package Overview](package-overview.md)
 - [Scope and Non-Goals](scope-and-non-goals.md)
@@ -54,12 +62,31 @@ flowchart LR
 - [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
 - [Change Principles](change-principles.md)
 
-## Read Across the Package
+## Use This Section When
 
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- you need the package role before looking at modules, schemas, or tests
+- you are deciding whether behavior is really about evidence state rather than
+  decision policy or lab execution
+- a reader needs one page that explains why the knowledge layer exists without
+  reading the whole handbook
+
+## Do Not Use This Section When
+
+- the main question is where a module or import surface lives
+- you are deciding whether a schema, artifact, or import is a supported
+  contract
+- the issue is procedural or proof-oriented rather than boundary-oriented
+
+## Read Across The Package
+
+- open [Architecture](../architecture/index.md) for module groups, execution
+  flow, and persistence seams
+- open [Interfaces](../interfaces/index.md) for schemas, serialization,
+  artifacts, and import contracts
+- open [Operations](../operations/index.md) for package workflows, diagnostics,
+  and release procedures
+- open [Quality](../quality/index.md) for proof surfaces, invariants, and
+  limits
 
 ## Concrete Anchors
 
@@ -67,42 +94,13 @@ flowchart LR
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` as the import boundary
 - `packages/bijux-proteomics-knowledge/tests` as the package proof surface
 
-## Use This Page When
+## Reader Takeaway
 
-- you need the package idea before the implementation detail
-- you are deciding whether work belongs here or in a neighboring package
-- you want the shortest honest explanation of what this package is for
-
-## Decision Rule
-
-Use `Foundation` to decide whether a change makes `bijux-proteomics-knowledge` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
-
-## What This Page Answers
-
-- what problem `bijux-proteomics-knowledge` is supposed to own on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before changing ownership
-
-## Reviewer Lens
-
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
-
-## Honesty Boundary
-
-This page can explain the intended boundary of `bijux-proteomics-knowledge`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
-
-## Next Checks
-
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
+`Foundation` should leave no doubt about the package boundary: foundation keeps
+shared payload meaning stable, knowledge records and evaluates evidence state,
+intelligence chooses among options, and lab turns chosen work into outcomes.
 
 ## Purpose
 
-This page explains how to use the foundation section for `bijux-proteomics-knowledge` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+This page introduces the knowledge foundation handbook and routes readers to
+the pages that explain purpose, scope, vocabulary, lifecycle, and boundaries.
