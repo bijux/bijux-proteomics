@@ -15,28 +15,20 @@ gate, release check, or security policy back to a checked-in Python owner
 instead of relying on folklore.
 
 ```mermaid
-flowchart LR
-    change["repository change"]
+flowchart TB
+    question["repository-health question"]
     toolkit["bijux-proteomics-dev"]
-    docs["docs helpers"]
-    api["api governance"]
-    quality["quality checks"]
-    security["security gates"]
-    release["release support"]
-    results["CI, docs, and publication outcomes"]
+    family["docs, api, quality, security, release helpers"]
+    tests["maintainer tests"]
+    outcomes["checked repository outcomes"]
 
-    change --> toolkit
-    toolkit --> docs
-    toolkit --> api
-    toolkit --> quality
-    toolkit --> security
-    toolkit --> release
-    docs --> results
-    api --> results
-    quality --> results
-    security --> results
-    release --> results
+    question --> toolkit
+    toolkit --> family
+    family --> tests
+    tests --> outcomes
 ```
+
+This section should let a maintainer trace a repository rule back to the exact helper family and then to the tests that keep that rule honest. If it cannot do that, the package is still behaving like implicit CI folklore.
 
 ## What This Package Proves
 
@@ -72,3 +64,7 @@ flowchart LR
 - `src/bijux_proteomics_dev/docs/`
 - `src/bijux_proteomics_dev/api/`, `release/`, `security/`, and `quality/`
 - `packages/bijux-proteomics-dev/tests`
+
+## Design Pressure
+
+The easy failure is to treat maintainer helpers as one black box, which makes it hard to see which family owns a broken repository rule or why.
