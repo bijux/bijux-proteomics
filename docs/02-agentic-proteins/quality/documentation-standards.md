@@ -9,55 +9,16 @@ last_reviewed: 2026-04-26
 
 # Documentation Standards
 
-Package docs should stay consistent with the shared handbook layout used across the repository.
+Documentation standards should protect the reader from filler, drift, and false confidence.
 
-Consistency matters here because readers should not need to relearn how to read
-every package. The shared layout is part of the user experience, but honesty is
-more important than uniformity for its own sake.
+## Review Rules
 
-This page shows how `agentic-proteins` earns trust and where skepticism still belongs.
+- docs should treat the package as a compatibility bridge, not a product center
+- examples should point readers toward canonical runtime ownership
+- retirement and migration language must stay concrete
 
-## Standards
+## First Proof Check
 
-- use the shared five-category package spine
-- prefer stable filenames that describe durable intent
-- keep docs grounded in real code paths, interfaces, and artifacts
-
-## Concrete Anchors
-
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
-
-## Open This Page When
-
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
-
-## Decision Rule
-
-Use `Documentation Standards` to decide whether `agentic-proteins` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What You Can Resolve Here
-
-- what currently proves the `agentic-proteins` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Review Focus
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Limits
-
-Tests, checks, and review practice remain the proof for this package. If they drift, this page is wrong.
-
-## Read Next
-
-- open foundation when the risk appears to be boundary confusion rather than missing tests
-- open architecture when the proof gap points to structural drift
-- open interfaces or operations when the proof question is really about a contract or workflow
-
+- `packages/agentic-proteins/tests`
+- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
+- `src/agentic_proteins/runtime/`

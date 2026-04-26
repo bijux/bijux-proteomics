@@ -9,59 +9,16 @@ last_reviewed: 2026-04-26
 
 # Dependency Governance
 
-Dependency changes in `bijux-proteomics-knowledge` should be treated as contract changes when they
-alter package authority, operational risk, or public setup expectations.
+Dependency governance is really boundary governance under another name.
 
-This page keeps dependency review from feeling bureaucratic. Dependencies
-matter because they reshape what the package relies on, what it exposes, and
-what downstream maintainers must now trust.
+## Review Rules
 
-`bijux-proteomics-knowledge` earns trust through visible proof, and these are the places where skepticism still belongs.
+- guard the line between knowledge meaning and downstream decision policy
+- keep runtime and storage dependencies from becoming semantic owners
+- prefer explicit repository and schema boundaries over hidden shared state
 
-## Current Dependency Themes
+## First Proof Check
 
-- agentic-proteins
-- bijux-proteomics-foundation
-- bijux-proteomics-intelligence
-- bijux-proteomics-core
-- duckdb
-- pydantic
-
-## Concrete Anchors
-
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
-
-## Open This Page When
-
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
-
-## Decision Rule
-
-Use `Dependency Governance` to decide whether `bijux-proteomics-knowledge` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What You Can Resolve Here
-
-- what currently proves the `bijux-proteomics-knowledge` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Review Focus
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Limits
-
-Tests, checks, and review practice remain the proof for this package. If they drift, this page is wrong.
-
-## Read Next
-
-- open foundation when the risk appears to be boundary confusion rather than missing tests
-- open architecture when the proof gap points to structural drift
-- open interfaces or operations when the proof question is really about a contract or workflow
-
+- `packages/bijux-proteomics-knowledge/tests`
+- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
+- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
