@@ -9,37 +9,38 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-This section explains which commands, APIs, imports, schemas, and artifacts `bijux-proteomics-lab` is prepared to stand behind as real surfaces.
+This section explains which imports, schemas, and artifacts
+`bijux-proteomics-lab` is prepared to stand behind as real surfaces.
 
-These pages explain the public face of `bijux-proteomics-lab`. They help a caller separate deliberate contracts from incidental visibility before a dependency hardens around the wrong surface.
+These pages explain the public face of `bijux-proteomics-lab`. They help
+a caller separate deliberate contracts from incidental visibility before
+a dependency hardens around the wrong surface.
 
-Treat the interfaces pages for `bijux-proteomics-lab` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
+The important caller-facing question here is straightforward: which plan,
+outcome, feedback, schema, and serialization surfaces are stable enough
+to use without reading the whole package every time?
 
-## Visual Summary
+## Start Here
 
 ```mermaid
 flowchart LR
-    s1["planning APIs"]
-    s2["operator workflows"]
-    s3["assay artifacts"]
-    page["Interfaces section<br/>caller-facing contracts"]
-    next1["commands and APIs"]
-    next2["data and artifacts"]
-    next3["compatibility expectations"]
+    caller["caller question<br/>what can I depend on safely?"]
+    imports["public imports<br/>plan, outcome, queue,<br/>schema helpers"]
+    artifacts["artifact contracts<br/>plan, outcome, feedback"]
+    serialization["canonical envelopes<br/>and deterministic payloads"]
+    page["Interfaces<br/>supported caller contracts"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    s1 --> page
-    s2 --> page
-    s3 --> page
-    page --> next1
-    page --> next2
-    page --> next3
-    class page page;
-    class s1,s2,s3 positive;
-    class next1,next2,next3 anchor;
+    caller --> page
+    page --> imports
+    page --> artifacts
+    page --> serialization
+    class caller page;
+    class page anchor;
+    class imports,artifacts,serialization positive;
 ```
 
 ## Pages in This Section
@@ -54,56 +55,50 @@ flowchart LR
 - [Public Imports](public-imports.md)
 - [Compatibility Commitments](compatibility-commitments.md)
 
-## Read Across the Package
+## What This Section Clarifies
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- which Python exports in `bijux_proteomics_lab` are meant to be stable public
+  entrypoints
+- which artifact kinds and schema rules callers must preserve when they store
+  or exchange lab outputs
+- which serialization helpers exist to keep payloads deterministic and auditable
 
-## Concrete Anchors
+## Use This Section When
 
-- import surface in src/bijux_proteomics_lab/planning.py
-- outcome contracts in src/bijux_proteomics_lab/outcomes.py
-- lab contracts in src/bijux_proteomics_lab/schema.py
-- src/bijux_proteomics_lab/schema.py
-
-## Use This Page When
-
-- you need the public command, API, import, schema, or artifact surface
+- you need the public import, schema, or artifact surface
 - you are checking whether a caller can safely rely on a given entrypoint or shape
 - you want the contract-facing side of the package before building on it
 
-## Decision Rule
+## Do Not Use This Section When
 
-Use `Interfaces` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
+- the real question is whether the package should own the behavior at all
+- the real question is how the internal files are arranged
+- the real question is which workflow a maintainer should run during planning or
+  outcome review
 
-## What This Page Answers
+## Read Across the Package
 
-- which public or operator-facing surfaces `bijux-proteomics-lab` is really asking readers to trust
-- which schemas, artifacts, imports, or commands behave like contracts
-- what compatibility pressure a change to this surface would create
+- [Foundation](../foundation/index.md) when you need the package boundary first
+- [Architecture](../architecture/index.md) when a public-surface question turns
+  into a module-ownership question
+- [Operations](../operations/index.md) when the interface question becomes a
+  repeatable maintainer workflow
+- [Quality](../quality/index.md) when the real concern is compatibility proof
+  and review sufficiency
 
-## Reviewer Lens
+## Concrete Anchors
 
-- compare commands, schemas, imports, and artifacts against the documented surface one by one
-- check whether a seemingly local change actually needs compatibility review
-- confirm that examples still point to real entrypoints and not to stale habits
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/__init__.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/schema.py`
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab/serialization.py`
+- `packages/bijux-proteomics-lab/tests/test_schema.py` and
+  `packages/bijux-proteomics-lab/tests/test_serialization.py`
 
-## Honesty Boundary
+## Reader Takeaway
 
-This page can identify the intended public surfaces of `bijux-proteomics-lab`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
-
-## Next Checks
-
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
-
-## Purpose
-
-This page explains how to use the interfaces section for `bijux-proteomics-lab` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+Use the interfaces section when you need to know what a caller may trust
+without treating every importable symbol as public. If a surface cannot be tied
+to a named export, artifact contract, or deterministic serialization rule, it
+should not be treated as stable.
