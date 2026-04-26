@@ -10,77 +10,39 @@ last_reviewed: 2026-04-26
 # agentic-proteins
 
 `agentic-proteins` is the strict compatibility package in
-`bijux-proteomics`. Its job is to preserve legacy import paths and CLI
-entrypoints long enough for callers to move safely to
-`bijux-proteomics-runtime`.
+`bijux-proteomics`. It preserves legacy runtime imports and entrypoints long
+enough for callers to migrate to `bijux-proteomics-runtime`. It is a bridge,
+not a center of new development.
 
-Treat this package as a bridge, not as the center of new development. It keeps
-the preserved surface, the canonical owner, and the retirement bar explicit.
+## What It Owns
 
-Legacy callers often arrive here first because they still remember the
-old package name. This page routes them quickly from that old
-entrypoint to the current owner without hiding the remaining
-compatibility burden.
+- compatibility forwarding for legacy runtime imports
+- preserved legacy CLI and API entrypoints while migration is still justified
+- the proof bar for keeping or retiring those preserved surfaces
 
-## Start Here
+## What It Refuses
 
-- open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  when the question is about current execution behavior, providers, API, or
-  CLI ownership
-- open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the real
-  question is migration policy, release policy, or repository-wide governance
-- stay here only while the question is about preserved legacy names and the
-  proof bar for keeping them
+- new canonical runtime behavior
+- evidence, scoring, or lab semantics
+- repository-health automation
 
-## What This Package Owns
+## Start With
 
-- preserved legacy import names that forward to canonical package surfaces
-- compatibility review for whether each preserved name still earns its place
-- migration guidance that tells readers where the canonical owner now lives
+- Open [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/)
+  when you need the package boundary first.
+- Open [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/)
+  when the question is a preserved import, CLI, API, or compatibility contract.
+- Open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  as soon as the question becomes current execution behavior rather than legacy
+  forwarding.
 
-## What This Package Does Not Own
+## First Proof Check
 
-- new runtime behavior, orchestration, or operator-facing execution logic
-- canonical confidence semantics now owned by
-  `bijux-proteomics-knowledge`
-- canonical reporting semantics now owned by
-  `bijux-proteomics-intelligence`
+- `packages/agentic-proteins`
+- `packages/agentic-proteins/src/agentic_proteins`
+- `packages/agentic-proteins/tests`
 
-## Open This Section When
+## Boundary
 
-- you need compatibility-safe legacy import or CLI entrypoints
-- you are validating forwarding boundaries and migration promises
-- you need to trace older runtime usage to the canonical runtime package
-
-## Open The Canonical Package When
-
-- you are designing a new caller and can depend on the canonical package now
-- you need current runtime operation or API behavior rather than legacy naming
-- you are looking for biological, evidence, or scoring semantics directly
-
-## Pages In This Package
-
-- [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/)
-- [Architecture](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/)
-- [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/)
-- [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/)
-- [Quality](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/)
-
-## Canonical Targets
-
-- open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the question is about current runtime behavior
-- open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the question is about migration policy or repository-wide release rules
-- stay here only while the question is about preserved legacy surfaces and their retirement bar
-
-## Concrete Anchors
-
-- `packages/agentic-proteins` for the compatibility package root
-- `packages/agentic-proteins/src/agentic_proteins/__init__.py` for the actual
-  forwarding surface that remains preserved
-- `packages/agentic-proteins/tests` for forwarding and compatibility proof
-
-## Bottom Line
-
-`agentic-proteins` stays narrow, explicit, and temporary. If a legacy name
-still exists, this handbook must keep the forwarding target and the retirement
-decision clear enough that readers are not trapped in the bridge.
+If the behavior would still be desirable after legacy callers disappear, it
+probably belongs in the canonical runtime package instead of here.

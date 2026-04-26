@@ -9,80 +9,33 @@ last_reviewed: 2026-04-26
 
 # bijux-proteomics-knowledge
 
-`bijux-proteomics-knowledge` is the evidence and claim package in
-`bijux-proteomics`. Open this handbook when the question is about evidence
-quality, claim state transitions, contradiction resolution, trust
-scoring, or readiness summaries consumed by downstream decision layers.
+`bijux-proteomics-knowledge` owns evidence state in `bijux-proteomics`. It is
+where claims, confidence, contradiction handling, and knowledge-level review
+rules stay explicit instead of being spread across runtime or scoring code.
 
-Knowledge owns the recorded evidence and claim state that readers can audit
-later. It is the place to ask what is known, what conflicts, and how much
-trust the system can currently justify.
+## What It Owns
 
-This package is where proteomics evidence becomes an auditable state: records
-are stored, claims are updated, conflicts are resolved, trust is summarized,
-and review can work backward from a recommendation to the evidence that
-supported it.
+- evidence records and claim state
+- confidence semantics and contradiction handling
+- knowledge-level review boundaries used by downstream packages
 
-## Start Here
+## What It Refuses
 
-- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) when the question is why the
-  knowledge layer exists or where its boundary stops
-- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when you need the
-  module map for evidence, claims, resolution, and review behavior
-- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when the question is
-  about imports, schemas, payloads, or review artifacts
-- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the issue is whether the
-  current knowledge state is defended strongly enough to trust
+- scoring and recommendation policy
+- execution orchestration and operator surfaces
+- assay planning and outcome promotion
 
-## Open This Section When
+## Start With
 
-- you need the package entrypoint for evidence and claim contracts
-- you are checking contradiction handling, freshness, or trust logic
-- you want the shortest route into auditable knowledge-state behavior
+- Open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
+  for the package role and boundary.
+- Open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/)
+  when the question is a claim, evidence, or confidence-facing contract.
+- Open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+  when the change becomes ranking policy rather than evidence truth.
 
-## Open Another Package When
+## First Proof Check
 
-- the real question is already about ranking policy, experiment planning, or
-  runtime orchestration
-- you need durable core contracts or shared payload meaning rather than
-  evidence-state behavior
-- you are expecting this package to make policy decisions instead of to record
-  and justify evidence state
-
-## Pages In This Handbook
-
-- [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
-- [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)
-- [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/)
-- [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/)
-- [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/)
-
-## Neighboring Packages
-
-- open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking policy rather than evidence state
-- open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) when the concern becomes assay execution or planning
-- stay here when the real issue is whether the current claim state is justified and inspectable
-
-## What This Package Owns
-
-- where evidence records, claim state, contradiction handling, and trust
-  summaries are actually owned
-- how review can inspect why a claim is currently trusted or blocked
-- which downstream consumers should read knowledge state rather than redefine
-  it
-
-## Concrete Anchors
-
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py`
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py`
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py`
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/review.py`
-- `packages/bijux-proteomics-knowledge/tests` for evidence, contradiction, and
-  trust proof
-
-## Bottom Line
-
-Open this page when the question is what the system currently knows
-and how well it can justify that state. If the answer depends on choosing a
-path, scheduling an assay, or executing a run rather than on recording and
-auditing evidence, another package owns the next step.
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge`
+- `packages/bijux-proteomics-knowledge/tests`
+- confidence and contradiction modules once the claim narrows to one seam

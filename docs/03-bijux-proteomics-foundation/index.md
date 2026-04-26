@@ -9,67 +9,34 @@ last_reviewed: 2026-04-26
 
 # bijux-proteomics-foundation
 
-`bijux-proteomics-foundation` is the shared schema and serialization
-package in `bijux-proteomics`. Start here when the question is about
-canonical payload shape, version compatibility helpers, identity
-primitives, or deterministic serialization contracts used across the
-package family.
+`bijux-proteomics-foundation` owns shared payload meaning in
+`bijux-proteomics`. It keeps identifiers, schema compatibility, migrations, and
+deterministic serialization stable enough that the rest of the package family
+can exchange meaning without ambiguity.
 
-This package stabilizes shared meaning so the higher packages can disagree
-about policy or workflow without disagreeing about what a payload is.
+## What It Owns
 
-This package is not “misc shared utilities.” It keeps identifiers, schema
-metadata, migrations, errors, and deterministic serialization compatible
-enough for the rest of the family to exchange meaning safely.
+- identifiers and shared payload primitives
+- schema and serialization compatibility helpers
+- migration rules for shared payload evolution
 
-## Open This Section When
+## What It Refuses
 
-- you need the package entrypoint for schema and payload contracts
-- you are checking identifiers, migrations, or serialization guarantees
-- you want the shortest route into shared cross-package primitives
+- program policy and lifecycle decisions
+- evidence truth and contradiction state
+- execution, provider, or operator-facing runtime behavior
 
-## Open Another Package When
+## Start With
 
-- the real issue is already about program rules, evidence state, ranking
-  policy, lab planning, or runtime execution
-- you need downstream package behavior rather than shared payload meaning
-- you are treating this package as a generic utility layer instead of as a
-  contract layer
+- Open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
+  for the package role and boundary.
+- Open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/)
+  when the question is a public contract or shared data surface.
+- Open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+  when the concern becomes program behavior rather than shared meaning.
 
-## Pages In This Package
+## First Proof Check
 
-- [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
-- [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)
-- [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/)
-- [Operations](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/)
-- [Quality](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/quality/)
-
-## Neighboring Packages
-
-- open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the concern becomes program or lifecycle behavior
-- open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the concern becomes execution or replay
-- stay here when the real question is whether shared payload meaning changed
-
-## What This Package Owns
-
-- which identifier and schema rules are shared by the whole package family
-- how deterministic serialization is kept compatible enough for review and
-  interchange
-- where a migration or payload-shape change should be judged before it ripples
-  downstream
-
-## Concrete Anchors
-
-- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/ids.py`
-- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/migrations.py`
-- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py`
-- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization.py`
-- `packages/bijux-proteomics-foundation/tests` for compatibility and canonical
-  payload proof
-
-## Bottom Line
-
-Open this page when the question is whether proteomics packages still
-mean the same thing when they exchange payloads. If the answer depends on
-policy, workflow, or execution rather than on shared meaning, another package
-owns the decision.
+- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation`
+- `packages/bijux-proteomics-foundation/tests`
+- tracked artifacts under `apis/` when the change reaches a public contract
