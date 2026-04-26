@@ -11,6 +11,24 @@ last_reviewed: 2026-04-26
 
 Documentation standards should protect the reader from filler, drift, and false confidence.
 
+For `bijux-proteomics-lab`, documentation should read like operator-facing record guidance and show how durable state is created, interpreted, and promoted.
+
+## Documentation Model
+
+```mermaid
+flowchart TB
+    workflow["operator-facing workflow"]
+    records["durable lab state and interpretation"]
+    promotion["promotion reasoning stays explicit"]
+    reader["reader can reconstruct what happened"]
+
+    workflow --> records
+    records --> promotion
+    promotion --> reader
+```
+
+This page should stop lab docs from sounding generic. The job is to make the durable record and its interpretation legible to an operator under pressure.
+
 ## Review Rules
 
 - docs should sound like operator-facing record guidance, not generic package filler
@@ -22,3 +40,7 @@ Documentation standards should protect the reader from filler, drift, and false 
 - `packages/bijux-proteomics-lab/tests`
 - `src/bijux_proteomics_lab/planning.py` and `outcomes.py`
 - `src/bijux_proteomics_lab/repositories.py` and `serialization.py`
+
+## Design Pressure
+
+The easy failure is to describe workflows pleasantly while leaving the promotion rationale and record interpretation too implicit for real operator use.
