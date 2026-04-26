@@ -9,25 +9,55 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-`bijux-proteomics-lab` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb intelligence recommendation logic or shared foundation meaning.
+`bijux-proteomics-lab` architecture is where recommendation intent becomes
+workable assay reality. This section should help a reader see how planning,
+scheduling, outcomes, and feedback loops operate under lab constraints without
+pulling decision policy or shared meaning into the wrong layer.
+
+```mermaid
+flowchart LR
+    intent["recommended assay intent"]
+    constraints["capacity and dependency constraints"]
+    planning["planning models"]
+    schedule["executable schedule"]
+    outcomes["observed outcomes"]
+    rerun["rerun and escalation decisions"]
+    feedback["repository feedback"]
+
+    intent --> planning
+    constraints --> planning
+    planning --> schedule --> outcomes --> rerun --> feedback
+```
+
+## Architectural Promise
+
+- the lab package should make operational reality explicit rather than implicit
+- schedule decisions should stay traceable back to assay requirements and
+  constraints
+- outcome interpretation should feed back into the wider system without stealing
+  program authority
 
 ## Start With
 
-- open [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/) when you need the fastest route from filenames to owned module families
-- open [Execution Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/execution-model/) when the question is how recommended work becomes assay planning and outcome updates without importing decision policy into the lab package
-- open [Integration Seams](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/integration-seams/) when a change may cross into intelligence recommendation logic or shared foundation meaning
+- open [Execution Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/execution-model/)
+  when the question is how intent becomes schedules and then outcomes
+- open [Integration Seams](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/integration-seams/)
+  when a change risks importing recommendation policy or shared payload meaning
+  into lab logic
+- open [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)
+  when you need the owner for planning, repositories, outcomes, or schema code
 
-## Section Pages
+## Read By Workflow Moment
 
-- [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)
-- [Dependency Direction](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/dependency-direction/)
-- [Execution Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/execution-model/)
-- [State and Persistence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/state-and-persistence/)
-- [Integration Seams](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/integration-seams/)
-- [Error Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/error-model/)
-- [Extensibility Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/extensibility-model/)
-- [Code Navigation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/code-navigation/)
-- [Architecture Risks](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/architecture-risks/)
+- before execution:
+  [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)
+  and [Execution Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/execution-model/)
+- during persistence and handoff:
+  [State and Persistence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/state-and-persistence/)
+  and [Code Navigation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/code-navigation/)
+- when expanding lab behavior:
+  [Extensibility Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/extensibility-model/)
+  and [Architecture Risks](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/architecture-risks/)
 
 ## First Proof Check
 
@@ -37,4 +67,6 @@ last_reviewed: 2026-04-26
 
 ## Boundary Test
 
-If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.
+If a schedule decision cannot be explained in terms of assay intent,
+dependencies, and observed outcomes, the architecture is not telling the truth
+about the package.
