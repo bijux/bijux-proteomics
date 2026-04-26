@@ -14,9 +14,9 @@ package behavior. It should help a new reader understand the package split,
 choose the right handbook branch, and verify claims from checked-in assets
 without guesswork.
 
-Use the docs as orientation first and proof map second. Repository pages should
-explain cross-package concerns, while package pages, schemas, tests, and
-release artifacts carry the detailed evidence behind specific claims.
+Use the docs as orientation first and proof map second. Repository pages cover
+cross-package concerns, while package pages, schemas, tests, and release
+artifacts carry the detailed evidence behind specific claims.
 
 ```mermaid
 flowchart TB
@@ -50,6 +50,18 @@ flowchart TB
 - one five-category handbook per product package
 - one maintainer handbook for repository-health automation
 
+## Published Handbook Sections
+
+- `https://bijux.io/bijux-proteomics/01-bijux-proteomics/` for repository-wide
+  rules and shared assets
+- `https://bijux.io/bijux-proteomics/02-agentic-proteins/` through
+  `https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/` for package
+  handbooks
+- `https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/` for
+  repository-health automation
+- `https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/` for runtime
+  migration and ownership review
+
 ## Documentation Rules
 
 - use stable filenames that describe durable intent
@@ -59,8 +71,8 @@ flowchart TB
 
 ## Purpose
 
-Use this page to understand how the handbook is organized and where
-repository-level guidance should stop.
+This page shows how the handbook is organized and where repository-level
+guidance should stop.
 
 ## Stability
 

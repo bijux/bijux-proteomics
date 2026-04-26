@@ -17,10 +17,10 @@ cross-package rules begin and end.
 If a reader can answer their question honestly from one package handbook, they
 should go there instead of staying here.
 
-This page should make the root feel like a coordination layer, not a shadow
-owner of product behavior. The repository exists to keep several package-level
-promises moving together without letting the root quietly absorb domain,
-runtime, or lab semantics that belong elsewhere.
+The root is a coordination layer, not a shadow owner of product behavior. The
+repository exists to keep several package-level promises moving together
+without letting the root quietly absorb domain, runtime, or lab semantics that
+belong elsewhere.
 
 ```mermaid
 flowchart LR

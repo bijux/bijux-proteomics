@@ -51,8 +51,8 @@ flowchart TD
 
 ## Shared Non-Product Surfaces
 
-- [bijux-proteomics-maintain](../../08-bijux-proteomics-maintain/index.md) for
-  repository-health automation and maintainer docs
+- [bijux-proteomics-maintain](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
+  for repository-health automation and maintainer docs
 
 ## Purpose
 

@@ -108,14 +108,15 @@ flowchart TB
 
 ## Start Here
 
-- open [Repository Handbook](01-bijux-proteomics/index.md) when the question
-  crosses package boundaries or touches shared governance
+- open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
+  when the question crosses package boundaries or touches shared governance
 - open one product package when you need ownership, interfaces, operations, or
   proof for one owned behavior surface
-- open [Runtime Handbook](09-bijux-proteomics-runtime/index.md) when the
-  question is about canonical execution, replay, providers, or runtime-facing
-  migration
-- open [Maintainer Handbook](08-bijux-proteomics-maintain/index.md) for
+- open [Runtime Handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  when the question is about canonical execution, replay, providers, or
+  runtime-facing migration
+- open [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
+  for
   repository automation, schema enforcement, and maintainer-only guardrails
 
 ## Package Flow
@@ -172,8 +173,8 @@ entrypoints long enough for callers to move safely to the canonical runtime.
 
 ## Purpose
 
-Use this page to get oriented quickly, choose the right handbook branch, and
-move to the files that carry the detailed proof.
+This page gets readers oriented quickly, points them to the right handbook
+branch, and sends them toward the files that carry the detailed proof.
 
 ## Stability
 
