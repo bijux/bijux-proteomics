@@ -99,11 +99,11 @@ without pretending they are one thing.</div>
 | `bijux-proteomics-knowledge` | evidence records, claim state, and contradiction handling | the work concerns trust or evidence state |
 | `bijux-proteomics-lab` | experiment planning, assay outcomes, and closed-loop lab artifacts | the work concerns lab execution or outcome promotion |
 
-## Documentation Scope
+## Shared Handbooks
 
-- the `bijux-proteomics` repository handbook
-- the `bijux-proteomics-maintain` maintainer handbook
-- the product package handbooks published from this repository
+- [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
+- [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
+- [Runtime Handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 
 ## Concrete Anchors
 
@@ -129,18 +129,18 @@ without pretending they are one thing.</div>
 - you already know you are in legacy-compatibility territory and need the
   migration bridge
 
-## Read The Split This Way
+## How The Packages Split
 
-Treat the split as a chain of accountable promises. Foundation keeps shared
-payload meaning stable. Core defines program and lifecycle contracts.
-Intelligence turns those contracts into inspectable decisions. Knowledge keeps
-claims and evidence state reviewable. Lab turns recommended work into assay
-planning and outcome promotion. Runtime governs how those parts execute,
-replay, and remain inspectable. `agentic-proteins` exists only to preserve old
-entrypoints long enough for callers to move safely to the canonical runtime.
+Foundation keeps shared payload meaning stable. Core defines program and
+lifecycle contracts. Intelligence turns those contracts into inspectable
+decisions. Knowledge keeps claims and evidence state reviewable. Lab turns
+recommended work into assay planning and outcome promotion. Runtime governs
+how those parts execute, replay, and remain inspectable. `agentic-proteins`
+exists only to preserve old entrypoints long enough for callers to move
+safely to the canonical runtime.
 
 ## Bottom Line
 
-Open this page to understand the package family before drilling into one owned
-surface. Once one package clearly owns the behavior, the deeper handbook should
-carry the detailed contract, proof, and operating guidance.
+Open this site root when you still need the owning handbook. Once one package
+clearly owns the behavior, that handbook should carry the detailed contract,
+proof, and operating guidance.
