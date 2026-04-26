@@ -9,84 +9,16 @@ last_reviewed: 2026-04-26
 
 # Module Map
 
-The architecture of `bijux-proteomics-lab` becomes readable when its major module
-groups are treated as responsibilities instead of as folders. This page helps a reviewer move from a question about behavior to the part of the package most likely to answer it.
+`bijux-proteomics-lab` stays reviewable only when its structural families remain easy to name and defend. The package owns lab-facing planning, outcome promotion, and assay-state handling, so its modules should read like one coherent argument for that role.
 
-When this page is useful, code reading becomes targeted rather than exploratory.
+## Owned Module Families
 
-This page is a reviewer-facing map of structure and flow. It shortens code reading instead of trying to replace it.
+- `src/bijux_proteomics_lab/planning.py` and `outcomes.py` own the lab-facing control flow
+- `src/bijux_proteomics_lab/schema.py` and `serialization.py` own the lab contract boundary
+- `src/bijux_proteomics_lab/repositories.py` owns durable storage seams for plans and outcomes
 
-## Visual Summary
+## First Proof Check
 
-```mermaid
-flowchart LR
-    m1["planning and scheduling"]
-    m2["execution outcomes"]
-    m3["promotion decisions"]
-    page["bijux-proteomics-lab<br/>major module groups"]
-    code1["src/bijux_proteomics_lab"]
-    code2["tests"]
-    code3["docs"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    m1 --> page
-    m2 --> page
-    m3 --> page
-    page --> code1
-    page --> code2
-    page --> code3
-    class page page;
-    class m1,m2,m3 positive;
-    class code1,code2,code3 anchor;
-```
-
-## Major Modules
-
-- `src/bijux_proteomics_lab/model` for durable runtime models
-- `src/bijux_proteomics_lab/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_lab/application` for orchestration and replay coordination
-- `src/bijux_proteomics_lab/verification` for runtime-level validation support
-- `src/bijux_proteomics_lab/interfaces` for CLI surfaces and manifest loading
-- `src/bijux_proteomics_lab/api` for HTTP application surfaces
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_lab/model` for durable runtime models
-- `src/bijux_proteomics_lab/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_lab/application` for orchestration and replay coordination
-
-## Open This Page When
-
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
-
-## Decision Rule
-
-Use `Module Map` to decide whether a structural change makes `bijux-proteomics-lab` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What You Can Resolve Here
-
-- how `bijux-proteomics-lab` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
-
-## Review Focus
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Limits
-
-Treat this page as a working structural map and keep it aligned with code and tests.
-
-## Read Next
-
-- open interfaces when the review reaches a public or operator-facing seam
-- open operations when the concern becomes repeatable runtime behavior
-- open quality when you need proof that the documented structure is still protected
-
+- `packages/bijux-proteomics-lab/src/bijux_proteomics_lab`
+- the matching package tests
+- neighboring handbook branches when a module starts to look shared
