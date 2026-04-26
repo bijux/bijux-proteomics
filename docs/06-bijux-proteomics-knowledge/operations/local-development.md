@@ -66,7 +66,7 @@ flowchart LR
 
 ## Decision Rule
 
-Use `Local Development` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
+Open `Local Development` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
 
 ## What This Page Answers
 
@@ -86,13 +86,13 @@ This page shows how `bijux-proteomics-knowledge` is operated today, but the chec
 
 ## Next Checks
 
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
+- open interfaces when the operational path depends on a specific surface contract
+- open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
 ## Purpose
 
-This page records the package-local development posture.
+This page shows the package-local development posture.
 
 ## Stability
 

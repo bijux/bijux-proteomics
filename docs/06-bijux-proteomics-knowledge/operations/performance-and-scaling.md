@@ -91,13 +91,13 @@ This page shows how `bijux-proteomics-knowledge` is operated today, but the chec
 
 ## Next Checks
 
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
+- open interfaces when the operational path depends on a specific surface contract
+- open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
 ## Purpose
 
-This page records the posture for performance work in `bijux-proteomics-knowledge`.
+This page shows the posture for performance work in `bijux-proteomics-knowledge`.
 
 ## Stability
 

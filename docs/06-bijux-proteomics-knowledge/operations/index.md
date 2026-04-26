@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Operations
 
-Use this section when the question is procedural: how to work on
+Open this section when the question is procedural: how to work on
 `bijux-proteomics-knowledge`, validate evidence and claim changes, inspect
 review artifacts, and release the package without relying on memory or
 guesswork.
@@ -44,11 +44,11 @@ flowchart LR
 
 ## Start Here
 
-- use [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/) for environment and
+- open [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/) for environment and
   package bootstrap expectations
-- use [Common Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/common-workflows/) when you need the normal package
+- open [Common Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/common-workflows/) when you need the normal package
   edit-and-validate path
-- use [Observability and Diagnostics](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/observability-and-diagnostics/) or
+- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/observability-and-diagnostics/) or
   [Failure Recovery](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/failure-recovery/) when evidence state or review output
   is behaving unexpectedly
 
@@ -87,22 +87,21 @@ flowchart LR
 
 ## Read Across The Package
 
-- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package boundary and scope
-- use [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when a workflow problem points
+- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package boundary and scope
+- open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) when a workflow problem points
   to a structural seam
-- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when an operational path depends on
+- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) when an operational path depends on
   a schema, import, or artifact contract
-- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the real question becomes whether a
+- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the real question becomes whether a
   change has been validated hard enough
 
 ## Reader Takeaway
 
-Use `Operations` to find workflows a maintainer can rerun and defend. If a
+Open `Operations` to find workflows a maintainer can rerun and defend. If a
 procedure cannot show how it protects schema compatibility, evidence state, and
 review output, it is not ready to serve as the package’s operating memory.
 
 ## What You Get
 
-This page gives you the setup, workflow, diagnostics, release, and safety
-route through `bijux-proteomics-knowledge` before you open a specific
-operating page.
+Open this page when you need the setup, workflow, diagnostics, release, and
+safety route through `bijux-proteomics-knowledge`.
