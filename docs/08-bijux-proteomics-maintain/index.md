@@ -48,7 +48,7 @@ repository-health rules stay reviewable.
 - you already know the issue belongs to one package API, CLI, or schema
 - you are trying to understand product semantics rather than repository health
 
-## What This Handbook Covers
+## What This Handbook Owns
 
 - which repository-health questions belong to helper code, Make routing, or
   workflow automation

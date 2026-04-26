@@ -17,7 +17,7 @@ This package reduces mystery instead of creating more of it. If maintainer
 logic cannot be explained from this section, the repository is relying too
 heavily on implicit CI behavior.
 
-## Pages In This Handbook
+## Pages In This Section
 
 - [Package Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
@@ -61,4 +61,3 @@ heavily on implicit CI behavior.
 Open `bijux-proteomics-dev` when repository-health behavior is implemented as
 helper code. If the question is really about shared command routing or
 workflow entrypoints, open `makes/` or `gh-workflows/` instead.
-
