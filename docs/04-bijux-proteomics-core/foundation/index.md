@@ -57,7 +57,7 @@ program meaning on its own.
 - you already know the boundary and need proof, risk posture, or review
   criteria instead
 
-## Read Across The Package
+## Across This Package
 
 - open [Architecture](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/) when you need the structural
   map behind program, lifecycle, and validation code
@@ -77,7 +77,7 @@ program meaning on its own.
 
 ## Bottom Line
 
-Use `Foundation` to answer the ownership question with integrity:
+Open this section to answer the ownership question with integrity:
 `bijux-proteomics-core` exists so the rest of the proteomics stack can depend on
 one stable program and lifecycle contract. If a proposal broadens this package
 without making that contract story clearer, it is probably crossing the

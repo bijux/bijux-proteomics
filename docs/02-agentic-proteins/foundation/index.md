@@ -74,7 +74,7 @@ runtime handbook rather than here.
 
 ## Decision Rule
 
-Use `Foundation` to decide whether a change makes `agentic-proteins` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
+Open this section to decide whether a change makes `agentic-proteins` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
 
 ## What You Can Resolve Here
 

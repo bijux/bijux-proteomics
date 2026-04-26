@@ -54,7 +54,7 @@ another.
   contract
 - the issue is procedural or proof-oriented rather than boundary-oriented
 
-## Read Across The Package
+## Across This Package
 
 - open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/) for module groups, execution
   flow, and dependency direction

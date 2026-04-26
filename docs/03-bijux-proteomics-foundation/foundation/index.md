@@ -57,7 +57,7 @@ identifier, or fingerprint means.
 - you already know the boundary and need proof, risk posture, or review
   criteria instead
 
-## Read Across The Package
+## Across This Package
 
 - open [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/) when you need the structural
   map behind schema, serialization, and migration code
@@ -78,7 +78,7 @@ identifier, or fingerprint means.
 
 ## Bottom Line
 
-Use `Foundation` to answer the ownership question with integrity:
+Open this section to answer the ownership question with integrity:
 `bijux-proteomics-foundation` exists so every downstream package can agree on
 payload meaning before they disagree on policy. If a proposal broadens this
 package without making that shared-meaning story clearer, it is probably

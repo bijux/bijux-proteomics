@@ -54,7 +54,7 @@ consume when they decide what to recommend or promote.
   contract
 - the issue is procedural or proof-oriented rather than boundary-oriented
 
-## Read Across The Package
+## Across This Package
 
 - open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/) for module groups, execution
   flow, and persistence seams
