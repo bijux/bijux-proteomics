@@ -9,29 +9,65 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-`bijux-proteomics-intelligence` interfaces should tell a reader exactly which public surfaces are real, which are only compatibility bridges, and which nearby package actually owns the next step.
+`bijux-proteomics-intelligence` interfaces are how recommendation logic becomes
+usable to humans and tooling. This section should help a reader see which
+surfaces accept candidates and policy inputs, which ones emit rankings,
+briefings, and outcomes, and where explanation is part of the contract instead
+of optional decoration.
+
+```mermaid
+flowchart LR
+    inputs["candidate and policy inputs"]
+    scoring["scoring and evaluator surfaces"]
+    briefs["briefs and report artifacts"]
+    outcomes["recommendation outcomes"]
+    review["review boards and downstream packages"]
+
+    inputs --> scoring --> briefs --> outcomes --> review
+```
+
+## What These Interfaces Need To Preserve
+
+- recommendation output must stay explainable enough for review, not just
+  machine-readable enough for automation
+- scoring surfaces must reveal policy shape without pretending to be evidence
+  truth
+- downstream consumers need stable outcome and report forms because real
+  portfolio decisions depend on them
 
 ## Start With
 
-- open [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/) when the question starts from code
-- open [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/) when the question is really about payload meaning or compatibility
-- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/compatibility-commitments/) before changing any documented public promise
+- open [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/)
+  when the question is what a score, shortlist, brief, or outcome is allowed to
+  mean
+- open [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
+  when the real concern is report payload shape and explanation output
+- open [Operator Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/operator-workflows/)
+  when the reader wants to follow the decision surface in practice
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/compatibility-commitments/)
+  before changing an explanation or outcome contract that review processes may
+  depend on
 
-## Section Pages
+## Read By Consumer
 
 - [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/)
+  for code-level scoring and briefing entrypoints
 - [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/)
-- [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
-- [API Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/api-surface/)
-- [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/)
-- [Configuration Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/configuration-surface/)
+  and [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
+  for the stable shapes used in decision review
+- [API Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/api-surface/),
+  [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/),
+  and [Configuration Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/configuration-surface/)
+  for operator and automation entrypoints
 - [Entrypoints and Examples](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/entrypoints-and-examples/)
-- [Operator Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/operator-workflows/)
-- [Compatibility Commitments](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/compatibility-commitments/)
+  for concrete flows that tie policy to outputs
 
-## What This Package Publishes
+## What This Section Should Clarify
 
-- decision-layer imports, report artifacts, outcome payloads, and recommendation-facing examples
+- where recommendation interfaces end and governance interpretation begins
+- which outputs are part of the stable surface versus transient implementation
+  detail
+- why explanation belongs in the interface contract for this package
 
 ## First Proof Check
 
