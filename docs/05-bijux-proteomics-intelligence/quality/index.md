@@ -11,6 +11,23 @@ last_reviewed: 2026-04-26
 
 `bijux-proteomics-intelligence` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
+## Trust Model
+
+```mermaid
+flowchart LR
+    invariants["invariants"]
+    tests["test strategy"]
+    validation["change validation"]
+    risks["risk register and limitations"]
+    decision["trust or block the change"]
+
+    invariants --> tests --> validation --> risks --> decision
+```
+
+This page should make intelligence quality about explainability pressure. The
+package earns trust when recommendation behavior can still be justified through
+policies, evaluators, reports, and outcomes instead of opaque drift.
+
 ## Start With
 
 - open [Invariants](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/quality/invariants/) before changing package meaning
@@ -38,3 +55,9 @@ last_reviewed: 2026-04-26
 - `packages/bijux-proteomics-intelligence/tests`
 - `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
 - `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+
+## Design Pressure
+
+Intelligence quality breaks down when recommendation changes look plausible but
+stop being explainable. The section has to force proof that behavior changed on
+purpose and remains reviewable.
