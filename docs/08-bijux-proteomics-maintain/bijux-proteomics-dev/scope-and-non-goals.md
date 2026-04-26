@@ -11,6 +11,22 @@ last_reviewed: 2026-04-26
 
 This package owns repository-health enforcement. It should stay narrow enough that product behavior still belongs to product packages.
 
+## Scope Model
+
+```mermaid
+flowchart TB
+    package["bijux-proteomics-dev"]
+    in_scope["docs, contract, release, security, quality enforcement"]
+    callers["make targets and workflows"]
+    out_scope["runtime and product behavior stay elsewhere"]
+
+    package --> in_scope
+    in_scope --> callers
+    package -. excludes .-> out_scope
+```
+
+This page should help reviewers reject the easy mistake of putting product logic in a maintainer helper just because several workflows touch it.
+
 ## In Scope
 
 - repository-wide docs, contract, release, security, and quality enforcement
@@ -28,3 +44,6 @@ This package owns repository-health enforcement. It should stay narrow enough th
 - `src/bijux_proteomics_dev/`
 - maintainer tests and workflow call sites
 
+## Design Pressure
+
+The easy failure is to give the maintainer package one small product responsibility at a time until it becomes a quiet second owner of product behavior.
