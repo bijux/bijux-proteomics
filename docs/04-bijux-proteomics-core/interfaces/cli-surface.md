@@ -91,10 +91,3 @@ This page can identify the intended public surfaces of `bijux-proteomics-core`, 
 - open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
-## Purpose
-
-This page shows the command entrypoints and their owning code.
-
-## Stability
-
-Keep it aligned with the declared scripts and the interface modules that implement them.

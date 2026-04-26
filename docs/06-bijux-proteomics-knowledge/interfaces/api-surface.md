@@ -94,10 +94,3 @@ This page can identify the intended public surfaces of `bijux-proteomics-knowled
 - open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
-## Purpose
-
-This page ties API behavior to tracked code and schema assets.
-
-## Stability
-
-Keep it aligned with the actual API modules and schema files.

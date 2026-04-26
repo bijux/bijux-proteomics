@@ -95,11 +95,3 @@ This page can identify the intended public surfaces of `bijux-proteomics-intelli
 - open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
-## Purpose
-
-This page shows where configuration enters the package and how configuration
-changes should be reviewed.
-
-## Stability
-
-Keep it aligned with real configuration loaders, defaults, and operator-facing options.

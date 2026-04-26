@@ -96,10 +96,3 @@ This page can identify the intended public surfaces of `bijux-proteomics-foundat
 - open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
-## Purpose
-
-This page shows which structured shapes deserve compatibility review.
-
-## Stability
-
-Keep it aligned with tracked schemas, stable models, and durable artifacts.

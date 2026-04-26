@@ -88,11 +88,3 @@ This page can identify the intended public surfaces of `bijux-proteomics-core`, 
 - open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
-## Purpose
-
-This page shows how package interfaces connect to workflows an operator can
-actually perform.
-
-## Stability
-
-Keep it aligned with the existing commands, endpoints, and outputs.

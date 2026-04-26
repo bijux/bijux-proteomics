@@ -95,10 +95,3 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 - open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
-## Purpose
-
-This page shows where readers can find real invocation examples.
-
-## Stability
-
-Keep it aligned with the checked-in examples, fixtures, and executable tests.

@@ -125,11 +125,3 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 - open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
-## Purpose
-
-This page shows the published interface routes for `agentic-proteins` and the
-legacy compatibility surfaces that still matter to callers.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
