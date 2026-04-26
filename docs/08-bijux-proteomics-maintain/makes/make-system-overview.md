@@ -23,11 +23,3 @@ traceable instead of burying it in one oversized file.
 - `makes/bijux-py/` carries reusable command contracts and target families
 - `makes/packages/` maps those shared contracts onto real proteomics packages
 
-## Purpose
-
-This page gives the shortest honest explanation of how the make system is
-organized.
-
-## Stability
-
-Keep it aligned with the actual include structure rooted at `Makefile`.

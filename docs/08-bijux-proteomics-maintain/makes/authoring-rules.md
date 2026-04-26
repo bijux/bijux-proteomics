@@ -22,10 +22,3 @@ structural discipline as the existing tree.
 - document new make surfaces in this handbook when they become part of the
   repository contract
 
-## Purpose
-
-This page records the authoring discipline that keeps the make system coherent.
-
-## Stability
-
-Update it when the repository’s actual make authoring rules change.

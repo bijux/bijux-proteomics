@@ -25,12 +25,3 @@ package run uses the shared `bijux-std` reusable CI workflow.
 - repository checks driven from `make`
 - the package matrix that delegates to reusable package workflows
 
-## Purpose
-
-This page shows when verification runs and how it branches from repository
-checks into package-level jobs.
-
-## Stability
-
-Keep it aligned with the real trigger paths, repository job, and package matrix
-declared in `verify.yml`.

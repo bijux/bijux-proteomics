@@ -22,12 +22,3 @@ and the workflow step that carry it.
 - docs consistency and markdown-link checks in `docs/`
 - repository tests under `packages/bijux-proteomics-dev/tests`
 
-## Purpose
-
-This page shows how the maintainer package participates in repository-wide
-correctness and consistency.
-
-## Stability
-
-Keep it aligned with the quality checks that actually run in local validation
-or CI.

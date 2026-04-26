@@ -30,12 +30,3 @@ the built site output.
 - `mkdocs.yml` and `mkdocs.shared.yml`
 - `docs/` as the published source tree
 
-## Purpose
-
-This page shows when documentation publication runs and which site inputs it
-validates before deploy.
-
-## Stability
-
-Keep it aligned with the docs deployment workflow and the published handbook
-inputs it relies on.

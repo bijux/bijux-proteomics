@@ -24,11 +24,3 @@ into per-package bindings.
 - `makes/bijux-py/ci/`
 - `makes/packages/`
 
-## Purpose
-
-This page shows how the make tree is partitioned so new targets can be placed
-correctly.
-
-## Stability
-
-Update it when the actual directory responsibilities of `makes/` change.

@@ -23,11 +23,3 @@ not drift into wishful prose.
 - `docs/architecture_docs.py`
 - `docs/design_debt.py`
 
-## Purpose
-
-This page shows where repository documentation integrity checks live.
-
-## Stability
-
-Keep it aligned with the actual docs validation helpers and the handbook rules
-they enforce.

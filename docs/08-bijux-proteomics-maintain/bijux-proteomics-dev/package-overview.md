@@ -25,12 +25,3 @@ pretending they are part of runtime or scientific domain behavior.
 - dependency allowlist and vulnerability gates
 - maintainer utility commands that support repeatable repository workflows
 
-## Purpose
-
-This page gives the shortest honest description of why the maintainer package
-exists.
-
-## Stability
-
-Keep it aligned with the real repository-health code under
-`packages/bijux-proteomics-dev/src/bijux_proteomics_dev/`.

@@ -23,11 +23,3 @@ checked-in API artifacts.
 - `api/openapi_drift.py`
 - `apis/*/v1/` as the checked reference contracts they enforce
 
-## Purpose
-
-This page shows why schema drift detection belongs in the maintainer package
-instead of scattered shell scripts.
-
-## Stability
-
-Keep it aligned with the actual API tooling and tracked schema files.

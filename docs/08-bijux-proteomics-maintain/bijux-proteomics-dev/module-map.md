@@ -22,11 +22,3 @@ the owning code path quickly.
 - `tools/` for maintainer utility commands and reproducible helper flows
 - `trusted_process.py` for shared maintainer-process support logic
 
-## Purpose
-
-This page is the shortest code-navigation guide for the maintainer package.
-
-## Stability
-
-Keep it aligned with the checked-in module layout and retire references to
-directories that no longer exist.

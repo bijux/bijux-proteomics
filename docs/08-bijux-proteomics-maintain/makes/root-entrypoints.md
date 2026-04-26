@@ -23,10 +23,3 @@ fragments build on.
 - `makes/env.mk`
 - `makes/packages.mk`
 
-## Purpose
-
-This page records the root files that define the repository make surface.
-
-## Stability
-
-Keep it aligned with the root include graph that the repository actually uses.

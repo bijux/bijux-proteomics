@@ -23,11 +23,3 @@ expectation today.
 - `security/dependency_allowlist.py`
 - tests and workflow steps that execute those gates
 
-## Purpose
-
-This page marks the boundary between maintainer security tooling and
-product-facing security behavior.
-
-## Stability
-
-Keep it aligned with the executable checks and policies that actually exist.

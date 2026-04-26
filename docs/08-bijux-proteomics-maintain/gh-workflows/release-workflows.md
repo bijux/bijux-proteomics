@@ -36,12 +36,3 @@ The split keeps each publication surface explicit:
 - `release-ghcr.yml`: `resolve` and per-package GHCR artifact publication
 - `release-github.yml`: release planning and GitHub Release publication
 
-## Purpose
-
-This page shows which release surfaces are published and how the tag-driven
-workflow split is organized.
-
-## Stability
-
-Keep it aligned with the release workflows and their shared artifact and release
-configuration contracts.

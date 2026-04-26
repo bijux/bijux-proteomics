@@ -25,11 +25,3 @@ build and publication stages.
 - release callers in `release-pypi.yml`, `release-ghcr.yml`, and
   `release-github.yml`
 
-## Purpose
-
-This page shows which workflows are building blocks and which top-level
-workflows call them.
-
-## Stability
-
-Keep it aligned with the reusable workflow files and their current callers.

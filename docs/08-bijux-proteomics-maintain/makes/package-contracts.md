@@ -21,11 +21,3 @@ package-specific files then bind to the proteomics packages.
 When package behavior is shared, encode it in a reusable fragment instead of
 copying target logic across many package files.
 
-## Purpose
-
-This page shows where package-level make contracts are defined and reused.
-
-## Stability
-
-Keep it aligned with the shared package contract fragments that currently
-exist.

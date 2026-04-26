@@ -23,11 +23,3 @@ assumptions that later targets depend on.
 - keep package-independent environment logic in shared files
 - make local and CI execution assumptions easy to compare
 
-## Purpose
-
-This page shows where shared environment expectations live in the make system.
-
-## Stability
-
-Keep it aligned with the environment fragments currently present under
-`makes/`.

@@ -23,10 +23,3 @@ publishable packages.
 - `makes/packages/agentic-proteins.mk`
 - `makes/packages/bijux-proteomics-*.mk`
 
-## Purpose
-
-This page records how package-specific target routing is assembled.
-
-## Stability
-
-Keep it aligned with the package dispatch files that currently exist.

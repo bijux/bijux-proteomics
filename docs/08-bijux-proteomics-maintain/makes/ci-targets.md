@@ -25,10 +25,3 @@ fragments are the reusable command layer that the workflows depend on.
 - `makes/bijux-py/ci/security.mk`
 - `makes/bijux-py/ci/test.mk`
 
-## Purpose
-
-This page shows where CI-oriented targets live in the make tree.
-
-## Stability
-
-Keep it aligned with the actual CI fragment set under `makes/bijux-py/ci/`.

@@ -27,12 +27,3 @@ ownership lines that make the package family understandable.
 - domain contracts that belong in `bijux-proteomics-*` product packages
 - quiet shortcuts that override package-owned rules from the root
 
-## Purpose
-
-This page keeps the maintainer package from becoming an unbounded dumping
-ground.
-
-## Stability
-
-Update it only when repository authority genuinely moves into or out of
-`bijux-proteomics-dev`.

@@ -24,11 +24,3 @@ that repository automation is actually enforcing.
 - package metadata checks in repository tests
 - root commit conventions configured through commitizen
 
-## Purpose
-
-This page records the maintainer package role in release preparation.
-
-## Stability
-
-Keep it aligned with the real release support code and current versioning
-workflow.

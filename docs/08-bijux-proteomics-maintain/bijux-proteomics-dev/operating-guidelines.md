@@ -24,10 +24,3 @@ need detective work to understand its package impact.
   docs
 - update the relevant tests and handbook pages in the same change series
 
-## Purpose
-
-This page records the expected maintenance posture for repository-health work.
-
-## Stability
-
-Update it only when the repository operating model genuinely changes.
