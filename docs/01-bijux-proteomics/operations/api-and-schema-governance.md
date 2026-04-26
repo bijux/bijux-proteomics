@@ -13,6 +13,24 @@ API and schema governance matters because tracked contracts can drift away from
 the code that claims to implement them. The repository owns how those artifacts
 are stored, validated, and reviewed across packages.
 
+## Governance Model
+
+```mermaid
+flowchart TB
+    change["api or schema change"]
+    artifact["tracked artifact under apis/*/v1"]
+    checks["freeze and drift checks"]
+    behavior["consuming package behavior"]
+    verdict["compatibility event or routine change"]
+
+    change --> artifact
+    artifact --> checks
+    checks --> behavior
+    behavior --> verdict
+```
+
+This page should make API and schema review feel like contract governance, not file maintenance. If the artifact, the checks, and the behavior do not move together, the repository has already lost the contract story.
+
 ## Governing Surfaces
 
 - tracked artifacts under `apis/*/v1`
@@ -31,3 +49,7 @@ public contract shift.
 - `apis/*/v1`
 - `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api`
 - workflow or make callers that enforce the checks
+
+## Design Pressure
+
+The common drift is to review tracked artifacts as generated output even when they are the public contract surface that should be driving release scrutiny.
