@@ -10,7 +10,7 @@ last_reviewed: 2026-04-26
 # Foundation
 
 `bijux-proteomics-foundation` exists to keep shared payload meaning stable
-across the proteomics package family. Use this section when the important
+across the proteomics package family. Open this section when the important
 question is not how a workflow runs, but why schemas, identifiers,
 serialization, and migration helpers belong here in the first place.
 

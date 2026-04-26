@@ -11,7 +11,7 @@ last_reviewed: 2026-04-26
 
 `bijux-proteomics-core` exists to define durable program rules: target models,
 lifecycle states, readiness conditions, and validation boundaries that the rest
-of the proteomics stack has to respect. Use this section when the key question
+of the proteomics stack has to respect. Open this section when the key question
 is why a rule belongs to the core contract layer instead of a downstream policy
 package.
 

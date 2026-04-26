@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Quality
 
-Use this section when the real question is whether the shared meaning layer can
+Open this section when the real question is whether the shared meaning layer can
 be trusted: which tests prove schema and serialization stability, which risks
 stay visible, and what "done" should mean before other packages build on the
 result.

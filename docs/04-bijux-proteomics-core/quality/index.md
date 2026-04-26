@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Quality
 
-Use this section when the real question is whether core behavior can be
+Open this section when the real question is whether core behavior can be
 trusted: which tests prove program and lifecycle rules, which risks remain
 visible, and what "done" should mean before higher packages rely on the result.
 

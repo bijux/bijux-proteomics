@@ -57,7 +57,7 @@ flowchart LR
 
 ## Start Here
 
-Use this section when you need the checked-in operating procedure for the package, not just the abstract contract. The operational question for `bijux-proteomics-intelligence` is not merely how to run code, but how to confirm that candidate ranking, evaluator behavior, and generated reports still line up after a change.
+Open this section when you need the checked-in operating procedure for the package, not just the abstract contract. The operational question for `bijux-proteomics-intelligence` is not merely how to run code, but how to confirm that candidate ranking, evaluator behavior, and generated reports still line up after a change.
 
 ## Read Across the Package
 

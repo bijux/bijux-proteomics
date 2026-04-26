@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-Use this section when the question is structural: which modules own candidate
+Open this section when the question is structural: which modules own candidate
 state, ranking policy, scenario evaluators, design-loop control,
 explainability, and decision outcomes, and how those parts cooperate without
 blurring policy, reporting, and domain semantics together.

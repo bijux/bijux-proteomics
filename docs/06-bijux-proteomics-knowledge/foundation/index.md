@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-Use this section when you need the durable answer to a simple question: why
+Open this section when you need the durable answer to a simple question: why
 does `bijux-proteomics-knowledge` exist as its own package between shared
 payload contracts below and decision or lab policy above?
 

@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Interfaces
 
-Use this section when the question is what another package, tool, or reviewer
+Open this section when the question is what another package, tool, or reviewer
 can safely rely on from `bijux-proteomics-knowledge`: import surfaces, schema
 profiles, canonical JSON behavior, evidence bundles, claim records, and review
 artifacts.

@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-Use this section when the important question is how the shared meaning layer is
+Open this section when the important question is how the shared meaning layer is
 assembled: where schema ownership lives, how serialization and fingerprinting
 flow through the package, and where migrations and compatibility helpers fit
 into that structure.

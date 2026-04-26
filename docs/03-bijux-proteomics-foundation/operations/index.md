@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Operations
 
-Use this section when the question is how to change shared contracts
+Open this section when the question is how to change shared contracts
 repeatably: installing the package, validating schema or serialization updates,
 checking migration helpers, and releasing shared primitives without forcing
 downstream breakage by accident.
