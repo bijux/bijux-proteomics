@@ -9,40 +9,51 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-This section explains why `bijux-proteomics-foundation` exists, what it owns on purpose, and where its boundary stops.
+`bijux-proteomics-foundation` exists to keep shared payload meaning stable
+across the proteomics package family. Use this section when the important
+question is not how a workflow runs, but why schemas, identifiers,
+serialization, and migration helpers belong here in the first place.
 
-Read this section first when you need the durable package story before code detail. A quick skim should make the role, the boundary, and the neighboring seams legible.
-
-Treat the foundation pages for `bijux-proteomics-foundation` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+These pages should help readers separate shared meaning from downstream policy.
+When this section is doing its job well, a scientist or maintainer can explain
+why higher packages may change workflow rules without changing what a payload,
+identifier, or fingerprint means.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    own1["schema profiles"]
-    own2["deterministic serialization"]
-    own3["identifier and migration helpers"]
-    section["Foundation section<br/>package role and boundary"]
-    next1["Architecture"]
-    next2["Interfaces"]
-    next3["Operations and Quality"]
+    payloads["shared payload shapes"]
+    ids["stable identifiers<br/>and migrations"]
+    serial["deterministic serialization<br/>and fingerprints"]
+    meaning["shared meaning layer"]
+    boundary["boundary<br/>program policy starts later"]
+    reader["reader question<br/>why is this shared across packages?"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    own1 --> section
-    own2 --> section
-    own3 --> section
-    section --> next1
-    section --> next2
-    section --> next3
-    class section page;
-    class own1,own2,own3 positive;
-    class next1,next2,next3 anchor;
+    payloads --> meaning
+    ids --> meaning
+    serial --> meaning
+    meaning --> boundary
+    meaning --> reader
+    class meaning page;
+    class payloads,ids,serial positive;
+    class reader anchor;
+    class boundary caution;
 ```
 
-## Pages in This Section
+## Start Here
+
+- open [Package Overview](package-overview.md) for the shortest explanation of
+  what the shared meaning layer owns
+- open [Ownership Boundary](ownership-boundary.md) when the issue may actually
+  belong in core, knowledge, intelligence, lab, or runtime
+- open [Lifecycle Overview](lifecycle-overview.md) when the key question is how
+  identifiers, payloads, and migrations stay stable over time
+
+## Pages In This Section
 
 - [Package Overview](package-overview.md)
 - [Scope and Non-Goals](scope-and-non-goals.md)
@@ -54,55 +65,52 @@ flowchart LR
 - [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
 - [Change Principles](change-principles.md)
 
-## Read Across the Package
+## Use This Section When
 
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- you need the durable ownership story before reading code or compatibility
+  details
+- you are deciding whether a change affects shared payload meaning or only a
+  downstream workflow
+- you need the package vocabulary for schemas, fingerprints, identifiers, and
+  migrations
+
+## Do Not Use This Section When
+
+- the question is already about public imports, schema contracts, or serialized
+  artifacts
+- the real issue is operational, such as setup, validation, or release
+- you already know the boundary and need proof, risk posture, or review
+  criteria instead
+
+## Read Across The Package
+
+- open [Architecture](../architecture/index.md) when you need the structural
+  map behind schema, serialization, and migration code
+- open [Interfaces](../interfaces/index.md) when the question is about imports,
+  contracts, or compatibility promises
+- open [Operations](../operations/index.md) when you need repeatable maintainer
+  workflows for shared contract changes
+- open [Quality](../quality/index.md) when you need evidence that the shared
+  meaning layer is actually protected
 
 ## Concrete Anchors
 
 - `packages/bijux-proteomics-foundation` as the package root
-- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation` as the import boundary
-- `packages/bijux-proteomics-foundation/tests` as the package proof surface
+- `packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation` as the
+  import boundary
+- `packages/bijux-proteomics-foundation/tests` as the proof surface for shared
+  contracts
 
-## Use This Page When
+## Reader Takeaway
 
-- you need the package idea before the implementation detail
-- you are deciding whether work belongs here or in a neighboring package
-- you want the shortest honest explanation of what this package is for
-
-## Decision Rule
-
-Use `Foundation` to decide whether a change makes `bijux-proteomics-foundation` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
-
-## What This Page Answers
-
-- what problem `bijux-proteomics-foundation` is supposed to own on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before the boundary is changed
-
-## Reviewer Lens
-
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
-
-## Honesty Boundary
-
-This page can explain the intended boundary of `bijux-proteomics-foundation`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
-
-## Next Checks
-
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
+Use `Foundation` to answer the ownership question with integrity:
+`bijux-proteomics-foundation` exists so every downstream package can agree on
+payload meaning before they disagree on policy. If a proposal broadens this
+package without making that shared-meaning story clearer, it is probably
+crossing the boundary rather than improving it.
 
 ## Purpose
 
-This page explains how to use the foundation section for `bijux-proteomics-foundation` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+This page introduces the foundation handbook for
+`bijux-proteomics-foundation` and routes readers to the boundary, language, and
+lifecycle pages that explain why the package exists.
