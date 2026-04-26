@@ -4,21 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Authoring Rules
 
-The make layer stays maintainable only when new fragments follow the same
-structural discipline as the existing tree.
+Make authoring rules should keep the command surface auditable as it grows.
 
 ## Rules
 
-- put shared logic in the narrowest reusable fragment that can honestly own it
-- keep package bindings thin and descriptive
-- prefer explicit variables and includes over hidden shell indirection
-- place CI-only logic in the CI fragment family instead of spreading it across
-  unrelated targets
-- document new make surfaces in this handbook when they become part of the
-  repository contract
+- prefer named fragments over dense inline shell logic
+- keep target names and file names aligned with the owning concept
+- refactor when shared targets start hiding package-specific behavior
+
+## First Proof Check
+
+- `Makefile`
+- `makes/root.mk` and related fragments
 

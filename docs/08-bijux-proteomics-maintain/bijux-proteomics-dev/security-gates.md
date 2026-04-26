@@ -4,22 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Security Gates
 
-Repository-facing security checks live in `bijux-proteomics-dev` so dependency
-policy and vulnerability enforcement are visible and reusable instead of being
-buried in workflow YAML.
+Security gates here protect repository policy boundaries, not product-specific threat models.
 
-The useful question is never “did security run somewhere.” The useful question
-is which checked-in helper or test is carrying the repository’s security
-expectation today.
+## Gate Rules
 
-## Current Security Surfaces
+- dependency allowlists and audit checks should stay reviewable in code
+- security failures should point to the owning helper and policy surface
+- do not hide repository risk behind passing product-package tests
 
-- `security/pip_audit_gate.py`
-- `security/dependency_allowlist.py`
-- tests and workflow steps that execute those gates
+## First Proof Check
+
+- `src/bijux_proteomics_dev/security/dependency_allowlist.py`
+- `src/bijux_proteomics_dev/security/pip_audit_gate.py`
 

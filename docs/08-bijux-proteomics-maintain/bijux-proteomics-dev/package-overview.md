@@ -4,24 +4,22 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Package Overview
 
-`bijux-proteomics-dev` exists to keep repository-wide rules in one code-bearing
-home. It owns the automation that checks schema drift, docs integrity,
-dependency policy, release metadata, and maintainer utility flows.
-
-The package is intentionally separate from the publishable product surfaces.
-That separation makes it easier to review repository-health changes without
-pretending they are part of runtime or scientific domain behavior.
+`bijux-proteomics-dev` exists so repository-health behavior is reviewable in code instead of being hidden inside workflow YAML and shell fragments.
 
 ## What It Owns
 
-- shared docs validation and architecture consistency helpers
-- API freeze and OpenAPI drift enforcement
-- release metadata and changelog checks
-- dependency allowlist and vulnerability gates
-- maintainer utility commands that support repeatable repository workflows
+- documentation checks and sync helpers under `docs/`
+- contract-freeze and API drift helpers under `api/`
+- release, security, and quality gates under `release/`, `security/`, and `quality/`
+- maintainer tools and trusted-process helpers under `tools/` and `trusted_process.py`
+
+## First Proof Check
+
+- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/`
+- `packages/bijux-proteomics-dev/tests`
 

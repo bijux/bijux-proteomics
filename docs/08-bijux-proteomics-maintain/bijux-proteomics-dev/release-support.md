@@ -4,23 +4,22 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Release Support
 
-Shared release checks belong here so package metadata, changelog expectations,
-and publication readiness stay consistent across the repository.
+Release support should make version and publication rules visible before tags and workflows do the irreversible part.
 
-The point is not to hide release logic behind a helper package. The point is to
-make release support visible in one place where maintainers can audit the rules
-that repository automation is actually enforcing.
+## Support Rules
 
-## Current Release Surfaces
+- keep version resolution and changelog checks explicit
+- block publication when repository proof is incomplete
+- tie release decisions back to checked-in policy helpers
 
-- `release/changelog_version.py`
-- `release/version_resolver.py`
-- `release/publication_guard.py`
-- package metadata checks in repository tests
-- root commit conventions configured through commitizen
+## First Proof Check
+
+- `src/bijux_proteomics_dev/release/version_resolver.py`
+- `src/bijux_proteomics_dev/release/changelog_version.py`
+- `src/bijux_proteomics_dev/release/publication_guard.py`
 

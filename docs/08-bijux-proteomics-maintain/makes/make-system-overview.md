@@ -4,22 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Make System Overview
 
-The repository make system is the shared command language for maintainer work.
+The make system is a real interface, not a random collection of shortcuts.
 
-It starts at `Makefile`, delegates to `makes/root.mk`, and then pulls in
-repository fragments, reusable `bijux-py` contracts, package dispatch, and
-per-package bindings. The structure matters because it keeps command ownership
-traceable instead of burying it in one oversized file.
+## Overview
 
-## Core Shape
+- `Makefile` is the top entry surface
+- shared routing lives in `makes/root.mk`, `makes/packages.mk`, `makes/publish.mk`, and `makes/env.mk`
+- package and repository detail fan out through `makes/bijux-py/` and `makes/packages/`
 
-- `Makefile` is the top-level entrypoint
-- `makes/root.mk` assembles repository-wide includes
-- `makes/bijux-py/` carries reusable command contracts and target families
-- `makes/packages/` maps those shared contracts onto real proteomics packages
+## First Proof Check
+
+- `Makefile`
+- `makes/README.md`
 

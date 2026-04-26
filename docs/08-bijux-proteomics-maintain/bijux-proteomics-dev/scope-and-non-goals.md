@@ -4,26 +4,27 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Scope and Non-Goals
 
-The maintainer package is for repository health, not product behavior.
-
-That distinction protects the architecture. When maintainer automation starts
-absorbing runtime rules or scientific semantics, the repository loses the clear
-ownership lines that make the package family understandable.
+This package owns repository-health enforcement. It should stay narrow enough that product behavior still belongs to product packages.
 
 ## In Scope
 
-- docs, schema, release, and dependency-policy enforcement
-- maintainer-only tooling used by root automation and CI
-- repository checks that span more than one package or shared artifact family
+- repository-wide docs, contract, release, security, and quality enforcement
+- helper code that backs Make targets and workflow rules
+- tooling that keeps checked-in policy easier to audit
 
 ## Out Of Scope
 
-- runtime behavior that belongs in `agentic-proteins`
-- domain contracts that belong in `bijux-proteomics-*` product packages
-- quiet shortcuts that override package-owned rules from the root
+- runtime or product-package feature behavior
+- user-facing domain semantics
+- automation whose best home is a product package itself
+
+## First Proof Check
+
+- `src/bijux_proteomics_dev/`
+- maintainer tests and workflow call sites
 

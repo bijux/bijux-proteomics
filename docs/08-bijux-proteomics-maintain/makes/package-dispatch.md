@@ -4,22 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Package Dispatch
 
-Package dispatch is how shared target families become package-specific without
-duplicating the whole command model.
+Package dispatch should explain how one target reaches one package or many without hiding the routing logic.
 
-The repository uses `makes/bijux-py/root/package-dispatch.mk` and the files
-under `makes/packages/` to route shared target contracts onto real package
-roots such as `agentic-proteins`, `bijux-proteomics-core`, and the other
-publishable packages.
+## Dispatch Rules
 
-## Dispatch Anchors
+- dispatch through named package fragments
+- keep per-package routing explicit in `makes/packages/*.mk`
+- avoid shared targets that secretly special-case one package too much
 
-- `makes/bijux-py/root/package-dispatch.mk`
-- `makes/packages/agentic-proteins.mk`
-- `makes/packages/bijux-proteomics-*.mk`
+## First Proof Check
+
+- `makes/packages.mk`
+- `makes/packages/*.mk`
 

@@ -4,24 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # CI Targets
 
-The CI make surface should be explicit enough that workflow files are not the
-only place where verification logic can be understood.
+CI targets should mirror repository proof rules closely enough that local runs and workflow runs mean the same thing.
 
-`makes/bijux-py/ci/` defines the main CI-oriented target families for build,
-docs, lint, quality, sbom, security, test, and shared utility behavior. Those
-fragments are the reusable command layer that the workflows depend on.
+## CI Rules
 
-## CI Anchors
+- keep CI-oriented targets explicit and reusable
+- align make targets with workflow expectations instead of creating parallel meanings
+- surface failures at the target that owns them
 
-- `makes/bijux-py/ci/build.mk`
-- `makes/bijux-py/ci/docs.mk`
-- `makes/bijux-py/ci/lint.mk`
-- `makes/bijux-py/ci/quality.mk`
-- `makes/bijux-py/ci/security.mk`
-- `makes/bijux-py/ci/test.mk`
+## First Proof Check
+
+- `makes/bijux-py/ci/`
+- workflow files that call the targets
 

@@ -4,21 +4,22 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Module Map
 
-The package is organized by repository-health concern so maintainers can find
-the owning code path quickly.
+The maintainer package stays legible only when helper families remain separated by job.
 
-## Current Modules
+## Module Families
 
-- `api/` for API freeze and OpenAPI drift enforcement
-- `docs/` for markdown link checks, architecture consistency, and debt guards
-- `quality/` for dependency analysis and repository quality policy
-- `release/` for changelog and version consistency checks
-- `security/` for vulnerability gating and dependency allowlist enforcement
-- `tools/` for maintainer utility commands and reproducible helper flows
-- `trusted_process.py` for shared maintainer-process support logic
+- `docs/` for documentation integrity, consistency, design debt, and badge/link checks
+- `api/` for contract freezing and OpenAPI drift checks
+- `release/`, `security/`, and `quality/` for publication, audit, and architecture gates
+- `tools/` and `trusted_process.py` for maintainer-oriented utility workflows
+
+## First Proof Check
+
+- `src/bijux_proteomics_dev/docs/`
+- `src/bijux_proteomics_dev/api/`, `release/`, `security/`, and `quality/`
 

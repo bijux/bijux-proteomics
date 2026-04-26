@@ -4,24 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-19
+last_reviewed: 2026-04-26
 ---
 
 # verify
 
-`verify.yml` is the main repository verification workflow.
+`verify.yml` is the push and pull-request gate. It should answer whether the repository still meets its checked-in proof rules before merge.
 
-It is the workflow that decides whether repository automation contracts and the
-package matrix are healthy enough to trust on pushes and pull requests. That
-makes it the broadest CI truth for day-to-day repository changes.
+## What To Check
 
-The job tree is intentionally split. `repository` runs shared automation
-contracts first, `package` fans out by package through `ci.yml`, and each
-package run uses the shared `bijux-std` reusable CI workflow.
+- trigger paths for branch and pull-request verification
+- how `verify.yml` delegates into reusable CI logic such as `ci.yml`
+- which failures belong to maintainer policy versus product-package proof
 
-## Workflow Anchors
+## First Proof Check
 
 - `.github/workflows/verify.yml`
-- repository checks driven from `make`
-- the package matrix that delegates to reusable package workflows
+- `.github/workflows/ci.yml`
 

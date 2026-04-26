@@ -4,22 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Environment Model
 
-The make system makes environment assumptions visible instead of smearing
-them across unrelated targets.
-
-Repository behavior depends on shared environment fragments such as
-`makes/env.mk`, `makes/bijux-py/root/env.mk`, and
-`makes/bijux-py/repository/env.mk`. Those files define variables and execution
-assumptions that later targets depend on.
+Environment handling should make local and CI execution reproducible without hiding required assumptions.
 
 ## Environment Rules
 
-- centralize shared variables instead of redefining them in many fragments
-- keep package-independent environment logic in shared files
-- make local and CI execution assumptions easy to compare
+- centralize shared environment logic in dedicated fragments
+- keep package-specific overrides visible
+- fail early when required tooling assumptions are missing
+
+## First Proof Check
+
+- `makes/env.mk`
+- env-related includes under `makes/bijux-py/`
 

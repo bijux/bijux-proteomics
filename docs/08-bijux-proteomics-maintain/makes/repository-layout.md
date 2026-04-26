@@ -4,23 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Repository Layout
 
-The layout of `makes/` is part of the repository architecture.
+Make routing reflects repository layout. If the layout and the targets drift apart, maintainer work becomes guesswork.
 
-Repository-wide fragments live near the root, reusable `bijux-py` logic lives
-under `makes/bijux-py/`, and package-facing bindings live under
-`makes/packages/`. That split keeps shared logic reusable without blurring it
-into per-package bindings.
+## Layout Rules
 
-## Layout Anchors
+- shared repository targets stay in shared fragments
+- package-specific rules stay under `makes/packages/`
+- keep naming aligned with real repository and package boundaries
 
-- `makes/root.mk`, `makes/env.mk`, and `makes/packages.mk`
-- `makes/bijux-py/root/`
-- `makes/bijux-py/repository/`
-- `makes/bijux-py/ci/`
+## First Proof Check
+
+- `makes/`
 - `makes/packages/`
 

@@ -4,21 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Quality Gates
 
-Repository quality checks belong here so package-level code does not have to
-reinvent the same maintenance policy over and over.
+Quality gates in this package should block repository drift before it reaches release or public docs.
 
-The quality surface should stay executable and reviewable. If a quality claim
-matters, a maintainer should be able to point to the helper module, the test,
-and the workflow step that carry it.
+## Gate Rules
 
-## Current Quality Surfaces
+- keep architecture, dependency, and contract checks explicit
+- prefer failing with a named policy reason over silent lenience
+- make every gate traceable to checked-in helper code and tests
 
-- `quality/deptry_scan.py`
-- docs consistency and markdown-link checks in `docs/`
-- repository tests under `packages/bijux-proteomics-dev/tests`
+## First Proof Check
+
+- `src/bijux_proteomics_dev/quality/`
+- `packages/bijux-proteomics-dev/tests`
 
