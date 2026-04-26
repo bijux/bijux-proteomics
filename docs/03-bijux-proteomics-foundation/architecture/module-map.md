@@ -88,9 +88,9 @@ This page describes the current structural model of `bijux-proteomics-foundation
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 

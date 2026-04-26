@@ -86,8 +86,8 @@ This page can identify the intended public surfaces of `bijux-proteomics-lab`, b
 
 ## Next Checks
 
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
+- open operations when the caller-facing question becomes procedural or environmental
+- open quality when compatibility or evidence of protection becomes the real issue
 - move back to architecture when a public-surface question reveals a deeper structural drift
 
 ## Purpose

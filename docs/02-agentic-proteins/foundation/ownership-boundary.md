@@ -91,9 +91,9 @@ This page can explain the intended boundary of `agentic-proteins`, but it cannot
 
 ## Next Checks
 
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
+- open architecture when the question becomes structural rather than boundary-oriented
+- open interfaces when the question becomes contract-facing
+- open quality when the question becomes proof or review sufficiency
 
 ## Purpose
 

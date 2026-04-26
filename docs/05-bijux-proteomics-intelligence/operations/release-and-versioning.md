@@ -90,8 +90,8 @@ This page shows how `bijux-proteomics-intelligence` is operated today, but the c
 
 ## Next Checks
 
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
+- open interfaces when the operational path depends on a specific surface contract
+- open quality when the question becomes whether the workflow is sufficiently proven
 - move back to architecture when operational complexity suggests a structural problem
 
 ## Purpose
