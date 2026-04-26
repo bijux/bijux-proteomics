@@ -11,6 +11,26 @@ last_reviewed: 2026-04-26
 
 A useful test strategy names what evidence is needed and why shallow coverage is not enough.
 
+For `bijux-proteomics-foundation`, the test story should show how shared meaning survives schema edits, serialization pressure, and package migration instead of treating those concerns as unrelated checks.
+
+## Strategy Model
+
+```mermaid
+flowchart TB
+    meaning["shared type or schema meaning"]
+    schema["schema fixtures and contract tests"]
+    migration["migration and serialization proof"]
+    downstream["cross-package compatibility examples"]
+    release["release confidence"]
+
+    meaning --> schema
+    schema --> migration
+    migration --> downstream
+    downstream --> release
+```
+
+The important thing here is stacking evidence from local correctness to downstream compatibility. If the strategy stops at unit-level proof, the package has not actually defended its shared role.
+
 ## Review Rules
 
 - favor schema, serialization, and migration tests over generic breadth
@@ -22,3 +42,7 @@ A useful test strategy names what evidence is needed and why shallow coverage is
 - `packages/bijux-proteomics-foundation/tests`
 - `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
 - `src/bijux_proteomics_foundation/serialization.py`
+
+## Design Pressure
+
+The easy failure is broad green coverage that never proves whether consuming packages can still interpret the edited shared meaning the same way.
