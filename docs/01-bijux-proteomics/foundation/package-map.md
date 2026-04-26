@@ -13,6 +13,30 @@ The package map is the shortest route from a cross-package question to the
 owning handbook. It should help a reviewer classify work before reading deep
 code.
 
+## Routing Model
+
+```mermaid
+flowchart TB
+    question["cross-package question"]
+    foundation["shared meaning and serialization"]
+    core["durable rules and lifecycle"]
+    knowledge["evidence truth and contradictions"]
+    intelligence["recommendation policy and explanations"]
+    lab["assay planning and outcomes"]
+    runtime["execution and replay"]
+    bridge["legacy runtime forwarding"]
+
+    question --> foundation
+    question --> core
+    question --> knowledge
+    question --> intelligence
+    question --> lab
+    question --> runtime
+    question --> bridge
+```
+
+This page should let a reader classify work before diffing the whole repository. The table is useful, but it becomes much easier to use once the package choices are visible as a routing model instead of a long lookup list.
+
 ## Ownership Map
 
 | Package | Owns | Use It When |
@@ -37,3 +61,7 @@ code.
 - the matching package under `packages/`
 - the matching handbook branch under `docs/`
 - package tests that prove the package really owns the claimed behavior
+
+## Design Pressure
+
+The easy failure is to make the package map accurate but too flat, so readers still hesitate between neighboring packages that sound plausible.
