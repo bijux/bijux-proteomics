@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # makes
 
-The `makes/` section explains the shared command surface that ties local work,
+Use this section to understand the shared command surface that ties local work,
 CI validation, package dispatch, and release-oriented automation together.
 
 The make layer is a real repository interface. These pages exist so a
@@ -36,17 +36,17 @@ flowchart LR
     release --> reader
 ```
 
-## Pages In This Section
+## Pages In makes
 
-- [Make System Overview](make-system-overview.md)
-- [Root Entrypoints](root-entrypoints.md)
-- [Environment Model](environment-model.md)
-- [Repository Layout](repository-layout.md)
-- [Package Dispatch](package-dispatch.md)
-- [CI Targets](ci-targets.md)
-- [Package Contracts](package-contracts.md)
-- [Release Surfaces](release-surfaces.md)
-- [Authoring Rules](authoring-rules.md)
+- [Make System Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/make-system-overview/)
+- [Root Entrypoints](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/root-entrypoints/)
+- [Environment Model](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/environment-model/)
+- [Repository Layout](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/repository-layout/)
+- [Package Dispatch](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/package-dispatch/)
+- [CI Targets](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/ci-targets/)
+- [Package Contracts](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/package-contracts/)
+- [Release Surfaces](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/release-surfaces/)
+- [Authoring Rules](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/authoring-rules/)
 
 ## Use This Section When
 
@@ -56,22 +56,22 @@ flowchart LR
 - you are editing the repository command surface that maintainers and
   automation both depend on
 
-## Do Not Use This Section When
+## Move On When
 
 - the question is about GitHub Actions triggers rather than Make routing
 - the issue belongs to one product package contract instead of a shared command
   layer
 - you only need one concrete package page and already know which page owns it
 
-## Choose The Next Page By Question
+## Choose A Page
 
-- open [Make System Overview](make-system-overview.md) for the broad structure
+- use [Make System Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/make-system-overview/) for the broad structure
   first
-- open [Root Entrypoints](root-entrypoints.md) when the concern starts at the
+- use [Root Entrypoints](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/root-entrypoints/) when the concern starts at the
   top-level command surface
-- open [Package Dispatch](package-dispatch.md) when the question is how shared
+- use [Package Dispatch](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/package-dispatch/) when the question is how shared
   targets route into one package or many
-- open [CI Targets](ci-targets.md) or [Release Surfaces](release-surfaces.md)
+- use [CI Targets](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/ci-targets/) or [Release Surfaces](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/release-surfaces/)
   when the concern is automation-facing rather than developer-facing
 
 ## Reader Takeaway
@@ -80,11 +80,7 @@ This section should let a maintainer move from a command name to the owning
 make surface quickly. It should prevent the make layer from feeling like a flat
 bag of targets with hidden routing rules.
 
-## Purpose
+## What You Get
 
-This page routes maintainers into the make-system documentation without forcing
-them to infer structure from file names alone.
-
-## Stability
-
-Keep it aligned with the make surfaces that the repository actually exposes.
+This page gives you the route from a shared command name to the page that
+explains the owning Make surface.

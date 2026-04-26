@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # gh-workflows
 
-The workflow section explains the GitHub Actions entrypoints and reusable
+Use this section to understand the GitHub Actions entrypoints and reusable
 building blocks that verify, release, and document the repository.
 
 Use these pages when you need to know which workflow starts on push, pull
@@ -40,12 +40,12 @@ flowchart LR
     reusable --> reader
 ```
 
-## Pages In This Section
+## Pages In gh-workflows
 
-- [verify](verify.md)
-- [reusable-workflows](reusable-workflows.md)
-- [deploy-docs](deploy-docs.md)
-- [release-workflows](release-workflows.md)
+- [verify](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/verify/)
+- [reusable-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/reusable-workflows/)
+- [deploy-docs](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/deploy-docs/)
+- [release-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/release-workflows/)
 
 ## Use This Section When
 
@@ -56,22 +56,22 @@ flowchart LR
 - the answer should come from checked-in workflow contracts rather than CI
   folklore
 
-## Do Not Use This Section When
+## Move On When
 
 - the question is about Make target routing rather than GitHub Actions
 - the issue belongs to one product package contract instead of repository
   automation
 - you only need maintainer helper code rather than workflow entrypoints
 
-## Choose The Next Page By Question
+## Choose A Page
 
-- open [verify](verify.md) when the concern starts from push or pull request
+- use [verify](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/verify/) when the concern starts from push or pull request
   verification
-- open [deploy-docs](deploy-docs.md) when the concern is handbook publication
+- use [deploy-docs](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/deploy-docs/) when the concern is handbook publication
   from `main`
-- open [release-workflows](release-workflows.md) when the concern is
+- use [release-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/release-workflows/) when the concern is
   tag-driven publication
-- open [reusable-workflows](reusable-workflows.md) when the key question is job
+- use [reusable-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/reusable-workflows/) when the key question is job
   reuse or nested workflow composition
 
 ## Reader Takeaway
@@ -80,11 +80,7 @@ This section should make workflow ownership visible enough that a maintainer can
 move from an automation symptom to the right workflow file without relying on
 CI archaeology.
 
-## Purpose
+## What You Get
 
-Use this section to find the workflow file, trigger, and job tree behind a
-repository automation concern.
-
-## Stability
-
-Keep it aligned with the workflow files in `.github/workflows/`.
+This page gives you the route from an automation symptom to the workflow page
+that explains the owning trigger and job tree.

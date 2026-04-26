@@ -37,17 +37,17 @@ flowchart LR
     dev --> reader
 ```
 
-## Pages In This Section
+## Pages In This Handbook
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Module Map](module-map.md)
-- [Quality Gates](quality-gates.md)
-- [Security Gates](security-gates.md)
-- [Schema Governance](schema-governance.md)
-- [Release Support](release-support.md)
-- [Documentation Integrity](documentation-integrity.md)
-- [Operating Guidelines](operating-guidelines.md)
+- [Package Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
+- [Module Map](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)
+- [Quality Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/)
+- [Security Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/security-gates/)
+- [Schema Governance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance/)
+- [Release Support](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support/)
+- [Documentation Integrity](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity/)
+- [Operating Guidelines](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines/)
 
 ## Use This Section When
 
@@ -58,23 +58,23 @@ flowchart LR
 - the concern is about schema drift, docs integrity, release support, security,
   or quality gates
 
-## Do Not Use This Section When
+## Move On When
 
 - the real question is about one product package API, CLI, runtime rule, or
   domain contract
 - the issue belongs to shared Make routing or GitHub Actions trigger logic
 - you are looking for end-user behavior rather than repository-health helpers
 
-## Choose The Next Page By Question
+## Choose A Page
 
-- open [Package Overview](package-overview.md) for the shortest statement of why
+- use [Package Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview/) for the shortest statement of why
   this maintainer package exists
-- open [Module Map](module-map.md) when you need the helper-module layout
-- open [Quality Gates](quality-gates.md), [Security Gates](security-gates.md),
-  or [Documentation Integrity](documentation-integrity.md) when the issue is a
+- use [Module Map](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map/) when you need the helper-module layout
+- use [Quality Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/), [Security Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/security-gates/),
+  or [Documentation Integrity](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity/) when the issue is a
   policy check
-- open [Schema Governance](schema-governance.md) or
-  [Release Support](release-support.md) when the issue is publication-facing
+- use [Schema Governance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance/) or
+  [Release Support](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support/) when the issue is publication-facing
 
 ## Reader Takeaway
 
@@ -82,12 +82,7 @@ Use `bijux-proteomics-dev` when repository-health behavior is implemented as
 helper code. If the question is really about shared command routing or workflow
 entrypoints, move sideways to `makes/` or `gh-workflows/` instead.
 
-## Purpose
+## What You Get
 
-This page gives maintainers a stable overview of the package that owns
-repository-health automation.
-
-## Stability
-
-Keep it aligned with the actual maintainer package responsibilities under
-`packages/bijux-proteomics-dev/`.
+This page gives you the fastest route from a repository-health rule to the
+helper package page that explains the owning module or policy surface.
