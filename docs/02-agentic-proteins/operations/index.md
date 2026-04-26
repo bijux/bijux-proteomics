@@ -22,33 +22,6 @@ This section makes one posture obvious: operational work here exists to
 keep migration safe and temporary, not to expand the long-term operating center
 of the repository.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    f1["validate legacy imports"]
-    f2["check legacy CLI paths"]
-    f3["review alias retirement"]
-    page["Operations section<br/>repeatable package workflows"]
-    next1["setup and workflows"]
-    next2["diagnostics and recovery"]
-    next3["release and deployment"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    f1 --> page
-    f2 --> page
-    f3 --> page
-    page --> next1
-    page --> next2
-    page --> next3
-    class page page;
-    class f1,f2,f3 positive;
-    class next1,next2,next3 anchor;
-```
-
 ## Pages in This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/installation-and-setup/)

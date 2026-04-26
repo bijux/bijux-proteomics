@@ -20,28 +20,6 @@ mistaking shared automation for product behavior.
 
 This page routes one repository-health question immediately: does the rule live in maintainer helper code, the Make surface, or GitHub automation?
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>which repository-health layer owns this rule?"]
-    dev["bijux-proteomics-dev<br/>helper code and policy checks"]
-    makes["makes<br/>shared command surfaces"]
-    workflows["gh-workflows<br/>GitHub Actions contracts"]
-    packages["product package handbooks<br/>owned user-facing behavior"]
-    health["repository health<br/>release, docs, quality, automation"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class reader page;
-    class dev,makes,workflows,health positive;
-    class packages caution;
-    reader --> health
-    health --> dev
-    health --> makes
-    health --> workflows
-    health -.hands product behavior back to.-> packages
-```
-
 ## Start Here
 
 - open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the concern

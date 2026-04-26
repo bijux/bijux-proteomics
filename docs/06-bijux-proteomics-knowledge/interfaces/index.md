@@ -19,28 +19,6 @@ When evidence and claim state move across package boundaries, import surfaces
 and serialized payloads become part of the review surface that later decisions
 depend on.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    imports["public imports and exported models"]
-    schemas["schema compatibility and payload profiles"]
-    serialization["canonical JSON and serialization rules"]
-    artifacts["evidence bundles, claims, and review artifacts"]
-    reader["reader question<br/>which knowledge surfaces are real contracts?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class imports,page reader;
-    class schemas,serialization positive;
-    class artifacts anchor;
-    imports --> reader
-    schemas --> reader
-    serialization --> reader
-    artifacts --> reader
-```
-
 ## Start Here
 
 - open [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/) for the package exports that callers

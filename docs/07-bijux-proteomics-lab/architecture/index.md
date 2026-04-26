@@ -24,29 +24,6 @@ contracts that keep the loop deterministic?"
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    question["reader question<br/>which module owns this lab behavior?"]
-    planning["planning.py<br/>plans, batches, schedules,<br/>review packets"]
-    outcomes["outcomes.py<br/>results, reruns, promotion<br/>readiness, triage"]
-    repositories["repositories.py<br/>feedback and review queue<br/>persistence contracts"]
-    contracts["schema.py + serialization.py<br/>artifact contracts and canonical payloads"]
-    section["Architecture<br/>module ownership and seams"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    question --> section
-    section --> planning
-    section --> outcomes
-    section --> repositories
-    section --> contracts
-    class question page;
-    class section anchor;
-    class planning,outcomes,repositories,contracts positive;
-```
-
 ## Pages in This Section
 
 - [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)

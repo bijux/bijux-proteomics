@@ -19,31 +19,6 @@ instead of guessing from package names. The goal is to make the structure
 legible enough that lifecycle, validation, and runtime-adjacent code can be
 changed without quietly blurring ownership boundaries.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    models["program and target models"]
-    lifecycle["lifecycle and readiness logic"]
-    domain["domain and biology rules"]
-    interfaces["CLI and public entrypoints"]
-    runtime["runtime adapters and execution helpers"]
-    seams["integration seams<br/>foundation below, policy above"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    models --> lifecycle
-    lifecycle --> domain
-    domain --> interfaces
-    domain --> runtime
-    interfaces --> seams
-    runtime --> seams
-    class domain page;
-    class models,lifecycle,interfaces,runtime positive;
-    class seams caution;
-```
-
 ## Start Here
 
 - open [Module Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/module-map/) for the fastest route to directory-level

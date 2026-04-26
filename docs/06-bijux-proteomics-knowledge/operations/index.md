@@ -18,30 +18,6 @@ This is an import-first package, so the operational risk is not “a service goe
 down.” The risk is that a schema, evidence bundle, claim transition, or review
 summary silently drifts in a way downstream packages cannot explain.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    setup["install and prepare the package environment"]
-    validate["run evidence, claim, and schema workflows"]
-    inspect["inspect review packets and trust outputs"]
-    diagnose["debug serialization, resolution, or state drift"]
-    release["publish without breaking callers"]
-    reader["reader question<br/>which procedure keeps knowledge state reliable?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class validate,page reader;
-    class setup,inspect positive;
-    class diagnose,release anchor;
-    setup --> reader
-    validate --> reader
-    inspect --> reader
-    diagnose --> reader
-    release --> reader
-```
-
 ## Start Here
 
 - open [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/) for environment and

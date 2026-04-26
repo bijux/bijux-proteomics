@@ -18,31 +18,6 @@ These pages should act as checked-in operating memory for the shared meaning
 layer. If contract-changing workflows are vague here, downstream packages end up
 debugging breakage that should have been prevented before release.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    change["schema or identifier change"]
-    run["local validation workflow"]
-    compat["compatibility and migration checks"]
-    recover["failure recovery<br/>bad serialization or drift"]
-    release["shared release surface"]
-    downstream["downstream packages consume result"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    change --> run --> compat
-    compat --> release
-    compat --> recover
-    release --> downstream
-    class release page;
-    class run,compat positive;
-    class recover anchor;
-    class downstream caution;
-```
-
 ## Start Here
 
 - open [Installation and Setup](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/installation-and-setup/) when you need a

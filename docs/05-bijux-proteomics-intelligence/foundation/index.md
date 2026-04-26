@@ -18,29 +18,6 @@ owns ranking policy, candidate comparison, scenario evaluation, explainability
 surfaces, and decision summaries that justify why one path should advance over
 another.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    inputs["knowledge state, constraints, and candidate inputs"]
-    ranking["ranking and portfolio policy"]
-    scenarios["scenario evaluation and escalation logic"]
-    explain["explanations, briefs, and recommendation reports"]
-    handoff["lab and runtime consume the chosen path"]
-    reader["reader question<br/>what belongs in the intelligence layer?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class inputs,page reader;
-    class ranking,scenarios,explain positive;
-    class handoff anchor;
-    inputs --> ranking --> scenarios --> explain --> handoff
-    ranking --> reader
-    scenarios --> reader
-    explain --> reader
-```
-
 ## Start Here
 
 - open [Package Overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/package-overview/) for the shortest description of

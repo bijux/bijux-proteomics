@@ -16,26 +16,6 @@ The make layer is a real repository interface. These pages exist so a
 maintainer can trace a command from `Makefile` to the fragment that owns it
 without having to reverse-engineer the whole tree from includes alone.
 
-```mermaid
-flowchart LR
-    root["root entrypoints"]
-    env["environment model"]
-    dispatch["package dispatch"]
-    ci["CI targets"]
-    release["release surfaces"]
-    reader["reader question<br/>which make surface should I change?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class root,page reader;
-    class env,dispatch,ci,release positive;
-    root --> reader
-    env --> reader
-    dispatch --> reader
-    ci --> reader
-    release --> reader
-```
-
 ## Pages In This Section
 
 - [Make System Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/make-system-overview/)

@@ -19,30 +19,6 @@ Candidate and metric models define the decision substrate, policies and
 evaluators score it, briefs and reports explain the result, and design-loop
 logic tracks whether progress is converging or stalling.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    candidates["candidate state and portfolio surfaces"]
-    policies["ranking factors, policies, and metrics"]
-    evaluators["scenario evaluators and decision summaries"]
-    briefs["briefs, reports, and explainability outputs"]
-    loop["design-loop convergence and stagnation control"]
-    reader["reader question<br/>where does this decision behavior live?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class candidates,page reader;
-    class policies,evaluators,briefs positive;
-    class loop anchor;
-    candidates --> policies --> evaluators --> briefs
-    evaluators --> loop
-    policies --> reader
-    evaluators --> reader
-    briefs --> reader
-```
-
 ## Start Here
 
 - open [Module Map](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/module-map/) for the shortest route from filenames to

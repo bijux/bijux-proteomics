@@ -25,27 +25,6 @@ without inventing a new workflow each time.
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    maintainer["maintainer question<br/>what workflow should I repeat?"]
-    inputs["inspect planning inputs,<br/>gates, and material pressure"]
-    execution["review batches,<br/>directives, and outcomes"]
-    recovery["triage failures,<br/>reruns, and promotion blockers"]
-    page["Operations<br/>repeatable lab workflows"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    maintainer --> page
-    page --> inputs
-    page --> execution
-    page --> recovery
-    class maintainer page;
-    class page anchor;
-    class inputs,execution,recovery positive;
-```
-
 ## Pages in This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/installation-and-setup/)

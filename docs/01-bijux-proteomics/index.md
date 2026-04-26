@@ -22,29 +22,6 @@ repository exists to keep several package-level promises moving together
 without letting the root quietly absorb domain, runtime, or lab semantics that
 belong elsewhere.
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>is this rule shared or package-local?"]
-    root["Repository Handbook<br/>root-owned guidance"]
-    foundation["Foundation<br/>split, scope, language"]
-    operations["Operations<br/>validation, release, review"]
-    packages["Package handbooks<br/>owned behavior"]
-    maintain["Maintainer handbook<br/>repo health automation"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    reader --> root
-    root --> foundation
-    root --> operations
-    root --> packages
-    root --> maintain
-    class root page;
-    class foundation,operations anchor;
-    class packages,maintain positive;
-```
-
 ## Start Here
 
 - open [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/) when the question is why the package

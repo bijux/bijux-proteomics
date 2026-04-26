@@ -26,26 +26,6 @@ the package also owns evidence truth or execution.
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>why was this candidate or path recommended?"]
-    candidates["candidates.py and briefs.py<br/>candidate sets and brief outputs"]
-    policy["policies.py and evaluators.py<br/>scoring, weighting, and evaluation rules"]
-    outcomes["outcomes.py and serialization.py<br/>explanations and decision artifacts"]
-    consumers["lab and runtime consume<br/>the chosen path, not the policy itself"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    class reader page;
-    class candidates,policy,outcomes,consumers positive;
-    reader --> candidates
-    candidates --> policy
-    policy --> outcomes
-    outcomes --> consumers
-```
-
 ## Open This Section When
 
 - you need the package entrypoint for scoring and recommendation logic

@@ -21,26 +21,6 @@ This section makes one distinction obvious: root operations exist to
 coordinate the repository as a whole, not to re-describe package-local runtime,
 evidence, or lab procedures that already have their own handbooks.
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>which root-owned workflow governs this work?"]
-    setup["local setup and contributor flow"]
-    validation["shared validation,<br/>schema governance, migration checks"]
-    release["release, automation,<br/>artifact, and review posture"]
-    rootops["root-owned operations<br/>repeatable repository workflows"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    class reader page;
-    class setup,validation,release,rootops positive;
-    reader --> rootops
-    rootops --> setup
-    rootops --> validation
-    rootops --> release
-```
-
 ## Start Here
 
 - open [Local Development](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/local-development/) when the concern is repeatable

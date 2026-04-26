@@ -23,28 +23,6 @@ auditable state: records are stored, claims are updated, conflicts are
 resolved, trust is summarized, and review can work backward from a
 recommendation to the evidence that supported it.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    reader["reader question<br/>what is currently known, contested, or trusted?"]
-    evidence["evidence.py and adapters.py<br/>evidence records and normalization"]
-    claims["claims.py and resolution.py<br/>claim state and contradiction handling"]
-    review["review.py, graph.py, repositories.py<br/>audit, review, and lineage surfaces"]
-    consumers["intelligence and runtime read<br/>the resulting evidence state"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    class reader page;
-    class evidence,claims,review,consumers positive;
-    reader --> evidence
-    evidence --> claims
-    claims --> review
-    review --> consumers
-```
-
 ## Start Here
 
 - open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) when the question is why the

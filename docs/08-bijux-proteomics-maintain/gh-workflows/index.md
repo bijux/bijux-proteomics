@@ -22,24 +22,6 @@ workflows (`release-artifacts.yml`, `release-github.yml`, `release-pypi.yml`,
 `release-ghcr.yml`) for tag-driven publication. `ci.yml` is the reusable CI
 wrapper called by `verify.yml`.
 
-```mermaid
-flowchart LR
-    verify["verify.yml<br/>push and pull request checks"]
-    docs["deploy-docs.yml<br/>publish handbook"]
-    release["release workflows<br/>artifacts, github, pypi, ghcr"]
-    reusable["reusable workflow<br/>ci.yml"]
-    reader["reader question<br/>which workflow owns this automation path?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class verify,page reader;
-    class docs,release,reusable positive;
-    verify --> reader
-    docs --> reader
-    release --> reader
-    reusable --> reader
-```
-
 ## Pages In This Section
 
 - [verify](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/verify/)

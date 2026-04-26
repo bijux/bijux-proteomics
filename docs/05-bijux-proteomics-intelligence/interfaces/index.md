@@ -18,36 +18,6 @@ workflow, downstream package, or reviewer wants to rely on intelligence
 output, this section makes it obvious which surfaces are deliberate and which
 ones would be a mistake to hard-code against.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    consumer["consumer question<br/>what can I safely rely on?"]
-    imports["public imports<br/>briefs, candidates, policies, evaluators"]
-    artifacts["decision artifacts<br/>briefs, reports, outcomes, serialization"]
-    configs["configuration and schema shapes"]
-    page["Interfaces landing page<br/>real contract surfaces"]
-    callers["caller workflows"]
-    reviews["compatibility review"]
-    examples["examples and entrypoints"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    consumer --> page
-    imports --> page
-    artifacts --> page
-    configs --> page
-    page --> callers
-    page --> reviews
-    page --> examples
-    class page page;
-    class consumer action;
-    class imports,artifacts,configs positive;
-    class callers,reviews,examples anchor;
-```
-
 ## Published Interface Pages
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/cli-surface/)

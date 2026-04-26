@@ -19,31 +19,6 @@ modules instead of inferring the design from filenames alone. The goal is to
 make structural responsibility visible enough that schema, id, and migration
 changes can be reviewed with confidence.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    schema["schema definitions"]
-    serial["serialization and fingerprints"]
-    ids["identifier helpers"]
-    migrate["migration helpers"]
-    exports["stable exported boundaries"]
-    seams["integration seams<br/>shared contracts consumed downstream"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    schema --> serial
-    schema --> ids
-    ids --> migrate
-    serial --> exports
-    migrate --> exports
-    exports --> seams
-    class exports page;
-    class schema,serial,ids,migrate positive;
-    class seams caution;
-```
-
 ## Start Here
 
 - open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/) for the shortest route to ownership by file

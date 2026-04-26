@@ -26,34 +26,6 @@ with which gates, and what to do after the outcome lands.
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>how does recommended work become real lab work?"]
-    candidates["candidate priorities,<br/>evidence gaps, review gates"]
-    lab["bijux-proteomics-lab<br/>planning, scheduling, reruns"]
-    batches["experiment batches,<br/>review packets, directives"]
-    outcomes["assay outcomes,<br/>triage, promotion readiness"]
-    knowledge["knowledge absorbs<br/>promoted evidence"]
-    runtime["runtime tracks<br/>runs and artifacts"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    reader --> candidates
-    candidates --> lab
-    lab --> batches
-    batches --> runtime
-    runtime --> outcomes
-    lab --> outcomes
-    outcomes --> knowledge
-    outcomes --> lab
-    class reader page;
-    class lab anchor;
-    class batches,outcomes,knowledge,runtime positive;
-    class candidates action;
-```
-
 ## What This Package Owns
 
 - experiment planning from candidate pressure, readiness, and review gates

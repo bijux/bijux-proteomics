@@ -74,37 +74,6 @@ without pretending they are one thing.</div>
 <a class="md-button" href="08-bijux-proteomics-maintain/">Open maintenance docs</a>
 </div>
 
-## Visual Summary
-
-```mermaid
-flowchart TB
-    reader["reader question<br/>which handbook owns my question?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    repo["Repository Handbook<br/>cross-package ownership and shared rules"]
-    runtime["Runtime Handbook<br/>canonical execution and replay authority"]
-    foundation["Foundation<br/>shared payload meaning"]
-    core["Core<br/>program and lifecycle contracts"]
-    intelligence["Intelligence<br/>ranking and decision policy"]
-    knowledge["Knowledge<br/>claims, evidence, contradiction state"]
-    lab["Lab<br/>assay planning and outcome promotion"]
-    compat["agentic-proteins<br/>legacy bridge and migration"]
-    maintain["Maintainer Handbook<br/>CI, tooling, and release health"]
-    reader --> repo
-    reader --> runtime
-    reader --> foundation
-    reader --> core
-    reader --> intelligence
-    reader --> knowledge
-    reader --> lab
-    reader --> compat
-    reader --> maintain
-    class reader page;
-    class repo,maintain anchor;
-    class runtime,foundation,core,intelligence,knowledge,lab,compat action;
-```
-
 ## Start Here
 
 - open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)

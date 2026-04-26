@@ -26,35 +26,6 @@ services. Lower packages define meaning, contracts, evidence, decisions, and
 lab outcomes. Runtime composes those surfaces into runs, tracks artifacts and
 state, and keeps the execution path inspectable enough to reproduce and review.
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>what turns proteomics logic into a real run?"]
-    operator["operator or service request"]
-    runtime["bijux-proteomics-runtime<br/>CLI, API, providers, replay, artifacts"]
-    foundation["foundation<br/>shared schemas and primitives"]
-    core["core<br/>biology, sequence, structure"]
-    knowledge["knowledge<br/>evidence, confidence, trust"]
-    intelligence["intelligence<br/>ranking, scoring, loop policy"]
-    lab["lab<br/>experiment planning and promotion"]
-    ledger["migration ledger<br/>legacy ownership review"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class reader page;
-    class foundation,core,knowledge,intelligence,lab positive;
-    class runtime anchor;
-    class ledger caution;
-    reader --> operator
-    operator --> runtime
-    runtime --> foundation
-    runtime --> core
-    runtime --> knowledge
-    runtime --> intelligence
-    runtime --> lab
-    runtime -.reviews legacy placement through.-> ledger
-```
-
 ## Start Here
 
 - open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question

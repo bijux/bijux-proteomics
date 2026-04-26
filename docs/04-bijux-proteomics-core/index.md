@@ -24,28 +24,6 @@ adds policy.
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>what rules are durable contracts rather than downstream policy?"]
-    programs["programs.py, program_spec.py,<br/>targets.py, assays.py"]
-    lifecycle["lifecycle.py, constraints.py,<br/>reviews.py, validation.py"]
-    execution["execution_contracts.py,<br/>runtime_adapter.py, repositories.py"]
-    dependents["knowledge, intelligence, lab,<br/>and runtime must obey these rules"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    class reader page;
-    class programs,lifecycle,execution,dependents positive;
-    reader --> programs
-    reader --> lifecycle
-    reader --> execution
-    programs --> dependents
-    lifecycle --> dependents
-    execution --> dependents
-```
-
 ## Open This Section When
 
 - you need the package entrypoint for program and gate contracts

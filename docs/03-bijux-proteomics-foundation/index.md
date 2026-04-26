@@ -25,28 +25,6 @@ exchange meaning safely.
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>what keeps payload meaning stable across packages?"]
-    identifiers["ids.py and migrations.py<br/>stable identifiers and version bridges"]
-    schema["schema.py and errors.py<br/>document metadata and shared failure language"]
-    serialization["serialization.py<br/>canonical payloads and fingerprints"]
-    dependents["core, knowledge, intelligence,<br/>lab, and runtime consume the same meaning"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    class reader page;
-    class identifiers,schema,serialization,dependents positive;
-    reader --> identifiers
-    reader --> schema
-    reader --> serialization
-    identifiers --> dependents
-    schema --> dependents
-    serialization --> dependents
-```
-
 ## Open This Section When
 
 - you need the package entrypoint for schema and payload contracts

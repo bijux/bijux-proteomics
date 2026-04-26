@@ -17,26 +17,6 @@ This package reduces mystery instead of creating more of it. If maintainer
 logic cannot be explained from this section, the repository is relying too
 heavily on implicit CI behavior.
 
-```mermaid
-flowchart LR
-    dev["bijux-proteomics-dev"]
-    quality["quality gates"]
-    security["security and policy checks"]
-    schema["schema and docs integrity"]
-    release["release support"]
-    reader["reader question<br/>which helper surface owns this rule?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class dev,page reader;
-    class quality,security,schema,release positive;
-    dev --> quality
-    dev --> security
-    dev --> schema
-    dev --> release
-    dev --> reader
-```
-
 ## Pages In This Handbook
 
 - [Package Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview/)

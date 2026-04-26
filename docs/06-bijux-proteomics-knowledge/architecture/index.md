@@ -19,29 +19,6 @@ Evidence enters through adapters, becomes structured records and bundles, moves
 through claim and resolution logic, and ends up in review and readiness
 surfaces that other packages can inspect.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    adapters["adapters and ingestion normalization"]
-    evidence["evidence, repositories, and bundle state"]
-    claims["claims, graph, and lineage"]
-    resolution["resolution and contradiction handling"]
-    review["review packets, confidence, and readiness"]
-    reader["reader question<br/>where does this knowledge behavior live?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class adapters,page reader;
-    class evidence,claims,resolution positive;
-    class review anchor;
-    adapters --> evidence --> claims --> resolution --> review
-    evidence --> reader
-    claims --> reader
-    resolution --> reader
-```
-
 ## Start Here
 
 - open [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/) for the shortest route from filenames to

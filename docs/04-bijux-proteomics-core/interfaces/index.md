@@ -18,32 +18,6 @@ when what they really need is the explicit contract layer. For core,
 that matters because lifecycle and readiness assumptions spread quickly into
 knowledge, intelligence, lab, and runtime behavior.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    cli["CLI and operator entrypoints"]
-    imports["public imports"]
-    schemas["program and lifecycle schemas"]
-    artifacts["contract artifacts<br/>and examples"]
-    workflows["operator workflows<br/>how contracts are exercised"]
-    review["compatibility review<br/>what changes need extra care"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    cli --> schemas
-    imports --> schemas
-    schemas --> artifacts
-    artifacts --> workflows
-    schemas --> review
-    class schemas page;
-    class cli,imports,artifacts positive;
-    class workflows anchor;
-    class review action;
-```
-
 ## Start Here
 
 - open [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/) when the dependency begins with operator or

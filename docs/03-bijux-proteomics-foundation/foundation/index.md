@@ -19,31 +19,6 @@ When this section is doing its job well, a scientist or maintainer can explain
 why higher packages may change workflow rules without changing what a payload,
 identifier, or fingerprint means.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    payloads["shared payload shapes"]
-    ids["stable identifiers<br/>and migrations"]
-    serial["deterministic serialization<br/>and fingerprints"]
-    meaning["shared meaning layer"]
-    boundary["boundary<br/>program policy starts later"]
-    reader["reader question<br/>why is this shared across packages?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    payloads --> meaning
-    ids --> meaning
-    serial --> meaning
-    meaning --> boundary
-    meaning --> reader
-    class meaning page;
-    class payloads,ids,serial positive;
-    class reader anchor;
-    class boundary caution;
-```
-
 ## Start Here
 
 - open [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/) for the shortest explanation of

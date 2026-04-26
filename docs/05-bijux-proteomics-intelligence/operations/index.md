@@ -13,36 +13,6 @@ This section explains how maintainers run, validate, diagnose, and release `biju
 
 Intelligence packages are easy to operate badly because the output often looks plausible before it is actually trustworthy. These pages should show how to repeat the real workflow: confirm policy behavior, inspect decision artifacts, and ship changes without surprising downstream readers.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    maintainer["maintainer workflow<br/>prepare, run, inspect, release"]
-    inputs["candidate and policy inputs"]
-    decisions["decision outputs and reports"]
-    checks["tests and diagnostic checks"]
-    page["Operations landing page<br/>repeatable package procedure"]
-    setup["setup and local workflows"]
-    recovery["diagnostics and recovery"]
-    release["release and deployment boundaries"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    maintainer --> page
-    inputs --> page
-    decisions --> page
-    checks --> page
-    page --> setup
-    page --> recovery
-    page --> release
-    class page page;
-    class maintainer action;
-    class inputs,decisions,checks positive;
-    class setup,recovery,release anchor;
-```
-
 ## Pages in This Section
 
 - [Installation and Setup](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/installation-and-setup/)

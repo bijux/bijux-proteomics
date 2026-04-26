@@ -22,30 +22,6 @@ recommendation logic, runtime orchestration, or knowledge promotion?
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    question["reader question<br/>why is there a dedicated lab package?"]
-    pressure["candidate pressure,<br/>review gates, material limits"]
-    section["Foundation<br/>role, boundary, non-goals"]
-    planning["planning and scheduling<br/>belong here"]
-    outcomes["outcome triage and<br/>promotion readiness<br/>belong here"]
-    neighbors["recommendation policy,<br/>runtime control, evidence meaning<br/>belong elsewhere"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    question --> pressure
-    pressure --> section
-    section --> planning
-    section --> outcomes
-    section --> neighbors
-    class question page;
-    class section anchor;
-    class planning,outcomes positive;
-    class neighbors caution;
-```
-
 ## Pages In This Section
 
 - [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)

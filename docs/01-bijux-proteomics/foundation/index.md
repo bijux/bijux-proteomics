@@ -21,26 +21,6 @@ package family instead of one large proteomics codebase with blurred ownership?
 If that answer still feels vague after this page, the rest of the handbook will
 only inherit the same confusion.
 
-```mermaid
-flowchart LR
-    reader["reader question<br/>why is proteomics split this way?"]
-    split["repository split<br/>foundation, core, intelligence,<br/>knowledge, lab, runtime"]
-    ownership["ownership model<br/>which package decides what"]
-    language["shared language<br/>terms, docs, change rules"]
-    decisions["change decisions<br/>what belongs where"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    class reader page;
-    class split,ownership,language,decisions positive;
-    reader --> split
-    split --> ownership
-    ownership --> language
-    language --> decisions
-```
-
 ## Start Here
 
 - open [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/) for the shortest explanation

@@ -20,33 +20,6 @@ This section shows whether they are still depending on a legacy
 surface, what it forwards to, and what kind of review is required before that
 surface changes.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    s1["legacy imports"]
-    s2["legacy CLI entrypoints"]
-    s3["migration guidance"]
-    page["Interfaces section<br/>caller-facing contracts"]
-    next1["commands and APIs"]
-    next2["data and artifacts"]
-    next3["compatibility expectations"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    s1 --> page
-    s2 --> page
-    s3 --> page
-    page --> next1
-    page --> next2
-    page --> next3
-    class page page;
-    class s1,s2,s3 positive;
-    class next1,next2,next3 anchor;
-```
-
 ## Published Interface Pages
 
 - [CLI Surface](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/cli-surface/)

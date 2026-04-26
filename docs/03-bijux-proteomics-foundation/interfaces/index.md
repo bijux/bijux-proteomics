@@ -18,32 +18,6 @@ For the foundation package, that matters because one sloppy contract
 assumption can spread into every higher layer that consumes shared payloads or
 identifiers.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    imports["public imports"]
-    schemas["schema contracts<br/>payload meaning"]
-    serial["serialized artifacts<br/>and fingerprints"]
-    migrate["migration helpers<br/>compatibility path"]
-    examples["examples and operator use"]
-    review["compatibility review<br/>what changes need extra care"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    imports --> schemas
-    schemas --> serial
-    schemas --> migrate
-    serial --> examples
-    migrate --> review
-    class schemas page;
-    class imports,serial,migrate positive;
-    class examples anchor;
-    class review action;
-```
-
 ## Start Here
 
 - open [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/) when the dependency starts from

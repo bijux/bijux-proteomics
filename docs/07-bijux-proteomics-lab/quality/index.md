@@ -23,27 +23,6 @@ honest, and artifact serialization stays reproducible enough to audit.
 
 ## Start Here
 
-```mermaid
-flowchart LR
-    reviewer["reviewer question<br/>why should I trust this change?"]
-    planning["planning proof<br/>priority, dependency,<br/>schedule behavior"]
-    outcomes["outcome proof<br/>triage, rerun, promotion<br/>readiness behavior"]
-    contracts["contract proof<br/>schema and serialization<br/>stability"]
-    page["Quality<br/>tests, limits, review bars"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    reviewer --> page
-    page --> planning
-    page --> outcomes
-    page --> contracts
-    class reviewer page;
-    class page anchor;
-    class planning,outcomes,contracts positive;
-```
-
 ## Pages In This Section
 
 - [Test Strategy](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/test-strategy/)

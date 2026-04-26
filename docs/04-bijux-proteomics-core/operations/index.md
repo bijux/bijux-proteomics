@@ -19,31 +19,6 @@ other layers depend on. If core operational guidance is vague, downstream
 packages spend time rediscovering whether a failure is a real contract change or
 just a bad local run.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    change["program or lifecycle change"]
-    run["local validation workflow"]
-    diagnose["diagnostics and invariant checks"]
-    recover["failure recovery<br/>bad readiness or drift"]
-    release["release surface for durable rules"]
-    downstream["downstream packages consume result"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    change --> run --> diagnose
-    diagnose --> release
-    diagnose --> recover
-    release --> downstream
-    class release page;
-    class run,diagnose positive;
-    class recover anchor;
-    class downstream caution;
-```
-
 ## Start Here
 
 - open [Installation and Setup](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/installation-and-setup/) when you need a

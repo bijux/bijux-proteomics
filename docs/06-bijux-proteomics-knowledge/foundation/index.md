@@ -18,29 +18,6 @@ starts becoming auditable knowledge. It owns evidence records, claim state,
 conflict resolution, trust summaries, and review packets that later packages
 consume when they decide what to recommend or promote.
 
-## Visual Summary
-
-```mermaid
-flowchart LR
-    inputs["literature, assay, and manual evidence inputs"]
-    records["evidence bundles and evidence records"]
-    claims["claim state, lineage, and contradiction handling"]
-    trust["trust, freshness, and readiness summaries"]
-    handoff["intelligence and lab consume inspected knowledge state"]
-    reader["reader question<br/>what belongs in the knowledge layer?"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    class inputs,page reader;
-    class records,claims,trust positive;
-    class handoff anchor;
-    inputs --> records --> claims --> trust --> handoff
-    records --> reader
-    claims --> reader
-    trust --> reader
-```
-
 ## Start Here
 
 - open [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/) for the shortest statement of
