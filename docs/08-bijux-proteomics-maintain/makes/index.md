@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # makes
 
-Use this section to understand the shared command surface that ties local work,
+Open this section to understand the shared command surface that ties local work,
 CI validation, package dispatch, and release-oriented automation together.
 
 The make layer is a real repository interface. These pages exist so a
@@ -48,7 +48,7 @@ flowchart LR
 - [Release Surfaces](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/release-surfaces/)
 - [Authoring Rules](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/authoring-rules/)
 
-## Use This Section When
+## Open This Section When
 
 - the concern is about shared Make entrypoints rather than package code itself
 - you need to understand how local commands, CI targets, and release commands
@@ -56,7 +56,7 @@ flowchart LR
 - you are editing the repository command surface that maintainers and
   automation both depend on
 
-## Move On When
+## Open Another Section When
 
 - the question is about GitHub Actions triggers rather than Make routing
 - the issue belongs to one product package contract instead of a shared command
@@ -65,20 +65,20 @@ flowchart LR
 
 ## Choose A Page
 
-- use [Make System Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/make-system-overview/) for the broad structure
+- open [Make System Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/make-system-overview/) for the broad structure
   first
-- use [Root Entrypoints](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/root-entrypoints/) when the concern starts at the
+- open [Root Entrypoints](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/root-entrypoints/) when the concern starts at the
   top-level command surface
-- use [Package Dispatch](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/package-dispatch/) when the question is how shared
+- open [Package Dispatch](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/package-dispatch/) when the question is how shared
   targets route into one package or many
-- use [CI Targets](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/ci-targets/) or [Release Surfaces](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/release-surfaces/)
+- open [CI Targets](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/ci-targets/) or [Release Surfaces](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/release-surfaces/)
   when the concern is automation-facing rather than developer-facing
 
 ## Reader Takeaway
 
-This section should let a maintainer move from a command name to the owning
-make surface quickly. It should prevent the make layer from feeling like a flat
-bag of targets with hidden routing rules.
+This section lets a maintainer trace a command name to the owning make surface
+quickly. It prevents the make layer from feeling like a flat bag of targets
+with hidden routing rules.
 
 ## What You Get
 

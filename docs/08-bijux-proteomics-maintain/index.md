@@ -18,12 +18,11 @@ contracts should be readable from checked-in docs instead of being rediscovered
 through CI logs and shell glue.
 
 This handbook is for work that sits above one product package boundary. It
-should help a maintainer answer a repository-health question quickly without
+helps a maintainer answer a repository-health question quickly without
 mistaking shared automation for product behavior.
 
-If someone opens only this page, they should be able to route a repository
-question immediately: does the rule live in maintainer helper code, in the Make
-surface, or in GitHub automation?
+This page routes a repository question immediately: does the rule live in
+maintainer helper code, in the Make surface, or in GitHub automation?
 
 ```mermaid
 flowchart LR
@@ -63,14 +62,14 @@ flowchart LR
 - [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/)
 - [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/)
 
-## Use This Handbook When
+## Open This Handbook When
 
 - the question is about repository automation, verification, release support,
   docs integrity, or workflow fan-out
 - you need to know which shared surface owns a repository-health rule
 - the answer should stay above one product package boundary
 
-## Move On When
+## Open Another Handbook When
 
 - the real question is about runtime, evidence, scoring, or lab behavior inside
   one product package
@@ -83,7 +82,7 @@ flowchart LR
   workflow automation
 - where release, docs integrity, and policy enforcement live above package
   level
-- when the correct move is to leave maintainer docs and hand the question back
+- when the correct route is to leave maintainer docs and hand the question back
   to a product package handbook
 
 ## Choose A Section
@@ -107,6 +106,6 @@ flowchart LR
 
 ## Reader Takeaway
 
-This handbook should make repository-health work explicit and reviewable. It is
-not a shadow product layer, and it should send readers back to the product
-package docs as soon as the question becomes user-facing behavior.
+This handbook makes repository-health work explicit and reviewable. It is not a
+shadow product layer, and it sends readers back to the product package docs as
+soon as the question becomes user-facing behavior.
