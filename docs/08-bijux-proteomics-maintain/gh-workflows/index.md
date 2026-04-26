@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-19
+last_reviewed: 2026-04-26
 ---
 
 # gh-workflows
@@ -22,12 +22,63 @@ workflows (`release-artifacts.yml`, `release-github.yml`, `release-pypi.yml`,
 `release-ghcr.yml`) for tag-driven publication. `ci.yml` is the reusable CI
 wrapper called by `verify.yml`.
 
+```mermaid
+flowchart LR
+    verify["verify.yml<br/>push and pull request checks"]
+    docs["deploy-docs.yml<br/>publish handbook"]
+    release["release workflows<br/>artifacts, github, pypi, ghcr"]
+    reusable["reusable workflow<br/>ci.yml"]
+    reader["reader question<br/>which workflow owns this automation path?"]
+    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
+    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
+    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
+    class verify,page reader;
+    class docs,release,reusable positive;
+    verify --> reader
+    docs --> reader
+    release --> reader
+    reusable --> reader
+```
+
 ## Pages In This Section
 
 - [verify](verify.md)
 - [reusable-workflows](reusable-workflows.md)
 - [deploy-docs](deploy-docs.md)
 - [release-workflows](release-workflows.md)
+
+## Use This Section When
+
+- the concern is about workflow triggers, job trees, or reusable workflow
+  composition
+- you need to know which GitHub Actions file owns verification, docs
+  publication, or release automation
+- the answer should come from checked-in workflow contracts rather than CI
+  folklore
+
+## Do Not Use This Section When
+
+- the question is about Make target routing rather than GitHub Actions
+- the issue belongs to one product package contract instead of repository
+  automation
+- you only need maintainer helper code rather than workflow entrypoints
+
+## Choose The Next Page By Question
+
+- open [verify](verify.md) when the concern starts from push or pull request
+  verification
+- open [deploy-docs](deploy-docs.md) when the concern is handbook publication
+  from `main`
+- open [release-workflows](release-workflows.md) when the concern is
+  tag-driven publication
+- open [reusable-workflows](reusable-workflows.md) when the key question is job
+  reuse or nested workflow composition
+
+## Reader Takeaway
+
+This section should make workflow ownership visible enough that a maintainer can
+move from an automation symptom to the right workflow file without relying on
+CI archaeology.
 
 ## Purpose
 
