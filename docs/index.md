@@ -13,9 +13,10 @@ last_reviewed: 2026-04-26
 runtime execution, shared contracts, decision intelligence, evidence handling,
 and lab orchestration. The split is the architecture, not a packaging detail.
 
-Start here when you need repository-level orientation. A new reader should be
-able to see why the repository is split, which package owns the current
-concern, and which checked-in files back the explanation.
+Start here when you need repository-level orientation. A reader who opens only
+this page should still be able to answer three things quickly: why the split
+exists, which package owns the current concern, and where to go next without
+guessing from the tree.
 
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
@@ -78,32 +79,43 @@ without pretending they are one thing.</div>
 
 ```mermaid
 flowchart TB
-    home["Bijux Proteomics<br/>repository entry point"]
+    reader["reader question<br/>which handbook owns my question?"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
     classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    repo["Repository Handbook<br/>cross-package ownership and rules"]
-    packages["Package Handbooks<br/>product-specific behavior and contracts"]
+    repo["Repository Handbook<br/>cross-package ownership and shared rules"]
+    runtime["Runtime Handbook<br/>canonical execution and replay authority"]
+    foundation["Foundation<br/>shared payload meaning"]
+    core["Core<br/>program and lifecycle contracts"]
+    intelligence["Intelligence<br/>ranking and decision policy"]
+    knowledge["Knowledge<br/>claims, evidence, contradiction state"]
+    lab["Lab<br/>assay planning and outcome promotion"]
+    compat["agentic-proteins<br/>legacy bridge and migration"]
     maintain["Maintainer Handbook<br/>CI, tooling, and release health"]
-    runtime["Runtime Handbook<br/>canonical execution and migration context"]
-    examples["Choose one package<br/>foundation, core, intelligence, knowledge, or lab"]
-    home --> repo
-    home --> packages
-    home --> maintain
-    packages --> examples
-    packages --> runtime
-    class home page;
-    class repo,packages,maintain anchor;
-    class runtime,examples action;
+    reader --> repo
+    reader --> runtime
+    reader --> foundation
+    reader --> core
+    reader --> intelligence
+    reader --> knowledge
+    reader --> lab
+    reader --> compat
+    reader --> maintain
+    class reader page;
+    class repo,maintain anchor;
+    class runtime,foundation,core,intelligence,knowledge,lab,compat action;
 ```
 
 ## Start Here
 
-- open [bijux-proteomics](01-bijux-proteomics/index.md) when the question crosses
-  package boundaries or touches shared governance
+- open [Repository Handbook](01-bijux-proteomics/index.md) when the question
+  crosses package boundaries or touches shared governance
 - open one product package when you need ownership, interfaces, operations, or
-  proof for one package
-- open [bijux-proteomics-maintain](08-bijux-proteomics-maintain/index.md) for
+  proof for one owned behavior surface
+- open [Runtime Handbook](09-bijux-proteomics-runtime/index.md) when the
+  question is about canonical execution, replay, providers, or runtime-facing
+  migration
+- open [Maintainer Handbook](08-bijux-proteomics-maintain/index.md) for
   repository automation, schema enforcement, and maintainer-only guardrails
 
 ## Package Flow
@@ -123,6 +135,40 @@ flowchart TB
 - the `bijux-proteomics` repository handbook
 - the `bijux-proteomics-maintain` maintainer handbook
 - the product package handbooks published from this repository
+
+## Concrete Anchors
+
+- `docs/index.md` as the root routing page
+- `mkdocs.yml` as the published navigation source
+- `packages/` as the package split this page is explaining
+- `packages/bijux-proteomics-dev` as the maintainer-side implementation surface
+
+## Use This Page When
+
+- you are orienting yourself before opening a repository, package, or
+  maintainer page
+- you need the fastest route to the correct handbook section
+- you are checking whether the published docs still cover the right repository
+  surfaces
+
+## Do Not Use This Page When
+
+- the real question already belongs to one package and you need exact
+  interfaces, workflows, or tests
+- you need maintainer automation details rather than package or repository
+  orientation
+- you already know you are in legacy-compatibility territory and need the
+  migration bridge
+
+## Read The Split This Way
+
+Treat the split as a chain of accountable promises. Foundation keeps shared
+payload meaning stable. Core defines program and lifecycle contracts.
+Intelligence turns those contracts into inspectable decisions. Knowledge keeps
+claims and evidence state reviewable. Lab turns recommended work into assay
+planning and outcome promotion. Runtime governs how those parts execute,
+replay, and remain inspectable. `agentic-proteins` exists only to preserve old
+entrypoints long enough for callers to move safely to the canonical runtime.
 
 ## Purpose
 
