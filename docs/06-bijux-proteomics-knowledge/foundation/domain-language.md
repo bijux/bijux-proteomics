@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Domain Language
 
-The language around `bijux-proteomics-knowledge` should make evidence-state and
+The language around `bijux-proteomics-knowledge` makes evidence-state and
 claim-state discussions precise.
 
 This page keeps the package vocabulary stable enough that docs, code, commit

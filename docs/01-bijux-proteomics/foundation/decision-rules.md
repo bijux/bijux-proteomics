@@ -9,7 +9,7 @@ last_reviewed: 2026-04-10
 
 # Decision Rules
 
-The root should make routing decisions easier, not more political.
+The root makes routing decisions easier, not more political.
 
 ## Routing Rules
 

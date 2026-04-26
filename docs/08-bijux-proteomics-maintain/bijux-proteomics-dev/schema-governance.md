@@ -13,7 +13,7 @@ Schema drift is one of the fastest ways to let a package family tell two
 different stories at once. The maintainer package exists in part to stop that
 drift from becoming a hidden cost.
 
-Repository-level schema helpers should make contract changes visible before
+Repository-level schema helpers make contract changes visible before
 release, not after downstream users discover disagreement between code and
 checked-in API artifacts.
 

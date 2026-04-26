@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Error Model
 
-The package error model should make it clear which failures are local validation issues,
+The package error model makes clear which failures are local validation issues,
 which are dependency failures, and which are contract violations.
 
 Good error explanations reduce two kinds of waste at once: operator confusion in

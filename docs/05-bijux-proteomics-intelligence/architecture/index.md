@@ -100,7 +100,7 @@ flowchart LR
 
 ## Reader Takeaway
 
-`Architecture` should make the intelligence package legible as a decision
+`Architecture` makes the intelligence package legible as a decision
 system with named responsibilities. If candidate state, policy logic,
 evaluators, and explainability outputs start blending together, the package
 becomes harder to trust as the place where recommendations are justified.

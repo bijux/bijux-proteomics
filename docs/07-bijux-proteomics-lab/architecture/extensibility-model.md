@@ -15,7 +15,7 @@ This page is about where variation is welcomed and where it would be a design
 smell. A package becomes easier to extend when contributors can see which seams
 are meant to flex and which ones are carrying the core identity of the package.
 
-Treat the architecture pages for `bijux-proteomics-lab` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Treat the architecture pages for `bijux-proteomics-lab` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
 
 ## Visual Summary
 

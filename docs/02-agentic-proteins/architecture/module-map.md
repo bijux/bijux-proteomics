@@ -16,7 +16,7 @@ most likely to answer it.
 
 When this page is useful, code reading becomes targeted rather than exploratory.
 
-Treat the architecture pages for `agentic-proteins` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Treat the architecture pages for `agentic-proteins` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
 
 ## Visual Summary
 

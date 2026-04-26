@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Observability and Diagnostics
 
-Diagnostics should make it easier to explain what `agentic-proteins` did, not merely that it ran.
+Diagnostics make it easier to explain what `agentic-proteins` did, not merely that it ran.
 
 Good diagnostics shorten both incidents and reviews. They give maintainers a
 way to connect visible outputs back to the package behavior that produced them.

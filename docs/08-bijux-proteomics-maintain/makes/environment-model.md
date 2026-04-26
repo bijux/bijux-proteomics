@@ -9,7 +9,7 @@ last_reviewed: 2026-04-10
 
 # Environment Model
 
-The make system should make environment assumptions visible instead of smearing
+The make system makes environment assumptions visible instead of smearing
 them across unrelated targets.
 
 Repository behavior depends on shared environment fragments such as

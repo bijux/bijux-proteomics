@@ -10,7 +10,7 @@ last_reviewed: 2026-04-26
 # Capability Map
 
 The fastest way to understand `bijux-proteomics-intelligence` is to map capabilities to the
-code that carries them. This page should help a reader move from a package claim
+code that carries them. This page helps a reader move from a package claim
 to a likely code area without pretending that module names alone are enough.
 
 When this page is healthy, the package feels like a set of deliberate abilities,

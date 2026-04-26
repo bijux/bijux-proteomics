@@ -16,7 +16,7 @@ This is not only an aesthetic preference. Clear dependency direction keeps
 refactors cheaper because reviewers can still tell which layers are allowed to
 know about which other layers.
 
-Treat the architecture pages for `bijux-proteomics-lab` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Treat the architecture pages for `bijux-proteomics-lab` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
 
 ## Visual Summary
 

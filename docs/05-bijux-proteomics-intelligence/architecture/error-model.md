@@ -9,14 +9,14 @@ last_reviewed: 2026-04-26
 
 # Error Model
 
-The package error model should make it clear which failures are local validation issues,
+The package error model makes clear which failures are local validation issues,
 which are dependency failures, and which are contract violations.
 
 Good error explanations reduce two kinds of waste at once: operator confusion in
 the moment and architectural confusion during later review. The package should
 fail in ways that still preserve the boundary story.
 
-Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
 
 ## Visual Summary
 

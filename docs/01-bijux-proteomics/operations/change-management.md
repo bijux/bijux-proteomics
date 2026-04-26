@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Change Management
 
-The repository should make change easier to reason about, not easier to hide.
+The repository makes change easier to reason about, not easier to hide.
 
 ```mermaid
 timeline

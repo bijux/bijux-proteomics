@@ -13,7 +13,7 @@ Dependencies and adjacencies explain what `bijux-proteomics-knowledge` can do by
 what it deliberately leans on. They are part of the package story, not just
 implementation trivia, because they show where local authority ends.
 
-This page should help a reviewer see both kinds of dependency pressure: library
+This page helps a reviewer see both kinds of dependency pressure: library
 dependencies that shape the implementation, and neighboring packages that shape
 the system boundary.
 

@@ -11,11 +11,11 @@ last_reviewed: 2026-04-26
 
 Architectural risk appears when the package boundary becomes hard to explain or hard to test.
 
-This page should keep risk language concrete. The right risks are the ones that
+This page keeps risk language concrete. The right risks are the ones that
 would make the package harder to reason about even if the current implementation
 still appears to work.
 
-Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
 
 ## Visual Summary
 

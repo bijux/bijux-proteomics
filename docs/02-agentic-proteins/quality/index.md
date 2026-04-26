@@ -13,7 +13,7 @@ This section explains how `agentic-proteins` earns trust as a compatibility
 bridge: which forwarding proofs matter, which migration risks stay visible, and
 what done should mean before a preserved legacy surface is changed or removed.
 
-These pages explain the proof story for the bridge package. They should make
+These pages explain the proof story for the bridge package. They make
 trust, skepticism, and retirement pressure visible enough that passing checks
 do not get mistaken for sufficient migration evidence.
 
