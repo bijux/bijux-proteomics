@@ -9,40 +9,50 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-This section explains how `bijux_proteomics_intelligence` is organized so a reviewer can follow structure, dependency direction, and execution flow without guessing.
+Use this section when the question is structural: which modules own candidate
+state, ranking policy, scenario evaluators, design-loop control,
+explainability, and decision outcomes, and how those parts cooperate without
+blurring policy, reporting, and domain semantics together.
 
-These pages turn `bijux-proteomics-intelligence` from a directory tree into a readable design map. Use them when a structural change needs to be grounded in named modules and real execution paths.
-
-Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+`bijux-proteomics-intelligence` is easiest to read as a decision system.
+Candidate and metric models define the decision substrate, policies and
+evaluators score it, briefs and reports explain the result, and design-loop
+logic tracks whether progress is converging or stalling.
 
 ## Visual Summary
 
 ```mermaid
 flowchart LR
-    m1["ranking policy"]
-    m2["scenario evaluation"]
-    m3["explanation outputs"]
-    section["Architecture section<br/>structure and execution map"]
-    next1["module map"]
-    next2["execution and seams"]
-    next3["risks and navigation"]
+    candidates["candidate state and portfolio surfaces"]
+    policies["ranking factors, policies, and metrics"]
+    evaluators["scenario evaluators and decision summaries"]
+    briefs["briefs, reports, and explainability outputs"]
+    loop["design-loop convergence and stagnation control"]
+    reader["reader question<br/>where does this decision behavior live?"]
     classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
     classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
     classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
     classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    m1 --> section
-    m2 --> section
-    m3 --> section
-    section --> next1
-    section --> next2
-    section --> next3
-    class section page;
-    class m1,m2,m3 positive;
-    class next1,next2,next3 anchor;
+    class candidates,page reader;
+    class policies,evaluators,briefs positive;
+    class loop anchor;
+    candidates --> policies --> evaluators --> briefs
+    evaluators --> loop
+    policies --> reader
+    evaluators --> reader
+    briefs --> reader
 ```
 
-## Pages in This Section
+## Start Here
+
+- open [Module Map](module-map.md) for the shortest route from filenames to
+  owned behavior
+- open [Execution Model](execution-model.md) when you need the flow from
+  candidate input to reviewed recommendation
+- open [State and Persistence](state-and-persistence.md) when the question is
+  which decisions, outcomes, and reports become durable
+
+## Pages In This Section
 
 - [Module Map](module-map.md)
 - [Dependency Direction](dependency-direction.md)
@@ -54,55 +64,49 @@ flowchart LR
 - [Code Navigation](code-navigation.md)
 - [Architecture Risks](architecture-risks.md)
 
-## Read Across the Package
+## Use This Section When
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- you need to know which module family owns a behavior before editing it
+- a review is about decomposition, decision flow, or module drift
+- you need to explain how candidate models, policies, evaluators, and decision
+  outputs relate
+
+## Do Not Use This Section When
+
+- the main question is why the package owns the behavior at all
+- you are deciding whether an import, artifact, or schema is a public contract
+- the issue is procedural or proof-oriented rather than structural
+
+## Read Across The Package
+
+- open [Foundation](../foundation/index.md) for package purpose and ownership
+- open [Interfaces](../interfaces/index.md) for imports, artifacts, and
+  explainability contracts
+- open [Operations](../operations/index.md) for workflows, diagnostics, and
+  release procedures
+- open [Quality](../quality/index.md) for invariants, tests, and decision-risk
+  pressure
 
 ## Concrete Anchors
 
-- `src/bijux_proteomics_intelligence/model` for durable runtime models
-- `src/bijux_proteomics_intelligence/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_intelligence/application` for orchestration and replay coordination
+- `src/bijux_proteomics_intelligence/candidates.py` and `domain/candidates/`
+  for candidate state and portfolio logic
+- `src/bijux_proteomics_intelligence/policies.py` and `domain/metrics/` for
+  ranking factors, metrics, and policy constraints
+- `src/bijux_proteomics_intelligence/evaluators.py`, `briefs.py`, and
+  `report/` for scenario scoring and explainability outputs
+- `src/bijux_proteomics_intelligence/design_loop/` and `outcomes.py` for
+  convergence control and post-decision state
 
-## Use This Page When
+## Reader Takeaway
 
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
-
-## Decision Rule
-
-Use `Architecture` to decide whether a structural change makes `bijux-proteomics-intelligence` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What This Page Answers
-
-- how `bijux-proteomics-intelligence` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
-
-## Reviewer Lens
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Honesty Boundary
-
-This page describes the current structural model of `bijux-proteomics-intelligence`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+`Architecture` should make the intelligence package legible as a decision
+system with named responsibilities. If candidate state, policy logic,
+evaluators, and explainability outputs start blending together, the package
+becomes harder to trust as the place where recommendations are justified.
 
 ## Purpose
 
-This page explains how to use the architecture section for `bijux-proteomics-intelligence` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+This page introduces the intelligence architecture handbook and routes readers
+to the pages that explain module groups, dependency direction, execution flow,
+and durable state.
