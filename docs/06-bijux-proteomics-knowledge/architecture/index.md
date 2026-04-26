@@ -9,25 +9,57 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-`bijux-proteomics-knowledge` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb recommendation policy or runtime storage concerns.
+`bijux-proteomics-knowledge` architecture is about keeping evidence usable even
+when sources disagree. This section should help a reader see how claims, graphs,
+confidence, contradiction handling, and review outputs fit together without
+collapsing into recommendation policy or generic storage plumbing.
+
+```mermaid
+flowchart LR
+    evidence["evidence records"]
+    claims["claims"]
+    graph["knowledge graph"]
+    confidence["confidence segments"]
+    resolution["contradiction resolution"]
+    review["review and repository outputs"]
+
+    evidence --> claims --> graph
+    graph --> confidence
+    graph --> resolution
+    confidence --> review
+    resolution --> review
+```
+
+## Architectural Promise
+
+- contradictory evidence should become inspectable structure, not silent data
+  loss
+- trust scoring and contradiction handling should remain close to the claims
+  they justify
+- repository boundaries should preserve the reasoning trail, not just the final
+  answer
 
 ## Start With
 
-- open [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/) when you need the fastest route from filenames to owned module families
-- open [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/) when the question is how evidence enters through claim and graph structures, then moves through confidence and resolution paths into reviewable outputs
-- open [Integration Seams](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/integration-seams/) when a change may cross into recommendation policy or runtime storage concerns
+- open [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/)
+  when the question is how raw evidence becomes reviewable knowledge
+- open [Integration Seams](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/integration-seams/)
+  when a change starts to blur knowledge work with recommendation policy or
+  generic persistence concerns
+- open [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/)
+  when you need the owner for claims, graphs, confidence, or resolution code
 
-## Section Pages
+## Read By Tension
 
-- [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/)
-- [Dependency Direction](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/dependency-direction/)
-- [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/)
-- [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/)
-- [Integration Seams](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/integration-seams/)
-- [Error Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/error-model/)
-- [Extensibility Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/extensibility-model/)
-- [Code Navigation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/code-navigation/)
-- [Architecture Risks](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/architecture-risks/)
+- when evidence volume grows:
+  [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/)
+  and [Dependency Direction](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/dependency-direction/)
+- when contradictions grow:
+  [Error Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/error-model/)
+  and [Architecture Risks](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/architecture-risks/)
+- when new source or resolution logic is proposed:
+  [Extensibility Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/extensibility-model/)
+  and [Code Navigation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/code-navigation/)
 
 ## First Proof Check
 
@@ -37,4 +69,5 @@ last_reviewed: 2026-04-26
 
 ## Boundary Test
 
-If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.
+If the architecture can show a final conclusion but not the path through
+conflict and confidence, it is hiding the most important part of the package.
