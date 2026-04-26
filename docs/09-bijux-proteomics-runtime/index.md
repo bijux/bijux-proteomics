@@ -9,92 +9,37 @@ last_reviewed: 2026-04-26
 
 # Runtime Handbook
 
-`bijux-proteomics-runtime` is the execution layer for the proteomics package
-family. Open this handbook when you need to understand how work runs, how
-operators and services invoke that work, and how runs remain inspectable and
-reproducible. It does not own the scientific meaning of proteins, evidence,
-scoring, or lab planning.
+`bijux-proteomics-runtime` is the canonical execution package for the proteomics family. It owns how work is invoked, orchestrated, replayed, and made inspectable after the run. It does not own biological meaning, evidence truth, recommendation policy, or lab-planning semantics.
 
-This page is for readers who need a fast, honest answer to three questions:
+## Start With
 
-- what the runtime package owns
-- what lower packages still own
-- how migration from legacy `agentic-proteins` modules is being reviewed
-
-The runtime is where the package family becomes executable for operators and
-services. Lower packages define meaning, contracts, evidence, decisions, and
-lab outcomes. Runtime composes those surfaces into runs, tracks artifacts and
-state, and keeps the execution path inspectable enough to reproduce and review.
-
-## Start Here
-
-- open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question
-  starts from a legacy import or CLI path
-- open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the runtime
-  question is really about repository-wide migration or release rules
-- open the published handbook pages below when you need runtime ownership,
-  migration, or lower-package context
+- open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question starts from a legacy import, CLI path, or API surface
+- open [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/) when the question is whether a legacy module still belongs in runtime ownership
+- open the lower package handbooks when the disputed behavior is really domain, evidence, recommendation, or lab meaning
 
 ## What Runtime Owns
 
-- operator entrypoints such as the CLI and HTTP API
-- provider binding and provider execution adapters
-- orchestration, state transitions, replay, and determinism controls
-- runtime workspaces, run artifacts, and execution lifecycle handling
+- operator entrypoints such as CLI and HTTP surfaces
+- provider binding, execution adapters, and workspace control
+- run orchestration, replay, determinism, and state transitions
+- runtime artifacts and execution-lifecycle records
 
-## What Runtime Must Not Absorb
+## What Runtime Refuses
 
-- canonical domain models and biological semantics
-- evidence, confidence, and contradiction semantics
-- scoring, recommendation, and loop-policy semantics
-- experiment-planning semantics and outcome-promotion semantics
+- canonical domain and biology semantics
+- evidence, confidence, contradiction, and review semantics
+- recommendation policy, scoring, and design-loop meaning
+- planning and outcome-promotion meaning from the lab layer
 
-Runtime composes lower packages through adapters. Lower packages should stay
-runtime-agnostic.
-
-## Open This Section When
-
-- you need to understand why a behavior belongs in runtime instead of a lower
-  package
-- you are reviewing migration of legacy `agentic-proteins` modules
-- you need the stable runtime ownership and contract references before editing
-  code or docs
-
-## Open Another Package When
-
-- the real question already belongs to one lower package's biological,
-  evidence, decision, or lab semantics
-- you need repository automation detail rather than runtime behavior
-- you are trying to preserve a legacy entrypoint without checking whether the
-  canonical runtime surface already replaced it
-
-## Concrete Anchors
+## First Proof Check
 
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces/cli.py`
-  for operator entrypoints
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/` for
-  HTTP runtime surfaces
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/`
-  for execution control, adapters, and workspaces
-- `packages/bijux-proteomics-runtime/tests` for execution, API, provider, and
-  compatibility proof
-
-## Related Handbooks
-
-- [Repository Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
-- [Foundation Handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
-- [Core Handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-- [Intelligence Handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-- [Knowledge Handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
-- [Lab Handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/`
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/`, `providers/`, and `validation/`
+- `packages/bijux-proteomics-runtime/tests`
 
 ## Migration References
 
+- [Repository Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
 - [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/)
 - [Agentic Module Ledger Summary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary/)
-
-## Bottom Line
-
-Open this handbook when the question is how proteomics work becomes a real
-run. Runtime should compose lower packages and keep execution inspectable; it
-should not quietly absorb the domain meaning those packages already own.

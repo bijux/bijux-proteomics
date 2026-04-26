@@ -9,75 +9,41 @@ last_reviewed: 2026-04-26
 
 # agentic-proteins Migration Ledger
 
-This ledger is the review record for moving legacy `agentic-proteins` modules
-into the canonical proteomics package family. It exists so migration decisions
-can be inspected from checked-in documentation rather than inferred from
-one-off pull requests.
+This ledger is the checked-in review record for moving legacy `agentic-proteins` modules into the canonical proteomics package family. Its job is not to list modules for the sake of listing them. Its job is to make ownership decisions auditable.
 
-Each module is classified once, assigned to a target owner, and given a reason
-that explains why that ownership is technically defensible.
+## What The Ledger Decides
 
-```mermaid
-flowchart LR
-    legacy["legacy module path"]
-    rules["classification rules<br/>rules.toml"]
-    bucket["ownership bucket"]
-    owner["target owner package"]
-    summary["checked-in ledger and summary"]
-    pr["migration pull request"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    class legacy,page rules;
-    class bucket caution;
-    class owner,summary positive;
-    class pr action;
-    legacy --> rules --> bucket --> owner --> summary --> pr
-```
+- whether a legacy module is clearly runtime-owned
+- whether a module still needs runtime-internal review because it mixes responsibilities
+- whether a module actually belongs to a lower-layer package instead of runtime
 
-## How To Read The Buckets
+## Bucket Meanings
 
-- `runtime_execution_ownership`: the module is part of the canonical runtime
-  surface and should live in `bijux-proteomics-runtime`
-- `runtime_support_internal_review`: the module looks runtime-adjacent, but it
-  still needs semantic review before final placement is locked
-- `domain_ownership`: the module expresses lower-layer domain meaning and should
-  move out of runtime ownership
-
-These buckets are deliberately strict. They separate clear runtime control
-surfaces from mixed or domain-heavy modules so migration does not quietly
-collapse package boundaries.
+- `runtime_execution_ownership`: the module is part of canonical runtime execution and should live in `bijux-proteomics-runtime`
+- `runtime_support_internal_review`: the module looks runtime-adjacent but still mixes concerns enough to require explicit review before final placement
+- `domain_ownership`: the module expresses lower-layer meaning and should move to the owning non-runtime package
 
 ## Required Fields
 
-- `module_path`: the source module under legacy `agentic-proteins`
-- `bucket`: the migration status and ownership confidence level
+- `module_path`: the legacy module under `agentic-proteins`
+- `bucket`: the current ownership-confidence bucket
 - `owner_package`: the canonical target package
-- `reason`: the justification a reviewer should be able to defend in a pull
-  request
+- `reason`: the justification a reviewer should be able to defend in a pull request
 
 ## Sources Of Truth
 
 - rules: `configs/runtime-boundaries/migration-ledger/rules.toml`
-- generated ledger:
-  `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger.csv`
-- generated summary:
-  `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md`
+- generated ledger: `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger.csv`
+- generated summary: `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md`
 
 ## Regeneration And Validation
 
 - `make quality-runtime-migration-ledger` validates freshness and coverage
-- `PYTHONPATH=packages/bijux-proteomics-dev/src python3 -m bijux_proteomics_dev.quality.architecture.runtime_migration_ledger`
-  regenerates the checked-in outputs
+- `PYTHONPATH=packages/bijux-proteomics-dev/src python3 -m bijux_proteomics_dev.quality.architecture.runtime_migration_ledger` regenerates the checked-in outputs
 
-## Review Expectations
+## Review Rules
 
-When ownership changes, keep the rule, the generated outputs, and the written
-rationale in the same pull request.
-
-1. Update `configs/runtime-boundaries/migration-ledger/rules.toml`.
-2. Regenerate the ledger outputs.
-3. Run `make quality-runtime-migration-ledger`.
-4. Explain the ownership change in the pull request so readers do not have to
-   reconstruct the reasoning from diffs alone.
+1. Update `configs/runtime-boundaries/migration-ledger/rules.toml` when ownership reasoning changes.
+2. Regenerate the checked-in outputs in the same change.
+3. Run `make quality-runtime-migration-ledger` before treating the ledger as current.
+4. Explain the ownership change in pull-request language that another maintainer could defend later.
