@@ -9,81 +9,16 @@ last_reviewed: 2026-04-26
 
 # Operator Workflows
 
-Operator workflows should start from documented package entrypoints and end in reviewable outputs.
+Operator workflows should say who uses the surface, why they use it, and when they should stop and open a neighbor handbook instead.
 
-This page connects interface prose to real use by showing how commands, APIs, inputs, and outputs hang together in a workflow an operator can actually repeat.
+## Package Surface
 
-The interface pages define what `bijux-proteomics-intelligence` is prepared to defend before a dependency forms.
+- reviewers checking whether a recommendation is justified
+- developers adding a new evaluator or policy without hiding why it changed outcomes
+- downstream consumers integrating recommendation outputs into later decisions
 
-## Visual Summary
+## First Proof Check
 
-```mermaid
-flowchart LR
-    surf1["recommendation APIs"]
-    surf2["configuration surfaces"]
-    surf3["explanation artifacts"]
-    page["bijux-proteomics-intelligence<br/>operator workflows"]
-    caller1["decision reviewers"]
-    caller2["runtime consumers"]
-    caller3["lab planning workflows"]
-    classDef page fill:var(--bijux-mermaid-page-fill),stroke:var(--bijux-mermaid-page-stroke),color:var(--bijux-mermaid-page-text),stroke-width:2px;
-    classDef positive fill:var(--bijux-mermaid-positive-fill),stroke:var(--bijux-mermaid-positive-stroke),color:var(--bijux-mermaid-positive-text);
-    classDef caution fill:var(--bijux-mermaid-caution-fill),stroke:var(--bijux-mermaid-caution-stroke),color:var(--bijux-mermaid-caution-text);
-    classDef anchor fill:var(--bijux-mermaid-anchor-fill),stroke:var(--bijux-mermaid-anchor-stroke),color:var(--bijux-mermaid-anchor-text);
-    classDef action fill:var(--bijux-mermaid-action-fill),stroke:var(--bijux-mermaid-action-stroke),color:var(--bijux-mermaid-action-text);
-    surf1 --> page
-    surf2 --> page
-    surf3 --> page
-    page --> caller1
-    page --> caller2
-    page --> caller3
-    class page page;
-    class surf1,surf2,surf3 positive;
-    class caller1,caller2,caller3 anchor;
-```
-
-## Workflow Anchors
-
-- entry surfaces: CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py, HTTP app in src/bijux_proteomics_intelligence/evaluators.py, ranking contracts in src/bijux_proteomics_intelligence/policies.py
-- durable outputs: execution store records, replay decision artifacts, non-determinism policy evaluations
-- validation backstops: tests/unit for api, contracts, core, interfaces, model, and runtime, tests/e2e for governed flow behavior
-
-## Concrete Anchors
-
-- CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py
-- HTTP app in src/bijux_proteomics_intelligence/evaluators.py
-- ranking contracts in src/bijux_proteomics_intelligence/policies.py
-- src/bijux_proteomics_intelligence/policies.py
-
-## Open This Page When
-
-- you need the public command, API, import, schema, or artifact surface
-- you are checking whether a caller can safely rely on a given entrypoint or shape
-- you want the contract-facing side of the package before building on it
-
-## Decision Rule
-
-Use `Operator Workflows` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
-
-## What You Can Resolve Here
-
-- which public or operator-facing surfaces `bijux-proteomics-intelligence` is really asking readers to trust
-- which schemas, artifacts, imports, or commands behave like contracts
-- what compatibility pressure a change to this surface would create
-
-## Review Focus
-
-- compare commands, schemas, imports, and artifacts against the documented surface one by one
-- check whether a seemingly local change actually needs compatibility review
-- confirm that examples still point to real entrypoints and not to stale habits
-
-## Limits
-
-This page can identify the intended public surfaces of `bijux-proteomics-intelligence`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
-
-## Read Next
-
-- open operations when the caller-facing question becomes procedural or environmental
-- open quality when compatibility or evidence of protection becomes the real issue
-- open architecture when a public-surface question reveals a deeper structural drift
-
+- `src/bijux_proteomics_intelligence/candidates.py`, `policies.py`, and `evaluators.py`
+- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, and `outcomes.py`
+- `packages/bijux-proteomics-intelligence/tests`
