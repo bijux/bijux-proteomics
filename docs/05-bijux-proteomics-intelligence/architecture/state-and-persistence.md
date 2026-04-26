@@ -16,7 +16,7 @@ That clarity matters because state tends to spread silently when it is not named
 Once readers stop knowing which outputs are durable and which values are local,
 interface and operations pages quickly become less trustworthy.
 
-Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
+This page is a reviewer-facing map of structure and flow. It shortens code reading instead of trying to replace it.
 
 ## Visual Summary
 

@@ -15,7 +15,7 @@ This page names the truths the package is trying hardest not to lose. If an
 invariant changes, that should feel more like a design event than a routine code
 edit.
 
-These quality pages show how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
+This page shows how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
 
 ## Invariant Anchors
 

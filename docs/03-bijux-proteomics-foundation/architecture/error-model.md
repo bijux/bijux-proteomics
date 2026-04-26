@@ -16,7 +16,7 @@ Good error explanations reduce two kinds of waste at once: operator confusion in
 the moment and architectural confusion during later review. The package should
 fail in ways that still preserve the boundary story.
 
-Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
+This page is a reviewer-facing map of structure and flow. It shortens code reading instead of trying to replace it.
 
 ## Visual Summary
 

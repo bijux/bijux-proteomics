@@ -14,10 +14,9 @@ monorepo with its own `src/`, tests, metadata, and release history because the
 repository wants package ownership to stay visible even when the packages evolve
 together.
 
-This page is here to answer a simple but important question: why is this work a
-package at all, instead of just another folder inside a single giant project?
+This page answers one boundary question: why this work is a package at all instead of another folder inside a single giant project.
 
-Treat the foundation pages for `bijux-proteomics-core` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-core`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 
@@ -73,13 +72,13 @@ Use `Repository Fit` to decide whether a change makes `bijux-proteomics-core` ea
 
 ## What You Can Resolve Here
 
-- what problem `bijux-proteomics-core` is supposed to own on purpose
+- what problem `bijux-proteomics-core` owns on purpose
 - where the package boundary stops, even when nearby code looks tempting
 - which neighboring package seams deserve comparison before the boundary is changed
 
 ## Review Focus
 
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
+- compare the stated boundary with the modules, artifacts, and tests that uphold it
 - check that out-of-scope behavior is not quietly re-entering through convenience paths
 - confirm that the package story still matches the real repository layout and neighboring package docs
 

@@ -15,9 +15,7 @@ the package.
 
 This page is built for speed. It gives one coherent story about how work moves through `bijux-proteomics-intelligence` from entrypoint to result.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-intelligence`. If the package still feels blurry after this
-section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-intelligence`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

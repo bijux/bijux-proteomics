@@ -15,7 +15,7 @@ Consistency matters here because readers should not need to relearn how to read
 every package. The shared layout is part of the user experience, but honesty is
 more important than uniformity for its own sake.
 
-These quality pages show how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
+This page shows how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
 
 ## Standards
 

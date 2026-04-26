@@ -16,7 +16,7 @@ The release path is part of the product story because it determines how readers
 learn what changed and what stayed stable. This page makes package-local
 release mechanics understandable without separating them from repository rules.
 
-These operations pages show how `bijux-proteomics-intelligence` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-intelligence` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -92,5 +92,5 @@ Checked-in commands, artifacts, and validation remain the source of truth for th
 
 - open interfaces when the operational path depends on a specific surface contract
 - open quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
+- open architecture when operational complexity suggests a structural problem
 

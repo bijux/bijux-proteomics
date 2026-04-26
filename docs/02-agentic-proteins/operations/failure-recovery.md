@@ -15,7 +15,7 @@ This page helps readers stabilize the situation before they try to
 improve it. The first question is not always how to fix the bug; it is how to
 locate the right evidence quickly.
 
-These operations pages show how `agentic-proteins` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `agentic-proteins` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -86,5 +86,5 @@ Checked-in commands, artifacts, and validation remain the source of truth for th
 
 - open interfaces when the operational path depends on a specific surface contract
 - open quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
+- open architecture when operational complexity suggests a structural problem
 

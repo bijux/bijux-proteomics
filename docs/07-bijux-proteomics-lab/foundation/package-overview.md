@@ -18,9 +18,7 @@ If a reader cannot explain this package in one or two sentences after skimming
 this page, the package boundary is still too fuzzy and later pages will inherit
 that confusion.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-lab`. If the package still feels blurry after this section,
-the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-lab`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

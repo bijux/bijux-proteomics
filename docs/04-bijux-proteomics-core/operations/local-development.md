@@ -16,7 +16,7 @@ The point is not to prescribe one favorite workflow. It is to keep local work
 close enough to the owning package that changes remain easy to explain and easy
 to validate before they spread outward.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

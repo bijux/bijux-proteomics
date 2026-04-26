@@ -17,9 +17,7 @@ The non-goals matter as much as the goals. A package becomes easier to trust
 when readers can see what it refuses to absorb just because the code happens to
 be nearby.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-lab`. If the package still feels blurry after this section,
-the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-lab`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

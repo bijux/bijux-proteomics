@@ -16,9 +16,7 @@ to a likely code area without pretending that module names alone are enough.
 When this page is healthy, the package feels like a set of deliberate abilities,
 not a pile of implementation details.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-intelligence`. If the package still feels blurry after this
-section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-intelligence`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

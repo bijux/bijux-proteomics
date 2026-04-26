@@ -15,7 +15,7 @@ This page helps readers stabilize the situation before they try to
 improve it. The first question is not always how to fix the bug; it is how to
 locate the right evidence quickly.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

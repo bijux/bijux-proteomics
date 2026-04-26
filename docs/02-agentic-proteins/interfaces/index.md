@@ -123,5 +123,5 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 - open operations when the caller-facing question becomes procedural or environmental
 - open quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+- open architecture when a public-surface question reveals a deeper structural drift
 

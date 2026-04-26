@@ -16,9 +16,7 @@ whether they are looking at local behavior or at something owned elsewhere.
 This page keeps the package vocabulary stable enough that docs, code, commit
 messages, and review conversations can describe the same idea without drift.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-intelligence`. If the package still feels blurry after this
-section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-intelligence`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

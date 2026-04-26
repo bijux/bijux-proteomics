@@ -14,8 +14,7 @@ owning API modules.
 
 This page shows which API assets matter, where they live, and why a caller can treat them as stable enough to depend on before reading code.
 
-These interface pages show what `agentic-proteins` is prepared to defend
-before a dependency forms.
+The interface pages define what `agentic-proteins` is prepared to defend before a dependency forms.
 
 ## Visual Summary
 
@@ -92,5 +91,5 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 - open operations when the caller-facing question becomes procedural or environmental
 - open quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+- open architecture when a public-surface question reveals a deeper structural drift
 

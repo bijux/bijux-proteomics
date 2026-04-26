@@ -17,9 +17,7 @@ This page helps a reviewer see both kinds of dependency pressure: library
 dependencies that shape the implementation, and neighboring packages that shape
 the system boundary.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-lab`. If the package still feels blurry after this section,
-the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-lab`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

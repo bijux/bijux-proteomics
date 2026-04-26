@@ -12,14 +12,13 @@ last_reviewed: 2026-04-26
 `bijux-proteomics-maintain` is the handbook root for repository-owned
 maintenance work.
 
-This section keeps repository health inspectable. Quality gates, schema drift checks, docs integrity checks, release support, and workflow contracts stay readable from checked-in docs instead of being rediscovered through CI logs and shell glue.
+Repository health stays inspectable here. Quality gates, schema drift checks, docs integrity checks, release support, and workflow contracts stay readable from checked-in docs instead of being rediscovered through CI logs and shell glue.
 
 This handbook is for work that sits above one product package boundary. It
 helps a maintainer answer a repository-health question quickly without
 mistaking shared automation for product behavior.
 
-This page routes a repository question immediately: does the rule live in
-maintainer helper code, in the Make surface, or in GitHub automation?
+This page routes one repository-health question immediately: does the rule live in maintainer helper code, the Make surface, or GitHub automation?
 
 ```mermaid
 flowchart LR

@@ -14,7 +14,7 @@ Diagnostics make it easier to explain what `bijux-proteomics-core` did, not mere
 Good diagnostics shorten both incidents and reviews. They give maintainers a
 way to connect visible outputs back to the package behavior that produced them.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

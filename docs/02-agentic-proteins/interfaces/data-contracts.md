@@ -16,8 +16,7 @@ This page keeps data shape changes reviewable. If a record or payload matters to
 another package, another process, or a replay path, it deserves to be described
 as a contract rather than left implicit in implementation details.
 
-These interface pages show what `agentic-proteins` is prepared to defend
-before a dependency forms.
+The interface pages define what `agentic-proteins` is prepared to defend before a dependency forms.
 
 ## Visual Summary
 
@@ -94,5 +93,5 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 - open operations when the caller-facing question becomes procedural or environmental
 - open quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+- open architecture when a public-surface question reveals a deeper structural drift
 

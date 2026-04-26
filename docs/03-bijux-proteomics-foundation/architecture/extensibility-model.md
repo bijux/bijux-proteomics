@@ -15,7 +15,7 @@ This page is about where variation is welcomed and where it would be a design
 smell. A package becomes easier to extend when contributors can see which seams
 are meant to flex and which ones are carrying the core identity of the package.
 
-Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
+This page is a reviewer-facing map of structure and flow. It shortens code reading instead of trying to replace it.
 
 ## Visual Summary
 

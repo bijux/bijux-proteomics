@@ -14,7 +14,7 @@ optional dependencies that matter for the work being done.
 
 This page keeps setup honest by showing which files actually define installation truth and which dependencies are merely present in the environment for unrelated reasons.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

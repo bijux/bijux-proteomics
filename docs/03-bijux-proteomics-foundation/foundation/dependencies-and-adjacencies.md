@@ -17,7 +17,7 @@ This page helps a reviewer see both kinds of dependency pressure: library
 dependencies that shape the implementation, and neighboring packages that shape
 the system boundary.
 
-Treat the foundation pages for `bijux-proteomics-foundation` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-foundation`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 
@@ -78,13 +78,13 @@ Use `Dependencies and Adjacencies` to decide whether a change makes `bijux-prote
 
 ## What You Can Resolve Here
 
-- what problem `bijux-proteomics-foundation` is supposed to own on purpose
+- what problem `bijux-proteomics-foundation` owns on purpose
 - where the package boundary stops, even when nearby code looks tempting
 - which neighboring package seams deserve comparison before the boundary is changed
 
 ## Review Focus
 
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
+- compare the stated boundary with the modules, artifacts, and tests that uphold it
 - check that out-of-scope behavior is not quietly re-entering through convenience paths
 - confirm that the package story still matches the real repository layout and neighboring package docs
 

@@ -13,7 +13,7 @@ Most work on `agentic-proteins` follows one of a few recurring paths.
 
 These paths stay familiar and repeatable so maintainers do not have to rediscover the same workflow from scratch every time they debug, extend, or review the package.
 
-These operations pages show how `agentic-proteins` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `agentic-proteins` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -93,5 +93,5 @@ Checked-in commands, artifacts, and validation remain the source of truth for th
 
 - open interfaces when the operational path depends on a specific surface contract
 - open quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
+- open architecture when operational complexity suggests a structural problem
 

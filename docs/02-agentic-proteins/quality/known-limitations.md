@@ -15,7 +15,7 @@ This page protects credibility by keeping the current limits visible. Readers
 should be able to tell what the package does not promise without mining issue
 threads or learning the hard way in production.
 
-These quality pages show how `agentic-proteins` earns trust and where skepticism still belongs.
+This page shows how `agentic-proteins` earns trust and where skepticism still belongs.
 
 ## Honest Boundaries
 

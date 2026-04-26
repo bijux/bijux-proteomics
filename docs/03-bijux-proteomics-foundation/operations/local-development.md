@@ -16,7 +16,7 @@ The point is not to prescribe one favorite workflow. It is to keep local work
 close enough to the owning package that changes remain easy to explain and easy
 to validate before they spread outward.
 
-These operations pages show how `bijux-proteomics-foundation` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-foundation` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -88,5 +88,5 @@ Checked-in commands, artifacts, and validation remain the source of truth for th
 
 - open interfaces when the operational path depends on a specific surface contract
 - open quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
+- open architecture when operational complexity suggests a structural problem
 

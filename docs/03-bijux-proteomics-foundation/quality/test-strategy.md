@@ -15,7 +15,7 @@ This page helps readers see the broad proof shape of the package rather
 than treating the test tree like a bag of unrelated checks. A good strategy page
 explains why these tests exist, not just where they live.
 
-These quality pages show how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
+This page shows how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
 
 ## Test Areas
 

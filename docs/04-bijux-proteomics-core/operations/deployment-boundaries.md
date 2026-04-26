@@ -15,7 +15,7 @@ The point of this page is to protect the idea that packages are publishable
 units. Even inside a monorepo, deployment assumptions should stay narrow enough
 that the package can still be understood and operated as its own surface.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

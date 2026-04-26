@@ -15,7 +15,7 @@ This page keeps safety work concrete. A useful security discussion starts from
 the actual interfaces, artifacts, and authority the package holds, not from
 generic caution language detached from the codebase.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

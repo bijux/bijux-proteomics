@@ -92,5 +92,5 @@ Checked-in commands, artifacts, and validation remain the source of truth for th
 
 - open interfaces when the operational path depends on a specific surface contract
 - open quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
+- open architecture when operational complexity suggests a structural problem
 

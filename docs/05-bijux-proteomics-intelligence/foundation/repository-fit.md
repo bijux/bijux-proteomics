@@ -14,12 +14,9 @@ monorepo with its own `src/`, tests, metadata, and release history because the
 repository wants package ownership to stay visible even when the packages evolve
 together.
 
-This page is here to answer a simple but important question: why is this work a
-package at all, instead of just another folder inside a single giant project?
+This page answers one boundary question: why this work is a package at all instead of another folder inside a single giant project.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-intelligence`. If the package still feels blurry after this
-section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-intelligence`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

@@ -15,7 +15,7 @@ This page keeps optimization work honest. A package is not healthier if it gets
 faster by becoming harder to reason about, harder to replay, or easier to break
 for downstream readers.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

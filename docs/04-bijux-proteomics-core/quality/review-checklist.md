@@ -15,7 +15,7 @@ The checklist is not here to slow people down with ceremony. It is here to stop
 fast review from becoming shallow review when a change touches boundaries,
 contracts, or proof.
 
-These quality pages show how `bijux-proteomics-core` earns trust and where skepticism still belongs.
+This page shows how `bijux-proteomics-core` earns trust and where skepticism still belongs.
 
 ## Checklist
 

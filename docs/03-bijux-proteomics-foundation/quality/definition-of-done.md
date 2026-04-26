@@ -15,7 +15,7 @@ is still unclear or unprotected.
 This page is where the package draws the line against false confidence. Done
 should mean that behavior, explanation, and proof all move together.
 
-These quality pages show how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
+This page shows how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
 
 ## Done Means
 

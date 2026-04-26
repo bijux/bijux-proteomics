@@ -14,7 +14,7 @@ groups are treated as responsibilities instead of as folders. This page helps a 
 
 When this page is useful, code reading becomes targeted rather than exploratory.
 
-Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
+This page is a reviewer-facing map of structure and flow. It shortens code reading instead of trying to replace it.
 
 ## Visual Summary
 

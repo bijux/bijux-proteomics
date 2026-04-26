@@ -16,7 +16,7 @@ This page keeps dependency review from feeling bureaucratic. Dependencies
 matter because they reshape what the package relies on, what it exposes, and
 what downstream maintainers must now trust.
 
-These quality pages show how `agentic-proteins` earns trust and where skepticism still belongs.
+This page shows how `agentic-proteins` earns trust and where skepticism still belongs.
 
 ## Current Dependency Themes
 

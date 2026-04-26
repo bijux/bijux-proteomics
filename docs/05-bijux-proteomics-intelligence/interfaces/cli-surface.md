@@ -17,8 +17,7 @@ Command surfaces tend to become contracts early, because people script them,
 share them in tickets, and paste them into automation. This page makes that
 contract status visible instead of accidental.
 
-These interface pages show what `bijux-proteomics-intelligence` is prepared to
-defend before a dependency forms.
+The interface pages define what `bijux-proteomics-intelligence` is prepared to defend before a dependency forms.
 
 ## Visual Summary
 
@@ -89,5 +88,5 @@ This page can identify the intended public surfaces of `bijux-proteomics-intelli
 
 - open operations when the caller-facing question becomes procedural or environmental
 - open quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+- open architecture when a public-surface question reveals a deeper structural drift
 

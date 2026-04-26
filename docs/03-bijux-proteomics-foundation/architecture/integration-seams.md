@@ -14,7 +14,7 @@ operators, or neighboring packages.
 
 This page makes integration changes easier to review by showing which seams are intentional, which ones carry compatibility risk, and where the package expects outside systems to meet it.
 
-Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
+This page is a reviewer-facing map of structure and flow. It shortens code reading instead of trying to replace it.
 
 ## Visual Summary
 

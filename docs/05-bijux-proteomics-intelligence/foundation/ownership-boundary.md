@@ -16,9 +16,7 @@ the tests show whether that expectation is protected when the code changes.
 Open this page when a change proposal feels plausible in more than one package
 and someone needs a concrete reason to keep the work here or move it elsewhere.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-intelligence`. If the package still feels blurry after this
-section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-intelligence`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

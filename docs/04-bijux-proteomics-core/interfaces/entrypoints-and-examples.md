@@ -15,8 +15,7 @@ with concrete examples.
 Examples are doing real work here. They let an impatient reader test whether the
 package story is credible without reconstructing usage from source alone.
 
-These interface pages show what `bijux-proteomics-core` is prepared to defend
-before a dependency forms.
+The interface pages define what `bijux-proteomics-core` is prepared to defend before a dependency forms.
 
 ## Visual Summary
 
@@ -93,5 +92,5 @@ This page can identify the intended public surfaces of `bijux-proteomics-core`, 
 
 - open operations when the caller-facing question becomes procedural or environmental
 - open quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+- open architecture when a public-surface question reveals a deeper structural drift
 

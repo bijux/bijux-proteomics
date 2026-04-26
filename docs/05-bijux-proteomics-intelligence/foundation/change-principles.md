@@ -17,9 +17,7 @@ These principles are not slogans. They are the filter for deciding whether a
 local improvement is worth the long-term cost it creates for the rest of the
 system.
 
-Read the foundation pages as the durable package description for
-`bijux-proteomics-intelligence`. If the package still feels blurry after this
-section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `bijux-proteomics-intelligence`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 

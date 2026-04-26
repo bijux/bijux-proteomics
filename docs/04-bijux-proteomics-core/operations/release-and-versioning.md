@@ -16,7 +16,7 @@ The release path is part of the product story because it determines how readers
 learn what changed and what stayed stable. This page makes package-local
 release mechanics understandable without separating them from repository rules.
 
-These operations pages show how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-core` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 

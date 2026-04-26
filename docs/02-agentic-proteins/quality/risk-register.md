@@ -16,7 +16,7 @@ This page keeps long-lived risk language attached to the package instead
 of scattering it across reviews and memory. The goal is not alarmism; it is to
 help maintainers remember which failures would actually cost credibility.
 
-These quality pages show how `agentic-proteins` earns trust and where skepticism still belongs.
+This page shows how `agentic-proteins` earns trust and where skepticism still belongs.
 
 ## Ongoing Risks to Watch
 

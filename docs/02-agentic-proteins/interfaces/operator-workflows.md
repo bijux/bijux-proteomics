@@ -13,8 +13,7 @@ Operator workflows should start from documented package entrypoints and end in r
 
 This page connects interface prose to real use by showing how commands, APIs, inputs, and outputs hang together in a workflow an operator can actually repeat.
 
-These interface pages show what `agentic-proteins` is prepared to defend
-before a dependency forms.
+The interface pages define what `agentic-proteins` is prepared to defend before a dependency forms.
 
 ## Visual Summary
 
@@ -86,5 +85,5 @@ This page can identify the intended public surfaces of `agentic-proteins`, but r
 
 - open operations when the caller-facing question becomes procedural or environmental
 - open quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
+- open architecture when a public-surface question reveals a deeper structural drift
 

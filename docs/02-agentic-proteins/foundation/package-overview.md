@@ -17,7 +17,7 @@ If a reader cannot explain this package in one or two sentences after skimming
 this page, the package boundary is still too fuzzy and later pages will inherit
 that confusion.
 
-Treat the foundation pages for `agentic-proteins` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `agentic-proteins`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 
@@ -78,13 +78,13 @@ Use `Package Overview` to decide whether a change makes `agentic-proteins` easie
 
 ## What You Can Resolve Here
 
-- what compatibility role `agentic-proteins` is supposed to own on purpose
+- what compatibility role `agentic-proteins` owns on purpose
 - where the package boundary stops, even when nearby code looks tempting
 - which neighboring package seams deserve comparison before the boundary is changed
 
 ## Review Focus
 
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
+- compare the stated boundary with the modules, artifacts, and tests that uphold it
 - check that out-of-scope behavior is not quietly re-entering through convenience paths
 - confirm that the package story still matches the real repository layout and neighboring package docs
 

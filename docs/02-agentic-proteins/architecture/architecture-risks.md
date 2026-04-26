@@ -15,7 +15,7 @@ This page keeps risk language concrete. The right risks are the ones that
 would make the package harder to reason about even if the current implementation
 still appears to work.
 
-Treat the architecture pages for `agentic-proteins` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
+This page is a reviewer-facing map of structure and flow. It shortens code reading instead of trying to replace it.
 
 ## Visual Summary
 

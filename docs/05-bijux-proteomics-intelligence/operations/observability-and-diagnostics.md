@@ -14,7 +14,7 @@ Diagnostics make it easier to explain what `bijux-proteomics-intelligence` did, 
 Good diagnostics shorten both incidents and reviews. They give maintainers a
 way to connect visible outputs back to the package behavior that produced them.
 
-These operations pages show how `bijux-proteomics-intelligence` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
+This page shows how `bijux-proteomics-intelligence` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 
 ## Visual Summary
 
@@ -90,5 +90,5 @@ Checked-in commands, artifacts, and validation remain the source of truth for th
 
 - open interfaces when the operational path depends on a specific surface contract
 - open quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
+- open architecture when operational complexity suggests a structural problem
 

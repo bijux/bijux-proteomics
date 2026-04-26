@@ -17,7 +17,7 @@ The non-goals matter as much as the goals. A package becomes easier to trust
 when readers can see what it refuses to absorb just because the code happens to
 be nearby.
 
-Treat the foundation pages for `agentic-proteins` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
+The foundation pages are the durable package description for `agentic-proteins`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
 ## Visual Summary
 
@@ -77,13 +77,13 @@ Use `Scope and Non-Goals` to decide whether a change makes `agentic-proteins` ea
 
 ## What You Can Resolve Here
 
-- what problem `agentic-proteins` is supposed to own on purpose
+- what problem `agentic-proteins` owns on purpose
 - where the package boundary stops, even when nearby code looks tempting
 - which neighboring package seams deserve comparison before the boundary is changed
 
 ## Review Focus
 
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
+- compare the stated boundary with the modules, artifacts, and tests that uphold it
 - check that out-of-scope behavior is not quietly re-entering through convenience paths
 - confirm that the package story still matches the real repository layout and neighboring package docs
 
