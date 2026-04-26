@@ -10,9 +10,10 @@ last_reviewed: 2026-04-26
 # Runtime Handbook
 
 `bijux-proteomics-runtime` is the execution layer for the proteomics package
-family. It owns how work runs, how operators and services invoke that work, and
-how runs remain inspectable and reproducible. It does not own the scientific
-meaning of proteins, evidence, scoring, or lab planning.
+family. Use this handbook when you need to understand how work runs, how
+operators and services invoke that work, and how runs remain inspectable and
+reproducible. It does not own the scientific meaning of proteins, evidence,
+scoring, or lab planning.
 
 This page is for readers who need a fast, honest answer to three questions:
 
@@ -56,11 +57,11 @@ flowchart LR
 
 ## Start Here
 
-- open [agentic-proteins](../02-agentic-proteins/index.md) when the question
+- use [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question
   starts from a legacy import or CLI path
-- open [Repository Handbook](../01-bijux-proteomics/index.md) when the runtime
+- use [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the runtime
   question is really about repository-wide migration or release rules
-- open the package source references below when you need current runtime
+- use the package source references below when you need current runtime
   structure, boundary, or contract detail from the checked-in package docs
 
 ## What Runtime Owns
@@ -88,7 +89,7 @@ runtime-agnostic.
 - you need the stable runtime ownership and contract references before editing
   code or docs
 
-## Do Not Use This Section When
+## Move On When
 
 - the real question already belongs to one lower package's biological,
   evidence, decision, or lab semantics
@@ -107,7 +108,7 @@ runtime-agnostic.
 - `packages/bijux-proteomics-runtime/tests` for execution, API, provider, and
   compatibility proof
 
-## Source Package Documents
+## Runtime Source Documents
 
 - [Architecture](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/ARCHITECTURE.md)
 - [Boundaries](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-runtime/docs/BOUNDARIES.md)
@@ -115,8 +116,8 @@ runtime-agnostic.
 
 ## Migration Review Documents
 
-- [Migration Ledger](migration-ledger/README.md)
-- [Agentic Module Ledger Summary](migration-ledger/agentic-proteins-module-ledger-summary.md)
+- [Migration Ledger](https://github.com/bijux/bijux-proteomics/blob/main/docs/09-bijux-proteomics-runtime/migration-ledger/README.md)
+- [Agentic Module Ledger Summary](https://github.com/bijux/bijux-proteomics/blob/main/docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md)
 
 ## Reader Takeaway
 
