@@ -9,7 +9,39 @@ last_reviewed: 2026-04-26
 
 # Runtime Handbook
 
-`bijux-proteomics-runtime` is the canonical execution package for the proteomics family. It owns how work is invoked, orchestrated, replayed, and made inspectable after the run. It does not own biological meaning, evidence truth, recommendation policy, or lab-planning semantics.
+`bijux-proteomics-runtime` is the canonical execution package for the
+proteomics family. It owns how work is invoked, orchestrated, replayed, and
+made inspectable after the run. This is where the system becomes operational:
+operators touch it, providers plug into it, state moves through it, and runs
+leave artifacts behind that a reviewer can inspect later.
+
+```mermaid
+flowchart LR
+    operators["operators<br/>CLI, HTTP, automation"]
+    bridge["agentic-proteins<br/>legacy paths"]
+    runtime["runtime<br/>orchestration and control"]
+    providers["providers and tools"]
+    state["state, memory, registry"]
+    validation["validation and replay"]
+    artifacts["run artifacts and execution record"]
+
+    operators --> runtime
+    bridge -. migrate .-> runtime
+    runtime --> providers
+    runtime --> state
+    runtime --> validation
+    validation --> artifacts
+    providers --> artifacts
+    state --> artifacts
+```
+
+## Why This Package Is Central
+
+- it is the place where abstract package contracts become concrete runs
+- it keeps execution reviewable instead of letting provider calls disappear into
+  opaque side effects
+- it holds the operational seam between the product family and the outside
+  world
 
 ## Start With
 
@@ -43,3 +75,9 @@ last_reviewed: 2026-04-26
 - [Repository Runtime Migration Validation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/)
 - [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/)
 - [Agentic Module Ledger Summary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary/)
+
+## Boundary
+
+Runtime should explain execution clearly, but it should not quietly absorb the
+meaning of evidence, recommendation, or lab intent just because those meanings
+eventually move through a run.
