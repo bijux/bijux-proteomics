@@ -9,25 +9,53 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-`bijux-proteomics-foundation` architecture should answer one structural question quickly: where the owned behavior lives, how it flows, and which seams must stay visible so the package does not absorb package-specific domain policy or workflow logic.
+`bijux-proteomics-foundation` architecture is deliberately small, and that is
+the point. This section explains how the package preserves stable meaning
+across ids, schemas, serialization, and migrations without quietly absorbing
+package-specific policy.
+
+```mermaid
+flowchart LR
+    ids["ids.py<br/>stable identifiers"]
+    schema["schema.py<br/>shared payload shape"]
+    serialization["serialization.py<br/>transport form"]
+    migrations["migrations.py<br/>version continuity"]
+    errors["errors.py<br/>shared failure vocabulary"]
+    consumers["all higher packages"]
+
+    ids --> schema --> serialization --> migrations --> consumers
+    errors --> schema
+    errors --> serialization
+    errors --> migrations
+```
+
+## Architectural Promise
+
+- the same object should keep the same meaning while it moves between packages,
+  artifacts, and versions
+- version repair belongs here, but domain judgment does not
+- the small file count is a design statement, not a sign of incompleteness
 
 ## Start With
 
-- open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/) when you need the fastest route from filenames to owned module families
-- open [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/) when the question is how shared payload meaning moves through ids, schemas, serialization, and migration helpers without picking up policy
-- open [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/) when a change may cross into package-specific domain policy or workflow logic
+- open [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/)
+  when the question is how shared meaning survives transport and version change
+- open [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/)
+  when a proposed helper starts to smell like package-specific policy
+- open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/)
+  when you need the exact owner quickly because the package is intentionally
+  compact
 
-## Section Pages
+## Reading Map
 
-- [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/)
-- [Dependency Direction](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/dependency-direction/)
-- [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/)
 - [State and Persistence](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/state-and-persistence/)
-- [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/)
+  for what is allowed to become durable
+- [Dependency Direction](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/dependency-direction/)
+  and [Extensibility Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/extensibility-model/)
+  for the rules that keep the package minimal
 - [Error Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/error-model/)
-- [Extensibility Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/extensibility-model/)
-- [Code Navigation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/code-navigation/)
-- [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/)
+  and [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/)
+  for the places hidden policy often tries to enter
 
 ## First Proof Check
 
@@ -37,4 +65,5 @@ last_reviewed: 2026-04-26
 
 ## Boundary Test
 
-If a reviewer cannot name the owning module family before touching code, the package structure is still too implicit.
+If a new helper needs package-specific nouns to justify itself, it probably does
+not belong in this architecture.
