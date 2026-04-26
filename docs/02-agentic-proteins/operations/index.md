@@ -9,11 +9,18 @@ last_reviewed: 2026-04-26
 
 # Operations
 
-This section explains how to install, run, diagnose, and release `agentic-proteins` from checked-in workflow guidance instead of team memory.
+This section explains how to validate, run, diagnose, and release
+`agentic-proteins` as a compatibility bridge rather than as a primary runtime
+package.
 
-These pages are the checked-in operating memory for `agentic-proteins`. They should let a maintainer move from setup to diagnosis to release without relying on CI archaeology or private habits.
+These pages are the checked-in operating memory for the legacy bridge. They
+should help a maintainer verify forwarding behavior, diagnose broken aliases,
+and judge retirement readiness without relying on CI archaeology or private
+migration habits.
 
-Treat the operations pages for `agentic-proteins` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
+This section should make one posture obvious: operational work here exists to
+keep migration safe and temporary, not to expand the long-term operating center
+of the repository.
 
 ## Visual Summary
 
@@ -53,6 +60,27 @@ flowchart LR
 - [Release and Versioning](release-and-versioning.md)
 - [Security and Safety](security-and-safety.md)
 - [Deployment Boundaries](deployment-boundaries.md)
+
+## Use This Section When
+
+- you are validating legacy imports, CLI aliases, or compatibility release
+  behavior
+- you need to diagnose forwarding failures or retirement blockers
+- the question is operational and still specific to the compatibility bridge
+
+## Do Not Use This Section When
+
+- the real workflow concern belongs to canonical runtime operations
+- you are treating the compatibility package as the preferred place for normal
+  runtime execution
+- the issue is about caller contracts or package structure rather than
+  repeatable operations
+
+## Reader Takeaway
+
+This section exists to keep the bridge safe while it still ships. If an
+operational question remains important after the legacy alias disappears, the
+canonical runtime handbook is the better long-term home.
 
 ## Read Across the Package
 
