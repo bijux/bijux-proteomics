@@ -12,9 +12,7 @@ last_reviewed: 2026-04-26
 Integration seams are the points where `bijux-proteomics-foundation` meets configuration, APIs,
 operators, or neighboring packages.
 
-This page exists so integration changes do not feel mysterious. A reviewer should
-be able to say which seams are intentional, which ones carry compatibility risk,
-and where the package expects outside systems to meet it.
+This page makes integration changes easier to review by showing which seams are intentional, which ones carry compatibility risk, and where the package expects outside systems to meet it.
 
 Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-facing map of structure and flow. They shorten code reading instead of trying to replace it.
 
@@ -86,7 +84,7 @@ Use `Integration Seams` to decide whether a structural change makes `bijux-prote
 
 ## Honesty Boundary
 
-This page describes the current structural model of `bijux-proteomics-foundation`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
+This page describes the current structural model of `bijux-proteomics-foundation`, but it does not guarantee that every import path or runtime path still obeys that model. Treat it as a map that must stay aligned with code and tests, not as an authority above them.
 
 ## Next Checks
 

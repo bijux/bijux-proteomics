@@ -12,9 +12,7 @@ last_reviewed: 2026-04-26
 HTTP-facing behavior should be discoverable from tracked schema files and the
 owning API modules.
 
-Readers should be able to see which API assets matter, where they live, and
-why a caller would treat them as stable enough to depend on before reading
-code.
+This page shows which API assets matter, where they live, and why a caller can treat them as stable enough to depend on before reading code.
 
 These interface pages show what `bijux-proteomics-knowledge` is prepared to
 defend before a dependency forms.

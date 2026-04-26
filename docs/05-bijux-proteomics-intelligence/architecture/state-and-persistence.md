@@ -90,7 +90,7 @@ Use `State and Persistence` to decide whether a structural change makes `bijux-p
 
 ## Honesty Boundary
 
-This page describes the current structural model of `bijux-proteomics-intelligence`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
+This page describes the current structural model of `bijux-proteomics-intelligence`, but it does not guarantee that every import path or runtime path still obeys that model. Treat it as a map that must stay aligned with code and tests, not as an authority above them.
 
 ## Next Checks
 

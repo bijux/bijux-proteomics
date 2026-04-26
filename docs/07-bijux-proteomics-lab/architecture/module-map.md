@@ -10,9 +10,7 @@ last_reviewed: 2026-04-26
 # Module Map
 
 The architecture of `bijux-proteomics-lab` becomes readable when its major module
-groups are treated as responsibilities instead of as folders. This page should
-help a reviewer move from a question about behavior to the part of the package
-most likely to answer it.
+groups are treated as responsibilities instead of as folders. This page helps a reviewer move from a question about behavior to the part of the package most likely to answer it.
 
 When this page is useful, code reading becomes targeted rather than exploratory.
 
@@ -84,7 +82,7 @@ Use `Module Map` to decide whether a structural change makes `bijux-proteomics-l
 
 ## Honesty Boundary
 
-This page describes the current structural model of `bijux-proteomics-lab`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
+This page describes the current structural model of `bijux-proteomics-lab`, but it does not guarantee that every import path or runtime path still obeys that model. Treat it as a map that must stay aligned with code and tests, not as an authority above them.
 
 ## Next Checks
 

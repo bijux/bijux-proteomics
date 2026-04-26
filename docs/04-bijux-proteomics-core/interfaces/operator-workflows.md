@@ -11,9 +11,7 @@ last_reviewed: 2026-04-26
 
 Operator workflows should start from documented package entrypoints and end in reviewable outputs.
 
-This page connects interface prose to real use. A reader should leave with a
-picture of how commands, APIs, inputs, and outputs hang together in a workflow
-an operator can actually repeat.
+This page connects interface prose to real use by showing how commands, APIs, inputs, and outputs hang together in a workflow an operator can actually repeat.
 
 These interface pages show what `bijux-proteomics-core` is prepared to defend
 before a dependency forms.

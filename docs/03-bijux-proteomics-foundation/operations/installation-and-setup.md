@@ -12,9 +12,7 @@ last_reviewed: 2026-04-26
 Installation for `bijux-proteomics-foundation` should start from the package metadata and the specific
 optional dependencies that matter for the work being done.
 
-This page exists to keep setup honest. A maintainer should be able to tell which
-files actually define installation truth and which dependencies are merely
-present in the environment for unrelated reasons.
+This page keeps setup honest by showing which files actually define installation truth and which dependencies are merely present in the environment for unrelated reasons.
 
 These operations pages show how `bijux-proteomics-foundation` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 

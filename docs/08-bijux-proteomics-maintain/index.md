@@ -12,10 +12,7 @@ last_reviewed: 2026-04-26
 `bijux-proteomics-maintain` is the handbook root for repository-owned
 maintenance work.
 
-This section exists so repository health stays inspectable. Quality gates,
-schema drift checks, docs integrity checks, release support, and workflow
-contracts should be readable from checked-in docs instead of being rediscovered
-through CI logs and shell glue.
+This section keeps repository health inspectable. Quality gates, schema drift checks, docs integrity checks, release support, and workflow contracts stay readable from checked-in docs instead of being rediscovered through CI logs and shell glue.
 
 This handbook is for work that sits above one product package boundary. It
 helps a maintainer answer a repository-health question quickly without

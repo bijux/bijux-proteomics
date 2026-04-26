@@ -11,9 +11,7 @@ last_reviewed: 2026-04-26
 
 Most work on `bijux-proteomics-intelligence` follows one of a few recurring paths.
 
-These paths should feel familiar and repeatable. Readers should
-not have to rediscover the same workflow from scratch every time they debug,
-extend, or review the package.
+These paths stay familiar and repeatable so maintainers do not have to rediscover the same workflow from scratch every time they debug, extend, or review the package.
 
 These operations pages show how `bijux-proteomics-intelligence` is run and reviewed without forcing readers to reconstruct the workflow from logs or oral history.
 

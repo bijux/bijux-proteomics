@@ -13,8 +13,7 @@ The public Python surface of `bijux-proteomics-intelligence` starts at the packa
 intentionally exported modules beneath it.
 
 This page keeps import visibility honest. Not every importable symbol is public,
-and not every public symbol should be left implicit. Readers should be able to
-tell what the package is prepared to support as a Python-facing boundary.
+and not every public symbol should be left implicit. This page shows what the package is prepared to support as a Python-facing boundary.
 
 These interface pages show what `bijux-proteomics-intelligence` is prepared to
 defend before a dependency forms.
