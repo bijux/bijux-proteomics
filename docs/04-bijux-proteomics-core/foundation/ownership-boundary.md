@@ -13,8 +13,7 @@ Ownership in `bijux-proteomics-core` should be visible in checked-in structure, 
 only in prose. The source tree shows where the package expects work to live, and
 the tests show whether that expectation is protected when the code changes.
 
-Use this page when a change proposal feels plausible in more than one package
-and someone needs a concrete reason to keep the work here or move it elsewhere.
+Open this page when a change proposal feels plausible in more than one package and the boundary needs a concrete reason to keep the work here or move it elsewhere.
 
 The foundation pages are the durable package description for `bijux-proteomics-core`. If the package still feels blurry after this section, the boundary story is not clear enough yet.
 
