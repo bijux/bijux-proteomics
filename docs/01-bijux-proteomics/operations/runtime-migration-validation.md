@@ -48,7 +48,3 @@ Use this order for coordinated release readiness:
    - `bijux-proteomics-*` packages as core release packages
 6. Execute release dry-run workflows or controlled tag release.
 
-## Purpose
-
-This page defines a repeatable validation path that keeps runtime migration
-contracts enforceable during coordinated releases.

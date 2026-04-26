@@ -107,8 +107,3 @@ happens to be visible in implementation today. If another package cannot defend
 its dependency in terms of named imports, schemas, artifacts, examples, and
 tests, that dependency is not yet an honest public surface.
 
-## Purpose
-
-This page shows the published interface routes for
-`bijux-proteomics-foundation` and the supported surfaces that downstream
-packages can rely on.

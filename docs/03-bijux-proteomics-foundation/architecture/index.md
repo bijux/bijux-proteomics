@@ -109,8 +109,3 @@ reviewer can say where schema logic ends, where compatibility logic begins, and
 how those two stay connected. If the answer only works when you already know
 the package by memory, the structure is too implicit.
 
-## Purpose
-
-This page introduces the architecture handbook for
-`bijux-proteomics-foundation` and routes readers to the module, execution,
-seam, and risk pages that explain how the package is organized.

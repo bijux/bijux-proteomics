@@ -108,8 +108,3 @@ one stable program and lifecycle contract. If a proposal broadens this package
 without making that contract story clearer, it is probably crossing the
 boundary rather than improving it.
 
-## Purpose
-
-This page introduces the foundation handbook for `bijux-proteomics-core` and
-routes readers to the boundary, language, and lifecycle pages that explain why
-the package exists.

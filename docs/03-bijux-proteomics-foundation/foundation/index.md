@@ -109,8 +109,3 @@ payload meaning before they disagree on policy. If a proposal broadens this
 package without making that shared-meaning story clearer, it is probably
 crossing the boundary rather than improving it.
 
-## Purpose
-
-This page introduces the foundation handbook for
-`bijux-proteomics-foundation` and routes readers to the boundary, language, and
-lifecycle pages that explain why the package exists.

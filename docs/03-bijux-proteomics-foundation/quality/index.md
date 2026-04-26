@@ -80,8 +80,3 @@ foundation, the real bar is whether shared payload meaning remains stable,
 compatible, and honest about its limits before every downstream package treats
 it as common ground.
 
-## Purpose
-
-This page introduces the quality handbook for
-`bijux-proteomics-foundation` and routes readers to the proof, invariants,
-review, validation, and risk pages that show how trust is earned.

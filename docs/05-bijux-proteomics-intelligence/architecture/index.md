@@ -105,8 +105,3 @@ system with named responsibilities. If candidate state, policy logic,
 evaluators, and explainability outputs start blending together, the package
 becomes harder to trust as the place where recommendations are justified.
 
-## Purpose
-
-This page introduces the intelligence architecture handbook and routes readers
-to the pages that explain module groups, dependency direction, execution flow,
-and durable state.

@@ -80,8 +80,3 @@ the real bar is whether durable program and lifecycle rules remain stable,
 validated, and honest about their limits before the rest of the proteomics
 stack treats them as common ground.
 
-## Purpose
-
-This page introduces the quality handbook for `bijux-proteomics-core` and
-routes readers to the proof, invariants, review, validation, and risk pages
-that show how trust is earned.

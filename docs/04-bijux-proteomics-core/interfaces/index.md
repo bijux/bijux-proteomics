@@ -107,7 +107,3 @@ to be visible in the implementation. If another package cannot defend its
 dependency in terms of named commands, imports, schemas, artifacts, examples,
 and tests, that dependency is not yet an honest public surface.
 
-## Purpose
-
-This page shows the published interface routes for `bijux-proteomics-core` and
-the supported surfaces that higher packages and operators can rely on.

@@ -108,7 +108,3 @@ can say where core rules live, how they flow, and where they meet neighboring
 surfaces. If that answer depends on private memory rather than the docs and
 code, the structure is too implicit.
 
-## Purpose
-
-Open this page when you need the module, execution, seam, and risk route
-through `bijux-proteomics-core` architecture.

@@ -106,8 +106,3 @@ from checked-in instructions. If a schema or migration change only succeeds
 because somebody remembers an undocumented sequence, the operational story is
 not reliable enough for a cross-package dependency layer.
 
-## Purpose
-
-This page introduces the operations handbook for
-`bijux-proteomics-foundation` and routes readers to the setup, workflow,
-recovery, and release pages that define how the package is actually run.

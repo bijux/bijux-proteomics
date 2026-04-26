@@ -101,7 +101,3 @@ us what the evidence currently supports, intelligence decides how to rank and
 explain options, lab turns the chosen path into work, and runtime governs how
 that work runs.
 
-## Purpose
-
-Open this page when you need the purpose, scope, vocabulary, lifecycle, and
-boundary route through `bijux-proteomics-intelligence`.

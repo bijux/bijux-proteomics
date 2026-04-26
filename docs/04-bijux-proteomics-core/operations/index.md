@@ -105,7 +105,3 @@ checked-in instructions. If a lifecycle or readiness change only succeeds
 because somebody remembers an undocumented sequence, the operational story is
 not reliable enough for a package that defines durable rules.
 
-## Purpose
-
-Open this page when you need the setup, workflow, diagnostics, recovery, and
-release route through `bijux-proteomics-core` operations.
