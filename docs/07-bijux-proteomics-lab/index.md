@@ -14,9 +14,9 @@ last_reviewed: 2026-04-26
 batch design, dependency scheduling, rerun strategy, or closed-loop
 transitions from assay observations into next-cycle planning.
 
-If someone opens only this page, they should leave knowing where the
-repository turns recommended work into executable assay batches, and how
-observed outcomes are promoted back into the next decision cycle.
+This page shows where the repository turns recommended work into executable
+assay batches, and how observed outcomes are promoted back into the next
+decision cycle.
 
 This package is the planning and feedback hinge between recommendation
 logic and the evidence system. It does not decide biological meaning on
@@ -67,13 +67,13 @@ flowchart LR
 - the canonical evidence semantics that knowledge owns after promotion
 - the execution control layer that runtime owns while runs are in progress
 
-## Use This Section When
+## Open This Section When
 
 - you need the package entrypoint for planning and assay outcome docs
 - you are checking scheduling, readiness, rerun, or promotion decisions
 - you want the shortest route into closed-loop lab execution contracts
 
-## Do Not Use This Section When
+## Open Another Package When
 
 - the real question is which candidate should be preferred before lab planning
 - the real question is how an active run is orchestrated or observed
@@ -90,9 +90,9 @@ flowchart LR
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the unresolved question is recommendation policy
-- move to [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the unresolved question is evidence or contradiction state after an assay
-- move to [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+- open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the unresolved question is recommendation policy
+- open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the unresolved question is evidence or contradiction state after an assay
+- open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
   when the unresolved question is run orchestration, operator entrypoints, or
   runtime artifacts
 - stay here when the real concern is how work is scheduled, rerun, or promoted after execution

@@ -81,7 +81,7 @@ flowchart LR
 Runtime composes lower packages through adapters. Lower packages should stay
 runtime-agnostic.
 
-## Use This Section When
+## Open This Section When
 
 - you need to understand why a behavior belongs in runtime instead of a lower
   package
@@ -89,7 +89,7 @@ runtime-agnostic.
 - you need the stable runtime ownership and contract references before editing
   code or docs
 
-## Move On When
+## Open Another Package When
 
 - the real question already belongs to one lower package's biological,
   evidence, decision, or lab semantics

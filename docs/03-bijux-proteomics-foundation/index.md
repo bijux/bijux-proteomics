@@ -15,14 +15,13 @@ canonical payload shape, version compatibility helpers, identity
 primitives, or deterministic serialization contracts used across the
 package family.
 
-Readers should come away from this section with one clear idea: this
-package stabilizes shared meaning so the higher packages can disagree
+This package stabilizes shared meaning so the higher packages can disagree
 about policy or workflow without disagreeing about what a payload is.
 
-If someone opens only this page, they should understand that this package is
-not “misc shared utilities.” It is the layer that keeps identifiers, schema
-metadata, migrations, errors, and deterministic serialization compatible enough
-for the rest of the family to exchange meaning safely.
+This page shows that the package is not “misc shared utilities.” It is the
+layer that keeps identifiers, schema metadata, migrations, errors, and
+deterministic serialization compatible enough for the rest of the family to
+exchange meaning safely.
 
 ## Start Here
 
@@ -48,13 +47,13 @@ flowchart LR
     serialization --> dependents
 ```
 
-## Use This Section When
+## Open This Section When
 
 - you need the package entrypoint for schema and payload contracts
 - you are checking identifiers, migrations, or serialization guarantees
 - you want the shortest route into shared cross-package primitives
 
-## Do Not Use This Section When
+## Open Another Package When
 
 - the real issue is already about program rules, evidence state, ranking
   policy, lab planning, or runtime execution
@@ -72,8 +71,8 @@ flowchart LR
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the concern becomes program or lifecycle behavior
-- move to [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the concern becomes execution or replay
+- open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the concern becomes program or lifecycle behavior
+- open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the concern becomes execution or replay
 - stay here when the real question is whether shared payload meaning changed
 
 ## What This Package Clarifies

@@ -14,14 +14,13 @@ last_reviewed: 2026-04-26
 programs, gate definitions, lifecycle states, readiness rules, and the
 cross-package contracts that higher layers must respect.
 
-This section should make one boundary obvious: core defines the durable
-program and lifecycle rules, but it does not own evidence policy,
-scoring policy, or lab execution details.
+Core defines the durable program and lifecycle rules, but it does not own
+evidence policy, scoring policy, or lab execution details.
 
-If someone opens only this page, they should understand that this package owns
-the durable program contract surface: assays, targets, constraints, lifecycle
-states, readiness rules, execution contracts, and validation logic that the
-rest of the stack must obey before it adds policy.
+This page shows that the package owns the durable program contract surface:
+assays, targets, constraints, lifecycle states, readiness rules, execution
+contracts, and validation logic that the rest of the stack must obey before it
+adds policy.
 
 ## Start Here
 
@@ -47,13 +46,13 @@ flowchart LR
     execution --> dependents
 ```
 
-## Use This Section When
+## Open This Section When
 
 - you need the package entrypoint for program and gate contracts
 - you are checking lifecycle transitions, identifiers, or readiness validation
 - you want the shortest route into durable program semantics
 
-## Do Not Use This Section When
+## Open Another Package When
 
 - the real disagreement is about evidence truth, ranking policy, lab execution,
   or runtime orchestration
@@ -71,8 +70,8 @@ flowchart LR
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/) when shared payload meaning is the real issue
-- move to [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking or recommendation policy
+- open [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/) when shared payload meaning is the real issue
+- open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking or recommendation policy
 - stay here when you need to know whether a rule is part of the durable contract or just a downstream policy choice
 
 ## What This Package Clarifies

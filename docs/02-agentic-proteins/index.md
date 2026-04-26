@@ -14,10 +14,9 @@ last_reviewed: 2026-04-26
 entrypoints long enough for callers to move safely to
 `bijux-proteomics-runtime`.
 
-Treat this package as a bridge, not as the center of new development. If
-someone opens only this page, they should leave knowing which preserved
-surface still exists, where the canonical owner moved, and what proof
-must exist before the bridge is kept or removed.
+Treat this package as a bridge, not as the center of new development. This
+page shows which preserved surface still exists, where the canonical owner now
+lives, and what proof must exist before the bridge is kept or removed.
 
 Legacy callers often arrive here first because they still remember the
 old package name. This page exists to move them quickly from that old
@@ -75,13 +74,13 @@ flowchart LR
 - canonical reporting semantics now owned by
   `bijux-proteomics-intelligence`
 
-## Use This Section When
+## Open This Section When
 
 - you need compatibility-safe legacy import or CLI entrypoints
 - you are validating forwarding boundaries and migration promises
 - you need to trace older runtime usage to the canonical runtime package
 
-## Do Not Use This Section When
+## Open The Canonical Handbook When
 
 - you are designing a new caller and can depend on the canonical package now
 - you need current runtime operation or API behavior rather than legacy naming
@@ -97,8 +96,8 @@ flowchart LR
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the question is about current runtime behavior
-- move to [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the question is about migration policy or repository-wide release rules
+- open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) when the question is about current runtime behavior
+- open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/) when the question is about migration policy or repository-wide release rules
 - stay here only while the question is about preserved legacy surfaces and their retirement bar
 
 ## Concrete Anchors
@@ -110,6 +109,6 @@ flowchart LR
 
 ## Reader Takeaway
 
-`agentic-proteins` should stay narrow, explicit, and temporary. If a legacy
-name still exists, this handbook should make the forwarding target and the
-retirement decision clear enough that readers are not trapped in the bridge.
+`agentic-proteins` stays narrow, explicit, and temporary. If a legacy name
+still exists, this handbook must keep the forwarding target and the retirement
+decision clear enough that readers are not trapped in the bridge.

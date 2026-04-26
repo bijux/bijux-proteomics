@@ -14,15 +14,14 @@ last_reviewed: 2026-04-26
 quality, claim state transitions, contradiction resolution, trust
 scoring, or readiness summaries consumed by downstream decision layers.
 
-This section should make one promise clear: knowledge owns the recorded
-evidence and claim state that readers can audit later. It is the place
-to ask what is known, what conflicts, and how much trust the system can
-currently justify.
+Knowledge owns the recorded evidence and claim state that readers can audit
+later. It is the place to ask what is known, what conflicts, and how much
+trust the system can currently justify.
 
-If someone opens only this page, they should understand that this package is
-where proteomics evidence becomes an auditable state: records are stored,
-claims are updated, conflicts are resolved, trust is summarized, and review can
-work backward from a recommendation to the evidence that supported it.
+This page shows that the package is where proteomics evidence becomes an
+auditable state: records are stored, claims are updated, conflicts are
+resolved, trust is summarized, and review can work backward from a
+recommendation to the evidence that supported it.
 
 ## Visual Summary
 
@@ -57,13 +56,13 @@ flowchart LR
 - open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) when the issue is whether the
   current knowledge state is defended strongly enough to trust
 
-## Use This Section When
+## Open This Section When
 
 - you need the package entrypoint for evidence and claim contracts
 - you are checking contradiction handling, freshness, or trust logic
 - you want the shortest route into auditable knowledge-state behavior
 
-## Move On When
+## Open Another Package When
 
 - the real question is already about ranking policy, experiment planning, or
   runtime orchestration
@@ -82,8 +81,8 @@ flowchart LR
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking policy rather than evidence state
-- move to [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) when the concern becomes assay execution or planning
+- open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) when the question becomes ranking policy rather than evidence state
+- open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) when the concern becomes assay execution or planning
 - stay here when the real issue is whether the current claim state is justified and inspectable
 
 ## What This Package Clarifies

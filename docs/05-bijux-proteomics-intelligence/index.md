@@ -14,16 +14,15 @@ last_reviewed: 2026-04-26
 scoring, portfolio ordering, scenario evaluation, or explainability
 outputs used to advance or redesign programs.
 
-Readers should use this section to distinguish decision policy from the
-lower-layer contracts it depends on. Intelligence turns evidence and
-program constraints into inspectable recommendations; it does not define
-the shared payload model or the execution machinery itself.
+Use this section to distinguish decision policy from the lower-layer contracts
+it depends on. Intelligence turns evidence and program constraints into
+inspectable recommendations; it does not define the shared payload model or
+the execution machinery itself.
 
-If someone opens only this page, they should understand that this package is
-where proteomics policy becomes an inspectable recommendation: candidates are
-scored, scenarios are compared, outcomes are summarized, and explanations are
-produced without pretending that the package also owns evidence truth or
-execution.
+This page shows that the package is where proteomics policy becomes an
+inspectable recommendation: candidates are scored, scenarios are compared,
+outcomes are summarized, and explanations are produced without pretending that
+the package also owns evidence truth or execution.
 
 ## Start Here
 
@@ -47,13 +46,13 @@ flowchart LR
     outcomes --> consumers
 ```
 
-## Use This Section When
+## Open This Section When
 
 - you need the package entrypoint for scoring and recommendation logic
 - you are checking ranking policy, scenario evaluation, or explanation outputs
 - you want the shortest route into inspectable decision behavior
 
-## Do Not Use This Section When
+## Open Another Package When
 
 - the real disagreement is about evidence quality or trust state rather than
   decision policy
@@ -72,8 +71,8 @@ flowchart LR
 
 ## Cross-Package Handoffs
 
-- move to [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the real disagreement is about evidence or trust state
-- move to [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the rule belongs in a durable contract rather than a ranking policy
+- open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) when the real disagreement is about evidence or trust state
+- open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) when the rule belongs in a durable contract rather than a ranking policy
 - stay here when you need to understand why one candidate or path was recommended over another
 
 ## What This Package Clarifies
