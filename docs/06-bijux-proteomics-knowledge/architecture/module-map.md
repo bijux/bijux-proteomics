@@ -10,13 +10,15 @@ last_reviewed: 2026-04-26
 # Module Map
 
 The architecture of `bijux-proteomics-knowledge` becomes readable when its major module
-groups are treated as responsibilities instead of as folders. This page should
-help a reviewer move from a question about behavior to the part of the package
-most likely to answer it.
+groups are treated as responsibilities instead of as folders. This page helps a
+reviewer move from a question about behavior to the part of the package most
+likely to answer it.
 
 When this page is useful, code reading becomes targeted rather than exploratory.
 
-Treat the architecture pages for `bijux-proteomics-knowledge` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Read the architecture pages as a reviewer-facing map of structure and flow for
+`bijux-proteomics-knowledge`. They shorten code reading without trying to
+replace it.
 
 ## Visual Summary
 
@@ -88,9 +90,9 @@ This page describes the current structural model of `bijux-proteomics-knowledge`
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 

@@ -9,7 +9,7 @@ last_reviewed: 2026-04-26
 
 # Architecture
 
-Use this section when the question is structural: which modules own evidence
+Open this section when the question is structural: which modules own evidence
 bundles, claim state, conflict resolution, review packets, schema
 compatibility, and graph relationships, and how those pieces fit together
 without turning the knowledge layer into a vague storage bucket.
@@ -44,11 +44,11 @@ flowchart LR
 
 ## Start Here
 
-- use [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/) for the shortest route from filenames to
+- open [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/) for the shortest route from filenames to
   owned behavior
-- use [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/) when you need the flow from
+- open [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/) when you need the flow from
   ingested evidence to reviewed knowledge state
-- use [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/) when the question is
+- open [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/) when the question is
   which records, repositories, or summaries become durable
 
 ## Pages In Architecture
@@ -78,12 +78,12 @@ flowchart LR
 
 ## Read Across The Package
 
-- use [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
-- use [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for import, schema, serialization,
+- open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/) for package purpose and ownership
+- open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/) for import, schema, serialization,
   and artifact contracts
-- use [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflow, diagnostics, and
+- open [Operations](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/) for workflow, diagnostics, and
   release procedures
-- use [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for invariants, tests, and structure-risk
+- open [Quality](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/quality/) for invariants, tests, and structure-risk
   pressure
 
 ## Concrete Anchors
@@ -99,13 +99,12 @@ flowchart LR
 
 ## Reader Takeaway
 
-`Architecture` should make the knowledge package legible as a chain of named
+`Architecture` makes the knowledge package legible as a chain of named
 responsibilities. If evidence storage, claim semantics, contradiction handling,
 and review output start blending together, the package becomes harder to trust
 as an auditable state layer.
 
 ## What You Get
 
-This page gives you the module, dependency, execution, and durable-state route
-through `bijux-proteomics-knowledge` before you inspect a specific structural
-topic.
+Open this page when you need the module, dependency, execution, and
+durable-state route through `bijux-proteomics-knowledge`.

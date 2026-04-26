@@ -14,7 +14,9 @@ When you need to understand a change in `bijux-proteomics-knowledge`, use this r
 This page is intentionally practical. Its purpose is to shorten the path from a
 question in review to the files that actually explain the answer.
 
-Treat the architecture pages for `bijux-proteomics-knowledge` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Read the architecture pages as a reviewer-facing map of structure and flow for
+`bijux-proteomics-knowledge`. They shorten code reading without trying to
+replace it.
 
 ## Visual Summary
 
@@ -99,9 +101,9 @@ This page describes the current structural model of `bijux-proteomics-knowledge`
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 

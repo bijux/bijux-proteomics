@@ -15,7 +15,9 @@ This page is about where variation is welcomed and where it would be a design
 smell. A package becomes easier to extend when contributors can see which seams
 are meant to flex and which ones are carrying the core identity of the package.
 
-Treat the architecture pages for `bijux-proteomics-knowledge` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Read the architecture pages as a reviewer-facing map of structure and flow for
+`bijux-proteomics-knowledge`. They shorten code reading without trying to
+replace it.
 
 ## Visual Summary
 
@@ -91,9 +93,9 @@ This page describes the current structural model of `bijux-proteomics-knowledge`
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 

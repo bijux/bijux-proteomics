@@ -13,11 +13,13 @@ last_reviewed: 2026-04-26
 and workflows in application code, and delegating specific responsibilities to
 owned modules.
 
-This page should give a reader one clean story about how work moves through the
+This page gives a reader one clean story about how work moves through the
 package. The goal is not to describe every branch, but to make the main path
 recognizable before someone opens the implementation.
 
-Treat the architecture pages for `bijux-proteomics-knowledge` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+Read the architecture pages as a reviewer-facing map of structure and flow for
+`bijux-proteomics-knowledge`. They shorten code reading without trying to
+replace it.
 
 ## Visual Summary
 
@@ -86,9 +88,9 @@ This page describes the current structural model of `bijux-proteomics-knowledge`
 
 ## Next Checks
 
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
+- open interfaces when the review reaches a public or operator-facing seam
+- open operations when the concern becomes repeatable runtime behavior
+- open quality when you need proof that the documented structure is still protected
 
 ## Purpose
 
