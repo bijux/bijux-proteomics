@@ -12,11 +12,11 @@ last_reviewed: 2026-04-26
 Dependency changes in `agentic-proteins` should be treated as contract changes when they
 alter package authority, operational risk, or public setup expectations.
 
-This page should keep dependency review from feeling bureaucratic. Dependencies
+This page keeps dependency review from feeling bureaucratic. Dependencies
 matter because they reshape what the package relies on, what it exposes, and
 what downstream maintainers must now trust.
 
-Treat the quality pages for `agentic-proteins` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
+These quality pages show how `agentic-proteins` earns trust and where skepticism still belongs.
 
 ## Visual Summary
 
@@ -84,7 +84,7 @@ Use `Dependency Governance` to decide whether `agentic-proteins` has actually ea
 
 ## Honesty Boundary
 
-This page explains how `agentic-proteins` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `agentic-proteins` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 
@@ -94,7 +94,7 @@ This page explains how `agentic-proteins` is supposed to earn trust, but it does
 
 ## Purpose
 
-This page explains why dependency review matters for the package.
+This page shows why dependency review matters for the package.
 
 ## Stability
 

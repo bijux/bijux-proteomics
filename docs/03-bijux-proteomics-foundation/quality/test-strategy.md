@@ -11,11 +11,11 @@ last_reviewed: 2026-04-26
 
 The tests for `bijux-proteomics-foundation` are the executable proof of its package contract.
 
-This page should help readers see the broad proof shape of the package rather
+This page helps readers see the broad proof shape of the package rather
 than treating the test tree like a bag of unrelated checks. A good strategy page
 explains why these tests exist, not just where they live.
 
-Treat the quality pages for `bijux-proteomics-foundation` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
+These quality pages show how `bijux-proteomics-foundation` earns trust and where skepticism still belongs.
 
 ## Visual Summary
 
@@ -81,7 +81,7 @@ Use `Test Strategy` to decide whether `bijux-proteomics-foundation` has actually
 
 ## Honesty Boundary
 
-This page explains how `bijux-proteomics-foundation` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `bijux-proteomics-foundation` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 
@@ -91,7 +91,7 @@ This page explains how `bijux-proteomics-foundation` is supposed to earn trust, 
 
 ## Purpose
 
-This page explains the broad testing shape of the package.
+This page shows the broad testing shape of the package.
 
 ## Stability
 

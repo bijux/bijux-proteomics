@@ -14,7 +14,7 @@ Validation after a change should target the package surfaces that were actually 
 This page is about choosing proof that matches the real risk. Strong validation
 is not just more testing; it is testing and review aimed at the seam that moved.
 
-Treat the quality pages for `bijux-proteomics-intelligence` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
+These quality pages show how `bijux-proteomics-intelligence` earns trust and where skepticism still belongs.
 
 ## Visual Summary
 
@@ -86,7 +86,7 @@ Use `Change Validation` to decide whether `bijux-proteomics-intelligence` has ac
 
 ## Honesty Boundary
 
-This page explains how `bijux-proteomics-intelligence` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `bijux-proteomics-intelligence` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 

@@ -117,7 +117,7 @@ Use `Quality` to decide whether `agentic-proteins` has actually earned trust aft
 
 ## Honesty Boundary
 
-This page explains how `agentic-proteins` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `agentic-proteins` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 

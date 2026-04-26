@@ -12,11 +12,11 @@ last_reviewed: 2026-04-26
 The durable risks for `bijux-proteomics-lab` are the ones that make the package boundary, interface contract,
 or produced artifacts harder to trust.
 
-This page should keep long-lived risk language attached to the package instead
+This page keeps long-lived risk language attached to the package instead
 of scattering it across reviews and memory. The goal is not alarmism; it is to
 help maintainers remember which failures would actually cost credibility.
 
-Treat the quality pages for `bijux-proteomics-lab` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
+These quality pages show how `bijux-proteomics-lab` earns trust and where skepticism still belongs.
 
 ## Visual Summary
 
@@ -81,7 +81,7 @@ Use `Risk Register` to decide whether `bijux-proteomics-lab` has actually earned
 
 ## Honesty Boundary
 
-This page explains how `bijux-proteomics-lab` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `bijux-proteomics-lab` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 

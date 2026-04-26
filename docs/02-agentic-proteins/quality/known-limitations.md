@@ -15,7 +15,7 @@ This page protects credibility by keeping the current limits visible. Readers
 should be able to tell what the package does not promise without mining issue
 threads or learning the hard way in production.
 
-Treat the quality pages for `agentic-proteins` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
+These quality pages show how `agentic-proteins` earns trust and where skepticism still belongs.
 
 ## Visual Summary
 
@@ -80,7 +80,7 @@ Use `Known Limitations` to decide whether `agentic-proteins` has actually earned
 
 ## Honesty Boundary
 
-This page explains how `agentic-proteins` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `agentic-proteins` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 

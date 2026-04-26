@@ -11,7 +11,7 @@ last_reviewed: 2026-04-26
 
 The tests for `bijux-proteomics-knowledge` are the executable proof of its package contract.
 
-This page should help readers see the broad proof shape of the package rather
+This page helps readers see the broad proof shape of the package rather
 than treating the test tree like a bag of unrelated checks. A good strategy page
 explains why these tests exist, not just where they live.
 
@@ -82,7 +82,7 @@ Use `Test Strategy` to decide whether `bijux-proteomics-knowledge` has actually 
 
 ## Honesty Boundary
 
-This page explains how `bijux-proteomics-knowledge` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `bijux-proteomics-knowledge` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 
@@ -92,7 +92,7 @@ This page explains how `bijux-proteomics-knowledge` is supposed to earn trust, b
 
 ## Purpose
 
-This page explains the broad testing shape of the package.
+This page shows the broad testing shape of the package.
 
 ## Stability
 

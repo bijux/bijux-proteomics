@@ -15,7 +15,7 @@ The checklist is not here to slow people down with ceremony. It is here to stop
 fast review from becoming shallow review when a change touches boundaries,
 contracts, or proof.
 
-Treat the quality pages for `bijux-proteomics-lab` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
+These quality pages show how `bijux-proteomics-lab` earns trust and where skepticism still belongs.
 
 ## Visual Summary
 
@@ -80,7 +80,7 @@ Use `Review Checklist` to decide whether `bijux-proteomics-lab` has actually ear
 
 ## Honesty Boundary
 
-This page explains how `bijux-proteomics-lab` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
+This page shows how `bijux-proteomics-lab` earns trust today, but prose is not the source of truth. If the listed tests, checks, and review practice stop backing the story, the story has to change.
 
 ## Next Checks
 
