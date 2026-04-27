@@ -59,6 +59,7 @@ def test_boundary_docs_share_identity_and_ownership_shape() -> None:
             "## This package does not own",
             "## Downstream expectations",
             "## Escalation signals",
+            "## Review questions",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
         if missing:
@@ -84,6 +85,7 @@ def test_maintainer_scope_doc_has_owned_surfaces_and_routing_sections() -> None:
         "## Downstream expectations",
         "## Change routing expectations",
         "## Escalation signals",
+        "## Review questions",
     ]
     missing = [bit for bit in expected_bits if bit not in text]
     assert not missing, (
