@@ -72,6 +72,15 @@
 - expect a narrower release burden when the change only improves internal
   implementation without changing evidence semantics
 
+## Release communication signals
+
+- call out evidence, lineage, or trust-semantics changes explicitly when users
+  may read published results differently after the release
+- name contradiction-handling or claim-interpretation shifts directly instead of
+  hiding them inside generic maintenance wording
+- keep release messaging brief when the change only improves internals without
+  changing evidence semantics
+
 ## Release checklist
 
 1. Confirm docs and README describe current evidence and conflict semantics.
