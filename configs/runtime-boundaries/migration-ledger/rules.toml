@@ -85,6 +85,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution evaluation schemas are runtime-owned transport contracts on the canonical execution surface."
 
 [[rule]]
+pattern = "execution/evaluation/evaluation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution evaluation orchestration now forwards directly to canonical runtime evaluation logic."
+
+[[rule]]
 pattern = "execution/evaluation/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"

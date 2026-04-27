@@ -85,7 +85,7 @@ execution/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execu
 execution/compiler/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution boundary compilation belongs to runtime orchestration boundaries.
 execution/compiler/boundary.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution boundary compilation belongs to runtime orchestration boundaries.
 execution/evaluation/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution evaluation package exports now forward directly to canonical runtime evaluation surfaces.
-execution/evaluation/evaluation.py,runtime_support_internal_review,bijux-proteomics-runtime,Evaluation helpers are runtime-adjacent and need semantic review to separate orchestration from domain scoring meaning.
+execution/evaluation/evaluation.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution evaluation orchestration now forwards directly to canonical runtime evaluation logic.
 execution/evaluation/observations.py,runtime_execution_ownership,bijux-proteomics-runtime,Observation transport and evaluation trigger payloads now live on the canonical runtime execution surface.
 execution/evaluation/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution evaluation schemas are runtime-owned transport contracts on the canonical execution surface.
 execution/runtime/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution runtime drivers are canonical runtime execution surfaces.
