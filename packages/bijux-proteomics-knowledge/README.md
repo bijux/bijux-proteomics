@@ -135,6 +135,14 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 - expect a narrower release burden when the change only improves internal
   implementation without changing evidence semantics
 
+## Explicit non-goals
+
+- this package does not own runtime orchestration, provider wiring, or replay
+  behavior
+- this package does not define ranking policy or lab-specific scheduling logic
+- this package does not carry shared primitive contracts that belong in the
+  foundation package
+
 ## Source guide
 
 - [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
