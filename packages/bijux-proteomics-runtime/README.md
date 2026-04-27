@@ -116,6 +116,15 @@ remain in their dedicated lower-layer packages.
 - use `docs/maintainer/pypi.md` when the change affects package publication,
   metadata, or release-readiness expectations
 
+## Review questions
+
+- does the change preserve canonical operator entrypoints, provider binding, or
+  replay-safe orchestration rather than lower-layer domain semantics
+- would compat or lower packages start carrying shadow execution transport or
+  adapter law if this behavior stayed outside runtime
+- can the change be justified as runtime-local work instead of a missing lower
+  package contract or a compat-only bridge
+
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
