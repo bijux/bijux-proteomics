@@ -105,8 +105,8 @@ It does not own product decision logic, lab logic, or runtime orchestration.
   foundation change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or stability claims are part of the change
-- use `docs/maintainer/pypi.md` when the change affects package publication,
-  metadata, or release-readiness expectations
+- use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
+  affects package publication, metadata, or release-readiness expectations
 
 ## Review questions
 

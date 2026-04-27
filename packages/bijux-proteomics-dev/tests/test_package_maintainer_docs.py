@@ -22,12 +22,6 @@ def _package_dir(package_name: str) -> Path:
     return REPO_ROOT / "packages" / package_name
 
 
-def _import_root(package_name: str) -> str:
-    if package_name == "bijux-proteomics-core":
-        return "bijux_proteomics"
-    return package_name.replace("-", "_")
-
-
 def _section(text: str, heading: str) -> str:
     marker = f"## {heading}\n"
     start = text.find(marker)
@@ -47,50 +41,44 @@ def _release_doc_packages() -> list[str]:
     return [
         package_name
         for package_name in _package_names()
-        if (_package_dir(package_name) / "docs" / "maintainer" / "pypi.md").exists()
+        if package_name != "bijux-proteomics-dev"
     ]
 
 
-def test_publishable_packages_expose_maintainer_release_docs() -> None:
-    missing = [
+def test_publishable_packages_do_not_ship_package_local_release_guides() -> None:
+    unexpected = [
         path.relative_to(REPO_ROOT).as_posix()
         for package_name in _release_doc_packages()
         for path in [_package_dir(package_name) / "docs" / "maintainer" / "pypi.md"]
-        if not path.exists()
+        if path.exists()
     ]
-    assert not missing, "missing maintainer release docs:\n" + "\n".join(missing)
+    assert not unexpected, (
+        "unexpected package release guides remain:\n" + "\n".join(unexpected)
+    )
 
 
-def test_release_docs_share_identity_and_release_sections() -> None:
+def test_package_readmes_route_release_guidance_through_checked_in_docs() -> None:
     failures: list[str] = []
 
     for package_name in _release_doc_packages():
-        path = _package_dir(package_name) / "docs" / "maintainer" / "pypi.md"
+        path = _package_dir(package_name) / "README.md"
         text = path.read_text(encoding="utf-8")
         expected_bits = [
-            "# PyPI Maintainer Notes",
-            "## Package identity",
-            f"- package: `{package_name}`",
-            f"- import root: `{_import_root(package_name)}`",
-            "- repository: `bijux/bijux-proteomics`",
-            "## Release surface",
-            "## Release contract",
-            "## Validation focus",
-            "## Publication checkpoints",
-            "## Release escalation signals",
-            "## Release review questions",
-            "## Release impact signals",
-            "## Release communication signals",
-            "## Release checklist",
-            "## Explicit non-goals",
+            "README.md",
+            "CHANGELOG.md",
+            "package `docs/*.md`",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
         if missing:
             failures.append(
                 f"{path.relative_to(REPO_ROOT).as_posix()}: missing {', '.join(missing)}"
             )
+        if "docs/maintainer/pypi.md" in text:
+            failures.append(
+                f"{path.relative_to(REPO_ROOT).as_posix()}: stale docs/maintainer/pypi.md reference"
+            )
 
-    assert not failures, "maintainer release docs contract failed:\n" + "\n".join(
+    assert not failures, "package release guidance contract failed:\n" + "\n".join(
         failures
     )
 
@@ -139,20 +127,6 @@ def test_maintainer_test_doc_has_scope_and_expectation_sections() -> None:
 
 def test_maintainer_release_docs_keep_publication_guidance_substantive() -> None:
     failures: list[str] = []
-
-    for package_name in _release_doc_packages():
-        path = _package_dir(package_name) / "docs" / "maintainer" / "pypi.md"
-        text = path.read_text(encoding="utf-8")
-        publication_section = _section(text, "Publication checkpoints")
-        if _bullet_count(publication_section) < 3:
-            failures.append(
-                f"{path.relative_to(REPO_ROOT).as_posix()}: publication section needs at least three bullets"
-            )
-        escalation_section = _section(text, "Release escalation signals")
-        if _bullet_count(escalation_section) < 3:
-            failures.append(
-                f"{path.relative_to(REPO_ROOT).as_posix()}: release escalation section needs at least three bullets"
-            )
 
     index_path = REPO_ROOT / "packages" / "bijux-proteomics-dev" / "docs" / "index.md"
     index_text = index_path.read_text(encoding="utf-8")

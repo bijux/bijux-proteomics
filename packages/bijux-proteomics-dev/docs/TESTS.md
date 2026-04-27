@@ -36,8 +36,9 @@ policy it owns:
 
 ## Release proof expectations
 
-- publishable package maintainer docs should state the release contract,
-  validation focus, and publication checkpoints for the package they govern
+- publishable package `README.md`, `CHANGELOG.md`, and package `docs/*.md`
+  files should state the release contract, validation focus, and publication
+  checkpoints for the package they govern
 - release-policy tests should pin both workflow structure and metadata behavior
   instead of relying on manual interpretation
 - release guidance should stay aligned with package identity, package docs, and
@@ -45,8 +46,8 @@ policy it owns:
 
 ## Release-blocking signals
 
-- block the release when package maintainer docs cannot explain why the current
-  boundary and ownership claims are still safe to publish
+- block the release when checked-in package release guidance cannot explain why
+  the current boundary and ownership claims are still safe to publish
 - block the release when workflow or metadata tests pass but the package docs
   and release policy still disagree about the owning surface
 - block the release when a package needs a release exception that has not been

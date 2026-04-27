@@ -71,7 +71,6 @@ def _workflow_docs() -> list[Path]:
     return [
         REPO_ROOT / "README.md",
         *sorted(package_root.glob("*/README.md")),
-        *sorted(package_root.glob("*/docs/maintainer/pypi.md")),
     ]
 
 
