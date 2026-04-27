@@ -72,11 +72,24 @@ Import-driven usage starts from the core domain package:
 from bijux_proteomics import program_spec, validation
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-core`
+- Import root: `bijux_proteomics`
+- Stable entrypoints: `program_spec`, `validation`, `repositories`, and `interfaces`
+
 ## Package boundaries
 
 This package owns lifecycle domain models, progression rules, and validation invariants.
 
 It does not own evidence trust policy, ranking policy, or lab scheduling behavior.
+
+## Contract checkpoints
+
+- lifecycle transitions must flow through declared stage and gate rules
+- validators must return stable issue types instead of ad hoc failures
+- repository and execution protocols must stay replaceable and runtime-agnostic
+- downstream packages should consume core rules rather than restating lifecycle semantics
 
 ## Source guide
 
