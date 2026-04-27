@@ -193,6 +193,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Tool registry validation is part of the canonical runtime execution contract."
 
 [[rule]]
+pattern = "validation/state.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "State validation exports now forward directly to canonical runtime recovery contracts."
+
+[[rule]]
 pattern = "validation/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
