@@ -108,6 +108,15 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 - use `docs/maintainer/pypi.md` when the change affects package publication,
   metadata, or release-readiness expectations
 
+## Review questions
+
+- does the change preserve reusable schema, serialization, identifier, or
+  migration behavior rather than higher-layer policy or execution logic
+- would two or more downstream packages otherwise duplicate or drift on the
+  same document primitive if this stayed outside foundation
+- can the change be justified without claiming lifecycle, evidence, ranking,
+  lab, or runtime orchestration ownership
+
 ## Source guide
 
 - [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
