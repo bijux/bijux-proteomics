@@ -32,3 +32,13 @@ evidence truth semantics.
 Downstream packages should use this package as the canonical home for
 dependency-aware planning and outcome promotion behavior instead of scattering
 schedule logic across runtime or domain helpers.
+
+## Escalation signals
+
+- if a change defines assay planning, batching, rerun guidance, or outcome
+  promotion meaning, escalate it here before runtime or domain helpers copy it
+- if a proposed lab helper mainly owns lifecycle authority, ranking policy,
+  evidence truth, or transport-local concerns, escalate it back to the owning
+  package instead
+- if planning logic starts depending on operator entrypoints or provider
+  execution details, treat that as a boundary failure and redesign the seam
