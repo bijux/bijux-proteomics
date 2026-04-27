@@ -82,6 +82,12 @@ def test_runtime_execution_promotions_are_enforced() -> None:
         "bijux-proteomics-runtime"
     )
     assert rows["registry/tools.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["validation/__init__.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["validation/__init__.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
     assert rows["execution/evaluation/observations.py"]["owner_package"] == (
         "bijux-proteomics-runtime"
     )
