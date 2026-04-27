@@ -135,6 +135,15 @@ remain in their dedicated lower-layer packages.
 - escalate before release when adopting the change would force lower packages or
   compat surfaces to mirror new runtime-local exceptions
 
+## Consumer impact signals
+
+- expect cross-surface review when CLI, API, provider binding, replay behavior,
+  or migration expectations change because operators consume them directly
+- treat changes that alter canonical entrypoints, runtime adapters, or compat
+  expectations as high-impact even when import paths stay stable
+- expect a narrower release burden when the change only improves internal
+  orchestration without changing runtime-facing behavior
+
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
