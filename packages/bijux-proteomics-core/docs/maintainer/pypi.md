@@ -35,6 +35,15 @@
 - public-surface tests prove root imports and protocol contracts remain stable
 - repository checks prove metadata, docs publication, and release wiring stay aligned
 
+## Publication checkpoints
+
+- package metadata, docs routes, and lifecycle-ownership language should match
+  the current core contract before tagging
+- release validation should leave lifecycle, validator, and public-surface
+  proof green in the repository root check surface
+- the published wheel and sdist should reflect the same canonical import root
+  and package guide that maintainers reviewed locally
+
 ## Release checklist
 
 1. Validate `README.md` and package docs describe current domain ownership.
