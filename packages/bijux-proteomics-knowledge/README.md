@@ -126,6 +126,15 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 - escalate before release when downstream consumers would need package-specific
   trust or lineage exceptions to adopt the change
 
+## Consumer impact signals
+
+- expect downstream review when evidence rules, lineage semantics, or trust
+  resolution behavior change because other layers consume those meanings
+- treat changes that alter contradiction handling, claim interpretation, or
+  lineage expectations as high-impact even when APIs stay stable
+- expect a narrower release burden when the change only improves internal
+  implementation without changing evidence semantics
+
 ## Source guide
 
 - [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
