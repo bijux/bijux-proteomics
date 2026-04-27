@@ -139,6 +139,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Runtime memory package exports now forward directly to canonical runtime memory surfaces."
 
 [[rule]]
+pattern = "memory/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime memory schemas now forward directly to canonical runtime memory contracts."
+
+[[rule]]
 pattern = "memory/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
