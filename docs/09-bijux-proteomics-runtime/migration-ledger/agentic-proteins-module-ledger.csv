@@ -111,7 +111,7 @@ providers/local/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime
 providers/local/esmfold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/local/rosettafold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 registry/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Registry package exports now forward directly to canonical runtime registry surfaces.
-registry/agents.py,runtime_support_internal_review,bijux-proteomics-runtime,Registry surfaces are runtime-support utilities pending explicit ownership decomposition.
+registry/agents.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent registry exports now forward directly to canonical runtime registry contracts.
 registry/tools.py,runtime_support_internal_review,bijux-proteomics-runtime,Registry surfaces are runtime-support utilities pending explicit ownership decomposition.
 report/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Reporting utilities need review to split runtime artifact summaries from scientific/domain evaluation outputs.
 report/compute.py,runtime_support_internal_review,bijux-proteomics-runtime,Reporting utilities need review to split runtime artifact summaries from scientific/domain evaluation outputs.
