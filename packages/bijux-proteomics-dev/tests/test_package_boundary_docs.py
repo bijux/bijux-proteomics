@@ -68,3 +68,22 @@ def test_boundary_docs_share_identity_and_ownership_shape() -> None:
     assert not failures, "package boundary docs contract failed:\n" + "\n".join(
         failures
     )
+
+
+def test_maintainer_scope_doc_has_owned_surfaces_and_routing_sections() -> None:
+    path = REPO_ROOT / "packages" / "bijux-proteomics-dev" / "docs" / "SCOPE.md"
+    text = path.read_text(encoding="utf-8")
+    expected_bits = [
+        "## Package identity",
+        "- Distribution name: `bijux-proteomics-dev`",
+        "- Import root: `bijux_proteomics_dev`",
+        "## This package owns",
+        "## Owned maintenance surfaces",
+        "## This package does not own",
+        "## Downstream expectations",
+        "## Change routing expectations",
+    ]
+    missing = [bit for bit in expected_bits if bit not in text]
+    assert not missing, (
+        f"{path.relative_to(REPO_ROOT).as_posix()}: missing {', '.join(missing)}"
+    )

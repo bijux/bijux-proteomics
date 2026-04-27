@@ -50,6 +50,8 @@ def test_contract_docs_share_identity_and_change_sections() -> None:
             f"- Import root: `{_import_root(package_name)}`",
             "## Stable contracts",
             "## Change requirements",
+            "## Consumer upgrade expectations",
+            "## Change routing signals",
             "## Explicit non-contracts",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
