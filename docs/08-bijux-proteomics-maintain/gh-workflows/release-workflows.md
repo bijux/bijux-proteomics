@@ -4,44 +4,20 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-19
+last_reviewed: 2026-04-26
 ---
 
 # release-workflows
 
-`release-artifacts.yml` orchestrates tag-driven publication and calls
-`release-github.yml`, `release-pypi.yml`, and `release-ghcr.yml` as reusable
-workflow surfaces.
+Release workflows are the irreversible automation surfaces. Their job is to publish only after repository proof is already complete.
 
-The split keeps each publication surface explicit:
+## What To Check
 
-- `release-pypi.yml` governs PyPI publication behavior
-- `release-ghcr.yml` governs GHCR bundle publication behavior
-- `release-github.yml` governs GitHub Release publication behavior
-- `release-artifacts.yml` orchestrates build and publish order for tag-driven
-  releases
+- the split between artifact, GitHub, PyPI, and GHCR publication workflows
+- the tag and permission assumptions behind each publication path
+- whether release automation still matches maintainer release policy
 
-## Workflow Anchors
+## First Proof Check
 
 - `.github/workflows/release-artifacts.yml`
-- `.github/workflows/release-github.yml`
-- `.github/workflows/release-pypi.yml`
-- `.github/workflows/release-ghcr.yml`
-- package release metadata and staged release assets
-
-## Current Job Tree
-
-- `release-artifacts.yml`: build matrix and reusable release workflow orchestration
-- `release-pypi.yml`: `resolve` and publication jobs for configured package inputs
-- `release-ghcr.yml`: `resolve` and per-package GHCR artifact publication
-- `release-github.yml`: release planning and GitHub Release publication
-
-## Purpose
-
-Use this page to understand which release surfaces are published and how the
-tag-driven workflow split is organized.
-
-## Stability
-
-Keep it aligned with the release workflows and their shared artifact and release
-configuration contracts.
+- `.github/workflows/release-github.yml`, `release-pypi.yml`, and `release-ghcr.yml`

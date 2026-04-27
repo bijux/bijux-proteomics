@@ -4,46 +4,60 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Domain Language
 
-Stable language is part of the repository design.
+Stable language is part of repository design. When terminology drifts, readers
+stop knowing whether they are talking about repository policy, maintainer
+automation, runtime execution, or product semantics.
 
-When terms drift, readers stop knowing whether they are talking about a package
-contract, a repository rule, or a maintainer-only concern. That confusion
-rebuilds architectural blur even when the tree still looks tidy.
+## Language Model
 
 ```mermaid
-graph TD
-    A[Stable language] --> B[repository handbook]
-    A --> C[maintainer handbook]
-    A --> D[canonical package]
-    A --> E[proof surface]
+flowchart TB
+    term["term appears in docs or review"]
+    owner{"does it point to one owner?"}
+    layer{"repository, maintainer, runtime, or product layer clear?"}
+    proof{"reader can find the proof surface?"}
+    keep["keep the term stable"]
 
-    B --> B1[cross-package governance]
-    C --> C1[repo-health automation]
-    D --> D1[publishable distribution]
-    E --> E1[files that verify a claim]
-
-    X[term drift] --> Y[reader confusion]
-    Y --> Z[misrouted work and unclear review]
+    term --> owner
+    owner -->|yes| layer
+    owner -->|no| reject1["replace the term"]
+    layer -->|yes| proof
+    layer -->|no| reject2["replace the term"]
+    proof -->|yes| keep
+    proof -->|no| reject3["replace the term"]
 ```
 
-## Terms That Should Stay Stable
+This page should help a reviewer test terminology against ownership and proof, not just against preference. If a term muddies the layer or owner, it is doing design damage.
 
-- `repository handbook` for cross-package governance and structure
-- `maintainer handbook` for repository-health automation and operations
-- `canonical package` for one of the publishable product distributions
-- `proof surface` for the files that let a reader verify a claim, such as
-  tests, schema artifacts, metadata, or workflow definitions
+## Terms To Keep Stable
 
-## Purpose
+- `repository handbook` for cross-package governance and root-owned assets
+- `maintainer handbook` for repository-health automation
+- `canonical package` for a publishable product distribution that owns current
+  behavior
+- `compatibility package` for a temporary bridge that preserves legacy entry
+  surfaces
+- `proof surface` for files that let a reader verify a claim, such as tests,
+  schema artifacts, metadata, or workflow definitions
 
-This page records vocabulary that should remain consistent across docs, code,
-metadata, and review conversations.
+## Terms To Resist
 
-## Stability
+- `shared utils` when the real issue is a product boundary
+- `root behavior` when the behavior is actually package-local and only called
+  from root automation
+- `runtime` as a synonym for the entire system when execution is only one layer
+  of the package family
 
-Change it only when the repository meaning of a term actually changes.
+## First Proof Check
+
+Compare the term with the owning handbook, package directory, or workflow file.
+If the term makes ownership harder to name, it is the wrong term.
+
+## Design Pressure
+
+The easy failure is to keep familiar words that sound convenient in conversation but make the system harder to route and verify on the page.

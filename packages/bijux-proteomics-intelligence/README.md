@@ -65,11 +65,84 @@ pip install bijux-proteomics-intelligence
 from bijux_proteomics_intelligence import briefs, policies, evaluators
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-intelligence`
+- Import root: `bijux_proteomics_intelligence`
+- Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`, and `outcomes`
+
 ## Package boundaries
 
 This package owns decision intelligence, ranking policy, scenario scoring, and explainability outputs.
 
 It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
+
+## Contract checkpoints
+
+- ranking and scenario outputs must carry typed rationale instead of opaque scores
+- policy models must remain reproducible inputs for repeated evaluations
+- portfolio and rejection summaries must stay explicit enough for review-gate use
+- downstream packages should ask this layer for recommendation logic instead of recreating scoring locally
+
+## Choose this package when
+
+- you need candidate ranking, scenario evaluation, or explainable recommendation
+  logic
+- the change affects decision meaning rather than the way results are delivered
+- policy and rationale should stay explicit and reproducible
+
+## Route elsewhere when
+
+- the change defines lifecycle authority, evidence storage, lab scheduling, or
+  transport wiring
+- the helper only reformats recommendation outputs for CLI or API consumers
+- the behavior is a workflow-specific override rather than a reusable decision rule
+
+## Verification route
+
+- check `tests` for ranking, evaluator, and explainability proof before
+  treating an intelligence change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or recommendation-policy claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
+## Review questions
+
+- does the change preserve recommendation, scoring, or explainability semantics
+  rather than output transport or workflow-local formatting
+- would runtime or lab surfaces start carrying shadow ranking policy if this
+  behavior stayed outside intelligence
+- can the change be justified without claiming lifecycle, evidence, lab
+  execution, or runtime interface ownership
+
+## Escalation route
+
+- route the change outward when the behavior mostly shapes lifecycle authority,
+  evidence truth, lab scheduling, or delivery transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal starts looking like interface formatting instead of reusable decision
+  policy
+- escalate before release when downstream consumers would need package-specific
+  ranking exceptions to adopt the change
+
+## Consumer impact signals
+
+- expect downstream review when scoring rules, explainability behavior, or
+  evaluator contracts change because consumers rely on stable recommendation
+  meaning
+- treat changes that alter ranking outcomes or rationale surfaces as
+  high-impact even when function names and imports stay stable
+- expect a lower release burden when the change only improves internal
+  implementation without changing decision semantics
+
+## Explicit non-goals
+
+- this package does not own evidence storage, claim lineage, or trust semantics
+- this package does not own runtime transport, provider selection, or operator
+  entrypoints
+- this package does not schedule lab workflows or carry workflow-local rerun
+  policy
 
 ## Source guide
 

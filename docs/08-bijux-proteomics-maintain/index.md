@@ -4,31 +4,58 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Maintainer Handbook
 
-`bijux-proteomics-maintain` is the handbook root for repository-owned
-maintenance work.
+`bijux-proteomics-maintain` is the repository-health handbook. It explains how
+the repository keeps its promises alive: docs stay buildable, schemas stay
+checked, releases stay guarded, and shared commands stay understandable.
 
-This section exists so repository health stays inspectable. Quality gates,
-schema drift checks, docs integrity checks, release support, and workflow
-contracts should be readable from checked-in docs instead of being rediscovered
-through CI logs and shell glue.
+Product packages carry the scientific and operational ideas. This handbook
+carries the discipline that stops those ideas from decaying into folklore.
 
-## Sections In This Handbook
+```mermaid
+flowchart TB
+    dev["bijux-proteomics-dev<br/>helper code"]
+    makes["make system<br/>shared command surface"]
+    workflows["github workflows<br/>automation and publication"]
+    contracts["apis, docs, releases,<br/>package verification"]
+    packages["product packages"]
 
-- [bijux-proteomics-dev](bijux-proteomics-dev/index.md)
-- [makes](makes/index.md)
-- [gh-workflows](gh-workflows/index.md)
+    dev --> contracts
+    makes --> contracts
+    workflows --> contracts
+    contracts --> packages
+```
 
-## Purpose
+## What This Handbook Makes Visible
 
-This page gives maintainers a stable starting point for repository-health
-documentation.
+- where repository rules are executable instead of merely stated
+- how local commands, CI, and release automation reinforce each other
+- why a multi-package repository can stay coherent over time
 
-## Stability
+## Start With
 
-Keep it aligned with the section roots that actually exist under
-`docs/bijux-proteomics-maintain/`.
+- open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the rule is implemented as checked-in Python maintainer code
+- open [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the symptom starts from GitHub automation
+- open [makes](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/makes/) when the question starts from `make`, CI target routing, or release command fan-out
+
+## What This Handbook Owns
+
+- repository-wide proof, publication, docs integrity, security, and policy enforcement
+- shared command routing and GitHub automation contracts
+- the boundary between package handbooks and repository-health surfaces
+
+## What It Should Never Become
+
+- a substitute for product-package documentation
+- a vague collection of release reminders
+- a place where automation hides without naming its real owner
+
+## First Proof Check
+
+- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/`
+- `.github/workflows/`
+- `Makefile` and `makes/`

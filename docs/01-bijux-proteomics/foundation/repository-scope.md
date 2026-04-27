@@ -4,49 +4,60 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Repository Scope
 
-The root should stay boring in the best possible way. When repository files
-start absorbing product behavior, every package boundary becomes harder to
-trust.
+The root should stay narrow. It exists to hold shared docs structure,
+repository-wide validation and release framing, tracked API artifacts, and other
+assets that genuinely cross package boundaries. It should not become a backup
+owner for product behavior.
+
+## Scope Model
 
 ```mermaid
-flowchart TD
-    A[Proposed root change] --> B{Does it span multiple packages?}
-    B -->|Yes| C{Is it about governance / shared docs / CI / APIs?}
-    B -->|No| D[Keep it in the owning package]
-    C -->|Yes| E[Root scope]
-    C -->|No| D
-    E --> E1[shared automation]
-    E --> E2[repository handbook]
-    E --> E3[checked API artifacts]
-    E --> E4[release rules]
-    D --> D1[package-local runtime behavior]
-    D --> D2[package-local internals]
-    D --> D3[undocumented helper logic]
+flowchart TB
+    root["root surface"]
+    docs["docs and handbook routing"]
+    apis["tracked contract artifacts"]
+    process["make, workflow, and release coordination"]
+    product["product behavior"]
+
+    root --> docs
+    root --> apis
+    root --> process
+    product -. stays out of root .-> root
 ```
 
-## In Scope
+This page should help a reviewer reject the common excuse that something belongs at the root because several packages touch it. Shared touch does not equal shared ownership.
 
-- workspace-level automation and shared validation
-- root handbook structure and repository-wide governance
-- checked API artifacts under `apis/`
-- release, docs, and CI rules that genuinely span packages
+## Root Scope
+
+- handbook structure and cross-package routing under `docs/`
+- tracked contract artifacts under `apis/`
+- repository-wide command, workflow, and release coordination under
+  `Makefile`, `makes/`, and `.github/workflows/`
+- workspace metadata and root governance files when they affect several
+  packages together
 
 ## Out Of Scope
 
-- package-local runtime behavior
-- quiet root helpers that bypass package APIs
-- undocumented exceptions to the package ownership model
+- runtime execution behavior
+- evidence, decision, or lab semantics
+- package-local contracts that happen to be reused elsewhere
 
-## Purpose
+## Failure Mode To Reject
 
-This page explains what the repository root is allowed to own.
+A root change that adds product behavior because it is easier to wire once at
+the top is usually the wrong change. Shared convenience is not the same thing
+as shared ownership.
 
-## Stability
+## First Proof Check
 
-Keep it aligned with the current division between repository governance and
-package-owned behavior.
+- root files only when the rule truly spans several packages
+- otherwise the owning package handbook, code, and tests
+
+## Design Pressure
+
+The common drift is to broaden root scope one convenience change at a time until product behavior has no clean owner anymore.

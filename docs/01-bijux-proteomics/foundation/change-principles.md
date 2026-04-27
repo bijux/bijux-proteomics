@@ -4,47 +4,58 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Change Principles
 
-Root-level change should leave the repository easier to explain, not merely
-more featureful.
+Root-level change should leave the repository easier to explain, not merely more
+featureful. When a change makes ownership, proof, or naming less obvious, it is
+usually creating review debt even if the code still works.
+
+## Change Model
 
 ```mermaid
-flowchart LR
-    A[Proposed repository change] --> B{Moves behavior toward owner?}
-    B -->|No| X[Reject or rethink]
-    B -->|Yes| C{Docs, schema, tests, and automation updated together?}
-    C -->|No| X
-    C -->|Yes| D{Names remain durable?}
-    D -->|No| X
-    D -->|Yes| E{Automation explicit and deterministic?}
-    E -->|No| X
-    E -->|Yes| F[Accept for review]
+flowchart TB
+    change["proposed root or cross-package change"]
+    owner{"narrowest owner still clear?"}
+    proof{"docs, tests, schema, and automation stay aligned?"}
+    naming{"durable names and intent remain explicit?"}
+    accept["change follows root principles"]
+
+    change --> owner
+    owner -->|yes| proof
+    owner -->|no| reject1["re-scope the change"]
+    proof -->|yes| naming
+    proof -->|no| reject2["repair the proof chain"]
+    naming -->|yes| accept
+    naming -->|no| reject3["rename or simplify"]
 ```
+
+This page should help a reviewer judge whether a root-level change improves the repository’s explanation quality or merely hides more behavior behind cross-package convenience.
 
 ## Principles
 
-- prefer moving behavior toward the owning package rather than broadening root
-  scope for convenience
-- keep docs, schema artifacts, tests, and automation updates in the same review
-  series when they describe the same behavior
-- choose filenames, headings, and commit messages that will still make sense
-  years later
-- keep repository automation explicit about what it touches and why
+- move behavior toward the owning package instead of broadening root scope for
+  convenience
+- keep docs, schema artifacts, tests, and automation updates aligned when they
+  describe the same behavior
+- use durable names for files, headings, and commit intent
+- keep repository automation explicit about which packages and assets it is
+  governing
 
-## Architecture Invariants
+## Conflict Test
 
-- package boundaries remain explicit and import directions stay acyclic
-- domain runtime code and maintainer tooling stay in separate packages
-- repository-wide checks remain deterministic for identical repository state
+When a change seems reasonable in both root and package space, bias toward the
+narrower owner. Root ownership is justified only when the rule genuinely spans
+more than one package and would become misleading if documented locally.
 
-## Purpose
+## First Proof Check
 
-This page records the principles that should guide repository-wide change.
+- the owning package handbook when the change is behavior-facing
+- `Makefile`, `makes/`, `apis/`, or workflow files when the change is truly
+  repository-wide
 
-## Stability
+## Design Pressure
 
-Update it only when the repository operating model changes in a real way.
+The common drift is to accept a repository-wide convenience change that saves local wiring while making ownership and proof harder to explain everywhere else.

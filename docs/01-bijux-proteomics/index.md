@@ -4,83 +4,84 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Repository Handbook
 
-This section is for the questions that no single package can answer on its
-own. The root is not a sixth product package. It is where we explain how the
-package family fits together, which assets genuinely live above one package,
-and where cross-package rules begin and end.
+This handbook explains the logic of the split. It is the place to answer
+questions that no single package can answer honestly on its own: why the family
+exists as multiple packages, which decisions belong above package boundaries,
+and where repository authority must stop before it starts flattening the
+product into one vague story.
 
-If a reader can answer their question honestly from one package handbook, they
-should go there instead of staying here.
+The important discipline here is restraint. A repository root should make the
+whole system legible, then hand the reader to the true owner. If it keeps
+talking after that point, it becomes noise.
 
 ```mermaid
-flowchart LR
-    subgraph Root[Repository handbook owns]
-        docs[handbook structure]
-        apis[tracked API artifacts]
-        ci[shared CI and validation]
-        rel[release conventions]
-    end
+flowchart TB
+    root["repository handbook<br/>system split and cross-package logic"]
+    foundation["foundation<br/>shared meaning"]
+    core["core<br/>durable program rules"]
+    knowledge["knowledge<br/>evidence state"]
+    intelligence["intelligence<br/>decision policy"]
+    lab["lab<br/>assay loop"]
+    runtime["runtime<br/>execution control"]
+    maintain["maintainer handbook<br/>repository health"]
 
-    subgraph Packages[Packages own]
-        runtime[runtime behavior]
-        models[domain models]
-        policy[package-local policy]
-        tests[package tests]
-    end
-
-    docs --> Root
-    apis --> Root
-    ci --> Root
-    rel --> Root
-
-    runtime --> Packages
-    models --> Packages
-    policy --> Packages
-    tests --> Packages
-
-    Root -. must not absorb .-> runtime
-    Root -. must not absorb .-> models
+    root --> foundation
+    root --> core
+    root --> knowledge
+    root --> intelligence
+    root --> lab
+    root --> runtime
+    root --> maintain
 ```
 
-## Handbook Sections
+## What This Handbook Does Well
 
-- [Foundation](foundation/index.md)
-- [Operations](operations/index.md)
+- it shows why the system is layered instead of monolithic
+- it names the seams between meaning, rules, evidence, judgment, execution, and
+  lab action
+- it keeps the reader from blaming the wrong package for the wrong kind of
+  change
 
-## What This Section Covers
+## Start With
 
-- the package split and repository ownership model
-- shared automation, validation, release, and review guidance
-- the root-level rules that no one package can explain honestly on its own
+- Open [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
+  when the question is why the split exists and where authority changes hands.
+- Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
+  when the question is how the repository validates, releases, and reviews work
+  across package boundaries.
+- Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
+  when the answer lives in helper code, make routing, or GitHub automation.
 
-## Use This Section For
+## Questions This Handbook Owns
 
-- Questions about why the repository is split the way it is.
-- Questions about root-managed assets such as `apis/`, `Makefile`, shared CI,
-  and release conventions.
-- Questions about where the root should stop and a product package should take
-  over.
+- Why is one concern a package boundary while another is only a module?
+- Which package should own a disputed behavior?
+- Which repository surfaces are truly shared and which are only adjacent?
 
-## Leave This Section For A Package Handbook When
+## Product Handbooks
 
-- the answer lives mostly in one package's source tree, tests, or public surface
-- the question is about one package's internal boundary rather than repository fit
-- you are tempted to describe behavior at the root that really belongs inside
-  `packages/`
+- [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
+- [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
+- [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
+- [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+- [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+- [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+- [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 
-## Package Handbooks
+## First Proof Check
 
-- [agentic-proteins](../02-agentic-proteins/foundation/index.md)
-- [bijux-proteomics-foundation](../03-bijux-proteomics-foundation/foundation/index.md)
-- [bijux-proteomics-core](../04-bijux-proteomics-core/foundation/index.md)
-- [bijux-proteomics-intelligence](../05-bijux-proteomics-intelligence/foundation/index.md)
-- [bijux-proteomics-knowledge](../06-bijux-proteomics-knowledge/foundation/index.md)
-- [bijux-proteomics-lab](../07-bijux-proteomics-lab/foundation/index.md)
+- `packages/` for the package seams this handbook is describing
+- `Makefile` and `makes/` for root-owned command and release routing
+- `apis/` and `.github/workflows/` for repository-level contract and validation
+  surfaces
 
-The job of this section is simple: help readers understand the system without
-letting the root pretend it owns behavior that belongs elsewhere.
+## Boundary Test
+
+If the best proof lives mostly in one package source tree, one package test
+suite, or one package API contract, the root should hand the reader off instead
+of pretending repository prose owns that behavior.

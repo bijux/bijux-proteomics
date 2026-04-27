@@ -8,19 +8,63 @@ integrators can rely on while migration proceeds.
 - Distribution name: `bijux-proteomics-runtime`
 - Import root: `bijux_proteomics_runtime`
 - Canonical CLI command: `bijux-proteomics-runtime`
+- Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
 
-## Public interface contracts
+## Stable contracts
 
 - `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical CLI entrypoint.
 - `bijux_proteomics_runtime.api.app:app` exposes the canonical FastAPI app.
+- `bijux_proteomics_runtime.RunManager` remains the canonical orchestration root.
+- runtime adapters keep lower-layer contracts importable without forcing runtime
+  types into lower packages.
 
-## Stability commitments for this setup window
+## Change requirements
 
 - Runtime entrypoints remain available and importable through this package.
 - Runtime package documentation reflects ownership and dependency law.
 - Runtime does not silently absorb lower-layer domain ownership.
 
-## Non-goals for this setup window
+Any contract change should update runtime surface tests and the boundary
+validation suite that pins compat forwarding, canonical roots, and migration
+ownership.
+
+## Consumer upgrade expectations
+
+- downstream users should be able to adopt routine releases without rewriting
+  canonical CLI, API, or orchestration imports
+- intentional entrypoint or provider-surface changes should be visible through
+  explicit runtime tests and migration validation updates
+- consumers should expect compat forwarding to keep mirroring canonical runtime
+  ownership rather than diverging into a parallel implementation
+
+## Change routing signals
+
+- operator entrypoints, provider binding, replay-safe execution, and canonical
+  runtime ownership belong here first
+- lower-layer schema, lifecycle, evidence, ranking, and lab semantics should be
+  routed back to their owning packages instead of being absorbed into runtime
+- if compat needs wider legacy forwarding, the durable canonical surface change
+  should land here before the compat package exposes it
+
+## Validation checkpoints
+
+- runtime surface tests should pin canonical CLI, API, orchestration, and
+  provider entrypoints for the changed contract surface
+- boundary and migration validation should stay green whenever runtime widens a
+  canonical surface that compat will mirror
+- replay and adapter tests should preserve lower-layer runtime-agnostic
+  contracts before operator-facing wrappers ship the new behavior
+
+## Review questions
+
+- does the contract change alter canonical operator entrypoints, provider
+  binding, replay safety, or orchestration behavior
+- would compat or lower packages otherwise start carrying shadow runtime-local
+  transport or execution contracts
+- can the contract still be justified without masking a missing lower-package
+  contract
+
+## Explicit non-contracts
 
 - No compat deprecation policy is finalized in this document.
 - No migration of domain semantics is implemented in this document.

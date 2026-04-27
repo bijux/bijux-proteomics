@@ -4,49 +4,54 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Local Development
 
-Local work should begin in the owning package and escalate to root automation
+Local work should start in the owning package and escalate to root automation
 only when the change genuinely crosses package, schema, or repository
 boundaries.
 
+## Development Model
+
 ```mermaid
-flowchart LR
-    edit[Need to make a change]
-    pkg{Only one package?}
-    docs{Spans schemas, docs, or shared automation?}
+flowchart TB
+    change["local change"]
+    owner["owning package or root surface"]
+    edit["make the narrowest honest edit"]
+    local["run the narrowest relevant checks"]
+    root["escalate to root checks only when needed"]
 
-    edit --> pkg
-    pkg -- yes --> local[Work in owning package directory]
-    pkg -- no --> docs
-    docs -- yes --> root[Use root automation and shared docs]
-    docs -- no --> local
-
-    local --> proof[Update docs with code]
-    root --> proof
+    change --> owner
+    owner --> edit
+    edit --> local
+    local --> root
 ```
 
-## Working Rules
+This page should keep local development honest about scope. The fastest loop is not the one with the fewest commands; it is the one that proves the right owner first and only escalates when the change truly crosses boundaries.
 
-- make package-local changes in the owning package directory
-- use root automation when the change spans packages, schemas, or shared docs
-- keep documentation updates reviewable alongside the code that changes
-  behavior
+## Fastest Honest Loop
+
+1. identify the owning handbook and package first
+2. make the change in the narrowest owning surface
+3. update docs, schema artifacts, or metadata in the same change when they move
+   with the behavior
+4. run the narrowest package checks first, then root checks only when the change
+   crosses boundaries
 
 ## Shared Inputs
 
 - `pyproject.toml` for workspace metadata and commit conventions
 - `tox.ini` for root validation environments
-- `Makefile` and `makes/` for common workflows
+- `Makefile` and `makes/` for shared workflows
 
-## Purpose
+## First Proof Check
 
-This page records the preferred development posture for the workspace.
+- the owning package tests
+- root validation commands only when the change affects shared docs, `apis/`,
+  workflows, or release routing
 
-## Stability
+## Design Pressure
 
-Keep it aligned with the root automation files and workflow expectations that
-actually exist.
+The easy failure is to jump straight to root commands and lose the signal about whether the change ever belonged in a narrower surface.

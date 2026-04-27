@@ -65,11 +65,84 @@ pip install bijux-proteomics-foundation
 from bijux_proteomics_foundation import schema, serialization
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-foundation`
+- Import root: `bijux_proteomics_foundation`
+- Stable entrypoints: `schema`, `serialization`, `ids`, and `migrations`
+
 ## Package boundaries
 
 This package owns schema metadata, canonical serialization, and migration compatibility helpers.
 
 It does not own product decision logic, lab logic, or runtime orchestration.
+
+## Contract checkpoints
+
+- equivalent models must serialize to identical canonical JSON and fingerprints
+- compatibility evaluation must report explicit status and reason text
+- migrations must preserve semantic meaning while advancing declared versions
+- downstream packages may depend on these primitives, but should not move domain rules into this layer
+
+## Choose this package when
+
+- you need reusable schema, serialization, identifier, or migration primitives
+- the same document contract must stay consistent across multiple package layers
+- the change is low-volatility shared infrastructure rather than package-specific
+  domain behavior
+
+## Route elsewhere when
+
+- the change defines lifecycle, ranking, evidence, lab, or runtime semantics
+- the helper would only serve one higher-layer package instead of the shared
+  family
+- the work mainly reshapes transport or orchestration payloads instead of shared
+  document primitives
+
+## Verification route
+
+- check `tests` for schema, serialization, and migration proof before treating a
+  foundation change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or stability claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
+## Review questions
+
+- does the change preserve reusable schema, serialization, identifier, or
+  migration behavior rather than higher-layer policy or execution logic
+- would two or more downstream packages otherwise duplicate or drift on the
+  same document primitive if this stayed outside foundation
+- can the change be justified without claiming lifecycle, evidence, ranking,
+  lab, or runtime orchestration ownership
+
+## Escalation route
+
+- route the change upward when the primitive only serves one domain package
+  instead of the shared family
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal starts carrying lifecycle, evidence, ranking, lab, or runtime terms
+- escalate to the owning higher-layer package before release when downstream
+  consumers would need package-specific exceptions to adopt the change
+
+## Consumer impact signals
+
+- expect broad downstream review when schema, serialization, identifier, or
+  migration primitives change because every package may consume them
+- treat changes that alter canonical JSON, fingerprints, or compatibility
+  status as high-impact even when APIs stay stable
+- expect a lower release burden when the change only tightens internal
+  implementation without changing shared document behavior
+
+## Explicit non-goals
+
+- this package does not define lifecycle, evidence, ranking, lab, or runtime
+  semantics
+- this package does not coordinate workflow-local adapters or operator-facing
+  orchestration
+- this package does not carry compatibility-only shims that belong in a higher
+  canonical layer or in the compat package
 
 ## Source guide
 

@@ -4,112 +4,69 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Architecture
 
-This section explains how `bijux_proteomics_lab` is organized so a reviewer can follow structure, dependency direction, and execution flow without guessing.
-
-These pages turn `bijux-proteomics-lab` from a directory tree into a readable design map. Use them when a structural change needs to be grounded in named modules and real execution paths.
-
-Treat the architecture pages for `bijux-proteomics-lab` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
-
-## Visual Summary
+`bijux-proteomics-lab` architecture is where recommendation intent becomes
+workable assay reality. This section should help a reader see how planning,
+scheduling, outcomes, and feedback loops operate under lab constraints without
+pulling decision policy or shared meaning into the wrong layer.
 
 ```mermaid
 flowchart LR
-    page["Architecture<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["execution engines and lifecycle logic"]
-    module1 --> page
-    module2["orchestration and replay coordination"]
-    module2 --> page
-    module3["durable runtime models"]
-    module3 --> page
-    code1["src/bijux_proteomics_lab/model"]
-    page --> code1
-    code2["src/bijux_proteomics_lab/runtime"]
-    page --> code2
-    code3["src/bijux_proteomics_lab/application"]
-    page --> code3
-    pressure1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/e2e for governed flow behavior"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/regression and tests/smoke for replay and storage protection"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
+    intent["recommended assay intent"]
+    constraints["capacity and dependency constraints"]
+    planning["planning models"]
+    schedule["executable schedule"]
+    outcomes["observed outcomes"]
+    rerun["rerun and escalation decisions"]
+    feedback["repository feedback"]
+
+    intent --> planning
+    constraints --> planning
+    planning --> schedule --> outcomes --> rerun --> feedback
 ```
 
-## Pages in This Section
+## Architectural Promise
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- the lab package should make operational reality explicit rather than implicit
+- schedule decisions should stay traceable back to assay requirements and
+  constraints
+- outcome interpretation should feed back into the wider system without stealing
+  program authority
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Execution Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/execution-model/)
+  when the question is how intent becomes schedules and then outcomes
+- open [Integration Seams](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/integration-seams/)
+  when a change risks importing recommendation policy or shared payload meaning
+  into lab logic
+- open [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)
+  when you need the owner for planning, repositories, outcomes, or schema code
 
-## Concrete Anchors
+## Read By Workflow Moment
 
-- `src/bijux_proteomics_lab/model` for durable runtime models
-- `src/bijux_proteomics_lab/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_lab/application` for orchestration and replay coordination
+- before execution:
+  [Module Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/module-map/)
+  and [Execution Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/execution-model/)
+- during persistence and handoff:
+  [State and Persistence](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/state-and-persistence/)
+  and [Code Navigation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/code-navigation/)
+- when expanding lab behavior:
+  [Extensibility Model](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/extensibility-model/)
+  and [Architecture Risks](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/architecture-risks/)
 
-## Use This Page When
+## First Proof Check
 
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
+- `src/bijux_proteomics_lab/planning.py` and `outcomes.py` for the lab-facing control flow
+- `src/bijux_proteomics_lab/schema.py` and `serialization.py` for contract structure
+- `src/bijux_proteomics_lab/repositories.py` for durable storage boundaries
 
-## Decision Rule
+## Boundary Test
 
-Use `Architecture` to decide whether a structural change makes `bijux-proteomics-lab` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What This Page Answers
-
-- how `bijux-proteomics-lab` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
-
-## Reviewer Lens
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Honesty Boundary
-
-This page describes the current structural model of `bijux-proteomics-lab`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
-
-## Purpose
-
-This page explains how to use the architecture section for `bijux-proteomics-lab` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+If a schedule decision cannot be explained in terms of assay intent,
+dependencies, and observed outcomes, the architecture is not telling the truth
+about the package.

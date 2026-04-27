@@ -4,88 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Integration Seams
 
-Integration seams are the points where `bijux-proteomics-foundation` meets configuration, APIs,
-operators, or neighboring packages.
+Integration seams matter because `bijux-proteomics-foundation` is not allowed to explain the whole system by itself. The package has to cooperate with neighbors while staying narrow enough to defend.
 
-This page exists so integration changes do not feel mysterious. A reviewer should
-be able to say which seams are intentional, which ones carry compatibility risk,
-and where the package expects outside systems to meet it.
+## Major Seams
 
-Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+- all downstream packages consume foundation meaning and should agree on it
+- repository release and migration review use foundation as the compatibility baseline
+- foundation should not decide scientific, recommendation, evidence, or lab policy on behalf of a consumer
 
-## Visual Summary
+## First Proof Check
 
-```mermaid
-flowchart LR
-    adjacent[other packages and tooling] --> api[API and import surface]
-    operators[operators and automation] --> cfg[configuration surface]
-    artifacts[artifact consumers] --> contracts[artifact contracts]
-    api --> core[foundation core]
-    cfg --> core
-    contracts --> core
-    core --> serialization[serialization boundary]
-    core --> identity[identity primitives]
-    core --> compatibility[compatibility helpers]
-```
-
-## Integration Surfaces
-
-- CLI entrypoint in src/bijux_proteomics_foundation/__init__.py
-- HTTP app in src/bijux_proteomics_foundation/schema.py
-- schema contracts in src/bijux_proteomics_foundation/schema.py
-
-## Adjacent Systems
-
-- governs the other canonical packages instead of replacing their local ownership
-- is the final authority for run acceptance, replay evaluation, and stored evidence
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_foundation/model` for durable runtime models
-- `src/bijux_proteomics_foundation/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_foundation/application` for orchestration and replay coordination
-
-## Use This Page When
-
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
-
-## Decision Rule
-
-Use `Integration Seams` to decide whether a structural change makes `bijux-proteomics-foundation` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What This Page Answers
-
-- how `bijux-proteomics-foundation` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
-
-## Reviewer Lens
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Honesty Boundary
-
-This page describes the current structural model of `bijux-proteomics-foundation`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
-
-## Purpose
-
-This page explains where to look when integration behavior changes.
-
-## Stability
-
-Keep it aligned with real boundary modules and schema files.
+- code that crosses the seam
+- tests that pin the seam behavior
+- both handbook branches when the seam changes

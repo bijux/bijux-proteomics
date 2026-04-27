@@ -4,31 +4,43 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Repository Layout
 
-The layout of `makes/` is part of the repository architecture.
+Make routing reflects repository layout. If the layout and the targets drift apart, maintainer work becomes guesswork.
 
-Repository-wide fragments live near the root, reusable `bijux-py` logic lives
-under `makes/bijux-py/`, and package-facing bindings live under
-`makes/packages/`. That split keeps shared logic reusable without blurring it
-into per-package bindings.
+## Layout Model
 
-## Layout Anchors
+```mermaid
+flowchart TB
+    layout["repository layout"]
+    shared["shared fragments"]
+    package["package fragments"]
+    names["target names follow real boundaries"]
+    routing["dispatch stays guessable"]
 
-- `makes/root.mk`, `makes/env.mk`, and `makes/packages.mk`
-- `makes/bijux-py/root/`
-- `makes/bijux-py/repository/`
-- `makes/bijux-py/ci/`
+    layout --> shared
+    layout --> package
+    shared --> names
+    package --> names
+    names --> routing
+```
+
+This page should show why repository layout matters to the make layer: target names and fragment boundaries are easier to audit when they mirror real ownership.
+
+## Layout Rules
+
+- shared repository targets stay in shared fragments
+- package-specific rules stay under `makes/packages/`
+- keep naming aligned with real repository and package boundaries
+
+## First Proof Check
+
+- `makes/`
 - `makes/packages/`
 
-## Purpose
+## Design Pressure
 
-This page explains how the make tree is partitioned so new targets can be
-placed correctly.
-
-## Stability
-
-Update it when the actual directory responsibilities of `makes/` change.
+The common drift is to let target organization follow historical convenience even after the repository layout and ownership model have changed underneath it.

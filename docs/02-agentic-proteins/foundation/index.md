@@ -4,112 +4,72 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Foundation
 
-This section explains why `agentic-proteins` exists, what it owns on purpose, and where its boundary stops.
-
-Read this section first when you need the durable package story before code detail. A quick skim should make the role, the boundary, and the neighboring seams legible.
-
-Treat the foundation pages for `agentic-proteins` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
-
-## Visual Summary
+The foundation section explains the durable role of `agentic-proteins` before it
+explains implementation detail. Use it to resolve why preserved legacy surfaces still belong here instead of in the canonical runtime package.
 
 ```mermaid
-flowchart LR
-    page["Foundation<br/>clarifies: own the right work | name the boundary | compare neighbors"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    own1["replay and acceptability semantics"]
-    own1 --> page
-    own2["trace capture, runtime persistence, and execution-store behavior"]
-    own2 --> page
-    own3["flow execution authority"]
-    own3 --> page
-    limit1["agent composition policy"]
-    page -.keeps outside.-> limit1
-    limit2["ingest and index domain ownership"]
-    page -.keeps outside.-> limit2
-    limit3["repository tooling and release support"]
-    page -.keeps outside.-> limit3
-    anchor1["packages/agentic-proteins/src/agentic_proteins"]
-    page --> anchor1
-    anchor2["packages/agentic-proteins/tests"]
-    page --> anchor2
-    anchor3["packages/agentic-proteins"]
-    page --> anchor3
-    class page page;
-    class own1,own2,own3 positive;
-    class limit1,limit2,limit3 caution;
-    class anchor1,anchor2,anchor3 anchor;
+flowchart TB
+    past["legacy callers still exist"]
+    bridge["agentic-proteins<br/>compatibility package"]
+    runtime["canonical runtime"]
+    retire["bridge can shrink"]
+
+    past --> bridge
+    bridge --> runtime
+    runtime --> retire
 ```
 
-## Pages in This Section
+## Why This Section Exists
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Ownership Boundary](ownership-boundary.md)
-- [Repository Fit](repository-fit.md)
-- [Capability Map](capability-map.md)
-- [Domain Language](domain-language.md)
-- [Lifecycle Overview](lifecycle-overview.md)
-- [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
-- [Change Principles](change-principles.md)
+- it helps the reader understand why a package can be valuable even while being
+  temporary
+- it makes retirement pressure explicit instead of letting compatibility linger
+  without a reason
+- it distinguishes bridge ownership from canonical runtime ownership
 
-## Read Across the Package
+## Start With
 
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- Open [Package Overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/package-overview/) for the shortest statement of
+  the package role.
+- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/ownership-boundary/) when the question is
+  whether a change belongs here or in a neighbor.
+- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/scope-and-non-goals/) when a proposed change
+  risks broadening the package.
+- Open [Capability Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/capability-map/) when you need the concrete work
+  the package is allowed to do.
 
-## Concrete Anchors
+## Section Pages
 
-- `packages/agentic-proteins` as the package root
-- `packages/agentic-proteins/src/agentic_proteins` as the import boundary
-- `packages/agentic-proteins/tests` as the package proof surface
+- [Package Overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/scope-and-non-goals/)
+- [Ownership Boundary](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/ownership-boundary/)
+- [Capability Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/capability-map/)
+- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/dependencies-and-adjacencies/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/repository-fit/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/lifecycle-overview/)
+- [Domain Language](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/domain-language/)
+- [Change Principles](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/change-principles/)
 
-## Use This Page When
+## What This Section Settles
 
-- you need the package idea before the implementation detail
-- you are deciding whether work belongs here or in a neighboring package
-- you want the shortest honest explanation of what this package is for
+- whether a preserved surface still needs a bridge
+- whether compatibility logic is still narrow enough to stay here
+- when a legacy concern should move fully into runtime or disappear
 
-## Decision Rule
+## First Proof Check
 
-Use `Foundation` to decide whether a change makes `agentic-proteins` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
+- `packages/agentic-proteins`
+- `packages/agentic-proteins/tests`
+- neighboring handbooks once the change crosses the local boundary
 
-## What This Page Answers
+## Neighbors
 
-- what problem `agentic-proteins` is supposed to own on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before the boundary is changed
-
-## Reviewer Lens
-
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
-
-## Honesty Boundary
-
-This page can explain the intended boundary of `agentic-proteins`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
-
-## Next Checks
-
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
-
-## Purpose
-
-This page explains how to use the foundation section for `agentic-proteins` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- Open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  when the question leaves compatibility forwarding for legacy runtime imports and entrypoints.
+- Open [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
+  when the issue is clearly outside this package's local role.

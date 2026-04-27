@@ -4,44 +4,54 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Release and Versioning
 
-The repository uses conventional commit messages and package-local release
-metadata so release intent remains understandable years later.
+Release discipline matters most where several publishable packages move
+together. In this repository, versioning should make compatibility-sensitive
+change visible rather than hide it behind generic release automation.
 
-For every publishable package in this repository, version is resolved from Git tags through `hatch-vcs`, with a checked-in fallback version for source trees that are outside a release tag context.
+## Release Model
 
 ```mermaid
-sequenceDiagram
-    participant Dev as Maintainer
-    participant Git as Git tags
-    participant Hatch as hatch-vcs
-    participant CI as release-artifacts.yml
-    participant Targets as PyPI/GHCR/GitHub Release
+flowchart TB
+    change["release-sensitive change"]
+    metadata["metadata and changelog movement"]
+    workflow["release workflows and matrices"]
+    compatibility["compatibility triggers stay explicit"]
+    publish["publishable output"]
 
-    Dev->>Git: create version tag
-    Git->>Hatch: resolve package versions
-    Git->>CI: trigger release orchestration
-    CI->>Targets: build release artifacts
-    CI->>Targets: publish through release-pypi.yml, release-ghcr.yml, and release-github.yml
+    change --> metadata
+    metadata --> workflow
+    workflow --> compatibility
+    compatibility --> publish
 ```
+
+This page should make release work feel like compatibility communication, not just publication mechanics. If version movement hides what changed for readers or consumers, the release process is already under-explaining the risk.
 
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
-- package versions are resolved per package from the shared `v*` tag line
-- `release-artifacts.yml` is tag-triggered and orchestrates package build,
-  PyPI publication, GHCR publication, and GitHub release publication workflows
+- the release version is explicit in Git history because version is resolved from Git tags through `hatch-vcs`
+- release workflows coordinate build through `release-artifacts.yml`, PyPI
+  publication through `release-pypi.yml`, GHCR publication through
+  `release-ghcr.yml`, and GitHub release output through `release-github.yml`
 - each publishable package owns its own `CHANGELOG.md`
 
-## Purpose
+## Compatibility Triggers
 
-This page connects repository-wide release conventions to the package release
-mechanism.
+Treat a release as repository-significant when it changes tracked API
+artifacts, runtime migration posture, package routing, or another surface that
+several packages or external consumers depend on together.
 
-## Stability
+## First Proof Check
 
-Keep it aligned with the release tooling actually configured in the repository.
+- package metadata and changelogs
+- release workflows under `.github/workflows/`
+- publication guard and version resolver helpers in `bijux-proteomics-dev`
+
+## Design Pressure
+
+The common failure is to let shared release automation make several package moves look routine when one of them is actually a compatibility event.

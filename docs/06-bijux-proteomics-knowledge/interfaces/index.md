@@ -4,92 +4,72 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Interfaces
 
-This section explains the surfaces `bijux-proteomics-knowledge` is prepared to
-support over time.
-
-The package is library-first. The dependable interfaces are import contracts and
-data shapes, not a packaged CLI or HTTP service.
-
-## Visual Summary
+`bijux-proteomics-knowledge` interfaces are the published shape of evidence
+work. This section should help a reader see how evidence records, claims,
+confidence segments, contradiction handling, and review payloads leave the
+package in forms that other packages and human reviewers can still interrogate.
 
 ```mermaid
 flowchart LR
-    imports["public imports in __init__.py"]
-    schemas["schema and serialization contracts"]
-    models["evidence/claims/resolution models"]
-    tests["package tests for compatibility pressure"]
-    imports --> tests
-    schemas --> tests
-    models --> tests
+    evidence["evidence inputs"]
+    claims["claim surfaces"]
+    lineage_graph["graph and lineage contracts"]
+    confidence["confidence and resolution outputs"]
+    review["review artifacts and repositories"]
+
+    evidence --> claims --> lineage_graph --> confidence --> review
 ```
 
-## Pages in This Section
+## What These Interfaces Need To Preserve
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- evidence should remain traceable after it is transformed into claims or
+  reviewable knowledge
+- contradictions should remain visible in the interface, not hidden inside
+  internal resolution code
+- downstream consumers need enough structure to ask why a conclusion changed,
+  not just what the new conclusion is
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
+  when the question is how evidence, claims, or reviews are represented
+- open [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
+  when the concern is lineage, persisted review packets, or contradiction-aware
+  outputs
+- open [Operator Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/operator-workflows/)
+  when the reader wants the knowledge flow rather than a code inventory
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/compatibility-commitments/)
+  before changing any surface that other packages use to reason about evidence
 
-## Concrete Anchors
+## Read By Evidence Question
 
-- `src/bijux_proteomics_knowledge/__init__.py` for public import exports
-- `src/bijux_proteomics_knowledge/schema.py` for schema compatibility contracts
-- `src/bijux_proteomics_knowledge/serialization.py` for canonical serialization rules
-- `src/bijux_proteomics_knowledge/evidence.py` and `claims.py` for core data surfaces
+- [Public Imports](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/public-imports/)
+  for programmatic evidence and resolution entrypoints
+- [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
+  and [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
+  for the durable shape of knowledge work
+- [API Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/api-surface/),
+  [CLI Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/cli-surface/),
+  and [Configuration Surface](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/configuration-surface/)
+  for automation and operator control
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/entrypoints-and-examples/)
+  for concrete examples of contradiction-aware use
 
-## Use This Page When
+## What This Section Should Make Clear
 
-- you need the public command, API, import, schema, or artifact surface
-- you are checking whether a caller can safely rely on a given entrypoint or shape
-- you want the contract-facing side of the package before building on it
+- which public surfaces let readers reconstruct the reasoning path from evidence
+  to review output
+- where confidence and contradiction are explicit interface concepts rather than
+  background implementation
+- why repository-facing review payloads are first-class outputs for this package
 
-## Decision Rule
+## First Proof Check
 
-Use `Interfaces` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
-
-## What This Page Answers
-
-- which import paths and payload shapes callers can rely on
-- where compatibility pressure is highest when models evolve
-- what should trigger explicit compatibility review
-
-## Reviewer Lens
-
-- compare commands, schemas, imports, and artifacts against the documented surface one by one
-- check whether a seemingly local change actually needs compatibility review
-- confirm that examples still point to real entrypoints and not to stale habits
-
-## Honesty Boundary
-
-This page can identify the intended public surfaces of `bijux-proteomics-knowledge`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
-
-## Next Checks
-
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
-
-## Purpose
-
-This page explains how to use the interfaces section for `bijux-proteomics-knowledge` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- `src/bijux_proteomics_knowledge/claims.py`, `evidence.py`, and `graph.py`
+- `src/bijux_proteomics_knowledge/confidence/segments.py`, `resolution.py`, and `review.py`
+- `packages/bijux-proteomics-knowledge/tests`

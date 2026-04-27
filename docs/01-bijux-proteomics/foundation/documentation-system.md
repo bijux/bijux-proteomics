@@ -4,58 +4,53 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Documentation System
 
-The root documentation site is the canonical handbook for repository and
-package behavior. It should help a new reader understand the package split,
-choose the right handbook branch, and verify claims from checked-in assets
-without guesswork.
+The documentation system exists to shorten the path from a reader question to
+the right owning surface. It should solve orientation and proof problems, not
+draw attention to documentation as a system for its own sake.
 
-Use the docs as orientation first and proof map second. Repository pages should
-explain cross-package concerns, while package pages, schemas, tests, and
-release artifacts carry the detailed evidence behind specific claims.
+## Documentation Model
 
 ```mermaid
-flowchart TD
-    site[Docs site]
-    landing[landing page]
-    repo[repository handbook]
-    pkg[package handbooks]
-    maintain[maintainer handbook]
-    proof[schemas tests metadata workflows]
+flowchart TB
+    question["reader question"]
+    root["site root and repository handbook"]
+    branch["owning product or maintainer branch"]
+    proof["code, tests, schema, or workflow proof surface"]
+    answer["reader can verify the claim"]
 
-    site --> landing
-    site --> repo
-    site --> pkg
-    site --> maintain
-
-    repo -->|orientation| proof
-    pkg -->|detailed behavior| proof
-    maintain -->|repo health checks| proof
+    question --> root
+    root --> branch
+    branch --> proof
+    proof --> answer
 ```
+
+This page should make the handbook structure feel like a routing system for proof, not a content tree for its own sake. The documentation system succeeds only when readers reach the owner quickly and know where proof lives next.
 
 ## Handbook Shape
 
-- one landing page for site orientation
-- one repository handbook for cross-package rules and shared assets
-- one five-category handbook per product package
+- one site root for fast orientation
+- one repository handbook for cross-package rules and root-owned assets
+- one handbook branch per product package
 - one maintainer handbook for repository-health automation
+- one runtime handbook for canonical execution ownership and migration review
 
-## Documentation Rules
+## Reader Promise
 
-- use stable filenames that describe durable intent
-- keep package handbooks on the same five-category spine
-- separate repository docs from maintainer docs
-- update docs in the same change series as the behavior they explain
+A reader should be able to find the owning handbook quickly, then move from
+handbook prose to code, tests, schema artifacts, or workflow files without
+guessing where proof lives.
 
-## Purpose
+## First Proof Check
 
-Use this page to understand how the handbook is organized and where
-repository-level guidance should stop.
+- `mkdocs.yml` for published navigation
+- `docs/` for the branch structure
+- the matching code, test, schema, or workflow surface once ownership is clear
 
-## Stability
+## Design Pressure
 
-Keep it aligned with the sections and navigation the site actually renders.
+The common failure is to make the docs system internally tidy while leaving the reader uncertain about where to go next or how to verify what they just read.

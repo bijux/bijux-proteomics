@@ -4,31 +4,42 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Environment Model
 
-The make system should make environment assumptions visible instead of smearing
-them across unrelated targets.
+Environment handling should make local and CI execution reproducible without hiding required assumptions.
 
-Repository behavior depends on shared environment fragments such as
-`makes/env.mk`, `makes/bijux-py/root/env.mk`, and
-`makes/bijux-py/repository/env.mk`. Those files define variables and execution
-assumptions that later targets depend on.
+## Environment Model
+
+```mermaid
+flowchart TB
+    input["local or CI invocation"]
+    env["shared environment fragments"]
+    override["package-specific overrides stay visible"]
+    assumption["required tooling assumptions fail early"]
+    run["command runs reproducibly"]
+
+    input --> env
+    env --> override
+    override --> assumption
+    assumption --> run
+```
+
+This page should make environment handling feel like explicit setup logic rather than implicit shell state. Reproducibility depends on visible assumptions, not on lucky machine parity.
 
 ## Environment Rules
 
-- centralize shared variables instead of redefining them in many fragments
-- keep package-independent environment logic in shared files
-- make local and CI execution assumptions easy to compare
+- centralize shared environment logic in dedicated fragments
+- keep package-specific overrides visible
+- fail early when required tooling assumptions are missing
 
-## Purpose
+## First Proof Check
 
-This page explains where shared environment expectations live in the make
-system.
+- `makes/env.mk`
+- env-related includes under `makes/bijux-py/`
 
-## Stability
+## Design Pressure
 
-Keep it aligned with the environment fragments currently present under
-`makes/`.
+The easy failure is to make environment handling feel smooth by hiding assumptions until they break differently on another machine or in CI.

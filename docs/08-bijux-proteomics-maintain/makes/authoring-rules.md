@@ -4,28 +4,42 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Authoring Rules
 
-The make layer stays maintainable only when new fragments follow the same
-structural discipline as the existing tree.
+Make authoring rules should keep the command surface auditable as it grows.
+
+## Authoring Model
+
+```mermaid
+flowchart TB
+    target["new or changed target"]
+    fragment["named fragment owns the logic"]
+    concept["target name matches owning concept"]
+    boundary["shared target avoids hidden package behavior"]
+    accept["command stays auditable"]
+
+    target --> fragment
+    fragment --> concept
+    concept --> boundary
+    boundary --> accept
+```
+
+This page should help a maintainer judge whether a make change preserves command traceability or starts hiding behavior behind convenient target sprawl.
 
 ## Rules
 
-- put shared logic in the narrowest reusable fragment that can honestly own it
-- keep package bindings thin and descriptive
-- prefer explicit variables and includes over hidden shell indirection
-- place CI-only logic in the CI fragment family instead of spreading it across
-  unrelated targets
-- document new make surfaces in this handbook when they become part of the
-  repository contract
+- prefer named fragments over dense inline shell logic
+- keep target names and file names aligned with the owning concept
+- refactor when shared targets start hiding package-specific behavior
 
-## Purpose
+## First Proof Check
 
-This page records the authoring discipline that keeps the make system coherent.
+- `Makefile`
+- `makes/root.mk` and related fragments
 
-## Stability
+## Design Pressure
 
-Update it when the repository’s actual make authoring rules change.
+The easy failure is to grow one more convenient target until the command surface stops revealing which fragment or package really owns the work.

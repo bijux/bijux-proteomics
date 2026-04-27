@@ -4,40 +4,47 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Review Expectations
 
-Root review should be sharper than purely local code review because repository
-changes can alter how the whole package family is built, read, or released.
+Root review should be stricter than a purely local code review because repository
+changes can alter how the whole package family is explained, validated, or
+released.
+
+## Review Model
 
 ```mermaid
-flowchart TD
-    review[Root change under review]
-    surface{Right owning surface?}
-    proof{Docs + automation + proof moved together?}
-    smuggle{Smuggling product behavior into root?}
-    intent{Commit intent durable and clear?}
+flowchart TB
+    change["repository-level change"]
+    owner["right owning surface"]
+    alignment["docs, artifacts, metadata, and automation align"]
+    proof["best proof surface named directly"]
+    accept["ready for root review"]
 
-    review --> surface --> proof --> smuggle --> intent
-    smuggle -- yes --> block[Request redesign]
-    smuggle -- no --> pass[Continue review]
-    intent --> approve[Approve when evidence is coherent]
+    change --> owner
+    owner --> alignment
+    alignment --> proof
+    proof --> accept
 ```
 
-## Root Review Expectations
+This page should make root review feel like a coherence check across several proof classes, not just a stricter style review. If a reviewer cannot point to the best proof surface directly, the change is not ready.
 
-- confirm the owning repository surface is still the right one for the change
-- check that docs, automation, and proof assets move together
-- verify that the change does not smuggle product behavior into root or
-  maintainer automation
-- prefer clear, durable commit intent over vague shorthand
+## Non-Negotiable Evidence
 
-## Purpose
+- the change lives in the right owning surface
+- docs, schema artifacts, metadata, and automation move together when they
+  describe the same behavior
+- package-local behavior is not smuggled into root or maintainer automation
+- the best proof surface is named directly, not implied
 
-This page records the review bar for repository-wide changes.
+## First Proof Check
 
-## Stability
+- the owning handbook branch
+- the matching code, tests, tracked artifacts, or workflow files
+- staged diff boundaries before commit so one intent stays one review unit
 
-Keep it aligned with the actual root review posture and proof surfaces.
+## Design Pressure
+
+The easy failure is to review repository changes with package-local standards and miss the cross-surface drift that only shows up when docs, automation, and contracts are read together.

@@ -4,112 +4,61 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Quality
 
-This section explains how `bijux-proteomics-lab` earns trust: which proof surfaces matter, which risks stay visible, and what done should mean after a real change.
+`bijux-proteomics-lab` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
-These pages explain the proof story for `bijux-proteomics-lab`. They should make trust, skepticism, and review pressure visible enough that passing checks do not get mistaken for sufficient evidence.
-
-Treat the quality pages for `bijux-proteomics-lab` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Trust Model
 
 ```mermaid
-flowchart TB
-    page["Quality<br/>clarifies: see proof | see limitations | judge done-ness"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    proof1 --> page
-    proof2["tests/e2e for governed flow behavior"]
-    proof2 --> page
-    proof3["tests/regression and tests/smoke for replay and storage protection"]
-    proof3 --> page
-    risk1["CHANGELOG.md"]
-    risk1 -.keeps trust honest.-> page
-    risk2["pyproject.toml"]
-    risk2 -.keeps trust honest.-> page
-    risk3["README.md"]
-    risk3 -.keeps trust honest.-> page
-    bar1["package trust after change"]
-    page --> bar1
-    bar2["proof before confidence"]
-    page --> bar2
-    bar3["done means defended behavior"]
-    page --> bar3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class risk1,risk2,risk3 caution;
-    class bar1,bar2,bar3 action;
+flowchart LR
+    invariants["invariants"]
+    tests["test strategy"]
+    validation["change validation"]
+    risks["risk register and limitations"]
+    decision["trust or block the change"]
+
+    invariants --> tests --> validation --> risks --> decision
 ```
 
-## Pages in This Section
+This page should make lab quality about durable planning and outcomes, not just
+execution success. The package stays trustworthy when planning state, outcome
+state, and persistence behavior remain reviewable and distinct from upstream
+policy.
 
-- [Test Strategy](test-strategy.md)
-- [Invariants](invariants.md)
-- [Review Checklist](review-checklist.md)
-- [Documentation Standards](documentation-standards.md)
-- [Definition of Done](definition-of-done.md)
-- [Dependency Governance](dependency-governance.md)
-- [Change Validation](change-validation.md)
-- [Known Limitations](known-limitations.md)
-- [Risk Register](risk-register.md)
+## Start With
 
-## Read Across the Package
+- open [Invariants](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/invariants/) before changing package meaning
+- open [Change Validation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/change-validation/) when you need the minimum proof for a real edit
+- open [Risk Register](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/risk-register/) when the package boundary feels under pressure
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
+## Section Pages
 
-## Concrete Anchors
+- [Invariants](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/invariants/)
+- [Test Strategy](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/test-strategy/)
+- [Change Validation](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/change-validation/)
+- [Definition of Done](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/definition-of-done/)
+- [Dependency Governance](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/dependency-governance/)
+- [Documentation Standards](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/documentation-standards/)
+- [Known Limitations](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/known-limitations/)
+- [Review Checklist](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/review-checklist/)
+- [Risk Register](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/quality/risk-register/)
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
+## What Quality Means Here
 
-## Use This Page When
+- proving that planning and outcome state remain durable, reviewable, and distinct from upstream policy
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## First Proof Check
 
-## Decision Rule
+- `packages/bijux-proteomics-lab/tests`
+- `src/bijux_proteomics_lab/planning.py` and `outcomes.py`
+- `src/bijux_proteomics_lab/repositories.py` and `serialization.py`
 
-Use `Quality` to decide whether `bijux-proteomics-lab` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
+## Design Pressure
 
-## What This Page Answers
-
-- what currently proves the `bijux-proteomics-lab` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-lab` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page explains how to use the quality section for `bijux-proteomics-lab` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+Lab quality fails when outcome state becomes easier to mutate than to explain.
+The section has to keep planning, persistence, and downstream review in the
+same trust story.
