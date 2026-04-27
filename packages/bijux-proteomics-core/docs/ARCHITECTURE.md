@@ -36,3 +36,21 @@ execution semantics.
 
 Downstream packages should use these models and validators instead of
 recreating lifecycle logic in runtime, intelligence, or lab-specific helpers.
+
+## Extension signals
+
+- add code here when a new concern changes canonical lifecycle meaning, review
+  gate behavior, or runtime-agnostic execution protocols
+- extend `program_spec.py`, `validation.py`, or `repositories.py` before higher
+  packages recreate lifecycle rules locally
+- keep new domain invariants here when they define program truth rather than a
+  package-specific execution policy
+
+## Misplacement signals
+
+- if the change needs evidence trust, candidate ranking, lab scheduling, or
+  operator transport wiring, it belongs in a different package
+- if a helper mainly reshapes core state for CLI, API, or replay surfaces, it
+  belongs in runtime adapters rather than core models
+- if the rule only exists to support one higher-layer recommendation workflow,
+  keep it with that owner instead of making core absorb it
