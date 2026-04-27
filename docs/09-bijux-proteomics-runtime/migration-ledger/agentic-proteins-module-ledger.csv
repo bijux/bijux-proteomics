@@ -12,7 +12,7 @@ agents/execution/coordinator.py,runtime_execution_ownership,bijux-proteomics-run
 agents/planning/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent planning package exports now forward directly to canonical runtime planning surfaces.
 agents/planning/compiler.py,runtime_execution_ownership,bijux-proteomics-runtime,Planning compiler helpers now forward directly to canonical runtime planning implementations.
 agents/planning/generation.py,runtime_execution_ownership,bijux-proteomics-runtime,Planning generation helpers now forward directly to canonical runtime planning implementations.
-agents/planning/planner.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
+agents/planning/planner.py,runtime_execution_ownership,bijux-proteomics-runtime,Planning coordinator helpers now forward directly to canonical runtime planning implementations.
 agents/planning/schemas.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/planning/validation.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/reporting/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
