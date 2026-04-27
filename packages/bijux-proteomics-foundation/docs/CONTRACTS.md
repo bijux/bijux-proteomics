@@ -39,6 +39,15 @@ JSON behavior, compatibility semantics, or migration-path guarantees.
 - if a runtime or compat surface needs new schema behavior, the durable change
   should land here before higher layers widen their forwarding or adapters
 
+## Validation checkpoints
+
+- deterministic serialization tests should pin canonical JSON and fingerprint
+  stability for equivalent models
+- compatibility and migration tests should make schema-version transitions and
+  failure diagnostics explicit
+- downstream-facing helper changes should keep focused contract tests green
+  before higher-layer packages absorb the new primitive behavior
+
 ## Explicit non-contracts
 
 - This package does not define product decision policy.
