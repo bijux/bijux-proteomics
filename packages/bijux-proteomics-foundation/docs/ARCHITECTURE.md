@@ -57,3 +57,12 @@ serialization rules, compatibility logic, or migration path behavior locally.
   belongs in `bijux-proteomics-runtime` adapters rather than here
 - if a package-specific helper would only be used by one domain layer, keep it
   with that owner instead of forcing it into shared primitives
+
+## Review questions
+
+- does the change define a shared document primitive that at least two package
+  layers should rely on directly
+- would leaving the change out of foundation force higher packages to invent
+  incompatible serialization, identifier, or migration behavior
+- can the architecture still be explained without claiming any lifecycle,
+  ranking, evidence, lab, or runtime semantics here
