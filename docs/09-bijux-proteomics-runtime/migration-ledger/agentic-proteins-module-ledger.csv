@@ -144,6 +144,6 @@ tools/base.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adap
 tools/heuristic.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
 tools/schemas.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
 validation/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Validation helpers are mixed runtime-support surfaces that require semantic placement review.
-validation/agents.py,runtime_support_internal_review,bijux-proteomics-runtime,Validation helpers are mixed runtime-support surfaces that require semantic placement review.
+validation/agents.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent registry validation is part of the canonical runtime execution contract.
 validation/state.py,runtime_support_internal_review,bijux-proteomics-runtime,Validation helpers are mixed runtime-support surfaces that require semantic placement review.
 validation/tools.py,runtime_support_internal_review,bijux-proteomics-runtime,Validation helpers are mixed runtime-support surfaces that require semantic placement review.
