@@ -70,6 +70,27 @@ Legacy imports continue to work via forwarding:
 from agentic_proteins.interfaces.cli import cli
 ```
 
+## Package identity
+
+- Distribution name: `agentic-proteins`
+- Import root: `agentic_proteins`
+- Legacy CLI command: `agentic-proteins`
+- Canonical replacement package: `bijux-proteomics-runtime`
+
+## Package boundaries
+
+- this package owns compatibility routing only
+- canonical runtime behavior belongs in `bijux-proteomics-runtime`
+- canonical domain behavior belongs in the lower `bijux-proteomics-*` packages
+- new features should land in canonical packages before compat forwarding expands
+
+## Contract checkpoints
+
+- legacy imports must forward without redefining canonical behavior
+- compat docs must name the canonical owner for the surface they describe
+- compat modules must stay forwarding-only unless migration policy explicitly says otherwise
+- new integrations should start from canonical packages even while compat remains available
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
