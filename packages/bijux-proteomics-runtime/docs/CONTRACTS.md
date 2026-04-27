@@ -8,19 +8,27 @@ integrators can rely on while migration proceeds.
 - Distribution name: `bijux-proteomics-runtime`
 - Import root: `bijux_proteomics_runtime`
 - Canonical CLI command: `bijux-proteomics-runtime`
+- Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
 
-## Public interface contracts
+## Stable contracts
 
 - `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical CLI entrypoint.
 - `bijux_proteomics_runtime.api.app:app` exposes the canonical FastAPI app.
+- `bijux_proteomics_runtime.RunManager` remains the canonical orchestration root.
+- runtime adapters keep lower-layer contracts importable without forcing runtime
+  types into lower packages.
 
-## Stability commitments for this setup window
+## Change requirements
 
 - Runtime entrypoints remain available and importable through this package.
 - Runtime package documentation reflects ownership and dependency law.
 - Runtime does not silently absorb lower-layer domain ownership.
 
-## Non-goals for this setup window
+Any contract change should update runtime surface tests and the boundary
+validation suite that pins compat forwarding, canonical roots, and migration
+ownership.
+
+## Explicit non-contracts
 
 - No compat deprecation policy is finalized in this document.
 - No migration of domain semantics is implemented in this document.

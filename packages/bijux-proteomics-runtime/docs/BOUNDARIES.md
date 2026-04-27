@@ -2,6 +2,11 @@
 
 This boundary contract is mandatory for runtime migration and follow-on work.
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-runtime`
+- Import root: `bijux_proteomics_runtime`
+
 ## Allowed dependencies
 
 `bijux-proteomics-runtime` may depend on:
@@ -12,7 +17,7 @@ This boundary contract is mandatory for runtime migration and follow-on work.
 - `bijux-proteomics-intelligence`
 - `bijux-proteomics-lab`
 
-## Runtime ownership
+## This package owns
 
 This package owns:
 
@@ -23,7 +28,7 @@ This package owns:
 - workspace state and run artifacts
 - replay and determinism enforcement
 
-## Runtime non-ownership
+## This package does not own
 
 This package does not own:
 
@@ -60,6 +65,12 @@ Runtime adapts lower layers. Lower layers remain runtime-agnostic.
 Runtime must use adapter and mapper modules when translating lower-layer domain
 objects into runtime interface payloads. Lower layers must not expose runtime
 shapes or import runtime contracts.
+
+## Downstream expectations
+
+Downstream callers should treat runtime as the only canonical owner of
+orchestration, provider binding, and operator-facing entrypoints. Lower layers
+should stay meaningful without importing runtime shapes.
 
 ## Migration staging law
 
