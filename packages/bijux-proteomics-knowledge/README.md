@@ -98,6 +98,15 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 - the helper only reformats evidence results for operator interfaces
 - the behavior exists for one scoring or lab workflow instead of shared evidence meaning
 
+## Verification route
+
+- check `tests` for evidence, resolution, graph, and schema proof before
+  treating a knowledge change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or trust-semantics claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
 ## Source guide
 
 - [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
