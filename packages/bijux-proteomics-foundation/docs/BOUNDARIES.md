@@ -31,3 +31,12 @@ from higher layers.
 Downstream packages should rely on this package for schema identity,
 serialization determinism, and migration helpers instead of rebuilding those
 rules locally.
+
+## Escalation signals
+
+- if a shared identifier, schema, serialization, or migration primitive would
+  otherwise be copied into multiple higher-layer packages, escalate it here
+- if a proposed foundation helper needs lifecycle, evidence, ranking, lab, or
+  runtime meaning to make sense, escalate it back to the owning package instead
+- if a low-level primitive starts growing operator-facing payload rules or
+  orchestration concerns, treat that as a boundary failure and redesign the seam
