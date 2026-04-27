@@ -52,6 +52,15 @@
 - escalate when downstream consumers would need quiet policy-output rewrites to
   preserve recommendation semantics
 
+## Release review questions
+
+- does the release preserve recommendation semantics, scenario evaluation, or
+  explainability rather than just changing output transport
+- would runtime or lab code otherwise start carrying shadow scoring contracts
+  after this release
+- can the release still be justified without claiming lifecycle, evidence,
+  lab-execution, or runtime-interface ownership
+
 ## Release checklist
 
 1. Verify README and package docs describe current ranking/scenario behavior.
