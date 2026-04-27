@@ -117,6 +117,15 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 - can the change be justified without claiming lifecycle, evidence, ranking,
   lab, or runtime orchestration ownership
 
+## Escalation route
+
+- route the change upward when the primitive only serves one domain package
+  instead of the shared family
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal starts carrying lifecycle, evidence, ranking, lab, or runtime terms
+- escalate to the owning higher-layer package before release when downstream
+  consumers would need package-specific exceptions to adopt the change
+
 ## Source guide
 
 - [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
