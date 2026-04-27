@@ -98,6 +98,12 @@ reason = "Evaluation helpers are runtime-adjacent and need semantic review to se
 
 [[rule]]
 pattern = "execution/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution schema exports now forward directly to canonical runtime transport contracts."
+
+[[rule]]
+pattern = "execution/schemas.py"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Execution schemas may mix transport and domain semantics and require ownership split review."
