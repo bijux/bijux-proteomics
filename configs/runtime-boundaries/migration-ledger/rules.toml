@@ -139,6 +139,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Runtime memory support may contain mixed orchestration and domain persistence assumptions and requires review."
 
 [[rule]]
+pattern = "registry/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Registry package exports now forward directly to canonical runtime registry surfaces."
+
+[[rule]]
 pattern = "registry/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
