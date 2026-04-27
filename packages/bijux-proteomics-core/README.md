@@ -105,6 +105,15 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
 - the helper exists only to adapt core data into CLI, API, or replay payloads
 - the behavior is workflow-local instead of a reusable program-domain rule
 
+## Verification route
+
+- check `tests` for lifecycle, validator, and protocol proof before treating a
+  core change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or contract claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
 ## Source guide
 
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
