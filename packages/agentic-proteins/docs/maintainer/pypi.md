@@ -75,6 +75,15 @@
 - expect a lower release burden when the change only tightens documentation or
   internal compat wiring without changing forwarding behavior
 
+## Release communication signals
+
+- call out forwarding-target or compat-export changes explicitly in release
+  notes when downstream users may need to re-check migration assumptions
+- name canonical mapping changes directly instead of hiding them inside generic
+  maintenance wording
+- keep release messaging brief when the change only tightens documentation or
+  internal compat wiring without changing forwarding behavior
+
 ## Release checklist
 
 1. Verify `README.md` and package docs reflect current compat-only ownership.
