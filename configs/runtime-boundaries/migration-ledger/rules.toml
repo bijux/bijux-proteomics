@@ -217,6 +217,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Tool package exports now forward directly to canonical runtime tool surfaces."
 
 [[rule]]
+pattern = "tools/base.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Tool base contracts now forward directly to canonical runtime tool interfaces."
+
+[[rule]]
 pattern = "tools/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
