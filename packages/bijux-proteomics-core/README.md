@@ -72,11 +72,84 @@ Import-driven usage starts from the core domain package:
 from bijux_proteomics import program_spec, validation
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-core`
+- Import root: `bijux_proteomics`
+- Stable entrypoints: `program_spec`, `validation`, `repositories`, and `interfaces`
+
 ## Package boundaries
 
 This package owns lifecycle domain models, progression rules, and validation invariants.
 
 It does not own evidence trust policy, ranking policy, or lab scheduling behavior.
+
+## Contract checkpoints
+
+- lifecycle transitions must flow through declared stage and gate rules
+- validators must return stable issue types instead of ad hoc failures
+- repository and execution protocols must stay replaceable and runtime-agnostic
+- downstream packages should consume core rules rather than restating lifecycle semantics
+
+## Choose this package when
+
+- you need canonical lifecycle, review-gate, or program-state semantics
+- the change defines domain truth that higher layers should consume rather than
+  reinterpret
+- repository or execution protocols must stay runtime-agnostic
+
+## Route elsewhere when
+
+- the change defines evidence trust, ranking policy, lab scheduling, or
+  operator transport behavior
+- the helper exists only to adapt core data into CLI, API, or replay payloads
+- the behavior is workflow-local instead of a reusable program-domain rule
+
+## Verification route
+
+- check `tests` for lifecycle, validator, and protocol proof before treating a
+  core change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or contract claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
+## Review questions
+
+- does the change preserve lifecycle rules, protocol contracts, or durable
+  state semantics rather than orchestration or delivery concerns
+- would another package become the de facto owner of state transition meaning if
+  this behavior stayed outside core
+- can the change be justified without claiming evidence, ranking, lab, or
+  runtime transport ownership
+
+## Escalation route
+
+- route the change outward when the behavior mainly shapes evidence trust,
+  ranking policy, lab execution, or operator transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal introduces package-specific workflow semantics instead of reusable
+  lifecycle law
+- escalate before release when downstream packages would need to reinterpret
+  core state transitions differently to adopt the change
+
+## Consumer impact signals
+
+- expect coordinated downstream review when lifecycle rules, validators, or
+  repository protocols change because higher layers consume core state meaning
+- treat changes that alter transition semantics or protocol obligations as
+  high-impact even when import paths stay stable
+- expect a narrower release burden when the change only improves internal core
+  implementation without changing lifecycle or protocol behavior
+
+## Explicit non-goals
+
+- this package does not own runtime transport, provider binding, or replay
+  orchestration
+- this package does not define evidence semantics, ranking policy, or lab
+  workflow decisions
+- this package does not exist to preserve legacy imports that belong in the
+  compatibility package
 
 ## Source guide
 

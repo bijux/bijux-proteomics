@@ -66,11 +66,84 @@ pip install bijux-proteomics-lab
 from bijux_proteomics_lab import planning, outcomes, repositories
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-lab`
+- Import root: `bijux_proteomics_lab`
+- Stable entrypoints: `planning`, `outcomes`, `repositories`, `schema`, and `serialization`
+
 ## Package boundaries
 
 This package owns assay planning, schedule generation, outcome interpretation, and rerun strategy support.
 
 It does not own program-stage authority, ranking policy, or evidence truth semantics.
+
+## Contract checkpoints
+
+- planning outputs must preserve gate, dependency, and material context
+- outcome summaries must retain explicit failure, rerun, and promotion signals
+- repository contracts must stay storage-agnostic and typed for feedback loops
+- downstream packages should ask this layer for execution planning instead of embedding schedule logic locally
+
+## Choose this package when
+
+- you need canonical assay planning, batching, or outcome interpretation logic
+- the change affects laboratory behavior rather than only how operators see it
+- queues, feedback loops, and rerun guidance should stay typed and reusable
+
+## Route elsewhere when
+
+- the change defines lifecycle authority, evidence truth, ranking policy, or
+  transport-bound interfaces
+- the helper only reshapes lab results for CLI or API output
+- the behavior belongs to one evidence or recommendation workflow instead of
+  shared laboratory execution logic
+
+## Verification route
+
+- check `tests` for planning, outcome, repository, and schema proof before
+  treating a lab change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or planning-semantics claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
+## Review questions
+
+- does the change preserve planning, batching, rerun, or outcome-promotion
+  semantics rather than interface transport or one-off reporting
+- would runtime or intelligence start carrying shadow scheduling or rerun logic
+  if this behavior stayed outside lab
+- can the change be justified without claiming lifecycle, evidence, ranking, or
+  provider-interface ownership
+
+## Escalation route
+
+- route the change outward when the behavior mainly defines lifecycle law,
+  evidence truth, recommendation policy, or operator transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal looks like workflow-local reporting instead of reusable lab
+  scheduling or outcome semantics
+- escalate before release when downstream consumers would need package-specific
+  rerun or batching exceptions to adopt the change
+
+## Consumer impact signals
+
+- expect downstream review when planning, batching, rerun, or outcome-promotion
+  semantics change because operator workflows depend on them staying stable
+- treat changes that alter scheduling behavior, rerun decisions, or outcome
+  meaning as high-impact even when imports stay stable
+- expect a narrower release burden when the change only improves internal
+  implementation without changing lab execution semantics
+
+## Explicit non-goals
+
+- this package does not own canonical runtime transport, provider binding, or
+  operator entrypoints
+- this package does not redefine evidence semantics or recommendation policy
+  owned by lower packages
+- this package does not exist to preserve compatibility-only imports or release
+  governance rules
 
 ## Source guide
 

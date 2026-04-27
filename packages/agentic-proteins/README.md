@@ -70,6 +70,84 @@ Legacy imports continue to work via forwarding:
 from agentic_proteins.interfaces.cli import cli
 ```
 
+## Package identity
+
+- Distribution name: `agentic-proteins`
+- Import root: `agentic_proteins`
+- Legacy CLI command: `agentic-proteins`
+- Canonical replacement package: `bijux-proteomics-runtime`
+
+## Package boundaries
+
+- this package owns compatibility routing only
+- canonical runtime behavior belongs in `bijux-proteomics-runtime`
+- canonical domain behavior belongs in the lower `bijux-proteomics-*` packages
+- new features should land in canonical packages before compat forwarding expands
+
+## Contract checkpoints
+
+- legacy imports must forward without redefining canonical behavior
+- compat docs must name the canonical owner for the surface they describe
+- compat modules must stay forwarding-only unless migration policy explicitly says otherwise
+- new integrations should start from canonical packages even while compat remains available
+
+## Choose this package when
+
+- you must preserve legacy imports or CLI entrypoints during migration
+- the change is forwarding-only and names a canonical owner clearly
+- integration continuity matters more than adding fresh behavior
+
+## Route elsewhere when
+
+- the change defines runtime orchestration, provider behavior, or domain
+  semantics
+- the helper mainly serves new integrations rather than compatibility
+- the module would stop being forwarding-only
+
+## Verification route
+
+- check compat `tests` for forwarding and migration proof before treating a new
+  legacy surface as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when a change claims to remain forwarding-only
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
+## Review questions
+
+- does the change preserve legacy continuity for a surface that already has a
+  clear canonical owner
+- would the implementation still live entirely in canonical packages if the
+  compat layer disappeared
+- can the change be justified as forwarding-only without adding fresh runtime or
+  domain behavior
+
+## Escalation route
+
+- route the change to the canonical owner when the proposal introduces any new
+  runtime orchestration or domain semantics
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  compat layer would need behavior beyond import forwarding or stable aliases
+- escalate before release when adopting the change would require documenting
+  compat-only exceptions instead of the canonical package surface
+
+## Consumer impact signals
+
+- expect review against the canonical owner when compat exports or forwarding
+  targets change because consumers rely on stable migration continuity
+- treat changes that alter forwarding behavior or canonical mapping as
+  high-impact even when public import names stay stable
+- expect a lower release burden when the change only tightens documentation or
+  internal compat wiring without changing forwarding behavior
+
+## Explicit non-goals
+
+- this package does not own canonical runtime orchestration or lower-package
+  domain semantics
+- this package does not add fresh product behavior for new integrations
+- this package does not replace repository governance or release policy owned by
+  the maintainer package
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)

@@ -66,11 +66,82 @@ pip install bijux-proteomics-knowledge
 from bijux_proteomics_knowledge import evidence, claims, resolution, graph
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-knowledge`
+- Import root: `bijux_proteomics_knowledge`
+- Stable entrypoints: `evidence`, `claims`, `resolution`, `graph`, and `review`
+
 ## Package boundaries
 
 This package owns evidence records, claim state, trust scoring, and contradiction resolution.
 
 It does not own lifecycle gate transitions, ranking policy decisions, or experiment scheduling.
+
+## Contract checkpoints
+
+- evidence and claim records must stay typed, auditable, and schema-versioned
+- trust, freshness, and contradiction outputs must remain explicit instead of inferred
+- resolution flows must preserve explainable lineage from evidence to decision
+- downstream packages should depend on this layer for evidence semantics instead of re-scoring trust locally
+
+## Choose this package when
+
+- you need evidence, claim, contradiction, or lineage semantics
+- auditability and review traceability are part of the contract
+- multiple higher layers should share the same trust and resolution model
+
+## Route elsewhere when
+
+- the change defines lifecycle authority, ranking policy, lab scheduling, or
+  transport-bound payload shaping
+- the helper only reformats evidence results for operator interfaces
+- the behavior exists for one scoring or lab workflow instead of shared evidence meaning
+
+## Verification route
+
+- check `tests` for evidence, resolution, graph, and schema proof before
+  treating a knowledge change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or trust-semantics claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
+## Review questions
+
+- does the change preserve evidence, contradiction, lineage, or trust semantics
+  rather than transport-bound presentation or workflow-local shaping
+- would another package start carrying shadow evidence interpretation if this
+  behavior stayed outside knowledge
+- can the change be justified without claiming lifecycle, ranking, lab
+  execution, or runtime interface ownership
+
+## Escalation route
+
+- route the change outward when the behavior mainly defines lifecycle
+  progression, ranking policy, lab execution, or interface transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal starts looking like presentation reshaping instead of shared evidence
+  meaning
+- escalate before release when downstream consumers would need package-specific
+  trust or lineage exceptions to adopt the change
+
+## Consumer impact signals
+
+- expect downstream review when evidence rules, lineage semantics, or trust
+  resolution behavior change because other layers consume those meanings
+- treat changes that alter contradiction handling, claim interpretation, or
+  lineage expectations as high-impact even when APIs stay stable
+- expect a narrower release burden when the change only improves internal
+  implementation without changing evidence semantics
+
+## Explicit non-goals
+
+- this package does not own runtime orchestration, provider wiring, or replay
+  behavior
+- this package does not define ranking policy or lab-specific scheduling logic
+- this package does not carry shared primitive contracts that belong in the
+  foundation package
 
 ## Source guide
 

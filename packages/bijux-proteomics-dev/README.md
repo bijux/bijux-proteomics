@@ -38,11 +38,82 @@ make quality
 make security
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-dev`
+- Import root: `bijux_proteomics_dev`
+- Stable entrypoints: `quality`, `security`, `api`, `docs`, `release`, and `tools`
+
 ## Package boundaries
 
 This package owns maintainer automation and gate implementations for the monorepo.
 
 It does not define runtime product APIs or proteomics domain behavior.
+
+## Contract checkpoints
+
+- repository checks must be deterministic for the same checked-in state
+- failing gates must emit actionable diagnostics instead of silent drift
+- maintainer helpers may enforce package contracts, but they do not become product contracts
+- new repository policy should land here before it is copied into CI scripts or ad hoc shell glue
+
+## Choose this package when
+
+- you need repository policy, release validation, docs integrity, or maintainer
+  automation behavior
+- the same check should run through root `make`, CI, and local maintainer workflows
+- the concern is governance or validation rather than product semantics
+
+## Route elsewhere when
+
+- the change defines product runtime behavior or scientific meaning
+- the helper exists only to patch one workflow with ad hoc shell glue
+- the policy cannot be explained without changing an owning package contract first
+
+## Verification route
+
+- check `tests` for maintainer-policy, docs, release, and migration proof before
+  treating a dev-package change as safe
+- review `docs/SCOPE.md`, `docs/CONTRACTS.md`, `docs/ARCHITECTURE.md`, and
+  `docs/TESTS.md` when governance claims are part of the change
+- use `docs/index.md` and publishable package `docs/maintainer/pypi.md` files
+  when the change affects release policy, docs routing, or maintainer guidance
+
+## Review questions
+
+- does the change preserve repository policy, shared validation, or maintainer
+  automation rather than product runtime or scientific behavior
+- would workflow glue or one-off scripts otherwise become the de facto reviewer
+  of release safety if this stayed outside the dev package
+- can the change be justified without rewriting an owning package contract or
+  boundary first
+
+## Escalation route
+
+- route the change to the owning product package when the proposal starts
+  defining runtime behavior or scientific meaning
+- stop and review `docs/SCOPE.md` and `docs/ARCHITECTURE.md` when the solution
+  depends on one-off workflow glue instead of reusable maintainer policy
+- escalate before release when the new rule cannot be explained without changing
+  an owning package boundary or contract first
+
+## Consumer impact signals
+
+- expect repository-wide review when maintainer policy, release guards, or docs
+  validation behavior changes because every package consumes the governance path
+- treat changes that alter release gating, shared policy checks, or docs
+  integrity expectations as high-impact even when package APIs stay stable
+- expect a narrower release burden when the change only improves internal
+  maintainer implementation without changing repository policy behavior
+
+## Explicit non-goals
+
+- this package does not own product semantics, scientific truth, or canonical
+  runtime behavior
+- this package does not replace package-local domain contracts with generic
+  governance prose
+- this package does not justify repository exceptions that should instead land
+  as durable policy or package-owned behavior
 
 ## Source guide
 
