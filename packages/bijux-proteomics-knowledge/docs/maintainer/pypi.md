@@ -62,6 +62,16 @@
 - can the release still be justified without claiming lifecycle, ranking, lab,
   or runtime-transport ownership
 
+## Release impact signals
+
+- expect downstream review when evidence rules, lineage semantics, or trust
+  resolution behavior change because other layers consume those meanings
+- treat changes that alter contradiction handling, claim interpretation, or
+  lineage expectations as high-impact even when import roots and public names
+  stay stable
+- expect a narrower release burden when the change only improves internal
+  implementation without changing evidence semantics
+
 ## Release checklist
 
 1. Confirm docs and README describe current evidence and conflict semantics.
