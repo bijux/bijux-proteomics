@@ -39,6 +39,11 @@ decision outputs with explicit explainability and risk signals.
 Use this package when you need transparent prioritization logic, rejection
 reasoning, and portfolio-aware progression guidance for protein design.
 
+This package should sit on top of the scientific workflow blueprint rather than
+replace it. Intelligence explains readiness and recommendation pressure, but it
+does not define workflow stages or pretend ranking alone is the whole
+proteomics engine.
+
 ## Why teams pick this package
 
 - policy-first ranking and recommendation outputs with traceable decision rationale
@@ -76,6 +81,10 @@ from bijux_proteomics_intelligence import briefs, policies, evaluators
 This package owns decision intelligence, ranking policy, scenario scoring, and explainability outputs.
 
 It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
+
+It should therefore consume workflow shape from core, evidence posture from
+knowledge, and hand execution consequences to lab rather than inventing a
+parallel workflow story of its own.
 
 ## Contract checkpoints
 

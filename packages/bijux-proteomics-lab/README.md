@@ -40,6 +40,10 @@ Use this package when you need lab-in-the-loop planning under gate constraints,
 capacity-aware batch construction, and rerun recommendations tied to assay
 outcomes.
 
+Its role is downstream of the scientific workflow blueprint, not a substitute
+for it. Lab turns stage-owned assay work into executable batches and feedback
+loops once core, knowledge, and intelligence have made the workflow legible.
+
 ## Why teams pick this package
 
 - practical lab planning built around dependencies, capacity, and timing limits
@@ -77,6 +81,10 @@ from bijux_proteomics_lab import planning, outcomes, repositories
 This package owns assay planning, schedule generation, outcome interpretation, and rerun strategy support.
 
 It does not own program-stage authority, ranking policy, or evidence truth semantics.
+
+It also should not define scientific stage meaning on its own. Lab consumes the
+workflow spine, then decides how that work gets executed and fed back into the
+next cycle.
 
 ## Contract checkpoints
 
