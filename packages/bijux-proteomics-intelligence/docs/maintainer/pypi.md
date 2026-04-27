@@ -34,6 +34,15 @@
 - public package docs prove recommendation ownership and non-ownership stay clear
 - repository release checks prove package metadata and workflows remain aligned
 
+## Publication checkpoints
+
+- package metadata, docs routes, and recommendation-ownership language should
+  match the current policy contract before tagging
+- release validation should leave ranking, evaluator, and public-surface proof
+  green in the repository root check surface
+- the published wheel and sdist should reflect the same import root and package
+  guide that maintainers reviewed locally
+
 ## Release checklist
 
 1. Verify README and package docs describe current ranking/scenario behavior.
