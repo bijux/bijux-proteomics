@@ -58,6 +58,14 @@ flowchart TD
 - `providers/` owns provider binding and provider-specific execution surfaces
 - `registry/`, `validation/`, and `execution/` own runtime support contracts
 
+## Dependency direction
+
+Runtime may depend on foundation, core, intelligence, knowledge, and lab in
+order to orchestrate canonical workflow execution.
+
+Lower-layer packages must not depend on runtime, and runtime should not take
+ownership of their scientific meaning.
+
 ## Adapter topology
 
 Runtime adapter modules are the only place where lower-layer domain objects are
