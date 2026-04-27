@@ -39,6 +39,15 @@
 - repository release checks prove metadata, docs publication, and workflows stay
   aligned
 
+## Publication checkpoints
+
+- package metadata, docs routes, and compat-only ownership language should
+  match the current forwarding contract before tagging
+- release validation should leave forwarding, migration, and release-proof
+  checks green in the repository root check surface
+- the published wheel and sdist should reflect the same legacy package identity
+  and canonical replacement guidance that maintainers reviewed locally
+
 ## Release checklist
 
 1. Verify `README.md` and package docs reflect current compat-only ownership.
