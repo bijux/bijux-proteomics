@@ -67,6 +67,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Observation transport and evaluation trigger payloads now live on the canonical runtime execution surface."
 
 [[rule]]
+pattern = "execution/evaluation/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution evaluation schemas are runtime-owned transport contracts on the canonical execution surface."
+
+[[rule]]
 pattern = "execution/evaluation/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
