@@ -45,6 +45,15 @@ It owns:
 - `test_release_workflows.py`, `test_packaging_contract.py`, and related docs
   contract tests for the executable proof behind release policy
 
+## Release escalation surfaces
+
+- package `docs/maintainer/pypi.md` files when a maintainer cannot justify a
+  release as safe within the current package boundary
+- `docs/TESTS.md` and release-policy tests when workflow wiring is green but
+  the claimed proof surface is still ambiguous
+- `src/bijux_proteomics_dev/release` when release-readiness rules need a
+  durable policy change instead of a workflow-local exception
+
 ## Source guide
 
 - `src/bijux_proteomics_dev/quality` for repository quality and migration checks
