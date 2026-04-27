@@ -81,7 +81,7 @@ domain/sequence/summary.py,domain_ownership,bijux-proteomics-core,Sequence domai
 domain/sequence/validation.py,domain_ownership,bijux-proteomics-core,Sequence domain constraints and summaries are core domain model ownership.
 domain/structure/__init__.py,domain_ownership,bijux-proteomics-core,Structure domain representations are canonical program-domain ownership concerns.
 domain/structure/structure.py,domain_ownership,bijux-proteomics-core,Structure domain representations are canonical program-domain ownership concerns.
-execution/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Execution package aggregation likely belongs in runtime but requires dependency review before final lock.
+execution/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution package exports now forward directly to canonical runtime orchestration surfaces.
 execution/compiler/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution boundary compilation belongs to runtime orchestration boundaries.
 execution/compiler/boundary.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution boundary compilation belongs to runtime orchestration boundaries.
 execution/evaluation/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Evaluation helpers are runtime-adjacent and need semantic review to separate orchestration from domain scoring meaning.

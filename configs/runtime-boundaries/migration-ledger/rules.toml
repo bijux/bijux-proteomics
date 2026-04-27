@@ -56,6 +56,12 @@ reason = "Execution boundary compilation belongs to runtime orchestration bounda
 
 [[rule]]
 pattern = "execution/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution package exports now forward directly to canonical runtime orchestration surfaces."
+
+[[rule]]
+pattern = "execution/__init__.py"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Execution package aggregation likely belongs in runtime but requires dependency review before final lock."
