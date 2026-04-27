@@ -49,6 +49,15 @@
 - the published wheel and sdist should reflect the same canonical entrypoints
   and package guide that maintainers reviewed locally
 
+## Release escalation signals
+
+- stop the release if compat forwarding would need to invent behavior instead
+  of mirroring canonical runtime ownership
+- escalate before tagging if a CLI, API, provider, or replay change exposes a
+  lower-package contract gap that runtime is trying to paper over
+- escalate when the docs cannot explain entrypoint ownership without ambiguity
+  between canonical runtime and compat surfaces
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current canonical runtime identity and entrypoint
