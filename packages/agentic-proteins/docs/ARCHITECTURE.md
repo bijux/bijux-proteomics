@@ -50,3 +50,12 @@ reduce migration risk, not to accumulate fresh runtime or domain logic.
   should start in canonical packages and only then gain compat forwarding
 - if a module stops being forwarding-only, treat that as an architecture smell
   and route the implementation back to the owner
+
+## Review questions
+
+- does the change preserve legacy continuity for an already-canonical surface
+  without inventing fresh product behavior
+- would the behavior still make sense if the compat package were removed after
+  migration, with the true implementation living only in canonical packages
+- can the architecture still be described as forwarding-only without ambiguity
+  about the runtime or lower canonical owner
