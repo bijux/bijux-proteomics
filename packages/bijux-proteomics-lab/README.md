@@ -117,6 +117,16 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
 - can the change be justified without claiming lifecycle, evidence, ranking, or
   provider-interface ownership
 
+## Escalation route
+
+- route the change outward when the behavior mainly defines lifecycle law,
+  evidence truth, recommendation policy, or operator transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal looks like workflow-local reporting instead of reusable lab
+  scheduling or outcome semantics
+- escalate before release when downstream consumers would need package-specific
+  rerun or batching exceptions to adopt the change
+
 ## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
