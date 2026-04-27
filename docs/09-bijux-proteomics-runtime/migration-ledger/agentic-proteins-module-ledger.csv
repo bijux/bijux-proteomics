@@ -18,7 +18,7 @@ agents/planning/validation.py,runtime_execution_ownership,bijux-proteomics-runti
 agents/reporting/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent reporting package exports now forward directly to canonical runtime reporting-agent surfaces.
 agents/reporting/reporting.py,runtime_execution_ownership,bijux-proteomics-runtime,Reporting agents now forward directly to canonical runtime reporting-agent implementations.
 agents/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent schemas now forward directly to canonical runtime agent contract surfaces.
-agents/verification/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
+agents/verification/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent verification package exports now forward directly to canonical runtime verification-agent surfaces.
 agents/verification/critic.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/verification/input_validation.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/verification/quality_control.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.

@@ -2,8 +2,8 @@
 
 - total modules: 148
 - domain_ownership: 34
-- runtime_execution_ownership: 93
-- runtime_support_internal_review: 21
+- runtime_execution_ownership: 94
+- runtime_support_internal_review: 20
 
 ## Owner package distribution
 
