@@ -21,6 +21,24 @@ artifact expectations before compat forwarding is widened or rewritten.
 Compat-specific changes should update the forwarding and boundary tests that
 guard strict compat mode.
 
+## Consumer upgrade expectations
+
+- downstream users should be able to keep legacy imports and CLI entrypoints
+  working while they migrate toward canonical package roots
+- intentional compat-routing changes should be visible through forwarding tests
+  and explicit canonical-owner documentation updates
+- consumers should expect compat releases to mirror canonical ownership rather
+  than introduce new behavior of their own
+
+## Change routing signals
+
+- legacy import forwarding, compat CLI routing, and migration-safe package
+  identity belong here first
+- canonical runtime and lower-layer domain behavior should be routed to their
+  owning packages instead of being reimplemented in compat shims
+- if users need a new legacy surface, the durable canonical contract change
+  should land in the owning package before compat exposes a forwarding alias
+
 ## Explicit non-contracts
 
 - This package is not the canonical runtime.
