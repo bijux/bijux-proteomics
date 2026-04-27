@@ -24,6 +24,22 @@ from bijux_proteomics_runtime.runtime.infra import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 from bijux_proteomics_runtime.runtime_identity import runtime_banner
 
+__all__ = [
+    "CliResult",
+    "_artifact_hashes",
+    "_artifact_paths",
+    "_build_run_config",
+    "_emit_json_payload",
+    "_emit_run_summary_human",
+    "_export_report_payload",
+    "_load_run_config",
+    "_load_run_summary",
+    "_read_sequence",
+    "_resume_candidate",
+    "_write_output",
+    "cli",
+]
+
 
 def _package_version() -> str:
     try:

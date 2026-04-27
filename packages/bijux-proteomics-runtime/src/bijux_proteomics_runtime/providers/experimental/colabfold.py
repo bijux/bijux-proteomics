@@ -69,7 +69,7 @@ class APIColabFoldProvider(BaseProvider):
         self.session.mount("https://", HTTPAdapter(max_retries=retry))
         self.session.headers.update(
             {
-                "User-Agent": "agentic-proteins (+https://github.com/bijux/bijux-proteomics)"
+                "User-Agent": "bijux-proteomics-runtime (+https://github.com/bijux/bijux-proteomics)"
             }
         )
 

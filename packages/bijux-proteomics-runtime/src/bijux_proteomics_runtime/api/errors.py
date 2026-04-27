@@ -13,6 +13,21 @@ from pydantic import AnyUrl
 
 from bijux_proteomics_runtime.api.v1.schema import ApiEnvelope, ErrorResponse
 
+__all__ = [
+    "ApiError",
+    "ErrorType",
+    "HumanReviewRequiredError",
+    "_BAD_REQUEST_TYPE",
+    "_ERROR_TYPES",
+    "_METHOD_NOT_ALLOWED_TYPE",
+    "http_error",
+    "map_exception",
+    "method_not_allowed",
+    "ok_envelope",
+    "raise_http_error",
+    "validation_error",
+]
+
 ErrorType = Literal[
     "invalid_input",
     "not_found",

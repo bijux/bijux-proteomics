@@ -8,10 +8,74 @@ from click.testing import CliRunner
 
 from agentic_proteins.api import AppConfig as CompatAppConfig
 from agentic_proteins.api import create_app as compat_create_app
-from agentic_proteins.interfaces.cli import cli as compat_cli
+from agentic_proteins.api.errors import _ERROR_TYPES as COMPAT_ERROR_TYPES
+from agentic_proteins.execution.evaluation.observations import (
+    EvaluationInput as CompatEvaluationInput,
+)
+from agentic_proteins.interfaces.cli import (
+    _artifact_hashes as compat_artifact_hashes,
+    _artifact_paths as compat_artifact_paths,
+    _build_run_config as compat_build_run_config,
+    _emit_json_payload as compat_emit_json_payload,
+    _emit_run_summary_human as compat_emit_run_summary_human,
+    _export_report_payload as compat_export_report_payload,
+    _load_run_config as compat_load_run_config,
+    _load_run_summary as compat_load_run_summary,
+    _read_sequence as compat_read_sequence,
+    _resume_candidate as compat_resume_candidate,
+    _write_output as compat_write_output,
+    cli as compat_cli,
+)
+from agentic_proteins.providers.base import _time_left as compat_time_left
+from agentic_proteins.providers.factory import _require_module as compat_require_module
+from agentic_proteins.runtime.control.artifacts import _sign_payload as compat_sign_payload
+from agentic_proteins.runtime.control.execution import (
+    _build_run_summary as compat_build_run_summary,
+    _ensure_telemetry_costs as compat_ensure_telemetry_costs,
+    _select_structure_tool as compat_select_structure_tool,
+    _version_info as compat_version_info,
+)
+from agentic_proteins.validation.agents import (
+    _minimal_payload as compat_minimal_payload,
+    _placeholder_for_type as compat_placeholder_for_type,
+)
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
-from bijux_proteomics_runtime.interfaces.cli import cli as runtime_cli
+from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
+from bijux_proteomics_runtime.execution.evaluation.observations import (
+    EvaluationInput as RuntimeEvaluationInput,
+)
+from bijux_proteomics_runtime.interfaces.cli import (
+    _artifact_hashes as runtime_artifact_hashes,
+    _artifact_paths as runtime_artifact_paths,
+    _build_run_config as runtime_build_run_config,
+    _emit_json_payload as runtime_emit_json_payload,
+    _emit_run_summary_human as runtime_emit_run_summary_human,
+    _export_report_payload as runtime_export_report_payload,
+    _load_run_config as runtime_load_run_config,
+    _load_run_summary as runtime_load_run_summary,
+    _read_sequence as runtime_read_sequence,
+    _resume_candidate as runtime_resume_candidate,
+    _write_output as runtime_write_output,
+    cli as runtime_cli,
+)
+from bijux_proteomics_runtime.providers.base import _time_left as runtime_time_left
+from bijux_proteomics_runtime.providers.factory import (
+    _require_module as runtime_require_module,
+)
+from bijux_proteomics_runtime.runtime.control.artifacts import (
+    _sign_payload as runtime_sign_payload,
+)
+from bijux_proteomics_runtime.runtime.control.execution import (
+    _build_run_summary as runtime_build_run_summary,
+    _ensure_telemetry_costs as runtime_ensure_telemetry_costs,
+    _select_structure_tool as runtime_select_structure_tool,
+    _version_info as runtime_version_info,
+)
+from bijux_proteomics_runtime.validation.agents import (
+    _minimal_payload as runtime_minimal_payload,
+    _placeholder_for_type as runtime_placeholder_for_type,
+)
 
 
 def _config_payload(config: object) -> dict[str, object]:
@@ -48,3 +112,55 @@ def test_compat_and_runtime_api_factory_are_equivalent() -> None:
     assert [getattr(route, "path", "") for route in compat_app.routes] == [
         getattr(route, "path", "") for route in runtime_app.routes
     ]
+
+
+def test_compat_evaluation_observations_forward_to_runtime_symbols() -> None:
+    assert CompatEvaluationInput is RuntimeEvaluationInput
+
+
+def test_compat_api_error_contracts_forward_to_runtime_symbols() -> None:
+    assert COMPAT_ERROR_TYPES is RUNTIME_ERROR_TYPES
+
+
+def test_compat_cli_input_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_read_sequence is runtime_read_sequence
+    assert compat_build_run_config is runtime_build_run_config
+    assert compat_resume_candidate is runtime_resume_candidate
+
+
+def test_compat_cli_artifact_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_export_report_payload is runtime_export_report_payload
+    assert compat_write_output is runtime_write_output
+    assert compat_artifact_paths is runtime_artifact_paths
+    assert compat_emit_json_payload is runtime_emit_json_payload
+    assert compat_load_run_summary is runtime_load_run_summary
+    assert compat_load_run_config is runtime_load_run_config
+    assert compat_emit_run_summary_human is runtime_emit_run_summary_human
+    assert compat_artifact_hashes is runtime_artifact_hashes
+
+
+def test_compat_provider_deadline_helper_forwards_to_runtime_symbol() -> None:
+    assert compat_time_left is runtime_time_left
+
+
+def test_compat_provider_dependency_helper_forwards_to_runtime_symbol() -> None:
+    assert compat_require_module is runtime_require_module
+
+
+def test_compat_artifact_signature_helper_forwards_to_runtime_symbol() -> None:
+    assert compat_sign_payload is runtime_sign_payload
+
+
+def test_compat_execution_summary_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_build_run_summary is runtime_build_run_summary
+    assert compat_version_info is runtime_version_info
+
+
+def test_compat_execution_runtime_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_select_structure_tool is runtime_select_structure_tool
+    assert compat_ensure_telemetry_costs is runtime_ensure_telemetry_costs
+
+
+def test_compat_validation_payload_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_minimal_payload is runtime_minimal_payload
+    assert compat_placeholder_for_type is runtime_placeholder_for_type

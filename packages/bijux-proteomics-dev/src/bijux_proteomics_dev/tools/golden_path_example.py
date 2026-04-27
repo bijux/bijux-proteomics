@@ -6,13 +6,13 @@
 
 from __future__ import annotations
 
-from agentic_proteins.biology import (
+from bijux_proteomics.biology import (
     PathwayExecutor,
     ProteinAgent,
     SignalPayload,
     SignalType,
 )
-from agentic_proteins.biology.protein_agent import ProteinConstraints, ProteinState
+from bijux_proteomics.biology.protein_agent import ProteinConstraints, ProteinState
 
 
 def _agent(agent_id: str, *, energy: float) -> ProteinAgent:

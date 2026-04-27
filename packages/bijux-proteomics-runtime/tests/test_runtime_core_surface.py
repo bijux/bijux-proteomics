@@ -1,5 +1,16 @@
 from __future__ import annotations
 
+from bijux_proteomics_runtime.core import (
+    CostSummary,
+    ExecutionStatus,
+    FailureType,
+    Outcome,
+    ToolStatus,
+    WorkflowState,
+    deterministic_id,
+    suggest_next_action,
+)
+from bijux_proteomics_runtime.core.surface_area import PUBLIC_ENTRYPOINTS
 from bijux_proteomics_runtime.core.execution import ExecutionContext
 from bijux_proteomics_runtime.core.tooling import ToolInvocationSpec
 
@@ -7,3 +18,36 @@ from bijux_proteomics_runtime.core.tooling import ToolInvocationSpec
 def test_runtime_core_surface_smoke() -> None:
     _ = ExecutionContext
     _ = ToolInvocationSpec
+    _ = CostSummary
+    _ = FailureType
+
+
+def test_runtime_core_exports_failure_helpers() -> None:
+    assert suggest_next_action(FailureType.INPUT_INVALID) == "fix_input_sequence"
+
+
+def test_runtime_core_exports_deterministic_id() -> None:
+    assert deterministic_id("runtime", {"id": 1}).startswith("runtime_")
+
+
+def test_runtime_core_exports_status_enums() -> None:
+    assert ExecutionStatus.COMPLETED == "completed"
+    assert WorkflowState.DONE == "done"
+    assert Outcome.ACCEPTED == "accepted"
+    assert ToolStatus.SUCCESS == "success"
+
+
+def test_runtime_surface_area_uses_canonical_cli_entrypoint() -> None:
+    assert "bijux_proteomics_runtime.interfaces.cli.cli" in PUBLIC_ENTRYPOINTS
+
+
+def test_runtime_surface_area_uses_canonical_run_manager_entrypoint() -> None:
+    assert "bijux_proteomics_runtime.runtime.RunManager" in PUBLIC_ENTRYPOINTS
+
+
+def test_runtime_surface_area_uses_runtime_extension_points() -> None:
+    from bijux_proteomics_runtime.core.surface_area import EXTENSION_POINTS
+
+    assert "bijux_proteomics_runtime.providers" in EXTENSION_POINTS
+    assert "bijux_proteomics_runtime.providers.experimental" in EXTENSION_POINTS
+    assert "bijux_proteomics_runtime.sandbox" in EXTENSION_POINTS

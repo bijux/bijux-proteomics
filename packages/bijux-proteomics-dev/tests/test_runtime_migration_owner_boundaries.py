@@ -19,14 +19,31 @@ def _owner_map() -> dict[str, str]:
     return {str(row["module_path"]): str(row["owner_package"]) for row in rows}
 
 
+def _row_map() -> dict[str, dict[str, str]]:
+    with LEDGER_PATH.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    return {str(row["module_path"]): row for row in rows}
+
+
 def test_domain_owner_matrix_is_enforced() -> None:
     owners = _owner_map()
+    rows = _row_map()
+    assert owners["__init__.py"] == "agentic-proteins-compat"
+    assert rows["__init__.py"]["bucket"] == "runtime_support_internal_review"
     assert owners["biology/pathway.py"] == "bijux-proteomics-core"
     assert owners["domain/sequence/summary.py"] == "bijux-proteomics-core"
     assert owners["domain/structure/structure.py"] == "bijux-proteomics-core"
     assert owners["domain/confidence/segments.py"] == "bijux-proteomics-knowledge"
     assert owners["domain/metrics/compute.py"] == "bijux-proteomics-intelligence"
     assert owners["design_loop/loop.py"] == "bijux-proteomics-intelligence"
+    assert owners["report/__init__.py"] == "bijux-proteomics-intelligence"
+    assert owners["report/compute.py"] == "bijux-proteomics-intelligence"
+    assert owners["report/model.py"] == "bijux-proteomics-intelligence"
+    assert owners["report/render.py"] == "bijux-proteomics-intelligence"
+    assert rows["report/__init__.py"]["bucket"] == "domain_ownership"
+    assert rows["report/compute.py"]["bucket"] == "domain_ownership"
+    assert rows["report/model.py"]["bucket"] == "domain_ownership"
+    assert rows["report/render.py"]["bucket"] == "domain_ownership"
 
 
 def test_runtime_support_owner_matrix_is_enforced() -> None:
@@ -34,3 +51,157 @@ def test_runtime_support_owner_matrix_is_enforced() -> None:
     assert owners["memory/schemas.py"] == "bijux-proteomics-runtime"
     assert owners["registry/agents.py"] == "bijux-proteomics-runtime"
     assert owners["tools/heuristic.py"] == "bijux-proteomics-runtime"
+
+
+def test_runtime_execution_promotions_are_enforced() -> None:
+    rows = _row_map()
+    assert rows["agents/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/analysis/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/analysis/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/analysis/failure_analysis.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/analysis/failure_analysis.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/analysis/sequence_analysis.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/analysis/sequence_analysis.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/analysis/structure.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/analysis/structure.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/base/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/base/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/base/base.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/base/base.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/execution/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/execution/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/execution/coordinator.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/execution/coordinator.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/planning/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/planning/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/planning/compiler.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/planning/compiler.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/planning/generation.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/planning/generation.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/planning/planner.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/planning/planner.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/planning/schemas.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/planning/schemas.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/planning/validation.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/planning/validation.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/reporting/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/reporting/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/reporting/reporting.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/reporting/reporting.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/schemas.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/schemas.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/verification/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/verification/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/verification/critic.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/verification/critic.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/verification/input_validation.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/verification/input_validation.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["agents/verification/quality_control.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["agents/verification/quality_control.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/api_lock.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/api_lock.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/contracts.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/contracts.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/costs.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/costs.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/decisions.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/decisions.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/determinism.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/determinism.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/fingerprints.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/fingerprints.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/hashing.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/hashing.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/identifiers.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/identifiers.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/observations.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/observations.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/execution.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/execution.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/failures.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/failures.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["memory/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["memory/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["memory/schemas.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["memory/schemas.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["memory/store.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["memory/store.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["tools/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["tools/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["tools/base.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["tools/base.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["tools/heuristic.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["tools/heuristic.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["tools/schemas.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["tools/schemas.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["execution/__init__.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["execution/evaluation/__init__.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/evaluation/__init__.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
+    assert rows["execution/evaluation/evaluation.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/evaluation/evaluation.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
+    assert rows["execution/schemas.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/schemas.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["execution/validation.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/validation.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
+    assert rows["registry/__init__.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["registry/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["registry/agents.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["registry/agents.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["registry/tools.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["registry/tools.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["validation/__init__.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["validation/__init__.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
+    assert rows["validation/state.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["validation/state.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["execution/evaluation/observations.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/evaluation/observations.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
+    assert rows["execution/evaluation/schemas.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/evaluation/schemas.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
+    assert rows["validation/agents.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["validation/agents.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["validation/tools.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["validation/tools.py"]["bucket"] == "runtime_execution_ownership"

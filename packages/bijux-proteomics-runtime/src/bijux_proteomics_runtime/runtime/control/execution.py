@@ -109,6 +109,19 @@ from bijux_proteomics_runtime.state.schemas import StateSnapshot
 from bijux_proteomics_runtime.tools.base import Tool
 from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
 
+__all__ = [
+    "PipelineArtifacts",
+    "PipelineExecutor",
+    "PipelineResult",
+    "RunManager",
+    "RuntimeStateMachine",
+    "_build_run_summary",
+    "_ensure_telemetry_costs",
+    "_select_structure_tool",
+    "_version_info",
+    "run_flow",
+]
+
 
 @dataclass
 class PipelineArtifacts:
@@ -1123,7 +1136,7 @@ def _version_info(tool: Tool | None) -> VersionInfo:
     if tool is not None:
         tool_versions[tool.name] = tool.version
     try:
-        app_version = importlib.metadata.version("agentic-proteins")
+        app_version = importlib.metadata.version("bijux-proteomics-runtime")
     except importlib.metadata.PackageNotFoundError:
         app_version = "unknown"
     return VersionInfo(

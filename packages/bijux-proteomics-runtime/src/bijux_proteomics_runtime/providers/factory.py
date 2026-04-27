@@ -13,6 +13,13 @@ from bijux_proteomics_runtime.providers.base import BaseProvider, ProviderCapabi
 from bijux_proteomics_runtime.providers.errors import PredictionError
 from bijux_proteomics_runtime.providers.heuristic import HeuristicStructureProvider
 
+__all__ = [
+    "PROVIDER_CAPABILITIES",
+    "_require_module",
+    "create_provider",
+    "provider_requirements",
+]
+
 PROVIDER_CAPABILITIES = {
     "heuristic_proxy": ProviderCapabilities(
         supports_gpu=False, supports_cpu=True, cpu_fallback_allowed=True
@@ -46,22 +53,28 @@ def create_provider(name: str) -> BaseProvider:
     if name == HeuristicStructureProvider.name:
         return HeuristicStructureProvider()
     if name == "local_esmfold":
-        _require_module("torch", "pip install agentic-proteins[local-esmfold]")
-        _require_module("transformers", "pip install agentic-proteins[local-esmfold]")
+        _require_module(
+            "torch", "pip install bijux-proteomics-runtime[local-esmfold]"
+        )
+        _require_module(
+            "transformers", "pip install bijux-proteomics-runtime[local-esmfold]"
+        )
         from bijux_proteomics_runtime.providers.local.esmfold import (
             LocalESMFoldProvider,
         )
 
         return LocalESMFoldProvider()
     if name == "local_rosettafold":
-        _require_module("torch", "pip install agentic-proteins[local-rosettafold]")
+        _require_module(
+            "torch", "pip install bijux-proteomics-runtime[local-rosettafold]"
+        )
         from bijux_proteomics_runtime.providers.local.rosettafold import (
             LocalRoseTTAFoldProvider,
         )
 
         return LocalRoseTTAFoldProvider()
     if name.startswith("api_openprotein"):
-        _require_module("openprotein", "pip install agentic-proteins[api]")
+        _require_module("openprotein", "pip install bijux-proteomics-runtime[api]")
         from bijux_proteomics_runtime.providers.experimental.openprotein import (
             APIOpenProteinProvider,
         )
@@ -69,7 +82,7 @@ def create_provider(name: str) -> BaseProvider:
         model = name.removeprefix("api_openprotein_") or "esmfold"
         return APIOpenProteinProvider(model=model)
     if name == "api_colabfold":
-        _require_module("colabfold", "pip install agentic-proteins[api]")
+        _require_module("colabfold", "pip install bijux-proteomics-runtime[api]")
         from bijux_proteomics_runtime.providers.experimental.colabfold import (
             APIColabFoldProvider,
         )

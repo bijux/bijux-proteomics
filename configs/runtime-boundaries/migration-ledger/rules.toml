@@ -4,7 +4,7 @@
 pattern = "__init__.py"
 bucket = "runtime_support_internal_review"
 owner_package = "agentic-proteins-compat"
-reason = "Top-level package export surface remains in compat layer during migration and requires explicit forwarding review."
+reason = "Top-level package export surface remains as the single intentional compat-owned bridge while canonical runtime and domain surfaces move downstream."
 
 [[rule]]
 pattern = "api/**"
@@ -56,9 +56,39 @@ reason = "Execution boundary compilation belongs to runtime orchestration bounda
 
 [[rule]]
 pattern = "execution/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution package exports now forward directly to canonical runtime orchestration surfaces."
+
+[[rule]]
+pattern = "execution/__init__.py"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Execution package aggregation likely belongs in runtime but requires dependency review before final lock."
+
+[[rule]]
+pattern = "execution/evaluation/observations.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Observation transport and evaluation trigger payloads now live on the canonical runtime execution surface."
+
+[[rule]]
+pattern = "execution/evaluation/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution evaluation package exports now forward directly to canonical runtime evaluation surfaces."
+
+[[rule]]
+pattern = "execution/evaluation/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution evaluation schemas are runtime-owned transport contracts on the canonical execution surface."
+
+[[rule]]
+pattern = "execution/evaluation/evaluation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution evaluation orchestration now forwards directly to canonical runtime evaluation logic."
 
 [[rule]]
 pattern = "execution/evaluation/**"
@@ -68,9 +98,21 @@ reason = "Evaluation helpers are runtime-adjacent and need semantic review to se
 
 [[rule]]
 pattern = "execution/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution schema exports now forward directly to canonical runtime transport contracts."
+
+[[rule]]
+pattern = "execution/schemas.py"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Execution schemas may mix transport and domain semantics and require ownership split review."
+
+[[rule]]
+pattern = "execution/validation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution validation exports now forward directly to canonical runtime gatekeeping logic."
 
 [[rule]]
 pattern = "execution/validation.py"
@@ -79,10 +121,214 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution validation appears runtime-adjacent but needs review to avoid domain logic leakage."
 
 [[rule]]
+pattern = "agents/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent package exports now forward directly to canonical runtime agent orchestration surfaces."
+
+[[rule]]
+pattern = "agents/analysis/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent analysis package exports now forward directly to canonical runtime analysis surfaces."
+
+[[rule]]
+pattern = "agents/analysis/failure_analysis.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Failure analysis agents now forward directly to canonical runtime analysis implementations."
+
+[[rule]]
+pattern = "agents/analysis/sequence_analysis.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Sequence analysis agents now forward directly to canonical runtime analysis implementations."
+
+[[rule]]
+pattern = "agents/analysis/structure.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Structure analysis agents now forward directly to canonical runtime analysis implementations."
+
+[[rule]]
+pattern = "agents/base/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent base package exports now forward directly to canonical runtime agent base surfaces."
+
+[[rule]]
+pattern = "agents/base/base.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent base classes now forward directly to canonical runtime agent base implementations."
+
+[[rule]]
+pattern = "agents/execution/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent execution package exports now forward directly to canonical runtime execution-agent surfaces."
+
+[[rule]]
+pattern = "agents/execution/coordinator.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Coordinator agent execution now forwards directly to canonical runtime execution-agent implementations."
+
+[[rule]]
+pattern = "agents/planning/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent planning package exports now forward directly to canonical runtime planning surfaces."
+
+[[rule]]
+pattern = "agents/planning/compiler.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Planning compiler helpers now forward directly to canonical runtime planning implementations."
+
+[[rule]]
+pattern = "agents/planning/generation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Planning generation helpers now forward directly to canonical runtime planning implementations."
+
+[[rule]]
+pattern = "agents/planning/planner.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Planning coordinator helpers now forward directly to canonical runtime planning implementations."
+
+[[rule]]
+pattern = "agents/planning/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Planning schemas now forward directly to canonical runtime planning contracts."
+
+[[rule]]
+pattern = "agents/planning/validation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Planning validation now forwards directly to canonical runtime planning validation surfaces."
+
+[[rule]]
+pattern = "agents/reporting/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent reporting package exports now forward directly to canonical runtime reporting-agent surfaces."
+
+[[rule]]
+pattern = "agents/reporting/reporting.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Reporting agents now forward directly to canonical runtime reporting-agent implementations."
+
+[[rule]]
+pattern = "agents/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent schemas now forward directly to canonical runtime agent contract surfaces."
+
+[[rule]]
+pattern = "agents/verification/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent verification package exports now forward directly to canonical runtime verification-agent surfaces."
+
+[[rule]]
+pattern = "agents/verification/critic.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Verification critic agents now forward directly to canonical runtime verification implementations."
+
+[[rule]]
+pattern = "agents/verification/input_validation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Input validation agents now forward directly to canonical runtime verification implementations."
+
+[[rule]]
+pattern = "agents/verification/quality_control.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Quality-control agents now forward directly to canonical runtime verification implementations."
+
+[[rule]]
 pattern = "agents/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement."
+
+[[rule]]
+pattern = "core/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime core package exports now forward directly to canonical runtime core surfaces."
+
+[[rule]]
+pattern = "core/api_lock.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime api-freeze helpers now forward directly to canonical runtime core contracts."
+
+[[rule]]
+pattern = "core/contracts.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime contract helpers now forward directly to canonical runtime core contracts."
+
+[[rule]]
+pattern = "core/costs.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime cost helpers now forward directly to canonical runtime core accounting surfaces."
+
+[[rule]]
+pattern = "core/decisions.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime decision helpers now forward directly to canonical runtime control contracts."
+
+[[rule]]
+pattern = "core/execution.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime execution helpers now forward directly to canonical runtime execution contracts."
+
+[[rule]]
+pattern = "core/failures.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime failure helpers now forward directly to canonical runtime failure contracts."
+
+[[rule]]
+pattern = "core/determinism.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime replay determinism helpers now forward directly to canonical runtime replay contracts."
+
+[[rule]]
+pattern = "core/fingerprints.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime replay fingerprints now forward directly to canonical runtime replay contracts."
+
+[[rule]]
+pattern = "core/hashing.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime replay hashing now forwards directly to canonical runtime replay contracts."
+
+[[rule]]
+pattern = "core/identifiers.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime identifier helpers now forward directly to canonical runtime identifier contracts."
+
+[[rule]]
+pattern = "core/observations.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime observation helpers now forward directly to canonical runtime observation contracts."
 
 [[rule]]
 pattern = "core/**"
@@ -91,10 +337,46 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment."
 
 [[rule]]
+pattern = "memory/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime memory package exports now forward directly to canonical runtime memory surfaces."
+
+[[rule]]
+pattern = "memory/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime memory schemas now forward directly to canonical runtime memory contracts."
+
+[[rule]]
+pattern = "memory/store.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime memory storage now forwards directly to canonical runtime memory persistence."
+
+[[rule]]
 pattern = "memory/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Runtime memory support may contain mixed orchestration and domain persistence assumptions and requires review."
+
+[[rule]]
+pattern = "registry/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Registry package exports now forward directly to canonical runtime registry surfaces."
+
+[[rule]]
+pattern = "registry/agents.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent registry exports now forward directly to canonical runtime registry contracts."
+
+[[rule]]
+pattern = "registry/tools.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Tool registry exports now forward directly to canonical runtime registry contracts."
 
 [[rule]]
 pattern = "registry/**"
@@ -103,16 +385,88 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Registry surfaces are runtime-support utilities pending explicit ownership decomposition."
 
 [[rule]]
+pattern = "report/__init__.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Report package exports now forward directly to canonical intelligence reporting surfaces."
+
+[[rule]]
+pattern = "report/compute.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Report computation now forwards directly to canonical intelligence scoring and summary surfaces."
+
+[[rule]]
+pattern = "report/model.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Report data modeling now forwards directly to canonical intelligence report schemas."
+
+[[rule]]
+pattern = "report/render.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Report rendering now forwards directly to canonical intelligence presentation surfaces."
+
+[[rule]]
 pattern = "report/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Reporting utilities need review to split runtime artifact summaries from scientific/domain evaluation outputs."
 
 [[rule]]
+pattern = "tools/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Tool package exports now forward directly to canonical runtime tool surfaces."
+
+[[rule]]
+pattern = "tools/base.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Tool base contracts now forward directly to canonical runtime tool interfaces."
+
+[[rule]]
+pattern = "tools/heuristic.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Heuristic tool execution now forwards directly to canonical runtime tool implementations."
+
+[[rule]]
+pattern = "tools/schemas.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Tool result schemas now forward directly to canonical runtime tool contracts."
+
+[[rule]]
 pattern = "tools/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping."
+
+[[rule]]
+pattern = "validation/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Validation package exports now forward directly to canonical runtime validation surfaces."
+
+[[rule]]
+pattern = "validation/agents.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent registry validation is part of the canonical runtime execution contract."
+
+[[rule]]
+pattern = "validation/tools.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Tool registry validation is part of the canonical runtime execution contract."
+
+[[rule]]
+pattern = "validation/state.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "State validation exports now forward directly to canonical runtime recovery contracts."
 
 [[rule]]
 pattern = "validation/**"

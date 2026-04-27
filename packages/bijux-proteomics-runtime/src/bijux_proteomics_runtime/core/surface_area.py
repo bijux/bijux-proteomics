@@ -6,17 +6,18 @@
 from __future__ import annotations
 
 PUBLIC_ENTRYPOINTS = (
-    "agentic_proteins.interfaces.cli.cli",
-    "agentic_proteins.runtime.RunManager",
+    "bijux_proteomics_runtime.interfaces.cli.cli",
+    "bijux_proteomics_runtime.runtime.RunManager",
     "bijux_proteomics.biology.PathwayExecutor",
     "bijux_proteomics.biology.ProteinAgent",
     "bijux_proteomics.biology.SignalPayload",
 )
 
 EXTENSION_POINTS = (
-    "agentic_proteins.providers",
+    "bijux_proteomics_runtime.providers",
     "bijux_proteomics_runtime.tools",
-    "agentic_proteins.sandbox",
+    "bijux_proteomics_runtime.providers.experimental",
+    "bijux_proteomics_runtime.sandbox",
 )
 
 CONFIG_KNOBS = (

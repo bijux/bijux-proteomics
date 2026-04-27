@@ -358,7 +358,7 @@ def build_and_test_pipeline(model_name: str, force_build: bool, no_test: bool) -
 
 def build_esmfold_image(force: bool) -> None:
     log("\n--- [ESMFold] Building Docker Image ---")
-    image_tag = "esmfold-agentic-proteins:latest"
+    image_tag = "esmfold-bijux-proteomics-runtime:latest"
     dockerfile_path = ESMFOLD_ROOT / "esmfold.Dockerfile"
     if not dockerfile_path.exists():
         raise FileNotFoundError(f"Dockerfile not found: {dockerfile_path}")
@@ -375,7 +375,7 @@ def build_esmfold_image(force: bool) -> None:
 
 def build_rosettafold_image(force: bool) -> None:
     log("\n--- [RoseTTAFold] Building Docker Image ---")
-    image_tag = "rosettafold-agentic-proteins:latest"
+    image_tag = "rosettafold-bijux-proteomics-runtime:latest"
     version_dir = find_latest_version(ROSETTA_ROOT)
     repo_dockerfile = version_dir / "Dockerfile"
     if not repo_dockerfile.exists():
@@ -408,7 +408,7 @@ def build_rosettafold_image(force: bool) -> None:
 def smoke_test_esmfold() -> None:
     log("\n--- [ESMFold] Running Smoke Test ---")
     image_tag, test_dir = (
-        "esmfold-agentic-proteins:latest",
+        "esmfold-bijux-proteomics-runtime:latest",
         TEST_OUTPUT_DIR / "esmfold_test",
     )
     if test_dir.exists():
@@ -442,7 +442,7 @@ def smoke_test_esmfold() -> None:
 
 def smoke_test_rosettafold() -> None:
     log("\n--- [RoseTTAFold] Running Smoke Test ---")
-    image_tag = "rosettafold-agentic-proteins:latest"
+    image_tag = "rosettafold-bijux-proteomics-runtime:latest"
     out = run(
         [
             "docker",
