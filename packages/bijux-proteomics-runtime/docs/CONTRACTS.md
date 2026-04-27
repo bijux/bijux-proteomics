@@ -28,6 +28,24 @@ Any contract change should update runtime surface tests and the boundary
 validation suite that pins compat forwarding, canonical roots, and migration
 ownership.
 
+## Consumer upgrade expectations
+
+- downstream users should be able to adopt routine releases without rewriting
+  canonical CLI, API, or orchestration imports
+- intentional entrypoint or provider-surface changes should be visible through
+  explicit runtime tests and migration validation updates
+- consumers should expect compat forwarding to keep mirroring canonical runtime
+  ownership rather than diverging into a parallel implementation
+
+## Change routing signals
+
+- operator entrypoints, provider binding, replay-safe execution, and canonical
+  runtime ownership belong here first
+- lower-layer schema, lifecycle, evidence, ranking, and lab semantics should be
+  routed back to their owning packages instead of being absorbed into runtime
+- if compat needs wider legacy forwarding, the durable canonical surface change
+  should land here before the compat package exposes it
+
 ## Explicit non-contracts
 
 - No compat deprecation policy is finalized in this document.
