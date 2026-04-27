@@ -45,6 +45,16 @@
 - the published wheel and sdist should reflect the same package identity and
   package guide that maintainers reviewed locally
 
+## Release escalation signals
+
+- stop the release if a schema or migration change would force downstream
+  packages to rewrite routine serialization call sites without an explicit
+  contract-change decision
+- escalate before tagging if the docs start naming lifecycle, ranking,
+  evidence, lab, or runtime semantics as foundation-owned behavior
+- escalate when migration or compatibility proof cannot explain a safe upgrade
+  path for existing persisted records
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current package ownership and boundaries.
