@@ -42,3 +42,12 @@ shadow models.
   owning package instead
 - if evidence semantics start growing operator-specific payload or orchestration
   rules, treat that as a boundary failure and redesign the seam
+
+## Review questions
+
+- does the change alter canonical evidence, contradiction, trust, or lineage
+  semantics rather than just reshaping output for another layer
+- would another package create a shadow review or trust model if this behavior
+  stayed out of knowledge
+- can the change still be defended without claiming lifecycle, ranking, lab, or
+  runtime transport ownership
