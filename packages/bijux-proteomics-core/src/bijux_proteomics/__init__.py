@@ -85,7 +85,9 @@ from bijux_proteomics.sequences import (
     FastaSequenceRecord,
     ProteinSequence,
     parse_fasta_records,
+    parse_uniprot_accession,
     sequence_length,
+    UniProtAccession,
 )
 from bijux_proteomics.targets import (
     OutcomeSeverity,
@@ -138,6 +140,7 @@ __all__ = [
     "TargetOutcome",
     "ProteinSequence",
     "FastaSequenceRecord",
+    "UniProtAccession",
     "JsonModel",
     "ReviewGate",
     "ReviewDecision",
@@ -181,6 +184,7 @@ __all__ = [
     "revise_program",
     "sequence_length",
     "parse_fasta_records",
+    "parse_uniprot_accession",
     "target_summary",
     "validate_review_decision",
     "validate_program",

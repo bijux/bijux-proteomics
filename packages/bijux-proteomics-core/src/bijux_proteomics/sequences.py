@@ -13,6 +13,9 @@ from pydantic import ConfigDict, Field, field_validator
 from bijux_proteomics_foundation import JsonModel, TargetId
 
 _SEQUENCE_RE = re.compile(r"^[ACDEFGHIKLMNPQRSTVWY]+$")
+_UNIPROT_ACCESSION_RE = re.compile(
+    r"^(?P<accession>(?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9]))(?:-(?P<isoform>[1-9][0-9]*))?$"
+)
 
 
 @dataclass(frozen=True)
@@ -23,6 +26,14 @@ class FastaSequenceRecord:
     identifier: str
     description: str
     residues: str
+
+
+@dataclass(frozen=True)
+class UniProtAccession:
+    """Normalized UniProt accession with optional isoform suffix."""
+
+    accession: str
+    isoform: int | None = None
 
 
 class ProteinSequence(JsonModel):
@@ -75,6 +86,19 @@ def parse_fasta_records(payload: str) -> tuple[FastaSequenceRecord, ...]:
     if current_header is not None:
         records.append(_build_fasta_record(current_header, current_residues))
     return tuple(records)
+
+
+def parse_uniprot_accession(value: str) -> UniProtAccession:
+    """Normalize one UniProt accession token, preserving isoform suffixes."""
+    token = value.strip().upper()
+    match = _UNIPROT_ACCESSION_RE.fullmatch(token)
+    if match is None:
+        raise ValueError("value must be a valid UniProt accession")
+    isoform = match.group("isoform")
+    return UniProtAccession(
+        accession=match.group("accession"),
+        isoform=int(isoform) if isoform is not None else None,
+    )
 
 
 def _build_fasta_record(
