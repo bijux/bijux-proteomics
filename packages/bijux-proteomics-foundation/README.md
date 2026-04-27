@@ -135,6 +135,15 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 - expect a lower release burden when the change only tightens internal
   implementation without changing shared document behavior
 
+## Explicit non-goals
+
+- this package does not define lifecycle, evidence, ranking, lab, or runtime
+  semantics
+- this package does not coordinate workflow-local adapters or operator-facing
+  orchestration
+- this package does not carry compatibility-only shims that belong in a higher
+  canonical layer or in the compat package
+
 ## Source guide
 
 - [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
