@@ -57,6 +57,19 @@ It does not define runtime product APIs or proteomics domain behavior.
 - maintainer helpers may enforce package contracts, but they do not become product contracts
 - new repository policy should land here before it is copied into CI scripts or ad hoc shell glue
 
+## Choose this package when
+
+- you need repository policy, release validation, docs integrity, or maintainer
+  automation behavior
+- the same check should run through root `make`, CI, and local maintainer workflows
+- the concern is governance or validation rather than product semantics
+
+## Route elsewhere when
+
+- the change defines product runtime behavior or scientific meaning
+- the helper exists only to patch one workflow with ad hoc shell glue
+- the policy cannot be explained without changing an owning package contract first
+
 ## Source guide
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
