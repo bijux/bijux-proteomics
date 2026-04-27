@@ -16,3 +16,10 @@ def test_runtime_surface_area_uses_canonical_cli_entrypoint() -> None:
 
 def test_runtime_surface_area_uses_canonical_run_manager_entrypoint() -> None:
     assert "bijux_proteomics_runtime.runtime.RunManager" in PUBLIC_ENTRYPOINTS
+
+
+def test_runtime_surface_area_uses_runtime_extension_points() -> None:
+    from bijux_proteomics_runtime.core.surface_area import EXTENSION_POINTS
+
+    assert "bijux_proteomics_runtime.providers" in EXTENSION_POINTS
+    assert "bijux_proteomics_runtime.providers.experimental" in EXTENSION_POINTS

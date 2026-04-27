@@ -14,9 +14,9 @@ PUBLIC_ENTRYPOINTS = (
 )
 
 EXTENSION_POINTS = (
-    "agentic_proteins.providers",
+    "bijux_proteomics_runtime.providers",
     "bijux_proteomics_runtime.tools",
-    "agentic_proteins.sandbox",
+    "bijux_proteomics_runtime.providers.experimental",
 )
 
 CONFIG_KNOBS = (
