@@ -28,6 +28,7 @@ from agentic_proteins.interfaces.cli import (
 )
 from agentic_proteins.providers.base import _time_left as compat_time_left
 from agentic_proteins.providers.factory import _require_module as compat_require_module
+from agentic_proteins.runtime.control.artifacts import _sign_payload as compat_sign_payload
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
@@ -51,6 +52,9 @@ from bijux_proteomics_runtime.interfaces.cli import (
 from bijux_proteomics_runtime.providers.base import _time_left as runtime_time_left
 from bijux_proteomics_runtime.providers.factory import (
     _require_module as runtime_require_module,
+)
+from bijux_proteomics_runtime.runtime.control.artifacts import (
+    _sign_payload as runtime_sign_payload,
 )
 
 
@@ -121,3 +125,7 @@ def test_compat_provider_deadline_helper_forwards_to_runtime_symbol() -> None:
 
 def test_compat_provider_dependency_helper_forwards_to_runtime_symbol() -> None:
     assert compat_require_module is runtime_require_module
+
+
+def test_compat_artifact_signature_helper_forwards_to_runtime_symbol() -> None:
+    assert compat_sign_payload is runtime_sign_payload
