@@ -40,6 +40,11 @@ Use this package when you need stage-based governance for protein programs,
 deterministic progression rules, and enforceable domain contracts for decision
 and execution pipelines.
 
+This package now also owns the canonical scientific workflow blueprint surface.
+That blueprint is intentionally narrow: it describes workflow stages and
+blocking contracts without stealing evidence, ranking, runtime, or lab
+ownership from adjacent packages.
+
 ## Why teams pick this package
 
 - explicit protein program contracts with validated lifecycle progression rules
@@ -83,6 +88,10 @@ from bijux_proteomics import program_spec, validation
 This package owns lifecycle domain models, progression rules, and validation invariants.
 
 It does not own evidence trust policy, ranking policy, or lab scheduling behavior.
+
+It also should not pretend that one domain model already solves the whole
+proteomics workflow problem. Core owns the stage blueprint and transition law,
+then hands the rest to knowledge, intelligence, lab, and runtime.
 
 ## Contract checkpoints
 
