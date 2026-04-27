@@ -17,9 +17,9 @@ __all__ = [
 
 def __getattr__(name: str) -> Any:
     if name in {"Metrics", "Report"}:
-        from bijux_proteomics_intelligence import report as _report
+        import bijux_proteomics_runtime as _runtime
 
-        return getattr(_report, name)
+        return getattr(_runtime, name)
     if name == "low_confidence_segments":
         from bijux_proteomics_knowledge.confidence import low_confidence_segments
 
