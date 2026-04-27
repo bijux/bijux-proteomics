@@ -27,12 +27,15 @@ def _row_map() -> dict[str, dict[str, str]]:
 
 def test_domain_owner_matrix_is_enforced() -> None:
     owners = _owner_map()
+    rows = _row_map()
     assert owners["biology/pathway.py"] == "bijux-proteomics-core"
     assert owners["domain/sequence/summary.py"] == "bijux-proteomics-core"
     assert owners["domain/structure/structure.py"] == "bijux-proteomics-core"
     assert owners["domain/confidence/segments.py"] == "bijux-proteomics-knowledge"
     assert owners["domain/metrics/compute.py"] == "bijux-proteomics-intelligence"
     assert owners["design_loop/loop.py"] == "bijux-proteomics-intelligence"
+    assert owners["report/__init__.py"] == "bijux-proteomics-intelligence"
+    assert rows["report/__init__.py"]["bucket"] == "domain_ownership"
 
 
 def test_runtime_support_owner_matrix_is_enforced() -> None:

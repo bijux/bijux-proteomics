@@ -181,6 +181,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Registry surfaces are runtime-support utilities pending explicit ownership decomposition."
 
 [[rule]]
+pattern = "report/__init__.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Report package exports now forward directly to canonical intelligence reporting surfaces."
+
+[[rule]]
 pattern = "report/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
