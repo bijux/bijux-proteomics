@@ -289,6 +289,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Runtime decision helpers now forward directly to canonical runtime control contracts."
 
 [[rule]]
+pattern = "core/execution.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime execution helpers now forward directly to canonical runtime execution contracts."
+
+[[rule]]
 pattern = "core/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
