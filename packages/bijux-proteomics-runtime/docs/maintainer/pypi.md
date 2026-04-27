@@ -40,6 +40,15 @@
 - repository release checks prove metadata, docs publication, and workflows stay
   aligned
 
+## Publication checkpoints
+
+- package metadata, docs routes, and canonical-runtime ownership language should
+  match the current runtime contract before tagging
+- release validation should leave runtime surface, migration, and provider proof
+  green in the repository root check surface
+- the published wheel and sdist should reflect the same canonical entrypoints
+  and package guide that maintainers reviewed locally
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current canonical runtime identity and entrypoint
