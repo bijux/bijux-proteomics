@@ -136,6 +136,15 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
 - expect a narrower release burden when the change only improves internal
   implementation without changing lab execution semantics
 
+## Explicit non-goals
+
+- this package does not own canonical runtime transport, provider binding, or
+  operator entrypoints
+- this package does not redefine evidence semantics or recommendation policy
+  owned by lower packages
+- this package does not exist to preserve compatibility-only imports or release
+  governance rules
+
 ## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
