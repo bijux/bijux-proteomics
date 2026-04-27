@@ -63,6 +63,15 @@ It owns:
 - can the release still be justified without claiming product runtime execution
   or scientific domain truth as maintainer-owned logic
 
+## Release impact signals
+
+- expect repository-wide review when maintainer policy, release guards, or docs
+  validation behavior changes because every package consumes the governance path
+- treat changes that alter release gating, shared policy checks, or docs
+  integrity expectations as high-impact even when package APIs stay stable
+- expect a narrower release burden when the change only improves internal
+  maintainer implementation without changing repository policy behavior
+
 ## Source guide
 
 - `src/bijux_proteomics_dev/quality` for repository quality and migration checks
