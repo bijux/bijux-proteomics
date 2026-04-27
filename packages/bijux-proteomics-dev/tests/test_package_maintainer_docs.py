@@ -28,6 +28,21 @@ def _import_root(package_name: str) -> str:
     return package_name.replace("-", "_")
 
 
+def _section(text: str, heading: str) -> str:
+    marker = f"## {heading}\n"
+    start = text.find(marker)
+    assert start >= 0, f"missing section heading: {heading}"
+    start += len(marker)
+    end = text.find("\n## ", start)
+    if end < 0:
+        end = len(text)
+    return text[start:end]
+
+
+def _bullet_count(section: str) -> int:
+    return sum(1 for line in section.splitlines() if line.startswith("- "))
+
+
 def _release_doc_packages() -> list[str]:
     return [
         package_name
@@ -61,6 +76,7 @@ def test_release_docs_share_identity_and_release_sections() -> None:
             "## Release surface",
             "## Release contract",
             "## Validation focus",
+            "## Publication checkpoints",
             "## Release checklist",
             "## Explicit non-goals",
         ]
@@ -85,6 +101,7 @@ def test_maintainer_package_entry_doc_has_role_and_routing_sections() -> None:
         "## Package role",
         "## Boundary reminders",
         "## Key maintainer entrypoints",
+        "## Release policy entrypoints",
         "## Source guide",
         "## Downstream expectation",
     ]
@@ -102,9 +119,41 @@ def test_maintainer_test_doc_has_scope_and_expectation_sections() -> None:
         "## Required test strata",
         "## Maintainer expectations",
         "## Common validation surfaces",
+        "## Release proof expectations",
         "## Non-goals",
     ]
     missing = [bit for bit in expected_bits if bit not in text]
     assert not missing, (
         f"{path.relative_to(REPO_ROOT).as_posix()}: missing {', '.join(missing)}"
+    )
+
+
+def test_maintainer_release_docs_keep_publication_guidance_substantive() -> None:
+    failures: list[str] = []
+
+    for package_name in _release_doc_packages():
+        path = _package_dir(package_name) / "docs" / "maintainer" / "pypi.md"
+        text = path.read_text(encoding="utf-8")
+        publication_section = _section(text, "Publication checkpoints")
+        if _bullet_count(publication_section) < 3:
+            failures.append(
+                f"{path.relative_to(REPO_ROOT).as_posix()}: publication section needs at least three bullets"
+            )
+
+    index_path = REPO_ROOT / "packages" / "bijux-proteomics-dev" / "docs" / "index.md"
+    index_text = index_path.read_text(encoding="utf-8")
+    if _bullet_count(_section(index_text, "Release policy entrypoints")) < 3:
+        failures.append(
+            f"{index_path.relative_to(REPO_ROOT).as_posix()}: release policy entrypoints section needs at least three bullets"
+        )
+
+    tests_path = REPO_ROOT / "packages" / "bijux-proteomics-dev" / "docs" / "TESTS.md"
+    tests_text = tests_path.read_text(encoding="utf-8")
+    if _bullet_count(_section(tests_text, "Release proof expectations")) < 3:
+        failures.append(
+            f"{tests_path.relative_to(REPO_ROOT).as_posix()}: release proof expectations section needs at least three bullets"
+        )
+
+    assert not failures, (
+        "maintainer release publication guidance failed:\n" + "\n".join(failures)
     )
