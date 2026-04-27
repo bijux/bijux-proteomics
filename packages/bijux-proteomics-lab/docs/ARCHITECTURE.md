@@ -37,3 +37,21 @@ evidence truth semantics.
 
 Downstream packages should rely on this layer for planning and outcome logic
 instead of encoding assay scheduling or rerun semantics inside runtime flows.
+
+## Extension signals
+
+- add code here when a new concern changes planning, batching, outcome
+  interpretation, or repository contracts for laboratory work
+- extend `planning.py`, `outcomes.py`, or `repositories.py` before runtime or
+  intelligence code invents local scheduling helpers
+- keep new operational decision rules here when they define lab behavior rather
+  than only the way results are exposed to operators
+
+## Misplacement signals
+
+- if the change needs lifecycle authority, evidence truth, ranking policy, or
+  transport-bound interface logic, it belongs in another package
+- if a helper mainly reformats planning or outcome data for CLI or API surfaces,
+  it belongs in runtime adapters instead of lab modules
+- if a rule only exists for one recommendation or evidence flow, keep it with
+  that owner instead of widening lab semantics
