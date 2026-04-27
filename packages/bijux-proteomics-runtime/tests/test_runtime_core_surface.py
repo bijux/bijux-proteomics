@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from bijux_proteomics_runtime.core import (
     CostSummary,
+    ExecutionStatus,
     FailureType,
+    Outcome,
+    ToolStatus,
+    WorkflowState,
     deterministic_id,
     suggest_next_action,
 )
@@ -24,6 +28,13 @@ def test_runtime_core_exports_failure_helpers() -> None:
 
 def test_runtime_core_exports_deterministic_id() -> None:
     assert deterministic_id("runtime", {"id": 1}).startswith("runtime_")
+
+
+def test_runtime_core_exports_status_enums() -> None:
+    assert ExecutionStatus.COMPLETED == "completed"
+    assert WorkflowState.DONE == "done"
+    assert Outcome.ACCEPTED == "accepted"
+    assert ToolStatus.SUCCESS == "success"
 
 
 def test_runtime_surface_area_uses_canonical_cli_entrypoint() -> None:
