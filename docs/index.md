@@ -19,6 +19,11 @@ serious scientific and operational work reviewable: what the system means,
 what it knows, how it decides, how it runs, and how it touches the lab are not
 the same question and should not collapse into the same code story.
 
+That does not mean the full scientific workflow already exists. Today the
+repository is strongest where contracts, package boundaries, and reviewable
+domain surfaces are concerned. The end-to-end proteomics workflow story still
+needs more explicit stage blueprints and clearer current-scope boundaries.
+
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
@@ -95,6 +100,13 @@ flowchart LR
   can evolve without erasing their seam
 - it keeps the migration from `agentic-proteins` visible instead of pretending
   the transition never happened
+
+## Current Limit
+
+The current repository can explain and validate package-level responsibilities,
+but it is still building the scientific workflow spine that should carry one
+proteomics program from sequence intake through assay planning, evidence review,
+and advancement decisions.
 
 ## Start Here
 
