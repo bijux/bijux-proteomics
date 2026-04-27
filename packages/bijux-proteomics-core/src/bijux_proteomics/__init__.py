@@ -95,6 +95,13 @@ from bijux_proteomics.validation import (
     validate_program,
     validate_program_readiness,
 )
+from bijux_proteomics.workflow_blueprint import (
+    ScientificWorkflowBlueprint,
+    WorkflowStageKind,
+    WorkflowStepBlueprint,
+    workflow_blueprint_for_program,
+    workflow_blueprint_summary,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 __all__ = [
@@ -172,4 +179,9 @@ __all__ = [
     "validate_program",
     "validate_program_readiness",
     "validate_assay_dependencies",
+    "WorkflowStageKind",
+    "WorkflowStepBlueprint",
+    "ScientificWorkflowBlueprint",
+    "workflow_blueprint_for_program",
+    "workflow_blueprint_summary",
 ]
