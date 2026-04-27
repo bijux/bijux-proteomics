@@ -277,6 +277,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Runtime contract helpers now forward directly to canonical runtime core contracts."
 
 [[rule]]
+pattern = "core/costs.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime cost helpers now forward directly to canonical runtime core accounting surfaces."
+
+[[rule]]
 pattern = "core/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"

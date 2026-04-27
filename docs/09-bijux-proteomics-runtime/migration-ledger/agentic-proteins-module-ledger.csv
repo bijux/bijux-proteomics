@@ -44,7 +44,7 @@ biology/validation.py,domain_ownership,bijux-proteomics-core,Biology and regulat
 core/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime core package exports now forward directly to canonical runtime core surfaces.
 core/api_lock.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime api-freeze helpers now forward directly to canonical runtime core contracts.
 core/contracts.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime contract helpers now forward directly to canonical runtime core contracts.
-core/costs.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
+core/costs.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime cost helpers now forward directly to canonical runtime core accounting surfaces.
 core/decisions.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
 core/determinism.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
 core/execution.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
