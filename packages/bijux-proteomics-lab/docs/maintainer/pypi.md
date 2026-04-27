@@ -44,6 +44,15 @@
 - the published wheel and sdist should reflect the same import root and package
   guide that maintainers reviewed locally
 
+## Release escalation signals
+
+- stop the release if planning or rerun behavior now depends on runtime
+  transport internals or on knowledge truth rewrites to remain coherent
+- escalate before tagging if the docs start treating lifecycle, ranking, or
+  evidence semantics as lab-owned behavior
+- escalate when outcome or repository changes cannot be justified by focused
+  lab proof without widening another package boundary
+
 ## Release checklist
 
 1. Validate README and docs reflect current planning and outcome contracts.
