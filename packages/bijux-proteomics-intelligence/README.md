@@ -136,6 +136,14 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
 - expect a lower release burden when the change only improves internal
   implementation without changing decision semantics
 
+## Explicit non-goals
+
+- this package does not own evidence storage, claim lineage, or trust semantics
+- this package does not own runtime transport, provider selection, or operator
+  entrypoints
+- this package does not schedule lab workflows or carry workflow-local rerun
+  policy
+
 ## Source guide
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
