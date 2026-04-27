@@ -91,6 +91,20 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
 - repository and execution protocols must stay replaceable and runtime-agnostic
 - downstream packages should consume core rules rather than restating lifecycle semantics
 
+## Choose this package when
+
+- you need canonical lifecycle, review-gate, or program-state semantics
+- the change defines domain truth that higher layers should consume rather than
+  reinterpret
+- repository or execution protocols must stay runtime-agnostic
+
+## Route elsewhere when
+
+- the change defines evidence trust, ranking policy, lab scheduling, or
+  operator transport behavior
+- the helper exists only to adapt core data into CLI, API, or replay payloads
+- the behavior is workflow-local instead of a reusable program-domain rule
+
 ## Source guide
 
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
