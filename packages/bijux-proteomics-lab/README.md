@@ -127,6 +127,15 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
 - escalate before release when downstream consumers would need package-specific
   rerun or batching exceptions to adopt the change
 
+## Consumer impact signals
+
+- expect downstream review when planning, batching, rerun, or outcome-promotion
+  semantics change because operator workflows depend on them staying stable
+- treat changes that alter scheduling behavior, rerun decisions, or outcome
+  meaning as high-impact even when imports stay stable
+- expect a narrower release burden when the change only improves internal
+  implementation without changing lab execution semantics
+
 ## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
