@@ -114,6 +114,15 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
 - use `docs/maintainer/pypi.md` when the change affects package publication,
   metadata, or release-readiness expectations
 
+## Review questions
+
+- does the change preserve lifecycle rules, protocol contracts, or durable
+  state semantics rather than orchestration or delivery concerns
+- would another package become the de facto owner of state transition meaning if
+  this behavior stayed outside core
+- can the change be justified without claiming evidence, ranking, lab, or
+  runtime transport ownership
+
 ## Source guide
 
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
