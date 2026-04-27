@@ -71,6 +71,15 @@
 - expect a narrower release burden when the change only improves internal
   implementation without changing lab execution semantics
 
+## Release communication signals
+
+- call out planning, rerun, or outcome-promotion changes explicitly when
+  operators may need to adjust workflow expectations after the release
+- name scheduling or batching behavior shifts directly instead of hiding them
+  inside generic maintenance wording
+- keep release messaging brief when the change only improves internals without
+  changing lab execution semantics
+
 ## Release checklist
 
 1. Validate README and docs reflect current planning and outcome contracts.
