@@ -133,6 +133,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Agent analysis package exports now forward directly to canonical runtime analysis surfaces."
 
 [[rule]]
+pattern = "agents/analysis/failure_analysis.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Failure analysis agents now forward directly to canonical runtime analysis implementations."
+
+[[rule]]
 pattern = "agents/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
