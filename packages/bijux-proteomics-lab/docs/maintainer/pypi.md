@@ -62,6 +62,15 @@
 - can the release still be justified without claiming lifecycle, evidence,
   ranking, or provider-interface ownership
 
+## Release impact signals
+
+- expect downstream review when planning, batching, rerun, or outcome-promotion
+  semantics change because operator workflows depend on them staying stable
+- treat changes that alter scheduling behavior, rerun decisions, or outcome
+  meaning as high-impact even when import roots and public names stay stable
+- expect a narrower release burden when the change only improves internal
+  implementation without changing lab execution semantics
+
 ## Release checklist
 
 1. Validate README and docs reflect current planning and outcome contracts.
