@@ -102,13 +102,6 @@ maintaining the workspace rather than for end-user installation.
 - Foundation primitives: [Foundation package handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
 - Maintainer tooling: [Maintainer tooling handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
 
-## Workspace Working Agreement
-
-If you work from the local Bijux workspace, apply the shared working agreement
-at `/Users/bijan/bijuxx/CODEX.md` before editing this repository or preparing
-commits. The repository-level onboarding guidance here complements that
-workspace policy; it does not replace it.
-
 ## Common Commands
 
 - `make help` to list repository automation targets
