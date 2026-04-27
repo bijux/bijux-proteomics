@@ -29,3 +29,12 @@ paths, but canonical packages must not depend on `agentic_proteins`.
 Downstream users may keep legacy imports temporarily, but maintainers should
 review every new compat surface as a forwarding rule, not as a place to grow
 new implementation.
+
+## Escalation signals
+
+- if a change is needed only to preserve legacy imports or entrypoints during
+  migration, escalate it here as a forwarding-only compat surface
+- if a proposed compat module needs fresh runtime, domain, evidence, ranking,
+  or lab behavior, escalate it back to the canonical owning package instead
+- if a compat helper stops being a thin forwarder and starts carrying new logic,
+  treat that as a boundary failure and redesign the migration seam
