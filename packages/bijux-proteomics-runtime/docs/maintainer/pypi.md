@@ -58,6 +58,15 @@
 - escalate when the docs cannot explain entrypoint ownership without ambiguity
   between canonical runtime and compat surfaces
 
+## Release review questions
+
+- does the release preserve canonical operator entrypoints, provider binding,
+  replay safety, or orchestration behavior
+- would compat or lower packages otherwise start carrying shadow runtime-local
+  transport or execution contracts after this release
+- can the release still be justified without masking a missing lower-package
+  contract
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current canonical runtime identity and entrypoint
