@@ -126,6 +126,15 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 - escalate to the owning higher-layer package before release when downstream
   consumers would need package-specific exceptions to adopt the change
 
+## Consumer impact signals
+
+- expect broad downstream review when schema, serialization, identifier, or
+  migration primitives change because every package may consume them
+- treat changes that alter canonical JSON, fingerprints, or compatibility
+  status as high-impact even when APIs stay stable
+- expect a lower release burden when the change only tightens internal
+  implementation without changing shared document behavior
+
 ## Source guide
 
 - [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
