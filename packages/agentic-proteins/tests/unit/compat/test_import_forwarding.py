@@ -31,6 +31,8 @@ from agentic_proteins.providers.factory import _require_module as compat_require
 from agentic_proteins.runtime.control.artifacts import _sign_payload as compat_sign_payload
 from agentic_proteins.runtime.control.execution import (
     _build_run_summary as compat_build_run_summary,
+    _ensure_telemetry_costs as compat_ensure_telemetry_costs,
+    _select_structure_tool as compat_select_structure_tool,
     _version_info as compat_version_info,
 )
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
@@ -62,6 +64,8 @@ from bijux_proteomics_runtime.runtime.control.artifacts import (
 )
 from bijux_proteomics_runtime.runtime.control.execution import (
     _build_run_summary as runtime_build_run_summary,
+    _ensure_telemetry_costs as runtime_ensure_telemetry_costs,
+    _select_structure_tool as runtime_select_structure_tool,
     _version_info as runtime_version_info,
 )
 
@@ -142,3 +146,8 @@ def test_compat_artifact_signature_helper_forwards_to_runtime_symbol() -> None:
 def test_compat_execution_summary_helpers_forward_to_runtime_symbols() -> None:
     assert compat_build_run_summary is runtime_build_run_summary
     assert compat_version_info is runtime_version_info
+
+
+def test_compat_execution_runtime_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_select_structure_tool is runtime_select_structure_tool
+    assert compat_ensure_telemetry_costs is runtime_ensure_telemetry_costs

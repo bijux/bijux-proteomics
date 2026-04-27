@@ -116,6 +116,8 @@ __all__ = [
     "RunManager",
     "RuntimeStateMachine",
     "_build_run_summary",
+    "_ensure_telemetry_costs",
+    "_select_structure_tool",
     "_version_info",
     "run_flow",
 ]
