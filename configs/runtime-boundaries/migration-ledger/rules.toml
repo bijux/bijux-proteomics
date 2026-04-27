@@ -223,6 +223,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Tool base contracts now forward directly to canonical runtime tool interfaces."
 
 [[rule]]
+pattern = "tools/heuristic.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Heuristic tool execution now forwards directly to canonical runtime tool implementations."
+
+[[rule]]
 pattern = "tools/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"

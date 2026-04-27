@@ -141,7 +141,7 @@ state/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution 
 state/snapshot.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 tools/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool package exports now forward directly to canonical runtime tool surfaces.
 tools/base.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool base contracts now forward directly to canonical runtime tool interfaces.
-tools/heuristic.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
+tools/heuristic.py,runtime_execution_ownership,bijux-proteomics-runtime,Heuristic tool execution now forwards directly to canonical runtime tool implementations.
 tools/schemas.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
 validation/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Validation package exports now forward directly to canonical runtime validation surfaces.
 validation/agents.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent registry validation is part of the canonical runtime execution contract.
