@@ -313,6 +313,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Runtime replay fingerprints now forward directly to canonical runtime replay contracts."
 
 [[rule]]
+pattern = "core/hashing.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime replay hashing now forwards directly to canonical runtime replay contracts."
+
+[[rule]]
 pattern = "core/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
