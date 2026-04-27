@@ -36,8 +36,10 @@ def test_domain_owner_matrix_is_enforced() -> None:
     assert owners["design_loop/loop.py"] == "bijux-proteomics-intelligence"
     assert owners["report/__init__.py"] == "bijux-proteomics-intelligence"
     assert owners["report/compute.py"] == "bijux-proteomics-intelligence"
+    assert owners["report/model.py"] == "bijux-proteomics-intelligence"
     assert rows["report/__init__.py"]["bucket"] == "domain_ownership"
     assert rows["report/compute.py"]["bucket"] == "domain_ownership"
+    assert rows["report/model.py"]["bucket"] == "domain_ownership"
 
 
 def test_runtime_support_owner_matrix_is_enforced() -> None:
