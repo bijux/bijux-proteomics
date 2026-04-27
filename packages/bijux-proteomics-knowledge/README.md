@@ -66,11 +66,24 @@ pip install bijux-proteomics-knowledge
 from bijux_proteomics_knowledge import evidence, claims, resolution, graph
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-knowledge`
+- Import root: `bijux_proteomics_knowledge`
+- Stable entrypoints: `evidence`, `claims`, `resolution`, `graph`, and `review`
+
 ## Package boundaries
 
 This package owns evidence records, claim state, trust scoring, and contradiction resolution.
 
 It does not own lifecycle gate transitions, ranking policy decisions, or experiment scheduling.
+
+## Contract checkpoints
+
+- evidence and claim records must stay typed, auditable, and schema-versioned
+- trust, freshness, and contradiction outputs must remain explicit instead of inferred
+- resolution flows must preserve explainable lineage from evidence to decision
+- downstream packages should depend on this layer for evidence semantics instead of re-scoring trust locally
 
 ## Source guide
 
