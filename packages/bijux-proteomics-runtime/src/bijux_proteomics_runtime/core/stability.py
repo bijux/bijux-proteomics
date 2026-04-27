@@ -48,15 +48,13 @@ def sealed() -> None:
 
 
 STABILITY_EXPECTATIONS = {
-    "agentic_proteins.api": StabilityLevel.STABLE,
-    "agentic_proteins.interfaces": StabilityLevel.STABLE,
-    "agentic_proteins.providers": StabilityLevel.EXPERIMENTAL,
-    "agentic_proteins.providers.experimental": StabilityLevel.EXPERIMENTAL,
-    "agentic_proteins.sandbox": StabilityLevel.EXPERIMENTAL,
-    "bijux_proteomics.biology": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.api": StabilityLevel.STABLE,
+    "bijux_proteomics_runtime.interfaces": StabilityLevel.STABLE,
+    "bijux_proteomics_runtime.providers": StabilityLevel.EXPERIMENTAL,
+    "bijux_proteomics_runtime.providers.experimental": StabilityLevel.EXPERIMENTAL,
     "bijux_proteomics_runtime.core": StabilityLevel.SEALED,
-    "agentic_proteins.execution": StabilityLevel.SEALED,
-    "agentic_proteins.runtime": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.execution": StabilityLevel.SEALED,
+    "bijux_proteomics_runtime.runtime": StabilityLevel.SEALED,
 }
 
 __all__ = [
