@@ -48,3 +48,12 @@ duplicating gate logic in one-off shell fragments or workflow-local scripts.
   or scientific package meaning, escalate it back to the owning package instead
 - if policy enforcement starts behaving like a shadow implementation of product
   logic, treat that as a boundary failure and redesign the check surface
+
+## Review questions
+
+- does the change define repository governance, release policy, docs integrity,
+  or maintainer automation rather than product behavior
+- would CI YAML, shell glue, or one-off scripts become the de facto policy
+  owner if this behavior stayed out of the maintainer package
+- can the change still be defended without claiming runtime execution or
+  scientific domain truth as maintainer-owned logic
