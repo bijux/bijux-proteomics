@@ -89,3 +89,12 @@ Compatibility package modules are forwarding-only surfaces in strict mode.
   ranking, or lab meaning, escalate it back to the owning lower package first
 - if a lower-layer package needs to import runtime to express its own domain
   truth, treat that as a boundary failure and redesign the seam instead
+
+## Boundary failure signals
+
+- if lower-layer packages start importing runtime modules to express their own
+  semantics, runtime is owning too much and the seam needs to move downward
+- if compat modules become the first landing place for canonical runtime
+  behavior, migration staging has drifted and ownership must be pulled back here
+- if runtime adapters have to redefine schema, lifecycle, evidence, ranking, or
+  lab truth locally, the owning lower package contract is incomplete
