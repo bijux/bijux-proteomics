@@ -89,12 +89,3 @@ updates:
     labels:
       - dependencies
       - python
-
-  - package-ecosystem: pip
-    directory: "/packages/bijux-proteomics-runtime"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
