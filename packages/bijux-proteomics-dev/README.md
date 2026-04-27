@@ -38,11 +38,24 @@ make quality
 make security
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-dev`
+- Import root: `bijux_proteomics_dev`
+- Stable entrypoints: `quality`, `security`, `api`, `docs`, `release`, and `tools`
+
 ## Package boundaries
 
 This package owns maintainer automation and gate implementations for the monorepo.
 
 It does not define runtime product APIs or proteomics domain behavior.
+
+## Contract checkpoints
+
+- repository checks must be deterministic for the same checked-in state
+- failing gates must emit actionable diagnostics instead of silent drift
+- maintainer helpers may enforce package contracts, but they do not become product contracts
+- new repository policy should land here before it is copied into CI scripts or ad hoc shell glue
 
 ## Source guide
 
