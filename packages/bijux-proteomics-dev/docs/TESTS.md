@@ -43,6 +43,15 @@ policy it owns:
 - release guidance should stay aligned with package identity, package docs, and
   the root repository validation surface
 
+## Release-blocking signals
+
+- block the release when package maintainer docs cannot explain why the current
+  boundary and ownership claims are still safe to publish
+- block the release when workflow or metadata tests pass but the package docs
+  and release policy still disagree about the owning surface
+- block the release when a package needs a release exception that has not been
+  encoded as durable maintainer policy and executable proof
+
 ## Non-goals
 
 - This page does not replace package-specific scientific or runtime tests.
