@@ -65,11 +65,24 @@ pip install bijux-proteomics-intelligence
 from bijux_proteomics_intelligence import briefs, policies, evaluators
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-intelligence`
+- Import root: `bijux_proteomics_intelligence`
+- Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`, and `outcomes`
+
 ## Package boundaries
 
 This package owns decision intelligence, ranking policy, scenario scoring, and explainability outputs.
 
 It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
+
+## Contract checkpoints
+
+- ranking and scenario outputs must carry typed rationale instead of opaque scores
+- policy models must remain reproducible inputs for repeated evaluations
+- portfolio and rejection summaries must stay explicit enough for review-gate use
+- downstream packages should ask this layer for recommendation logic instead of recreating scoring locally
 
 ## Source guide
 
