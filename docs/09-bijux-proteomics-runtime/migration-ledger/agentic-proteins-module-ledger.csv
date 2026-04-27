@@ -139,7 +139,7 @@ sandbox/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Executi
 state/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 state/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 state/snapshot.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
-tools/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
+tools/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool package exports now forward directly to canonical runtime tool surfaces.
 tools/base.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
 tools/heuristic.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
 tools/schemas.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.

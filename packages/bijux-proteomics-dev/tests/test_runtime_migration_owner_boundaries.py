@@ -59,6 +59,8 @@ def test_runtime_execution_promotions_are_enforced() -> None:
     assert rows["memory/schemas.py"]["bucket"] == "runtime_execution_ownership"
     assert rows["memory/store.py"]["owner_package"] == "bijux-proteomics-runtime"
     assert rows["memory/store.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["tools/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["tools/__init__.py"]["bucket"] == "runtime_execution_ownership"
     assert rows["execution/__init__.py"]["owner_package"] == (
         "bijux-proteomics-runtime"
     )
