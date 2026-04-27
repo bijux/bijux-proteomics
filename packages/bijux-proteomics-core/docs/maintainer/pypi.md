@@ -53,6 +53,15 @@
 - escalate when consumers would need silent import or protocol rewrites to keep
   ordinary lifecycle behavior working
 
+## Release review questions
+
+- does the release preserve canonical lifecycle, review-gate, or protocol
+  behavior rather than drifting into a higher-layer policy surface
+- would another package otherwise become the de facto owner of program
+  semantics after this release
+- can the release still be justified without borrowing evidence, ranking, lab,
+  or runtime-delivery ownership
+
 ## Release checklist
 
 1. Validate `README.md` and package docs describe current domain ownership.
