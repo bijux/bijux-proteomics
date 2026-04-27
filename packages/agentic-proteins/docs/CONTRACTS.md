@@ -39,6 +39,15 @@ guard strict compat mode.
 - if users need a new legacy surface, the durable canonical contract change
   should land in the owning package before compat exposes a forwarding alias
 
+## Validation checkpoints
+
+- forwarding tests should prove the compat import or entrypoint still resolves
+  to the canonical owner after the change
+- boundary and migration checks should stay green before any widened compat
+  alias is treated as safe
+- compat contract changes should preserve forwarding-only behavior instead of
+  silently introducing fresh implementation logic
+
 ## Explicit non-contracts
 
 - This package is not the canonical runtime.
