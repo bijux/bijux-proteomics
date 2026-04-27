@@ -131,6 +131,15 @@ from agentic_proteins.interfaces.cli import cli
 - escalate before release when adopting the change would require documenting
   compat-only exceptions instead of the canonical package surface
 
+## Consumer impact signals
+
+- expect review against the canonical owner when compat exports or forwarding
+  targets change because consumers rely on stable migration continuity
+- treat changes that alter forwarding behavior or canonical mapping as
+  high-impact even when public import names stay stable
+- expect a lower release burden when the change only tightens documentation or
+  internal compat wiring without changing forwarding behavior
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
