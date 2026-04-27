@@ -6,9 +6,9 @@
 from __future__ import annotations
 
 CORE_API_FROZEN = (
-    "agentic_proteins.runtime.control.execution.RunManager",
-    "agentic_proteins.runtime.infra.config.RunConfig",
-    "agentic_proteins.interfaces.cli.cli",
+    "bijux_proteomics_runtime.runtime.RunManager",
+    "bijux_proteomics_runtime.runtime.infra.RunConfig",
+    "bijux_proteomics_runtime.interfaces.cli.cli",
     "bijux_proteomics.biology.protein_agent.ProteinAgent",
     "bijux_proteomics_runtime.core.contracts.AGENT_EXECUTION_CONTRACT",
 )

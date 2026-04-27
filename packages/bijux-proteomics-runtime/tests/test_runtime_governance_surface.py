@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from bijux_proteomics_runtime.core.api_lock import CORE_API_FROZEN
 from bijux_proteomics_runtime.core.stability import STABILITY_EXPECTATIONS, StabilityLevel
 
 
@@ -31,3 +32,9 @@ def test_runtime_stability_marks_runtime_owned_zones() -> None:
         STABILITY_EXPECTATIONS["bijux_proteomics_runtime.runtime"]
         == StabilityLevel.SEALED
     )
+
+
+def test_runtime_api_lock_freezes_canonical_runtime_symbols() -> None:
+    assert "bijux_proteomics_runtime.runtime.RunManager" in CORE_API_FROZEN
+    assert "bijux_proteomics_runtime.runtime.infra.RunConfig" in CORE_API_FROZEN
+    assert "bijux_proteomics_runtime.interfaces.cli.cli" in CORE_API_FROZEN
