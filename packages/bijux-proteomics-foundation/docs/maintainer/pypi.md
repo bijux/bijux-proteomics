@@ -64,6 +64,15 @@
 - can the release still be justified without claiming lifecycle, evidence,
   ranking, lab, or runtime ownership here
 
+## Release impact signals
+
+- expect broad downstream review when schema, serialization, fingerprint, or
+  migration behavior changes because every package may consume those primitives
+- treat changes that alter canonical JSON or compatibility status as high-impact
+  even when import roots and function names stay stable
+- expect a narrower release burden when the change only tightens internal
+  implementation without changing shared document behavior
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current package ownership and boundaries.
