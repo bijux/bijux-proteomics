@@ -98,3 +98,12 @@ Compatibility package modules are forwarding-only surfaces in strict mode.
   behavior, migration staging has drifted and ownership must be pulled back here
 - if runtime adapters have to redefine schema, lifecycle, evidence, ranking, or
   lab truth locally, the owning lower package contract is incomplete
+
+## Review questions
+
+- does the change alter canonical operator entrypoints, provider binding,
+  execution coordination, or replay-safe runtime behavior
+- would compat or lower packages start carrying runtime-local orchestration or
+  transport truth if this concern stayed out of runtime
+- can the change still be defended without masking a missing contract in a
+  lower owning package
