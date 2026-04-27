@@ -71,6 +71,15 @@
 - expect a lower release burden when the change only improves internal
   implementation without changing decision semantics
 
+## Release communication signals
+
+- call out ranking, evaluator, or explainability changes explicitly when users
+  may observe different recommendation outcomes
+- name any rationale-surface or scoring-policy shift directly instead of hiding
+  it inside generic maintenance wording
+- keep release messaging brief when the change only improves internals without
+  changing decision semantics
+
 ## Release checklist
 
 1. Verify README and package docs describe current ranking/scenario behavior.
