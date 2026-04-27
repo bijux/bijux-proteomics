@@ -54,6 +54,15 @@ It owns:
 - `src/bijux_proteomics_dev/release` when release-readiness rules need a
   durable policy change instead of a workflow-local exception
 
+## Release review questions
+
+- does the proposed release claim belong to package-owned release policy rather
+  than to runtime or scientific package behavior
+- would workflow YAML, shell glue, or one-off scripts otherwise become the
+  de facto reviewer of release safety
+- can the release still be justified without claiming product runtime execution
+  or scientific domain truth as maintainer-owned logic
+
 ## Source guide
 
 - `src/bijux_proteomics_dev/quality` for repository quality and migration checks
