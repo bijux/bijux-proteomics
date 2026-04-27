@@ -46,6 +46,15 @@ validator diagnostics, or protocol behavior.
 - contract changes should stay green in focused package tests before runtime or
   higher-layer workflows rely on the new lifecycle semantics
 
+## Review questions
+
+- does the contract change alter canonical lifecycle, review-gate, or protocol
+  behavior rather than a higher-layer policy surface
+- would runtime or other packages otherwise become the de facto owner of
+  program semantics
+- can the contract still be justified without borrowing evidence, ranking, lab,
+  or runtime-delivery ownership
+
 ## Explicit non-contracts
 
 - This package does not define evidence trust policy.
