@@ -32,3 +32,9 @@ def test_minimal_repro_example_uses_canonical_biology_imports() -> None:
     assert "from bijux_proteomics.biology.pathway import (" in text
     assert "from bijux_proteomics.biology.protein_agent import (" in text
     assert "from bijux_proteomics.biology.signals import " in text
+
+
+def test_manage_examples_uses_canonical_runtime_user_agent() -> None:
+    text = _tool_text("manage_examples.py")
+    assert "agentic-proteins-example-prep" not in text
+    assert 'USER_AGENT = "bijux-proteomics-example-prep/1.0 (+https://rcsb.org)"' in text

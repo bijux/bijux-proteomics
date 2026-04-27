@@ -88,7 +88,7 @@ DEFAULT_OUT_ROOT = pathlib.Path("examples")
 PAUSE_SEC_BETWEEN_DOWNLOADS = 0.25  # be gentle to RCSB
 HTTP_TIMEOUT = 30
 HTTP_RETRIES = 3
-USER_AGENT = "agentic-proteins-example-prep/1.0 (+https://rcsb.org)"
+USER_AGENT = "bijux-proteomics-example-prep/1.0 (+https://rcsb.org)"
 
 
 # ------------------- HTTP HELPERS -------------------
