@@ -181,6 +181,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Agent planning package exports now forward directly to canonical runtime planning surfaces."
 
 [[rule]]
+pattern = "agents/planning/compiler.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Planning compiler helpers now forward directly to canonical runtime planning implementations."
+
+[[rule]]
 pattern = "agents/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
