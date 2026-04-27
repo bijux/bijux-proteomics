@@ -26,6 +26,7 @@ from agentic_proteins.interfaces.cli import (
     _write_output as compat_write_output,
     cli as compat_cli,
 )
+from agentic_proteins.providers.base import _time_left as compat_time_left
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
@@ -46,6 +47,7 @@ from bijux_proteomics_runtime.interfaces.cli import (
     _write_output as runtime_write_output,
     cli as runtime_cli,
 )
+from bijux_proteomics_runtime.providers.base import _time_left as runtime_time_left
 
 
 def _config_payload(config: object) -> dict[str, object]:
@@ -107,3 +109,7 @@ def test_compat_cli_artifact_helpers_forward_to_runtime_symbols() -> None:
     assert compat_load_run_config is runtime_load_run_config
     assert compat_emit_run_summary_human is runtime_emit_run_summary_human
     assert compat_artifact_hashes is runtime_artifact_hashes
+
+
+def test_compat_provider_deadline_helper_forwards_to_runtime_symbol() -> None:
+    assert compat_time_left is runtime_time_left
