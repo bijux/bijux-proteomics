@@ -13,9 +13,17 @@ from agentic_proteins.execution.evaluation.observations import (
     EvaluationInput as CompatEvaluationInput,
 )
 from agentic_proteins.interfaces.cli import (
+    _artifact_hashes as compat_artifact_hashes,
+    _artifact_paths as compat_artifact_paths,
     _build_run_config as compat_build_run_config,
+    _emit_json_payload as compat_emit_json_payload,
+    _emit_run_summary_human as compat_emit_run_summary_human,
+    _export_report_payload as compat_export_report_payload,
+    _load_run_config as compat_load_run_config,
+    _load_run_summary as compat_load_run_summary,
     _read_sequence as compat_read_sequence,
     _resume_candidate as compat_resume_candidate,
+    _write_output as compat_write_output,
     cli as compat_cli,
 )
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
@@ -25,9 +33,17 @@ from bijux_proteomics_runtime.execution.evaluation.observations import (
     EvaluationInput as RuntimeEvaluationInput,
 )
 from bijux_proteomics_runtime.interfaces.cli import (
+    _artifact_hashes as runtime_artifact_hashes,
+    _artifact_paths as runtime_artifact_paths,
     _build_run_config as runtime_build_run_config,
+    _emit_json_payload as runtime_emit_json_payload,
+    _emit_run_summary_human as runtime_emit_run_summary_human,
+    _export_report_payload as runtime_export_report_payload,
+    _load_run_config as runtime_load_run_config,
+    _load_run_summary as runtime_load_run_summary,
     _read_sequence as runtime_read_sequence,
     _resume_candidate as runtime_resume_candidate,
+    _write_output as runtime_write_output,
     cli as runtime_cli,
 )
 
@@ -80,3 +96,14 @@ def test_compat_cli_input_helpers_forward_to_runtime_symbols() -> None:
     assert compat_read_sequence is runtime_read_sequence
     assert compat_build_run_config is runtime_build_run_config
     assert compat_resume_candidate is runtime_resume_candidate
+
+
+def test_compat_cli_artifact_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_export_report_payload is runtime_export_report_payload
+    assert compat_write_output is runtime_write_output
+    assert compat_artifact_paths is runtime_artifact_paths
+    assert compat_emit_json_payload is runtime_emit_json_payload
+    assert compat_load_run_summary is runtime_load_run_summary
+    assert compat_load_run_config is runtime_load_run_config
+    assert compat_emit_run_summary_human is runtime_emit_run_summary_human
+    assert compat_artifact_hashes is runtime_artifact_hashes
