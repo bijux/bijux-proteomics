@@ -1,6 +1,13 @@
 # PyPI Maintainer Notes
 
-## Release Surface
+## Package identity
+
+- package: `bijux-proteomics-intelligence`
+- import root: `bijux_proteomics_intelligence`
+- repository: `bijux/bijux-proteomics`
+- owner: Bijan Mousavi (`bijan@bijux.io`)
+
+## Release surface
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-intelligence/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
@@ -8,22 +15,36 @@
 [![Publish](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
 [![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
 
-- package guide: <https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/>
-- release and versioning: <https://bijux.io/bijux-proteomics/bijux-proteomics-intelligence/operations/release-and-versioning/>
+- package guide: <https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/>
+- release and versioning: <https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/release-and-versioning/>
 - package directory: <https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence>
 - verify workflow: <https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml>
 - release workflow: <https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml>
 - docs workflow: <https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml>
 
-- package: `bijux-proteomics-intelligence`
-- owner: Bijan Mousavi (`bijan@bijux.io`)
-- repository: `bijux/bijux-proteomics`
+## Release contract
 
-Release checklist:
+- release must preserve reproducible ranking and scenario policy behavior
+- release docs must match current ownership boundaries and canonical public roots
+- downstream packages should still depend on this layer for recommendation logic
+
+## Validation focus
+
+- ranking and evaluator tests prove deterministic policy behavior
+- public package docs prove recommendation ownership and non-ownership stay clear
+- repository release checks prove package metadata and workflows remain aligned
+
+## Release checklist
 
 1. Verify README and package docs describe current ranking/scenario behavior.
-2. Confirm behavioral deltas are covered by scenario and ranking tests.
+2. Confirm `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+   still describe the same policy and recommendation ownership.
 3. Run `make lint test quality security` from repository root.
 4. Verify `.github/workflows/release-artifacts.yml` is configured for tag-triggered release (`v*`) with PyPI trusted publishing.
 5. Create and push the release tag (`vX.Y.Z`) after changelog and metadata are final.
 6. Confirm the release workflow uploaded and released both wheel and sdist artifacts.
+
+## Explicit non-goals
+
+- This page does not redefine ranking policy semantics.
+- This page does not replace evaluator and scenario tests.
