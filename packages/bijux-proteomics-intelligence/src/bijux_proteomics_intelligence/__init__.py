@@ -141,6 +141,11 @@ from bijux_proteomics_intelligence.policies import (
     validate_metric_catalog,
 )
 from bijux_proteomics_intelligence.serialization import JsonModel
+from bijux_proteomics_intelligence.workflow import (
+    WorkflowReadinessStep,
+    WorkflowReadinessSummary,
+    summarize_workflow_readiness,
+)
 
 __all__ = [
     "CandidateAssessment",
@@ -238,6 +243,9 @@ __all__ = [
     "build_final_decision_recommendation",
     "summarize_unresolved_question_ledger",
     "build_advanced_review_packet",
+    "WorkflowReadinessStep",
+    "WorkflowReadinessSummary",
+    "summarize_workflow_readiness",
     "portfolio_status",
     "select_portfolio_shortlist",
     "sequence_risk_signals",
