@@ -55,3 +55,12 @@ instead of encoding assay scheduling or rerun semantics inside runtime flows.
   it belongs in runtime adapters instead of lab modules
 - if a rule only exists for one recommendation or evidence flow, keep it with
   that owner instead of widening lab semantics
+
+## Review questions
+
+- does the change alter canonical planning, batching, outcome interpretation,
+  or lab repository behavior rather than just exposing those results
+- would runtime or intelligence code start carrying local scheduling or rerun
+  truth if this behavior stayed out of lab
+- can the architecture still be explained without claiming lifecycle, evidence,
+  ranking, or transport-bound interface ownership
