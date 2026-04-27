@@ -33,3 +33,20 @@ Canonical packages must not depend on `agentic_proteins`.
 
 New integrations should start from canonical packages. This package exists to
 reduce migration risk, not to accumulate fresh runtime or domain logic.
+
+## Extension signals
+
+- add code here only when a new concern preserves legacy import or CLI
+  continuity for an already-canonical surface
+- extend forwarding trees before reintroducing behavioral code into compat
+- keep compat changes narrowly focused on migration safety and canonical-owner
+  visibility
+
+## Misplacement signals
+
+- if the change defines runtime orchestration, provider behavior, or any domain
+  semantics, it belongs in the canonical owning package instead
+- if a helper mainly serves new integrations rather than legacy continuity, it
+  should start in canonical packages and only then gain compat forwarding
+- if a module stops being forwarding-only, treat that as an architecture smell
+  and route the implementation back to the owner
