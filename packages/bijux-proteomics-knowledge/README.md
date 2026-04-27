@@ -85,6 +85,19 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 - resolution flows must preserve explainable lineage from evidence to decision
 - downstream packages should depend on this layer for evidence semantics instead of re-scoring trust locally
 
+## Choose this package when
+
+- you need evidence, claim, contradiction, or lineage semantics
+- auditability and review traceability are part of the contract
+- multiple higher layers should share the same trust and resolution model
+
+## Route elsewhere when
+
+- the change defines lifecycle authority, ranking policy, lab scheduling, or
+  transport-bound payload shaping
+- the helper only reformats evidence results for operator interfaces
+- the behavior exists for one scoring or lab workflow instead of shared evidence meaning
+
 ## Source guide
 
 - [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
