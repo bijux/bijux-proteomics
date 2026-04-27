@@ -87,3 +87,17 @@ def test_maintainer_scope_doc_has_owned_surfaces_and_routing_sections() -> None:
     assert not missing, (
         f"{path.relative_to(REPO_ROOT).as_posix()}: missing {', '.join(missing)}"
     )
+
+
+def test_runtime_boundary_doc_has_escalation_section() -> None:
+    path = REPO_ROOT / "packages" / "bijux-proteomics-runtime" / "docs" / "BOUNDARIES.md"
+    text = path.read_text(encoding="utf-8")
+    expected_bits = [
+        "## Escalation signals",
+        "compat forwards it",
+        "boundary failure",
+    ]
+    missing = [bit for bit in expected_bits if bit not in text]
+    assert not missing, (
+        f"{path.relative_to(REPO_ROOT).as_posix()}: missing {', '.join(missing)}"
+    )

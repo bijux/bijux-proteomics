@@ -52,6 +52,8 @@ def test_architecture_docs_share_identity_and_structure_sections() -> None:
             "## Design constraints",
             "## Dependency direction",
             "## Downstream expectations",
+            "## Extension signals",
+            "## Misplacement signals",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
         if missing:
