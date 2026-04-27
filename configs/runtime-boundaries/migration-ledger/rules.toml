@@ -133,6 +133,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment."
 
 [[rule]]
+pattern = "memory/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime memory package exports now forward directly to canonical runtime memory surfaces."
+
+[[rule]]
 pattern = "memory/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
