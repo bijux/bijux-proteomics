@@ -84,6 +84,20 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
 - portfolio and rejection summaries must stay explicit enough for review-gate use
 - downstream packages should ask this layer for recommendation logic instead of recreating scoring locally
 
+## Choose this package when
+
+- you need candidate ranking, scenario evaluation, or explainable recommendation
+  logic
+- the change affects decision meaning rather than the way results are delivered
+- policy and rationale should stay explicit and reproducible
+
+## Route elsewhere when
+
+- the change defines lifecycle authority, evidence storage, lab scheduling, or
+  transport wiring
+- the helper only reformats recommendation outputs for CLI or API consumers
+- the behavior is a workflow-specific override rather than a reusable decision rule
+
 ## Source guide
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
