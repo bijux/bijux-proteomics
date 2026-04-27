@@ -48,6 +48,15 @@ JSON behavior, compatibility semantics, or migration-path guarantees.
 - downstream-facing helper changes should keep focused contract tests green
   before higher-layer packages absorb the new primitive behavior
 
+## Review questions
+
+- does the contract change alter shared document primitives rather than a
+  higher-layer policy or execution concern
+- would downstream packages otherwise need to invent divergent serialization,
+  schema, identifier, or migration behavior
+- can the contract still be justified without claiming lifecycle, evidence,
+  ranking, lab, or runtime ownership here
+
 ## Explicit non-contracts
 
 - This package does not define product decision policy.
