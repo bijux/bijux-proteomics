@@ -106,6 +106,15 @@ It does not define runtime product APIs or proteomics domain behavior.
 - expect a narrower release burden when the change only improves internal
   maintainer implementation without changing repository policy behavior
 
+## Explicit non-goals
+
+- this package does not own product semantics, scientific truth, or canonical
+  runtime behavior
+- this package does not replace package-local domain contracts with generic
+  governance prose
+- this package does not justify repository exceptions that should instead land
+  as durable policy or package-owned behavior
+
 ## Source guide
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
