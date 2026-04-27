@@ -78,6 +78,15 @@
 - expect a narrower release burden when the change only improves internal
   orchestration without changing runtime-facing behavior
 
+## Release communication signals
+
+- call out CLI, API, provider, replay, or compat-facing changes explicitly when
+  operators may need to re-check runtime expectations after the release
+- name canonical entrypoint or adapter-law changes directly instead of hiding
+  them inside generic maintenance wording
+- keep release messaging brief when the change only improves internals without
+  changing runtime-facing behavior
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current canonical runtime identity and entrypoint
