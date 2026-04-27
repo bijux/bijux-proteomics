@@ -126,6 +126,16 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
 - escalate before release when downstream consumers would need package-specific
   ranking exceptions to adopt the change
 
+## Consumer impact signals
+
+- expect downstream review when scoring rules, explainability behavior, or
+  evaluator contracts change because consumers rely on stable recommendation
+  meaning
+- treat changes that alter ranking outcomes or rationale surfaces as
+  high-impact even when function names and imports stay stable
+- expect a lower release burden when the change only improves internal
+  implementation without changing decision semantics
+
 ## Source guide
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
