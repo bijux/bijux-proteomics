@@ -107,6 +107,15 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
 - use `docs/maintainer/pypi.md` when the change affects package publication,
   metadata, or release-readiness expectations
 
+## Review questions
+
+- does the change preserve recommendation, scoring, or explainability semantics
+  rather than output transport or workflow-local formatting
+- would runtime or lab surfaces start carrying shadow ranking policy if this
+  behavior stayed outside intelligence
+- can the change be justified without claiming lifecycle, evidence, lab
+  execution, or runtime interface ownership
+
 ## Source guide
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
