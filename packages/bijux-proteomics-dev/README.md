@@ -70,6 +70,15 @@ It does not define runtime product APIs or proteomics domain behavior.
 - the helper exists only to patch one workflow with ad hoc shell glue
 - the policy cannot be explained without changing an owning package contract first
 
+## Verification route
+
+- check `tests` for maintainer-policy, docs, release, and migration proof before
+  treating a dev-package change as safe
+- review `docs/SCOPE.md`, `docs/CONTRACTS.md`, `docs/ARCHITECTURE.md`, and
+  `docs/TESTS.md` when governance claims are part of the change
+- use `docs/index.md` and publishable package `docs/maintainer/pypi.md` files
+  when the change affects release policy, docs routing, or maintainer guidance
+
 ## Source guide
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
