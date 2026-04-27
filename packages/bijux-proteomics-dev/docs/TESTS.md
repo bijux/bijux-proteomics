@@ -34,6 +34,15 @@ policy it owns:
   migration authority
 - docs publication and honesty tests protect the public reader-facing contract
 
+## Release proof expectations
+
+- publishable package maintainer docs should state the release contract,
+  validation focus, and publication checkpoints for the package they govern
+- release-policy tests should pin both workflow structure and metadata behavior
+  instead of relying on manual interpretation
+- release guidance should stay aligned with package identity, package docs, and
+  the root repository validation surface
+
 ## Non-goals
 
 - This page does not replace package-specific scientific or runtime tests.
