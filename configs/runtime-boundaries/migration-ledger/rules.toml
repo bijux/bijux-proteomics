@@ -4,7 +4,7 @@
 pattern = "__init__.py"
 bucket = "runtime_support_internal_review"
 owner_package = "agentic-proteins-compat"
-reason = "Top-level package export surface remains in compat layer during migration and requires explicit forwarding review."
+reason = "Top-level package export surface remains as the single intentional compat-owned bridge while canonical runtime and domain surfaces move downstream."
 
 [[rule]]
 pattern = "api/**"

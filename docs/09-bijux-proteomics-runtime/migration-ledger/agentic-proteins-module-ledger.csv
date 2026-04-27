@@ -1,5 +1,5 @@
 module_path,bucket,owner_package,reason
-__init__.py,runtime_support_internal_review,agentic-proteins-compat,Top-level package export surface remains in compat layer during migration and requires explicit forwarding review.
+__init__.py,runtime_support_internal_review,agentic-proteins-compat,Top-level package export surface remains as the single intentional compat-owned bridge while canonical runtime and domain surfaces move downstream.
 agents/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent package exports now forward directly to canonical runtime agent orchestration surfaces.
 agents/analysis/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent analysis package exports now forward directly to canonical runtime analysis surfaces.
 agents/analysis/failure_analysis.py,runtime_execution_ownership,bijux-proteomics-runtime,Failure analysis agents now forward directly to canonical runtime analysis implementations.

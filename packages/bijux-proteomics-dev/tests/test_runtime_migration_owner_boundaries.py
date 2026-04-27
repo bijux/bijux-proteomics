@@ -28,6 +28,8 @@ def _row_map() -> dict[str, dict[str, str]]:
 def test_domain_owner_matrix_is_enforced() -> None:
     owners = _owner_map()
     rows = _row_map()
+    assert owners["__init__.py"] == "agentic-proteins-compat"
+    assert rows["__init__.py"]["bucket"] == "runtime_support_internal_review"
     assert owners["biology/pathway.py"] == "bijux-proteomics-core"
     assert owners["domain/sequence/summary.py"] == "bijux-proteomics-core"
     assert owners["domain/structure/structure.py"] == "bijux-proteomics-core"
