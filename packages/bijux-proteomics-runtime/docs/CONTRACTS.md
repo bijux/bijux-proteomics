@@ -55,6 +55,15 @@ ownership.
 - replay and adapter tests should preserve lower-layer runtime-agnostic
   contracts before operator-facing wrappers ship the new behavior
 
+## Review questions
+
+- does the contract change alter canonical operator entrypoints, provider
+  binding, replay safety, or orchestration behavior
+- would compat or lower packages otherwise start carrying shadow runtime-local
+  transport or execution contracts
+- can the contract still be justified without masking a missing lower-package
+  contract
+
 ## Explicit non-contracts
 
 - No compat deprecation policy is finalized in this document.
