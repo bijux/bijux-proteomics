@@ -169,6 +169,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Agent execution package exports now forward directly to canonical runtime execution-agent surfaces."
 
 [[rule]]
+pattern = "agents/execution/coordinator.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Coordinator agent execution now forwards directly to canonical runtime execution-agent implementations."
+
+[[rule]]
 pattern = "agents/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"

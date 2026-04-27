@@ -8,7 +8,7 @@ agents/analysis/structure.py,runtime_execution_ownership,bijux-proteomics-runtim
 agents/base/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent base package exports now forward directly to canonical runtime agent base surfaces.
 agents/base/base.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent base classes now forward directly to canonical runtime agent base implementations.
 agents/execution/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent execution package exports now forward directly to canonical runtime execution-agent surfaces.
-agents/execution/coordinator.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
+agents/execution/coordinator.py,runtime_execution_ownership,bijux-proteomics-runtime,Coordinator agent execution now forwards directly to canonical runtime execution-agent implementations.
 agents/planning/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/planning/compiler.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/planning/generation.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
