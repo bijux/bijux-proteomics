@@ -99,6 +99,15 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
 - the behavior belongs to one evidence or recommendation workflow instead of
   shared laboratory execution logic
 
+## Verification route
+
+- check `tests` for planning, outcome, repository, and schema proof before
+  treating a lab change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or planning-semantics claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
 ## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
