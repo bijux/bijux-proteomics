@@ -57,6 +57,15 @@
 - escalate when migration proof no longer shows a single unambiguous path from
   legacy imports to canonical ownership
 
+## Release review questions
+
+- does the release preserve legacy continuity for an already-canonical surface
+  instead of inventing new product behavior
+- would the true implementation still live entirely in canonical packages if
+  the compat layer disappeared after migration
+- can the release still be justified as forwarding-only without ambiguity about
+  the runtime or lower canonical owner
+
 ## Release checklist
 
 1. Verify `README.md` and package docs reflect current compat-only ownership.
