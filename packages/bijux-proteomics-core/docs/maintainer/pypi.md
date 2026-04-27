@@ -62,6 +62,15 @@
 - can the release still be justified without borrowing evidence, ranking, lab,
   or runtime-delivery ownership
 
+## Release impact signals
+
+- expect coordinated downstream review when lifecycle rules, validators, or
+  repository protocols change because higher layers consume core state meaning
+- treat changes that alter transition semantics or protocol obligations as
+  high-impact even when import roots and public names stay stable
+- expect a narrower release burden when the change only improves internal core
+  implementation without changing lifecycle or protocol behavior
+
 ## Release checklist
 
 1. Validate `README.md` and package docs describe current domain ownership.
