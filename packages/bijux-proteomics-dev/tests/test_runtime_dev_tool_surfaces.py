@@ -24,3 +24,11 @@ def test_visualize_invariants_uses_canonical_biology_imports() -> None:
     assert "from agentic_proteins" not in text
     assert "from bijux_proteomics.biology import (" in text
     assert "from bijux_proteomics.biology.protein_agent import " in text
+
+
+def test_minimal_repro_example_uses_canonical_biology_imports() -> None:
+    text = _tool_text("mre_agentic_protein.py")
+    assert "from agentic_proteins" not in text
+    assert "from bijux_proteomics.biology.pathway import (" in text
+    assert "from bijux_proteomics.biology.protein_agent import (" in text
+    assert "from bijux_proteomics.biology.signals import " in text
