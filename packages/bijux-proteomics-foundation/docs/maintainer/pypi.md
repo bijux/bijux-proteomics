@@ -36,6 +36,15 @@
 - migration tests prove version-path continuity and failure diagnostics
 - repository checks prove metadata, release wiring, and docs publication stay aligned
 
+## Publication checkpoints
+
+- package metadata, docs links, and ownership language should match the current
+  shared primitive contract before tagging
+- release validation should leave schema, migration, and serialization proof
+  green in the repository root check surface
+- the published wheel and sdist should reflect the same package identity and
+  package guide that maintainers reviewed locally
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current package ownership and boundaries.
