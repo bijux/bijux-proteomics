@@ -44,6 +44,12 @@ decision intelligence, evidence governance, and lab planning.
 The goal is not just to run a protein pipeline once. The goal is to keep
 behavior reviewable and reproducible as the system evolves.
 
+The important limit is that this repository is still earlier than that full
+scientific vision. The package split, governance surfaces, ranking helpers,
+evidence models, and lab-planning contracts are already real. The broader
+proteomics workflow stack for sequence intake, assay progression, evidence
+integration, and reviewable scientific delivery is still being built out.
+
 This repository publishes `7` packages. Each release tag builds one staged
 bundle per package, uploads distributions to PyPI, publishes release bundles to
 their exact GHCR package pages under the `bijux` account, and attaches the same
@@ -88,6 +94,25 @@ maintaining the workspace rather than for end-user installation.
 - not a single all-in-one package with hidden coupling
 - not a promise of wet-lab correctness by documentation alone
 - not a replacement for package-level tests and review gates
+
+## Current Scope
+
+What exists now:
+
+- package-level contracts for runtime, domain, intelligence, knowledge, and lab
+  planning surfaces
+- deterministic runtime and compatibility routing
+- typed program, evidence, ranking, and assay-planning models
+- reviewable package handbooks and governance checks
+
+What is still missing or deliberately incomplete:
+
+- an end-to-end scientific workflow that carries one proteomics program from
+  sequence intake through assay progression and evidence-backed advancement
+- explicit checked-in workflow blueprints that tie runtime, ranking, evidence,
+  and lab execution together
+- a clearer roadmap that distinguishes current reusable contracts from future
+  proteomics engine capabilities
 
 ## Start Here
 
