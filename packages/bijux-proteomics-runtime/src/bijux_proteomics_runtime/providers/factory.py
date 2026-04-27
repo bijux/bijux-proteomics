@@ -46,15 +46,21 @@ def create_provider(name: str) -> BaseProvider:
     if name == HeuristicStructureProvider.name:
         return HeuristicStructureProvider()
     if name == "local_esmfold":
-        _require_module("torch", "pip install agentic-proteins[local-esmfold]")
-        _require_module("transformers", "pip install agentic-proteins[local-esmfold]")
+        _require_module(
+            "torch", "pip install bijux-proteomics-runtime[local-esmfold]"
+        )
+        _require_module(
+            "transformers", "pip install bijux-proteomics-runtime[local-esmfold]"
+        )
         from bijux_proteomics_runtime.providers.local.esmfold import (
             LocalESMFoldProvider,
         )
 
         return LocalESMFoldProvider()
     if name == "local_rosettafold":
-        _require_module("torch", "pip install agentic-proteins[local-rosettafold]")
+        _require_module(
+            "torch", "pip install bijux-proteomics-runtime[local-rosettafold]"
+        )
         from bijux_proteomics_runtime.providers.local.rosettafold import (
             LocalRoseTTAFoldProvider,
         )
