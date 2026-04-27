@@ -67,6 +67,17 @@
 - can the release still be justified without masking a missing lower-package
   contract
 
+## Release impact signals
+
+- expect cross-surface review when CLI, API, provider binding, replay
+  behavior, or migration expectations change because operators consume them
+  directly
+- treat changes that alter canonical entrypoints, runtime adapters, or compat
+  expectations as high-impact even when import roots and public names stay
+  stable
+- expect a narrower release burden when the change only improves internal
+  orchestration without changing runtime-facing behavior
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current canonical runtime identity and entrypoint
