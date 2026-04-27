@@ -104,6 +104,15 @@ from agentic_proteins.interfaces.cli import cli
 - the helper mainly serves new integrations rather than compatibility
 - the module would stop being forwarding-only
 
+## Verification route
+
+- check compat `tests` for forwarding and migration proof before treating a new
+  legacy surface as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when a change claims to remain forwarding-only
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
