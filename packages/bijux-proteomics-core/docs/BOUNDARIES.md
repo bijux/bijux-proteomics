@@ -30,3 +30,13 @@ This package should not absorb ranking, evidence, lab, or runtime ownership.
 
 Downstream packages should ask core for lifecycle meaning and validation
 results instead of re-encoding stage progression rules in local helpers.
+
+## Escalation signals
+
+- if a new rule defines canonical program state, review-gate truth, or stage
+  eligibility, escalate it here before higher layers depend on local copies
+- if a proposed core change mainly expresses evidence policy, ranking logic,
+  lab execution behavior, or runtime transport, escalate it back to the owning
+  package instead
+- if a lifecycle helper starts depending on CLI, API, replay, or provider
+  shapes, treat that as a boundary failure and redesign the seam
