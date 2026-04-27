@@ -67,7 +67,7 @@ def create_provider(name: str) -> BaseProvider:
 
         return LocalRoseTTAFoldProvider()
     if name.startswith("api_openprotein"):
-        _require_module("openprotein", "pip install agentic-proteins[api]")
+        _require_module("openprotein", "pip install bijux-proteomics-runtime[api]")
         from bijux_proteomics_runtime.providers.experimental.openprotein import (
             APIOpenProteinProvider,
         )
@@ -75,7 +75,7 @@ def create_provider(name: str) -> BaseProvider:
         model = name.removeprefix("api_openprotein_") or "esmfold"
         return APIOpenProteinProvider(model=model)
     if name == "api_colabfold":
-        _require_module("colabfold", "pip install agentic-proteins[api]")
+        _require_module("colabfold", "pip install bijux-proteomics-runtime[api]")
         from bijux_proteomics_runtime.providers.experimental.colabfold import (
             APIColabFoldProvider,
         )

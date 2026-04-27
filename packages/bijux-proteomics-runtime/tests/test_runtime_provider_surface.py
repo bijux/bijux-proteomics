@@ -28,3 +28,16 @@ def test_local_provider_install_hints_use_runtime_package(
         match="bijux-proteomics-runtime\\[local-rosettafold\\]",
     ):
         factory_module.create_provider("local_rosettafold")
+
+
+def test_api_provider_install_hints_use_runtime_package(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    factory_helpers = cast(Any, factory_module)
+    monkeypatch.setattr(factory_helpers.util, "find_spec", lambda _name: None)
+
+    with pytest.raises(PredictionError, match="bijux-proteomics-runtime\\[api\\]"):
+        factory_module.create_provider("api_openprotein_esmfold")
+
+    with pytest.raises(PredictionError, match="bijux-proteomics-runtime\\[api\\]"):
+        factory_module.create_provider("api_colabfold")
