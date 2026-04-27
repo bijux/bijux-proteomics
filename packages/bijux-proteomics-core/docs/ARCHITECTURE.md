@@ -54,3 +54,12 @@ recreating lifecycle logic in runtime, intelligence, or lab-specific helpers.
   belongs in runtime adapters rather than core models
 - if the rule only exists to support one higher-layer recommendation workflow,
   keep it with that owner instead of making core absorb it
+
+## Review questions
+
+- does the change alter canonical lifecycle meaning, review gates, or
+  runtime-agnostic execution protocols
+- would higher packages become the de facto source of truth for progression
+  rules if this behavior stayed out of core
+- can the architecture still be described without relying on runtime transport,
+  evidence semantics, or lab-local workflow exceptions
