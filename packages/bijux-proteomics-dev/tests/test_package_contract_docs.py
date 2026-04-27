@@ -84,6 +84,7 @@ def test_package_readmes_share_identity_boundary_and_docs_sections() -> None:
             "## Verification route",
             "## Review questions",
             "## Escalation route",
+            "## Consumer impact signals",
             "## Documentation",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
