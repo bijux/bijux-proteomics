@@ -48,6 +48,15 @@
 - the published wheel and sdist should reflect the same legacy package identity
   and canonical replacement guidance that maintainers reviewed locally
 
+## Release escalation signals
+
+- stop the release if the compat package adds new product behavior instead of
+  forwarding canonical package behavior
+- escalate before tagging if the docs stop naming `bijux-proteomics-runtime` or
+  the lower canonical package as the true owner of forwarded behavior
+- escalate when migration proof no longer shows a single unambiguous path from
+  legacy imports to canonical ownership
+
 ## Release checklist
 
 1. Verify `README.md` and package docs reflect current compat-only ownership.
