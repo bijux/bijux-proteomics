@@ -40,3 +40,12 @@ results instead of re-encoding stage progression rules in local helpers.
   package instead
 - if a lifecycle helper starts depending on CLI, API, replay, or provider
   shapes, treat that as a boundary failure and redesign the seam
+
+## Review questions
+
+- does the change alter canonical lifecycle meaning, review-gate truth, or
+  runtime-agnostic execution contracts
+- would another package become the de facto source of program semantics if this
+  logic stayed out of core
+- can the change still be defended without borrowing evidence, ranking, lab, or
+  runtime delivery ownership
