@@ -85,6 +85,20 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
 - repository contracts must stay storage-agnostic and typed for feedback loops
 - downstream packages should ask this layer for execution planning instead of embedding schedule logic locally
 
+## Choose this package when
+
+- you need canonical assay planning, batching, or outcome interpretation logic
+- the change affects laboratory behavior rather than only how operators see it
+- queues, feedback loops, and rerun guidance should stay typed and reusable
+
+## Route elsewhere when
+
+- the change defines lifecycle authority, evidence truth, ranking policy, or
+  transport-bound interfaces
+- the helper only reshapes lab results for CLI or API output
+- the behavior belongs to one evidence or recommendation workflow instead of
+  shared laboratory execution logic
+
 ## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
