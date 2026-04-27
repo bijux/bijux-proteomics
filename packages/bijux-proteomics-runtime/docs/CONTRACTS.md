@@ -46,6 +46,15 @@ ownership.
 - if compat needs wider legacy forwarding, the durable canonical surface change
   should land here before the compat package exposes it
 
+## Validation checkpoints
+
+- runtime surface tests should pin canonical CLI, API, orchestration, and
+  provider entrypoints for the changed contract surface
+- boundary and migration validation should stay green whenever runtime widens a
+  canonical surface that compat will mirror
+- replay and adapter tests should preserve lower-layer runtime-agnostic
+  contracts before operator-facing wrappers ship the new behavior
+
 ## Explicit non-contracts
 
 - No compat deprecation policy is finalized in this document.
