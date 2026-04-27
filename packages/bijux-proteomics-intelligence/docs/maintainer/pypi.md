@@ -61,6 +61,16 @@
 - can the release still be justified without claiming lifecycle, evidence,
   lab-execution, or runtime-interface ownership
 
+## Release impact signals
+
+- expect downstream review when scoring rules, explainability behavior, or
+  evaluator contracts change because consumers rely on stable recommendation
+  meaning
+- treat changes that alter ranking outcomes or rationale surfaces as
+  high-impact even when import roots and public names stay stable
+- expect a lower release burden when the change only improves internal
+  implementation without changing decision semantics
+
 ## Release checklist
 
 1. Verify README and package docs describe current ranking/scenario behavior.
