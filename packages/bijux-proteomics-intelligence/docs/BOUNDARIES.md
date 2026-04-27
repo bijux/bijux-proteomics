@@ -31,3 +31,13 @@ storage, or lab execution semantics.
 Downstream packages should treat this package as the home of recommendation
 policy and explainability outputs, not as a generic place to stash scoring
 helpers beside unrelated runtime or domain code.
+
+## Escalation signals
+
+- if a change defines candidate ranking, scenario evaluation, or explainable
+  recommendation meaning, escalate it here before other packages improvise it
+- if a proposed intelligence helper mainly owns lifecycle law, evidence truth,
+  lab execution, or runtime delivery concerns, escalate it back to the owning
+  package instead
+- if scoring logic starts depending on operator entrypoints or transport-local
+  payload shapes, treat that as a boundary failure and redesign the seam
