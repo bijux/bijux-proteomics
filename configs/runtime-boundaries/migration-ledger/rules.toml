@@ -110,6 +110,12 @@ reason = "Execution schemas may mix transport and domain semantics and require o
 
 [[rule]]
 pattern = "execution/validation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution validation exports now forward directly to canonical runtime gatekeeping logic."
+
+[[rule]]
+pattern = "execution/validation.py"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
 reason = "Execution validation appears runtime-adjacent but needs review to avoid domain logic leakage."

@@ -92,7 +92,7 @@ execution/runtime/__init__.py,runtime_execution_ownership,bijux-proteomics-runti
 execution/runtime/executor.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution runtime drivers are canonical runtime execution surfaces.
 execution/runtime/integration.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution runtime drivers are canonical runtime execution surfaces.
 execution/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution schema exports now forward directly to canonical runtime transport contracts.
-execution/validation.py,runtime_support_internal_review,bijux-proteomics-runtime,Execution validation appears runtime-adjacent but needs review to avoid domain logic leakage.
+execution/validation.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution validation exports now forward directly to canonical runtime gatekeeping logic.
 interfaces/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
 interfaces/cli.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
 memory/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Runtime memory support may contain mixed orchestration and domain persistence assumptions and requires review.
