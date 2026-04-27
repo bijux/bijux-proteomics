@@ -140,6 +140,14 @@ from agentic_proteins.interfaces.cli import cli
 - expect a lower release burden when the change only tightens documentation or
   internal compat wiring without changing forwarding behavior
 
+## Explicit non-goals
+
+- this package does not own canonical runtime orchestration or lower-package
+  domain semantics
+- this package does not add fresh product behavior for new integrations
+- this package does not replace repository governance or release policy owned by
+  the maintainer package
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
