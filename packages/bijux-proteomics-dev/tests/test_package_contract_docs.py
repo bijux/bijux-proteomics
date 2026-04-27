@@ -77,6 +77,8 @@ def test_package_readmes_share_identity_boundary_and_docs_sections() -> None:
             f"- Import root: `{_import_root(package_name)}`",
             "## Package boundaries",
             "## Contract checkpoints",
+            "## Choose this package when",
+            "## Route elsewhere when",
             "## Documentation",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
