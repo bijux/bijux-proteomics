@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 PUBLIC_ENTRYPOINTS = (
-    "agentic_proteins.interfaces.cli.cli",
+    "bijux_proteomics_runtime.interfaces.cli.cli",
     "agentic_proteins.runtime.RunManager",
     "bijux_proteomics.biology.PathwayExecutor",
     "bijux_proteomics.biology.ProteinAgent",
