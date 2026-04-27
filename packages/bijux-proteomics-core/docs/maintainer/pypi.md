@@ -44,6 +44,15 @@
 - the published wheel and sdist should reflect the same canonical import root
   and package guide that maintainers reviewed locally
 
+## Release escalation signals
+
+- stop the release if a lifecycle change starts depending on runtime transport,
+  provider, or CLI behavior to remain coherent
+- escalate before tagging if the docs or exports blur core ownership with
+  evidence, ranking, or lab-local semantics
+- escalate when consumers would need silent import or protocol rewrites to keep
+  ordinary lifecycle behavior working
+
 ## Release checklist
 
 1. Validate `README.md` and package docs describe current domain ownership.
