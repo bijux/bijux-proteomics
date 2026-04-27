@@ -6,7 +6,10 @@ import pytest
 
 from bijux_proteomics_runtime.core.hashing import sha256_hex
 from bijux_proteomics_runtime.runtime.control.artifacts import _sign_payload
-from bijux_proteomics_runtime.runtime.control.execution import _version_info
+from bijux_proteomics_runtime.runtime.control.execution import (
+    _build_run_summary,
+    _version_info,
+)
 from bijux_proteomics_runtime.runtime.control.state_machine import RunStateMachine
 
 
@@ -21,6 +24,11 @@ def test_runtime_state_machine_constructs() -> None:
 
 def test_runtime_artifact_surface_exports_signature_helper() -> None:
     assert _sign_payload is not None
+
+
+def test_runtime_execution_surface_exports_summary_helpers() -> None:
+    assert _build_run_summary is not None
+    assert _version_info is not None
 
 
 def test_runtime_version_info_queries_canonical_distribution(

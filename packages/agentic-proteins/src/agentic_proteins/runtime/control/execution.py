@@ -3,16 +3,12 @@
 from bijux_proteomics_runtime.runtime.control import execution as _runtime_execution
 from bijux_proteomics_runtime.runtime.control.execution import *  # noqa: F401,F403
 from bijux_proteomics_runtime.runtime.control.execution import (
-    _build_run_summary,
     _ensure_telemetry_costs,
     _select_structure_tool,
-    _version_info,
 )
 
 __all__ = [
     *getattr(_runtime_execution, "__all__", []),
-    "_build_run_summary",
     "_ensure_telemetry_costs",
     "_select_structure_tool",
-    "_version_info",
 ]
