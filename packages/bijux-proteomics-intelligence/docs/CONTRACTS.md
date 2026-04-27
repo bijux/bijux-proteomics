@@ -47,6 +47,14 @@ scenario, explainability, or rejection semantics.
 - contract changes should stay green in focused package tests before runtime or
   operator layers reshape the outputs
 
+## Review questions
+
+- does the contract change alter recommendation semantics, scenario evaluation,
+  or explainability rather than just output transport
+- would runtime or lab code otherwise start carrying shadow scoring contracts
+- can the contract still be justified without claiming lifecycle, evidence,
+  lab-execution, or runtime-interface ownership
+
 ## Explicit non-contracts
 
 - This package does not define lifecycle gate authority.
