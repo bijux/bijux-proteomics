@@ -58,6 +58,7 @@ def test_boundary_docs_share_identity_and_ownership_shape() -> None:
             "## This package owns",
             "## This package does not own",
             "## Downstream expectations",
+            "## Escalation signals",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
         if missing:
@@ -82,6 +83,7 @@ def test_maintainer_scope_doc_has_owned_surfaces_and_routing_sections() -> None:
         "## This package does not own",
         "## Downstream expectations",
         "## Change routing expectations",
+        "## Escalation signals",
     ]
     missing = [bit for bit in expected_bits if bit not in text]
     assert not missing, (
@@ -94,8 +96,9 @@ def test_runtime_boundary_doc_has_escalation_section() -> None:
     text = path.read_text(encoding="utf-8")
     expected_bits = [
         "## Escalation signals",
-        "compat forwards it",
+        "## Boundary failure signals",
         "boundary failure",
+        "owning lower package contract is incomplete",
     ]
     missing = [bit for bit in expected_bits if bit not in text]
     assert not missing, (
