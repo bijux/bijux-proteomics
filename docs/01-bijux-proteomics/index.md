@@ -51,6 +51,9 @@ flowchart TB
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
   when the question is why the split exists and where authority changes hands.
+- Open [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
+  when the question is which scientific workflow capabilities still need to be
+  made explicit across package boundaries.
 - Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
   when the question is how the repository validates, releases, and reviews work
   across package boundaries.

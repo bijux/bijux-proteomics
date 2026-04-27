@@ -39,6 +39,7 @@ from bijux_proteomics_lab import (
     build_lab_cycle_brief,
     build_review_packet,
     build_review_risk_profile,
+    build_workflow_batch_outline,
     compare_schedule_scenarios,
     dependency_critical_path,
     dependency_order,
@@ -229,6 +230,68 @@ def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
 
     assert scores[0].assay_id == "a1"
     assert scores[0].impact_score > scores[1].impact_score
+
+
+def test_build_workflow_batch_outline_separates_gate_and_support_assays() -> None:
+    program = create_program_spec(
+        program_id="prog-outline",
+        name="workflow outline",
+        objective="tie scientific workflow to lab batch ordering",
+        target_id="target-outline",
+        target_name="Target Outline",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize target state",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(
+                assay_id="assay-primary-binding",
+                purpose="confirm target engagement",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            ),
+            AssayRequirement(
+                assay_id="assay-expression-screen",
+                purpose="check manufacturability",
+                readout="yield_mg_per_l",
+                sample_kind="expression",
+                blocking=False,
+            ),
+        ]
+    )
+    program.review_gates.append(
+        ReviewGate(
+            gate_id="review-pre-synthesis",
+            name="Pre-synthesis review",
+            required_roles=["scientist"],
+            decision_inputs=["assay-primary-binding"],
+            blocking=True,
+        )
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-outline",
+        target_id="target-outline",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                claim="Target is tractable.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+
+    outline = build_workflow_batch_outline(program, bundle)
+
+    assert outline.gate_assay_ids == ["assay-primary-binding"]
+    assert outline.support_assay_ids == ["assay-expression-screen"]
+    assert outline.review_gate_ids == ["review-pre-synthesis"]
+    assert "structure" in outline.missing_evidence_needs
 
 
 def test_estimate_assay_execution_burden_accounts_for_sample_kind_and_gates() -> None:

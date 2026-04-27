@@ -76,8 +76,9 @@ It does not define runtime product APIs or proteomics domain behavior.
   treating a dev-package change as safe
 - review `docs/SCOPE.md`, `docs/CONTRACTS.md`, `docs/ARCHITECTURE.md`, and
   `docs/TESTS.md` when governance claims are part of the change
-- use `docs/index.md` and publishable package `docs/maintainer/pypi.md` files
-  when the change affects release policy, docs routing, or maintainer guidance
+- use `docs/index.md` plus each package `README.md`, `CHANGELOG.md`, and
+  package `docs/*.md` when the change affects release policy, docs routing, or
+  maintainer guidance
 
 ## Review questions
 

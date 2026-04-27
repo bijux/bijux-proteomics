@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-lab/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-lab/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
+[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
@@ -39,6 +39,10 @@ into program progression decisions.
 Use this package when you need lab-in-the-loop planning under gate constraints,
 capacity-aware batch construction, and rerun recommendations tied to assay
 outcomes.
+
+Its role is downstream of the scientific workflow blueprint, not a substitute
+for it. Lab turns stage-owned assay work into executable batches and feedback
+loops once core, knowledge, and intelligence have made the workflow legible.
 
 ## Why teams pick this package
 
@@ -78,6 +82,10 @@ This package owns assay planning, schedule generation, outcome interpretation, a
 
 It does not own program-stage authority, ranking policy, or evidence truth semantics.
 
+It also should not define scientific stage meaning on its own. Lab consumes the
+workflow spine, then decides how that work gets executed and fed back into the
+next cycle.
+
 ## Contract checkpoints
 
 - planning outputs must preserve gate, dependency, and material context
@@ -105,8 +113,8 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
   treating a lab change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or planning-semantics claims are part of the change
-- use `docs/maintainer/pypi.md` when the change affects package publication,
-  metadata, or release-readiness expectations
+- use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
+  affects package publication, metadata, or release-readiness expectations
 
 ## Review questions
 

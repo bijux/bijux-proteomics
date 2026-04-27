@@ -81,7 +81,14 @@ from bijux_proteomics.runtime_adapter import (
     AgenticProteinsBackend,
     MissingExecutionBackendError,
 )
-from bijux_proteomics.sequences import ProteinSequence, sequence_length
+from bijux_proteomics.sequences import (
+    FastaSequenceRecord,
+    ProteinSequence,
+    parse_fasta_records,
+    parse_uniprot_accession,
+    sequence_length,
+    UniProtAccession,
+)
 from bijux_proteomics.targets import (
     OutcomeSeverity,
     ProteinTarget,
@@ -94,6 +101,13 @@ from bijux_proteomics.validation import (
     validate_assay_dependencies,
     validate_program,
     validate_program_readiness,
+)
+from bijux_proteomics.workflow_blueprint import (
+    ScientificWorkflowBlueprint,
+    WorkflowStageKind,
+    WorkflowStepBlueprint,
+    workflow_blueprint_for_program,
+    workflow_blueprint_summary,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -125,6 +139,8 @@ __all__ = [
     "TargetAnnotation",
     "TargetOutcome",
     "ProteinSequence",
+    "FastaSequenceRecord",
+    "UniProtAccession",
     "JsonModel",
     "ReviewGate",
     "ReviewDecision",
@@ -167,9 +183,16 @@ __all__ = [
     "program_summary",
     "revise_program",
     "sequence_length",
+    "parse_fasta_records",
+    "parse_uniprot_accession",
     "target_summary",
     "validate_review_decision",
     "validate_program",
     "validate_program_readiness",
     "validate_assay_dependencies",
+    "WorkflowStageKind",
+    "WorkflowStepBlueprint",
+    "ScientificWorkflowBlueprint",
+    "workflow_blueprint_for_program",
+    "workflow_blueprint_summary",
 ]

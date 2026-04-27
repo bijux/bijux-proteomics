@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-runtime/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
+[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![bijux-proteomics-runtime](https://img.shields.io/pypi/v/bijux-proteomics-runtime?label=runtime&logo=pypi)](https://pypi.org/project/bijux-proteomics-runtime/)
@@ -39,6 +39,11 @@ surfaces in `bijux-proteomics`.
 Use this package when you need the supported CLI, HTTP API, provider wiring,
 runtime state handling, and replay-safe orchestration for canonical
 `bijux-proteomics` execution.
+
+It is important not to overstate that role. Runtime owns execution control. It
+does not own the scientific workflow blueprint, evidence truth, ranking
+semantics, or lab progression logic that the wider proteomics engine still
+needs.
 
 ## Why teams pick this package
 
@@ -113,8 +118,8 @@ remain in their dedicated lower-layer packages.
   before treating a runtime change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when canonical ownership or adapter law is part of the change
-- use `docs/maintainer/pypi.md` when the change affects package publication,
-  metadata, or release-readiness expectations
+- use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
+  affects package publication, metadata, or release-readiness expectations
 
 ## Review questions
 
@@ -152,6 +157,8 @@ remain in their dedicated lower-layer packages.
   migration shims
 - this package does not decide scientific truth, only how canonical execution
   runs over lower-layer contracts
+- this package does not substitute for an end-to-end scientific workflow model
+  across core, intelligence, knowledge, and lab
 
 ## Source guide
 

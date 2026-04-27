@@ -39,16 +39,18 @@ It owns:
 
 ## Release policy entrypoints
 
-- publishable package `docs/maintainer/pypi.md` files for package-specific
-  release contract, validation focus, and publication checkpoints
+- package `README.md`, `CHANGELOG.md`, and package `docs/*.md` files for
+  package-specific release contract, validation focus, and publication
+  checkpoints
 - `src/bijux_proteomics_dev/release` for release-readiness validation logic
 - `test_release_workflows.py`, `test_packaging_contract.py`, and related docs
   contract tests for the executable proof behind release policy
 
 ## Release escalation surfaces
 
-- package `docs/maintainer/pypi.md` files when a maintainer cannot justify a
-  release as safe within the current package boundary
+- package `README.md`, `CHANGELOG.md`, and package `docs/*.md` files when a
+  maintainer cannot justify a release as safe within the current package
+  boundary
 - `docs/TESTS.md` and release-policy tests when workflow wiring is green but
   the claimed proof surface is still ambiguous
 - `src/bijux_proteomics_dev/release` when release-readiness rules need a

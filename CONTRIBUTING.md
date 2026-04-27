@@ -28,13 +28,11 @@ it probably belongs at the repository level instead.
 
 ## Local Workflow
 
-1. If you are working inside the local Bijux workspace, read
-   `/Users/bijan/bijuxx/CODEX.md` before you start.
-2. Read the root handbook entry points in `README.md` and `docs/`.
-3. Change the smallest surface that can honestly own the behavior.
-4. Run the checks that match the area you touched.
-5. Update contracts, docs, or metadata when the change affects shared behavior.
-6. Commit in a small, coherent step with a durable message.
+1. Read the root handbook entry points in `README.md` and `docs/`.
+2. Change the smallest surface that can honestly own the behavior.
+3. Run the checks that match the area you touched.
+4. Update contracts, docs, or metadata when the change affects shared behavior.
+5. Commit in a small, coherent step with a durable message.
 
 ## Validation Expectations
 

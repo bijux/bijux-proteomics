@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-intelligence/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-intelligence/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
+[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![bijux-proteomics-intelligence](https://img.shields.io/pypi/v/bijux-proteomics-intelligence?label=intelligence&logo=pypi)](https://pypi.org/project/bijux-proteomics-intelligence/)
@@ -38,6 +38,11 @@ decision outputs with explicit explainability and risk signals.
 
 Use this package when you need transparent prioritization logic, rejection
 reasoning, and portfolio-aware progression guidance for protein design.
+
+This package should sit on top of the scientific workflow blueprint rather than
+replace it. Intelligence explains readiness and recommendation pressure, but it
+does not define workflow stages or pretend ranking alone is the whole
+proteomics engine.
 
 ## Why teams pick this package
 
@@ -77,6 +82,10 @@ This package owns decision intelligence, ranking policy, scenario scoring, and e
 
 It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
 
+It should therefore consume workflow shape from core, evidence posture from
+knowledge, and hand execution consequences to lab rather than inventing a
+parallel workflow story of its own.
+
 ## Contract checkpoints
 
 - ranking and scenario outputs must carry typed rationale instead of opaque scores
@@ -104,8 +113,8 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
   treating an intelligence change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or recommendation-policy claims are part of the change
-- use `docs/maintainer/pypi.md` when the change affects package publication,
-  metadata, or release-readiness expectations
+- use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
+  affects package publication, metadata, or release-readiness expectations
 
 ## Review questions
 

@@ -19,13 +19,18 @@ serious scientific and operational work reviewable: what the system means,
 what it knows, how it decides, how it runs, and how it touches the lab are not
 the same question and should not collapse into the same code story.
 
+That does not mean the full scientific workflow already exists. Today the
+repository is strongest where contracts, package boundaries, and reviewable
+domain surfaces are concerned. The end-to-end proteomics workflow story still
+needs more explicit stage blueprints and clearer current-scope boundaries.
+
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![Verify](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
-[![Release PyPI](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
-[![Release GHCR](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
-[![Release GitHub](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
+[![Verify](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
+[![Release PyPI](https://github.com/bijux/bijux-proteomics/workflows/release-pypi/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
+[![Release GHCR](https://github.com/bijux/bijux-proteomics/workflows/release-ghcr/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
+[![Release GitHub](https://github.com/bijux/bijux-proteomics/workflows/release-github/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
 [![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
 [![Release](https://img.shields.io/github/v/release/bijux/bijux-proteomics?display_name=tag&label=release)](https://github.com/bijux/bijux-proteomics/releases)
 [![GHCR packages](https://img.shields.io/badge/ghcr-7%20packages-181717?logo=github)](https://github.com/bijux?tab=packages&repo_name=bijux-proteomics)
@@ -96,11 +101,21 @@ flowchart LR
 - it keeps the migration from `agentic-proteins` visible instead of pretending
   the transition never happened
 
+## Current Limit
+
+The current repository can explain and validate package-level responsibilities,
+but it is still building the scientific workflow spine that should carry one
+proteomics program from sequence intake through assay planning, evidence review,
+and advancement decisions.
+
 ## Start Here
 
 - Open the [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
   when the question is about the system as a whole and not yet about one
   package.
+- Open the [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
+  when the question is what the current package stack still needs before it
+  becomes a full proteomics workflow engine.
 - Open one product handbook when you already know where the real idea lives:
   evidence, decisions, lab work, execution, or shared contracts.
 - Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)

@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-core/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-core/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
+[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![bijux-proteomics-core](https://img.shields.io/pypi/v/bijux-proteomics-core?label=core&logo=pypi)](https://pypi.org/project/bijux-proteomics-core/)
@@ -39,6 +39,11 @@ execution interfaces used across the platform.
 Use this package when you need stage-based governance for protein programs,
 deterministic progression rules, and enforceable domain contracts for decision
 and execution pipelines.
+
+This package now also owns the canonical scientific workflow blueprint surface.
+That blueprint is intentionally narrow: it describes workflow stages and
+blocking contracts without stealing evidence, ranking, runtime, or lab
+ownership from adjacent packages.
 
 ## Why teams pick this package
 
@@ -84,6 +89,10 @@ This package owns lifecycle domain models, progression rules, and validation inv
 
 It does not own evidence trust policy, ranking policy, or lab scheduling behavior.
 
+It also should not pretend that one domain model already solves the whole
+proteomics workflow problem. Core owns the stage blueprint and transition law,
+then hands the rest to knowledge, intelligence, lab, and runtime.
+
 ## Contract checkpoints
 
 - lifecycle transitions must flow through declared stage and gate rules
@@ -111,8 +120,8 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
   core change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or contract claims are part of the change
-- use `docs/maintainer/pypi.md` when the change affects package publication,
-  metadata, or release-readiness expectations
+- use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
+  affects package publication, metadata, or release-readiness expectations
 
 ## Review questions
 

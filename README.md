@@ -3,10 +3,10 @@
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![Verify](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml)
-[![Release PyPI](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
-[![Release GHCR](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
-[![Release GitHub](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
+[![Verify](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
+[![Release PyPI](https://github.com/bijux/bijux-proteomics/workflows/release-pypi/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
+[![Release GHCR](https://github.com/bijux/bijux-proteomics/workflows/release-ghcr/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
+[![Release GitHub](https://github.com/bijux/bijux-proteomics/workflows/release-github/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
 [![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
 [![Release](https://img.shields.io/github/v/release/bijux/bijux-proteomics?display_name=tag&label=release)](https://github.com/bijux/bijux-proteomics/releases)
 [![GHCR packages](https://img.shields.io/badge/ghcr-7%20packages-181717?logo=github)](https://github.com/bijux?tab=packages&repo_name=bijux-proteomics)
@@ -43,6 +43,12 @@ decision intelligence, evidence governance, and lab planning.
 
 The goal is not just to run a protein pipeline once. The goal is to keep
 behavior reviewable and reproducible as the system evolves.
+
+The important limit is that this repository is still earlier than that full
+scientific vision. The package split, governance surfaces, ranking helpers,
+evidence models, and lab-planning contracts are already real. The broader
+proteomics workflow stack for sequence intake, assay progression, evidence
+integration, and reviewable scientific delivery is still being built out.
 
 This repository publishes `7` packages. Each release tag builds one staged
 bundle per package, uploads distributions to PyPI, publishes release bundles to
@@ -89,9 +95,29 @@ maintaining the workspace rather than for end-user installation.
 - not a promise of wet-lab correctness by documentation alone
 - not a replacement for package-level tests and review gates
 
+## Current Scope
+
+What exists now:
+
+- package-level contracts for runtime, domain, intelligence, knowledge, and lab
+  planning surfaces
+- deterministic runtime and compatibility routing
+- typed program, evidence, ranking, and assay-planning models
+- reviewable package handbooks and governance checks
+
+What is still missing or deliberately incomplete:
+
+- an end-to-end scientific workflow that carries one proteomics program from
+  sequence intake through assay progression and evidence-backed advancement
+- explicit checked-in workflow blueprints that tie runtime, ranking, evidence,
+  and lab execution together
+- a clearer roadmap that distinguishes current reusable contracts from future
+  proteomics engine capabilities
+
 ## Start Here
 
 - Repository handbook: [Repository handbook](https://bijux.io/bijux-proteomics/)
+- Scientific workflow roadmap: [Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
 - API contract handbook: [API and schema governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
 - Runtime package: [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - Compatibility package: [agentic-proteins handbook](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
@@ -101,13 +127,6 @@ maintaining the workspace rather than for end-user installation.
 - Lab package: [Lab package handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 - Foundation primitives: [Foundation package handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
 - Maintainer tooling: [Maintainer tooling handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
-
-## Workspace Working Agreement
-
-If you work from the local Bijux workspace, apply the shared working agreement
-at `/Users/bijan/bijuxx/CODEX.md` before editing this repository or preparing
-commits. The repository-level onboarding guidance here complements that
-workspace policy; it does not replace it.
 
 ## Common Commands
 
