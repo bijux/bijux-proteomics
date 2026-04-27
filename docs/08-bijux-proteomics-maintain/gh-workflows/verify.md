@@ -21,4 +21,3 @@ last_reviewed: 2026-04-26
 
 - `.github/workflows/verify.yml`
 - `.github/workflows/ci.yml`
-

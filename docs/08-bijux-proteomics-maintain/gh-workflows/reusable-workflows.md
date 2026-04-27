@@ -21,4 +21,3 @@ Reusable workflows exist to keep shared automation logic explicit instead of dup
 
 - `.github/workflows/ci.yml`
 - other workflow files that call it
-

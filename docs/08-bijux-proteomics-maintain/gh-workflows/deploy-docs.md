@@ -21,4 +21,3 @@ last_reviewed: 2026-04-26
 
 - `.github/workflows/deploy-docs.yml`
 - docs verification commands referenced by the workflow
-

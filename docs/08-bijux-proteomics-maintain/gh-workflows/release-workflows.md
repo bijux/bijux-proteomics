@@ -21,4 +21,3 @@ Release workflows are the irreversible automation surfaces. Their job is to publ
 
 - `.github/workflows/release-artifacts.yml`
 - `.github/workflows/release-github.yml`, `release-pypi.yml`, and `release-ghcr.yml`
-
