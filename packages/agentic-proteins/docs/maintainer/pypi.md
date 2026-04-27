@@ -66,6 +66,15 @@
 - can the release still be justified as forwarding-only without ambiguity about
   the runtime or lower canonical owner
 
+## Release impact signals
+
+- expect review against the canonical owner when compat exports or forwarding
+  targets change because consumers rely on stable migration continuity
+- treat changes that alter forwarding behavior or canonical mapping as
+  high-impact even when import roots and public names stay stable
+- expect a lower release burden when the change only tightens documentation or
+  internal compat wiring without changing forwarding behavior
+
 ## Release checklist
 
 1. Verify `README.md` and package docs reflect current compat-only ownership.
