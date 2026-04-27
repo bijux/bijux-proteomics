@@ -85,3 +85,21 @@ runtime-specific schemas.
 Downstream callers should integrate through the canonical runtime roots and
 leave domain meaning in the lower packages. New orchestration features should
 land here before compat forwarding in `agentic-proteins` grows.
+
+## Extension signals
+
+- add code here when a new concern changes canonical operator entrypoints,
+  provider binding, replay safety, or orchestration coordination
+- extend `interfaces/`, `api/`, `runtime/control/`, `runtime/adapters/`, or
+  `providers/` before compat or lower packages invent runtime-local entrypoints
+- keep new transport and orchestration behavior here when it changes how
+  canonical execution runs rather than what lower-layer domain truth means
+
+## Misplacement signals
+
+- if the change defines schema, lifecycle, evidence, ranking, or lab semantics,
+  it belongs in the owning lower package first
+- if a helper exists only to preserve historical imports, it belongs in
+  `agentic-proteins` as a forwarding surface instead of widening runtime roots
+- if a provider-specific rule would leak back into domain models, keep it in the
+  runtime/provider layer rather than pushing runtime ownership downward
