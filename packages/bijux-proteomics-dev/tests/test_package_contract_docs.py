@@ -52,6 +52,7 @@ def test_contract_docs_share_identity_and_change_sections() -> None:
             "## Change requirements",
             "## Consumer upgrade expectations",
             "## Change routing signals",
+            "## Validation checkpoints",
             "## Explicit non-contracts",
         ]
         missing = [bit for bit in expected_bits if bit not in text]
