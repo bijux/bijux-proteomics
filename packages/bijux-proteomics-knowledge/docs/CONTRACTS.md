@@ -48,6 +48,14 @@ integrity, resolution semantics, schema compatibility, or graph diagnostics.
 - contract changes should stay green in focused package tests before runtime,
   intelligence, or compat layers summarize the evidence differently
 
+## Review questions
+
+- does the contract change alter canonical evidence, contradiction, trust, or
+  lineage semantics rather than just reshaping another layer's view
+- would another package otherwise create a shadow review or trust contract
+- can the contract still be justified without claiming lifecycle, ranking, lab,
+  or runtime-transport ownership
+
 ## Explicit non-contracts
 
 - This package does not define lifecycle gate authority.
