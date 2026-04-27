@@ -37,6 +37,14 @@ It owns:
 - `docs/CONTRACTS.md` for stable maintainer contract surfaces
 - `docs/TESTS.md` for the expected test strata behind repository policy changes
 
+## Release policy entrypoints
+
+- publishable package `docs/maintainer/pypi.md` files for package-specific
+  release contract, validation focus, and publication checkpoints
+- `src/bijux_proteomics_dev/release` for release-readiness validation logic
+- `test_release_workflows.py`, `test_packaging_contract.py`, and related docs
+  contract tests for the executable proof behind release policy
+
 ## Source guide
 
 - `src/bijux_proteomics_dev/quality` for repository quality and migration checks
