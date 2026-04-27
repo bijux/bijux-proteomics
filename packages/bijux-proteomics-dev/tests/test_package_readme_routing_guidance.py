@@ -46,6 +46,7 @@ def test_package_readmes_keep_selection_and_routing_guidance_substantive() -> No
 
         choose_section = _section(text, "Choose this package when")
         route_section = _section(text, "Route elsewhere when")
+        verification_section = _section(text, "Verification route")
 
         if _bullet_count(choose_section) < 3:
             failures.append(
@@ -54,6 +55,10 @@ def test_package_readmes_keep_selection_and_routing_guidance_substantive() -> No
         if _bullet_count(route_section) < 3:
             failures.append(
                 f"{path.relative_to(REPO_ROOT).as_posix()}: route section needs at least three bullets"
+            )
+        if _bullet_count(verification_section) < 3:
+            failures.append(
+                f"{path.relative_to(REPO_ROOT).as_posix()}: verification section needs at least three bullets"
             )
 
     assert not failures, "package README routing guidance failed:\n" + "\n".join(
