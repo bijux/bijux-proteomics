@@ -103,3 +103,12 @@ land here before compat forwarding in `agentic-proteins` grows.
   `agentic-proteins` as a forwarding surface instead of widening runtime roots
 - if a provider-specific rule would leak back into domain models, keep it in the
   runtime/provider layer rather than pushing runtime ownership downward
+
+## Review questions
+
+- does the change alter canonical operator entrypoints, provider binding,
+  replay safety, or orchestration coordination rather than lower-layer truth
+- would compat or lower packages start carrying runtime-local transport or
+  execution behavior if this concern stayed out of runtime
+- can the architecture still be described without masking a missing contract in
+  foundation, core, intelligence, knowledge, or lab
