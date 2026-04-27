@@ -35,6 +35,15 @@
 - repository tests prove feedback/repository contracts remain stable
 - repository release checks prove metadata, docs publication, and workflows stay aligned
 
+## Publication checkpoints
+
+- package metadata, docs routes, and planning-ownership language should match
+  the current lab contract before tagging
+- release validation should leave planning, outcome, repository, and schema
+  proof green in the repository root check surface
+- the published wheel and sdist should reflect the same import root and package
+  guide that maintainers reviewed locally
+
 ## Release checklist
 
 1. Validate README and docs reflect current planning and outcome contracts.
