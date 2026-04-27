@@ -38,3 +38,9 @@ def test_manage_examples_uses_canonical_runtime_user_agent() -> None:
     text = _tool_text("manage_examples.py")
     assert "agentic-proteins-example-prep" not in text
     assert 'USER_AGENT = "bijux-proteomics-example-prep/1.0 (+https://rcsb.org)"' in text
+
+
+def test_manage_models_uses_canonical_esmfold_image_tag() -> None:
+    text = _tool_text("manage_models.py")
+    assert "esmfold-agentic-proteins:latest" not in text
+    assert '"esmfold-bijux-proteomics-runtime:latest"' in text
