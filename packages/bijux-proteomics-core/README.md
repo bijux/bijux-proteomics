@@ -133,6 +133,15 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
 - escalate before release when downstream packages would need to reinterpret
   core state transitions differently to adopt the change
 
+## Consumer impact signals
+
+- expect coordinated downstream review when lifecycle rules, validators, or
+  repository protocols change because higher layers consume core state meaning
+- treat changes that alter transition semantics or protocol obligations as
+  high-impact even when import paths stay stable
+- expect a narrower release burden when the change only improves internal core
+  implementation without changing lifecycle or protocol behavior
+
 ## Source guide
 
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
