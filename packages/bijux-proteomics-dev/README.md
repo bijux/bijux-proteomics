@@ -88,6 +88,15 @@ It does not define runtime product APIs or proteomics domain behavior.
 - can the change be justified without rewriting an owning package contract or
   boundary first
 
+## Escalation route
+
+- route the change to the owning product package when the proposal starts
+  defining runtime behavior or scientific meaning
+- stop and review `docs/SCOPE.md` and `docs/ARCHITECTURE.md` when the solution
+  depends on one-off workflow glue instead of reusable maintainer policy
+- escalate before release when the new rule cannot be explained without changing
+  an owning package boundary or contract first
+
 ## Source guide
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
