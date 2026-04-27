@@ -157,6 +157,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Agent base package exports now forward directly to canonical runtime agent base surfaces."
 
 [[rule]]
+pattern = "agents/base/base.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent base classes now forward directly to canonical runtime agent base implementations."
+
+[[rule]]
 pattern = "agents/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
