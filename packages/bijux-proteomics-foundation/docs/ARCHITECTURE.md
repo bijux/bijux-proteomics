@@ -38,3 +38,22 @@ layers.
 
 Downstream packages should compose these primitives instead of rebuilding
 serialization rules, compatibility logic, or migration path behavior locally.
+
+## Extension signals
+
+- add code here when a new concern changes canonical document primitives shared
+  by multiple packages
+- extend `schema.py`, `serialization.py`, `ids.py`, or `migrations.py` before
+  higher packages invent local copies of the same rules
+- prefer adding stable low-volatility helpers here when the change would
+  otherwise fragment serialization or compatibility behavior across packages
+
+## Misplacement signals
+
+- if the change needs lifecycle authority, recommendation policy, evidence
+  semantics, lab scheduling, or operator entrypoints, it belongs in a higher
+  package
+- if the change mostly reshapes runtime transport or orchestration payloads, it
+  belongs in `bijux-proteomics-runtime` adapters rather than here
+- if a package-specific helper would only be used by one domain layer, keep it
+  with that owner instead of forcing it into shared primitives
