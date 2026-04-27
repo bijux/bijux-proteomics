@@ -31,3 +31,14 @@ ownership.
 Downstream packages should use this package as the canonical source of evidence
 trust, contradiction handling, and lineage semantics instead of creating local
 shadow models.
+
+## Escalation signals
+
+- if a change defines evidence trust, contradiction handling, claim lineage, or
+  reviewable provenance meaning, escalate it here before downstream packages
+  fork the model
+- if a proposed knowledge helper mainly owns lifecycle authority, ranking
+  policy, lab execution behavior, or runtime transport, escalate it back to the
+  owning package instead
+- if evidence semantics start growing operator-specific payload or orchestration
+  rules, treat that as a boundary failure and redesign the seam
