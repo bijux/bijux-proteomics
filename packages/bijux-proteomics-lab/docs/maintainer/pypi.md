@@ -53,6 +53,15 @@
 - escalate when outcome or repository changes cannot be justified by focused
   lab proof without widening another package boundary
 
+## Release review questions
+
+- does the release preserve planning, batching, rerun guidance, or outcome
+  promotion meaning rather than only changing how those results are exposed
+- would runtime or intelligence code otherwise start carrying shadow scheduling
+  or rerun contracts after this release
+- can the release still be justified without claiming lifecycle, evidence,
+  ranking, or provider-interface ownership
+
 ## Release checklist
 
 1. Validate README and docs reflect current planning and outcome contracts.
