@@ -107,6 +107,15 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 - use `docs/maintainer/pypi.md` when the change affects package publication,
   metadata, or release-readiness expectations
 
+## Review questions
+
+- does the change preserve evidence, contradiction, lineage, or trust semantics
+  rather than transport-bound presentation or workflow-local shaping
+- would another package start carrying shadow evidence interpretation if this
+  behavior stayed outside knowledge
+- can the change be justified without claiming lifecycle, ranking, lab
+  execution, or runtime interface ownership
+
 ## Source guide
 
 - [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
