@@ -44,6 +44,15 @@
 - the published wheel and sdist should reflect the same import root and package
   guide that maintainers reviewed locally
 
+## Release escalation signals
+
+- stop the release if evidence or lineage changes now depend on runtime
+  formatting or lab planning behavior to stay coherent
+- escalate before tagging if the docs start treating ranking policy or
+  execution orchestration as knowledge-owned behavior
+- escalate when trust or contradiction semantics cannot be proven without a
+  lower-layer schema break or an ownership rewrite in another package
+
 ## Release checklist
 
 1. Confirm docs and README describe current evidence and conflict semantics.
