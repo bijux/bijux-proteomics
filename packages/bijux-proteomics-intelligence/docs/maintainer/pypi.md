@@ -43,6 +43,15 @@
 - the published wheel and sdist should reflect the same import root and package
   guide that maintainers reviewed locally
 
+## Release escalation signals
+
+- stop the release if ranking or explainability behavior now depends on runtime
+  delivery details or lab-local orchestration to stay meaningful
+- escalate before tagging if the docs start treating evidence truth or
+  canonical execution as intelligence-owned behavior
+- escalate when downstream consumers would need quiet policy-output rewrites to
+  preserve recommendation semantics
+
 ## Release checklist
 
 1. Verify README and package docs describe current ranking/scenario behavior.
