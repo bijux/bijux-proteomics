@@ -146,4 +146,4 @@ tools/schemas.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool a
 validation/__init__.py,runtime_support_internal_review,bijux-proteomics-runtime,Validation helpers are mixed runtime-support surfaces that require semantic placement review.
 validation/agents.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent registry validation is part of the canonical runtime execution contract.
 validation/state.py,runtime_support_internal_review,bijux-proteomics-runtime,Validation helpers are mixed runtime-support surfaces that require semantic placement review.
-validation/tools.py,runtime_support_internal_review,bijux-proteomics-runtime,Validation helpers are mixed runtime-support surfaces that require semantic placement review.
+validation/tools.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool registry validation is part of the canonical runtime execution contract.
