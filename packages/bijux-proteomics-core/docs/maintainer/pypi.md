@@ -71,6 +71,15 @@
 - expect a narrower release burden when the change only improves internal core
   implementation without changing lifecycle or protocol behavior
 
+## Release communication signals
+
+- call out lifecycle or protocol changes explicitly in release notes when
+  downstream packages or integrators may need to re-check assumptions
+- name any transition or validator behavior change directly instead of hiding it
+  inside generic maintenance wording
+- keep release messaging brief when the change only improves internals without
+  changing lifecycle or protocol behavior
+
 ## Release checklist
 
 1. Validate `README.md` and package docs describe current domain ownership.
