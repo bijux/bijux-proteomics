@@ -37,6 +37,15 @@ validator diagnostics, or protocol behavior.
 - if runtime needs richer orchestration over lifecycle state, the durable change
   should start here before runtime wraps it with entrypoints or adapters
 
+## Validation checkpoints
+
+- lifecycle and gate tests should make stage transitions and rejection paths
+  explicit for the changed contract surface
+- validator and protocol tests should preserve stable issue codes and
+  replaceable adapter behavior
+- contract changes should stay green in focused package tests before runtime or
+  higher-layer workflows rely on the new lifecycle semantics
+
 ## Explicit non-contracts
 
 - This package does not define evidence trust policy.
