@@ -6,7 +6,15 @@ from bijux_proteomics_runtime.api import AppConfig, create_app
 from bijux_proteomics_runtime.interfaces.cli import cli
 from bijux_proteomics_runtime.runtime.control.execution import RunManager
 
-__all__ = ["AppConfig", "Metrics", "Report", "RunManager", "cli", "create_app"]
+__all__ = [
+    "AppConfig",
+    "Metrics",
+    "Report",
+    "RunManager",
+    "cli",
+    "create_app",
+    "low_confidence_segments",
+]
 
 
 def __getattr__(name: str) -> Any:
@@ -14,4 +22,8 @@ def __getattr__(name: str) -> Any:
         from bijux_proteomics_intelligence import report as _report
 
         return getattr(_report, name)
+    if name == "low_confidence_segments":
+        from bijux_proteomics_knowledge.confidence import low_confidence_segments
+
+        return low_confidence_segments
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
