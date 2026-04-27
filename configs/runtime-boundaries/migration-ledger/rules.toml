@@ -325,6 +325,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Runtime identifier helpers now forward directly to canonical runtime identifier contracts."
 
 [[rule]]
+pattern = "core/observations.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime observation helpers now forward directly to canonical runtime observation contracts."
+
+[[rule]]
 pattern = "core/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
