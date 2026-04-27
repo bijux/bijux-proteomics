@@ -21,6 +21,24 @@ rewrites unless the schema contract itself intentionally changes.
 Contract-affecting changes should update the focused tests that pin canonical
 JSON behavior, compatibility semantics, or migration-path guarantees.
 
+## Consumer upgrade expectations
+
+- downstream packages should be able to adopt routine releases without
+  rewriting serialization or migration call sites
+- any intentional schema or migration break must be called out as an explicit
+  contract change instead of being buried inside implementation churn
+- consumers should expect deterministic diagnostics when compatibility checks
+  fail
+
+## Change routing signals
+
+- changes to canonical document structure, identifiers, or migration paths
+  belong here first
+- lifecycle, ranking, evidence, and lab-flow semantics should be routed back to
+  their owning packages instead of being patched into foundational models
+- if a runtime or compat surface needs new schema behavior, the durable change
+  should land here before higher layers widen their forwarding or adapters
+
 ## Explicit non-contracts
 
 - This package does not define product decision policy.
