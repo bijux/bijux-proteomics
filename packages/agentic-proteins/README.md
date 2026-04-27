@@ -91,6 +91,19 @@ from agentic_proteins.interfaces.cli import cli
 - compat modules must stay forwarding-only unless migration policy explicitly says otherwise
 - new integrations should start from canonical packages even while compat remains available
 
+## Choose this package when
+
+- you must preserve legacy imports or CLI entrypoints during migration
+- the change is forwarding-only and names a canonical owner clearly
+- integration continuity matters more than adding fresh behavior
+
+## Route elsewhere when
+
+- the change defines runtime orchestration, provider behavior, or domain
+  semantics
+- the helper mainly serves new integrations rather than compatibility
+- the module would stop being forwarding-only
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
