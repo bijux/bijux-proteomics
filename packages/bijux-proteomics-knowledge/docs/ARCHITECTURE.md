@@ -35,3 +35,21 @@ take ownership of lifecycle authority, ranking policy, or lab execution logic.
 
 Downstream packages should use these evidence and resolution models directly
 instead of maintaining separate trust, contradiction, or lineage formats.
+
+## Extension signals
+
+- add code here when a new concern changes evidence, claim, contradiction, or
+  lineage semantics
+- extend `evidence.py`, `claims.py`, `resolution.py`, `graph.py`, or `review.py`
+  before downstream packages create shadow trust models
+- keep new auditability rules here when they define evidence meaning rather than
+  only how a runtime or recommendation surface displays it
+
+## Misplacement signals
+
+- if the change needs lifecycle authority, ranking policy, lab scheduling, or
+  transport-bound payload shaping, it belongs elsewhere
+- if a helper mainly reformats evidence results for API or CLI consumers, it
+  belongs in runtime adapters rather than in knowledge models
+- if a rule only exists to serve one scoring or lab flow, keep it with that
+  owner instead of making knowledge absorb workflow-specific behavior
