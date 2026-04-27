@@ -39,6 +39,15 @@ outcome interpretation, schema compatibility, or serialization behavior.
   planning or outcome contract change should start here before higher layers
   expose it through entrypoints
 
+## Validation checkpoints
+
+- planning and dependency tests should make schedule, batching, and gating
+  changes explicit for the edited contract surface
+- outcome and repository tests should preserve typed rerun guidance and
+  storage-agnostic abstractions
+- contract changes should stay green in focused package tests before runtime or
+  compat layers widen operator workflows around the new lab behavior
+
 ## Explicit non-contracts
 
 - This package does not define lifecycle gate authority.
