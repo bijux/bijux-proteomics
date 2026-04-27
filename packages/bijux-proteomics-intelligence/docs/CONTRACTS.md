@@ -38,6 +38,15 @@ scenario, explainability, or rejection semantics.
 - if runtime or compat surfaces need richer operator summaries, the durable
   change should start here before higher layers reshape the outputs
 
+## Validation checkpoints
+
+- ranking and scenario tests should make recommendation changes visible instead
+  of burying them inside broad fixture churn
+- explainability and rejection-output tests should preserve typed rationale and
+  machine-readable summary fields
+- contract changes should stay green in focused package tests before runtime or
+  operator layers reshape the outputs
+
 ## Explicit non-contracts
 
 - This package does not define lifecycle gate authority.
