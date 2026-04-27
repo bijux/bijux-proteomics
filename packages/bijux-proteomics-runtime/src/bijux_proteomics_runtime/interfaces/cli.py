@@ -24,6 +24,14 @@ from bijux_proteomics_runtime.runtime.infra import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 from bijux_proteomics_runtime.runtime_identity import runtime_banner
 
+__all__ = [
+    "CliResult",
+    "_build_run_config",
+    "_read_sequence",
+    "_resume_candidate",
+    "cli",
+]
+
 
 def _package_version() -> str:
     try:

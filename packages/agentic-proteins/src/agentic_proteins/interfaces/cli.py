@@ -3,9 +3,6 @@
 from bijux_proteomics_runtime.interfaces import cli as _runtime_cli
 from bijux_proteomics_runtime.interfaces.cli import *  # noqa: F401,F403
 
-_read_sequence = _runtime_cli._read_sequence
-_build_run_config = _runtime_cli._build_run_config
-_resume_candidate = _runtime_cli._resume_candidate
 _export_report_payload = _runtime_cli._export_report_payload
 _write_output = _runtime_cli._write_output
 _artifact_paths = _runtime_cli._artifact_paths

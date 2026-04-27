@@ -12,14 +12,24 @@ from agentic_proteins.api.errors import _ERROR_TYPES as COMPAT_ERROR_TYPES
 from agentic_proteins.execution.evaluation.observations import (
     EvaluationInput as CompatEvaluationInput,
 )
-from agentic_proteins.interfaces.cli import cli as compat_cli
+from agentic_proteins.interfaces.cli import (
+    _build_run_config as compat_build_run_config,
+    _read_sequence as compat_read_sequence,
+    _resume_candidate as compat_resume_candidate,
+    cli as compat_cli,
+)
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
 from bijux_proteomics_runtime.execution.evaluation.observations import (
     EvaluationInput as RuntimeEvaluationInput,
 )
-from bijux_proteomics_runtime.interfaces.cli import cli as runtime_cli
+from bijux_proteomics_runtime.interfaces.cli import (
+    _build_run_config as runtime_build_run_config,
+    _read_sequence as runtime_read_sequence,
+    _resume_candidate as runtime_resume_candidate,
+    cli as runtime_cli,
+)
 
 
 def _config_payload(config: object) -> dict[str, object]:
@@ -64,3 +74,9 @@ def test_compat_evaluation_observations_forward_to_runtime_symbols() -> None:
 
 def test_compat_api_error_contracts_forward_to_runtime_symbols() -> None:
     assert COMPAT_ERROR_TYPES is RUNTIME_ERROR_TYPES
+
+
+def test_compat_cli_input_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_read_sequence is runtime_read_sequence
+    assert compat_build_run_config is runtime_build_run_config
+    assert compat_resume_candidate is runtime_resume_candidate
