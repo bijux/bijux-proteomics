@@ -84,6 +84,21 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 - migrations must preserve semantic meaning while advancing declared versions
 - downstream packages may depend on these primitives, but should not move domain rules into this layer
 
+## Choose this package when
+
+- you need reusable schema, serialization, identifier, or migration primitives
+- the same document contract must stay consistent across multiple package layers
+- the change is low-volatility shared infrastructure rather than package-specific
+  domain behavior
+
+## Route elsewhere when
+
+- the change defines lifecycle, ranking, evidence, lab, or runtime semantics
+- the helper would only serve one higher-layer package instead of the shared
+  family
+- the work mainly reshapes transport or orchestration payloads instead of shared
+  document primitives
+
 ## Source guide
 
 - [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
