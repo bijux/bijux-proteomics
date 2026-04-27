@@ -40,6 +40,11 @@ Use this package when you need the supported CLI, HTTP API, provider wiring,
 runtime state handling, and replay-safe orchestration for canonical
 `bijux-proteomics` execution.
 
+It is important not to overstate that role. Runtime owns execution control. It
+does not own the scientific workflow blueprint, evidence truth, ranking
+semantics, or lab progression logic that the wider proteomics engine still
+needs.
+
 ## Why teams pick this package
 
 - one canonical runtime surface for CLI, API, orchestration, and providers
@@ -152,6 +157,8 @@ remain in their dedicated lower-layer packages.
   migration shims
 - this package does not decide scientific truth, only how canonical execution
   runs over lower-layer contracts
+- this package does not substitute for an end-to-end scientific workflow model
+  across core, intelligence, knowledge, and lab
 
 ## Source guide
 
