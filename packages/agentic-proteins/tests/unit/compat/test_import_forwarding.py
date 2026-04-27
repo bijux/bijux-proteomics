@@ -35,6 +35,10 @@ from agentic_proteins.runtime.control.execution import (
     _select_structure_tool as compat_select_structure_tool,
     _version_info as compat_version_info,
 )
+from agentic_proteins.validation.agents import (
+    _minimal_payload as compat_minimal_payload,
+    _placeholder_for_type as compat_placeholder_for_type,
+)
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
@@ -67,6 +71,10 @@ from bijux_proteomics_runtime.runtime.control.execution import (
     _ensure_telemetry_costs as runtime_ensure_telemetry_costs,
     _select_structure_tool as runtime_select_structure_tool,
     _version_info as runtime_version_info,
+)
+from bijux_proteomics_runtime.validation.agents import (
+    _minimal_payload as runtime_minimal_payload,
+    _placeholder_for_type as runtime_placeholder_for_type,
 )
 
 
@@ -151,3 +159,8 @@ def test_compat_execution_summary_helpers_forward_to_runtime_symbols() -> None:
 def test_compat_execution_runtime_helpers_forward_to_runtime_symbols() -> None:
     assert compat_select_structure_tool is runtime_select_structure_tool
     assert compat_ensure_telemetry_costs is runtime_ensure_telemetry_costs
+
+
+def test_compat_validation_payload_helpers_forward_to_runtime_symbols() -> None:
+    assert compat_minimal_payload is runtime_minimal_payload
+    assert compat_placeholder_for_type is runtime_placeholder_for_type

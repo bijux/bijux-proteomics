@@ -14,6 +14,16 @@ from bijux_proteomics_runtime.memory.schemas import MemoryScope
 from bijux_proteomics_runtime.registry.agents import AgentRegistry
 from bijux_proteomics_runtime.validation.tools import validate_tools_for_agents
 
+__all__ = [
+    "ALLOWED_TOOL_NAMESPACE",
+    "_minimal_payload",
+    "_placeholder_for_type",
+    "validate_agent",
+    "validate_agents_and_tools",
+    "validate_critic_input",
+    "validate_registry_entries",
+]
+
 ALLOWED_TOOL_NAMESPACE: set[str] = {
     "motif_scan",
     "sequence_validator",
