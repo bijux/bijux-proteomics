@@ -17,3 +17,10 @@ def test_golden_path_example_uses_canonical_biology_imports() -> None:
     assert "from agentic_proteins" not in text
     assert "from bijux_proteomics.biology import (" in text
     assert "from bijux_proteomics.biology.protein_agent import " in text
+
+
+def test_visualize_invariants_uses_canonical_biology_imports() -> None:
+    text = _tool_text("visualize_invariants.py")
+    assert "from agentic_proteins" not in text
+    assert "from bijux_proteomics.biology import (" in text
+    assert "from bijux_proteomics.biology.protein_agent import " in text
