@@ -4,78 +4,43 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Documentation Standards
 
-Package docs should stay consistent with the shared handbook layout used across the repository.
+Documentation standards should protect the reader from filler, drift, and false confidence.
 
-Consistency matters here because readers should not need to relearn how to read
-every package. The shared layout is part of the user experience, but honesty is
-more important than uniformity for its own sake.
+For `bijux-proteomics-foundation`, documentation quality is mostly about explaining shared meaning before implementation detail and showing how that meaning travels across package boundaries.
 
-Treat the quality pages for `bijux-proteomics-foundation` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Documentation Model
 
 ```mermaid
 flowchart TB
-    doc["documentation page"] --> clear["clear purpose"]
-    clear --> scoped["correct boundary"]
-    scoped --> concrete["concrete examples and names"]
-    concrete --> visual["single useful diagram"]
-    visual --> maintained["reviewed and kept current"]
+    meaning["shared meaning"]
+    examples["cross-package type and schema examples"]
+    compatibility["release-critical compatibility notes"]
+    reader["reader can predict downstream impact"]
+
+    meaning --> examples
+    examples --> compatibility
+    compatibility --> reader
 ```
 
-## Standards
+This page should keep the documentation anchored on contract travel, not local code tours. If the docs stop helping readers predict downstream impact, they are already drifting.
 
-- use the shared five-category package spine
-- prefer stable filenames that describe durable intent
-- keep docs grounded in real code paths, interfaces, and artifacts
+## Review Rules
 
-## Concrete Anchors
+- docs should describe shared meaning before implementation detail
+- examples should show how types travel across packages
+- compatibility notes should read like release-critical guidance
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
+## First Proof Check
 
-## Use This Page When
+- `packages/bijux-proteomics-foundation/tests`
+- `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization.py`
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## Design Pressure
 
-## Decision Rule
-
-Use `Documentation Standards` to decide whether `bijux-proteomics-foundation` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What This Page Answers
-
-- what currently proves the `bijux-proteomics-foundation` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-foundation` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page keeps package docs from drifting back into ad hoc structure.
-
-## Stability
-
-Update it only when the shared documentation system itself changes.
+The easy failure is to document foundation like a utility library and bury the cross-package contract story that readers actually need.

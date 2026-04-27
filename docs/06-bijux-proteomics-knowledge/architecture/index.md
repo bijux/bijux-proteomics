@@ -4,98 +4,70 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Architecture
 
-This section maps the real module layout for `bijux-proteomics-knowledge`.
-
-The package is not split into `runtime/model/application` layers. The structure
-is feature-oriented around evidence, claims, conflict resolution, review, and
-graph semantics.
-
-## Visual Summary
+`bijux-proteomics-knowledge` architecture is about keeping evidence usable even
+when sources disagree. This section should help a reader see how claims, graphs,
+confidence, contradiction handling, and review outputs fit together without
+collapsing into recommendation policy or generic storage plumbing.
 
 ```mermaid
 flowchart LR
-    evidence["evidence.py"]
-    claims["claims.py"]
-    resolution["resolution.py"]
-    review["review.py"]
-    evidence_graph["graph.py"]
-    repositories["repositories.py"]
-    adapters["adapters.py"]
-    evidence --> claims
-    claims --> resolution
+    evidence["evidence records"]
+    claims["claims"]
+    knowledge_graph["knowledge graph"]
+    confidence["confidence segments"]
+    resolution["contradiction resolution"]
+    review["review and repository outputs"]
+
+    evidence --> claims --> knowledge_graph
+    knowledge_graph --> confidence
+    knowledge_graph --> resolution
+    confidence --> review
     resolution --> review
-    claims --> evidence_graph
-    repositories --> review
-    adapters --> evidence
 ```
 
-## Pages in This Section
+## Architectural Promise
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- contradictory evidence should become inspectable structure, not silent data
+  loss
+- trust scoring and contradiction handling should remain close to the claims
+  they justify
+- repository boundaries should preserve the reasoning trail, not just the final
+  answer
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Execution Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/execution-model/)
+  when the question is how raw evidence becomes reviewable knowledge
+- open [Integration Seams](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/integration-seams/)
+  when a change starts to blur knowledge work with recommendation policy or
+  generic persistence concerns
+- open [Module Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/module-map/)
+  when you need the owner for claims, graphs, confidence, or resolution code
 
-## Concrete Anchors
+## Read By Tension
 
-- `src/bijux_proteomics_knowledge/evidence.py` for evidence modeling and trust logic
-- `src/bijux_proteomics_knowledge/claims.py` for claim lifecycle and lineage behavior
-- `src/bijux_proteomics_knowledge/resolution.py` for conflict resolution policy behavior
-- `src/bijux_proteomics_knowledge/review.py` for review-packet and readiness summarization
+- when evidence volume grows:
+  [State and Persistence](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/state-and-persistence/)
+  and [Dependency Direction](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/dependency-direction/)
+- when contradictions grow:
+  [Error Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/error-model/)
+  and [Architecture Risks](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/architecture-risks/)
+- when new source or resolution logic is proposed:
+  [Extensibility Model](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/extensibility-model/)
+  and [Code Navigation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/code-navigation/)
 
-## Use This Page When
+## First Proof Check
 
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
+- `src/bijux_proteomics_knowledge/claims.py`, `evidence.py`, and `graph.py` for canonical knowledge structures
+- `src/bijux_proteomics_knowledge/confidence/segments.py`, `resolution.py`, and `review.py` for trust and contradiction handling
+- `src/bijux_proteomics_knowledge/repositories.py`, `schema.py`, and `serialization.py` for durable boundaries
 
-## Decision Rule
+## Boundary Test
 
-Use `Architecture` to decide whether a structural change makes `bijux-proteomics-knowledge` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What This Page Answers
-
-- how the package is actually decomposed today
-- which modules are core dependency hubs
-- where structural drift is likely to create caller confusion
-
-## Reviewer Lens
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Honesty Boundary
-
-This page describes the current structural model of `bijux-proteomics-knowledge`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
-
-## Purpose
-
-This page explains how to use the architecture section for `bijux-proteomics-knowledge` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+If the architecture can show a final conclusion but not the path through
+conflict and confidence, it is hiding the most important part of the package.

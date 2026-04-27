@@ -4,49 +4,71 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Platform Overview
 
-`bijux-proteomics` is a multi-package system because protein-program design is
-easier to trust when runtime control, shared primitives, domain contracts,
-decision logic, evidence handling, and lab execution stay distinct.
+`bijux-proteomics` is split because proteomics work becomes easier to trust
+when shared payload meaning, durable program contracts, evidence state,
+decision policy, lab planning, and execution are owned in different places.
+The split is not presentation polish. It is how the repository keeps authority
+visible.
 
-Read the platform as a chain of responsibilities rather than as a directory
-list. Foundation stabilizes shared payload meaning. Core defines program and
-lifecycle contracts. Knowledge tracks evidence and claims. Intelligence turns
-those inputs into inspectable decisions. Lab turns decisions into assay work.
-`bijux-proteomics-runtime` governs execution, replay, and final runtime
-behavior. `agentic-proteins` remains as a compatibility surface.
+## Platform Model
 
 ```mermaid
 flowchart LR
-    foundation[bijux-proteomics-foundation\nshared primitives]
-    core[bijux-proteomics-core\nprogram contracts]
-    knowledge[bijux-proteomics-knowledge\nevidence + claims]
-    intelligence[bijux-proteomics-intelligence\ndecision support]
-    lab[bijux-proteomics-lab\nassay execution]
-    runtime[bijux-proteomics-runtime\nruntime orchestration]
-    compat[agentic-proteins\ncompatibility forwarding]
+    foundation["foundation"]
+    core["core"]
+    knowledge["knowledge"]
+    intelligence["intelligence"]
+    lab["lab"]
+    runtime["runtime"]
+    bridge["agentic-proteins"]
 
-    foundation --> core --> knowledge --> intelligence --> lab --> runtime --> compat
-    foundation -. stabilizes .-> intelligence
-    core -. constrains .-> lab
+    foundation --> core
+    foundation --> knowledge
+    core --> intelligence
+    knowledge --> intelligence
+    intelligence --> lab
+    runtime --> lab
+    bridge -. forwards to .-> runtime
 ```
 
-## Why The Split Matters
+This page should give the shortest honest explanation of the package chain. Readers should leave understanding why the split exists and how authority moves through it, not just memorizing package names.
 
-- ownership is clearer during review
-- package contracts stay narrower and easier to defend
-- cross-package seams stay visible instead of becoming accidental coupling
+## Responsibility Chain
 
-## Purpose
+- `bijux-proteomics-foundation` stabilizes schema meaning, identifiers, and
+  deterministic serialization
+- `bijux-proteomics-core` defines program models, lifecycle rules, and gate
+  semantics
+- `bijux-proteomics-knowledge` tracks claims, confidence, and contradiction
+  state
+- `bijux-proteomics-intelligence` turns those inputs into scores,
+  recommendations, and explanations
+- `bijux-proteomics-lab` maps decisions into assay planning and outcome
+  handling
+- `bijux-proteomics-runtime` executes, replays, and exposes operator-facing
+  runtime surfaces
+- `agentic-proteins` preserves legacy runtime entrypoints while callers migrate
 
-This page is the shortest whole-system explanation of the proteomics package
-family.
+`bijux-proteomics-runtime` governs execution, replay, and operator-facing runtime behavior while `agentic-proteins` remains the compatibility bridge.
 
-## Stability
+## Why The Split Pays Off
 
-Keep it aligned with the current package responsibilities and the reasons the
-split exists.
+A package boundary is justified only when it reduces one concrete review risk.
+Here that means reviewers can ask whether a change altered shared meaning,
+durable contracts, evidence truth, scoring policy, lab decisions, or execution
+without guessing which layer silently owns the decision.
+
+## First Proof Check
+
+- product handbooks under `docs/02-...` through `docs/09-...`
+- `packages/` for the matching package directories
+- package tests and schema artifacts once one layer clearly owns the claim
+
+## Design Pressure
+
+The easy mistake is to explain the package family as a catalog of parts instead of an authority chain that keeps trust decisions legible.

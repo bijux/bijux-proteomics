@@ -4,112 +4,60 @@ audience: mixed
 type: index
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Quality
 
-This section explains how `agentic-proteins` earns trust: which proof surfaces matter, which risks stay visible, and what done should mean after a real change.
+`agentic-proteins` quality should tell a reviewer what must remain true, what proof is required, and which risks are serious enough to block a change.
 
-These pages explain the proof story for `agentic-proteins`. They should make trust, skepticism, and review pressure visible enough that passing checks do not get mistaken for sufficient evidence.
-
-Treat the quality pages for `agentic-proteins` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Trust Model
 
 ```mermaid
-flowchart TB
-    page["Quality<br/>clarifies: see proof | see limitations | judge done-ness"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/api and tests/integration for contract and boundary coverage"]
-    proof1 --> page
-    proof2["tests/e2e for runtime flow, observability, and failure scenarios"]
-    proof2 --> page
-    proof3["tests/regression for behavioral drift in agents, evaluation, and pathways"]
-    proof3 --> page
-    risk1["CHANGELOG.md"]
-    risk1 -.keeps trust honest.-> page
-    risk2["pyproject.toml"]
-    risk2 -.keeps trust honest.-> page
-    risk3["README.md"]
-    risk3 -.keeps trust honest.-> page
-    bar1["package trust after change"]
-    page --> bar1
-    bar2["proof before confidence"]
-    page --> bar2
-    bar3["done means defended behavior"]
-    page --> bar3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class risk1,risk2,risk3 caution;
-    class bar1,bar2,bar3 action;
+flowchart LR
+    invariants["invariants"]
+    tests["test strategy"]
+    validation["change validation"]
+    risks["risk register and limitations"]
+    decision["trust or block the change"]
+
+    invariants --> tests --> validation --> risks --> decision
 ```
 
-## Pages in This Section
+This page should show quality as a trust path rather than a page list. For the
+legacy bridge package, trust means proving the bridge still forwards correctly
+and stays easier to retire instead of becoming a second product surface.
 
-- [Test Strategy](test-strategy.md)
-- [Invariants](invariants.md)
-- [Review Checklist](review-checklist.md)
-- [Documentation Standards](documentation-standards.md)
-- [Definition of Done](definition-of-done.md)
-- [Dependency Governance](dependency-governance.md)
-- [Change Validation](change-validation.md)
-- [Known Limitations](known-limitations.md)
-- [Risk Register](risk-register.md)
+## Start With
 
-## Read Across the Package
+- open [Invariants](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/invariants/) before changing package meaning
+- open [Change Validation](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/change-validation/) when you need the minimum proof for a real edit
+- open [Risk Register](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/risk-register/) when the package boundary feels under pressure
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
+## Section Pages
 
-## Concrete Anchors
+- [Invariants](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/invariants/)
+- [Test Strategy](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/test-strategy/)
+- [Change Validation](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/change-validation/)
+- [Definition of Done](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/definition-of-done/)
+- [Dependency Governance](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/dependency-governance/)
+- [Documentation Standards](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/documentation-standards/)
+- [Known Limitations](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/known-limitations/)
+- [Review Checklist](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/review-checklist/)
+- [Risk Register](https://bijux.io/bijux-proteomics/02-agentic-proteins/quality/risk-register/)
 
-- packages/agentic-proteins/tests/api and tests/integration for interface and contract behavior
-- packages/agentic-proteins/tests/e2e and tests/regression for end-to-end and drift protection
-- README.md
+## What Quality Means Here
 
-## Use This Page When
+- proving that the legacy bridge still forwards correctly and becomes easier to retire over time
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## First Proof Check
 
-## Decision Rule
+- `packages/agentic-proteins/tests`
+- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
+- `src/agentic_proteins/runtime/`
 
-Use `Quality` to decide whether `agentic-proteins` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
+## Design Pressure
 
-## What This Page Answers
-
-- what currently proves the `agentic-proteins` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `agentic-proteins` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page explains how to use the quality section for `agentic-proteins` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+If the quality section reads like generic reassurance instead of a concrete
+bridge-proof path, the legacy package will linger on habit instead of staying
+reviewable and intentionally temporary.

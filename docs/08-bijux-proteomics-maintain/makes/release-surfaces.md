@@ -4,32 +4,40 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Release Surfaces
 
-Release-facing make behavior should be visible before CI calls it.
+Release surfaces are where local commands and publication workflows meet. They deserve explicit routing and explicit failure points.
 
-The repository keeps release-related logic in places such as `makes/publish.mk`,
-`makes/bijux-py/repository/publish.mk`, and the build and sbom fragments that
-shape artifact creation. Those files are part of the release contract and
-should be understandable without opening workflow YAML first. The root publish
-makefile now declares the repository-owned version resolver and publication
-guard modules that keep tagged releases and staged artifacts aligned.
+## Release Model
 
-## Release Anchors
+```mermaid
+flowchart TB
+    local["local release-oriented command"]
+    publish["publish fragments"]
+    workflow["release workflow stage"]
+    failure["explicit proof or failure point"]
+
+    local --> publish
+    publish --> workflow
+    workflow --> failure
+```
+
+This page should make release targets feel like controlled publication gates rather than convenience shortcuts. The command surface is only safe while each release step still has an obvious proof point.
+
+## Release Rules
+
+- keep publication targets easy to trace from the root surface
+- align make release targets with workflow release stages
+- treat release shortcuts that skip proof as defects
+
+## First Proof Check
 
 - `makes/publish.mk`
-- `makes/bijux-py/repository/publish.mk`
-- `makes/bijux-py/ci/build.mk`
-- `makes/bijux-py/ci/sbom.mk`
+- release workflow files under `.github/workflows/`
 
-## Purpose
+## Design Pressure
 
-This page records the main make files that influence release preparation and
-publication behavior.
-
-## Stability
-
-Keep it aligned with the repository’s actual release-facing make surfaces.
+The easy failure is to add a release shortcut that feels efficient locally but quietly skips the proof a workflow would have enforced.

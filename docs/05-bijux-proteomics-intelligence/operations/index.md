@@ -4,112 +4,60 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Operations
 
-This section explains how to install, run, diagnose, and release `bijux-proteomics-intelligence` from checked-in workflow guidance instead of team memory.
-
-These pages are the checked-in operating memory for `bijux-proteomics-intelligence`. They should let a maintainer move from setup to diagnosis to release without relying on CI archaeology or private habits.
-
-Treat the operations pages for `bijux-proteomics-intelligence` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
-
-## Visual Summary
+`bijux-proteomics-intelligence` operations is about changing judgment without
+making it arbitrary. Maintainers here are not just shipping code. They are
+shipping policy behavior, recommendation quality, and explanation patterns that
+people may use to decide what gets advanced, redesigned, or paused.
 
 ```mermaid
 flowchart LR
-    page["Operations<br/>clarifies: repeat workflows | find diagnostics | release safely"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["CLI entrypoint in src/bijux_proteomics_intelligence/briefs.py"]
-    step1 --> page
-    step2["HTTP app in src/bijux_proteomics_intelligence/evaluators.py"]
-    step2 --> page
-    step3["packages/bijux-proteomics-intelligence/pyproject.toml"]
-    step3 --> page
-    run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run1
-    run2["tests/e2e for governed flow behavior"]
-    page --> run2
-    run3["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run3
-    release1["CHANGELOG.md"]
-    run1 --> release1
-    release2["pyproject.toml"]
-    run2 --> release2
-    release3["README.md"]
-    run3 --> release3
-    class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    policy["policy or evaluator change"]
+    scenarios["rerun scenario and ranking tests"]
+    explain["check explanation and brief quality"]
+    drift["inspect portfolio and design-loop drift"]
+    review["review recommendation consequences"]
+    release["publish updated judgment surface"]
+
+    policy --> scenarios --> explain --> drift --> review --> release
 ```
 
-## Pages in This Section
+## What Operations Means Here
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- recommendation drift is an operational concern, not just a modeling concern
+- a passing test suite is incomplete if explanations become harder to trust
+- maintainers need to reason about output quality across scenarios, not only
+  single-function correctness
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Common Workflows](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/common-workflows/)
+  when you need the standard path from policy edit to trustworthy release
+- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/observability-and-diagnostics/)
+  when rankings, briefings, or scenario outputs no longer look believable
+- open [Failure Recovery](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/failure-recovery/)
+  when recommendation behavior already regressed in a way humans can see
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/release-and-versioning/)
+  before publishing any change that alters policy defaults or explanation shape
 
-## Concrete Anchors
+## Route From Operating Concern
 
-- `packages/bijux-proteomics-intelligence/pyproject.toml` for package metadata
-- `packages/bijux-proteomics-intelligence/README.md` for local package framing
-- `packages/bijux-proteomics-intelligence/tests` for executable operational backstops
+- [Local Development](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/local-development/)
+  and [Installation and Setup](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/installation-and-setup/)
+  for reproducible scoring and evaluation work
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/deployment-boundaries/)
+  and [Security and Safety](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/security-and-safety/)
+  for the limits that stop recommendation logic from becoming hidden authority
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/performance-and-scaling/)
+  when evaluation volume, portfolio breadth, or report generation cost becomes
+  the practical bottleneck
 
-## Use This Page When
+## First Proof Check
 
-- you are installing, running, diagnosing, or releasing the package
-- you need repeatable operational anchors rather than architectural framing
-- you are responding to package behavior in local work, CI, or incident pressure
-
-## Decision Rule
-
-Use `Operations` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
-
-## What This Page Answers
-
-- how `bijux-proteomics-intelligence` is installed, run, diagnosed, and released in practice
-- which checked-in files and tests anchor the operational story
-- where a maintainer should look first when the package behaves differently
-
-## Reviewer Lens
-
-- verify that setup, workflow, and release statements still match package metadata and current commands
-- check that operational guidance still points at real diagnostics and validation paths
-- confirm that maintainer advice still works under current local and CI expectations
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-intelligence` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
-
-## Next Checks
-
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
-
-## Purpose
-
-This page explains how to use the operations section for `bijux-proteomics-intelligence` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
+- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `packages/bijux-proteomics-intelligence/tests`

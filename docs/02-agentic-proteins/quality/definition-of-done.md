@@ -4,101 +4,48 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Definition of Done
 
-A change in `agentic-proteins` is not done when code passes locally but the package contract
-is still unclear or unprotected.
+Done means the package is easier to trust after the change, not just that the diff merged.
 
-This page is where the package draws the line against false confidence. Done
-should mean that behavior, explanation, and proof all move together.
+For `agentic-proteins`, done means a legacy surface still forwards correctly, becomes easier to retire, and does not quietly grow into a second runtime.
 
-Treat the quality pages for `agentic-proteins` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Completion Model
 
 ```mermaid
-flowchart RL
-    page["Definition of Done<br/>clarifies: see proof | see limitations | judge done-ness"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/regression and tests/smoke for replay and storage protection"]
-    proof1 --> page
-    proof2["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    proof2 --> page
-    proof3["tests/e2e for governed flow behavior"]
-    proof3 --> page
-    risk1["CHANGELOG.md"]
-    risk1 -.keeps trust honest.-> page
-    risk2["pyproject.toml"]
-    risk2 -.keeps trust honest.-> page
-    risk3["README.md"]
-    risk3 -.keeps trust honest.-> page
-    bar1["package trust after change"]
-    page --> bar1
-    bar2["proof before confidence"]
-    page --> bar2
-    bar3["done means defended behavior"]
-    page --> bar3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class risk1,risk2,risk3 caution;
-    class bar1,bar2,bar3 action;
+flowchart TB
+    change["change lands on a legacy CLI, API, or import path"]
+    forwarding{"bridge still forwards correctly?"}
+    migration{"migration story is clearer afterward?"}
+    retirement{"no new permanent bridge obligation added?"}
+    done["change is done"]
+
+    change --> forwarding
+    forwarding -->|yes| migration
+    forwarding -->|no| block1["not done"]
+    migration -->|yes| retirement
+    migration -->|no| block2["not done"]
+    retirement -->|yes| done
+    retirement -->|no| block3["not done"]
 ```
 
-## Done Means
+This page should make completion feel stricter than “legacy path still works.” The bridge is only safer after a change when the runtime handoff and retirement pressure are both easier to explain.
 
-- code, docs, and tests agree on the new behavior
-- public surfaces and artifacts remain explainable
-- release-facing impact is visible when compatibility changes
+## Review Rules
 
-## Concrete Anchors
+- the edited legacy surface still forwards correctly
+- the migration story is clearer than before the change
+- no new permanent bridge obligation was added by accident
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
+## First Proof Check
 
-## Use This Page When
+- `packages/agentic-proteins/tests`
+- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
+- `src/agentic_proteins/runtime/`
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## Design Pressure
 
-## Decision Rule
-
-Use `Definition of Done` to decide whether `agentic-proteins` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What This Page Answers
-
-- what currently proves the `agentic-proteins` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `agentic-proteins` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page records the package's completion threshold.
-
-## Stability
-
-Keep it aligned with the package validation and release expectations.
+The easy failure is to declare success once a legacy entrypoint still runs, even though the bridge just became broader or harder to retire.

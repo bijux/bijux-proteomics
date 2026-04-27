@@ -4,97 +4,66 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Architecture
 
-This section explains how `bijux_proteomics_foundation` is organized so a reviewer can follow structure, dependency direction, and execution flow without guessing.
-
-These pages turn `bijux-proteomics-foundation` from a directory tree into a readable design map. Use them when a structural change needs to be grounded in named modules and real execution paths.
-
-Treat the architecture pages for `bijux-proteomics-foundation` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
-
-## Visual Summary
+`bijux-proteomics-foundation` architecture is deliberately small, and that is
+the point. This section explains how the package preserves stable meaning
+across ids, schemas, serialization, and migrations without quietly absorbing
+package-specific policy.
 
 ```mermaid
-mindmap
-  root((Architecture))
-    Structure
-      module map
-      code navigation
-      dependency direction
-    Runtime
-      execution model
-      error model
-      state and persistence
-    Evolution
-      extensibility model
-      integration seams
-      architecture risks
+flowchart LR
+    ids["ids.py<br/>stable identifiers"]
+    schema["schema.py<br/>shared payload shape"]
+    serialization["serialization.py<br/>transport form"]
+    migrations["migrations.py<br/>version continuity"]
+    errors["errors.py<br/>shared failure vocabulary"]
+    consumers["all higher packages"]
+
+    ids --> schema --> serialization --> migrations --> consumers
+    errors --> schema
+    errors --> serialization
+    errors --> migrations
 ```
 
-## Pages in This Section
+## Architectural Promise
 
-- [Module Map](module-map.md)
-- [Dependency Direction](dependency-direction.md)
-- [Execution Model](execution-model.md)
-- [State and Persistence](state-and-persistence.md)
-- [Integration Seams](integration-seams.md)
-- [Error Model](error-model.md)
-- [Extensibility Model](extensibility-model.md)
-- [Code Navigation](code-navigation.md)
-- [Architecture Risks](architecture-risks.md)
+- the same object should keep the same meaning while it moves between packages,
+  artifacts, and versions
+- version repair belongs here, but domain judgment does not
+- the small file count is a design statement, not a sign of incompleteness
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Execution Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/execution-model/)
+  when the question is how shared meaning survives transport and version change
+- open [Integration Seams](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/integration-seams/)
+  when a proposed helper starts to smell like package-specific policy
+- open [Module Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/module-map/)
+  when you need the exact owner quickly because the package is intentionally
+  compact
 
-## Concrete Anchors
+## Reading Map
 
-- `src/bijux_proteomics_foundation/schema.py` and `ids.py` for document and identifier contracts
-- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py` for compatibility flows
-- `src/bijux_proteomics_foundation/errors.py` and `__init__.py` for stable exported boundaries
+- [State and Persistence](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/state-and-persistence/)
+  for what is allowed to become durable
+- [Dependency Direction](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/dependency-direction/)
+  and [Extensibility Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/extensibility-model/)
+  for the rules that keep the package minimal
+- [Error Model](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/error-model/)
+  and [Architecture Risks](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/architecture-risks/)
+  for the places hidden policy often tries to enter
 
-## Use This Page When
+## First Proof Check
 
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
+- `src/bijux_proteomics_foundation/ids.py` and `schema.py` for stable shared meaning
+- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py` for transport and compatibility structure
+- `src/bijux_proteomics_foundation/errors.py` for shared failure vocabulary
 
-## Decision Rule
+## Boundary Test
 
-Use `Architecture` to decide whether a structural change makes `bijux-proteomics-foundation` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What This Page Answers
-
-- how `bijux-proteomics-foundation` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
-
-## Reviewer Lens
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Honesty Boundary
-
-This page describes the current structural model of `bijux-proteomics-foundation`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
-
-## Purpose
-
-This page explains how to use the architecture section for `bijux-proteomics-foundation` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+If a new helper needs package-specific nouns to justify itself, it probably does
+not belong in this architecture.

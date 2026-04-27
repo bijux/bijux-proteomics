@@ -4,82 +4,48 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Definition of Done
 
-A change in `bijux-proteomics-foundation` is not done when code passes locally but the package contract
-is still unclear or unprotected.
+Done means the package is easier to trust after the change, not just that the diff merged.
 
-This page is where the package draws the line against false confidence. Done
-should mean that behavior, explanation, and proof all move together.
+For `bijux-proteomics-foundation`, done is about keeping shared meaning stable enough that every downstream package can still speak the same language after the edit.
 
-Treat the quality pages for `bijux-proteomics-foundation` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Completion Model
 
 ```mermaid
-flowchart TD
-    candidate["candidate change"] --> purpose{"shared purpose still clear?"}
-    purpose -->|No| blocked["not done"]
-    purpose -->|Yes| tests{"tests updated?"}
-    tests -->|No| blocked
-    tests -->|Yes| docs{"docs and examples updated?"}
-    docs -->|No| blocked
-    docs -->|Yes| compat{"compatibility assessed?"}
-    compat -->|No| blocked
-    compat -->|Yes| done["done"]
+flowchart TB
+    change["change lands in shared schema or serialization"]
+    meaning{"shared meaning still singular?"}
+    proof{"migration and serialization proof updated?"}
+    downstream{"downstream compatibility path stays explicit?"}
+    done["change is done"]
+
+    change --> meaning
+    meaning -->|yes| proof
+    meaning -->|no| block1["not done"]
+    proof -->|yes| downstream
+    proof -->|no| block2["not done"]
+    downstream -->|yes| done
+    downstream -->|no| block3["not done"]
 ```
 
-## Done Means
+This page should let a reviewer trace the move from edited shared meaning to migration proof and then to downstream safety. If one of those links is missing, the package is only locally green.
 
-- code, docs, and tests agree on the new behavior
-- public surfaces and artifacts remain explainable
-- release-facing impact is visible when compatibility changes
+## Review Rules
 
-## Concrete Anchors
+- shared meaning is still clearer after the change than before it
+- migration and serialization proof cover the edited surface
+- downstream packages have an explicit path to remain compatible
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
+## First Proof Check
 
-## Use This Page When
+- `packages/bijux-proteomics-foundation/tests`
+- `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization.py`
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## Design Pressure
 
-## Decision Rule
-
-Use `Definition of Done` to decide whether `bijux-proteomics-foundation` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What This Page Answers
-
-- what currently proves the `bijux-proteomics-foundation` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-foundation` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page records the package's completion threshold.
-
-## Stability
-
-Keep it aligned with the package validation and release expectations.
+The easy failure here is to call work done once one package test suite passes, even though the real risk is that every consuming package now inherits a silent meaning split.

@@ -4,30 +4,40 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Schema Governance
 
-Schema drift is one of the fastest ways to let a package family tell two
-different stories at once. The maintainer package exists in part to stop that
-drift from becoming a hidden cost.
+Schema governance in the maintainer package exists to keep public and frozen contracts stable across releases.
 
-Repository-level schema helpers should make contract changes visible before
-release, not after downstream users discover disagreement between code and
-checked-in API artifacts.
+## Governance Model
 
-## Current Schema Surfaces
+```mermaid
+flowchart TB
+    contract["tracked schema or api contract"]
+    freeze["freeze and drift helpers"]
+    release["release-facing decision"]
+    block["contract change is reviewed or blocked"]
 
-- `api/freeze_contracts.py`
-- `api/openapi_drift.py`
-- `apis/*/v1/` as the checked reference contracts they enforce
+    contract --> freeze
+    freeze --> release
+    release --> block
+```
 
-## Purpose
+This page should make schema governance feel like release governance for public contracts. The maintainer package is where contract drift becomes detectable before consumers discover it the hard way.
 
-This page explains why schema drift detection belongs in the maintainer package
-instead of scattered shell scripts.
+## Governance Rules
 
-## Stability
+- freeze contracts deliberately and review drift explicitly
+- connect API drift checks to release-facing decisions
+- treat undocumented contract movement as a blocker
 
-Keep it aligned with the actual API tooling and tracked schema files.
+## First Proof Check
+
+- `src/bijux_proteomics_dev/api/freeze_contracts.py`
+- `src/bijux_proteomics_dev/api/openapi_drift.py`
+
+## Design Pressure
+
+The common drift is to treat frozen contracts as passive files instead of active release blockers when undocumented movement appears.

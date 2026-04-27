@@ -4,32 +4,20 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-19
+last_reviewed: 2026-04-26
 ---
 
 # reusable-workflows
 
-The repository uses reusable workflow files to keep package verification and
-release publication contracts consistent across packages.
+Reusable workflows exist to keep shared automation logic explicit instead of duplicating it across triggers.
 
-`ci.yml` defines the reusable package-check wrapper and delegates execution to
-`bijux-std` reusable CI contracts. `release-artifacts.yml` can run as a
-standalone tag-triggered workflow and as a reusable orchestration workflow for
-build and publication stages.
+## What To Check
 
-## Workflow Anchors
+- which top-level workflows call reusable workflow files
+- which inputs, matrices, or permissions are centralized there
+- whether reuse is clarifying automation or hiding ownership
+
+## First Proof Check
 
 - `.github/workflows/ci.yml`
-- `.github/workflows/release-artifacts.yml`
-- the package matrix caller in `verify.yml`
-- release callers in `release-pypi.yml`, `release-ghcr.yml`, and
-  `release-github.yml`
-
-## Purpose
-
-Use this page to see which workflows are building blocks and which top-level
-workflows call them.
-
-## Stability
-
-Keep it aligned with the reusable workflow files and their current callers.
+- other workflow files that call it

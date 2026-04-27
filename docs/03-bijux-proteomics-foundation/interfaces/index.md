@@ -4,95 +4,75 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Interfaces
 
-This section explains which commands, APIs, imports, schemas, and artifacts `bijux-proteomics-foundation` is prepared to stand behind as real surfaces.
-
-These pages explain the public face of `bijux-proteomics-foundation`. They help a caller separate deliberate contracts from incidental visibility before a dependency hardens around the wrong surface.
-
-Treat the interfaces pages for `bijux-proteomics-foundation` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
-
-## Visual Summary
+`bijux-proteomics-foundation` interfaces are the points where shared meaning
+leaves this small package and becomes everybody else's assumption. This section
+should help a reader see how identifiers, schema profiles, canonical
+serialization, and migrations become stable promises that the rest of the
+repository can safely build on.
 
 ```mermaid
-mindmap
-  root((Interfaces))
-    Public Imports
-    Data Contracts
-    Artifact Contracts
-    Configuration Surface
-    API Surface
-    CLI Surface
-    Compatibility Commitments
-    Operator Workflows
-    Entrypoints and Examples
+flowchart LR
+    imports["public imports"]
+    ids["stable ids"]
+    contracts["schema and data contracts"]
+    artifacts["canonical artifacts"]
+    migration["migration commitments"]
+    packages["core, runtime, intelligence,<br/>knowledge, lab"]
+
+    imports --> ids --> contracts --> artifacts --> migration --> packages
 ```
 
-## Pages in This Section
+## What These Interfaces Actually Do
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- they give every other package a shared language for document identity and
+  payload shape
+- they make persisted artifacts comparable across versions instead of merely
+  serializable once
+- they publish small surfaces, but those surfaces carry repository-wide
+  consequences when they change
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/)
+  when the question is really about what a payload means and how long that
+  meaning must survive
+- open [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/)
+  when the concern is canonical JSON, fingerprints, or persisted record form
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/compatibility-commitments/)
+  before changing any outward promise that downstream packages rely on
+- open [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
+  when the question starts from Python code rather than from artifacts
 
-## Concrete Anchors
+## Read By Surface
 
-- CLI entrypoint in src/bijux_proteomics_foundation/__init__.py
-- HTTP app in src/bijux_proteomics_foundation/schema.py
-- schema contracts in src/bijux_proteomics_foundation/schema.py
-- src/bijux_proteomics_foundation/schema.py
+- [Public Imports](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/public-imports/)
+  for the narrow code surface this package intentionally exports
+- [Data Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/data-contracts/)
+  and [Artifact Contracts](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/artifact-contracts/)
+  for the two surfaces that most directly preserve shared meaning
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/entrypoints-and-examples/)
+  and [Operator Workflows](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/operator-workflows/)
+  for how maintainers touch those primitives in practice
+- [API Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/api-surface/),
+  [CLI Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/cli-surface/),
+  and [Configuration Surface](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/configuration-surface/)
+  mainly as repository integration seams rather than end-user product surfaces
 
-## Use This Page When
+## What A Reader Should Walk Away Knowing
 
-- you need the public command, API, import, schema, or artifact surface
-- you are checking whether a caller can safely rely on a given entrypoint or shape
-- you want the contract-facing side of the package before building on it
+- why such a small package still has some of the highest-leverage public
+  contracts in the repository
+- which promises belong to payload stability versus operational convenience
+- where to look first before assuming another package owns a serialization or
+  migration concern
 
-## Decision Rule
+## First Proof Check
 
-Use `Interfaces` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
-
-## What This Page Answers
-
-- which public or operator-facing surfaces `bijux-proteomics-foundation` is really asking readers to trust
-- which schemas, artifacts, imports, or commands behave like contracts
-- what compatibility pressure a change to this surface would create
-
-## Reviewer Lens
-
-- compare commands, schemas, imports, and artifacts against the documented surface one by one
-- check whether a seemingly local change actually needs compatibility review
-- confirm that examples still point to real entrypoints and not to stale habits
-
-## Honesty Boundary
-
-This page can identify the intended public surfaces of `bijux-proteomics-foundation`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
-
-## Next Checks
-
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
-
-## Purpose
-
-This page explains how to use the interfaces section for `bijux-proteomics-foundation` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- `src/bijux_proteomics_foundation/ids.py` and `schema.py`
+- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py`
+- `packages/bijux-proteomics-foundation/tests`

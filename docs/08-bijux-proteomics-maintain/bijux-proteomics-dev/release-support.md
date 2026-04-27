@@ -4,31 +4,41 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Release Support
 
-Shared release checks belong here so package metadata, changelog expectations,
-and publication readiness stay consistent across the repository.
+Release support should make version and publication rules visible before tags and workflows do the irreversible part.
 
-The point is not to hide release logic behind a helper package. The point is to
-make release support visible in one place where maintainers can audit the rules
-that repository automation is actually enforcing.
+## Release Model
 
-## Current Release Surfaces
+```mermaid
+flowchart TB
+    release["release candidate"]
+    version["version and changelog checks"]
+    guard["publication guard"]
+    publish["tag and publication may proceed"]
 
-- `release/changelog_version.py`
-- `release/version_resolver.py`
-- `release/publication_guard.py`
-- package metadata checks in repository tests
-- root commit conventions configured through commitizen
+    release --> version
+    version --> guard
+    guard --> publish
+```
 
-## Purpose
+This page should make release support feel like a pre-publication proof chain. The repository needs version logic, changelog discipline, and publication guards to agree before tags turn policy mistakes into published artifacts.
 
-This page records the maintainer package role in release preparation.
+## Support Rules
 
-## Stability
+- keep version resolution and changelog checks explicit
+- block publication when repository proof is incomplete
+- tie release decisions back to checked-in policy helpers
 
-Keep it aligned with the real release support code and current versioning
-workflow.
+## First Proof Check
+
+- `src/bijux_proteomics_dev/release/version_resolver.py`
+- `src/bijux_proteomics_dev/release/changelog_version.py`
+- `src/bijux_proteomics_dev/release/publication_guard.py`
+
+## Design Pressure
+
+The easy failure is to let release automation look authoritative even when the underlying version and publication rules are no longer explicit or aligned.

@@ -4,30 +4,43 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Make System Overview
 
-The repository make system is the shared command language for maintainer work.
+The make system is a real interface, not a random collection of shortcuts.
 
-It starts at `Makefile`, delegates to `makes/root.mk`, and then pulls in
-repository fragments, reusable `bijux-py` contracts, package dispatch, and
-per-package bindings. The structure matters because it keeps command ownership
-traceable instead of burying it in one oversized file.
+## System Model
 
-## Core Shape
+```mermaid
+flowchart TB
+    entry["Makefile"]
+    root["makes/root.mk"]
+    shared["shared bijux-py fragments"]
+    packages["package dispatch fragments"]
+    commands["real maintainer command behavior"]
 
-- `Makefile` is the top-level entrypoint
-- `makes/root.mk` assembles repository-wide includes
-- `makes/bijux-py/` carries reusable command contracts and target families
-- `makes/packages/` maps those shared contracts onto real proteomics packages
+    entry --> root
+    root --> shared
+    root --> packages
+    shared --> commands
+    packages --> commands
+```
 
-## Purpose
+This page should give the shortest honest picture of how command ownership fans out from the root entrypoint. The structure matters because it is the only way to keep command review from collapsing into include-file guesswork.
 
-This page gives the shortest honest explanation of how the make system is
-organized.
+## Overview
 
-## Stability
+- `Makefile` is the top entry surface
+- shared routing lives in `makes/root.mk`, `makes/packages.mk`, `makes/publish.mk`, and `makes/env.mk`
+- package and repository detail fan out through `makes/bijux-py/` and `makes/packages/`
 
-Keep it aligned with the actual include structure rooted at `Makefile`.
+## First Proof Check
+
+- `Makefile`
+- `makes/README.md`
+
+## Design Pressure
+
+The common drift is to keep extending the include stack until command ownership becomes something a maintainer has to reconstruct manually.

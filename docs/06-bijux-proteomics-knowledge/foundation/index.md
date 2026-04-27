@@ -4,94 +4,77 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Foundation
 
-This section explains why `bijux-proteomics-knowledge` exists, what it owns on purpose, and where its boundary stops.
-
-Read this section first when you need the durable package story before code detail. A quick skim should make the role, the boundary, and the neighboring seams legible.
-
-Treat the foundation pages for `bijux-proteomics-knowledge` as the package's durable self-description. If the package still feels blurry after this section, the boundary story is not clear enough yet.
-
-## Visual Summary
+The foundation section explains the durable role of `bijux-proteomics-knowledge` before it
+explains implementation detail. Use it to resolve why evidence truth belongs here before decision or lab layers consume it.
 
 ```mermaid
-flowchart LR
-    own1["evidence records and trust scoring"]
-    own2["claim lifecycle and decision lineage"]
-    own3["conflict detection and resolution policies"]
-    out1["program lifecycle ownership (core)"]
-    out2["ranking and recommendation policy (intelligence)"]
-    out3["lab scheduling and assay execution logic (lab)"]
-    own1 --> own2 --> own3
-    own1 -.not owned.-> out1
-    own2 -.not owned.-> out2
-    own3 -.not owned.-> out3
+flowchart TB
+    observations["observations"]
+    claims["claims"]
+    confidence["confidence"]
+    contradictions["contradictions"]
+    knowledge["knowledge foundation"]
+    consumers["intelligence, lab, runtime"]
+
+    observations --> claims
+    observations --> confidence
+    observations --> contradictions
+    claims --> knowledge
+    confidence --> knowledge
+    contradictions --> knowledge
+    knowledge --> consumers
 ```
 
-## Pages in This Section
+## What This Section Protects
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Ownership Boundary](ownership-boundary.md)
-- [Repository Fit](repository-fit.md)
-- [Capability Map](capability-map.md)
-- [Domain Language](domain-language.md)
-- [Lifecycle Overview](lifecycle-overview.md)
-- [Dependencies and Adjacencies](dependencies-and-adjacencies.md)
-- [Change Principles](change-principles.md)
+- a stable place for truth claims before they become decisions
+- contradiction as structured information instead of something to hide
+- confidence semantics that downstream packages can consume without redefining
 
-## Read Across the Package
+## Start With
 
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- Open [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/) for the shortest statement of
+  the package role.
+- Open [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/) when the question is
+  whether a change belongs here or in a neighbor.
+- Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/scope-and-non-goals/) when a proposed change
+  risks broadening the package.
+- Open [Capability Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/capability-map/) when you need the concrete work
+  the package is allowed to do.
 
-## Concrete Anchors
+## Section Pages
 
-- `packages/bijux-proteomics-knowledge` as the package root
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` as the import boundary
-- `packages/bijux-proteomics-knowledge/tests` as the package proof surface
+- [Package Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/package-overview/)
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/scope-and-non-goals/)
+- [Ownership Boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/)
+- [Capability Map](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/capability-map/)
+- [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/dependencies-and-adjacencies/)
+- [Repository Fit](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/repository-fit/)
+- [Lifecycle Overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/lifecycle-overview/)
+- [Domain Language](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/domain-language/)
+- [Change Principles](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/change-principles/)
 
-## Use This Page When
+## What This Section Settles
 
-- you need the package idea before the implementation detail
-- you are deciding whether work belongs here or in a neighboring package
-- you want the shortest honest explanation of what this package is for
+- when a change is really about evidence state rather than about downstream use
+- how confidence and contradiction should remain explicit
+- when a proposed change belongs in intelligence, lab, or runtime instead of
+  here
 
-## Decision Rule
+## First Proof Check
 
-Use `Foundation` to decide whether a change makes `bijux-proteomics-knowledge` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge`
+- `packages/bijux-proteomics-knowledge/tests`
+- neighboring handbooks once the change crosses the local boundary
 
-## What This Page Answers
+## Neighbors
 
-- what problem `bijux-proteomics-knowledge` is supposed to own on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before changing ownership
-
-## Reviewer Lens
-
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
-
-## Honesty Boundary
-
-This page can explain the intended boundary of `bijux-proteomics-knowledge`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
-
-## Next Checks
-
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
-
-## Purpose
-
-This page explains how to use the foundation section for `bijux-proteomics-knowledge` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- Open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
+  when the question leaves claims, confidence, contradictions, and evidence state.
+- Open [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
+  when the issue is clearly outside this package's local role.

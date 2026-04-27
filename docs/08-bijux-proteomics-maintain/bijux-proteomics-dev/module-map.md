@@ -4,29 +4,43 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Module Map
 
-The package is organized by repository-health concern so maintainers can find
-the owning code path quickly.
+The maintainer package stays legible only when helper families remain separated by job.
 
-## Current Modules
+## Module Model
 
-- `api/` for API freeze and OpenAPI drift enforcement
-- `docs/` for markdown link checks, architecture consistency, and debt guards
-- `quality/` for dependency analysis and repository quality policy
-- `release/` for changelog and version consistency checks
-- `security/` for vulnerability gating and dependency allowlist enforcement
-- `tools/` for maintainer utility commands and reproducible helper flows
-- `trusted_process.py` for shared maintainer-process support logic
+```mermaid
+flowchart TB
+    root["bijux-proteomics-dev"]
+    docs["docs/"]
+    api["api/"]
+    gates["quality/, security/, release/"]
+    tools["tools/ and trusted_process.py"]
 
-## Purpose
+    root --> docs
+    root --> api
+    root --> gates
+    root --> tools
+```
 
-This page is the shortest code-navigation guide for the maintainer package.
+This page should let a maintainer classify a helper before opening code. If every policy helper feels adjacent to every other one, the package will become hard to route and harder to review.
 
-## Stability
+## Module Families
 
-Keep it aligned with the checked-in module layout and retire references to
-directories that no longer exist.
+- `docs/` for documentation integrity, consistency, design debt, and badge/link checks
+- `api/` for contract freezing and OpenAPI drift checks
+- `release/`, `security/`, and `quality/` for publication, audit, and architecture gates
+- `tools/` and `trusted_process.py` for maintainer-oriented utility workflows
+
+## First Proof Check
+
+- `src/bijux_proteomics_dev/docs/`
+- `src/bijux_proteomics_dev/api/`, `release/`, `security/`, and `quality/`
+
+## Design Pressure
+
+The easy failure is to keep adding helpers without preserving family boundaries, which slowly turns the maintainer package into one vague toolbox.

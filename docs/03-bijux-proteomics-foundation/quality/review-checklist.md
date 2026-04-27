@@ -4,80 +4,48 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Review Checklist
 
-Reviewing changes in `bijux-proteomics-foundation` should include both behavior and documentation.
+A review checklist is useful only if it catches the real ways this package can drift.
 
-The checklist is not here to slow people down with ceremony. It is here to stop
-fast review from becoming shallow review when a change touches boundaries,
-contracts, or proof.
+For `bijux-proteomics-foundation`, good review starts by asking whether a change really belongs in shared meaning or whether local convenience is trying to promote itself to system truth.
 
-Treat the quality pages for `bijux-proteomics-foundation` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Review Model
 
 ```mermaid
-flowchart TD
-    pr["pull request"] --> boundary{"boundary clear?"}
-    boundary -->|no| fix1["clarify ownership and scope"]
-    boundary -->|yes| contract{"contract changed?"}
-    contract -->|yes| fix2["review compatibility and docs"]
-    contract -->|no| proof{"proof sufficient?"}
-    proof -->|no| fix3["add tests or examples"]
-    proof -->|yes| merge["ready to merge"]
+flowchart TB
+    review["review proposed foundation change"]
+    ownership{"shared meaning or local convenience?"}
+    proof{"migrations and serialization move together?"}
+    downstream{"downstream packages get an explicit path?"}
+    approve["ready to approve"]
+
+    review --> ownership
+    ownership -->|shared meaning| proof
+    ownership -->|local convenience| rehome["re-scope the change"]
+    proof -->|yes| downstream
+    proof -->|no| block1["keep reviewing"]
+    downstream -->|yes| approve
+    downstream -->|no| block2["keep reviewing"]
 ```
 
-## Checklist
+This checklist should catch the moment a seemingly small schema or serialization edit starts forcing every consumer to reinterpret the package on its own.
 
-- did ownership stay inside the correct package boundary
-- do interface or artifact changes have matching docs and tests
-- are filenames, commit messages, and symbols still clear enough to age well
+## Review Rules
 
-## Concrete Anchors
+- ask who else consumes the shared meaning
+- check whether the proposed change is truly shared or only locally convenient
+- verify migrations, serialized forms, and docs move together
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
+## First Proof Check
 
-## Use This Page When
+- `packages/bijux-proteomics-foundation/tests`
+- `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization.py`
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## Design Pressure
 
-## Decision Rule
-
-Use `Review Checklist` to decide whether `bijux-proteomics-foundation` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What This Page Answers
-
-- what currently proves the `bijux-proteomics-foundation` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-foundation` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page records a compact review lens for package changes.
-
-## Stability
-
-Update it only when the package review posture genuinely changes.
+The risk is approving a change because it is tidy in one package while missing that it quietly rewrites shared meaning for the rest of the repository.

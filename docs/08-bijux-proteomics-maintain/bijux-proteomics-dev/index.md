@@ -4,37 +4,67 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # bijux-proteomics-dev
 
-`bijux-proteomics-dev` is the repository maintenance package. It owns the
-checked-in tooling that keeps docs, schema contracts, release metadata,
-security policy, and repository automation honest across the package family.
+`bijux-proteomics-dev` is where repository discipline becomes executable code.
+This section exists so a maintainer can trace a docs rule, API guard, quality
+gate, release check, or security policy back to a checked-in Python owner
+instead of relying on folklore.
 
-This package should reduce mystery, not create more of it. If maintainer logic
-cannot be explained from this section, the repository is relying too heavily on
-implicit CI behavior.
+```mermaid
+flowchart TB
+    question["repository-health question"]
+    toolkit["bijux-proteomics-dev"]
+    family["docs, api, quality, security, release helpers"]
+    tests["maintainer tests"]
+    outcomes["checked repository outcomes"]
 
-## Pages In This Section
+    question --> toolkit
+    toolkit --> family
+    family --> tests
+    tests --> outcomes
+```
 
-- [Package Overview](package-overview.md)
-- [Scope and Non-Goals](scope-and-non-goals.md)
-- [Module Map](module-map.md)
-- [Quality Gates](quality-gates.md)
-- [Security Gates](security-gates.md)
-- [Schema Governance](schema-governance.md)
-- [Release Support](release-support.md)
-- [Documentation Integrity](documentation-integrity.md)
-- [Operating Guidelines](operating-guidelines.md)
+This section should let a maintainer trace a repository rule back to the exact helper family and then to the tests that keep that rule honest. If it cannot do that, the package is still behaving like implicit CI folklore.
 
-## Purpose
+## What This Package Proves
 
-This page gives maintainers a stable overview of the package that owns
-repository-health automation.
+- repository rules are code, not just conventions written in Markdown
+- maintainers can change policy with reviewable ownership and tests
+- docs quality, release safety, and schema discipline share one explicit toolkit
 
-## Stability
+## Start With
 
-Keep it aligned with the actual maintainer package responsibilities under
-`packages/bijux-proteomics-dev/`.
+- open [Module Map](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)
+  when you need the owning helper family immediately
+- open [Quality Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates/),
+  [Security Gates](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/security-gates/),
+  or [Documentation Integrity](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity/)
+  when the symptom is already blocking work
+- open [Package Overview](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-overview/)
+  and [Operating Guidelines](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines/)
+  when the question is where maintainer code should live at all
+
+## Read By Responsibility
+
+- [Schema Governance](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance/)
+  for `api/` ownership and contract drift control
+- [Release Support](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support/)
+  for trusted publication guards and version checks
+- [Documentation Integrity](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity/)
+  for architecture docs, badge sync, and consistency enforcement
+- [Scope and Non-Goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
+  to keep the toolkit from swallowing product code
+
+## First Proof Check
+
+- `src/bijux_proteomics_dev/docs/`
+- `src/bijux_proteomics_dev/api/`, `release/`, `security/`, and `quality/`
+- `packages/bijux-proteomics-dev/tests`
+
+## Design Pressure
+
+The easy failure is to treat maintainer helpers as one black box, which makes it hard to see which family owns a broken repository rule or why.

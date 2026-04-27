@@ -4,112 +4,63 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-lab-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Operations
 
-This section explains how to install, run, diagnose, and release `bijux-proteomics-lab` from checked-in workflow guidance instead of team memory.
-
-These pages are the checked-in operating memory for `bijux-proteomics-lab`. They should let a maintainer move from setup to diagnosis to release without relying on CI archaeology or private habits.
-
-Treat the operations pages for `bijux-proteomics-lab` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
-
-## Visual Summary
+`bijux-proteomics-lab` operations is where practical execution pressure shows
+up. Maintainers here are proving that planning logic remains executable under
+real constraints, that outcome handling remains traceable, and that rerun logic
+does not drift away from actual assay work.
 
 ```mermaid
 flowchart LR
-    page["Operations<br/>clarifies: repeat workflows | find diagnostics | release safely"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    step1["CLI entrypoint in src/bijux_proteomics_lab/planning.py"]
-    step1 --> page
-    step2["HTTP app in src/bijux_proteomics_lab/outcomes.py"]
-    step2 --> page
-    step3["packages/bijux-proteomics-lab/pyproject.toml"]
-    step3 --> page
-    run1["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    page --> run1
-    run2["tests/e2e for governed flow behavior"]
-    page --> run2
-    run3["tests/regression and tests/smoke for replay and storage protection"]
-    page --> run3
-    release1["CHANGELOG.md"]
-    run1 --> release1
-    release2["pyproject.toml"]
-    run2 --> release2
-    release3["README.md"]
-    run3 --> release3
-    class page page;
-    class step1,step2,step3 positive;
-    class run1,run2,run3 anchor;
-    class release1,release2,release3 action;
+    change["planning or outcome change"]
+    plan["check planning and dependency behavior"]
+    execute["check schedule and record handling"]
+    interpret["check outcome and rerun interpretation"]
+    feedback["check feedback into repository workflows"]
+    release["publish updated lab operations surface"]
+
+    change --> plan --> execute --> interpret --> feedback --> release
 ```
 
-## Pages in This Section
+## What Operations Means Here
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- operational truth is whether work can still be planned and interpreted under
+  constraints, not whether a model looks tidy in isolation
+- lab breakage often appears first as awkward schedules or ambiguous outcomes,
+  not as immediate crashes
+- release confidence depends on preserving the loop from recommended work to
+  observed result and back again
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Common Workflows](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/common-workflows/)
+  when you need the normal route from change to lab-proof release
+- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/observability-and-diagnostics/)
+  when planning output, schedule behavior, or outcomes stop matching lab reality
+- open [Failure Recovery](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/failure-recovery/)
+  when a plan, execution record, or rerun interpretation already needs repair
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/release-and-versioning/)
+  before publishing any change that affects planning semantics or outcome
+  promotion
 
-## Concrete Anchors
+## Route From Operational Pressure
 
-- `packages/bijux-proteomics-lab/pyproject.toml` for package metadata
-- `packages/bijux-proteomics-lab/README.md` for local package framing
-- `packages/bijux-proteomics-lab/tests` for executable operational backstops
+- [Local Development](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/local-development/)
+  and [Installation and Setup](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/installation-and-setup/)
+  for reproducible lab-planning work
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/deployment-boundaries/)
+  and [Security and Safety](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/security-and-safety/)
+  for the boundaries around operational records and external integrations
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/performance-and-scaling/)
+  when schedule volume, batching complexity, or outcome processing becomes the
+  bottleneck
 
-## Use This Page When
+## First Proof Check
 
-- you are installing, running, diagnosing, or releasing the package
-- you need repeatable operational anchors rather than architectural framing
-- you are responding to package behavior in local work, CI, or incident pressure
-
-## Decision Rule
-
-Use `Operations` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
-
-## What This Page Answers
-
-- how `bijux-proteomics-lab` is installed, run, diagnosed, and released in practice
-- which checked-in files and tests anchor the operational story
-- where a maintainer should look first when the package behaves differently
-
-## Reviewer Lens
-
-- verify that setup, workflow, and release statements still match package metadata and current commands
-- check that operational guidance still points at real diagnostics and validation paths
-- confirm that maintainer advice still works under current local and CI expectations
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-lab` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
-
-## Next Checks
-
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
-
-## Purpose
-
-This page explains how to use the operations section for `bijux-proteomics-lab` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- `src/bijux_proteomics_lab/planning.py` and `outcomes.py`
+- `src/bijux_proteomics_lab/repositories.py` and `serialization.py`
+- `packages/bijux-proteomics-lab/tests`

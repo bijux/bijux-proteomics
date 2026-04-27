@@ -4,95 +4,60 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Operations
 
-This section is for maintainers who need to change `bijux-proteomics-knowledge`
-without guessing.
-
-Unlike `agentic-proteins`, this package is import-first. There is no published
-CLI or HTTP service surface. Operational work here mostly means:
-
-- managing package metadata and release notes
-- validating library behavior with package tests
-- confirming schema, evidence, and claim workflows remain stable for callers
-
-## Visual Summary
+`bijux-proteomics-knowledge` operations is about maintaining trustworthy
+evidence state. The package does not earn trust by always producing one neat
+answer. It earns trust by preserving provenance, keeping contradictions visible,
+and making resolution changes reviewable over time.
 
 ```mermaid
 flowchart LR
-    change["change in evidence or claim behavior"]
-    tests["run package tests in packages/bijux-proteomics-knowledge/tests"]
-    metadata["verify pyproject + README + CHANGELOG"]
-    release["release via tag-triggered workflow"]
-    change --> tests --> metadata --> release
+    source["new source or resolution change"]
+    lineage["check lineage and graph integrity"]
+    confidence["check confidence and contradiction behavior"]
+    review["rebuild review outputs"]
+    compatibility["check schema and serialization continuity"]
+    release["publish updated knowledge behavior"]
+
+    source --> lineage --> confidence --> review --> compatibility --> release
 ```
 
-## Pages in This Section
+## What Operations Means Here
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- the operational problem is epistemic drift as much as software drift
+- release confidence depends on preserving reviewability of evidence state
+- changes to trust scoring or contradiction resolution deserve the same rigor as
+  interface changes
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Common Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/common-workflows/)
+  when you need the standard route from evidence change to released package
+- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/observability-and-diagnostics/)
+  when contradiction behavior, confidence outputs, or review packets look wrong
+- open [Failure Recovery](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/failure-recovery/)
+  when a knowledge state must be repaired without erasing lineage
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/release-and-versioning/)
+  before publishing changes that alter how evidence is scored or resolved
 
-## Concrete Anchors
+## Route From Failure Mode
 
-- `packages/bijux-proteomics-knowledge/pyproject.toml` for package metadata
-- `packages/bijux-proteomics-knowledge/README.md` for local package framing
-- `packages/bijux-proteomics-knowledge/tests` for executable operational backstops
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` for the import surface
+- [Local Development](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/local-development/)
+  and [Installation and Setup](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/installation-and-setup/)
+  for reproducible knowledge-state work
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/deployment-boundaries/)
+  and [Security and Safety](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/security-and-safety/)
+  for the limits around sensitive evidence and durable records
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/performance-and-scaling/)
+  when evidence volume, graph size, or review packet generation becomes the
+  real operator pain
 
-## Use This Page When
+## First Proof Check
 
-- you are installing, running, diagnosing, or releasing the package
-- you need repeatable operational anchors rather than architectural framing
-- you are responding to package behavior in local work, CI, or incident pressure
-
-## Decision Rule
-
-Use `Operations` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
-
-## What This Page Answers
-
-- how maintainers should operate an import-first package safely
-- which files must be updated together before release
-- where to verify evidence/claim behavior before publishing
-
-## Reviewer Lens
-
-- verify that setup, workflow, and release statements still match package metadata and current commands
-- check that operational guidance still points at real diagnostics and validation paths
-- confirm that maintainer advice still works under current local and CI expectations
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-knowledge` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
-
-## Next Checks
-
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
-
-## Purpose
-
-This page gives maintainers a reliable starting path for practical package
-operations.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
+- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
+- `packages/bijux-proteomics-knowledge/tests`
