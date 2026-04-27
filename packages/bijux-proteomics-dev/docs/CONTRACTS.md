@@ -40,6 +40,15 @@ path and the actionable failure message it emits.
 - if CI or root automation needs a new policy, the durable implementation
   should land here before workflow YAML or ad hoc shell scripts depend on it
 
+## Validation checkpoints
+
+- focused maintainer tests should pin both the happy path and actionable
+  failure messages for the changed policy surface
+- root `make`, CI-facing, or docs-integrity checks should stay deterministic
+  for the same checked-in repository state
+- policy changes should stay green in package-level validation before workflow
+  YAML or shell wrappers start depending on the new maintainer contract
+
 ## Explicit non-contracts
 
 - This package does not publish runtime product behavior.
