@@ -116,6 +116,16 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 - can the change be justified without claiming lifecycle, ranking, lab
   execution, or runtime interface ownership
 
+## Escalation route
+
+- route the change outward when the behavior mainly defines lifecycle
+  progression, ranking policy, lab execution, or interface transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal starts looking like presentation reshaping instead of shared evidence
+  meaning
+- escalate before release when downstream consumers would need package-specific
+  trust or lineage exceptions to adopt the change
+
 ## Source guide
 
 - [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
