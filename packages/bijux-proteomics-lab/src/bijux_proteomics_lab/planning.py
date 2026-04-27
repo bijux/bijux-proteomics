@@ -11,6 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.assays import AssayRequirement
 from bijux_proteomics.programs import ProgramSpec
+from bijux_proteomics.workflow_blueprint import workflow_blueprint_for_program
 from bijux_proteomics_foundation import (
     AssayId,
     BatchId,
@@ -155,6 +156,30 @@ class ExperimentPlan(JsonModel):
     batches: list[ExperimentBatch] = Field(
         default_factory=list,
         description="Ordered experiment batches.",
+    )
+
+
+class WorkflowBatchOutline(JsonModel):
+    """Execution-oriented outline derived from the scientific workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    gate_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Blocking assays that should anchor the first batch.",
+    )
+    support_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Non-blocking assays that can follow gate assays.",
+    )
+    review_gate_ids: list[str] = Field(
+        default_factory=list,
+        description="Review gates that consume workflow outputs.",
+    )
+    missing_evidence_needs: list[str] = Field(
+        default_factory=list,
+        description="Evidence kinds still missing before workflow closure.",
     )
 
 
@@ -1133,6 +1158,30 @@ def build_review_packet(
         ready_for_synthesis=not blockers,
         blocking_findings=blockers,
         recommended_actions=recommendations,
+    )
+
+
+def build_workflow_batch_outline(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+) -> WorkflowBatchOutline:
+    """Project the scientific workflow into gate and support assay batches."""
+    blueprint = workflow_blueprint_for_program(program)
+    gate_assay_ids = list(blueprint.blocking_assay_ids)
+    support_assay_ids = [
+        assay.assay_id
+        for assay in program.assay_panel
+        if assay.assay_id not in set(gate_assay_ids)
+    ]
+    return WorkflowBatchOutline(
+        program_id=program.program_id,
+        gate_assay_ids=gate_assay_ids,
+        support_assay_ids=support_assay_ids,
+        review_gate_ids=list(blueprint.blocking_review_gate_ids),
+        missing_evidence_needs=evidence_gaps(
+            bundle,
+            [need.value for need in program.evidence_needs],
+        ),
     )
 
 
