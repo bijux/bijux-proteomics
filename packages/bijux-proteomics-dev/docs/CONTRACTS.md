@@ -49,6 +49,15 @@ path and the actionable failure message it emits.
 - policy changes should stay green in package-level validation before workflow
   YAML or shell wrappers start depending on the new maintainer contract
 
+## Review questions
+
+- does the contract change define repository governance, docs integrity,
+  release policy, or maintainer automation rather than product behavior
+- would workflow YAML, shell glue, or one-off scripts otherwise become the
+  de facto owner of the same policy contract
+- can the contract still be justified without claiming runtime execution or
+  scientific domain truth as maintainer-owned behavior
+
 ## Explicit non-contracts
 
 - This package does not publish runtime product behavior.
