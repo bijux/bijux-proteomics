@@ -40,3 +40,12 @@ rules locally.
   runtime meaning to make sense, escalate it back to the owning package instead
 - if a low-level primitive starts growing operator-facing payload rules or
   orchestration concerns, treat that as a boundary failure and redesign the seam
+
+## Review questions
+
+- does the change define a shared document primitive rather than a higher-layer
+  policy or execution concern
+- would keeping it out of foundation force multiple packages to invent
+  divergent schema, serialization, identifier, or migration behavior
+- can the change still be justified without claiming lifecycle, evidence,
+  ranking, lab, or runtime ownership here
