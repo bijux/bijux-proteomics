@@ -122,6 +122,15 @@ from agentic_proteins.interfaces.cli import cli
 - can the change be justified as forwarding-only without adding fresh runtime or
   domain behavior
 
+## Escalation route
+
+- route the change to the canonical owner when the proposal introduces any new
+  runtime orchestration or domain semantics
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  compat layer would need behavior beyond import forwarding or stable aliases
+- escalate before release when adopting the change would require documenting
+  compat-only exceptions instead of the canonical package surface
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
