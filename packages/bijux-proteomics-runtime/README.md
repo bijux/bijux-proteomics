@@ -144,6 +144,15 @@ remain in their dedicated lower-layer packages.
 - expect a narrower release burden when the change only improves internal
   orchestration without changing runtime-facing behavior
 
+## Explicit non-goals
+
+- this package does not redefine schema, lifecycle, evidence, ranking, or lab
+  semantics owned by lower layers
+- this package does not serve as a dumping ground for compat-only exceptions or
+  migration shims
+- this package does not decide scientific truth, only how canonical execution
+  runs over lower-layer contracts
+
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
