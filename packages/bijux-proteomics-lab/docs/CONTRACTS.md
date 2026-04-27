@@ -48,6 +48,15 @@ outcome interpretation, schema compatibility, or serialization behavior.
 - contract changes should stay green in focused package tests before runtime or
   compat layers widen operator workflows around the new lab behavior
 
+## Review questions
+
+- does the contract change alter planning, batching, rerun guidance, or
+  outcome-promotion meaning rather than just how those results are exposed
+- would runtime or intelligence code otherwise start carrying shadow scheduling
+  or rerun contracts
+- can the contract still be justified without claiming lifecycle, evidence,
+  ranking, or provider-interface ownership
+
 ## Explicit non-contracts
 
 - This package does not define lifecycle gate authority.
