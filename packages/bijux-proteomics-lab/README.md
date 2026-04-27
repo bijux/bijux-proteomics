@@ -66,11 +66,24 @@ pip install bijux-proteomics-lab
 from bijux_proteomics_lab import planning, outcomes, repositories
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-lab`
+- Import root: `bijux_proteomics_lab`
+- Stable entrypoints: `planning`, `outcomes`, `repositories`, `schema`, and `serialization`
+
 ## Package boundaries
 
 This package owns assay planning, schedule generation, outcome interpretation, and rerun strategy support.
 
 It does not own program-stage authority, ranking policy, or evidence truth semantics.
+
+## Contract checkpoints
+
+- planning outputs must preserve gate, dependency, and material context
+- outcome summaries must retain explicit failure, rerun, and promotion signals
+- repository contracts must stay storage-agnostic and typed for feedback loops
+- downstream packages should ask this layer for execution planning instead of embedding schedule logic locally
 
 ## Source guide
 
