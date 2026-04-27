@@ -81,7 +81,12 @@ from bijux_proteomics.runtime_adapter import (
     AgenticProteinsBackend,
     MissingExecutionBackendError,
 )
-from bijux_proteomics.sequences import ProteinSequence, sequence_length
+from bijux_proteomics.sequences import (
+    FastaSequenceRecord,
+    ProteinSequence,
+    parse_fasta_records,
+    sequence_length,
+)
 from bijux_proteomics.targets import (
     OutcomeSeverity,
     ProteinTarget,
@@ -132,6 +137,7 @@ __all__ = [
     "TargetAnnotation",
     "TargetOutcome",
     "ProteinSequence",
+    "FastaSequenceRecord",
     "JsonModel",
     "ReviewGate",
     "ReviewDecision",
@@ -174,6 +180,7 @@ __all__ = [
     "program_summary",
     "revise_program",
     "sequence_length",
+    "parse_fasta_records",
     "target_summary",
     "validate_review_decision",
     "validate_program",
