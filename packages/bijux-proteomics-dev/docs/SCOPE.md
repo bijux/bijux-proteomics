@@ -39,3 +39,12 @@ duplicating gate logic in one-off shell fragments or workflow-local scripts.
   clear
 - maintainer helpers should narrow ambiguity, not become a shadow owner for
   product behavior
+
+## Escalation signals
+
+- if the same repository check, release rule, or docs contract is being copied
+  into CI, root `make`, and local scripts, escalate it here first
+- if a proposed maintainer helper cannot be explained without changing runtime
+  or scientific package meaning, escalate it back to the owning package instead
+- if policy enforcement starts behaving like a shadow implementation of product
+  logic, treat that as a boundary failure and redesign the check surface
