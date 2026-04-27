@@ -61,6 +61,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution package aggregation likely belongs in runtime but requires dependency review before final lock."
 
 [[rule]]
+pattern = "execution/evaluation/observations.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Observation transport and evaluation trigger payloads now live on the canonical runtime execution surface."
+
+[[rule]]
 pattern = "execution/evaluation/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"

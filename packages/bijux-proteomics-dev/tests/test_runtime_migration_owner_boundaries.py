@@ -19,6 +19,12 @@ def _owner_map() -> dict[str, str]:
     return {str(row["module_path"]): str(row["owner_package"]) for row in rows}
 
 
+def _row_map() -> dict[str, dict[str, str]]:
+    with LEDGER_PATH.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    return {str(row["module_path"]): row for row in rows}
+
+
 def test_domain_owner_matrix_is_enforced() -> None:
     owners = _owner_map()
     assert owners["biology/pathway.py"] == "bijux-proteomics-core"
@@ -34,3 +40,13 @@ def test_runtime_support_owner_matrix_is_enforced() -> None:
     assert owners["memory/schemas.py"] == "bijux-proteomics-runtime"
     assert owners["registry/agents.py"] == "bijux-proteomics-runtime"
     assert owners["tools/heuristic.py"] == "bijux-proteomics-runtime"
+
+
+def test_runtime_execution_promotions_are_enforced() -> None:
+    rows = _row_map()
+    assert rows["execution/evaluation/observations.py"]["owner_package"] == (
+        "bijux-proteomics-runtime"
+    )
+    assert rows["execution/evaluation/observations.py"]["bucket"] == (
+        "runtime_execution_ownership"
+    )
