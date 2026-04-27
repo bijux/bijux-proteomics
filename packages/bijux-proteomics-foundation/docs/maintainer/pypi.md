@@ -73,6 +73,15 @@
 - expect a narrower release burden when the change only tightens internal
   implementation without changing shared document behavior
 
+## Release communication signals
+
+- call out schema, serialization, fingerprint, or migration changes explicitly
+  in release notes when downstream users may need to re-check assumptions
+- name canonical JSON or compatibility-behavior shifts directly instead of
+  hiding them inside generic maintenance wording
+- keep release messaging brief when the change only improves internals without
+  changing shared document behavior
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current package ownership and boundaries.
