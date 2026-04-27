@@ -53,3 +53,12 @@ instead of maintaining separate trust, contradiction, or lineage formats.
   belongs in runtime adapters rather than in knowledge models
 - if a rule only exists to serve one scoring or lab flow, keep it with that
   owner instead of making knowledge absorb workflow-specific behavior
+
+## Review questions
+
+- does the change alter canonical evidence, contradiction, lineage, or review
+  semantics instead of only reformatting those outputs
+- would another package create a shadow trust or resolution model if this
+  behavior stayed out of knowledge
+- can the architecture still be defended without claiming lifecycle, ranking,
+  lab execution, or transport ownership
