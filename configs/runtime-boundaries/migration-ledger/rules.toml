@@ -259,6 +259,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement."
 
 [[rule]]
+pattern = "core/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime core package exports now forward directly to canonical runtime core surfaces."
+
+[[rule]]
 pattern = "core/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
