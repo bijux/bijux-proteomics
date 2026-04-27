@@ -55,6 +55,15 @@
 - escalate when migration or compatibility proof cannot explain a safe upgrade
   path for existing persisted records
 
+## Release review questions
+
+- does the release preserve shared document primitives rather than slipping in a
+  higher-layer policy or execution concern
+- would downstream packages otherwise need to invent divergent schema,
+  serialization, identifier, or migration behavior
+- can the release still be justified without claiming lifecycle, evidence,
+  ranking, lab, or runtime ownership here
+
 ## Release checklist
 
 1. Confirm `README.md` reflects current package ownership and boundaries.
