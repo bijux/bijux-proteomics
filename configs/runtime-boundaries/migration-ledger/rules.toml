@@ -121,6 +121,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution validation appears runtime-adjacent but needs review to avoid domain logic leakage."
 
 [[rule]]
+pattern = "agents/__init__.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Agent package exports now forward directly to canonical runtime agent orchestration surfaces."
+
+[[rule]]
 pattern = "agents/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
