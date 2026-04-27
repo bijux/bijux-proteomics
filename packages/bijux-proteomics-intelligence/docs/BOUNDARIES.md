@@ -41,3 +41,12 @@ helpers beside unrelated runtime or domain code.
   package instead
 - if scoring logic starts depending on operator entrypoints or transport-local
   payload shapes, treat that as a boundary failure and redesign the seam
+
+## Review questions
+
+- does the change alter recommendation semantics, scenario evaluation, or
+  explainability rather than only how results are transported
+- would runtime or lab code start carrying shadow scoring truth if this logic
+  stayed out of intelligence
+- can the change still be justified without claiming lifecycle, evidence,
+  lab-execution, or runtime-interface ownership
