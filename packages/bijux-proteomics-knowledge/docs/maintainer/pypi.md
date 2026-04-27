@@ -53,6 +53,15 @@
 - escalate when trust or contradiction semantics cannot be proven without a
   lower-layer schema break or an ownership rewrite in another package
 
+## Release review questions
+
+- does the release preserve canonical evidence, contradiction, trust, or
+  lineage semantics rather than another layer's view of them
+- would another package otherwise start carrying a shadow review or trust
+  contract after this release
+- can the release still be justified without claiming lifecycle, ranking, lab,
+  or runtime-transport ownership
+
 ## Release checklist
 
 1. Confirm docs and README describe current evidence and conflict semantics.
