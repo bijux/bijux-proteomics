@@ -44,3 +44,9 @@ def test_manage_models_uses_canonical_esmfold_image_tag() -> None:
     text = _tool_text("manage_models.py")
     assert "esmfold-agentic-proteins:latest" not in text
     assert '"esmfold-bijux-proteomics-runtime:latest"' in text
+
+
+def test_manage_models_uses_canonical_rosettafold_image_tag() -> None:
+    text = _tool_text("manage_models.py")
+    assert "rosettafold-agentic-proteins:latest" not in text
+    assert '"rosettafold-bijux-proteomics-runtime:latest"' in text

@@ -375,7 +375,7 @@ def build_esmfold_image(force: bool) -> None:
 
 def build_rosettafold_image(force: bool) -> None:
     log("\n--- [RoseTTAFold] Building Docker Image ---")
-    image_tag = "rosettafold-agentic-proteins:latest"
+    image_tag = "rosettafold-bijux-proteomics-runtime:latest"
     version_dir = find_latest_version(ROSETTA_ROOT)
     repo_dockerfile = version_dir / "Dockerfile"
     if not repo_dockerfile.exists():
@@ -442,7 +442,7 @@ def smoke_test_esmfold() -> None:
 
 def smoke_test_rosettafold() -> None:
     log("\n--- [RoseTTAFold] Running Smoke Test ---")
-    image_tag = "rosettafold-agentic-proteins:latest"
+    image_tag = "rosettafold-bijux-proteomics-runtime:latest"
     out = run(
         [
             "docker",
