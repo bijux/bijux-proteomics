@@ -39,6 +39,15 @@ integrity, resolution semantics, schema compatibility, or graph diagnostics.
 - if runtime, intelligence, or compat surfaces need richer evidence summaries,
   the durable change should start here before higher layers reshape the data
 
+## Validation checkpoints
+
+- bundle, schema, and resolution tests should keep evidence transitions and
+  diagnostics explicit for changed contracts
+- graph and review tests should preserve stable issue codes and auditable
+  lineage behavior
+- contract changes should stay green in focused package tests before runtime,
+  intelligence, or compat layers summarize the evidence differently
+
 ## Explicit non-contracts
 
 - This package does not define lifecycle gate authority.
