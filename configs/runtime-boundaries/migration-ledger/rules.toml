@@ -241,6 +241,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Verification critic agents now forward directly to canonical runtime verification implementations."
 
 [[rule]]
+pattern = "agents/verification/input_validation.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Input validation agents now forward directly to canonical runtime verification implementations."
+
+[[rule]]
 pattern = "agents/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"

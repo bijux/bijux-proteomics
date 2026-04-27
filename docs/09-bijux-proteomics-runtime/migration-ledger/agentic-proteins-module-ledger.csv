@@ -20,7 +20,7 @@ agents/reporting/reporting.py,runtime_execution_ownership,bijux-proteomics-runti
 agents/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent schemas now forward directly to canonical runtime agent contract surfaces.
 agents/verification/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent verification package exports now forward directly to canonical runtime verification-agent surfaces.
 agents/verification/critic.py,runtime_execution_ownership,bijux-proteomics-runtime,Verification critic agents now forward directly to canonical runtime verification implementations.
-agents/verification/input_validation.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
+agents/verification/input_validation.py,runtime_execution_ownership,bijux-proteomics-runtime,Input validation agents now forward directly to canonical runtime verification implementations.
 agents/verification/quality_control.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 api/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
 api/app.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
