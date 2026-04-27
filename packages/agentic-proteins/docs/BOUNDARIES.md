@@ -38,3 +38,12 @@ new implementation.
   or lab behavior, escalate it back to the canonical owning package instead
 - if a compat helper stops being a thin forwarder and starts carrying new logic,
   treat that as a boundary failure and redesign the migration seam
+
+## Review questions
+
+- does the change preserve legacy continuity for an already-canonical surface
+  instead of inventing new product behavior
+- would the true implementation still belong entirely in canonical packages if
+  the compat layer disappeared after migration
+- can the change still be described as forwarding-only without ambiguity about
+  the real runtime or lower canonical owner
