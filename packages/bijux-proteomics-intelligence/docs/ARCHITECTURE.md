@@ -37,3 +37,21 @@ execution semantics.
 Downstream packages should treat this package as the canonical place for
 ranking and recommendation logic instead of embedding ad hoc scoring formulas
 inside runtime or lab helpers.
+
+## Extension signals
+
+- add code here when a new concern changes ranking policy, explainability, or
+  candidate-evaluation semantics
+- extend `policies.py`, `evaluators.py`, `briefs.py`, or `outcomes.py` before
+  runtime or lab code invents local scoring helpers
+- keep new recommendation logic here when it changes decision meaning rather
+  than only the way results are transported
+
+## Misplacement signals
+
+- if the change needs lifecycle authority, evidence persistence, lab execution,
+  or CLI/API transport wiring, it belongs in another package
+- if a helper mainly reformats intelligence outputs for operator interfaces, it
+  belongs in runtime adapters instead of recommendation modules
+- if a rule only exists because one lab workflow wants a local override, keep it
+  with the owning workflow instead of broadening intelligence semantics
