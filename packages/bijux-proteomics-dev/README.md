@@ -97,6 +97,15 @@ It does not define runtime product APIs or proteomics domain behavior.
 - escalate before release when the new rule cannot be explained without changing
   an owning package boundary or contract first
 
+## Consumer impact signals
+
+- expect repository-wide review when maintainer policy, release guards, or docs
+  validation behavior changes because every package consumes the governance path
+- treat changes that alter release gating, shared policy checks, or docs
+  integrity expectations as high-impact even when package APIs stay stable
+- expect a narrower release burden when the change only improves internal
+  maintainer implementation without changing repository policy behavior
+
 ## Source guide
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
