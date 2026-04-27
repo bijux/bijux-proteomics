@@ -93,6 +93,20 @@ remain in their dedicated lower-layer packages.
 - replay, artifact, and provider contracts must remain explicit and testable
 - changes to canonical ownership should land in runtime before compat forwarding expands
 
+## Choose this package when
+
+- you need canonical CLI, API, provider binding, or replay-safe orchestration
+- the change affects how canonical execution runs rather than what lower layers mean
+- operator-facing entrypoints or runtime adapters need to evolve without pushing
+  runtime ownership downward
+
+## Route elsewhere when
+
+- the change defines schema, lifecycle, evidence, ranking, or lab semantics
+- the helper only exists to preserve historical imports instead of canonical
+  runtime behavior
+- the provider-specific rule would force lower packages to import runtime
+
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
