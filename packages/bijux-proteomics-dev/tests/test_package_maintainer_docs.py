@@ -79,6 +79,7 @@ def test_release_docs_share_identity_and_release_sections() -> None:
             "## Publication checkpoints",
             "## Release escalation signals",
             "## Release review questions",
+            "## Release impact signals",
             "## Release checklist",
             "## Explicit non-goals",
         ]
@@ -106,6 +107,7 @@ def test_maintainer_package_entry_doc_has_role_and_routing_sections() -> None:
         "## Release policy entrypoints",
         "## Release escalation surfaces",
         "## Release review questions",
+        "## Release impact signals",
         "## Source guide",
         "## Downstream expectation",
     ]
