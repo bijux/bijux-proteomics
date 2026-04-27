@@ -123,6 +123,16 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
 - can the change be justified without claiming evidence, ranking, lab, or
   runtime transport ownership
 
+## Escalation route
+
+- route the change outward when the behavior mainly shapes evidence trust,
+  ranking policy, lab execution, or operator transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal introduces package-specific workflow semantics instead of reusable
+  lifecycle law
+- escalate before release when downstream packages would need to reinterpret
+  core state transitions differently to adopt the change
+
 ## Source guide
 
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
