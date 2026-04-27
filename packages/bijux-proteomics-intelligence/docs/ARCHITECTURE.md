@@ -55,3 +55,12 @@ inside runtime or lab helpers.
   belongs in runtime adapters instead of recommendation modules
 - if a rule only exists because one lab workflow wants a local override, keep it
   with the owning workflow instead of broadening intelligence semantics
+
+## Review questions
+
+- does the change modify canonical ranking policy, explainability, or
+  candidate-evaluation meaning rather than just result transport
+- would runtime or lab code start carrying local scoring truth if this behavior
+  were not owned here
+- can the package boundary still be described without claiming lifecycle,
+  evidence, or execution orchestration authority
