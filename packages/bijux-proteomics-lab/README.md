@@ -108,6 +108,15 @@ It does not own program-stage authority, ranking policy, or evidence truth seman
 - use `docs/maintainer/pypi.md` when the change affects package publication,
   metadata, or release-readiness expectations
 
+## Review questions
+
+- does the change preserve planning, batching, rerun, or outcome-promotion
+  semantics rather than interface transport or one-off reporting
+- would runtime or intelligence start carrying shadow scheduling or rerun logic
+  if this behavior stayed outside lab
+- can the change be justified without claiming lifecycle, evidence, ranking, or
+  provider-interface ownership
+
 ## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
