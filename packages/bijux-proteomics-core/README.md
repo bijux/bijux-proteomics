@@ -142,6 +142,15 @@ It does not own evidence trust policy, ranking policy, or lab scheduling behavio
 - expect a narrower release burden when the change only improves internal core
   implementation without changing lifecycle or protocol behavior
 
+## Explicit non-goals
+
+- this package does not own runtime transport, provider binding, or replay
+  orchestration
+- this package does not define evidence semantics, ranking policy, or lab
+  workflow decisions
+- this package does not exist to preserve legacy imports that belong in the
+  compatibility package
+
 ## Source guide
 
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
