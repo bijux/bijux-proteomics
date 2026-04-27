@@ -42,3 +42,12 @@ schedule logic across runtime or domain helpers.
   package instead
 - if planning logic starts depending on operator entrypoints or provider
   execution details, treat that as a boundary failure and redesign the seam
+
+## Review questions
+
+- does the change alter planning, batching, rerun guidance, or outcome
+  promotion meaning rather than just exposing those results
+- would runtime or intelligence code start carrying local scheduling truth if
+  this logic stayed out of lab
+- can the change still be defended without claiming lifecycle, evidence,
+  ranking, or provider-interface ownership
