@@ -99,6 +99,8 @@ def test_runtime_execution_promotions_are_enforced() -> None:
     assert rows["agents/verification/quality_control.py"]["bucket"] == "runtime_execution_ownership"
     assert rows["core/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
     assert rows["core/__init__.py"]["bucket"] == "runtime_execution_ownership"
+    assert rows["core/api_lock.py"]["owner_package"] == "bijux-proteomics-runtime"
+    assert rows["core/api_lock.py"]["bucket"] == "runtime_execution_ownership"
     assert rows["memory/__init__.py"]["owner_package"] == "bijux-proteomics-runtime"
     assert rows["memory/__init__.py"]["bucket"] == "runtime_execution_ownership"
     assert rows["memory/schemas.py"]["owner_package"] == "bijux-proteomics-runtime"

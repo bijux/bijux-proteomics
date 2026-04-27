@@ -265,6 +265,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Runtime core package exports now forward directly to canonical runtime core surfaces."
 
 [[rule]]
+pattern = "core/api_lock.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Runtime api-freeze helpers now forward directly to canonical runtime core contracts."
+
+[[rule]]
 pattern = "core/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
