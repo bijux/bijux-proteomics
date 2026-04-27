@@ -1,6 +1,13 @@
 # PyPI Maintainer Notes
 
-## Release Surface
+## Package identity
+
+- package: `bijux-proteomics-core`
+- import root: `bijux_proteomics`
+- repository: `bijux/bijux-proteomics`
+- owner: Bijan Mousavi (`bijan@bijux.io`)
+
+## Release surface
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-core/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
@@ -8,22 +15,37 @@
 [![Publish](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
 [![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
 
-- package guide: <https://bijux.io/bijux-proteomics/bijux-proteomics-core/>
-- release and versioning: <https://bijux.io/bijux-proteomics/bijux-proteomics-core/operations/release-and-versioning/>
+- package guide: <https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/>
+- release and versioning: <https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/operations/release-and-versioning/>
 - package directory: <https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core>
 - verify workflow: <https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml>
 - release workflow: <https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml>
 - docs workflow: <https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml>
 
-- package: `bijux-proteomics-core`
-- owner: Bijan Mousavi (`bijan@bijux.io`)
-- repository: `bijux/bijux-proteomics`
+## Release contract
 
-Release checklist:
+- release must preserve lifecycle semantics, validator diagnostics, and domain
+  ownership boundaries
+- release docs must match the current package identity and non-ownership rules
+- downstream packages should still consume core rules instead of bypassing them
+
+## Validation focus
+
+- domain tests prove lifecycle transitions and invariant enforcement
+- public-surface tests prove root imports and protocol contracts remain stable
+- repository checks prove metadata, docs publication, and release wiring stay aligned
+
+## Release checklist
 
 1. Validate `README.md` and package docs describe current domain ownership.
-2. Confirm compatibility-sensitive model changes are reflected in tests.
+2. Confirm `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+   still describe the same lifecycle and protocol ownership.
 3. Run `make lint test quality security` from repository root.
 4. Verify `.github/workflows/release-artifacts.yml` is configured for tag-triggered release (`v*`) with PyPI trusted publishing.
 5. Create and push the release tag (`vX.Y.Z`) after changelog and metadata are final.
 6. Confirm the release workflow uploaded and released both wheel and sdist artifacts.
+
+## Explicit non-goals
+
+- This page does not redefine lifecycle policy.
+- This page does not replace public-surface or domain tests.
