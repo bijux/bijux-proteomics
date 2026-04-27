@@ -199,6 +199,12 @@ owner_package = "bijux-proteomics-intelligence"
 reason = "Report data modeling now forwards directly to canonical intelligence report schemas."
 
 [[rule]]
+pattern = "report/render.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Report rendering now forwards directly to canonical intelligence presentation surfaces."
+
+[[rule]]
 pattern = "report/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"

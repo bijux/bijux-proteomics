@@ -116,7 +116,7 @@ registry/tools.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool regi
 report/__init__.py,domain_ownership,bijux-proteomics-intelligence,Report package exports now forward directly to canonical intelligence reporting surfaces.
 report/compute.py,domain_ownership,bijux-proteomics-intelligence,Report computation now forwards directly to canonical intelligence scoring and summary surfaces.
 report/model.py,domain_ownership,bijux-proteomics-intelligence,Report data modeling now forwards directly to canonical intelligence report schemas.
-report/render.py,runtime_support_internal_review,bijux-proteomics-runtime,Reporting utilities need review to split runtime artifact summaries from scientific/domain evaluation outputs.
+report/render.py,domain_ownership,bijux-proteomics-intelligence,Report rendering now forwards directly to canonical intelligence presentation surfaces.
 runtime/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
 runtime/context/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
 runtime/context/context.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
