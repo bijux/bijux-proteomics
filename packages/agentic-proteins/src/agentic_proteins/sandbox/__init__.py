@@ -1,12 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+"""Compatibility forwarding module for canonical runtime sandbox ownership."""
 
-"""Sandbox space for experimental playground code."""
-
-from __future__ import annotations
-
-from agentic_proteins.core.stability import experimental
-
-experimental()
-
-__all__: list[str] = []
+from bijux_proteomics_runtime.sandbox import *  # noqa: F401,F403

@@ -50,3 +50,4 @@ def test_runtime_surface_area_uses_runtime_extension_points() -> None:
 
     assert "bijux_proteomics_runtime.providers" in EXTENSION_POINTS
     assert "bijux_proteomics_runtime.providers.experimental" in EXTENSION_POINTS
+    assert "bijux_proteomics_runtime.sandbox" in EXTENSION_POINTS

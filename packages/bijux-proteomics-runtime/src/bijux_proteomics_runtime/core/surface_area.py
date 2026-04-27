@@ -17,6 +17,7 @@ EXTENSION_POINTS = (
     "bijux_proteomics_runtime.providers",
     "bijux_proteomics_runtime.tools",
     "bijux_proteomics_runtime.providers.experimental",
+    "bijux_proteomics_runtime.sandbox",
 )
 
 CONFIG_KNOBS = (

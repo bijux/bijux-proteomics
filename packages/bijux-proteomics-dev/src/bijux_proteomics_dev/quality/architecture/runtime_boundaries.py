@@ -146,11 +146,11 @@ def check_agentic_compat_forwarding(policy: RuntimeBoundaryPolicy) -> list[str]:
     allowlist = _allowlist(policy.compat_forwarding.non_forwarding_allowlist_path)
 
     for path in iter_python_files(policy.compat_forwarding.package_root):
-        if path.name == "__init__.py":
-            continue
         relative_path = path.relative_to(
             policy.compat_forwarding.package_root
         ).as_posix()
+        if relative_path == "__init__.py":
+            continue
         tree = parse_python_module(path).tree
         if _is_forwarding_module(
             tree, policy.compat_forwarding.forwarding_target_prefixes

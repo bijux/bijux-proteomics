@@ -3,8 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
+    _is_forwarding_module,
     check_agentic_compat_forwarding,
     load_policy,
+    parse_python_module,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -39,4 +41,22 @@ def test_agentic_compat_forwarders_use_module_paths_not_init_modules() -> None:
     assert not failures, (
         "compat forwarding modules must import package paths instead of __init__ modules:\n"
         + "\n".join(failures)
+    )
+
+
+def test_nested_compat_init_modules_must_be_forwarding_only() -> None:
+    policy = load_policy(REPO_ROOT)
+    nested_init_paths = [
+        policy.compat_forwarding.package_root / "core" / "__init__.py",
+        policy.compat_forwarding.package_root / "sandbox" / "__init__.py",
+    ]
+    failures: list[str] = []
+    for path in nested_init_paths:
+        tree = parse_python_module(path).tree
+        if not _is_forwarding_module(
+            tree, policy.compat_forwarding.forwarding_target_prefixes
+        ):
+            failures.append(str(path.relative_to(REPO_ROOT)))
+    assert not failures, "nested compat __init__ modules must forward only:\n" + "\n".join(
+        failures
     )
