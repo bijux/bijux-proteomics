@@ -61,3 +61,12 @@ policy logic inside workflow YAML or one-off shell scripts.
   moving the durable policy into this package and keeping workflows thin
 - if the policy cannot be explained without product semantics, the owning
   package contract is probably the right home for the behavior
+
+## Review questions
+
+- does the change define repository governance, release policy, docs integrity,
+  or maintainer automation rather than product behavior
+- would workflow YAML, ad hoc shell glue, or local scripts become the de facto
+  owner if this rule stayed out of the maintainer package
+- can the architecture still be explained without claiming runtime execution or
+  scientific domain truth inside repository policy code
