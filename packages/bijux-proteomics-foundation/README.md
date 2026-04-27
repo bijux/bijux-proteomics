@@ -65,11 +65,24 @@ pip install bijux-proteomics-foundation
 from bijux_proteomics_foundation import schema, serialization
 ```
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-foundation`
+- Import root: `bijux_proteomics_foundation`
+- Stable entrypoints: `schema`, `serialization`, `ids`, and `migrations`
+
 ## Package boundaries
 
 This package owns schema metadata, canonical serialization, and migration compatibility helpers.
 
 It does not own product decision logic, lab logic, or runtime orchestration.
+
+## Contract checkpoints
+
+- equivalent models must serialize to identical canonical JSON and fingerprints
+- compatibility evaluation must report explicit status and reason text
+- migrations must preserve semantic meaning while advancing declared versions
+- downstream packages may depend on these primitives, but should not move domain rules into this layer
 
 ## Source guide
 
