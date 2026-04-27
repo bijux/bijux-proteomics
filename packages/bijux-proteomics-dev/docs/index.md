@@ -72,6 +72,15 @@ It owns:
 - expect a narrower release burden when the change only improves internal
   maintainer implementation without changing repository policy behavior
 
+## Release communication signals
+
+- call out release-gate, docs-proof, or package-policy changes explicitly when
+  maintainers may need to re-check repository release expectations
+- name shared guard or validation-policy changes directly instead of hiding
+  them inside generic maintenance wording
+- keep release messaging brief when the change only improves internal
+  maintainer implementation without changing repository policy behavior
+
 ## Source guide
 
 - `src/bijux_proteomics_dev/quality` for repository quality and migration checks
