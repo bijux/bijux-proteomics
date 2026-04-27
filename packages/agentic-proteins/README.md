@@ -113,6 +113,15 @@ from agentic_proteins.interfaces.cli import cli
 - use `docs/maintainer/pypi.md` when the change affects package publication,
   metadata, or release-readiness expectations
 
+## Review questions
+
+- does the change preserve legacy continuity for a surface that already has a
+  clear canonical owner
+- would the implementation still live entirely in canonical packages if the
+  compat layer disappeared
+- can the change be justified as forwarding-only without adding fresh runtime or
+  domain behavior
+
 ## Documentation
 
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
