@@ -22,6 +22,24 @@ For repository API contracts, `bijux-proteomics-dev` enforces that every
 Any new repository gate should land with focused tests that pin both the happy
 path and the actionable failure message it emits.
 
+## Consumer upgrade expectations
+
+- maintainers should be able to adopt routine releases without rewriting root
+  `make` targets or CI job wiring around the same policy surface
+- intentional gate changes should be visible through focused tests and explicit
+  failure-message updates instead of silent drift
+- callers should expect repository checks to stay deterministic for the same
+  checked-in state
+
+## Change routing signals
+
+- repository policy, release validation, docs integrity, and maintainer-only
+  automation contracts belong here first
+- product runtime behavior and scientific semantics should be routed back to the
+  owning package instead of being encoded inside maintainer checks
+- if CI or root automation needs a new policy, the durable implementation
+  should land here before workflow YAML or ad hoc shell scripts depend on it
+
 ## Explicit non-contracts
 
 - This package does not publish runtime product behavior.
