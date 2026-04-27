@@ -7,7 +7,10 @@ import pytest
 from bijux_proteomics_runtime.providers import factory as factory_module
 from bijux_proteomics_runtime.providers.base import _time_left
 from bijux_proteomics_runtime.providers.errors import PredictionError
-from bijux_proteomics_runtime.providers.factory import provider_requirements
+from bijux_proteomics_runtime.providers.factory import (
+    _require_module,
+    provider_requirements,
+)
 from bijux_proteomics_runtime.providers.experimental.colabfold import (
     APIColabFoldProvider,
 )
@@ -20,6 +23,10 @@ def test_provider_factory_metadata_contract() -> None:
 
 def test_provider_base_exports_deadline_helper() -> None:
     assert _time_left is not None
+
+
+def test_provider_factory_exports_dependency_helper() -> None:
+    assert _require_module is not None
 
 
 def test_local_provider_install_hints_use_runtime_package(

@@ -13,6 +13,13 @@ from bijux_proteomics_runtime.providers.base import BaseProvider, ProviderCapabi
 from bijux_proteomics_runtime.providers.errors import PredictionError
 from bijux_proteomics_runtime.providers.heuristic import HeuristicStructureProvider
 
+__all__ = [
+    "PROVIDER_CAPABILITIES",
+    "_require_module",
+    "create_provider",
+    "provider_requirements",
+]
+
 PROVIDER_CAPABILITIES = {
     "heuristic_proxy": ProviderCapabilities(
         supports_gpu=False, supports_cpu=True, cpu_fallback_allowed=True
