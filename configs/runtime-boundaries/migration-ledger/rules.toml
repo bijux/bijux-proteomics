@@ -187,6 +187,12 @@ owner_package = "bijux-proteomics-intelligence"
 reason = "Report package exports now forward directly to canonical intelligence reporting surfaces."
 
 [[rule]]
+pattern = "report/compute.py"
+bucket = "domain_ownership"
+owner_package = "bijux-proteomics-intelligence"
+reason = "Report computation now forwards directly to canonical intelligence scoring and summary surfaces."
+
+[[rule]]
 pattern = "report/**"
 bucket = "runtime_support_internal_review"
 owner_package = "bijux-proteomics-runtime"
