@@ -98,6 +98,15 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
 - the helper only reformats recommendation outputs for CLI or API consumers
 - the behavior is a workflow-specific override rather than a reusable decision rule
 
+## Verification route
+
+- check `tests` for ranking, evaluator, and explainability proof before
+  treating an intelligence change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when ownership or recommendation-policy claims are part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
 ## Source guide
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
