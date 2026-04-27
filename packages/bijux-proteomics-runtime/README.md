@@ -125,6 +125,16 @@ remain in their dedicated lower-layer packages.
 - can the change be justified as runtime-local work instead of a missing lower
   package contract or a compat-only bridge
 
+## Escalation route
+
+- route the change downward when the behavior actually defines schema,
+  lifecycle, evidence, ranking, or lab semantics
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal starts looking like compatibility glue or provider-specific policy
+  rather than canonical runtime orchestration
+- escalate before release when adopting the change would force lower packages or
+  compat surfaces to mirror new runtime-local exceptions
+
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
