@@ -4,86 +4,45 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Test Strategy
 
-The tests for `bijux-proteomics-knowledge` are the executable proof of its package contract.
+A useful test strategy names what evidence is needed and why shallow coverage is not enough.
 
-This page should help readers see the broad proof shape of the package rather
-than treating the test tree like a bag of unrelated checks. A good strategy page
-explains why these tests exist, not just where they live.
+For `bijux-proteomics-knowledge`, the test story should show how the package handles imperfect evidence without hiding contradiction, confidence, or review-state drift.
 
-## Visual Summary
+## Strategy Model
 
 ```mermaid
-flowchart LR
-    claims["test_claims.py"]
-    evidence["test_evidence_bundle.py"]
-    evidence_graph_tests["test_evidence_graph.py"]
-    resolution["test_resolution.py"]
-    review["test_review.py"]
-    schema["test_schema.py + test_serialization.py"]
-    claims --> review
-    evidence --> claims
-    claims --> resolution
-    evidence --> evidence_graph_tests
-    schema --> evidence
+flowchart TB
+    records["claims and evidence records"]
+    meaning["contradiction and confidence tests"]
+    review["review-state and persistence proof"]
+    fixtures["imperfect and conflicting fixtures"]
+    release["release confidence"]
+
+    records --> meaning
+    meaning --> review
+    review --> fixtures
+    fixtures --> release
 ```
 
-## Test Areas
+This page should make it obvious that the package is not defending one ideal path. The real proof comes from preserving meaning under messy evidence and stored-state pressure.
 
-- `test_evidence_bundle.py`: evidence record behavior, trust/freshness semantics
-- `test_claims.py`: claim lifecycle, lineage, and consistency logic
-- `test_resolution.py`: conflict resolution policies and updates
-- `test_evidence_graph.py`: graph structure and validation rules
-- `test_review.py`: review packet and readiness summaries
-- `test_schema.py` / `test_serialization.py`: schema and canonical payload stability
+## Review Rules
 
-## Concrete Anchors
+- favor contradiction, confidence, and review-state tests over generic coverage claims
+- cover persistence cases where knowledge meaning could drift silently
+- use fixtures that show imperfect or conflicting evidence, not just ideal cases
 
-- `packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py`
-- `packages/bijux-proteomics-knowledge/tests/test_claims.py`
-- `packages/bijux-proteomics-knowledge/tests/test_resolution.py`
-- `packages/bijux-proteomics-knowledge/tests/test_review.py`
+## First Proof Check
 
-## Use This Page When
+- `packages/bijux-proteomics-knowledge/tests`
+- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
+- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## Design Pressure
 
-## Decision Rule
-
-Use `Test Strategy` to decide whether `bijux-proteomics-knowledge` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What This Page Answers
-
-- what currently proves the `bijux-proteomics-knowledge` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-knowledge` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page explains the broad testing shape of the package.
-
-## Stability
-
-Keep it aligned with the real test directories and the behaviors they protect.
+The common drift is to optimize for storage or coverage shape while leaving contradiction handling and downstream interpretation less clearly defended.

@@ -4,88 +4,26 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-knowledge-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Domain Language
 
-The language around `bijux-proteomics-knowledge` should make evidence-state and
-claim-state discussions precise.
+Stable package language matters because `bijux-proteomics-knowledge` is easier to review when
+its key terms do not drift into neighboring package vocabulary.
 
-This page keeps the package vocabulary stable enough that docs, code, commit
-messages, and review conversations can describe the same idea without drift.
+## Terms To Keep Stable
 
-## Visual Summary
+- `claim state`
+- `confidence`
+- `contradiction`
 
-```mermaid
-flowchart TB
-    record["evidence record"]
-    bundle["evidence bundle"]
-    claim["evidence claim"]
-    conflict["evidence conflict"]
-    resolution["conflict resolution"]
-    readiness["decision readiness"]
-    record --> bundle --> claim --> conflict --> resolution --> readiness
-```
+## Language Test
 
-## Package Vocabulary Anchors
+If a term makes it harder to say whether work belongs in `bijux-proteomics-knowledge` or in
+bijux-proteomics-intelligence, change the term or move the work.
 
-- package name: `bijux-proteomics-knowledge`
-- Python import root: `bijux_proteomics_knowledge`
-- owning package directory: `packages/bijux-proteomics-knowledge`
-- key outputs: evidence bundles, claim lineage, conflict resolutions, readiness summaries
+## First Proof Check
 
-## Glossary
-
-- `evidence record`: a single piece of evidence with source, strength, and context.
-- `evidence bundle`: a grouped evidence set used for decision-facing evaluation.
-- `claim`: a statement linked to evidence with mutable confidence and status.
-- `conflict`: incompatible evidence or claim posture requiring policy action.
-- `resolution`: policy-selected response that updates claim belief and status.
-- `decision readiness`: summary signal for whether evidence posture supports progression.
-
-## Concrete Anchors
-
-- `packages/bijux-proteomics-knowledge` as the package root
-- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge` as the import boundary
-- `packages/bijux-proteomics-knowledge/tests` as the package proof surface
-
-## Use This Page When
-
-- you need the package idea before the implementation detail
-- you are deciding whether work belongs here or in a neighboring package
-- you want the shortest honest explanation of what this package is for
-
-## Decision Rule
-
-Use `Domain Language` to decide whether a change makes `bijux-proteomics-knowledge` easier or harder to defend as one distinct role in the overall system. If the work makes the package broader without making its role clearer, stop and re-check the boundary before treating the change as a local improvement.
-
-## What This Page Answers
-
-- what problem `bijux-proteomics-knowledge` is supposed to own on purpose
-- where the package boundary stops, even when nearby code looks tempting
-- which neighboring package seams deserve comparison before the boundary is changed
-
-## Reviewer Lens
-
-- compare the stated boundary with the modules, artifacts, and tests that are supposed to uphold it
-- check that out-of-scope behavior is not quietly re-entering through convenience paths
-- confirm that the package story still matches the real repository layout and neighboring package docs
-
-## Honesty Boundary
-
-This page can explain the intended boundary of `bijux-proteomics-knowledge`, but it cannot prove that boundary by itself. The real proof still lives in the code, tests, and neighboring package seams that either support or contradict the story told here.
-
-## Next Checks
-
-- move to architecture when the question becomes structural rather than boundary-oriented
-- move to interfaces when the question becomes contract-facing
-- move to quality when the question becomes proof or review sufficiency
-
-## Purpose
-
-This page records the naming anchors that should stay stable in docs, code, and review discussions.
-
-## Stability
-
-Keep it aligned with the package's real import names, directories, and artifact nouns.
+- this package handbook
+- neighboring package handbooks for conflicting ownership language

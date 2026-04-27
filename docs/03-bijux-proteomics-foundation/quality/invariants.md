@@ -4,84 +4,42 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Invariants
 
-Invariants are the promises that should survive ordinary implementation change.
+Invariants are the claims that must remain true for the package to stay worth trusting.
 
-This page names the truths the package is trying hardest not to lose. If an
-invariant changes, that should feel more like a design event than a routine code
-edit.
-
-Treat the quality pages for `bijux-proteomics-foundation` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Invariant Model
 
 ```mermaid
 flowchart LR
-    inv1["canonical identity remains stable"] --> inv2["payload shape remains explicit"]
-    inv2 --> inv3["serialization stays deterministic"]
-    inv3 --> inv4["compatibility paths stay reviewable"]
-    inv4 --> trust["cross-package trust"]
+    meaning["shared identifiers and schema meaning"]
+    migration["serialization and migration behavior"]
+    boundary["foundation stays out of downstream policy"]
+
+    meaning --> migration --> boundary
 ```
 
-## Invariant Anchors
+This page should make foundation invariants feel like the rules that let other
+packages share one canonical language. If these claims blur, downstream reuse
+starts relying on coincidence instead of stable meaning.
 
-- package boundary stays explicit
-- interface and artifact contracts remain reviewable
-- tests continue to prove the long-lived promises
+## Review Rules
 
-## Supporting Tests
+- shared identifiers and schema meanings remain canonical across consuming packages
+- serialization and migration paths stay explicit and reviewable
+- foundation never absorbs downstream policy just because many packages use it
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- tests/regression and tests/smoke for replay and storage protection
-- tests/golden for durable example fixtures
+## First Proof Check
 
-## Concrete Anchors
+- `packages/bijux-proteomics-foundation/tests`
+- `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization.py`
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
+## Design Pressure
 
-## Use This Page When
-
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
-
-## Decision Rule
-
-Use `Invariants` to decide whether `bijux-proteomics-foundation` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What This Page Answers
-
-- what currently proves the `bijux-proteomics-foundation` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-foundation` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page records the kinds of promises that should not drift casually.
-
-## Stability
-
-Keep it aligned with invariant-focused tests and documented package guarantees.
+Foundation invariants break when migration convenience starts redefining shared
+meaning. The package has to keep canonical identifiers, schemas, and durable
+transforms visibly aligned.

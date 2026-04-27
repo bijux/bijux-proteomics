@@ -4,105 +4,21 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Module Map
 
-The architecture of `bijux-proteomics-intelligence` becomes readable when its major module
-groups are treated as responsibilities instead of as folders. This page should
-help a reviewer move from a question about behavior to the part of the package
-most likely to answer it.
+`bijux-proteomics-intelligence` stays reviewable only when its structural families remain easy to name and defend. The package owns candidate evaluation, decision policy, and explainable recommendation flow, so its modules should read like one coherent argument for that role.
 
-When this page is useful, code reading becomes targeted rather than exploratory.
+## Owned Module Families
 
-Treat the architecture pages for `bijux-proteomics-intelligence` as a reviewer-facing map of structure and flow. They should shorten code reading, not try to replace it.
+- `src/bijux_proteomics_intelligence/candidates.py` and `domain/candidates/` own candidate state and portfolio structure
+- `src/bijux_proteomics_intelligence/policies.py`, `evaluators.py`, and `domain/metrics/` own scoring and decision rules
+- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, `outcomes.py`, and `design_loop/` own explainability and control-loop structure
 
-## Visual Summary
+## First Proof Check
 
-```mermaid
-flowchart TB
-    page["Module Map<br/>clarifies: trace execution | spot dependency pressure | judge structural drift"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    module1["durable runtime models"]
-    module1 --> page
-    module2["execution engines and lifecycle logic"]
-    module2 --> page
-    module3["orchestration and replay coordination"]
-    module3 --> page
-    code1["src/bijux_proteomics_intelligence/model"]
-    page --> code1
-    code2["src/bijux_proteomics_intelligence/runtime"]
-    page --> code2
-    code3["src/bijux_proteomics_intelligence/application"]
-    page --> code3
-    pressure1["tests/e2e for governed flow behavior"]
-    pressure1 -.tests whether this structure still holds.-> page
-    pressure2["tests/regression and tests/smoke for replay and storage protection"]
-    pressure2 -.tests whether this structure still holds.-> page
-    pressure3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    pressure3 -.tests whether this structure still holds.-> page
-    class page page;
-    class module1,module2,module3 positive;
-    class code1,code2,code3 anchor;
-    class pressure1,pressure2,pressure3 caution;
-```
-
-## Major Modules
-
-- `src/bijux_proteomics_intelligence/model` for durable runtime models
-- `src/bijux_proteomics_intelligence/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_intelligence/application` for orchestration and replay coordination
-- `src/bijux_proteomics_intelligence/verification` for runtime-level validation support
-- `src/bijux_proteomics_intelligence/interfaces` for CLI surfaces and manifest loading
-- `src/bijux_proteomics_intelligence/api` for HTTP application surfaces
-
-## Concrete Anchors
-
-- `src/bijux_proteomics_intelligence/model` for durable runtime models
-- `src/bijux_proteomics_intelligence/runtime` for execution engines and lifecycle logic
-- `src/bijux_proteomics_intelligence/application` for orchestration and replay coordination
-
-## Use This Page When
-
-- you are tracing structure, execution flow, or dependency pressure
-- you need to understand how modules fit before refactoring
-- you are reviewing design drift rather than one isolated bug
-
-## Decision Rule
-
-Use `Module Map` to decide whether a structural change makes `bijux-proteomics-intelligence` easier or harder to explain in terms of modules, dependency direction, and execution flow. If the change works only because the design becomes harder to read, the safer answer is redesign rather than acceptance.
-
-## What This Page Answers
-
-- how `bijux-proteomics-intelligence` is organized internally in terms a reviewer can follow
-- which modules carry the main execution and dependency story
-- where structural drift would show up before it becomes expensive
-
-## Reviewer Lens
-
-- trace the described execution path through the named modules instead of trusting the diagram alone
-- look for dependency direction or layering that now contradicts the documented seam
-- verify that the structural risks named here still match the current code shape
-
-## Honesty Boundary
-
-This page describes the current structural model of `bijux-proteomics-intelligence`, but it does not guarantee that every import path or runtime path still obeys that model. Readers should treat it as a map that must stay aligned with code and tests, not as an authority above them.
-
-## Next Checks
-
-- move to interfaces when the review reaches a public or operator-facing seam
-- move to operations when the concern becomes repeatable runtime behavior
-- move to quality when you need proof that the documented structure is still protected
-
-## Purpose
-
-This page provides a shortest-path code map for the package.
-
-## Stability
-
-Keep it aligned with the actual source directories under `packages/bijux-proteomics-intelligence`.
+- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
+- the matching package tests
+- neighboring handbook branches when a module starts to look shared

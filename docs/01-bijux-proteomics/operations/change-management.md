@@ -4,42 +4,53 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Change Management
 
 The repository should make change easier to reason about, not easier to hide.
+A good change set preserves ownership, keeps proof close, and uses commit
+boundaries that remain legible long after the context is gone.
+
+## Change Model
 
 ```mermaid
-timeline
-    title Repository change management flow
-    Proposal : define durable intent
-    Batch 1 : make reviewable repository change
-    Batch 2 : update docs, schemas, and proof surfaces
-    Review : confirm names, redirects, and scope remain clear
-    Completion : merge only when explanation and behavior match
+flowchart TB
+    proposal["proposed change series"]
+    owner["clear owner stays visible"]
+    proof["docs, artifacts, and checks move together"]
+    commit["commit boundary stays legible"]
+    merge["change remains reviewable"]
+
+    proposal --> owner
+    owner --> proof
+    proof --> commit
+    commit --> merge
 ```
 
-## Expectations
+This page should help maintainers judge whether a change series preserves reviewability over time. If one diff makes several unrelated facts move together without a clear owner, the repository is paying future debugging cost immediately.
 
-- split repository-wide work into reviewable batches with durable commit intent
-- update the relevant handbook pages in the same change series as the behavior
-- keep file and directory names descriptive enough that later readers do not
-  need private project history to decode them
-- use redirects or explicit metadata updates when documentation paths move
+## Change Rules
 
-## Design Debt Ledger
+- split repository-wide work into reviewable units with durable commit intent
+- update the relevant handbook pages in the same change series as behavior
+- keep names and paths understandable without private project history
+- move redirects, metadata, or tracked contracts together with the behavior
+  they explain
 
-- no active design debt entries why: repository debt stays empty until a
-  constrained exception is explicitly approved exit: keep this section empty
-  except approved debt items
+## Fast Rejection Gates
 
-## Purpose
+- the change has no clear owner
+- docs, schema artifacts, and checks are drifting apart
+- commit scope is broad enough that one failure hides another
 
-This page explains how shared repository changes should be packaged and carried
-through to completion.
+## First Proof Check
 
-## Stability
+- staged diff boundaries before commit
+- the matching handbook pages
+- the tests, tracked artifacts, or workflow surfaces that prove the change
 
-Update it only when the repository’s change discipline genuinely shifts.
+## Design Pressure
+
+The easy failure is to optimize for short-term throughput and merge a broad, clever change set that no longer tells a durable story commit by commit.

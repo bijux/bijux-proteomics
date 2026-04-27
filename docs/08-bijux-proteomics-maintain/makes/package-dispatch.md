@@ -4,29 +4,40 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Package Dispatch
 
-Package dispatch is how shared target families become package-specific without
-duplicating the whole command model.
+Package dispatch should explain how one target reaches one package or many without hiding the routing logic.
 
-The repository uses `makes/bijux-py/root/package-dispatch.mk` and the files
-under `makes/packages/` to route shared target contracts onto real package
-roots such as `agentic-proteins`, `bijux-proteomics-core`, and the other
-publishable packages.
+## Dispatch Model
 
-## Dispatch Anchors
+```mermaid
+flowchart TB
+    target["shared target"]
+    routing["makes/packages.mk"]
+    fragment["named package fragment"]
+    package["one package or many packages"]
 
-- `makes/bijux-py/root/package-dispatch.mk`
-- `makes/packages/agentic-proteins.mk`
-- `makes/packages/bijux-proteomics-*.mk`
+    target --> routing
+    routing --> fragment
+    fragment --> package
+```
 
-## Purpose
+This page should make dispatch feel explicit at every hop. If a maintainer cannot tell why a target reached one package or all of them, the routing surface is too implicit to trust.
 
-This page records how package-specific target routing is assembled.
+## Dispatch Rules
 
-## Stability
+- dispatch through named package fragments
+- keep per-package routing explicit in `makes/packages/*.mk`
+- avoid shared targets that secretly special-case one package too much
 
-Keep it aligned with the package dispatch files that currently exist.
+## First Proof Check
+
+- `makes/packages.mk`
+- `makes/packages/*.mk`
+
+## Design Pressure
+
+The common drift is to preserve a neat shared target name while burying package-specific special cases deep enough that the dispatch story stops being obvious.

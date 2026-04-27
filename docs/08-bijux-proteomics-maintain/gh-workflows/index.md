@@ -4,36 +4,64 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-19
+last_reviewed: 2026-04-26
 ---
 
 # gh-workflows
 
-The workflow section explains the GitHub Actions entrypoints and reusable
-building blocks that verify, release, and document the repository.
+This section maps repository events to the workflow files that answer them. It
+should get a maintainer from a failing run, a missing release artifact, or a
+stalled docs deployment to the right YAML owner without wandering through the
+Actions tab.
 
-Use these pages when you need to know which workflow starts on push, pull
-request, tag, or manual dispatch, and how that entrypoint fans out into
-repository checks, package matrices, or documentation publication.
+```mermaid
+flowchart LR
+    pr["pull request or push"]
+    main["main branch governance changes"]
+    tag["release tag"]
+    verify["verify, ci, codecov"]
+    governance["github-policy, bijux-std,<br/>labeler, automerge"]
+    release["release-artifacts,<br/>release-pypi, release-ghcr,<br/>release-github"]
+    docs["deploy-docs"]
+    outputs["checks, docs, packages,<br/>GitHub release"]
 
-The top-level entrypoints are `verify.yml` for pushes and pull requests,
-`deploy-docs.yml` for handbook publication from `main`, and the release split
-workflows (`release-artifacts.yml`, `release-github.yml`, `release-pypi.yml`,
-`release-ghcr.yml`) for tag-driven publication. `ci.yml` is the reusable CI
-wrapper called by `verify.yml`.
+    pr --> verify --> outputs
+    main --> governance --> outputs
+    main --> docs --> outputs
+    tag --> release --> outputs
+```
 
-## Pages In This Section
+## What This Section Should Make Obvious
 
-- [verify](verify.md)
-- [reusable-workflows](reusable-workflows.md)
-- [deploy-docs](deploy-docs.md)
-- [release-workflows](release-workflows.md)
+- which event starts which automation
+- which workflows produce proof versus publication
+- where to look first when a repository promise breaks in GitHub
 
-## Purpose
+## Start With
 
-Use this section to find the workflow file, trigger, and job tree behind a
-repository automation concern.
+- open [verify](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/verify/)
+  when the symptom starts from a pull request or push
+- open [release-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/release-workflows/)
+  when a version tag or published artifact is wrong
+- open [deploy-docs](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/deploy-docs/)
+  when the handbook is stale or broken in production
+- open [reusable-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/reusable-workflows/)
+  when the visible failure is only a wrapper around shared logic
 
-## Stability
+## Workflow Families
 
-Keep it aligned with the workflow files in `.github/workflows/`.
+- [verify](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/verify/)
+  for repository proof on pushes and pull requests
+- [reusable-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/reusable-workflows/)
+  for shared building blocks called from release or governance automation
+- [deploy-docs](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/deploy-docs/)
+  for handbook publication to `bijux.io`
+- [release-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/release-workflows/)
+  for staged artifact assembly and final publication
+
+## First Proof Check
+
+- `.github/workflows/verify.yml`
+- `.github/workflows/deploy-docs.yml`
+- `.github/workflows/release-*.yml`, `.github/workflows/ci.yml`, and
+  `.github/workflows/github-policy.yml`

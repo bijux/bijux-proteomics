@@ -7,10 +7,11 @@ DEPTRY_SCAN_SCRIPT ?= PYTHONPATH="$(MONOREPO_ROOT)/packages/bijux-proteomics-dev
 DEPTRY_CONFIG ?= $(MONOREPO_ROOT)/configs/deptry.toml
 QUALITY_DEPTRY_COMMAND ?= $(DEPTRY_SCAN_SCRIPT) --config "$(DEPTRY_CONFIG)" --project-dir . $(QUALITY_PATHS)
 QUALITY_DEPTRY_VERSION_COMMAND ?=
+CODESPELL ?= $(VENV_PYTHON) -m codespell_lib
 PIP_AUDIT ?= env VIRTUAL_ENV= PIPAPI_PYTHON_LOCATION="$(abspath $(VENV_PYTHON))" "$(VENV_PYTHON)" -m pip_audit
 SBOM_PIP_AUDIT ?= env VIRTUAL_ENV= PIPAPI_PYTHON_LOCATION="$(abspath $(VENV_PYTHON))" "$(VENV_PYTHON)" -m pip_audit
-SECURITY_AUDIT_PREPARE_MODE ?= pyproject
-PIP_AUDIT_INPUTS ?= -r "$(SECURITY_REQS)"
+SECURITY_AUDIT_PREPARE_MODE ?= environment
+PIP_AUDIT_INPUTS ?=
 SECURITY_PIP_AUDIT_TEXT_COMMAND ?= VIRTUAL_ENV= PIPAPI_PYTHON_LOCATION="$(abspath $(VENV_PYTHON))" PYTHONPATH="$(MONOREPO_ROOT)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(VENV_PYTHON)" -m bijux_proteomics_dev.security.pip_audit_gate
 
 include $(ROOT_MAKE_DIR)/bijux-py/repository/env.mk

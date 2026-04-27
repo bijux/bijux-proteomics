@@ -4,101 +4,43 @@ audience: mixed
 type: explanation
 status: canonical
 owner: agentic-proteins-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Known Limitations
 
-No package is improved by pretending its limitations do not exist.
+Known limitations matter because honest boundaries are part of quality, not an admission of failure.
 
-This page protects credibility by keeping the current limits visible. Readers
-should be able to tell what the package does not promise without mining issue
-threads or learning the hard way in production.
+For `agentic-proteins`, the main limitations come from history: the bridge is broader than ideal, some compatibility paths still exist, and trust depends on keeping migration proof current.
 
-Treat the quality pages for `agentic-proteins` as the proof frame around the package. They should show how trust is earned and where skepticism still belongs.
-
-## Visual Summary
+## Limitation Model
 
 ```mermaid
-flowchart LR
-    page["Known Limitations<br/>clarifies: see proof | see limitations | judge done-ness"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    proof1["tests/e2e for governed flow behavior"]
-    proof1 --> page
-    proof2["tests/regression and tests/smoke for replay and storage protection"]
-    proof2 --> page
-    proof3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    proof3 --> page
-    risk1["pyproject.toml"]
-    risk1 -.keeps trust honest.-> page
-    risk2["README.md"]
-    risk2 -.keeps trust honest.-> page
-    risk3["CHANGELOG.md"]
-    risk3 -.keeps trust honest.-> page
-    bar1["proof before confidence"]
-    page --> bar1
-    bar2["done means defended behavior"]
-    page --> bar2
-    bar3["package trust after change"]
-    page --> bar3
-    class page page;
-    class proof1,proof2,proof3 positive;
-    class risk1,risk2,risk3 caution;
-    class bar1,bar2,bar3 action;
+flowchart TB
+    history["historical breadth"]
+    compatibility["remaining compatibility callers"]
+    proof["migration proof must stay current"]
+    limit["bridge cannot be cleaner than the retirement state it inherits"]
+
+    history --> compatibility
+    compatibility --> proof
+    proof --> limit
 ```
 
-## Honest Boundaries
+This page should keep the bridge honest about what it cannot promise. The package can forward legacy paths responsibly, but it cannot pretend history left it with a perfectly narrow surface.
 
-- agent composition policy
-- ingest and index domain ownership
-- repository tooling and release support
+## Review Rules
 
-## Concrete Anchors
+- the package is broad because history left it that way, not because that breadth is ideal
+- some compatibility behavior remains until downstream callers are retired
+- the bridge can only be trusted as far as its migration proof stays current
 
-- tests/unit for api, contracts, core, interfaces, model, and runtime
-- tests/e2e for governed flow behavior
-- README.md
+## First Proof Check
 
-## Use This Page When
+- `packages/agentic-proteins/tests`
+- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
+- `src/agentic_proteins/runtime/`
 
-- you are reviewing tests, invariants, limitations, or ongoing risks
-- you need evidence that the documented contract is actually defended
-- you are deciding whether a change is truly done rather than merely implemented
+## Design Pressure
 
-## Decision Rule
-
-Use `Known Limitations` to decide whether `agentic-proteins` has actually earned trust after a change. If one narrow green check hides a wider contract, risk, or validation gap, the work is not done yet.
-
-## What This Page Answers
-
-- what currently proves the `agentic-proteins` contract instead of merely describing it
-- which risks, limits, and assumptions still need explicit skepticism
-- what a reviewer should be able to say before accepting a change as done
-
-## Reviewer Lens
-
-- compare the documented proof story with the actual test layout and release posture
-- look for limitations or risks that should have moved with recent behavior changes
-- verify that the claimed done-ness standard still reflects real validation practice
-
-## Honesty Boundary
-
-This page explains how `agentic-proteins` is supposed to earn trust, but it does not claim that prose alone is enough. If the listed tests, checks, and review practice stop backing the story, the story has to change.
-
-## Next Checks
-
-- move to foundation when the risk appears to be boundary confusion rather than missing tests
-- move to architecture when the proof gap points to structural drift
-- move to interfaces or operations when the proof question is really about a contract or workflow
-
-## Purpose
-
-This page keeps limitation language attached to the package boundary instead of scattered through issue comments.
-
-## Stability
-
-Keep it aligned with the limitations that remain intentionally true today.
+The dangerous illusion is to talk about the bridge as if it were already as small and temporary as the long-term design wants it to be.

@@ -4,38 +4,20 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # deploy-docs
 
-`deploy-docs.yml` is the workflow that turns the checked-in handbook into the
-published site.
+`deploy-docs.yml` owns handbook publication. It should make public-doc publication predictable and auditable.
 
-Documentation in this repository is treated as a maintained surface, not an
-optional by-product. The deploy workflow is therefore part of the
-documentation contract rather than a convenience step.
+## What To Check
 
-It runs on `main` when docs-related files change and can also be started
-manually. The job tree stays small on purpose: build the strict site, validate
-the published assets, then deploy the Pages artifact.
+- trigger conditions for publishing docs from the intended branch
+- which build and verification steps run before publication
+- how docs deployment failure is distinguished from product-package failures
 
-The asset validation step checks both the generated homepage and the checked-in
-browser icon files under `docs/assets/site-icons/` after they are copied into
-the built site output.
-
-## Workflow Anchors
+## First Proof Check
 
 - `.github/workflows/deploy-docs.yml`
-- `mkdocs.yml` and `mkdocs.shared.yml`
-- `docs/` as the published source tree
-
-## Purpose
-
-Use this page to understand when documentation publication runs and which site
-inputs it validates before deploy.
-
-## Stability
-
-Keep it aligned with the docs deployment workflow and the published handbook
-inputs it relies on.
+- docs verification commands referenced by the workflow

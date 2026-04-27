@@ -121,26 +121,8 @@ def _bucket_counts(rows: list[LedgerRow]) -> dict[str, int]:
 
 
 def write_summary(rows: list[LedgerRow]) -> None:
-    counts = _bucket_counts(rows)
-    lines = [
-        "# agentic-proteins Module Migration Ledger Summary",
-        "",
-        f"- total modules: {len(rows)}",
-    ]
-    for bucket in sorted(counts):
-        lines.append(f"- {bucket}: {counts[bucket]}")
-    lines.append("")
-    lines.append("## Owner package distribution")
-    lines.append("")
-
-    owners: dict[str, int] = {}
-    for row in rows:
-        owners[row.owner_package] = owners.get(row.owner_package, 0) + 1
-    for owner in sorted(owners):
-        lines.append(f"- {owner}: {owners[owner]}")
-
     LEDGER_SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LEDGER_SUMMARY_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    LEDGER_SUMMARY_PATH.write_text(_summary_text(rows), encoding="utf-8")
 
 
 def _csv_text(rows: list[LedgerRow]) -> str:
@@ -154,22 +136,78 @@ def _csv_text(rows: list[LedgerRow]) -> str:
 
 def _summary_text(rows: list[LedgerRow]) -> str:
     counts = _bucket_counts(rows)
+    total = len(rows)
+    runtime_count = counts.get("runtime_execution_ownership", 0)
+    review_count = counts.get("runtime_support_internal_review", 0)
+    domain_count = counts.get("domain_ownership", 0)
+
+    def percentage(count: int) -> int:
+        if total == 0:
+            return 0
+        return round((count / total) * 100)
+
+    review_hotspots: dict[str, int] = {}
+    for row in rows:
+        if row.bucket != "runtime_support_internal_review":
+            continue
+        family = row.module_path.split("/", 1)[0]
+        review_hotspots[family] = review_hotspots.get(family, 0) + 1
+
     lines = [
+        "---",
+        "title: Agentic Module Ledger Summary",
+        "audience: maintainer",
+        "type: reference",
+        "status: canonical",
+        "owner: bijux-proteomics-runtime",
+        "last_reviewed: 2026-04-26",
+        "---",
+        "",
         "# agentic-proteins Module Migration Ledger Summary",
         "",
-        f"- total modules: {len(rows)}",
+        "This summary gives the current migration posture in one page. The signal is where ownership is already clear and where review debt is still concentrated.",
+        "",
+        "## Current Counts",
+        "",
+        f"- total modules: {total}",
     ]
-    for bucket in sorted(counts):
-        lines.append(f"- {bucket}: {counts[bucket]}")
+    for bucket in (
+        "runtime_execution_ownership",
+        "runtime_support_internal_review",
+        "domain_ownership",
+    ):
+        lines.append(f"- `{bucket}`: {counts.get(bucket, 0)}")
     lines.append("")
-    lines.append("## Owner package distribution")
+    lines.append(
+        f"About {percentage(runtime_count)} percent of the ledger is already classified as clear runtime execution ownership, "
+        f"about {percentage(review_count)} percent still needs internal review, and about {percentage(domain_count)} percent is already marked for lower-layer ownership."
+    )
+    lines.append("")
+    lines.append("## Target Owner Distribution")
     lines.append("")
 
     owners: dict[str, int] = {}
     for row in rows:
         owners[row.owner_package] = owners.get(row.owner_package, 0) + 1
-    for owner in sorted(owners):
-        lines.append(f"- {owner}: {owners[owner]}")
+    for owner, count in sorted(owners.items(), key=lambda item: (-item[1], item[0])):
+        lines.append(f"- `{owner}`: {count}")
+    lines.append("")
+    lines.append("## Review Hotspots")
+    lines.append("")
+    for family, count in sorted(
+        review_hotspots.items(), key=lambda item: (-item[1], item[0])
+    )[:3]:
+        lines.append(f"- `{family}/**`: {count} review-required modules")
+    lines.append("")
+    lines.append("## What The Numbers Mean")
+    lines.append("")
+    lines.append(
+        "The main ambiguity is no longer the public runtime surface. The harder work is mixed support code where older modules still blend orchestration, validation, reporting, or agent behavior."
+    )
+    lines.append("")
+    lines.append(
+        "That is why the internal-review bucket is larger than the clear domain bucket. The useful next step is to narrow mixed modules until each one can be defended as either canonical runtime behavior or lower-layer ownership."
+    )
     return "\n".join(lines) + "\n"
 
 

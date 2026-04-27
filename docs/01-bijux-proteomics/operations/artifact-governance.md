@@ -4,66 +4,52 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Artifact Governance
 
-Generated output is useful only when its status is obvious. The repository
-needs a clean distinction between canonical source, tracked reference
-artifacts, and disposable build output.
+Repository artifacts do not all mean the same thing. Some are governed source,
+some are tracked contract references, and some are generated run output. Review
+gets weaker when those classes are treated as interchangeable.
+
+## Artifact Model
 
 ```mermaid
-flowchart TD
-    A[Repository artifacts] --> B[Tracked reference artifacts]
-    A --> C[Checked docs / metadata]
-    A --> D[Generated output]
+flowchart TB
+    file["changed file or artifact"]
+    source["governed source"]
+    contract["tracked contract artifact"]
+    output["generated run output"]
+    validator["matching validator or owner"]
 
-    B --> B1[apis/]
-    C --> C1[docs and governance files]
-    D --> D1[artifacts/ local or CI output]
-
-    E[Dependency allowlist] --> F[approved external packages]
-    F --> F1[requests]
-    F --> F2[biopython]
-    F --> F3[numpy]
-    F --> F4[click]
-    F --> F5[fastapi]
-    F --> F6[uvicorn]
-    F --> F7[pydantic]
-    F --> F8[loguru]
-    F --> F9[slowapi]
-    F --> F10[boto3]
+    file --> source
+    file --> contract
+    file --> output
+    source --> validator
+    contract --> validator
+    output --> validator
 ```
+
+This page should let a reviewer classify an artifact before debating its meaning. Once file classes blur together, source-of-truth arguments become slow and error-prone.
 
 ## Artifact Classes
 
-- tracked API reference artifacts under `apis/`
-- checked documentation and metadata files that participate in repository
-  policy
+- governed source under `docs/`, `packages/`, and root config files
+- tracked contract artifacts under `apis/`
 - generated local or CI output under `artifacts/`
 
-## Dependency Allowlist
+## Authority Rule
 
-The dependency allowlist used by `bijux_proteomics_dev.security.dependency_allowlist`
-is recorded here so repository policy stays visible.
+When source, docs, and generated output disagree, source plus the governing
+contract check wins. Generated output is evidence of a run, not an independent
+source of truth.
 
-- requests
-- biopython
-- numpy
-- click
-- fastapi
-- uvicorn
-- pydantic
-- loguru
-- slowapi
-- boto3
+## First Proof Check
 
-## Purpose
+- the file class the artifact belongs to
+- the helper, test, or workflow that validates that class
 
-This page explains how the repository distinguishes durable reference artifacts
-from generated workflow output.
+## Design Pressure
 
-## Stability
-
-Update it when the repository meaning of a tracked artifact class changes.
+The easy failure is to let generated output masquerade as governed source because it happens to live near the files that truly own the behavior.

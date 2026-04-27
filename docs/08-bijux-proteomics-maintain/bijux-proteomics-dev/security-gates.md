@@ -4,30 +4,40 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Security Gates
 
-Repository-facing security checks live in `bijux-proteomics-dev` so dependency
-policy and vulnerability enforcement are visible and reusable instead of being
-buried in workflow YAML.
+Security gates here protect repository policy boundaries, not product-specific threat models.
 
-The useful question is never “did security run somewhere.” The useful question
-is which checked-in helper or test is carrying the repository’s security
-expectation today.
+## Security Model
 
-## Current Security Surfaces
+```mermaid
+flowchart TB
+    dependency["dependency or audit input"]
+    allowlist["allowlist and audit helpers"]
+    policy["repository security policy"]
+    verdict["named security pass or failure"]
 
-- `security/pip_audit_gate.py`
-- `security/dependency_allowlist.py`
-- tests and workflow steps that execute those gates
+    dependency --> allowlist
+    allowlist --> policy
+    policy --> verdict
+```
 
-## Purpose
+This page should make security gates feel like reviewable policy code. The maintainer package is not trying to replace product threat modeling; it is trying to keep repository-level dependency and audit rules explicit.
 
-This page marks the boundary between maintainer security tooling and
-product-facing security behavior.
+## Gate Rules
 
-## Stability
+- dependency allowlists and audit checks should stay reviewable in code
+- security failures should point to the owning helper and policy surface
+- do not hide repository risk behind passing product-package tests
 
-Keep it aligned with the executable checks and policies that actually exist.
+## First Proof Check
+
+- `src/bijux_proteomics_dev/security/dependency_allowlist.py`
+- `src/bijux_proteomics_dev/security/pip_audit_gate.py`
+
+## Design Pressure
+
+The common drift is to hide repository risk behind passing product tests, even though dependency policy failures live at a different layer entirely.

@@ -4,28 +4,40 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-10
+last_reviewed: 2026-04-26
 ---
 
 # Package Contracts
 
-Shared package behavior should be defined once and reused honestly.
+Make fragments encode package contracts too. They show what each package is expected to provide for shared automation.
 
-Files such as `makes/bijux-py/package.mk`, `makes/bijux-py/api.mk`,
-`makes/bijux-py/api-contract.mk`, `makes/bijux-py/api-freeze.mk`, and
-`makes/bijux-py/api-live-contract.mk` describe reusable contracts that
-package-specific files then bind to the proteomics packages.
+## Contract Model
 
-## Contract Rule
+```mermaid
+flowchart TB
+    shared["shared automation contract"]
+    fragment["package fragment binding"]
+    capability["real package capability"]
+    mismatch["difference made explicit or blocked"]
 
-When package behavior is shared, encode it in a reusable fragment instead of
-copying target logic across many package files.
+    shared --> fragment
+    fragment --> capability
+    capability --> mismatch
+```
 
-## Purpose
+This page should help a maintainer see package dispatch as a contract surface, not just repetitive make syntax. Shared automation stays honest only when each fragment maps to a real package capability.
 
-This page explains where package-level make contracts are defined and reused.
+## Contract Rules
 
-## Stability
+- each package target family should map to a real package capability
+- shared automation should not assume hidden package behavior
+- when a package differs, document the difference explicitly in its fragment
 
-Keep it aligned with the shared package contract fragments that currently
-exist.
+## First Proof Check
+
+- `makes/packages/agentic-proteins.mk`
+- `makes/packages/bijux-proteomics-*.mk`
+
+## Design Pressure
+
+The easy failure is to let shared automation assume behavior a package never formally agreed to provide, which turns make dispatch into implicit policy.

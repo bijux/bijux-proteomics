@@ -4,113 +4,73 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Interfaces
 
-This section explains which commands, APIs, imports, schemas, and artifacts `bijux-proteomics-core` is prepared to stand behind as real surfaces.
-
-These pages explain the public face of `bijux-proteomics-core`. They help a caller separate deliberate contracts from incidental visibility before a dependency hardens around the wrong surface.
-
-Treat the interfaces pages for `bijux-proteomics-core` as the bridge between implementation detail and caller expectation. They should show what the package is prepared to defend before a dependency forms.
-
-## Visual Summary
+`bijux-proteomics-core` interfaces are where the domain speaks in public. This
+section should make it obvious which surfaces define protein programs, lifecycle
+gates, assay requirements, and execution readiness so a reader can tell where
+governance ends and orchestration begins.
 
 ```mermaid
 flowchart LR
-    page["Interfaces<br/>clarifies: identify contracts | see caller impact | review compatibility"]
-    classDef page fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:2px;
-    classDef positive fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    classDef caution fill:#fee2e2,stroke:#dc2626,color:#7f1d1d;
-    classDef anchor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95;
-    classDef action fill:#fef3c7,stroke:#d97706,color:#7c2d12;
-    surface1["HTTP app in src/bijux_proteomics/programs.py"]
-    surface1 --> page
-    surface2["program schemas in src/bijux_proteomics/programs.py"]
-    surface2 --> page
-    surface3["CLI entrypoint in src/bijux_proteomics/interfaces/cli.py"]
-    surface3 --> page
-    proof1["src/bijux_proteomics/programs.py"]
-    page --> proof1
-    proof2["src/bijux_proteomics/programs.py"]
-    page --> proof2
-    proof3["execution store records"]
-    page --> proof3
-    review1["tests/e2e for governed flow behavior"]
-    review1 -.raises compatibility pressure on.-> page
-    review2["tests/regression and tests/smoke for replay and storage protection"]
-    review2 -.raises compatibility pressure on.-> page
-    review3["tests/unit for api, contracts, core, interfaces, model, and runtime"]
-    review3 -.raises compatibility pressure on.-> page
-    class page page;
-    class surface1,surface2,surface3 positive;
-    class proof1,proof2,proof3 anchor;
-    class review1,review2,review3 caution;
+    imports["public imports"]
+    programs["program and target contracts"]
+    reviews["review and liability surfaces"]
+    assays["assay and criteria payloads"]
+    execution["execution-facing contracts"]
+    operators["cli, repositories,<br/>operator workflows"]
+
+    imports --> programs --> reviews --> assays --> execution --> operators
 ```
 
-## Pages in This Section
+## What Makes These Interfaces Important
 
-- [CLI Surface](cli-surface.md)
-- [API Surface](api-surface.md)
-- [Configuration Surface](configuration-surface.md)
-- [Data Contracts](data-contracts.md)
-- [Artifact Contracts](artifact-contracts.md)
-- [Entrypoints and Examples](entrypoints-and-examples.md)
-- [Operator Workflows](operator-workflows.md)
-- [Public Imports](public-imports.md)
-- [Compatibility Commitments](compatibility-commitments.md)
+- they publish the constitutional rules of the proteomics program model
+- they are meant to be consumed by both code and review processes, not just by
+  Python call sites
+- they define readiness and progression without owning runtime execution itself
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Operations](../operations/index.md) when the question becomes procedural, environmental, diagnostic, or release-oriented
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/)
+  when the question is what a program, review, assay, or gate payload is
+  allowed to mean
+- open [Operator Workflows](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/operator-workflows/)
+  when the reader is less interested in Python and more interested in how the
+  package is actually used in governed work
+- open [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
+  and [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/)
+  when the question starts from code or command entrypoints
+- open [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
+  before widening or narrowing any public domain promise
 
-## Concrete Anchors
+## Read By Domain Question
 
-- CLI entrypoint in src/bijux_proteomics/interfaces/cli.py
-- HTTP app in src/bijux_proteomics/programs.py
-- program schemas in src/bijux_proteomics/programs.py
-- src/bijux_proteomics/programs.py
+- [Public Imports](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/public-imports/)
+  for the exported domain vocabulary
+- [Data Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/data-contracts/)
+  and [Artifact Contracts](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/artifact-contracts/)
+  for the durable forms of those rules
+- [API Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/api-surface/),
+  [CLI Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/cli-surface/),
+  and [Configuration Surface](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/configuration-surface/)
+  for how operators and tooling touch the domain
+- [Entrypoints and Examples](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/entrypoints-and-examples/)
+  and [Compatibility Commitments](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/compatibility-commitments/)
+  for the cost of changing those surfaces
 
-## Use This Page When
+## What This Section Should Settle
 
-- you need the public command, API, import, schema, or artifact surface
-- you are checking whether a caller can safely rely on a given entrypoint or shape
-- you want the contract-facing side of the package before building on it
+- which public surfaces define program authority
+- where a downstream package may depend on core contracts without taking over
+  core governance
+- how to distinguish execution readiness from actual execution ownership
 
-## Decision Rule
+## First Proof Check
 
-Use `Interfaces` to decide whether a caller-facing surface is explicit enough to depend on. If the surface cannot be tied back to concrete code, schemas, artifacts, examples, and tests, treat it as unstable until that evidence is visible.
-
-## What This Page Answers
-
-- which public or operator-facing surfaces `bijux-proteomics-core` is really asking readers to trust
-- which schemas, artifacts, imports, or commands behave like contracts
-- what compatibility pressure a change to this surface would create
-
-## Reviewer Lens
-
-- compare commands, schemas, imports, and artifacts against the documented surface one by one
-- check whether a seemingly local change actually needs compatibility review
-- confirm that examples still point to real entrypoints and not to stale habits
-
-## Honesty Boundary
-
-This page can identify the intended public surfaces of `bijux-proteomics-core`, but real compatibility depends on code, schemas, artifacts, examples, and tests staying aligned. If those disagree, the prose is wrong or incomplete.
-
-## Next Checks
-
-- move to operations when the caller-facing question becomes procedural or environmental
-- move to quality when compatibility or evidence of protection becomes the real issue
-- move back to architecture when a public-surface question reveals a deeper structural drift
-
-## Purpose
-
-This page explains how to use the interfaces section for `bijux-proteomics-core` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- `src/bijux_proteomics/program_spec.py`, `programs.py`, and `targets.py`
+- `src/bijux_proteomics/cli.py` and `interfaces/cli.py`
+- `packages/bijux-proteomics-core/tests`

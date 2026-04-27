@@ -4,26 +4,64 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-intelligence-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # bijux-proteomics-intelligence
 
-`bijux-proteomics-intelligence` is the decision and ranking package in
-`bijux-proteomics`. Start here when the question is about candidate scoring,
-portfolio ordering, scenario evaluation, or explainability outputs used to
-advance or redesign programs.
+`bijux-proteomics-intelligence` owns decision policy in
+`bijux-proteomics`. It turns evidence and program constraints into scores,
+rankings, scenarios, and explanations that remain inspectable instead of
+pretending to be upstream fact. This is where the system stops only describing
+the world and starts making judgments about what should happen next.
 
-## Read This Section When
+```mermaid
+flowchart LR
+    foundation["foundation<br/>shared meaning"]
+    core["core<br/>durable rules"]
+    knowledge["knowledge<br/>evidence state"]
+    intelligence["intelligence<br/>scores, scenarios, explanations"]
+    lab["lab<br/>plans and outcomes"]
+    runtime["runtime<br/>execution"]
 
-- you need the package-level entrypoint for scoring and recommendation logic
-- you are checking candidate ranking policy and scenario outcome rules
-- you want the shortest route into explainability-oriented decision artifacts
+    foundation --> intelligence
+    core --> intelligence
+    knowledge --> intelligence
+    intelligence --> lab
+    intelligence --> runtime
+```
 
-## Main Paths
+## What Makes This Package Different
 
-- [Foundation](foundation/index.md)
-- [Architecture](architecture/index.md)
-- [Interfaces](interfaces/index.md)
-- [Operations](operations/index.md)
-- [Quality](quality/index.md)
+- it does not claim to be raw truth
+- it turns evidence plus constraints into choices
+- it must explain itself because recommendation without explanation is only
+  opaque force
+
+## What It Owns
+
+- candidate scoring and ranking policy
+- scenario evaluation and recommendation logic
+- explanation and reporting surfaces for those decisions
+
+## Start With
+
+- Open [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/)
+  for the package role and boundary.
+- Open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/)
+  when the issue is a policy-facing surface or explanation output.
+- Open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
+  when the disagreement is about evidence state rather than recommendation
+  policy.
+
+## What It Refuses
+
+- evidence truth and contradiction handling
+- durable program contracts and shared payload meaning
+- execution and operator-facing runtime behavior
+
+## First Proof Check
+
+- `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence`
+- `packages/bijux-proteomics-intelligence/tests`
+- explainability and reporting modules once a claim narrows to one surface

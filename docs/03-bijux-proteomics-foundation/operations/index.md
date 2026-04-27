@@ -4,98 +4,63 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-foundation-docs
-last_reviewed: 2026-04-04
+last_reviewed: 2026-04-26
 ---
 
 # Operations
 
-This section explains how to install, run, diagnose, and release `bijux-proteomics-foundation` from checked-in workflow guidance instead of team memory.
-
-These pages are the checked-in operating memory for `bijux-proteomics-foundation`. They should let a maintainer move from setup to diagnosis to release without relying on CI archaeology or private habits.
-
-Treat the operations pages for `bijux-proteomics-foundation` as the package's explicit operating memory. They should make common tasks repeatable without relearning the workflow from logs or oral history.
-
-## Visual Summary
+`bijux-proteomics-foundation` operations is the discipline of changing shared
+meaning without breaking the family. A maintainer here is not mostly operating a
+service. They are stewarding compatibility: every schema tweak, serialization
+decision, and migration rule can ripple through every other package.
 
 ```mermaid
-mindmap
-  root((Operations))
-    Setup
-      installation
-      local development
-    Run
-      common workflows
-      deployment boundaries
-    Diagnose
-      observability
-      failure recovery
-      performance
-    Ship
-      release and versioning
-      security and safety
+flowchart LR
+    change["schema or migration change"]
+    meaning["check meaning drift"]
+    canon["rebuild canonical artifacts"]
+    migrate["prove migration continuity"]
+    downstream["check downstream package assumptions"]
+    release["publish only when shared proof holds"]
+
+    change --> meaning --> canon --> migrate --> downstream --> release
 ```
 
-## Pages in This Section
+## What Operations Means Here
 
-- [Installation and Setup](installation-and-setup.md)
-- [Local Development](local-development.md)
-- [Common Workflows](common-workflows.md)
-- [Observability and Diagnostics](observability-and-diagnostics.md)
-- [Performance and Scaling](performance-and-scaling.md)
-- [Failure Recovery](failure-recovery.md)
-- [Release and Versioning](release-and-versioning.md)
-- [Security and Safety](security-and-safety.md)
-- [Deployment Boundaries](deployment-boundaries.md)
+- protecting long-lived records matters more than local implementation
+  convenience
+- release confidence comes from compatibility proof, not from file count
+- downstream breakage often begins as subtle meaning drift rather than obvious
+  runtime failure
 
-## Read Across the Package
+## Start With
 
-- [Foundation](../foundation/index.md) when you need the package boundary and ownership story first
-- [Architecture](../architecture/index.md) when the question becomes structural, modular, or execution-oriented
-- [Interfaces](../interfaces/index.md) when the question becomes caller-facing, schema-facing, or contract-facing
-- [Quality](../quality/index.md) when the question becomes proof, risk, trust, or review sufficiency
+- open [Common Workflows](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/common-workflows/)
+  when you need the expected path from change to compatibility proof
+- open [Release and Versioning](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/release-and-versioning/)
+  before treating any schema or migration edit as publishable
+- open [Failure Recovery](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/failure-recovery/)
+  when persisted records or cross-package fixtures have already drifted
+- open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/observability-and-diagnostics/)
+  when you need to prove whether the break is semantic, versioned, or
+  serialization-specific
 
-## Concrete Anchors
+## Operational Reading Paths
 
-- `packages/bijux-proteomics-foundation/pyproject.toml` for package metadata
-- `packages/bijux-proteomics-foundation/README.md` for local package framing
-- `packages/bijux-proteomics-foundation/tests` for executable operational backstops
+- [Local Development](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/local-development/)
+  and [Installation and Setup](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/installation-and-setup/)
+  for working safely with canonical fixtures and migrations
+- [Deployment Boundaries](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/deployment-boundaries/)
+  and [Security and Safety](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/security-and-safety/)
+  for understanding what must remain conservative because other packages depend
+  on it
+- [Performance and Scaling](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/operations/performance-and-scaling/)
+  only when artifact volume or migration throughput becomes operationally
+  significant, not as the default concern
 
-## Use This Page When
+## First Proof Check
 
-- you are installing, running, diagnosing, or releasing the package
-- you need repeatable operational anchors rather than architectural framing
-- you are responding to package behavior in local work, CI, or incident pressure
-
-## Decision Rule
-
-Use `Operations` to decide whether a maintainer can repeat the package workflow from checked-in assets instead of memory. If a step works only because someone already knows the trick, the workflow is not documented clearly enough yet.
-
-## What This Page Answers
-
-- how `bijux-proteomics-foundation` is installed, run, diagnosed, and released in practice
-- which checked-in files and tests anchor the operational story
-- where a maintainer should look first when the package behaves differently
-
-## Reviewer Lens
-
-- verify that setup, workflow, and release statements still match package metadata and current commands
-- check that operational guidance still points at real diagnostics and validation paths
-- confirm that maintainer advice still works under current local and CI expectations
-
-## Honesty Boundary
-
-This page explains how `bijux-proteomics-foundation` is expected to be operated, but it does not replace package metadata, actual runtime behavior, or validation in a real environment. A workflow is only trustworthy if a maintainer can still repeat it from the checked-in assets named here.
-
-## Next Checks
-
-- move to interfaces when the operational path depends on a specific surface contract
-- move to quality when the question becomes whether the workflow is sufficiently proven
-- move back to architecture when operational complexity suggests a structural problem
-
-## Purpose
-
-This page explains how to use the operations section for `bijux-proteomics-foundation` without repeating the detail that belongs on the topic pages beneath it.
-
-## Stability
-
-This page is part of the canonical package docs spine. Keep it aligned with the current package boundary and the topic pages in this section.
+- `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization.py`
+- `packages/bijux-proteomics-foundation/tests`
