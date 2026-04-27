@@ -35,6 +35,15 @@
 - schema and serialization tests prove durable artifact compatibility
 - repository release checks prove metadata, docs publication, and workflows stay aligned
 
+## Publication checkpoints
+
+- package metadata, docs routes, and evidence-ownership language should match
+  the current trust and lineage contract before tagging
+- release validation should leave evidence, resolution, graph, and schema proof
+  green in the repository root check surface
+- the published wheel and sdist should reflect the same import root and package
+  guide that maintainers reviewed locally
+
 ## Release checklist
 
 1. Confirm docs and README describe current evidence and conflict semantics.
