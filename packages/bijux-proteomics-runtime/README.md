@@ -107,6 +107,15 @@ remain in their dedicated lower-layer packages.
   runtime behavior
 - the provider-specific rule would force lower packages to import runtime
 
+## Verification route
+
+- check `tests` for runtime surface, provider, replay, and migration proof
+  before treating a runtime change as safe
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
+  when canonical ownership or adapter law is part of the change
+- use `docs/maintainer/pypi.md` when the change affects package publication,
+  metadata, or release-readiness expectations
+
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
