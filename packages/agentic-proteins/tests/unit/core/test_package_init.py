@@ -23,3 +23,7 @@ def test_core_package_forwards_to_runtime_exports() -> None:
 def test_root_package_routes_report_conveniences_through_runtime() -> None:
     assert pkg.Report is runtime_pkg.Report
     assert pkg.Metrics is runtime_pkg.Metrics
+
+
+def test_root_package_routes_confidence_convenience_through_runtime() -> None:
+    assert pkg.low_confidence_segments is runtime_pkg.low_confidence_segments
