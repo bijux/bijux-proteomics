@@ -1123,7 +1123,7 @@ def _version_info(tool: Tool | None) -> VersionInfo:
     if tool is not None:
         tool_versions[tool.name] = tool.version
     try:
-        app_version = importlib.metadata.version("agentic-proteins")
+        app_version = importlib.metadata.version("bijux-proteomics-runtime")
     except importlib.metadata.PackageNotFoundError:
         app_version = "unknown"
     return VersionInfo(
