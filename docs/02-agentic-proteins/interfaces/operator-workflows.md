@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 Operator workflows should say who uses the surface, why they use it, and when they should stop and open a neighbor handbook instead.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ## Package Surface
 
 - operators preserving an existing entrypoint while moving toward runtime

@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 `agentic-proteins` interfaces should tell a reader exactly which public surfaces are real, which are only compatibility bridges, and which nearby package actually owns the next step.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ```mermaid
 flowchart LR
     imports["legacy imports"]

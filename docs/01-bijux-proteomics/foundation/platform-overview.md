@@ -54,6 +54,8 @@ This page should give the shortest honest explanation of the package chain. Read
   runtime surfaces
 - `agentic-proteins` preserves legacy runtime entrypoints while callers migrate
 
+`bijux-proteomics-runtime` governs execution, replay, and operator-facing runtime behavior while `agentic-proteins` remains the compatibility bridge.
+
 ## Why The Split Pays Off
 
 A package boundary is justified only when it reduces one concrete review risk.

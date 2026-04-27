@@ -18,14 +18,14 @@ collapsing into recommendation policy or generic storage plumbing.
 flowchart LR
     evidence["evidence records"]
     claims["claims"]
-    graph["knowledge graph"]
+    knowledge_graph["knowledge graph"]
     confidence["confidence segments"]
     resolution["contradiction resolution"]
     review["review and repository outputs"]
 
-    evidence --> claims --> graph
-    graph --> confidence
-    graph --> resolution
+    evidence --> claims --> knowledge_graph
+    knowledge_graph --> confidence
+    knowledge_graph --> resolution
     confidence --> review
     resolution --> review
 ```

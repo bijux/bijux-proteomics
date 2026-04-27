@@ -118,6 +118,9 @@ flowchart LR
 | `bijux-proteomics-runtime` | execution, replay, provider integration, and operator entrypoints |
 | `agentic-proteins` | temporary compatibility forwarding for legacy runtime imports and CLI paths |
 
+<code>bijux-proteomics-runtime</code> governs execution and replay.
+<code>agentic-proteins</code> preserves compatibility entrypoints.
+
 ## Reading Paths
 
 - If you want the architecture story first:

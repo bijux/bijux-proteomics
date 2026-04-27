@@ -18,11 +18,11 @@ package in forms that other packages and human reviewers can still interrogate.
 flowchart LR
     evidence["evidence inputs"]
     claims["claim surfaces"]
-    graph["graph and lineage contracts"]
+    lineage_graph["graph and lineage contracts"]
     confidence["confidence and resolution outputs"]
     review["review artifacts and repositories"]
 
-    evidence --> claims --> graph --> confidence --> review
+    evidence --> claims --> lineage_graph --> confidence --> review
 ```
 
 ## What These Interfaces Need To Preserve

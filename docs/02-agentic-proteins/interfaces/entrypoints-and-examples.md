@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 Examples should route readers into the real surface quickly and avoid making side paths look canonical.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ## Package Surface
 
 - show the legacy path only when it is the migration subject

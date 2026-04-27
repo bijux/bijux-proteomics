@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 Public imports should make it obvious which modules are safe to rely on and which ones are just nearby implementation detail.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ## Package Surface
 
 - `agentic_proteins` import paths that still exist for compatibility review

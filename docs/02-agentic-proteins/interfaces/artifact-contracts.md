@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 Artifacts matter because they survive the moment of execution and become someone else's input or evidence.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ## Package Surface
 
 - report outputs produced through `report/`

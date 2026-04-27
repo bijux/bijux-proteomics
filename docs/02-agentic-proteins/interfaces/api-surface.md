@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 An API surface is only real when the package actually owns the network-facing contract, not when docs are trying to look complete.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ## Package Surface
 
 - `src/agentic_proteins/api/app.py` is the legacy HTTP entry surface that should stay compatible while migration remains open

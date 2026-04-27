@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 CLI documentation should describe the commands the package truly owns, not the commands a reader might wish existed.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ## Package Surface
 
 - `src/agentic_proteins/interfaces/cli.py` is a compatibility CLI surface, not the preferred long-term operator surface

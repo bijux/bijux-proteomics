@@ -34,9 +34,10 @@ This page should make release work feel like compatibility communication, not ju
 ## Shared Release Facts
 
 - root commit rules live in `pyproject.toml`
-- package versions resolve from shared `v*` tags through `hatch-vcs`
-- release workflows coordinate build, PyPI publication, GHCR publication, and
-  GitHub release output
+- the release version is explicit in Git history because version is resolved from Git tags through `hatch-vcs`
+- release workflows coordinate build through `release-artifacts.yml`, PyPI
+  publication through `release-pypi.yml`, GHCR publication through
+  `release-ghcr.yml`, and GitHub release output through `release-github.yml`
 - each publishable package owns its own `CHANGELOG.md`
 
 ## Compatibility Triggers

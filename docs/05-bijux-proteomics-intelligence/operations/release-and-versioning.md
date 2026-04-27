@@ -9,6 +9,8 @@ last_reviewed: 2026-04-26
 
 # Release and Versioning
 
+The release version is explicit in Git history because version is resolved from Git tags through `hatch-vcs`.
+
 Release rules should explain what kind of change readers need to look for before they trust a version bump.
 
 ## Operating Rules

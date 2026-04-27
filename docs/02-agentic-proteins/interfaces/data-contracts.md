@@ -11,6 +11,8 @@ last_reviewed: 2026-04-26
 
 Data contracts are the quickest way to judge whether a package really owns a concept or is just passing it through.
 
+The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compatibility mirror root is `apis/agentic-proteins/v1`.
+
 ## Package Surface
 
 - legacy request and response payloads

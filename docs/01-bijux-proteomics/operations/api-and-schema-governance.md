@@ -34,6 +34,7 @@ This page should make API and schema review feel like contract governance, not f
 ## Governing Surfaces
 
 - tracked artifacts under `apis/*/v1`
+- canonical runtime API artifacts under `apis/bijux-proteomics-runtime/v1/`
 - freeze and drift checks in `bijux-proteomics-dev`
 - workflow and make surfaces that run those checks before release
 
