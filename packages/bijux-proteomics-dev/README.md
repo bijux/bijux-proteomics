@@ -79,6 +79,15 @@ It does not define runtime product APIs or proteomics domain behavior.
 - use `docs/index.md` and publishable package `docs/maintainer/pypi.md` files
   when the change affects release policy, docs routing, or maintainer guidance
 
+## Review questions
+
+- does the change preserve repository policy, shared validation, or maintainer
+  automation rather than product runtime or scientific behavior
+- would workflow glue or one-off scripts otherwise become the de facto reviewer
+  of release safety if this stayed outside the dev package
+- can the change be justified without rewriting an owning package contract or
+  boundary first
+
 ## Source guide
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
