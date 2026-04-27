@@ -117,6 +117,7 @@ What is still missing or deliberately incomplete:
 ## Start Here
 
 - Repository handbook: [Repository handbook](https://bijux.io/bijux-proteomics/)
+- Scientific workflow roadmap: [Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
 - API contract handbook: [API and schema governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
 - Runtime package: [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - Compatibility package: [agentic-proteins handbook](https://bijux.io/bijux-proteomics/02-agentic-proteins/)

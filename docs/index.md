@@ -113,6 +113,9 @@ and advancement decisions.
 - Open the [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
   when the question is about the system as a whole and not yet about one
   package.
+- Open the [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
+  when the question is what the current package stack still needs before it
+  becomes a full proteomics workflow engine.
 - Open one product handbook when you already know where the real idea lives:
   evidence, decisions, lab work, execution, or shared contracts.
 - Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
