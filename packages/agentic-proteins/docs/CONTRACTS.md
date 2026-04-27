@@ -48,6 +48,15 @@ guard strict compat mode.
 - compat contract changes should preserve forwarding-only behavior instead of
   silently introducing fresh implementation logic
 
+## Review questions
+
+- does the contract change preserve legacy continuity for an already-canonical
+  surface instead of inventing new product behavior
+- would the real implementation still live entirely in canonical packages if
+  the compat layer disappeared after migration
+- can the contract still be justified as forwarding-only without ambiguity
+  about the runtime or lower canonical owner
+
 ## Explicit non-contracts
 
 - This package is not the canonical runtime.
