@@ -116,6 +116,16 @@ It does not own stage transition authority, evidence ingestion contracts, or lab
 - can the change be justified without claiming lifecycle, evidence, lab
   execution, or runtime interface ownership
 
+## Escalation route
+
+- route the change outward when the behavior mostly shapes lifecycle authority,
+  evidence truth, lab scheduling, or delivery transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
+  proposal starts looking like interface formatting instead of reusable decision
+  policy
+- escalate before release when downstream consumers would need package-specific
+  ranking exceptions to adopt the change
+
 ## Source guide
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
