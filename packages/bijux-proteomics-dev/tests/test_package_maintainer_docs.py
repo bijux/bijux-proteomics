@@ -77,6 +77,7 @@ def test_release_docs_share_identity_and_release_sections() -> None:
             "## Release contract",
             "## Validation focus",
             "## Publication checkpoints",
+            "## Release escalation signals",
             "## Release checklist",
             "## Explicit non-goals",
         ]
@@ -102,6 +103,7 @@ def test_maintainer_package_entry_doc_has_role_and_routing_sections() -> None:
         "## Boundary reminders",
         "## Key maintainer entrypoints",
         "## Release policy entrypoints",
+        "## Release escalation surfaces",
         "## Source guide",
         "## Downstream expectation",
     ]
@@ -120,6 +122,7 @@ def test_maintainer_test_doc_has_scope_and_expectation_sections() -> None:
         "## Maintainer expectations",
         "## Common validation surfaces",
         "## Release proof expectations",
+        "## Release-blocking signals",
         "## Non-goals",
     ]
     missing = [bit for bit in expected_bits if bit not in text]
@@ -139,6 +142,11 @@ def test_maintainer_release_docs_keep_publication_guidance_substantive() -> None
             failures.append(
                 f"{path.relative_to(REPO_ROOT).as_posix()}: publication section needs at least three bullets"
             )
+        escalation_section = _section(text, "Release escalation signals")
+        if _bullet_count(escalation_section) < 3:
+            failures.append(
+                f"{path.relative_to(REPO_ROOT).as_posix()}: release escalation section needs at least three bullets"
+            )
 
     index_path = REPO_ROOT / "packages" / "bijux-proteomics-dev" / "docs" / "index.md"
     index_text = index_path.read_text(encoding="utf-8")
@@ -146,12 +154,20 @@ def test_maintainer_release_docs_keep_publication_guidance_substantive() -> None
         failures.append(
             f"{index_path.relative_to(REPO_ROOT).as_posix()}: release policy entrypoints section needs at least three bullets"
         )
+    if _bullet_count(_section(index_text, "Release escalation surfaces")) < 3:
+        failures.append(
+            f"{index_path.relative_to(REPO_ROOT).as_posix()}: release escalation surfaces section needs at least three bullets"
+        )
 
     tests_path = REPO_ROOT / "packages" / "bijux-proteomics-dev" / "docs" / "TESTS.md"
     tests_text = tests_path.read_text(encoding="utf-8")
     if _bullet_count(_section(tests_text, "Release proof expectations")) < 3:
         failures.append(
             f"{tests_path.relative_to(REPO_ROOT).as_posix()}: release proof expectations section needs at least three bullets"
+        )
+    if _bullet_count(_section(tests_text, "Release-blocking signals")) < 3:
+        failures.append(
+            f"{tests_path.relative_to(REPO_ROOT).as_posix()}: release-blocking signals section needs at least three bullets"
         )
 
     assert not failures, (
