@@ -43,3 +43,21 @@ not become the owner of product runtime or scientific domain behavior.
 
 Root automation and CI should call into these modules instead of duplicating
 policy logic inside workflow YAML or one-off shell scripts.
+
+## Extension signals
+
+- add code here when a new concern changes repository policy, maintainer
+  automation, or cross-package validation behavior
+- extend `quality/`, `security/`, `api/`, `docs/`, `release/`, or `tools/`
+  before shell scripts or workflow YAML re-encode the same rule
+- keep new maintenance behavior here when it defines repository governance
+  rather than product runtime or scientific semantics
+
+## Misplacement signals
+
+- if the change defines product execution behavior or scientific meaning, it
+  belongs in an owning package instead of the maintainer toolkit
+- if a helper exists only because one workflow wants ad hoc shell glue, prefer
+  moving the durable policy into this package and keeping workflows thin
+- if the policy cannot be explained without product semantics, the owning
+  package contract is probably the right home for the behavior
