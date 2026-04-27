@@ -1,5 +1,12 @@
 # Architecture
 
+## Package identity
+
+- Distribution name: `bijux-proteomics-runtime`
+- Import root: `bijux_proteomics_runtime`
+
+## Architectural role
+
 `bijux-proteomics-runtime` is the canonical execution layer in the proteomics
 package family.
 
@@ -42,6 +49,15 @@ flowchart TD
 - Runtime adapts lower-layer models for execution and transport boundaries.
 - Runtime keeps operator interfaces stable while internal orchestration evolves.
 
+## Module topology
+
+- `interfaces/` owns CLI-facing runtime contracts
+- `api/` owns HTTP entrypoints and transport wiring
+- `runtime/control/` owns orchestration, replay, and execution coordination
+- `runtime/adapters/` owns lower-layer to runtime payload mapping
+- `providers/` owns provider binding and provider-specific execution surfaces
+- `registry/`, `validation/`, and `execution/` own runtime support contracts
+
 ## Adapter topology
 
 Runtime adapter modules are the only place where lower-layer domain objects are
@@ -55,3 +71,9 @@ translated into runtime interface payloads.
 
 This keeps lower packages runtime-agnostic and prevents upward leakage of
 runtime-specific schemas.
+
+## Downstream expectations
+
+Downstream callers should integrate through the canonical runtime roots and
+leave domain meaning in the lower packages. New orchestration features should
+land here before compat forwarding in `agentic-proteins` grows.
