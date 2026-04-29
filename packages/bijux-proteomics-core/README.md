@@ -140,18 +140,34 @@ the same package:
 
 ```python
 from bijux_proteomics import (
+    approximate_peptide_isotope_envelope,
+    build_modification_localization_advisory,
+    build_modified_peptide,
+    build_peptide_charge_state,
     calculate_fragment_ions,
-    calculate_monoisotopic_peptide_mass,
-    calculate_peptide_mz,
-    modification_registry,
-    parse_modified_peptide,
+    canonicalize_modified_peptide,
 )
 
-registry = modification_registry()
-peptide = parse_modified_peptide("[Acetyl]-ACDM[Oxidation]K", registry=registry)
-neutral_mass = calculate_monoisotopic_peptide_mass(peptide)
-precursor_mz = calculate_peptide_mz(peptide, charge=2)
+peptide = build_modified_peptide(
+    "PESTIDE",
+    assignments=("Phospho@3", "Acetyl@n-term"),
+)
+canonical = canonicalize_modified_peptide(peptide)
+charge_state = build_peptide_charge_state(peptide, charge=2)
 fragments = calculate_fragment_ions(peptide, include_neutral_losses=True)
+envelope = approximate_peptide_isotope_envelope(peptide, charge=2)
+localization = build_modification_localization_advisory(peptide)
+```
+
+The same chemistry surface is also available from the CLI for quick mass,
+fragment, isotope-envelope, and advisory localization checks:
+
+```bash
+bijux-proteomics peptide-mass PESTIDE \
+  --mod Acetyl@n-term \
+  --mod Phospho@3 \
+  --charge 2 \
+  --include-neutral-losses
 ```
 
 ## Package identity
