@@ -400,6 +400,53 @@ bijux-proteomics ptm summarize localization_results.tsv proteins.fasta \
 That workflow is documented in
 [`docs/PTM_WORKFLOWS.md`](./docs/PTM_WORKFLOWS.md).
 
+Run-level LC-MS QC and batch outlier diagnostics are also first-class
+contracts:
+
+```python
+from pathlib import Path
+
+from bijux_proteomics import (
+    build_instrument_batch_qc_report,
+    build_lcms_run_qc_report,
+    parse_experimental_design_table,
+    parse_fasta_document,
+    parse_psm_tsv,
+    parse_mgf,
+    SearchResultColumnMapping,
+)
+from bijux_proteomics.sequences import FastaParseMode
+
+design = parse_experimental_design_table(Path("batch.design.tsv")).accepted_entries
+fasta = parse_fasta_document(Path("proteins.fasta").read_text(), mode=FastaParseMode.STRICT)
+protein_sequences = {
+    record.canonical_accession: record.residues
+    for record in fasta.accepted_records
+}
+mapping = SearchResultColumnMapping(
+    spectrum_id="spectrum_id",
+    peptide="peptide",
+    charge="charge",
+    score="score",
+    protein_refs="proteins",
+)
+
+run_reports = []
+for entry in design:
+    spectra = parse_mgf(Path(entry.spectra_file)).accepted_spectra
+    psms = parse_psm_tsv(Path(entry.identifications_file), mapping=mapping).accepted_records
+    run_reports.append(
+        build_lcms_run_qc_report(
+            spectra,
+            psms,
+            design_entry=entry,
+            protein_sequences=protein_sequences,
+        )
+    )
+
+batch_report = build_instrument_batch_qc_report(tuple(run_reports))
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
