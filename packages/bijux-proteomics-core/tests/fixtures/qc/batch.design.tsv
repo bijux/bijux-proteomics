@@ -1,0 +1,4 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+S1	control	1	1	run-a.mgf	run-a.tsv	B1	Orbitrap-A	sage
+S2	control	2	1	run-b.mgf	run-b.tsv	B1	Orbitrap-A	sage
+S3	treatment	1	1	run-c.mgf	run-c.tsv	B1	Orbitrap-A	sage

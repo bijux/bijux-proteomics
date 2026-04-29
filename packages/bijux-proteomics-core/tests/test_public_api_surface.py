@@ -73,6 +73,10 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_ptm_site_table" in bijux_proteomics.__all__
     assert "build_ptm_site_fdr" in bijux_proteomics.__all__
     assert "estimate_ptm_site_occupancy" in bijux_proteomics.__all__
+    assert "build_lcms_run_qc_report" in bijux_proteomics.__all__
+    assert "build_instrument_batch_qc_report" in bijux_proteomics.__all__
+    assert "LcmsRunQcReport" in bijux_proteomics.__all__
+    assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
 
 
 def test_intelligence_public_api_contains_expected_exports() -> None:
