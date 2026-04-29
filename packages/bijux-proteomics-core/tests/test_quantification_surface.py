@@ -16,8 +16,10 @@ from bijux_proteomics import (
     LabelFreeProvenanceBundle,
     LabelFreeQuantTable,
     MissingChannelPolicy,
+    MultiplexNormalizationPolicy,
     MissingValueCorrectionPolicy,
     MissingValueSummaryPolicy,
+    MultiplexChannelBalanceReport,
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -28,6 +30,7 @@ from bijux_proteomics import (
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
+    build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
@@ -35,6 +38,7 @@ from bijux_proteomics import (
     build_spectral_count_table,
     export_label_free_provenance_bundle,
     export_quant_matrix_tsv,
+    normalize_multiplex_quant_table,
     normalize_label_free_table,
     parse_experimental_design_table,
     parse_ms1_feature_table,
@@ -439,6 +443,53 @@ def test_label_based_quant_bundle_preserves_channel_roles_and_missing_channel_po
     assert carrier.present_in_table is True
     assert missing.policy is MissingChannelPolicy.PRESERVE
     assert missing.expected_role is LabelBasedChannelRole.REFERENCE
+
+
+def test_multiplex_normalization_and_channel_balance_follow_group_policy() -> None:
+    feature_report = parse_ms1_feature_table(_quant_fixture("multiplex_ms1_features.tsv"))
+    design_report = parse_experimental_design_table(_quant_fixture("multiplex.design.tsv"))
+    table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    normalized = normalize_multiplex_quant_table(
+        table,
+        design_entries=design_report.accepted_entries,
+        policy=MultiplexNormalizationPolicy(method=NormalizationMethod.MEDIAN),
+    )
+    balance = build_multiplex_channel_balance_report(
+        table,
+        design_entries=design_report.accepted_entries,
+        policy=MultiplexNormalizationPolicy(
+            method=NormalizationMethod.MEDIAN,
+            balance_ratio_threshold=1.5,
+        ),
+    )
+
+    assert normalized.normalization_method is NormalizationMethod.MEDIAN
+    assert isinstance(balance, MultiplexChannelBalanceReport)
+    plex_a_values = [
+        value.abundance
+        for value in normalized.values
+        if value.sample_id in {"plex_a_126", "plex_a_127N", "plex_a_128N"}
+        and value.abundance is not None
+    ]
+    assert min(plex_a_values) > 0.0
+    carrier = next(
+        entry
+        for entry in balance.entries
+        if entry.sample_id == "plex_a_128N"
+    )
+    control = next(
+        entry
+        for entry in balance.entries
+        if entry.sample_id == "plex_a_126"
+    )
+    assert carrier.flagged is True
+    assert carrier.channel_role is LabelBasedChannelRole.REFERENCE
+    assert control.flagged is False
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (

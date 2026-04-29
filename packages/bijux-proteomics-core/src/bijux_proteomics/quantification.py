@@ -267,6 +267,38 @@ class LabelBasedQuantBundle(JsonModel):
     )
 
 
+class MultiplexNormalizationPolicy(JsonModel):
+    """Normalization and balance settings for multiplex quantification groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: NormalizationMethod = NormalizationMethod.MEDIAN
+    balance_ratio_threshold: float = Field(default=1.5, ge=1.0)
+
+
+class MultiplexChannelBalanceEntry(JsonModel):
+    """One multiplex-channel abundance balance row within a single plex group."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+    total_abundance: float = Field(..., ge=0.0)
+    ratio_to_group_median: float = Field(..., ge=0.0)
+    flagged: bool
+
+
+class MultiplexChannelBalanceReport(JsonModel):
+    """Governed channel-balance report across multiplex assay groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: MultiplexNormalizationPolicy
+    entries: tuple[MultiplexChannelBalanceEntry, ...] = Field(default_factory=tuple)
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -621,6 +653,21 @@ def _default_label_channel_role(
     if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE:
         return LabelBasedChannelRole.QC_BRIDGE
     return LabelBasedChannelRole.SAMPLE
+
+
+def _multiplex_channel_lookup(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> dict[str, tuple[str, str, LabelBasedChannelRole]]:
+    lookup: dict[str, tuple[str, str, LabelBasedChannelRole]] = {}
+    for entry in design_entries:
+        if not entry.multiplex_group or not entry.multiplex_channel:
+            continue
+        lookup[entry.sample_id] = (
+            entry.multiplex_group,
+            entry.multiplex_channel,
+            _default_label_channel_role(entry),
+        )
+    return lookup
 
 
 def _feature_entity_ids(
@@ -980,6 +1027,139 @@ def build_label_based_quant_bundle(
                 bundle.to_dict()
             )
         }
+    )
+
+
+def normalize_multiplex_quant_table(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MultiplexNormalizationPolicy | None = None,
+) -> LabelFreeQuantTable:
+    """Normalize a multiplex quant table independently within each plex group."""
+    if table.measure_kind is not QuantMeasureKind.INTENSITY:
+        raise ValueError("multiplex normalization only applies to intensity tables")
+    active_policy = policy or MultiplexNormalizationPolicy()
+    multiplex_lookup = _multiplex_channel_lookup(design_entries)
+    if not multiplex_lookup:
+        raise ValueError("multiplex normalization requires multiplex design metadata")
+    if active_policy.method is NormalizationMethod.NONE:
+        return table.model_copy(
+            update={
+                "normalization_method": NormalizationMethod.NONE,
+                "normalization_factors": dict.fromkeys(table.sample_ids, 1.0),
+            }
+        )
+
+    matrix, _ = _table_matrix(table)
+    sample_index = {
+        sample_id: index for index, sample_id in enumerate(table.sample_ids)
+    }
+    grouped_samples: dict[str, list[str]] = {}
+    for sample_id in table.sample_ids:
+        if sample_id not in multiplex_lookup:
+            continue
+        grouped_samples.setdefault(multiplex_lookup[sample_id][0], []).append(sample_id)
+    if not grouped_samples:
+        raise ValueError("multiplex normalization requires at least one multiplex sample in the table")
+
+    normalized = matrix.copy()
+    factors = dict.fromkeys(table.sample_ids, 1.0)
+    for group_sample_ids in grouped_samples.values():
+        if active_policy.method is NormalizationMethod.MEDIAN:
+            sample_medians = {
+                sample_id: float(
+                    np.nanmedian(matrix[:, sample_index[sample_id]])
+                )
+                if np.any(~np.isnan(matrix[:, sample_index[sample_id]]))
+                else float("nan")
+                for sample_id in group_sample_ids
+            }
+            finite_medians = [
+                median
+                for median in sample_medians.values()
+                if math.isfinite(median) and median > 0
+            ]
+            group_median = float(np.median(np.array(finite_medians, dtype=float))) if finite_medians else 1.0
+            for sample_id in group_sample_ids:
+                sample_median = sample_medians[sample_id]
+                factor = (
+                    group_median / sample_median
+                    if math.isfinite(sample_median) and sample_median > 0
+                    else 1.0
+                )
+                factors[sample_id] = factor
+                normalized[:, sample_index[sample_id]] = (
+                    normalized[:, sample_index[sample_id]] * factor
+                )
+            continue
+        raise ValueError(
+            "multiplex normalization currently supports only explicit none or group-wise median normalization"
+        )
+    return _rebuild_table_from_matrix(
+        table,
+        normalized,
+        normalization_method=active_policy.method,
+        normalization_factors=factors,
+    )
+
+
+def build_multiplex_channel_balance_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MultiplexNormalizationPolicy | None = None,
+) -> MultiplexChannelBalanceReport:
+    """Build a channel-balance report over multiplex groups."""
+    active_policy = policy or MultiplexNormalizationPolicy()
+    multiplex_lookup = _multiplex_channel_lookup(design_entries)
+    grouped_entries: dict[str, list[tuple[str, str, LabelBasedChannelRole, float]]] = {}
+    for sample_id in table.sample_ids:
+        multiplex_entry = multiplex_lookup.get(sample_id)
+        if multiplex_entry is None:
+            continue
+        multiplex_group, multiplex_channel, channel_role = multiplex_entry
+        total_abundance = float(
+            sum(
+                value.abundance or 0.0
+                for value in table.values
+                if value.sample_id == sample_id and value.abundance is not None
+            )
+        )
+        grouped_entries.setdefault(multiplex_group, []).append(
+            (sample_id, multiplex_channel, channel_role, total_abundance)
+        )
+    entries: list[MultiplexChannelBalanceEntry] = []
+    for multiplex_group, bucket in sorted(grouped_entries.items()):
+        totals = np.array([entry[3] for entry in bucket], dtype=float)
+        group_median = float(np.median(totals)) if totals.size else 0.0
+        for sample_id, multiplex_channel, channel_role, total_abundance in sorted(
+            bucket,
+            key=lambda entry: entry[1],
+        ):
+            ratio = (total_abundance / group_median) if group_median > 0 else 0.0
+            entries.append(
+                MultiplexChannelBalanceEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    sample_id=sample_id,
+                    channel_role=channel_role,
+                    total_abundance=total_abundance,
+                    ratio_to_group_median=ratio,
+                    flagged=(
+                        ratio > active_policy.balance_ratio_threshold
+                        or ratio < 1.0 / active_policy.balance_ratio_threshold
+                    ),
+                )
+            )
+    return MultiplexChannelBalanceReport(
+        policy=active_policy,
+        entries=tuple(
+            sorted(
+                entries,
+                key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
+            )
+        ),
     )
 
 
