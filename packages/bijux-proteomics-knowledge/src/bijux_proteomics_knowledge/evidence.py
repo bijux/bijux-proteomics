@@ -312,6 +312,47 @@ class EvidenceBundle(JsonModel):
     )
 
 
+class GovernedEvidenceSurface(StrEnum):
+    """High-value artifact surfaces that must stay connected to evidence review."""
+
+    RUNTIME_OUTPUT = "runtime_output"
+    SCIENTIFIC_SUMMARY = "scientific_summary"
+    REVIEW_PACKET = "review_packet"
+
+
+class GovernedArtifactReference(JsonModel):
+    """Stable reference to one governed artifact connected to evidence review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: GovernedEvidenceSurface
+    artifact_id: str = Field(..., min_length=1)
+    document_kind: str = Field(..., min_length=1)
+    schema_version: str = Field(..., min_length=1)
+    sha256: str = Field(..., min_length=64, max_length=64)
+    provenance_scope: str = Field(..., min_length=1)
+
+
+class GovernedEvidenceBundle(JsonModel):
+    """Governed bundle linking evidence, runtime outputs, and review artifacts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: EvidenceId = Field(..., description="Stable governed bundle identifier.")
+    target_id: TargetId = Field(..., description="Target identifier.")
+    decision_tag: str = Field(..., min_length=1)
+    document_schema: DocumentSchema = Field(
+        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-knowledge"),
+        description="Schema and provenance metadata.",
+    )
+    evidence_bundle_id: EvidenceId = Field(..., description="Underlying evidence bundle.")
+    artifact_references: tuple[GovernedArtifactReference, ...] = Field(
+        default_factory=tuple
+    )
+    missing_surfaces: tuple[GovernedEvidenceSurface, ...] = Field(default_factory=tuple)
+    coherence_summary: str = Field(..., min_length=1)
+
+
 class EvidenceCoverage(JsonModel):
     """Coverage and strength of the current evidence bundle."""
 
@@ -1577,6 +1618,44 @@ def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str
     """Return required evidence kinds that are still missing."""
     present = {record.kind.value for record in bundle.records}
     return [kind for kind in required_kinds if kind not in present]
+
+
+def build_governed_evidence_bundle(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str,
+    artifact_references: tuple[GovernedArtifactReference, ...],
+) -> GovernedEvidenceBundle:
+    """Connect evidence with governed runtime, summary, and review artifacts."""
+    expected_surfaces = {surface for surface in GovernedEvidenceSurface}
+    present_surfaces = {reference.surface for reference in artifact_references}
+    missing_surfaces = tuple(
+        sorted(expected_surfaces - present_surfaces, key=lambda surface: surface.value)
+    )
+    present_summary = ", ".join(
+        reference.surface.value for reference in sorted(
+            artifact_references, key=lambda reference: reference.surface.value
+        )
+    ) or "no governed surfaces"
+    payload = GovernedEvidenceBundle(
+        bundle_id=f"{bundle.bundle_id}:{decision_tag}:governed",
+        target_id=bundle.target_id,
+        decision_tag=decision_tag,
+        evidence_bundle_id=bundle.bundle_id,
+        artifact_references=artifact_references,
+        missing_surfaces=missing_surfaces,
+        coherence_summary=(
+            f"governed evidence bundle connects {present_summary}; "
+            f"missing surfaces: {', '.join(surface.value for surface in missing_surfaces) or 'none'}."
+        ),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
 
 
 def coverage_report(

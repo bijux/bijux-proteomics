@@ -13,6 +13,9 @@ from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceConflict,
     EvidenceExtractionMethod,
+    GovernedArtifactReference,
+    GovernedEvidenceBundle,
+    GovernedEvidenceSurface,
     EvidenceKind,
     EvidenceOrigin,
     EvidenceRecord,
@@ -35,6 +38,7 @@ from bijux_proteomics_knowledge import (
     assess_scientific_context_completeness,
     attach_manual_notes,
     audit_knowledge_quality,
+    build_governed_evidence_bundle,
     compute_bundle_trust,
     coverage_report,
     decompose_evidence_quality,
@@ -205,6 +209,62 @@ def test_coverage_report_tracks_missing_kinds_and_confidence() -> None:
     assert coverage.missing_kinds == ["structure"]
     assert coverage.decisive_records == 1
     assert coverage.mean_confidence == 0.8
+
+
+def test_build_governed_evidence_bundle_links_runtime_summary_and_review_surfaces() -> (
+    None
+):
+    bundle = EvidenceBundle(
+        bundle_id="bundle-governed",
+        target_id="target-governed",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="Target engagement is retained.",
+                confidence=0.81,
+                strength=EvidenceStrength.DECISIVE,
+            )
+        ],
+    )
+
+    governed = build_governed_evidence_bundle(
+        bundle,
+        decision_tag="progression",
+        artifact_references=(
+            GovernedArtifactReference(
+                surface=GovernedEvidenceSurface.RUNTIME_OUTPUT,
+                artifact_id="runtime-export-1",
+                document_kind="workflow_runtime_export_bundle",
+                schema_version="1.0.0",
+                sha256="a" * 64,
+                provenance_scope="run/sample-a",
+            ),
+            GovernedArtifactReference(
+                surface=GovernedEvidenceSurface.SCIENTIFIC_SUMMARY,
+                artifact_id="scientific-summary-1",
+                document_kind="normalized_run_bundle_manifest",
+                schema_version="1.0.0",
+                sha256="b" * 64,
+                provenance_scope="summary/sample-a",
+            ),
+            GovernedArtifactReference(
+                surface=GovernedEvidenceSurface.REVIEW_PACKET,
+                artifact_id="review-packet-1",
+                document_kind="knowledge_review_packet",
+                schema_version="1.0.0",
+                sha256="c" * 64,
+                provenance_scope="review/progression",
+            ),
+        ),
+    )
+
+    assert isinstance(governed, GovernedEvidenceBundle)
+    assert governed.missing_surfaces == ()
+    assert governed.evidence_bundle_id == "bundle-governed"
+    assert governed.document_schema.content_hash is not None
 
 
 def test_assess_decision_readiness_reports_blockers() -> None:
