@@ -134,6 +134,7 @@ class SearchAdapterProvenanceManifest(JsonModel):
     source_sha256: str = Field(..., min_length=64, max_length=64)
     config_path: str | None = None
     config_sha256: str | None = None
+    parameter_report: SearchParameterReport | None = None
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     score_orientation: ScoreOrientation
     parse_provenance: SearchResultProvenanceManifest
@@ -1141,6 +1142,14 @@ def parse_search_parameter_file(
     )
 
 
+def _supports_search_parameter_parsing(adapter_kind: SearchAdapterKind) -> bool:
+    return adapter_kind in {
+        SearchAdapterKind.COMET,
+        SearchAdapterKind.MSFRAGGER,
+        SearchAdapterKind.SAGE,
+    }
+
+
 def validate_search_parameters(
     parameters: SearchParameterReport,
 ) -> SearchConfigValidationReport:
@@ -1445,6 +1454,17 @@ def build_search_adapter_provenance_manifest(
     config_path: Path | None = None,
 ) -> SearchAdapterProvenanceManifest:
     """Build provenance for one adapter normalization pass."""
+    parameter_report = (
+        parse_search_parameter_file(
+            source_path=config_path,
+            adapter_kind=normalization_report.adapter_manifest.adapter_kind,
+        )
+        if config_path is not None
+        and _supports_search_parameter_parsing(
+            normalization_report.adapter_manifest.adapter_kind
+        )
+        else None
+    )
     parse_provenance = _build_parse_provenance(
         source_path=source_path,
         parse_report=normalization_report.parse_report,
@@ -1465,6 +1485,7 @@ def build_search_adapter_provenance_manifest(
         source_sha256=_hash_file(source_path) or "",
         config_path=str(config_path) if config_path is not None else None,
         config_sha256=_hash_file(config_path),
+        parameter_report=parameter_report,
         native_columns=normalization_report.adapter_manifest.native_columns,
         score_orientation=normalization_report.adapter_manifest.score_orientation,
         parse_provenance=parse_provenance,

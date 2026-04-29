@@ -197,7 +197,7 @@ def test_generic_adapter_and_provenance_manifest_are_stable() -> None:
             adapter_kind=SearchAdapterKind.SAGE,
         ),
         adapter_version="0.16.0",
-        config_path=_fixture("sage_config.json"),
+        config_path=_fixture("sage_search.json"),
     )
 
     assert generic.normalized_records[0].canonical_peptide == "PEPTIDE"
@@ -205,6 +205,8 @@ def test_generic_adapter_and_provenance_manifest_are_stable() -> None:
     assert provenance.adapter_kind is SearchAdapterKind.SAGE
     assert provenance.adapter_version == "0.16.0"
     assert provenance.config_sha256
+    assert provenance.parameter_report is not None
+    assert provenance.parameter_report.decoy_prefix == "DECOY_"
     assert provenance.parse_provenance.column_mapping.spectrum_id == "scannr"
 
 
