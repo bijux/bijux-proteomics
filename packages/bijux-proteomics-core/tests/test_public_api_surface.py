@@ -122,6 +122,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_qc_threshold_profile" in bijux_proteomics.__all__
     assert "build_run_qc_assessment" in bijux_proteomics.__all__
     assert "build_qc_evidence_manifest" in bijux_proteomics.__all__
+    assert "build_qc_run_bundle_summary" in bijux_proteomics.__all__
     assert "build_performance_snapshot" in bijux_proteomics.__all__
     assert "build_proteomics_workflow_manifest" in bijux_proteomics.__all__
     assert "build_proteomics_dag_plan" in bijux_proteomics.__all__
@@ -140,6 +141,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "QcIdentificationSummary" in bijux_proteomics.__all__
     assert "QcQuantSummary" in bijux_proteomics.__all__
     assert "QcAssessmentProvenance" in bijux_proteomics.__all__
+    assert "QcRunBundleSummary" in bijux_proteomics.__all__
     assert "QcRunAnomalyCategory" in bijux_proteomics.__all__
     assert "QcRunAnomalyEntry" in bijux_proteomics.__all__
     assert "QcThresholdPolicyProfile" in bijux_proteomics.__all__

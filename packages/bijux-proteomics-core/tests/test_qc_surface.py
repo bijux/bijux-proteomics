@@ -23,6 +23,7 @@ from bijux_proteomics import (
     build_lcms_run_qc_report,
     build_performance_snapshot,
     build_qc_evidence_manifest,
+    build_qc_run_bundle_summary,
     build_run_qc_assessment,
     build_study_qc_summary,
     calculate_peptide_mz,
@@ -675,3 +676,35 @@ def test_qc_manifest_and_performance_snapshot_bind_outputs_to_inputs() -> None:
     assert manifest.run_report_sha256
     assert manifest.run_assessment_sha256
     assert manifest.benchmark_sha256
+
+
+def test_qc_run_bundle_summary_joins_reports_and_evidence_metadata() -> None:
+    design_entry = _design_entries()["S1"]
+    run_report = build_lcms_run_qc_report(
+        _run_a_spectra(),
+        _run_a_psms(),
+        design_entry=design_entry,
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    policy = default_qc_threshold_policy()
+    run_assessment = build_run_qc_assessment(run_report, policy=policy)
+    manifest = build_qc_evidence_manifest(
+        run_report=run_report,
+        run_assessment=run_assessment,
+        policy=policy,
+        input_files=(
+            QcEvidenceInputFile(path="spectra.mgf", sha256="a" * 64, role="spectra"),
+            QcEvidenceInputFile(path="results.tsv", sha256="b" * 64, role="identifications"),
+        ),
+    )
+
+    summary = build_qc_run_bundle_summary(
+        run_report=run_report,
+        run_assessment=run_assessment,
+        evidence_manifest=manifest,
+    )
+
+    assert summary.run_id == "run-a"
+    assert summary.policy_name == "default-lcms-qc"
+    assert summary.evidence_file_roles == ("identifications", "spectra")
+    assert "run_report" in summary.manifest_sha256s

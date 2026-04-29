@@ -468,6 +468,28 @@ class StudyQcSummaryReport(JsonModel):
     overall_spectrum_count_span: float = Field(..., ge=0.0)
 
 
+class QcRunBundleSummary(JsonModel):
+    """Coherent run bundle summary joining QC, assessment, and evidence metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    run_id: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    batch_id: str | None = None
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    overall_severity: QcAssessmentSeverity
+    blocked: bool = False
+    identification_rate: float = Field(..., ge=0.0, le=1.0)
+    contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
+    quant_observed_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    anomaly_codes: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_file_roles: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_file_paths: tuple[str, ...] = Field(default_factory=tuple)
+    manifest_sha256s: dict[str, str] = Field(default_factory=dict)
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -1024,6 +1046,48 @@ def build_qc_evidence_manifest(
         if batch_assessment is None
         else _stable_sha256(batch_assessment),
         benchmark_sha256=None if benchmark is None else _stable_sha256(benchmark),
+    )
+
+
+def build_qc_run_bundle_summary(
+    *,
+    run_report: LcmsRunQcReport,
+    run_assessment: QcRunAssessmentReport,
+    evidence_manifest: QcEvidenceManifest,
+) -> QcRunBundleSummary:
+    """Join run QC, assessment, and evidence metadata into one review summary."""
+    manifest_sha256s = {
+        "run_report": evidence_manifest.run_report_sha256,
+        "run_assessment": evidence_manifest.run_assessment_sha256,
+    }
+    if evidence_manifest.batch_report_sha256:
+        manifest_sha256s["batch_report"] = evidence_manifest.batch_report_sha256
+    if evidence_manifest.batch_assessment_sha256:
+        manifest_sha256s["batch_assessment"] = evidence_manifest.batch_assessment_sha256
+    if evidence_manifest.benchmark_sha256:
+        manifest_sha256s["benchmark"] = evidence_manifest.benchmark_sha256
+    return QcRunBundleSummary(
+        document_schema=_build_document_schema("qc_run_bundle_summary"),
+        run_id=run_report.run_id,
+        sample_id=run_report.sample_id,
+        batch_id=evidence_manifest.batch_id or run_report.batch,
+        policy_name=run_assessment.policy_name,
+        policy_version=run_assessment.policy_version,
+        overall_severity=run_assessment.overall_severity,
+        blocked=run_assessment.blocked,
+        identification_rate=run_report.identification_rate,
+        contaminant_psm_fraction=run_report.contaminant_summary.contaminant_psm_fraction,
+        quant_observed_fraction=None
+        if run_report.quant_summary is None
+        else run_report.quant_summary.observed_fraction,
+        anomaly_codes=tuple(sorted(entry.code for entry in run_report.run_anomalies)),
+        evidence_file_roles=tuple(
+            sorted(entry.role for entry in evidence_manifest.input_files)
+        ),
+        evidence_file_paths=tuple(
+            sorted(entry.path for entry in evidence_manifest.input_files)
+        ),
+        manifest_sha256s=manifest_sha256s,
     )
 
 
