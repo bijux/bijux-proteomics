@@ -407,6 +407,46 @@ class BundleTrustReport(JsonModel):
         default_factory=list,
         description="Potential duplicate evidence identifiers.",
     )
+    provenance: TrustScoreProvenance = Field(
+        ...,
+        description="Decomposed trust-score provenance over inputs and rules.",
+    )
+
+
+class TrustScoreRule(JsonModel):
+    """One scoring rule or penalty applied to the bundle trust outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rule_id: str = Field(..., min_length=1)
+    contribution: float = Field(..., description="Signed trust contribution.")
+    rationale: str = Field(..., min_length=1)
+
+
+class TrustScoreInput(JsonModel):
+    """One evidence input and its weighted contribution to trust."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    source_type: EvidenceSourceType
+    strength: EvidenceStrength
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    weighted_score: float = Field(..., ge=0.0, le=1.0)
+    stale: bool = False
+
+
+class TrustScoreProvenance(JsonModel):
+    """Decomposed trust inputs and rules for one bundle trust outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1)
+    input_count: int = Field(..., ge=0)
+    base_score: float = Field(..., ge=0.0, le=1.0)
+    final_score: float = Field(..., ge=0.0, le=1.0)
+    inputs: list[TrustScoreInput] = Field(default_factory=list)
+    rules: list[TrustScoreRule] = Field(default_factory=list)
 
 
 class TrustPolicy(JsonModel):
@@ -1935,24 +1975,71 @@ def compute_bundle_trust(
     """Compute overall trust after staleness, conflicts, and deduplication."""
     now = now or datetime.now(UTC)
     policy = policy or default_trust_policy()
+    stale = stale_records(bundle, now=now)
+    stale_ids = {record.evidence_id for record in stale}
     record_scores = [
         score_evidence_record(record, now=now, policy=policy)
         for record in bundle.records
     ]
     base_score = sum(record_scores) / len(record_scores) if record_scores else 0.0
-    stale = stale_records(bundle, now=now)
     conflicts = flag_conflicting_evidence(bundle, policy=conflict_policy)
     duplicate_groups = deduplicate_records(bundle)
-    penalty = (
-        policy.stale_record_penalty * len(stale)
-        + policy.conflict_penalty * len(conflicts)
-        + policy.duplicate_penalty * len(duplicate_groups)
+    stale_penalty = policy.stale_record_penalty * len(stale)
+    conflict_penalty = policy.conflict_penalty * len(conflicts)
+    duplicate_penalty = policy.duplicate_penalty * len(duplicate_groups)
+    penalty = stale_penalty + conflict_penalty + duplicate_penalty
+    final_score = max(0.0, round(base_score - penalty, 4))
+    provenance = TrustScoreProvenance(
+        policy_id=policy.policy_id,
+        input_count=len(bundle.records),
+        base_score=round(base_score, 4),
+        final_score=final_score,
+        inputs=[
+            TrustScoreInput(
+                evidence_id=record.evidence_id,
+                source_type=record.source_type,
+                strength=record.strength,
+                confidence=record.confidence,
+                weighted_score=round(score, 4),
+                stale=record.evidence_id in stale_ids,
+            )
+            for record, score in zip(bundle.records, record_scores, strict=False)
+        ],
+        rules=[
+            TrustScoreRule(
+                rule_id="base-score",
+                contribution=round(base_score, 4),
+                rationale="mean weighted score across all evidence inputs",
+            ),
+            TrustScoreRule(
+                rule_id="stale-record-penalty",
+                contribution=round(-stale_penalty, 4),
+                rationale=(
+                    f"{len(stale)} stale records triggered the bundle stale-record penalty"
+                ),
+            ),
+            TrustScoreRule(
+                rule_id="conflict-penalty",
+                contribution=round(-conflict_penalty, 4),
+                rationale=(
+                    f"{len(conflicts)} detected evidence conflicts reduced trust"
+                ),
+            ),
+            TrustScoreRule(
+                rule_id="duplicate-penalty",
+                contribution=round(-duplicate_penalty, 4),
+                rationale=(
+                    f"{len(duplicate_groups)} duplicate evidence groups reduced trust"
+                ),
+            ),
+        ],
     )
     return BundleTrustReport(
         bundle_id=bundle.bundle_id,
         target_id=bundle.target_id,
-        trust_score=max(0.0, round(base_score - penalty, 4)),
+        trust_score=final_score,
         stale_records=[record.evidence_id for record in stale],
         conflicts=conflicts,
         duplicate_groups=duplicate_groups,
+        provenance=provenance,
     )

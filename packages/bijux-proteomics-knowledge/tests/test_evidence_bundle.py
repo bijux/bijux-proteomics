@@ -25,6 +25,7 @@ from bijux_proteomics_knowledge import (
     ProteomicsArtifactFlags,
     QuantitativeSupport,
     TrustPolicy,
+    TrustScoreProvenance,
     aging_records,
     assess_artifact_risk,
     assess_context_compatibility,
@@ -338,6 +339,10 @@ def test_compute_bundle_trust_accounts_for_staleness_conflicts_and_duplicates() 
         )
     ]
     assert trust.trust_score < 1.0
+    assert isinstance(trust.provenance, TrustScoreProvenance)
+    assert trust.provenance.policy_id == "default-trust-policy"
+    assert trust.provenance.inputs[0].evidence_id == "assay-1"
+    assert any(rule.rule_id == "conflict-penalty" for rule in trust.provenance.rules)
 
 
 def test_compute_bundle_trust_uses_explicit_trust_policy() -> None:
@@ -374,6 +379,10 @@ def test_compute_bundle_trust_uses_explicit_trust_policy() -> None:
 
     assert isinstance(strict_policy, TrustPolicy)
     assert strict_score < default_score
+    assert (
+        compute_bundle_trust(bundle, now=now, policy=strict_policy).provenance.policy_id
+        == "strict-curation"
+    )
 
 
 def test_conflict_policy_detects_same_assay_source_disagreement() -> None:
