@@ -7,11 +7,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
-import hashlib
-import json
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation.hashing import hash_payload
 from bijux_proteomics_foundation.serialization import JsonModel
 
 
@@ -114,9 +113,7 @@ class DocumentSchema(JsonModel):
 
     def with_content_hash(self, payload: dict[str, object]) -> DocumentSchema:
         """Return a copy with deterministic content hash from a payload."""
-        stable = json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
-        digest = hashlib.sha256(stable.encode("utf-8")).hexdigest()
-        return self.model_copy(update={"content_hash": digest})
+        return self.model_copy(update={"content_hash": hash_payload(payload)})
 
 
 class SchemaCompatibility(StrEnum):

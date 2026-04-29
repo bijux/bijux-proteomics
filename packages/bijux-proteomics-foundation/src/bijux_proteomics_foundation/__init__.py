@@ -36,6 +36,13 @@ from bijux_proteomics_foundation.ids import (
     classify_identifier,
     ensure_identifier_kind,
 )
+from bijux_proteomics_foundation.hashing import (
+    StableHashAlgorithm,
+    StableHashPolicy,
+    default_hash_policy,
+    hash_model,
+    hash_payload,
+)
 from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
 from bijux_proteomics_foundation.nullability import (
     NullabilityState,
@@ -80,6 +87,8 @@ __all__ = [
     "GateId",
     "IdentifierKind",
     "JsonModel",
+    "StableHashAlgorithm",
+    "StableHashPolicy",
     "MigrationExecutionError",
     "MigrationRegistry",
     "MigrationPathError",
@@ -106,6 +115,9 @@ __all__ = [
     "absent_value",
     "build_identifier",
     "classify_identifier",
+    "default_hash_policy",
     "ensure_identifier_kind",
+    "hash_model",
+    "hash_payload",
     "present_value",
 ]

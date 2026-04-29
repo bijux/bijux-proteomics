@@ -18,6 +18,7 @@ from bijux_proteomics_foundation import (
     ControlledVocabularyDomain,
     ExperimentId,
     FoundationContractError,
+    StableHashPolicy,
     IdentifierKind,
     JsonModel,
     MigrationExecutionError,
@@ -38,6 +39,9 @@ from bijux_proteomics_foundation import (
     SpectrumId,
     UtcTimestamp,
     absent_value,
+    default_hash_policy,
+    hash_model,
+    hash_payload,
     normalize_controlled_term,
     present_value,
     assess_schema_compatibility,
@@ -278,6 +282,26 @@ def test_nullable_value_rejects_inconsistent_state_and_payload_combinations() ->
 
     with pytest.raises(ValidationError, match="must include a reason"):
         NullableValue(state=NullabilityState.WITHHELD)
+
+
+def test_hash_payload_uses_explicit_stable_policy() -> None:
+    policy = default_hash_policy()
+    digest = hash_payload({"b": 2, "a": 1}, policy=policy)
+
+    assert policy.policy_id == "scientific-object-sha256-v1"
+    assert digest == hash_payload({"a": 1, "b": 2}, policy=policy)
+
+
+def test_hash_model_aligns_with_json_model_fingerprint() -> None:
+    document = DemoDocument(value="demo")
+
+    assert hash_model(document) == document.content_fingerprint()
+
+
+def test_stable_hash_policy_is_serializable() -> None:
+    policy = StableHashPolicy(policy_id="artifact-sha256-v1")
+
+    assert policy.to_dict()["algorithm"] == "sha256"
 
 
 def test_foundation_contract_errors_share_common_base() -> None:

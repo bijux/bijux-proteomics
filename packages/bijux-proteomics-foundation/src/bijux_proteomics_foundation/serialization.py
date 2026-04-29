@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from hashlib import sha256
 import json
 from pathlib import Path
 from typing import Any, Self, cast
@@ -46,8 +45,9 @@ class JsonModel(BaseModel):
 
     def content_fingerprint(self) -> str:
         """Return a deterministic SHA-256 fingerprint for model content."""
-        stable = self.to_stable_json().encode("utf-8")
-        return sha256(stable).hexdigest()
+        from bijux_proteomics_foundation.hashing import hash_model
+
+        return hash_model(self)
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> Self:
