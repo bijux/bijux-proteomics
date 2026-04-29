@@ -380,6 +380,44 @@ class InstrumentBatchQcReport(JsonModel):
     runs: tuple[InstrumentBatchQcRunEntry, ...] = Field(default_factory=tuple)
 
 
+class StudyQcConditionSummary(JsonModel):
+    """Condition-level QC comparison summary within one study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition: str = Field(..., min_length=1)
+    run_ids: tuple[str, ...] = Field(default_factory=tuple)
+    median_identification_rate: float = Field(..., ge=0.0, le=1.0)
+    median_spectrum_count: float = Field(..., ge=0.0)
+    median_abs_mass_error_ppm: float | None = Field(default=None, ge=0.0)
+
+
+class StudyQcBatchSummary(JsonModel):
+    """Batch-level QC comparison summary within one study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: str = Field(..., min_length=1)
+    run_ids: tuple[str, ...] = Field(default_factory=tuple)
+    median_identification_rate: float = Field(..., ge=0.0, le=1.0)
+    median_spectrum_count: float = Field(..., ge=0.0)
+    outlier_run_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class StudyQcSummaryReport(JsonModel):
+    """Study-level QC summary that compares runs across conditions and batches."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    study_id: str = Field(..., min_length=1)
+    run_count: int = Field(..., ge=0)
+    condition_summaries: tuple[StudyQcConditionSummary, ...] = Field(default_factory=tuple)
+    batch_summaries: tuple[StudyQcBatchSummary, ...] = Field(default_factory=tuple)
+    overall_identification_rate_span: float = Field(..., ge=0.0)
+    overall_spectrum_count_span: float = Field(..., ge=0.0)
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -1356,4 +1394,82 @@ def build_instrument_batch_qc_report(
         median_identified_retention_time_seconds=median_identified_retention_time_seconds,
         outlier_run_ids=tuple(sorted(outlier_run_ids)),
         runs=tuple(run_entries),
+    )
+
+
+def build_study_qc_summary(
+    run_reports: tuple[LcmsRunQcReport, ...],
+    *,
+    study_id: str = "study",
+) -> StudyQcSummaryReport:
+    """Build a study-level QC summary across conditions and batches."""
+    if not run_reports:
+        raise ValueError("study QC summary requires at least one run report")
+
+    condition_groups: dict[str, list[LcmsRunQcReport]] = {}
+    batch_groups: dict[str, list[LcmsRunQcReport]] = {}
+    for report in run_reports:
+        condition_groups.setdefault(report.condition or "unknown", []).append(report)
+        batch_groups.setdefault(report.batch or "unbatched", []).append(report)
+
+    condition_summaries = tuple(
+        StudyQcConditionSummary(
+            condition=condition,
+            run_ids=tuple(sorted(report.run_id for report in reports)),
+            median_identification_rate=float(
+                median([report.identification_rate for report in reports])
+            ),
+            median_spectrum_count=float(
+                median([report.spectrum_count for report in reports])
+            ),
+            median_abs_mass_error_ppm=(
+                None
+                if not [
+                    report.mass_error.median_abs_ppm
+                    for report in reports
+                    if report.mass_error.median_abs_ppm is not None
+                ]
+                else float(
+                    median(
+                        [
+                            report.mass_error.median_abs_ppm
+                            for report in reports
+                            if report.mass_error.median_abs_ppm is not None
+                        ]
+                    )
+                )
+            ),
+        )
+        for condition, reports in sorted(condition_groups.items())
+    )
+
+    batch_summaries = tuple(
+        StudyQcBatchSummary(
+            batch_id=batch_id,
+            run_ids=tuple(sorted(report.run_id for report in reports)),
+            median_identification_rate=float(
+                median([report.identification_rate for report in reports])
+            ),
+            median_spectrum_count=float(
+                median([report.spectrum_count for report in reports])
+            ),
+            outlier_run_ids=tuple(
+                sorted(
+                    build_instrument_batch_qc_report(tuple(reports), batch_id=batch_id).outlier_run_ids
+                )
+            ),
+        )
+        for batch_id, reports in sorted(batch_groups.items())
+    )
+
+    identification_rates = [report.identification_rate for report in run_reports]
+    spectrum_counts = [float(report.spectrum_count) for report in run_reports]
+    return StudyQcSummaryReport(
+        document_schema=_build_document_schema("study_qc_summary_report"),
+        study_id=study_id,
+        run_count=len(run_reports),
+        condition_summaries=condition_summaries,
+        batch_summaries=batch_summaries,
+        overall_identification_rate_span=max(identification_rates) - min(identification_rates),
+        overall_spectrum_count_span=max(spectrum_counts) - min(spectrum_counts),
     )

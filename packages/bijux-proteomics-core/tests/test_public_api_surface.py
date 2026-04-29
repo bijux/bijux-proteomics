@@ -117,6 +117,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "PtmOccupancyUncertainty" in bijux_proteomics.__all__
     assert "build_lcms_run_qc_report" in bijux_proteomics.__all__
     assert "build_instrument_batch_qc_report" in bijux_proteomics.__all__
+    assert "build_study_qc_summary" in bijux_proteomics.__all__
     assert "default_qc_threshold_policy" in bijux_proteomics.__all__
     assert "build_qc_threshold_profile" in bijux_proteomics.__all__
     assert "build_run_qc_assessment" in bijux_proteomics.__all__
@@ -140,6 +141,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "QcQuantSummary" in bijux_proteomics.__all__
     assert "QcThresholdPolicyProfile" in bijux_proteomics.__all__
     assert "QcThresholdPolicy" in bijux_proteomics.__all__
+    assert "StudyQcSummaryReport" in bijux_proteomics.__all__
     assert "QcEvidenceManifest" in bijux_proteomics.__all__
     assert "ProteomicsOperatorErrorCode" in bijux_proteomics.__all__
     assert "ProteomicsWorkflowManifest" in bijux_proteomics.__all__

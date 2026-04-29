@@ -23,6 +23,7 @@ from bijux_proteomics import (
     build_performance_snapshot,
     build_qc_evidence_manifest,
     build_run_qc_assessment,
+    build_study_qc_summary,
     calculate_peptide_mz,
     default_qc_threshold_policy,
     parse_experimental_design_table,
@@ -406,6 +407,40 @@ def test_build_instrument_batch_qc_report_flags_outlier_run() -> None:
     assert batch_report.outlier_run_ids == ("run-c",)
     assert "low_identification_rate" in outlier.outlier_reasons
     assert "high_mass_error" in outlier.outlier_reasons
+
+
+def test_build_study_qc_summary_compares_conditions_and_batches() -> None:
+    design_entries = _design_entries()
+    run_a = build_lcms_run_qc_report(
+        _run_a_spectra(),
+        _run_a_psms(),
+        design_entry=design_entries["S1"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    run_b = build_lcms_run_qc_report(
+        _run_b_spectra(),
+        _run_b_psms(),
+        design_entry=design_entries["S2"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    run_c = build_lcms_run_qc_report(
+        _run_c_spectra(),
+        _run_c_psms(),
+        design_entry=design_entries["S3"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+
+    summary = build_study_qc_summary((run_a, run_b, run_c), study_id="study-01")
+    control = next(
+        entry for entry in summary.condition_summaries if entry.condition == "control"
+    )
+    batch = next(entry for entry in summary.batch_summaries if entry.batch_id == "B1")
+
+    assert summary.study_id == "study-01"
+    assert summary.run_count == 3
+    assert control.run_ids == ("run-a", "run-b")
+    assert batch.outlier_run_ids == ("run-c",)
+    assert summary.overall_identification_rate_span > 0.0
 
 
 def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
