@@ -1,0 +1,23 @@
+{
+  "document_schema": {
+    "created_by": "bijux-proteomics-core-tests",
+    "document_kind": "peptide_modification_registry",
+    "package_name": "bijux-proteomics-core",
+    "schema_version": "1.0.0",
+    "status": "generated"
+  },
+  "static_modifications": [
+    {
+      "application": "static",
+      "mass_delta_average": 57.05132,
+      "mass_delta_monoisotopic": 57.021464,
+      "name": "BrokenResidue",
+      "neutral_losses": [],
+      "position": "anywhere",
+      "residues": [
+        "B"
+      ]
+    }
+  ],
+  "variable_modifications": []
+}

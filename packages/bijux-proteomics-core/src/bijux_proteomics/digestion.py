@@ -13,32 +13,8 @@ from typing import Literal
 
 from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.chemistry import calculate_monoisotopic_peptide_mass
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
-
-_MONOISOTOPIC_RESIDUE_MASS: dict[str, float] = {
-    "A": 71.03711,
-    "R": 156.10111,
-    "N": 114.04293,
-    "D": 115.02694,
-    "C": 103.00919,
-    "E": 129.04259,
-    "Q": 128.05858,
-    "G": 57.02146,
-    "H": 137.05891,
-    "I": 113.08406,
-    "L": 113.08406,
-    "K": 128.09496,
-    "M": 131.04049,
-    "F": 147.06841,
-    "P": 97.05276,
-    "S": 87.03203,
-    "T": 101.04768,
-    "W": 186.07931,
-    "Y": 163.06333,
-    "V": 99.06841,
-}
-_WATER_MASS = 18.01056
-
 
 class ProteaseCleavageMode(StrEnum):
     """Direction for protease cleavage semantics."""
@@ -758,4 +734,4 @@ def _non_specific_digest(
 
 
 def _peptide_neutral_mass(sequence: str) -> float:
-    return _WATER_MASS + sum(_MONOISOTOPIC_RESIDUE_MASS[residue] for residue in sequence)
+    return calculate_monoisotopic_peptide_mass(sequence)
