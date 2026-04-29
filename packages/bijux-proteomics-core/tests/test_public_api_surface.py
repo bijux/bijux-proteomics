@@ -32,6 +32,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "PeptideOriginCoordinate" in bijux_proteomics.__all__
     assert "calculate_monoisotopic_peptide_mass" in bijux_proteomics.__all__
     assert "calculate_fragment_ions" in bijux_proteomics.__all__
+    assert "validate_modified_peptide_fragment_ions" in bijux_proteomics.__all__
     assert "enumerate_variable_modifications" in bijux_proteomics.__all__
     assert "modification_registry" in bijux_proteomics.__all__
     assert "canonicalize_modified_peptide" in bijux_proteomics.__all__

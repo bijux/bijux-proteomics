@@ -34,6 +34,7 @@ from bijux_proteomics import (
     load_modification_registry,
     modification_registry,
     parse_modified_peptide,
+    validate_modified_peptide_fragment_ions,
     validate_modified_peptide_sites,
 )
 
@@ -215,6 +216,65 @@ def test_fragment_ions_carry_modification_mass_shift_on_correct_side() -> None:
         rel_tol=0.0,
         abs_tol=1e-6,
     )
+
+
+def test_fragment_ion_shift_validation_matches_only_impacted_fragments() -> None:
+    registry = modification_registry()
+    peptide = build_modified_peptide(
+        "PEMTIDE",
+        assignments=("Acetyl@n-term", "Oxidation@3"),
+        registry=registry,
+    )
+
+    report = validate_modified_peptide_fragment_ions(
+        peptide,
+        charges=(1,),
+        series=(FragmentIonSeries.B, FragmentIonSeries.Y),
+        registry=registry,
+    )
+
+    b1 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.B and entry.ordinal == 1
+    )
+    b2 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.B and entry.ordinal == 2
+    )
+    y1 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.Y and entry.ordinal == 1
+    )
+
+    assert report.valid is True
+    assert b1.shifted is True
+    assert isclose(
+        b1.expected_shift_monoisotopic, 42.010565, rel_tol=0.0, abs_tol=1e-9
+    )
+    assert b2.shifted is True
+    assert isclose(
+        b2.expected_shift_monoisotopic,
+        42.010565,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    )
+    b3 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.B and entry.ordinal == 3
+    )
+    assert b3.shifted is True
+    assert isclose(
+        b3.expected_shift_monoisotopic,
+        58.00548,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    )
+    assert y1.shifted is False
+    assert isclose(y1.observed_shift_monoisotopic, 0.0, rel_tol=0.0, abs_tol=1e-12)
 
 
 def test_build_modification_registry_creates_stable_document() -> None:

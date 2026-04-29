@@ -238,6 +238,34 @@ class FragmentIon(JsonModel):
     mz_average: float = Field(..., gt=0.0)
 
 
+class FragmentIonShiftValidationEntry(JsonModel):
+    """One fragment-ion shift audit row for a modified peptide."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    series: FragmentIonSeries
+    ordinal: int = Field(..., ge=1)
+    charge: int = Field(..., ge=1)
+    neutral_loss: str | None = None
+    expected_shift_monoisotopic: float
+    observed_shift_monoisotopic: float
+    expected_shift_average: float
+    observed_shift_average: float
+    shifted: bool
+    valid: bool
+    included_modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
+
+
+class FragmentIonShiftValidationReport(JsonModel):
+    """Audit whether modified-peptide fragment ions shift only where expected."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_notation: str = Field(..., min_length=1)
+    valid: bool
+    entries: tuple[FragmentIonShiftValidationEntry, ...] = Field(default_factory=tuple)
+
+
 class ModificationSiteValidationIssue(JsonModel):
     """One modification-site validation issue."""
 
@@ -1820,3 +1848,83 @@ def calculate_fragment_ions(
                 )
 
     return tuple(ions)
+
+
+def validate_modified_peptide_fragment_ions(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    charges: tuple[int, ...] = (1,),
+    series: tuple[FragmentIonSeries, ...] = (FragmentIonSeries.B, FragmentIonSeries.Y),
+    static_modifications: tuple[StaticModification, ...] = (),
+    include_neutral_losses: bool = False,
+    registry: ModificationRegistryDocument | None = None,
+) -> FragmentIonShiftValidationReport:
+    """Audit whether fragment-ion mass shifts match the modifications carried by each ion."""
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    modified_ions = calculate_fragment_ions(
+        parsed,
+        charges=charges,
+        series=series,
+        static_modifications=static_modifications,
+        include_neutral_losses=include_neutral_losses,
+        registry=registry,
+    )
+    baseline = parsed.model_copy(
+        update={"modifications": (), "canonical_notation": parsed.sequence}
+    )
+    baseline_ions = calculate_fragment_ions(
+        baseline,
+        charges=charges,
+        series=series,
+        static_modifications=static_modifications,
+        include_neutral_losses=include_neutral_losses,
+        registry=registry,
+    )
+    baseline_by_key = {
+        (ion.series, ion.ordinal, ion.charge, ion.neutral_loss): ion for ion in baseline_ions
+    }
+    entries: list[FragmentIonShiftValidationEntry] = []
+    for ion in modified_ions:
+        key = (ion.series, ion.ordinal, ion.charge, ion.neutral_loss)
+        baseline_ion = baseline_by_key[key]
+        included_modifications = _fragment_modifications(
+            parsed,
+            series=ion.series,
+            ordinal=ion.ordinal,
+        )
+        expected_shift_monoisotopic = _applied_modification_mass_delta(
+            included_modifications,
+            MassType.MONOISOTOPIC,
+        ) / ion.charge
+        expected_shift_average = _applied_modification_mass_delta(
+            included_modifications,
+            MassType.AVERAGE,
+        ) / ion.charge
+        observed_shift_monoisotopic = (
+            ion.mz_monoisotopic - baseline_ion.mz_monoisotopic
+        )
+        observed_shift_average = ion.mz_average - baseline_ion.mz_average
+        valid = (
+            abs(observed_shift_monoisotopic - expected_shift_monoisotopic) <= 1e-9
+            and abs(observed_shift_average - expected_shift_average) <= 1e-9
+        )
+        entries.append(
+            FragmentIonShiftValidationEntry(
+                series=ion.series,
+                ordinal=ion.ordinal,
+                charge=ion.charge,
+                neutral_loss=ion.neutral_loss,
+                expected_shift_monoisotopic=expected_shift_monoisotopic,
+                observed_shift_monoisotopic=observed_shift_monoisotopic,
+                expected_shift_average=expected_shift_average,
+                observed_shift_average=observed_shift_average,
+                shifted=abs(observed_shift_monoisotopic) > 1e-12,
+                valid=valid,
+                included_modifications=included_modifications,
+            )
+        )
+    return FragmentIonShiftValidationReport(
+        canonical_notation=canonicalize_modified_peptide(parsed, registry=registry),
+        valid=all(entry.valid for entry in entries),
+        entries=tuple(entries),
+    )
