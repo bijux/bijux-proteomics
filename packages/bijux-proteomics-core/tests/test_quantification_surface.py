@@ -334,3 +334,55 @@ def test_differential_abundance_respects_minimum_replicate_policy() -> None:
         ),
     )
     assert advisory.replicate_policy.disposition.value == "ADVISORY"
+
+
+def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (
+    None
+):
+    feature_report = parse_ms1_feature_table(_quant_fixture("edge_case_ms1_features.tsv"))
+    design_report = parse_experimental_design_table(_quant_fixture("edge_case.design.tsv"))
+    peptide_table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+    )
+    summary = summarize_missing_values(peptide_table)
+    lookup = {
+        (value.entity_id, value.sample_id): value for value in peptide_table.values
+    }
+    summary_lookup = {entry.sample_id: entry for entry in summary.entries}
+
+    assert feature_report.total_rows == 20
+    assert len(feature_report.accepted_records) == 20
+    assert len(
+        [
+            entry
+            for entry in design_report.accepted_entries
+            if entry.condition == "control"
+        ]
+    ) == 3
+    assert len(
+        [
+            entry
+            for entry in design_report.accepted_entries
+            if entry.condition == "treatment"
+        ]
+    ) == 2
+    assert lookup[("SPARSEPEP", "T1")].abundance == 400.0
+    assert lookup[("SPARSEPEP", "C1")].missing_value_kind.value == "missing_not_observed"
+    assert lookup[("FILTERPEP", "C1")].missing_value_kind.value == "filtered"
+    assert lookup[("ZEROPEP", "C1")].missing_value_kind.value == "zero"
+    assert summary_lookup["C1"].filtered_count == 1
+    assert summary_lookup["T2"].not_observed_count >= 2
+
+    differential = build_differential_abundance_report(
+        build_label_free_intensity_table(
+            feature_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+        ),
+        design_report.accepted_entries,
+        condition_a="control",
+        condition_b="treatment",
+    )
+    core = next(entry for entry in differential.entries if entry.entity_id == "P100")
+    assert core.observations_a == 3
+    assert core.observations_b == 2
