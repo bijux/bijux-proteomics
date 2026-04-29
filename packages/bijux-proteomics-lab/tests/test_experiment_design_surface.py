@@ -68,6 +68,61 @@ def test_validate_experiment_design_distinguishes_valid_and_confounded_contrasts
     )
 
 
+def test_validate_experiment_design_exposes_structure_summary() -> None:
+    valid_entries = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    ).accepted_entries
+    fractionated_entries = parse_experimental_design_table(
+        _local_fixture("fractionated.design.tsv")
+    ).accepted_entries
+    multiplex_entries = parse_experimental_design_table(
+        _core_fixture("formats", "semantic.design.tsv")
+    ).accepted_entries
+
+    valid_report = validate_experiment_design(valid_entries)
+    fractionated_report = validate_experiment_design(fractionated_entries)
+    multiplex_report = validate_experiment_design(multiplex_entries, min_replicates=1)
+
+    assert valid_report.structure_summary.replication.replicate_counts == {
+        "control": 2,
+        "treatment": 2,
+    }
+    assert valid_report.structure_summary.replication.balanced is True
+    assert valid_report.structure_summary.control_like_condition_count == 1
+    assert valid_report.structure_summary.fractionated is False
+    assert valid_report.structure_summary.multiplexed is False
+
+    assert fractionated_report.structure_summary.fractionated is True
+    assert fractionated_report.structure_summary.maximum_fraction_count == 2
+    assert fractionated_report.structure_summary.replication.minimum_replicates == 1
+
+    assert multiplex_report.structure_summary.multiplexed is True
+    assert multiplex_report.structure_summary.multiplex_group_count == 1
+    assert multiplex_report.structure_summary.multiplex_channel_count == 3
+    assert multiplex_report.structure_summary.pooled_reference_count == 1
+
+
+def test_validate_experiment_design_warns_on_missing_control_and_asymmetric_replication() -> (
+    None
+):
+    entries = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    ).accepted_entries
+    advisory_entries = (
+        entries[1].model_copy(update={"condition": "condition-a"}),
+        entries[2].model_copy(update={"condition": "condition-b"}),
+        entries[3].model_copy(update={"condition": "condition-b"}),
+    )
+
+    report = validate_experiment_design(advisory_entries, min_replicates=1)
+    issue_codes = {issue.code for issue in report.issues}
+
+    assert report.structure_summary.control_like_condition_count == 0
+    assert report.structure_summary.replication.balanced is False
+    assert "control-strategy-missing" in issue_codes
+    assert "replication-strategy-asymmetric" in issue_codes
+
+
 def test_build_power_analysis_advisory_exposes_current_and_recommended_replication() -> (
     None
 ):
