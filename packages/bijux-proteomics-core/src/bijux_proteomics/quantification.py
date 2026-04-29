@@ -9,7 +9,9 @@ from collections import defaultdict
 from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import StrEnum
+import hashlib
 import math
 from pathlib import Path
 
@@ -397,6 +399,22 @@ class StudyScaleBatchEffectReport(JsonModel):
     flagged_batch_count: int = Field(..., ge=0)
 
 
+class QuantReproducibilityManifest(JsonModel):
+    """Stable manifest proving one quant table can be reproduced exactly."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    aggregation_method: QuantRollupMethod
+    normalization_method: NormalizationMethod
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+    value_count: int = Field(..., ge=0)
+    reproducibility_hash: str = Field(..., min_length=64, max_length=64)
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -688,6 +706,9 @@ class _QuantAccumulator:
     values: tuple[float, ...]
     feature_count: int
     missing_kinds: tuple[MissingValueKind, ...]
+
+
+_STABLE_DOCUMENT_TIME = datetime(1970, 1, 1, tzinfo=UTC)
 
 
 def _detect_delimiter(first_line: str) -> str:
@@ -1610,6 +1631,70 @@ def export_quant_matrix_tsv(
                     ),
                 ]
             )
+
+
+def build_quant_reproducibility_manifest(
+    table: LabelFreeQuantTable,
+) -> QuantReproducibilityManifest:
+    """Build a stable reproducibility manifest for one quantification table."""
+    payload = [
+        table.entity_level.value,
+        table.measure_kind.value,
+        table.aggregation_method.value,
+        table.normalization_method.value,
+        tuple(table.sample_ids),
+        tuple(table.entity_ids),
+        tuple(sorted(table.normalization_factors.items())),
+        tuple(
+            (
+                value.entity_id,
+                value.sample_id,
+                value.abundance,
+                value.missing_value_kind.value,
+                value.source_feature_count,
+            )
+            for value in sorted(
+                table.values,
+                key=lambda entry: (entry.entity_id, entry.sample_id),
+            )
+        ),
+    ]
+    reproducibility_hash = hashlib.sha256(
+        repr(payload).encode("utf-8")
+    ).hexdigest()
+    manifest = QuantReproducibilityManifest(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="quant_reproducibility_manifest",
+            package_name="bijux-proteomics-core",
+            status="generated",
+            created_at=_STABLE_DOCUMENT_TIME,
+            updated_at=_STABLE_DOCUMENT_TIME,
+        ),
+        entity_level=table.entity_level,
+        measure_kind=table.measure_kind,
+        aggregation_method=table.aggregation_method,
+        normalization_method=table.normalization_method,
+        sample_ids=table.sample_ids,
+        entity_ids=table.entity_ids,
+        value_count=len(table.values),
+        reproducibility_hash=reproducibility_hash,
+    )
+    return manifest.model_copy(
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(
+                manifest.to_dict()
+            )
+        }
+    )
+
+
+def export_quant_reproducibility_manifest(
+    manifest: QuantReproducibilityManifest,
+    path: Path,
+) -> None:
+    """Write a stable JSON reproducibility manifest for quantification outputs."""
+    path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
 
 
 def _sample_snapshot(

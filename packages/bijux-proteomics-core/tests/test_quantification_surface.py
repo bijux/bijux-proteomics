@@ -23,6 +23,7 @@ from bijux_proteomics import (
     NormalizationMethod,
     ProteinQuantAssignmentPolicy,
     ProteinQuantPolicyComparisonReport,
+    QuantReproducibilityManifest,
     QuantEntityLevel,
     QuantRollupMethod,
     QuantAssessmentDisposition,
@@ -39,12 +40,14 @@ from bijux_proteomics import (
     build_protein_quant_policy_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
+    build_quant_reproducibility_manifest,
     build_replicate_correlation_report,
     build_spectral_count_table,
     build_study_scale_batch_effect_report,
     build_study_scale_replicate_correlation_report,
     export_label_free_provenance_bundle,
     export_quant_matrix_tsv,
+    export_quant_reproducibility_manifest,
     normalize_multiplex_quant_table,
     normalize_label_free_table,
     parse_experimental_design_table,
@@ -555,6 +558,32 @@ def test_study_scale_quant_reports_summarize_large_designs_compactly() -> None:
     assert len(replicate_summary.weakest_within_condition_pairs) == 2
     assert isinstance(batch_summary, StudyScaleBatchEffectReport)
     assert batch_summary.flagged_batch_count == 2
+
+
+def test_quant_reproducibility_manifest_matches_stable_fixture() -> None:
+    feature_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            feature_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.TOP_N,
+            top_n=2,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+
+    manifest = build_quant_reproducibility_manifest(table)
+    assert isinstance(manifest, QuantReproducibilityManifest)
+
+    output_path = _quant_fixture("quant_reproducibility_manifest.actual.json")
+    fixture_path = _quant_fixture("quant_reproducibility_manifest.json")
+    try:
+        export_quant_reproducibility_manifest(manifest, output_path)
+        assert output_path.read_text(encoding="utf-8") == fixture_path.read_text(
+            encoding="utf-8"
+        )
+    finally:
+        output_path.unlink(missing_ok=True)
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (
