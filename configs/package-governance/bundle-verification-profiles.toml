@@ -1,0 +1,46 @@
+[[bundle_profile]]
+document_kind = "evidence_bundle"
+required_fields = ["bundle_id", "target_id", "records"]
+
+[[bundle_profile]]
+document_kind = "workflow_runtime_export_bundle"
+required_fields = [
+  "workflow_id",
+  "export_bundle_sha256",
+  "manifest",
+  "artifact_inventory",
+  "checkpoint",
+]
+
+[[bundle_profile]]
+document_kind = "workflow_runtime_archive_bundle"
+required_fields = [
+  "workflow_id",
+  "run_id",
+  "archive_medium",
+  "export_bundle_sha256",
+  "archive_bundle_sha256",
+  "archived_artifacts",
+  "export_bundle",
+]
+
+[[bundle_profile]]
+document_kind = "workflow_rerun_comparison_artifact"
+required_fields = [
+  "workflow_id",
+  "comparison_scope",
+  "subject_id",
+  "previous_archive_bundle_sha256",
+  "current_archive_bundle_sha256",
+  "replay_proof",
+  "changed_surfaces",
+  "drifted_artifacts",
+]
+
+[[bundle_profile]]
+document_kind = "review_ready_evidence_bundle"
+required_fields = ["decision_tag", "accepted_psms", "protein_confidence", "fdr_audit"]
+
+[[bundle_profile]]
+document_kind = "quant_artifact_bundle"
+required_fields = ["study_id", "run_ids", "protein_table", "review_summary"]

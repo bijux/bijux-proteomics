@@ -14,12 +14,14 @@ def test_high_value_artifact_schema_manifest_covers_curated_outputs() -> None:
     schemas = load_high_value_artifact_schemas(REPO_ROOT)
     document_kinds = {schema.document_kind for schema in schemas}
 
-    assert len(schemas) == 11
+    assert len(schemas) == 13
     assert document_kinds == {
         "evidence_bundle",
         "workflow_runtime_export_bundle",
         "workflow_runtime_validation_report",
         "workflow_replay_proof_report",
+        "workflow_runtime_archive_bundle",
+        "workflow_rerun_comparison_artifact",
         "proteomics_artifact_inventory",
         "review_ready_evidence_bundle",
         "label_free_provenance_bundle",

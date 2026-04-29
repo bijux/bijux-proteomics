@@ -27,6 +27,20 @@ contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_ru
 rationale = "replay proof reports explain whether same-workflow reruns changed and why"
 
 [[artifact_schema]]
+document_kind = "workflow_runtime_archive_bundle"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py"
+rationale = "runtime archive bundles are the portable offline-review and archival container for governed workflow exports"
+
+[[artifact_schema]]
+document_kind = "workflow_rerun_comparison_artifact"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py"
+rationale = "rerun comparison artifacts preserve same-sample and same-study drift evidence across repeated archived executions"
+
+[[artifact_schema]]
 document_kind = "proteomics_artifact_inventory"
 package_name = "bijux-proteomics-core"
 schema_version = "1.0.0"
