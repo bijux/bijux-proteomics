@@ -1,0 +1,270 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+"""Runtime API catalog helpers for stable review-facing contracts."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+from bijux_proteomics_runtime.api.v1.schema import (
+    RunArtifactsResponse,
+    RunEvidenceResponse,
+    RunReviewResponse,
+    RuntimeArtifactRecord,
+    RuntimeDocumentAvailability,
+    RuntimeDocumentReference,
+    RuntimeStatusResponse,
+    RunResponse,
+)
+from bijux_proteomics_runtime.interfaces.cli import _load_run_summary
+from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+
+_DOCUMENT_MAX_INLINE_BYTES = 256_000
+
+_TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
+    ("config", "runtime-config", "runtime configuration"),
+    ("plan", "runtime-plan", "runtime execution plan"),
+    ("state", "runtime-state", "runtime state snapshot"),
+    ("report", "runtime-report", "runtime report bundle"),
+    ("telemetry", "runtime-telemetry", "runtime telemetry summary"),
+    ("analysis", "runtime-analysis", "runtime analysis summary"),
+    ("execution", "runtime-execution", "runtime execution summary"),
+    ("timings", "runtime-timings", "runtime timing summary"),
+    ("run_summary", "runtime-status", "runtime run summary"),
+    ("run_output", "runtime-output", "runtime raw run output"),
+    ("error", "runtime-error", "runtime failure payload"),
+    ("lifecycle", "runtime-lifecycle", "runtime lifecycle transitions"),
+    (
+        "execution_snapshots",
+        "runtime-execution-snapshots",
+        "runtime execution snapshots",
+    ),
+    (
+        "telemetry_snapshots",
+        "runtime-telemetry-snapshots",
+        "runtime telemetry snapshots",
+    ),
+    ("human_decision", "runtime-human-decision", "human decision payload"),
+    (
+        "candidate_selection",
+        "runtime-candidate-selection",
+        "candidate selection payload",
+    ),
+)
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _artifact_record(
+    *,
+    run_id: str,
+    artifact_key: str,
+    artifact_kind: str,
+    path: Path,
+    tags: list[str] | None = None,
+    description: str,
+) -> RuntimeArtifactRecord:
+    return RuntimeArtifactRecord(
+        run_id=run_id,
+        artifact_key=artifact_key,
+        artifact_kind=artifact_kind,
+        path=str(path),
+        size_bytes=path.stat().st_size,
+        sha256=_sha256(path),
+        tags=sorted(tags or []),
+        description=description,
+    )
+
+
+def _document_reference(
+    *,
+    run_id: str,
+    document_kind: str,
+    path: Path,
+    requested: bool,
+    supported: bool,
+    max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
+) -> RuntimeDocumentReference:
+    if not supported:
+        return RuntimeDocumentReference(
+            run_id=run_id,
+            document_kind=document_kind,
+            availability=RuntimeDocumentAvailability.UNSUPPORTED,
+            path=str(path),
+            note="runtime does not currently generate this document kind for the run",
+        )
+    if not path.exists():
+        return RuntimeDocumentReference(
+            run_id=run_id,
+            document_kind=document_kind,
+            availability=RuntimeDocumentAvailability.MISSING,
+            path=str(path),
+            note="document path is defined but no file is present for this run",
+        )
+    size_bytes = path.stat().st_size
+    sha256 = _sha256(path)
+    if size_bytes > max_inline_bytes:
+        return RuntimeDocumentReference(
+            run_id=run_id,
+            document_kind=document_kind,
+            availability=RuntimeDocumentAvailability.TOO_LARGE,
+            path=str(path),
+            size_bytes=size_bytes,
+            sha256=sha256,
+            note="document exists but exceeds the inline-load guard",
+        )
+    content: dict[str, Any] | None = None
+    if requested:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+        content = loaded if isinstance(loaded, dict) else {"items": loaded}
+    return RuntimeDocumentReference(
+        run_id=run_id,
+        document_kind=document_kind,
+        availability=RuntimeDocumentAvailability.AVAILABLE,
+        path=str(path),
+        size_bytes=size_bytes,
+        sha256=sha256,
+        note="document is available for review",
+        content=content,
+    )
+
+
+def build_runtime_status_response(
+    base_dir: Path,
+    run_id: str,
+    *,
+    artifacts_dir: Path | None = None,
+    include_documents: bool = False,
+    max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
+) -> RuntimeStatusResponse:
+    """Build the stable runtime status surface for one run."""
+    summary = RunResponse.model_validate(_load_run_summary(base_dir, run_id, artifacts_dir))
+    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    evidence_path = workspace.artifact_items_dir / "evidence_bundle.json"
+    review_path = workspace.artifact_items_dir / "review_packet.json"
+    return RuntimeStatusResponse(
+        summary=summary,
+        evidence_bundle=_document_reference(
+            run_id=run_id,
+            document_kind="evidence_bundle",
+            path=evidence_path,
+            requested=include_documents,
+            supported=True,
+            max_inline_bytes=max_inline_bytes,
+        ),
+        review_packet=_document_reference(
+            run_id=run_id,
+            document_kind="review_packet",
+            path=review_path,
+            requested=include_documents,
+            supported=True,
+            max_inline_bytes=max_inline_bytes,
+        ),
+    )
+
+
+def build_run_artifacts_response(
+    base_dir: Path,
+    run_id: str,
+    *,
+    artifacts_dir: Path | None = None,
+) -> RunArtifactsResponse:
+    """Build the stable artifact inventory for one run."""
+    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    if not workspace.run_dir.exists():
+        raise FileNotFoundError(f"Run not found at {workspace.run_dir}")
+    artifacts: list[RuntimeArtifactRecord] = []
+    for key, kind, description in _TOP_LEVEL_ARTIFACTS:
+        path = getattr(workspace, f"{key}_path")
+        if path.exists():
+            artifacts.append(
+                _artifact_record(
+                    run_id=run_id,
+                    artifact_key=key,
+                    artifact_kind=kind,
+                    path=path,
+                    tags=["top-level", "runtime"],
+                    description=description,
+                )
+            )
+    for artifact_path in sorted(workspace.artifact_items_dir.glob("*.json")):
+        tags: list[str] = ["artifact-item", "runtime"]
+        artifact_kind = "runtime-artifact-item"
+        description = "runtime artifact item"
+        try:
+            payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            payload = {}
+        if isinstance(payload, dict):
+            artifact_kind = str(payload.get("kind") or artifact_kind)
+            payload_tags = payload.get("tags")
+            if isinstance(payload_tags, list):
+                tags.extend(str(tag) for tag in payload_tags)
+            payload_description = payload.get("description")
+            if isinstance(payload_description, str) and payload_description:
+                description = payload_description
+        artifacts.append(
+            _artifact_record(
+                run_id=run_id,
+                artifact_key=artifact_path.stem,
+                artifact_kind=artifact_kind,
+                path=artifact_path,
+                tags=tags,
+                description=description,
+            )
+        )
+    return RunArtifactsResponse(run_id=run_id, artifacts=artifacts)
+
+
+def build_run_evidence_response(
+    base_dir: Path,
+    run_id: str,
+    *,
+    artifacts_dir: Path | None = None,
+    include_document: bool = False,
+    max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
+) -> RunEvidenceResponse:
+    """Build the stable evidence-bundle surface for one run."""
+    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    path = workspace.artifact_items_dir / "evidence_bundle.json"
+    return RunEvidenceResponse(
+        run_id=run_id,
+        evidence_bundle=_document_reference(
+            run_id=run_id,
+            document_kind="evidence_bundle",
+            path=path,
+            requested=include_document,
+            supported=True,
+            max_inline_bytes=max_inline_bytes,
+        ),
+    )
+
+
+def build_run_review_response(
+    base_dir: Path,
+    run_id: str,
+    *,
+    artifacts_dir: Path | None = None,
+    include_document: bool = False,
+    max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
+) -> RunReviewResponse:
+    """Build the stable review-packet surface for one run."""
+    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    path = workspace.artifact_items_dir / "review_packet.json"
+    return RunReviewResponse(
+        run_id=run_id,
+        review_packet=_document_reference(
+            run_id=run_id,
+            document_kind="review_packet",
+            path=path,
+            requested=include_document,
+            supported=True,
+            max_inline_bytes=max_inline_bytes,
+        ),
+    )

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
@@ -212,6 +213,99 @@ class ReadyResponse(BaseModel):
     )
 
 
+class RuntimeDocumentAvailability(StrEnum):
+    """Availability state for one runtime-managed document surface."""
+
+    AVAILABLE = "available"
+    MISSING = "missing"
+    TOO_LARGE = "too_large"
+    UNSUPPORTED = "unsupported"
+
+
+class RuntimeArtifactRecord(BaseModel):
+    """Stable runtime artifact descriptor for lookup and review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    artifact_key: str = Field(..., min_length=1, description="Stable artifact key.")
+    artifact_kind: str = Field(..., min_length=1, description="Artifact kind.")
+    path: str = Field(..., min_length=1, description="Repository-local artifact path.")
+    size_bytes: int = Field(..., ge=0, description="Artifact size in bytes.")
+    sha256: str = Field(..., min_length=64, max_length=64, description="Artifact hash.")
+    tags: list[str] = Field(default_factory=list, description="Artifact tags.")
+    description: str = Field(..., min_length=1, description="Artifact description.")
+
+
+class RuntimeDocumentReference(BaseModel):
+    """Stable reference to a runtime evidence or review document."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    document_kind: str = Field(..., min_length=1, description="Document kind.")
+    availability: RuntimeDocumentAvailability = Field(
+        ..., description="Availability state for this document."
+    )
+    path: str = Field(..., min_length=1, description="Repository-local document path.")
+    size_bytes: int = Field(
+        default=0, ge=0, description="Document size in bytes when known."
+    )
+    sha256: str | None = Field(default=None, description="Document hash when known.")
+    note: str = Field(..., min_length=1, description="Human-readable availability note.")
+    content: dict[str, Any] | None = Field(
+        default=None,
+        description="Inline document content when small enough and requested.",
+    )
+
+
+class RuntimeStatusResponse(BaseModel):
+    """Stable runtime status response for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary: RunResponse = Field(..., description="Canonical run summary.")
+    evidence_bundle: RuntimeDocumentReference = Field(
+        ..., description="Evidence-bundle availability for the run."
+    )
+    review_packet: RuntimeDocumentReference = Field(
+        ..., description="Review-packet availability for the run."
+    )
+
+
+class RunArtifactsResponse(BaseModel):
+    """Stable artifact listing for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    artifacts: list[RuntimeArtifactRecord] = Field(
+        default_factory=list, description="Artifacts attached to the run."
+    )
+
+
+class RunEvidenceResponse(BaseModel):
+    """Stable evidence-bundle availability response for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    evidence_bundle: RuntimeDocumentReference = Field(
+        ..., description="Evidence-bundle availability."
+    )
+
+
+class RunReviewResponse(BaseModel):
+    """Stable review-packet availability response for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    review_packet: RuntimeDocumentReference = Field(
+        ..., description="Review-packet availability."
+    )
+
+
 class ApiEnvelope(BaseModel):
     """ApiEnvelope."""
 
@@ -220,6 +314,10 @@ class ApiEnvelope(BaseModel):
     status: Literal["ok", "error"] = Field(..., description="Response status.")
     data: (
         RunResponse
+        | RuntimeStatusResponse
+        | RunArtifactsResponse
+        | RunEvidenceResponse
+        | RunReviewResponse
         | InspectResponse
         | CompareResponse
         | HealthResponse
