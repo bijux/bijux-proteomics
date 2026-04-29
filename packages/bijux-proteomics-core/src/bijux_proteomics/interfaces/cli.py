@@ -129,6 +129,7 @@ from bijux_proteomics.search_adapters import (
 )
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
+    build_decoy_generation_manifest,
     FastaParseMode,
     FastaParseReport,
     build_fasta_provenance_manifest,
@@ -686,6 +687,12 @@ def fasta_provenance_command(
     default=None,
     help="Optional JSON validation report output path.",
 )
+@click.option(
+    "--manifest-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON manifest output path.",
+)
 def fasta_decoy_command(
     input_fasta: Path,
     mode: str,
@@ -695,6 +702,7 @@ def fasta_decoy_command(
     decoys_only: bool,
     out_fasta: Path,
     report_out: Path | None,
+    manifest_out: Path | None,
 ) -> None:
     """Generate target/decoy FASTA output and validate the result."""
     report = _load_fasta_report(
@@ -710,8 +718,21 @@ def fasta_decoy_command(
     )
     output_records = decoys if decoys_only else (*report.accepted_records, *decoys)
     out_fasta.write_text(render_fasta_records(tuple(output_records)))
+    manifest = build_decoy_generation_manifest(
+        input_records=report.accepted_records,
+        output_records=tuple(output_records),
+        mode=DecoyGenerationMode(decoy_mode),
+        prefix=prefix,
+        seed=seed,
+        source_path=input_fasta,
+    )
+    if manifest_out is not None:
+        manifest_out.write_text(manifest.to_stable_json() + "\n")
     validation = validate_target_decoy_database(tuple(output_records), prefix=prefix)
-    _emit_json(validation, out_path=report_out)
+    payload = validation.to_dict()
+    payload["reproducibility_hash"] = manifest.reproducibility_hash
+    payload["output_sha256"] = manifest.output_sha256
+    _emit_json(payload, out_path=report_out)
 
 
 @cli.command("target-decoy-validate")

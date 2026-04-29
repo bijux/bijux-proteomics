@@ -362,6 +362,7 @@ from bijux_proteomics.search_adapters import (
     validate_search_parameters,
 )
 from bijux_proteomics.sequences import (
+    DecoyGenerationManifest,
     DecoyGenerationMode,
     FastaDeduplicationReport,
     FastaFilterReport,
@@ -384,6 +385,8 @@ from bijux_proteomics.sequences import (
     build_fasta_provenance_manifest,
     build_fasta_stats,
     build_sequence_residue_policy,
+    build_decoy_generation_manifest,
+    compute_decoy_generation_reproducibility_hash,
     deduplicate_fasta_records,
     filter_fasta_records,
     generate_decoy_records,
@@ -579,6 +582,7 @@ __all__ = [
     "SequenceValidationIssue",
     "SequenceValidationResult",
     "DecoyGenerationMode",
+    "DecoyGenerationManifest",
     "FragmentIon",
     "FragmentIonSeries",
     "TargetDecoyValidationReport",
@@ -712,6 +716,8 @@ __all__ = [
     "parse_uniprot_accession",
     "build_fasta_stats",
     "build_sequence_residue_policy",
+    "build_decoy_generation_manifest",
+    "compute_decoy_generation_reproducibility_hash",
     "build_digest_duplicate_accounting",
     "build_digest_policy",
     "compute_digest_policy_hash",

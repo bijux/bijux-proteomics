@@ -10,6 +10,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 import hashlib
+import json
 from pathlib import Path
 import random
 import re
@@ -241,6 +242,23 @@ class FastaProvenanceManifest(JsonModel):
     rejected_record_count: int = Field(..., ge=0)
     output_record_count: int = Field(..., ge=0)
     parameters: dict[str, str | int | bool | None] = Field(default_factory=dict)
+
+
+class DecoyGenerationManifest(JsonModel):
+    """Stable manifest for one deterministic decoy-generation step."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    decoy_mode: DecoyGenerationMode
+    prefix: str = Field(..., min_length=1)
+    seed: int
+    source_path: str | None = None
+    source_sha256: str | None = None
+    input_record_count: int = Field(..., ge=0)
+    output_record_count: int = Field(..., ge=0)
+    reproducibility_hash: str = Field(..., min_length=64, max_length=64)
+    output_sha256: str = Field(..., min_length=64, max_length=64)
 
 
 class TargetDecoyValidationReport(JsonModel):
@@ -756,6 +774,78 @@ def build_fasta_provenance_manifest(
         rejected_record_count=rejected_record_count,
         output_record_count=output_record_count,
         parameters=parameters or {},
+    )
+    payload = manifest.to_dict()
+    return manifest.model_copy(
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(payload),
+        }
+    )
+
+
+def compute_decoy_generation_reproducibility_hash(
+    records: tuple[NormalizedProteinRecord, ...],
+    *,
+    mode: DecoyGenerationMode,
+    prefix: str,
+    seed: int,
+) -> str:
+    """Return a stable hash over decoy-generation inputs and policy."""
+    payload = {
+        "mode": mode.value,
+        "prefix": prefix,
+        "seed": seed,
+        "records": [
+            {
+                "canonical_accession": record.canonical_accession,
+                "isoform": record.isoform,
+                "sequence_checksum": record.sequence_checksum,
+                "source_identifier": record.source_identifier,
+            }
+            for record in records
+        ],
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def build_decoy_generation_manifest(
+    *,
+    input_records: tuple[NormalizedProteinRecord, ...],
+    output_records: tuple[NormalizedProteinRecord, ...],
+    mode: DecoyGenerationMode,
+    prefix: str,
+    seed: int,
+    source_path: Path | None,
+) -> DecoyGenerationManifest:
+    """Build a stable manifest for one deterministic decoy-generation output."""
+    source_sha256 = (
+        hashlib.sha256(source_path.read_bytes()).hexdigest()
+        if source_path is not None
+        else None
+    )
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="decoy_generation_manifest",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    rendered_output = render_fasta_records(output_records)
+    manifest = DecoyGenerationManifest(
+        document_schema=schema,
+        decoy_mode=mode,
+        prefix=prefix,
+        seed=seed,
+        source_path=str(source_path) if source_path is not None else None,
+        source_sha256=source_sha256,
+        input_record_count=len(input_records),
+        output_record_count=len(output_records),
+        reproducibility_hash=compute_decoy_generation_reproducibility_hash(
+            input_records,
+            mode=mode,
+            prefix=prefix,
+            seed=seed,
+        ),
+        output_sha256=hashlib.sha256(rendered_output.encode("utf-8")).hexdigest(),
     )
     payload = manifest.to_dict()
     return manifest.model_copy(

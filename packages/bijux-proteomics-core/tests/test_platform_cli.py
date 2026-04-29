@@ -133,12 +133,21 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
                 "reverse",
                 "--out-fasta",
                 "target_decoy.fasta",
+                "--manifest-out",
+                "target_decoy.manifest.json",
             ],
         )
         assert decoy_result.exit_code == 0
         decoy_payload = json.loads(decoy_result.output)
         assert decoy_payload["valid"] is True
+        assert len(decoy_payload["reproducibility_hash"]) == 64
         assert Path("target_decoy.fasta").read_text().count(">") == 6
+        decoy_manifest = json.loads(Path("target_decoy.manifest.json").read_text())
+        assert (
+            decoy_manifest["document_schema"]["document_kind"]
+            == "decoy_generation_manifest"
+        )
+        assert decoy_manifest["reproducibility_hash"] == decoy_payload["reproducibility_hash"]
 
 
 def test_sequence_checksum_and_target_decoy_validate_commands(

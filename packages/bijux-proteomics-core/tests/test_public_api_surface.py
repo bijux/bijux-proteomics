@@ -17,6 +17,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "SequenceResiduePolicy" in bijux_proteomics.__all__
     assert "build_sequence_residue_policy" in bijux_proteomics.__all__
     assert "generate_decoy_records" in bijux_proteomics.__all__
+    assert "DecoyGenerationManifest" in bijux_proteomics.__all__
+    assert "build_decoy_generation_manifest" in bijux_proteomics.__all__
+    assert "compute_decoy_generation_reproducibility_hash" in bijux_proteomics.__all__
     assert "validate_target_decoy_database" in bijux_proteomics.__all__
     assert "digest_sequence" in bijux_proteomics.__all__
     assert "DigestDuplicateAccounting" in bijux_proteomics.__all__
