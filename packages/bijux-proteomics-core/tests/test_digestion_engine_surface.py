@@ -57,3 +57,23 @@ def test_digest_sequence_supports_semi_specific_mode() -> None:
     sequences = {peptide.sequence for peptide in peptides}
     assert {"AK", "AKAAK", "K", "KAAK", "AAK"} <= sequences
     assert any(peptide.cleavage_type == "semi_specific" for peptide in peptides)
+
+
+def test_digest_sequence_supports_bounded_non_specific_mode() -> None:
+    peptides = digest_sequence(
+        "PEPTIDE",
+        source_accession="non-specific-test",
+        mode=PeptideDigestionMode.NON_SPECIFIC,
+        min_length=3,
+        max_length=4,
+    )
+
+    assert [peptide.sequence for peptide in peptides[:5]] == [
+        "PEP",
+        "PEPT",
+        "EPT",
+        "EPTI",
+        "PTI",
+    ]
+    assert all(3 <= len(peptide.sequence) <= 4 for peptide in peptides)
+    assert all(peptide.cleavage_type == "non_specific" for peptide in peptides)

@@ -170,6 +170,8 @@ def digest_sequence(
     source_identifier: str | None = None,
     missed_cleavages: int = 0,
     mode: PeptideDigestionMode = PeptideDigestionMode.FULL,
+    min_length: int = 1,
+    max_length: int | None = None,
 ) -> tuple[DigestedPeptide, ...]:
     """Digest one sequence under the selected specificity mode."""
     normalized = sequence.strip().upper()
@@ -177,6 +179,16 @@ def digest_sequence(
     boundaries = _full_digest_boundaries(normalized, rule)
     peptides: list[DigestedPeptide] = []
     identifier = source_identifier or source_accession
+    max_peptide_length = max_length if max_length is not None else len(normalized)
+    if mode is PeptideDigestionMode.NON_SPECIFIC:
+        return _non_specific_digest(
+            normalized,
+            source_accession=source_accession,
+            source_identifier=identifier,
+            protease=rule.name,
+            min_length=min_length,
+            max_length=max_peptide_length,
+        )
     if mode is PeptideDigestionMode.SEMI_SPECIFIC:
         return _semi_specific_digest(
             normalized,
@@ -184,13 +196,15 @@ def digest_sequence(
             rule=rule,
             source_accession=source_accession,
             source_identifier=identifier,
+            min_length=min_length,
+            max_length=max_peptide_length,
         )
     for start_index, start in enumerate(boundaries[:-1]):
         max_span = min(missed_cleavages + 1, len(boundaries) - start_index - 1)
         for span in range(1, max_span + 1):
             end = boundaries[start_index + span]
             peptide = normalized[start:end]
-            if not peptide:
+            if not peptide or len(peptide) < min_length or len(peptide) > max_peptide_length:
                 continue
             peptides.append(
                 DigestedPeptide(
@@ -243,6 +257,8 @@ def _semi_specific_digest(
     rule: ProteaseRule,
     source_accession: str,
     source_identifier: str,
+    min_length: int,
+    max_length: int,
 ) -> tuple[DigestedPeptide, ...]:
     peptides: list[DigestedPeptide] = []
     seen: set[tuple[int, int]] = set()
@@ -256,6 +272,9 @@ def _semi_specific_digest(
                 cleavage_type = "enzymatic"
             bounds = (start, end)
             if bounds in seen:
+                continue
+            length = end - start
+            if length < min_length or length > max_length:
                 continue
             seen.add(bounds)
             peptides.append(
@@ -281,6 +300,9 @@ def _semi_specific_digest(
             bounds = (start, end)
             if bounds in seen:
                 continue
+            length = end - start
+            if length < min_length or length > max_length:
+                continue
             seen.add(bounds)
             peptides.append(
                 DigestedPeptide(
@@ -297,4 +319,33 @@ def _semi_specific_digest(
             )
 
     peptides.sort(key=lambda peptide: (peptide.start, peptide.end, peptide.sequence))
+    return tuple(peptides)
+
+
+def _non_specific_digest(
+    sequence: str,
+    *,
+    source_accession: str,
+    source_identifier: str,
+    protease: str,
+    min_length: int,
+    max_length: int,
+) -> tuple[DigestedPeptide, ...]:
+    peptides: list[DigestedPeptide] = []
+    for start in range(0, len(sequence)):
+        for end in range(start + min_length, min(len(sequence), start + max_length) + 1):
+            peptide = sequence[start:end]
+            peptides.append(
+                DigestedPeptide(
+                    source_accession=source_accession,
+                    source_identifier=source_identifier,
+                    sequence=peptide,
+                    start=start + 1,
+                    end=end,
+                    missed_cleavages=0,
+                    protease=protease,
+                    digestion_mode=PeptideDigestionMode.NON_SPECIFIC,
+                    cleavage_type="non_specific",
+                )
+            )
     return tuple(peptides)
