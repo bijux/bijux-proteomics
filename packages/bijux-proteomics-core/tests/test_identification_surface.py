@@ -22,6 +22,7 @@ from bijux_proteomics import (
     build_accepted_psm_provenance_report,
     build_calibration_plot_data,
     build_confidence_threshold_sensitivity_report,
+    build_combined_evidence_report,
     build_fdr_audit_trail,
     build_fdr_edge_case_report,
     build_peptide_summary_report,
@@ -687,6 +688,35 @@ def test_razor_peptide_provenance_report_explains_assignment_policy() -> None:
     assert shared.candidate_unique_peptide_counts["P11111"] == 1
     assert shared.candidate_unique_peptide_counts["P22222"] == 0
     assert shared.candidate_best_scores["P11111"] == 100.0
+
+
+def test_combined_evidence_report_joins_identification_ptm_and_quant_support() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    combined = build_combined_evidence_report(
+        accepted,
+        ptm_site_keys_by_peptide={
+            "SHAREDK": ("P11111:S5:Phospho",),
+        },
+        quant_support_by_protein={
+            "P11111": {"C1": 2200.0, "T1": 8100.0},
+            "P22222": {"C1": 300.0},
+        },
+    )
+
+    shared = next(
+        entry
+        for entry in combined.entries
+        if entry.canonical_peptide == "SHAREDK" and entry.protein_ref == "P11111"
+    )
+    assert shared.psm_count == 1
+    assert shared.protein_group_id is not None
+    assert shared.ptm_site_keys == ("P11111:S5:Phospho",)
+    assert shared.quant_support[0].sample_id == "C1"
+    assert ParsimonyVariant.GREEDY_COVERAGE in shared.parsimony_variants
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:

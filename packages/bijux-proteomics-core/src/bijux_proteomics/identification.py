@@ -530,6 +530,43 @@ class RazorPeptideProvenanceReport(JsonModel):
     entries: tuple[RazorPeptideProvenanceEntry, ...] = Field(default_factory=tuple)
 
 
+class CombinedEvidenceQuantSupport(JsonModel):
+    """Quant support for one protein/sample slice inside a combined evidence view."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    abundance: float | None = Field(default=None, ge=0.0)
+
+
+class CombinedEvidenceEntry(JsonModel):
+    """Joined PSM, peptide, protein, PTM, and quant evidence for review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    spectrum_ids: tuple[str, ...] = Field(default_factory=tuple)
+    psm_count: int = Field(..., ge=0)
+    best_psm_q_value: float | None = Field(default=None, ge=0.0)
+    peptide_charge_states: tuple[int, ...] = Field(default_factory=tuple)
+    protein_group_id: str | None = None
+    protein_group_members: tuple[str, ...] = Field(default_factory=tuple)
+    parsimony_variants: tuple[ParsimonyVariant, ...] = Field(default_factory=tuple)
+    ptm_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    quant_support: tuple[CombinedEvidenceQuantSupport, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class CombinedEvidenceReport(JsonModel):
+    """Stable combined evidence view across identification-adjacent surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CombinedEvidenceEntry, ...] = Field(default_factory=tuple)
+
+
 class ParsimonyVariantResult(JsonModel):
     """Selections produced by one named protein-parsimony policy."""
 
@@ -2479,6 +2516,82 @@ def build_razor_peptide_provenance_report(
             "protein_accession",
         ),
         entries=tuple(entries),
+    )
+
+
+def build_combined_evidence_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    ptm_site_keys_by_peptide: dict[str, tuple[str, ...]] | None = None,
+    quant_support_by_protein: dict[str, dict[str, float | None]] | None = None,
+    parsimony_variants: tuple[ParsimonyVariant, ...] = (
+        ParsimonyVariant.GREEDY_COVERAGE,
+        ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ParsimonyVariant.BEST_SCORE_PRIORITY,
+    ),
+) -> CombinedEvidenceReport:
+    """Join identification evidence with optional PTM and quant support."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    protein_groups = build_protein_groups(records)
+    groups_by_protein = {
+        protein_ref: group
+        for group in protein_groups
+        for protein_ref in group.protein_refs
+    }
+    selected_variants_by_protein: dict[str, set[ParsimonyVariant]] = defaultdict(set)
+    for variant in parsimony_variants:
+        for entry in infer_proteins_by_parsimony(records, variant=variant):
+            selected_variants_by_protein[entry.protein_ref].add(variant)
+
+    entries: list[CombinedEvidenceEntry] = []
+    for rollup in peptide_rollups:
+        ptm_site_keys = tuple(
+            sorted((ptm_site_keys_by_peptide or {}).get(rollup.canonical_peptide, ()))
+        )
+        quant_lookup = quant_support_by_protein or {}
+        for protein_ref in rollup.protein_refs:
+            group = groups_by_protein.get(protein_ref)
+            entries.append(
+                CombinedEvidenceEntry(
+                    canonical_peptide=rollup.canonical_peptide,
+                    protein_ref=protein_ref,
+                    spectrum_ids=tuple(
+                        sorted(
+                            record.spectrum_id
+                            for record in records
+                            if record.canonical_peptide == rollup.canonical_peptide
+                        )
+                    ),
+                    psm_count=rollup.psm_count,
+                    best_psm_q_value=rollup.best_q_value,
+                    peptide_charge_states=rollup.charge_states,
+                    protein_group_id=group.group_id if group is not None else None,
+                    protein_group_members=group.protein_refs if group is not None else (),
+                    parsimony_variants=tuple(
+                        sorted(
+                            selected_variants_by_protein.get(protein_ref, set()),
+                            key=lambda item: item.value,
+                        )
+                    ),
+                    ptm_site_keys=ptm_site_keys,
+                    quant_support=tuple(
+                        CombinedEvidenceQuantSupport(
+                            sample_id=sample_id,
+                            abundance=abundance,
+                        )
+                        for sample_id, abundance in sorted(
+                            quant_lookup.get(protein_ref, {}).items()
+                        )
+                    ),
+                )
+            )
+    return CombinedEvidenceReport(
+        entries=tuple(
+            sorted(
+                entries,
+                key=lambda entry: (entry.canonical_peptide, entry.protein_ref),
+            )
+        )
     )
 
 
