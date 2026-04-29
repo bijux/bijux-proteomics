@@ -244,6 +244,26 @@ bijux-proteomics fdr results.tsv \
   --provenance-out fdr.provenance.json
 ```
 
+Spectrum and MGF handling are also first-class contracts in the package:
+
+```python
+from pathlib import Path
+
+from bijux_proteomics import (
+    annotate_spectrum_fragments,
+    build_spectrum_metrics,
+    build_spectrum_plot_payload,
+    normalize_spectrum_peaks,
+    parse_mgf,
+)
+
+report = parse_mgf(Path("spectra.mgf"))
+spectrum = normalize_spectrum_peaks(report.accepted_spectra[0])
+metrics = build_spectrum_metrics(spectrum)
+annotation = annotate_spectrum_fragments(spectrum, peptide="PEPTIDE", tolerance_da=0.02)
+plot_payload = build_spectrum_plot_payload(spectrum, annotation=annotation)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -335,6 +355,7 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`src/bijux_proteomics/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py) for protease rules, digestion modes, peptide filters, uniqueness, and peptide-to-protein indexing
 - [`src/bijux_proteomics/chemistry.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry.py) for peptide masses, precursor m/z, fragment ions, neutral losses, modification registries, and modified-peptide parsing
 - [`src/bijux_proteomics/identification.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification.py) for PSM parsing, validation, target-decoy labeling, stable export, sorting, best-hit selection, and peptide/protein rollups
+- [`src/bijux_proteomics/spectra.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/spectra.py) for spectrum models, MGF parsing/rendering, peak normalization and filtering, fragment annotation, and plot payload export
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
