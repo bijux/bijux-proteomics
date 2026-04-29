@@ -70,6 +70,8 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "export_psm_tsv" in bijux_proteomics.__all__
     assert "SpectrumModel" in bijux_proteomics.__all__
     assert "parse_mgf" in bijux_proteomics.__all__
+    assert "build_spectrum_lookup_index" in bijux_proteomics.__all__
+    assert "lookup_spectra" in bijux_proteomics.__all__
     assert "annotate_spectrum_fragments" in bijux_proteomics.__all__
     assert "calculate_spectral_similarity" in bijux_proteomics.__all__
     assert "build_spectrum_provenance_manifest" in bijux_proteomics.__all__

@@ -104,6 +104,18 @@ class SpectrumCollectionSummary(JsonModel):
     issue_counts: dict[str, int] = Field(default_factory=dict)
 
 
+class SpectrumLookupIndex(JsonModel):
+    """Stable lookup index over parsed spectra."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectra: tuple[SpectrumModel, ...] = Field(default_factory=tuple)
+    native_id_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    title_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    scan_number_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    scan_key_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+
+
 class SpectralSimilarityMethod(StrEnum):
     """Supported basic spectral similarity methods."""
 
@@ -258,6 +270,32 @@ def _scan_number_from_text(value: str | None) -> int | None:
         return int(match.group(1))
     if value.isdigit():
         return int(value)
+    return None
+
+
+def normalize_spectrum_scan_key(
+    spectrum_or_text: SpectrumModel | str | None,
+) -> str | None:
+    """Normalize one scan-like identifier onto a stable key."""
+    if spectrum_or_text is None:
+        return None
+    if isinstance(spectrum_or_text, SpectrumModel):
+        candidates = (
+            spectrum_or_text.native_id,
+            spectrum_or_text.spectrum_id,
+            spectrum_or_text.title,
+        )
+        scan_number = spectrum_or_text.scan_number
+        if scan_number is not None:
+            return f"scan:{scan_number}"
+        for candidate in candidates:
+            parsed = _scan_number_from_text(candidate)
+            if parsed is not None:
+                return f"scan:{parsed}"
+        return None
+    parsed = _scan_number_from_text(spectrum_or_text)
+    if parsed is not None:
+        return f"scan:{parsed}"
     return None
 
 
@@ -472,6 +510,70 @@ def build_spectrum_collection_summary(
         counts_by_charge=dict(sorted(counts_by_charge.items())),
         issue_counts=dict(sorted(issue_counts.items())),
     )
+
+
+def build_spectrum_lookup_index(
+    spectra: tuple[SpectrumModel, ...],
+) -> SpectrumLookupIndex:
+    """Build stable lookup maps by native ID, title, scan number, and scan key."""
+    native_id_index: dict[str, list[str]] = {}
+    title_index: dict[str, list[str]] = {}
+    scan_number_index: dict[str, list[str]] = {}
+    scan_key_index: dict[str, list[str]] = {}
+    normalized_spectra = tuple(sorted(spectra, key=lambda item: item.spectrum_id))
+    for spectrum in normalized_spectra:
+        if spectrum.native_id:
+            native_id_index.setdefault(spectrum.native_id, []).append(spectrum.spectrum_id)
+        if spectrum.title:
+            title_index.setdefault(spectrum.title, []).append(spectrum.spectrum_id)
+        if spectrum.scan_number is not None:
+            scan_number_index.setdefault(str(spectrum.scan_number), []).append(
+                spectrum.spectrum_id
+            )
+        scan_key = normalize_spectrum_scan_key(spectrum)
+        if scan_key is not None:
+            scan_key_index.setdefault(scan_key, []).append(spectrum.spectrum_id)
+    return SpectrumLookupIndex(
+        spectra=normalized_spectra,
+        native_id_index={
+            key: tuple(values) for key, values in sorted(native_id_index.items())
+        },
+        title_index={key: tuple(values) for key, values in sorted(title_index.items())},
+        scan_number_index={
+            key: tuple(values) for key, values in sorted(scan_number_index.items())
+        },
+        scan_key_index={
+            key: tuple(values) for key, values in sorted(scan_key_index.items())
+        },
+    )
+
+
+def lookup_spectra(
+    index: SpectrumLookupIndex,
+    *,
+    native_id: str | None = None,
+    title: str | None = None,
+    scan_number: int | None = None,
+    scan_key: str | None = None,
+) -> tuple[SpectrumModel, ...]:
+    """Look up spectra by one stable key family."""
+    if sum(
+        query is not None for query in (native_id, title, scan_number, scan_key)
+    ) != 1:
+        raise ValueError(
+            "exactly one of native_id, title, scan_number, or scan_key must be provided"
+        )
+    if native_id is not None:
+        matched_ids = index.native_id_index.get(native_id, ())
+    elif title is not None:
+        matched_ids = index.title_index.get(title, ())
+    elif scan_number is not None:
+        matched_ids = index.scan_number_index.get(str(scan_number), ())
+    else:
+        normalized_key = normalize_spectrum_scan_key(scan_key)
+        matched_ids = index.scan_key_index.get(normalized_key or "", ())
+    spectra_by_id = {spectrum.spectrum_id: spectrum for spectrum in index.spectra}
+    return tuple(spectra_by_id[spectrum_id] for spectrum_id in matched_ids)
 
 
 def build_spectrum_provenance_manifest(

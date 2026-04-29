@@ -11,6 +11,7 @@ from bijux_proteomics import (
     SpectralSimilarityMethod,
     annotate_spectrum_fragments,
     build_spectrum_collection_summary,
+    build_spectrum_lookup_index,
     build_spectrum_metrics,
     build_spectrum_plot_payload,
     build_spectrum_provenance_manifest,
@@ -18,14 +19,21 @@ from bijux_proteomics import (
     calculate_spectral_similarity,
     export_spectrum_annotation_tsv,
     filter_spectrum_peaks,
+    lookup_spectra,
+    normalize_spectrum_scan_key,
     normalize_spectrum_peaks,
     parse_mgf,
+    parse_mzml,
     render_mgf,
 )
 
 
 def _spectrum_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "spectra" / name
+
+
+def _format_fixture(name: str) -> Path:
+    return Path(__file__).parent / "fixtures" / "formats" / name
 
 
 def test_spectrum_model_and_mgf_parser_accept_simple_fixture() -> None:
@@ -156,6 +164,29 @@ def test_spectrum_metrics_cover_tic_and_base_peak() -> None:
     assert metrics.total_ion_current == 250.0
     assert metrics.base_peak_mz == 376.171426
     assert metrics.base_peak_intensity == 100.0
+
+
+def test_spectrum_lookup_index_supports_native_title_scan_number_and_scan_key() -> (
+    None
+):
+    mgf_report = parse_mgf(_spectrum_fixture("dialect_cases.mgf"))
+    mzml_spectrum = (
+        parse_mzml(_format_fixture("hierarchy.mzml")).accepted_spectra[0]
+    )
+    index = build_spectrum_lookup_index(
+        mgf_report.accepted_spectra + (mzml_spectrum,)
+    )
+
+    by_native = lookup_spectra(index, native_id="scan=9002")
+    by_title = lookup_spectra(index, title="weird=title=with=equals")
+    by_scan_number = lookup_spectra(index, scan_number=8101)
+    by_scan_key = lookup_spectra(index, scan_key="controllerType=0 controllerNumber=1 scan=8101")
+
+    assert by_native[0].title == "weird=title=with=equals"
+    assert by_title[0].spectrum_id == "scan=9002"
+    assert by_scan_number[0].parent_spectrum_id == "controllerType=0 controllerNumber=1 scan=8100"
+    assert by_scan_key[0].product_isolation_mz == 175.1
+    assert normalize_spectrum_scan_key(by_scan_key[0]) == "scan:8101"
 
 
 def test_precursor_mass_error_reports_dalton_and_ppm() -> None:
