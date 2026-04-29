@@ -18,6 +18,7 @@ from bijux_proteomics import (
     get_search_adapter_manifest,
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
+    search_adapter_dialect_registry,
     validate_search_parameters,
 )
 
@@ -76,6 +77,56 @@ def test_search_adapter_extension_dialect_normalizes_without_core_rewrites() -> 
     assert report.adapter_manifest.display_name == "Sage pipeline export"
     assert report.normalized_records[0].canonical_peptide == "PEPTIDE"
     assert report.normalized_records[1].target_decoy_label.value == "decoy"
+
+
+def test_built_in_pipeline_dialects_cover_richer_engine_like_outputs() -> None:
+    registry = search_adapter_dialect_registry()
+    reports = {
+        "comet": normalize_search_results_with_adapter(
+            source_path=_fixture("comet_pipeline_export.tsv"),
+            adapter_kind=SearchAdapterKind.COMET,
+            dialect_id="pipeline-export",
+        ),
+        "msfragger": normalize_search_results_with_adapter(
+            source_path=_fixture("msfragger_pipeline_export.tsv"),
+            adapter_kind=SearchAdapterKind.MSFRAGGER,
+            dialect_id="pipeline-export",
+        ),
+        "sage": normalize_search_results_with_adapter(
+            source_path=_fixture("sage_pipeline_export.tsv"),
+            adapter_kind=SearchAdapterKind.SAGE,
+            dialect_id="pipeline-export",
+        ),
+        "maxquant": normalize_search_results_with_adapter(
+            source_path=_fixture("maxquant_pipeline_export.tsv"),
+            adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
+            dialect_id="pipeline-export",
+        ),
+        "diann": normalize_search_results_with_adapter(
+            source_path=_fixture("diann_pipeline_export.tsv"),
+            adapter_kind=SearchAdapterKind.DIANN,
+            dialect_id="pipeline-export",
+        ),
+        "spectronaut": normalize_search_results_with_adapter(
+            source_path=_fixture("spectronaut_pipeline_export.tsv"),
+            adapter_kind=SearchAdapterKind.SPECTRONAUT,
+            dialect_id="pipeline-export",
+        ),
+    }
+
+    assert (
+        registry[(SearchAdapterKind.COMET, "pipeline-export")].display_name
+        == "Comet pipeline export"
+    )
+    assert reports["comet"].normalized_records[0].canonical_peptide == "PEPTIDE"
+    assert reports["msfragger"].normalized_records[0].score == 132.4
+    assert reports["sage"].normalized_records[0].q_value == 0.001
+    assert reports["maxquant"].normalized_records[1].target_decoy_label.value == "decoy"
+    assert reports["diann"].normalized_records[0].q_value == 0.002
+    assert reports["spectronaut"].normalized_records[0].protein_refs == (
+        "P12345",
+        "Q33333",
+    )
 
 
 def test_engine_specific_adapters_normalize_psm_contracts() -> None:

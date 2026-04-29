@@ -449,6 +449,156 @@ _GENERIC_MANIFEST = SearchAdapterManifest(
 )
 
 
+_COMET_PIPELINE_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.COMET,
+    dialect_id="pipeline-export",
+    display_name="Comet pipeline export",
+    description="Normalize a Comet-like pipeline export with renamed expectation columns.",
+    native_columns=(
+        "scan_num",
+        "peptide_sequence",
+        "precursor_charge",
+        "expectation_value",
+        "protein_ids",
+        "is_decoy",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="scan_num",
+        peptide="peptide_sequence",
+        charge="precursor_charge",
+        score="expectation_value",
+        protein_refs="protein_ids",
+        decoy_label="is_decoy",
+        protein_separator=";",
+    ),
+)
+
+_MSFRAGGER_PIPELINE_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.MSFRAGGER,
+    dialect_id="pipeline-export",
+    display_name="MSFragger pipeline export",
+    description="Normalize an MSFragger-like pipeline export with renamed hyperscore fields.",
+    native_columns=(
+        "spectrum_key",
+        "plain_peptide",
+        "precursor_charge",
+        "hyperscore_value",
+        "proteins_joined",
+        "decoy_state",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="spectrum_key",
+        peptide="plain_peptide",
+        charge="precursor_charge",
+        score="hyperscore_value",
+        protein_refs="proteins_joined",
+        decoy_label="decoy_state",
+        protein_separator=";",
+    ),
+)
+
+_SAGE_PIPELINE_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.SAGE,
+    dialect_id="pipeline-export",
+    display_name="Sage pipeline export",
+    description="Normalize a Sage-like pipeline export with renamed score fields.",
+    native_columns=(
+        "scan_id",
+        "stripped_peptide",
+        "precursor_charge",
+        "score_discriminant",
+        "protein_group",
+        "decoy_flag",
+        "qvalue",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="scan_id",
+        peptide="stripped_peptide",
+        charge="precursor_charge",
+        score="score_discriminant",
+        protein_refs="protein_group",
+        q_value="qvalue",
+        decoy_label="decoy_flag",
+        protein_separator=";",
+    ),
+)
+
+_MAXQUANT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
+    dialect_id="pipeline-export",
+    display_name="MaxQuant pipeline export",
+    description="Normalize a MaxQuant-like pipeline export with simplified evidence columns.",
+    native_columns=(
+        "scan_number",
+        "sequence_with_mods",
+        "precursor_charge",
+        "score_value",
+        "leading_proteins",
+        "reverse_flag",
+        "pep_value",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="scan_number",
+        peptide="sequence_with_mods",
+        charge="precursor_charge",
+        score="score_value",
+        protein_refs="leading_proteins",
+        q_value="pep_value",
+        decoy_label="reverse_flag",
+        protein_separator=";",
+    ),
+)
+
+_DIANN_PIPELINE_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.DIANN,
+    dialect_id="pipeline-export",
+    display_name="DIA-NN pipeline export",
+    description="Normalize a DIA-NN-like pipeline export with simplified report columns.",
+    native_columns=(
+        "precursor_id",
+        "sequence",
+        "charge",
+        "qvalue",
+        "protein_ids",
+        "decoy_flag",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="precursor_id",
+        peptide="sequence",
+        charge="charge",
+        score="qvalue",
+        protein_refs="protein_ids",
+        q_value="qvalue",
+        decoy_label="decoy_flag",
+        protein_separator=";",
+    ),
+)
+
+_SPECTRONAUT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.SPECTRONAUT,
+    dialect_id="pipeline-export",
+    display_name="Spectronaut pipeline export",
+    description="Normalize a Spectronaut-like pipeline export with simplified precursor columns.",
+    native_columns=(
+        "precursor_key",
+        "stripped_sequence",
+        "charge",
+        "cscore_value",
+        "protein_accessions",
+        "decoy_flag",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="precursor_key",
+        peptide="stripped_sequence",
+        charge="charge",
+        score="cscore_value",
+        protein_refs="protein_accessions",
+        decoy_label="decoy_flag",
+        protein_separator=";",
+    ),
+)
+
+
 def _default_dialect_from_manifest(
     manifest: SearchAdapterManifest,
 ) -> SearchAdapterDialectManifest | None:
@@ -490,6 +640,16 @@ def search_adapter_dialect_registry() -> dict[
         )
         if dialect is not None
     ]
+    dialects.extend(
+        [
+            _COMET_PIPELINE_DIALECT,
+            _MSFRAGGER_PIPELINE_DIALECT,
+            _SAGE_PIPELINE_DIALECT,
+            _MAXQUANT_PIPELINE_DIALECT,
+            _DIANN_PIPELINE_DIALECT,
+            _SPECTRONAUT_PIPELINE_DIALECT,
+        ]
+    )
     return {
         (dialect.adapter_kind, dialect.dialect_id): dialect for dialect in dialects
     }
