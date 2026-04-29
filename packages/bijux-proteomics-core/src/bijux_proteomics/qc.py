@@ -490,6 +490,19 @@ class QcRunBundleSummary(JsonModel):
     manifest_sha256s: dict[str, str] = Field(default_factory=dict)
 
 
+class QcPublicationDecision(JsonModel):
+    """Explicit publication or promotion gate derived from QC assessments."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    publish_allowed: bool = False
+    promote_allowed: bool = False
+    blocking_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    reason: str = Field(..., min_length=1)
+    advisory_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -1088,6 +1101,42 @@ def build_qc_run_bundle_summary(
             sorted(entry.path for entry in evidence_manifest.input_files)
         ),
         manifest_sha256s=manifest_sha256s,
+    )
+
+
+def build_qc_publication_decision(
+    *,
+    run_assessment: QcRunAssessmentReport,
+    batch_assessment: QcBatchAssessmentReport | None = None,
+) -> QcPublicationDecision:
+    """Refuse publication or promotion when mandatory QC gates fail."""
+    blocking_metric_keys = list(run_assessment.enforced_failure_metric_keys)
+    advisory_metric_keys = list(run_assessment.advisory_failure_metric_keys)
+    if batch_assessment is not None:
+        blocking_metric_keys.extend(batch_assessment.enforced_failure_metric_keys)
+        advisory_metric_keys.extend(batch_assessment.advisory_failure_metric_keys)
+    blocking_metric_keys = sorted(set(blocking_metric_keys))
+    advisory_metric_keys = sorted(set(advisory_metric_keys))
+    if blocking_metric_keys:
+        reason = (
+            "mandatory qc gates failed for metrics: "
+            + ", ".join(blocking_metric_keys)
+        )
+        return QcPublicationDecision(
+            run_id=run_assessment.run_id,
+            publish_allowed=False,
+            promote_allowed=False,
+            blocking_metric_keys=tuple(blocking_metric_keys),
+            reason=reason,
+            advisory_metric_keys=tuple(advisory_metric_keys),
+        )
+    return QcPublicationDecision(
+        run_id=run_assessment.run_id,
+        publish_allowed=True,
+        promote_allowed=True,
+        blocking_metric_keys=(),
+        reason="mandatory qc gates passed",
+        advisory_metric_keys=tuple(advisory_metric_keys),
     )
 
 

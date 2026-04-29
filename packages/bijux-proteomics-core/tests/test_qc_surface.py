@@ -23,6 +23,7 @@ from bijux_proteomics import (
     build_lcms_run_qc_report,
     build_performance_snapshot,
     build_qc_evidence_manifest,
+    build_qc_publication_decision,
     build_qc_run_bundle_summary,
     build_run_qc_assessment,
     build_study_qc_summary,
@@ -708,3 +709,38 @@ def test_qc_run_bundle_summary_joins_reports_and_evidence_metadata() -> None:
     assert summary.policy_name == "default-lcms-qc"
     assert summary.evidence_file_roles == ("identifications", "spectra")
     assert "run_report" in summary.manifest_sha256s
+
+
+def test_qc_publication_decision_refuses_failed_mandatory_gates() -> None:
+    design_entries = _design_entries()
+    run_a = build_lcms_run_qc_report(
+        _run_a_spectra(),
+        _run_a_psms(),
+        design_entry=design_entries["S1"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    run_c = build_lcms_run_qc_report(
+        _run_c_spectra(),
+        _run_c_psms(),
+        design_entry=design_entries["S3"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    policy = _strict_qc_policy()
+    run_assessment = build_run_qc_assessment(run_c, policy=policy)
+    batch_assessment = build_batch_qc_assessment(
+        build_instrument_batch_qc_report((run_a, run_c)),
+        policy=policy,
+    )
+
+    refused = build_qc_publication_decision(
+        run_assessment=run_assessment,
+        batch_assessment=batch_assessment,
+    )
+    allowed = build_qc_publication_decision(
+        run_assessment=build_run_qc_assessment(run_a, policy=default_qc_threshold_policy())
+    )
+
+    assert refused.publish_allowed is False
+    assert refused.promote_allowed is False
+    assert "identification_rate" in refused.blocking_metric_keys
+    assert allowed.publish_allowed is True
