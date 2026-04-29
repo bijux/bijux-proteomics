@@ -8,16 +8,25 @@ from pathlib import Path
 
 from bijux_proteomics import (
     apply_q_values,
+    assign_confidence_labels,
+    assign_razor_peptides,
+    build_peptide_uniqueness_across_database,
+    build_protein_coverage_map,
+    build_protein_groups,
     build_calibration_plot_data,
     build_fdr_audit_trail,
     build_peptide_summary_report,
     build_protein_summary_report,
     build_psm_summary_report,
     build_search_result_provenance_manifest,
+    calculate_grouped_fdr,
+    calculate_level_specific_fdr,
+    calculate_picked_protein_fdr,
     compute_fdr_reproducibility_hash,
     export_psm_tsv,
     FdrPolicy,
     filter_psms_by_fdr,
+    infer_proteins_by_parsimony,
     normalize_psm_score_orientation,
     PsmSortField,
     PsmRecord,
@@ -26,6 +35,7 @@ from bijux_proteomics import (
     TargetDecoyLabelPolicy,
     export_psm_jsonl,
     normalize_psm_records,
+    parse_fasta_document,
     parse_psm_tsv,
     parse_target_decoy_label,
     rollup_peptide_evidence,
@@ -37,6 +47,10 @@ from bijux_proteomics import (
 
 def _psm_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "psm" / name
+
+
+def _fasta_fixture(name: str) -> Path:
+    return Path(__file__).parent / "fixtures" / "fasta" / name
 
 
 def _default_mapping() -> SearchResultColumnMapping:
@@ -315,3 +329,60 @@ def test_psm_export_tsv_and_jsonl_are_stable() -> None:
     finally:
         jsonl_path.unlink(missing_ok=True)
         tsv_path.unlink(missing_ok=True)
+
+
+def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels() -> None:
+    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+    level_report = calculate_level_specific_fdr(
+        report.accepted_records,
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+    grouped_report = calculate_grouped_fdr(
+        report.accepted_records,
+        group_by="charge_state",
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+
+    assert len(level_report.psm_entries) == 5
+    assert len(level_report.peptide_entries) == 5
+    assert len(level_report.protein_entries) == 5
+    assert len(grouped_report.groups) == 1
+    assert grouped_report.groups[0].group_key == "z2"
+
+
+def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
+    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+    groups = build_protein_groups(accepted)
+    parsimony = infer_proteins_by_parsimony(accepted)
+    razor = assign_razor_peptides(accepted)
+
+    indistinguishable = next(group for group in groups if group.protein_refs == ("P22222", "P44444"))
+    shared_assignment = next(entry for entry in razor if entry.canonical_peptide == "SHAREDK")
+
+    assert indistinguishable.peptides == ("GLYGLYK", "SHAREDK")
+    assert parsimony[0].protein_ref == "P11111"
+    assert {entry.protein_ref for entry in parsimony} == {"P11111", "P22222", "P33333"}
+    assert shared_assignment.assigned_protein == "P11111"
+    assert shared_assignment.rationale == "unique_evidence_priority"
+
+
+def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> None:
+    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+    picked = calculate_picked_protein_fdr(accepted, threshold=0.05)
+    confidence = assign_confidence_labels(picked, high_threshold=0.01, medium_threshold=0.05)
+    fasta_report = parse_fasta_document(_fasta_fixture("protein_inference.fasta").read_text(), mode="strict")
+    protein_sequences = {record.canonical_accession: record.residues for record in fasta_report.accepted_records}
+    coverage = build_protein_coverage_map(accepted, protein_sequences=protein_sequences)
+    uniqueness = build_peptide_uniqueness_across_database(
+        tuple(dict.fromkeys(record.canonical_peptide for record in accepted)),
+        protein_sequences=protein_sequences,
+    )
+
+    assert {entry.protein_ref for entry in picked} == {"P11111", "P22222", "P33333", "P44444"}
+    assert next(entry for entry in confidence if entry.entity_id == "P11111").label.value == "high"
+    assert next(entry for entry in coverage if entry.protein_ref == "P11111").coverage_fraction > 0.0
+    assert next(entry for entry in uniqueness if entry.canonical_peptide == "SHAREDK").uniqueness.value == "shared"
