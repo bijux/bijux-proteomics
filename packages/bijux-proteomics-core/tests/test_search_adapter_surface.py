@@ -12,6 +12,7 @@ from bijux_proteomics import (
     SearchAdapterKind,
     SearchNormalizedEvidenceEntry,
     SearchResultColumnMapping,
+    SearchScoreFamily,
     build_search_adapter_capability_matrix,
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
@@ -36,6 +37,10 @@ def test_search_adapter_registry_exposes_capability_matrix() -> None:
     assert (
         by_kind[SearchAdapterKind.COMET].score_orientation
         is ScoreOrientation.LOWER_BETTER
+    )
+    assert (
+        by_kind[SearchAdapterKind.COMET].score_family
+        is SearchScoreFamily.EXPECTATION_VALUE
     )
     assert by_kind[SearchAdapterKind.SAGE].supports_q_value is True
     assert by_kind[SearchAdapterKind.GENERIC].supports_config_hash is True
@@ -217,6 +222,7 @@ def test_built_in_manifests_are_self_describing() -> None:
     assert manifest.display_name == "MaxQuant evidence"
     assert "Modified sequence" in manifest.native_columns
     assert rendered["adapter_kind"] == "maxquant-evidence"
+    assert manifest.score_family is SearchScoreFamily.ENGINE_SCORE
 
 
 def test_search_parameter_parsers_extract_enzyme_tolerances_and_mods() -> None:
@@ -278,6 +284,7 @@ def test_search_result_comparability_normalizes_score_orientation() -> None:
     assert report.shared_spectrum_count == 2
     assert report.exact_match_count == 2
     assert report.label_conflict_count == 0
+    assert report.score_family_compatible is True
     assert report.peptide_agreement_fraction == 1.0
 
 

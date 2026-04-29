@@ -58,6 +58,18 @@ class SearchToleranceUnit(StrEnum):
     DA = "da"
 
 
+class SearchScoreFamily(StrEnum):
+    """Explicit native score families across search result engines."""
+
+    EXPECTATION_VALUE = "expectation_value"
+    HYPERSCORE = "hyperscore"
+    DISCRIMINANT_SCORE = "discriminant_score"
+    ENGINE_SCORE = "engine_score"
+    Q_VALUE = "q_value"
+    CONFIDENCE_SCORE = "confidence_score"
+    GENERIC_NUMERIC = "generic_numeric"
+
+
 class SearchAdapterManifest(JsonModel):
     """Stable contract describing one search adapter."""
 
@@ -67,6 +79,7 @@ class SearchAdapterManifest(JsonModel):
     display_name: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
     score_orientation: ScoreOrientation
+    score_family: SearchScoreFamily = SearchScoreFamily.GENERIC_NUMERIC
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     mapping: SearchResultColumnMapping | None = None
     default_decoy_policy: TargetDecoyLabelPolicy = Field(
@@ -88,6 +101,7 @@ class SearchAdapterDialectManifest(JsonModel):
     dialect_id: str = Field(..., min_length=1)
     display_name: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
+    score_family: SearchScoreFamily = SearchScoreFamily.GENERIC_NUMERIC
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     mapping: SearchResultColumnMapping
 
@@ -100,6 +114,7 @@ class SearchAdapterCapability(JsonModel):
     adapter_kind: SearchAdapterKind
     display_name: str = Field(..., min_length=1)
     score_orientation: ScoreOrientation
+    score_family: SearchScoreFamily
     supports_q_value: bool
     supports_explicit_decoy_label: bool
     supports_protein_refs: bool
@@ -217,6 +232,10 @@ class SearchResultComparabilityReport(JsonModel):
 
     left_adapter_kind: SearchAdapterKind
     right_adapter_kind: SearchAdapterKind
+    left_score_family: SearchScoreFamily
+    right_score_family: SearchScoreFamily
+    score_family_compatible: bool
+    score_family_note: str = Field(..., min_length=1)
     left_total_psms: int = Field(..., ge=0)
     right_total_psms: int = Field(..., ge=0)
     shared_spectrum_count: int = Field(..., ge=0)
@@ -259,6 +278,7 @@ _COMET_MANIFEST = SearchAdapterManifest(
     display_name="Comet",
     description="Normalize Comet-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.LOWER_BETTER,
+    score_family=SearchScoreFamily.EXPECTATION_VALUE,
     native_columns=(
         "scan",
         "plain_peptide",
@@ -291,6 +311,7 @@ _MSFRAGGER_MANIFEST = SearchAdapterManifest(
     display_name="MSFragger",
     description="Normalize MSFragger-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
+    score_family=SearchScoreFamily.HYPERSCORE,
     native_columns=(
         "Spectrum",
         "Peptide",
@@ -323,6 +344,7 @@ _SAGE_MANIFEST = SearchAdapterManifest(
     display_name="Sage",
     description="Normalize Sage-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
+    score_family=SearchScoreFamily.DISCRIMINANT_SCORE,
     native_columns=(
         "scannr",
         "peptide",
@@ -358,6 +380,7 @@ _MAXQUANT_MANIFEST = SearchAdapterManifest(
     display_name="MaxQuant evidence",
     description="Normalize MaxQuant evidence-like tables into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
+    score_family=SearchScoreFamily.ENGINE_SCORE,
     native_columns=(
         "MS/MS scan number",
         "Modified sequence",
@@ -393,6 +416,7 @@ _DIANN_MANIFEST = SearchAdapterManifest(
     display_name="DIA-NN",
     description="Normalize DIA-NN report-style tables into stable PSM-like records.",
     score_orientation=ScoreOrientation.LOWER_BETTER,
+    score_family=SearchScoreFamily.Q_VALUE,
     native_columns=(
         "Precursor.Id",
         "Stripped.Sequence",
@@ -427,6 +451,7 @@ _SPECTRONAUT_MANIFEST = SearchAdapterManifest(
     display_name="Spectronaut",
     description="Normalize Spectronaut-like tables into stable PSM-like records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
+    score_family=SearchScoreFamily.CONFIDENCE_SCORE,
     native_columns=(
         "EG.PrecursorId",
         "PEP.StrippedSequence",
@@ -475,6 +500,7 @@ _COMET_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     dialect_id="pipeline-export",
     display_name="Comet pipeline export",
     description="Normalize a Comet-like pipeline export with renamed expectation columns.",
+    score_family=SearchScoreFamily.EXPECTATION_VALUE,
     native_columns=(
         "scan_num",
         "peptide_sequence",
@@ -499,6 +525,7 @@ _MSFRAGGER_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     dialect_id="pipeline-export",
     display_name="MSFragger pipeline export",
     description="Normalize an MSFragger-like pipeline export with renamed hyperscore fields.",
+    score_family=SearchScoreFamily.HYPERSCORE,
     native_columns=(
         "spectrum_key",
         "plain_peptide",
@@ -523,6 +550,7 @@ _SAGE_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     dialect_id="pipeline-export",
     display_name="Sage pipeline export",
     description="Normalize a Sage-like pipeline export with renamed score fields.",
+    score_family=SearchScoreFamily.DISCRIMINANT_SCORE,
     native_columns=(
         "scan_id",
         "stripped_peptide",
@@ -549,6 +577,7 @@ _MAXQUANT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     dialect_id="pipeline-export",
     display_name="MaxQuant pipeline export",
     description="Normalize a MaxQuant-like pipeline export with simplified evidence columns.",
+    score_family=SearchScoreFamily.ENGINE_SCORE,
     native_columns=(
         "scan_number",
         "sequence_with_mods",
@@ -575,6 +604,7 @@ _DIANN_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     dialect_id="pipeline-export",
     display_name="DIA-NN pipeline export",
     description="Normalize a DIA-NN-like pipeline export with simplified report columns.",
+    score_family=SearchScoreFamily.Q_VALUE,
     native_columns=(
         "precursor_id",
         "sequence",
@@ -600,6 +630,7 @@ _SPECTRONAUT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     dialect_id="pipeline-export",
     display_name="Spectronaut pipeline export",
     description="Normalize a Spectronaut-like pipeline export with simplified precursor columns.",
+    score_family=SearchScoreFamily.CONFIDENCE_SCORE,
     native_columns=(
         "precursor_key",
         "stripped_sequence",
@@ -630,6 +661,7 @@ def _default_dialect_from_manifest(
         dialect_id="default",
         display_name=manifest.display_name,
         description=manifest.description,
+        score_family=manifest.score_family,
         native_columns=manifest.native_columns,
         mapping=manifest.mapping,
     )
@@ -719,6 +751,7 @@ def _manifest_for_dialect(
         update={
             "description": dialect.description,
             "display_name": dialect.display_name,
+            "score_family": dialect.score_family,
             "native_columns": dialect.native_columns,
             "mapping": dialect.mapping,
         }
@@ -732,6 +765,7 @@ def build_search_adapter_capability_matrix() -> tuple[SearchAdapterCapability, .
             adapter_kind=manifest.adapter_kind,
             display_name=manifest.display_name,
             score_orientation=manifest.score_orientation,
+            score_family=manifest.score_family,
             supports_q_value=manifest.supports_q_value,
             supports_explicit_decoy_label=manifest.supports_explicit_decoy_label,
             supports_protein_refs=manifest.supports_protein_refs,
@@ -741,6 +775,23 @@ def build_search_adapter_capability_matrix() -> tuple[SearchAdapterCapability, .
         for manifest in search_adapter_registry().values()
     ]
     return tuple(sorted(rows, key=lambda row: row.adapter_kind.value))
+
+
+def _score_families_compatible(
+    left: SearchScoreFamily,
+    right: SearchScoreFamily,
+) -> tuple[bool, str]:
+    if left is right:
+        return True, f"both reports use the same score family {left.value}"
+    if SearchScoreFamily.GENERIC_NUMERIC in {left, right}:
+        return (
+            True,
+            "one report uses generic numeric scores, so normalized ranking is comparable but native semantics remain partially unspecified",
+        )
+    return (
+        False,
+        f"score families {left.value} and {right.value} are orientation-normalizable but not natively interchangeable",
+    )
 
 
 def _hash_file(path: Path | None) -> str | None:
@@ -1294,6 +1345,10 @@ def compare_search_result_reports(
     right: SearchAdapterNormalizationReport,
 ) -> SearchResultComparabilityReport:
     """Compare two normalized search-result reports on a shared score scale."""
+    score_family_compatible, score_family_note = _score_families_compatible(
+        left.adapter_manifest.score_family,
+        right.adapter_manifest.score_family,
+    )
     left_by_spectrum = {
         record.spectrum_id: record
         for record in normalize_psm_records(left.normalized_records)
@@ -1346,6 +1401,10 @@ def compare_search_result_reports(
     return SearchResultComparabilityReport(
         left_adapter_kind=left.adapter_manifest.adapter_kind,
         right_adapter_kind=right.adapter_manifest.adapter_kind,
+        left_score_family=left.adapter_manifest.score_family,
+        right_score_family=right.adapter_manifest.score_family,
+        score_family_compatible=score_family_compatible,
+        score_family_note=score_family_note,
         left_total_psms=len(left.normalized_records),
         right_total_psms=len(right.normalized_records),
         shared_spectrum_count=shared_count,
