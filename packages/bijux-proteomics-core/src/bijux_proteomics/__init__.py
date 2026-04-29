@@ -23,6 +23,9 @@ from bijux_proteomics.criteria import (
     criterion_passes,
 )
 from bijux_proteomics.digestion import (
+    DigestedPeptide,
+    digest_sequence,
+    PeptideDigestionMode,
     ProteaseCleavageMode,
     ProteaseRule,
     get_protease_rule,
@@ -183,6 +186,8 @@ __all__ = [
     "SequenceValidationResult",
     "DecoyGenerationMode",
     "TargetDecoyValidationReport",
+    "DigestedPeptide",
+    "PeptideDigestionMode",
     "ProteaseCleavageMode",
     "ProteaseRule",
     "UniProtAccession",
@@ -243,6 +248,7 @@ __all__ = [
     "protease_registry",
     "get_protease_rule",
     "parse_custom_protease_rule",
+    "digest_sequence",
     "target_summary",
     "validate_review_decision",
     "validate_program",

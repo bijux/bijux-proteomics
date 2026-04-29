@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -35,6 +36,35 @@ class ProteaseRule(JsonModel):
     @classmethod
     def _normalize_residue_token(cls, value: str) -> str:
         return "".join(sorted(set(value.strip().upper())))
+
+
+class PeptideDigestionMode(StrEnum):
+    """Supported peptide digestion strategies."""
+
+    FULL = "full"
+    SEMI_SPECIFIC = "semi_specific"
+    NON_SPECIFIC = "non_specific"
+
+
+class DigestedPeptide(JsonModel):
+    """One peptide generated from protein digestion."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_accession: str = Field(..., min_length=1)
+    source_identifier: str = Field(..., min_length=1)
+    sequence: str = Field(..., min_length=1)
+    start: int = Field(..., ge=1)
+    end: int = Field(..., ge=1)
+    missed_cleavages: int = Field(default=0, ge=0)
+    protease: str = Field(..., min_length=1)
+    digestion_mode: PeptideDigestionMode
+    cleavage_type: Literal["enzymatic", "semi_specific", "non_specific"] = "enzymatic"
+
+    @field_validator("sequence")
+    @classmethod
+    def _normalize_sequence(cls, value: str) -> str:
+        return value.strip().upper()
 
 
 _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
@@ -130,3 +160,64 @@ def parse_custom_protease_rule(specification: str, *, name: str = "custom") -> P
         blocked_by_previous=fields.get("block_previous", ""),
         description=fields.get("description", ""),
     )
+
+
+def digest_sequence(
+    sequence: str,
+    *,
+    protease: ProteaseRule | str = "trypsin",
+    source_accession: str = "sequence",
+    source_identifier: str | None = None,
+) -> tuple[DigestedPeptide, ...]:
+    """Digest one sequence with full enzymatic specificity."""
+    normalized = sequence.strip().upper()
+    rule = get_protease_rule(protease) if isinstance(protease, str) else protease
+    boundaries = _full_digest_boundaries(normalized, rule)
+    peptides: list[DigestedPeptide] = []
+    identifier = source_identifier or source_accession
+    for start, end in zip(boundaries, boundaries[1:]):
+        peptide = normalized[start:end]
+        if not peptide:
+            continue
+        peptides.append(
+            DigestedPeptide(
+                source_accession=source_accession,
+                source_identifier=identifier,
+                sequence=peptide,
+                start=start + 1,
+                end=end,
+                missed_cleavages=0,
+                protease=rule.name,
+                digestion_mode=PeptideDigestionMode.FULL,
+                cleavage_type="enzymatic",
+            )
+        )
+    return tuple(peptides)
+
+
+def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...]:
+    boundaries = [0]
+    if not sequence:
+        return (0,)
+
+    if rule.cleavage_mode is ProteaseCleavageMode.C_TERMINAL:
+        for index, residue in enumerate(sequence):
+            if residue not in rule.cleavage_residues:
+                continue
+            next_residue = sequence[index + 1] if index + 1 < len(sequence) else None
+            if next_residue is not None and next_residue in rule.blocked_by_next:
+                continue
+            boundaries.append(index + 1)
+    else:
+        for index, residue in enumerate(sequence):
+            if residue not in rule.cleavage_residues:
+                continue
+            previous_residue = sequence[index - 1] if index > 0 else None
+            if previous_residue is not None and previous_residue in rule.blocked_by_previous:
+                continue
+            if index not in boundaries:
+                boundaries.append(index)
+
+    if boundaries[-1] != len(sequence):
+        boundaries.append(len(sequence))
+    return tuple(boundaries)
