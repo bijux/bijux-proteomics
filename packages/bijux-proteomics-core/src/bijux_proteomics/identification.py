@@ -144,6 +144,26 @@ class PsmParseReport(JsonModel):
     column_mapping: SearchResultColumnMapping
 
 
+class TargetDecoyCollisionEntry(JsonModel):
+    """One target-decoy accession collision after base-accession normalization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    base_accession: str = Field(..., min_length=1)
+    target_refs: tuple[str, ...] = Field(default_factory=tuple)
+    decoy_refs: tuple[str, ...] = Field(default_factory=tuple)
+    spectrum_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class TargetDecoyCollisionReport(JsonModel):
+    """Validation result for target-decoy accession collisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    collisions: tuple[TargetDecoyCollisionEntry, ...] = Field(default_factory=tuple)
+
+
 class PeptideEvidenceEntry(JsonModel):
     """Rolled-up peptide-level evidence across PSMs."""
 
@@ -589,6 +609,75 @@ def parse_target_decoy_label(
     return _combine_labels(tuple(labels))
 
 
+def _base_accession_from_policy(
+    protein_ref: str,
+    policy: TargetDecoyLabelPolicy,
+) -> str:
+    value = protein_ref
+    if policy.protein_prefix and value.startswith(policy.protein_prefix):
+        value = value[len(policy.protein_prefix) :]
+    if policy.protein_suffix and value.endswith(policy.protein_suffix):
+        value = value[: -len(policy.protein_suffix)]
+    return value
+
+
+def validate_target_decoy_accession_collisions(
+    records: tuple[PsmRecord, ...],
+    *,
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+) -> TargetDecoyCollisionReport:
+    """Detect target-decoy accession collisions before confidence scoring."""
+    active_policy = decoy_policy or TargetDecoyLabelPolicy()
+    collisions: list[TargetDecoyCollisionEntry] = []
+    for record in records:
+        grouped: dict[str, dict[str, set[str]]] = defaultdict(
+            lambda: {"target_refs": set(), "decoy_refs": set()}
+        )
+        for protein_ref in record.protein_refs:
+            bucket = grouped[_base_accession_from_policy(protein_ref, active_policy)]
+            label = parse_target_decoy_label(
+                protein_refs=(protein_ref,),
+                policy=active_policy,
+            )
+            if label is TargetDecoyLabel.DECOY:
+                bucket["decoy_refs"].add(protein_ref)
+            else:
+                bucket["target_refs"].add(protein_ref)
+        for base_accession, bucket in sorted(grouped.items()):
+            if bucket["target_refs"] and bucket["decoy_refs"]:
+                collisions.append(
+                    TargetDecoyCollisionEntry(
+                        base_accession=base_accession,
+                        target_refs=tuple(sorted(bucket["target_refs"])),
+                        decoy_refs=tuple(sorted(bucket["decoy_refs"])),
+                        spectrum_ids=(record.spectrum_id,),
+                    )
+                )
+    return TargetDecoyCollisionReport(
+        valid=not collisions,
+        collisions=tuple(collisions),
+    )
+
+
+def _raise_on_target_decoy_accession_collisions(
+    records: tuple[PsmRecord, ...],
+    *,
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+) -> None:
+    report = validate_target_decoy_accession_collisions(
+        records,
+        decoy_policy=decoy_policy,
+    )
+    if report.valid:
+        return
+    collision = report.collisions[0]
+    raise ValueError(
+        "target-decoy accession collision detected for "
+        f"{collision.base_accession!r}: targets={','.join(collision.target_refs)} "
+        f"decoys={','.join(collision.decoy_refs)}"
+    )
+
+
 def _row_issue(code: str, message: str, row_number: int) -> SearchResultValidationIssue:
     return SearchResultValidationIssue(
         code=code, message=message, row_number=row_number
@@ -968,6 +1057,7 @@ def calculate_basic_target_decoy_fdr(
     threshold: float | None = None,
     score_orientation: str = "higher_better",
     tie_handling: str = "score_group",
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
 ) -> tuple[FdrAnnotatedPsm, ...]:
     """Annotate PSMs with cumulative target-decoy FDR and monotonic q-values."""
     if score_orientation not in {"higher_better", "lower_better"}:
@@ -976,6 +1066,7 @@ def calculate_basic_target_decoy_fdr(
         raise ValueError(
             "tie_handling must be 'score_group' or 'stable_record_order'"
         )
+    _raise_on_target_decoy_accession_collisions(records, decoy_policy=decoy_policy)
 
     sorted_records = tuple(
         sorted(
@@ -1197,6 +1288,7 @@ def compute_fdr_reproducibility_hash(
         threshold=threshold,
         score_orientation=score_orientation,
         tie_handling=tie_handling,
+        decoy_policy=None,
     )
     payload = {
         "score_orientation": score_orientation,
@@ -1252,6 +1344,7 @@ def build_fdr_audit_trail(
         threshold=threshold,
         score_orientation=score_orientation,
         tie_handling=tie_handling,
+        decoy_policy=None,
     )
     audit_entries: list[FdrAuditEntry] = []
     for entry in annotated:
@@ -1300,6 +1393,7 @@ def apply_q_values(
         records,
         score_orientation=score_orientation,
         tie_handling=tie_handling,
+        decoy_policy=None,
     )
     return tuple(
         entry.psm.model_copy(update={"q_value": entry.q_value}) for entry in annotated
@@ -1319,6 +1413,7 @@ def filter_psms_by_fdr(
         threshold=threshold,
         score_orientation=score_orientation,
         tie_handling=tie_handling,
+        decoy_policy=None,
     )
     return tuple(
         entry.psm.model_copy(update={"q_value": entry.q_value})
@@ -1522,6 +1617,7 @@ def calculate_level_specific_fdr(
             threshold=threshold,
             score_orientation=score_orientation,
             tie_handling="score_group",
+            decoy_policy=None,
         )
     )
     peptide_rollups = rollup_peptide_evidence(records)
@@ -1604,6 +1700,7 @@ def calculate_grouped_fdr(
                     threshold=threshold,
                     score_orientation=score_orientation,
                     tie_handling="score_group",
+                    decoy_policy=None,
                 )
             ),
         )
@@ -2005,6 +2102,7 @@ def calculate_picked_protein_fdr(
         threshold=threshold,
         score_orientation=score_orientation,
         tie_handling="score_group",
+        decoy_policy=active_policy,
     )
     selected_index = {
         protein_ref: (peptides, partner_ref)

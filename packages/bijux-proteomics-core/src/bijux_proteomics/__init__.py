@@ -181,6 +181,8 @@ from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     SearchResultProvenanceManifest,
     SearchResultValidationIssue,
+    TargetDecoyCollisionEntry,
+    TargetDecoyCollisionReport,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     apply_q_values,
@@ -211,6 +213,7 @@ from bijux_proteomics.identification import (
     rollup_protein_evidence,
     select_best_psm_per_spectrum,
     sort_psm_records,
+    validate_target_decoy_accession_collisions,
     verify_fdr_q_value_monotonicity,
 )
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
@@ -706,6 +709,7 @@ __all__ = [
     "parse_psm_tsv",
     "parse_search_parameter_file",
     "parse_target_decoy_label",
+    "validate_target_decoy_accession_collisions",
     "verify_fdr_q_value_monotonicity",
     "NormalizedScoreEntry",
     "ParsimonyProteinEntry",
@@ -789,6 +793,8 @@ __all__ = [
     "SearchResultColumnMapping",
     "SearchResultProvenanceManifest",
     "SearchResultValidationIssue",
+    "TargetDecoyCollisionEntry",
+    "TargetDecoyCollisionReport",
     "SearchAdapterCapability",
     "SearchAdapterConformanceCheck",
     "SearchAdapterConformanceReport",

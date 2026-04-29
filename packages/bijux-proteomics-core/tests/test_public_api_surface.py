@@ -48,6 +48,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "filter_psms_by_fdr" in bijux_proteomics.__all__
     assert "build_fdr_audit_trail" in bijux_proteomics.__all__
     assert "compute_fdr_reproducibility_hash" in bijux_proteomics.__all__
+    assert "validate_target_decoy_accession_collisions" in bijux_proteomics.__all__
     assert "verify_fdr_q_value_monotonicity" in bijux_proteomics.__all__
     assert "normalize_psm_score_orientation" in bijux_proteomics.__all__
     assert "calculate_level_specific_fdr" in bijux_proteomics.__all__

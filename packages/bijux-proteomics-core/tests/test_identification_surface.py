@@ -43,6 +43,7 @@ from bijux_proteomics import (
     rollup_protein_evidence,
     select_best_psm_per_spectrum,
     sort_psm_records,
+    validate_target_decoy_accession_collisions,
     verify_fdr_q_value_monotonicity,
 )
 
@@ -347,6 +348,32 @@ def test_fdr_reproducibility_and_edge_cases_are_explicit() -> None:
     assert target_hash == repeated_hash
     assert target_hash != decoy_hash
     assert all(record.q_value == 1.0 for record in annotated_decoys)
+
+
+def test_target_decoy_accession_collisions_are_reported_and_refused() -> None:
+    colliding_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=20.0,
+            protein_refs=("P12345", "DECOY_P12345"),
+            target_decoy_label=TargetDecoyLabel.MIXED,
+        ),
+    )
+
+    collision_report = validate_target_decoy_accession_collisions(colliding_records)
+
+    assert collision_report.valid is False
+    assert collision_report.collisions[0].base_accession == "P12345"
+
+    try:
+        apply_q_values(colliding_records)
+    except ValueError as exc:
+        assert "target-decoy accession collision" in str(exc)
+    else:
+        raise AssertionError("expected target-decoy accession collision refusal")
 
 
 def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:
