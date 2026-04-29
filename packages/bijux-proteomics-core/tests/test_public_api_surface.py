@@ -130,6 +130,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_workflow_manifest_explanation_report" in bijux_proteomics.__all__
     assert "build_workflow_step_provenance_report" in bijux_proteomics.__all__
     assert "build_workflow_replay_proof_report" in bijux_proteomics.__all__
+    assert "build_workflow_runtime_archive_bundle" in bijux_proteomics.__all__
     assert "build_proteomics_dag_plan" in bijux_proteomics.__all__
     assert "build_containerized_step_specs" in bijux_proteomics.__all__
     assert "build_workflow_cache_miss_explanation_report" in bijux_proteomics.__all__
@@ -148,6 +149,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_parallel_execution_plan" in bijux_proteomics.__all__
     assert "build_workflow_run_directory_layout" in bijux_proteomics.__all__
     assert "build_workflow_runtime_export_bundle" in bijux_proteomics.__all__
+    assert "import_workflow_runtime_archive_bundle" in bijux_proteomics.__all__
     assert "build_workflow_runtime_validation_report" in bijux_proteomics.__all__
     assert "build_workflow_runtime_state_manifest" in bijux_proteomics.__all__
     assert "build_workflow_checkpoint" in bijux_proteomics.__all__
@@ -189,14 +191,18 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "WorkflowCacheMissExplanationEntry" in bijux_proteomics.__all__
     assert "WorkflowCacheMissExplanationReport" in bijux_proteomics.__all__
     assert "WorkflowCacheMissReason" in bijux_proteomics.__all__
+    assert "WorkflowArchiveMedium" in bijux_proteomics.__all__
     assert "WorkflowPathKind" in bijux_proteomics.__all__
     assert "WorkflowResumeKind" in bijux_proteomics.__all__
+    assert "WorkflowRuntimeArchiveBundle" in bijux_proteomics.__all__
+    assert "WorkflowRuntimeArchiveImportReport" in bijux_proteomics.__all__
     assert "WorkflowRuntimeExportBundle" in bijux_proteomics.__all__
     assert "WorkflowRuntimeValidationIssue" in bijux_proteomics.__all__
     assert "WorkflowRuntimeValidationReport" in bijux_proteomics.__all__
     assert "WorkflowRunDirectoryLayout" in bijux_proteomics.__all__
     assert "WorkflowRunDirectoryLayoutEntry" in bijux_proteomics.__all__
     assert "WorkflowRuntimeStateManifest" in bijux_proteomics.__all__
+    assert "ArchivedArtifactDescriptor" in bijux_proteomics.__all__
     assert "ArtifactInventoryEntry" in bijux_proteomics.__all__
     assert "ProteomicsArtifactInventory" in bijux_proteomics.__all__
     assert "ProteomicsArtifactRegistry" in bijux_proteomics.__all__

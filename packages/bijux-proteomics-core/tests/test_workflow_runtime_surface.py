@@ -8,45 +8,48 @@ from pathlib import Path
 from bijux_proteomics import (
     SearchAdapterKind,
     build_proteomics_artifact_inventory,
-    build_workflow_runtime_export_bundle,
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_external_tool_capability_report,
-    build_proteomics_workflow_template,
-    build_workflow_diff_report,
-    build_workflow_execution_readiness_report,
-    instantiate_proteomics_workflow_template,
-    build_reproducible_workflow_blueprint,
-    build_workflow_manifest_explanation_report,
-    build_workflow_replay_proof_report,
-    build_workflow_run_directory_layout,
-    build_workflow_step_provenance_report,
-    build_workflow_runtime_validation_report,
-    build_workflow_runtime_state_manifest,
+    ExternalToolCapabilityReport,
+    WorkflowArchiveMedium,
     WorkflowCacheMissReason,
     WorkflowCheckpointStatus,
-    ExternalToolCapabilityReport,
-    WorkflowScientificSurface,
-    WorkflowExecutionMode,
-    WorkflowExecutionReadinessReport,
     WorkflowDiffCategory,
     WorkflowDiffReport,
+    WorkflowExecutionMode,
+    WorkflowExecutionReadinessReport,
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
-    WorkflowTemplateKind,
-    WorkflowSchedulerKind,
-    WorkflowStepReplayDisposition,
-    WorkflowStepProvenanceReport,
-    WorkflowStepKind,
-    WorkflowStreamingMode,
     WorkflowResumeKind,
+    WorkflowSchedulerKind,
+    WorkflowScientificSurface,
+    WorkflowStepKind,
+    WorkflowStepProvenanceReport,
+    WorkflowStepReplayDisposition,
+    WorkflowStreamingMode,
+    WorkflowTemplateKind,
     build_hpc_job_descriptor,
     build_large_file_streaming_policy,
     build_parallel_execution_plan,
     build_proteomics_workflow_manifest,
+    build_proteomics_workflow_template,
     build_proteomics_workflow_runtime_bundle,
+    build_reproducible_workflow_blueprint,
+    build_workflow_diff_report,
+    build_workflow_execution_readiness_report,
+    build_workflow_manifest_explanation_report,
+    build_workflow_replay_proof_report,
+    build_workflow_run_directory_layout,
+    build_workflow_runtime_archive_bundle,
+    build_workflow_runtime_export_bundle,
+    build_workflow_runtime_state_manifest,
+    build_workflow_runtime_validation_report,
+    build_workflow_step_provenance_report,
     build_workflow_checkpoint,
     build_workflow_runtime_cache,
+    import_workflow_runtime_archive_bundle,
+    instantiate_proteomics_workflow_template,
 )
 
 
@@ -279,8 +282,12 @@ def test_workflow_diff_report_separates_scientific_and_operational_changes() -> 
     report = build_workflow_diff_report(left, right)
 
     assert isinstance(report, WorkflowDiffReport)
-    assert any(entry.category is WorkflowDiffCategory.SCIENTIFIC for entry in report.entries)
-    assert any(entry.category is WorkflowDiffCategory.OPERATIONAL for entry in report.entries)
+    assert any(
+        entry.category is WorkflowDiffCategory.SCIENTIFIC for entry in report.entries
+    )
+    assert any(
+        entry.category is WorkflowDiffCategory.OPERATIONAL for entry in report.entries
+    )
 
 
 def test_workflow_templates_are_reusable_and_instantiate_real_manifests() -> None:
@@ -429,6 +436,7 @@ def test_artifact_inventory_connects_outputs_to_run_and_step_lineage() -> None:
     assert inventory.run_id == bundle.manifest.run_id
     assert inventory.artifacts[0].producer_step_id.endswith("digest-database")
     assert inventory.artifacts[0].relative_path.startswith("digest/")
+    assert len(inventory.artifacts[0].provenance_sha256) == 64
 
 
 def test_runtime_export_bundle_is_deterministic_for_same_inputs() -> None:
@@ -449,6 +457,62 @@ def test_runtime_export_bundle_is_deterministic_for_same_inputs() -> None:
     assert first.artifact_inventory.artifacts[0].artifact_id.startswith(
         f"{bundle.manifest.workflow_id}:"
     )
+
+
+def test_workflow_runtime_archive_bundle_preserves_portable_artifact_descriptors() -> (
+    None
+):
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    export_bundle = build_workflow_runtime_export_bundle(bundle)
+
+    archive_bundle = build_workflow_runtime_archive_bundle(
+        export_bundle,
+        archive_medium=WorkflowArchiveMedium.PORTABLE_JSON,
+    )
+
+    assert archive_bundle.workflow_id == export_bundle.workflow_id
+    assert archive_bundle.export_bundle_sha256 == export_bundle.export_bundle_sha256
+    assert archive_bundle.archived_artifacts[0].relative_path == (
+        export_bundle.artifact_inventory.artifacts[0].relative_path
+    )
+    assert archive_bundle.archived_artifacts[0].provenance_sha256 == (
+        export_bundle.artifact_inventory.artifacts[0].provenance_sha256
+    )
+
+
+def test_import_workflow_runtime_archive_bundle_restores_export_and_provenance() -> (
+    None
+):
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    export_bundle = build_workflow_runtime_export_bundle(bundle)
+    archive_bundle = build_workflow_runtime_archive_bundle(export_bundle)
+
+    restored_export, report = import_workflow_runtime_archive_bundle(
+        archive_bundle.to_dict()
+    )
+
+    assert restored_export.export_bundle_sha256 == export_bundle.export_bundle_sha256
+    assert report.imported_export_bundle_sha256 == export_bundle.export_bundle_sha256
+    assert report.preserved_artifact_count == len(
+        export_bundle.artifact_inventory.artifacts
+    )
+    assert report.portable_review_ready is True
 
 
 def test_runtime_validation_report_confirms_bundle_integrity() -> None:
@@ -512,7 +576,9 @@ def test_workflow_cache_keys_reflect_toolchain_and_policy_assumptions() -> None:
     changed_entry = build_workflow_runtime_cache(changed_manifest).entries[0]
 
     assert manifest.runtime_policies
-    assert first_entry.tool_versions[-1].endswith(":ghcr.io/bijux/proteomics-runtime:v1")
+    assert first_entry.tool_versions[-1].endswith(
+        ":ghcr.io/bijux/proteomics-runtime:v1"
+    )
     assert any(
         policy.startswith("digest:") for policy in first_entry.policy_assumptions
     )

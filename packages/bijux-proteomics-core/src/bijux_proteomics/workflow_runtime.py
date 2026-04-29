@@ -584,7 +584,9 @@ class WorkflowCacheMissExplanationReport(JsonModel):
     document_schema: DocumentSchema
     workflow_id: str = Field(..., min_length=1)
     reusable: bool
-    entries: tuple[WorkflowCacheMissExplanationEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[WorkflowCacheMissExplanationEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class ArtifactRegistryEntry(JsonModel):
@@ -622,6 +624,7 @@ class ArtifactInventoryEntry(JsonModel):
     artifact_kind: WorkflowArtifactKind
     relative_path: str = Field(..., min_length=1)
     absolute_path: str = Field(..., min_length=1)
+    provenance_sha256: str = Field(..., min_length=64, max_length=64)
     layout_entry_id: str = Field(..., min_length=1)
     expected_document_kind: str | None = None
     upstream_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -804,6 +807,56 @@ class WorkflowReplayProofReport(JsonModel):
     entries: tuple[WorkflowReplayProofEntry, ...] = Field(default_factory=tuple)
 
 
+class WorkflowArchiveMedium(StrEnum):
+    """Portable archival medium for offline review bundles."""
+
+    PORTABLE_JSON = "portable_json"
+    OFFLINE_REVIEW_DIRECTORY = "offline_review_directory"
+
+
+class ArchivedArtifactDescriptor(JsonModel):
+    """Portable artifact descriptor preserved inside an archival bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    relative_path: str = Field(..., min_length=1)
+    provenance_sha256: str = Field(..., min_length=64, max_length=64)
+    expected_document_kind: str | None = None
+
+
+class WorkflowRuntimeArchiveBundle(JsonModel):
+    """Portable archival wrapper over one workflow runtime export bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    archive_medium: WorkflowArchiveMedium
+    export_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    archive_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    archived_artifacts: tuple[ArchivedArtifactDescriptor, ...] = Field(
+        default_factory=tuple
+    )
+    export_bundle: WorkflowRuntimeExportBundle
+
+
+class WorkflowRuntimeArchiveImportReport(JsonModel):
+    """Import-time provenance report for a portable archival workflow bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    archive_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    imported_export_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    preserved_artifact_count: int = Field(..., ge=0)
+    preserved_provenance_fields: tuple[str, ...] = Field(default_factory=tuple)
+    portable_review_ready: bool
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -819,6 +872,33 @@ def _hash_file(path: Path) -> str:
 
 def _stable_sequence_sha256(values: tuple[str, ...]) -> str:
     return hashlib.sha256("|".join(values).encode("utf-8")).hexdigest()
+
+
+def _artifact_provenance_sha256(
+    *,
+    workflow_id: str,
+    run_id: str,
+    artifact_id: str,
+    producer_step_id: str,
+    artifact_kind: WorkflowArtifactKind,
+    relative_path: str,
+    expected_document_kind: str | None,
+    upstream_artifact_ids: tuple[str, ...],
+) -> str:
+    return hashlib.sha256(
+        "|".join(
+            (
+                workflow_id,
+                run_id,
+                artifact_id,
+                producer_step_id,
+                artifact_kind.value,
+                relative_path,
+                expected_document_kind or "",
+                ",".join(upstream_artifact_ids),
+            )
+        ).encode("utf-8")
+    ).hexdigest()
 
 
 def _sanitize_identifier(value: str) -> str:
@@ -1418,11 +1498,15 @@ def build_workflow_manifest_explanation_report(
         WorkflowManifestExplanationEntry(
             category="quantification",
             selected_value=(
-                "enabled" if WorkflowInputRole.FEATURES in {asset.role for asset in manifest.input_assets} else "disabled"
+                "enabled"
+                if WorkflowInputRole.FEATURES
+                in {asset.role for asset in manifest.input_assets}
+                else "disabled"
             ),
             rationale=(
                 "feature quantification is enabled because an MS1 feature table is available"
-                if WorkflowInputRole.FEATURES in {asset.role for asset in manifest.input_assets}
+                if WorkflowInputRole.FEATURES
+                in {asset.role for asset in manifest.input_assets}
                 else "quantification is omitted because no feature table was attached"
             ),
         ),
@@ -1577,7 +1661,11 @@ def build_workflow_execution_readiness_report(
                 message="required workflow tool versions are not all available in the execution environment",
             )
         )
-    if hpc_job.cpus > max_cpus or hpc_job.memory_gb > max_memory_gb or hpc_job.walltime_minutes > max_walltime_minutes:
+    if (
+        hpc_job.cpus > max_cpus
+        or hpc_job.memory_gb > max_memory_gb
+        or hpc_job.walltime_minutes > max_walltime_minutes
+    ):
         issues.append(
             WorkflowExecutionReadinessIssue(
                 code="resource_guarantee_missing",
@@ -1608,7 +1696,9 @@ def build_workflow_diff_report(
     left_assets = {asset.role: asset for asset in left.input_assets}
     right_assets = {asset.role: asset for asset in right.input_assets}
     entries: list[WorkflowDiffEntry] = []
-    for role in sorted(set(left_assets) | set(right_assets), key=lambda item: item.value):
+    for role in sorted(
+        set(left_assets) | set(right_assets), key=lambda item: item.value
+    ):
         left_asset = left_assets.get(role)
         right_asset = right_assets.get(role)
         left_hash = left_asset.sha256 if left_asset is not None else None
@@ -1787,7 +1877,9 @@ def instantiate_proteomics_workflow_template(
     if design_path is not None:
         attached_roles.add(WorkflowInputRole.DESIGN)
     missing_roles = [
-        role.value for role in template.required_input_roles if role not in attached_roles
+        role.value
+        for role in template.required_input_roles
+        if role not in attached_roles
     ]
     if missing_roles:
         raise ValueError(
@@ -1886,9 +1978,7 @@ def build_workflow_runtime_state_manifest(
         workflow_id=manifest.workflow_id,
         run_id=manifest.run_id,
         manifest_sha256=_stable_model_sha256(manifest),
-        deterministic_execution_sha256=_stable_model_sha256(
-            deterministic_execution
-        ),
+        deterministic_execution_sha256=_stable_model_sha256(deterministic_execution),
         checkpointable_step_ids=manifest.checkpointable_steps,
         result_bindings=result_bindings,
     )
@@ -2244,7 +2334,9 @@ def build_workflow_cache_miss_explanation_report(
             )
         )
     payload = WorkflowCacheMissExplanationReport(
-        document_schema=_build_document_schema("workflow_cache_miss_explanation_report"),
+        document_schema=_build_document_schema(
+            "workflow_cache_miss_explanation_report"
+        ),
         workflow_id=expected.workflow_id,
         reusable=not entries,
         entries=tuple(entries),
@@ -2311,31 +2403,42 @@ def build_proteomics_artifact_inventory(
         for entry in run_directory_layout.entries
         if entry.path_kind is WorkflowPathKind.FILE
     }
-    artifacts = tuple(
-        ArtifactInventoryEntry(
-            artifact_id=artifact.artifact_id,
-            workflow_id=manifest.workflow_id,
-            run_id=manifest.run_id,
-            producer_step_id=artifact.producer_step_id,
-            producer_step_kind=step_kind_by_id[artifact.producer_step_id],
-            artifact_kind=artifact.artifact_kind,
-            relative_path=str(Path(artifact.path).relative_to(manifest.artifacts_dir)),
-            absolute_path=artifact.path,
-            layout_entry_id=layout_entry_by_path[
-                str(Path(artifact.path).relative_to(manifest.artifacts_dir))
-            ].entry_id,
-            expected_document_kind=_expected_artifact_document_kind(
-                artifact.artifact_kind
-            ),
-            upstream_artifact_ids=artifact.upstream_artifact_ids,
+    artifacts = []
+    for artifact in artifact_registry.artifacts:
+        relative_path = str(Path(artifact.path).relative_to(manifest.artifacts_dir))
+        expected_document_kind = _expected_artifact_document_kind(
+            artifact.artifact_kind
         )
-        for artifact in artifact_registry.artifacts
-    )
+        artifacts.append(
+            ArtifactInventoryEntry(
+                artifact_id=artifact.artifact_id,
+                workflow_id=manifest.workflow_id,
+                run_id=manifest.run_id,
+                producer_step_id=artifact.producer_step_id,
+                producer_step_kind=step_kind_by_id[artifact.producer_step_id],
+                artifact_kind=artifact.artifact_kind,
+                relative_path=relative_path,
+                absolute_path=artifact.path,
+                provenance_sha256=_artifact_provenance_sha256(
+                    workflow_id=manifest.workflow_id,
+                    run_id=manifest.run_id,
+                    artifact_id=artifact.artifact_id,
+                    producer_step_id=artifact.producer_step_id,
+                    artifact_kind=artifact.artifact_kind,
+                    relative_path=relative_path,
+                    expected_document_kind=expected_document_kind,
+                    upstream_artifact_ids=artifact.upstream_artifact_ids,
+                ),
+                layout_entry_id=layout_entry_by_path[relative_path].entry_id,
+                expected_document_kind=expected_document_kind,
+                upstream_artifact_ids=artifact.upstream_artifact_ids,
+            )
+        )
     payload = ProteomicsArtifactInventory(
         document_schema=_build_document_schema("proteomics_artifact_inventory"),
         workflow_id=manifest.workflow_id,
         run_id=manifest.run_id,
-        artifacts=artifacts,
+        artifacts=tuple(artifacts),
     )
     return payload.model_copy(
         update={
@@ -2562,21 +2665,15 @@ def build_workflow_checkpoint(
             pending_step_ids.append(step.step_id)
         if step.kind is WorkflowStepKind.RUN_SEARCH_ENGINE:
             resume_kind = WorkflowResumeKind.EXTERNAL_STATE
-            resume_rationale = (
-                "search submission depends on external runtime state and must be reconciled explicitly"
-            )
+            resume_rationale = "search submission depends on external runtime state and must be reconciled explicitly"
             external_state_step_ids.append(step.step_id)
         elif step.cacheable:
             resume_kind = WorkflowResumeKind.RESUMABLE
-            resume_rationale = (
-                "step outputs are deterministic and may be resumed from verified artifacts"
-            )
+            resume_rationale = "step outputs are deterministic and may be resumed from verified artifacts"
             resumable_step_ids.append(step.step_id)
         else:
             resume_kind = WorkflowResumeKind.NON_RESUMABLE
-            resume_rationale = (
-                "step should be replayed instead of skipped because it is not marked cacheable"
-            )
+            resume_rationale = "step should be replayed instead of skipped because it is not marked cacheable"
             non_resumable_step_ids.append(step.step_id)
         steps.append(
             WorkflowCheckpointStep(
@@ -2691,35 +2788,10 @@ def build_workflow_runtime_export_bundle(
     runtime_bundle: ProteomicsWorkflowRuntimeBundle,
 ) -> WorkflowRuntimeExportBundle:
     """Assemble a deterministic runtime export bundle for review and reproduction."""
-    export_bundle_sha256 = hashlib.sha256(
-        "|".join(
-            (
-                _stable_model_sha256(runtime_bundle.manifest),
-                _stable_model_sha256(runtime_bundle.dag_plan),
-                _stable_model_sha256(runtime_bundle.deterministic_execution),
-                _stable_model_sha256(runtime_bundle.runtime_state),
-                _stable_model_sha256(runtime_bundle.run_directory_layout),
-                _stable_sequence_sha256(
-                    tuple(
-                        _stable_model_sha256(step)
-                        for step in runtime_bundle.container_steps
-                    )
-                ),
-                _stable_model_sha256(runtime_bundle.search_contract),
-                _stable_model_sha256(runtime_bundle.hpc_job),
-                _stable_model_sha256(runtime_bundle.cache_manifest),
-                _stable_model_sha256(runtime_bundle.artifact_registry),
-                _stable_model_sha256(runtime_bundle.artifact_inventory),
-                _stable_model_sha256(runtime_bundle.streaming_policy),
-                _stable_model_sha256(runtime_bundle.parallel_plan),
-                _stable_model_sha256(runtime_bundle.checkpoint),
-            )
-        ).encode("utf-8")
-    ).hexdigest()
     payload = WorkflowRuntimeExportBundle(
         document_schema=_build_document_schema("workflow_runtime_export_bundle"),
         workflow_id=runtime_bundle.manifest.workflow_id,
-        export_bundle_sha256=export_bundle_sha256,
+        export_bundle_sha256="0" * 64,
         manifest=runtime_bundle.manifest,
         dag_plan=runtime_bundle.dag_plan,
         deterministic_execution=runtime_bundle.deterministic_execution,
@@ -2734,6 +2806,9 @@ def build_workflow_runtime_export_bundle(
         streaming_policy=runtime_bundle.streaming_policy,
         parallel_plan=runtime_bundle.parallel_plan,
         checkpoint=runtime_bundle.checkpoint,
+    )
+    payload = payload.model_copy(
+        update={"export_bundle_sha256": _workflow_runtime_export_bundle_hash(payload)}
     )
     return payload.model_copy(
         update={
@@ -2772,8 +2847,9 @@ def build_workflow_runtime_validation_report(
                 message="runtime state manifest no longer matches the workflow manifest",
             )
         )
-    if runtime_bundle.runtime_state.deterministic_execution_sha256 != _stable_model_sha256(
-        runtime_bundle.deterministic_execution
+    if (
+        runtime_bundle.runtime_state.deterministic_execution_sha256
+        != _stable_model_sha256(runtime_bundle.deterministic_execution)
     ):
         issues.append(
             WorkflowRuntimeValidationIssue(
@@ -2784,7 +2860,8 @@ def build_workflow_runtime_validation_report(
         )
 
     registry_by_id = {
-        artifact.artifact_id: artifact for artifact in runtime_bundle.artifact_registry.artifacts
+        artifact.artifact_id: artifact
+        for artifact in runtime_bundle.artifact_registry.artifacts
     }
     layout_paths = {
         entry.relative_path
@@ -2963,3 +3040,164 @@ def build_workflow_replay_proof_report(
             )
         }
     )
+
+
+def build_workflow_runtime_archive_bundle(
+    export_bundle: WorkflowRuntimeExportBundle,
+    *,
+    archive_medium: WorkflowArchiveMedium = WorkflowArchiveMedium.PORTABLE_JSON,
+) -> WorkflowRuntimeArchiveBundle:
+    """Wrap one runtime export bundle for offline review and long-lived archival."""
+    archived_artifacts = tuple(
+        ArchivedArtifactDescriptor(
+            artifact_id=artifact.artifact_id,
+            relative_path=artifact.relative_path,
+            provenance_sha256=artifact.provenance_sha256,
+            expected_document_kind=artifact.expected_document_kind,
+        )
+        for artifact in export_bundle.artifact_inventory.artifacts
+    )
+    payload = WorkflowRuntimeArchiveBundle(
+        document_schema=_build_document_schema("workflow_runtime_archive_bundle"),
+        workflow_id=export_bundle.workflow_id,
+        run_id=export_bundle.artifact_inventory.run_id,
+        archive_medium=archive_medium,
+        export_bundle_sha256=export_bundle.export_bundle_sha256,
+        archive_bundle_sha256="0" * 64,
+        archived_artifacts=archived_artifacts,
+        export_bundle=export_bundle,
+    )
+    payload = payload.model_copy(
+        update={"archive_bundle_sha256": _workflow_runtime_archive_bundle_hash(payload)}
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def import_workflow_runtime_archive_bundle(
+    payload: dict[str, object],
+) -> tuple[WorkflowRuntimeExportBundle, WorkflowRuntimeArchiveImportReport]:
+    """Validate and restore one portable archival workflow export bundle."""
+    archive_bundle = WorkflowRuntimeArchiveBundle.from_dict(payload)
+    expected_export_sha256 = _workflow_runtime_export_bundle_hash(
+        archive_bundle.export_bundle
+    )
+    if archive_bundle.export_bundle.export_bundle_sha256 != expected_export_sha256:
+        raise ValueError(
+            "archived workflow export bundle sha256 does not match content"
+        )
+    if archive_bundle.export_bundle_sha256 != expected_export_sha256:
+        raise ValueError("archive bundle export sha256 does not match archived export")
+
+    archived_artifacts_by_id = {
+        artifact.artifact_id: artifact for artifact in archive_bundle.archived_artifacts
+    }
+    for artifact in archive_bundle.export_bundle.artifact_inventory.artifacts:
+        archived = archived_artifacts_by_id.get(artifact.artifact_id)
+        if archived is None:
+            raise ValueError(
+                f"archived artifact descriptor missing for {artifact.artifact_id}"
+            )
+        if (
+            archived.relative_path != artifact.relative_path
+            or archived.provenance_sha256 != artifact.provenance_sha256
+        ):
+            raise ValueError(
+                f"archived artifact descriptor drifted for {artifact.artifact_id}"
+            )
+
+    expected_archive_sha256 = _workflow_runtime_archive_bundle_hash(archive_bundle)
+    if archive_bundle.archive_bundle_sha256 != expected_archive_sha256:
+        raise ValueError("archive bundle sha256 does not match archival content")
+
+    report = WorkflowRuntimeArchiveImportReport(
+        document_schema=_build_document_schema(
+            "workflow_runtime_archive_import_report"
+        ),
+        workflow_id=archive_bundle.workflow_id,
+        run_id=archive_bundle.run_id,
+        archive_bundle_sha256=archive_bundle.archive_bundle_sha256,
+        imported_export_bundle_sha256=archive_bundle.export_bundle_sha256,
+        preserved_artifact_count=len(archive_bundle.archived_artifacts),
+        preserved_provenance_fields=(
+            "workflow_id",
+            "run_id",
+            "export_bundle_sha256",
+            "artifact_id",
+            "relative_path",
+            "provenance_sha256",
+            "expected_document_kind",
+        ),
+        portable_review_ready=bool(archive_bundle.archived_artifacts),
+    )
+    report = report.model_copy(
+        update={
+            "document_schema": report.document_schema.with_content_hash(
+                report.to_dict()
+            )
+        }
+    )
+    return archive_bundle.export_bundle, report
+
+
+def _workflow_runtime_export_bundle_hash(
+    export_bundle: WorkflowRuntimeExportBundle,
+) -> str:
+    return hashlib.sha256(
+        "|".join(
+            (
+                _stable_model_sha256(export_bundle.manifest),
+                _stable_model_sha256(export_bundle.dag_plan),
+                _stable_model_sha256(export_bundle.deterministic_execution),
+                _stable_model_sha256(export_bundle.runtime_state),
+                _stable_model_sha256(export_bundle.run_directory_layout),
+                _stable_sequence_sha256(
+                    tuple(
+                        _stable_model_sha256(step)
+                        for step in export_bundle.container_steps
+                    )
+                ),
+                _stable_model_sha256(export_bundle.search_contract),
+                _stable_model_sha256(export_bundle.hpc_job),
+                _stable_model_sha256(export_bundle.cache_manifest),
+                _stable_model_sha256(export_bundle.artifact_registry),
+                _stable_model_sha256(export_bundle.artifact_inventory),
+                _stable_model_sha256(export_bundle.streaming_policy),
+                _stable_model_sha256(export_bundle.parallel_plan),
+                _stable_model_sha256(export_bundle.checkpoint),
+            )
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def _workflow_runtime_archive_bundle_hash(
+    archive_bundle: WorkflowRuntimeArchiveBundle,
+) -> str:
+    return hashlib.sha256(
+        "|".join(
+            (
+                archive_bundle.workflow_id,
+                archive_bundle.run_id,
+                archive_bundle.archive_medium.value,
+                archive_bundle.export_bundle_sha256,
+                _stable_sequence_sha256(
+                    tuple(
+                        ":".join(
+                            (
+                                artifact.artifact_id,
+                                artifact.relative_path,
+                                artifact.provenance_sha256,
+                                artifact.expected_document_kind or "",
+                            )
+                        )
+                        for artifact in archive_bundle.archived_artifacts
+                    )
+                ),
+            )
+        ).encode("utf-8")
+    ).hexdigest()
