@@ -91,3 +91,19 @@ def test_filter_digested_peptides_supports_length_bounds() -> None:
     assert report.input_peptides == len(peptides)
     assert report.output_peptides == 1
     assert report.excluded_by_length == len(peptides) - 1
+
+
+def test_filter_digested_peptides_supports_mass_bounds() -> None:
+    peptides = digest_sequence(
+        "AKAAKAAK",
+        source_accession="mass-filter-test",
+        missed_cleavages=1,
+    )
+    filtered, report = filter_digested_peptides(
+        peptides,
+        min_mass=350.0,
+        max_mass=700.0,
+    )
+
+    assert [peptide.sequence for peptide in filtered] == ["AKAAK", "AAKAAK"]
+    assert report.excluded_by_mass == len(peptides) - len(filtered)

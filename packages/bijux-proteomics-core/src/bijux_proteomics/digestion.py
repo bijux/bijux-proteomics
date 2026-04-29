@@ -12,6 +12,30 @@ from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation import JsonModel
 
+_MONOISOTOPIC_RESIDUE_MASS: dict[str, float] = {
+    "A": 71.03711,
+    "R": 156.10111,
+    "N": 114.04293,
+    "D": 115.02694,
+    "C": 103.00919,
+    "E": 129.04259,
+    "Q": 128.05858,
+    "G": 57.02146,
+    "H": 137.05891,
+    "I": 113.08406,
+    "L": 113.08406,
+    "K": 128.09496,
+    "M": 131.04049,
+    "F": 147.06841,
+    "P": 97.05276,
+    "S": 87.03203,
+    "T": 101.04768,
+    "W": 186.07931,
+    "Y": 163.06333,
+    "V": 99.06841,
+}
+_WATER_MASS = 18.01056
+
 
 class ProteaseCleavageMode(StrEnum):
     """Direction for protease cleavage semantics."""
@@ -178,10 +202,13 @@ def filter_digested_peptides(
     *,
     min_length: int | None = None,
     max_length: int | None = None,
+    min_mass: float | None = None,
+    max_mass: float | None = None,
 ) -> tuple[tuple[DigestedPeptide, ...], PeptideFilterReport]:
     """Filter digested peptides by sequence length."""
     filtered: list[DigestedPeptide] = []
     excluded_by_length = 0
+    excluded_by_mass = 0
     for peptide in peptides:
         if min_length is not None and len(peptide.sequence) < min_length:
             excluded_by_length += 1
@@ -189,12 +216,19 @@ def filter_digested_peptides(
         if max_length is not None and len(peptide.sequence) > max_length:
             excluded_by_length += 1
             continue
+        mass = _peptide_neutral_mass(peptide.sequence)
+        if min_mass is not None and mass < min_mass:
+            excluded_by_mass += 1
+            continue
+        if max_mass is not None and mass > max_mass:
+            excluded_by_mass += 1
+            continue
         filtered.append(peptide)
     return tuple(filtered), PeptideFilterReport(
         input_peptides=len(peptides),
         output_peptides=len(filtered),
         excluded_by_length=excluded_by_length,
-        excluded_by_mass=0,
+        excluded_by_mass=excluded_by_mass,
     )
 
 
@@ -385,3 +419,7 @@ def _non_specific_digest(
                 )
             )
     return tuple(peptides)
+
+
+def _peptide_neutral_mass(sequence: str) -> float:
+    return _WATER_MASS + sum(_MONOISOTOPIC_RESIDUE_MASS[residue] for residue in sequence)
