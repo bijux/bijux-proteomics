@@ -49,6 +49,12 @@ from bijux_proteomics_foundation.schema import (
     assess_schema_compatibility,
 )
 from bijux_proteomics_foundation.serialization import JsonModel
+from bijux_proteomics_foundation.vocabulary import (
+    DEFAULT_CONTROLLED_VOCABULARY,
+    ControlledVocabularyDomain,
+    ControlledVocabularyTerm,
+    normalize_controlled_term,
+)
 
 __all__ = [
     "AssayId",
@@ -85,6 +91,10 @@ __all__ = [
     "SequenceCoordinateSystem",
     "TargetId",
     "UtcTimestamp",
+    "ControlledVocabularyDomain",
+    "ControlledVocabularyTerm",
+    "DEFAULT_CONTROLLED_VOCABULARY",
+    "normalize_controlled_term",
     "build_identifier",
     "classify_identifier",
     "ensure_identifier_kind",
