@@ -100,6 +100,16 @@ class WorkflowPathKind(StrEnum):
     DIRECTORY = "directory"
 
 
+class WorkflowCacheMissReason(StrEnum):
+    """Stable reasons why a reusable runtime cache entry could not be reused."""
+
+    ENTRY_MISSING = "entry-missing"
+    SCIENTIFIC_INPUTS_CHANGED = "scientific-inputs-changed"
+    TOOLCHAIN_CHANGED = "toolchain-changed"
+    POLICY_CHANGED = "policy-changed"
+    CACHE_LAYOUT_CHANGED = "cache-layout-changed"
+
+
 class DeterministicExecutionContract(JsonModel):
     """Stable reproducibility contract over one runtime execution plan."""
 
@@ -341,6 +351,29 @@ class WorkflowCacheManifest(JsonModel):
     document_schema: DocumentSchema
     workflow_id: str = Field(..., min_length=1)
     entries: tuple[WorkflowCacheEntry, ...] = Field(default_factory=tuple)
+
+
+class WorkflowCacheMissExplanationEntry(JsonModel):
+    """One explicit explanation for why a workflow cache entry was not reused."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: str = Field(..., min_length=1)
+    expected_cache_key: str = Field(..., min_length=64, max_length=64)
+    observed_cache_key: str | None = None
+    reason: WorkflowCacheMissReason
+    detail: str = Field(..., min_length=1)
+
+
+class WorkflowCacheMissExplanationReport(JsonModel):
+    """Workflow-level explanation of reusable-cache misses."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    reusable: bool
+    entries: tuple[WorkflowCacheMissExplanationEntry, ...] = Field(default_factory=tuple)
 
 
 class ArtifactRegistryEntry(JsonModel):
@@ -1317,6 +1350,76 @@ def build_workflow_runtime_cache(
     payload = WorkflowCacheManifest(
         document_schema=_build_document_schema("workflow_cache_manifest"),
         workflow_id=manifest.workflow_id,
+        entries=tuple(entries),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_cache_miss_explanation_report(
+    expected: WorkflowCacheManifest,
+    observed: WorkflowCacheManifest | None,
+) -> WorkflowCacheMissExplanationReport:
+    """Explain why an observed cache manifest could or could not be reused."""
+    observed_by_surface = (
+        {entry.surface: entry for entry in observed.entries}
+        if observed is not None
+        else {}
+    )
+    entries: list[WorkflowCacheMissExplanationEntry] = []
+    for expected_entry in expected.entries:
+        observed_entry = observed_by_surface.get(expected_entry.surface)
+        if observed_entry is None:
+            entries.append(
+                WorkflowCacheMissExplanationEntry(
+                    surface=expected_entry.surface,
+                    expected_cache_key=expected_entry.cache_key,
+                    reason=WorkflowCacheMissReason.ENTRY_MISSING,
+                    detail="no observed cache entry exists for this reusable surface",
+                )
+            )
+            continue
+        if (
+            observed_entry.scientific_inputs_sha256
+            != expected_entry.scientific_inputs_sha256
+        ):
+            reason = WorkflowCacheMissReason.SCIENTIFIC_INPUTS_CHANGED
+            detail = (
+                "scientifically relevant input hashes changed for this cache surface"
+            )
+        elif observed_entry.tool_versions != expected_entry.tool_versions:
+            reason = WorkflowCacheMissReason.TOOLCHAIN_CHANGED
+            detail = (
+                "recorded runtime toolchain identifiers changed for this cache surface"
+            )
+        elif observed_entry.policy_assumptions != expected_entry.policy_assumptions:
+            reason = WorkflowCacheMissReason.POLICY_CHANGED
+            detail = (
+                "recorded runtime policy assumptions changed for this cache surface"
+            )
+        elif observed_entry.cache_path != expected_entry.cache_path:
+            reason = WorkflowCacheMissReason.CACHE_LAYOUT_CHANGED
+            detail = "the cache path changed even though the surface name matched"
+        else:
+            continue
+        entries.append(
+            WorkflowCacheMissExplanationEntry(
+                surface=expected_entry.surface,
+                expected_cache_key=expected_entry.cache_key,
+                observed_cache_key=observed_entry.cache_key,
+                reason=reason,
+                detail=detail,
+            )
+        )
+    payload = WorkflowCacheMissExplanationReport(
+        document_schema=_build_document_schema("workflow_cache_miss_explanation_report"),
+        workflow_id=expected.workflow_id,
+        reusable=not entries,
         entries=tuple(entries),
     )
     return payload.model_copy(

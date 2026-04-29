@@ -128,6 +128,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_proteomics_workflow_manifest" in bijux_proteomics.__all__
     assert "build_proteomics_dag_plan" in bijux_proteomics.__all__
     assert "build_containerized_step_specs" in bijux_proteomics.__all__
+    assert "build_workflow_cache_miss_explanation_report" in bijux_proteomics.__all__
     assert "build_deterministic_execution_contract" in bijux_proteomics.__all__
     assert "build_external_search_tool_contract" in bijux_proteomics.__all__
     assert "build_hpc_job_descriptor" in bijux_proteomics.__all__
@@ -162,6 +163,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ExternalSearchToolContract" in bijux_proteomics.__all__
     assert "HpcJobDescriptor" in bijux_proteomics.__all__
     assert "WorkflowCacheManifest" in bijux_proteomics.__all__
+    assert "WorkflowCacheMissExplanationEntry" in bijux_proteomics.__all__
+    assert "WorkflowCacheMissExplanationReport" in bijux_proteomics.__all__
+    assert "WorkflowCacheMissReason" in bijux_proteomics.__all__
     assert "WorkflowPathKind" in bijux_proteomics.__all__
     assert "WorkflowRunDirectoryLayout" in bijux_proteomics.__all__
     assert "WorkflowRunDirectoryLayoutEntry" in bijux_proteomics.__all__

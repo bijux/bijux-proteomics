@@ -7,9 +7,11 @@ from pathlib import Path
 
 from bijux_proteomics import (
     SearchAdapterKind,
+    build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_workflow_run_directory_layout,
     build_workflow_runtime_state_manifest,
+    WorkflowCacheMissReason,
     WorkflowCheckpointStatus,
     WorkflowExecutionMode,
     WorkflowInputRole,
@@ -209,6 +211,36 @@ def test_workflow_cache_keys_reflect_toolchain_and_policy_assumptions() -> None:
         policy.startswith("digest:") for policy in first_entry.policy_assumptions
     )
     assert first_entry.cache_key != changed_entry.cache_key
+
+
+def test_workflow_cache_miss_explanations_identify_toolchain_changes() -> None:
+    baseline = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        default_container_image="ghcr.io/bijux/proteomics-runtime:v1",
+    )
+    changed = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        default_container_image="ghcr.io/bijux/proteomics-runtime:v2",
+    )
+
+    report = build_workflow_cache_miss_explanation_report(
+        build_workflow_runtime_cache(changed),
+        build_workflow_runtime_cache(baseline),
+    )
+
+    assert report.reusable is False
+    assert any(
+        entry.reason is WorkflowCacheMissReason.TOOLCHAIN_CHANGED
+        for entry in report.entries
+    )
 
 
 def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> None:
