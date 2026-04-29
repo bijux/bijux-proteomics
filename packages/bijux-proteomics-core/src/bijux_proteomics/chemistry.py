@@ -333,6 +333,34 @@ class ModificationLocalizationAdvisory(JsonModel):
     )
 
 
+class VariableModificationEnumerationEntry(JsonModel):
+    """One deterministic modified-peptide variant from bounded enumeration."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_notation: str = Field(..., min_length=1)
+    modification_count: int = Field(..., ge=0)
+    modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
+
+
+class VariableModificationEnumerationReport(JsonModel):
+    """Bounded enumeration result for variable modifications on one peptide."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(..., min_length=1)
+    at_protein_n_term: bool = False
+    at_protein_c_term: bool = False
+    base_modification_count: int = Field(..., ge=0)
+    candidate_site_count: int = Field(..., ge=0)
+    generated_variant_count: int = Field(..., ge=0)
+    max_variants: int = Field(..., ge=1)
+    truncated: bool = False
+    variants: tuple[VariableModificationEnumerationEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
 def _format_mass_delta(delta: float) -> str:
     rendered = f"{delta:+.6f}".rstrip("0").rstrip(".")
     return rendered if "." in rendered else f"{rendered}.0"
@@ -885,6 +913,125 @@ def build_modification_localization_advisory(
     )
 
 
+def enumerate_variable_modifications(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    variable_modifications: tuple[VariableModification, ...] = (),
+    registry: ModificationRegistryDocument | None = None,
+    max_variants: int = 128,
+) -> VariableModificationEnumerationReport:
+    """Enumerate deterministic modified-peptide variants within a hard bound."""
+    if max_variants < 1:
+        raise ValueError("max_variants must be at least 1")
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    definitions = (
+        variable_modifications
+        if variable_modifications
+        else (registry or modification_registry()).variable_modifications
+    )
+    candidate_groups = [
+        _enumeration_candidates_for_definition(
+            parsed,
+            definition=definition,
+            registry=registry,
+        )
+        for definition in definitions
+    ]
+    base_site_keys = {
+        _physical_site_key(modification)
+        for modification in parsed.modifications
+        if _physical_site_key(modification) is not None
+    }
+    variants: list[VariableModificationEnumerationEntry] = []
+    truncated = False
+
+    def visit(
+        index: int,
+        selected: list[AppliedModification],
+        occupied_site_keys: set[tuple[str, int | None]],
+    ) -> None:
+        nonlocal truncated
+        if truncated:
+            return
+        if index == len(candidate_groups):
+            combined = tuple(
+                sorted(
+                    (*parsed.modifications, *selected),
+                    key=lambda modification: (
+                        0
+                        if modification.site
+                        in {
+                            ModificationPosition.PEPTIDE_N_TERM,
+                            ModificationPosition.PROTEIN_N_TERM,
+                        }
+                        else 1,
+                        modification.site_index or 0,
+                        2
+                        if modification.site
+                        in {
+                            ModificationPosition.PEPTIDE_C_TERM,
+                            ModificationPosition.PROTEIN_C_TERM,
+                        }
+                        else 1,
+                        modification.token,
+                    ),
+                )
+            )
+            variants.append(
+                VariableModificationEnumerationEntry(
+                    canonical_notation=_render_modified_peptide(
+                        parsed.sequence,
+                        combined,
+                    ),
+                    modification_count=len(combined),
+                    modifications=combined,
+                )
+            )
+            if len(variants) >= max_variants:
+                truncated = True
+            return
+
+        definition, candidates = candidate_groups[index]
+        definition_limit = definition.max_occurrences or len(candidates)
+        candidate_choices = [()]
+        for count in range(1, min(definition_limit, len(candidates)) + 1):
+            candidate_choices.extend(combinations(candidates, count))
+
+        for choice in candidate_choices:
+            choice_site_keys = {
+                _physical_site_key(modification) for modification in choice
+            }
+            if None in choice_site_keys:
+                continue
+            typed_choice_site_keys = {
+                site_key for site_key in choice_site_keys if site_key is not None
+            }
+            if occupied_site_keys & typed_choice_site_keys:
+                continue
+            visit(
+                index + 1,
+                [*selected, *choice],
+                occupied_site_keys | typed_choice_site_keys,
+            )
+            if truncated:
+                return
+
+    from itertools import combinations
+
+    visit(0, [], set(base_site_keys))
+    return VariableModificationEnumerationReport(
+        sequence=parsed.sequence,
+        at_protein_n_term=parsed.at_protein_n_term,
+        at_protein_c_term=parsed.at_protein_c_term,
+        base_modification_count=len(parsed.modifications),
+        candidate_site_count=sum(len(candidates) for _definition, candidates in candidate_groups),
+        generated_variant_count=len(variants),
+        max_variants=max_variants,
+        truncated=truncated,
+        variants=tuple(variants),
+    )
+
+
 def _resolve_token(
     token: str,
     *,
@@ -953,6 +1100,100 @@ def _validate_definition_site(
         raise ValueError(
             f"modification {definition.name!r} requires a peptide at the protein C-terminus"
         )
+    return None
+
+
+def _enumeration_candidates_for_definition(
+    peptide: ParsedModifiedPeptide,
+    *,
+    definition: VariableModification,
+    registry: ModificationRegistryDocument | None,
+) -> tuple[VariableModification, tuple[AppliedModification, ...]]:
+    sequence = peptide.sequence
+    candidates: list[AppliedModification] = []
+    if definition.position is ModificationPosition.ANYWHERE:
+        for site_index, residue in enumerate(sequence, start=1):
+            if residue not in definition.residues:
+                continue
+            candidates.append(
+                _build_applied_modification(
+                    token=definition.name,
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=site_index,
+                    sequence=sequence,
+                    registry=registry,
+                    at_protein_n_term=peptide.at_protein_n_term,
+                    at_protein_c_term=peptide.at_protein_c_term,
+                )
+            )
+    elif definition.position is ModificationPosition.PEPTIDE_N_TERM:
+        candidates.append(
+            _build_applied_modification(
+                token=definition.name,
+                site=ModificationPosition.PEPTIDE_N_TERM,
+                site_index=None,
+                sequence=sequence,
+                registry=registry,
+                at_protein_n_term=peptide.at_protein_n_term,
+                at_protein_c_term=peptide.at_protein_c_term,
+            )
+        )
+    elif definition.position is ModificationPosition.PEPTIDE_C_TERM:
+        candidates.append(
+            _build_applied_modification(
+                token=definition.name,
+                site=ModificationPosition.PEPTIDE_C_TERM,
+                site_index=None,
+                sequence=sequence,
+                registry=registry,
+                at_protein_n_term=peptide.at_protein_n_term,
+                at_protein_c_term=peptide.at_protein_c_term,
+            )
+        )
+    elif definition.position is ModificationPosition.PROTEIN_N_TERM:
+        if peptide.at_protein_n_term:
+            candidates.append(
+                _build_applied_modification(
+                    token=definition.name,
+                    site=ModificationPosition.PROTEIN_N_TERM,
+                    site_index=None,
+                    sequence=sequence,
+                    registry=registry,
+                    at_protein_n_term=peptide.at_protein_n_term,
+                    at_protein_c_term=peptide.at_protein_c_term,
+                )
+            )
+    elif definition.position is ModificationPosition.PROTEIN_C_TERM:
+        if peptide.at_protein_c_term:
+            candidates.append(
+                _build_applied_modification(
+                    token=definition.name,
+                    site=ModificationPosition.PROTEIN_C_TERM,
+                    site_index=None,
+                    sequence=sequence,
+                    registry=registry,
+                    at_protein_n_term=peptide.at_protein_n_term,
+                    at_protein_c_term=peptide.at_protein_c_term,
+                )
+            )
+    return definition, tuple(candidates)
+
+
+def _physical_site_key(
+    modification: AppliedModification,
+) -> tuple[str, int | None] | None:
+    if modification.site is ModificationPosition.ANYWHERE:
+        return ("residue", modification.site_index)
+    if modification.site in {
+        ModificationPosition.PEPTIDE_N_TERM,
+        ModificationPosition.PROTEIN_N_TERM,
+    }:
+        return ("n_term", None)
+    if modification.site in {
+        ModificationPosition.PEPTIDE_C_TERM,
+        ModificationPosition.PROTEIN_C_TERM,
+    }:
+        return ("c_term", None)
     return None
 
 

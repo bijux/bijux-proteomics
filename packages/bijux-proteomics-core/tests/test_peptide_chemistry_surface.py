@@ -26,6 +26,7 @@ from bijux_proteomics import (
     calculate_monoisotopic_peptide_mass,
     calculate_peptide_mz,
     canonicalize_modified_peptide,
+    enumerate_variable_modifications,
     get_modification,
     load_modification_registry,
     modification_registry,
@@ -317,6 +318,51 @@ def test_protein_terminal_modifications_require_explicit_terminal_context() -> N
             assignments=("Acetyl@protein-n-term",),
             registry=modification_registry(),
         )
+
+
+def test_variable_modification_enumeration_is_bounded_and_reported() -> None:
+    report = enumerate_variable_modifications(
+        "MMMM",
+        variable_modifications=(
+            VariableModification(
+                name="Oxidation",
+                residues=("M",),
+                mass_delta_monoisotopic=15.994915,
+                mass_delta_average=15.9994,
+                max_occurrences=4,
+            ),
+        ),
+        max_variants=5,
+    )
+
+    assert report.candidate_site_count == 4
+    assert report.generated_variant_count == 5
+    assert report.truncated is True
+    assert report.variants[0].canonical_notation == "MMMM"
+
+
+def test_variable_modification_enumeration_respects_max_occurrences() -> None:
+    report = enumerate_variable_modifications(
+        "MMM",
+        variable_modifications=(
+            VariableModification(
+                name="Oxidation",
+                residues=("M",),
+                mass_delta_monoisotopic=15.994915,
+                mass_delta_average=15.9994,
+                max_occurrences=1,
+            ),
+        ),
+        max_variants=10,
+    )
+
+    assert report.truncated is False
+    assert [entry.canonical_notation for entry in report.variants] == [
+        "MMM",
+        "M[Oxidation]MM",
+        "MM[Oxidation]M",
+        "MMM[Oxidation]",
+    ]
 
 
 def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:
