@@ -338,6 +338,65 @@ class ProteinQuantPolicyComparisonReport(JsonModel):
     entries: tuple[ProteinQuantPolicyComparisonEntry, ...] = Field(default_factory=tuple)
 
 
+class StudyScaleReplicateSampleEntry(JsonModel):
+    """Per-sample correlation summary for larger replicate studies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    within_condition_pairs: int = Field(..., ge=0)
+    between_condition_pairs: int = Field(..., ge=0)
+    mean_within_condition_correlation: float | None = Field(
+        default=None,
+        ge=-1.0,
+        le=1.0,
+    )
+    mean_between_condition_correlation: float | None = Field(
+        default=None,
+        ge=-1.0,
+        le=1.0,
+    )
+
+
+class StudyScaleReplicateCorrelationReport(JsonModel):
+    """Compact replicate-correlation summary for realistic study sizes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    sample_summaries: tuple[StudyScaleReplicateSampleEntry, ...] = Field(
+        default_factory=tuple
+    )
+    weakest_within_condition_pairs: tuple[ReplicateCorrelationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    strongest_between_condition_pairs: tuple[ReplicateCorrelationEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class StudyScaleBatchEffectEntry(JsonModel):
+    """Batch-level compact summary for larger quantification studies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: str = Field(..., min_length=1)
+    sample_count: int = Field(..., ge=1)
+    flagged: bool
+    median_shift_from_global: float
+
+
+class StudyScaleBatchEffectReport(JsonModel):
+    """Compact batch-effect summary that stays reviewable at study scale."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ADVISORY
+    entries: tuple[StudyScaleBatchEffectEntry, ...] = Field(default_factory=tuple)
+    flagged_batch_count: int = Field(..., ge=0)
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -2206,6 +2265,100 @@ def build_replicate_correlation_report(
         between_condition_mean=float(np.mean(between_condition))
         if between_condition
         else None,
+    )
+
+
+def build_study_scale_replicate_correlation_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    top_pair_count: int = 5,
+) -> StudyScaleReplicateCorrelationReport:
+    """Summarize replicate correlations in a compact study-scale report."""
+    pairwise = build_replicate_correlation_report(table, design_entries)
+    per_sample_within: dict[str, list[float]] = defaultdict(list)
+    per_sample_between: dict[str, list[float]] = defaultdict(list)
+    condition_by_sample = _condition_lookup(design_entries)
+    for entry in pairwise.entries:
+        target = (
+            per_sample_within if entry.condition_a == entry.condition_b else per_sample_between
+        )
+        target[entry.sample_a].append(entry.correlation)
+        target[entry.sample_b].append(entry.correlation)
+
+    sample_summaries = tuple(
+        StudyScaleReplicateSampleEntry(
+            sample_id=sample_id,
+            condition=condition_by_sample.get(sample_id, "unknown"),
+            within_condition_pairs=len(per_sample_within.get(sample_id, ())),
+            between_condition_pairs=len(per_sample_between.get(sample_id, ())),
+            mean_within_condition_correlation=(
+                float(np.mean(per_sample_within[sample_id]))
+                if per_sample_within.get(sample_id)
+                else None
+            ),
+            mean_between_condition_correlation=(
+                float(np.mean(per_sample_between[sample_id]))
+                if per_sample_between.get(sample_id)
+                else None
+            ),
+        )
+        for sample_id in table.sample_ids
+    )
+    weakest_within = tuple(
+        sorted(
+            (
+                entry
+                for entry in pairwise.entries
+                if entry.condition_a == entry.condition_b
+            ),
+            key=lambda entry: (entry.correlation, entry.sample_a, entry.sample_b),
+        )[:top_pair_count]
+    )
+    strongest_between = tuple(
+        sorted(
+            (
+                entry
+                for entry in pairwise.entries
+                if entry.condition_a != entry.condition_b
+            ),
+            key=lambda entry: (-entry.correlation, entry.sample_a, entry.sample_b),
+        )[:top_pair_count]
+    )
+    return StudyScaleReplicateCorrelationReport(
+        entity_level=table.entity_level,
+        sample_summaries=sample_summaries,
+        weakest_within_condition_pairs=weakest_within,
+        strongest_between_condition_pairs=strongest_between,
+    )
+
+
+def build_study_scale_batch_effect_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    batch_field: str = "batch",
+    shift_threshold: float = 0.5,
+) -> StudyScaleBatchEffectReport:
+    """Summarize batch effects in a compact report for larger studies."""
+    advisory = build_batch_effect_advisory(
+        table,
+        design_entries,
+        batch_field=batch_field,
+        shift_threshold=shift_threshold,
+    )
+    entries = tuple(
+        StudyScaleBatchEffectEntry(
+            batch_id=entry.batch_id,
+            sample_count=len(entry.sample_ids),
+            flagged=entry.flagged,
+            median_shift_from_global=entry.shift_from_global,
+        )
+        for entry in advisory.batches
+    )
+    return StudyScaleBatchEffectReport(
+        entries=entries,
+        flagged_batch_count=sum(1 for entry in entries if entry.flagged),
     )
 
 

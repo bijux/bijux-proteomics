@@ -26,6 +26,8 @@ from bijux_proteomics import (
     QuantEntityLevel,
     QuantRollupMethod,
     QuantAssessmentDisposition,
+    StudyScaleBatchEffectReport,
+    StudyScaleReplicateCorrelationReport,
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
@@ -39,6 +41,8 @@ from bijux_proteomics import (
     build_quant_matrix_export,
     build_replicate_correlation_report,
     build_spectral_count_table,
+    build_study_scale_batch_effect_report,
+    build_study_scale_replicate_correlation_report,
     export_label_free_provenance_bundle,
     export_quant_matrix_tsv,
     normalize_multiplex_quant_table,
@@ -518,6 +522,39 @@ def test_protein_quant_policy_comparison_makes_shared_peptide_assumptions_explic
     assert values[ProteinQuantAssignmentPolicy.QUANT_UNIQUE_ONLY] == 1900.0
     assert values[ProteinQuantAssignmentPolicy.QUANT_SPLIT_SHARED] == 2050.0
     assert p001_c1.max_abundance_difference == 300.0
+
+
+def test_study_scale_quant_reports_summarize_large_designs_compactly() -> None:
+    feature_report = parse_ms1_feature_table(
+        _quant_fixture("study_scale_ms1_features.tsv")
+    )
+    design_report = parse_experimental_design_table(_quant_fixture("study_scale.design.tsv"))
+    table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    replicate_summary = build_study_scale_replicate_correlation_report(
+        table,
+        design_report.accepted_entries,
+        top_pair_count=2,
+    )
+    batch_summary = build_study_scale_batch_effect_report(
+        table,
+        design_report.accepted_entries,
+        shift_threshold=0.1,
+    )
+
+    assert isinstance(replicate_summary, StudyScaleReplicateCorrelationReport)
+    assert len(replicate_summary.sample_summaries) == 8
+    c1 = next(
+        entry for entry in replicate_summary.sample_summaries if entry.sample_id == "C1"
+    )
+    assert c1.within_condition_pairs == 3
+    assert len(replicate_summary.weakest_within_condition_pairs) == 2
+    assert isinstance(batch_summary, StudyScaleBatchEffectReport)
+    assert batch_summary.flagged_batch_count == 2
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (
