@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
@@ -17,7 +18,7 @@ from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
 from bijux_proteomics.formats import ExperimentalDesignEntry
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
 class QuantEntityLevel(StrEnum):
@@ -422,6 +423,51 @@ class DifferentialAbundanceReport(JsonModel):
     entries: tuple[DifferentialAbundanceEntry, ...] = Field(default_factory=tuple)
 
 
+class LabelFreeFeatureProvenanceEntry(JsonModel):
+    """Feature-level provenance preserved inside an LFQ workflow bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    feature_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    intensity: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+
+
+class LabelFreePeptideProvenanceEntry(JsonModel):
+    """Peptide-level LFQ abundance plus contributing raw features."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+    contributing_feature_ids: tuple[str, ...] = Field(default_factory=tuple)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LabelFreeProvenanceBundle(JsonModel):
+    """Reviewable LFQ provenance across features, peptides, and proteins."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    aggregation_method: QuantRollupMethod
+    normalization_method: NormalizationMethod
+    feature_entries: tuple[LabelFreeFeatureProvenanceEntry, ...] = Field(
+        default_factory=tuple
+    )
+    peptide_entries: tuple[LabelFreePeptideProvenanceEntry, ...] = Field(
+        default_factory=tuple
+    )
+    protein_entries: tuple[ProteinQuantRollupEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
 @dataclass(frozen=True)
 class _QuantAccumulator:
     values: tuple[float, ...]
@@ -773,6 +819,145 @@ def build_protein_quant_rollup_evidence(
             key=lambda entry: (entry.protein_ref, entry.sample_id),
         )
     )
+
+
+def build_label_free_provenance_bundle(
+    records: tuple[Ms1FeatureRecord, ...],
+    *,
+    aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
+    normalization_method: NormalizationMethod = NormalizationMethod.NONE,
+    top_n: int = 3,
+) -> LabelFreeProvenanceBundle:
+    """Build peptide-level and feature-level provenance for an LFQ workflow."""
+    peptide_table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    protein_table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    if normalization_method is not NormalizationMethod.NONE:
+        peptide_table = normalize_label_free_table(
+            peptide_table,
+            method=normalization_method,
+        )
+        protein_table = normalize_label_free_table(
+            protein_table,
+            method=normalization_method,
+        )
+    peptide_value_lookup = _matrix_value_index(peptide_table)
+    protein_value_lookup = _matrix_value_index(protein_table)
+
+    grouped_features: dict[tuple[str, str], list[Ms1FeatureRecord]] = defaultdict(list)
+    for record in records:
+        grouped_features[(record.canonical_peptide, record.sample_id)].append(record)
+
+    peptide_entries: list[LabelFreePeptideProvenanceEntry] = []
+    for canonical_peptide in peptide_table.entity_ids:
+        for sample_id in peptide_table.sample_ids:
+            value = peptide_value_lookup[(canonical_peptide, sample_id)]
+            features = sorted(
+                grouped_features.get((canonical_peptide, sample_id), ()),
+                key=lambda record: record.feature_id,
+            )
+            peptide_entries.append(
+                LabelFreePeptideProvenanceEntry(
+                    sample_id=sample_id,
+                    canonical_peptide=canonical_peptide,
+                    abundance=value.abundance,
+                    missing_value_kind=value.missing_value_kind,
+                    contributing_feature_ids=tuple(
+                        record.feature_id for record in features
+                    ),
+                    protein_refs=tuple(
+                        dict.fromkeys(
+                            protein_ref
+                            for record in features
+                            for protein_ref in record.protein_refs
+                        )
+                    ),
+                )
+            )
+
+    protein_entries = []
+    for entry in build_protein_quant_rollup_evidence(
+        records,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    ):
+        protein_entries.append(
+            entry.model_copy(
+                update={
+                    "abundance": protein_value_lookup[
+                        (entry.protein_ref, entry.sample_id)
+                    ].abundance,
+                    "missing_value_kind": protein_value_lookup[
+                        (entry.protein_ref, entry.sample_id)
+                    ].missing_value_kind,
+                }
+            )
+        )
+
+    bundle = LabelFreeProvenanceBundle(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="label_free_provenance_bundle",
+            package_name="bijux-proteomics-core",
+            status="generated",
+        ),
+        aggregation_method=aggregation_method,
+        normalization_method=normalization_method,
+        feature_entries=tuple(
+            LabelFreeFeatureProvenanceEntry(
+                feature_id=record.feature_id,
+                sample_id=record.sample_id,
+                canonical_peptide=record.canonical_peptide,
+                protein_refs=record.protein_refs,
+                intensity=record.intensity,
+                missing_value_kind=record.missing_value_kind,
+            )
+            for record in sorted(
+                records,
+                key=lambda record: (
+                    record.sample_id,
+                    record.canonical_peptide,
+                    record.feature_id,
+                ),
+            )
+        ),
+        peptide_entries=tuple(
+            sorted(
+                peptide_entries,
+                key=lambda entry: (entry.canonical_peptide, entry.sample_id),
+            )
+        ),
+        protein_entries=tuple(
+            sorted(
+                protein_entries,
+                key=lambda entry: (entry.protein_ref, entry.sample_id),
+            )
+        ),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_label_free_provenance_bundle(
+    bundle: LabelFreeProvenanceBundle,
+    path: Path,
+) -> None:
+    """Write a stable JSON bundle for LFQ provenance review."""
+    path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
 
 
 def export_quant_matrix_tsv(

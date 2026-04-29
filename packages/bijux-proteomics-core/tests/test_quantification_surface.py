@@ -9,6 +9,7 @@ import numpy as np
 
 from bijux_proteomics import (
     DifferentialReplicatePolicy,
+    LabelFreeProvenanceBundle,
     LabelFreeQuantTable,
     MissingValueCorrectionPolicy,
     MissingValueSummaryPolicy,
@@ -20,11 +21,13 @@ from bijux_proteomics import (
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_label_free_provenance_bundle,
     build_normalization_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
     build_replicate_correlation_report,
     build_spectral_count_table,
+    export_label_free_provenance_bundle,
     export_quant_matrix_tsv,
     normalize_label_free_table,
     parse_experimental_design_table,
@@ -183,6 +186,37 @@ def test_protein_quant_rollup_evidence_lists_contributing_features_and_peptides(
     assert entry.abundance == 1900.0
     assert entry.contributing_feature_ids == ("f001", "f002")
     assert entry.contributing_peptides == ("APEPTIDE", "APEPTIDER")
+
+
+def test_label_free_provenance_bundle_preserves_feature_and_peptide_lineage() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+
+    bundle = build_label_free_provenance_bundle(
+        report.accepted_records,
+        aggregation_method=QuantRollupMethod.TOP_N,
+        normalization_method=NormalizationMethod.MEDIAN,
+        top_n=2,
+    )
+
+    assert isinstance(bundle, LabelFreeProvenanceBundle)
+    assert bundle.document_schema.document_kind == "label_free_provenance_bundle"
+    peptide = next(
+        entry
+        for entry in bundle.peptide_entries
+        if entry.canonical_peptide == "APEPTIDE" and entry.sample_id == "C1"
+    )
+    protein = next(
+        entry for entry in bundle.protein_entries if entry.protein_ref == "P001" and entry.sample_id == "C1"
+    )
+    assert peptide.contributing_feature_ids == ("f001",)
+    assert protein.contributing_feature_ids == ("f001", "f002")
+
+    output_path = _quant_fixture("lfq_provenance.json")
+    try:
+        export_label_free_provenance_bundle(bundle, output_path)
+        assert "label_free_provenance_bundle" in output_path.read_text()
+    finally:
+        output_path.unlink(missing_ok=True)
 
 
 def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -> None:
