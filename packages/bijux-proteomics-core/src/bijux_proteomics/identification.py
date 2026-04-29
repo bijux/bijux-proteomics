@@ -590,6 +590,32 @@ class PeptideProteinTraceReport(JsonModel):
     entries: tuple[PeptideProteinTraceEntry, ...] = Field(default_factory=tuple)
 
 
+class InferenceDisagreementKind(StrEnum):
+    """Kinds of inference disagreements surfaced for review."""
+
+    PEPTIDE_ASSIGNMENT = "peptide_assignment"
+    PROTEIN_SET = "protein_set"
+
+
+class InferenceDisagreementEntry(JsonModel):
+    """One explicit disagreement between inference strategies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    subject_id: str = Field(..., min_length=1)
+    kind: InferenceDisagreementKind
+    strategy_assignments: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    note: str = Field(..., min_length=1)
+
+
+class InferenceDisagreementReport(JsonModel):
+    """Review-oriented report of disagreements between inference strategies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[InferenceDisagreementEntry, ...] = Field(default_factory=tuple)
+
+
 class ParsimonyVariantResult(JsonModel):
     """Selections produced by one named protein-parsimony policy."""
 
@@ -2859,6 +2885,85 @@ def export_peptide_protein_trace_tsv(
                     "" if entry.best_q_value is None else entry.best_q_value,
                 ]
             )
+
+
+def build_inference_disagreement_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    parsimony_variants: tuple[ParsimonyVariant, ...] = (
+        ParsimonyVariant.GREEDY_COVERAGE,
+        ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ParsimonyVariant.BEST_SCORE_PRIORITY,
+    ),
+) -> InferenceDisagreementReport:
+    """Expose disagreements across inference strategies instead of hiding them."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    razor = {
+        entry.canonical_peptide: entry for entry in assign_razor_peptides(records)
+    }
+    parsimony_results = {
+        variant: infer_proteins_by_parsimony(records, variant=variant)
+        for variant in parsimony_variants
+    }
+    entries: list[InferenceDisagreementEntry] = []
+    for rollup in peptide_rollups:
+        if len(rollup.protein_refs) < 2:
+            continue
+        assignments: dict[str, tuple[str, ...]] = {}
+        razor_assignment = razor.get(rollup.canonical_peptide)
+        if razor_assignment is not None:
+            assignments["razor"] = (razor_assignment.assigned_protein,)
+        for variant, selected in parsimony_results.items():
+            assignments[f"parsimony:{variant.value}"] = tuple(
+                entry.protein_ref
+                for entry in selected
+                if rollup.canonical_peptide in entry.covered_peptides
+            )
+        flattened = {
+            protein_ref
+            for protein_refs in assignments.values()
+            for protein_ref in protein_refs
+        }
+        if len(flattened) > 1:
+            entries.append(
+                InferenceDisagreementEntry(
+                    subject_id=rollup.canonical_peptide,
+                    kind=InferenceDisagreementKind.PEPTIDE_ASSIGNMENT,
+                    strategy_assignments=assignments,
+                    note="shared peptide support diverges across razor and parsimony strategies",
+                )
+            )
+
+    comparison = compare_parsimony_variants(records, variants=parsimony_variants)
+    for difference in comparison.differences:
+        if (
+            not difference.left_only_proteins
+            and not difference.right_only_proteins
+            and difference.first_difference_rank is None
+        ):
+            continue
+        entries.append(
+            InferenceDisagreementEntry(
+                subject_id=f"{difference.left_variant.value}__vs__{difference.right_variant.value}",
+                kind=InferenceDisagreementKind.PROTEIN_SET,
+                strategy_assignments={
+                    difference.left_variant.value: tuple(
+                        entry.protein_ref
+                        for entry in parsimony_results[difference.left_variant]
+                    ),
+                    difference.right_variant.value: tuple(
+                        entry.protein_ref
+                        for entry in parsimony_results[difference.right_variant]
+                    ),
+                },
+                note="named parsimony variants diverge in protein-set membership or ranking over the same evidence",
+            )
+        )
+    return InferenceDisagreementReport(
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.kind.value, entry.subject_id))
+        )
+    )
 
 
 def _parsimony_sort_key(

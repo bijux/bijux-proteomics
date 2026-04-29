@@ -27,6 +27,7 @@ from bijux_proteomics import (
     build_combined_evidence_report,
     build_fdr_audit_trail,
     build_fdr_edge_case_report,
+    build_inference_disagreement_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
@@ -772,6 +773,34 @@ def test_peptide_to_protein_trace_report_remains_stable_across_exports() -> None
     finally:
         jsonl_path.unlink(missing_ok=True)
         tsv_path.unlink(missing_ok=True)
+
+
+def test_inference_disagreement_report_surfaces_strategy_divergence() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_parsimony_variants.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    disagreement = build_inference_disagreement_report(accepted)
+
+    peptide_entry = next(
+        entry for entry in disagreement.entries if entry.subject_id == "BRAVOK"
+    )
+    protein_set_entry = next(
+        entry
+        for entry in disagreement.entries
+        if entry.kind.value == "protein_set"
+    )
+    assert peptide_entry.kind.value == "peptide_assignment"
+    assert peptide_entry.strategy_assignments["razor"] == ("P20002",)
+    assert (
+        peptide_entry.strategy_assignments["parsimony:greedy_coverage"][0]
+        == "P10001"
+    )
+    assert protein_set_entry.strategy_assignments["greedy_coverage"] == (
+        "P10001",
+        "P20002",
+    )
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:
