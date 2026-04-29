@@ -341,6 +341,32 @@ def test_build_modified_peptide_supports_assignment_syntax() -> None:
     )
 
     assert peptide.canonical_notation == "[Acetyl]-PES[Phospho]TIDE"
+    assert peptide.modifications[0].provenance is not None
+    assert peptide.modifications[0].provenance.rule_path == (
+        "modification_registry",
+        "variable",
+        "Acetyl",
+    )
+
+
+def test_named_and_delta_modifications_record_assignment_provenance() -> None:
+    registry = modification_registry()
+    named = parse_modified_peptide("M[Oxidation]PEPTIDE", registry=registry)
+    delta = parse_modified_peptide("M[+15.994915]PEPTIDE", registry=registry)
+
+    assert named.modifications[0].provenance is not None
+    assert named.modifications[0].provenance.assignment_token == "Oxidation"
+    assert named.modifications[0].provenance.rule_path == (
+        "modification_registry",
+        "variable",
+        "Oxidation",
+    )
+    assert delta.modifications[0].provenance is not None
+    assert delta.modifications[0].provenance.assignment_token == "+15.994915"
+    assert delta.modifications[0].provenance.rule_path == (
+        "explicit_delta",
+        "+15.994915",
+    )
 
 
 def test_build_modified_peptide_supports_explicit_protein_terminal_assignments() -> (

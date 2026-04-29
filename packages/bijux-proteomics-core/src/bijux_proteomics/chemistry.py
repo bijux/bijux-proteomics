@@ -175,6 +175,18 @@ class ModificationRegistryDocument(JsonModel):
     )
 
 
+class ModificationProvenance(JsonModel):
+    """Provenance for one applied peptide modification."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source: str = Field(..., min_length=1)
+    assignment_token: str = Field(..., min_length=1)
+    rule_path: tuple[str, ...] = Field(default_factory=tuple)
+    resolved_name: str | None = None
+    controlled_id: str | None = None
+
+
 class AppliedModification(JsonModel):
     """One concrete modification placed onto a peptide site."""
 
@@ -190,6 +202,7 @@ class AppliedModification(JsonModel):
     neutral_losses: tuple[NeutralLoss, ...] = Field(default_factory=tuple)
     controlled_id: str | None = None
     source: str = Field(default="registry", min_length=1)
+    provenance: ModificationProvenance | None = None
 
     @field_validator("residue")
     @classmethod
@@ -458,6 +471,13 @@ def _build_applied_modification(
         neutral_losses=losses,
         controlled_id=controlled_id,
         source=source,
+        provenance=_build_modification_provenance(
+            token=stripped_token,
+            source=source,
+            resolved_name=name,
+            definition=definition,
+            controlled_id=controlled_id,
+        ),
     )
 
 
@@ -483,6 +503,35 @@ def _candidate_definition_for_delta(
             continue
         return definition
     return None
+
+
+def _build_modification_provenance(
+    *,
+    token: str,
+    source: str,
+    resolved_name: str,
+    definition: StaticModification | VariableModification | None,
+    controlled_id: str | None,
+) -> ModificationProvenance:
+    if definition is not None:
+        return ModificationProvenance(
+            source=source,
+            assignment_token=token,
+            rule_path=(
+                "modification_registry",
+                definition.application,
+                definition.name,
+            ),
+            resolved_name=resolved_name,
+            controlled_id=controlled_id,
+        )
+    return ModificationProvenance(
+        source=source,
+        assignment_token=token,
+        rule_path=("explicit_delta", _format_mass_delta(float(token))),
+        resolved_name=resolved_name,
+        controlled_id=controlled_id,
+    )
 
 
 def _build_builtin_registry() -> ModificationRegistryDocument:
