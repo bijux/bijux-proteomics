@@ -99,6 +99,27 @@ from bijux_proteomics import (
 )
 ```
 
+Peptide generation and indexing surfaces are available from the same package:
+
+```python
+from bijux_proteomics import (
+    PeptideDigestionMode,
+    build_peptide_protein_index,
+    classify_peptide_uniqueness,
+    digest_sequence,
+    get_protease_rule,
+)
+
+peptides = digest_sequence(
+    "MKWVTFISLLFLFSSAYSRGVFR",
+    protease=get_protease_rule("trypsin"),
+    missed_cleavages=1,
+    mode=PeptideDigestionMode.FULL,
+)
+index = build_peptide_protein_index(peptides)
+uniqueness = classify_peptide_uniqueness(peptides)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -187,6 +208,7 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
 - [`src/bijux_proteomics/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/repositories.py) for decision and gate repository protocols
 - [`src/bijux_proteomics/sequences.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences.py) for FASTA parsing, protein normalization, checksums, filtering, provenance, and target-decoy utilities
+- [`src/bijux_proteomics/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py) for protease rules, digestion modes, peptide filters, uniqueness, and peptide-to-protein indexing
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations

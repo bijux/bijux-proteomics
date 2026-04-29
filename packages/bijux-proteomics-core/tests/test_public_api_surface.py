@@ -16,6 +16,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "FastaParseReport" in bijux_proteomics.__all__
     assert "generate_decoy_records" in bijux_proteomics.__all__
     assert "validate_target_decoy_database" in bijux_proteomics.__all__
+    assert "digest_sequence" in bijux_proteomics.__all__
+    assert "protease_registry" in bijux_proteomics.__all__
+    assert "build_peptide_protein_index" in bijux_proteomics.__all__
 
 
 def test_intelligence_public_api_contains_expected_exports() -> None:
