@@ -19,6 +19,7 @@ from bijux_proteomics import (
     build_spectrum_provenance_manifest,
     calculate_precursor_mass_error,
     calculate_spectral_similarity,
+    detect_precursor_isotope_offset_advisory,
     export_spectrum_annotation_tsv,
     export_annotated_spectrum_bundle,
     filter_spectrum_peaks,
@@ -200,6 +201,18 @@ def test_precursor_mass_error_reports_dalton_and_ppm() -> None:
 
     assert round(error.delta_da, 6) == 0.2
     assert round(error.delta_ppm, 3) == 400.0
+
+
+def test_precursor_isotope_offset_advisory_stays_non_enforced() -> None:
+    advisory = detect_precursor_isotope_offset_advisory(
+        observed_mz=500.0 + (1.0033548378 / 2.0),
+        theoretical_mz=500.0,
+        charge=2,
+    )
+
+    assert advisory.advisory_only is True
+    assert advisory.recommended_offset == 1
+    assert advisory.candidates[0].isotope_offset == 1
 
 
 def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() -> None:

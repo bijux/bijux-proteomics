@@ -77,6 +77,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "SpectrumAnnotationAmbiguityWarning" in bijux_proteomics.__all__
     assert "calculate_spectral_similarity" in bijux_proteomics.__all__
     assert "SpectrumSimilarityMode" in bijux_proteomics.__all__
+    assert "detect_precursor_isotope_offset_advisory" in bijux_proteomics.__all__
     assert "build_spectrum_provenance_manifest" in bijux_proteomics.__all__
     assert "parse_mzml" in bijux_proteomics.__all__
     assert "detect_proteomics_format" in bijux_proteomics.__all__

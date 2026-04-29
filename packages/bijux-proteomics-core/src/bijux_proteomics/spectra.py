@@ -210,6 +210,30 @@ class PrecursorMassError(JsonModel):
     delta_ppm: float
 
 
+class PrecursorIsotopeOffsetCandidate(JsonModel):
+    """One candidate precursor isotope offset interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    isotope_offset: int = Field(..., ge=0)
+    expected_mz: float = Field(..., gt=0.0)
+    delta_da: float
+    delta_ppm: float
+
+
+class PrecursorIsotopeOffsetAdvisory(JsonModel):
+    """Advisory-only precursor isotope offset assessment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    advisory_only: bool = True
+    recommended_offset: int = Field(..., ge=0)
+    candidates: tuple[PrecursorIsotopeOffsetCandidate, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
+
+
 class SpectrumAnnotationMatch(JsonModel):
     """One theoretical fragment matched to one observed peak."""
 
@@ -822,6 +846,53 @@ def calculate_precursor_mass_error(
         theoretical_mz=theoretical_mz,
         delta_da=delta_da,
         delta_ppm=delta_ppm,
+    )
+
+
+def detect_precursor_isotope_offset_advisory(
+    *,
+    observed_mz: float,
+    theoretical_mz: float,
+    charge: int,
+    max_offset: int = 3,
+) -> PrecursorIsotopeOffsetAdvisory:
+    """Rank precursor isotope offset candidates without enforcing any correction."""
+    isotope_delta = 1.0033548378 / charge
+    candidates = tuple(
+        PrecursorIsotopeOffsetCandidate(
+            isotope_offset=offset,
+            expected_mz=theoretical_mz + (isotope_delta * offset),
+            delta_da=observed_mz - (theoretical_mz + (isotope_delta * offset)),
+            delta_ppm=(
+                (
+                    observed_mz - (theoretical_mz + (isotope_delta * offset))
+                )
+                / (theoretical_mz + (isotope_delta * offset))
+            )
+            * 1_000_000.0,
+        )
+        for offset in range(0, max_offset + 1)
+    )
+    ranked = tuple(
+        sorted(
+            candidates,
+            key=lambda candidate: (
+                abs(candidate.delta_da),
+                candidate.isotope_offset,
+            ),
+        )
+    )
+    best = ranked[0]
+    note = (
+        "observed precursor is closest to the monoisotopic assignment"
+        if best.isotope_offset == 0
+        else f"observed precursor is closest to isotope offset +{best.isotope_offset}"
+    )
+    return PrecursorIsotopeOffsetAdvisory(
+        advisory_only=True,
+        recommended_offset=best.isotope_offset,
+        candidates=ranked,
+        note=note,
     )
 
 
