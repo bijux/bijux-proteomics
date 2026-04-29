@@ -16,6 +16,9 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
 from bijux_proteomics_runtime.api.catalog import (
+    build_artifact_lookup_response,
+    build_evidence_lookup_response,
+    build_run_history_response,
     build_runtime_health_response,
     build_run_artifacts_response,
     build_run_evidence_response,
@@ -671,6 +674,67 @@ def api_review_packet(
 def api_health(pretty: bool) -> None:
     """Emit the canonical runtime health contract via CLI."""
     response = build_runtime_health_response(Path.cwd())
+    _emit_api_envelope(response, pretty=pretty)
+
+
+@api.command("history")
+@click.option("--provider", type=str, default=None)
+@click.option("--workflow-state", type=str, default=None)
+@click.option("--outcome", type=str, default=None)
+@click.option("--candidate-id", type=str, default=None)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_history(
+    provider: str | None,
+    workflow_state: str | None,
+    outcome: str | None,
+    candidate_id: str | None,
+    pretty: bool,
+) -> None:
+    """Emit the canonical run-history contract via CLI."""
+    response = build_run_history_response(
+        Path.cwd(),
+        provider=provider,
+        workflow_state=workflow_state,
+        outcome=outcome,
+        candidate_id=candidate_id,
+    )
+    _emit_api_envelope(response, pretty=pretty)
+
+
+@api.command("lookup-artifacts")
+@click.option("--run-id", type=str, default=None)
+@click.option("--artifact-kind", type=str, default=None)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_lookup_artifacts(
+    run_id: str | None, artifact_kind: str | None, pretty: bool
+) -> None:
+    """Emit the canonical artifact-lookup contract via CLI."""
+    response = build_artifact_lookup_response(
+        Path.cwd(),
+        run_id=run_id,
+        artifact_kind=artifact_kind,
+    )
+    _emit_api_envelope(response, pretty=pretty)
+
+
+@api.command("lookup-evidence")
+@click.option("--run-id", type=str, default=None)
+@click.option("--document-kind", type=str, default=None)
+@click.option("--availability", type=str, default=None)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_lookup_evidence(
+    run_id: str | None,
+    document_kind: str | None,
+    availability: str | None,
+    pretty: bool,
+) -> None:
+    """Emit the canonical evidence-lookup contract via CLI."""
+    response = build_evidence_lookup_response(
+        Path.cwd(),
+        run_id=run_id,
+        document_kind=document_kind,
+        availability=availability,
+    )
     _emit_api_envelope(response, pretty=pretty)
 
 

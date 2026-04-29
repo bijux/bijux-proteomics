@@ -11,8 +11,11 @@ from pathlib import Path
 from typing import Any
 
 from bijux_proteomics_runtime.api.v1.schema import (
+    ArtifactLookupResponse,
+    EvidenceLookupResponse,
     RunArtifactsResponse,
     RunEvidenceResponse,
+    RunHistoryResponse,
     RunReviewResponse,
     RuntimeHealthComponent,
     RuntimeHealthComponentState,
@@ -109,6 +112,19 @@ def _load_run_summary_payload(
     )
     payload = json.loads(workspace.run_summary_path.read_text(encoding="utf-8"))
     return payload if isinstance(payload, dict) else {}
+
+
+def _iter_run_ids(base_dir: Path) -> list[str]:
+    artifacts_root = base_dir / "artifacts"
+    if not artifacts_root.exists():
+        return []
+    run_ids: list[str] = []
+    for path in sorted(artifacts_root.iterdir()):
+        if not path.is_dir():
+            continue
+        if (path / "run_summary.json").exists():
+            run_ids.append(path.name)
+    return run_ids
 
 
 def _artifact_record(
@@ -429,3 +445,70 @@ def build_runtime_health_response(base_dir: Path) -> RuntimeHealthResponse:
         runtime=runtime_banner(),
         components=components,
     )
+
+
+def build_run_history_response(
+    base_dir: Path,
+    *,
+    provider: str | None = None,
+    workflow_state: str | None = None,
+    outcome: str | None = None,
+    candidate_id: str | None = None,
+) -> RunHistoryResponse:
+    """Build the stable run-history lookup response."""
+    runs: list[RunResponse] = []
+    for run_id in _iter_run_ids(base_dir):
+        response = RunResponse.model_validate(
+            _load_run_summary_payload(base_dir, run_id, None)
+        )
+        if provider is not None and response.provider != provider:
+            continue
+        if workflow_state is not None and response.workflow_state.value != workflow_state:
+            continue
+        if outcome is not None and response.outcome.value != outcome:
+            continue
+        if candidate_id is not None and response.candidate_id != candidate_id:
+            continue
+        runs.append(response)
+    return RunHistoryResponse(runs=runs)
+
+
+def build_artifact_lookup_response(
+    base_dir: Path,
+    *,
+    run_id: str | None = None,
+    artifact_kind: str | None = None,
+) -> ArtifactLookupResponse:
+    """Build the stable artifact-lookup response across runs."""
+    records: list[RuntimeArtifactRecord] = []
+    run_ids = [run_id] if run_id is not None else _iter_run_ids(base_dir)
+    for current_run_id in run_ids:
+        for artifact in build_run_artifacts_response(base_dir, current_run_id).artifacts:
+            if artifact_kind is not None and artifact.artifact_kind != artifact_kind:
+                continue
+            records.append(artifact)
+    return ArtifactLookupResponse(artifacts=records)
+
+
+def build_evidence_lookup_response(
+    base_dir: Path,
+    *,
+    run_id: str | None = None,
+    document_kind: str | None = None,
+    availability: str | None = None,
+) -> EvidenceLookupResponse:
+    """Build the stable evidence and review lookup response across runs."""
+    documents: list[RuntimeDocumentReference] = []
+    run_ids = [run_id] if run_id is not None else _iter_run_ids(base_dir)
+    for current_run_id in run_ids:
+        candidates = [
+            build_run_evidence_response(base_dir, current_run_id).evidence_bundle,
+            build_run_review_response(base_dir, current_run_id).review_packet,
+        ]
+        for document in candidates:
+            if document_kind is not None and document.document_kind != document_kind:
+                continue
+            if availability is not None and document.availability.value != availability:
+                continue
+            documents.append(document)
+    return EvidenceLookupResponse(documents=documents)

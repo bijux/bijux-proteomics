@@ -139,3 +139,34 @@ def test_runtime_document_contract_applies_inline_ingestion_guard(
     payload = response.json()
     assert payload["data"]["evidence_bundle"]["availability"] == "too_large"
     assert payload["data"]["evidence_bundle"]["guard_limit_bytes"] == 128
+
+
+def test_runtime_lookup_contracts_filter_runs_artifacts_and_documents(
+    tmp_path: Path,
+) -> None:
+    first_run = _seed_run(tmp_path, "history-a")
+    _seed_run(tmp_path, "history-b")
+    (first_run / "artifacts" / "review_packet.json").unlink()
+    client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
+
+    history_response = client.get(
+        "/api/v1/runs/history",
+        params={"candidate_id": "history-a-c0"},
+    )
+    artifact_response = client.get(
+        "/api/v1/artifacts",
+        params={"artifact_kind": "runtime-status"},
+    )
+    evidence_response = client.get(
+        "/api/v1/evidence",
+        params={"document_kind": "review_packet", "availability": "missing"},
+    )
+
+    assert history_response.status_code == 200
+    assert artifact_response.status_code == 200
+    assert evidence_response.status_code == 200
+    assert len(history_response.json()["data"]["runs"]) == 1
+    assert len(artifact_response.json()["data"]["artifacts"]) == 2
+    documents = evidence_response.json()["data"]["documents"]
+    assert len(documents) == 1
+    assert documents[0]["run_id"] == "history-a"

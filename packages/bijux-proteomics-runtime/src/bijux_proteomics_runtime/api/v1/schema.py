@@ -345,6 +345,39 @@ class RunReviewResponse(BaseModel):
     )
 
 
+class RunHistoryResponse(BaseModel):
+    """Stable run-history lookup response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    runs: list[RunResponse] = Field(
+        default_factory=list,
+        description="Runs that match the requested filters.",
+    )
+
+
+class ArtifactLookupResponse(BaseModel):
+    """Stable cross-run artifact lookup response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifacts: list[RuntimeArtifactRecord] = Field(
+        default_factory=list,
+        description="Artifacts that match the requested filters.",
+    )
+
+
+class EvidenceLookupResponse(BaseModel):
+    """Stable cross-run evidence and review lookup response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    documents: list[RuntimeDocumentReference] = Field(
+        default_factory=list,
+        description="Evidence and review documents matching the requested filters.",
+    )
+
+
 class ApiEnvelope(BaseModel):
     """ApiEnvelope."""
 
@@ -357,6 +390,9 @@ class ApiEnvelope(BaseModel):
         | RunArtifactsResponse
         | RunEvidenceResponse
         | RunReviewResponse
+        | RunHistoryResponse
+        | ArtifactLookupResponse
+        | EvidenceLookupResponse
         | InspectResponse
         | CompareResponse
         | HealthResponse
