@@ -37,6 +37,15 @@ class ClaimResolutionState(StrEnum):
     CLOSED = "closed"
 
 
+class ClaimEvidenceState(StrEnum):
+    """Explicit scientific evidence state for one claim."""
+
+    SUPPORTED = "supported"
+    CONTRADICTED = "contradicted"
+    CONFLICTED = "conflicted"
+    UNRESOLVED = "unresolved"
+
+
 class ClaimType(StrEnum):
     """Structured taxonomy for scientific claim content."""
 
@@ -99,6 +108,10 @@ class EvidenceClaim(JsonModel):
     resolution_state: ClaimResolutionState = Field(
         default=ClaimResolutionState.OPEN,
         description="Whether the claim still needs active resolution.",
+    )
+    evidence_state: ClaimEvidenceState = Field(
+        default=ClaimEvidenceState.UNRESOLVED,
+        description="Explicit scientific evidence state for the claim.",
     )
     confidence: float = Field(
         default=0.5,
@@ -297,6 +310,30 @@ class ClaimFalsifiabilityReport(JsonModel):
     )
 
 
+def classify_claim_evidence_state(
+    *,
+    status: ClaimStatus,
+    polarity: ClaimPolarity,
+    resolution_state: ClaimResolutionState,
+    evidence_ids: list[str],
+    contradicting_evidence_ids: list[str],
+) -> ClaimEvidenceState:
+    """Classify one claim into an explicit scientific evidence state."""
+    if resolution_state is ClaimResolutionState.OPEN and (
+        status is ClaimStatus.INSUFFICIENT or not evidence_ids
+    ):
+        return ClaimEvidenceState.UNRESOLVED
+    if contradicting_evidence_ids and evidence_ids:
+        return ClaimEvidenceState.CONFLICTED
+    if polarity is ClaimPolarity.CONTRADICTING:
+        return ClaimEvidenceState.CONTRADICTED
+    if status is ClaimStatus.SUPPORTED:
+        return ClaimEvidenceState.SUPPORTED
+    if status in {ClaimStatus.DISPUTED, ClaimStatus.INSUFFICIENT}:
+        return ClaimEvidenceState.UNRESOLVED
+    return ClaimEvidenceState.SUPPORTED
+
+
 def build_claim(
     *,
     claim_id: ClaimId,
@@ -321,17 +358,26 @@ def build_claim(
     magnitude: float | None = None,
 ) -> EvidenceClaim:
     """Build a claim from explicit evidence identifiers."""
+    resolved_contradicting_evidence_ids = contradicting_evidence_ids or []
+    resolved_evidence_ids = evidence_ids
     return EvidenceClaim(
         claim_id=claim_id,
         target_id=target_id,
         statement=statement,
-        evidence_ids=evidence_ids,
-        contradicting_evidence_ids=contradicting_evidence_ids or [],
+        evidence_ids=resolved_evidence_ids,
+        contradicting_evidence_ids=resolved_contradicting_evidence_ids,
         assumptions=assumptions or [],
         resolution_assays=resolution_assays or [],
         status=status,
         polarity=polarity,
         resolution_state=resolution_state,
+        evidence_state=classify_claim_evidence_state(
+            status=status,
+            polarity=polarity,
+            resolution_state=resolution_state,
+            evidence_ids=resolved_evidence_ids,
+            contradicting_evidence_ids=resolved_contradicting_evidence_ids,
+        ),
         claim_type=claim_type,
         confidence=confidence,
         contradiction_group=contradiction_group,
@@ -414,7 +460,18 @@ def build_decision_lineage(
 
 def close_claim(claim: EvidenceClaim) -> EvidenceClaim:
     """Return a claim marked as closed in the resolution workflow."""
-    return claim.model_copy(update={"resolution_state": ClaimResolutionState.CLOSED})
+    return claim.model_copy(
+        update={
+            "resolution_state": ClaimResolutionState.CLOSED,
+            "evidence_state": classify_claim_evidence_state(
+                status=claim.status,
+                polarity=claim.polarity,
+                resolution_state=ClaimResolutionState.CLOSED,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
+    )
 
 
 def link_evidence_to_claim(
@@ -427,7 +484,18 @@ def link_evidence_to_claim(
     for evidence_id in sorted(known_ids):
         if evidence_id not in linked:
             linked.append(evidence_id)
-    return claim.model_copy(update={"evidence_ids": linked})
+    return claim.model_copy(
+        update={
+            "evidence_ids": linked,
+            "evidence_state": classify_claim_evidence_state(
+                status=claim.status,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=linked,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
+    )
 
 
 def strengthen_claim(
@@ -439,7 +507,17 @@ def strengthen_claim(
     """Increase claim confidence by a bounded delta."""
     updated_confidence = min(1.0, round(claim.confidence + max(delta, 0.0), 4))
     updated = claim.model_copy(
-        update={"confidence": updated_confidence, "status": ClaimStatus.SUPPORTED}
+        update={
+            "confidence": updated_confidence,
+            "status": ClaimStatus.SUPPORTED,
+            "evidence_state": classify_claim_evidence_state(
+                status=ClaimStatus.SUPPORTED,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
     )
     return updated, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
@@ -459,7 +537,17 @@ def weaken_claim(
     updated_confidence = max(0.0, round(claim.confidence - max(delta, 0.0), 4))
     updated_status = ClaimStatus.DISPUTED if updated_confidence < 0.5 else claim.status
     updated = claim.model_copy(
-        update={"confidence": updated_confidence, "status": updated_status}
+        update={
+            "confidence": updated_confidence,
+            "status": updated_status,
+            "evidence_state": classify_claim_evidence_state(
+                status=updated_status,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
     )
     return updated, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
@@ -502,6 +590,17 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                     claim_id=claim.claim_id,
                     code="contradicting-evidence-missing",
                     message="contradicting claims should include contradicting_evidence_ids",
+                )
+            )
+        if (
+            claim.evidence_state is ClaimEvidenceState.CONFLICTED
+            and not claim.contradicting_evidence_ids
+        ):
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=claim.claim_id,
+                    code="conflicted-claim-missing-contradiction-links",
+                    message="conflicted claims should link both supporting and contradicting evidence identifiers",
                 )
             )
         if (
@@ -637,7 +736,17 @@ def apply_resolution_assay_outcome(
     if outcome.note:
         rationale = f"{rationale}; {outcome.note}"
     updated_claim = claim.model_copy(
-        update={"confidence": updated_confidence, "status": updated_status}
+        update={
+            "confidence": updated_confidence,
+            "status": updated_status,
+            "evidence_state": classify_claim_evidence_state(
+                status=updated_status,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
     )
     return updated_claim, ClaimStrengthUpdate(
         claim_id=claim.claim_id,

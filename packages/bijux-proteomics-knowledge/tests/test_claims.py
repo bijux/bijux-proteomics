@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
     ClaimPolarity,
+    ClaimEvidenceState,
     ClaimQuery,
     ClaimResolutionState,
     ClaimStatus,
@@ -18,6 +19,7 @@ from bijux_proteomics_knowledge import (
     apply_resolution_assay_outcome,
     audit_claim_evidence_links,
     build_claim,
+    classify_claim_evidence_state,
     build_contradiction_matrix,
     build_decision_lineage,
     build_hypothesis_dossier,
@@ -140,6 +142,7 @@ def test_build_claim_supports_structured_decision_metadata() -> None:
     assert claim.claim_type is ClaimType.DEVELOPABILITY
     assert claim.confidence == 0.82
     assert claim.contradiction_group == "scale-readiness"
+    assert claim.evidence_state is ClaimEvidenceState.SUPPORTED
 
 
 def test_build_claim_supports_mechanistic_structure_fields() -> None:
@@ -182,6 +185,51 @@ def test_claim_strength_update_helpers_adjust_confidence() -> None:
     assert gain.updated_confidence == 0.7
     assert loss.updated_confidence == 0.3
     assert weakened.status is ClaimStatus.DISPUTED
+    assert weakened.evidence_state is ClaimEvidenceState.UNRESOLVED
+
+
+def test_claim_evidence_state_distinguishes_support_conflict_and_contradiction() -> (
+    None
+):
+    assert (
+        classify_claim_evidence_state(
+            status=ClaimStatus.SUPPORTED,
+            polarity=ClaimPolarity.SUPPORTING,
+            resolution_state=ClaimResolutionState.CLOSED,
+            evidence_ids=["ev-1"],
+            contradicting_evidence_ids=[],
+        )
+        is ClaimEvidenceState.SUPPORTED
+    )
+    assert (
+        classify_claim_evidence_state(
+            status=ClaimStatus.DISPUTED,
+            polarity=ClaimPolarity.CONTRADICTING,
+            resolution_state=ClaimResolutionState.CLOSED,
+            evidence_ids=["ev-1"],
+            contradicting_evidence_ids=[],
+        )
+        is ClaimEvidenceState.CONTRADICTED
+    )
+    conflicted = build_claim(
+        claim_id="claim-conflicted",
+        target_id="target-1",
+        statement="conflicting evidence exists",
+        evidence_ids=["ev-1"],
+        contradicting_evidence_ids=["ev-2"],
+        status=ClaimStatus.DISPUTED,
+        polarity=ClaimPolarity.SUPPORTING,
+    )
+    unresolved = build_claim(
+        claim_id="claim-unresolved",
+        target_id="target-1",
+        statement="still unresolved",
+        evidence_ids=[],
+        status=ClaimStatus.INSUFFICIENT,
+    )
+
+    assert conflicted.evidence_state is ClaimEvidenceState.CONFLICTED
+    assert unresolved.evidence_state is ClaimEvidenceState.UNRESOLVED
 
 
 def test_query_claims_filters_by_status_type_and_polarity() -> None:

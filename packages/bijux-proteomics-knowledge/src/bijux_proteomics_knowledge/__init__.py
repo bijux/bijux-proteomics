@@ -22,6 +22,7 @@ from bijux_proteomics_knowledge.adapters import (
 from bijux_proteomics_knowledge.claims import (
     ClaimConsistencyReport,
     ClaimContradictionMatrix,
+    ClaimEvidenceState,
     ClaimEvidenceLinkIssue,
     ClaimPolarity,
     ClaimResolutionState,
@@ -38,6 +39,7 @@ from bijux_proteomics_knowledge.claims import (
     apply_resolution_assay_outcome,
     audit_claim_evidence_links,
     build_claim,
+    classify_claim_evidence_state,
     build_contradiction_matrix,
     build_decision_lineage,
     build_hypothesis_dossier,
@@ -190,6 +192,7 @@ from bijux_proteomics_knowledge.serialization import (
 __all__ = [
     "AssayResultIngestionAdapter",
     "BundleTrustReport",
+    "ClaimEvidenceState",
     "ClaimPolarity",
     "ClaimType",
     "ClaimValidationIssue",
@@ -255,6 +258,7 @@ __all__ = [
     "TrustPolicy",
     "assess_decision_readiness",
     "attach_evidence_inputs",
+    "classify_claim_evidence_state",
     "build_evidence_graph",
     "extract_decision_subgraph",
     "trace_decision_paths",
