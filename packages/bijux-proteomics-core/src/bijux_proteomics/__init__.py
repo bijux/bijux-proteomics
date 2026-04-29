@@ -22,6 +22,13 @@ from bijux_proteomics.criteria import (
     SuccessCriterion,
     criterion_passes,
 )
+from bijux_proteomics.digestion import (
+    ProteaseCleavageMode,
+    ProteaseRule,
+    get_protease_rule,
+    parse_custom_protease_rule,
+    protease_registry,
+)
 from bijux_proteomics.exceptions import (
     BijuxProteomicsError,
     InvalidLifecycleTransitionError,
@@ -176,6 +183,8 @@ __all__ = [
     "SequenceValidationResult",
     "DecoyGenerationMode",
     "TargetDecoyValidationReport",
+    "ProteaseCleavageMode",
+    "ProteaseRule",
     "UniProtAccession",
     "JsonModel",
     "ReviewGate",
@@ -231,6 +240,9 @@ __all__ = [
     "generate_decoy_records",
     "validate_target_decoy_database",
     "render_fasta_records",
+    "protease_registry",
+    "get_protease_rule",
+    "parse_custom_protease_rule",
     "target_summary",
     "validate_review_decision",
     "validate_program",
