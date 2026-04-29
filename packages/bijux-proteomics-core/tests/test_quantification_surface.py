@@ -9,8 +9,13 @@ import numpy as np
 
 from bijux_proteomics import (
     DifferentialReplicatePolicy,
+    LabelBasedChannelPolicyEntry,
+    LabelBasedChannelRole,
+    LabelBasedQuantBundle,
+    LabelBasedQuantPolicy,
     LabelFreeProvenanceBundle,
     LabelFreeQuantTable,
+    MissingChannelPolicy,
     MissingValueCorrectionPolicy,
     MissingValueSummaryPolicy,
     NormalizationMethod,
@@ -20,6 +25,7 @@ from bijux_proteomics import (
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
+    build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
     build_normalization_comparison_report,
@@ -359,17 +365,80 @@ def test_differential_abundance_respects_minimum_replicate_policy() -> None:
     else:
         raise AssertionError("expected enforced replicate policy failure")
 
-    advisory = build_differential_abundance_report(
+
+def test_label_based_quant_bundle_preserves_channel_roles_and_missing_channel_policy() -> (
+    None
+):
+    feature_report = parse_ms1_feature_table(_quant_fixture("multiplex_ms1_features.tsv"))
+    design_report = parse_experimental_design_table(_quant_fixture("multiplex.design.tsv"))
+    table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    bundle = build_label_based_quant_bundle(
         table,
-        one_vs_two_design,
-        condition_a="control",
-        condition_b="treatment",
-        replicate_policy=DifferentialReplicatePolicy(
-            min_replicates_per_condition=2,
-            disposition=QuantAssessmentDisposition.ADVISORY,
+        design_entries=design_report.accepted_entries,
+        policy=LabelBasedQuantPolicy(
+            missing_channel_policy=MissingChannelPolicy.PRESERVE,
+            channel_entries=(
+                LabelBasedChannelPolicyEntry(
+                    multiplex_group="plex-a",
+                    multiplex_channel="126",
+                    channel_role=LabelBasedChannelRole.SAMPLE,
+                ),
+                LabelBasedChannelPolicyEntry(
+                    multiplex_group="plex-a",
+                    multiplex_channel="127N",
+                    channel_role=LabelBasedChannelRole.SAMPLE,
+                ),
+                LabelBasedChannelPolicyEntry(
+                    multiplex_group="plex-a",
+                    multiplex_channel="128N",
+                    channel_role=LabelBasedChannelRole.CARRIER,
+                ),
+                LabelBasedChannelPolicyEntry(
+                    multiplex_group="plex-a",
+                    multiplex_channel="129N",
+                    channel_role=LabelBasedChannelRole.REFERENCE,
+                ),
+                LabelBasedChannelPolicyEntry(
+                    multiplex_group="plex-b",
+                    multiplex_channel="126",
+                    channel_role=LabelBasedChannelRole.SAMPLE,
+                ),
+                LabelBasedChannelPolicyEntry(
+                    multiplex_group="plex-b",
+                    multiplex_channel="127N",
+                    channel_role=LabelBasedChannelRole.SAMPLE,
+                ),
+                LabelBasedChannelPolicyEntry(
+                    multiplex_group="plex-b",
+                    multiplex_channel="128N",
+                    channel_role=LabelBasedChannelRole.CARRIER,
+                ),
+            ),
         ),
     )
-    assert advisory.replicate_policy.disposition.value == "ADVISORY"
+
+    assert isinstance(bundle, LabelBasedQuantBundle)
+    assert bundle.document_schema.document_kind == "label_based_quant_bundle"
+    carrier = next(
+        entry
+        for entry in bundle.channels
+        if entry.multiplex_group == "plex-a" and entry.multiplex_channel == "128N"
+    )
+    missing = next(
+        entry
+        for entry in bundle.missing_channels
+        if entry.multiplex_group == "plex-a" and entry.multiplex_channel == "129N"
+    )
+
+    assert carrier.channel_role is LabelBasedChannelRole.CARRIER
+    assert carrier.present_in_table is True
+    assert missing.policy is MissingChannelPolicy.PRESERVE
+    assert missing.expected_role is LabelBasedChannelRole.REFERENCE
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (

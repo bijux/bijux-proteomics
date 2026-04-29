@@ -17,7 +17,10 @@ import numpy as np
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
-from bijux_proteomics.formats import ExperimentalDesignEntry
+from bijux_proteomics.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -73,6 +76,23 @@ class MissingValueCorrectionPolicy(StrEnum):
 
     PRESERVE = "preserve"
     TREAT_AS_NOT_OBSERVED = "treat_as_not_observed"
+
+
+class MissingChannelPolicy(StrEnum):
+    """Policy for expected multiplex channels that are absent from a run."""
+
+    PRESERVE = "preserve"
+    TREAT_AS_MISSING = "treat_as_missing"
+    ERROR = "error"
+
+
+class LabelBasedChannelRole(StrEnum):
+    """Stable role classification for multiplex quantification channels."""
+
+    SAMPLE = "sample"
+    CARRIER = "carrier"
+    REFERENCE = "reference"
+    QC_BRIDGE = "qc_bridge"
 
 
 class Ms1FeatureColumnMapping(JsonModel):
@@ -180,6 +200,71 @@ class QuantValue(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
     source_feature_count: int = Field(..., ge=0)
+
+
+class LabelBasedChannelPolicyEntry(JsonModel):
+    """One expected multiplex channel role inside a label-based assay policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+
+
+class LabelBasedQuantPolicy(JsonModel):
+    """Explicit channel-role and missing-channel policy for multiplex assays."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    missing_channel_policy: MissingChannelPolicy = MissingChannelPolicy.ERROR
+    channel_entries: tuple[LabelBasedChannelPolicyEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class LabelBasedChannelStateEntry(JsonModel):
+    """One observed or expected multiplex channel inside a label-based workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    condition: str | None = None
+    sample_role: ExperimentalDesignSampleRole | None = None
+    channel_role: LabelBasedChannelRole
+    present_in_design: bool
+    present_in_table: bool
+    note: str = Field(..., min_length=1)
+
+
+class MissingMultiplexChannelEntry(JsonModel):
+    """One missing multiplex channel handled under an explicit policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    expected_role: LabelBasedChannelRole
+    policy: MissingChannelPolicy
+    message: str = Field(..., min_length=1)
+
+
+class LabelBasedQuantBundle(JsonModel):
+    """Reviewable channel-level manifest for one label-based quantification table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    normalization_method: NormalizationMethod
+    policy: LabelBasedQuantPolicy
+    channels: tuple[LabelBasedChannelStateEntry, ...] = Field(default_factory=tuple)
+    missing_channels: tuple[MissingMultiplexChannelEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class LabelFreeQuantTable(JsonModel):
@@ -528,6 +613,16 @@ def _sample_metadata_lookup(
     }
 
 
+def _default_label_channel_role(
+    entry: ExperimentalDesignEntry,
+) -> LabelBasedChannelRole:
+    if entry.sample_role is ExperimentalDesignSampleRole.POOLED_REFERENCE:
+        return LabelBasedChannelRole.REFERENCE
+    if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE:
+        return LabelBasedChannelRole.QC_BRIDGE
+    return LabelBasedChannelRole.SAMPLE
+
+
 def _feature_entity_ids(
     record: Ms1FeatureRecord,
     *,
@@ -751,6 +846,140 @@ def build_quant_matrix_export(
             normalization_factors=table.normalization_factors,
             note=note,
         ),
+    )
+
+
+def build_label_based_quant_bundle(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: LabelBasedQuantPolicy,
+) -> LabelBasedQuantBundle:
+    """Build a stable multiplex-channel manifest over a label-based quant table."""
+    multiplex_entries = tuple(
+        entry for entry in design_entries if entry.multiplex_group and entry.multiplex_channel
+    )
+    if not multiplex_entries:
+        raise ValueError("label-based quantification requires multiplex design entries")
+    if not policy.channel_entries:
+        raise ValueError(
+            "label-based quantification requires explicit expected channel policy entries"
+        )
+
+    design_lookup = {
+        (entry.multiplex_group or "", entry.multiplex_channel or ""): entry
+        for entry in multiplex_entries
+    }
+    table_sample_ids = set(table.sample_ids)
+    channel_policy_lookup = {
+        (entry.multiplex_group, entry.multiplex_channel): entry.channel_role
+        for entry in policy.channel_entries
+    }
+
+    channels: list[LabelBasedChannelStateEntry] = []
+    missing_channels: list[MissingMultiplexChannelEntry] = []
+
+    seen_keys = sorted(set(design_lookup) | set(channel_policy_lookup))
+    for multiplex_group, multiplex_channel in seen_keys:
+        design_entry = design_lookup.get((multiplex_group, multiplex_channel))
+        channel_role = channel_policy_lookup.get(
+            (multiplex_group, multiplex_channel),
+            _default_label_channel_role(design_entry)
+            if design_entry is not None
+            else LabelBasedChannelRole.SAMPLE,
+        )
+        present_in_design = design_entry is not None
+        present_in_table = (
+            design_entry.sample_id in table_sample_ids if design_entry is not None else False
+        )
+        if not present_in_design or not present_in_table:
+            missing_channels.append(
+                MissingMultiplexChannelEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    expected_role=channel_role,
+                    policy=policy.missing_channel_policy,
+                    message=(
+                        "expected multiplex channel is absent from the design table"
+                        if not present_in_design
+                        else "design channel is present but has no quantification values in the table"
+                    ),
+                )
+            )
+            if policy.missing_channel_policy is MissingChannelPolicy.ERROR:
+                raise ValueError(
+                    "label-based quantification missing expected multiplex channel "
+                    f"{multiplex_group}:{multiplex_channel}"
+                )
+        if not present_in_design and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE:
+            channels.append(
+                LabelBasedChannelStateEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    sample_id=None,
+                    condition=None,
+                    sample_role=None,
+                    channel_role=channel_role,
+                    present_in_design=False,
+                    present_in_table=False,
+                    note="expected channel is preserved in the manifest even though it was not observed",
+                )
+            )
+            continue
+        if design_entry is None:
+            continue
+        if not present_in_table and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE:
+            note = "design channel is preserved even though no quantification values were observed"
+        elif not present_in_table:
+            note = "design channel is represented as missing in the quantification table"
+        elif channel_role is LabelBasedChannelRole.CARRIER:
+            note = "carrier channel remains explicit and is not silently treated as a biological sample"
+        else:
+            note = "observed multiplex channel is represented explicitly in the review manifest"
+        channels.append(
+            LabelBasedChannelStateEntry(
+                multiplex_group=multiplex_group,
+                multiplex_channel=multiplex_channel,
+                sample_id=design_entry.sample_id,
+                condition=design_entry.condition,
+                sample_role=design_entry.sample_role,
+                channel_role=channel_role,
+                present_in_design=True,
+                present_in_table=present_in_table,
+                note=note,
+            )
+        )
+
+    bundle = LabelBasedQuantBundle(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="label_based_quant_bundle",
+            package_name="bijux-proteomics-core",
+            status="generated",
+        ),
+        entity_level=table.entity_level,
+        measure_kind=table.measure_kind,
+        normalization_method=table.normalization_method,
+        policy=policy,
+        channels=tuple(
+            sorted(
+                channels,
+                key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
+            )
+        ),
+        missing_channels=tuple(
+            sorted(
+                missing_channels,
+                key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
+            )
+        ),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
     )
 
 
