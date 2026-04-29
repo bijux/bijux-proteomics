@@ -500,6 +500,15 @@ def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
     assert run_assessment.threshold_profile.enforced_rules
     assert run_assessment.threshold_profile.advisory_rules
     assert "identification_rate" in run_assessment.enforced_failure_metric_keys
+    identification_metric = next(
+        entry
+        for entry in run_assessment.metric_assessments
+        if entry.metric_key == "identification_rate"
+    )
+    assert run_assessment.policy_sha256
+    assert identification_metric.provenance is not None
+    assert identification_metric.provenance.triggered_threshold == "lower_fail"
+    assert identification_metric.provenance.policy_sha256 == run_assessment.policy_sha256
     assert any(
         entry.metric_key == "identification_rate" and entry.enforced_violation
         for entry in run_assessment.metric_assessments

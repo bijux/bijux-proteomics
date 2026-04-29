@@ -226,8 +226,25 @@ class QcMetricAssessment(JsonModel):
     severity: QcAssessmentSeverity
     disposition: QcAssessmentDisposition
     threshold_rule: QcThresholdRule | None = None
+    provenance: "QcAssessmentProvenance | None" = None
     message: str = Field(..., min_length=1)
     enforced_violation: bool = False
+
+
+class QcAssessmentProvenance(JsonModel):
+    """Exact threshold provenance for one QC metric decision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    policy_sha256: str = Field(..., min_length=64, max_length=64)
+    rule_sha256: str = Field(..., min_length=64, max_length=64)
+    triggered_threshold: str | None = None
+    lower_warn: float | None = None
+    lower_fail: float | None = None
+    upper_warn: float | None = None
+    upper_fail: float | None = None
 
 
 class QcRunAnomalyEntry(JsonModel):
@@ -250,6 +267,7 @@ class QcRunAssessmentReport(JsonModel):
     run_id: str = Field(..., min_length=1)
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
+    policy_sha256: str = Field(..., min_length=64, max_length=64)
     threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
     blocked: bool = False
@@ -268,6 +286,7 @@ class QcBatchAssessmentReport(JsonModel):
     instrument: str | None = None
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
+    policy_sha256: str = Field(..., min_length=64, max_length=64)
     threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
     blocked: bool = False
@@ -634,8 +653,14 @@ def _build_run_anomalies(
 
 
 def _evaluate_rule(
-    rule: QcThresholdRule, observed_value: float | None
+    rule: QcThresholdRule,
+    observed_value: float | None,
+    *,
+    policy_name: str,
+    policy_version: str,
+    policy_sha256: str,
 ) -> QcMetricAssessment:
+    triggered_threshold = None
     if observed_value is None:
         severity = QcAssessmentSeverity.NOT_ASSESSED
     else:
@@ -647,6 +672,11 @@ def _evaluate_rule(
             and observed_value > rule.upper_fail
         ):
             severity = QcAssessmentSeverity.FAILED
+            triggered_threshold = (
+                "lower_fail"
+                if rule.lower_fail is not None and observed_value < rule.lower_fail
+                else "upper_fail"
+            )
         elif (
             rule.lower_warn is not None
             and observed_value < rule.lower_warn
@@ -654,6 +684,11 @@ def _evaluate_rule(
             and observed_value > rule.upper_warn
         ):
             severity = QcAssessmentSeverity.WARNING
+            triggered_threshold = (
+                "lower_warn"
+                if rule.lower_warn is not None and observed_value < rule.lower_warn
+                else "upper_warn"
+            )
     return QcMetricAssessment(
         metric_key=rule.metric_key,
         metric_label=rule.metric_label,
@@ -662,6 +697,17 @@ def _evaluate_rule(
         severity=severity,
         disposition=rule.disposition,
         threshold_rule=rule,
+        provenance=QcAssessmentProvenance(
+            policy_name=policy_name,
+            policy_version=policy_version,
+            policy_sha256=policy_sha256,
+            rule_sha256=_stable_sha256(rule),
+            triggered_threshold=triggered_threshold,
+            lower_warn=rule.lower_warn,
+            lower_fail=rule.lower_fail,
+            upper_warn=rule.upper_warn,
+            upper_fail=rule.upper_fail,
+        ),
         message=_assessment_message(rule, severity, observed_value),
         enforced_violation=severity is QcAssessmentSeverity.FAILED
         and rule.disposition is QcAssessmentDisposition.ENFORCED,
@@ -760,6 +806,7 @@ def build_run_qc_assessment(
     specificity_lookup = {
         entry.specificity: entry.fraction for entry in run_report.digestion_specificity
     }
+    policy_sha256 = _stable_sha256(policy)
     observed_metrics = {
         "spectrum_count": float(run_report.spectrum_count),
         "identification_rate": run_report.identification_rate,
@@ -771,7 +818,13 @@ def build_run_qc_assessment(
         ),
     }
     assessments = tuple(
-        _evaluate_rule(rule, observed_metrics.get(rule.metric_key))
+        _evaluate_rule(
+            rule,
+            observed_metrics.get(rule.metric_key),
+            policy_name=policy.policy_name,
+            policy_version=policy.version,
+            policy_sha256=policy_sha256,
+        )
         for rule in policy.rules
     )
     threshold_profile = build_qc_threshold_profile(policy)
@@ -795,6 +848,7 @@ def build_run_qc_assessment(
         run_id=run_report.run_id,
         policy_name=policy.policy_name,
         policy_version=policy.version,
+        policy_sha256=policy_sha256,
         threshold_profile=threshold_profile,
         overall_severity=QcAssessmentSeverity.PASSED
         if overall is None
@@ -849,16 +903,25 @@ def build_batch_qc_assessment(
             disposition=QcAssessmentDisposition.ADVISORY,
         )
     )
+    batch_policy = QcThresholdPolicy(
+        document_schema=policy.document_schema,
+        policy_name=policy.policy_name,
+        version=policy.version,
+        rules=tuple(rules),
+    )
+    policy_sha256 = _stable_sha256(batch_policy)
     assessments = tuple(
-        _evaluate_rule(rule, metrics.get(rule.metric_key)) for rule in rules
+        _evaluate_rule(
+            rule,
+            metrics.get(rule.metric_key),
+            policy_name=policy.policy_name,
+            policy_version=policy.version,
+            policy_sha256=policy_sha256,
+        )
+        for rule in rules
     )
     threshold_profile = build_qc_threshold_profile(
-        QcThresholdPolicy(
-            document_schema=policy.document_schema,
-            policy_name=policy.policy_name,
-            version=policy.version,
-            rules=tuple(rules),
-        )
+        batch_policy
     )
     advisory_failure_metric_keys = tuple(
         assessment.metric_key
@@ -881,6 +944,7 @@ def build_batch_qc_assessment(
         instrument=batch_report.instrument,
         policy_name=policy.policy_name,
         policy_version=policy.version,
+        policy_sha256=policy_sha256,
         threshold_profile=threshold_profile,
         overall_severity=QcAssessmentSeverity.PASSED
         if overall is None

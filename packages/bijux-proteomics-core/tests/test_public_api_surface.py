@@ -139,6 +139,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
     assert "QcIdentificationSummary" in bijux_proteomics.__all__
     assert "QcQuantSummary" in bijux_proteomics.__all__
+    assert "QcAssessmentProvenance" in bijux_proteomics.__all__
     assert "QcRunAnomalyCategory" in bijux_proteomics.__all__
     assert "QcRunAnomalyEntry" in bijux_proteomics.__all__
     assert "QcThresholdPolicyProfile" in bijux_proteomics.__all__
