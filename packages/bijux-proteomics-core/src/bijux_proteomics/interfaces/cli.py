@@ -43,6 +43,8 @@ from bijux_proteomics.formats import (
 )
 from bijux_proteomics.identification import (
     apply_q_values,
+    build_calibration_plot_data,
+    build_fdr_audit_trail,
     build_peptide_summary_report,
     build_protein_summary_report,
     build_psm_summary_report,
@@ -56,11 +58,16 @@ from bijux_proteomics.identification import (
     TargetDecoyLabelPolicy,
 )
 from bijux_proteomics.search_adapters import (
+    build_search_adapter_conformance_report,
     build_search_adapter_capability_matrix,
     build_search_adapter_provenance_manifest,
+    compare_search_result_reports,
     get_search_adapter_manifest,
     normalize_search_results_with_adapter,
+    parse_search_parameter_file,
     SearchAdapterKind,
+    ScoreOrientation,
+    validate_search_parameters,
 )
 from bijux_proteomics.programs import ProgramSpec, create_program_spec, program_summary
 from bijux_proteomics.sequences import (
@@ -154,6 +161,10 @@ def _conversion_target_choice() -> click.Choice:
 
 def _search_adapter_choice() -> click.Choice:
     return click.Choice([adapter.value for adapter in SearchAdapterKind], case_sensitive=False)
+
+
+def _score_orientation_choice() -> click.Choice:
+    return click.Choice([orientation.value for orientation in ScoreOrientation], case_sensitive=False)
 
 
 def _build_psm_mapping(
@@ -775,6 +786,12 @@ def psm_inspect_command(
 @cli.command("fdr")
 @click.argument("input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option("--threshold", type=float, default=0.01, show_default=True)
+@click.option(
+    "--score-orientation",
+    type=_score_orientation_choice(),
+    default=ScoreOrientation.HIGHER_BETTER.value,
+    show_default=True,
+)
 @click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
 @click.option("--charge-column", default="charge", show_default=True)
@@ -788,10 +805,13 @@ def psm_inspect_command(
 @click.option("--jsonl-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
 @click.option("--tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
 @click.option("--provenance-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--audit-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--calibration-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
 @click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
 def fdr_command(
     input_tsv: Path,
     threshold: float,
+    score_orientation: str,
     spectrum_id_column: str,
     peptide_column: str,
     charge_column: str,
@@ -805,6 +825,8 @@ def fdr_command(
     jsonl_out: Path | None,
     tsv_out: Path | None,
     provenance_out: Path | None,
+    audit_out: Path | None,
+    calibration_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Apply basic target-decoy FDR and emit filtered PSM summaries."""
@@ -828,7 +850,11 @@ def fdr_command(
             mapping=mapping,
             decoy_policy=decoy_policy,
         )
-        accepted = filter_psms_by_fdr(parse_report.accepted_records, threshold=threshold)
+        accepted = filter_psms_by_fdr(
+            parse_report.accepted_records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
 
@@ -837,23 +863,43 @@ def fdr_command(
     if tsv_out is not None:
         export_psm_tsv(accepted, tsv_out)
 
-    fdr_policy = FdrPolicy(threshold=threshold, decoy_policy=decoy_policy)
+    fdr_policy = FdrPolicy(
+        threshold=threshold,
+        score_orientation=score_orientation,
+        decoy_policy=decoy_policy,
+    )
     provenance = build_search_result_provenance_manifest(
         source_path=input_tsv,
         parse_report=parse_report,
         decoy_policy=decoy_policy,
         fdr_policy=fdr_policy,
     )
+    audit_trail = build_fdr_audit_trail(
+        parse_report.accepted_records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    calibration_plot = build_calibration_plot_data(
+        parse_report.accepted_records,
+        score_orientation=score_orientation,
+    )
     if provenance_out is not None:
         provenance_out.write_text(provenance.to_stable_json() + "\n")
+    if audit_out is not None:
+        audit_out.write_text(audit_trail.to_stable_json() + "\n")
+    if calibration_out is not None:
+        calibration_out.write_text(calibration_plot.to_stable_json() + "\n")
 
     payload = {
         "threshold": threshold,
+        "score_orientation": score_orientation,
         "input_psms": len(parse_report.accepted_records),
         "accepted_psms": len(accepted),
         "psm_summary": build_psm_summary_report(accepted).to_dict(),
         "peptide_summary": build_peptide_summary_report(accepted).to_dict(),
         "protein_summary": build_protein_summary_report(accepted).to_dict(),
+        "audit_trail": audit_trail.to_dict(),
+        "calibration_plot": calibration_plot.to_dict(),
         "provenance": provenance.to_dict(),
     }
     _emit_json(payload, out_path=out_path)
@@ -1140,6 +1186,47 @@ def search_adapter_inspect_command(adapter_name: str | None) -> None:
     _emit_json(manifest)
 
 
+@search_adapter_group.command("params")
+@click.argument("adapter_name", type=_search_adapter_choice())
+@click.argument("config_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def search_adapter_params_command(
+    adapter_name: str,
+    config_path: Path,
+    out_path: Path | None,
+) -> None:
+    """Parse one supported search-engine parameter file."""
+    try:
+        payload = parse_search_parameter_file(
+            source_path=config_path,
+            adapter_kind=SearchAdapterKind(adapter_name),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(payload, out_path=out_path)
+
+
+@search_adapter_group.command("validate-config")
+@click.argument("adapter_name", type=_search_adapter_choice())
+@click.argument("config_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def search_adapter_validate_config_command(
+    adapter_name: str,
+    config_path: Path,
+    out_path: Path | None,
+) -> None:
+    """Validate one supported search-engine parameter file."""
+    try:
+        parameters = parse_search_parameter_file(
+            source_path=config_path,
+            adapter_kind=SearchAdapterKind(adapter_name),
+        )
+        payload = validate_search_parameters(parameters)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(payload, out_path=out_path)
+
+
 @search_adapter_group.command("normalize")
 @click.argument("adapter_name", type=_search_adapter_choice())
 @click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
@@ -1194,4 +1281,78 @@ def search_adapter_normalize_command(
         "normalized_records": [record.to_dict() for record in report.normalized_records],
         "provenance": provenance.to_dict(),
     }
+    _emit_json(payload, out_path=out_path)
+
+
+@search_adapter_group.command("compare")
+@click.argument("left_adapter_name", type=_search_adapter_choice())
+@click.argument("left_input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.argument("right_adapter_name", type=_search_adapter_choice())
+@click.argument("right_input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--left-mapping-json", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--right-mapping-json", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def search_adapter_compare_command(
+    left_adapter_name: str,
+    left_input_path: Path,
+    right_adapter_name: str,
+    right_input_path: Path,
+    left_mapping_json: Path | None,
+    right_mapping_json: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Compare two normalized adapter outputs on a shared score scale."""
+    left_mapping = (
+        SearchResultColumnMapping.model_validate_json(left_mapping_json.read_text())
+        if left_mapping_json is not None
+        else None
+    )
+    right_mapping = (
+        SearchResultColumnMapping.model_validate_json(right_mapping_json.read_text())
+        if right_mapping_json is not None
+        else None
+    )
+    try:
+        left_report = normalize_search_results_with_adapter(
+            source_path=left_input_path,
+            adapter_kind=SearchAdapterKind(left_adapter_name),
+            mapping=left_mapping,
+        )
+        right_report = normalize_search_results_with_adapter(
+            source_path=right_input_path,
+            adapter_kind=SearchAdapterKind(right_adapter_name),
+            mapping=right_mapping,
+        )
+        payload = compare_search_result_reports(left_report, right_report)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(payload, out_path=out_path)
+
+
+@search_adapter_group.command("conformance")
+@click.argument("adapter_name", type=_search_adapter_choice())
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--mapping-json", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def search_adapter_conformance_command(
+    adapter_name: str,
+    input_path: Path,
+    mapping_json: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run the built-in adapter conformance checks on one search-result table."""
+    mapping = (
+        SearchResultColumnMapping.model_validate_json(mapping_json.read_text())
+        if mapping_json is not None
+        else None
+    )
+    try:
+        normalization_report = normalize_search_results_with_adapter(
+            source_path=input_path,
+            adapter_kind=SearchAdapterKind(adapter_name),
+            mapping=mapping,
+        )
+        payload = build_search_adapter_conformance_report(normalization_report)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
     _emit_json(payload, out_path=out_path)

@@ -578,3 +578,89 @@ def test_search_adapter_inspect_and_normalize_commands_work() -> None:
         assert Path("sage.provenance.json").exists()
         assert generic_result.exit_code == 0
         assert json.loads(generic_result.output)["adapter"]["adapter_kind"] == "generic"
+
+
+def test_search_adapter_params_compare_and_conformance_commands_work() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "search_adapters"
+        shutil.copy(fixture_dir / "comet.params", "comet.params")
+        shutil.copy(fixture_dir / "comet_invalid.params", "comet_invalid.params")
+        shutil.copy(fixture_dir / "sage_results.tsv", "sage_results.tsv")
+        shutil.copy(fixture_dir / "sage_mapping.json", "sage_mapping.json")
+        shutil.copy(fixture_dir / "sage_malformed.tsv", "sage_malformed.tsv")
+
+        params_result = runner.invoke(
+            cli,
+            ["search-adapter", "params", "comet", "comet.params"],
+        )
+        validate_result = runner.invoke(
+            cli,
+            ["search-adapter", "validate-config", "comet", "comet_invalid.params"],
+        )
+        compare_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "compare",
+                "sage",
+                "sage_results.tsv",
+                "generic",
+                "sage_results.tsv",
+                "--right-mapping-json",
+                "sage_mapping.json",
+            ],
+        )
+        conformance_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "conformance",
+                "sage",
+                "sage_malformed.tsv",
+            ],
+        )
+
+        assert params_result.exit_code == 0
+        assert json.loads(params_result.output)["enzyme"] == "trypsin"
+        assert validate_result.exit_code == 0
+        validate_payload = json.loads(validate_result.output)
+        assert validate_payload["valid"] is False
+        assert any(issue["code"] == "missing_decoy_strategy" for issue in validate_payload["issues"])
+        assert compare_result.exit_code == 0
+        compare_payload = json.loads(compare_result.output)
+        assert compare_payload["exact_match_count"] == 2
+        assert conformance_result.exit_code == 0
+        conformance_payload = json.loads(conformance_result.output)
+        assert conformance_payload["passes"] is False
+        assert conformance_payload["rejection_issue_counts"]["invalid_q_value"] == 1
+
+
+def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "psm"
+        shutil.copy(fixture_dir / "fdr_results.tsv", "fdr_results.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "fdr_results.tsv",
+                "--threshold",
+                "0.5",
+                "--score-orientation",
+                "higher_better",
+                "--audit-out",
+                "audit.json",
+                "--calibration-out",
+                "calibration.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_psms"] == 3
+        assert payload["audit_trail"]["reproducibility_hash"]
+        assert Path("audit.json").exists()
+        assert Path("calibration.json").exists()
