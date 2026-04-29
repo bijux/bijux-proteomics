@@ -16,6 +16,7 @@ from bijux_proteomics_lab import (
     build_fractionation_plan,
     build_lab_protocol_evidence_bundle,
     build_power_analysis_advisory,
+    build_sample_tracking_plate_advisory,
     plan_batch_randomization,
     plan_multiplex_labeling,
     plan_spike_in_qc_samples,
@@ -255,6 +256,28 @@ def test_plan_spike_in_qc_samples_inserts_qc_and_spike_in_at_intervals() -> None
         "qc",
         "spike_in",
     ]
+
+
+def test_build_sample_tracking_plate_advisory_preserves_sample_lineage() -> None:
+    entries = parse_experimental_design_table(
+        _local_fixture("fractionated.design.tsv")
+    ).accepted_entries
+
+    advisory = build_sample_tracking_plate_advisory(
+        entries,
+        plate_id="plate-fractionation",
+        row_count=2,
+        column_count=2,
+    )
+
+    assert [assignment.well_id for assignment in advisory.assignments] == [
+        "A01",
+        "A02",
+        "B01",
+        "B02",
+    ]
+    assert advisory.assignments[0].lineage_label == "C1|control|rep1|frac1"
+    assert advisory.assignments[-1].lineage_label == "T1|treatment|rep1|frac2"
 
 
 def test_assess_carryover_risk_flags_high_to_sensitive_transitions() -> None:

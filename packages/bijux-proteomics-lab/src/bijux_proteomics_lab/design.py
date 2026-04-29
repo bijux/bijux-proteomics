@@ -307,6 +307,35 @@ class LabProtocolEvidenceBundle(JsonModel):
     carryover_advisory: CarryoverRiskAdvisory | None = None
 
 
+class SampleTrackingPlateAssignment(JsonModel):
+    """Tracked sample placement in a deterministic plate layout."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    replicate: int = Field(..., ge=1)
+    fraction: int = Field(..., ge=1)
+    batch: str | None = None
+    plate_id: str = Field(..., min_length=1)
+    well_id: str = Field(..., min_length=1)
+    lineage_label: str = Field(..., min_length=1)
+
+
+class SampleTrackingPlateAdvisory(JsonModel):
+    """Advisory sample-tracking and plate-layout plan for lab execution prep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    plate_id: str = Field(..., min_length=1)
+    row_count: int = Field(..., ge=1)
+    column_count: int = Field(..., ge=1)
+    assignments: tuple[SampleTrackingPlateAssignment, ...] = Field(
+        default_factory=tuple
+    )
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def _replicate_counts(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, int]:
     replicate_units: dict[str, set[tuple[str, int]]] = defaultdict(set)
     for entry in entries:
@@ -520,6 +549,69 @@ def validate_experiment_design(
             for condition, count in sorted(_replicate_counts(entries).items())
         )
         or "no conditions"
+    )
+
+
+def build_sample_tracking_plate_advisory(
+    entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    plate_id: str = "plate-01",
+    row_count: int = 8,
+    column_count: int = 12,
+) -> SampleTrackingPlateAdvisory:
+    """Build a deterministic plate-layout advisory that preserves sample lineage."""
+    capacity = row_count * column_count
+    unique_rows = sorted(
+        {
+            (
+                entry.sample_id,
+                entry.condition,
+                entry.replicate,
+                entry.fraction,
+                entry.batch,
+            )
+            for entry in entries
+        },
+        key=lambda row: (
+            row[4] or "",
+            row[1],
+            row[2],
+            row[0],
+            row[3],
+        ),
+    )
+    if len(unique_rows) > capacity:
+        raise ValueError(
+            f"plate layout capacity exceeded: {len(unique_rows)} rows require {capacity} wells"
+        )
+    assignments: list[SampleTrackingPlateAssignment] = []
+    for index, row in enumerate(unique_rows):
+        sample_id, condition, replicate, fraction, batch = row
+        row_index, column_index = divmod(index, column_count)
+        well_id = f"{chr(ord('A') + row_index)}{column_index + 1:02d}"
+        assignments.append(
+            SampleTrackingPlateAssignment(
+                sample_id=sample_id,
+                condition=condition,
+                replicate=replicate,
+                fraction=fraction,
+                batch=batch,
+                plate_id=plate_id,
+                well_id=well_id,
+                lineage_label=(
+                    f"{sample_id}|{condition}|rep{replicate}|frac{fraction}"
+                ),
+            )
+        )
+    return SampleTrackingPlateAdvisory(
+        plate_id=plate_id,
+        row_count=row_count,
+        column_count=column_count,
+        assignments=tuple(assignments),
+        notes=(
+            "plate layout groups entries deterministically by batch, condition, replicate, and sample id.",
+            "lineage labels preserve sample identity across replicate and fraction handling.",
+        ),
     )
     return ExperimentDesignValidationReport(
         sample_count=len({entry.sample_id for entry in entries}),
