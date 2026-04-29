@@ -1,0 +1,34 @@
+[[family]]
+family_id = "scientific-platform"
+package_names = [
+  "bijux-proteomics-foundation",
+  "bijux-proteomics-core",
+  "bijux-proteomics-knowledge",
+  "bijux-proteomics-intelligence",
+  "bijux-proteomics-lab",
+]
+evidence_paths = [
+  "docs/03-bijux-proteomics-foundation/index.md",
+  "docs/04-bijux-proteomics-core/index.md",
+  "docs/05-bijux-proteomics-intelligence/index.md",
+  "docs/06-bijux-proteomics-knowledge/index.md",
+  "docs/07-bijux-proteomics-lab/index.md",
+  "configs/package-governance/high-value-artifact-schemas.toml",
+]
+rationale = "the scientific platform family ships only when the durable artifact, interpretation, and lab review surfaces all stay documented together"
+
+[[family]]
+family_id = "runtime-service"
+package_names = [
+  "bijux-proteomics-runtime",
+  "bijux-proteomics-dev",
+  "agentic-proteins",
+]
+evidence_paths = [
+  "docs/08-bijux-proteomics-maintain/index.md",
+  "docs/09-bijux-proteomics-runtime/index.md",
+  "apis/bijux-proteomics-runtime/v1/schema.yaml",
+  "apis/agentic-proteins/v1/schema.yaml",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/runtime_live_contracts.py",
+]
+rationale = "the runtime service family ships only when maintainer governance, canonical runtime API contracts, and compatibility surfaces stay aligned"
