@@ -10,9 +10,12 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics import (
+    AppliedModification,
     FragmentIonSeries,
     MassType,
+    ModificationLocalizationState,
     ModificationPosition,
+    ParsedModifiedPeptide,
     StaticModification,
     VariableModification,
     approximate_peptide_isotope_envelope,
@@ -487,6 +490,80 @@ def test_localization_placeholder_is_advisory_and_reports_candidate_sites() -> N
     assert advisory.status.value == "advisory"
     assert advisory.candidates[0].candidate_site_indices == (2, 3, 4)
     assert advisory.candidates[0].ambiguous is True
+    assert (
+        advisory.candidates[0].localization_state
+        is ModificationLocalizationState.AMBIGUOUS
+    )
+
+
+def test_localization_advisory_reports_explicit_assignment_states() -> None:
+    registry = modification_registry()
+    phospho = get_modification("Phospho", registry=registry)
+    acetyl = get_modification("Acetyl", registry=registry)
+    advisory = build_modification_localization_advisory(
+        ParsedModifiedPeptide(
+            sequence="ASTY",
+            modifications=(
+                AppliedModification(
+                    name=acetyl.name,
+                    token=acetyl.name,
+                    site=ModificationPosition.PEPTIDE_N_TERM,
+                    site_index=None,
+                    residue=None,
+                    mass_delta_monoisotopic=acetyl.mass_delta_monoisotopic,
+                    mass_delta_average=acetyl.mass_delta_average,
+                    neutral_losses=acetyl.neutral_losses,
+                    controlled_id=acetyl.controlled_id,
+                    source="registry",
+                ),
+                AppliedModification(
+                    name=phospho.name,
+                    token=phospho.name,
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=None,
+                    residue=None,
+                    mass_delta_monoisotopic=phospho.mass_delta_monoisotopic,
+                    mass_delta_average=phospho.mass_delta_average,
+                    neutral_losses=phospho.neutral_losses,
+                    controlled_id=phospho.controlled_id,
+                    source="registry",
+                ),
+                AppliedModification(
+                    name=phospho.name,
+                    token=phospho.name,
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=1,
+                    residue="A",
+                    mass_delta_monoisotopic=phospho.mass_delta_monoisotopic,
+                    mass_delta_average=phospho.mass_delta_average,
+                    neutral_losses=phospho.neutral_losses,
+                    controlled_id=phospho.controlled_id,
+                    source="registry",
+                ),
+                AppliedModification(
+                    name="delta:+10.0",
+                    token="+10.0",
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=None,
+                    residue=None,
+                    mass_delta_monoisotopic=10.0,
+                    mass_delta_average=10.0,
+                    neutral_losses=(),
+                    controlled_id=None,
+                    source="delta",
+                ),
+            ),
+            canonical_notation="[Acetyl]-ASTY",
+        ),
+        registry=registry,
+    )
+
+    assert [candidate.localization_state for candidate in advisory.candidates] == [
+        ModificationLocalizationState.LOCALIZED,
+        ModificationLocalizationState.UNLOCALIZED,
+        ModificationLocalizationState.CONFLICTING,
+        ModificationLocalizationState.UNSUPPORTED,
+    ]
 
 
 def test_chemistry_regression_fixture_pack_stays_stable() -> None:

@@ -336,6 +336,16 @@ class ModificationLocalizationStatus(StrEnum):
     ADVISORY = "advisory"
 
 
+class ModificationLocalizationState(StrEnum):
+    """Explicit localization state for one modification assignment."""
+
+    LOCALIZED = "localized"
+    AMBIGUOUS = "ambiguous"
+    UNLOCALIZED = "unlocalized"
+    CONFLICTING = "conflicting"
+    UNSUPPORTED = "unsupported"
+
+
 class ModificationLocalizationCandidate(JsonModel):
     """One modification localization advisory item."""
 
@@ -346,6 +356,7 @@ class ModificationLocalizationCandidate(JsonModel):
     assigned_site_index: int | None = Field(default=None, ge=1)
     candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
     residue_scope: tuple[str, ...] = Field(default_factory=tuple)
+    localization_state: ModificationLocalizationState
     ambiguous: bool = False
 
 
@@ -915,6 +926,10 @@ def build_modification_localization_advisory(
     """Emit an advisory-only localization summary until scored localization exists."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     mapping = _registry_lookup(registry)
+    try:
+        canonical_notation = canonicalize_modified_peptide(parsed, registry=registry)
+    except ValueError:
+        canonical_notation = parsed.canonical_notation
     candidates: list[ModificationLocalizationCandidate] = []
     for modification in parsed.modifications:
         residue_scope: tuple[str, ...] = ()
@@ -944,14 +959,40 @@ def build_modification_localization_advisory(
                 assigned_site_index=modification.site_index,
                 candidate_site_indices=candidate_site_indices,
                 residue_scope=residue_scope,
+                localization_state=_classify_modification_localization_state(
+                    modification=modification,
+                    candidate_site_indices=candidate_site_indices,
+                ),
                 ambiguous=len(candidate_site_indices) > 1,
             )
         )
     return ModificationLocalizationAdvisory(
-        canonical_notation=canonicalize_modified_peptide(parsed, registry=registry),
+        canonical_notation=canonical_notation,
         note="localization is advisory only; site scores and probability models are not implemented yet",
         candidates=tuple(candidates),
     )
+
+
+def _classify_modification_localization_state(
+    *,
+    modification: AppliedModification,
+    candidate_site_indices: tuple[int, ...],
+) -> ModificationLocalizationState:
+    if modification.site is not ModificationPosition.ANYWHERE:
+        return ModificationLocalizationState.LOCALIZED
+    if not candidate_site_indices:
+        return (
+            ModificationLocalizationState.CONFLICTING
+            if modification.site_index is not None
+            else ModificationLocalizationState.UNSUPPORTED
+        )
+    if modification.site_index is None:
+        return ModificationLocalizationState.UNLOCALIZED
+    if modification.site_index not in candidate_site_indices:
+        return ModificationLocalizationState.CONFLICTING
+    if len(candidate_site_indices) > 1:
+        return ModificationLocalizationState.AMBIGUOUS
+    return ModificationLocalizationState.LOCALIZED
 
 
 def enumerate_variable_modifications(
