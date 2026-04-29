@@ -20,6 +20,7 @@ from bijux_proteomics import (
     assign_razor_peptides,
     build_accepted_psm_provenance_report,
     build_calibration_plot_data,
+    build_confidence_threshold_sensitivity_report,
     build_fdr_audit_trail,
     build_fdr_edge_case_report,
     build_peptide_summary_report,
@@ -723,6 +724,42 @@ def test_grouped_and_picked_fdr_regression_fixture_covers_realistic_edge_cases()
         entry for entry in picked if entry.protein_ref == "DECOY_P55555"
     ).partner_ref == "P55555"
     assert [entry.q_value for entry in picked] == sorted(entry.q_value for entry in picked)
+
+
+def test_confidence_threshold_sensitivity_report_tracks_incremental_acceptance() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("grouped_picked_fdr_edge_cases.tsv"), mapping=_default_mapping()
+    )
+
+    sensitivity = build_confidence_threshold_sensitivity_report(
+        report.accepted_records,
+        thresholds=(0.001, 0.01, 0.05, 0.1),
+        score_orientation="higher_better",
+    )
+
+    assert sensitivity.thresholds == (0.001, 0.01, 0.05, 0.1)
+    assert [entry.accepted_psm_count for entry in sensitivity.entries] == [5, 5, 5, 5]
+    assert [
+        entry.accepted_picked_protein_count for entry in sensitivity.entries
+    ] == [4, 4, 4, 4]
+    assert sensitivity.entries[0].newly_accepted_psm_ids == (
+        "scan=8001",
+        "scan=8002",
+        "scan=8003",
+        "scan=8004",
+        "scan=8005",
+    )
+    assert sensitivity.entries[0].newly_accepted_picked_proteins == (
+        "P11111",
+        "P22222",
+        "P33333",
+        "P44444",
+    )
+    assert all(
+        not entry.newly_accepted_psm_ids for entry in sensitivity.entries[1:]
+    )
 
 
 def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> (

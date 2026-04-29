@@ -594,6 +594,34 @@ class LevelSpecificConfidenceReport(JsonModel):
     )
 
 
+class ConfidenceThresholdSensitivityEntry(JsonModel):
+    """Accepted-entity changes at one explicit confidence threshold."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    threshold: float = Field(..., ge=0.0, le=1.0)
+    accepted_psm_count: int = Field(..., ge=0)
+    accepted_peptide_count: int = Field(..., ge=0)
+    accepted_protein_count: int = Field(..., ge=0)
+    accepted_picked_protein_count: int = Field(..., ge=0)
+    newly_accepted_psm_ids: tuple[str, ...] = Field(default_factory=tuple)
+    newly_accepted_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    newly_accepted_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    newly_accepted_picked_proteins: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ConfidenceThresholdSensitivityReport(JsonModel):
+    """Sensitivity report over explicit FDR acceptance thresholds."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    thresholds: tuple[float, ...] = Field(default_factory=tuple)
+    entries: tuple[ConfidenceThresholdSensitivityEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class AcceptedPsmProvenanceEntry(JsonModel):
     """Full accepted-PSM provenance row after target-decoy thresholding."""
 
@@ -2673,6 +2701,77 @@ def assign_level_specific_confidence_labels(
             high_threshold=high_threshold,
             medium_threshold=medium_threshold,
         ),
+    )
+
+
+def build_confidence_threshold_sensitivity_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    thresholds: tuple[float, ...] = (0.001, 0.01, 0.05, 0.1),
+    score_orientation: str = "higher_better",
+) -> ConfidenceThresholdSensitivityReport:
+    """Report how accepted evidence changes across explicit FDR cutoffs."""
+    normalized_thresholds = tuple(sorted(dict.fromkeys(thresholds)))
+    if any(threshold < 0.0 or threshold > 1.0 for threshold in normalized_thresholds):
+        raise ValueError("thresholds must be between 0 and 1")
+
+    entries: list[ConfidenceThresholdSensitivityEntry] = []
+    previous_psms: set[str] = set()
+    previous_peptides: set[str] = set()
+    previous_proteins: set[str] = set()
+    previous_picked: set[str] = set()
+
+    for threshold in normalized_thresholds:
+        level_report = calculate_level_specific_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        picked = calculate_picked_protein_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        accepted_psms = {
+            entry.entity_id for entry in level_report.psm_entries if entry.accepted
+        }
+        accepted_peptides = {
+            entry.entity_id for entry in level_report.peptide_entries if entry.accepted
+        }
+        accepted_proteins = {
+            entry.entity_id for entry in level_report.protein_entries if entry.accepted
+        }
+        accepted_picked = {
+            entry.protein_ref for entry in picked if entry.accepted
+        }
+        entries.append(
+            ConfidenceThresholdSensitivityEntry(
+                threshold=threshold,
+                accepted_psm_count=len(accepted_psms),
+                accepted_peptide_count=len(accepted_peptides),
+                accepted_protein_count=len(accepted_proteins),
+                accepted_picked_protein_count=len(accepted_picked),
+                newly_accepted_psm_ids=tuple(sorted(accepted_psms - previous_psms)),
+                newly_accepted_peptides=tuple(
+                    sorted(accepted_peptides - previous_peptides)
+                ),
+                newly_accepted_proteins=tuple(
+                    sorted(accepted_proteins - previous_proteins)
+                ),
+                newly_accepted_picked_proteins=tuple(
+                    sorted(accepted_picked - previous_picked)
+                ),
+            )
+        )
+        previous_psms = accepted_psms
+        previous_peptides = accepted_peptides
+        previous_proteins = accepted_proteins
+        previous_picked = accepted_picked
+
+    return ConfidenceThresholdSensitivityReport(
+        score_orientation=score_orientation,
+        thresholds=normalized_thresholds,
+        entries=tuple(entries),
     )
 
 
