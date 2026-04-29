@@ -306,12 +306,18 @@ Search-result adapters are also first-class now:
 
 ```bash
 bijux-proteomics search-adapter inspect
+bijux-proteomics search-adapter params comet comet.params
 
 bijux-proteomics search-adapter normalize sage results.tsv \
   --adapter-version 0.16.0 \
   --config sage-config.json \
   --jsonl-out normalized.jsonl \
   --provenance-out adapter.provenance.json
+
+bijux-proteomics search-adapter compare \
+  sage results.tsv \
+  generic results.tsv \
+  --right-mapping-json sage-mapping.json
 ```
 
 That workflow is documented in
