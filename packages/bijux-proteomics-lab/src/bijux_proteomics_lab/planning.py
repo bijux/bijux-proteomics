@@ -180,6 +180,31 @@ class AdvisoryAssayRecommendation(JsonModel):
     )
 
 
+class EvidenceNeedWetLabAction(JsonModel):
+    """Concrete wet-lab action mapping for one unmet evidence need."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_need: str = Field(..., min_length=1)
+    assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Assays that can reduce this evidence gap.",
+    )
+    blocking_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Mapped assays that also block progression.",
+    )
+    sample_kinds: list[str] = Field(
+        default_factory=list,
+        description="Sample modalities required to execute the mapped work.",
+    )
+    wet_lab_actions: list[str] = Field(
+        default_factory=list,
+        description="Concrete lab-facing actions implied by the evidence gap.",
+    )
+    notes: list[str] = Field(default_factory=list)
+
+
 class AdvisoryAssayPlan(JsonModel):
     """Advisory assay plan for scientific prioritization before execution prep."""
 
@@ -194,6 +219,10 @@ class AdvisoryAssayPlan(JsonModel):
     recommendations: list[AdvisoryAssayRecommendation] = Field(
         default_factory=list,
         description="Scientifically motivated assay recommendations.",
+    )
+    evidence_need_actions: list[EvidenceNeedWetLabAction] = Field(
+        default_factory=list,
+        description="Open evidence needs translated into wet-lab actions.",
     )
     executable: bool = Field(
         default=False,
@@ -1228,10 +1257,15 @@ def build_advisory_assay_plan(
         )
         for assay in program.assay_panel
     ]
+    evidence_need_actions = [
+        _map_evidence_need_to_wet_lab_actions(program=program, evidence_need=gap)
+        for gap in open_gaps
+    ]
     return AdvisoryAssayPlan(
         program_id=program.program_id,
         open_evidence_gaps=open_gaps,
         recommendations=recommendations,
+        evidence_need_actions=evidence_need_actions,
     )
 
 
@@ -1398,6 +1432,72 @@ def _observation_blocks_progression(observation: AssayObservation) -> bool:
         or observation.censoring_flag
         or observation.interpretation_confidence < 0.6
     )
+
+
+def _map_evidence_need_to_wet_lab_actions(
+    *,
+    program: ProgramSpec,
+    evidence_need: str,
+) -> EvidenceNeedWetLabAction:
+    mapped_assays = [
+        assay
+        for assay in program.assay_panel
+        if _assay_supports_evidence_need(assay=assay, evidence_need=evidence_need)
+    ]
+    if not mapped_assays:
+        mapped_assays = [assay for assay in program.assay_panel if assay.blocking]
+    assay_ids = [assay.assay_id for assay in mapped_assays]
+    sample_kinds = sorted({assay.sample_kind for assay in mapped_assays})
+    wet_lab_actions = [
+        f"prepare {assay.sample_kind} material for {assay.assay_id}"
+        for assay in mapped_assays
+    ]
+    wet_lab_actions.extend(
+        f"capture {assay.readout} acceptance criteria for {assay.assay_id}"
+        for assay in mapped_assays
+    )
+    notes = (
+        [
+            "direct assay-to-evidence mapping inferred from assay purpose, readout, and sample modality"
+        ]
+        if mapped_assays
+        else ["no assay is currently mapped to this evidence need"]
+    )
+    return EvidenceNeedWetLabAction(
+        evidence_need=evidence_need,
+        assay_ids=assay_ids,
+        blocking_assay_ids=[
+            assay.assay_id for assay in mapped_assays if assay.blocking
+        ],
+        sample_kinds=sample_kinds,
+        wet_lab_actions=wet_lab_actions,
+        notes=notes,
+    )
+
+
+def _assay_supports_evidence_need(
+    *,
+    assay: AssayRequirement,
+    evidence_need: str,
+) -> bool:
+    normalized_need = evidence_need.strip().lower()
+    haystack = " ".join(
+        (
+            assay.assay_id,
+            assay.purpose,
+            assay.readout,
+            assay.sample_kind,
+        )
+    ).lower()
+    keyword_map = {
+        "literature": (),
+        "structure": ("structure", "binding", "stability", "fold", "thermal"),
+        "assay": ("assay", "binding", "activity", "readout", "engagement"),
+        "pathway": ("pathway", "cell", "cellular", "signaling", "phenotype"),
+        "safety": ("safety", "tox", "viability", "selectivity", "off-target"),
+    }
+    keywords = keyword_map.get(normalized_need, (normalized_need,))
+    return not keywords or any(keyword in haystack for keyword in keywords)
 
 
 def _build_advancement_evidence_packet(

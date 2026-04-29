@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import create_program_spec
-from bijux_proteomics.programs import AssayRequirement, ReviewGate
+from bijux_proteomics.programs import AssayRequirement, EvidenceNeed, ReviewGate
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceKind,
@@ -243,6 +243,7 @@ def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None
             ),
         ]
     )
+    program.evidence_needs = [EvidenceNeed.STRUCTURE, EvidenceNeed.ASSAY]
 
     plan = build_advisory_assay_plan(program)
 
@@ -250,6 +251,16 @@ def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None
     assert plan.plan_kind is AssayPlanKind.ADVISORY
     assert plan.executable is False
     assert plan.recommendations[0].blocking is True
+    assert [mapping.evidence_need for mapping in plan.evidence_need_actions] == [
+        "structure",
+        "assay",
+    ]
+    assert plan.evidence_need_actions[0].assay_ids == ["gate-binding"]
+    assert plan.evidence_need_actions[0].sample_kinds == ["biophysical"]
+    assert (
+        "prepare biophysical material for gate-binding"
+        in plan.evidence_need_actions[0].wet_lab_actions
+    )
 
 
 def test_build_executable_assay_plan_requires_operational_readiness() -> None:
