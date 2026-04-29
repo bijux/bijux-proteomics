@@ -421,6 +421,25 @@ class ComparativeCandidateReviewPacket(JsonModel):
     rationale: list[str] = Field(default_factory=list)
 
 
+class IntelligenceOutputMode(StrEnum):
+    """Governance mode for intelligence outputs."""
+
+    ADVISORY = "advisory"
+    ENFORCED = "enforced"
+
+
+class IntelligenceDecisionSupportEnvelope(JsonModel):
+    """Explicit boundary between advisory intelligence and enforced policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    recommendation: FinalDecisionRecommendation = Field(...)
+    mode: IntelligenceOutputMode = Field(default=IntelligenceOutputMode.ADVISORY)
+    enforced_policy_id: str | None = Field(default=None)
+    promoted_by: str | None = Field(default=None)
+    promotion_rationale: str | None = Field(default=None)
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -1135,6 +1154,33 @@ def build_final_decision_recommendation(
         action=consensus.recommended_action,
         requires_human_review=escalation.escalate_to_human_review,
         reasons=reasons,
+    )
+
+
+def build_intelligence_decision_support_envelope(
+    recommendation: FinalDecisionRecommendation,
+) -> IntelligenceDecisionSupportEnvelope:
+    """Wrap intelligence output as advisory decision support by default."""
+    return IntelligenceDecisionSupportEnvelope(recommendation=recommendation)
+
+
+def promote_intelligence_output_to_policy(
+    envelope: IntelligenceDecisionSupportEnvelope,
+    *,
+    policy_id: str,
+    promoted_by: str,
+    rationale: str,
+) -> IntelligenceDecisionSupportEnvelope:
+    """Explicitly promote advisory intelligence output into enforced policy."""
+    if envelope.mode is IntelligenceOutputMode.ENFORCED:
+        raise ValueError("intelligence output is already enforced")
+    return envelope.model_copy(
+        update={
+            "mode": IntelligenceOutputMode.ENFORCED,
+            "enforced_policy_id": policy_id,
+            "promoted_by": promoted_by,
+            "promotion_rationale": rationale,
+        }
     )
 
 

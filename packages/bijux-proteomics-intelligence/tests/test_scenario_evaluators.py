@@ -12,6 +12,8 @@ from bijux_proteomics_intelligence import (
     EvaluatorPolicyBundle,
     HoldPolicyConfig,
     HypothesisStatus,
+    IntelligenceDecisionSupportEnvelope,
+    IntelligenceOutputMode,
     ProgressionPolicy,
     ProgressionPolicyConfig,
     RankedCandidate,
@@ -25,6 +27,7 @@ from bijux_proteomics_intelligence import (
     UncertaintyPreservingInterpretationSummary,
     build_advanced_review_packet,
     build_comparative_candidate_review_packet,
+    build_intelligence_decision_support_envelope,
     build_final_decision_recommendation,
     build_intelligence_review_packet,
     derive_decision_escalation_flags,
@@ -34,6 +37,7 @@ from bijux_proteomics_intelligence import (
     evaluate_for_scale_up,
     evaluate_for_synthesis,
     evaluate_portfolio_balance,
+    promote_intelligence_output_to_policy,
     summarize_assessment_metric_coverage,
     summarize_hold_pressure,
     summarize_scenario_confidence_spread,
@@ -224,6 +228,47 @@ def test_comparative_candidate_review_packet_justifies_preferred_candidate() -> 
     assert packet.evidence_support_delta == 0.27
     assert packet.residual_risk_delta == 0.16
     assert any("preferred drivers" in line for line in packet.rationale)
+
+
+def test_intelligence_outputs_remain_advisory_until_explicitly_promoted() -> None:
+    evaluations = ScenarioSetEvaluation(
+        progression=ScenarioEvaluation(
+            scenario="progression",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.82,
+        ),
+        synthesis=ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.8,
+        ),
+        scale_up=ScenarioEvaluation(
+            scenario="scale_up",
+            action=ScenarioAction.SCALE_UP,
+            confidence=0.78,
+        ),
+        redesign=ScenarioEvaluation(
+            scenario="redesign",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.76,
+        ),
+    )
+
+    advisory = build_intelligence_decision_support_envelope(
+        build_final_decision_recommendation(evaluations)
+    )
+    enforced = promote_intelligence_output_to_policy(
+        advisory,
+        policy_id="review-gate-policy",
+        promoted_by="review-board",
+        rationale="progression gate approved after human review",
+    )
+
+    assert isinstance(advisory, IntelligenceDecisionSupportEnvelope)
+    assert advisory.mode is IntelligenceOutputMode.ADVISORY
+    assert enforced.mode is IntelligenceOutputMode.ENFORCED
+    assert enforced.enforced_policy_id == "review-gate-policy"
+    assert enforced.promoted_by == "review-board"
 
 
 def test_evaluate_for_progression_holds_when_top_candidate_confidence_is_low() -> None:
