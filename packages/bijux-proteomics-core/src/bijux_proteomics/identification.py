@@ -567,6 +567,29 @@ class CombinedEvidenceReport(JsonModel):
     entries: tuple[CombinedEvidenceEntry, ...] = Field(default_factory=tuple)
 
 
+class PeptideProteinTraceEntry(JsonModel):
+    """Stable peptide-to-protein trace row for downstream review and export."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    peptide: str = Field(..., min_length=1)
+    spectrum_ids: tuple[str, ...] = Field(default_factory=tuple)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    protein_group_ids: tuple[str, ...] = Field(default_factory=tuple)
+    charge_states: tuple[int, ...] = Field(default_factory=tuple)
+    best_score: float
+    best_q_value: float | None = Field(default=None, ge=0.0)
+
+
+class PeptideProteinTraceReport(JsonModel):
+    """Stable peptide-to-protein trace collection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[PeptideProteinTraceEntry, ...] = Field(default_factory=tuple)
+
+
 class ParsimonyVariantResult(JsonModel):
     """Selections produced by one named protein-parsimony policy."""
 
@@ -2741,6 +2764,101 @@ def build_combined_evidence_report(
             )
         )
     )
+
+
+def build_peptide_protein_trace_report(
+    records: tuple[PsmRecord, ...],
+) -> PeptideProteinTraceReport:
+    """Build stable peptide-to-protein traces that survive export."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    protein_groups = build_protein_groups(records)
+    group_ids_by_protein: dict[str, set[str]] = defaultdict(set)
+    for group in protein_groups:
+        for protein_ref in group.protein_refs:
+            group_ids_by_protein[protein_ref].add(group.group_id)
+
+    entries: list[PeptideProteinTraceEntry] = []
+    for rollup in peptide_rollups:
+        spectrum_ids = tuple(
+            sorted(
+                record.spectrum_id
+                for record in records
+                if record.canonical_peptide == rollup.canonical_peptide
+            )
+        )
+        group_ids = tuple(
+            sorted(
+                {
+                    group_id
+                    for protein_ref in rollup.protein_refs
+                    for group_id in group_ids_by_protein.get(protein_ref, set())
+                }
+            )
+        )
+        entries.append(
+            PeptideProteinTraceEntry(
+                canonical_peptide=rollup.canonical_peptide,
+                peptide=rollup.peptide,
+                spectrum_ids=spectrum_ids,
+                protein_refs=rollup.protein_refs,
+                protein_group_ids=group_ids,
+                charge_states=rollup.charge_states,
+                best_score=rollup.best_score,
+                best_q_value=rollup.best_q_value,
+            )
+        )
+    return PeptideProteinTraceReport(
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.canonical_peptide, entry.peptide))
+        )
+    )
+
+
+def export_peptide_protein_trace_jsonl(
+    report: PeptideProteinTraceReport,
+    path: Path,
+) -> None:
+    """Write a stable JSONL export for peptide-to-protein traces."""
+    with path.open("w", encoding="utf-8") as handle:
+        for entry in report.entries:
+            handle.write(
+                json.dumps(entry.to_dict(), sort_keys=True, separators=(",", ":"))
+            )
+            handle.write("\n")
+
+
+def export_peptide_protein_trace_tsv(
+    report: PeptideProteinTraceReport,
+    path: Path,
+) -> None:
+    """Write a stable TSV export for peptide-to-protein traces."""
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow(
+            [
+                "canonical_peptide",
+                "peptide",
+                "spectrum_ids",
+                "protein_refs",
+                "protein_group_ids",
+                "charge_states",
+                "best_score",
+                "best_q_value",
+            ]
+        )
+        for entry in report.entries:
+            writer.writerow(
+                [
+                    entry.canonical_peptide,
+                    entry.peptide,
+                    ";".join(entry.spectrum_ids),
+                    ";".join(entry.protein_refs),
+                    ";".join(entry.protein_group_ids),
+                    ";".join(str(charge) for charge in entry.charge_states),
+                    entry.best_score,
+                    "" if entry.best_q_value is None else entry.best_q_value,
+                ]
+            )
 
 
 def _parsimony_sort_key(

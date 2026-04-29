@@ -42,6 +42,8 @@ from bijux_proteomics import (
     compare_parsimony_variants,
     compute_fdr_reproducibility_hash,
     detect_score_orientation_advisory,
+    export_peptide_protein_trace_jsonl,
+    export_peptide_protein_trace_tsv,
     export_psm_jsonl,
     export_psm_tsv,
     filter_psms_by_fdr,
@@ -49,6 +51,7 @@ from bijux_proteomics import (
     normalize_psm_records,
     normalize_psm_score_orientation,
     parse_fasta_document,
+    build_peptide_protein_trace_report,
     parse_psm_tsv,
     parse_target_decoy_label,
     rollup_peptide_evidence,
@@ -742,6 +745,33 @@ def test_confidence_calibration_report_adds_empirical_context_beyond_q_values() 
     assert 0.0 <= first_psm.support_score <= 1.0
     assert protein_calibration.evidence_level.value == "protein"
     assert any(entry.entity_id == "P11111" for entry in protein_calibration.entries)
+
+
+def test_peptide_to_protein_trace_report_remains_stable_across_exports() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+    trace = build_peptide_protein_trace_report(accepted)
+
+    shared = next(
+        entry for entry in trace.entries if entry.canonical_peptide == "SHAREDK"
+    )
+    assert shared.protein_refs == ("P11111", "P22222", "P44444")
+    assert shared.protein_group_ids
+
+    jsonl_path = _psm_fixture("peptide_protein_trace.jsonl")
+    tsv_path = _psm_fixture("peptide_protein_trace.tsv")
+    try:
+        export_peptide_protein_trace_jsonl(trace, jsonl_path)
+        export_peptide_protein_trace_tsv(trace, tsv_path)
+        assert '"canonical_peptide":"SHAREDK"' in jsonl_path.read_text()
+        assert tsv_path.read_text().splitlines()[0].startswith(
+            "canonical_peptide\tpeptide\tspectrum_ids"
+        )
+    finally:
+        jsonl_path.unlink(missing_ok=True)
+        tsv_path.unlink(missing_ok=True)
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:
