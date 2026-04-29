@@ -17,7 +17,11 @@ from bijux_proteomics_intelligence import (
     RedesignPolicyConfig,
     ScaleUpPolicy,
     ScenarioAction,
+    ScenarioEvaluation,
+    ScenarioSetEvaluation,
+    ScenarioUncertaintyEntry,
     SynthesisPolicy,
+    UncertaintyPreservingInterpretationSummary,
     build_advanced_review_packet,
     build_final_decision_recommendation,
     build_intelligence_review_packet,
@@ -32,6 +36,7 @@ from bijux_proteomics_intelligence import (
     summarize_hold_pressure,
     summarize_scenario_confidence_spread,
     summarize_scenario_consensus,
+    summarize_uncertainty_preserving_interpretation,
     summarize_unresolved_question_ledger,
 )
 from bijux_proteomics_knowledge import (
@@ -121,6 +126,44 @@ def test_evaluate_for_progression_holds_when_top_candidate_has_many_blockers() -
         "off-target risk",
         "yield risk",
     ]
+
+
+def test_uncertainty_preserving_summary_keeps_disagreement_visible() -> None:
+    evaluations = ScenarioSetEvaluation(
+        progression=ScenarioEvaluation(
+            scenario="progression",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.86,
+            unresolved_questions=["collect orthogonal assay"],
+        ),
+        synthesis=ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.HOLD,
+            confidence=0.58,
+            unresolved_questions=["confirm safety margin"],
+        ),
+        scale_up=ScenarioEvaluation(
+            scenario="scale_up",
+            action=ScenarioAction.HOLD,
+            confidence=0.55,
+            unresolved_questions=["confirm safety margin"],
+        ),
+        redesign=ScenarioEvaluation(
+            scenario="redesign",
+            action=ScenarioAction.REDESIGN,
+            confidence=0.62,
+            unresolved_questions=["candidate ranking indicates redesign pressure"],
+        ),
+    )
+
+    summary = summarize_uncertainty_preserving_interpretation(evaluations)
+
+    assert isinstance(summary, UncertaintyPreservingInterpretationSummary)
+    assert summary.conflicting_actions is True
+    assert summary.confidence_spread == 0.31
+    assert summary.unresolved_question_count == 3
+    assert isinstance(summary.scenario_entries[0], ScenarioUncertaintyEntry)
+    assert any("remain visible" in note for note in summary.notes)
 
 
 def test_evaluate_for_progression_holds_when_top_candidate_confidence_is_low() -> None:

@@ -379,6 +379,31 @@ class AdvancedIntelligenceReviewPacket(JsonModel):
     )
 
 
+class ScenarioUncertaintyEntry(JsonModel):
+    """Scenario-specific uncertainty that should remain visible to reviewers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario: str = Field(..., min_length=1)
+    action: ScenarioAction
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    hypothesis_status: HypothesisStatus
+    unresolved_questions: list[str] = Field(default_factory=list)
+
+
+class UncertaintyPreservingInterpretationSummary(JsonModel):
+    """Summary that preserves scenario disagreement and unresolved questions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    consensus_action: ScenarioAction = Field(...)
+    conflicting_actions: bool = Field(...)
+    confidence_spread: float = Field(..., ge=0.0, le=1.0)
+    unresolved_question_count: int = Field(default=0, ge=0)
+    scenario_entries: list[ScenarioUncertaintyEntry] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -890,6 +915,56 @@ def summarize_scenario_confidence_spread(
         maximum_confidence=maximum,
         mean_confidence=mean,
         spread=round(maximum - minimum, 4),
+    )
+
+
+def summarize_uncertainty_preserving_interpretation(
+    evaluations: ScenarioSetEvaluation,
+) -> UncertaintyPreservingInterpretationSummary:
+    """Summarize scenario outputs without flattening disagreement away."""
+    scenarios = [
+        evaluations.progression,
+        evaluations.synthesis,
+        evaluations.scale_up,
+        evaluations.redesign,
+    ]
+    consensus = summarize_scenario_consensus(evaluations)
+    spread = summarize_scenario_confidence_spread(evaluations)
+    entries = [
+        ScenarioUncertaintyEntry(
+            scenario=scenario.scenario,
+            action=scenario.action,
+            confidence=scenario.confidence,
+            hypothesis_status=scenario.hypothesis_status,
+            unresolved_questions=scenario.unresolved_questions,
+        )
+        for scenario in scenarios
+    ]
+    unresolved_questions = {
+        question for scenario in scenarios for question in scenario.unresolved_questions
+    }
+    notes: list[str] = []
+    if consensus.conflicting_actions:
+        notes.append("scenario actions disagree and should remain visible to reviewers")
+    if spread.spread >= 0.2:
+        notes.append(
+            "scenario confidence spread is wide enough to keep uncertainty explicit"
+        )
+    if unresolved_questions:
+        notes.append(
+            f"{len(unresolved_questions)} unresolved questions still influence the decision"
+        )
+    if not notes:
+        notes.append(
+            "scenario uncertainty is narrow enough for a stable advisory interpretation"
+        )
+    return UncertaintyPreservingInterpretationSummary(
+        consensus_action=consensus.recommended_action,
+        conflicting_actions=consensus.conflicting_actions,
+        confidence_spread=spread.spread,
+        unresolved_question_count=len(unresolved_questions),
+        scenario_entries=entries,
+        notes=notes,
     )
 
 
