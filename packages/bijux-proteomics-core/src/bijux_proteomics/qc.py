@@ -194,6 +194,17 @@ class QcThresholdPolicy(JsonModel):
     rules: tuple[QcThresholdRule, ...] = Field(default_factory=tuple)
 
 
+class QcThresholdPolicyProfile(JsonModel):
+    """Explicit separation of advisory and enforced QC policy rules."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    advisory_rules: tuple[QcThresholdRule, ...] = Field(default_factory=tuple)
+    enforced_rules: tuple[QcThresholdRule, ...] = Field(default_factory=tuple)
+
+
 class QcMetricAssessment(JsonModel):
     """One measured QC metric evaluated against a threshold rule."""
 
@@ -219,8 +230,11 @@ class QcRunAssessmentReport(JsonModel):
     run_id: str = Field(..., min_length=1)
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
+    threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
     blocked: bool = False
+    advisory_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    enforced_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
     metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
 
 
@@ -234,8 +248,11 @@ class QcBatchAssessmentReport(JsonModel):
     instrument: str | None = None
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
+    threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
     blocked: bool = False
+    advisory_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    enforced_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
     metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
 
 
@@ -587,6 +604,26 @@ def default_qc_threshold_policy() -> QcThresholdPolicy:
     )
 
 
+def build_qc_threshold_profile(policy: QcThresholdPolicy) -> QcThresholdPolicyProfile:
+    """Build an explicit advisory/enforced rule split from one QC policy."""
+    advisory_rules = tuple(
+        rule
+        for rule in policy.rules
+        if rule.disposition is QcAssessmentDisposition.ADVISORY
+    )
+    enforced_rules = tuple(
+        rule
+        for rule in policy.rules
+        if rule.disposition is QcAssessmentDisposition.ENFORCED
+    )
+    return QcThresholdPolicyProfile(
+        policy_name=policy.policy_name,
+        policy_version=policy.version,
+        advisory_rules=advisory_rules,
+        enforced_rules=enforced_rules,
+    )
+
+
 def load_qc_threshold_policy(path: Path) -> QcThresholdPolicy:
     """Load a QC threshold policy from JSON."""
     return QcThresholdPolicy.model_validate_json(path.read_text(encoding="utf-8"))
@@ -615,6 +652,19 @@ def build_run_qc_assessment(
         _evaluate_rule(rule, observed_metrics.get(rule.metric_key))
         for rule in policy.rules
     )
+    threshold_profile = build_qc_threshold_profile(policy)
+    advisory_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
+        and assessment.disposition is QcAssessmentDisposition.ADVISORY
+    )
+    enforced_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity is QcAssessmentSeverity.FAILED
+        and assessment.disposition is QcAssessmentDisposition.ENFORCED
+    )
     overall = max(
         assessments, key=lambda entry: _severity_rank(entry.severity), default=None
     )
@@ -623,10 +673,13 @@ def build_run_qc_assessment(
         run_id=run_report.run_id,
         policy_name=policy.policy_name,
         policy_version=policy.version,
+        threshold_profile=threshold_profile,
         overall_severity=QcAssessmentSeverity.PASSED
         if overall is None
         else overall.severity,
         blocked=any(entry.enforced_violation for entry in assessments),
+        advisory_failure_metric_keys=advisory_failure_metric_keys,
+        enforced_failure_metric_keys=enforced_failure_metric_keys,
         metric_assessments=assessments,
     )
 
@@ -677,6 +730,26 @@ def build_batch_qc_assessment(
     assessments = tuple(
         _evaluate_rule(rule, metrics.get(rule.metric_key)) for rule in rules
     )
+    threshold_profile = build_qc_threshold_profile(
+        QcThresholdPolicy(
+            document_schema=policy.document_schema,
+            policy_name=policy.policy_name,
+            version=policy.version,
+            rules=tuple(rules),
+        )
+    )
+    advisory_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
+        and assessment.disposition is QcAssessmentDisposition.ADVISORY
+    )
+    enforced_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity is QcAssessmentSeverity.FAILED
+        and assessment.disposition is QcAssessmentDisposition.ENFORCED
+    )
     overall = max(
         assessments, key=lambda entry: _severity_rank(entry.severity), default=None
     )
@@ -686,10 +759,13 @@ def build_batch_qc_assessment(
         instrument=batch_report.instrument,
         policy_name=policy.policy_name,
         policy_version=policy.version,
+        threshold_profile=threshold_profile,
         overall_severity=QcAssessmentSeverity.PASSED
         if overall is None
         else overall.severity,
         blocked=any(entry.enforced_violation for entry in assessments),
+        advisory_failure_metric_keys=advisory_failure_metric_keys,
+        enforced_failure_metric_keys=enforced_failure_metric_keys,
         metric_assessments=assessments,
     )
 

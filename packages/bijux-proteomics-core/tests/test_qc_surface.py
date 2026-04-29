@@ -439,6 +439,9 @@ def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
 
     assert run_assessment.blocked is True
     assert run_assessment.overall_severity is QcAssessmentSeverity.FAILED
+    assert run_assessment.threshold_profile.enforced_rules
+    assert run_assessment.threshold_profile.advisory_rules
+    assert "identification_rate" in run_assessment.enforced_failure_metric_keys
     assert any(
         entry.metric_key == "identification_rate" and entry.enforced_violation
         for entry in run_assessment.metric_assessments
@@ -447,6 +450,7 @@ def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
         QcAssessmentSeverity.WARNING,
         QcAssessmentSeverity.FAILED,
     }
+    assert batch_assessment.threshold_profile.advisory_rules
     assert any(
         entry.metric_key == "outlier_run_count"
         for entry in batch_assessment.metric_assessments
