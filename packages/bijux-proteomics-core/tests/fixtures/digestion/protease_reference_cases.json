@@ -1,0 +1,79 @@
+[
+  {
+    "name": "trypsin_reference",
+    "sequence": "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGE",
+    "protease": "trypsin",
+    "digestion_mode": "full",
+    "expected_peptides": [
+      "MK",
+      "WVTFISLLFLFSSAYSR",
+      "GVFR",
+      "R",
+      "DTHK",
+      "SEIAHR",
+      "FK",
+      "DLGE"
+    ]
+  },
+  {
+    "name": "lysc_reference",
+    "sequence": "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGE",
+    "protease": "lysc",
+    "digestion_mode": "full",
+    "expected_peptides": [
+      "MK",
+      "WVTFISLLFLFSSAYSRGVFRRDTHK",
+      "SEIAHRFK",
+      "DLGE"
+    ]
+  },
+  {
+    "name": "gluc_reference",
+    "sequence": "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGE",
+    "protease": "gluc",
+    "digestion_mode": "full",
+    "expected_peptides": [
+      "MKWVTFISLLFLFSSAYSRGVFRRDTHKSE",
+      "IAHRFKDLGE"
+    ]
+  },
+  {
+    "name": "chymotrypsin_reference",
+    "sequence": "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGE",
+    "protease": "chymotrypsin",
+    "digestion_mode": "full",
+    "expected_peptides": [
+      "MKW",
+      "VTF",
+      "ISL",
+      "L",
+      "F",
+      "L",
+      "F",
+      "SSAY",
+      "SRGVF",
+      "RRDTHKSEIAHRF",
+      "KDL",
+      "GE"
+    ]
+  },
+  {
+    "name": "bounded_non_specific_reference",
+    "sequence": "PEPTIDE",
+    "protease": "trypsin",
+    "digestion_mode": "non_specific",
+    "min_length": 3,
+    "max_length": 4,
+    "expected_peptides": [
+      "PEP",
+      "PEPT",
+      "EPT",
+      "EPTI",
+      "PTI",
+      "PTID",
+      "TID",
+      "TIDE",
+      "IDE"
+    ]
+  }
+]
