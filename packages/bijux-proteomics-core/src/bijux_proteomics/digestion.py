@@ -88,6 +88,7 @@ class PeptideUniqueness(StrEnum):
     """Classification of peptide uniqueness across proteins."""
 
     UNIQUE = "unique"
+    SHARED_ISOFORM_FAMILY = "shared_isoform_family"
     SHARED = "shared"
 
 
@@ -98,6 +99,7 @@ class PeptideUniquenessEntry(JsonModel):
 
     sequence: str = Field(..., min_length=1)
     protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    protein_families: tuple[str, ...] = Field(default_factory=tuple)
     uniqueness: PeptideUniqueness
 
 
@@ -108,6 +110,7 @@ class PeptideProteinIndexEntry(JsonModel):
 
     sequence: str = Field(..., min_length=1)
     protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    protein_families: tuple[str, ...] = Field(default_factory=tuple)
     source_identifiers: tuple[str, ...] = Field(default_factory=tuple)
     coordinates: tuple["PeptideOriginCoordinate", ...] = Field(default_factory=tuple)
     uniqueness: PeptideUniqueness
@@ -298,23 +301,22 @@ def classify_peptide_uniqueness(
     peptides: tuple[DigestedPeptide, ...],
 ) -> tuple[PeptideUniquenessEntry, ...]:
     """Classify peptides as unique or shared across parent proteins."""
-    sequence_to_accessions: dict[str, set[str]] = {}
+    sequence_to_peptides: dict[str, list[DigestedPeptide]] = {}
     for peptide in peptides:
-        sequence_to_accessions.setdefault(peptide.sequence, set()).add(
-            peptide.source_accession
-        )
+        sequence_to_peptides.setdefault(peptide.sequence, []).append(peptide)
 
     entries = [
         PeptideUniquenessEntry(
             sequence=sequence,
-            protein_accessions=tuple(sorted(accessions)),
-            uniqueness=(
-                PeptideUniqueness.UNIQUE
-                if len(accessions) == 1
-                else PeptideUniqueness.SHARED
+            protein_accessions=tuple(
+                sorted({peptide.source_accession for peptide in members})
             ),
+            protein_families=tuple(
+                sorted({peptide.source_protein_family for peptide in members})
+            ),
+            uniqueness=_classify_peptide_uniqueness_members(members),
         )
-        for sequence, accessions in sorted(sequence_to_accessions.items())
+        for sequence, members in sorted(sequence_to_peptides.items())
     ]
     return tuple(entries)
 
@@ -330,6 +332,9 @@ def build_peptide_protein_index(
     entries: list[PeptideProteinIndexEntry] = []
     for sequence, members in sorted(grouped.items()):
         accessions = tuple(sorted({member.source_accession for member in members}))
+        protein_families = tuple(
+            sorted({member.source_protein_family for member in members})
+        )
         identifiers = tuple(sorted({member.source_identifier for member in members}))
         coordinate_keys = sorted(
             {
@@ -359,13 +364,10 @@ def build_peptide_protein_index(
             PeptideProteinIndexEntry(
                 sequence=sequence,
                 protein_accessions=accessions,
+                protein_families=protein_families,
                 source_identifiers=identifiers,
                 coordinates=coordinates,
-                uniqueness=(
-                    PeptideUniqueness.UNIQUE
-                    if len(accessions) == 1
-                    else PeptideUniqueness.SHARED
-                ),
+                uniqueness=_classify_peptide_uniqueness_members(members),
             )
         )
     return tuple(entries)
@@ -664,6 +666,18 @@ def build_digest_benchmark_report(
             len(peptides) / elapsed_seconds if elapsed_seconds > 0 else 0.0
         ),
     )
+
+
+def _classify_peptide_uniqueness_members(
+    peptides: list[DigestedPeptide] | tuple[DigestedPeptide, ...],
+) -> PeptideUniqueness:
+    accessions = {peptide.source_accession for peptide in peptides}
+    if len(accessions) == 1:
+        return PeptideUniqueness.UNIQUE
+    protein_families = {peptide.source_protein_family for peptide in peptides}
+    if len(protein_families) == 1:
+        return PeptideUniqueness.SHARED_ISOFORM_FAMILY
+    return PeptideUniqueness.SHARED
 
 
 def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...]:

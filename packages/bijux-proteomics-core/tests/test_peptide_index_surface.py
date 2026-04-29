@@ -23,8 +23,10 @@ def test_classify_peptide_uniqueness_distinguishes_unique_and_shared_peptides() 
 
     assert by_sequence["AK"].uniqueness is PeptideUniqueness.SHARED
     assert by_sequence["AK"].protein_accessions == ("P11111", "P22222")
+    assert by_sequence["AK"].protein_families == ("P11111", "P22222")
     assert by_sequence["QQQK"].uniqueness is PeptideUniqueness.UNIQUE
     assert by_sequence["QQQK"].protein_accessions == ("P33333",)
+    assert by_sequence["QQQK"].protein_families == ("P33333",)
 
 
 def test_build_peptide_protein_index_tracks_parent_coordinates() -> None:
@@ -75,6 +77,8 @@ def test_digest_protein_records_preserves_isoform_specific_origin_coordinates() 
     by_sequence = {entry.sequence: entry for entry in entries}
 
     assert by_sequence["AK"].protein_accessions == ("P12345", "P12345-2")
+    assert by_sequence["AK"].protein_families == ("P12345",)
+    assert by_sequence["AK"].uniqueness is PeptideUniqueness.SHARED_ISOFORM_FAMILY
     assert [coordinate.model_dump() for coordinate in by_sequence["AK"].coordinates] == [
         {
             "protein_accession": "P12345",
