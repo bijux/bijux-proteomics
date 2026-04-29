@@ -77,11 +77,33 @@ Import-driven usage starts from the core domain package:
 from bijux_proteomics import program_spec, validation
 ```
 
+Sequence intake and FASTA operations now live in the same package surface:
+
+```bash
+bijux-proteomics fasta-parse proteins.fasta --mode strict
+bijux-proteomics fasta-stats proteins.fasta --mode permissive
+bijux-proteomics fasta-dedup proteins.fasta --mode permissive --out-fasta proteins.dedup.fasta
+bijux-proteomics fasta-filter proteins.fasta --organism "Homo sapiens" --exclude-contaminants --out-fasta human.fasta
+bijux-proteomics fasta-decoy proteins.fasta --decoy-mode reverse --out-fasta target-decoy.fasta
+bijux-proteomics target-decoy-validate target-decoy.fasta
+```
+
+Import-driven sequence usage is also public and stable:
+
+```python
+from bijux_proteomics import (
+    FastaParseMode,
+    build_fasta_stats,
+    parse_fasta_document,
+    validate_target_decoy_database,
+)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
 - Import root: `bijux_proteomics`
-- Stable entrypoints: `program_spec`, `validation`, `repositories`, and `interfaces`
+- Stable entrypoints: `program_spec`, `validation`, `repositories`, `interfaces`, and `sequences`
 
 ## Package boundaries
 
@@ -164,6 +186,7 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 
 - [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
 - [`src/bijux_proteomics/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/repositories.py) for decision and gate repository protocols
+- [`src/bijux_proteomics/sequences.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences.py) for FASTA parsing, protein normalization, checksums, filtering, provenance, and target-decoy utilities
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations

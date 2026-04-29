@@ -4,9 +4,14 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 
 ## Unreleased
 
+### Added
+
+- Added strict and permissive FASTA parsing, protein normalization, sequence validation, normalized sequence checksums, FASTA deduplication, filtering, stats, provenance manifests, decoy generation, and target-decoy validation in `bijux_proteomics.sequences`.
+- Added CLI surfaces for FASTA parsing, stats, deduplication, filtering, provenance manifests, sequence checksums, decoy generation, and target-decoy validation.
+
 ### Changed
 
-- No unreleased changes yet.
+- Exported the new FASTA and sequence-operation contracts through the package public API and README examples.
 
 ## 0.3.7 - 2026-04-21
 

@@ -71,3 +71,8 @@ packages = ["src/bijux_proteomics"]
 
 [tool.hatch.build.targets.wheel.package-data]
 "bijux_proteomics" = ["py.typed"]
+
+[tool.pytest.ini_options]
+markers = [
+  "unit: marks package-level unit tests",
+]
