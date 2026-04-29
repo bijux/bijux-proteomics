@@ -936,6 +936,26 @@ class SearchResultProvenanceManifest(JsonModel):
     fdr_policy: FdrPolicy | None = None
 
 
+class DecoyStrategyValidationIssue(JsonModel):
+    """One validation issue for a custom target-decoy strategy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+
+
+class DecoyStrategyValidationReport(JsonModel):
+    """Validation result for a target-decoy labeling strategy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: TargetDecoyLabelPolicy
+    valid: bool
+    issues: tuple[DecoyStrategyValidationIssue, ...] = Field(default_factory=tuple)
+
+
 def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...]:
     if raw_value in (None, ""):
         return ()
@@ -965,6 +985,101 @@ def _combine_labels(labels: tuple[TargetDecoyLabel, ...]) -> TargetDecoyLabel:
     if any(label is TargetDecoyLabel.MIXED for label in active):
         return TargetDecoyLabel.MIXED
     return TargetDecoyLabel.MIXED
+
+
+def validate_target_decoy_policy(
+    policy: TargetDecoyLabelPolicy,
+    *,
+    sample_protein_refs: tuple[str, ...] = (),
+    sample_explicit_labels: tuple[str, ...] = (),
+) -> DecoyStrategyValidationReport:
+    """Validate a custom target-decoy strategy before downstream inference."""
+    issues: list[DecoyStrategyValidationIssue] = []
+    overlap = set(policy.explicit_decoy_values) & set(policy.explicit_target_values)
+    if overlap:
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="overlapping_explicit_values",
+                message=(
+                    "explicit target and decoy labels overlap: "
+                    + ", ".join(sorted(overlap))
+                ),
+                severity="error",
+            )
+        )
+    if not (
+        policy.protein_prefix
+        or policy.protein_suffix
+        or policy.explicit_decoy_values
+        or policy.explicit_target_values
+    ):
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="missing_decoy_rules",
+                message="target-decoy policy does not define any explicit labels or protein naming rules",
+                severity="error",
+            )
+        )
+    unknown_labels = tuple(
+        sorted(
+            {
+                label.strip().lower()
+                for label in sample_explicit_labels
+                if label.strip()
+                and label.strip().lower() not in policy.explicit_decoy_values
+                and label.strip().lower() not in policy.explicit_target_values
+            }
+        )
+    )
+    if unknown_labels:
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="unmapped_explicit_labels",
+                message=(
+                    "explicit labels are present in sample evidence but absent from the custom policy: "
+                    + ", ".join(unknown_labels)
+                ),
+                severity="warning",
+            )
+        )
+    target_like = {
+        protein_ref
+        for protein_ref in sample_protein_refs
+        if parse_target_decoy_label(protein_refs=(protein_ref,), policy=policy)
+        is TargetDecoyLabel.TARGET
+    }
+    decoy_like = {
+        protein_ref
+        for protein_ref in sample_protein_refs
+        if parse_target_decoy_label(protein_refs=(protein_ref,), policy=policy)
+        is TargetDecoyLabel.DECOY
+    }
+    if sample_protein_refs and not decoy_like:
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="sample_missing_decoy_matches",
+                message="sample protein references do not contain any accessions recognized as decoy by the custom policy",
+                severity="warning",
+            )
+        )
+    if target_like and decoy_like and any(
+        _base_accession_from_policy(target_ref, policy)
+        == _base_accession_from_policy(decoy_ref, policy)
+        for target_ref in target_like
+        for decoy_ref in decoy_like
+    ):
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="shared_base_accession_pairs",
+                message="sample evidence contains target and decoy accessions that collapse to the same base accession under the custom policy",
+                severity="warning",
+            )
+        )
+    return DecoyStrategyValidationReport(
+        policy=policy,
+        valid=not any(issue.severity == "error" for issue in issues),
+        issues=tuple(issues),
+    )
 
 
 def parse_target_decoy_label(

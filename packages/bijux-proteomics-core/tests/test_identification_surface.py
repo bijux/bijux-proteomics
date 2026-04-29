@@ -60,6 +60,7 @@ from bijux_proteomics import (
     rollup_protein_evidence,
     select_best_psm_per_spectrum,
     sort_psm_records,
+    validate_target_decoy_policy,
     validate_target_decoy_accession_collisions,
     verify_fdr_q_value_monotonicity,
 )
@@ -820,6 +821,30 @@ def test_grouped_confidence_report_summarizes_indistinguishable_protein_groups()
     assert ambiguous.shared_peptide_count == 2
     assert ambiguous.unique_peptide_count == 0
     assert ambiguous.confidence_label.value in {"medium", "high"}
+
+
+def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -> (
+    None
+):
+    invalid = validate_target_decoy_policy(
+        TargetDecoyLabelPolicy(
+            explicit_decoy_values=("decoy", "target"),
+            explicit_target_values=("target",),
+        )
+    )
+    valid = validate_target_decoy_policy(
+        TargetDecoyLabelPolicy(
+            protein_suffix="_REV",
+            explicit_decoy_values=("rev",),
+            explicit_target_values=("target",),
+        ),
+        sample_protein_refs=("P11111", "P11111_REV"),
+        sample_explicit_labels=("target", "rev"),
+    )
+
+    assert invalid.valid is False
+    assert invalid.issues[0].code == "overlapping_explicit_values"
+    assert valid.valid is True
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:
