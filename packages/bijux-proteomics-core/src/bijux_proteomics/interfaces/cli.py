@@ -11,6 +11,16 @@ from typing import Any
 
 import click
 
+from bijux_proteomics.digestion import (
+    PeptideDigestionMode,
+    build_digest_manifest,
+    digest_protein_records,
+    export_peptides_jsonl,
+    export_peptides_parquet,
+    export_peptides_tsv,
+    get_protease_rule,
+    peptide_export_fingerprint,
+)
 from bijux_proteomics.programs import ProgramSpec, create_program_spec, program_summary
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
@@ -64,6 +74,17 @@ def _decoy_mode_choice() -> click.Choice:
         [mode.value for mode in DecoyGenerationMode],
         case_sensitive=False,
     )
+
+
+def _digestion_mode_choice() -> click.Choice:
+    return click.Choice(
+        [mode.value for mode in PeptideDigestionMode],
+        case_sensitive=False,
+    )
+
+
+def _export_format_choice() -> click.Choice:
+    return click.Choice(["tsv", "jsonl", "parquet"], case_sensitive=False)
 
 
 @click.group()
@@ -364,3 +385,90 @@ def target_decoy_validate_command(
     )
     validation = validate_target_decoy_database(report.accepted_records, prefix=prefix)
     _emit_json(validation, out_path=out_path)
+
+
+@cli.command("digest")
+@click.argument("input_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--mode", type=_mode_choice(), default=FastaParseMode.STRICT.value, show_default=True)
+@click.option("--protease", default="trypsin", show_default=True)
+@click.option("--missed-cleavages", type=int, default=0, show_default=True)
+@click.option("--digestion-mode", type=_digestion_mode_choice(), default=PeptideDigestionMode.FULL.value, show_default=True)
+@click.option("--min-length", type=int, default=1, show_default=True)
+@click.option("--max-length", type=int, default=None)
+@click.option("--min-mass", type=float, default=None)
+@click.option("--max-mass", type=float, default=None)
+@click.option("--format", "export_format", type=_export_format_choice(), default="tsv", show_default=True)
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), required=True)
+@click.option("--manifest-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def digest_command(
+    input_fasta: Path,
+    mode: str,
+    protease: str,
+    missed_cleavages: int,
+    digestion_mode: str,
+    min_length: int,
+    max_length: int | None,
+    min_mass: float | None,
+    max_mass: float | None,
+    export_format: str,
+    out_path: Path,
+    manifest_out: Path | None,
+) -> None:
+    """Digest FASTA records into peptide exports."""
+    try:
+        protease_rule = get_protease_rule(protease)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    report = _load_fasta_report(
+        input_fasta,
+        mode=FastaParseMode(mode),
+        allow_rejected=False,
+    )
+    peptides = digest_protein_records(
+        report.accepted_records,
+        protease=protease_rule,
+        missed_cleavages=missed_cleavages,
+        mode=PeptideDigestionMode(digestion_mode),
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+    )
+
+    try:
+        if export_format == "tsv":
+            export_peptides_tsv(peptides, out_path)
+        elif export_format == "jsonl":
+            export_peptides_jsonl(peptides, out_path)
+        else:
+            export_peptides_parquet(peptides, out_path)
+    except (RuntimeError, OSError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    manifest = build_digest_manifest(
+        peptides=peptides,
+        protease=protease_rule.name,
+        digestion_mode=PeptideDigestionMode(digestion_mode),
+        missed_cleavages=missed_cleavages,
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+        source_path=input_fasta,
+        input_record_count=report.total_records,
+    )
+    if manifest_out is not None:
+        manifest_out.write_text(manifest.to_stable_json() + "\n")
+
+    _emit_json(
+        {
+            "input_record_count": report.total_records,
+            "output_peptide_count": len(peptides),
+            "protease": protease_rule.name,
+            "digestion_mode": digestion_mode,
+            "export_format": export_format,
+            "output_sha256": peptide_export_fingerprint(peptides),
+            "output_path": str(out_path),
+        }
+    )

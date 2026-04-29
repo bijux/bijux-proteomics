@@ -156,3 +156,102 @@ def test_sequence_checksum_and_target_decoy_validate_commands(
         assert validation_result.exit_code == 0
         validation_payload = json.loads(validation_result.output)
         assert validation_payload["valid"] is True
+
+
+def test_digest_command_writes_export_and_manifest(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "valid.fasta",
+                "--protease",
+                "trypsin",
+                "--missed-cleavages",
+                "1",
+                "--digestion-mode",
+                "full",
+                "--min-length",
+                "3",
+                "--format",
+                "jsonl",
+                "--out",
+                "peptides.jsonl",
+                "--manifest-out",
+                "digest.manifest.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["protease"] == "trypsin"
+        assert payload["output_peptide_count"] > 0
+        assert Path("peptides.jsonl").exists()
+        manifest = json.loads(Path("digest.manifest.json").read_text())
+        assert manifest["document_schema"]["document_kind"] == "peptide_digest_manifest"
+
+
+def test_digest_command_reports_invalid_protease_and_invalid_fasta(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "mixed_quality.fasta", "mixed_quality.fasta")
+
+        invalid_protease = runner.invoke(
+            cli,
+            [
+                "digest",
+                "mixed_quality.fasta",
+                "--protease",
+                "not-a-protease",
+                "--out",
+                "peptides.tsv",
+            ],
+        )
+        assert invalid_protease.exit_code != 0
+        assert "unknown protease rule" in invalid_protease.output
+
+        invalid_fasta = runner.invoke(
+            cli,
+            [
+                "digest",
+                "mixed_quality.fasta",
+                "--protease",
+                "trypsin",
+                "--mode",
+                "strict",
+                "--out",
+                "peptides.tsv",
+            ],
+        )
+        assert invalid_fasta.exit_code != 0
+        assert "rejected records" in invalid_fasta.output
+
+
+def test_digest_command_reports_invalid_output_path(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "valid.fasta",
+                "--protease",
+                "trypsin",
+                "--out",
+                "missing/peptides.tsv",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "No such file or directory" in result.output
