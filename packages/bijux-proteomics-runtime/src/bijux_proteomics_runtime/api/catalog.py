@@ -20,7 +20,6 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RuntimeStatusResponse,
     RunResponse,
 )
-from bijux_proteomics_runtime.interfaces.cli import _load_run_summary
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 _DOCUMENT_MAX_INLINE_BYTES = 256_000
@@ -59,6 +58,20 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _load_run_summary_payload(
+    base_dir: Path,
+    run_id: str,
+    artifacts_dir: Path | None,
+) -> dict[str, Any]:
+    workspace = RunWorkspace.for_run(
+        base_dir,
+        run_id,
+        artifacts_root_override=artifacts_dir,
+    )
+    payload = json.loads(workspace.run_summary_path.read_text(encoding="utf-8"))
+    return payload if isinstance(payload, dict) else {}
 
 
 def _artifact_record(
@@ -144,7 +157,9 @@ def build_runtime_status_response(
     max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
 ) -> RuntimeStatusResponse:
     """Build the stable runtime status surface for one run."""
-    summary = RunResponse.model_validate(_load_run_summary(base_dir, run_id, artifacts_dir))
+    summary = RunResponse.model_validate(
+        _load_run_summary_payload(base_dir, run_id, artifacts_dir)
+    )
     workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
     evidence_path = workspace.artifact_items_dir / "evidence_bundle.json"
     review_path = workspace.artifact_items_dir / "review_packet.json"

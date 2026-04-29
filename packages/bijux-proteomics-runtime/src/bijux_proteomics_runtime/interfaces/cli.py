@@ -15,6 +15,20 @@ import click
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
+from bijux_proteomics_runtime.api.catalog import (
+    build_run_artifacts_response,
+    build_run_evidence_response,
+    build_run_review_response,
+    build_runtime_status_response,
+)
+from bijux_proteomics_runtime.api.v1.schema import (
+    ApiCandidate,
+    ApiEnvelope,
+    CompareResponse,
+    ErrorResponse,
+    InspectResponse,
+    RunResponse,
+)
 from bijux_proteomics_intelligence.domain.candidates import CandidateStore
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.runtime import RunManager
@@ -220,6 +234,23 @@ def _emit_json_payload(payload: dict[str, Any] | list[Any] | str, pretty: bool) 
     click.echo(json.dumps(payload, sort_keys=True, default=str))
 
 
+def _emit_api_envelope(
+    data: Any | None,
+    *,
+    pretty: bool,
+    error: ErrorResponse | None = None,
+    meta: dict[str, Any] | None = None,
+) -> None:
+    """Emit a canonical API-style envelope for CLI JSON flows."""
+    payload = ApiEnvelope(
+        status="error" if error is not None else "ok",
+        data=data,
+        error=error,
+        meta=meta or {},
+    ).model_dump(mode="json")
+    _emit_json_payload(payload, pretty=pretty)
+
+
 def _load_run_summary(
     base_dir: Path, run_id: str, artifacts_dir: Path | None
 ) -> dict[str, Any]:
@@ -355,17 +386,22 @@ def run(
         summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(status="error", command="run", error=str(exc)).model_dump(
-                    mode="json"
-                ),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                error=ErrorResponse(
+                    type="about:blank",
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:run",
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_json_payload(summary, pretty=pretty)
+        _emit_api_envelope(RunResponse.model_validate(summary), pretty=pretty)
         return
     _emit_run_summary_human(summary)
 
@@ -419,17 +455,22 @@ def resume(
         summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(status="error", command="resume", error=str(exc)).model_dump(
-                    mode="json"
-                ),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                error=ErrorResponse(
+                    type="about:blank",
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:resume",
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_json_payload(summary, pretty=pretty)
+        _emit_api_envelope(RunResponse.model_validate(summary), pretty=pretty)
         return
     _emit_run_summary_human(summary)
 
@@ -445,17 +486,25 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
         comparison = _compare_runs_payload(run_a, run_b)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(status="error", command="compare", error=str(exc)).model_dump(
-                    mode="json"
-                ),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                error=ErrorResponse(
+                    type="about:blank",
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:compare",
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_json_payload(comparison, pretty=pretty)
+        _emit_api_envelope(
+            CompareResponse.model_validate(comparison),
+            pretty=pretty,
+        )
         return
     _emit_json_payload(comparison, pretty=True)
 
@@ -470,22 +519,29 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
         candidate = _inspect_candidate(Path.cwd(), candidate_id)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(
-                    status="error",
-                    command="inspect-candidate",
-                    error=str(exc),
-                ).model_dump(mode="json"),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                error=ErrorResponse(
+                    type="about:blank",
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:inspect-candidate",
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
-    payload = candidate.model_dump()
+    payload = InspectResponse(
+        candidate=ApiCandidate.model_validate(candidate.model_dump(mode="json")),
+        qc_status=None,
+        artifacts={},
+    )
     if json_output:
-        _emit_json_payload(payload, pretty=pretty)
+        _emit_api_envelope(payload, pretty=pretty)
         return
-    _emit_json_payload(payload, pretty=True)
+    _emit_json_payload(payload.model_dump(mode="json"), pretty=True)
 
 
 @cli.command("export-report")
@@ -538,6 +594,57 @@ def api_serve(host: str, port: int, reload: bool, no_docs: bool) -> None:
     config = AppConfig(base_dir=Path.cwd(), docs_enabled=not no_docs)
     app = create_app(config)
     uvicorn.run(app, host=host, port=port, reload=reload)
+
+
+@api.command("status")
+@click.argument("run_id", type=str)
+@click.option("--include-documents", is_flag=True, help="Inline small documents.")
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_status(run_id: str, include_documents: bool, pretty: bool) -> None:
+    """Emit the canonical runtime-status contract via CLI."""
+    response = build_runtime_status_response(
+        Path.cwd(),
+        run_id,
+        include_documents=include_documents,
+    )
+    _emit_api_envelope(response, pretty=pretty)
+
+
+@api.command("artifacts")
+@click.argument("run_id", type=str)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_artifacts(run_id: str, pretty: bool) -> None:
+    """Emit the canonical run-artifacts contract via CLI."""
+    response = build_run_artifacts_response(Path.cwd(), run_id)
+    _emit_api_envelope(response, pretty=pretty)
+
+
+@api.command("evidence-bundle")
+@click.argument("run_id", type=str)
+@click.option("--include-document", is_flag=True, help="Inline small documents.")
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_evidence_bundle(run_id: str, include_document: bool, pretty: bool) -> None:
+    """Emit the canonical evidence-bundle contract via CLI."""
+    response = build_run_evidence_response(
+        Path.cwd(),
+        run_id,
+        include_document=include_document,
+    )
+    _emit_api_envelope(response, pretty=pretty)
+
+
+@api.command("review-packet")
+@click.argument("run_id", type=str)
+@click.option("--include-document", is_flag=True, help="Inline small documents.")
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_review_packet(run_id: str, include_document: bool, pretty: bool) -> None:
+    """Emit the canonical review-packet contract via CLI."""
+    response = build_run_review_response(
+        Path.cwd(),
+        run_id,
+        include_document=include_document,
+    )
+    _emit_api_envelope(response, pretty=pretty)
 
 
 @cli.command("reproduce")
