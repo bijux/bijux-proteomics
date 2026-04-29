@@ -23,6 +23,7 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Added label-free quantification contracts for MS1 feature parsing, peptide/protein intensity tables, spectral counting, missing-value states, TIC/median/quantile normalization, batch-effect advisories, replicate correlations, differential abundance, Benjamini-Hochberg correction, and the `bijux-proteomics quantify` CLI workflow.
 - Added PTM localization contracts for evidence parsing, peptide-to-protein site mapping, site tables, ambiguity reporting, site-level FDR, occupancy estimation, motif windows, enrichment export, and the `bijux-proteomics ptm summarize` CLI workflow.
 - Added LC-MS run QC contracts for spectrum counts, identification rates, precursor mass-error summaries, retention-time coverage, charge distributions, missed-cleavage rates, contaminant burden, digestion specificity, and batch-level outlier reporting.
+- Added QC threshold policies, run and batch assessments, QC evidence manifests, performance benchmark snapshots, a production-style fixture pack, and the `bijux-proteomics qc report` CLI workflow with JSON, TSV, HTML, and manifest outputs.
 
 ### Changed
 
@@ -39,6 +40,7 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Expanded package docs with a dedicated quantification workflow note covering input tables, design metadata, output semantics, and operator CLI usage.
 - Expanded package docs with a dedicated PTM workflow note covering localized evidence parsing, site aggregation, motif extraction, occupancy, and CLI usage.
 - Expanded the README package examples to cover run-level LC-MS QC and batch outlier diagnostics.
+- Expanded package docs with a QC operator guide covering threshold interpretation, advisory versus enforced labels, evidence manifests, and failed-run diagnosis.
 
 ## 0.3.7 - 2026-04-21
 

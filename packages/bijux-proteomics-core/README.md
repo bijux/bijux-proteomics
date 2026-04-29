@@ -447,6 +447,22 @@ for entry in design:
 batch_report = build_instrument_batch_qc_report(tuple(run_reports))
 ```
 
+Operator-facing QC reports are also available directly from the CLI:
+
+```bash
+bijux-proteomics qc report spectra.mgf results.tsv proteins.fasta \
+  --design design.tsv \
+  --policy qc_policy.json \
+  --out qc.report.json \
+  --tsv-out qc.metrics.tsv \
+  --html-out qc.report.html \
+  --manifest-out qc.evidence.json \
+  --benchmark-out qc.benchmark.json
+```
+
+See [`docs/QC_OPERATOR_GUIDE.md`](./docs/QC_OPERATOR_GUIDE.md) for threshold
+interpretation, advisory versus enforced findings, and failed-run diagnosis.
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -548,6 +564,7 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`docs/PTM_WORKFLOWS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PTM_WORKFLOWS.md) for localized PTM evidence parsing, site aggregation, ambiguity reporting, site FDR, motif windows, enrichment export, and occupancy estimation
 - [`docs/SEARCH_ADAPTERS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/SEARCH_ADAPTERS.md) for engine-specific table normalization and adapter provenance workflows
 - [`docs/FIRST_USEFUL_RUN.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FIRST_USEFUL_RUN.md) for a copy-paste path from fixture inputs to thresholded reports and spectrum annotation
+- [`docs/QC_OPERATOR_GUIDE.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/QC_OPERATOR_GUIDE.md) for threshold interpretation, advisory versus enforced QC findings, and failed-run diagnosis
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
 
 ## Documentation
