@@ -300,6 +300,31 @@ class WorkflowDiffReport(JsonModel):
     entries: tuple[WorkflowDiffEntry, ...] = Field(default_factory=tuple)
 
 
+class WorkflowTemplateKind(StrEnum):
+    """Reusable workflow templates grounded in real proteomics surfaces."""
+
+    IMPORTED_LFQ_REVIEW = "imported_lfq_review"
+    EXTERNAL_SEARCH_LFQ_REVIEW = "external_search_lfq_review"
+
+
+class ProteomicsWorkflowTemplate(JsonModel):
+    """Reusable workflow template with concrete runtime and input expectations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    template_kind: WorkflowTemplateKind
+    template_id: str = Field(..., min_length=1)
+    display_name: str = Field(..., min_length=1)
+    execution_mode: WorkflowExecutionMode
+    required_input_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
+    optional_input_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
+    recommended_adapter_kind: SearchAdapterKind
+    recommended_scheduler: WorkflowSchedulerKind
+    default_container_image: str = Field(..., min_length=1)
+    step_kinds: tuple[WorkflowStepKind, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class CoreResultRuntimeBinding(JsonModel):
     """One binding between a core result surface and runtime materialization."""
 
@@ -1647,6 +1672,114 @@ def build_workflow_diff_report(
                 payload.to_dict()
             )
         }
+    )
+
+
+def build_proteomics_workflow_template(
+    template_kind: WorkflowTemplateKind,
+    *,
+    scheduler: WorkflowSchedulerKind = WorkflowSchedulerKind.SLURM,
+    default_container_image: str = "ghcr.io/bijux/proteomics-runtime:stable",
+) -> ProteomicsWorkflowTemplate:
+    """Build one reusable workflow template over real proteomics surfaces."""
+    if template_kind is WorkflowTemplateKind.IMPORTED_LFQ_REVIEW:
+        return ProteomicsWorkflowTemplate(
+            template_kind=template_kind,
+            template_id="imported-lfq-review",
+            display_name="Imported LFQ review workflow",
+            execution_mode=WorkflowExecutionMode.IMPORT_RESULTS,
+            required_input_roles=(
+                WorkflowInputRole.PROTEINS,
+                WorkflowInputRole.SPECTRA,
+                WorkflowInputRole.IDENTIFICATIONS,
+                WorkflowInputRole.FEATURES,
+                WorkflowInputRole.DESIGN,
+            ),
+            optional_input_roles=(),
+            recommended_adapter_kind=SearchAdapterKind.GENERIC,
+            recommended_scheduler=scheduler,
+            default_container_image=default_container_image,
+            step_kinds=(
+                WorkflowStepKind.VALIDATE_INPUTS,
+                WorkflowStepKind.DIGEST_DATABASE,
+                WorkflowStepKind.NORMALIZE_IDENTIFICATIONS,
+                WorkflowStepKind.CALCULATE_FDR,
+                WorkflowStepKind.QUANTIFY_FEATURES,
+                WorkflowStepKind.RUN_QC,
+                WorkflowStepKind.BUILD_RUN_BUNDLE,
+            ),
+            note="reuse normalized search results and build quant, QC, and evidence outputs around them",
+        )
+    return ProteomicsWorkflowTemplate(
+        template_kind=template_kind,
+        template_id="external-search-lfq-review",
+        display_name="External search LFQ review workflow",
+        execution_mode=WorkflowExecutionMode.EXTERNAL_SEARCH,
+        required_input_roles=(
+            WorkflowInputRole.PROTEINS,
+            WorkflowInputRole.SPECTRA,
+            WorkflowInputRole.FEATURES,
+            WorkflowInputRole.DESIGN,
+        ),
+        optional_input_roles=(WorkflowInputRole.IDENTIFICATIONS,),
+        recommended_adapter_kind=SearchAdapterKind.SAGE,
+        recommended_scheduler=scheduler,
+        default_container_image=default_container_image,
+        step_kinds=(
+            WorkflowStepKind.VALIDATE_INPUTS,
+            WorkflowStepKind.DIGEST_DATABASE,
+            WorkflowStepKind.RUN_SEARCH_ENGINE,
+            WorkflowStepKind.NORMALIZE_IDENTIFICATIONS,
+            WorkflowStepKind.CALCULATE_FDR,
+            WorkflowStepKind.QUANTIFY_FEATURES,
+            WorkflowStepKind.RUN_QC,
+            WorkflowStepKind.BUILD_RUN_BUNDLE,
+        ),
+        note="launch an external search, then continue through FDR, quantification, QC, and evidence bundling",
+    )
+
+
+def instantiate_proteomics_workflow_template(
+    template: ProteomicsWorkflowTemplate,
+    *,
+    proteins_path: Path,
+    spectra_path: Path,
+    identifications_path: Path | None = None,
+    features_path: Path | None = None,
+    design_path: Path | None = None,
+    sample_id: str | None = None,
+    artifacts_dir: Path | None = None,
+) -> ProteomicsWorkflowManifest:
+    """Instantiate a reusable workflow template into a concrete workflow manifest."""
+    attached_roles = {
+        WorkflowInputRole.PROTEINS,
+        WorkflowInputRole.SPECTRA,
+    }
+    if identifications_path is not None:
+        attached_roles.add(WorkflowInputRole.IDENTIFICATIONS)
+    if features_path is not None:
+        attached_roles.add(WorkflowInputRole.FEATURES)
+    if design_path is not None:
+        attached_roles.add(WorkflowInputRole.DESIGN)
+    missing_roles = [
+        role.value for role in template.required_input_roles if role not in attached_roles
+    ]
+    if missing_roles:
+        raise ValueError(
+            "workflow template is missing required inputs: "
+            + ", ".join(sorted(missing_roles))
+        )
+    return build_proteomics_workflow_manifest(
+        proteins_path=proteins_path,
+        spectra_path=spectra_path,
+        identifications_path=identifications_path,
+        features_path=features_path,
+        design_path=design_path,
+        sample_id=sample_id,
+        search_adapter_kind=template.recommended_adapter_kind,
+        scheduler=template.recommended_scheduler,
+        default_container_image=template.default_container_image,
+        artifacts_dir=artifacts_dir,
     )
 
 

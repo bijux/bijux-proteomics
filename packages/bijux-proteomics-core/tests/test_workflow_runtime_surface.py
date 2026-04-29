@@ -12,8 +12,10 @@ from bijux_proteomics import (
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_external_tool_capability_report,
+    build_proteomics_workflow_template,
     build_workflow_diff_report,
     build_workflow_execution_readiness_report,
+    instantiate_proteomics_workflow_template,
     build_reproducible_workflow_blueprint,
     build_workflow_manifest_explanation_report,
     build_workflow_run_directory_layout,
@@ -30,6 +32,7 @@ from bijux_proteomics import (
     WorkflowDiffReport,
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
+    WorkflowTemplateKind,
     WorkflowSchedulerKind,
     WorkflowStepReplayDisposition,
     WorkflowStepProvenanceReport,
@@ -239,6 +242,25 @@ def test_workflow_diff_report_separates_scientific_and_operational_changes() -> 
     assert isinstance(report, WorkflowDiffReport)
     assert any(entry.category is WorkflowDiffCategory.SCIENTIFIC for entry in report.entries)
     assert any(entry.category is WorkflowDiffCategory.OPERATIONAL for entry in report.entries)
+
+
+def test_workflow_templates_are_reusable_and_instantiate_real_manifests() -> None:
+    template = build_proteomics_workflow_template(
+        WorkflowTemplateKind.IMPORTED_LFQ_REVIEW
+    )
+    manifest = instantiate_proteomics_workflow_template(
+        template,
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+    )
+
+    assert template.execution_mode is WorkflowExecutionMode.IMPORT_RESULTS
+    assert manifest.execution_mode is template.execution_mode
+    assert tuple(step.kind for step in manifest.steps) == template.step_kinds
 
 
 def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (
