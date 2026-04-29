@@ -25,6 +25,7 @@ from bijux_proteomics import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
     search_adapter_dialect_registry,
+    merge_search_result_reports,
     validate_search_parameters,
 )
 
@@ -319,6 +320,32 @@ def test_search_result_comparability_normalizes_score_orientation() -> None:
     assert report.left_result_family is SearchResultFamily.DATABASE_TARGET_DECOY
     assert report.score_family_compatible is True
     assert report.peptide_agreement_fraction == 1.0
+
+
+def test_multi_engine_merge_preserves_engine_specific_uncertainty() -> None:
+    comet = normalize_search_results_with_adapter(
+        source_path=_fixture("comet_merge.tsv"),
+        adapter_kind=SearchAdapterKind.COMET,
+    )
+    sage = normalize_search_results_with_adapter(
+        source_path=_fixture("sage_merge.tsv"),
+        adapter_kind=SearchAdapterKind.SAGE,
+    )
+
+    merged = merge_search_result_reports((comet, sage))
+
+    exact = next(entry for entry in merged.merged_entries if entry.spectrum_id == "shared-1001")
+    conflict = next(entry for entry in merged.merged_entries if entry.spectrum_id == "shared-1002")
+
+    assert merged.exact_agreement_count == 1
+    assert merged.conflict_count == 1
+    assert exact.consensus_peptide == "PEPTIDE"
+    assert conflict.consensus_peptide is None
+    assert conflict.agreement_status.value == "peptide_conflict"
+    assert {entry.adapter_kind for entry in conflict.observations} == {
+        SearchAdapterKind.COMET,
+        SearchAdapterKind.SAGE,
+    }
 
 
 def test_mixed_target_library_results_keep_explicit_family_policy() -> None:

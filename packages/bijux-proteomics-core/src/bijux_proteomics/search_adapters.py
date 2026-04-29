@@ -28,6 +28,7 @@ from bijux_proteomics.identification import (
     normalize_psm_records,
     normalize_psm_score_orientation,
     parse_psm_tsv,
+    select_best_psm_per_spectrum,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -276,6 +277,55 @@ class SearchParameterComparisonReport(JsonModel):
     differences: tuple[SearchParameterDifferenceEntry, ...] = Field(
         default_factory=tuple
     )
+
+
+class SearchMergeAgreementStatus(StrEnum):
+    """Agreement state across multiple engine observations for one spectrum."""
+
+    EXACT_MATCH = "exact_match"
+    PEPTIDE_CONFLICT = "peptide_conflict"
+    CHARGE_CONFLICT = "charge_conflict"
+    LABEL_CONFLICT = "label_conflict"
+    PARTIAL_COVERAGE = "partial_coverage"
+
+
+class SearchEngineObservation(JsonModel):
+    """One engine-specific PSM observation preserved during result merging."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_kind: SearchAdapterKind
+    adapter_name: str = Field(..., min_length=1)
+    score_family: SearchScoreFamily
+    result_family: SearchResultFamily
+    normalized_score: float
+    q_value: float | None = Field(default=None, ge=0.0)
+    record: PsmRecord
+
+
+class MergedSearchSpectrumEntry(JsonModel):
+    """Merged per-spectrum search evidence with per-engine uncertainty retained."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    observations: tuple[SearchEngineObservation, ...] = Field(default_factory=tuple)
+    agreement_status: SearchMergeAgreementStatus
+    consensus_peptide: str | None = None
+    consensus_charge: int | None = Field(default=None, ge=1)
+    uncertainty_note: str = Field(..., min_length=1)
+
+
+class SearchResultMergeReport(JsonModel):
+    """Stable multi-engine merge report that preserves engine-specific uncertainty."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_kinds: tuple[SearchAdapterKind, ...] = Field(default_factory=tuple)
+    merged_entries: tuple[MergedSearchSpectrumEntry, ...] = Field(default_factory=tuple)
+    exact_agreement_count: int = Field(..., ge=0)
+    conflict_count: int = Field(..., ge=0)
+    partial_coverage_count: int = Field(..., ge=0)
 
 
 class SearchResultComparabilityReport(JsonModel):
@@ -1685,6 +1735,124 @@ def compare_search_result_reports(
         mean_normalized_score_delta=total_score_delta / shared_count
         if shared_count
         else 0.0,
+    )
+
+
+def merge_search_result_reports(
+    reports: tuple[SearchAdapterNormalizationReport, ...],
+) -> SearchResultMergeReport:
+    """Merge multiple engine reports without flattening engine-specific uncertainty."""
+    if not reports:
+        return SearchResultMergeReport(
+            adapter_kinds=(),
+            merged_entries=(),
+            exact_agreement_count=0,
+            conflict_count=0,
+            partial_coverage_count=0,
+        )
+    adapter_kinds = tuple(report.adapter_manifest.adapter_kind for report in reports)
+    if len(set(adapter_kinds)) != len(adapter_kinds):
+        raise ValueError("multi-engine merge requires distinct adapter kinds")
+
+    normalized_scores_by_adapter: dict[
+        SearchAdapterKind, dict[tuple[str, str], float]
+    ] = {}
+    per_report_best: list[tuple[SearchAdapterNormalizationReport, dict[str, PsmRecord]]] = []
+    for report in reports:
+        normalized_scores_by_adapter[report.adapter_manifest.adapter_kind] = {
+            (entry.spectrum_id, entry.canonical_peptide): entry.normalized_score
+            for entry in normalize_psm_score_orientation(
+                report.normalized_records,
+                score_orientation=report.adapter_manifest.score_orientation.value,
+            )
+        }
+        best = {
+            record.spectrum_id: record
+            for record in select_best_psm_per_spectrum(report.normalized_records)
+        }
+        per_report_best.append((report, best))
+
+    all_spectra = sorted(
+        {
+            spectrum_id
+            for _, best in per_report_best
+            for spectrum_id in best
+        }
+    )
+    merged_entries: list[MergedSearchSpectrumEntry] = []
+    for spectrum_id in all_spectra:
+        observations: list[SearchEngineObservation] = []
+        for report, best in per_report_best:
+            record = best.get(spectrum_id)
+            if record is None:
+                continue
+            observations.append(
+                SearchEngineObservation(
+                    adapter_kind=report.adapter_manifest.adapter_kind,
+                    adapter_name=report.adapter_manifest.display_name,
+                    score_family=report.adapter_manifest.score_family,
+                    result_family=report.adapter_manifest.result_family,
+                    normalized_score=normalized_scores_by_adapter[
+                        report.adapter_manifest.adapter_kind
+                    ].get((record.spectrum_id, record.canonical_peptide), 0.0),
+                    q_value=record.q_value,
+                    record=record,
+                )
+            )
+        peptide_set = {entry.record.canonical_peptide for entry in observations}
+        charge_set = {entry.record.charge for entry in observations}
+        label_set = {entry.record.target_decoy_label for entry in observations}
+        if len(observations) < len(reports):
+            status = SearchMergeAgreementStatus.PARTIAL_COVERAGE
+            note = "not every engine produced an accepted observation for this spectrum"
+        elif len(peptide_set) > 1:
+            status = SearchMergeAgreementStatus.PEPTIDE_CONFLICT
+            note = "engines disagree on the peptide assignment for this spectrum"
+        elif len(charge_set) > 1:
+            status = SearchMergeAgreementStatus.CHARGE_CONFLICT
+            note = "engines agree on the peptide but disagree on precursor charge"
+        elif len(label_set) > 1:
+            status = SearchMergeAgreementStatus.LABEL_CONFLICT
+            note = "engines disagree on the target-decoy interpretation for this spectrum"
+        else:
+            status = SearchMergeAgreementStatus.EXACT_MATCH
+            note = "all engines agree on peptide, charge, and target-decoy label"
+        merged_entries.append(
+            MergedSearchSpectrumEntry(
+                spectrum_id=spectrum_id,
+                observations=tuple(
+                    sorted(observations, key=lambda entry: entry.adapter_kind.value)
+                ),
+                agreement_status=status,
+                consensus_peptide=observations[0].record.canonical_peptide
+                if len(peptide_set) == 1
+                else None,
+                consensus_charge=observations[0].record.charge
+                if len(charge_set) == 1
+                else None,
+                uncertainty_note=note,
+            )
+        )
+    return SearchResultMergeReport(
+        adapter_kinds=tuple(sorted(adapter_kinds, key=lambda kind: kind.value)),
+        merged_entries=tuple(merged_entries),
+        exact_agreement_count=sum(
+            entry.agreement_status is SearchMergeAgreementStatus.EXACT_MATCH
+            for entry in merged_entries
+        ),
+        conflict_count=sum(
+            entry.agreement_status
+            in {
+                SearchMergeAgreementStatus.PEPTIDE_CONFLICT,
+                SearchMergeAgreementStatus.CHARGE_CONFLICT,
+                SearchMergeAgreementStatus.LABEL_CONFLICT,
+            }
+            for entry in merged_entries
+        ),
+        partial_coverage_count=sum(
+            entry.agreement_status is SearchMergeAgreementStatus.PARTIAL_COVERAGE
+            for entry in merged_entries
+        ),
     )
 
 
