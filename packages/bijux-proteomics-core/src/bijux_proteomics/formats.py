@@ -19,7 +19,7 @@ from typing import Any
 import zlib
 
 from defusedxml import ElementTree as ET
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics.chemistry import load_modification_registry
 from bijux_proteomics.identification import (
@@ -72,6 +72,14 @@ class ProteomicsFormatKind(StrEnum):
     DESIGN_TABLE = "design-table"
 
 
+class ExperimentalDesignSampleRole(StrEnum):
+    """Stable sample role carried by a design-table row."""
+
+    SAMPLE = "sample"
+    POOLED_REFERENCE = "pooled_reference"
+    QC_BRIDGE = "qc_bridge"
+
+
 class FormatValidationIssue(JsonModel):
     """One stable format-validation issue."""
 
@@ -122,6 +130,7 @@ class ExperimentalDesignEntry(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     sample_id: str = Field(..., min_length=1)
+    cohort: str | None = None
     condition: str = Field(..., min_length=1)
     replicate: int = Field(..., ge=1)
     fraction: int = Field(..., ge=1)
@@ -130,15 +139,21 @@ class ExperimentalDesignEntry(JsonModel):
     batch: str | None = None
     instrument: str | None = None
     search_engine: str | None = None
+    multiplex_group: str | None = None
+    multiplex_channel: str | None = None
+    sample_role: ExperimentalDesignSampleRole = ExperimentalDesignSampleRole.SAMPLE
 
     @field_validator(
         "sample_id",
+        "cohort",
         "condition",
         "spectra_file",
         "identifications_file",
         "batch",
         "instrument",
         "search_engine",
+        "multiplex_group",
+        "multiplex_channel",
         mode="before",
     )
     @classmethod
@@ -147,6 +162,21 @@ class ExperimentalDesignEntry(JsonModel):
             return None
         text = str(value).strip()
         return text or None
+
+    @model_validator(mode="after")
+    def _validate_multiplex_semantics(self) -> ExperimentalDesignEntry:
+        if bool(self.multiplex_group) != bool(self.multiplex_channel):
+            raise ValueError(
+                "multiplex_group and multiplex_channel must both be present when either is provided"
+            )
+        if (
+            self.sample_role is not ExperimentalDesignSampleRole.SAMPLE
+            and not self.multiplex_channel
+        ):
+            raise ValueError(
+                "non-sample multiplex roles require explicit multiplex_group and multiplex_channel"
+            )
+        return self
 
 
 class ExperimentalDesignRejectedRow(JsonModel):
@@ -978,6 +1008,7 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
         try:
             entry = ExperimentalDesignEntry(
                 sample_id=values.get("sample_id") or "",
+                cohort=values.get("cohort"),
                 condition=values.get("condition") or "",
                 replicate=int(values.get("replicate") or "0"),
                 fraction=int(values.get("fraction") or "0"),
@@ -986,6 +1017,10 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 batch=values.get("batch"),
                 instrument=values.get("instrument"),
                 search_engine=values.get("search_engine"),
+                multiplex_group=values.get("multiplex_group"),
+                multiplex_channel=values.get("multiplex_channel"),
+                sample_role=values.get("sample_role")
+                or ExperimentalDesignSampleRole.SAMPLE,
             )
         except Exception as exc:  # noqa: BLE001
             issues.append(

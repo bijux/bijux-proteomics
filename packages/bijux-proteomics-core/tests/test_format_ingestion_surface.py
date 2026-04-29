@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    ExperimentalDesignSampleRole,
     FormatConversionTarget,
     ProteomicsFormatKind,
     build_mzml_collection_summary,
@@ -138,6 +139,31 @@ def test_format_detection_and_design_table_parsing_are_stable() -> None:
     assert design_report.accepted_entries[0].search_engine == "Sage"
     assert invalid_design.valid is False
     assert invalid_design.summary["rejected_rows"] == 1
+
+
+def test_design_table_parser_preserves_cohort_and_multiplex_semantics() -> None:
+    report = parse_experimental_design_table(_format_fixture("semantic.design.tsv"))
+
+    assert len(report.accepted_entries) == 3
+    assert report.accepted_entries[0].cohort == "discovery"
+    assert report.accepted_entries[0].multiplex_group == "plex-a"
+    assert report.accepted_entries[1].multiplex_channel == "127N"
+    assert (
+        report.accepted_entries[2].sample_role
+        is ExperimentalDesignSampleRole.POOLED_REFERENCE
+    )
+
+
+def test_design_table_parser_rejects_partial_multiplex_semantics() -> None:
+    report = parse_experimental_design_table(
+        _format_fixture("invalid_multiplex.design.tsv")
+    )
+
+    assert not report.accepted_entries
+    assert len(report.rejected_rows) == 1
+    assert "multiplex_group and multiplex_channel" in report.rejected_rows[0].issues[
+        0
+    ].message
 
 
 def test_unsupported_format_diagnostic_reports_detection_failure_reasons() -> None:
