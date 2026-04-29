@@ -1,0 +1,28 @@
+[
+  {
+    "name": "trypsin_proline_block",
+    "sequence": "AKRPQKAAAR",
+    "protease": "trypsin",
+    "expected_peptides": ["AK", "RPQK", "AAAR"]
+  },
+  {
+    "name": "trypsin_terminal_lysine",
+    "sequence": "PEPTIDEK",
+    "protease": "trypsin",
+    "expected_peptides": ["PEPTIDEK"]
+  },
+  {
+    "name": "acidic_n_terminal_cleavage",
+    "sequence": "DEAKPDEQ",
+    "custom_protease": "before=DE;block_previous=P",
+    "custom_name": "acidic",
+    "expected_peptides": ["D", "EAKPD", "EQ"]
+  },
+  {
+    "name": "acidic_previous_residue_block",
+    "sequence": "PEPDPE",
+    "custom_protease": "before=DE;block_previous=P",
+    "custom_name": "acidic",
+    "expected_peptides": ["PEPDPE"]
+  }
+]

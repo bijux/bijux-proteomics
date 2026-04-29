@@ -8,6 +8,7 @@ from bijux_proteomics import (
     build_digest_duplicate_accounting,
     digest_sequence,
     filter_digested_peptides,
+    parse_custom_protease_rule,
 )
 
 
@@ -102,6 +103,20 @@ def test_digest_sequence_matches_curated_protease_reference_cases() -> None:
             min_length=case.get("min_length", 1),
             max_length=case.get("max_length"),
         )
+        assert [peptide.sequence for peptide in peptides] == case["expected_peptides"]
+
+
+def test_digest_sequence_preserves_edge_case_regressions() -> None:
+    fixture = json.loads(_digestion_fixture("edge_case_regressions.json").read_text())
+
+    for case in fixture:
+        protease = case.get("protease")
+        if protease is None:
+            protease = parse_custom_protease_rule(
+                case["custom_protease"],
+                name=case["custom_name"],
+            )
+        peptides = digest_sequence(case["sequence"], protease=protease)
         assert [peptide.sequence for peptide in peptides] == case["expected_peptides"]
 
 
