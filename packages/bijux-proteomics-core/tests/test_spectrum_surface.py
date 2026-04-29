@@ -25,6 +25,9 @@ from bijux_proteomics import (
     parse_mgf,
     parse_mzml,
     render_mgf,
+    calculate_fragment_ions,
+    SpectrumModel,
+    SpectrumPeak,
 )
 
 
@@ -226,6 +229,33 @@ def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() 
     assert rendered["document_schema"]["document_kind"] == "spectrum_plot_payload"
     labeled_peaks = [peak for peak in rendered["peaks"] if peak["labels"]]
     assert labeled_peaks
+
+
+def test_spectrum_annotation_reports_tolerance_driven_ambiguity_warnings() -> None:
+    first_fragment = calculate_fragment_ions(
+        "PEPTIDE",
+        include_neutral_losses=False,
+    )[0]
+    spectrum = SpectrumModel(
+        spectrum_id="scan=ambiguity",
+        precursor_mz=500.2,
+        precursor_charge=2,
+        peaks=(
+            SpectrumPeak(mz=first_fragment.mz_monoisotopic, intensity=100.0),
+            SpectrumPeak(mz=first_fragment.mz_monoisotopic + 0.005, intensity=80.0),
+        ),
+    )
+
+    annotation = annotate_spectrum_fragments(
+        spectrum,
+        peptide="PEPTIDE",
+        tolerance_da=50.0,
+        include_neutral_losses=False,
+    )
+
+    kinds = {warning.kind.value for warning in annotation.ambiguity_warnings}
+    assert "fragment_to_multiple_peaks" in kinds
+    assert "peak_to_multiple_fragments" in kinds
 
 
 def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:

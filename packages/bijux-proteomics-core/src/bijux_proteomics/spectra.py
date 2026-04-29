@@ -212,6 +212,25 @@ class SpectrumAnnotationMatch(JsonModel):
     mass_error_ppm: float
 
 
+class SpectrumAnnotationAmbiguityKind(StrEnum):
+    """Supported ambiguity warnings for spectrum annotation."""
+
+    PEAK_TO_MULTIPLE_FRAGMENTS = "peak_to_multiple_fragments"
+    FRAGMENT_TO_MULTIPLE_PEAKS = "fragment_to_multiple_peaks"
+
+
+class SpectrumAnnotationAmbiguityWarning(JsonModel):
+    """One ambiguity warning caused by a permissive annotation tolerance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: SpectrumAnnotationAmbiguityKind
+    fragment_labels: tuple[str, ...] = Field(default_factory=tuple)
+    peak_mzs: tuple[float, ...] = Field(default_factory=tuple)
+    tolerance_da: float = Field(..., gt=0.0)
+    note: str = Field(..., min_length=1)
+
+
 class SpectrumAnnotation(JsonModel):
     """Stable annotation output for one spectrum and peptide."""
 
@@ -224,6 +243,9 @@ class SpectrumAnnotation(JsonModel):
     precursor_charge: int | None = Field(default=None, ge=1)
     tolerance_da: float = Field(..., gt=0.0)
     matches: tuple[SpectrumAnnotationMatch, ...] = Field(default_factory=tuple)
+    ambiguity_warnings: tuple[SpectrumAnnotationAmbiguityWarning, ...] = Field(
+        default_factory=tuple
+    )
     unmatched_peak_count: int = Field(..., ge=0)
 
 
@@ -847,8 +869,30 @@ def annotate_spectrum_fragments(
         include_neutral_losses=include_neutral_losses,
     )
     matches: list[SpectrumAnnotationMatch] = []
+    ambiguity_warnings: list[SpectrumAnnotationAmbiguityWarning] = []
     matched_peak_keys: set[tuple[float, float]] = set()
+    candidate_fragments_by_peak: dict[tuple[float, float], list[str]] = {}
     for fragment in fragments:
+        candidate_peaks = tuple(
+            peak
+            for peak in spectrum.peaks
+            if abs(peak.mz - fragment.mz_monoisotopic) <= tolerance_da
+        )
+        fragment_label = _fragment_label(fragment)
+        if len(candidate_peaks) > 1:
+            ambiguity_warnings.append(
+                SpectrumAnnotationAmbiguityWarning(
+                    kind=SpectrumAnnotationAmbiguityKind.FRAGMENT_TO_MULTIPLE_PEAKS,
+                    fragment_labels=(fragment_label,),
+                    peak_mzs=tuple(sorted(peak.mz for peak in candidate_peaks)),
+                    tolerance_da=tolerance_da,
+                    note="one fragment is compatible with multiple observed peaks under the requested tolerance",
+                )
+            )
+        for peak in candidate_peaks:
+            candidate_fragments_by_peak.setdefault((peak.mz, peak.intensity), []).append(
+                fragment_label
+            )
         best_peak: SpectrumPeak | None = None
         best_error: float | None = None
         for peak in spectrum.peaks:
@@ -872,11 +916,27 @@ def annotate_spectrum_fragments(
         matches.append(
             SpectrumAnnotationMatch(
                 fragment=fragment,
-                fragment_label=_fragment_label(fragment),
+                fragment_label=fragment_label,
                 observed_mz=best_peak.mz,
                 observed_intensity=best_peak.intensity,
                 mass_error_da=best_error,
                 mass_error_ppm=(best_error / fragment.mz_monoisotopic) * 1_000_000.0,
+            )
+        )
+    for peak_key, fragment_labels in sorted(
+        candidate_fragments_by_peak.items(),
+        key=lambda item: (item[0][0], item[0][1]),
+    ):
+        unique_labels = tuple(sorted(set(fragment_labels)))
+        if len(unique_labels) < 2:
+            continue
+        ambiguity_warnings.append(
+            SpectrumAnnotationAmbiguityWarning(
+                kind=SpectrumAnnotationAmbiguityKind.PEAK_TO_MULTIPLE_FRAGMENTS,
+                fragment_labels=unique_labels,
+                peak_mzs=(peak_key[0],),
+                tolerance_da=tolerance_da,
+                note="one observed peak is compatible with multiple theoretical fragments under the requested tolerance",
             )
         )
     schema = DocumentSchema(
@@ -899,6 +959,16 @@ def annotate_spectrum_fragments(
                     match.fragment.series.value,
                     match.fragment.ordinal,
                     match.fragment.charge,
+                ),
+            )
+        ),
+        ambiguity_warnings=tuple(
+            sorted(
+                ambiguity_warnings,
+                key=lambda warning: (
+                    warning.kind.value,
+                    warning.fragment_labels,
+                    warning.peak_mzs,
                 ),
             )
         ),
