@@ -169,13 +169,22 @@ def digest_sequence(
     source_accession: str = "sequence",
     source_identifier: str | None = None,
     missed_cleavages: int = 0,
+    mode: PeptideDigestionMode = PeptideDigestionMode.FULL,
 ) -> tuple[DigestedPeptide, ...]:
-    """Digest one sequence with full enzymatic specificity."""
+    """Digest one sequence under the selected specificity mode."""
     normalized = sequence.strip().upper()
     rule = get_protease_rule(protease) if isinstance(protease, str) else protease
     boundaries = _full_digest_boundaries(normalized, rule)
     peptides: list[DigestedPeptide] = []
     identifier = source_identifier or source_accession
+    if mode is PeptideDigestionMode.SEMI_SPECIFIC:
+        return _semi_specific_digest(
+            normalized,
+            boundaries=boundaries,
+            rule=rule,
+            source_accession=source_accession,
+            source_identifier=identifier,
+        )
     for start_index, start in enumerate(boundaries[:-1]):
         max_span = min(missed_cleavages + 1, len(boundaries) - start_index - 1)
         for span in range(1, max_span + 1):
@@ -192,7 +201,7 @@ def digest_sequence(
                     end=end,
                     missed_cleavages=span - 1,
                     protease=rule.name,
-                    digestion_mode=PeptideDigestionMode.FULL,
+                    digestion_mode=mode,
                     cleavage_type="enzymatic",
                 )
             )
@@ -225,3 +234,67 @@ def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...
     if boundaries[-1] != len(sequence):
         boundaries.append(len(sequence))
     return tuple(boundaries)
+
+
+def _semi_specific_digest(
+    sequence: str,
+    *,
+    boundaries: tuple[int, ...],
+    rule: ProteaseRule,
+    source_accession: str,
+    source_identifier: str,
+) -> tuple[DigestedPeptide, ...]:
+    peptides: list[DigestedPeptide] = []
+    seen: set[tuple[int, int]] = set()
+    enzymatic_bounds = set(boundaries)
+
+    for start in boundaries[:-1]:
+        for end in range(start + 1, len(sequence) + 1):
+            if end not in enzymatic_bounds:
+                cleavage_type = "semi_specific"
+            else:
+                cleavage_type = "enzymatic"
+            bounds = (start, end)
+            if bounds in seen:
+                continue
+            seen.add(bounds)
+            peptides.append(
+                DigestedPeptide(
+                    source_accession=source_accession,
+                    source_identifier=source_identifier,
+                    sequence=sequence[start:end],
+                    start=start + 1,
+                    end=end,
+                    missed_cleavages=0,
+                    protease=rule.name,
+                    digestion_mode=PeptideDigestionMode.SEMI_SPECIFIC,
+                    cleavage_type=cleavage_type,
+                )
+            )
+
+    for start in range(0, len(sequence)):
+        if start in enzymatic_bounds:
+            continue
+        for end in boundaries[1:]:
+            if end <= start:
+                continue
+            bounds = (start, end)
+            if bounds in seen:
+                continue
+            seen.add(bounds)
+            peptides.append(
+                DigestedPeptide(
+                    source_accession=source_accession,
+                    source_identifier=source_identifier,
+                    sequence=sequence[start:end],
+                    start=start + 1,
+                    end=end,
+                    missed_cleavages=0,
+                    protease=rule.name,
+                    digestion_mode=PeptideDigestionMode.SEMI_SPECIFIC,
+                    cleavage_type="semi_specific",
+                )
+            )
+
+    peptides.sort(key=lambda peptide: (peptide.start, peptide.end, peptide.sequence))
+    return tuple(peptides)

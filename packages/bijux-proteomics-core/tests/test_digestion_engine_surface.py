@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bijux_proteomics import digest_sequence
+from bijux_proteomics import PeptideDigestionMode, digest_sequence
 
 
 def test_digest_sequence_performs_full_tryptic_cleavage() -> None:
@@ -45,3 +45,15 @@ def test_digest_sequence_supports_missed_cleavages() -> None:
         "AAK",
     ]
     assert [peptide.missed_cleavages for peptide in peptides] == [0, 1, 0, 1, 0]
+
+
+def test_digest_sequence_supports_semi_specific_mode() -> None:
+    peptides = digest_sequence(
+        "AKAAK",
+        source_accession="semi-specific-test",
+        mode=PeptideDigestionMode.SEMI_SPECIFIC,
+    )
+
+    sequences = {peptide.sequence for peptide in peptides}
+    assert {"AK", "AKAAK", "K", "KAAK", "AAK"} <= sequences
+    assert any(peptide.cleavage_type == "semi_specific" for peptide in peptides)
