@@ -52,6 +52,30 @@ def test_mass_calculators_cover_monoisotopic_average_and_mz() -> None:
     assert isclose(precursor_mz, 154.549176466812, rel_tol=0.0, abs_tol=1e-9)
 
 
+def test_mass_calculators_match_curated_reference_fixture() -> None:
+    fixture = json.loads(_chemistry_fixture("reference_masses.json").read_text())
+
+    for case in fixture:
+        assert isclose(
+            calculate_monoisotopic_peptide_mass(case["sequence"]),
+            case["monoisotopic_mass"],
+            rel_tol=0.0,
+            abs_tol=1e-6,
+        )
+        assert isclose(
+            calculate_average_peptide_mass(case["sequence"]),
+            case["average_mass"],
+            rel_tol=0.0,
+            abs_tol=1e-6,
+        )
+        assert isclose(
+            calculate_peptide_mz(case["sequence"], charge=case["charge"]),
+            case["mz"],
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
+
+
 def test_static_modification_model_applies_residue_delta() -> None:
     carbamidomethyl = StaticModification(
         name="Carbamidomethyl",
