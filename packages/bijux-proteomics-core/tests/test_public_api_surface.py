@@ -128,6 +128,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_proteomics_workflow_manifest" in bijux_proteomics.__all__
     assert "build_proteomics_dag_plan" in bijux_proteomics.__all__
     assert "build_containerized_step_specs" in bijux_proteomics.__all__
+    assert "build_deterministic_execution_contract" in bijux_proteomics.__all__
     assert "build_external_search_tool_contract" in bijux_proteomics.__all__
     assert "build_hpc_job_descriptor" in bijux_proteomics.__all__
     assert "build_workflow_runtime_cache" in bijux_proteomics.__all__
@@ -154,6 +155,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ProteomicsOperatorErrorCode" in bijux_proteomics.__all__
     assert "ProteomicsWorkflowManifest" in bijux_proteomics.__all__
     assert "ProteomicsDagPlan" in bijux_proteomics.__all__
+    assert "DeterministicExecutionContract" in bijux_proteomics.__all__
     assert "ExternalSearchToolContract" in bijux_proteomics.__all__
     assert "HpcJobDescriptor" in bijux_proteomics.__all__
     assert "WorkflowCacheManifest" in bijux_proteomics.__all__

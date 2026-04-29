@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics import (
     SearchAdapterKind,
+    build_deterministic_execution_contract,
     WorkflowCheckpointStatus,
     WorkflowExecutionMode,
     WorkflowInputRole,
@@ -76,12 +77,38 @@ def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_scri
     assert bundle.dag_plan.nodes
     assert bundle.container_steps
     assert bundle.search_contract.tool_name == "Generic search table"
+    assert bundle.deterministic_execution.workflow_id == bundle.manifest.workflow_id
     assert bundle.cache_manifest.entries
     assert bundle.artifact_registry.artifacts
     assert bundle.parallel_plan.groups[0].step_ids
     assert "#SBATCH --job-name=" in bundle.hpc_job.script_text
     assert bundle.checkpoint.steps[0].status is WorkflowCheckpointStatus.READY
     assert bundle.checkpoint.blocked_step_ids
+
+
+def test_deterministic_execution_contract_is_repeatable_for_same_manifest() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    repeated = build_deterministic_execution_contract(
+        bundle.manifest,
+        container_steps=bundle.container_steps,
+        parallel_plan=bundle.parallel_plan,
+        hpc_job=bundle.hpc_job,
+    )
+
+    assert (
+        repeated.execution_fingerprint
+        == bundle.deterministic_execution.execution_fingerprint
+    )
+    assert repeated.ordered_step_ids == tuple(
+        step.step_id for step in bundle.manifest.steps
+    )
 
 
 def test_large_file_policy_and_parallel_groups_are_explicit() -> None:

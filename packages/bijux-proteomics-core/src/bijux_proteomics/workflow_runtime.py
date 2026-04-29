@@ -93,6 +93,23 @@ class WorkflowCheckpointStatus(StrEnum):
     BLOCKED = "blocked"
 
 
+class DeterministicExecutionContract(JsonModel):
+    """Stable reproducibility contract over one runtime execution plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    manifest_sha256: str = Field(..., min_length=64, max_length=64)
+    input_fingerprint: str = Field(..., min_length=64, max_length=64)
+    policy_fingerprint: str = Field(..., min_length=64, max_length=64)
+    ordered_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    parallel_group_ids: tuple[str, ...] = Field(default_factory=tuple)
+    container_steps_sha256: str = Field(..., min_length=64, max_length=64)
+    hpc_job_sha256: str = Field(..., min_length=64, max_length=64)
+    execution_fingerprint: str = Field(..., min_length=64, max_length=64)
+
+
 class WorkflowInputAsset(JsonModel):
     """One workflow input plus runtime handling hints."""
 
@@ -358,6 +375,7 @@ class ProteomicsWorkflowRuntimeBundle(JsonModel):
 
     manifest: ProteomicsWorkflowManifest
     dag_plan: ProteomicsDagPlan
+    deterministic_execution: DeterministicExecutionContract
     container_steps: tuple[ContainerizedStepSpec, ...] = Field(default_factory=tuple)
     search_contract: ExternalSearchToolContract
     hpc_job: HpcJobDescriptor
@@ -379,6 +397,10 @@ def _build_document_schema(document_kind: str) -> DocumentSchema:
 
 def _hash_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _stable_sequence_sha256(values: tuple[str, ...]) -> str:
+    return hashlib.sha256("|".join(values).encode("utf-8")).hexdigest()
 
 
 def _sanitize_identifier(value: str) -> str:
@@ -771,6 +793,66 @@ def build_proteomics_dag_plan(
         workflow_id=manifest.workflow_id,
         nodes=nodes,
         edges=edges,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_deterministic_execution_contract(
+    manifest: ProteomicsWorkflowManifest,
+    *,
+    container_steps: tuple[ContainerizedStepSpec, ...],
+    parallel_plan: ParallelExecutionPlan,
+    hpc_job: HpcJobDescriptor,
+) -> DeterministicExecutionContract:
+    """Bind one workflow manifest to a deterministic runtime execution fingerprint."""
+    manifest_sha256 = _stable_model_sha256(manifest)
+    input_fingerprint = hashlib.sha256(
+        "|".join(
+            f"{asset.role.value}:{asset.sha256}" for asset in manifest.input_assets
+        ).encode("utf-8")
+    ).hexdigest()
+    policy_fingerprint = hashlib.sha256(
+        "|".join(
+            (
+                manifest.execution_mode.value,
+                manifest.scheduler.value,
+                manifest.search_adapter_kind.value,
+                manifest.default_container_image,
+            )
+        ).encode("utf-8")
+    ).hexdigest()
+    container_steps_sha256 = _stable_sequence_sha256(
+        tuple(_stable_model_sha256(step) for step in container_steps)
+    )
+    execution_fingerprint = hashlib.sha256(
+        "|".join(
+            (
+                manifest_sha256,
+                input_fingerprint,
+                policy_fingerprint,
+                container_steps_sha256,
+                _stable_model_sha256(parallel_plan),
+                _stable_model_sha256(hpc_job),
+            )
+        ).encode("utf-8")
+    ).hexdigest()
+    payload = DeterministicExecutionContract(
+        document_schema=_build_document_schema("deterministic_execution_contract"),
+        workflow_id=manifest.workflow_id,
+        manifest_sha256=manifest_sha256,
+        input_fingerprint=input_fingerprint,
+        policy_fingerprint=policy_fingerprint,
+        ordered_step_ids=tuple(step.step_id for step in manifest.steps),
+        parallel_group_ids=tuple(group.group_id for group in parallel_plan.groups),
+        container_steps_sha256=container_steps_sha256,
+        hpc_job_sha256=_stable_model_sha256(hpc_job),
+        execution_fingerprint=execution_fingerprint,
     )
     return payload.model_copy(
         update={
@@ -1232,6 +1314,12 @@ def build_proteomics_workflow_runtime_bundle(
     streaming_policy = build_large_file_streaming_policy(manifest)
     parallel_plan = build_parallel_execution_plan(manifest)
     hpc_job = build_hpc_job_descriptor(manifest, scheduler=scheduler)
+    deterministic_execution = build_deterministic_execution_contract(
+        manifest,
+        container_steps=container_steps,
+        parallel_plan=parallel_plan,
+        hpc_job=hpc_job,
+    )
     checkpoint = build_workflow_checkpoint(
         manifest,
         artifact_registry=artifact_registry,
@@ -1241,6 +1329,7 @@ def build_proteomics_workflow_runtime_bundle(
     return ProteomicsWorkflowRuntimeBundle(
         manifest=manifest,
         dag_plan=dag_plan,
+        deterministic_execution=deterministic_execution,
         container_steps=container_steps,
         search_contract=search_contract,
         hpc_job=hpc_job,
