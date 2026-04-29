@@ -10,7 +10,16 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import GateId, JsonModel, ProgramId, ReviewId
+from bijux_proteomics_foundation import (
+    AssayId,
+    BatchId,
+    ClaimId,
+    GateId,
+    JsonModel,
+    ProgramId,
+    PromotionId,
+    ReviewId,
+)
 
 
 class ReviewQueueState(StrEnum):
@@ -139,6 +148,143 @@ def validate_review_transition_history(
                     review_id=review_id,
                     code="out-of-order-review-time",
                     message="review transition timestamps should be non-decreasing",
+                )
+            )
+    return issues
+
+
+class PromotionDecisionState(StrEnum):
+    """State of one lab-to-knowledge promotion decision."""
+
+    PENDING = "pending"
+    READY = "ready"
+    BLOCKED = "blocked"
+    PROMOTED = "promoted"
+    SUPERSEDED = "superseded"
+
+
+class PromotionDecision(JsonModel):
+    """Current promotion state for one assay outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    promotion_id: PromotionId = Field(
+        ..., description="Stable promotion decision identifier."
+    )
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    state: PromotionDecisionState = Field(..., description="Current promotion state.")
+    linked_claim_ids: list[ClaimId] = Field(
+        default_factory=list,
+        description="Claim identifiers updated by the promotion decision.",
+    )
+    related_evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers emitted by the promotion decision.",
+    )
+
+
+class PromotionTransition(JsonModel):
+    """One audited transition in promotion lifecycle state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    promotion_id: PromotionId = Field(..., description="Promotion identifier.")
+    from_state: PromotionDecisionState = Field(
+        ..., description="Previous promotion state."
+    )
+    to_state: PromotionDecisionState = Field(..., description="New promotion state.")
+    reason: str = Field(..., min_length=1, description="Why the state changed.")
+    actor: str = Field(..., min_length=1, description="Actor recording the change.")
+    changed_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the transition was recorded.",
+    )
+
+
+class PromotionLifecycleAuditIssue(JsonModel):
+    """Issue found while auditing promotion transition history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    promotion_id: PromotionId = Field(..., description="Promotion identifier.")
+    code: str = Field(..., min_length=1, description="Stable audit issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue.")
+
+
+_ALLOWED_PROMOTION_TRANSITIONS: dict[
+    PromotionDecisionState, set[PromotionDecisionState]
+] = {
+    PromotionDecisionState.PENDING: {
+        PromotionDecisionState.READY,
+        PromotionDecisionState.BLOCKED,
+    },
+    PromotionDecisionState.READY: {
+        PromotionDecisionState.PROMOTED,
+        PromotionDecisionState.BLOCKED,
+    },
+    PromotionDecisionState.BLOCKED: {
+        PromotionDecisionState.PENDING,
+        PromotionDecisionState.SUPERSEDED,
+    },
+    PromotionDecisionState.PROMOTED: {PromotionDecisionState.SUPERSEDED},
+    PromotionDecisionState.SUPERSEDED: set(),
+}
+
+
+def transition_promotion_decision(
+    promotion_id: PromotionId,
+    from_state: PromotionDecisionState,
+    to_state: PromotionDecisionState,
+    *,
+    reason: str,
+    actor: str,
+) -> PromotionTransition:
+    """Build one validated promotion lifecycle transition."""
+    if to_state not in _ALLOWED_PROMOTION_TRANSITIONS[from_state]:
+        raise ValueError(f"invalid promotion transition: {from_state} -> {to_state}")
+    return PromotionTransition(
+        promotion_id=promotion_id,
+        from_state=from_state,
+        to_state=to_state,
+        reason=reason,
+        actor=actor,
+    )
+
+
+def validate_promotion_transition_history(
+    transitions: list[PromotionTransition],
+) -> list[PromotionLifecycleAuditIssue]:
+    """Validate promotion transition history coherence."""
+    if not transitions:
+        return []
+    ordered = sorted(transitions, key=lambda item: item.changed_at)
+    issues: list[PromotionLifecycleAuditIssue] = []
+    promotion_id = ordered[0].promotion_id
+    if any(item.promotion_id != promotion_id for item in ordered):
+        issues.append(
+            PromotionLifecycleAuditIssue(
+                promotion_id=promotion_id,
+                code="mixed-promotion-id",
+                message="promotion transition history should not mix promotion identifiers",
+            )
+        )
+        return issues
+    for left, right in zip(ordered, ordered[1:], strict=False):
+        if left.to_state is not right.from_state:
+            issues.append(
+                PromotionLifecycleAuditIssue(
+                    promotion_id=promotion_id,
+                    code="broken-promotion-chain",
+                    message="promotion transitions should chain through consecutive states",
+                )
+            )
+        if right.changed_at < left.changed_at:
+            issues.append(
+                PromotionLifecycleAuditIssue(
+                    promotion_id=promotion_id,
+                    code="out-of-order-promotion-time",
+                    message="promotion transition timestamps should be non-decreasing",
                 )
             )
     return issues

@@ -6,8 +6,11 @@ from __future__ import annotations
 import pytest
 
 from bijux_proteomics_lab import (
+    PromotionDecisionState,
     ReviewQueueState,
+    transition_promotion_decision,
     transition_review_queue,
+    validate_promotion_transition_history,
     validate_review_transition_history,
 )
 
@@ -63,3 +66,56 @@ def test_validate_review_transition_history_flags_broken_chains() -> None:
 
     assert issues
     assert issues[0].code == "broken-review-chain"
+
+
+def test_transition_promotion_decision_enforces_valid_progression() -> None:
+    ready = transition_promotion_decision(
+        "promotion-batch-1",
+        PromotionDecisionState.PENDING,
+        PromotionDecisionState.READY,
+        reason="all assay quality gates passed",
+        actor="reviewer-1",
+    )
+    promoted = transition_promotion_decision(
+        "promotion-batch-1",
+        PromotionDecisionState.READY,
+        PromotionDecisionState.PROMOTED,
+        reason="evidence bundle emitted",
+        actor="reviewer-1",
+    )
+
+    assert ready.promotion_id == "promotion-batch-1"
+    assert promoted.to_state is PromotionDecisionState.PROMOTED
+
+
+def test_transition_promotion_decision_rejects_invalid_jumps() -> None:
+    with pytest.raises(ValueError, match="invalid promotion transition"):
+        transition_promotion_decision(
+            "promotion-batch-1",
+            PromotionDecisionState.PENDING,
+            PromotionDecisionState.PROMOTED,
+            reason="skip readiness gate",
+            actor="reviewer-1",
+        )
+
+
+def test_validate_promotion_transition_history_flags_broken_chains() -> None:
+    first = transition_promotion_decision(
+        "promotion-batch-1",
+        PromotionDecisionState.PENDING,
+        PromotionDecisionState.READY,
+        reason="ready for emission",
+        actor="reviewer-1",
+    )
+    broken = transition_promotion_decision(
+        "promotion-batch-1",
+        PromotionDecisionState.BLOCKED,
+        PromotionDecisionState.PENDING,
+        reason="reopened after blocker review",
+        actor="reviewer-2",
+    )
+
+    issues = validate_promotion_transition_history([first, broken])
+
+    assert issues
+    assert issues[0].code == "broken-promotion-chain"

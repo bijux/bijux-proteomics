@@ -7,11 +7,17 @@ from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.lifecycle import (
+    PromotionDecision,
+    PromotionDecisionState,
+    PromotionLifecycleAuditIssue,
+    PromotionTransition,
     ReviewLifecycleAuditIssue,
     ReviewQueueDecision,
     ReviewQueueState,
     ReviewQueueTransition,
+    transition_promotion_decision,
     transition_review_queue,
+    validate_promotion_transition_history,
     validate_review_transition_history,
 )
 from bijux_proteomics_lab.design import (
@@ -248,6 +254,12 @@ __all__ = [
     "ReviewQueueState",
     "ReviewQueueTransition",
     "ReviewLifecycleAuditIssue",
+    "PromotionDecision",
+    "PromotionDecisionState",
+    "PromotionTransition",
+    "PromotionLifecycleAuditIssue",
+    "transition_promotion_decision",
+    "validate_promotion_transition_history",
     "transition_review_queue",
     "validate_review_transition_history",
     "ExperimentDesignValidationIssue",
