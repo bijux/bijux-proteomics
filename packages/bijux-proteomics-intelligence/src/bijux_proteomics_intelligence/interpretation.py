@@ -133,6 +133,7 @@ class DifferentialStatisticalProvenance(JsonModel):
     tested_entity_count: int = Field(..., ge=0)
     significant_entity_count: int = Field(..., ge=0)
     enrichment_method: str = Field(..., min_length=1)
+    multiple_testing_method: str = Field(..., min_length=1)
 
 
 class ProteinSetEnrichmentEntry(JsonModel):
@@ -154,6 +155,18 @@ class ProteinSetEnrichmentEntry(JsonModel):
     odds_ratio: float = Field(..., ge=0.0)
 
 
+class EnrichmentProvenance(JsonModel):
+    """Explicit background and multiple-testing provenance for enrichment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    background_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    tested_term_count: int = Field(..., ge=0)
+    enrichment_method: str = Field(..., min_length=1)
+    multiple_testing_method: str = Field(..., min_length=1)
+    annotation_source_count: int = Field(..., ge=0)
+
+
 class ProteinSetEnrichmentReport(JsonModel):
     """Overrepresentation report for one protein set."""
 
@@ -161,6 +174,7 @@ class ProteinSetEnrichmentReport(JsonModel):
 
     query_protein_count: int = Field(..., ge=0)
     background_protein_count: int = Field(..., ge=0)
+    provenance: EnrichmentProvenance
     entries: tuple[ProteinSetEnrichmentEntry, ...] = Field(default_factory=tuple)
 
 
@@ -184,6 +198,7 @@ class BiologicalThemeExtraction(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     query_protein_count: int = Field(..., ge=0)
+    enrichment_provenance: EnrichmentProvenance
     themes: tuple[BiologicalTheme, ...] = Field(default_factory=tuple)
 
 
@@ -507,12 +522,14 @@ def compute_protein_set_enrichment(
     background_set = set(background)
     query_set = set(query)
     entries: list[ProteinSetEnrichmentEntry] = []
-    for (term_id, category, term_name, source), proteins in _term_lookup(
-        annotations
-    ).items():
+    tested_term_count = 0
+    term_lookup = _term_lookup(annotations)
+    for (term_id, category, term_name, source), proteins in term_lookup.items():
         annotated_background = tuple(
             sorted(protein for protein in proteins if protein in background_set)
         )
+        if annotated_background:
+            tested_term_count += 1
         overlap_proteins = tuple(
             sorted(protein for protein in annotated_background if protein in query_set)
         )
@@ -562,6 +579,15 @@ def compute_protein_set_enrichment(
     return ProteinSetEnrichmentReport(
         query_protein_count=len(query_set),
         background_protein_count=len(background_set),
+        provenance=EnrichmentProvenance(
+            background_proteins=background,
+            tested_term_count=tested_term_count,
+            enrichment_method="hypergeometric-upper-tail",
+            multiple_testing_method="benjamini-hochberg",
+            annotation_source_count=len(
+                {annotation.source for annotation in annotations}
+            ),
+        ),
         entries=finalized,
     )
 
@@ -590,7 +616,9 @@ def extract_biological_themes(
         for entry in enrichment.entries[:max_terms]
     )
     return BiologicalThemeExtraction(
-        query_protein_count=len(query_proteins), themes=themes
+        query_protein_count=len(query_proteins),
+        enrichment_provenance=enrichment.provenance,
+        themes=themes,
     )
 
 
@@ -672,6 +700,7 @@ def interpret_differential_abundance(
             tested_entity_count=len(report.entries),
             significant_entity_count=len(significant),
             enrichment_method="hypergeometric-upper-tail",
+            multiple_testing_method=enrichment.provenance.multiple_testing_method,
         ),
         interpretation_summary=summary,
     )

@@ -40,6 +40,7 @@ from bijux_proteomics import (
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_intelligence import (
     ContrastRejectionReason,
+    EnrichmentProvenance,
     MissingnessPatternLabel,
     ProteinAnnotationAssignment,
     RankedEntityScore,
@@ -170,7 +171,19 @@ def test_differential_interpretation_and_theme_extraction_surface_signal() -> No
     assert interpretation.top_upregulated[0].entity_id == "P001"
     assert interpretation.top_downregulated == ()
     assert interpretation.statistical_provenance.significant_entity_count == 1
+    assert (
+        interpretation.statistical_provenance.multiple_testing_method
+        == "benjamini-hochberg"
+    )
     assert interpretation.enriched_terms[0].term_name == "nucleus"
+    assert isinstance(themes.enrichment_provenance, EnrichmentProvenance)
+    assert themes.enrichment_provenance.background_proteins == (
+        "P001",
+        "P002",
+        "P003",
+        "P004",
+    )
+    assert themes.enrichment_provenance.multiple_testing_method == "benjamini-hochberg"
     assert themes.themes[0].term_name == "MAPK signaling"
 
 
