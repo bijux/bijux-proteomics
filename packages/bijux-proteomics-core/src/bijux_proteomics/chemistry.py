@@ -120,6 +120,7 @@ class _BaseModification(JsonModel):
     mass_delta_average: float
     neutral_losses: tuple[NeutralLoss, ...] = Field(default_factory=tuple)
     controlled_id: str | None = None
+    isotopic_label_family: str | None = None
 
     @field_validator("residues", mode="before")
     @classmethod
@@ -140,6 +141,14 @@ class _BaseModification(JsonModel):
                 f"invalid modification residues: {', '.join(sorted(set(invalid)))}"
             )
         return tuple(sorted(dict.fromkeys(residues)))
+
+    @field_validator("isotopic_label_family")
+    @classmethod
+    def _normalize_isotopic_label_family(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        return normalized or None
 
     @model_validator(mode="after")
     def _validate_site_specificity(self) -> _BaseModification:
@@ -195,6 +204,31 @@ class ModificationRegistryValidationReport(JsonModel):
     issues: tuple[ModificationRegistryValidationIssue, ...] = Field(
         default_factory=tuple
     )
+
+
+class IsotopicLabelingPolicy(JsonModel):
+    """Explicit policy for isotopic labeling and heavy modifications."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    allow_isotopic_labels: bool = False
+    allowed_label_families: tuple[str, ...] = Field(default_factory=tuple)
+
+    @field_validator("allowed_label_families", mode="before")
+    @classmethod
+    def _normalize_allowed_label_families(cls, value: object) -> tuple[str, ...]:
+        if value in (None, ""):
+            return ()
+        if isinstance(value, str):
+            families = (value,)
+        else:
+            if not isinstance(value, Iterable):
+                raise ValueError("allowed label families must be iterable")
+            families = tuple(str(token) for token in value)
+        normalized = tuple(
+            family.strip().lower() for family in families if family.strip()
+        )
+        return tuple(dict.fromkeys(normalized))
 
 
 class ModificationProvenance(JsonModel):
@@ -462,6 +496,7 @@ def _build_applied_modification(
     registry: ModificationRegistryDocument | None,
     at_protein_n_term: bool = False,
     at_protein_c_term: bool = False,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
 ) -> AppliedModification:
     mapping = _registry_lookup(registry)
     stripped_token = token.strip()
@@ -470,6 +505,7 @@ def _build_applied_modification(
         if _DELTA_TOKEN_RE.fullmatch(stripped_token)
         else mapping.get(stripped_token.lower())
     )
+    _validate_isotopic_label_policy(definition, labeling_policy=labeling_policy)
     residue = _validate_definition_site(
         definition=definition,
         sequence=sequence,
@@ -556,6 +592,27 @@ def _build_modification_provenance(
     )
 
 
+def _validate_isotopic_label_policy(
+    definition: StaticModification | VariableModification | None,
+    *,
+    labeling_policy: IsotopicLabelingPolicy | None,
+) -> None:
+    if definition is None or definition.isotopic_label_family is None:
+        return
+    if labeling_policy is None or not labeling_policy.allow_isotopic_labels:
+        raise ValueError(
+            f"isotopic label modification {definition.name!r} requires an explicit labeling policy"
+        )
+    if (
+        labeling_policy.allowed_label_families
+        and definition.isotopic_label_family
+        not in labeling_policy.allowed_label_families
+    ):
+        raise ValueError(
+            f"isotopic label family {definition.isotopic_label_family!r} is not allowed by the active labeling policy"
+        )
+
+
 def validate_modification_registry(
     registry: ModificationRegistryDocument,
 ) -> ModificationRegistryValidationReport:
@@ -635,6 +692,7 @@ def _registry_validation_signature(
             )
             for neutral_loss in modification.neutral_losses
         ),
+        modification.isotopic_label_family,
         modification.max_occurrences
         if isinstance(modification, VariableModification)
         else None,
@@ -1170,6 +1228,7 @@ def enumerate_variable_modifications(
     *,
     variable_modifications: tuple[VariableModification, ...] = (),
     registry: ModificationRegistryDocument | None = None,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
     max_variants: int = 128,
 ) -> VariableModificationEnumerationReport:
     """Enumerate deterministic modified-peptide variants within a hard bound."""
@@ -1186,6 +1245,7 @@ def enumerate_variable_modifications(
             parsed,
             definition=definition,
             registry=registry,
+            labeling_policy=labeling_policy,
         )
         for definition in definitions
     ]
@@ -1360,6 +1420,7 @@ def _enumeration_candidates_for_definition(
     *,
     definition: VariableModification,
     registry: ModificationRegistryDocument | None,
+    labeling_policy: IsotopicLabelingPolicy | None,
 ) -> tuple[VariableModification, tuple[AppliedModification, ...]]:
     sequence = peptide.sequence
     candidates: list[AppliedModification] = []
@@ -1376,6 +1437,7 @@ def _enumeration_candidates_for_definition(
                     registry=registry,
                     at_protein_n_term=peptide.at_protein_n_term,
                     at_protein_c_term=peptide.at_protein_c_term,
+                    labeling_policy=labeling_policy,
                 )
             )
     elif definition.position is ModificationPosition.PEPTIDE_N_TERM:
@@ -1388,6 +1450,7 @@ def _enumeration_candidates_for_definition(
                 registry=registry,
                 at_protein_n_term=peptide.at_protein_n_term,
                 at_protein_c_term=peptide.at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
     elif definition.position is ModificationPosition.PEPTIDE_C_TERM:
@@ -1400,6 +1463,7 @@ def _enumeration_candidates_for_definition(
                 registry=registry,
                 at_protein_n_term=peptide.at_protein_n_term,
                 at_protein_c_term=peptide.at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
     elif definition.position is ModificationPosition.PROTEIN_N_TERM:
@@ -1413,6 +1477,7 @@ def _enumeration_candidates_for_definition(
                     registry=registry,
                     at_protein_n_term=peptide.at_protein_n_term,
                     at_protein_c_term=peptide.at_protein_c_term,
+                    labeling_policy=labeling_policy,
                 )
             )
     elif definition.position is ModificationPosition.PROTEIN_C_TERM:
@@ -1426,6 +1491,7 @@ def _enumeration_candidates_for_definition(
                     registry=registry,
                     at_protein_n_term=peptide.at_protein_n_term,
                     at_protein_c_term=peptide.at_protein_c_term,
+                    labeling_policy=labeling_policy,
                 )
             )
     return definition, tuple(candidates)
@@ -1487,6 +1553,7 @@ def parse_modified_peptide(
     registry: ModificationRegistryDocument | None = None,
     at_protein_n_term: bool = False,
     at_protein_c_term: bool = False,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
 ) -> ParsedModifiedPeptide:
     """Parse modified peptide bracket notation into a stable contract."""
     text = notation.strip()
@@ -1515,6 +1582,7 @@ def parse_modified_peptide(
                 registry=registry,
                 at_protein_n_term=at_protein_n_term,
                 at_protein_c_term=at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
         index = close + 2
@@ -1542,6 +1610,7 @@ def parse_modified_peptide(
                     registry=registry,
                     at_protein_n_term=at_protein_n_term,
                     at_protein_c_term=at_protein_c_term,
+                    labeling_policy=labeling_policy,
                 )
             )
             index = close + 1
@@ -1569,6 +1638,7 @@ def parse_modified_peptide(
                 registry=registry,
                 at_protein_n_term=at_protein_n_term,
                 at_protein_c_term=at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
 
@@ -1589,6 +1659,7 @@ def build_modified_peptide(
     registry: ModificationRegistryDocument | None = None,
     at_protein_n_term: bool = False,
     at_protein_c_term: bool = False,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
 ) -> ParsedModifiedPeptide:
     """Build a modified peptide from site-assignment strings."""
     normalized = _coerce_sequence(sequence)
@@ -1633,6 +1704,7 @@ def build_modified_peptide(
                 registry=registry,
                 at_protein_n_term=at_protein_n_term,
                 at_protein_c_term=at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
     _raise_on_impossible_modification_combination(tuple(modifications))

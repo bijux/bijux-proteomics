@@ -41,6 +41,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ModificationLocalizationState" in bijux_proteomics.__all__
     assert "ModificationProvenance" in bijux_proteomics.__all__
     assert "validate_modification_registry" in bijux_proteomics.__all__
+    assert "IsotopicLabelingPolicy" in bijux_proteomics.__all__
     assert "PsmRecord" in bijux_proteomics.__all__
     assert "parse_psm_tsv" in bijux_proteomics.__all__
     assert "rollup_protein_evidence" in bijux_proteomics.__all__

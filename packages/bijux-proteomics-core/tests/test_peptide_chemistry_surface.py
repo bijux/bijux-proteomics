@@ -13,6 +13,7 @@ from bijux_proteomics import (
     AppliedModification,
     FragmentIonSeries,
     MassType,
+    IsotopicLabelingPolicy,
     ModificationLocalizationState,
     ModificationPosition,
     ModificationRegistryDocument,
@@ -492,6 +493,40 @@ def test_variable_modification_enumeration_respects_max_occurrences() -> None:
         "MM[Oxidation]M",
         "MMM[Oxidation]",
     ]
+
+
+def test_isotopic_label_modifications_require_explicit_policy() -> None:
+    heavy_registry = build_modification_registry(
+        variable_modifications=(
+            VariableModification(
+                name="HeavyLys8",
+                residues=("K",),
+                position=ModificationPosition.ANYWHERE,
+                mass_delta_monoisotopic=8.014199,
+                mass_delta_average=8.014199,
+                isotopic_label_family="silac_lys",
+            ),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="explicit labeling policy"):
+        build_modified_peptide(
+            "PEPKTIDE",
+            assignments=("HeavyLys8@4",),
+            registry=heavy_registry,
+        )
+
+    peptide = build_modified_peptide(
+        "PEPKTIDE",
+        assignments=("HeavyLys8@4",),
+        registry=heavy_registry,
+        labeling_policy=IsotopicLabelingPolicy(
+            allow_isotopic_labels=True,
+            allowed_label_families=("silac_lys",),
+        ),
+    )
+
+    assert peptide.modifications[0].mass_delta_monoisotopic == 8.014199
 
 
 def test_modified_peptide_export_record_stays_stable_across_jsonl_and_tsv(
