@@ -182,6 +182,35 @@ def test_large_file_policy_and_parallel_groups_are_explicit() -> None:
     assert len(parallel.groups) >= 3
 
 
+def test_workflow_cache_keys_reflect_toolchain_and_policy_assumptions() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        default_container_image="ghcr.io/bijux/proteomics-runtime:v1",
+    )
+    changed_manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        default_container_image="ghcr.io/bijux/proteomics-runtime:v2",
+    )
+
+    first_entry = build_workflow_runtime_cache(manifest).entries[0]
+    changed_entry = build_workflow_runtime_cache(changed_manifest).entries[0]
+
+    assert manifest.runtime_policies
+    assert first_entry.tool_versions[-1].endswith(":ghcr.io/bijux/proteomics-runtime:v1")
+    assert any(
+        policy.startswith("digest:") for policy in first_entry.policy_assumptions
+    )
+    assert first_entry.cache_key != changed_entry.cache_key
+
+
 def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> None:
     manifest = build_proteomics_workflow_manifest(
         proteins_path=_fixture("proteins.fasta"),

@@ -217,6 +217,7 @@ class ProteomicsWorkflowManifest(JsonModel):
     search_adapter_name: str = Field(..., min_length=1)
     default_container_image: str = Field(..., min_length=1)
     artifacts_dir: str = Field(..., min_length=1)
+    runtime_policies: tuple[str, ...] = Field(default_factory=tuple)
     input_assets: tuple[WorkflowInputAsset, ...] = Field(default_factory=tuple)
     steps: tuple[WorkflowExecutionStep, ...] = Field(default_factory=tuple)
     checkpointable_steps: tuple[str, ...] = Field(default_factory=tuple)
@@ -325,6 +326,9 @@ class WorkflowCacheEntry(JsonModel):
     surface: str = Field(..., min_length=1)
     source_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
     source_hashes: tuple[str, ...] = Field(default_factory=tuple)
+    scientific_inputs_sha256: str = Field(..., min_length=64, max_length=64)
+    tool_versions: tuple[str, ...] = Field(default_factory=tuple)
+    policy_assumptions: tuple[str, ...] = Field(default_factory=tuple)
     expected_artifacts: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
     cache_path: str = Field(..., min_length=1)
 
@@ -580,6 +584,59 @@ def _resolve_design_entry(
         if Path(entry.spectra_file).name == spectra_path.name:
             return entry
     return accepted[0] if len(accepted) == 1 else None
+
+
+def _build_runtime_policies(
+    *,
+    execution_mode: WorkflowExecutionMode,
+    scheduler: WorkflowSchedulerKind,
+    search_adapter_kind: SearchAdapterKind,
+    default_container_image: str,
+    streaming_threshold_bytes: int,
+    has_features: bool,
+    has_design: bool,
+) -> tuple[str, ...]:
+    return (
+        "digest:protease=trypsin",
+        "digest:digestion-mode=full",
+        "digest:missed-cleavages=0",
+        "digest:length-window=7-50",
+        f"search:adapter={search_adapter_kind.value}",
+        f"runtime:execution-mode={execution_mode.value}",
+        f"runtime:scheduler={scheduler.value}",
+        f"runtime:container-image={default_container_image}",
+        f"runtime:streaming-threshold-bytes={streaming_threshold_bytes}",
+        f"quant:features-enabled={'true' if has_features else 'false'}",
+        f"design:table-attached={'true' if has_design else 'false'}",
+    )
+
+
+def _workflow_tool_versions(
+    manifest: ProteomicsWorkflowManifest,
+) -> tuple[str, ...]:
+    return (
+        f"bijux-proteomics-core@{manifest.document_schema.schema_version}",
+        f"search-adapter:{manifest.search_adapter_kind.value}@builtin",
+        f"runtime-image:{manifest.default_container_image}",
+    )
+
+
+def _cache_policy_assumptions(
+    manifest: ProteomicsWorkflowManifest,
+    surface: str,
+) -> tuple[str, ...]:
+    prefixes_by_surface = {
+        "digestion": ("digest:", "runtime:"),
+        "search-normalization": ("search:", "runtime:"),
+        "spectra-parse": ("runtime:",),
+        "quant-parse": ("quant:", "design:", "runtime:"),
+    }
+    prefixes = prefixes_by_surface.get(surface, ("runtime:",))
+    return tuple(
+        policy
+        for policy in manifest.runtime_policies
+        if any(policy.startswith(prefix) for prefix in prefixes)
+    )
 
 
 def _build_step(
@@ -863,6 +920,15 @@ def build_proteomics_workflow_manifest(
         search_adapter_name=adapter_manifest.display_name,
         default_container_image=default_container_image,
         artifacts_dir=str(output_root),
+        runtime_policies=_build_runtime_policies(
+            execution_mode=execution_mode,
+            scheduler=scheduler,
+            search_adapter_kind=search_adapter_kind,
+            default_container_image=default_container_image,
+            streaming_threshold_bytes=streaming_threshold_bytes,
+            has_features=features_path is not None,
+            has_design=design_path is not None,
+        ),
         input_assets=tuple(input_assets),
         steps=tuple(steps),
         checkpointable_steps=tuple(step.step_id for step in steps),
@@ -931,14 +997,7 @@ def build_deterministic_execution_contract(
         ).encode("utf-8")
     ).hexdigest()
     policy_fingerprint = hashlib.sha256(
-        "|".join(
-            (
-                manifest.execution_mode.value,
-                manifest.scheduler.value,
-                manifest.search_adapter_kind.value,
-                manifest.default_container_image,
-            )
-        ).encode("utf-8")
+        "|".join(manifest.runtime_policies).encode("utf-8")
     ).hexdigest()
     container_steps_sha256 = _stable_sequence_sha256(
         tuple(_stable_model_sha256(step) for step in container_steps)
@@ -1228,8 +1287,19 @@ def build_workflow_runtime_cache(
         )
     for surface, roles, artifacts in cache_specs:
         source_hashes = tuple(asset_by_role[role].sha256 for role in roles)
+        scientific_inputs_sha256 = _stable_sequence_sha256(source_hashes)
+        tool_versions = _workflow_tool_versions(manifest)
+        policy_assumptions = _cache_policy_assumptions(manifest, surface)
         cache_key = hashlib.sha256(
-            "|".join((manifest.workflow_id, surface, *source_hashes)).encode("utf-8")
+            "|".join(
+                (
+                    manifest.workflow_id,
+                    surface,
+                    scientific_inputs_sha256,
+                    *tool_versions,
+                    *policy_assumptions,
+                )
+            ).encode("utf-8")
         ).hexdigest()
         entries.append(
             WorkflowCacheEntry(
@@ -1237,6 +1307,9 @@ def build_workflow_runtime_cache(
                 surface=surface,
                 source_roles=roles,
                 source_hashes=source_hashes,
+                scientific_inputs_sha256=scientific_inputs_sha256,
+                tool_versions=tool_versions,
+                policy_assumptions=policy_assumptions,
                 expected_artifacts=artifacts,
                 cache_path=f"{manifest.artifacts_dir}/cache/{surface}-{cache_key[:12]}.json",
             )
