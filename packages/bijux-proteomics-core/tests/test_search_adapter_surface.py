@@ -12,6 +12,7 @@ from bijux_proteomics import (
     SearchAdapterFieldAccounting,
     SearchAdapterKind,
     SearchNormalizedEvidenceEntry,
+    SearchInputRefusalKind,
     SearchRegressionFixtureKind,
     SearchResultColumnMapping,
     SearchResultFamily,
@@ -21,6 +22,7 @@ from bijux_proteomics import (
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
     build_search_adapter_regression_corpus_manifest,
+    assess_search_result_input,
     compare_search_parameters,
     compare_search_result_reports,
     get_search_adapter_manifest,
@@ -315,6 +317,43 @@ def test_search_parameter_comparison_reports_engine_assumption_differences() -> 
     assert differences["enzyme"].severity == "compatible"
     assert differences["fragment_tolerance"].severity == "different"
     assert differences["variable_modifications"].severity == "different"
+
+
+def test_search_input_assessment_classifies_refusals_explicitly() -> None:
+    malformed = assess_search_result_input(
+        source_path=_fixture("malformed_columns.tsv"),
+        adapter_kind=SearchAdapterKind.GENERIC,
+        mapping=SearchResultColumnMapping(
+            spectrum_id="scan",
+            peptide="peptide",
+            charge="charge",
+            score="score",
+        ),
+    )
+    underspecified = assess_search_result_input(
+        source_path=_fixture("generic_results.tsv"),
+        adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    incompatible = assess_search_result_input(
+        source_path=_fixture("generic_results.tsv"),
+        adapter_kind=SearchAdapterKind.GENERIC,
+        mapping=SearchResultColumnMapping(
+            spectrum_id="scan_id",
+            peptide="sequence",
+            charge="z",
+            score="score",
+        ),
+    )
+
+    assert malformed.valid is False
+    assert malformed.refusals[0].kind is SearchInputRefusalKind.MALFORMED_INPUT
+    assert underspecified.valid is False
+    assert underspecified.refusals[0].kind is SearchInputRefusalKind.UNDER_SPECIFIED_INPUT
+    assert incompatible.valid is False
+    assert any(
+        refusal.kind is SearchInputRefusalKind.SCIENTIFIC_INCOMPATIBILITY
+        for refusal in incompatible.refusals
+    )
 
 
 def test_search_result_comparability_normalizes_score_orientation() -> None:

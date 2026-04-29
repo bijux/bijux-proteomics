@@ -364,6 +364,38 @@ class SearchRegressionCorpusManifest(JsonModel):
     failure_case_count: int = Field(..., ge=0)
 
 
+class SearchInputRefusalKind(StrEnum):
+    """Reason a search input is refused before normalization proceeds."""
+
+    MALFORMED_INPUT = "malformed_input"
+    UNDER_SPECIFIED_INPUT = "under_specified_input"
+    SCIENTIFIC_INCOMPATIBILITY = "scientific_incompatibility"
+
+
+class SearchInputRefusal(JsonModel):
+    """One explicit refusal emitted during search-input preflight assessment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: SearchInputRefusalKind
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    remediation_hint: str = Field(..., min_length=1)
+
+
+class SearchInputAssessmentReport(JsonModel):
+    """Preflight assessment over one search input before normalization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_kind: SearchAdapterKind
+    dialect_id: str = Field(..., min_length=1)
+    valid: bool
+    source_columns: tuple[str, ...] = Field(default_factory=tuple)
+    row_count: int = Field(..., ge=0)
+    refusals: tuple[SearchInputRefusal, ...] = Field(default_factory=tuple)
+
+
 class SearchResultComparabilityReport(JsonModel):
     """Comparability summary between two normalized search-result reports."""
 
@@ -1011,6 +1043,10 @@ def _read_search_result_rows(
             str(column) for column in reader.fieldnames if column is not None
         )
         for row in reader:
+            if None in row:
+                raise ValueError(
+                    "search result TSV contains rows with inconsistent column counts"
+                )
             rows.append(
                 {
                     str(key): str(value)
@@ -1115,6 +1151,15 @@ def _build_evidence_rows(
     return tuple(entries)
 
 
+def _required_mapping_columns(mapping: SearchResultColumnMapping) -> tuple[str, ...]:
+    return (
+        mapping.spectrum_id,
+        mapping.peptide,
+        mapping.charge,
+        mapping.score,
+    )
+
+
 def _mapped_field_roles(mapping: SearchResultColumnMapping) -> dict[str, str]:
     return {
         role_name: column_name
@@ -1129,6 +1174,137 @@ def _mapped_field_roles(mapping: SearchResultColumnMapping) -> dict[str, str]:
         )
         if column_name is not None
     }
+
+
+def assess_search_result_input(
+    *,
+    source_path: Path,
+    adapter_kind: SearchAdapterKind,
+    dialect_id: str = "default",
+    mapping: SearchResultColumnMapping | None = None,
+    additional_dialects: tuple[SearchAdapterDialectManifest, ...] = (),
+) -> SearchInputAssessmentReport:
+    """Assess whether a search input is sufficiently specified and compatible."""
+    refusals: list[SearchInputRefusal] = []
+    source_columns: tuple[str, ...] = ()
+    row_count = 0
+    try:
+        dialect = _resolve_search_adapter_dialect(
+            adapter_kind=adapter_kind,
+            dialect_id=dialect_id,
+            additional_dialects=additional_dialects,
+        )
+    except ValueError as exc:
+        return SearchInputAssessmentReport(
+            adapter_kind=adapter_kind,
+            dialect_id=dialect_id,
+            valid=False,
+            source_columns=(),
+            row_count=0,
+            refusals=(
+                SearchInputRefusal(
+                    kind=SearchInputRefusalKind.UNDER_SPECIFIED_INPUT,
+                    code="unknown_adapter_dialect",
+                    message=str(exc),
+                    remediation_hint="register the adapter dialect explicitly or use a built-in dialect identifier",
+                ),
+            ),
+        )
+    manifest = _manifest_for_dialect(adapter_kind=adapter_kind, dialect=dialect)
+    resolved_mapping = (
+        mapping or (None if dialect is None else dialect.mapping) or manifest.mapping
+    )
+    if resolved_mapping is None:
+        refusals.append(
+            SearchInputRefusal(
+                kind=SearchInputRefusalKind.UNDER_SPECIFIED_INPUT,
+                code="missing_column_mapping",
+                message="generic adapter input requires an explicit column mapping",
+                remediation_hint="provide a SearchResultColumnMapping for the generic input table",
+            )
+        )
+        return SearchInputAssessmentReport(
+            adapter_kind=adapter_kind,
+            dialect_id=dialect_id,
+            valid=False,
+            source_columns=(),
+            row_count=0,
+            refusals=tuple(refusals),
+        )
+    try:
+        source_columns, source_rows = _read_search_result_rows(source_path)
+        row_count = len(source_rows)
+    except ValueError as exc:
+        return SearchInputAssessmentReport(
+            adapter_kind=adapter_kind,
+            dialect_id=dialect_id,
+            valid=False,
+            source_columns=(),
+            row_count=0,
+            refusals=(
+                SearchInputRefusal(
+                    kind=SearchInputRefusalKind.MALFORMED_INPUT,
+                    code="malformed_search_table",
+                    message=str(exc),
+                    remediation_hint="provide a tab-delimited search table with a valid header row",
+                ),
+            ),
+        )
+    if row_count == 0:
+        refusals.append(
+            SearchInputRefusal(
+                kind=SearchInputRefusalKind.UNDER_SPECIFIED_INPUT,
+                code="empty_search_table",
+                message="search result table does not contain any data rows",
+                remediation_hint="provide at least one search-result row for normalization",
+            )
+        )
+    missing_required = sorted(
+        column
+        for column in _required_mapping_columns(resolved_mapping)
+        if column not in source_columns
+    )
+    if missing_required:
+        refusals.append(
+            SearchInputRefusal(
+                kind=SearchInputRefusalKind.UNDER_SPECIFIED_INPUT,
+                code="missing_required_columns",
+                message=f"missing required search-result columns: {', '.join(missing_required)}",
+                remediation_hint="align the mapping and input header so spectrum, peptide, charge, and score columns are present",
+            )
+        )
+    family_policy = build_search_result_family_policy(manifest)
+    if family_policy.requires_target_decoy_evidence and (
+        resolved_mapping.decoy_label is None
+        and resolved_mapping.protein_refs is None
+        and not manifest.default_decoy_policy.protein_prefix
+        and not manifest.default_decoy_policy.protein_suffix
+    ):
+        refusals.append(
+            SearchInputRefusal(
+                kind=SearchInputRefusalKind.SCIENTIFIC_INCOMPATIBILITY,
+                code="missing_target_decoy_evidence",
+                message="database target-decoy normalization requires explicit decoy evidence or protein references that support decoy inference",
+                remediation_hint="provide a decoy label column or protein references with a decoy naming policy",
+            )
+        )
+    if family_policy.requires_protein_references and resolved_mapping.protein_refs is None:
+        refusals.append(
+            SearchInputRefusal(
+                kind=SearchInputRefusalKind.SCIENTIFIC_INCOMPATIBILITY,
+                code="missing_protein_references",
+                message="this adapter family expects protein references for downstream protein-level review",
+                remediation_hint="map or export the engine protein-reference column before normalization",
+            )
+        )
+    return SearchInputAssessmentReport(
+        adapter_kind=adapter_kind,
+        dialect_id=dialect_id,
+        valid=not refusals,
+        source_columns=source_columns,
+        row_count=row_count,
+        refusals=tuple(refusals),
+    )
 
 
 def build_search_adapter_field_accounting(
