@@ -1,0 +1,18 @@
+{
+  "document_kind": "first_useful_run_fixture_manifest",
+  "description": "Tiny public fixture pack for the first useful proteomics run walkthrough.",
+  "files": [
+    {
+      "path": "proteins.fasta",
+      "sha256": "52fd23db345642da09a0d475020e25d53f32f86c17bbd62f0678af5a246a4165"
+    },
+    {
+      "path": "results.tsv",
+      "sha256": "b1842d21c0d66c1b46588da79d1ae65acb90a30a045b8f089c804b8ffeb0ca20"
+    },
+    {
+      "path": "spectra.mgf",
+      "sha256": "cbdcdfb849094cd912238117b8e9f1d7af1402006bd268d094b97c7b4f4d05f6"
+    }
+  ]
+}
