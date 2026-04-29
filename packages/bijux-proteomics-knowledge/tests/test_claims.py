@@ -19,6 +19,7 @@ from bijux_proteomics_knowledge import (
     apply_resolution_assay_outcome,
     audit_claim_evidence_links,
     build_claim,
+    build_claim_trust_gap_report,
     classify_claim_evidence_state,
     build_contradiction_matrix,
     build_decision_lineage,
@@ -497,6 +498,47 @@ def test_identify_knowledge_gaps_reports_open_claim_and_decisive_gap() -> None:
 
     assert any(gap.gap_code == "open-claims-require-resolution" for gap in gaps)
     assert any(gap.gap_code == "no-decisive-evidence" for gap in gaps)
+
+
+def test_build_claim_trust_gap_report_names_missing_evidence_before_trust() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-trust-gap",
+        target_id="target-1",
+        records=[
+            EvidenceRecord(
+                evidence_id="ev-trust-gap-1",
+                kind=EvidenceKind.LITERATURE,
+                title="support",
+                source="pmid",
+                claim="supports progression",
+                decision_tags=["progression"],
+                confidence=0.62,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    claim = build_claim(
+        claim_id="claim-trust-gap-1",
+        target_id="target-1",
+        statement="claim still needs stronger trust",
+        evidence_ids=["ev-trust-gap-1"],
+        status=ClaimStatus.SUPPORTED,
+        resolution_assays=["orthogonal assay"],
+    )
+
+    report = build_claim_trust_gap_report(
+        bundle,
+        claim,
+        decision_tag="progression",
+        minimum_trust_score=0.8,
+    )
+
+    assert report.claim_id == "claim-trust-gap-1"
+    assert report.trust_ready is False
+    assert any("below minimum" in gap for gap in report.blocking_gaps)
+    assert "strengthen the claim with higher-trust or orthogonal evidence" in (
+        report.recommendations
+    )
 
 
 def test_evaluate_claim_consistency_reports_unbalanced_contradiction_groups() -> None:

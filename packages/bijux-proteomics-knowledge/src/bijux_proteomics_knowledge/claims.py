@@ -10,7 +10,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import ClaimId, EvidenceId, JsonModel, TargetId
-from bijux_proteomics_knowledge.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.evidence import EvidenceBundle, compute_bundle_trust
 
 
 class ClaimStatus(StrEnum):
@@ -232,6 +232,23 @@ class KnowledgeGap(JsonModel):
     related_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Claim identifiers tied to this gap."
     )
+
+
+class ClaimTrustGapReport(JsonModel):
+    """What is still missing before one claim can be trusted for a decision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: ClaimId = Field(..., description="Claim identifier under review.")
+    decision_tag: str = Field(..., min_length=1)
+    evidence_state: ClaimEvidenceState
+    trust_score: float = Field(..., ge=0.0, le=1.0)
+    minimum_trust_score: float = Field(..., ge=0.0, le=1.0)
+    trust_ready: bool
+    supporting_evidence_ids: list[EvidenceId] = Field(default_factory=list)
+    contradicting_evidence_ids: list[EvidenceId] = Field(default_factory=list)
+    blocking_gaps: list[str] = Field(default_factory=list)
+    recommendations: list[str] = Field(default_factory=list)
 
 
 class ClaimConsistencyReport(JsonModel):
@@ -833,6 +850,69 @@ def identify_knowledge_gaps(
             )
         )
     return gaps
+
+
+def build_claim_trust_gap_report(
+    bundle: EvidenceBundle,
+    claim: EvidenceClaim,
+    *,
+    decision_tag: str,
+    minimum_trust_score: float = 0.7,
+) -> ClaimTrustGapReport:
+    """Summarize what still blocks trusting one claim for a concrete decision."""
+    claim_evidence_ids = set(claim.evidence_ids) | set(claim.contradicting_evidence_ids)
+    scoped_records = [
+        record for record in bundle.records if record.evidence_id in claim_evidence_ids
+    ]
+    scoped_bundle = bundle.model_copy(update={"records": scoped_records})
+    trust_score = (
+        compute_bundle_trust(scoped_bundle).trust_score if scoped_records else 0.0
+    )
+    evidence_state = classify_claim_evidence_state(
+        status=claim.status,
+        polarity=claim.polarity,
+        resolution_state=claim.resolution_state,
+        evidence_ids=claim.evidence_ids,
+        contradicting_evidence_ids=claim.contradicting_evidence_ids,
+    )
+    knowledge_gaps = identify_knowledge_gaps(
+        scoped_bundle, [claim], decision_tag=decision_tag
+    )
+    blocking_gaps = [gap.message for gap in knowledge_gaps]
+    recommendations = []
+    if trust_score < minimum_trust_score:
+        blocking_gaps.append(
+            f"trust score {trust_score:.2f} is below minimum {minimum_trust_score:.2f}"
+        )
+        recommendations.append(
+            "strengthen the claim with higher-trust or orthogonal evidence"
+        )
+    if not claim.evidence_ids:
+        blocking_gaps.append("claim has no linked supporting evidence")
+        recommendations.append(
+            "link the claim to at least one supporting evidence record"
+        )
+    if claim.contradicting_evidence_ids:
+        recommendations.append(
+            "resolve contradicting evidence before treating the claim as trusted"
+        )
+    if claim.resolution_state is ClaimResolutionState.OPEN and claim.resolution_assays:
+        recommendations.append(
+            "close the open claim with the declared resolution assays"
+        )
+    trust_ready = not blocking_gaps and evidence_state is ClaimEvidenceState.SUPPORTED
+    return ClaimTrustGapReport(
+        claim_id=claim.claim_id,
+        decision_tag=decision_tag,
+        evidence_state=evidence_state,
+        trust_score=round(trust_score, 4),
+        minimum_trust_score=minimum_trust_score,
+        trust_ready=trust_ready,
+        supporting_evidence_ids=list(claim.evidence_ids),
+        contradicting_evidence_ids=list(claim.contradicting_evidence_ids),
+        blocking_gaps=blocking_gaps,
+        recommendations=sorted(set(recommendations)),
+    )
 
 
 def evaluate_claim_consistency(
