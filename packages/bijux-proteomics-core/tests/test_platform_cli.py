@@ -664,3 +664,32 @@ def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
         assert payload["audit_trail"]["reproducibility_hash"]
         assert Path("audit.json").exists()
         assert Path("calibration.json").exists()
+
+
+def test_infer_proteins_command_emits_grouping_and_coverage_artifacts() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        psm_fixture_dir = Path(__file__).parent / "fixtures" / "psm"
+        fasta_fixture_dir = Path(__file__).parent / "fixtures" / "fasta"
+        shutil.copy(psm_fixture_dir / "protein_inference_results.tsv", "protein_inference_results.tsv")
+        shutil.copy(fasta_fixture_dir / "protein_inference.fasta", "protein_inference.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "infer-proteins",
+                "protein_inference_results.tsv",
+                "--threshold",
+                "0.05",
+                "--fasta",
+                "protein_inference.fasta",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_psms"] == 4
+        assert len(payload["protein_groups"]) >= 3
+        assert {entry["protein_ref"] for entry in payload["parsimony_proteins"]} == {"P11111", "P22222", "P33333"}
+        assert any(entry["canonical_peptide"] == "SHAREDK" for entry in payload["razor_assignments"])
+        assert any(entry["protein_ref"] == "P11111" for entry in payload["protein_coverage"])
