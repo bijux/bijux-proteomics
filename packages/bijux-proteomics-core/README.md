@@ -88,6 +88,17 @@ bijux-proteomics fasta-decoy proteins.fasta --decoy-mode reverse --out-fasta tar
 bijux-proteomics target-decoy-validate target-decoy.fasta
 ```
 
+For deterministic decoy workflows, the CLI can also emit a reproducibility
+manifest:
+
+```bash
+bijux-proteomics fasta-decoy proteins.fasta \
+  --decoy-mode shuffle \
+  --seed 11 \
+  --out-fasta target-decoy.fasta \
+  --manifest-out target-decoy.manifest.json
+```
+
 Import-driven sequence usage is also public and stable:
 
 ```python
@@ -104,8 +115,11 @@ Peptide generation and indexing surfaces are available from the same package:
 ```python
 from bijux_proteomics import (
     PeptideDigestionMode,
+    build_digest_duplicate_accounting,
+    build_digest_policy,
     build_peptide_protein_index,
     classify_peptide_uniqueness,
+    compute_digest_policy_hash,
     digest_sequence,
     get_protease_rule,
 )
@@ -116,12 +130,25 @@ peptides = digest_sequence(
     missed_cleavages=1,
     mode=PeptideDigestionMode.FULL,
 )
+policy = build_digest_policy(
+    protease="trypsin",
+    digestion_mode=PeptideDigestionMode.FULL,
+    missed_cleavages=1,
+    min_length=7,
+    max_length=30,
+    min_mass=None,
+    max_mass=None,
+)
 index = build_peptide_protein_index(peptides)
 uniqueness = classify_peptide_uniqueness(peptides)
+duplicate_accounting = build_digest_duplicate_accounting(peptides)
+policy_hash = compute_digest_policy_hash(policy)
 ```
 
 The same digestion surface is available from the CLI with explicit export and
-manifest outputs:
+manifest outputs. The manifest snapshots the cleavage policy and a stable
+policy hash so repeated runs can compare assumptions as well as peptide
+payloads:
 
 ```bash
 bijux-proteomics digest proteins.fasta \
