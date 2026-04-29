@@ -21,6 +21,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "digest_sequence" in bijux_proteomics.__all__
     assert "protease_registry" in bijux_proteomics.__all__
     assert "build_peptide_protein_index" in bijux_proteomics.__all__
+    assert "PeptideOriginCoordinate" in bijux_proteomics.__all__
     assert "calculate_monoisotopic_peptide_mass" in bijux_proteomics.__all__
     assert "calculate_fragment_ions" in bijux_proteomics.__all__
     assert "modification_registry" in bijux_proteomics.__all__
