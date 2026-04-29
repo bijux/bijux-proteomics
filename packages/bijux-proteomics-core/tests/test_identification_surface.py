@@ -16,6 +16,7 @@ from bijux_proteomics import (
     TargetDecoyLabelPolicy,
     apply_q_values,
     assign_confidence_labels,
+    assign_level_specific_confidence_labels,
     assign_razor_peptides,
     build_calibration_plot_data,
     build_fdr_audit_trail,
@@ -506,6 +507,38 @@ def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels()
     assert len(level_report.protein_entries) == 5
     assert len(grouped_report.groups) == 1
     assert grouped_report.groups[0].group_key == "z2"
+
+
+def test_level_specific_confidence_labels_keep_evidence_levels_separate() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+
+    confidence = assign_level_specific_confidence_labels(
+        report.accepted_records,
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+
+    assert confidence.psm_assignments
+    assert confidence.peptide_assignments
+    assert confidence.protein_assignments
+    assert {
+        entry.evidence_level.value for entry in confidence.psm_assignments
+    } == {"psm"}
+    assert {
+        entry.evidence_level.value for entry in confidence.peptide_assignments
+    } == {"peptide"}
+    assert {
+        entry.evidence_level.value for entry in confidence.protein_assignments
+    } == {"protein"}
+    assert confidence.psm_assignments[0].entity_id.startswith("scan=")
+    assert "GLYGLYK" in {
+        entry.entity_id for entry in confidence.peptide_assignments
+    }
+    assert "P11111" in {
+        entry.entity_id for entry in confidence.protein_assignments
+    }
 
 
 def test_fdr_monotonicity_verification_covers_supported_levels() -> None:

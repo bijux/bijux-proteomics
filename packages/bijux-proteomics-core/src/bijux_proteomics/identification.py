@@ -505,6 +505,34 @@ class ConfidenceAssignment(JsonModel):
     explanation: str = Field(..., min_length=1)
 
 
+class LevelSpecificConfidenceAssignment(JsonModel):
+    """Confidence assignment for one explicit evidence level."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_level: FdrEvidenceLevel
+    entity_id: str = Field(..., min_length=1)
+    q_value: float = Field(..., ge=0.0)
+    label: ConfidenceLabel
+    explanation: str = Field(..., min_length=1)
+
+
+class LevelSpecificConfidenceReport(JsonModel):
+    """Separate confidence assignments for PSM, peptide, and protein levels."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    psm_assignments: tuple[LevelSpecificConfidenceAssignment, ...] = Field(
+        default_factory=tuple
+    )
+    peptide_assignments: tuple[LevelSpecificConfidenceAssignment, ...] = Field(
+        default_factory=tuple
+    )
+    protein_assignments: tuple[LevelSpecificConfidenceAssignment, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class PsmSummaryReport(JsonModel):
     """Compact search-result summary over normalized PSM records."""
 
@@ -2223,6 +2251,86 @@ def assign_confidence_labels(
             )
         )
     return tuple(assignments)
+
+
+def _assign_level_specific_confidence(
+    entries: tuple[FdrLevelEntry, ...],
+    *,
+    evidence_level: FdrEvidenceLevel,
+    high_threshold: float,
+    medium_threshold: float,
+) -> tuple[LevelSpecificConfidenceAssignment, ...]:
+    assignments: list[LevelSpecificConfidenceAssignment] = []
+    for entry in entries:
+        if entry.target_decoy_label is TargetDecoyLabel.DECOY:
+            label = ConfidenceLabel.DECOY
+            explanation = "decoy evidence is never promoted to biological confidence"
+        elif entry.q_value <= high_threshold:
+            label = ConfidenceLabel.HIGH
+            explanation = (
+                f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the high-confidence threshold"
+            )
+        elif entry.q_value <= medium_threshold:
+            label = ConfidenceLabel.MEDIUM
+            explanation = (
+                f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the medium-confidence threshold"
+            )
+        elif entry.accepted:
+            label = ConfidenceLabel.LOW
+            explanation = (
+                f"{evidence_level.value} q-value {entry.q_value:.4f} passes FDR but misses the medium-confidence threshold"
+            )
+        else:
+            label = ConfidenceLabel.REJECTED
+            explanation = (
+                f"{evidence_level.value} q-value {entry.q_value:.4f} does not pass the requested acceptance threshold"
+            )
+        assignments.append(
+            LevelSpecificConfidenceAssignment(
+                evidence_level=evidence_level,
+                entity_id=entry.entity_id,
+                q_value=entry.q_value,
+                label=label,
+                explanation=explanation,
+            )
+        )
+    return tuple(assignments)
+
+
+def assign_level_specific_confidence_labels(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float | None = 0.05,
+    score_orientation: str = "higher_better",
+    high_threshold: float = 0.01,
+    medium_threshold: float = 0.05,
+) -> LevelSpecificConfidenceReport:
+    """Assign separate confidence labels for PSM, peptide, and protein evidence."""
+    level_report = calculate_level_specific_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    return LevelSpecificConfidenceReport(
+        psm_assignments=_assign_level_specific_confidence(
+            level_report.psm_entries,
+            evidence_level=FdrEvidenceLevel.PSM,
+            high_threshold=high_threshold,
+            medium_threshold=medium_threshold,
+        ),
+        peptide_assignments=_assign_level_specific_confidence(
+            level_report.peptide_entries,
+            evidence_level=FdrEvidenceLevel.PEPTIDE,
+            high_threshold=high_threshold,
+            medium_threshold=medium_threshold,
+        ),
+        protein_assignments=_assign_level_specific_confidence(
+            level_report.protein_entries,
+            evidence_level=FdrEvidenceLevel.PROTEIN,
+            high_threshold=high_threshold,
+            medium_threshold=medium_threshold,
+        ),
+    )
 
 
 def build_search_result_provenance_manifest(

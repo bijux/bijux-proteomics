@@ -53,6 +53,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "verify_fdr_q_value_monotonicity" in bijux_proteomics.__all__
     assert "normalize_psm_score_orientation" in bijux_proteomics.__all__
     assert "calculate_level_specific_fdr" in bijux_proteomics.__all__
+    assert "assign_level_specific_confidence_labels" in bijux_proteomics.__all__
     assert "calculate_grouped_fdr" in bijux_proteomics.__all__
     assert "calculate_picked_protein_fdr" in bijux_proteomics.__all__
     assert "build_protein_groups" in bijux_proteomics.__all__
