@@ -299,6 +299,45 @@ class MultiplexChannelBalanceReport(JsonModel):
     entries: tuple[MultiplexChannelBalanceEntry, ...] = Field(default_factory=tuple)
 
 
+class ProteinQuantAssignmentPolicy(StrEnum):
+    """Shared-peptide handling policies for protein-level quant rollups."""
+
+    INFERENCE_INCLUSIVE = "inference_inclusive"
+    QUANT_UNIQUE_ONLY = "quant_unique_only"
+    QUANT_SPLIT_SHARED = "quant_split_shared"
+
+
+class ProteinQuantPolicyValue(JsonModel):
+    """One protein/sample abundance under one explicit assignment policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assignment_policy: ProteinQuantAssignmentPolicy
+    abundance: float | None = Field(default=None, ge=0.0)
+    contributing_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    shared_peptide_count: int = Field(..., ge=0)
+
+
+class ProteinQuantPolicyComparisonEntry(JsonModel):
+    """One explicit policy comparison for a protein/sample quant rollup."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    policy_values: tuple[ProteinQuantPolicyValue, ...] = Field(default_factory=tuple)
+    max_abundance_difference: float = Field(..., ge=0.0)
+
+
+class ProteinQuantPolicyComparisonReport(JsonModel):
+    """Comparison of protein-level quant outcomes across assignment policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policies: tuple[ProteinQuantAssignmentPolicy, ...] = Field(default_factory=tuple)
+    entries: tuple[ProteinQuantPolicyComparisonEntry, ...] = Field(default_factory=tuple)
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -1160,6 +1199,94 @@ def build_multiplex_channel_balance_report(
                 key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
             )
         ),
+    )
+
+
+def _protein_quant_assignment_targets(
+    record: Ms1FeatureRecord,
+    *,
+    assignment_policy: ProteinQuantAssignmentPolicy,
+) -> tuple[tuple[str, float], ...]:
+    if not record.protein_refs or record.intensity is None:
+        return ()
+    if assignment_policy is ProteinQuantAssignmentPolicy.INFERENCE_INCLUSIVE:
+        return tuple((protein_ref, float(record.intensity)) for protein_ref in record.protein_refs)
+    if assignment_policy is ProteinQuantAssignmentPolicy.QUANT_UNIQUE_ONLY:
+        if len(record.protein_refs) == 1:
+            return ((record.protein_refs[0], float(record.intensity)),)
+        return ()
+    split_intensity = float(record.intensity) / len(record.protein_refs)
+    return tuple((protein_ref, split_intensity) for protein_ref in record.protein_refs)
+
+
+def build_protein_quant_policy_comparison_report(
+    records: tuple[Ms1FeatureRecord, ...],
+    *,
+    policies: tuple[ProteinQuantAssignmentPolicy, ...] = (
+        ProteinQuantAssignmentPolicy.INFERENCE_INCLUSIVE,
+        ProteinQuantAssignmentPolicy.QUANT_UNIQUE_ONLY,
+        ProteinQuantAssignmentPolicy.QUANT_SPLIT_SHARED,
+    ),
+) -> ProteinQuantPolicyComparisonReport:
+    """Compare protein-level quant results under explicit shared-peptide policies."""
+    per_policy: dict[
+        ProteinQuantAssignmentPolicy,
+        dict[tuple[str, str], list[tuple[Ms1FeatureRecord, float]]],
+    ] = {}
+    proteins: set[str] = set()
+    sample_ids: set[str] = set()
+    for policy in policies:
+        grouped: dict[tuple[str, str], list[tuple[Ms1FeatureRecord, float]]] = defaultdict(list)
+        for record in records:
+            sample_ids.add(record.sample_id)
+            for protein_ref, intensity in _protein_quant_assignment_targets(
+                record,
+                assignment_policy=policy,
+            ):
+                proteins.add(protein_ref)
+                grouped[(protein_ref, record.sample_id)].append((record, intensity))
+        per_policy[policy] = grouped
+
+    entries: list[ProteinQuantPolicyComparisonEntry] = []
+    for protein_ref in sorted(proteins):
+        for sample_id in sorted(sample_ids):
+            values: list[ProteinQuantPolicyValue] = []
+            abundances: list[float] = []
+            for policy in policies:
+                bucket = sorted(
+                    per_policy[policy].get((protein_ref, sample_id), ()),
+                    key=lambda item: (item[0].canonical_peptide, item[0].feature_id),
+                )
+                abundance = float(sum(intensity for _, intensity in bucket)) if bucket else None
+                if abundance is not None:
+                    abundances.append(abundance)
+                values.append(
+                    ProteinQuantPolicyValue(
+                        assignment_policy=policy,
+                        abundance=abundance,
+                        contributing_peptides=tuple(
+                            dict.fromkeys(record.canonical_peptide for record, _ in bucket)
+                        ),
+                        shared_peptide_count=sum(
+                            1
+                            for record, _ in bucket
+                            if len(record.protein_refs) > 1
+                        ),
+                    )
+                )
+            entries.append(
+                ProteinQuantPolicyComparisonEntry(
+                    protein_ref=protein_ref,
+                    sample_id=sample_id,
+                    policy_values=tuple(values),
+                    max_abundance_difference=(
+                        max(abundances) - min(abundances) if abundances else 0.0
+                    ),
+                )
+            )
+    return ProteinQuantPolicyComparisonReport(
+        policies=policies,
+        entries=tuple(entries),
     )
 
 

@@ -21,6 +21,8 @@ from bijux_proteomics import (
     MissingValueSummaryPolicy,
     MultiplexChannelBalanceReport,
     NormalizationMethod,
+    ProteinQuantAssignmentPolicy,
+    ProteinQuantPolicyComparisonReport,
     QuantEntityLevel,
     QuantRollupMethod,
     QuantAssessmentDisposition,
@@ -32,6 +34,7 @@ from bijux_proteomics import (
     build_label_free_provenance_bundle,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
+    build_protein_quant_policy_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
     build_replicate_correlation_report,
@@ -490,6 +493,31 @@ def test_multiplex_normalization_and_channel_balance_follow_group_policy() -> No
     assert carrier.flagged is True
     assert carrier.channel_role is LabelBasedChannelRole.REFERENCE
     assert control.flagged is False
+
+
+def test_protein_quant_policy_comparison_makes_shared_peptide_assumptions_explicit() -> (
+    None
+):
+    feature_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+
+    comparison = build_protein_quant_policy_comparison_report(
+        feature_report.accepted_records
+    )
+
+    assert isinstance(comparison, ProteinQuantPolicyComparisonReport)
+    p001_c1 = next(
+        entry
+        for entry in comparison.entries
+        if entry.protein_ref == "P001" and entry.sample_id == "C1"
+    )
+    values = {
+        value.assignment_policy: value.abundance for value in p001_c1.policy_values
+    }
+
+    assert values[ProteinQuantAssignmentPolicy.INFERENCE_INCLUSIVE] == 2200.0
+    assert values[ProteinQuantAssignmentPolicy.QUANT_UNIQUE_ONLY] == 1900.0
+    assert values[ProteinQuantAssignmentPolicy.QUANT_SPLIT_SHARED] == 2050.0
+    assert p001_c1.max_abundance_difference == 300.0
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (
