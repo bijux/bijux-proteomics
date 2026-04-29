@@ -128,6 +128,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_proteomics_workflow_manifest" in bijux_proteomics.__all__
     assert "build_reproducible_workflow_blueprint" in bijux_proteomics.__all__
     assert "build_workflow_manifest_explanation_report" in bijux_proteomics.__all__
+    assert "build_workflow_rerun_comparison_artifact" in bijux_proteomics.__all__
     assert "build_workflow_step_provenance_report" in bijux_proteomics.__all__
     assert "build_workflow_replay_proof_report" in bijux_proteomics.__all__
     assert "build_workflow_runtime_archive_bundle" in bijux_proteomics.__all__
@@ -172,6 +173,8 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ProteomicsOperatorErrorCode" in bijux_proteomics.__all__
     assert "ProteomicsWorkflowManifest" in bijux_proteomics.__all__
     assert "ReproducibleWorkflowBlueprint" in bijux_proteomics.__all__
+    assert "RerunArtifactDriftEntry" in bijux_proteomics.__all__
+    assert "RerunComparisonScope" in bijux_proteomics.__all__
     assert "WorkflowManifestExplanationReport" in bijux_proteomics.__all__
     assert "WorkflowStepProvenanceReport" in bijux_proteomics.__all__
     assert "WorkflowStepReplayDisposition" in bijux_proteomics.__all__
@@ -196,6 +199,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "WorkflowResumeKind" in bijux_proteomics.__all__
     assert "WorkflowRuntimeArchiveBundle" in bijux_proteomics.__all__
     assert "WorkflowRuntimeArchiveImportReport" in bijux_proteomics.__all__
+    assert "WorkflowRerunComparisonArtifact" in bijux_proteomics.__all__
     assert "WorkflowRuntimeExportBundle" in bijux_proteomics.__all__
     assert "WorkflowRuntimeValidationIssue" in bijux_proteomics.__all__
     assert "WorkflowRuntimeValidationReport" in bijux_proteomics.__all__

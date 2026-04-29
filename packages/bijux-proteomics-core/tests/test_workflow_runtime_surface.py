@@ -22,6 +22,7 @@ from bijux_proteomics import (
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
     WorkflowResumeKind,
+    RerunComparisonScope,
     WorkflowSchedulerKind,
     WorkflowScientificSurface,
     WorkflowStepKind,
@@ -39,6 +40,7 @@ from bijux_proteomics import (
     build_workflow_diff_report,
     build_workflow_execution_readiness_report,
     build_workflow_manifest_explanation_report,
+    build_workflow_rerun_comparison_artifact,
     build_workflow_replay_proof_report,
     build_workflow_run_directory_layout,
     build_workflow_runtime_archive_bundle,
@@ -513,6 +515,51 @@ def test_import_workflow_runtime_archive_bundle_restores_export_and_provenance()
         export_bundle.artifact_inventory.artifacts
     )
     assert report.portable_review_ready is True
+
+
+def test_workflow_rerun_comparison_artifact_tracks_same_sample_drift() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    previous_export = build_workflow_runtime_export_bundle(bundle)
+    current_export = build_workflow_runtime_export_bundle(
+        bundle.model_copy(
+            update={
+                "artifact_inventory": bundle.artifact_inventory.model_copy(
+                    update={
+                        "artifacts": (
+                            bundle.artifact_inventory.artifacts[0].model_copy(
+                                update={"relative_path": "digest/manifest-rerun.json"}
+                            ),
+                            *bundle.artifact_inventory.artifacts[1:],
+                        )
+                    }
+                )
+            }
+        )
+    )
+    previous_archive = build_workflow_runtime_archive_bundle(previous_export)
+    current_archive = build_workflow_runtime_archive_bundle(current_export)
+
+    comparison = build_workflow_rerun_comparison_artifact(
+        previous_archive,
+        current_archive,
+        comparison_scope=RerunComparisonScope.SAME_SAMPLE,
+        subject_id="sample-A",
+    )
+
+    assert comparison.comparison_scope is RerunComparisonScope.SAME_SAMPLE
+    assert "artifact_inventory" in comparison.changed_surfaces
+    assert comparison.drifted_artifacts
+    assert comparison.drifted_artifacts[0].current_relative_path.endswith(
+        "manifest-rerun.json"
+    )
 
 
 def test_runtime_validation_report_confirms_bundle_integrity() -> None:

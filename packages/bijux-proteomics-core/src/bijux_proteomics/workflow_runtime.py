@@ -857,6 +857,45 @@ class WorkflowRuntimeArchiveImportReport(JsonModel):
     portable_review_ready: bool
 
 
+class RerunComparisonScope(StrEnum):
+    """Long-lived scope for comparing repeated workflow executions."""
+
+    SAME_SAMPLE = "same_sample"
+    SAME_STUDY = "same_study"
+
+
+class RerunArtifactDriftEntry(JsonModel):
+    """One archived artifact that drifted across repeated workflow executions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    previous_relative_path: str = Field(..., min_length=1)
+    current_relative_path: str = Field(..., min_length=1)
+    previous_provenance_sha256: str = Field(..., min_length=64, max_length=64)
+    current_provenance_sha256: str = Field(..., min_length=64, max_length=64)
+
+
+class WorkflowRerunComparisonArtifact(JsonModel):
+    """Portable comparison artifact for same-sample or same-study reruns."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    comparison_scope: RerunComparisonScope
+    subject_id: str = Field(..., min_length=1)
+    previous_archive_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    current_archive_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    replay_proof: WorkflowReplayProofReport
+    changed_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    stable_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    drifted_artifacts: tuple[RerunArtifactDriftEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: str = Field(..., min_length=1)
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -3143,6 +3182,79 @@ def import_workflow_runtime_archive_bundle(
         }
     )
     return archive_bundle.export_bundle, report
+
+
+def build_workflow_rerun_comparison_artifact(
+    previous_archive: WorkflowRuntimeArchiveBundle,
+    current_archive: WorkflowRuntimeArchiveBundle,
+    *,
+    comparison_scope: RerunComparisonScope,
+    subject_id: str,
+) -> WorkflowRerunComparisonArtifact:
+    """Build a portable comparison artifact for repeated workflow executions."""
+    if previous_archive.workflow_id != current_archive.workflow_id:
+        raise ValueError("rerun comparison requires matching workflow_id values")
+
+    replay_proof = build_workflow_replay_proof_report(
+        previous_archive.export_bundle,
+        current_archive.export_bundle,
+    )
+    previous_artifacts = {
+        artifact.artifact_id: artifact
+        for artifact in previous_archive.archived_artifacts
+    }
+    current_artifacts = {
+        artifact.artifact_id: artifact
+        for artifact in current_archive.archived_artifacts
+    }
+    drifted_artifacts = tuple(
+        RerunArtifactDriftEntry(
+            artifact_id=artifact_id,
+            previous_relative_path=previous_artifacts[artifact_id].relative_path,
+            current_relative_path=current_artifacts[artifact_id].relative_path,
+            previous_provenance_sha256=previous_artifacts[
+                artifact_id
+            ].provenance_sha256,
+            current_provenance_sha256=current_artifacts[artifact_id].provenance_sha256,
+        )
+        for artifact_id in sorted(previous_artifacts)
+        if artifact_id in current_artifacts
+        and (
+            previous_artifacts[artifact_id].provenance_sha256
+            != current_artifacts[artifact_id].provenance_sha256
+            or previous_artifacts[artifact_id].relative_path
+            != current_artifacts[artifact_id].relative_path
+        )
+    )
+    changed_surfaces = tuple(
+        entry.surface for entry in replay_proof.entries if entry.changed
+    )
+    stable_surfaces = tuple(
+        entry.surface for entry in replay_proof.entries if not entry.changed
+    )
+    payload = WorkflowRerunComparisonArtifact(
+        document_schema=_build_document_schema("workflow_rerun_comparison_artifact"),
+        workflow_id=previous_archive.workflow_id,
+        comparison_scope=comparison_scope,
+        subject_id=subject_id,
+        previous_archive_bundle_sha256=previous_archive.archive_bundle_sha256,
+        current_archive_bundle_sha256=current_archive.archive_bundle_sha256,
+        replay_proof=replay_proof,
+        changed_surfaces=changed_surfaces,
+        stable_surfaces=stable_surfaces,
+        drifted_artifacts=drifted_artifacts,
+        summary=(
+            f"{comparison_scope.value} rerun changed {len(changed_surfaces)} governed surfaces "
+            f"and {len(drifted_artifacts)} archived artifacts"
+        ),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
 
 
 def _workflow_runtime_export_bundle_hash(
