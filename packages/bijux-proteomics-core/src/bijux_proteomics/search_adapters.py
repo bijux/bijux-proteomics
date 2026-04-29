@@ -286,6 +286,19 @@ class SearchAdapterConformanceCheck(JsonModel):
     detail: str = Field(..., min_length=1)
 
 
+class SearchAdapterFieldAccounting(JsonModel):
+    """Field-level accounting over one adapter normalization pass."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_columns: tuple[str, ...] = Field(default_factory=tuple)
+    mapped_columns: tuple[str, ...] = Field(default_factory=tuple)
+    preserved_native_only_columns: tuple[str, ...] = Field(default_factory=tuple)
+    unsupported_columns: tuple[str, ...] = Field(default_factory=tuple)
+    lost_columns: tuple[str, ...] = Field(default_factory=tuple)
+    mapped_field_roles: dict[str, str] = Field(default_factory=dict)
+
+
 class SearchAdapterConformanceReport(JsonModel):
     """Stable conformance report for one adapter normalization run."""
 
@@ -295,6 +308,7 @@ class SearchAdapterConformanceReport(JsonModel):
     accepted_rows: int = Field(..., ge=0)
     rejected_rows: int = Field(..., ge=0)
     rejection_issue_counts: dict[str, int] = Field(default_factory=dict)
+    field_accounting: SearchAdapterFieldAccounting
     checks: tuple[SearchAdapterConformanceCheck, ...] = Field(default_factory=tuple)
     passes: bool
     fdr_audit_trail: FdrAuditTrail | None = None
@@ -988,6 +1002,44 @@ def _build_evidence_rows(
     return tuple(entries)
 
 
+def _mapped_field_roles(mapping: SearchResultColumnMapping) -> dict[str, str]:
+    return {
+        role_name: column_name
+        for role_name, column_name in (
+            ("spectrum_id", mapping.spectrum_id),
+            ("peptide", mapping.peptide),
+            ("charge", mapping.charge),
+            ("score", mapping.score),
+            ("q_value", mapping.q_value),
+            ("protein_refs", mapping.protein_refs),
+            ("decoy_label", mapping.decoy_label),
+        )
+        if column_name is not None
+    }
+
+
+def build_search_adapter_field_accounting(
+    normalization_report: SearchAdapterNormalizationReport,
+) -> SearchAdapterFieldAccounting:
+    """Summarize mapped, preserved, unsupported, and lost adapter fields."""
+    mapping = normalization_report.parse_report.column_mapping
+    mapped_columns = set(_mapped_column_names(mapping))
+    source_columns = set(normalization_report.source_columns)
+    supported_columns = (
+        set(normalization_report.adapter_manifest.native_columns) or mapped_columns
+    )
+    return SearchAdapterFieldAccounting(
+        source_columns=tuple(normalization_report.source_columns),
+        mapped_columns=tuple(sorted(source_columns & mapped_columns)),
+        preserved_native_only_columns=tuple(
+            sorted((source_columns & supported_columns) - mapped_columns)
+        ),
+        unsupported_columns=tuple(sorted(source_columns - supported_columns)),
+        lost_columns=tuple(sorted(supported_columns - source_columns)),
+        mapped_field_roles=_mapped_field_roles(mapping),
+    )
+
+
 _SUPPORTED_ENZYMES = {
     "trypsin",
     "trypsin/p",
@@ -1502,6 +1554,7 @@ def build_search_adapter_conformance_report(
 ) -> SearchAdapterConformanceReport:
     """Build a stable conformance report over one adapter normalization run."""
     manifest = normalization_report.adapter_manifest
+    field_accounting = build_search_adapter_field_accounting(normalization_report)
     rejection_issue_counts: dict[str, int] = {}
     for rejected in normalization_report.parse_report.rejected_rows:
         for issue in rejected.issues:
@@ -1559,6 +1612,11 @@ def build_search_adapter_conformance_report(
             passed=rejection_issue_counts.get("invalid_q_value", 0) == 0,
             detail="adapter input should not contain invalid q-value rows for conformance-grade fixtures",
         ),
+        SearchAdapterConformanceCheck(
+            code="expected_native_fields_present",
+            passed=not field_accounting.lost_columns,
+            detail="adapter-declared native columns should be present in conformance-grade source tables",
+        ),
     ]
     fdr_audit_trail = build_fdr_audit_trail(
         normalization_report.normalized_records,
@@ -1573,6 +1631,7 @@ def build_search_adapter_conformance_report(
         accepted_rows=len(normalization_report.parse_report.accepted_records),
         rejected_rows=len(normalization_report.parse_report.rejected_rows),
         rejection_issue_counts=dict(sorted(rejection_issue_counts.items())),
+        field_accounting=field_accounting,
         checks=tuple(checks),
         passes=all(check.passed for check in checks),
         fdr_audit_trail=fdr_audit_trail,

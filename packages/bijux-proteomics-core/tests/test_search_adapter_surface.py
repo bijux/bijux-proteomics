@@ -9,6 +9,7 @@ from pathlib import Path
 from bijux_proteomics import (
     ScoreOrientation,
     SearchAdapterDialectManifest,
+    SearchAdapterFieldAccounting,
     SearchAdapterKind,
     SearchNormalizedEvidenceEntry,
     SearchResultColumnMapping,
@@ -331,3 +332,58 @@ def test_search_adapter_conformance_reports_rejection_and_unknown_label_failures
     assert explicit_check.passed is False
     assert conformance.fdr_audit_trail is not None
     assert conformance.calibration_plot is not None
+
+
+def test_adapter_conformance_reports_mapped_preserved_and_unsupported_fields() -> (
+    None
+):
+    dialect = SearchAdapterDialectManifest(
+        adapter_kind=SearchAdapterKind.SAGE,
+        dialect_id="conformance-fields",
+        display_name="Sage conformance fields",
+        description="Expose preserved and unsupported native columns for conformance accounting.",
+        native_columns=(
+            "scan_id",
+            "stripped_peptide",
+            "precursor_charge",
+            "score_discriminant",
+            "protein_group",
+            "decoy_flag",
+            "qvalue",
+            "analysis_batch",
+            "missing_runtime_tag",
+        ),
+        mapping=SearchResultColumnMapping(
+            spectrum_id="scan_id",
+            peptide="stripped_peptide",
+            charge="precursor_charge",
+            score="score_discriminant",
+            protein_refs="protein_group",
+            q_value="qvalue",
+            decoy_label="decoy_flag",
+            protein_separator=";",
+        ),
+    )
+    report = normalize_search_results_with_adapter(
+        source_path=_fixture("sage_conformance_fields.tsv"),
+        adapter_kind=SearchAdapterKind.SAGE,
+        dialect_id="conformance-fields",
+        additional_dialects=(dialect,),
+    )
+    conformance = build_search_adapter_conformance_report(report)
+
+    assert isinstance(conformance.field_accounting, SearchAdapterFieldAccounting)
+    assert conformance.field_accounting.mapped_columns == (
+        "decoy_flag",
+        "precursor_charge",
+        "protein_group",
+        "qvalue",
+        "scan_id",
+        "score_discriminant",
+        "stripped_peptide",
+    )
+    assert conformance.field_accounting.preserved_native_only_columns == (
+        "analysis_batch",
+    )
+    assert conformance.field_accounting.unsupported_columns == ("novel_metric",)
+    assert conformance.field_accounting.lost_columns == ("missing_runtime_tag",)
