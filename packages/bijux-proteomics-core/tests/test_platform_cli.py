@@ -200,9 +200,11 @@ def test_digest_command_writes_export_and_manifest(
         payload = json.loads(result.output)
         assert payload["protease"] == "trypsin"
         assert payload["output_peptide_count"] > 0
+        assert len(payload["policy_hash"]) == 64
         assert Path("peptides.jsonl").exists()
         manifest = json.loads(Path("digest.manifest.json").read_text())
         assert manifest["document_schema"]["document_kind"] == "peptide_digest_manifest"
+        assert manifest["policy_hash"] == payload["policy_hash"]
 
 
 def test_digest_command_reports_invalid_protease_and_invalid_fasta(

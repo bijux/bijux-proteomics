@@ -21,6 +21,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "digest_sequence" in bijux_proteomics.__all__
     assert "DigestDuplicateAccounting" in bijux_proteomics.__all__
     assert "build_digest_duplicate_accounting" in bijux_proteomics.__all__
+    assert "DigestPolicy" in bijux_proteomics.__all__
+    assert "build_digest_policy" in bijux_proteomics.__all__
+    assert "compute_digest_policy_hash" in bijux_proteomics.__all__
     assert "protease_registry" in bijux_proteomics.__all__
     assert "build_peptide_protein_index" in bijux_proteomics.__all__
     assert "PeptideOriginCoordinate" in bijux_proteomics.__all__

@@ -159,6 +159,8 @@ class PeptideDigestManifest(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     document_schema: DocumentSchema
+    digest_policy: "DigestPolicy"
+    policy_hash: str = Field(..., min_length=64, max_length=64)
     protease: str = Field(..., min_length=1)
     digestion_mode: PeptideDigestionMode
     missed_cleavages: int = Field(..., ge=0)
@@ -184,6 +186,24 @@ class DigestBenchmarkReport(JsonModel):
     elapsed_seconds: float = Field(..., ge=0.0)
     peak_memory_bytes: int | None = Field(default=None, ge=0)
     peptides_per_second: float = Field(..., ge=0.0)
+
+
+class DigestPolicy(JsonModel):
+    """Stable digestion assumptions that must survive export and rerun."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protease: str = Field(..., min_length=1)
+    cleavage_mode: ProteaseCleavageMode
+    cleavage_residues: str = Field(..., min_length=1)
+    blocked_by_next: str = ""
+    blocked_by_previous: str = ""
+    digestion_mode: PeptideDigestionMode
+    missed_cleavages: int = Field(..., ge=0)
+    min_length: int | None = None
+    max_length: int | None = None
+    min_mass: float | None = None
+    max_mass: float | None = None
 
 
 _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
@@ -655,6 +675,40 @@ def peptide_export_fingerprint(peptides: tuple[DigestedPeptide, ...]) -> str:
     ).hexdigest()
 
 
+def build_digest_policy(
+    *,
+    protease: ProteaseRule | str,
+    digestion_mode: PeptideDigestionMode,
+    missed_cleavages: int,
+    min_length: int | None,
+    max_length: int | None,
+    min_mass: float | None,
+    max_mass: float | None,
+) -> DigestPolicy:
+    """Build the stable digestion policy contract for one run."""
+    rule = get_protease_rule(protease) if isinstance(protease, str) else protease
+    return DigestPolicy(
+        protease=rule.name,
+        cleavage_mode=rule.cleavage_mode,
+        cleavage_residues=rule.cleavage_residues,
+        blocked_by_next=rule.blocked_by_next,
+        blocked_by_previous=rule.blocked_by_previous,
+        digestion_mode=digestion_mode,
+        missed_cleavages=missed_cleavages,
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+    )
+
+
+def compute_digest_policy_hash(policy: DigestPolicy) -> str:
+    """Return a stable hash over digestion assumptions."""
+    return hashlib.sha256(
+        json.dumps(policy.to_dict(), sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+
 def build_digest_manifest(
     *,
     peptides: tuple[DigestedPeptide, ...],
@@ -669,6 +723,15 @@ def build_digest_manifest(
     input_record_count: int,
 ) -> PeptideDigestManifest:
     """Build a stable digestion manifest."""
+    digest_policy = build_digest_policy(
+        protease=protease,
+        digestion_mode=digestion_mode,
+        missed_cleavages=missed_cleavages,
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+    )
     source_sha256 = (
         hashlib.sha256(source_path.read_bytes()).hexdigest()
         if source_path is not None
@@ -682,6 +745,8 @@ def build_digest_manifest(
     )
     manifest = PeptideDigestManifest(
         document_schema=schema,
+        digest_policy=digest_policy,
+        policy_hash=compute_digest_policy_hash(digest_policy),
         protease=protease,
         digestion_mode=digestion_mode,
         missed_cleavages=missed_cleavages,

@@ -850,6 +850,7 @@ def digest_command(
             "output_peptide_count": len(peptides),
             "protease": protease_rule.name,
             "digestion_mode": digestion_mode,
+            "policy_hash": manifest.policy_hash,
             "export_format": export_format,
             "output_sha256": peptide_export_fingerprint(peptides),
             "output_path": str(out_path),

@@ -11,6 +11,8 @@ from bijux_proteomics import (
     PeptideDigestionMode,
     build_digest_benchmark_report,
     build_digest_manifest,
+    build_digest_policy,
+    compute_digest_policy_hash,
     digest_protein_records,
     export_peptides_jsonl,
     export_peptides_parquet,
@@ -50,8 +52,26 @@ def test_digest_protein_records_and_manifest_are_stable(
     assert manifest.protease == "trypsin"
     assert manifest.input_record_count == 3
     assert manifest.output_peptide_count == len(peptides)
+    assert manifest.digest_policy.protease == "trypsin"
+    assert manifest.policy_hash == compute_digest_policy_hash(manifest.digest_policy)
     assert manifest.output_sha256 == peptide_export_fingerprint(peptides)
     assert manifest.document_schema.document_kind == "peptide_digest_manifest"
+
+
+def test_digest_policy_hash_captures_exact_cleavage_and_filter_assumptions() -> None:
+    policy = build_digest_policy(
+        protease="trypsin",
+        digestion_mode=PeptideDigestionMode.FULL,
+        missed_cleavages=1,
+        min_length=7,
+        max_length=30,
+        min_mass=500.0,
+        max_mass=3000.0,
+    )
+
+    assert policy.cleavage_residues == "KR"
+    assert policy.blocked_by_next == "P"
+    assert compute_digest_policy_hash(policy) == compute_digest_policy_hash(policy)
 
 
 def test_digest_exports_write_stable_tsv_and_jsonl(
