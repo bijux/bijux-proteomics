@@ -66,6 +66,22 @@ from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     TargetDecoyLabelPolicy,
 )
+from bijux_proteomics.quantification import (
+    apply_benjamini_hochberg,
+    build_batch_effect_advisory,
+    build_differential_abundance_report,
+    build_label_free_intensity_table,
+    build_replicate_correlation_report,
+    build_spectral_count_table,
+    Ms1FeatureColumnMapping,
+    NormalizationMethod,
+    normalize_label_free_table,
+    parse_ms1_feature_table,
+    QuantEntityLevel,
+    QuantMeasureKind,
+    QuantRollupMethod,
+    summarize_missing_values,
+)
 from bijux_proteomics.search_adapters import (
     build_search_adapter_conformance_report,
     build_search_adapter_capability_matrix,
@@ -174,6 +190,22 @@ def _search_adapter_choice() -> click.Choice:
 
 def _score_orientation_choice() -> click.Choice:
     return click.Choice([orientation.value for orientation in ScoreOrientation], case_sensitive=False)
+
+
+def _quant_entity_level_choice() -> click.Choice:
+    return click.Choice([level.value for level in QuantEntityLevel], case_sensitive=False)
+
+
+def _quant_measure_choice() -> click.Choice:
+    return click.Choice([measure.value for measure in QuantMeasureKind], case_sensitive=False)
+
+
+def _quant_rollup_choice() -> click.Choice:
+    return click.Choice([method.value for method in QuantRollupMethod], case_sensitive=False)
+
+
+def _normalization_choice() -> click.Choice:
+    return click.Choice([method.value for method in NormalizationMethod], case_sensitive=False)
 
 
 def _build_psm_mapping(
@@ -1059,6 +1091,153 @@ def infer_proteins_command(
         "database_uniqueness": uniqueness_payload,
     }
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("quantify")
+@click.argument("input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "--measure",
+    type=_quant_measure_choice(),
+    default=QuantMeasureKind.INTENSITY.value,
+    show_default=True,
+)
+@click.option(
+    "--entity-level",
+    type=_quant_entity_level_choice(),
+    default=QuantEntityLevel.PROTEIN.value,
+    show_default=True,
+)
+@click.option(
+    "--aggregation",
+    type=_quant_rollup_choice(),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option("--retention-time-column", default="retention_time_seconds", show_default=True)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--design", "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--report-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def quantify_command(
+    input_table: Path,
+    measure: str,
+    entity_level: str,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str | None,
+    charge_column: str | None,
+    mz_column: str | None,
+    retention_time_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    design_path: Path | None,
+    condition_a: str | None,
+    condition_b: str | None,
+    report_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build a quantification matrix and optional differential report from MS1 features."""
+    try:
+        mapping = Ms1FeatureColumnMapping(
+            sample_id=sample_column,
+            feature_id=feature_id_column,
+            peptide=peptide_column,
+            intensity=intensity_column,
+            protein_refs=protein_refs_column,
+            charge=charge_column,
+            mz=mz_column,
+            retention_time_seconds=retention_time_column,
+            missing_reason=missing_reason_column,
+            protein_separator=protein_separator,
+        )
+        parse_report = parse_ms1_feature_table(
+            input_table,
+            mapping=mapping,
+        )
+        quant_entity_level = QuantEntityLevel(entity_level)
+        quant_measure = QuantMeasureKind(measure)
+        rollup_method = QuantRollupMethod(aggregation)
+        if quant_measure is QuantMeasureKind.SPECTRAL_COUNT:
+            table = build_spectral_count_table(
+                parse_report.accepted_records,
+                entity_level=quant_entity_level,
+            )
+        else:
+            table = build_label_free_intensity_table(
+                parse_report.accepted_records,
+                entity_level=quant_entity_level,
+                aggregation_method=rollup_method,
+                top_n=top_n,
+            )
+            table = normalize_label_free_table(
+                table,
+                method=NormalizationMethod(normalization),
+            )
+        missing_summary = summarize_missing_values(table)
+        design_entries = ()
+        batch_effect = None
+        replicate_correlations = None
+        differential = None
+        if design_path is not None:
+            design_report = parse_experimental_design_table(design_path)
+            if design_report.rejected_rows:
+                raise click.ClickException("design table contains rejected rows")
+            design_entries = design_report.accepted_entries
+            batch_effect = build_batch_effect_advisory(table, design_entries)
+            replicate_correlations = build_replicate_correlation_report(table, design_entries)
+            if quant_measure is QuantMeasureKind.INTENSITY:
+                differential = apply_benjamini_hochberg(
+                    build_differential_abundance_report(
+                        table,
+                        design_entries,
+                        condition_a=condition_a,
+                        condition_b=condition_b,
+                    )
+                )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    payload = {
+        "accepted_features": len(parse_report.accepted_records),
+        "rejected_features": len(parse_report.rejected_rows),
+        "table": table.to_dict(),
+        "missing_summary": missing_summary.to_dict(),
+        "design_entries": len(design_entries),
+        "batch_effect": batch_effect.to_dict() if batch_effect is not None else None,
+        "replicate_correlations": (
+            replicate_correlations.to_dict() if replicate_correlations is not None else None
+        ),
+        "differential_abundance": differential.to_dict() if differential is not None else None,
+    }
+    _emit_json(payload, out_path=report_out or out_path)
 
 
 @cli.command("spectrum-stats")

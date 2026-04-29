@@ -693,3 +693,48 @@ def test_infer_proteins_command_emits_grouping_and_coverage_artifacts() -> None:
         assert {entry["protein_ref"] for entry in payload["parsimony_proteins"]} == {"P11111", "P22222", "P33333"}
         assert any(entry["canonical_peptide"] == "SHAREDK" for entry in payload["razor_assignments"])
         assert any(entry["protein_ref"] == "P11111" for entry in payload["protein_coverage"])
+
+
+def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--normalization",
+                "median",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_features"] == 32
+        assert payload["rejected_features"] == 0
+        assert payload["table"]["entity_level"] == "protein"
+        assert payload["table"]["normalization_method"] == "median"
+        assert payload["missing_summary"]["entries"][0]["zero_count"] == 1
+        assert payload["batch_effect"]["disposition"] == "ADVISORY"
+        assert payload["replicate_correlations"]["entries"]
+        assert payload["differential_abundance"]["condition_a"] == "control"
+        assert any(
+            entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0
+            for entry in payload["differential_abundance"]["entries"]
+        )
