@@ -1,0 +1,34 @@
+{
+  "documents": [
+    {
+      "availability": "available",
+      "content": null,
+      "document_kind": "evidence_bundle",
+      "guard_limit_bytes": 256000,
+      "note": "document is available for review",
+      "path": "<workspace>/artifacts/fixture-a/artifacts/evidence_bundle.json",
+      "run_id": "fixture-a",
+      "sha256": "e759b3d66d857ec7ec1dba77e333dd5aa4ffb05cf69264aefdeadfe2224d7dee",
+      "size_bytes": 37
+    },
+    {
+      "availability": "available",
+      "content": null,
+      "document_kind": "evidence_bundle",
+      "guard_limit_bytes": 256000,
+      "note": "document is available for review",
+      "path": "<workspace>/artifacts/fixture-b/artifacts/evidence_bundle.json",
+      "run_id": "fixture-b",
+      "sha256": "0afd7072b165699f57c9359313438de05e295d85dfbabace1c380da27b1b56bc",
+      "size_bytes": 37
+    }
+  ],
+  "page": {
+    "cursor": null,
+    "next_cursor": null,
+    "page_size": 20,
+    "query_cost_units": 22,
+    "returned_count": 2,
+    "scanned_count": 2
+  }
+}
