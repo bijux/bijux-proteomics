@@ -70,6 +70,14 @@ class SearchScoreFamily(StrEnum):
     GENERIC_NUMERIC = "generic_numeric"
 
 
+class SearchResultFamily(StrEnum):
+    """Explicit search result families across database and library workflows."""
+
+    DATABASE_TARGET_DECOY = "database_target_decoy"
+    LIBRARY_SEARCH = "library_search"
+    MIXED_TARGET_LIBRARY = "mixed_target_library"
+
+
 class SearchAdapterManifest(JsonModel):
     """Stable contract describing one search adapter."""
 
@@ -80,6 +88,7 @@ class SearchAdapterManifest(JsonModel):
     description: str = Field(..., min_length=1)
     score_orientation: ScoreOrientation
     score_family: SearchScoreFamily = SearchScoreFamily.GENERIC_NUMERIC
+    result_family: SearchResultFamily = SearchResultFamily.DATABASE_TARGET_DECOY
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     mapping: SearchResultColumnMapping | None = None
     default_decoy_policy: TargetDecoyLabelPolicy = Field(
@@ -102,6 +111,7 @@ class SearchAdapterDialectManifest(JsonModel):
     display_name: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
     score_family: SearchScoreFamily = SearchScoreFamily.GENERIC_NUMERIC
+    result_family: SearchResultFamily = SearchResultFamily.DATABASE_TARGET_DECOY
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     mapping: SearchResultColumnMapping
 
@@ -115,6 +125,7 @@ class SearchAdapterCapability(JsonModel):
     display_name: str = Field(..., min_length=1)
     score_orientation: ScoreOrientation
     score_family: SearchScoreFamily
+    result_family: SearchResultFamily
     supports_q_value: bool
     supports_explicit_decoy_label: bool
     supports_protein_refs: bool
@@ -128,6 +139,7 @@ class SearchAdapterNormalizationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     adapter_manifest: SearchAdapterManifest
+    family_policy: "SearchResultFamilyPolicy"
     source_columns: tuple[str, ...] = Field(default_factory=tuple)
     parse_report: PsmParseReport
     normalized_records: tuple[PsmRecord, ...] = Field(default_factory=tuple)
@@ -150,6 +162,8 @@ class SearchAdapterProvenanceManifest(JsonModel):
     config_path: str | None = None
     config_sha256: str | None = None
     parameter_report: SearchParameterReport | None = None
+    result_family: SearchResultFamily
+    family_policy: "SearchResultFamilyPolicy"
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     score_orientation: ScoreOrientation
     parse_provenance: SearchResultProvenanceManifest
@@ -167,6 +181,18 @@ class SearchNormalizedEvidenceEntry(JsonModel):
     unmapped_native_fields: dict[str, str] = Field(default_factory=dict)
     normalized_record: PsmRecord | None = None
     issues: tuple[SearchResultValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class SearchResultFamilyPolicy(JsonModel):
+    """Explicit policy expectations for one search result family."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    result_family: SearchResultFamily
+    requires_target_decoy_evidence: bool
+    requires_protein_references: bool
+    allows_library_style_scores: bool
+    note: str = Field(..., min_length=1)
 
 
 class SearchModificationDefinition(JsonModel):
@@ -234,6 +260,8 @@ class SearchResultComparabilityReport(JsonModel):
     right_adapter_kind: SearchAdapterKind
     left_score_family: SearchScoreFamily
     right_score_family: SearchScoreFamily
+    left_result_family: SearchResultFamily
+    right_result_family: SearchResultFamily
     score_family_compatible: bool
     score_family_note: str = Field(..., min_length=1)
     left_total_psms: int = Field(..., ge=0)
@@ -279,6 +307,7 @@ _COMET_MANIFEST = SearchAdapterManifest(
     description="Normalize Comet-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.LOWER_BETTER,
     score_family=SearchScoreFamily.EXPECTATION_VALUE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "scan",
         "plain_peptide",
@@ -312,6 +341,7 @@ _MSFRAGGER_MANIFEST = SearchAdapterManifest(
     description="Normalize MSFragger-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
     score_family=SearchScoreFamily.HYPERSCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "Spectrum",
         "Peptide",
@@ -345,6 +375,7 @@ _SAGE_MANIFEST = SearchAdapterManifest(
     description="Normalize Sage-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
     score_family=SearchScoreFamily.DISCRIMINANT_SCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "scannr",
         "peptide",
@@ -381,6 +412,7 @@ _MAXQUANT_MANIFEST = SearchAdapterManifest(
     description="Normalize MaxQuant evidence-like tables into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
     score_family=SearchScoreFamily.ENGINE_SCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "MS/MS scan number",
         "Modified sequence",
@@ -417,6 +449,7 @@ _DIANN_MANIFEST = SearchAdapterManifest(
     description="Normalize DIA-NN report-style tables into stable PSM-like records.",
     score_orientation=ScoreOrientation.LOWER_BETTER,
     score_family=SearchScoreFamily.Q_VALUE,
+    result_family=SearchResultFamily.MIXED_TARGET_LIBRARY,
     native_columns=(
         "Precursor.Id",
         "Stripped.Sequence",
@@ -452,6 +485,7 @@ _SPECTRONAUT_MANIFEST = SearchAdapterManifest(
     description="Normalize Spectronaut-like tables into stable PSM-like records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
     score_family=SearchScoreFamily.CONFIDENCE_SCORE,
+    result_family=SearchResultFamily.MIXED_TARGET_LIBRARY,
     native_columns=(
         "EG.PrecursorId",
         "PEP.StrippedSequence",
@@ -501,6 +535,7 @@ _COMET_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     display_name="Comet pipeline export",
     description="Normalize a Comet-like pipeline export with renamed expectation columns.",
     score_family=SearchScoreFamily.EXPECTATION_VALUE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "scan_num",
         "peptide_sequence",
@@ -526,6 +561,7 @@ _MSFRAGGER_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     display_name="MSFragger pipeline export",
     description="Normalize an MSFragger-like pipeline export with renamed hyperscore fields.",
     score_family=SearchScoreFamily.HYPERSCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "spectrum_key",
         "plain_peptide",
@@ -551,6 +587,7 @@ _SAGE_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     display_name="Sage pipeline export",
     description="Normalize a Sage-like pipeline export with renamed score fields.",
     score_family=SearchScoreFamily.DISCRIMINANT_SCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "scan_id",
         "stripped_peptide",
@@ -578,6 +615,7 @@ _MAXQUANT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     display_name="MaxQuant pipeline export",
     description="Normalize a MaxQuant-like pipeline export with simplified evidence columns.",
     score_family=SearchScoreFamily.ENGINE_SCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
     native_columns=(
         "scan_number",
         "sequence_with_mods",
@@ -605,6 +643,7 @@ _DIANN_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     display_name="DIA-NN pipeline export",
     description="Normalize a DIA-NN-like pipeline export with simplified report columns.",
     score_family=SearchScoreFamily.Q_VALUE,
+    result_family=SearchResultFamily.MIXED_TARGET_LIBRARY,
     native_columns=(
         "precursor_id",
         "sequence",
@@ -631,6 +670,7 @@ _SPECTRONAUT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     display_name="Spectronaut pipeline export",
     description="Normalize a Spectronaut-like pipeline export with simplified precursor columns.",
     score_family=SearchScoreFamily.CONFIDENCE_SCORE,
+    result_family=SearchResultFamily.MIXED_TARGET_LIBRARY,
     native_columns=(
         "precursor_key",
         "stripped_sequence",
@@ -662,6 +702,7 @@ def _default_dialect_from_manifest(
         display_name=manifest.display_name,
         description=manifest.description,
         score_family=manifest.score_family,
+        result_family=manifest.result_family,
         native_columns=manifest.native_columns,
         mapping=manifest.mapping,
     )
@@ -752,6 +793,7 @@ def _manifest_for_dialect(
             "description": dialect.description,
             "display_name": dialect.display_name,
             "score_family": dialect.score_family,
+            "result_family": dialect.result_family,
             "native_columns": dialect.native_columns,
             "mapping": dialect.mapping,
         }
@@ -766,6 +808,7 @@ def build_search_adapter_capability_matrix() -> tuple[SearchAdapterCapability, .
             display_name=manifest.display_name,
             score_orientation=manifest.score_orientation,
             score_family=manifest.score_family,
+            result_family=manifest.result_family,
             supports_q_value=manifest.supports_q_value,
             supports_explicit_decoy_label=manifest.supports_explicit_decoy_label,
             supports_protein_refs=manifest.supports_protein_refs,
@@ -791,6 +834,35 @@ def _score_families_compatible(
     return (
         False,
         f"score families {left.value} and {right.value} are orientation-normalizable but not natively interchangeable",
+    )
+
+
+def build_search_result_family_policy(
+    manifest: SearchAdapterManifest,
+) -> SearchResultFamilyPolicy:
+    """Build the explicit policy for one adapter result family."""
+    if manifest.result_family is SearchResultFamily.DATABASE_TARGET_DECOY:
+        return SearchResultFamilyPolicy(
+            result_family=manifest.result_family,
+            requires_target_decoy_evidence=True,
+            requires_protein_references=manifest.supports_protein_refs,
+            allows_library_style_scores=False,
+            note="database target-decoy search results should preserve decoy evidence and protein references when the engine provides them",
+        )
+    if manifest.result_family is SearchResultFamily.LIBRARY_SEARCH:
+        return SearchResultFamilyPolicy(
+            result_family=manifest.result_family,
+            requires_target_decoy_evidence=False,
+            requires_protein_references=manifest.supports_protein_refs,
+            allows_library_style_scores=True,
+            note="library search results may rank by spectral-library confidence without explicit target-decoy evidence on every row",
+        )
+    return SearchResultFamilyPolicy(
+        result_family=manifest.result_family,
+        requires_target_decoy_evidence=False,
+        requires_protein_references=manifest.supports_protein_refs,
+        allows_library_style_scores=True,
+        note="mixed target and library search results must keep their hybrid family explicit so downstream review does not assume pure database semantics",
     )
 
 
@@ -1330,6 +1402,7 @@ def normalize_search_results_with_adapter(
     )
     return SearchAdapterNormalizationReport(
         adapter_manifest=manifest,
+        family_policy=build_search_result_family_policy(manifest),
         source_columns=source_columns,
         parse_report=parse_report,
         normalized_records=normalize_psm_records(parse_report.accepted_records),
@@ -1403,6 +1476,8 @@ def compare_search_result_reports(
         right_adapter_kind=right.adapter_manifest.adapter_kind,
         left_score_family=left.adapter_manifest.score_family,
         right_score_family=right.adapter_manifest.score_family,
+        left_result_family=left.adapter_manifest.result_family,
+        right_result_family=right.adapter_manifest.result_family,
         score_family_compatible=score_family_compatible,
         score_family_note=score_family_note,
         left_total_psms=len(left.normalized_records),
@@ -1545,6 +1620,8 @@ def build_search_adapter_provenance_manifest(
         config_path=str(config_path) if config_path is not None else None,
         config_sha256=_hash_file(config_path),
         parameter_report=parameter_report,
+        result_family=normalization_report.adapter_manifest.result_family,
+        family_policy=normalization_report.family_policy,
         native_columns=normalization_report.adapter_manifest.native_columns,
         score_orientation=normalization_report.adapter_manifest.score_orientation,
         parse_provenance=parse_provenance,

@@ -12,7 +12,9 @@ from bijux_proteomics import (
     SearchAdapterKind,
     SearchNormalizedEvidenceEntry,
     SearchResultColumnMapping,
+    SearchResultFamily,
     SearchScoreFamily,
+    build_search_result_family_policy,
     build_search_adapter_capability_matrix,
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
@@ -41,6 +43,10 @@ def test_search_adapter_registry_exposes_capability_matrix() -> None:
     assert (
         by_kind[SearchAdapterKind.COMET].score_family
         is SearchScoreFamily.EXPECTATION_VALUE
+    )
+    assert (
+        by_kind[SearchAdapterKind.DIANN].result_family
+        is SearchResultFamily.MIXED_TARGET_LIBRARY
     )
     assert by_kind[SearchAdapterKind.SAGE].supports_q_value is True
     assert by_kind[SearchAdapterKind.GENERIC].supports_config_hash is True
@@ -148,6 +154,10 @@ def test_normalization_report_preserves_raw_engine_evidence_rows() -> None:
     assert accepted_row.mapped_field_values["score"] == "15.2"
     assert accepted_row.unmapped_native_fields == {}
     assert accepted_row.normalized_record is not None
+    assert (
+        report.family_policy.result_family
+        is SearchResultFamily.DATABASE_TARGET_DECOY
+    )
 
 
 def test_engine_specific_adapters_normalize_psm_contracts() -> None:
@@ -212,6 +222,7 @@ def test_generic_adapter_and_provenance_manifest_are_stable() -> None:
     assert provenance.config_sha256
     assert provenance.parameter_report is not None
     assert provenance.parameter_report.decoy_prefix == "DECOY_"
+    assert provenance.result_family is SearchResultFamily.DATABASE_TARGET_DECOY
     assert provenance.parse_provenance.column_mapping.spectrum_id == "scannr"
 
 
@@ -284,8 +295,22 @@ def test_search_result_comparability_normalizes_score_orientation() -> None:
     assert report.shared_spectrum_count == 2
     assert report.exact_match_count == 2
     assert report.label_conflict_count == 0
+    assert report.left_result_family is SearchResultFamily.DATABASE_TARGET_DECOY
     assert report.score_family_compatible is True
     assert report.peptide_agreement_fraction == 1.0
+
+
+def test_mixed_target_library_results_keep_explicit_family_policy() -> None:
+    report = normalize_search_results_with_adapter(
+        source_path=_fixture("diann_report.tsv"),
+        adapter_kind=SearchAdapterKind.DIANN,
+    )
+    policy = build_search_result_family_policy(report.adapter_manifest)
+
+    assert report.adapter_manifest.result_family is SearchResultFamily.MIXED_TARGET_LIBRARY
+    assert report.family_policy == policy
+    assert policy.requires_target_decoy_evidence is False
+    assert policy.allows_library_style_scores is True
 
 
 def test_search_adapter_conformance_reports_rejection_and_unknown_label_failures() -> (
