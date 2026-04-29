@@ -193,6 +193,39 @@ class WorkflowManifestExplanationReport(JsonModel):
     entries: tuple[WorkflowManifestExplanationEntry, ...] = Field(default_factory=tuple)
 
 
+class WorkflowStepReplayDisposition(StrEnum):
+    """How one workflow step is treated during resume or replay."""
+
+    REUSED = "reused"
+    REPLAYED = "replayed"
+    PENDING = "pending"
+
+
+class WorkflowStepProvenanceEntry(JsonModel):
+    """Per-step provenance that survives resume and replay workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    step_kind: WorkflowStepKind
+    status: WorkflowCheckpointStatus
+    resume_kind: WorkflowResumeKind
+    replay_disposition: WorkflowStepReplayDisposition
+    upstream_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    expected_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class WorkflowStepProvenanceReport(JsonModel):
+    """Reviewable step provenance across checkpointed workflow state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    entries: tuple[WorkflowStepProvenanceEntry, ...] = Field(default_factory=tuple)
+
+
 class CoreResultRuntimeBinding(JsonModel):
     """One binding between a core result surface and runtime materialization."""
 
@@ -1265,6 +1298,53 @@ def build_workflow_manifest_explanation_report(
         document_schema=_build_document_schema("workflow_manifest_explanation_report"),
         workflow_id=manifest.workflow_id,
         entries=entries,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_step_provenance_report(
+    manifest: ProteomicsWorkflowManifest,
+    *,
+    checkpoint: WorkflowCheckpoint,
+    replayed_step_ids: tuple[str, ...] = (),
+) -> WorkflowStepProvenanceReport:
+    """Build per-step provenance that remains valid across resume and replay."""
+    checkpoint_by_id = {entry.step_id: entry for entry in checkpoint.steps}
+    replayed = set(replayed_step_ids)
+    entries = []
+    for step in manifest.steps:
+        checkpoint_entry = checkpoint_by_id[step.step_id]
+        if step.step_id in replayed:
+            replay_disposition = WorkflowStepReplayDisposition.REPLAYED
+            note = "step is marked for replay even though checkpoint provenance is preserved"
+        elif checkpoint_entry.status is WorkflowCheckpointStatus.COMPLETED:
+            replay_disposition = WorkflowStepReplayDisposition.REUSED
+            note = "completed step may be reused according to checkpoint provenance"
+        else:
+            replay_disposition = WorkflowStepReplayDisposition.PENDING
+            note = "step has not yet been materialized and remains pending or blocked"
+        entries.append(
+            WorkflowStepProvenanceEntry(
+                step_id=step.step_id,
+                step_kind=step.kind,
+                status=checkpoint_entry.status,
+                resume_kind=checkpoint_entry.resume_kind,
+                replay_disposition=replay_disposition,
+                upstream_step_ids=step.depends_on,
+                expected_artifact_ids=checkpoint_entry.expected_artifact_ids,
+                note=note,
+            )
+        )
+    payload = WorkflowStepProvenanceReport(
+        document_schema=_build_document_schema("workflow_step_provenance_report"),
+        workflow_id=manifest.workflow_id,
+        entries=tuple(entries),
     )
     return payload.model_copy(
         update={

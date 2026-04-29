@@ -128,6 +128,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_proteomics_workflow_manifest" in bijux_proteomics.__all__
     assert "build_reproducible_workflow_blueprint" in bijux_proteomics.__all__
     assert "build_workflow_manifest_explanation_report" in bijux_proteomics.__all__
+    assert "build_workflow_step_provenance_report" in bijux_proteomics.__all__
     assert "build_proteomics_dag_plan" in bijux_proteomics.__all__
     assert "build_containerized_step_specs" in bijux_proteomics.__all__
     assert "build_workflow_cache_miss_explanation_report" in bijux_proteomics.__all__
@@ -164,6 +165,8 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ProteomicsWorkflowManifest" in bijux_proteomics.__all__
     assert "ReproducibleWorkflowBlueprint" in bijux_proteomics.__all__
     assert "WorkflowManifestExplanationReport" in bijux_proteomics.__all__
+    assert "WorkflowStepProvenanceReport" in bijux_proteomics.__all__
+    assert "WorkflowStepReplayDisposition" in bijux_proteomics.__all__
     assert "WorkflowScientificSurface" in bijux_proteomics.__all__
     assert "ProteomicsDagPlan" in bijux_proteomics.__all__
     assert "CoreResultRuntimeBinding" in bijux_proteomics.__all__

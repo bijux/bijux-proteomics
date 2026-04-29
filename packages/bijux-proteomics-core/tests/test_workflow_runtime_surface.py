@@ -14,6 +14,7 @@ from bijux_proteomics import (
     build_reproducible_workflow_blueprint,
     build_workflow_manifest_explanation_report,
     build_workflow_run_directory_layout,
+    build_workflow_step_provenance_report,
     build_workflow_runtime_validation_report,
     build_workflow_runtime_state_manifest,
     WorkflowCacheMissReason,
@@ -23,6 +24,8 @@ from bijux_proteomics import (
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
     WorkflowSchedulerKind,
+    WorkflowStepReplayDisposition,
+    WorkflowStepProvenanceReport,
     WorkflowStepKind,
     WorkflowStreamingMode,
     WorkflowResumeKind,
@@ -122,6 +125,42 @@ def test_workflow_manifest_explanation_report_makes_configuration_choices_explic
         "inputs",
         "quantification",
     } <= categories
+
+
+def test_workflow_step_provenance_report_survives_resume_and_replay() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        completed_step_ids=(
+            "sample-a-generic-workflow-validate-inputs",
+            "sample-a-generic-workflow-digest-database",
+        ),
+    )
+
+    report = build_workflow_step_provenance_report(
+        bundle.manifest,
+        checkpoint=bundle.checkpoint,
+        replayed_step_ids=("sample-a-generic-workflow-digest-database",),
+    )
+
+    assert isinstance(report, WorkflowStepProvenanceReport)
+    replayed = next(
+        entry
+        for entry in report.entries
+        if entry.step_id == "sample-a-generic-workflow-digest-database"
+    )
+    reused = next(
+        entry
+        for entry in report.entries
+        if entry.step_id == "sample-a-generic-workflow-validate-inputs"
+    )
+    assert replayed.replay_disposition is WorkflowStepReplayDisposition.REPLAYED
+    assert reused.replay_disposition is WorkflowStepReplayDisposition.REUSED
 
 
 def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (
