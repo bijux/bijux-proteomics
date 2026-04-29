@@ -395,6 +395,14 @@ class GroupedFdrReport(JsonModel):
     groups: tuple[GroupedFdrBucket, ...] = Field(default_factory=tuple)
 
 
+class SharedPeptideAmbiguityReason(StrEnum):
+    """Reason a protein group remains ambiguous."""
+
+    INDISTINGUISHABLE_MEMBERS = "indistinguishable_members"
+    EXTERNAL_SHARED_PEPTIDES = "external_shared_peptides"
+    MIXED = "mixed"
+
+
 class ProteinGroupEntry(JsonModel):
     """One indistinguishable protein group from shared peptide evidence."""
 
@@ -409,6 +417,28 @@ class ProteinGroupEntry(JsonModel):
     best_score: float
     best_q_value: float | None = Field(default=None, ge=0.0)
     target_decoy_label: TargetDecoyLabel
+
+
+class SharedPeptideAmbiguityEntry(JsonModel):
+    """Explanation for why a protein group remains ambiguous."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    shared_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    unique_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    outside_group_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    reason: SharedPeptideAmbiguityReason
+    explanation: str = Field(..., min_length=1)
+
+
+class SharedPeptideAmbiguityReport(JsonModel):
+    """Ambiguity explanations over the protein groups implied by peptide sharing."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[SharedPeptideAmbiguityEntry, ...] = Field(default_factory=tuple)
 
 
 class ParsimonyProteinEntry(JsonModel):
@@ -2089,6 +2119,70 @@ def build_protein_groups(
             )
         )
     return tuple(entries)
+
+
+def build_shared_peptide_ambiguity_report(
+    records: tuple[PsmRecord, ...],
+) -> SharedPeptideAmbiguityReport:
+    """Explain why protein groups remain ambiguous under shared peptide evidence."""
+    peptide_rollups = {
+        rollup.canonical_peptide: rollup for rollup in rollup_peptide_evidence(records)
+    }
+    entries: list[SharedPeptideAmbiguityEntry] = []
+    for group in build_protein_groups(records):
+        shared_peptides = tuple(
+            sorted(
+                peptide
+                for peptide in group.peptides
+                if len(peptide_rollups[peptide].protein_refs) > 1
+            )
+        )
+        if not shared_peptides and len(group.protein_refs) == 1:
+            continue
+        unique_peptides = tuple(
+            sorted(
+                peptide
+                for peptide in group.peptides
+                if len(peptide_rollups[peptide].protein_refs) == 1
+            )
+        )
+        outside_group_proteins = tuple(
+            sorted(
+                {
+                    protein_ref
+                    for peptide in shared_peptides
+                    for protein_ref in peptide_rollups[peptide].protein_refs
+                    if protein_ref not in group.protein_refs
+                }
+            )
+        )
+        if len(group.protein_refs) > 1 and outside_group_proteins:
+            reason = SharedPeptideAmbiguityReason.MIXED
+            explanation = (
+                f"group {group.group_id} has indistinguishable members and shared peptides that also map outside the group"
+            )
+        elif len(group.protein_refs) > 1:
+            reason = SharedPeptideAmbiguityReason.INDISTINGUISHABLE_MEMBERS
+            explanation = (
+                f"group {group.group_id} contains proteins with the same observed peptide evidence"
+            )
+        else:
+            reason = SharedPeptideAmbiguityReason.EXTERNAL_SHARED_PEPTIDES
+            explanation = (
+                f"group {group.group_id} is connected to outside proteins only through shared peptide evidence"
+            )
+        entries.append(
+            SharedPeptideAmbiguityEntry(
+                group_id=group.group_id,
+                protein_refs=group.protein_refs,
+                shared_peptides=shared_peptides,
+                unique_peptides=unique_peptides,
+                outside_group_proteins=outside_group_proteins,
+                reason=reason,
+                explanation=explanation,
+            )
+        )
+    return SharedPeptideAmbiguityReport(entries=tuple(entries))
 
 
 def assign_razor_peptides(

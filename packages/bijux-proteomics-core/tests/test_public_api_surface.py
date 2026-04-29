@@ -58,6 +58,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "calculate_grouped_fdr" in bijux_proteomics.__all__
     assert "calculate_picked_protein_fdr" in bijux_proteomics.__all__
     assert "build_protein_groups" in bijux_proteomics.__all__
+    assert "build_shared_peptide_ambiguity_report" in bijux_proteomics.__all__
     assert "infer_proteins_by_parsimony" in bijux_proteomics.__all__
     assert "assign_razor_peptides" in bijux_proteomics.__all__
     assert "build_protein_coverage_map" in bijux_proteomics.__all__

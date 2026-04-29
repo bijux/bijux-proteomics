@@ -26,6 +26,7 @@ from bijux_proteomics import (
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
     build_protein_groups,
+    build_shared_peptide_ambiguity_report,
     build_protein_summary_report,
     build_psm_summary_report,
     build_search_result_provenance_manifest,
@@ -603,6 +604,23 @@ def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
     assert {entry.protein_ref for entry in parsimony} == {"P11111", "P22222", "P33333"}
     assert shared_assignment.assigned_protein == "P11111"
     assert shared_assignment.rationale == "unique_evidence_priority"
+
+
+def test_shared_peptide_ambiguity_report_explains_group_membership() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+
+    ambiguity = build_shared_peptide_ambiguity_report(report.accepted_records)
+
+    mixed_entry = next(
+        entry
+        for entry in ambiguity.entries
+        if entry.protein_refs == ("P22222", "P44444")
+    )
+    assert mixed_entry.reason.value == "mixed"
+    assert mixed_entry.shared_peptides == ("GLYGLYK", "SHAREDK")
+    assert mixed_entry.outside_group_proteins == ("P11111",)
 
 
 def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> (
