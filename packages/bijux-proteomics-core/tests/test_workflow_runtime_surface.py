@@ -12,6 +12,7 @@ from bijux_proteomics import (
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_external_tool_capability_report,
+    build_workflow_diff_report,
     build_workflow_execution_readiness_report,
     build_reproducible_workflow_blueprint,
     build_workflow_manifest_explanation_report,
@@ -25,6 +26,8 @@ from bijux_proteomics import (
     WorkflowScientificSurface,
     WorkflowExecutionMode,
     WorkflowExecutionReadinessReport,
+    WorkflowDiffCategory,
+    WorkflowDiffReport,
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
     WorkflowSchedulerKind,
@@ -211,6 +214,31 @@ def test_workflow_execution_readiness_refuses_missing_tool_versions_and_resource
         "tool_versions_unavailable",
         "resource_guarantee_missing",
     }
+
+
+def test_workflow_diff_report_separates_scientific_and_operational_changes() -> None:
+    left = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        default_container_image="ghcr.io/bijux/proteomics-runtime:v1",
+    )
+    right = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.SAGE,
+        default_container_image="ghcr.io/bijux/proteomics-runtime:v2",
+    )
+
+    report = build_workflow_diff_report(left, right)
+
+    assert isinstance(report, WorkflowDiffReport)
+    assert any(entry.category is WorkflowDiffCategory.SCIENTIFIC for entry in report.entries)
+    assert any(entry.category is WorkflowDiffCategory.OPERATIONAL for entry in report.entries)
 
 
 def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (

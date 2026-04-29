@@ -270,6 +270,36 @@ class WorkflowExecutionReadinessReport(JsonModel):
     issues: tuple[WorkflowExecutionReadinessIssue, ...] = Field(default_factory=tuple)
 
 
+class WorkflowDiffCategory(StrEnum):
+    """Whether a workflow difference is scientific or operational."""
+
+    SCIENTIFIC = "scientific"
+    OPERATIONAL = "operational"
+
+
+class WorkflowDiffEntry(JsonModel):
+    """One explicit difference between two workflow manifests."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    field_name: str = Field(..., min_length=1)
+    category: WorkflowDiffCategory
+    left_value: str | None = None
+    right_value: str | None = None
+    note: str = Field(..., min_length=1)
+
+
+class WorkflowDiffReport(JsonModel):
+    """Scientific and operational difference report over two workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    left_workflow_id: str = Field(..., min_length=1)
+    right_workflow_id: str = Field(..., min_length=1)
+    entries: tuple[WorkflowDiffEntry, ...] = Field(default_factory=tuple)
+
+
 class CoreResultRuntimeBinding(JsonModel):
     """One binding between a core result surface and runtime materialization."""
 
@@ -1510,6 +1540,106 @@ def build_workflow_execution_readiness_report(
         workflow_id=manifest.workflow_id,
         ready=not any(issue.severity == "error" for issue in issues),
         issues=tuple(issues),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_diff_report(
+    left: ProteomicsWorkflowManifest,
+    right: ProteomicsWorkflowManifest,
+) -> WorkflowDiffReport:
+    """Compare two workflow manifests scientifically and operationally."""
+    left_assets = {asset.role: asset for asset in left.input_assets}
+    right_assets = {asset.role: asset for asset in right.input_assets}
+    entries: list[WorkflowDiffEntry] = []
+    for role in sorted(set(left_assets) | set(right_assets), key=lambda item: item.value):
+        left_asset = left_assets.get(role)
+        right_asset = right_assets.get(role)
+        left_hash = left_asset.sha256 if left_asset is not None else None
+        right_hash = right_asset.sha256 if right_asset is not None else None
+        if left_hash != right_hash:
+            entries.append(
+                WorkflowDiffEntry(
+                    field_name=f"input:{role.value}",
+                    category=WorkflowDiffCategory.SCIENTIFIC,
+                    left_value=left_hash,
+                    right_value=right_hash,
+                    note="scientific input content changed for this workflow role",
+                )
+            )
+    comparisons = (
+        (
+            "execution_mode",
+            WorkflowDiffCategory.SCIENTIFIC,
+            left.execution_mode.value,
+            right.execution_mode.value,
+            "workflow changed between imported results and external execution semantics",
+        ),
+        (
+            "search_adapter_kind",
+            WorkflowDiffCategory.SCIENTIFIC,
+            left.search_adapter_kind.value,
+            right.search_adapter_kind.value,
+            "search interpretation surface changed across workflow manifests",
+        ),
+        (
+            "runtime_policies",
+            WorkflowDiffCategory.SCIENTIFIC,
+            "|".join(left.runtime_policies),
+            "|".join(right.runtime_policies),
+            "scientific or runtime policy assumptions changed",
+        ),
+        (
+            "scheduler",
+            WorkflowDiffCategory.OPERATIONAL,
+            left.scheduler.value,
+            right.scheduler.value,
+            "scheduler configuration changed",
+        ),
+        (
+            "container_image",
+            WorkflowDiffCategory.OPERATIONAL,
+            left.default_container_image,
+            right.default_container_image,
+            "container runtime assumption changed",
+        ),
+        (
+            "artifacts_dir",
+            WorkflowDiffCategory.OPERATIONAL,
+            left.artifacts_dir,
+            right.artifacts_dir,
+            "artifact materialization path changed",
+        ),
+        (
+            "step_ids",
+            WorkflowDiffCategory.OPERATIONAL,
+            "|".join(step.step_id for step in left.steps),
+            "|".join(step.step_id for step in right.steps),
+            "workflow step graph changed",
+        ),
+    )
+    for field_name, category, left_value, right_value, note in comparisons:
+        if left_value != right_value:
+            entries.append(
+                WorkflowDiffEntry(
+                    field_name=field_name,
+                    category=category,
+                    left_value=left_value,
+                    right_value=right_value,
+                    note=note,
+                )
+            )
+    payload = WorkflowDiffReport(
+        document_schema=_build_document_schema("workflow_diff_report"),
+        left_workflow_id=left.workflow_id,
+        right_workflow_id=right.workflow_id,
+        entries=tuple(entries),
     )
     return payload.model_copy(
         update={
