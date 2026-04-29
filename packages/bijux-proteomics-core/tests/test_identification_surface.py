@@ -19,6 +19,7 @@ from bijux_proteomics import (
     assign_razor_peptides,
     build_calibration_plot_data,
     build_fdr_audit_trail,
+    build_fdr_edge_case_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
@@ -344,10 +345,43 @@ def test_fdr_reproducibility_and_edge_cases_are_explicit() -> None:
     repeated_hash = compute_fdr_reproducibility_hash(no_decoys, threshold=0.01)
     decoy_hash = compute_fdr_reproducibility_hash(all_decoys, threshold=0.01)
     annotated_decoys = apply_q_values(all_decoys)
+    target_report = build_fdr_edge_case_report(no_decoys)
+    decoy_report = build_fdr_edge_case_report(all_decoys)
 
     assert target_hash == repeated_hash
     assert target_hash != decoy_hash
     assert all(record.q_value == 1.0 for record in annotated_decoys)
+    assert target_report.kind.value == "all_target"
+    assert decoy_report.kind.value == "all_decoy"
+
+
+def test_no_decoy_edge_case_report_is_distinct_from_all_target() -> None:
+    no_decoy_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=20.0,
+            protein_refs=("P1",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-b",
+            peptide="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            charge=2,
+            score=18.0,
+            protein_refs=(),
+            target_decoy_label=TargetDecoyLabel.UNKNOWN,
+        ),
+    )
+
+    report = build_fdr_edge_case_report(no_decoy_records)
+
+    assert report.kind.value == "no_decoy"
+    assert report.decoy_count == 0
+    assert report.unknown_count == 1
 
 
 def test_target_decoy_accession_collisions_are_reported_and_refused() -> None:

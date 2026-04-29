@@ -351,6 +351,30 @@ class FdrQValueMonotonicityReport(JsonModel):
     checks: tuple[FdrQValueMonotonicityCheck, ...] = Field(default_factory=tuple)
 
 
+class FdrEdgeCaseKind(StrEnum):
+    """Explicit edge-case classification for target-decoy result sets."""
+
+    MIXED = "mixed"
+    ALL_TARGET = "all_target"
+    ALL_DECOY = "all_decoy"
+    NO_DECOY = "no_decoy"
+    EMPTY = "empty"
+
+
+class FdrEdgeCaseReport(JsonModel):
+    """Structured report for notable target-decoy edge cases."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: FdrEdgeCaseKind
+    total_records: int = Field(..., ge=0)
+    target_count: int = Field(..., ge=0)
+    decoy_count: int = Field(..., ge=0)
+    mixed_count: int = Field(..., ge=0)
+    unknown_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
 class GroupedFdrBucket(JsonModel):
     """One grouped-FDR bucket with its own ranked entries."""
 
@@ -1272,6 +1296,48 @@ def build_calibration_plot_data(
         score_orientation=score_orientation,
         total_psms=len(records),
         bins=tuple(bins),
+    )
+
+
+def build_fdr_edge_case_report(
+    records: tuple[PsmRecord, ...],
+) -> FdrEdgeCaseReport:
+    """Build an explicit report for all-target, all-decoy, and no-decoy cases."""
+    target_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.TARGET
+    )
+    decoy_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.DECOY
+    )
+    mixed_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.MIXED
+    )
+    unknown_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.UNKNOWN
+    )
+    if not records:
+        kind = FdrEdgeCaseKind.EMPTY
+        note = "no PSM records were provided for FDR evaluation"
+    elif decoy_count == 0 and target_count == len(records):
+        kind = FdrEdgeCaseKind.ALL_TARGET
+        note = "all records are labeled target, so target-decoy separation cannot be checked"
+    elif target_count == 0 and decoy_count == len(records):
+        kind = FdrEdgeCaseKind.ALL_DECOY
+        note = "all records are labeled decoy, so no biological evidence can pass"
+    elif decoy_count == 0:
+        kind = FdrEdgeCaseKind.NO_DECOY
+        note = "no decoy records are present, so FDR behavior is advisory rather than comparative"
+    else:
+        kind = FdrEdgeCaseKind.MIXED
+        note = "target and decoy evidence are both present"
+    return FdrEdgeCaseReport(
+        kind=kind,
+        total_records=len(records),
+        target_count=target_count,
+        decoy_count=decoy_count,
+        mixed_count=mixed_count,
+        unknown_count=unknown_count,
+        note=note,
     )
 
 
