@@ -21,6 +21,7 @@ from bijux_proteomics_knowledge import (
     EvidenceRefreshPriority,
     EvidenceSourceType,
     EvidenceStrength,
+    EvidenceTrustBalanceReport,
     ManualEvidenceNote,
     ProteomicsArtifactFlags,
     QuantitativeSupport,
@@ -54,6 +55,7 @@ from bijux_proteomics_knowledge import (
     summarize_bundle,
     summarize_evidence_provenance,
     summarize_quantitative_coverage,
+    summarize_trust_balance,
     triangulate_evidence,
     validate_bundle_integrity,
     validate_quantitative_support_payload,
@@ -236,6 +238,64 @@ def test_assess_decision_readiness_reports_blockers() -> None:
         "not enough decisive evidence for an irreversible decision"
         in readiness.blockers
     )
+
+
+def test_summarize_trust_balance_separates_quantity_from_quality() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-trust-balance",
+        target_id="target-trust-balance",
+        records=[
+            EvidenceRecord(
+                evidence_id="tb-1",
+                kind=EvidenceKind.LITERATURE,
+                title="paper one",
+                source="PMID:1",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="support one",
+                confidence=0.42,
+                strength=EvidenceStrength.EXPLORATORY,
+            ),
+            EvidenceRecord(
+                evidence_id="tb-2",
+                kind=EvidenceKind.LITERATURE,
+                title="paper two",
+                source="PMID:2",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="support two",
+                confidence=0.44,
+                strength=EvidenceStrength.EXPLORATORY,
+            ),
+            EvidenceRecord(
+                evidence_id="tb-3",
+                kind=EvidenceKind.STRUCTURE,
+                title="model note",
+                source="model",
+                source_type=EvidenceSourceType.STRUCTURE_MODEL,
+                claim="support three",
+                confidence=0.46,
+                strength=EvidenceStrength.EXPLORATORY,
+            ),
+            EvidenceRecord(
+                evidence_id="tb-4",
+                kind=EvidenceKind.ASSAY,
+                title="weak assay",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="support four",
+                confidence=0.48,
+                strength=EvidenceStrength.EXPLORATORY,
+            ),
+        ],
+    )
+
+    report = summarize_trust_balance(bundle)
+
+    assert isinstance(report, EvidenceTrustBalanceReport)
+    assert report.record_count == 4
+    assert report.modality_diversity == 3
+    assert report.quantity_score != report.quality_score
+    assert 0.0 <= report.integrated_trust_score <= 1.0
+    assert "evidence quality exceeds evidence quantity" in report.notes
 
 
 def test_evidence_bundle_round_trips_with_serialization_helpers(tmp_path: Path) -> None:

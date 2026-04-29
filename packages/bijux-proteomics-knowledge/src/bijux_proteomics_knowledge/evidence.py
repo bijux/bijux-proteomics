@@ -449,6 +449,22 @@ class TrustScoreProvenance(JsonModel):
     rules: list[TrustScoreRule] = Field(default_factory=list)
 
 
+class EvidenceTrustBalanceReport(JsonModel):
+    """Separate quantity and quality signals behind one trust outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    target_id: str = Field(..., min_length=1)
+    record_count: int = Field(default=0, ge=0)
+    decisive_record_count: int = Field(default=0, ge=0)
+    modality_diversity: int = Field(default=0, ge=0)
+    quantity_score: float = Field(..., ge=0.0, le=1.0)
+    quality_score: float = Field(..., ge=0.0, le=1.0)
+    integrated_trust_score: float = Field(..., ge=0.0, le=1.0)
+    notes: list[str] = Field(default_factory=list)
+
+
 class TrustPolicy(JsonModel):
     """Explicit policy for evidence trust scoring."""
 
@@ -1661,6 +1677,71 @@ def score_evidence_record(
         * strength_weight
         * stale_penalty,
         4,
+    )
+
+
+def summarize_trust_balance(
+    bundle: EvidenceBundle,
+    *,
+    policy: TrustPolicy | None = None,
+    now: datetime | None = None,
+) -> EvidenceTrustBalanceReport:
+    """Separate trust quantity from trust quality for review workflows."""
+    policy = policy or default_trust_policy()
+    now = now or datetime.now(UTC)
+    trust_report = compute_bundle_trust(bundle, policy=policy)
+    record_count = len(bundle.records)
+    decisive_count = sum(
+        1 for record in bundle.records if record.strength is EvidenceStrength.DECISIVE
+    )
+    modality_diversity = len({record.kind for record in bundle.records})
+    if not bundle.records:
+        return EvidenceTrustBalanceReport(
+            bundle_id=bundle.bundle_id,
+            target_id=bundle.target_id,
+            record_count=0,
+            decisive_record_count=0,
+            modality_diversity=0,
+            quantity_score=0.0,
+            quality_score=0.0,
+            integrated_trust_score=trust_report.trust_score,
+            notes=["bundle is empty so quantity and quality are both absent"],
+        )
+    quantity_score = round(
+        min(
+            1.0,
+            (min(record_count, 8) / 8.0) * 0.45
+            + (decisive_count / record_count) * 0.35
+            + (min(modality_diversity, 4) / 4.0) * 0.2,
+        ),
+        4,
+    )
+    quality_components = [
+        decompose_evidence_quality(record, now=now).derived_confidence
+        for record in bundle.records
+    ]
+    quality_score = round(sum(quality_components) / len(quality_components), 4)
+    notes: list[str] = []
+    if quantity_score > quality_score + 0.1:
+        notes.append("evidence quantity exceeds evidence quality")
+    if quality_score > quantity_score + 0.1:
+        notes.append("evidence quality exceeds evidence quantity")
+    if trust_report.conflicts:
+        notes.append(
+            f"{len(trust_report.conflicts)} detected conflicts reduce integrated trust"
+        )
+    if not notes:
+        notes.append("quantity and quality are balanced for current bundle")
+    return EvidenceTrustBalanceReport(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        record_count=record_count,
+        decisive_record_count=decisive_count,
+        modality_diversity=modality_diversity,
+        quantity_score=quantity_score,
+        quality_score=quality_score,
+        integrated_trust_score=trust_report.trust_score,
+        notes=notes,
     )
 
 
