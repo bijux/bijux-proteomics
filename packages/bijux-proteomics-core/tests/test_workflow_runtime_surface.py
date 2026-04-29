@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics import (
     SearchAdapterKind,
+    build_proteomics_artifact_inventory,
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_workflow_run_directory_layout,
@@ -89,6 +90,7 @@ def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_scri
     assert bundle.run_directory_layout.root_dir == bundle.manifest.artifacts_dir
     assert bundle.cache_manifest.entries
     assert bundle.artifact_registry.artifacts
+    assert bundle.artifact_inventory.artifacts
     assert bundle.parallel_plan.groups[0].step_ids
     assert "#SBATCH --job-name=" in bundle.hpc_job.script_text
     assert len(bundle.hpc_job.descriptor_sha256) == 64
@@ -165,6 +167,28 @@ def test_workflow_run_directory_layout_is_predictable_and_reviewable() -> None:
     assert any(
         entry.relative_path == "bundle/bundle.manifest.json" for entry in layout.entries
     )
+
+
+def test_artifact_inventory_connects_outputs_to_run_and_step_lineage() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    inventory = build_proteomics_artifact_inventory(
+        bundle.manifest,
+        artifact_registry=bundle.artifact_registry,
+        run_directory_layout=bundle.run_directory_layout,
+    )
+
+    assert inventory.run_id == bundle.manifest.run_id
+    assert inventory.artifacts[0].producer_step_id.endswith("digest-database")
+    assert inventory.artifacts[0].relative_path.startswith("digest/")
 
 
 def test_large_file_policy_and_parallel_groups_are_explicit() -> None:

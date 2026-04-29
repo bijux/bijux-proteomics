@@ -413,6 +413,35 @@ class ProteomicsArtifactRegistry(JsonModel):
     artifacts: tuple[ArtifactRegistryEntry, ...] = Field(default_factory=tuple)
 
 
+class ArtifactInventoryEntry(JsonModel):
+    """One produced runtime artifact with run and step lineage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    workflow_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    producer_step_id: str = Field(..., min_length=1)
+    producer_step_kind: WorkflowStepKind
+    artifact_kind: WorkflowArtifactKind
+    relative_path: str = Field(..., min_length=1)
+    absolute_path: str = Field(..., min_length=1)
+    layout_entry_id: str = Field(..., min_length=1)
+    expected_document_kind: str | None = None
+    upstream_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ProteomicsArtifactInventory(JsonModel):
+    """Stable artifact inventory for one workflow run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    artifacts: tuple[ArtifactInventoryEntry, ...] = Field(default_factory=tuple)
+
+
 class StreamingPolicyEntry(JsonModel):
     """Streaming guidance for one workflow input."""
 
@@ -501,6 +530,7 @@ class ProteomicsWorkflowRuntimeBundle(JsonModel):
     hpc_job: HpcJobDescriptor
     cache_manifest: WorkflowCacheManifest
     artifact_registry: ProteomicsArtifactRegistry
+    artifact_inventory: ProteomicsArtifactInventory
     streaming_policy: LargeFileStreamingPolicy
     parallel_plan: ParallelExecutionPlan
     checkpoint: WorkflowCheckpoint
@@ -1518,6 +1548,54 @@ def build_proteomics_artifact_registry(
     )
 
 
+def build_proteomics_artifact_inventory(
+    manifest: ProteomicsWorkflowManifest,
+    *,
+    artifact_registry: ProteomicsArtifactRegistry,
+    run_directory_layout: WorkflowRunDirectoryLayout,
+) -> ProteomicsArtifactInventory:
+    """Bind every produced runtime artifact to one run and one logical step."""
+    step_kind_by_id = {step.step_id: step.kind for step in manifest.steps}
+    layout_entry_by_path = {
+        entry.relative_path: entry
+        for entry in run_directory_layout.entries
+        if entry.path_kind is WorkflowPathKind.FILE
+    }
+    artifacts = tuple(
+        ArtifactInventoryEntry(
+            artifact_id=artifact.artifact_id,
+            workflow_id=manifest.workflow_id,
+            run_id=manifest.run_id,
+            producer_step_id=artifact.producer_step_id,
+            producer_step_kind=step_kind_by_id[artifact.producer_step_id],
+            artifact_kind=artifact.artifact_kind,
+            relative_path=str(Path(artifact.path).relative_to(manifest.artifacts_dir)),
+            absolute_path=artifact.path,
+            layout_entry_id=layout_entry_by_path[
+                str(Path(artifact.path).relative_to(manifest.artifacts_dir))
+            ].entry_id,
+            expected_document_kind=_expected_artifact_document_kind(
+                artifact.artifact_kind
+            ),
+            upstream_artifact_ids=artifact.upstream_artifact_ids,
+        )
+        for artifact in artifact_registry.artifacts
+    )
+    payload = ProteomicsArtifactInventory(
+        document_schema=_build_document_schema("proteomics_artifact_inventory"),
+        workflow_id=manifest.workflow_id,
+        run_id=manifest.run_id,
+        artifacts=artifacts,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
 def build_large_file_streaming_policy(
     manifest: ProteomicsWorkflowManifest,
     *,
@@ -1808,6 +1886,11 @@ def build_proteomics_workflow_runtime_bundle(
         artifact_registry=artifact_registry,
     )
     run_directory_layout = build_workflow_run_directory_layout(manifest)
+    artifact_inventory = build_proteomics_artifact_inventory(
+        manifest,
+        artifact_registry=artifact_registry,
+        run_directory_layout=run_directory_layout,
+    )
     checkpoint = build_workflow_checkpoint(
         manifest,
         artifact_registry=artifact_registry,
@@ -1825,6 +1908,7 @@ def build_proteomics_workflow_runtime_bundle(
         hpc_job=hpc_job,
         cache_manifest=cache_manifest,
         artifact_registry=artifact_registry,
+        artifact_inventory=artifact_inventory,
         streaming_policy=streaming_policy,
         parallel_plan=parallel_plan,
         checkpoint=checkpoint,
