@@ -244,6 +244,64 @@ bijux-proteomics fdr results.tsv \
   --provenance-out fdr.provenance.json
 ```
 
+Label-free quantification is also available from the same package with stable
+feature parsing, protein rollups, normalization, batch advisories, replicate
+correlations, and basic differential abundance output:
+
+```python
+from pathlib import Path
+
+from bijux_proteomics import (
+    apply_benjamini_hochberg,
+    build_differential_abundance_report,
+    build_label_free_intensity_table,
+    normalize_label_free_table,
+    NormalizationMethod,
+    parse_experimental_design_table,
+    parse_ms1_feature_table,
+    QuantEntityLevel,
+    QuantRollupMethod,
+)
+
+feature_report = parse_ms1_feature_table(Path("ms1_features.tsv"))
+design_report = parse_experimental_design_table(Path("quant.design.tsv"))
+protein_table = build_label_free_intensity_table(
+    feature_report.accepted_records,
+    entity_level=QuantEntityLevel.PROTEIN,
+    aggregation_method=QuantRollupMethod.TOP_N,
+    top_n=2,
+)
+normalized = normalize_label_free_table(
+    protein_table,
+    method=NormalizationMethod.MEDIAN,
+)
+differential = apply_benjamini_hochberg(
+    build_differential_abundance_report(
+        normalized,
+        design_report.accepted_entries,
+        condition_a="control",
+        condition_b="treatment",
+    )
+)
+```
+
+The same surface is available from the CLI for operator-facing quant reports:
+
+```bash
+bijux-proteomics quantify ms1_features.tsv \
+  --design quant.design.tsv \
+  --entity-level protein \
+  --aggregation top_n \
+  --top-n 2 \
+  --normalization median \
+  --condition-a control \
+  --condition-b treatment \
+  --report-out quant.report.json
+```
+
+See [docs/QUANTIFICATION.md](docs/QUANTIFICATION.md) for the full quantification
+workflow and output semantics.
+
 Spectrum and MGF handling are also first-class contracts in the package:
 
 ```python
