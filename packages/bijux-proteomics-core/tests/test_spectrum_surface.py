@@ -9,6 +9,7 @@ from pathlib import Path
 from bijux_proteomics import (
     PeakNormalizationPolicy,
     SpectralSimilarityMethod,
+    SpectrumSimilarityMode,
     annotate_spectrum_fragments,
     build_annotated_spectrum_bundle,
     build_spectrum_collection_summary,
@@ -286,6 +287,50 @@ def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:
     assert summary.issue_counts == {}
     assert manifest.document_schema.document_kind == "spectrum_provenance_manifest"
     assert manifest.source_sha256
+
+
+def test_spectral_similarity_modes_are_explicit_and_deterministic() -> None:
+    reference = parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
+    query = parse_mgf(_spectrum_fixture("multi.mgf")).accepted_spectra[0]
+
+    raw = calculate_spectral_similarity(
+        reference,
+        query,
+        tolerance_da=0.02,
+        method=SpectralSimilarityMethod.COSINE,
+        mode=SpectrumSimilarityMode.RAW,
+    )
+    normalized = calculate_spectral_similarity(
+        reference,
+        query,
+        tolerance_da=0.02,
+        method=SpectralSimilarityMethod.COSINE,
+        mode=SpectrumSimilarityMode.NORMALIZED,
+    )
+    top_n = calculate_spectral_similarity(
+        reference,
+        query,
+        tolerance_da=0.02,
+        method=SpectralSimilarityMethod.COSINE,
+        mode=SpectrumSimilarityMode.TOP_N,
+        top_n=2,
+    )
+    transformed = calculate_spectral_similarity(
+        reference,
+        query,
+        tolerance_da=0.02,
+        method=SpectralSimilarityMethod.COSINE,
+        mode=SpectrumSimilarityMode.TRANSFORMED,
+    )
+
+    assert raw.mode.value == "raw"
+    assert normalized.mode.value == "normalized"
+    assert top_n.mode.value == "top_n"
+    assert transformed.mode.value == "transformed"
+    assert top_n.reference_peak_count <= normalized.reference_peak_count
+    assert top_n.query_peak_count <= normalized.query_peak_count
+    assert raw.score >= 0.0
+    assert transformed.score >= 0.0
 
 
 def test_annotated_spectrum_bundle_exports_raw_and_theoretical_evidence() -> None:

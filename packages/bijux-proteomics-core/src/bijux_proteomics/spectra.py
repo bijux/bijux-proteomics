@@ -124,12 +124,22 @@ class SpectralSimilarityMethod(StrEnum):
     DOT_PRODUCT = "dot_product"
 
 
+class SpectrumSimilarityMode(StrEnum):
+    """Supported deterministic preprocessing modes for spectral comparison."""
+
+    RAW = "raw"
+    NORMALIZED = "normalized"
+    TOP_N = "top_n"
+    TRANSFORMED = "transformed"
+
+
 class SpectralSimilarityScore(JsonModel):
     """Basic spectral similarity score for two spectra."""
 
     model_config = ConfigDict(extra="forbid")
 
     method: SpectralSimilarityMethod
+    mode: SpectrumSimilarityMode = SpectrumSimilarityMode.RAW
     tolerance_da: float = Field(..., gt=0.0)
     score: float = Field(..., ge=0.0)
     matched_peak_count: int = Field(..., ge=0)
@@ -821,8 +831,20 @@ def calculate_spectral_similarity(
     *,
     tolerance_da: float = 0.02,
     method: SpectralSimilarityMethod = SpectralSimilarityMethod.COSINE,
+    mode: SpectrumSimilarityMode = SpectrumSimilarityMode.RAW,
+    top_n: int | None = None,
 ) -> SpectralSimilarityScore:
     """Calculate a basic matched-peak spectral similarity score."""
+    reference_spectrum = _prepare_similarity_spectrum(
+        reference_spectrum,
+        mode=mode,
+        top_n=top_n,
+    )
+    query_spectrum = _prepare_similarity_spectrum(
+        query_spectrum,
+        mode=mode,
+        top_n=top_n,
+    )
     matched_reference: list[float] = []
     matched_query: list[float] = []
     used_reference_indices: set[int] = set()
@@ -860,11 +882,67 @@ def calculate_spectral_similarity(
         )
     return SpectralSimilarityScore(
         method=method,
+        mode=mode,
         tolerance_da=tolerance_da,
         score=score,
         matched_peak_count=len(matched_reference),
         reference_peak_count=len(reference_spectrum.peaks),
         query_peak_count=len(query_spectrum.peaks),
+    )
+
+
+def _prepare_similarity_spectrum(
+    spectrum: SpectrumModel,
+    *,
+    mode: SpectrumSimilarityMode,
+    top_n: int | None,
+) -> SpectrumModel:
+    if mode is SpectrumSimilarityMode.RAW:
+        return normalize_spectrum_peaks(
+            spectrum,
+            policy=PeakNormalizationPolicy(
+                merge_tolerance_da=0.0,
+                drop_zero_intensity=False,
+                scale_to_base_peak=False,
+            ),
+        )
+    if mode is SpectrumSimilarityMode.NORMALIZED:
+        return normalize_spectrum_peaks(
+            spectrum,
+            policy=PeakNormalizationPolicy(
+                merge_tolerance_da=0.0,
+                drop_zero_intensity=False,
+                scale_to_base_peak=True,
+            ),
+        )
+    if mode is SpectrumSimilarityMode.TOP_N:
+        normalized = normalize_spectrum_peaks(
+            spectrum,
+            policy=PeakNormalizationPolicy(
+                merge_tolerance_da=0.0,
+                drop_zero_intensity=False,
+                scale_to_base_peak=True,
+            ),
+        )
+        return filter_spectrum_peaks(
+            normalized,
+            top_n=top_n if top_n is not None else 50,
+        ).spectrum
+    normalized = normalize_spectrum_peaks(
+        spectrum,
+        policy=PeakNormalizationPolicy(
+            merge_tolerance_da=0.0,
+            drop_zero_intensity=False,
+            scale_to_base_peak=True,
+        ),
+    )
+    return normalized.model_copy(
+        update={
+            "peaks": tuple(
+                SpectrumPeak(mz=peak.mz, intensity=peak.intensity**0.5)
+                for peak in normalized.peaks
+            )
+        }
     )
 
 
