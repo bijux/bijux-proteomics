@@ -1,0 +1,38 @@
+{
+  "document_schema": {
+    "content_hash": null,
+    "created_at": "2000-01-01T00:00:00Z",
+    "created_by": "bijux-proteomics-core",
+    "derived_from": [],
+    "document_id": null,
+    "document_kind": "proteomics_performance_snapshot",
+    "package_name": "bijux-proteomics-core",
+    "package_version": null,
+    "parent_document_id": null,
+    "parent_trace_id": null,
+    "revision": 1,
+    "schema_version": "1.0.0",
+    "source_system": "bijux-proteomics",
+    "status": "generated",
+    "tags": [],
+    "trace_id": null,
+    "updated_at": "2000-01-01T00:00:00Z",
+    "updated_by": null
+  },
+  "operations": [
+    {
+      "elapsed_seconds": 0.01,
+      "item_count": 2,
+      "operation": "build_qc",
+      "throughput_per_second": 200.0
+    },
+    {
+      "elapsed_seconds": 0.0,
+      "item_count": 2,
+      "operation": "parse_spectra",
+      "throughput_per_second": null
+    }
+  ],
+  "run_id": "edge-run",
+  "total_elapsed_seconds": 0.01
+}

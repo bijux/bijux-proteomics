@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from bijux_proteomics import (
@@ -63,6 +64,27 @@ def _strict_qc_policy():
             )
         }
     )
+
+
+def _normalized_document_json(payload) -> str:
+    data = payload.model_dump(mode="json")
+    if "document_schema" in data:
+        data["document_schema"]["created_at"] = "2000-01-01T00:00:00Z"
+        data["document_schema"]["updated_at"] = "2000-01-01T00:00:00Z"
+    def _scrub_policy_hashes(value):
+        if isinstance(value, dict):
+            scrubbed = {}
+            for key, item in value.items():
+                if key == "policy_sha256":
+                    scrubbed[key] = "<policy_sha256>"
+                else:
+                    scrubbed[key] = _scrub_policy_hashes(item)
+            return scrubbed
+        if isinstance(value, list):
+            return [_scrub_policy_hashes(item) for item in value]
+        return value
+    data = _scrub_policy_hashes(data)
+    return json.dumps(data, indent=2, sort_keys=True) + "\n"
 
 
 def _spectrum_for_peptide(
@@ -575,6 +597,45 @@ def test_qc_assessment_marks_unknown_metric_reasons_explicitly() -> None:
 
     assert mass_error_metric.severity is QcAssessmentSeverity.NOT_ASSESSED
     assert mass_error_metric.unknown_state_reason.value == "no_matched_psms"
+
+
+def test_qc_edge_case_fixtures_cover_sparse_runs_and_single_run_batches() -> None:
+    run_report = build_lcms_run_qc_report(
+        (
+            _unidentified_spectrum(
+                "edge:scan-001", charge=2, retention_time_seconds=90.0
+            ),
+            _unidentified_spectrum(
+                "edge:scan-002", charge=2, retention_time_seconds=95.0
+            ),
+        ),
+        (),
+        run_id="edge-run",
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    assessment = build_run_qc_assessment(run_report, policy=default_qc_threshold_policy())
+    batch_report = build_instrument_batch_qc_report(
+        (run_report,),
+        batch_id="edge-batch",
+        instrument="edge-instrument",
+    )
+    performance = build_performance_snapshot(
+        "edge-run",
+        operations={
+            "parse_spectra": (0.0, 2),
+            "build_qc": (0.01, 2),
+        },
+    )
+
+    assert _normalized_document_json(assessment) == _qc_fixture(
+        "edge_run_assessment_expected.json"
+    ).read_text(encoding="utf-8")
+    assert _normalized_document_json(batch_report) == _qc_fixture(
+        "edge_batch_report_expected.json"
+    ).read_text(encoding="utf-8")
+    assert _normalized_document_json(performance) == _qc_fixture(
+        "edge_performance_snapshot_expected.json"
+    ).read_text(encoding="utf-8")
 
 
 def test_qc_manifest_and_performance_snapshot_bind_outputs_to_inputs() -> None:
