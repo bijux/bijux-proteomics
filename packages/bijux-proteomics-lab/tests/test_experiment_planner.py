@@ -22,6 +22,7 @@ from bijux_proteomics_lab import (
     AssayOutcome,
     AssayResultState,
     AssayPlanKind,
+    CandidatePrioritySignal,
     ConflictAssayPolicy,
     ExecutableAssayPlan,
     ExperimentBatch,
@@ -39,6 +40,7 @@ from bijux_proteomics_lab import (
     assess_dependency_integrity,
     assess_gate_coverage_gaps,
     assess_material_constraints,
+    align_lab_priority_queue,
     build_advisory_assay_plan,
     build_executable_assay_plan,
     build_lab_execution_request,
@@ -400,6 +402,60 @@ def test_build_lab_execution_request_preserves_review_evidence_and_instructions(
     assert request.scientific_rationale
     assert request.unresolved_risks == []
     assert request.ready_for_lab_review is True
+
+
+def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> None:
+    program = create_program_spec(
+        program_id="prog-align",
+        name="alignment plan",
+        objective="align intelligence scoring with the lab queue",
+        target_id="target-align",
+        target_name="Target Align",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize the active state",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(
+                assay_id="gate-binding",
+                purpose="confirm target engagement",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            ),
+            AssayRequirement(
+                assay_id="support-expression",
+                purpose="check expression robustness",
+                readout="yield_mg_per_l",
+                sample_kind="expression",
+                blocking=False,
+            ),
+        ]
+    )
+    program.evidence_needs = [EvidenceNeed.STRUCTURE]
+    bundle = EvidenceBundle(bundle_id="bundle-align", target_id="target-align")
+    priorities = prioritize_next_assays(program, bundle, [])
+
+    alignment = align_lab_priority_queue(
+        program,
+        priorities,
+        [
+            CandidatePrioritySignal(
+                candidate_id="cand-1",
+                score=0.9,
+                assay_ids=["support-expression", "gate-binding"],
+            ),
+            CandidatePrioritySignal(
+                candidate_id="cand-2",
+                score=0.3,
+                assay_ids=["unknown-assay"],
+            ),
+        ],
+    )
+
+    assert alignment.prioritized_assay_ids[0] == "gate-binding"
+    assert alignment.unaligned_candidate_ids == ["cand-2"]
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:

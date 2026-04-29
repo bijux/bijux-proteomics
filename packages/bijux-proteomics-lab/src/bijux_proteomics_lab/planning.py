@@ -551,6 +551,28 @@ class NextAssayPriority(JsonModel):
     )
 
 
+class CandidatePrioritySignal(JsonModel):
+    """External candidate-priority input aligned against lab assays."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    score: float = Field(..., ge=0.0)
+    assay_ids: list[AssayId] = Field(default_factory=list)
+    rationale: list[str] = Field(default_factory=list)
+
+
+class LabPriorityQueueAlignment(JsonModel):
+    """Alignment report between candidate ranking signals and assay priorities."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    prioritized_assay_ids: list[AssayId] = Field(default_factory=list)
+    unaligned_candidate_ids: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
 class InformationGainBreakdown(JsonModel):
     """Multiparameter information-gain score components for an assay."""
 
@@ -1853,6 +1875,43 @@ def prioritize_next_assays(
             )
         )
     return sorted(ranked, key=lambda item: item.score, reverse=True)
+
+
+def align_lab_priority_queue(
+    program: ProgramSpec,
+    priorities: list[NextAssayPriority],
+    candidate_signals: list[CandidatePrioritySignal],
+) -> LabPriorityQueueAlignment:
+    """Align externally ranked candidates with the lab assay-priority queue."""
+    assay_scores = {priority.assay_id: priority.score for priority in priorities}
+    aligned_rows: list[tuple[float, str]] = []
+    unaligned_candidate_ids: list[str] = []
+    for signal in candidate_signals:
+        matched_assays = [
+            assay_id for assay_id in signal.assay_ids if assay_id in assay_scores
+        ]
+        if not matched_assays:
+            unaligned_candidate_ids.append(signal.candidate_id)
+            continue
+        for assay_id in matched_assays:
+            aligned_rows.append((signal.score + assay_scores[assay_id], assay_id))
+    aligned_rows.sort(key=lambda row: (-row[0], row[1]))
+    prioritized_assay_ids = list(
+        dict.fromkeys(assay_id for _, assay_id in aligned_rows)
+    )
+    notes = (
+        ["candidate-ranking signals reinforce the aligned assay queue"]
+        if prioritized_assay_ids
+        else ["no candidate-ranking signals aligned with the current assay queue"]
+    )
+    if unaligned_candidate_ids:
+        notes.append("some candidate signals were not mapped to lab assays")
+    return LabPriorityQueueAlignment(
+        program_id=program.program_id,
+        prioritized_assay_ids=prioritized_assay_ids,
+        unaligned_candidate_ids=sorted(unaligned_candidate_ids),
+        notes=notes,
+    )
 
 
 def score_assay_information_gain(
