@@ -110,6 +110,33 @@ class DeterministicExecutionContract(JsonModel):
     execution_fingerprint: str = Field(..., min_length=64, max_length=64)
 
 
+class CoreResultRuntimeBinding(JsonModel):
+    """One binding between a core result surface and runtime materialization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    artifact_kind: WorkflowArtifactKind
+    producer_step_id: str = Field(..., min_length=1)
+    runtime_surface: str = Field(..., min_length=1)
+    runtime_path: str = Field(..., min_length=1)
+    expected_document_kind: str | None = None
+
+
+class WorkflowRuntimeStateManifest(JsonModel):
+    """Stable schema linking workflow planning inputs to runtime result state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    manifest_sha256: str = Field(..., min_length=64, max_length=64)
+    deterministic_execution_sha256: str = Field(..., min_length=64, max_length=64)
+    checkpointable_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    result_bindings: tuple[CoreResultRuntimeBinding, ...] = Field(default_factory=tuple)
+
+
 class WorkflowInputAsset(JsonModel):
     """One workflow input plus runtime handling hints."""
 
@@ -376,6 +403,7 @@ class ProteomicsWorkflowRuntimeBundle(JsonModel):
     manifest: ProteomicsWorkflowManifest
     dag_plan: ProteomicsDagPlan
     deterministic_execution: DeterministicExecutionContract
+    runtime_state: WorkflowRuntimeStateManifest
     container_steps: tuple[ContainerizedStepSpec, ...] = Field(default_factory=tuple)
     search_contract: ExternalSearchToolContract
     hpc_job: HpcJobDescriptor
@@ -416,6 +444,17 @@ def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
         return "ms1-features"
     detected = detect_proteomics_format(path)
     return detected.value
+
+
+def _expected_artifact_document_kind(
+    artifact_kind: WorkflowArtifactKind,
+) -> str | None:
+    mapping = {
+        WorkflowArtifactKind.DIGEST_MANIFEST: "peptide_digest_manifest",
+        WorkflowArtifactKind.RUN_BUNDLE: "normalized_run_bundle_manifest",
+        WorkflowArtifactKind.CHECKPOINT: "workflow_checkpoint",
+    }
+    return mapping.get(artifact_kind)
 
 
 def _resolve_streaming_mode(
@@ -853,6 +892,46 @@ def build_deterministic_execution_contract(
         container_steps_sha256=container_steps_sha256,
         hpc_job_sha256=_stable_model_sha256(hpc_job),
         execution_fingerprint=execution_fingerprint,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_runtime_state_manifest(
+    manifest: ProteomicsWorkflowManifest,
+    *,
+    deterministic_execution: DeterministicExecutionContract,
+    artifact_registry: ProteomicsArtifactRegistry,
+) -> WorkflowRuntimeStateManifest:
+    """Connect expected core result surfaces to runtime state materializations."""
+    result_bindings = tuple(
+        CoreResultRuntimeBinding(
+            artifact_id=artifact.artifact_id,
+            artifact_kind=artifact.artifact_kind,
+            producer_step_id=artifact.producer_step_id,
+            runtime_surface=Path(artifact.path).parent.name or "artifacts",
+            runtime_path=artifact.path,
+            expected_document_kind=_expected_artifact_document_kind(
+                artifact.artifact_kind
+            ),
+        )
+        for artifact in artifact_registry.artifacts
+    )
+    payload = WorkflowRuntimeStateManifest(
+        document_schema=_build_document_schema("workflow_runtime_state_manifest"),
+        workflow_id=manifest.workflow_id,
+        run_id=manifest.run_id,
+        manifest_sha256=_stable_model_sha256(manifest),
+        deterministic_execution_sha256=_stable_model_sha256(
+            deterministic_execution
+        ),
+        checkpointable_step_ids=manifest.checkpointable_steps,
+        result_bindings=result_bindings,
     )
     return payload.model_copy(
         update={
@@ -1320,6 +1399,11 @@ def build_proteomics_workflow_runtime_bundle(
         parallel_plan=parallel_plan,
         hpc_job=hpc_job,
     )
+    runtime_state = build_workflow_runtime_state_manifest(
+        manifest,
+        deterministic_execution=deterministic_execution,
+        artifact_registry=artifact_registry,
+    )
     checkpoint = build_workflow_checkpoint(
         manifest,
         artifact_registry=artifact_registry,
@@ -1330,6 +1414,7 @@ def build_proteomics_workflow_runtime_bundle(
         manifest=manifest,
         dag_plan=dag_plan,
         deterministic_execution=deterministic_execution,
+        runtime_state=runtime_state,
         container_steps=container_steps,
         search_contract=search_contract,
         hpc_job=hpc_job,
