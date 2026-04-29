@@ -1,0 +1,2 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	instrument	search_engine
+S1	control	1	1	simple.mzml	results.tsv	Q Exactive	Sage
