@@ -125,6 +125,23 @@ def test_mgf_writer_roundtrip_preserves_spectrum_contracts() -> None:
         output_path.unlink(missing_ok=True)
 
 
+def test_repeated_mgf_roundtrip_stabilizes_on_canonical_output() -> None:
+    first_report = parse_mgf(_spectrum_fixture("dialect_cases.mgf"))
+    rendered_once = render_mgf(first_report.accepted_spectra)
+    output_path = _spectrum_fixture("roundtrip-repeat.mgf")
+    try:
+        output_path.write_text(rendered_once)
+        rendered_versions = [rendered_once]
+        for _ in range(3):
+            roundtrip = parse_mgf(output_path)
+            rendered = render_mgf(roundtrip.accepted_spectra)
+            rendered_versions.append(rendered)
+            output_path.write_text(rendered)
+        assert len(set(rendered_versions[1:])) == 1
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
 def test_spectrum_peak_normalization_sorts_merges_duplicates_and_drops_zero() -> None:
     spectrum = parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
     normalized = normalize_spectrum_peaks(

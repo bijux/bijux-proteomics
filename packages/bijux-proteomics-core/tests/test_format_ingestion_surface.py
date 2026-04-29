@@ -194,3 +194,23 @@ def test_format_conversion_and_run_bundle_outputs_are_stable(tmp_path: Path) -> 
         == "normalized_proteomics_run_bundle"
     )
     assert "spectra.normalized.mgf" in generated["generated_files"]
+
+
+def test_repeated_mzml_to_mgf_conversion_produces_stable_output(tmp_path: Path) -> None:
+    first_output = tmp_path / "first.mgf"
+    second_output = tmp_path / "second.mgf"
+
+    convert_proteomics_format(
+        input_path=_format_fixture("simple.mzml"),
+        output_path=first_output,
+        input_kind=ProteomicsFormatKind.MZML,
+        target_format=FormatConversionTarget.MGF,
+    )
+    convert_proteomics_format(
+        input_path=_format_fixture("simple.mzml"),
+        output_path=second_output,
+        input_kind=ProteomicsFormatKind.MZML,
+        target_format=FormatConversionTarget.MGF,
+    )
+
+    assert first_output.read_text() == second_output.read_text()
