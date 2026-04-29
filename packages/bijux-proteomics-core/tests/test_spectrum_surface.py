@@ -68,6 +68,31 @@ def test_mgf_parser_accepts_multi_block_and_rejects_malformed_fixture() -> None:
     )
 
 
+def test_mgf_dialect_fixture_handles_unusual_charge_title_pepmass_and_comments() -> (
+    None
+):
+    report = parse_mgf(_spectrum_fixture("dialect_cases.mgf"))
+
+    assert report.total_blocks == 2
+    assert len(report.accepted_spectra) == 2
+    assert report.accepted_spectra[0].title == "orbitrap run=7 sample=Alpha #42"
+    assert report.accepted_spectra[0].precursor_mz == 500.2
+    assert report.accepted_spectra[0].precursor_charge == 2
+    assert report.accepted_spectra[1].spectrum_id == "scan=9002"
+    assert report.accepted_spectra[1].title == "weird=title=with=equals"
+    assert report.accepted_spectra[1].precursor_charge == 3
+
+
+def test_mgf_parser_rejects_ambiguous_charge_lists_explicitly() -> None:
+    report = parse_mgf(_spectrum_fixture("ambiguous_charge.mgf"))
+
+    assert len(report.accepted_spectra) == 0
+    assert len(report.rejected_blocks) == 1
+    assert {issue.code for issue in report.rejected_blocks[0].issues} == {
+        "invalid_charge"
+    }
+
+
 def test_mgf_writer_roundtrip_preserves_spectrum_contracts() -> None:
     report = parse_mgf(_spectrum_fixture("multi.mgf"))
     rendered = render_mgf(report.accepted_spectra)

@@ -9,6 +9,7 @@ import csv
 from enum import StrEnum
 import hashlib
 from pathlib import Path
+import re
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -264,10 +265,22 @@ def _issue(
 
 
 def _parse_charge(token: str) -> int:
-    normalized = token.strip().rstrip("+")
+    normalized = token.strip()
     if not normalized:
         raise ValueError("empty charge token")
-    return int(normalized)
+    matches = re.findall(r"[+-]?\d+\+*", normalized.replace("and", ","))
+    if not matches:
+        raise ValueError("invalid charge token")
+    charges = {
+        int(match.lstrip("+").rstrip("+"))
+        for match in matches
+        if match.lstrip("+").rstrip("+")
+    }
+    if not charges:
+        raise ValueError("invalid charge token")
+    if len(charges) > 1:
+        raise ValueError("ambiguous precursor charge list")
+    return next(iter(charges))
 
 
 def parse_mgf(path: Path) -> MgfParseReport:
@@ -315,7 +328,7 @@ def parse_mgf(path: Path) -> MgfParseReport:
 
     for line_number, raw_line in enumerate(lines, start=1):
         line = raw_line.strip()
-        if not line or line.startswith(("#", ";")):
+        if not line or line.startswith(("#", ";", "!", "//")):
             continue
         if line.upper() == "BEGIN IONS":
             if current is not None:
