@@ -220,6 +220,48 @@ def test_basic_target_decoy_fdr_and_q_values_are_monotonic() -> None:
     assert annotated[-1].q_value == 2 / 3
 
 
+def test_tied_score_fdr_policy_is_explicit_and_reproducible() -> None:
+    tied_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=50.0,
+            protein_refs=("P1",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-b",
+            peptide="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            charge=2,
+            score=50.0,
+            protein_refs=("DECOY_P2",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+        PsmRecord(
+            spectrum_id="scan-c",
+            peptide="GLYGLYK",
+            canonical_peptide="GLYGLYK",
+            charge=2,
+            score=40.0,
+            protein_refs=("P3",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+    )
+
+    grouped = apply_q_values(tied_records, tie_handling="score_group")
+    ordered = apply_q_values(tied_records, tie_handling="stable_record_order")
+    audit = build_fdr_audit_trail(tied_records, tie_handling="score_group")
+
+    assert grouped[0].q_value == grouped[1].q_value
+    assert ordered[0].q_value != ordered[1].q_value
+    assert audit.policy.tie_handling == "score_group"
+    assert audit.entries[0].tie_group_size == 2
+    assert audit.entries[1].tie_group_rank == audit.entries[0].tie_group_rank
+
+
 def test_fdr_threshold_filter_keeps_requested_cutoff() -> None:
     report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
     accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.5)

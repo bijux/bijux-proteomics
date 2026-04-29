@@ -184,6 +184,9 @@ class FdrPolicy(JsonModel):
     score_orientation: str = Field(
         default="higher_better", pattern="^(higher_better|lower_better)$"
     )
+    tie_handling: str = Field(
+        default="score_group", pattern="^(score_group|stable_record_order)$"
+    )
     threshold: float | None = Field(default=None, ge=0.0)
     decoy_policy: TargetDecoyLabelPolicy = Field(default_factory=TargetDecoyLabelPolicy)
 
@@ -195,6 +198,8 @@ class FdrAnnotatedPsm(JsonModel):
 
     psm: PsmRecord
     rank: int = Field(..., ge=1)
+    tie_group_rank: int = Field(..., ge=1)
+    tie_group_size: int = Field(..., ge=1)
     cumulative_targets: int = Field(..., ge=0)
     cumulative_decoys: int = Field(..., ge=0)
     fdr: float = Field(..., ge=0.0)
@@ -245,6 +250,8 @@ class FdrAuditEntry(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     rank: int = Field(..., ge=1)
+    tie_group_rank: int = Field(..., ge=1)
+    tie_group_size: int = Field(..., ge=1)
     spectrum_id: str = Field(..., min_length=1)
     canonical_peptide: str = Field(..., min_length=1)
     raw_score: float
@@ -940,10 +947,15 @@ def calculate_basic_target_decoy_fdr(
     *,
     threshold: float | None = None,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> tuple[FdrAnnotatedPsm, ...]:
     """Annotate PSMs with cumulative target-decoy FDR and monotonic q-values."""
     if score_orientation not in {"higher_better", "lower_better"}:
         raise ValueError("score_orientation must be 'higher_better' or 'lower_better'")
+    if tie_handling not in {"score_group", "stable_record_order"}:
+        raise ValueError(
+            "tie_handling must be 'score_group' or 'stable_record_order'"
+        )
 
     sorted_records = tuple(
         sorted(
@@ -970,23 +982,54 @@ def calculate_basic_target_decoy_fdr(
     annotated: list[FdrAnnotatedPsm] = []
     cumulative_targets = 0
     cumulative_decoys = 0
-    for rank, record in enumerate(sorted_records, start=1):
-        if record.target_decoy_label is TargetDecoyLabel.DECOY:
-            cumulative_decoys += 1
-        else:
-            cumulative_targets += 1
-        fdr = min(cumulative_decoys / max(cumulative_targets, 1), 1.0)
-        annotated.append(
-            FdrAnnotatedPsm(
-                psm=record,
-                rank=rank,
-                cumulative_targets=cumulative_targets,
-                cumulative_decoys=cumulative_decoys,
-                fdr=fdr,
-                q_value=fdr,
-                accepted=threshold is None or fdr <= threshold,
-            )
+    score_groups: list[tuple[int, tuple[PsmRecord, ...]]] = []
+    if tie_handling == "score_group":
+        grouped: list[PsmRecord] = []
+        current_score: float | None = None
+        tie_group_rank = 0
+        for record in sorted_records:
+            if current_score is None or record.score == current_score:
+                grouped.append(record)
+                current_score = record.score
+                continue
+            tie_group_rank += 1
+            score_groups.append((tie_group_rank, tuple(grouped)))
+            grouped = [record]
+            current_score = record.score
+        if grouped:
+            tie_group_rank += 1
+            score_groups.append((tie_group_rank, tuple(grouped)))
+    else:
+        score_groups = [
+            (rank, (record,)) for rank, record in enumerate(sorted_records, start=1)
+        ]
+
+    rank = 1
+    for tie_group_rank, group in score_groups:
+        group_targets = sum(
+            1
+            for record in group
+            if record.target_decoy_label is not TargetDecoyLabel.DECOY
         )
+        group_decoys = len(group) - group_targets
+        cumulative_targets += group_targets
+        cumulative_decoys += group_decoys
+        fdr = min(cumulative_decoys / max(cumulative_targets, 1), 1.0)
+        for record in group:
+            annotated.append(
+                FdrAnnotatedPsm(
+                    psm=record,
+                    rank=rank,
+                    tie_group_rank=tie_group_rank,
+                    tie_group_size=len(group),
+                    cumulative_targets=cumulative_targets,
+                    cumulative_decoys=cumulative_decoys,
+                    fdr=fdr,
+                    q_value=fdr,
+                    accepted=threshold is None or fdr <= threshold,
+                )
+            )
+            rank += 1
 
     running_min = float("inf")
     revised: list[FdrAnnotatedPsm] = []
@@ -1126,19 +1169,24 @@ def compute_fdr_reproducibility_hash(
     *,
     threshold: float | None = None,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> str:
     """Compute a stable digest over the sorted FDR derivation inputs."""
     annotated = calculate_basic_target_decoy_fdr(
         records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
     )
     payload = {
         "score_orientation": score_orientation,
+        "tie_handling": tie_handling,
         "threshold": threshold,
         "entries": [
             {
                 "rank": entry.rank,
+                "tie_group_rank": entry.tie_group_rank,
+                "tie_group_size": entry.tie_group_size,
                 "spectrum_id": entry.psm.spectrum_id,
                 "canonical_peptide": entry.psm.canonical_peptide,
                 "charge": entry.psm.charge,
@@ -1163,9 +1211,14 @@ def build_fdr_audit_trail(
     *,
     threshold: float | None = None,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> FdrAuditTrail:
     """Build a stable audit trail for one target-decoy FDR calculation."""
-    policy = FdrPolicy(score_orientation=score_orientation, threshold=threshold)
+    policy = FdrPolicy(
+        score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        threshold=threshold,
+    )
     normalized_entries = normalize_psm_score_orientation(
         records,
         score_orientation=score_orientation,
@@ -1178,6 +1231,7 @@ def build_fdr_audit_trail(
         records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
     )
     audit_entries: list[FdrAuditEntry] = []
     for entry in annotated:
@@ -1187,6 +1241,8 @@ def build_fdr_audit_trail(
         audit_entries.append(
             FdrAuditEntry(
                 rank=entry.rank,
+                tie_group_rank=entry.tie_group_rank,
+                tie_group_size=entry.tie_group_size,
                 spectrum_id=entry.psm.spectrum_id,
                 canonical_peptide=entry.psm.canonical_peptide,
                 raw_score=entry.psm.score,
@@ -1208,6 +1264,7 @@ def build_fdr_audit_trail(
             records,
             threshold=threshold,
             score_orientation=score_orientation,
+            tie_handling=tie_handling,
         ),
     )
 
@@ -1216,11 +1273,13 @@ def apply_q_values(
     records: tuple[PsmRecord, ...],
     *,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> tuple[PsmRecord, ...]:
     """Return PSM records with q-values filled from target-decoy FDR."""
     annotated = calculate_basic_target_decoy_fdr(
         records,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
     )
     return tuple(
         entry.psm.model_copy(update={"q_value": entry.q_value}) for entry in annotated
@@ -1232,12 +1291,14 @@ def filter_psms_by_fdr(
     *,
     threshold: float,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> tuple[PsmRecord, ...]:
     """Filter PSMs to those that pass the requested q-value threshold."""
     annotated = calculate_basic_target_decoy_fdr(
         records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
     )
     return tuple(
         entry.psm.model_copy(update={"q_value": entry.q_value})
@@ -1418,6 +1479,7 @@ def calculate_level_specific_fdr(
             records,
             threshold=threshold,
             score_orientation=score_orientation,
+            tie_handling="score_group",
         )
     )
     peptide_rollups = rollup_peptide_evidence(records)
@@ -1499,6 +1561,7 @@ def calculate_grouped_fdr(
                     tuple(group_records),
                     threshold=threshold,
                     score_orientation=score_orientation,
+                    tie_handling="score_group",
                 )
             ),
         )
@@ -1836,6 +1899,7 @@ def calculate_picked_protein_fdr(
         pseudo_records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling="score_group",
     )
     selected_index = {
         protein_ref: (peptides, partner_ref)
