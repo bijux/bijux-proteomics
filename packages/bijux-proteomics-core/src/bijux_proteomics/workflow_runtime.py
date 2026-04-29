@@ -173,6 +173,26 @@ class ReproducibleWorkflowBlueprint(JsonModel):
     steps: tuple[WorkflowBlueprintStepMapping, ...] = Field(default_factory=tuple)
 
 
+class WorkflowManifestExplanationEntry(JsonModel):
+    """One explainable workflow configuration choice captured from a manifest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    category: str = Field(..., min_length=1)
+    selected_value: str = Field(..., min_length=1)
+    rationale: str = Field(..., min_length=1)
+
+
+class WorkflowManifestExplanationReport(JsonModel):
+    """Reviewable explanation of how one workflow manifest was configured."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    entries: tuple[WorkflowManifestExplanationEntry, ...] = Field(default_factory=tuple)
+
+
 class CoreResultRuntimeBinding(JsonModel):
     """One binding between a core result surface and runtime materialization."""
 
@@ -1189,6 +1209,62 @@ def build_reproducible_workflow_blueprint(
         execution_mode=manifest.execution_mode,
         input_roles=tuple(asset.role for asset in manifest.input_assets),
         steps=steps,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_manifest_explanation_report(
+    manifest: ProteomicsWorkflowManifest,
+) -> WorkflowManifestExplanationReport:
+    """Explain the major manifest choices in plain durable runtime terms."""
+    input_roles = ",".join(asset.role.value for asset in manifest.input_assets)
+    entries = (
+        WorkflowManifestExplanationEntry(
+            category="execution_mode",
+            selected_value=manifest.execution_mode.value,
+            rationale=(
+                "external search submission is required because no identification table was attached"
+                if manifest.execution_mode is WorkflowExecutionMode.EXTERNAL_SEARCH
+                else "existing identification results are imported and normalized instead of launching a search engine"
+            ),
+        ),
+        WorkflowManifestExplanationEntry(
+            category="search_adapter",
+            selected_value=manifest.search_adapter_kind.value,
+            rationale="the selected adapter defines how search evidence is normalized into stable PSM contracts",
+        ),
+        WorkflowManifestExplanationEntry(
+            category="scheduler",
+            selected_value=manifest.scheduler.value,
+            rationale="the scheduler controls how runtime descriptors and job materialization are emitted",
+        ),
+        WorkflowManifestExplanationEntry(
+            category="inputs",
+            selected_value=input_roles,
+            rationale="attached inputs determine which scientific surfaces the workflow can materialize",
+        ),
+        WorkflowManifestExplanationEntry(
+            category="quantification",
+            selected_value=(
+                "enabled" if WorkflowInputRole.FEATURES in {asset.role for asset in manifest.input_assets} else "disabled"
+            ),
+            rationale=(
+                "feature quantification is enabled because an MS1 feature table is available"
+                if WorkflowInputRole.FEATURES in {asset.role for asset in manifest.input_assets}
+                else "quantification is omitted because no feature table was attached"
+            ),
+        ),
+    )
+    payload = WorkflowManifestExplanationReport(
+        document_schema=_build_document_schema("workflow_manifest_explanation_report"),
+        workflow_id=manifest.workflow_id,
+        entries=entries,
     )
     return payload.model_copy(
         update={

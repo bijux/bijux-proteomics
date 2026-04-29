@@ -12,6 +12,7 @@ from bijux_proteomics import (
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_reproducible_workflow_blueprint,
+    build_workflow_manifest_explanation_report,
     build_workflow_run_directory_layout,
     build_workflow_runtime_validation_report,
     build_workflow_runtime_state_manifest,
@@ -20,6 +21,7 @@ from bijux_proteomics import (
     WorkflowScientificSurface,
     WorkflowExecutionMode,
     WorkflowInputRole,
+    WorkflowManifestExplanationReport,
     WorkflowSchedulerKind,
     WorkflowStepKind,
     WorkflowStreamingMode,
@@ -93,6 +95,33 @@ def test_reproducible_workflow_blueprint_connects_sequence_search_fdr_quant_qc_a
     assert WorkflowScientificSurface.QUANTIFICATION in surfaces
     assert WorkflowScientificSurface.QUALITY_CONTROL in surfaces
     assert WorkflowScientificSurface.EVIDENCE_SYNTHESIS in surfaces
+
+
+def test_workflow_manifest_explanation_report_makes_configuration_choices_explicit() -> (
+    None
+):
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = build_workflow_manifest_explanation_report(manifest)
+
+    assert isinstance(report, WorkflowManifestExplanationReport)
+    assert report.workflow_id == manifest.workflow_id
+    categories = {entry.category for entry in report.entries}
+    assert {
+        "execution_mode",
+        "search_adapter",
+        "scheduler",
+        "inputs",
+        "quantification",
+    } <= categories
 
 
 def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (
