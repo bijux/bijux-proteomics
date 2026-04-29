@@ -9,6 +9,7 @@ import bijux_proteomics_lab
 def test_design_public_api_contains_expected_exports() -> None:
     assert "ExperimentDesignStructureSummary" in bijux_proteomics_lab.__all__
     assert "EvidenceNeedWetLabAction" in bijux_proteomics_lab.__all__
+    assert "LabExecutionRequest" in bijux_proteomics_lab.__all__
     assert "SamplePreparationMetadata" in bijux_proteomics_lab.__all__
     assert "InstrumentMethodMetadata" in bijux_proteomics_lab.__all__
     assert "ReplicationStrategySummary" in bijux_proteomics_lab.__all__

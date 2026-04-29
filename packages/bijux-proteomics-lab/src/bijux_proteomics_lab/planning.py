@@ -691,6 +691,38 @@ class LabExecutionDirective(JsonModel):
     )
 
 
+class LabExecutionRequest(JsonModel):
+    """Explicit handoff request from computational review into lab execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    batch_id: BatchId = Field(..., description="Requested batch identifier.")
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence records attached to the request.",
+    )
+    requested_instruction_ids: list[str] = Field(
+        default_factory=list,
+        description="Execution instructions requested from the lab.",
+    )
+    requested_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Assays carried into the lab request.",
+    )
+    scientific_rationale: list[str] = Field(
+        default_factory=list,
+        description="Scientific rationale points carried from review.",
+    )
+    unresolved_risks: list[str] = Field(
+        default_factory=list,
+        description="Open blockers or missing readiness conditions.",
+    )
+    ready_for_lab_review: bool = Field(
+        ..., description="Whether the request is coherent for lab review."
+    )
+
+
 class GateCoverageGapReport(JsonModel):
     """Report of review-gate coverage and uncovered gates."""
 
@@ -1325,6 +1357,32 @@ def build_executable_assay_plan(
         instructions=instructions,
         blocked_by=blocked_by,
         ready_for_execution=not blocked_by,
+    )
+
+
+def build_lab_execution_request(
+    review_packet: ReviewPacket,
+    executable_plan: ExecutableAssayPlan,
+) -> LabExecutionRequest:
+    """Package review evidence and executable instructions into one lab request."""
+    return LabExecutionRequest(
+        program_id=review_packet.program_id,
+        batch_id=executable_plan.batch_id,
+        evidence_ids=list(review_packet.advancement_evidence.evidence_ids),
+        requested_instruction_ids=[
+            instruction.instruction_id for instruction in executable_plan.instructions
+        ],
+        requested_assay_ids=[
+            instruction.assay_id for instruction in executable_plan.instructions
+        ],
+        scientific_rationale=list(review_packet.recommended_actions),
+        unresolved_risks=[
+            *review_packet.blocking_findings,
+            *executable_plan.blocked_by,
+        ],
+        ready_for_lab_review=(
+            review_packet.ready_for_synthesis and executable_plan.ready_for_execution
+        ),
     )
 
 

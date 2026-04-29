@@ -41,6 +41,7 @@ from bijux_proteomics_lab import (
     assess_material_constraints,
     build_advisory_assay_plan,
     build_executable_assay_plan,
+    build_lab_execution_request,
     build_lab_cycle_brief,
     build_review_packet,
     build_review_risk_profile,
@@ -298,6 +299,60 @@ def test_build_executable_assay_plan_requires_operational_readiness() -> None:
     assert "review gate pending: gate-a" in blocked.blocked_by
     assert "missing sample kind: protein" in blocked.blocked_by
     assert ready.instructions[0].instruction_id == "batch-exec:gate-binding"
+
+
+def test_build_lab_execution_request_preserves_review_evidence_and_instructions() -> None:
+    program = create_program_spec(
+        program_id="prog-handoff",
+        name="handoff plan",
+        objective="carry computational review into a lab request",
+        target_id="target-handoff",
+        target_name="Target Handoff",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize an active conformation",
+    )
+    program.evidence_needs = [EvidenceNeed.LITERATURE, EvidenceNeed.STRUCTURE]
+    bundle = EvidenceBundle(
+        bundle_id="bundle-handoff",
+        target_id="target-handoff",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                claim="Literature supports tractability.",
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="structure-1",
+                kind=EvidenceKind.STRUCTURE,
+                title="Model",
+                source="AlphaFold",
+                claim="Fold is compatible with binding.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    review_packet = build_review_packet(program, bundle, [])
+    executable_plan = ExecutableAssayPlan(
+        program_id=program.program_id,
+        batch_id="batch-handoff",
+        instructions=[],
+        blocked_by=[],
+        ready_for_execution=True,
+    )
+
+    request = build_lab_execution_request(review_packet, executable_plan)
+
+    assert request.evidence_ids == ["lit-1", "structure-1"]
+    assert request.batch_id == "batch-handoff"
+    assert request.scientific_rationale
+    assert request.unresolved_risks == []
+    assert request.ready_for_lab_review is True
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
