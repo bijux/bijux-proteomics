@@ -406,6 +406,32 @@ def test_workflow_cache_miss_explanations_identify_toolchain_changes() -> None:
     )
 
 
+def test_workflow_cache_miss_explanations_identify_schema_changes() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    baseline = build_workflow_runtime_cache(
+        manifest,
+        cache_schema_version="1.0.0",
+    )
+    changed = build_workflow_runtime_cache(
+        manifest,
+        cache_schema_version="2.0.0",
+    )
+    report = build_workflow_cache_miss_explanation_report(changed, baseline)
+
+    assert report.reusable is False
+    assert any(
+        entry.reason is WorkflowCacheMissReason.SCHEMA_CHANGED
+        for entry in report.entries
+    )
+
+
 def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> None:
     manifest = build_proteomics_workflow_manifest(
         proteins_path=_fixture("proteins.fasta"),

@@ -107,6 +107,7 @@ class WorkflowCacheMissReason(StrEnum):
     SCIENTIFIC_INPUTS_CHANGED = "scientific-inputs-changed"
     TOOLCHAIN_CHANGED = "toolchain-changed"
     POLICY_CHANGED = "policy-changed"
+    SCHEMA_CHANGED = "schema-changed"
     CACHE_LAYOUT_CHANGED = "cache-layout-changed"
 
 
@@ -443,6 +444,7 @@ class WorkflowCacheEntry(JsonModel):
     source_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
     source_hashes: tuple[str, ...] = Field(default_factory=tuple)
     scientific_inputs_sha256: str = Field(..., min_length=64, max_length=64)
+    cache_schema_version: str = Field(..., min_length=1)
     tool_versions: tuple[str, ...] = Field(default_factory=tuple)
     policy_assumptions: tuple[str, ...] = Field(default_factory=tuple)
     expected_artifacts: tuple[WorkflowArtifactKind, ...] = Field(default_factory=tuple)
@@ -697,6 +699,9 @@ def _sanitize_identifier(value: str) -> str:
         .strip("-")
         .lower()
     )
+
+
+_WORKFLOW_CACHE_SCHEMA_VERSION = "1.0.0"
 
 
 def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
@@ -1649,6 +1654,8 @@ def build_external_search_tool_contract(
 
 def build_workflow_runtime_cache(
     manifest: ProteomicsWorkflowManifest,
+    *,
+    cache_schema_version: str = _WORKFLOW_CACHE_SCHEMA_VERSION,
 ) -> WorkflowCacheManifest:
     """Build deterministic cache keys for reusable workflow surfaces."""
     asset_by_role = {asset.role: asset for asset in manifest.input_assets}
@@ -1695,6 +1702,7 @@ def build_workflow_runtime_cache(
                 (
                     manifest.workflow_id,
                     surface,
+                    cache_schema_version,
                     scientific_inputs_sha256,
                     *tool_versions,
                     *policy_assumptions,
@@ -1708,6 +1716,7 @@ def build_workflow_runtime_cache(
                 source_roles=roles,
                 source_hashes=source_hashes,
                 scientific_inputs_sha256=scientific_inputs_sha256,
+                cache_schema_version=cache_schema_version,
                 tool_versions=tool_versions,
                 policy_assumptions=policy_assumptions,
                 expected_artifacts=artifacts,
@@ -1764,6 +1773,9 @@ def build_workflow_cache_miss_explanation_report(
             detail = (
                 "recorded runtime toolchain identifiers changed for this cache surface"
             )
+        elif observed_entry.cache_schema_version != expected_entry.cache_schema_version:
+            reason = WorkflowCacheMissReason.SCHEMA_CHANGED
+            detail = "cache schema version changed for this reusable surface"
         elif observed_entry.policy_assumptions != expected_entry.policy_assumptions:
             reason = WorkflowCacheMissReason.POLICY_CHANGED
             detail = (
