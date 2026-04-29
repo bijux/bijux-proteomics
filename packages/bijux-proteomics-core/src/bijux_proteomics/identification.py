@@ -956,6 +956,50 @@ class DecoyStrategyValidationReport(JsonModel):
     issues: tuple[DecoyStrategyValidationIssue, ...] = Field(default_factory=tuple)
 
 
+class PtmIdentificationObservation(JsonModel):
+    """Minimal PTM localization evidence needed for identification confidence checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    q_value: float = Field(..., ge=0.0, le=1.0)
+    localization_score: float = Field(..., ge=0.0, le=1.0)
+    candidate_site_count: int = Field(..., ge=1)
+    target_decoy_label: TargetDecoyLabel
+
+
+class PtmIdentificationConfidenceIssue(JsonModel):
+    """One validation issue for PTM-specific identification confidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+
+
+class PtmIdentificationConfidenceEntry(JsonModel):
+    """PTM evidence row plus site-confidence validation outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    valid: bool
+    issues: tuple[PtmIdentificationConfidenceIssue, ...] = Field(default_factory=tuple)
+
+
+class PtmIdentificationConfidenceReport(JsonModel):
+    """Validation summary for PTM-specific identification confidence claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    q_value_threshold: float = Field(..., ge=0.0, le=1.0)
+    min_localization_score: float = Field(..., ge=0.0, le=1.0)
+    entries: tuple[PtmIdentificationConfidenceEntry, ...] = Field(default_factory=tuple)
+
+
 def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...]:
     if raw_value in (None, ""):
         return ()
@@ -1079,6 +1123,67 @@ def validate_target_decoy_policy(
         policy=policy,
         valid=not any(issue.severity == "error" for issue in issues),
         issues=tuple(issues),
+    )
+
+
+def validate_ptm_identification_confidence(
+    observations: tuple[PtmIdentificationObservation, ...],
+    *,
+    q_value_threshold: float = 0.05,
+    min_localization_score: float = 0.75,
+) -> PtmIdentificationConfidenceReport:
+    """Validate whether PTM-specific identifications are strong enough for review."""
+    entries: list[PtmIdentificationConfidenceEntry] = []
+    for observation in observations:
+        issues: list[PtmIdentificationConfidenceIssue] = []
+        if observation.target_decoy_label is TargetDecoyLabel.DECOY:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="decoy_ptm_evidence",
+                    message="decoy PTM evidence cannot support a biological site claim",
+                    severity="error",
+                )
+            )
+        if observation.q_value > q_value_threshold:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="q_value_above_threshold",
+                    message=(
+                        f"q-value {observation.q_value:.4f} exceeds the PTM identification threshold"
+                    ),
+                    severity="error",
+                )
+            )
+        if observation.localization_score < min_localization_score:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="weak_localization_score",
+                    message=(
+                        "PTM localization score is below the minimum site-confidence threshold"
+                    ),
+                    severity="warning",
+                )
+            )
+        if observation.candidate_site_count > 1:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="ambiguous_site_localization",
+                    message="multiple candidate PTM sites remain plausible for this identification",
+                    severity="warning",
+                )
+            )
+        entries.append(
+            PtmIdentificationConfidenceEntry(
+                spectrum_id=observation.spectrum_id,
+                canonical_peptide=observation.canonical_peptide,
+                valid=not any(issue.severity == "error" for issue in issues),
+                issues=tuple(issues),
+            )
+        )
+    return PtmIdentificationConfidenceReport(
+        q_value_threshold=q_value_threshold,
+        min_localization_score=min_localization_score,
+        entries=tuple(entries),
     )
 
 

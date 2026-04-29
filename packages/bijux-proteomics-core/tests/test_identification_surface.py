@@ -11,6 +11,7 @@ from bijux_proteomics import (
     FdrPolicy,
     ConfidenceCalibrationLevel,
     ParsimonyVariant,
+    PtmIdentificationObservation,
     PsmRecord,
     PsmSortField,
     SearchResultColumnMapping,
@@ -61,6 +62,7 @@ from bijux_proteomics import (
     select_best_psm_per_spectrum,
     sort_psm_records,
     validate_target_decoy_policy,
+    validate_ptm_identification_confidence,
     validate_target_decoy_accession_collisions,
     verify_fdr_q_value_monotonicity,
 )
@@ -845,6 +847,38 @@ def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -
     assert invalid.valid is False
     assert invalid.issues[0].code == "overlapping_explicit_values"
     assert valid.valid is True
+
+
+def test_ptm_specific_identification_confidence_validation_is_explicit() -> None:
+    report = validate_ptm_identification_confidence(
+        (
+            PtmIdentificationObservation(
+                spectrum_id="scan=ptm-001",
+                canonical_peptide="S[Phospho]PEPTIDEK",
+                q_value=0.005,
+                localization_score=0.99,
+                candidate_site_count=1,
+                target_decoy_label=TargetDecoyLabel.TARGET,
+            ),
+            PtmIdentificationObservation(
+                spectrum_id="scan=ptm-005",
+                canonical_peptide="AS[Phospho]TYK",
+                q_value=0.02,
+                localization_score=0.70,
+                candidate_site_count=3,
+                target_decoy_label=TargetDecoyLabel.TARGET,
+            ),
+        )
+    )
+
+    confident = next(entry for entry in report.entries if entry.spectrum_id == "scan=ptm-001")
+    ambiguous = next(entry for entry in report.entries if entry.spectrum_id == "scan=ptm-005")
+    assert confident.valid is True
+    assert ambiguous.valid is True
+    assert {issue.code for issue in ambiguous.issues} == {
+        "weak_localization_score",
+        "ambiguous_site_localization",
+    }
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:
