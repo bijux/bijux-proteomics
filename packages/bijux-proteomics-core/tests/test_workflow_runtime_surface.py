@@ -190,7 +190,11 @@ def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_scri
     assert bundle.artifact_inventory.artifacts
     assert bundle.parallel_plan.groups[0].step_ids
     assert "#SBATCH --job-name=" in bundle.hpc_job.script_text
+    assert "#SBATCH --partition=proteomics" in bundle.hpc_job.script_text
     assert len(bundle.hpc_job.descriptor_sha256) == 64
+    assert bundle.hpc_job.queue_name == "proteomics"
+    assert bundle.hpc_job.container_image.startswith("ghcr.io/bijux/")
+    assert bundle.hpc_job.expected_artifact_paths
     assert bundle.checkpoint.steps[0].status is WorkflowCheckpointStatus.READY
     assert bundle.checkpoint.blocked_step_ids
 

@@ -429,9 +429,14 @@ class HpcJobDescriptor(JsonModel):
     cpus: int = Field(..., ge=1)
     memory_gb: int = Field(..., ge=1)
     walltime_minutes: int = Field(..., ge=1)
+    queue_name: str = Field(..., min_length=1)
+    resource_class: str = Field(..., min_length=1)
+    container_image: str = Field(..., min_length=1)
     working_directory: str = Field(..., min_length=1)
     script_path: str = Field(..., min_length=1)
     script_text: str = Field(..., min_length=1)
+    expected_artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    environment_assumptions: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class WorkflowCacheEntry(JsonModel):
@@ -1993,16 +1998,30 @@ def build_hpc_job_descriptor(
     manifest: ProteomicsWorkflowManifest,
     *,
     scheduler: WorkflowSchedulerKind | None = None,
+    queue_name: str = "proteomics",
+    resource_class: str = "standard",
 ) -> HpcJobDescriptor:
     """Export one scheduler-ready descriptor for the workflow bundle."""
     resolved_scheduler = scheduler or manifest.scheduler
     manifest_sha256 = _stable_model_sha256(manifest)
     script_path = f"{manifest.artifacts_dir}/jobs/{manifest.workflow_id}.{resolved_scheduler.value}"
+    expected_artifact_paths = tuple(
+        _artifact_path_for_kind(manifest, artifact_kind)
+        for step in manifest.steps
+        for artifact_kind in step.produces_artifacts
+    )
+    environment_assumptions = (
+        f"scheduler:{resolved_scheduler.value}",
+        f"container-image:{manifest.default_container_image}",
+        f"artifacts-dir:{manifest.artifacts_dir}",
+        "filesystem:shared-access-required",
+    )
     lines = ["#!/usr/bin/env bash", "set -euo pipefail"]
     if resolved_scheduler is WorkflowSchedulerKind.SLURM:
         lines.extend(
             [
                 f"#SBATCH --job-name={manifest.workflow_id}",
+                f"#SBATCH --partition={queue_name}",
                 "#SBATCH --cpus-per-task=4",
                 "#SBATCH --mem=16G",
                 "#SBATCH --time=02:00:00",
@@ -2025,6 +2044,9 @@ def build_hpc_job_descriptor(
                 manifest.workflow_id,
                 resolved_scheduler.value,
                 manifest_sha256,
+                queue_name,
+                resource_class,
+                manifest.default_container_image,
                 *ordered_step_ids,
                 script_path,
                 script_text,
@@ -2042,9 +2064,14 @@ def build_hpc_job_descriptor(
         cpus=4,
         memory_gb=16,
         walltime_minutes=120,
+        queue_name=queue_name,
+        resource_class=resource_class,
+        container_image=manifest.default_container_image,
         working_directory=manifest.artifacts_dir,
         script_path=script_path,
         script_text=script_text,
+        expected_artifact_paths=expected_artifact_paths,
+        environment_assumptions=environment_assumptions,
     )
     return payload.model_copy(
         update={
