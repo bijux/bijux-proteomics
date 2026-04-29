@@ -11,6 +11,7 @@ import csv
 from enum import StrEnum
 import hashlib
 import json
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, field_validator
@@ -262,6 +263,36 @@ class CalibrationPlotData(JsonModel):
     score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
     total_psms: int = Field(..., ge=0)
     bins: tuple[CalibrationPlotBin, ...] = Field(default_factory=tuple)
+
+
+class ScoreOrientationAdvisoryCandidate(JsonModel):
+    """One candidate explanation for a score-orientation recommendation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    top_ranked_count: int = Field(..., ge=0)
+    top_target_count: int = Field(..., ge=0)
+    top_decoy_count: int = Field(..., ge=0)
+    top_mean_q_value: float | None = Field(default=None, ge=0.0)
+    support_score: float = Field(..., ge=0.0, le=1.0)
+    note: str = Field(..., min_length=1)
+
+
+class ScoreOrientationAdvisory(JsonModel):
+    """Advisory recommendation over score orientation, never an enforced choice."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    advisory_only: bool = True
+    recommended_orientation: str | None = Field(
+        default=None, pattern="^(higher_better|lower_better)$"
+    )
+    support_gap: float = Field(..., ge=0.0, le=1.0)
+    candidates: tuple[ScoreOrientationAdvisoryCandidate, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
 
 
 class FdrAuditEntry(JsonModel):
@@ -1331,6 +1362,84 @@ def normalize_psm_score_orientation(
             )
         )
     return tuple(normalized_entries)
+
+
+def _score_orientation_support_candidate(
+    records: tuple[PsmRecord, ...],
+    *,
+    orientation: str,
+    top_fraction: float,
+) -> ScoreOrientationAdvisoryCandidate:
+    sorted_records = _score_sorted_psm_records(
+        records,
+        score_orientation=orientation,
+    )
+    top_count = max(1, math.ceil(len(sorted_records) * top_fraction)) if sorted_records else 0
+    top_records = sorted_records[:top_count]
+    top_target_count = sum(
+        1 for record in top_records if record.target_decoy_label is TargetDecoyLabel.TARGET
+    )
+    top_decoy_count = sum(
+        1 for record in top_records if record.target_decoy_label is TargetDecoyLabel.DECOY
+    )
+    q_values = [record.q_value for record in top_records if record.q_value is not None]
+    top_mean_q_value = sum(q_values) / len(q_values) if q_values else None
+    labeled_count = top_target_count + top_decoy_count
+    decoy_fraction = top_decoy_count / labeled_count if labeled_count else 0.5
+    q_component = 1.0 - min(top_mean_q_value if top_mean_q_value is not None else 0.5, 1.0)
+    support_score = max(0.0, min(1.0, ((1.0 - decoy_fraction) + q_component) / 2.0))
+    return ScoreOrientationAdvisoryCandidate(
+        orientation=orientation,
+        top_ranked_count=top_count,
+        top_target_count=top_target_count,
+        top_decoy_count=top_decoy_count,
+        top_mean_q_value=top_mean_q_value,
+        support_score=support_score,
+        note=(
+            "candidate support is derived from target-decoy enrichment and q-value concentration near the top ranks"
+        ),
+    )
+
+
+def detect_score_orientation_advisory(
+    records: tuple[PsmRecord, ...],
+    *,
+    top_fraction: float = 0.25,
+) -> ScoreOrientationAdvisory:
+    """Recommend a score orientation as advisory evidence, never as an enforced rule."""
+    if not 0.0 < top_fraction <= 1.0:
+        raise ValueError("top_fraction must be greater than 0 and at most 1")
+
+    higher = _score_orientation_support_candidate(
+        records,
+        orientation="higher_better",
+        top_fraction=top_fraction,
+    )
+    lower = _score_orientation_support_candidate(
+        records,
+        orientation="lower_better",
+        top_fraction=top_fraction,
+    )
+    sorted_candidates = sorted(
+        (higher, lower),
+        key=lambda candidate: (-candidate.support_score, candidate.orientation),
+    )
+    support_gap = sorted_candidates[0].support_score - sorted_candidates[1].support_score
+    recommended_orientation = (
+        sorted_candidates[0].orientation if support_gap >= 0.05 else None
+    )
+    note = (
+        f"advisory evidence favors {recommended_orientation}"
+        if recommended_orientation is not None
+        else "advisory evidence is too balanced to recommend one score orientation"
+    )
+    return ScoreOrientationAdvisory(
+        advisory_only=True,
+        recommended_orientation=recommended_orientation,
+        support_gap=support_gap,
+        candidates=tuple(sorted_candidates),
+        note=note,
+    )
 
 
 def build_calibration_plot_data(

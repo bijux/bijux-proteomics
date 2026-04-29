@@ -34,6 +34,7 @@ from bijux_proteomics import (
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
     compute_fdr_reproducibility_hash,
+    detect_score_orientation_advisory,
     export_psm_jsonl,
     export_psm_tsv,
     filter_psms_by_fdr,
@@ -312,6 +313,61 @@ def test_score_orientation_normalization_supports_higher_and_lower_better() -> N
     assert higher[0].normalized_score == 1.0
     assert lower[0].raw_score == 80.0
     assert lower[0].normalized_score == 1.0
+
+
+def test_score_orientation_advisory_detection_stays_explicitly_advisory() -> None:
+    lower_better_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            charge=2,
+            score=0.01,
+            q_value=0.001,
+            protein_refs=("P1",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-b",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            charge=2,
+            score=0.02,
+            q_value=0.002,
+            protein_refs=("P2",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-c",
+            peptide="DECA",
+            canonical_peptide="DECA",
+            charge=2,
+            score=0.50,
+            q_value=0.100,
+            protein_refs=("DECOY_P3",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+        PsmRecord(
+            spectrum_id="scan-d",
+            peptide="DECB",
+            canonical_peptide="DECB",
+            charge=2,
+            score=0.60,
+            q_value=0.200,
+            protein_refs=("DECOY_P4",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+    )
+
+    advisory = detect_score_orientation_advisory(lower_better_records, top_fraction=0.5)
+
+    assert advisory.advisory_only is True
+    assert advisory.recommended_orientation == "lower_better"
+    assert advisory.support_gap > 0.0
+    assert {candidate.orientation for candidate in advisory.candidates} == {
+        "higher_better",
+        "lower_better",
+    }
 
 
 def test_fdr_audit_trail_and_calibration_bins_are_stable() -> None:
