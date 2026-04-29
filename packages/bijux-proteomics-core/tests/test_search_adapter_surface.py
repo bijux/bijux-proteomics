@@ -10,6 +10,7 @@ from bijux_proteomics import (
     ScoreOrientation,
     SearchAdapterDialectManifest,
     SearchAdapterKind,
+    SearchNormalizedEvidenceEntry,
     SearchResultColumnMapping,
     build_search_adapter_capability_matrix,
     build_search_adapter_conformance_report,
@@ -127,6 +128,21 @@ def test_built_in_pipeline_dialects_cover_richer_engine_like_outputs() -> None:
         "P12345",
         "Q33333",
     )
+
+
+def test_normalization_report_preserves_raw_engine_evidence_rows() -> None:
+    report = normalize_search_results_with_adapter(
+        source_path=_fixture("sage_results.tsv"),
+        adapter_kind=SearchAdapterKind.SAGE,
+    )
+
+    accepted_row = next(row for row in report.evidence_rows if row.accepted)
+    assert isinstance(accepted_row, SearchNormalizedEvidenceEntry)
+    assert report.source_columns[0] == "scannr"
+    assert accepted_row.raw_fields["proteins"] == "P12345"
+    assert accepted_row.mapped_field_values["score"] == "15.2"
+    assert accepted_row.unmapped_native_fields == {}
+    assert accepted_row.normalized_record is not None
 
 
 def test_engine_specific_adapters_normalize_psm_contracts() -> None:

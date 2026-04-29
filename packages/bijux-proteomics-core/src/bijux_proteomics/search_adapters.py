@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
 import hashlib
 import json
@@ -19,6 +20,7 @@ from bijux_proteomics.identification import (
     PsmRecord,
     SearchResultColumnMapping,
     SearchResultProvenanceManifest,
+    SearchResultValidationIssue,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     build_calibration_plot_data,
@@ -111,8 +113,12 @@ class SearchAdapterNormalizationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     adapter_manifest: SearchAdapterManifest
+    source_columns: tuple[str, ...] = Field(default_factory=tuple)
     parse_report: PsmParseReport
     normalized_records: tuple[PsmRecord, ...] = Field(default_factory=tuple)
+    evidence_rows: tuple["SearchNormalizedEvidenceEntry", ...] = Field(
+        default_factory=tuple
+    )
 
 
 class SearchAdapterProvenanceManifest(JsonModel):
@@ -131,6 +137,20 @@ class SearchAdapterProvenanceManifest(JsonModel):
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     score_orientation: ScoreOrientation
     parse_provenance: SearchResultProvenanceManifest
+
+
+class SearchNormalizedEvidenceEntry(JsonModel):
+    """One preserved engine row plus its normalized adapter outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=1)
+    accepted: bool
+    raw_fields: dict[str, str] = Field(default_factory=dict)
+    mapped_field_values: dict[str, str] = Field(default_factory=dict)
+    unmapped_native_fields: dict[str, str] = Field(default_factory=dict)
+    normalized_record: PsmRecord | None = None
+    issues: tuple[SearchResultValidationIssue, ...] = Field(default_factory=tuple)
 
 
 class SearchModificationDefinition(JsonModel):
@@ -728,6 +748,122 @@ def _hash_file(path: Path | None) -> str | None:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _read_search_result_rows(
+    path: Path,
+) -> tuple[tuple[str, ...], tuple[dict[str, str], ...]]:
+    rows: list[dict[str, str]] = []
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError("search result TSV must include a header row")
+        source_columns = tuple(
+            str(column) for column in reader.fieldnames if column is not None
+        )
+        for row in reader:
+            rows.append(
+                {
+                    str(key): str(value)
+                    for key, value in row.items()
+                    if key is not None
+                }
+            )
+    return source_columns, tuple(rows)
+
+
+def _mapped_column_names(mapping: SearchResultColumnMapping) -> tuple[str, ...]:
+    return tuple(
+        dict.fromkeys(
+            column_name
+            for column_name in (
+                mapping.spectrum_id,
+                mapping.peptide,
+                mapping.charge,
+                mapping.score,
+                mapping.q_value,
+                mapping.protein_refs,
+                mapping.decoy_label,
+            )
+            if column_name is not None
+        )
+    )
+
+
+def _mapped_field_values(
+    row: dict[str, str],
+    mapping: SearchResultColumnMapping,
+) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for role_name, column_name in (
+        ("spectrum_id", mapping.spectrum_id),
+        ("peptide", mapping.peptide),
+        ("charge", mapping.charge),
+        ("score", mapping.score),
+        ("q_value", mapping.q_value),
+        ("protein_refs", mapping.protein_refs),
+        ("decoy_label", mapping.decoy_label),
+    ):
+        if column_name is None or column_name not in row:
+            continue
+        values[role_name] = row[column_name]
+    return values
+
+
+def _build_evidence_rows(
+    *,
+    source_rows: tuple[dict[str, str], ...],
+    parse_report: PsmParseReport,
+) -> tuple[SearchNormalizedEvidenceEntry, ...]:
+    rejected_by_row_number = {
+        rejected.row_number: rejected for rejected in parse_report.rejected_rows
+    }
+    accepted_index = 0
+    mapped_columns = set(_mapped_column_names(parse_report.column_mapping))
+    entries: list[SearchNormalizedEvidenceEntry] = []
+    for row_index, raw_fields in enumerate(source_rows, start=2):
+        rejected = rejected_by_row_number.get(row_index)
+        if rejected is not None:
+            entries.append(
+                SearchNormalizedEvidenceEntry(
+                    row_number=row_index,
+                    accepted=False,
+                    raw_fields=raw_fields,
+                    mapped_field_values=_mapped_field_values(
+                        raw_fields,
+                        parse_report.column_mapping,
+                    ),
+                    unmapped_native_fields={
+                        key: value
+                        for key, value in raw_fields.items()
+                        if key not in mapped_columns
+                    },
+                    normalized_record=None,
+                    issues=rejected.issues,
+                )
+            )
+            continue
+        record = parse_report.accepted_records[accepted_index]
+        accepted_index += 1
+        entries.append(
+            SearchNormalizedEvidenceEntry(
+                row_number=row_index,
+                accepted=True,
+                raw_fields=raw_fields,
+                mapped_field_values=_mapped_field_values(
+                    raw_fields,
+                    parse_report.column_mapping,
+                ),
+                unmapped_native_fields={
+                    key: value
+                    for key, value in raw_fields.items()
+                    if key not in mapped_columns
+                },
+                normalized_record=record,
+                issues=(),
+            )
+        )
+    return tuple(entries)
+
+
 _SUPPORTED_ENZYMES = {
     "trypsin",
     "trypsin/p",
@@ -1126,6 +1262,7 @@ def normalize_search_results_with_adapter(
         raise ValueError(
             "generic adapter normalization requires an explicit column mapping"
         )
+    source_columns, source_rows = _read_search_result_rows(source_path)
     parse_report = parse_psm_tsv(
         source_path,
         mapping=resolved_mapping,
@@ -1133,8 +1270,13 @@ def normalize_search_results_with_adapter(
     )
     return SearchAdapterNormalizationReport(
         adapter_manifest=manifest,
+        source_columns=source_columns,
         parse_report=parse_report,
         normalized_records=normalize_psm_records(parse_report.accepted_records),
+        evidence_rows=_build_evidence_rows(
+            source_rows=source_rows,
+            parse_report=parse_report,
+        ),
     )
 
 
