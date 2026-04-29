@@ -28,6 +28,20 @@ def _normalize_for_json(value: Any) -> Any:
     return value
 
 
+def _flatten_for_tsv(value: Any, *, prefix: str = "") -> dict[str, str]:
+    if isinstance(value, dict):
+        flattened: dict[str, str] = {}
+        for key, inner in sorted(value.items(), key=lambda item: str(item[0])):
+            nested_prefix = f"{prefix}.{key}" if prefix else str(key)
+            flattened.update(_flatten_for_tsv(inner, prefix=nested_prefix))
+        return flattened
+    if isinstance(value, list):
+        return {prefix: json.dumps(value, separators=(",", ":"))}
+    if value is None:
+        return {prefix: ""}
+    return {prefix: str(value)}
+
+
 class JsonModel(BaseModel):
     """Base model with convenience helpers for reusable SDK objects."""
 
@@ -42,6 +56,22 @@ class JsonModel(BaseModel):
     def to_stable_json(self) -> str:
         """Return deterministically ordered JSON for reproducible diffs."""
         return json.dumps(self.to_dict(), indent=2, sort_keys=True)
+
+    def to_jsonl_line(self) -> str:
+        """Return one deterministic JSON Lines record."""
+        return json.dumps(self.to_dict(), sort_keys=True, separators=(",", ":"))
+
+    def to_flat_dict(self) -> dict[str, str]:
+        """Return a flattened scalar map suitable for TSV output."""
+        return _flatten_for_tsv(self.to_dict())
+
+    def to_tsv_row(self, *, columns: list[str] | None = None) -> tuple[str, str]:
+        """Return TSV header and row strings for flattened payload fields."""
+        flattened = self.to_flat_dict()
+        columns = sorted(columns or flattened.keys())
+        header = "\t".join(columns)
+        row = "\t".join(flattened.get(column, "") for column in columns)
+        return header, row
 
     def content_fingerprint(self) -> str:
         """Return a deterministic SHA-256 fingerprint for model content."""
@@ -67,6 +97,17 @@ class JsonModel(BaseModel):
     def save_stable_json(self, path: Path) -> Path:
         """Persist deterministically ordered JSON to a file."""
         path.write_text(self.to_stable_json() + "\n")
+        return path
+
+    def save_jsonl(self, path: Path) -> Path:
+        """Persist one JSON Lines record to a file."""
+        path.write_text(self.to_jsonl_line() + "\n")
+        return path
+
+    def save_tsv(self, path: Path, *, columns: list[str] | None = None) -> Path:
+        """Persist one TSV row with a deterministic header."""
+        header, row = self.to_tsv_row(columns=columns)
+        path.write_text(f"{header}\n{row}\n")
         return path
 
     @classmethod

@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 import pytest
 
 from bijux_proteomics_foundation import (
+    ArtifactFormat,
     ContractConflictError,
     ContractNotFoundError,
     ContractValidationError,
@@ -19,6 +20,7 @@ from bijux_proteomics_foundation import (
     ExperimentId,
     FoundationContractError,
     StableHashPolicy,
+    SchemaFormatContract,
     IdentifierKind,
     JsonModel,
     MigrationExecutionError,
@@ -46,8 +48,11 @@ from bijux_proteomics_foundation import (
     present_value,
     assess_schema_compatibility,
     build_identifier,
+    build_schema_format_contract,
     classify_identifier,
+    default_schema_format_contracts,
     ensure_identifier_kind,
+    evaluate_schema_format_contract,
 )
 
 
@@ -302,6 +307,63 @@ def test_stable_hash_policy_is_serializable() -> None:
     policy = StableHashPolicy(policy_id="artifact-sha256-v1")
 
     assert policy.to_dict()["algorithm"] == "sha256"
+
+
+def test_json_model_supports_jsonl_and_tsv_transport_helpers(tmp_path: Path) -> None:
+    document = DemoDocument(value="demo")
+    jsonl_path = tmp_path / "document.jsonl"
+    tsv_path = tmp_path / "document.tsv"
+
+    document.save_jsonl(jsonl_path)
+    document.save_tsv(tsv_path)
+
+    assert jsonl_path.read_text().endswith("\n")
+    header, row = document.to_tsv_row()
+    assert "value" in header
+    assert "demo" in row
+    assert tsv_path.read_text().splitlines()[0] == header
+
+
+def test_schema_format_contract_covers_default_transport_formats() -> None:
+    contracts = default_schema_format_contracts(
+        document_kind="evidence_bundle",
+        schema_version="1.0.0",
+    )
+
+    assert [contract.artifact_format for contract in contracts] == [
+        ArtifactFormat.JSON,
+        ArtifactFormat.JSONL,
+        ArtifactFormat.TSV,
+        ArtifactFormat.ARTIFACT_BUNDLE,
+    ]
+
+
+def test_schema_format_contract_reports_version_or_hash_mismatch() -> None:
+    contract = build_schema_format_contract(
+        document_kind="review_packet",
+        artifact_format=ArtifactFormat.JSON,
+        schema_version="1.0.0",
+    )
+
+    incompatible = evaluate_schema_format_contract(
+        contract,
+        expected_schema_version="1.1.0",
+        expected_hash_policy_id="different-policy",
+    )
+
+    assert incompatible.compatible is False
+    assert len(incompatible.notes) == 2
+
+
+def test_schema_format_contract_is_serializable() -> None:
+    contract = SchemaFormatContract(
+        document_kind="lab_plan",
+        artifact_format=ArtifactFormat.ARTIFACT_BUNDLE,
+        schema_version="1.0.0",
+        hash_policy_id="scientific-object-sha256-v1",
+    )
+
+    assert contract.to_dict()["artifact_format"] == "artifact_bundle"
 
 
 def test_foundation_contract_errors_share_common_base() -> None:
