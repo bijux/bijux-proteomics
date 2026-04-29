@@ -16,6 +16,8 @@ from bijux_proteomics import (
     LabelFreeProvenanceBundle,
     LabelFreeQuantTable,
     MissingChannelPolicy,
+    MissingDataMechanism,
+    MissingDataMechanismReport,
     MultiplexNormalizationPolicy,
     MissingValueCorrectionPolicy,
     MissingValueSummaryPolicy,
@@ -36,6 +38,7 @@ from bijux_proteomics import (
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
+    build_missing_data_mechanism_report,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
@@ -602,6 +605,32 @@ def test_normalization_strategy_comparison_reports_rank_methods_explicitly() -> 
     assert len(comparison.entries) == 4
     assert comparison.entries[0].balance_score <= comparison.entries[-1].balance_score
     assert comparison.recommended_method is comparison.entries[0].method
+
+
+def test_missing_data_mechanism_report_distinguishes_biology_from_failure() -> None:
+    feature_report = parse_ms1_feature_table(
+        _quant_fixture("missing_mechanism_ms1_features.tsv")
+    )
+    design_report = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
+    table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_missing_data_mechanism_report(
+        table,
+        design_report.accepted_entries,
+    )
+
+    assert isinstance(report, MissingDataMechanismReport)
+    pbio = next(entry for entry in report.entries if entry.entity_id == "PBIO")
+    ptech = next(entry for entry in report.entries if entry.entity_id == "PTECH")
+    pmix = next(entry for entry in report.entries if entry.entity_id == "PMIX")
+
+    assert pbio.mechanism is MissingDataMechanism.LIKELY_BIOLOGICAL_SPARSE
+    assert ptech.mechanism is MissingDataMechanism.LIKELY_TECHNICAL_FAILURE
+    assert pmix.mechanism is MissingDataMechanism.MIXED_OR_UNRESOLVED
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (

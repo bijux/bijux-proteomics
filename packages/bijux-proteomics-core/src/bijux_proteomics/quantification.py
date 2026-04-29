@@ -437,6 +437,36 @@ class NormalizationStrategyComparisonReport(JsonModel):
     recommended_method: NormalizationMethod
 
 
+class MissingDataMechanism(StrEnum):
+    """Heuristic distinction between biological sparsity and likely failure."""
+
+    LIKELY_BIOLOGICAL_SPARSE = "likely_biological_sparse"
+    LIKELY_TECHNICAL_FAILURE = "likely_technical_failure"
+    MIXED_OR_UNRESOLVED = "mixed_or_unresolved"
+
+
+class MissingDataMechanismEntry(JsonModel):
+    """One entity classified under an explicit missing-data mechanism heuristic."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    mechanism: MissingDataMechanism
+    observed_conditions: tuple[str, ...] = Field(default_factory=tuple)
+    missing_samples: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class MissingDataMechanismReport(JsonModel):
+    """Mechanism summary over entity-level quant missingness patterns."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[MissingDataMechanismEntry, ...] = Field(default_factory=tuple)
+    summary_counts: dict[MissingDataMechanism, int] = Field(default_factory=dict)
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -2219,6 +2249,63 @@ def summarize_missing_values(
         entries=tuple(entries),
         included_entity_ids=tuple(included_entity_ids),
         excluded_entity_ids=tuple(excluded_entity_ids),
+    )
+
+
+def build_missing_data_mechanism_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> MissingDataMechanismReport:
+    """Classify missingness patterns as likely biology, likely failure, or unresolved."""
+    lookup = _matrix_value_index(table)
+    condition_by_sample = _condition_lookup(design_entries)
+    conditions = tuple(
+        sorted({condition for condition in condition_by_sample.values() if condition})
+    )
+    entries: list[MissingDataMechanismEntry] = []
+    summary_counts = {mechanism: 0 for mechanism in MissingDataMechanism}
+    for entity_id in table.entity_ids:
+        observed_conditions: set[str] = set()
+        missing_samples: list[str] = []
+        observed_samples: list[str] = []
+        missing_conditions: set[str] = set()
+        for sample_id in table.sample_ids:
+            cell = lookup[(entity_id, sample_id)]
+            condition = condition_by_sample.get(sample_id, "unknown")
+            if cell.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO):
+                observed_conditions.add(condition)
+                observed_samples.append(sample_id)
+                continue
+            missing_samples.append(sample_id)
+            missing_conditions.add(condition)
+
+        mechanism = MissingDataMechanism.MIXED_OR_UNRESOLVED
+        note = "missingness mixes biological and technical explanations or lacks enough support"
+        if (
+            len(observed_conditions) == 1
+            and len(missing_conditions) >= 1
+            and any(condition not in observed_conditions for condition in conditions)
+        ):
+            mechanism = MissingDataMechanism.LIKELY_BIOLOGICAL_SPARSE
+            note = "signal is confined to one condition while another condition remains consistently missing"
+        elif len(missing_samples) == 1 and len(observed_samples) >= 2:
+            mechanism = MissingDataMechanism.LIKELY_TECHNICAL_FAILURE
+            note = "one isolated missing sample breaks an otherwise observed pattern"
+
+        summary_counts[mechanism] += 1
+        entries.append(
+            MissingDataMechanismEntry(
+                entity_id=entity_id,
+                mechanism=mechanism,
+                observed_conditions=tuple(sorted(observed_conditions)),
+                missing_samples=tuple(sorted(missing_samples)),
+                note=note,
+            )
+        )
+    return MissingDataMechanismReport(
+        entity_level=table.entity_level,
+        entries=tuple(entries),
+        summary_counts=summary_counts,
     )
 
 
