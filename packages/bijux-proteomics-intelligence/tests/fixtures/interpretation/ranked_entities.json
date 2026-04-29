@@ -1,0 +1,7 @@
+[
+  {"entity_id": "P001", "score": 2.4},
+  {"entity_id": "P003", "score": 2.0},
+  {"entity_id": "P004", "score": 0.2},
+  {"entity_id": "P002", "score": -1.9},
+  {"entity_id": "P005", "score": -0.4}
+]
