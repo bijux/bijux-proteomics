@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from bijux_proteomics import create_program_spec
@@ -78,6 +79,14 @@ from bijux_proteomics_lab import (
     summarize_schedule_pressure,
     validate_experiment_plan,
 )
+
+
+def _planning_fixture(name: str) -> dict[str, object]:
+    return json.loads(
+        (
+            Path(__file__).parent / "fixtures" / "planning" / name
+        ).read_text(encoding="utf-8")
+    )
 
 
 def test_plan_experiment_batches_prioritizes_blocking_assays() -> None:
@@ -519,6 +528,74 @@ def test_report_execution_plan_uncertainty_makes_blockers_explicit() -> None:
     assert "review gate pending: gate-a" in report.uncertainty_sources
     assert "open evidence gap: structure" in report.uncertainty_sources
     assert report.readiness_confidence < 1.0
+
+
+def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces() -> (
+    None
+):
+    fixture = _planning_fixture("proteomics_lab_planning_fixture.json")
+    program_data = fixture["program"]
+    assert isinstance(program_data, dict)
+    program = create_program_spec(
+        program_id=program_data["program_id"],
+        name=program_data["name"],
+        objective=program_data["objective"],
+        target_id=program_data["target_id"],
+        target_name=program_data["target_name"],
+        sequence=program_data["sequence"],
+        organism=program_data["organism"],
+        mechanism=program_data["mechanism"],
+    )
+    program.evidence_needs = [
+        EvidenceNeed(item) for item in fixture["evidence_needs"]
+    ]
+    program.assay_panel.extend(
+        AssayRequirement(**assay) for assay in fixture["assays"]
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-proteomics-lab",
+        target_id=program.target.target_id,
+        records=[EvidenceRecord(**record) for record in fixture["records"]],
+    )
+
+    advisory = build_advisory_assay_plan(program, bundle)
+    priorities = prioritize_next_assays(program, bundle, [])
+    alignment = align_lab_priority_queue(
+        program,
+        priorities,
+        [CandidatePrioritySignal(**row) for row in fixture["candidate_signals"]],
+    )
+    capacity_advisory = build_execution_capacity_advisory(
+        ExperimentPlan(
+            program_id=program.program_id,
+            batches=[
+                ExperimentBatch(
+                    batch_id="b-phospho",
+                    objective="run proteomics confirmation assays",
+                    assay_ids=["target-engagement-prm", "phosphosite-panel"],
+                    priority=1,
+                    sample_requirements=["biophysical", "cellular"],
+                )
+            ],
+        ),
+        LabCapacity(
+            cycle_id="cycle-proteomics",
+            max_batches=1,
+            max_assays_per_batch=2,
+        ),
+        [
+            InstrumentAvailability(
+                instrument_id="orbitrap-exploris",
+                available_days=2.0,
+                supported_sample_kinds=["biophysical", "cellular"],
+            )
+        ],
+        budget_limit=2.0,
+    )
+
+    assert advisory.open_evidence_gaps == ["assay", "pathway"]
+    assert alignment.prioritized_assay_ids[0] == "phosphosite-panel"
+    assert capacity_advisory.feasible_batch_ids == ["b-phospho"]
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
