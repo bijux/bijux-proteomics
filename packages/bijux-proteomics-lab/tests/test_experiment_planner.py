@@ -43,6 +43,7 @@ from bijux_proteomics_lab import (
     build_executable_assay_plan,
     build_lab_execution_request,
     build_lab_cycle_brief,
+    build_lab_review_packet_bundle,
     build_review_packet,
     build_review_risk_profile,
     build_workflow_batch_outline,
@@ -213,6 +214,52 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
         "assay-1",
     ]
     assert packet.advancement_evidence.missing_evidence_kinds == []
+
+
+def test_build_lab_review_packet_bundle_carries_rationale_and_open_risks() -> None:
+    program = create_program_spec(
+        program_id="prog-review-bundle",
+        name="review bundle",
+        objective="bundle review rationale and unresolved risks",
+        target_id="target-review",
+        target_name="Target Review",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize a productive conformation",
+    )
+    program.evidence_needs = [EvidenceNeed.LITERATURE, EvidenceNeed.STRUCTURE]
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="gate-binding",
+            purpose="confirm target engagement",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-review",
+        target_id="target-review",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                claim="Literature supports tractability.",
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+
+    packet_bundle = build_lab_review_packet_bundle(program, bundle, [])
+
+    assert packet_bundle.assay_rationale_by_id["gate-binding"][0] == (
+        "confirm target engagement"
+    )
+    assert packet_bundle.target_evidence_ids == ["lit-1"]
+    assert "structure" in packet_bundle.unresolved_risks
 
 
 def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None:

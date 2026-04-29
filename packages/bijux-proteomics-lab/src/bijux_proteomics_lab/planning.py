@@ -415,6 +415,26 @@ class ReviewRiskProfile(JsonModel):
     )
 
 
+class LabReviewPacketBundle(JsonModel):
+    """Review packet bundle that carries assay rationale and unresolved risks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    review_packet: ReviewPacket
+    assay_rationale_by_id: dict[str, list[str]] = Field(
+        default_factory=dict,
+        description="Assay rationale grouped by assay identifier.",
+    )
+    target_evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence records tied directly to the target review packet.",
+    )
+    unresolved_risks: list[str] = Field(
+        default_factory=list,
+        description="Open blockers and missing evidence that remain unresolved.",
+    )
+
+
 class ClosedLoopPlan(JsonModel):
     """Recommended next cycle based on evidence and assay outcomes."""
 
@@ -1455,6 +1475,33 @@ def build_review_packet(
         blocking_findings=blockers,
         recommended_actions=recommendations,
         advancement_evidence=advancement_evidence,
+    )
+
+
+def build_lab_review_packet_bundle(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+) -> LabReviewPacketBundle:
+    """Bundle review findings with assay rationale and unresolved target risks."""
+    review_packet = build_review_packet(program, bundle, observations)
+    assay_rationale_by_id = {
+        assay.assay_id: [
+            assay.purpose,
+            f"readout: {assay.readout}",
+            f"sample kind: {assay.sample_kind}",
+        ]
+        for assay in program.assay_panel
+    }
+    unresolved_risks = [
+        *review_packet.blocking_findings,
+        *review_packet.advancement_evidence.missing_evidence_kinds,
+    ]
+    return LabReviewPacketBundle(
+        review_packet=review_packet,
+        assay_rationale_by_id=assay_rationale_by_id,
+        target_evidence_ids=list(review_packet.advancement_evidence.evidence_ids),
+        unresolved_risks=unresolved_risks,
     )
 
 
