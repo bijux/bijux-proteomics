@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -208,6 +209,14 @@ class PtmSiteFdrReport(JsonModel):
     entries: tuple[PtmSiteFdrEntry, ...] = Field(default_factory=tuple)
 
 
+class PtmOccupancyUncertainty(StrEnum):
+    """Uncertainty states for PTM occupancy estimates."""
+
+    NONE = "none"
+    MISSING_COUNTERPART = "missing_counterpart"
+    AMBIGUOUS_SITE = "ambiguous_site"
+
+
 class PtmOccupancyEntry(JsonModel):
     """One site occupancy estimate for one sample."""
 
@@ -218,6 +227,8 @@ class PtmOccupancyEntry(JsonModel):
     modified_intensity: float = Field(..., ge=0.0)
     unmodified_intensity: float = Field(..., ge=0.0)
     occupancy_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    uncertainty: PtmOccupancyUncertainty = PtmOccupancyUncertainty.NONE
+    note: str = Field(..., min_length=1)
 
 
 class PtmEnrichmentInput(JsonModel):
@@ -845,6 +856,15 @@ def estimate_ptm_site_occupancy(
                 elif record.canonical_peptide in stripped_sequences:
                     denominator_unmodified += record.intensity
             total = numerator + denominator_unmodified
+            if entry.ambiguous:
+                uncertainty = PtmOccupancyUncertainty.AMBIGUOUS_SITE
+                note = "occupancy remains ambiguous because the PTM site mapping is not unique"
+            elif numerator == 0.0 or denominator_unmodified == 0.0:
+                uncertainty = PtmOccupancyUncertainty.MISSING_COUNTERPART
+                note = "occupancy is missing one counterpart intensity and should be treated cautiously"
+            else:
+                uncertainty = PtmOccupancyUncertainty.NONE
+                note = "modified and unmodified counterparts are both observed for this site"
             occupancy_entries.append(
                 PtmOccupancyEntry(
                     site_key=entry.site_key,
@@ -852,6 +872,8 @@ def estimate_ptm_site_occupancy(
                     modified_intensity=numerator,
                     unmodified_intensity=denominator_unmodified,
                     occupancy_fraction=(numerator / total) if total > 0 else None,
+                    uncertainty=uncertainty,
+                    note=note,
                 )
             )
     return tuple(

@@ -112,6 +112,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_ptm_site_fdr" in bijux_proteomics.__all__
     assert "estimate_ptm_site_occupancy" in bijux_proteomics.__all__
     assert "build_ptm_motif_background_report" in bijux_proteomics.__all__
+    assert "PtmOccupancyUncertainty" in bijux_proteomics.__all__
     assert "build_lcms_run_qc_report" in bijux_proteomics.__all__
     assert "build_instrument_batch_qc_report" in bijux_proteomics.__all__
     assert "default_qc_threshold_policy" in bijux_proteomics.__all__
