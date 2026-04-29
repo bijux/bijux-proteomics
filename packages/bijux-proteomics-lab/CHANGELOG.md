@@ -4,9 +4,18 @@ All notable changes for `bijux-proteomics-lab` are recorded here.
 
 ## Unreleased
 
+### Added
+
+- Added typed experiment-design and protocol-planning contracts for sample
+  preparation metadata, instrument metadata, design validation, power
+  advisories, run-order randomization, fractionation plans, multiplex channel
+  planning, QC/spike-in insertion, carryover risk review, and bundled protocol
+  evidence.
+
 ### Changed
 
-- No unreleased changes yet.
+- Expanded package documentation with an experiment-design workflow guide and
+  README coverage for the new planning surface.
 
 ## 0.3.7 - 2026-04-21
 

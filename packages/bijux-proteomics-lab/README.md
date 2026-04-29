@@ -44,12 +44,17 @@ Its role is downstream of the scientific workflow blueprint, not a substitute
 for it. Lab turns stage-owned assay work into executable batches and feedback
 loops once core, knowledge, and intelligence have made the workflow legible.
 
+It also now provides typed experiment-design and protocol-planning helpers for
+sample preparation, instrument metadata, run-order randomization, multiplex
+planning, QC insertion, carryover review, and bundled lab evidence payloads.
+
 ## Why teams pick this package
 
 - practical lab planning built around dependencies, capacity, and timing limits
 - structured assay plans and review packets ready for scientific operations
 - outcome interpretation flows that support rerun and escalation decisions
 - repository contracts for integrating plan queues and feedback loops
+- deterministic experiment-design validation and protocol planning artifacts
 
 ## Typical use cases
 
@@ -57,6 +62,7 @@ loops once core, knowledge, and intelligence have made the workflow legible.
 - sequence assay batches while respecting constraints and review gates
 - summarize execution outcomes and recommend reruns with explicit rationale
 - track plan quality trends and feed outcomes back into decision pipelines
+- validate design tables and generate reviewable lab protocol bundles
 
 ## Installation
 
@@ -70,15 +76,30 @@ pip install bijux-proteomics-lab
 from bijux_proteomics_lab import planning, outcomes, repositories
 ```
 
+For design and protocol planning:
+
+```python
+from bijux_proteomics_lab import (
+    plan_batch_randomization,
+    plan_multiplex_labeling,
+    validate_experiment_design,
+)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-lab`
 - Import root: `bijux_proteomics_lab`
-- Stable entrypoints: `planning`, `outcomes`, `repositories`, `schema`, and `serialization`
+- Stable entrypoints: `planning`, `design`, `outcomes`, `repositories`,
+  `schema`, and `serialization`
 
 ## Package boundaries
 
 This package owns assay planning, schedule generation, outcome interpretation, and rerun strategy support.
+
+It also owns typed experiment-design and protocol-planning contracts when those
+surfaces are about executable lab operations rather than raw scientific parsing
+or runtime dispatch.
 
 It does not own program-stage authority, ranking policy, or evidence truth semantics.
 
@@ -156,6 +177,7 @@ next cycle.
 ## Source guide
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
+- [`src/bijux_proteomics_lab/design.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design.py) for experiment-design validation, protocol metadata, and run-setup planning
 - [`src/bijux_proteomics_lab/outcomes.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py) for outcome interpretation and rerun decisions
 - [`src/bijux_proteomics_lab/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/repositories.py) for repository contracts and trend summaries
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-lab/tests) for executable behavior expectations
@@ -167,3 +189,4 @@ next cycle.
 - [Architecture overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/)
 - [Interface contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/)
 - [Release and versioning](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/release-and-versioning/)
+- [Experiment design and protocol planning](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/EXPERIMENT_DESIGN.md)
