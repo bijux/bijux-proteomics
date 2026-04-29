@@ -167,6 +167,15 @@ class QcAssessmentSeverity(StrEnum):
     NOT_ASSESSED = "NOT_ASSESSED"
 
 
+class QcRunAnomalyCategory(StrEnum):
+    """Stable anomaly categories for run-level QC summaries."""
+
+    CHROMATOGRAPHY = "chromatography"
+    IDENTIFICATION = "identification"
+    QUANTIFICATION = "quantification"
+    CONTAMINATION = "contamination"
+
+
 class QcThresholdRule(JsonModel):
     """One named threshold rule over a numeric QC metric."""
 
@@ -219,6 +228,17 @@ class QcMetricAssessment(JsonModel):
     threshold_rule: QcThresholdRule | None = None
     message: str = Field(..., min_length=1)
     enforced_violation: bool = False
+
+
+class QcRunAnomalyEntry(JsonModel):
+    """One categorized run-level anomaly."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    category: QcRunAnomalyCategory
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: QcAssessmentSeverity
 
 
 class QcRunAssessmentReport(JsonModel):
@@ -326,6 +346,7 @@ class LcmsRunQcReport(JsonModel):
     instrument_summary: QcInstrumentSummary
     identification_summary: QcIdentificationSummary
     quant_summary: QcQuantSummary | None = None
+    run_anomalies: tuple[QcRunAnomalyEntry, ...] = Field(default_factory=tuple)
     spectrum_count: int = Field(..., ge=0)
     identified_spectrum_count: int = Field(..., ge=0)
     psm_count: int = Field(..., ge=0)
@@ -547,6 +568,63 @@ def _assessment_message(
     if severity is QcAssessmentSeverity.WARNING:
         return f"{rule.metric_label} breached advisory threshold at {value_text}{unit}"
     return f"{rule.metric_label} breached fail threshold at {value_text}{unit}"
+
+
+def _build_run_anomalies(
+    *,
+    identification_rate: float,
+    mass_error_summary: QcMassErrorSummary,
+    retention_summary: QcRetentionTimeSummary,
+    quant_summary: QcQuantSummary | None,
+    contaminant_summary: QcContaminantSummary,
+) -> tuple[QcRunAnomalyEntry, ...]:
+    anomalies: list[QcRunAnomalyEntry] = []
+    if (
+        retention_summary.spectra_with_retention_time == 0
+        or retention_summary.identified_span_seconds is not None
+        and retention_summary.identified_span_seconds < 120.0
+    ):
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.CHROMATOGRAPHY,
+                code="limited_retention_coverage",
+                message="retention-time coverage is limited for identified spectra",
+                severity=QcAssessmentSeverity.WARNING,
+            )
+        )
+    if identification_rate < 0.5 or (
+        mass_error_summary.median_abs_ppm is not None
+        and mass_error_summary.median_abs_ppm > 10.0
+    ):
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.IDENTIFICATION,
+                code="weak_identification_signal",
+                message="identification evidence is weak or precursor error is elevated",
+                severity=QcAssessmentSeverity.WARNING
+                if identification_rate >= 0.3
+                else QcAssessmentSeverity.FAILED,
+            )
+        )
+    if quant_summary is None or quant_summary.missing_fraction > 0.4:
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.QUANTIFICATION,
+                code="sparse_quant_signal",
+                message="quantification coverage is sparse or absent for this run",
+                severity=QcAssessmentSeverity.WARNING,
+            )
+        )
+    if contaminant_summary.contaminant_psm_fraction > 0.1:
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.CONTAMINATION,
+                code="elevated_contaminant_fraction",
+                message="contaminant peptide burden exceeds the expected background range",
+                severity=QcAssessmentSeverity.WARNING,
+            )
+        )
+    return tuple(anomalies)
 
 
 def _evaluate_rule(
@@ -1258,6 +1336,7 @@ def build_lcms_run_qc_report(
         contaminant_psm_fraction=contaminant_summary.contaminant_psm_fraction,
         missed_cleavage_rate=_fraction(missed_cleavage_count, len(psm_records)),
     )
+    quant_summary = _build_quant_summary(quant_table, sample_id=sample_id)
     return LcmsRunQcReport(
         document_schema=_build_document_schema("lcms_run_qc_report"),
         run_id=resolved_run_id,
@@ -1269,7 +1348,14 @@ def build_lcms_run_qc_report(
         instrument=design_entry.instrument if design_entry else None,
         instrument_summary=instrument_summary,
         identification_summary=identification_summary,
-        quant_summary=_build_quant_summary(quant_table, sample_id=sample_id),
+        quant_summary=quant_summary,
+        run_anomalies=_build_run_anomalies(
+            identification_rate=identification_rate,
+            mass_error_summary=mass_error_summary,
+            retention_summary=retention_summary,
+            quant_summary=quant_summary,
+            contaminant_summary=contaminant_summary,
+        ),
         spectrum_count=len(spectra),
         identified_spectrum_count=identified_spectrum_count,
         psm_count=len(psm_records),

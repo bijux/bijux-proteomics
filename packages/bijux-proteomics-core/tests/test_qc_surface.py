@@ -375,6 +375,23 @@ def test_build_lcms_run_qc_report_tracks_charge_and_contaminant_distribution() -
     assert report.contaminant_summary.contaminant_protein_counts == {"CON__KERATIN": 1}
     assert report.mass_error.median_abs_ppm is not None
     assert report.mass_error.max_abs_ppm is not None
+    assert any(
+        entry.category.value == "contamination" for entry in report.run_anomalies
+    )
+
+
+def test_build_lcms_run_qc_report_emits_typed_run_anomalies() -> None:
+    design_entry = _design_entries()["S3"]
+    report = build_lcms_run_qc_report(
+        _run_c_spectra(),
+        _run_c_psms(),
+        design_entry=design_entry,
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+
+    categories = {entry.category.value for entry in report.run_anomalies}
+    assert "identification" in categories
+    assert "quantification" in categories
 
 
 def test_build_instrument_batch_qc_report_flags_outlier_run() -> None:
