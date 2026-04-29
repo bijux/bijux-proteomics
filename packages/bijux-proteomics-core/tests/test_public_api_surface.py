@@ -77,6 +77,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_spectrum_provenance_manifest" in bijux_proteomics.__all__
     assert "parse_mzml" in bijux_proteomics.__all__
     assert "detect_proteomics_format" in bijux_proteomics.__all__
+    assert "diagnose_proteomics_format" in bijux_proteomics.__all__
     assert "build_normalized_run_bundle" in bijux_proteomics.__all__
     assert "normalize_search_results_with_adapter" in bijux_proteomics.__all__
     assert "build_search_adapter_capability_matrix" in bijux_proteomics.__all__

@@ -13,6 +13,7 @@ from bijux_proteomics import (
     build_normalized_run_bundle,
     convert_proteomics_format,
     detect_proteomics_format,
+    diagnose_proteomics_format,
     extract_mzml_metadata,
     parse_experimental_design_table,
     parse_mzml,
@@ -137,6 +138,22 @@ def test_format_detection_and_design_table_parsing_are_stable() -> None:
     assert design_report.accepted_entries[0].search_engine == "Sage"
     assert invalid_design.valid is False
     assert invalid_design.summary["rejected_rows"] == 1
+
+
+def test_unsupported_format_diagnostic_reports_detection_failure_reasons() -> None:
+    diagnostic = diagnose_proteomics_format(_format_fixture("unsupported_vendor.raw"))
+
+    assert diagnostic.supported is False
+    assert diagnostic.detected_format is None
+    assert any("'.raw'" in reason for reason in diagnostic.reasons)
+
+    try:
+        detect_proteomics_format(_format_fixture("unsupported_vendor.raw"))
+    except ValueError as exc:
+        assert "unsupported proteomics format" in str(exc)
+        assert ".raw" in str(exc)
+    else:
+        raise AssertionError("expected unsupported format detection failure")
 
 
 def test_format_conversion_and_run_bundle_outputs_are_stable(tmp_path: Path) -> None:

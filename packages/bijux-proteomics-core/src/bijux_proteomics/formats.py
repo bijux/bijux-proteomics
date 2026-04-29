@@ -227,6 +227,17 @@ class FormatValidationReport(JsonModel):
     summary: dict[str, Any] = Field(default_factory=dict)
 
 
+class FormatDetectionDiagnostic(JsonModel):
+    """Stable detection report for supported and unsupported proteomics inputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_path: str = Field(..., min_length=1)
+    detected_format: ProteomicsFormatKind | None = None
+    supported: bool
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class FormatConversionTarget(StrEnum):
     """Supported normalized conversion targets."""
 
@@ -798,27 +809,78 @@ def export_spectra_jsonl(spectra: tuple[SpectrumModel, ...], path: Path) -> None
 
 def detect_proteomics_format(path: Path) -> ProteomicsFormatKind:
     """Detect the most likely proteomics format from file name and content."""
+    diagnostic = diagnose_proteomics_format(path)
+    if diagnostic.detected_format is None:
+        raise ValueError(
+            f"unsupported proteomics format for {path.name!r}: {'; '.join(diagnostic.reasons)}"
+        )
+    return diagnostic.detected_format
+
+
+def diagnose_proteomics_format(path: Path) -> FormatDetectionDiagnostic:
+    """Explain what was detected in one input path and why classification succeeded or failed."""
     suffix = path.suffix.lower()
+    reasons: list[str] = []
     if suffix in {".fasta", ".fa", ".faa"}:
-        return ProteomicsFormatKind.FASTA
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.FASTA,
+            supported=True,
+            reasons=(f"matched FASTA suffix {suffix}",),
+        )
     if suffix == ".mgf":
-        return ProteomicsFormatKind.MGF
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MGF,
+            supported=True,
+            reasons=("matched MGF suffix .mgf",),
+        )
     if suffix == ".mzml":
-        return ProteomicsFormatKind.MZML
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MZML,
+            supported=True,
+            reasons=("matched mzML suffix .mzml",),
+        )
     if path.name.endswith(".design.tsv") or path.name.endswith(".design.csv"):
-        return ProteomicsFormatKind.DESIGN_TABLE
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.DESIGN_TABLE,
+            supported=True,
+            reasons=("matched experimental design file name pattern",),
+        )
     text = _first_bytes_text(path)
     stripped = text.lstrip()
     if "<mzML" in text or f"{{{_NS_MZML}}}" in text:
-        return ProteomicsFormatKind.MZML
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MZML,
+            supported=True,
+            reasons=("matched mzML XML root content",),
+        )
     if stripped.startswith("BEGIN IONS"):
-        return ProteomicsFormatKind.MGF
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MGF,
+            supported=True,
+            reasons=("matched MGF block preamble",),
+        )
     if stripped.startswith(">"):
-        return ProteomicsFormatKind.FASTA
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.FASTA,
+            supported=True,
+            reasons=("matched FASTA record prefix",),
+        )
     if suffix == ".json" and (
         '"static_modifications"' in text or '"variable_modifications"' in text
     ):
-        return ProteomicsFormatKind.MOD_REGISTRY
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MOD_REGISTRY,
+            supported=True,
+            reasons=("matched modification registry JSON fields",),
+        )
     header = stripped.splitlines()[0] if stripped.splitlines() else ""
     header_columns = {
         column.strip()
@@ -828,10 +890,35 @@ def detect_proteomics_format(path: Path) -> ProteomicsFormatKind:
     if {"sample_id", "condition", "replicate", "fraction", "spectra_file"}.issubset(
         header_columns
     ):
-        return ProteomicsFormatKind.DESIGN_TABLE
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.DESIGN_TABLE,
+            supported=True,
+            reasons=("matched experimental design header columns",),
+        )
     if {"spectrum_id", "peptide", "charge", "score"}.issubset(header_columns):
-        return ProteomicsFormatKind.PSM
-    raise ValueError(f"could not detect proteomics format for {path.name!r}")
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.PSM,
+            supported=True,
+            reasons=("matched PSM header columns",),
+        )
+    if suffix:
+        reasons.append(f"suffix {suffix!r} is not a supported proteomics input")
+    if stripped.startswith("<"):
+        reasons.append("XML content did not match an mzML root")
+    elif header_columns:
+        reasons.append(
+            "tabular header did not match supported PSM or design-table columns"
+        )
+    else:
+        reasons.append("content did not match supported FASTA, MGF, mzML, JSON, or table signatures")
+    return FormatDetectionDiagnostic(
+        input_path=str(path),
+        detected_format=None,
+        supported=False,
+        reasons=tuple(reasons),
+    )
 
 
 def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
