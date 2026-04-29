@@ -18,6 +18,7 @@ from bijux_proteomics import (
     instantiate_proteomics_workflow_template,
     build_reproducible_workflow_blueprint,
     build_workflow_manifest_explanation_report,
+    build_workflow_replay_proof_report,
     build_workflow_run_directory_layout,
     build_workflow_step_provenance_report,
     build_workflow_runtime_validation_report,
@@ -171,6 +172,44 @@ def test_workflow_step_provenance_report_survives_resume_and_replay() -> None:
     )
     assert replayed.replay_disposition is WorkflowStepReplayDisposition.REPLAYED
     assert reused.replay_disposition is WorkflowStepReplayDisposition.REUSED
+
+
+def test_workflow_replay_proof_report_explains_when_reruns_change_outputs() -> None:
+    runtime_bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    previous_export = build_workflow_runtime_export_bundle(runtime_bundle)
+    current_export = build_workflow_runtime_export_bundle(
+        runtime_bundle.model_copy(
+            update={
+                "artifact_inventory": runtime_bundle.artifact_inventory.model_copy(
+                    update={
+                        "artifacts": (
+                            runtime_bundle.artifact_inventory.artifacts[0].model_copy(
+                                update={"absolute_path": str(_fixture("design.tsv"))}
+                            ),
+                            *runtime_bundle.artifact_inventory.artifacts[1:],
+                        )
+                    }
+                )
+            }
+        )
+    )
+
+    report = build_workflow_replay_proof_report(previous_export, current_export)
+
+    assert report.workflow_id == previous_export.workflow_id
+    assert report.equivalent is False
+    changed_surface = next(
+        entry for entry in report.entries if entry.surface == "artifact_inventory"
+    )
+    assert changed_surface.changed is True
 
 
 def test_external_tool_capability_report_blocks_nonlaunchable_adapters() -> None:

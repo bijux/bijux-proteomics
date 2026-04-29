@@ -779,6 +779,31 @@ class WorkflowRuntimeValidationReport(JsonModel):
     issues: tuple[WorkflowRuntimeValidationIssue, ...] = Field(default_factory=tuple)
 
 
+class WorkflowReplayProofEntry(JsonModel):
+    """One governed surface compared across replay or rerun exports."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: str = Field(..., min_length=1)
+    previous_sha256: str = Field(..., min_length=64, max_length=64)
+    current_sha256: str = Field(..., min_length=64, max_length=64)
+    changed: bool
+    rationale: str = Field(..., min_length=1)
+
+
+class WorkflowReplayProofReport(JsonModel):
+    """Proof report showing whether a replay or rerun changed workflow outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    equivalent: bool
+    previous_export_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    current_export_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    entries: tuple[WorkflowReplayProofEntry, ...] = Field(default_factory=tuple)
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -2860,6 +2885,76 @@ def build_workflow_runtime_validation_report(
         ),
         export_bundle_sha256=export_bundle.export_bundle_sha256,
         issues=tuple(issues),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_replay_proof_report(
+    previous_export: WorkflowRuntimeExportBundle,
+    current_export: WorkflowRuntimeExportBundle,
+) -> WorkflowReplayProofReport:
+    """Compare two workflow exports and explain whether rerun surfaces changed."""
+    if previous_export.workflow_id != current_export.workflow_id:
+        raise ValueError("workflow exports must share a workflow_id")
+    comparisons = (
+        (
+            "manifest",
+            _stable_model_sha256(previous_export.manifest),
+            _stable_model_sha256(current_export.manifest),
+            "workflow scientific and operational plan",
+        ),
+        (
+            "deterministic_execution",
+            _stable_model_sha256(previous_export.deterministic_execution),
+            _stable_model_sha256(current_export.deterministic_execution),
+            "deterministic execution assumptions",
+        ),
+        (
+            "runtime_state",
+            _stable_model_sha256(previous_export.runtime_state),
+            _stable_model_sha256(current_export.runtime_state),
+            "runtime lifecycle and result bindings",
+        ),
+        (
+            "artifact_inventory",
+            _stable_model_sha256(previous_export.artifact_inventory),
+            _stable_model_sha256(current_export.artifact_inventory),
+            "exported artifact file inventory",
+        ),
+        (
+            "checkpoint",
+            _stable_model_sha256(previous_export.checkpoint),
+            _stable_model_sha256(current_export.checkpoint),
+            "checkpoint and replay posture",
+        ),
+    )
+    entries = tuple(
+        WorkflowReplayProofEntry(
+            surface=surface,
+            previous_sha256=previous_sha256,
+            current_sha256=current_sha256,
+            changed=previous_sha256 != current_sha256,
+            rationale=(
+                f"{description} changed between replayed exports"
+                if previous_sha256 != current_sha256
+                else f"{description} remained stable across replayed exports"
+            ),
+        )
+        for surface, previous_sha256, current_sha256, description in comparisons
+    )
+    payload = WorkflowReplayProofReport(
+        document_schema=_build_document_schema("workflow_replay_proof_report"),
+        workflow_id=previous_export.workflow_id,
+        equivalent=not any(entry.changed for entry in entries),
+        previous_export_bundle_sha256=previous_export.export_bundle_sha256,
+        current_export_bundle_sha256=current_export.export_bundle_sha256,
+        entries=entries,
     )
     return payload.model_copy(
         update={
