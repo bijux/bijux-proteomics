@@ -404,6 +404,23 @@ class UncertaintyPreservingInterpretationSummary(JsonModel):
     notes: list[str] = Field(default_factory=list)
 
 
+class ComparativeCandidateReviewPacket(JsonModel):
+    """Evidence-aware comparison between two candidate options."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: str = Field(..., min_length=1)
+    preferred_candidate_id: str = Field(..., min_length=1)
+    compared_candidate_id: str = Field(..., min_length=1)
+    preferred_rank: int | None = Field(default=None, ge=1)
+    compared_rank: int | None = Field(default=None, ge=1)
+    preferred_score: float = Field(...)
+    compared_score: float = Field(...)
+    evidence_support_delta: float = Field(...)
+    residual_risk_delta: float = Field(...)
+    rationale: list[str] = Field(default_factory=list)
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -872,6 +889,80 @@ def build_intelligence_review_packet(
         portfolio=portfolio,
         review_ready=review_ready,
         notes=notes,
+    )
+
+
+def build_comparative_candidate_review_packet(
+    ranking: CandidateRanking,
+    assessments: list[CandidateAssessment],
+    risks: list[CandidateRiskProfile],
+    *,
+    preferred_candidate_id: str,
+    compared_candidate_id: str,
+) -> ComparativeCandidateReviewPacket:
+    """Explain why one candidate is preferred over another using evidence and risk."""
+    ranked_map = {
+        candidate.candidate_id: candidate for candidate in ranking.ranked_candidates
+    }
+    assessment_map = {assessment.candidate_id: assessment for assessment in assessments}
+    risk_map = {risk.candidate_id: risk for risk in risks}
+    preferred = ranked_map.get(preferred_candidate_id)
+    compared = ranked_map.get(compared_candidate_id)
+    if preferred is None or compared is None:
+        raise ValueError("both candidates must be present in the ranked candidate set")
+    preferred_assessment = assessment_map.get(preferred_candidate_id)
+    compared_assessment = assessment_map.get(compared_candidate_id)
+    if preferred_assessment is None or compared_assessment is None:
+        raise ValueError(
+            "candidate assessments are required for both compared candidates"
+        )
+    preferred_risk = risk_map.get(preferred_candidate_id)
+    compared_risk = risk_map.get(compared_candidate_id)
+    preferred_residual_risk = (
+        preferred_risk.residual_risk if preferred_risk is not None else 0.0
+    )
+    compared_residual_risk = (
+        compared_risk.residual_risk if compared_risk is not None else 0.0
+    )
+    rationale = [
+        f"score delta = {preferred.score - compared.score:.4f}",
+        f"evidence support delta = {preferred_assessment.evidence_support - compared_assessment.evidence_support:.4f}",
+        f"residual risk delta = {compared_residual_risk - preferred_residual_risk:.4f}",
+    ]
+    if preferred.score <= compared.score:
+        rationale.append(
+            "preferred candidate is being justified despite a non-positive score delta"
+        )
+    preferred_drivers = preferred.explainability.get("top_drivers", [])
+    if isinstance(preferred_drivers, list) and preferred_drivers:
+        rationale.append(
+            "preferred drivers: "
+            + ", ".join(str(item) for item in preferred_drivers[:3])
+        )
+    compared_blockers = compared.explainability.get("blockers", [])
+    if isinstance(compared_blockers, list) and compared_blockers:
+        rationale.append(
+            "compared blockers: "
+            + ", ".join(str(item) for item in compared_blockers[:3])
+        )
+    return ComparativeCandidateReviewPacket(
+        program_id=ranking.program_id,
+        preferred_candidate_id=preferred_candidate_id,
+        compared_candidate_id=compared_candidate_id,
+        preferred_rank=preferred.rank,
+        compared_rank=compared.rank,
+        preferred_score=preferred.score,
+        compared_score=compared.score,
+        evidence_support_delta=round(
+            preferred_assessment.evidence_support
+            - compared_assessment.evidence_support,
+            4,
+        ),
+        residual_risk_delta=round(
+            compared_residual_risk - preferred_residual_risk,
+            4,
+        ),
+        rationale=rationale,
     )
 
 

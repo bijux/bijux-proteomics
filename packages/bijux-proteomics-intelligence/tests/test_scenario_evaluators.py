@@ -6,6 +6,7 @@ from __future__ import annotations
 from bijux_proteomics import create_program_spec
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
+    ComparativeCandidateReviewPacket,
     CandidateRanking,
     CandidateRiskProfile,
     EvaluatorPolicyBundle,
@@ -23,6 +24,7 @@ from bijux_proteomics_intelligence import (
     SynthesisPolicy,
     UncertaintyPreservingInterpretationSummary,
     build_advanced_review_packet,
+    build_comparative_candidate_review_packet,
     build_final_decision_recommendation,
     build_intelligence_review_packet,
     derive_decision_escalation_flags,
@@ -164,6 +166,64 @@ def test_uncertainty_preserving_summary_keeps_disagreement_visible() -> None:
     assert summary.unresolved_question_count == 3
     assert isinstance(summary.scenario_entries[0], ScenarioUncertaintyEntry)
     assert any("remain visible" in note for note in summary.notes)
+
+
+def test_comparative_candidate_review_packet_justifies_preferred_candidate() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-compare",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-a",
+                score=1.18,
+                rank=1,
+                explainability={
+                    "top_drivers": ["strong evidence", "balanced manufacturability"],
+                    "blockers": ["minor assay follow-up"],
+                },
+            ),
+            RankedCandidate(
+                candidate_id="candidate-b",
+                score=1.04,
+                rank=2,
+                explainability={
+                    "top_drivers": ["high manufacturability"],
+                    "blockers": ["higher residual risk"],
+                },
+            ),
+        ],
+    )
+    assessments = [
+        CandidateAssessment(
+            candidate_id="candidate-a",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            evidence_support=0.88,
+        ),
+        CandidateAssessment(
+            candidate_id="candidate-b",
+            sequence="ACDEFGHIKLMNPQRSTVWYA",
+            evidence_support=0.61,
+        ),
+    ]
+    risks = [
+        CandidateRiskProfile(candidate_id="candidate-a", residual_risk=0.18),
+        CandidateRiskProfile(candidate_id="candidate-b", residual_risk=0.34),
+    ]
+
+    packet = build_comparative_candidate_review_packet(
+        ranking,
+        assessments,
+        risks,
+        preferred_candidate_id="candidate-a",
+        compared_candidate_id="candidate-b",
+    )
+
+    assert isinstance(packet, ComparativeCandidateReviewPacket)
+    assert packet.preferred_candidate_id == "candidate-a"
+    assert packet.compared_candidate_id == "candidate-b"
+    assert packet.preferred_rank == 1
+    assert packet.evidence_support_delta == 0.27
+    assert packet.residual_risk_delta == 0.16
+    assert any("preferred drivers" in line for line in packet.rationale)
 
 
 def test_evaluate_for_progression_holds_when_top_candidate_confidence_is_low() -> None:
