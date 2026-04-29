@@ -125,6 +125,13 @@ class AssayIntent(JsonModel):
     )
 
 
+class AssayPlanKind(StrEnum):
+    """Distinguish scientific planning advice from executable lab work."""
+
+    ADVISORY = "advisory"
+    EXECUTABLE = "executable"
+
+
 class AssayFamily(StrEnum):
     """Coarse assay families used for planning batches."""
 
@@ -156,6 +163,79 @@ class ExperimentPlan(JsonModel):
     batches: list[ExperimentBatch] = Field(
         default_factory=list,
         description="Ordered experiment batches.",
+    )
+
+
+class AdvisoryAssayRecommendation(JsonModel):
+    """Scientifically motivated assay recommendation that is not execution-ready."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    objective: str = Field(..., min_length=1, description="Scientific purpose.")
+    blocking: bool = Field(..., description="Whether the assay blocks progression.")
+    rationale: list[str] = Field(
+        default_factory=list,
+        description="Reasoning for recommending the assay.",
+    )
+
+
+class AdvisoryAssayPlan(JsonModel):
+    """Advisory assay plan for scientific prioritization before execution prep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    plan_kind: AssayPlanKind = Field(default=AssayPlanKind.ADVISORY)
+    open_evidence_gaps: list[str] = Field(
+        default_factory=list,
+        description="Evidence gaps that still shape scientific assay priority.",
+    )
+    recommendations: list[AdvisoryAssayRecommendation] = Field(
+        default_factory=list,
+        description="Scientifically motivated assay recommendations.",
+    )
+    executable: bool = Field(
+        default=False,
+        description="Advisory plans are not direct lab execution instructions.",
+    )
+
+
+class ExecutableAssayInstruction(JsonModel):
+    """Concrete assay instruction ready for laboratory execution review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instruction_id: str = Field(..., min_length=1)
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    sample_kind: str = Field(..., min_length=1)
+    objective: str = Field(..., min_length=1)
+    blocking: bool = Field(..., description="Whether the assay blocks progression.")
+    preflight_checks: list[str] = Field(
+        default_factory=list,
+        description="Checks that must pass before the assay is run.",
+    )
+
+
+class ExecutableAssayPlan(JsonModel):
+    """Operational assay plan ready for lab execution review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    plan_kind: AssayPlanKind = Field(default=AssayPlanKind.EXECUTABLE)
+    instructions: list[ExecutableAssayInstruction] = Field(
+        default_factory=list,
+        description="Executable assay instructions for one batch.",
+    )
+    blocked_by: list[str] = Field(
+        default_factory=list,
+        description="Operational blockers that still prevent execution.",
+    )
+    ready_for_execution: bool = Field(
+        ..., description="Whether the executable plan can proceed as written."
     )
 
 
@@ -1091,6 +1171,100 @@ def plan_experiment_batches(
         evidence_gaps=gaps,
         review_queue=[gate.gate_id for gate in program.review_gates if gate.blocking],
         batches=batches,
+    )
+
+
+def build_advisory_assay_plan(
+    program: ProgramSpec,
+    bundle: EvidenceBundle | None = None,
+) -> AdvisoryAssayPlan:
+    """Build a scientific assay-priority plan that is not execution-ready."""
+    required_kinds = [need.value for need in program.evidence_needs]
+    open_gaps = evidence_gaps(bundle, required_kinds) if bundle else required_kinds
+    recommendations = [
+        AdvisoryAssayRecommendation(
+            assay_id=assay.assay_id,
+            objective=assay.purpose,
+            blocking=assay.blocking,
+            rationale=[
+                (
+                    "blocking assay for the next review gate"
+                    if assay.blocking
+                    else "support assay for confidence expansion"
+                ),
+                f"sample kind: {assay.sample_kind}",
+                *(
+                    [f"targets evidence gaps: {', '.join(open_gaps[:2])}"]
+                    if open_gaps
+                    else []
+                ),
+            ],
+        )
+        for assay in program.assay_panel
+    ]
+    return AdvisoryAssayPlan(
+        program_id=program.program_id,
+        open_evidence_gaps=open_gaps,
+        recommendations=recommendations,
+    )
+
+
+def build_executable_assay_plan(
+    plan: ExperimentPlan,
+    *,
+    batch_id: BatchId,
+    available_sample_kinds: list[str] | None = None,
+) -> ExecutableAssayPlan:
+    """Convert one planned batch into execution-ready lab instructions."""
+    batch = next(
+        (candidate for candidate in plan.batches if candidate.batch_id == batch_id),
+        None,
+    )
+    if batch is None:
+        raise ValueError(f"unknown batch_id: {batch_id}")
+    available_sample_kind_set = set(available_sample_kinds or [])
+    missing_sample_kinds = [
+        sample_kind
+        for sample_kind in batch.sample_requirements
+        if sample_kind not in available_sample_kind_set
+    ]
+    blocked_by = [
+        *[
+            f"review gate pending: {gate_id}"
+            for gate_id in batch.blocking_review_gates
+        ],
+        *[
+            f"missing sample kind: {sample_kind}"
+            for sample_kind in missing_sample_kinds
+        ],
+    ]
+    instructions = [
+        ExecutableAssayInstruction(
+            instruction_id=f"{batch.batch_id}:{assay_id}",
+            assay_id=assay_id,
+            batch_id=batch.batch_id,
+            sample_kind=batch.assay_sample_kinds.get(assay_id, "unspecified"),
+            objective=batch.objective,
+            blocking=bool(batch.blocking_review_gates),
+            preflight_checks=[
+                *[
+                    f"confirm review gate {gate_id} cleared"
+                    for gate_id in batch.blocking_review_gates
+                ],
+                *[
+                    f"confirm sample inventory for {sample_kind}"
+                    for sample_kind in batch.sample_requirements
+                ],
+            ],
+        )
+        for assay_id in batch.assay_ids
+    ]
+    return ExecutableAssayPlan(
+        program_id=plan.program_id,
+        batch_id=batch.batch_id,
+        instructions=instructions,
+        blocked_by=blocked_by,
+        ready_for_execution=not blocked_by,
     )
 
 

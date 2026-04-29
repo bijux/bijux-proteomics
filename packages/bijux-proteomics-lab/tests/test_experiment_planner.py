@@ -14,13 +14,16 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
 )
 from bijux_proteomics_lab import (
+    AdvisoryAssayPlan,
     AssayDependency,
     AssayFamily,
     AssayIntent,
     AssayObservation,
     AssayOutcome,
     AssayResultState,
+    AssayPlanKind,
     ConflictAssayPolicy,
+    ExecutableAssayPlan,
     ExperimentBatch,
     ExperimentOutcome,
     ExperimentPlan,
@@ -36,6 +39,8 @@ from bijux_proteomics_lab import (
     assess_dependency_integrity,
     assess_gate_coverage_gaps,
     assess_material_constraints,
+    build_advisory_assay_plan,
+    build_executable_assay_plan,
     build_lab_cycle_brief,
     build_review_packet,
     build_review_risk_profile,
@@ -201,6 +206,81 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
 
     assert packet.ready_for_synthesis is False
     assert "failed assays: primary-binding" in packet.blocking_findings
+
+
+def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None:
+    program = create_program_spec(
+        program_id="prog-advisory",
+        name="advisory plan",
+        objective="separate scientific advice from execution directives",
+        target_id="target-advisory",
+        target_name="Target Advisory",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize a productive state",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(
+                assay_id="gate-binding",
+                purpose="confirm target engagement",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            ),
+            AssayRequirement(
+                assay_id="support-expression",
+                purpose="check expression robustness",
+                readout="yield_mg_per_l",
+                sample_kind="expression",
+                blocking=False,
+            ),
+        ]
+    )
+
+    plan = build_advisory_assay_plan(program)
+
+    assert isinstance(plan, AdvisoryAssayPlan)
+    assert plan.plan_kind is AssayPlanKind.ADVISORY
+    assert plan.executable is False
+    assert plan.recommendations[0].blocking is True
+
+
+def test_build_executable_assay_plan_requires_operational_readiness() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-exec",
+        review_queue=["gate-a"],
+        evidence_gaps=[],
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-exec",
+                objective="execute the gate assay",
+                assay_ids=["gate-binding"],
+                blocking_review_gates=["gate-a"],
+                priority=1,
+                sample_requirements=["protein"],
+                assay_sample_kinds={"gate-binding": "biophysical"},
+            )
+        ],
+    )
+
+    blocked = build_executable_assay_plan(
+        plan,
+        batch_id="batch-exec",
+        available_sample_kinds=[],
+    )
+    ready = build_executable_assay_plan(
+        plan,
+        batch_id="batch-exec",
+        available_sample_kinds=["protein"],
+    )
+
+    assert isinstance(blocked, ExecutableAssayPlan)
+    assert blocked.plan_kind is AssayPlanKind.EXECUTABLE
+    assert blocked.ready_for_execution is False
+    assert "review gate pending: gate-a" in blocked.blocked_by
+    assert "missing sample kind: protein" in blocked.blocked_by
+    assert ready.instructions[0].instruction_id == "batch-exec:gate-binding"
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
