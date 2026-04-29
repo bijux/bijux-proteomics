@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from math import exp, factorial
 from pathlib import Path
 import re
 
@@ -68,6 +69,7 @@ _AMMONIA_MONOISOTOPIC_MASS = 17.026549
 _AMMONIA_AVERAGE_MASS = 17.03052
 _PHOSPHORIC_ACID_MONOISOTOPIC_MASS = 97.976896
 _PHOSPHORIC_ACID_AVERAGE_MASS = 97.9952
+_C13_NEUTRON_SHIFT = 1.0033548378
 _RESIDUE_TOKEN_RE = re.compile(r"^[A-Z]+$")
 _DELTA_TOKEN_RE = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$")
 
@@ -220,9 +222,160 @@ class FragmentIon(JsonModel):
     mz_average: float = Field(..., gt=0.0)
 
 
+class ModificationSiteValidationIssue(JsonModel):
+    """One modification-site validation issue."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    site: ModificationPosition
+    site_index: int | None = Field(default=None, ge=1)
+    residue: str | None = None
+
+
+class ModificationSiteValidationReport(JsonModel):
+    """Structured site-validation result for a modified peptide."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    sequence: str = Field(..., min_length=1)
+    canonical_notation: str | None = None
+    issues: tuple[ModificationSiteValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class PeptideChargeState(JsonModel):
+    """Resolved peptide neutral mass plus one charge-state projection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_notation: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    mass_type: MassType
+    neutral_mass: float
+    mz: float
+
+
+class IsotopeEnvelopeStatus(StrEnum):
+    """Support level for isotope-envelope output."""
+
+    ADVISORY = "advisory"
+
+
+class IsotopePeak(JsonModel):
+    """One approximate isotope peak."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    isotope_index: int = Field(..., ge=0)
+    intensity: float = Field(..., ge=0.0)
+    mz: float = Field(..., gt=0.0)
+
+
+class PeptideIsotopeEnvelope(JsonModel):
+    """Approximate isotope envelope for a precursor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: IsotopeEnvelopeStatus = IsotopeEnvelopeStatus.ADVISORY
+    canonical_notation: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    estimated_carbon_count: float = Field(..., ge=0.0)
+    monoisotopic_mz: float = Field(..., gt=0.0)
+    peaks: tuple[IsotopePeak, ...] = Field(default_factory=tuple)
+
+
+class ModificationLocalizationStatus(StrEnum):
+    """Support level for localization output."""
+
+    ADVISORY = "advisory"
+
+
+class ModificationLocalizationCandidate(JsonModel):
+    """One modification localization advisory item."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    modification_name: str = Field(..., min_length=1)
+    assigned_site: ModificationPosition
+    assigned_site_index: int | None = Field(default=None, ge=1)
+    candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
+    residue_scope: tuple[str, ...] = Field(default_factory=tuple)
+    ambiguous: bool = False
+
+
+class ModificationLocalizationAdvisory(JsonModel):
+    """Advisory-only localization output until real scoring exists."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: ModificationLocalizationStatus = ModificationLocalizationStatus.ADVISORY
+    canonical_notation: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
+    candidates: tuple[ModificationLocalizationCandidate, ...] = Field(default_factory=tuple)
+
+
 def _format_mass_delta(delta: float) -> str:
     rendered = f"{delta:+.6f}".rstrip("0").rstrip(".")
     return rendered if "." in rendered else f"{rendered}.0"
+
+
+def _build_applied_modification(
+    *,
+    token: str,
+    site: ModificationPosition,
+    site_index: int | None,
+    sequence: str,
+    registry: ModificationRegistryDocument | None,
+) -> AppliedModification:
+    mapping = _registry_lookup(registry)
+    stripped_token = token.strip()
+    definition = (
+        None if _DELTA_TOKEN_RE.fullmatch(stripped_token) else mapping.get(stripped_token.lower())
+    )
+    residue = _validate_definition_site(
+        definition=definition,
+        sequence=sequence,
+        site=site,
+        site_index=site_index,
+    )
+    name, mono, average, losses, controlled_id, source = _resolve_token(
+        stripped_token,
+        registry=registry,
+    )
+    return AppliedModification(
+        name=name,
+        token=definition.name if definition is not None else _format_mass_delta(mono),
+        site=site,
+        site_index=site_index,
+        residue=residue,
+        mass_delta_monoisotopic=mono,
+        mass_delta_average=average,
+        neutral_losses=losses,
+        controlled_id=controlled_id,
+        source=source,
+    )
+
+
+def _candidate_definition_for_delta(
+    *,
+    delta: float,
+    site: ModificationPosition,
+    residue: str | None,
+    registry: ModificationRegistryDocument | None,
+    tolerance: float = 1e-6,
+) -> StaticModification | VariableModification | None:
+    for definition in _registry_lookup(registry).values():
+        if abs(definition.mass_delta_monoisotopic - delta) > tolerance:
+            continue
+        if definition.position is not site:
+            continue
+        if site is ModificationPosition.ANYWHERE and residue is not None:
+            if definition.residues and residue not in definition.residues:
+                continue
+        return definition
+    return None
 
 
 def _build_builtin_registry() -> ModificationRegistryDocument:
@@ -509,6 +662,147 @@ def calculate_peptide_mz(
     return (neutral_mass + (charge * proton_mass)) / charge
 
 
+def calculate_modified_peptide_mass(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    mass_type: MassType = MassType.MONOISOTOPIC,
+    static_modifications: tuple[StaticModification, ...] = (),
+    registry: ModificationRegistryDocument | None = None,
+) -> float:
+    """Calculate modified peptide neutral mass in the selected mass space."""
+    if mass_type is MassType.MONOISOTOPIC:
+        return calculate_monoisotopic_peptide_mass(
+            peptide,
+            static_modifications=static_modifications,
+            registry=registry,
+        )
+    return calculate_average_peptide_mass(
+        peptide,
+        static_modifications=static_modifications,
+        registry=registry,
+    )
+
+
+def build_peptide_charge_state(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    charge: int,
+    mass_type: MassType = MassType.MONOISOTOPIC,
+    static_modifications: tuple[StaticModification, ...] = (),
+    registry: ModificationRegistryDocument | None = None,
+) -> PeptideChargeState:
+    """Build a typed charge-state view for one peptide."""
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    canonical = canonicalize_modified_peptide(parsed, registry=registry)
+    neutral_mass = calculate_modified_peptide_mass(
+        parsed,
+        mass_type=mass_type,
+        static_modifications=static_modifications,
+        registry=registry,
+    )
+    mz = calculate_peptide_mz(
+        parsed,
+        charge=charge,
+        mass_type=mass_type,
+        static_modifications=static_modifications,
+        registry=registry,
+    )
+    return PeptideChargeState(
+        canonical_notation=canonical,
+        charge=charge,
+        mass_type=mass_type,
+        neutral_mass=neutral_mass,
+        mz=mz,
+    )
+
+
+def approximate_peptide_isotope_envelope(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    charge: int,
+    peak_count: int = 4,
+    registry: ModificationRegistryDocument | None = None,
+) -> PeptideIsotopeEnvelope:
+    """Approximate a precursor isotope envelope using an averagine-style advisory model."""
+    if peak_count < 1:
+        raise ValueError("peak_count must be at least 1")
+    charge_state = build_peptide_charge_state(
+        peptide,
+        charge=charge,
+        mass_type=MassType.MONOISOTOPIC,
+        registry=registry,
+    )
+    estimated_carbon_count = max((charge_state.neutral_mass / 111.1254) * 4.9384, 0.0)
+    lambda_13c = estimated_carbon_count * 0.0107
+    raw_intensities = tuple(
+        exp(-lambda_13c) * (lambda_13c**index) / factorial(index)
+        for index in range(peak_count)
+    )
+    total_intensity = sum(raw_intensities) or 1.0
+    peaks = tuple(
+        IsotopePeak(
+            isotope_index=index,
+            intensity=intensity / total_intensity,
+            mz=charge_state.mz + ((_C13_NEUTRON_SHIFT * index) / charge),
+        )
+        for index, intensity in enumerate(raw_intensities)
+    )
+    return PeptideIsotopeEnvelope(
+        canonical_notation=charge_state.canonical_notation,
+        charge=charge,
+        estimated_carbon_count=estimated_carbon_count,
+        monoisotopic_mz=charge_state.mz,
+        peaks=peaks,
+    )
+
+
+def build_modification_localization_advisory(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> ModificationLocalizationAdvisory:
+    """Emit an advisory-only localization summary until scored localization exists."""
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    mapping = _registry_lookup(registry)
+    candidates: list[ModificationLocalizationCandidate] = []
+    for modification in parsed.modifications:
+        residue_scope: tuple[str, ...] = ()
+        candidate_site_indices: tuple[int, ...] = ()
+        if modification.source == "registry":
+            definition = mapping.get(modification.name.strip().lower())
+            if definition is not None:
+                residue_scope = definition.residues
+                if definition.position is ModificationPosition.ANYWHERE:
+                    candidate_site_indices = tuple(
+                        index
+                        for index, residue in enumerate(parsed.sequence, start=1)
+                        if residue in definition.residues
+                    )
+        elif modification.residue is not None and modification.site_index is not None:
+            residue_scope = (modification.residue,)
+            candidate_site_indices = tuple(
+                index
+                for index, residue in enumerate(parsed.sequence, start=1)
+                if residue == modification.residue
+            )
+
+        candidates.append(
+            ModificationLocalizationCandidate(
+                modification_name=modification.name,
+                assigned_site=modification.site,
+                assigned_site_index=modification.site_index,
+                candidate_site_indices=candidate_site_indices,
+                residue_scope=residue_scope,
+                ambiguous=len(candidate_site_indices) > 1,
+            )
+        )
+    return ModificationLocalizationAdvisory(
+        canonical_notation=canonicalize_modified_peptide(parsed, registry=registry),
+        note="localization is advisory only; site scores and probability models are not implemented yet",
+        candidates=tuple(candidates),
+    )
+
+
 def _resolve_token(
     token: str,
     *,
@@ -568,14 +862,8 @@ def parse_modified_peptide(
     registry: ModificationRegistryDocument | None = None,
 ) -> ParsedModifiedPeptide:
     """Parse modified peptide bracket notation into a stable contract."""
-    mapping = _registry_lookup(registry)
     text = notation.strip()
     modifications: list[AppliedModification] = []
-
-    def resolve_definition(token: str) -> StaticModification | VariableModification | None:
-        if _DELTA_TOKEN_RE.fullmatch(token.strip()):
-            return None
-        return mapping.get(token.strip().lower())
 
     index = 0
     residues: list[str] = []
@@ -585,30 +873,13 @@ def parse_modified_peptide(
         if close == -1 or close + 1 >= len(text) or text[close + 1] != "-":
             raise ValueError("N-terminal modifications must use [token]-PEPTIDE notation")
         token = text[1:close]
-        definition = resolve_definition(token)
-        residue = None
-        if definition is not None:
-            residue = _validate_definition_site(
-                definition=definition,
-                sequence="",
+        modifications.append(
+            _build_applied_modification(
+                token=token,
                 site=ModificationPosition.PEPTIDE_N_TERM,
                 site_index=None,
-            )
-        name, mono, average, losses, controlled_id, source = _resolve_token(
-            token,
-            registry=registry,
-        )
-        modifications.append(
-            AppliedModification(
-                name=name,
-                token=definition.name if definition is not None else _format_mass_delta(mono),
-                site=ModificationPosition.PEPTIDE_N_TERM,
-                residue=residue,
-                mass_delta_monoisotopic=mono,
-                mass_delta_average=average,
-                neutral_losses=losses,
-                controlled_id=controlled_id,
-                source=source,
+                sequence="",
+                registry=registry,
             )
         )
         index = close + 2
@@ -626,30 +897,14 @@ def parse_modified_peptide(
             if close == -1:
                 raise ValueError("unterminated modification token")
             token = text[index + 1 : close]
-            definition = resolve_definition(token)
             sequence = "".join(residues)
-            residue = _validate_definition_site(
-                definition=definition,
-                sequence=sequence,
-                site=ModificationPosition.ANYWHERE,
-                site_index=len(sequence),
-            )
-            name, mono, average, losses, controlled_id, source = _resolve_token(
-                token,
-                registry=registry,
-            )
             modifications.append(
-                AppliedModification(
-                    name=name,
-                    token=definition.name if definition is not None else _format_mass_delta(mono),
+                _build_applied_modification(
+                    token=token,
                     site=ModificationPosition.ANYWHERE,
                     site_index=len(sequence),
-                    residue=residue,
-                    mass_delta_monoisotopic=mono,
-                    mass_delta_average=average,
-                    neutral_losses=losses,
-                    controlled_id=controlled_id,
-                    source=source,
+                    sequence=sequence,
+                    registry=registry,
                 )
             )
             index = close + 1
@@ -662,28 +917,13 @@ def parse_modified_peptide(
         if not text[index:].startswith("-[") or not text.endswith("]"):
             raise ValueError("C-terminal modifications must use PEPTIDE-[token] notation")
         token = text[index + 2 : -1]
-        definition = resolve_definition(token)
-        residue = _validate_definition_site(
-            definition=definition,
-            sequence=sequence,
-            site=ModificationPosition.PEPTIDE_C_TERM,
-            site_index=None,
-        )
-        name, mono, average, losses, controlled_id, source = _resolve_token(
-            token,
-            registry=registry,
-        )
         modifications.append(
-            AppliedModification(
-                name=name,
-                token=definition.name if definition is not None else _format_mass_delta(mono),
+            _build_applied_modification(
+                token=token,
                 site=ModificationPosition.PEPTIDE_C_TERM,
-                residue=residue,
-                mass_delta_monoisotopic=mono,
-                mass_delta_average=average,
-                neutral_losses=losses,
-                controlled_id=controlled_id,
-                source=source,
+                site_index=None,
+                sequence=sequence,
+                registry=registry,
             )
         )
 
@@ -691,6 +931,147 @@ def parse_modified_peptide(
         sequence=sequence,
         modifications=tuple(modifications),
         canonical_notation=_render_modified_peptide(sequence, tuple(modifications)),
+    )
+
+
+def build_modified_peptide(
+    sequence: str,
+    *,
+    assignments: tuple[str, ...] = (),
+    registry: ModificationRegistryDocument | None = None,
+) -> ParsedModifiedPeptide:
+    """Build a modified peptide from site-assignment strings."""
+    normalized = _coerce_sequence(sequence)
+    modifications: list[AppliedModification] = []
+    for assignment in assignments:
+        token, separator, site_token = assignment.partition("@")
+        if not separator:
+            raise ValueError(
+                "modification assignments must use token@site syntax such as Oxidation@3 or Acetyl@n-term"
+            )
+        site_label = site_token.strip().lower()
+        if site_label in {"n-term", "nterm", "peptide_n_term"}:
+            site = ModificationPosition.PEPTIDE_N_TERM
+            site_index = None
+        elif site_label in {"c-term", "cterm", "peptide_c_term"}:
+            site = ModificationPosition.PEPTIDE_C_TERM
+            site_index = None
+        else:
+            try:
+                site_index = int(site_label)
+            except ValueError as exc:
+                raise ValueError(f"invalid modification site {site_token!r}") from exc
+            if site_index < 1 or site_index > len(normalized):
+                raise ValueError(f"modification site {site_index} is outside peptide length {len(normalized)}")
+            site = ModificationPosition.ANYWHERE
+        modifications.append(
+            _build_applied_modification(
+                token=token,
+                site=site,
+                site_index=site_index,
+                sequence=normalized if site is ModificationPosition.ANYWHERE else normalized,
+                registry=registry,
+            )
+        )
+    ordered = tuple(
+        sorted(
+            modifications,
+            key=lambda modification: (
+                0 if modification.site is ModificationPosition.PEPTIDE_N_TERM else 1,
+                modification.site_index or 0,
+                2 if modification.site is ModificationPosition.PEPTIDE_C_TERM else 1,
+                modification.token,
+            ),
+        )
+    )
+    return ParsedModifiedPeptide(
+        sequence=normalized,
+        modifications=ordered,
+        canonical_notation=_render_modified_peptide(normalized, ordered),
+    )
+
+
+def canonicalize_modified_peptide(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> str:
+    """Return a stable canonical notation for one modified peptide."""
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    canonicalized: list[AppliedModification] = []
+    for modification in parsed.modifications:
+        if modification.source == "delta":
+            definition = _candidate_definition_for_delta(
+                delta=modification.mass_delta_monoisotopic,
+                site=modification.site,
+                residue=modification.residue,
+                registry=registry,
+            )
+            if definition is not None:
+                canonicalized.append(
+                    modification.model_copy(
+                        update={
+                            "name": definition.name,
+                            "token": definition.name,
+                            "controlled_id": definition.controlled_id,
+                            "neutral_losses": definition.neutral_losses,
+                        }
+                    )
+                )
+                continue
+        elif modification.source == "registry":
+            canonicalized.append(
+                modification.model_copy(
+                    update={"token": modification.name}
+                )
+            )
+            continue
+        canonicalized.append(
+            modification.model_copy(
+                update={"token": _format_mass_delta(modification.mass_delta_monoisotopic)}
+            )
+        )
+    ordered = tuple(
+        sorted(
+            canonicalized,
+            key=lambda modification: (
+                0 if modification.site is ModificationPosition.PEPTIDE_N_TERM else 1,
+                modification.site_index or 0,
+                2 if modification.site is ModificationPosition.PEPTIDE_C_TERM else 1,
+                modification.token,
+            ),
+        )
+    )
+    return _render_modified_peptide(parsed.sequence, ordered)
+
+
+def validate_modified_peptide_sites(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> ModificationSiteValidationReport:
+    """Validate modified peptide site assignments into a structured report."""
+    try:
+        parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    except ValueError as exc:
+        text = peptide.sequence if isinstance(peptide, ParsedModifiedPeptide) else str(peptide)
+        sequence = "".join(character for character in text.upper() if character.isalpha())
+        return ModificationSiteValidationReport(
+            valid=False,
+            sequence=sequence or "UNKNOWN",
+            issues=(
+                ModificationSiteValidationIssue(
+                    code="invalid_modification_site",
+                    message=str(exc),
+                    site=ModificationPosition.ANYWHERE,
+                ),
+            ),
+        )
+    return ModificationSiteValidationReport(
+        valid=True,
+        sequence=parsed.sequence,
+        canonical_notation=canonicalize_modified_peptide(parsed, registry=registry),
+        issues=(),
     )
 
 

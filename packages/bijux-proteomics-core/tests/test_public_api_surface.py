@@ -22,6 +22,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "calculate_monoisotopic_peptide_mass" in bijux_proteomics.__all__
     assert "calculate_fragment_ions" in bijux_proteomics.__all__
     assert "modification_registry" in bijux_proteomics.__all__
+    assert "canonicalize_modified_peptide" in bijux_proteomics.__all__
+    assert "build_peptide_charge_state" in bijux_proteomics.__all__
+    assert "approximate_peptide_isotope_envelope" in bijux_proteomics.__all__
 
 
 def test_intelligence_public_api_contains_expected_exports() -> None:

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from math import isclose
 from pathlib import Path
+import json
 
 import pytest
 
@@ -14,15 +15,22 @@ from bijux_proteomics import (
     ModificationPosition,
     StaticModification,
     VariableModification,
+    approximate_peptide_isotope_envelope,
     build_modification_registry,
+    build_modification_localization_advisory,
+    build_modified_peptide,
+    build_peptide_charge_state,
     calculate_average_peptide_mass,
     calculate_fragment_ions,
+    calculate_modified_peptide_mass,
     calculate_monoisotopic_peptide_mass,
     calculate_peptide_mz,
+    canonicalize_modified_peptide,
     get_modification,
     load_modification_registry,
     modification_registry,
     parse_modified_peptide,
+    validate_modified_peptide_sites,
 )
 
 
@@ -33,6 +41,10 @@ def _modification_fixture(name: str) -> Path:
         / "modifications"
         / name
     )
+
+
+def _chemistry_fixture(name: str) -> Path:
+    return Path(__file__).parent / "fixtures" / "chemistry" / name
 
 
 def test_mass_calculators_cover_monoisotopic_average_and_mz() -> None:
@@ -74,6 +86,22 @@ def test_variable_modification_registry_and_parser_support_named_and_delta_notat
     assert delta.modifications[0].source == "delta"
     assert terminal.modifications[0].site is ModificationPosition.PEPTIDE_N_TERM
     assert terminal.canonical_notation == "[Acetyl]-PEPTIDE"
+
+
+def test_canonicalizer_normalizes_equivalent_named_and_delta_notation() -> None:
+    registry = modification_registry()
+
+    canonical_named = canonicalize_modified_peptide(
+        "ACDM[Oxidation]K",
+        registry=registry,
+    )
+    canonical_delta = canonicalize_modified_peptide(
+        "ACDM[+15.994915]K",
+        registry=registry,
+    )
+
+    assert canonical_named == "ACDM[Oxidation]K"
+    assert canonical_delta == canonical_named
 
 
 def test_modification_registry_loader_accepts_valid_fixture_and_rejects_invalid_fixture() -> None:
@@ -180,6 +208,94 @@ def test_build_modification_registry_creates_stable_document() -> None:
 def test_modified_peptide_parser_rejects_invalid_site_assignment() -> None:
     with pytest.raises(ValueError, match="not valid on residue"):
         parse_modified_peptide("M[Phospho]PEPTIDE", registry=modification_registry())
+
+
+def test_site_validation_report_exposes_invalid_assignment() -> None:
+    report = validate_modified_peptide_sites(
+        "M[Phospho]PEPTIDE",
+        registry=modification_registry(),
+    )
+
+    assert report.valid is False
+    assert report.issues[0].code == "invalid_modification_site"
+
+
+def test_modified_peptide_mass_wrapper_and_charge_state_model() -> None:
+    peptide = parse_modified_peptide("M[Oxidation]PEPTIDE", registry=modification_registry())
+
+    neutral_mass = calculate_modified_peptide_mass(peptide)
+    charge_state = build_peptide_charge_state(peptide, charge=3)
+
+    assert isclose(neutral_mass, 946.395345, rel_tol=0.0, abs_tol=1e-6)
+    assert charge_state.charge == 3
+    assert isclose(charge_state.mz, 316.472391466812, rel_tol=0.0, abs_tol=1e-9)
+
+
+def test_build_modified_peptide_supports_assignment_syntax() -> None:
+    peptide = build_modified_peptide(
+        "PESTIDE",
+        assignments=("Acetyl@n-term", "Phospho@3"),
+        registry=modification_registry(),
+    )
+
+    assert peptide.canonical_notation == "[Acetyl]-PES[Phospho]TIDE"
+
+
+def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:
+    envelope = approximate_peptide_isotope_envelope("PEPTIDE", charge=2, peak_count=4)
+
+    assert envelope.status.value == "advisory"
+    assert len(envelope.peaks) == 4
+    assert isclose(sum(peak.intensity for peak in envelope.peaks), 1.0, rel_tol=0.0, abs_tol=1e-9)
+    assert envelope.peaks[1].mz > envelope.peaks[0].mz
+
+
+def test_localization_placeholder_is_advisory_and_reports_candidate_sites() -> None:
+    peptide = build_modified_peptide(
+        "ASTY",
+        assignments=("Phospho@2",),
+        registry=modification_registry(),
+    )
+
+    advisory = build_modification_localization_advisory(
+        peptide,
+        registry=modification_registry(),
+    )
+
+    assert advisory.status.value == "advisory"
+    assert advisory.candidates[0].candidate_site_indices == (2, 3, 4)
+    assert advisory.candidates[0].ambiguous is True
+
+
+def test_chemistry_regression_fixture_pack_stays_stable() -> None:
+    cases = json.loads(_chemistry_fixture("regression_cases.json").read_text())
+    registry = modification_registry()
+
+    for case in cases:
+        peptide = parse_modified_peptide(case["notation"], registry=registry)
+        assert canonicalize_modified_peptide(peptide, registry=registry) == case["canonical_notation"]
+        assert isclose(
+            calculate_modified_peptide_mass(peptide, registry=registry),
+            case["monoisotopic_mass"],
+            rel_tol=0.0,
+            abs_tol=1e-6,
+        )
+        assert isclose(
+            calculate_modified_peptide_mass(
+                peptide,
+                mass_type=MassType.AVERAGE,
+                registry=registry,
+            ),
+            case["average_mass"],
+            rel_tol=0.0,
+            abs_tol=1e-6,
+        )
+        assert isclose(
+            calculate_peptide_mz(peptide, charge=case["charge"], registry=registry),
+            case["mz"],
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
 
 
 def test_mz_calculator_rejects_invalid_charge() -> None:

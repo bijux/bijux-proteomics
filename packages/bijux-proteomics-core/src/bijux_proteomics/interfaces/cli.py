@@ -11,6 +11,16 @@ from typing import Any
 
 import click
 
+from bijux_proteomics.chemistry import (
+    approximate_peptide_isotope_envelope,
+    build_modification_localization_advisory,
+    build_modified_peptide,
+    build_peptide_charge_state,
+    calculate_fragment_ions,
+    canonicalize_modified_peptide,
+    FragmentIonSeries,
+    load_modification_registry,
+)
 from bijux_proteomics.digestion import (
     PeptideDigestionMode,
     build_digest_manifest,
@@ -85,6 +95,10 @@ def _digestion_mode_choice() -> click.Choice:
 
 def _export_format_choice() -> click.Choice:
     return click.Choice(["tsv", "jsonl", "parquet"], case_sensitive=False)
+
+
+def _fragment_series_choice() -> click.Choice:
+    return click.Choice([series.value for series in FragmentIonSeries], case_sensitive=False)
 
 
 @click.group()
@@ -472,3 +486,84 @@ def digest_command(
             "output_path": str(out_path),
         }
     )
+
+
+@cli.command("peptide-mass")
+@click.argument("sequence")
+@click.option("--mod", "modifications", multiple=True, help="Modification assignment like Oxidation@3 or Acetyl@n-term.")
+@click.option("--charge", type=int, default=2, show_default=True)
+@click.option(
+    "--fragment-series",
+    multiple=True,
+    type=_fragment_series_choice(),
+    default=("b", "y"),
+    show_default=True,
+)
+@click.option("--include-neutral-losses", is_flag=True, default=False)
+@click.option("--isotope-peaks", type=int, default=4, show_default=True)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def peptide_mass_command(
+    sequence: str,
+    modifications: tuple[str, ...],
+    charge: int,
+    fragment_series: tuple[str, ...],
+    include_neutral_losses: bool,
+    isotope_peaks: int,
+    registry_path: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Emit peptide chemistry diagnostics for one sequence plus optional modifications."""
+    try:
+        registry = load_modification_registry(registry_path) if registry_path is not None else None
+        peptide = build_modified_peptide(
+            sequence,
+            assignments=tuple(modifications),
+            registry=registry,
+        )
+        charge_state = build_peptide_charge_state(
+            peptide,
+            charge=charge,
+            registry=registry,
+        )
+        envelope = approximate_peptide_isotope_envelope(
+            peptide,
+            charge=charge,
+            peak_count=isotope_peaks,
+            registry=registry,
+        )
+        localization = build_modification_localization_advisory(
+            peptide,
+            registry=registry,
+        )
+        fragments = calculate_fragment_ions(
+            peptide,
+            charges=(charge,),
+            series=tuple(FragmentIonSeries(series) for series in fragment_series),
+            include_neutral_losses=include_neutral_losses,
+            registry=registry,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    payload = {
+        "canonical_notation": canonicalize_modified_peptide(peptide, registry=registry),
+        "charge_state": charge_state.to_dict(),
+        "isotope_envelope": envelope.to_dict(),
+        "localization": localization.to_dict(),
+        "fragment_ion_count": len(fragments),
+        "fragments": [fragment.to_dict() for fragment in fragments],
+    }
+    _emit_json(payload, out_path=out_path)

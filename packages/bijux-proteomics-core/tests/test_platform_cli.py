@@ -255,3 +255,44 @@ def test_digest_command_reports_invalid_output_path(
 
         assert result.exit_code != 0
         assert "No such file or directory" in result.output
+
+
+def test_peptide_mass_command_reports_mass_fragments_and_localization() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-mass",
+                "PESTIDE",
+                "--mod",
+                "Phospho@3",
+                "--charge",
+                "2",
+                "--include-neutral-losses",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["canonical_notation"] == "PES[Phospho]TIDE"
+        assert payload["charge_state"]["charge"] == 2
+        assert payload["fragment_ion_count"] > 0
+        assert payload["localization"]["status"] == "advisory"
+
+
+def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-mass",
+                "PEPTIDE",
+                "--mod",
+                "Phospho@1",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "not valid on residue" in result.output
