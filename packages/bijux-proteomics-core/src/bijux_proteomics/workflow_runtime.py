@@ -227,6 +227,28 @@ class WorkflowStepProvenanceReport(JsonModel):
     entries: tuple[WorkflowStepProvenanceEntry, ...] = Field(default_factory=tuple)
 
 
+class ExternalToolCapabilityIssue(JsonModel):
+    """One capability issue discovered before launching heavy external steps."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+    message: str = Field(..., min_length=1)
+
+
+class ExternalToolCapabilityReport(JsonModel):
+    """Capability check for one workflow before external execution begins."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    adapter_kind: SearchAdapterKind
+    executable: bool
+    issues: tuple[ExternalToolCapabilityIssue, ...] = Field(default_factory=tuple)
+
+
 class CoreResultRuntimeBinding(JsonModel):
     """One binding between a core result surface and runtime materialization."""
 
@@ -1355,6 +1377,53 @@ def build_workflow_step_provenance_report(
         document_schema=_build_document_schema("workflow_step_provenance_report"),
         workflow_id=manifest.workflow_id,
         entries=tuple(entries),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_external_tool_capability_report(
+    manifest: ProteomicsWorkflowManifest,
+) -> ExternalToolCapabilityReport:
+    """Check whether the selected external tool can support the planned workflow."""
+    adapter_manifest = get_search_adapter_manifest(manifest.search_adapter_kind)
+    issues: list[ExternalToolCapabilityIssue] = []
+    if manifest.execution_mode is WorkflowExecutionMode.EXTERNAL_SEARCH:
+        if not adapter_manifest.supports_external_execution:
+            issues.append(
+                ExternalToolCapabilityIssue(
+                    code="adapter_not_launchable",
+                    severity="error",
+                    message="selected adapter cannot launch an external search and only supports result normalization",
+                )
+            )
+        if not adapter_manifest.supports_protein_refs:
+            issues.append(
+                ExternalToolCapabilityIssue(
+                    code="missing_protein_reference_support",
+                    severity="error",
+                    message="selected adapter cannot preserve protein references required by downstream FDR and evidence steps",
+                )
+            )
+        if not adapter_manifest.supports_config_hash:
+            issues.append(
+                ExternalToolCapabilityIssue(
+                    code="missing_config_hash_support",
+                    severity="warning",
+                    message="selected adapter cannot preserve a native configuration hash for heavy external execution provenance",
+                )
+            )
+    payload = ExternalToolCapabilityReport(
+        document_schema=_build_document_schema("external_tool_capability_report"),
+        workflow_id=manifest.workflow_id,
+        adapter_kind=manifest.search_adapter_kind,
+        executable=not any(issue.severity == "error" for issue in issues),
+        issues=tuple(issues),
     )
     return payload.model_copy(
         update={

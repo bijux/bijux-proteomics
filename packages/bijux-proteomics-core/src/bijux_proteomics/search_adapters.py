@@ -100,6 +100,7 @@ class SearchAdapterManifest(JsonModel):
     supports_explicit_decoy_label: bool = False
     supports_protein_refs: bool = False
     supports_config_hash: bool = False
+    supports_external_execution: bool = False
 
 
 class SearchAdapterDialectManifest(JsonModel):
@@ -131,6 +132,7 @@ class SearchAdapterCapability(JsonModel):
     supports_explicit_decoy_label: bool
     supports_protein_refs: bool
     supports_config_hash: bool
+    supports_external_execution: bool
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -492,6 +494,7 @@ _COMET_MANIFEST = SearchAdapterManifest(
     supported_extensions=(".txt", ".tsv"),
     supports_explicit_decoy_label=True,
     supports_protein_refs=True,
+    supports_external_execution=True,
 )
 
 _MSFRAGGER_MANIFEST = SearchAdapterManifest(
@@ -526,6 +529,7 @@ _MSFRAGGER_MANIFEST = SearchAdapterManifest(
     supported_extensions=(".tsv",),
     supports_explicit_decoy_label=True,
     supports_protein_refs=True,
+    supports_external_execution=True,
 )
 
 _SAGE_MANIFEST = SearchAdapterManifest(
@@ -563,6 +567,7 @@ _SAGE_MANIFEST = SearchAdapterManifest(
     supports_q_value=True,
     supports_explicit_decoy_label=True,
     supports_protein_refs=True,
+    supports_external_execution=True,
 )
 
 _MAXQUANT_MANIFEST = SearchAdapterManifest(
@@ -600,6 +605,7 @@ _MAXQUANT_MANIFEST = SearchAdapterManifest(
     supports_q_value=True,
     supports_explicit_decoy_label=True,
     supports_protein_refs=True,
+    supports_external_execution=False,
 )
 
 _DIANN_MANIFEST = SearchAdapterManifest(
@@ -636,6 +642,7 @@ _DIANN_MANIFEST = SearchAdapterManifest(
     supports_q_value=True,
     supports_explicit_decoy_label=True,
     supports_protein_refs=True,
+    supports_external_execution=False,
 )
 
 _SPECTRONAUT_MANIFEST = SearchAdapterManifest(
@@ -670,6 +677,7 @@ _SPECTRONAUT_MANIFEST = SearchAdapterManifest(
     supported_extensions=(".tsv",),
     supports_explicit_decoy_label=True,
     supports_protein_refs=True,
+    supports_external_execution=False,
 )
 
 _GENERIC_MANIFEST = SearchAdapterManifest(
@@ -685,6 +693,7 @@ _GENERIC_MANIFEST = SearchAdapterManifest(
     supports_explicit_decoy_label=True,
     supports_protein_refs=True,
     supports_config_hash=True,
+    supports_external_execution=False,
 )
 
 
@@ -972,6 +981,7 @@ def build_search_adapter_capability_matrix() -> tuple[SearchAdapterCapability, .
             supports_explicit_decoy_label=manifest.supports_explicit_decoy_label,
             supports_protein_refs=manifest.supports_protein_refs,
             supports_config_hash=manifest.supports_config_hash,
+            supports_external_execution=manifest.supports_external_execution,
             native_columns=manifest.native_columns,
         )
         for manifest in search_adapter_registry().values()

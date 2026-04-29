@@ -11,6 +11,7 @@ from bijux_proteomics import (
     build_workflow_runtime_export_bundle,
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
+    build_external_tool_capability_report,
     build_reproducible_workflow_blueprint,
     build_workflow_manifest_explanation_report,
     build_workflow_run_directory_layout,
@@ -19,6 +20,7 @@ from bijux_proteomics import (
     build_workflow_runtime_state_manifest,
     WorkflowCacheMissReason,
     WorkflowCheckpointStatus,
+    ExternalToolCapabilityReport,
     WorkflowScientificSurface,
     WorkflowExecutionMode,
     WorkflowInputRole,
@@ -161,6 +163,22 @@ def test_workflow_step_provenance_report_survives_resume_and_replay() -> None:
     )
     assert replayed.replay_disposition is WorkflowStepReplayDisposition.REPLAYED
     assert reused.replay_disposition is WorkflowStepReplayDisposition.REUSED
+
+
+def test_external_tool_capability_report_blocks_nonlaunchable_adapters() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = build_external_tool_capability_report(manifest)
+
+    assert isinstance(report, ExternalToolCapabilityReport)
+    assert report.executable is False
+    assert any(issue.code == "adapter_not_launchable" for issue in report.issues)
 
 
 def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (
