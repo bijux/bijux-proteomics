@@ -134,6 +134,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_proteomics_workflow_runtime_bundle" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
+    assert "QcInstrumentSummary" in bijux_proteomics.__all__
+    assert "QcIdentificationSummary" in bijux_proteomics.__all__
+    assert "QcQuantSummary" in bijux_proteomics.__all__
     assert "QcThresholdPolicy" in bijux_proteomics.__all__
     assert "QcEvidenceManifest" in bijux_proteomics.__all__
     assert "ProteomicsOperatorErrorCode" in bijux_proteomics.__all__

@@ -6,11 +6,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import (
+    build_label_free_intensity_table,
     ExperimentalDesignEntry,
+    normalize_label_free_table,
     PsmRecord,
     QcAssessmentSeverity,
     QcDigestionSpecificity,
     QcEvidenceInputFile,
+    QuantEntityLevel,
     SpectrumModel,
     SpectrumPeak,
     TargetDecoyLabel,
@@ -23,6 +26,8 @@ from bijux_proteomics import (
     calculate_peptide_mz,
     default_qc_threshold_policy,
     parse_experimental_design_table,
+    parse_ms1_feature_table,
+    NormalizationMethod,
 )
 
 PROTEIN_SEQUENCES = {
@@ -33,6 +38,10 @@ PROTEIN_SEQUENCES = {
 
 def _qc_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "qc" / name
+
+
+def _quant_fixture(name: str) -> Path:
+    return Path(__file__).parent / "fixtures" / "quant" / name
 
 
 def _design_entries() -> dict[str, ExperimentalDesignEntry]:
@@ -282,11 +291,40 @@ def _run_c_psms() -> tuple[PsmRecord, ...]:
 
 def test_build_lcms_run_qc_report_captures_run_level_metrics() -> None:
     design_entry = _design_entries()["S1"]
+    quant_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    source_quant_table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            quant_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    quant_table = source_quant_table.model_copy(
+        update={
+            "sample_ids": tuple(
+                "S1" if sample_id == "C1" else sample_id
+                for sample_id in source_quant_table.sample_ids
+            ),
+            "values": tuple(
+                value.model_copy(
+                    update={
+                        "sample_id": "S1" if value.sample_id == "C1" else value.sample_id
+                    }
+                )
+                for value in source_quant_table.values
+            ),
+            "normalization_factors": {
+                ("S1" if sample_id == "C1" else sample_id): factor
+                for sample_id, factor in source_quant_table.normalization_factors.items()
+            },
+        }
+    )
     report = build_lcms_run_qc_report(
         _run_a_spectra(),
         _run_a_psms(),
         design_entry=design_entry,
         protein_sequences=PROTEIN_SEQUENCES,
+        quant_table=quant_table,
     )
 
     specificity = {entry.specificity: entry for entry in report.digestion_specificity}
@@ -294,6 +332,9 @@ def test_build_lcms_run_qc_report_captures_run_level_metrics() -> None:
     assert report.run_id == "run-a"
     assert report.sample_id == "S1"
     assert report.batch == "B1"
+    assert report.instrument_summary.instrument == "Orbitrap-A"
+    assert report.instrument_summary.spectra_with_precursor_charge == 6
+    assert report.identification_summary.identified_spectrum_count == 5
     assert report.spectrum_count == 6
     assert report.identified_spectrum_count == 5
     assert round(report.identification_rate, 3) == 0.833
@@ -304,6 +345,10 @@ def test_build_lcms_run_qc_report_captures_run_level_metrics() -> None:
     assert report.missed_cleavage_rate == 0.2
     assert report.contaminant_summary.contaminant_psm_count == 1
     assert report.contaminant_summary.contaminant_psm_fraction == 0.2
+    assert report.quant_summary is not None
+    assert report.quant_summary.sample_id == "S1"
+    assert report.quant_summary.entity_level.value == "protein"
+    assert report.quant_summary.total_entity_count >= 5
     assert specificity[QcDigestionSpecificity.ENZYMATIC].count == 3
     assert specificity[QcDigestionSpecificity.SEMI_SPECIFIC].count == 1
     assert specificity[QcDigestionSpecificity.NON_SPECIFIC].count == 1

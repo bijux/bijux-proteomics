@@ -21,6 +21,11 @@ from bijux_proteomics.digestion import (
 )
 from bijux_proteomics.formats import ExperimentalDesignEntry
 from bijux_proteomics.identification import PsmRecord
+from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
+    MissingValueKind,
+    QuantEntityLevel,
+)
 from bijux_proteomics.spectra import SpectrumModel, calculate_precursor_mass_error
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -80,6 +85,51 @@ class QcContaminantSummary(JsonModel):
     contaminant_psm_count: int = Field(..., ge=0)
     contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
     contaminant_protein_counts: dict[str, int] = Field(default_factory=dict)
+
+
+class QcInstrumentSummary(JsonModel):
+    """Stable instrument-facing summary for one LC-MS run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instrument: str | None = None
+    spectrum_count: int = Field(..., ge=0)
+    spectra_with_precursor_charge: int = Field(..., ge=0)
+    spectra_with_retention_time: int = Field(..., ge=0)
+    acquisition_span_seconds: float | None = Field(default=None, ge=0.0)
+    dominant_charge_label: str | None = None
+
+
+class QcIdentificationSummary(JsonModel):
+    """Stable identification-facing summary for one LC-MS run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    identified_spectrum_count: int = Field(..., ge=0)
+    psm_count: int = Field(..., ge=0)
+    identification_rate: float = Field(..., ge=0.0, le=1.0)
+    matched_mass_error_psm_count: int = Field(..., ge=0)
+    median_abs_mass_error_ppm: float | None = Field(default=None, ge=0.0)
+    contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
+    missed_cleavage_rate: float = Field(..., ge=0.0, le=1.0)
+
+
+class QcQuantSummary(JsonModel):
+    """Stable quantification-facing summary attached to one run-level QC bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    entity_level: QuantEntityLevel
+    observed_entity_count: int = Field(..., ge=0)
+    zero_entity_count: int = Field(..., ge=0)
+    filtered_entity_count: int = Field(..., ge=0)
+    not_observed_entity_count: int = Field(..., ge=0)
+    total_entity_count: int = Field(..., ge=0)
+    observed_fraction: float = Field(..., ge=0.0, le=1.0)
+    missing_fraction: float = Field(..., ge=0.0, le=1.0)
+    median_observed_abundance: float | None = Field(default=None, ge=0.0)
+    normalization_method: str = Field(..., min_length=1)
 
 
 class QcDigestionSpecificityEntry(JsonModel):
@@ -256,6 +306,9 @@ class LcmsRunQcReport(JsonModel):
     fraction: int | None = Field(default=None, ge=1)
     batch: str | None = None
     instrument: str | None = None
+    instrument_summary: QcInstrumentSummary
+    identification_summary: QcIdentificationSummary
+    quant_summary: QcQuantSummary | None = None
     spectrum_count: int = Field(..., ge=0)
     identified_spectrum_count: int = Field(..., ge=0)
     psm_count: int = Field(..., ge=0)
@@ -365,6 +418,56 @@ def _build_charge_distribution(
             charge_label=label, count=count, fraction=_fraction(count, total)
         )
         for label, count in sorted(counts.items(), key=lambda item: item[0])
+    )
+
+
+def _build_quant_summary(
+    table: LabelFreeQuantTable | None,
+    *,
+    sample_id: str | None,
+) -> QcQuantSummary | None:
+    if table is None or sample_id is None or sample_id not in table.sample_ids:
+        return None
+    sample_values = [value for value in table.values if value.sample_id == sample_id]
+    if not sample_values:
+        return None
+    observed_values = [
+        float(value.abundance)
+        for value in sample_values
+        if value.abundance is not None
+        and value.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+    ]
+    zero_count = sum(
+        1 for value in sample_values if value.missing_value_kind is MissingValueKind.ZERO
+    )
+    filtered_count = sum(
+        1
+        for value in sample_values
+        if value.missing_value_kind is MissingValueKind.FILTERED
+    )
+    not_observed_count = sum(
+        1
+        for value in sample_values
+        if value.missing_value_kind is MissingValueKind.NOT_OBSERVED
+    )
+    observed_count = sum(
+        1
+        for value in sample_values
+        if value.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+    )
+    total_count = len(sample_values)
+    return QcQuantSummary(
+        sample_id=sample_id,
+        entity_level=table.entity_level,
+        observed_entity_count=observed_count,
+        zero_entity_count=zero_count,
+        filtered_entity_count=filtered_count,
+        not_observed_entity_count=not_observed_count,
+        total_entity_count=total_count,
+        observed_fraction=_fraction(observed_count, total_count),
+        missing_fraction=_fraction(filtered_count + not_observed_count, total_count),
+        median_observed_abundance=None if not observed_values else median(observed_values),
+        normalization_method=table.normalization_method.value,
     )
 
 
@@ -874,6 +977,7 @@ def build_lcms_run_qc_report(
     *,
     design_entry: ExperimentalDesignEntry | None = None,
     protein_sequences: dict[str, str] | None = None,
+    quant_table: LabelFreeQuantTable | None = None,
     protease: ProteaseRule | str = "trypsin",
     run_id: str | None = None,
     contaminant_policy: QcContaminantPolicy | None = None,
@@ -1011,21 +1115,51 @@ def build_lcms_run_qc_report(
     )
 
     resolved_run_id = _resolve_run_id(run_id, design_entry)
+    sample_id = design_entry.sample_id if design_entry else None
+    instrument_summary = QcInstrumentSummary(
+        instrument=design_entry.instrument if design_entry else None,
+        spectrum_count=len(spectra),
+        spectra_with_precursor_charge=sum(
+            1 for spectrum in spectra if spectrum.precursor_charge is not None
+        ),
+        spectra_with_retention_time=len(retention_times),
+        acquisition_span_seconds=retention_summary.span_seconds,
+        dominant_charge_label=(
+            max(
+                spectrum_charge_counts.items(),
+                key=lambda item: (item[1], item[0]),
+            )[0]
+            if spectrum_charge_counts
+            else None
+        ),
+    )
+    identified_spectrum_count = len(identified_spectrum_ids & set(spectra_by_id))
+    identification_rate = _fraction(identified_spectrum_count, len(spectra))
+    identification_summary = QcIdentificationSummary(
+        identified_spectrum_count=identified_spectrum_count,
+        psm_count=len(psm_records),
+        identification_rate=identification_rate,
+        matched_mass_error_psm_count=len(mass_errors_ppm),
+        median_abs_mass_error_ppm=mass_error_summary.median_abs_ppm,
+        contaminant_psm_fraction=contaminant_summary.contaminant_psm_fraction,
+        missed_cleavage_rate=_fraction(missed_cleavage_count, len(psm_records)),
+    )
     return LcmsRunQcReport(
         document_schema=_build_document_schema("lcms_run_qc_report"),
         run_id=resolved_run_id,
-        sample_id=design_entry.sample_id if design_entry else None,
+        sample_id=sample_id,
         condition=design_entry.condition if design_entry else None,
         replicate=design_entry.replicate if design_entry else None,
         fraction=design_entry.fraction if design_entry else None,
         batch=design_entry.batch if design_entry else None,
         instrument=design_entry.instrument if design_entry else None,
+        instrument_summary=instrument_summary,
+        identification_summary=identification_summary,
+        quant_summary=_build_quant_summary(quant_table, sample_id=sample_id),
         spectrum_count=len(spectra),
-        identified_spectrum_count=len(identified_spectrum_ids & set(spectra_by_id)),
+        identified_spectrum_count=identified_spectrum_count,
         psm_count=len(psm_records),
-        identification_rate=_fraction(
-            len(identified_spectrum_ids & set(spectra_by_id)), len(spectra)
-        ),
+        identification_rate=identification_rate,
         spectrum_charge_distribution=_build_charge_distribution(
             spectrum_charge_counts, len(spectra)
         ),
