@@ -738,3 +738,37 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
             entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0
             for entry in payload["differential_abundance"]["entries"]
         )
+
+
+def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = Path(__file__).parent / "fixtures" / "ptm"
+        fasta_fixture_dir = Path(__file__).parent / "fixtures" / "fasta"
+        shutil.copy(ptm_fixture_dir / "localization_results.tsv", "localization_results.tsv")
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "summarize",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "--features",
+                "ptm_features.tsv",
+                "--threshold",
+                "0.1",
+                "--flank-size",
+                "3",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert any(entry["site_key"] == "P11111:S5:Phospho" for entry in payload["site_table"])
+        assert len(payload["ambiguity_report"]) == 2
+        assert payload["fdr_report"]["entries"][-1]["accepted"] is False
+        assert any(entry["sample_id"] == "T2" and entry["occupancy_fraction"] == 0.79 for entry in payload["occupancy"])

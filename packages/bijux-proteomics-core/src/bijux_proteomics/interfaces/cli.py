@@ -82,6 +82,18 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     summarize_missing_values,
 )
+from bijux_proteomics.ptm import (
+    build_ptm_enrichment_input,
+    build_ptm_motif_windows,
+    build_ptm_site_ambiguity_report,
+    build_ptm_site_coverage_report,
+    build_ptm_site_fdr,
+    build_ptm_site_table,
+    estimate_ptm_site_occupancy,
+    map_ptm_evidence_to_protein_sites,
+    parse_ptm_localization_tsv,
+    PtmLocalizationColumnMapping,
+)
 from bijux_proteomics.search_adapters import (
     build_search_adapter_conformance_report,
     build_search_adapter_capability_matrix,
@@ -1500,6 +1512,109 @@ def bundle_run_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(manifest)
+
+
+@cli.group("ptm")
+def ptm_group() -> None:
+    """Summarize PTM evidence, mapped sites, and occupancy outputs."""
+
+
+@ptm_group.command("summarize")
+@click.argument("evidence_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.argument("proteins_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--features", "feature_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--localization-score-column", default="localization_score", show_default=True)
+@click.option("--candidate-sites-column", default="candidate_sites", show_default=True)
+@click.option("--decoy-label-column", default="decoy_label", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--site-separator", default=";", show_default=True)
+@click.option("--threshold", type=float, default=0.05, show_default=True)
+@click.option("--flank-size", type=int, default=7, show_default=True)
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def ptm_summarize_command(
+    evidence_tsv: Path,
+    proteins_fasta: Path,
+    feature_path: Path | None,
+    sample_column: str,
+    spectrum_id_column: str,
+    peptide_column: str,
+    charge_column: str,
+    score_column: str,
+    protein_refs_column: str,
+    q_value_column: str | None,
+    localization_score_column: str,
+    candidate_sites_column: str | None,
+    decoy_label_column: str | None,
+    protein_separator: str,
+    site_separator: str,
+    threshold: float,
+    flank_size: int,
+    out_path: Path | None,
+) -> None:
+    """Summarize PTM site evidence from localized peptides and optional feature intensities."""
+    try:
+        mapping = PtmLocalizationColumnMapping(
+            sample_id=sample_column,
+            spectrum_id=spectrum_id_column,
+            peptide=peptide_column,
+            charge=charge_column,
+            score=score_column,
+            protein_refs=protein_refs_column,
+            q_value=q_value_column,
+            localization_score=localization_score_column,
+            candidate_sites=candidate_sites_column,
+            decoy_label=decoy_label_column,
+            protein_separator=protein_separator,
+            site_separator=site_separator,
+        )
+        evidence = parse_ptm_localization_tsv(evidence_tsv, mapping=mapping)
+        fasta_report = parse_fasta_document(proteins_fasta.read_text(), mode=FastaParseMode.STRICT)
+        if fasta_report.rejected_records:
+            rejected = ", ".join(record.source_identifier for record in fasta_report.rejected_records)
+            raise click.ClickException(f"FASTA input contains rejected records under strict mode: {rejected}")
+        protein_sequences = {
+            record.canonical_accession: record.residues
+            for record in fasta_report.accepted_records
+        }
+        mappings = map_ptm_evidence_to_protein_sites(
+            evidence.accepted_records,
+            protein_sequences=protein_sequences,
+        )
+        site_table = build_ptm_site_table(mappings)
+        ambiguity = build_ptm_site_ambiguity_report(site_table)
+        coverage = build_ptm_site_coverage_report(mappings)
+        fdr = build_ptm_site_fdr(site_table, threshold=threshold)
+        motifs = build_ptm_motif_windows(site_table, protein_sequences=protein_sequences, flank_size=flank_size)
+        enrichment = build_ptm_enrichment_input(site_table, protein_sequences=protein_sequences)
+        occupancy = None
+        if feature_path is not None:
+            feature_report = parse_ms1_feature_table(feature_path)
+            occupancy = estimate_ptm_site_occupancy(
+                site_table,
+                feature_records=feature_report.accepted_records,
+            )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    payload = {
+        "accepted_rows": len(evidence.accepted_records),
+        "rejected_rows": len(evidence.rejected_rows),
+        "site_table": [entry.to_dict() for entry in site_table],
+        "ambiguity_report": [entry.to_dict() for entry in ambiguity],
+        "coverage_report": [entry.to_dict() for entry in coverage],
+        "fdr_report": fdr.to_dict(),
+        "motif_windows": [entry.to_dict() for entry in motifs],
+        "enrichment_input": enrichment.to_dict(),
+        "occupancy": [entry.to_dict() for entry in occupancy] if occupancy is not None else None,
+    }
+    _emit_json(payload, out_path=out_path)
 
 
 @cli.group("search-adapter")
