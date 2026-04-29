@@ -490,6 +490,28 @@ class LabCapacity(JsonModel):
     )
 
 
+class InstrumentAvailability(JsonModel):
+    """Available time budget for one instrument or execution platform."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instrument_id: str = Field(..., min_length=1)
+    available_days: float = Field(..., ge=0.0)
+    supported_sample_kinds: list[str] = Field(default_factory=list)
+
+
+class ExecutionCapacityAdvisory(JsonModel):
+    """Combined advisory for budget, cycle capacity, and instrument availability."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    feasible_batch_ids: list[BatchId] = Field(default_factory=list)
+    deferred_batch_ids: list[BatchId] = Field(default_factory=list)
+    budget_remaining: float = Field(..., ge=0.0)
+    notes: list[str] = Field(default_factory=list)
+
+
 class FamilyCapacity(JsonModel):
     """Capacity limits for one assay family in a cycle."""
 
@@ -1788,6 +1810,56 @@ def schedule_experiment_plan(
         program_id=plan.program_id,
         scheduled_batches=scheduled_batches,
         unscheduled_batches=unscheduled_batches,
+    )
+
+
+def build_execution_capacity_advisory(
+    plan: ExperimentPlan,
+    capacity: LabCapacity,
+    instrument_availability: list[InstrumentAvailability],
+    *,
+    budget_limit: float,
+    estimated_batch_cost: float = 1.0,
+) -> ExecutionCapacityAdvisory:
+    """Assess which planned batches fit current budget and instrument capacity."""
+    supported_sample_kinds = {
+        sample_kind
+        for item in instrument_availability
+        for sample_kind in item.supported_sample_kinds
+    }
+    instrument_days = sum(item.available_days for item in instrument_availability)
+    feasible_batch_ids: list[str] = []
+    deferred_batch_ids: list[str] = []
+    budget_remaining = budget_limit
+    notes: list[str] = []
+    for batch in plan.batches:
+        has_supported_sample_kind = any(
+            sample_kind in supported_sample_kinds
+            for sample_kind in batch.sample_requirements
+        )
+        if (
+            len(feasible_batch_ids) >= capacity.max_batches
+            or instrument_days < 1.0
+            or budget_remaining < estimated_batch_cost
+            or (batch.sample_requirements and not has_supported_sample_kind)
+        ):
+            deferred_batch_ids.append(batch.batch_id)
+            continue
+        feasible_batch_ids.append(batch.batch_id)
+        budget_remaining = max(0.0, budget_remaining - estimated_batch_cost)
+        instrument_days = max(0.0, instrument_days - 1.0)
+    if deferred_batch_ids:
+        notes.append(
+            "some batches were deferred by budget, cycle capacity, or instrument support"
+        )
+    if not feasible_batch_ids:
+        notes.append("no planned batches fit current execution constraints")
+    return ExecutionCapacityAdvisory(
+        program_id=plan.program_id,
+        feasible_batch_ids=feasible_batch_ids,
+        deferred_batch_ids=deferred_batch_ids,
+        budget_remaining=round(budget_remaining, 4),
+        notes=notes,
     )
 
 

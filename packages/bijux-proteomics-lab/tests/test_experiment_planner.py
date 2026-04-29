@@ -29,6 +29,7 @@ from bijux_proteomics_lab import (
     ExperimentOutcome,
     ExperimentPlan,
     FamilyCapacity,
+    InstrumentAvailability,
     LabCapacity,
     MaterialInventory,
     MaterialRequirement,
@@ -42,6 +43,7 @@ from bijux_proteomics_lab import (
     assess_material_constraints,
     align_lab_priority_queue,
     build_advisory_assay_plan,
+    build_execution_capacity_advisory,
     build_executable_assay_plan,
     build_lab_execution_request,
     build_lab_cycle_brief,
@@ -456,6 +458,47 @@ def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> N
 
     assert alignment.prioritized_assay_ids[0] == "gate-binding"
     assert alignment.unaligned_candidate_ids == ["cand-2"]
+
+
+def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressure() -> (
+    None
+):
+    plan = ExperimentPlan(
+        program_id="prog-capacity",
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="binding batch",
+                assay_ids=["a1"],
+                priority=1,
+                sample_requirements=["biophysical"],
+            ),
+            ExperimentBatch(
+                batch_id="b2",
+                objective="cellular batch",
+                assay_ids=["a2"],
+                priority=2,
+                sample_requirements=["cellular"],
+            ),
+        ],
+    )
+
+    advisory = build_execution_capacity_advisory(
+        plan,
+        LabCapacity(cycle_id="cycle-1", max_batches=1, max_assays_per_batch=2),
+        [
+            InstrumentAvailability(
+                instrument_id="orbitrap",
+                available_days=1.0,
+                supported_sample_kinds=["biophysical"],
+            )
+        ],
+        budget_limit=1.5,
+    )
+
+    assert advisory.feasible_batch_ids == ["b1"]
+    assert advisory.deferred_batch_ids == ["b2"]
+    assert advisory.budget_remaining == 0.5
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
