@@ -27,6 +27,7 @@ from bijux_proteomics import (
     build_combined_evidence_report,
     build_fdr_audit_trail,
     build_fdr_edge_case_report,
+    build_grouped_confidence_report,
     build_inference_disagreement_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
@@ -801,6 +802,24 @@ def test_inference_disagreement_report_surfaces_strategy_divergence() -> None:
         "P10001",
         "P20002",
     )
+
+
+def test_grouped_confidence_report_summarizes_indistinguishable_protein_groups() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    grouped = build_grouped_confidence_report(accepted)
+
+    ambiguous = next(
+        entry for entry in grouped.entries if entry.protein_refs == ("P22222", "P44444")
+    )
+    assert ambiguous.shared_peptide_count == 2
+    assert ambiguous.unique_peptide_count == 0
+    assert ambiguous.confidence_label.value in {"medium", "high"}
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:

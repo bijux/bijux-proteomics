@@ -896,6 +896,30 @@ class ProteinSummaryReport(JsonModel):
     protein_groups: tuple[ProteinSummaryEntry, ...] = Field(default_factory=tuple)
 
 
+class GroupedConfidenceEntry(JsonModel):
+    """Confidence summary for one indistinguishable protein group."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: str = Field(..., min_length=1)
+    representative_protein: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    peptide_count: int = Field(..., ge=0)
+    unique_peptide_count: int = Field(..., ge=0)
+    shared_peptide_count: int = Field(..., ge=0)
+    best_q_value: float | None = Field(default=None, ge=0.0)
+    confidence_label: ConfidenceLabel
+    explanation: str = Field(..., min_length=1)
+
+
+class GroupedConfidenceReport(JsonModel):
+    """Grouped confidence view over protein families and indistinguishable groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[GroupedConfidenceEntry, ...] = Field(default_factory=tuple)
+
+
 class SearchResultProvenanceManifest(JsonModel):
     """Stable manifest for one search-result parsing and filtering operation."""
 
@@ -1871,6 +1895,52 @@ def build_fdr_edge_case_report(
         mixed_count=mixed_count,
         unknown_count=unknown_count,
         note=note,
+    )
+
+
+def build_grouped_confidence_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    high_threshold: float = 0.01,
+    medium_threshold: float = 0.05,
+) -> GroupedConfidenceReport:
+    """Summarize confidence over indistinguishable protein groups."""
+    entries: list[GroupedConfidenceEntry] = []
+    for group in build_protein_groups(records):
+        q_value = group.best_q_value if group.best_q_value is not None else 1.0
+        if group.target_decoy_label is TargetDecoyLabel.DECOY:
+            label = ConfidenceLabel.DECOY
+            explanation = "decoy protein groups are never promoted to biological confidence"
+        elif q_value <= high_threshold:
+            label = ConfidenceLabel.HIGH
+            explanation = (
+                f"group q-value {q_value:.4f} is at or below the high-confidence threshold"
+            )
+        elif q_value <= medium_threshold:
+            label = ConfidenceLabel.MEDIUM
+            explanation = (
+                f"group q-value {q_value:.4f} is at or below the medium-confidence threshold"
+            )
+        else:
+            label = ConfidenceLabel.LOW
+            explanation = (
+                f"group q-value {q_value:.4f} is reviewable but above the medium-confidence threshold"
+            )
+        entries.append(
+            GroupedConfidenceEntry(
+                group_id=group.group_id,
+                representative_protein=group.representative_protein,
+                protein_refs=group.protein_refs,
+                peptide_count=len(group.peptides),
+                unique_peptide_count=group.unique_peptide_count,
+                shared_peptide_count=group.shared_peptide_count,
+                best_q_value=group.best_q_value,
+                confidence_label=label,
+                explanation=explanation,
+            )
+        )
+    return GroupedConfidenceReport(
+        entries=tuple(sorted(entries, key=lambda entry: entry.group_id))
     )
 
 
