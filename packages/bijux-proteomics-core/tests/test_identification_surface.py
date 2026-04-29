@@ -30,6 +30,7 @@ from bijux_proteomics import (
     build_fdr_edge_case_report,
     build_grouped_confidence_report,
     build_inference_disagreement_report,
+    build_review_ready_evidence_bundle,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
@@ -49,6 +50,7 @@ from bijux_proteomics import (
     export_peptide_protein_trace_tsv,
     export_psm_jsonl,
     export_psm_tsv,
+    export_review_ready_evidence_bundle,
     filter_psms_by_fdr,
     infer_proteins_by_parsimony,
     normalize_psm_records,
@@ -879,6 +881,35 @@ def test_ptm_specific_identification_confidence_validation_is_explicit() -> None
         "weak_localization_score",
         "ambiguous_site_localization",
     }
+
+
+def test_review_ready_evidence_bundle_supports_downstream_review_exports() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+    bundle = build_review_ready_evidence_bundle(
+        accepted,
+        threshold=0.05,
+        score_orientation="higher_better",
+        ptm_site_keys_by_peptide={"SHAREDK": ("P11111:S5:Phospho",)},
+        quant_support_by_protein={"P11111": {"C1": 2200.0}},
+    )
+
+    assert bundle.document_schema.document_kind == "review_ready_evidence_bundle"
+    assert bundle.psm_summary.total_psms == 4
+    assert bundle.peptide_traces.entries
+    assert bundle.combined_evidence.entries
+
+    output_path = _psm_fixture("review_ready_evidence.json")
+    try:
+        export_review_ready_evidence_bundle(bundle, output_path)
+        assert (
+            json.loads(output_path.read_text())["document_schema"]["document_kind"]
+            == "review_ready_evidence_bundle"
+        )
+    finally:
+        output_path.unlink(missing_ok=True)
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:

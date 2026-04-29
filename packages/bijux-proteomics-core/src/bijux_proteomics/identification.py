@@ -956,6 +956,23 @@ class DecoyStrategyValidationReport(JsonModel):
     issues: tuple[DecoyStrategyValidationIssue, ...] = Field(default_factory=tuple)
 
 
+class ReviewReadyEvidenceBundle(JsonModel):
+    """Production-ready evidence bundle for downstream scientific review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    threshold: float = Field(..., ge=0.0)
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    psm_summary: PsmSummaryReport
+    peptide_summary: PeptideSummaryReport
+    protein_summary: ProteinSummaryReport
+    accepted_psm_provenance: AcceptedPsmProvenanceReport
+    grouped_confidence: GroupedConfidenceReport
+    combined_evidence: CombinedEvidenceReport
+    peptide_traces: PeptideProteinTraceReport
+
+
 class PtmIdentificationObservation(JsonModel):
     """Minimal PTM localization evidence needed for identification confidence checks."""
 
@@ -3738,6 +3755,58 @@ def build_confidence_threshold_sensitivity_report(
         thresholds=normalized_thresholds,
         entries=tuple(entries),
     )
+
+
+def build_review_ready_evidence_bundle(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float = 0.05,
+    score_orientation: str = "higher_better",
+    ptm_site_keys_by_peptide: dict[str, tuple[str, ...]] | None = None,
+    quant_support_by_protein: dict[str, dict[str, float | None]] | None = None,
+) -> ReviewReadyEvidenceBundle:
+    """Build a review-ready evidence bundle without requiring raw search output."""
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="review_ready_evidence_bundle",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    bundle = ReviewReadyEvidenceBundle(
+        document_schema=schema,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        psm_summary=build_psm_summary_report(records),
+        peptide_summary=build_peptide_summary_report(records),
+        protein_summary=build_protein_summary_report(records),
+        accepted_psm_provenance=build_accepted_psm_provenance_report(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        ),
+        grouped_confidence=build_grouped_confidence_report(records),
+        combined_evidence=build_combined_evidence_report(
+            records,
+            ptm_site_keys_by_peptide=ptm_site_keys_by_peptide,
+            quant_support_by_protein=quant_support_by_protein,
+        ),
+        peptide_traces=build_peptide_protein_trace_report(records),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_review_ready_evidence_bundle(
+    bundle: ReviewReadyEvidenceBundle,
+    path: Path,
+) -> None:
+    """Write a stable JSON evidence bundle for downstream review."""
+    path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
 
 
 def build_search_result_provenance_manifest(
