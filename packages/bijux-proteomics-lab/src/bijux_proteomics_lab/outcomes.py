@@ -10,7 +10,7 @@ from statistics import mean, median
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import AssayId, BatchId, JsonModel
+from bijux_proteomics_foundation import AssayId, BatchId, ClaimId, JsonModel
 from bijux_proteomics_knowledge import (
     EvidenceKind,
     EvidenceSourceType,
@@ -265,7 +265,7 @@ class ClaimBeliefDelta(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: str = Field(..., min_length=1, description="Claim identifier to update.")
+    claim_id: ClaimId = Field(..., description="Claim identifier to update.")
     delta: float = Field(..., description="Signed confidence delta recommendation.")
     rationale: str = Field(
         ..., min_length=1, description="Scientific rationale for the delta."
@@ -805,7 +805,7 @@ def assess_evidence_promotion_readiness(
 def recommend_claim_belief_deltas(
     outcome: AssayOutcome,
     *,
-    linked_claim_ids: list[str],
+    linked_claim_ids: list[ClaimId],
 ) -> list[ClaimBeliefDelta]:
     """Recommend bounded claim-confidence deltas from one assay outcome."""
     if not linked_claim_ids:

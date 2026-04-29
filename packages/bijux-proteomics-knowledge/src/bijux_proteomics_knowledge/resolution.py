@@ -10,7 +10,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation import ClaimId, JsonModel
 from bijux_proteomics_knowledge.claims import ClaimStatus, EvidenceClaim
 from bijux_proteomics_knowledge.evidence import (
     BundleTrustReport,
@@ -109,7 +109,7 @@ class ClaimBeliefUpdate(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: str = Field(..., min_length=1, description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     previous_confidence: float = Field(
         ..., ge=0.0, le=1.0, description="Confidence before update."
     )

@@ -9,7 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import EvidenceId, JsonModel, TargetId
+from bijux_proteomics_foundation import ClaimId, EvidenceId, JsonModel, TargetId
 from bijux_proteomics_knowledge.evidence import EvidenceBundle
 
 
@@ -52,7 +52,7 @@ class EvidenceClaim(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Stable claim identifier.")
+    claim_id: ClaimId = Field(..., description="Stable claim identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
     statement: str = Field(
         ..., min_length=1, description="Human-readable claim statement."
@@ -123,11 +123,11 @@ class DecisionLineage(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     decision_tag: str = Field(..., min_length=1, description="Decision area label.")
-    claim_ids: list[EvidenceId] = Field(
+    claim_ids: list[ClaimId] = Field(
         default_factory=list,
         description="Claims that inform the decision.",
     )
-    disputed_claim_ids: list[EvidenceId] = Field(
+    disputed_claim_ids: list[ClaimId] = Field(
         default_factory=list,
         description="Claims that dispute or contradict the decision context.",
     )
@@ -142,7 +142,7 @@ class ClaimStrengthUpdate(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     previous_confidence: float = Field(
         ..., ge=0.0, le=1.0, description="Confidence before update."
     )
@@ -157,7 +157,7 @@ class ClaimValidationIssue(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     code: str = Field(..., min_length=1, description="Stable validation issue code.")
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
@@ -171,13 +171,13 @@ class HypothesisDossier(JsonModel):
     decision_tag: str = Field(
         ..., min_length=1, description="Decision tag under review."
     )
-    supporting_claim_ids: list[EvidenceId] = Field(
+    supporting_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Supporting claim identifiers."
     )
-    contradicting_claim_ids: list[EvidenceId] = Field(
+    contradicting_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Contradicting claim identifiers."
     )
-    unresolved_claim_ids: list[EvidenceId] = Field(
+    unresolved_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Open claims requiring more work."
     )
     required_resolution_assays: list[str] = Field(
@@ -193,7 +193,7 @@ class ResolutionAssayOutcome(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     assay_name: str = Field(..., min_length=1, description="Assay used for resolution.")
     confirms_claim: bool = Field(
         ..., description="Whether the assay confirms the claim direction."
@@ -216,7 +216,7 @@ class KnowledgeGap(JsonModel):
     message: str = Field(
         ..., min_length=1, description="Human-readable gap description."
     )
-    related_claim_ids: list[EvidenceId] = Field(
+    related_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Claim identifiers tied to this gap."
     )
 
@@ -244,7 +244,7 @@ class MechanisticCompletenessReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     completeness_score: float = Field(
         ..., ge=0.0, le=1.0, description="Mechanistic completeness score."
     )
@@ -275,7 +275,7 @@ class ClaimEvidenceLinkIssue(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     code: str = Field(..., min_length=1, description="Stable issue code.")
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
@@ -285,7 +285,7 @@ class ClaimFalsifiabilityReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     falsifiable: bool = Field(
         ..., description="Whether claim is structured for falsification."
     )
@@ -299,7 +299,7 @@ class ClaimFalsifiabilityReport(JsonModel):
 
 def build_claim(
     *,
-    claim_id: str,
+    claim_id: ClaimId,
     target_id: str,
     statement: str,
     evidence_ids: list[str],
