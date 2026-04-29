@@ -339,6 +339,32 @@ class ReviewPacket(JsonModel):
         default_factory=list,
         description="Actions that should happen before the next decision.",
     )
+    advancement_evidence: AdvancementEvidencePacket
+
+
+class AdvancementEvidenceItem(JsonModel):
+    """One evidence item explicitly carried into an advancement review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    kind: str = Field(..., min_length=1)
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    strength: str = Field(..., min_length=1)
+    claim: str = Field(..., min_length=1)
+
+
+class AdvancementEvidencePacket(JsonModel):
+    """Exact evidence set used to justify or block advancement."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    target_id: str = Field(..., min_length=1)
+    evidence_ids: list[str] = Field(default_factory=list)
+    required_evidence_kinds: list[str] = Field(default_factory=list)
+    missing_evidence_kinds: list[str] = Field(default_factory=list)
+    items: list[AdvancementEvidenceItem] = Field(default_factory=list)
 
 
 class ReviewRiskProfile(JsonModel):
@@ -1320,6 +1346,10 @@ def build_review_packet(
         recommendations.append(
             "repeat or redesign around assays: " + ", ".join(failed_assays)
         )
+    advancement_evidence = _build_advancement_evidence_packet(
+        program=program,
+        bundle=bundle,
+    )
     risk_profile = build_review_risk_profile(
         trust_score=trust.trust_score,
         conflict_count=len(conflicts),
@@ -1332,6 +1362,7 @@ def build_review_packet(
         ready_for_synthesis=not blockers,
         blocking_findings=blockers,
         recommended_actions=recommendations,
+        advancement_evidence=advancement_evidence,
     )
 
 
@@ -1366,6 +1397,66 @@ def _observation_blocks_progression(observation: AssayObservation) -> bool:
         or observation.qc_state.lower() in {"failed", "warning"}
         or observation.censoring_flag
         or observation.interpretation_confidence < 0.6
+    )
+
+
+def _build_advancement_evidence_packet(
+    *,
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+) -> AdvancementEvidencePacket:
+    required_kinds = [need.value for need in program.evidence_needs]
+    relevant_records = [
+        record
+        for record in bundle.records
+        if not record.decision_tags or "progression" in record.decision_tags
+    ]
+    selected_records = []
+    seen_kinds: set[str] = set()
+    for required_kind in required_kinds:
+        best_record = next(
+            (
+                record
+                for record in sorted(
+                    relevant_records,
+                    key=lambda candidate: (
+                        candidate.kind.value != required_kind,
+                        -candidate.confidence,
+                        candidate.evidence_id,
+                    ),
+                )
+                if record.kind.value == required_kind
+            ),
+            None,
+        )
+        if best_record is not None:
+            selected_records.append(best_record)
+            seen_kinds.add(required_kind)
+    if not selected_records:
+        selected_records = sorted(
+            relevant_records,
+            key=lambda record: (-record.confidence, record.evidence_id),
+        )
+    return AdvancementEvidencePacket(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        evidence_ids=[record.evidence_id for record in selected_records],
+        required_evidence_kinds=required_kinds,
+        missing_evidence_kinds=[
+            required_kind
+            for required_kind in required_kinds
+            if required_kind not in seen_kinds
+        ],
+        items=[
+            AdvancementEvidenceItem(
+                evidence_id=record.evidence_id,
+                kind=record.kind.value,
+                confidence=round(record.confidence, 4),
+                strength=record.strength.value,
+                claim=record.claim,
+            )
+            for record in selected_records
+        ],
     )
 
 

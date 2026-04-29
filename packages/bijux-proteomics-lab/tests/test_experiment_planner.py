@@ -206,6 +206,12 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
 
     assert packet.ready_for_synthesis is False
     assert "failed assays: primary-binding" in packet.blocking_findings
+    assert packet.advancement_evidence.evidence_ids == [
+        "lit-1",
+        "structure-1",
+        "assay-1",
+    ]
+    assert packet.advancement_evidence.missing_evidence_kinds == []
 
 
 def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None:

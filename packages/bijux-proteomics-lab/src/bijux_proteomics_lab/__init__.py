@@ -105,6 +105,8 @@ from bijux_proteomics_lab.outcomes import (
 from bijux_proteomics_lab.planning import (
     AdvisoryAssayPlan,
     AdvisoryAssayRecommendation,
+    AdvancementEvidenceItem,
+    AdvancementEvidencePacket,
     AssayPlanKind,
     AssayContradictionPressure,
     AssayDependency,
@@ -248,6 +250,8 @@ __all__ = [
     "AssayResultState",
     "AdvisoryAssayPlan",
     "AdvisoryAssayRecommendation",
+    "AdvancementEvidenceItem",
+    "AdvancementEvidencePacket",
     "AssayPlanKind",
     "assess_carryover_risk",
     "BatchRandomizationPlan",
