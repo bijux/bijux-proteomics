@@ -11,6 +11,8 @@ from bijux_proteomics_knowledge import (
     EvidenceRecord,
     EvidenceStrength,
     KnowledgeReviewPacket,
+    OperationalDecisionLabel,
+    ScientificConclusion,
     build_claim,
     build_knowledge_review_packet,
     compare_review_packets,
@@ -71,6 +73,10 @@ def test_build_knowledge_review_packet_returns_integrated_sections() -> None:
     }
     assert any("gate recommendation" in line for line in packet.executive_summary)
     assert isinstance(packet.blocker_highlights, list)
+    assert isinstance(packet.scientific_conclusions[0], ScientificConclusion)
+    assert packet.scientific_conclusions[0].statement == "Candidate can progress."
+    assert isinstance(packet.operational_labels[0], OperationalDecisionLabel)
+    assert packet.operational_labels[0].label == packet.gate_recommendation
     assert 0.0 <= packet.decision_intelligence_index <= 1.0
 
 

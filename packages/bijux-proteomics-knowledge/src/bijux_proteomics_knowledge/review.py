@@ -63,12 +63,42 @@ class KnowledgeReviewPacket(JsonModel):
     blocker_highlights: list[str] = Field(
         default_factory=list, description="Top blocker highlights for decision review."
     )
+    scientific_conclusions: list[ScientificConclusion] = Field(
+        default_factory=list,
+        description="Scientific conclusions kept separate from operational labels.",
+    )
+    operational_labels: list[OperationalDecisionLabel] = Field(
+        default_factory=list,
+        description="Operational labels derived from scientific conclusions.",
+    )
     decision_intelligence_index: float = Field(
         ...,
         ge=0.0,
         le=1.0,
         description="Composite index for decision intelligence readiness.",
     )
+
+
+class ScientificConclusion(JsonModel):
+    """A scientific conclusion supported or challenged by reviewed evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(..., min_length=1)
+    statement: str = Field(..., min_length=1)
+    evidence_state: str = Field(..., min_length=1)
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    evidence_ids: list[str] = Field(default_factory=list)
+
+
+class OperationalDecisionLabel(JsonModel):
+    """Operational label layered on top of scientific conclusions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    label: str = Field(..., min_length=1)
+    rationale: str = Field(..., min_length=1)
+    conclusion_claim_ids: list[str] = Field(default_factory=list)
 
 
 class MultiDecisionReadiness(JsonModel):
@@ -199,6 +229,15 @@ def build_knowledge_review_packet(
         knowledge_gaps=gaps,
         conflict_clusters=clusters,
     )
+    scientific_conclusions = _build_scientific_conclusions(
+        claims=claims,
+        decision_tag=decision_tag,
+        bundle=bundle,
+    )
+    operational_labels = _build_operational_labels(
+        gate_recommendation=gate_recommendation,
+        scientific_conclusions=scientific_conclusions,
+    )
     intelligence_index = compute_decision_intelligence_index(
         quality_audit=audit,
         knowledge_gaps=gaps,
@@ -215,8 +254,55 @@ def build_knowledge_review_packet(
         gate_recommendation=gate_recommendation,
         executive_summary=summary,
         blocker_highlights=blocker_highlights,
+        scientific_conclusions=scientific_conclusions,
+        operational_labels=operational_labels,
         decision_intelligence_index=intelligence_index,
     )
+
+
+def _build_scientific_conclusions(
+    *,
+    claims: list[EvidenceClaim],
+    decision_tag: str,
+    bundle: EvidenceBundle,
+) -> list[ScientificConclusion]:
+    tagged_evidence_ids = {
+        record.evidence_id
+        for record in bundle.records
+        if decision_tag in record.decision_tags
+    }
+    conclusions = [
+        ScientificConclusion(
+            claim_id=claim.claim_id,
+            statement=claim.statement,
+            evidence_state=claim.evidence_state.value,
+            confidence=round(claim.confidence, 4),
+            evidence_ids=[
+                evidence_id
+                for evidence_id in claim.evidence_ids
+                if evidence_id in tagged_evidence_ids
+            ],
+        )
+        for claim in claims
+        if tagged_evidence_ids.intersection(claim.evidence_ids)
+    ]
+    return sorted(conclusions, key=lambda conclusion: conclusion.claim_id)
+
+
+def _build_operational_labels(
+    *,
+    gate_recommendation: str,
+    scientific_conclusions: list[ScientificConclusion],
+) -> list[OperationalDecisionLabel]:
+    return [
+        OperationalDecisionLabel(
+            label=gate_recommendation,
+            rationale="operational recommendation derived from current scientific conclusions and review policy",
+            conclusion_claim_ids=[
+                conclusion.claim_id for conclusion in scientific_conclusions
+            ],
+        )
+    ]
 
 
 def _recommend_gate_action(
