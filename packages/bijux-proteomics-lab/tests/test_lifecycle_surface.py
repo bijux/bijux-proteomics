@@ -6,8 +6,10 @@ from __future__ import annotations
 import pytest
 
 from bijux_proteomics_lab import (
+    CandidateLabAdvancementDisposition,
     PromotionDecisionState,
     ReviewQueueState,
+    decide_candidate_lab_advancement,
     transition_promotion_decision,
     transition_review_queue,
     validate_promotion_transition_history,
@@ -119,3 +121,28 @@ def test_validate_promotion_transition_history_flags_broken_chains() -> None:
 
     assert issues
     assert issues[0].code == "broken-promotion-chain"
+
+
+def test_decide_candidate_lab_advancement_returns_promote_and_refuse_outcomes() -> (
+    None
+):
+    promoted = decide_candidate_lab_advancement(
+        program_id="prog-lab",
+        candidate_id="cand-1",
+        evidence_ids=["ev-1", "ev-2"],
+        blocking_findings=[],
+        recommended_actions=["schedule confirmation assay"],
+        ready_for_synthesis=True,
+    )
+    refused = decide_candidate_lab_advancement(
+        program_id="prog-lab",
+        candidate_id="cand-2",
+        evidence_ids=["ev-3"],
+        blocking_findings=["missing orthogonal confirmation"],
+        recommended_actions=["collect orthogonal confirmation"],
+        ready_for_synthesis=False,
+    )
+
+    assert promoted.disposition is CandidateLabAdvancementDisposition.PROMOTE
+    assert refused.disposition is CandidateLabAdvancementDisposition.REFUSE
+    assert refused.reasons == ["missing orthogonal confirmation"]

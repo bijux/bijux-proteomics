@@ -212,6 +212,37 @@ class PromotionLifecycleAuditIssue(JsonModel):
     message: str = Field(..., min_length=1, description="Human-readable issue.")
 
 
+class CandidateLabAdvancementDisposition(StrEnum):
+    """Promotion or refusal outcome for advancing a candidate into lab work."""
+
+    PROMOTE = "promote"
+    REFUSE = "refuse"
+
+
+class CandidateLabAdvancementDecision(JsonModel):
+    """Auditable advancement decision for candidate entry into lab execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    candidate_id: str = Field(..., min_length=1, description="Candidate identifier.")
+    disposition: CandidateLabAdvancementDisposition = Field(
+        ..., description="Whether the candidate advances into lab work."
+    )
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers attached to the decision.",
+    )
+    reasons: list[str] = Field(
+        default_factory=list,
+        description="Primary reasons for promotion or refusal.",
+    )
+    follow_up_actions: list[str] = Field(
+        default_factory=list,
+        description="Actions that must happen next.",
+    )
+
+
 _ALLOWED_PROMOTION_TRANSITIONS: dict[
     PromotionDecisionState, set[PromotionDecisionState]
 ] = {
@@ -288,3 +319,32 @@ def validate_promotion_transition_history(
                 )
             )
     return issues
+
+
+def decide_candidate_lab_advancement(
+    *,
+    program_id: ProgramId,
+    candidate_id: str,
+    evidence_ids: list[str],
+    blocking_findings: list[str],
+    recommended_actions: list[str],
+    ready_for_synthesis: bool,
+) -> CandidateLabAdvancementDecision:
+    """Decide whether a candidate should advance into lab execution."""
+    if ready_for_synthesis and not blocking_findings:
+        return CandidateLabAdvancementDecision(
+            program_id=program_id,
+            candidate_id=candidate_id,
+            disposition=CandidateLabAdvancementDisposition.PROMOTE,
+            evidence_ids=evidence_ids,
+            reasons=["review packet is ready for lab execution"],
+            follow_up_actions=recommended_actions,
+        )
+    return CandidateLabAdvancementDecision(
+        program_id=program_id,
+        candidate_id=candidate_id,
+        disposition=CandidateLabAdvancementDisposition.REFUSE,
+        evidence_ids=evidence_ids,
+        reasons=blocking_findings or ["review packet is not ready for lab execution"],
+        follow_up_actions=recommended_actions,
+    )

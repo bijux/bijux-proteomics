@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 from bijux_proteomics_lab.lifecycle import (
+    CandidateLabAdvancementDecision,
+    CandidateLabAdvancementDisposition,
     PromotionDecision,
     PromotionDecisionState,
     PromotionLifecycleAuditIssue,
@@ -15,6 +17,7 @@ from bijux_proteomics_lab.lifecycle import (
     ReviewQueueDecision,
     ReviewQueueState,
     ReviewQueueTransition,
+    decide_candidate_lab_advancement,
     transition_promotion_decision,
     transition_review_queue,
     validate_promotion_transition_history,
@@ -250,6 +253,8 @@ from bijux_proteomics_lab.serialization import (
 
 __all__ = [
     "AcceptanceOperator",
+    "CandidateLabAdvancementDecision",
+    "CandidateLabAdvancementDisposition",
     "AssayAcceptanceRule",
     "AssayCategory",
     "AssayDefinition",
@@ -284,6 +289,7 @@ __all__ = [
     "PromotionDecisionState",
     "PromotionTransition",
     "PromotionLifecycleAuditIssue",
+    "decide_candidate_lab_advancement",
     "transition_promotion_decision",
     "validate_promotion_transition_history",
     "transition_review_queue",
