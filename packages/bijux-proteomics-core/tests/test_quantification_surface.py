@@ -16,8 +16,10 @@ from bijux_proteomics import (
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_quant_matrix_export,
     build_replicate_correlation_report,
     build_spectral_count_table,
+    export_quant_matrix_tsv,
     normalize_label_free_table,
     parse_experimental_design_table,
     parse_ms1_feature_table,
@@ -113,6 +115,49 @@ def test_spectral_count_table_and_missing_summary_distinguish_zero_filtered_and_
     assert summary_lookup["C1"].zero_count == 1
     assert summary_lookup["C1"].filtered_count == 1
     assert summary_lookup["C1"].not_observed_count == 1
+
+
+def test_quant_matrix_export_preserves_sample_metadata_missingness_and_provenance() -> (
+    None
+):
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    design = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
+    table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    matrix_export = build_quant_matrix_export(
+        table,
+        design_entries=design.accepted_entries,
+    )
+
+    assert matrix_export.normalization_provenance.normalization_method.value == "median"
+    row = next(
+        row
+        for row in matrix_export.rows
+        if row.entity_id == "P001" and row.sample_metadata.sample_id == "C1"
+    )
+    assert row.sample_metadata.condition == "control"
+    assert row.sample_metadata.batch == "batch-a"
+    assert row.missing_value_kind.value == "observed"
+    missing_row = next(
+        row
+        for row in matrix_export.rows
+        if row.entity_id == "P004" and row.sample_metadata.sample_id == "C1"
+    )
+    assert missing_row.missing_value_kind.value == "missing_not_observed"
+
+    output_path = _quant_fixture("quant_matrix.tsv")
+    try:
+        export_quant_matrix_tsv(matrix_export, output_path)
+        header = output_path.read_text().splitlines()[0]
+        assert header.startswith("sample_id\tcondition\treplicate")
+    finally:
+        output_path.unlink(missing_ok=True)
 
 
 def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -> None:

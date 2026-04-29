@@ -191,6 +191,59 @@ class LabelFreeQuantTable(JsonModel):
     entity_member_peptides: dict[str, tuple[str, ...]] = Field(default_factory=dict)
 
 
+class QuantSampleMetadataEntry(JsonModel):
+    """Stable sample metadata attached to exported quantification matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str | None = None
+    replicate: int | None = Field(default=None, ge=1)
+    fraction: int | None = Field(default=None, ge=1)
+    batch: str | None = None
+    instrument: str | None = None
+    search_engine: str | None = None
+
+
+class QuantNormalizationProvenance(JsonModel):
+    """Normalization context preserved alongside exported quant matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    normalization_method: NormalizationMethod
+    normalization_factors: dict[str, float] = Field(default_factory=dict)
+    note: str = Field(..., min_length=1)
+
+
+class QuantMatrixExportRow(JsonModel):
+    """One stable export row from a quantification matrix."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_metadata: QuantSampleMetadataEntry
+    entity_id: str = Field(..., min_length=1)
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    aggregation_method: QuantRollupMethod
+    abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+    source_feature_count: int = Field(..., ge=0)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    member_peptides: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class QuantMatrixExport(JsonModel):
+    """Export-ready quantification matrix with metadata and provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    aggregation_method: QuantRollupMethod
+    rows: tuple[QuantMatrixExportRow, ...] = Field(default_factory=tuple)
+    normalization_provenance: QuantNormalizationProvenance
+
+
 class MissingValueSummaryEntry(JsonModel):
     """Missing-value counts for one sample within a quant table."""
 
@@ -330,6 +383,23 @@ def _batch_lookup(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, str
         elif entry.instrument:
             mapping[entry.sample_id] = entry.instrument
     return mapping
+
+
+def _sample_metadata_lookup(
+    entries: tuple[ExperimentalDesignEntry, ...],
+) -> dict[str, QuantSampleMetadataEntry]:
+    return {
+        entry.sample_id: QuantSampleMetadataEntry(
+            sample_id=entry.sample_id,
+            condition=entry.condition,
+            replicate=entry.replicate,
+            fraction=entry.fraction,
+            batch=entry.batch,
+            instrument=entry.instrument,
+            search_engine=entry.search_engine,
+        )
+        for entry in entries
+    }
 
 
 def _feature_entity_ids(
@@ -506,6 +576,113 @@ def _rebuild_table_from_matrix(
             "normalization_factors": normalization_factors,
         }
     )
+
+
+def build_quant_matrix_export(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...] = (),
+) -> QuantMatrixExport:
+    """Build a stable quant matrix export with sample metadata and normalization context."""
+    metadata_lookup = _sample_metadata_lookup(design_entries)
+    rows: list[QuantMatrixExportRow] = []
+    for value in table.values:
+        sample_metadata = metadata_lookup.get(
+            value.sample_id,
+            QuantSampleMetadataEntry(sample_id=value.sample_id),
+        )
+        rows.append(
+            QuantMatrixExportRow(
+                sample_metadata=sample_metadata,
+                entity_id=value.entity_id,
+                entity_level=table.entity_level,
+                measure_kind=table.measure_kind,
+                aggregation_method=table.aggregation_method,
+                abundance=value.abundance,
+                missing_value_kind=value.missing_value_kind,
+                source_feature_count=value.source_feature_count,
+                protein_refs=table.entity_protein_refs.get(value.entity_id, ()),
+                member_peptides=table.entity_member_peptides.get(value.entity_id, ()),
+            )
+        )
+    note = (
+        "table is unnormalized"
+        if table.normalization_method is NormalizationMethod.NONE
+        else "table preserves explicit sample normalization factors"
+    )
+    return QuantMatrixExport(
+        entity_level=table.entity_level,
+        measure_kind=table.measure_kind,
+        aggregation_method=table.aggregation_method,
+        rows=tuple(
+            sorted(
+                rows,
+                key=lambda row: (row.entity_id, row.sample_metadata.sample_id),
+            )
+        ),
+        normalization_provenance=QuantNormalizationProvenance(
+            normalization_method=table.normalization_method,
+            normalization_factors=table.normalization_factors,
+            note=note,
+        ),
+    )
+
+
+def export_quant_matrix_tsv(
+    matrix_export: QuantMatrixExport,
+    path: Path,
+) -> None:
+    """Write one stable TSV export for a quantification matrix."""
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow(
+            [
+                "sample_id",
+                "condition",
+                "replicate",
+                "fraction",
+                "batch",
+                "instrument",
+                "search_engine",
+                "entity_id",
+                "entity_level",
+                "measure_kind",
+                "aggregation_method",
+                "abundance",
+                "missing_value_kind",
+                "source_feature_count",
+                "protein_refs",
+                "member_peptides",
+                "normalization_method",
+                "normalization_factor",
+            ]
+        )
+        for row in matrix_export.rows:
+            writer.writerow(
+                [
+                    row.sample_metadata.sample_id,
+                    row.sample_metadata.condition or "",
+                    row.sample_metadata.replicate or "",
+                    row.sample_metadata.fraction or "",
+                    row.sample_metadata.batch or "",
+                    row.sample_metadata.instrument or "",
+                    row.sample_metadata.search_engine or "",
+                    row.entity_id,
+                    row.entity_level.value,
+                    row.measure_kind.value,
+                    row.aggregation_method.value,
+                    "" if row.abundance is None else row.abundance,
+                    row.missing_value_kind.value,
+                    row.source_feature_count,
+                    ";".join(row.protein_refs),
+                    ";".join(row.member_peptides),
+                    matrix_export.normalization_provenance.normalization_method.value,
+                    matrix_export.normalization_provenance.normalization_factors.get(
+                        row.sample_metadata.sample_id,
+                        1.0,
+                    ),
+                ]
+            )
 
 
 def _log2_values(table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:
