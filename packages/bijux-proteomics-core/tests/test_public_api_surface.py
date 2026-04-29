@@ -144,6 +144,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "QcRunAnomalyEntry" in bijux_proteomics.__all__
     assert "QcThresholdPolicyProfile" in bijux_proteomics.__all__
     assert "QcThresholdPolicy" in bijux_proteomics.__all__
+    assert "QcUnknownStateReason" in bijux_proteomics.__all__
     assert "StudyQcSummaryReport" in bijux_proteomics.__all__
     assert "QcEvidenceManifest" in bijux_proteomics.__all__
     assert "ProteomicsOperatorErrorCode" in bijux_proteomics.__all__

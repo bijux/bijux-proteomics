@@ -555,6 +555,28 @@ def test_qc_renderers_match_regression_fixtures() -> None:
     assert html == _qc_fixture("qc_assessment_expected.html").read_text(encoding="utf-8")
 
 
+def test_qc_assessment_marks_unknown_metric_reasons_explicitly() -> None:
+    report = build_lcms_run_qc_report(
+        (
+            _unidentified_spectrum(
+                "unknown:scan-001", charge=2, retention_time_seconds=120.0
+            ),
+        ),
+        (),
+        run_id="unknown-run",
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    assessment = build_run_qc_assessment(report, policy=default_qc_threshold_policy())
+    mass_error_metric = next(
+        entry
+        for entry in assessment.metric_assessments
+        if entry.metric_key == "median_abs_mass_error_ppm"
+    )
+
+    assert mass_error_metric.severity is QcAssessmentSeverity.NOT_ASSESSED
+    assert mass_error_metric.unknown_state_reason.value == "no_matched_psms"
+
+
 def test_qc_manifest_and_performance_snapshot_bind_outputs_to_inputs() -> None:
     design_entry = _design_entries()["S1"]
     run_report = build_lcms_run_qc_report(

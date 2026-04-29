@@ -176,6 +176,15 @@ class QcRunAnomalyCategory(StrEnum):
     CONTAMINATION = "contamination"
 
 
+class QcUnknownStateReason(StrEnum):
+    """Stable reasons for QC metrics that cannot be computed."""
+
+    NO_MATCHED_PSMS = "no_matched_psms"
+    NO_BATCH_PEERS = "no_batch_peers"
+    NO_MASS_ERROR_EVIDENCE = "no_mass_error_evidence"
+    NO_RETENTION_TIME_EVIDENCE = "no_retention_time_evidence"
+
+
 class QcThresholdRule(JsonModel):
     """One named threshold rule over a numeric QC metric."""
 
@@ -227,6 +236,7 @@ class QcMetricAssessment(JsonModel):
     disposition: QcAssessmentDisposition
     threshold_rule: QcThresholdRule | None = None
     provenance: "QcAssessmentProvenance | None" = None
+    unknown_state_reason: QcUnknownStateReason | None = None
     message: str = Field(..., min_length=1)
     enforced_violation: bool = False
 
@@ -576,9 +586,17 @@ def _severity_rank(severity: QcAssessmentSeverity) -> int:
 
 
 def _assessment_message(
-    rule: QcThresholdRule, severity: QcAssessmentSeverity, observed_value: float | None
+    rule: QcThresholdRule,
+    severity: QcAssessmentSeverity,
+    observed_value: float | None,
+    unknown_state_reason: QcUnknownStateReason | None = None,
 ) -> str:
     if observed_value is None:
+        if unknown_state_reason is not None:
+            return (
+                f"{rule.metric_label} was not assessed because "
+                f"{unknown_state_reason.value.replace('_', ' ')}"
+            )
         return f"{rule.metric_label} was not assessed"
     value_text = f"{observed_value:.4f}".rstrip("0").rstrip(".")
     unit = f" {rule.unit}" if rule.unit else ""
@@ -659,6 +677,7 @@ def _evaluate_rule(
     policy_name: str,
     policy_version: str,
     policy_sha256: str,
+    unknown_state_reason: QcUnknownStateReason | None = None,
 ) -> QcMetricAssessment:
     triggered_threshold = None
     if observed_value is None:
@@ -708,7 +727,13 @@ def _evaluate_rule(
             upper_warn=rule.upper_warn,
             upper_fail=rule.upper_fail,
         ),
-        message=_assessment_message(rule, severity, observed_value),
+        unknown_state_reason=unknown_state_reason,
+        message=_assessment_message(
+            rule,
+            severity,
+            observed_value,
+            unknown_state_reason=unknown_state_reason,
+        ),
         enforced_violation=severity is QcAssessmentSeverity.FAILED
         and rule.disposition is QcAssessmentDisposition.ENFORCED,
     )
@@ -817,6 +842,13 @@ def build_run_qc_assessment(
             QcDigestionSpecificity.NON_SPECIFIC, 0.0
         ),
     }
+    unknown_reasons = {
+        "median_abs_mass_error_ppm": (
+            QcUnknownStateReason.NO_MATCHED_PSMS
+            if run_report.mass_error.matched_psm_count == 0
+            else QcUnknownStateReason.NO_MASS_ERROR_EVIDENCE
+        )
+    }
     assessments = tuple(
         _evaluate_rule(
             rule,
@@ -824,6 +856,9 @@ def build_run_qc_assessment(
             policy_name=policy.policy_name,
             policy_version=policy.version,
             policy_sha256=policy_sha256,
+            unknown_state_reason=unknown_reasons.get(rule.metric_key)
+            if observed_metrics.get(rule.metric_key) is None
+            else None,
         )
         for rule in policy.rules
     )
@@ -872,6 +907,9 @@ def build_batch_qc_assessment(
         "median_abs_mass_error_ppm": batch_report.median_abs_mass_error_ppm,
         "outlier_run_count": float(len(batch_report.outlier_run_ids)),
     }
+    unknown_reasons = {
+        "median_abs_mass_error_ppm": QcUnknownStateReason.NO_MASS_ERROR_EVIDENCE
+    }
     rules = []
     for rule in policy.rules:
         if rule.metric_key == "spectrum_count":
@@ -917,6 +955,9 @@ def build_batch_qc_assessment(
             policy_name=policy.policy_name,
             policy_version=policy.version,
             policy_sha256=policy_sha256,
+            unknown_state_reason=unknown_reasons.get(rule.metric_key)
+            if metrics.get(rule.metric_key) is None
+            else None,
         )
         for rule in rules
     )
