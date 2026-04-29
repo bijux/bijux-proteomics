@@ -18,6 +18,7 @@ from bijux_proteomics import (
     approximate_peptide_isotope_envelope,
     build_modification_localization_advisory,
     build_modification_registry,
+    build_modified_peptide_export_record,
     build_modified_peptide,
     build_peptide_charge_state,
     calculate_average_peptide_mass,
@@ -27,6 +28,8 @@ from bijux_proteomics import (
     calculate_peptide_mz,
     canonicalize_modified_peptide,
     enumerate_variable_modifications,
+    export_modified_peptides_jsonl,
+    export_modified_peptides_tsv,
     get_modification,
     load_modification_registry,
     modification_registry,
@@ -363,6 +366,39 @@ def test_variable_modification_enumeration_respects_max_occurrences() -> None:
         "MM[Oxidation]M",
         "MMM[Oxidation]",
     ]
+
+
+def test_modified_peptide_export_record_stays_stable_across_jsonl_and_tsv(
+    tmp_path: Path,
+) -> None:
+    peptides = (
+        build_modified_peptide(
+            "PEPTIDE",
+            assignments=("Acetyl@n-term", "Amidated@c-term"),
+            registry=modification_registry(),
+        ),
+        build_modified_peptide(
+            "ASTY",
+            assignments=("Phospho@2",),
+            registry=modification_registry(),
+        ),
+    )
+    jsonl_path = tmp_path / "modified_peptides.jsonl"
+    tsv_path = tmp_path / "modified_peptides.tsv"
+
+    export_modified_peptides_jsonl(peptides, jsonl_path, registry=modification_registry())
+    export_modified_peptides_tsv(peptides, tsv_path, registry=modification_registry())
+
+    jsonl_rows = [json.loads(line) for line in jsonl_path.read_text().splitlines()]
+    tsv_lines = tsv_path.read_text().splitlines()
+    export_record = build_modified_peptide_export_record(
+        peptides[0], registry=modification_registry()
+    )
+
+    assert jsonl_rows[0]["canonical_notation"] == export_record.canonical_notation
+    assert jsonl_rows[0]["modification_sites"] == list(export_record.modification_sites)
+    assert tsv_lines[1].split("\t")[0] == export_record.canonical_notation
+    assert tsv_lines[1].split("\t")[3] == ";".join(export_record.modification_sites)
 
 
 def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:

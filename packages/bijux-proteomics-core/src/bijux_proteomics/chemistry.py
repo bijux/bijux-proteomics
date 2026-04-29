@@ -9,6 +9,7 @@ from collections.abc import Iterable
 from enum import StrEnum
 from math import exp, factorial
 from pathlib import Path
+import json
 import re
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
@@ -359,6 +360,18 @@ class VariableModificationEnumerationReport(JsonModel):
     variants: tuple[VariableModificationEnumerationEntry, ...] = Field(
         default_factory=tuple
     )
+
+
+class ModifiedPeptideExportRecord(JsonModel):
+    """Stable export record for one canonical modified peptide."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_notation: str = Field(..., min_length=1)
+    sequence: str = Field(..., min_length=1)
+    modification_count: int = Field(..., ge=0)
+    modification_sites: tuple[str, ...] = Field(default_factory=tuple)
+    modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
 
 
 def _format_mass_delta(delta: float) -> str:
@@ -1424,6 +1437,93 @@ def canonicalize_modified_peptide(
     return _render_modified_peptide(parsed.sequence, ordered)
 
 
+def build_modified_peptide_export_record(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> ModifiedPeptideExportRecord:
+    """Build one stable export record for a canonical modified peptide."""
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    canonical = canonicalize_modified_peptide(parsed, registry=registry)
+    ordered = tuple(
+        sorted(
+            parsed.modifications,
+            key=lambda modification: (
+                0
+                if modification.site
+                in {
+                    ModificationPosition.PEPTIDE_N_TERM,
+                    ModificationPosition.PROTEIN_N_TERM,
+                }
+                else 1,
+                modification.site_index or 0,
+                2
+                if modification.site
+                in {
+                    ModificationPosition.PEPTIDE_C_TERM,
+                    ModificationPosition.PROTEIN_C_TERM,
+                }
+                else 1,
+                modification.token,
+            ),
+        )
+    )
+    return ModifiedPeptideExportRecord(
+        canonical_notation=canonical,
+        sequence=parsed.sequence,
+        modification_count=len(ordered),
+        modification_sites=tuple(_render_modification_site(modification) for modification in ordered),
+        modifications=ordered,
+    )
+
+
+def export_modified_peptides_jsonl(
+    peptides: tuple[str | ParsedModifiedPeptide, ...],
+    path: Path,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> Path:
+    """Write stable JSONL export rows for canonical modified peptides."""
+    rows = [
+        build_modified_peptide_export_record(peptide, registry=registry).to_dict()
+        for peptide in peptides
+    ]
+    path.write_text("\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n")
+    return path
+
+
+def export_modified_peptides_tsv(
+    peptides: tuple[str | ParsedModifiedPeptide, ...],
+    path: Path,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> Path:
+    """Write stable TSV export rows for canonical modified peptides."""
+    header = "\t".join(
+        [
+            "canonical_notation",
+            "sequence",
+            "modification_count",
+            "modification_sites",
+        ]
+    )
+    lines = [header]
+    for peptide in peptides:
+        record = build_modified_peptide_export_record(peptide, registry=registry)
+        lines.append(
+            "\t".join(
+                [
+                    record.canonical_notation,
+                    record.sequence,
+                    str(record.modification_count),
+                    ";".join(record.modification_sites),
+                ]
+            )
+        )
+    path.write_text("\n".join(lines) + "\n")
+    return path
+
+
 def validate_modified_peptide_sites(
     peptide: str | ParsedModifiedPeptide,
     *,
@@ -1505,6 +1605,18 @@ def _render_modification_token(modification: AppliedModification) -> str:
     if modification.site is ModificationPosition.PROTEIN_C_TERM:
         return f"{modification.token}@protein-c-term"
     return modification.token
+
+
+def _render_modification_site(modification: AppliedModification) -> str:
+    if modification.site is ModificationPosition.ANYWHERE:
+        return str(modification.site_index)
+    if modification.site is ModificationPosition.PEPTIDE_N_TERM:
+        return "peptide_n_term"
+    if modification.site is ModificationPosition.PEPTIDE_C_TERM:
+        return "peptide_c_term"
+    if modification.site is ModificationPosition.PROTEIN_N_TERM:
+        return "protein_n_term"
+    return "protein_c_term"
 
 
 def _residue_neutral_losses(fragment_sequence: str) -> tuple[NeutralLoss, ...]:
