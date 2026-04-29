@@ -198,6 +198,52 @@ peptide_rollups = rollup_peptide_evidence(best_psms)
 protein_rollups = rollup_protein_evidence(best_psms)
 ```
 
+The same identification surface now covers basic target-decoy FDR, stable PSM
+exports, and provenance capture:
+
+```python
+from pathlib import Path
+
+from bijux_proteomics import (
+    build_search_result_provenance_manifest,
+    filter_psms_by_fdr,
+    FdrPolicy,
+    parse_psm_tsv,
+    SearchResultColumnMapping,
+    TargetDecoyLabelPolicy,
+)
+
+mapping = SearchResultColumnMapping(
+    spectrum_id="spectrum_id",
+    peptide="peptide",
+    charge="charge",
+    score="score",
+    protein_refs="proteins",
+)
+report = parse_psm_tsv(Path("results.tsv"), mapping=mapping)
+accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.01)
+manifest = build_search_result_provenance_manifest(
+    source_path=Path("results.tsv"),
+    parse_report=report,
+    decoy_policy=TargetDecoyLabelPolicy(protein_prefix="DECOY_"),
+    fdr_policy=FdrPolicy(threshold=0.01),
+)
+```
+
+The CLI exposes the same workflow for inspection and thresholded export:
+
+```bash
+bijux-proteomics psm-inspect results.tsv \
+  --jsonl-out normalized.jsonl \
+  --provenance-out results.provenance.json
+
+bijux-proteomics fdr results.tsv \
+  --decoy-prefix DECOY_ \
+  --threshold 0.01 \
+  --jsonl-out accepted.jsonl \
+  --provenance-out fdr.provenance.json
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`

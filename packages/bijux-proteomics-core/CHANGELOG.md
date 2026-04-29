@@ -13,12 +13,14 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Added peptide chemistry contracts for monoisotopic and average mass calculation, precursor m/z, fragment ions, neutral losses, static and variable modification models, modification registries, registry-file validation, and modified-peptide parsing in `bijux_proteomics.chemistry`.
 - Added modified-peptide canonicalization, site-validation reports, charge-state models, isotope-envelope approximation, localization advisory output, checked chemistry regression fixtures, and the `bijux-proteomics peptide-mass` CLI workflow.
 - Added search-result identification contracts for PSM parsing, engine column mapping, validation, target-decoy labeling, stable JSONL export, sorting, best-spectrum-hit selection, and peptide/protein evidence rollups in `bijux_proteomics.identification`.
+- Added basic target-decoy FDR, monotonic q-value assignment, threshold filtering, PSM/peptide/protein summary reporting, provenance manifests, stable TSV export, and the `bijux-proteomics psm-inspect` and `bijux-proteomics fdr` CLI workflows.
 
 ### Changed
 
 - Exported the new FASTA and sequence-operation contracts through the package public API and README examples.
 - Exported the new peptide chemistry and modification contracts through the package public API and README examples.
 - Exported the new search-result identification contracts through the package public API and README examples.
+- Expanded the README identification examples to cover thresholded FDR filtering, provenance manifests, and CLI inspection/export workflows.
 
 ## 0.3.7 - 2026-04-21
 
