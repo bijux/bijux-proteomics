@@ -8,8 +8,10 @@ import pytest
 from bijux_proteomics import (
     DecoyGenerationMode,
     FastaParseMode,
+    ResiduePolicyState,
     build_fasta_provenance_manifest,
     build_fasta_stats,
+    build_sequence_residue_policy,
     deduplicate_fasta_records,
     filter_fasta_records,
     generate_decoy_records,
@@ -85,6 +87,33 @@ def test_validate_protein_sequence_flags_invalid_character_and_stop_codon() -> N
     issue_codes = {issue.code for issue in result.issues}
     assert "stop_codon" in issue_codes
     assert "invalid_character" in issue_codes
+    assert result.is_valid is False
+
+
+def test_sequence_residue_policy_explicitly_distinguishes_warnings_from_refusals() -> (
+    None
+):
+    strict_policy = build_sequence_residue_policy(FastaParseMode.STRICT)
+    permissive_policy = build_sequence_residue_policy(FastaParseMode.PERMISSIVE)
+
+    strict_states = {entry.residue: entry.state for entry in strict_policy.entries}
+    permissive_states = {
+        entry.residue: entry.state for entry in permissive_policy.entries
+    }
+
+    assert strict_states["B"] is ResiduePolicyState.REFUSED
+    assert permissive_states["B"] is ResiduePolicyState.ACCEPTED_WITH_WARNING
+    assert permissive_states["U"] is ResiduePolicyState.REFUSED
+    assert permissive_states["O"] is ResiduePolicyState.REFUSED
+
+
+def test_validate_protein_sequence_permissive_mode_still_refuses_unsupported_residues() -> (
+    None
+):
+    result = validate_protein_sequence("ACDUO", mode=FastaParseMode.PERMISSIVE)
+
+    issue_codes = {issue.code for issue in result.issues}
+    assert "unsupported_residue" in issue_codes
     assert result.is_valid is False
 
 

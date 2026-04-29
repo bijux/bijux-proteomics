@@ -20,7 +20,8 @@ from pydantic import ConfigDict, Field, field_validator
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, TargetId
 
 _CANONICAL_RESIDUES = frozenset("ACDEFGHIKLMNPQRSTVWY")
-_AMBIGUOUS_RESIDUES = frozenset("BJOUXZ")
+_AMBIGUOUS_RESIDUES = frozenset("BJXZ")
+_UNSUPPORTED_RESIDUES = frozenset("OU")
 _SEQUENCE_RE = re.compile(r"^[A-Z*]+$")
 _UNIPROT_ACCESSION_RE = re.compile(
     r"^(?P<accession>(?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9]))(?:-(?P<isoform>[1-9][0-9]*))?$"
@@ -60,6 +61,14 @@ class FastaParseMode(StrEnum):
     PERMISSIVE = "permissive"
 
 
+class ResiduePolicyState(StrEnum):
+    """Support state for an uncommon residue token under one parser policy."""
+
+    ACCEPTED = "accepted"
+    ACCEPTED_WITH_WARNING = "accepted_with_warning"
+    REFUSED = "refused"
+
+
 class DecoyGenerationMode(StrEnum):
     """Supported target/decoy generation modes."""
 
@@ -83,6 +92,25 @@ class SequenceValidationIssue(JsonModel):
     severity: SequenceIssueSeverity
     message: str = Field(..., min_length=1)
     positions: tuple[int, ...] = Field(default_factory=tuple)
+
+
+class ResiduePolicyEntry(JsonModel):
+    """One explicit parser decision for an uncommon residue symbol."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    residue: str = Field(..., min_length=1, max_length=1)
+    state: ResiduePolicyState
+    rationale: str = Field(..., min_length=1)
+
+
+class SequenceResiduePolicy(JsonModel):
+    """Explicit uncommon-residue policy for one FASTA parser mode."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: FastaParseMode
+    entries: tuple[ResiduePolicyEntry, ...] = Field(default_factory=tuple)
 
 
 class SequenceValidationResult(JsonModel):
@@ -256,6 +284,85 @@ def sequence_length(sequence: ProteinSequence) -> int:
     return len(sequence.residues)
 
 
+_SEQUENCE_POLICY_BY_MODE: dict[FastaParseMode, SequenceResiduePolicy] = {
+    FastaParseMode.STRICT: SequenceResiduePolicy(
+        mode=FastaParseMode.STRICT,
+        entries=(
+            ResiduePolicyEntry(
+                residue="B",
+                state=ResiduePolicyState.REFUSED,
+                rationale="B conflates aspartate and asparagine and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="J",
+                state=ResiduePolicyState.REFUSED,
+                rationale="J conflates leucine and isoleucine and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="X",
+                state=ResiduePolicyState.REFUSED,
+                rationale="X does not preserve residue identity and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="Z",
+                state=ResiduePolicyState.REFUSED,
+                rationale="Z conflates glutamate and glutamine and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="U",
+                state=ResiduePolicyState.REFUSED,
+                rationale="U is currently unsupported by downstream chemistry surfaces.",
+            ),
+            ResiduePolicyEntry(
+                residue="O",
+                state=ResiduePolicyState.REFUSED,
+                rationale="O is currently unsupported by downstream chemistry surfaces.",
+            ),
+        ),
+    ),
+    FastaParseMode.PERMISSIVE: SequenceResiduePolicy(
+        mode=FastaParseMode.PERMISSIVE,
+        entries=(
+            ResiduePolicyEntry(
+                residue="B",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="B is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="J",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="J is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="X",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="X is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="Z",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="Z is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="U",
+                state=ResiduePolicyState.REFUSED,
+                rationale="U remains refused until chemistry and mass surfaces support it explicitly.",
+            ),
+            ResiduePolicyEntry(
+                residue="O",
+                state=ResiduePolicyState.REFUSED,
+                rationale="O remains refused until chemistry and mass surfaces support it explicitly.",
+            ),
+        ),
+    ),
+}
+
+
+def build_sequence_residue_policy(mode: FastaParseMode) -> SequenceResiduePolicy:
+    """Return the explicit uncommon-residue policy for one parser mode."""
+    return _SEQUENCE_POLICY_BY_MODE[mode].model_copy(deep=True)
+
+
 def sequence_checksum(residues: str) -> str:
     """Return a stable SHA-256 checksum over normalized residues."""
     normalized = "".join(
@@ -342,6 +449,8 @@ def validate_protein_sequence(
 ) -> SequenceValidationResult:
     """Validate one protein sequence string under the active parser policy."""
     issues: list[SequenceValidationIssue] = []
+    policy = build_sequence_residue_policy(mode)
+    policy_map = {entry.residue: entry for entry in policy.entries}
     had_lowercase = any(
         character.isalpha() and character.islower() for character in sequence
     )
@@ -403,29 +512,57 @@ def validate_protein_sequence(
                 )
             )
 
-    ambiguous_positions = [
+    warning_positions = [
         index + 1
         for index, residue in enumerate(normalized)
         if residue in _AMBIGUOUS_RESIDUES
+        and policy_map[residue].state is ResiduePolicyState.ACCEPTED_WITH_WARNING
     ]
-    if ambiguous_positions:
+    error_positions = [
+        index + 1
+        for index, residue in enumerate(normalized)
+        if residue in _AMBIGUOUS_RESIDUES
+        and policy_map[residue].state is ResiduePolicyState.REFUSED
+    ]
+    unsupported_positions = [
+        index + 1
+        for index, residue in enumerate(normalized)
+        if residue in _UNSUPPORTED_RESIDUES
+    ]
+    if warning_positions:
         issues.append(
             SequenceValidationIssue(
                 code="ambiguous_residue",
-                severity=(
-                    SequenceIssueSeverity.ERROR
-                    if mode is FastaParseMode.STRICT
-                    else SequenceIssueSeverity.WARNING
-                ),
-                message="sequence contains ambiguous amino-acid symbols",
-                positions=tuple(ambiguous_positions),
+                severity=SequenceIssueSeverity.WARNING,
+                message="sequence contains ambiguous amino-acid symbols that were preserved with warning",
+                positions=tuple(warning_positions),
+            )
+        )
+    if error_positions:
+        issues.append(
+            SequenceValidationIssue(
+                code="ambiguous_residue",
+                severity=SequenceIssueSeverity.ERROR,
+                message="sequence contains ambiguous amino-acid symbols that are refused by policy",
+                positions=tuple(error_positions),
+            )
+        )
+    if unsupported_positions:
+        issues.append(
+            SequenceValidationIssue(
+                code="unsupported_residue",
+                severity=SequenceIssueSeverity.ERROR,
+                message="sequence contains residue symbols that remain unsupported by downstream chemistry surfaces",
+                positions=tuple(unsupported_positions),
             )
         )
 
     invalid_positions = [
         index + 1
         for index, residue in enumerate(normalized)
-        if residue not in _CANONICAL_RESIDUES and residue not in _AMBIGUOUS_RESIDUES
+        if residue not in _CANONICAL_RESIDUES
+        and residue not in _AMBIGUOUS_RESIDUES
+        and residue not in _UNSUPPORTED_RESIDUES
     ]
     if invalid_positions:
         issues.append(

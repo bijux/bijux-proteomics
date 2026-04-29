@@ -14,6 +14,8 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ExecutionBackend" in bijux_proteomics.__all__
     assert "ProteinSequence" in bijux_proteomics.__all__
     assert "FastaParseReport" in bijux_proteomics.__all__
+    assert "SequenceResiduePolicy" in bijux_proteomics.__all__
+    assert "build_sequence_residue_policy" in bijux_proteomics.__all__
     assert "generate_decoy_records" in bijux_proteomics.__all__
     assert "validate_target_decoy_database" in bijux_proteomics.__all__
     assert "digest_sequence" in bijux_proteomics.__all__
