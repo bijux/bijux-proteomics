@@ -252,3 +252,40 @@ def test_runtime_api_history_cli_filters_runs(monkeypatch, tmp_path: Path) -> No
     payload = json.loads(result.output)
     assert len(payload["data"]["runs"]) == 1
     assert payload["data"]["runs"][0]["run_id"] == "history-cli-b"
+
+
+def test_runtime_api_history_cli_reports_pagination(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.chdir(tmp_path)
+    for run_id in ("page-cli-a", "page-cli-b", "page-cli-c"):
+        run_dir = tmp_path / "artifacts" / run_id
+        run_dir.mkdir(parents=True, exist_ok=True)
+        _write_json(
+            run_dir / "run_summary.json",
+            {
+                "run_id": run_id,
+                "candidate_id": f"{run_id}-c0",
+                "command": "run",
+                "execution_status": "completed",
+                "workflow_state": "done",
+                "outcome": "accepted",
+                "provider": "heuristic_proxy",
+                "tool_status": "success",
+                "qc_status": "acceptable",
+                "artifacts_dir": str(run_dir),
+                "warnings": [],
+                "failure": None,
+                "version": {"app": "0+local", "git_commit": "unknown", "tool_versions": {}},
+            },
+        )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        ["api", "history", "--page-size", "2", "--cursor", "1"],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert len(payload["data"]["runs"]) == 2
+    assert payload["data"]["page"]["returned_count"] == 2

@@ -345,6 +345,19 @@ class RunReviewResponse(BaseModel):
     )
 
 
+class PaginationMeta(BaseModel):
+    """Stable pagination and query-cost metadata for collection responses."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cursor: str | None = Field(default=None, description="Current cursor.")
+    next_cursor: str | None = Field(default=None, description="Next cursor.")
+    page_size: int = Field(..., ge=1, description="Requested page size.")
+    returned_count: int = Field(..., ge=0, description="Returned item count.")
+    scanned_count: int = Field(..., ge=0, description="Scanned item count.")
+    query_cost_units: int = Field(..., ge=0, description="Estimated query cost.")
+
+
 class RunHistoryResponse(BaseModel):
     """Stable run-history lookup response."""
 
@@ -354,6 +367,7 @@ class RunHistoryResponse(BaseModel):
         default_factory=list,
         description="Runs that match the requested filters.",
     )
+    page: PaginationMeta = Field(..., description="Pagination and query-cost metadata.")
 
 
 class ArtifactLookupResponse(BaseModel):
@@ -365,6 +379,7 @@ class ArtifactLookupResponse(BaseModel):
         default_factory=list,
         description="Artifacts that match the requested filters.",
     )
+    page: PaginationMeta = Field(..., description="Pagination and query-cost metadata.")
 
 
 class EvidenceLookupResponse(BaseModel):
@@ -376,6 +391,7 @@ class EvidenceLookupResponse(BaseModel):
         default_factory=list,
         description="Evidence and review documents matching the requested filters.",
     )
+    page: PaginationMeta = Field(..., description="Pagination and query-cost metadata.")
 
 
 class ApiEnvelope(BaseModel):

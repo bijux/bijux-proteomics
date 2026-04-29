@@ -13,6 +13,7 @@ from typing import Any
 from bijux_proteomics_runtime.api.v1.schema import (
     ArtifactLookupResponse,
     EvidenceLookupResponse,
+    PaginationMeta,
     RunArtifactsResponse,
     RunEvidenceResponse,
     RunHistoryResponse,
@@ -33,6 +34,7 @@ from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 _DOCUMENT_MAX_INLINE_BYTES = 256_000
 _MAX_ARTIFACT_LOAD_BYTES = 1_000_000
+_MAX_PAGE_SIZE = 100
 
 _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("config", "runtime-config", "runtime configuration"),
@@ -125,6 +127,41 @@ def _iter_run_ids(base_dir: Path) -> list[str]:
         if (path / "run_summary.json").exists():
             run_ids.append(path.name)
     return run_ids
+
+
+def _paginate_items(
+    items: list[Any],
+    *,
+    cursor: str | None,
+    page_size: int,
+    max_query_cost: int,
+) -> tuple[list[Any], PaginationMeta]:
+    if page_size < 1 or page_size > _MAX_PAGE_SIZE:
+        raise ValueError(f"page_size must be between 1 and {_MAX_PAGE_SIZE}")
+    if max_query_cost < 1:
+        raise ValueError("max_query_cost must be >= 1")
+    offset = 0
+    if cursor:
+        offset = int(cursor)
+        if offset < 0:
+            raise ValueError("cursor must be a non-negative integer")
+    scanned_count = len(items)
+    query_cost_units = scanned_count + page_size
+    if query_cost_units > max_query_cost:
+        raise ValueError(
+            f"query cost {query_cost_units} exceeds the allowed budget {max_query_cost}"
+        )
+    page_items = items[offset : offset + page_size]
+    next_offset = offset + page_size
+    next_cursor = str(next_offset) if next_offset < len(items) else None
+    return page_items, PaginationMeta(
+        cursor=str(offset) if cursor is not None else None,
+        next_cursor=next_cursor,
+        page_size=page_size,
+        returned_count=len(page_items),
+        scanned_count=scanned_count,
+        query_cost_units=query_cost_units,
+    )
 
 
 def _artifact_record(
@@ -454,6 +491,9 @@ def build_run_history_response(
     workflow_state: str | None = None,
     outcome: str | None = None,
     candidate_id: str | None = None,
+    cursor: str | None = None,
+    page_size: int = 20,
+    max_query_cost: int = 1000,
 ) -> RunHistoryResponse:
     """Build the stable run-history lookup response."""
     runs: list[RunResponse] = []
@@ -470,7 +510,13 @@ def build_run_history_response(
         if candidate_id is not None and response.candidate_id != candidate_id:
             continue
         runs.append(response)
-    return RunHistoryResponse(runs=runs)
+    page_runs, page = _paginate_items(
+        runs,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
+    )
+    return RunHistoryResponse(runs=page_runs, page=page)
 
 
 def build_artifact_lookup_response(
@@ -478,6 +524,9 @@ def build_artifact_lookup_response(
     *,
     run_id: str | None = None,
     artifact_kind: str | None = None,
+    cursor: str | None = None,
+    page_size: int = 20,
+    max_query_cost: int = 1000,
 ) -> ArtifactLookupResponse:
     """Build the stable artifact-lookup response across runs."""
     records: list[RuntimeArtifactRecord] = []
@@ -487,7 +536,13 @@ def build_artifact_lookup_response(
             if artifact_kind is not None and artifact.artifact_kind != artifact_kind:
                 continue
             records.append(artifact)
-    return ArtifactLookupResponse(artifacts=records)
+    page_records, page = _paginate_items(
+        records,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
+    )
+    return ArtifactLookupResponse(artifacts=page_records, page=page)
 
 
 def build_evidence_lookup_response(
@@ -496,6 +551,9 @@ def build_evidence_lookup_response(
     run_id: str | None = None,
     document_kind: str | None = None,
     availability: str | None = None,
+    cursor: str | None = None,
+    page_size: int = 20,
+    max_query_cost: int = 1000,
 ) -> EvidenceLookupResponse:
     """Build the stable evidence and review lookup response across runs."""
     documents: list[RuntimeDocumentReference] = []
@@ -511,4 +569,10 @@ def build_evidence_lookup_response(
             if availability is not None and document.availability.value != availability:
                 continue
             documents.append(document)
-    return EvidenceLookupResponse(documents=documents)
+    page_documents, page = _paginate_items(
+        documents,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
+    )
+    return EvidenceLookupResponse(documents=page_documents, page=page)

@@ -682,12 +682,18 @@ def api_health(pretty: bool) -> None:
 @click.option("--workflow-state", type=str, default=None)
 @click.option("--outcome", type=str, default=None)
 @click.option("--candidate-id", type=str, default=None)
+@click.option("--cursor", type=str, default=None)
+@click.option("--page-size", type=int, default=20, show_default=True)
+@click.option("--max-query-cost", type=int, default=1000, show_default=True)
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
 def api_history(
     provider: str | None,
     workflow_state: str | None,
     outcome: str | None,
     candidate_id: str | None,
+    cursor: str | None,
+    page_size: int,
+    max_query_cost: int,
     pretty: bool,
 ) -> None:
     """Emit the canonical run-history contract via CLI."""
@@ -697,6 +703,9 @@ def api_history(
         workflow_state=workflow_state,
         outcome=outcome,
         candidate_id=candidate_id,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
     )
     _emit_api_envelope(response, pretty=pretty)
 
@@ -704,15 +713,26 @@ def api_history(
 @api.command("lookup-artifacts")
 @click.option("--run-id", type=str, default=None)
 @click.option("--artifact-kind", type=str, default=None)
+@click.option("--cursor", type=str, default=None)
+@click.option("--page-size", type=int, default=20, show_default=True)
+@click.option("--max-query-cost", type=int, default=1000, show_default=True)
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
 def api_lookup_artifacts(
-    run_id: str | None, artifact_kind: str | None, pretty: bool
+    run_id: str | None,
+    artifact_kind: str | None,
+    cursor: str | None,
+    page_size: int,
+    max_query_cost: int,
+    pretty: bool,
 ) -> None:
     """Emit the canonical artifact-lookup contract via CLI."""
     response = build_artifact_lookup_response(
         Path.cwd(),
         run_id=run_id,
         artifact_kind=artifact_kind,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
     )
     _emit_api_envelope(response, pretty=pretty)
 
@@ -721,11 +741,17 @@ def api_lookup_artifacts(
 @click.option("--run-id", type=str, default=None)
 @click.option("--document-kind", type=str, default=None)
 @click.option("--availability", type=str, default=None)
+@click.option("--cursor", type=str, default=None)
+@click.option("--page-size", type=int, default=20, show_default=True)
+@click.option("--max-query-cost", type=int, default=1000, show_default=True)
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
 def api_lookup_evidence(
     run_id: str | None,
     document_kind: str | None,
     availability: str | None,
+    cursor: str | None,
+    page_size: int,
+    max_query_cost: int,
     pretty: bool,
 ) -> None:
     """Emit the canonical evidence-lookup contract via CLI."""
@@ -734,6 +760,9 @@ def api_lookup_evidence(
         run_id=run_id,
         document_kind=document_kind,
         availability=availability,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
     )
     _emit_api_envelope(response, pretty=pretty)
 

@@ -152,6 +152,9 @@ def run_history_endpoint(
     workflow_state: str | None = None,
     outcome: str | None = None,
     candidate_id: str | None = None,
+    cursor: str | None = None,
+    page_size: int = 20,
+    max_query_cost: int = 1000,
 ) -> ApiEnvelope:
     """Return the stable run-history lookup response."""
     try:
@@ -161,6 +164,9 @@ def run_history_endpoint(
             workflow_state=workflow_state,
             outcome=outcome,
             candidate_id=candidate_id,
+            cursor=cursor,
+            page_size=page_size,
+            max_query_cost=max_query_cost,
         )
         return ApiEnvelope(status="ok", data=response, error=None, meta={})
     except Exception as exc:  # noqa: BLE001
@@ -177,6 +183,9 @@ def artifact_lookup_endpoint(
     base_dir: Annotated[Path, Depends(get_base_dir)],
     run_id: str | None = None,
     artifact_kind: str | None = None,
+    cursor: str | None = None,
+    page_size: int = 20,
+    max_query_cost: int = 1000,
 ) -> ApiEnvelope:
     """Return the stable artifact lookup response."""
     try:
@@ -184,6 +193,9 @@ def artifact_lookup_endpoint(
             base_dir,
             run_id=run_id,
             artifact_kind=artifact_kind,
+            cursor=cursor,
+            page_size=page_size,
+            max_query_cost=max_query_cost,
         )
         return ApiEnvelope(status="ok", data=response, error=None, meta={})
     except Exception as exc:  # noqa: BLE001
@@ -201,6 +213,9 @@ def evidence_lookup_endpoint(
     run_id: str | None = None,
     document_kind: str | None = None,
     availability: str | None = None,
+    cursor: str | None = None,
+    page_size: int = 20,
+    max_query_cost: int = 1000,
 ) -> ApiEnvelope:
     """Return the stable evidence and review lookup response."""
     try:
@@ -209,6 +224,9 @@ def evidence_lookup_endpoint(
             run_id=run_id,
             document_kind=document_kind,
             availability=availability,
+            cursor=cursor,
+            page_size=page_size,
+            max_query_cost=max_query_cost,
         )
         return ApiEnvelope(status="ok", data=response, error=None, meta={})
     except Exception as exc:  # noqa: BLE001

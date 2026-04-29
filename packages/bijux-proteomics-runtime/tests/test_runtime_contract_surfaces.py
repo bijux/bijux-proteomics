@@ -170,3 +170,26 @@ def test_runtime_lookup_contracts_filter_runs_artifacts_and_documents(
     documents = evidence_response.json()["data"]["documents"]
     assert len(documents) == 1
     assert documents[0]["run_id"] == "history-a"
+
+
+def test_runtime_lookup_contracts_apply_pagination_and_query_cost(
+    tmp_path: Path,
+) -> None:
+    for run_id in ("page-a", "page-b", "page-c"):
+        _seed_run(tmp_path, run_id)
+    client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
+
+    paged_response = client.get(
+        "/api/v1/runs/history",
+        params={"page_size": "2", "cursor": "1", "max_query_cost": "10"},
+    )
+    rejected_response = client.get(
+        "/api/v1/runs/history",
+        params={"page_size": "2", "max_query_cost": "4"},
+    )
+
+    assert paged_response.status_code == 200
+    paged_payload = paged_response.json()
+    assert len(paged_payload["data"]["runs"]) == 2
+    assert paged_payload["data"]["page"]["next_cursor"] is None
+    assert rejected_response.status_code == 422
