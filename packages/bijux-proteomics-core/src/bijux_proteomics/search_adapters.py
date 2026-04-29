@@ -251,6 +251,33 @@ class SearchConfigValidationReport(JsonModel):
     issues: tuple[SearchConfigValidationIssue, ...] = Field(default_factory=tuple)
 
 
+class SearchParameterDifferenceEntry(JsonModel):
+    """One normalized difference between two search parameter reports."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    field_name: str = Field(..., min_length=1)
+    left_value: str | None = None
+    right_value: str | None = None
+    severity: str = Field(..., pattern="^(compatible|different)$")
+    note: str = Field(..., min_length=1)
+
+
+class SearchParameterComparisonReport(JsonModel):
+    """Stable comparison between two normalized search parameter reports."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    left_adapter_kind: SearchAdapterKind
+    right_adapter_kind: SearchAdapterKind
+    left_adapter_name: str = Field(..., min_length=1)
+    right_adapter_name: str = Field(..., min_length=1)
+    comparable: bool
+    differences: tuple[SearchParameterDifferenceEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class SearchResultComparabilityReport(JsonModel):
     """Comparability summary between two normalized search-result reports."""
 
@@ -1390,6 +1417,118 @@ def validate_search_parameters(
         parameters=parameters,
         valid=not any(issue.severity == "error" for issue in issues),
         issues=tuple(issues),
+    )
+
+
+def _render_parameter_value(value: object) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, tuple):
+        return json.dumps(
+            [
+                item.to_dict() if hasattr(item, "to_dict") else item
+                for item in value
+            ],
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    return str(value)
+
+
+def compare_search_parameters(
+    left: SearchParameterReport,
+    right: SearchParameterReport,
+) -> SearchParameterComparisonReport:
+    """Compare normalized engine parameter reports across runs or engines."""
+    comparable = (
+        left.adapter_kind is right.adapter_kind
+        and left.enzyme == right.enzyme
+        and left.precursor_tolerance_unit == right.precursor_tolerance_unit
+        and left.fragment_tolerance_unit == right.fragment_tolerance_unit
+    )
+    differences: list[SearchParameterDifferenceEntry] = []
+    for field_name, left_value, right_value, note in (
+        (
+            "enzyme",
+            left.enzyme,
+            right.enzyme,
+            "digestion enzyme differences alter the search space and are not directly interchangeable",
+        ),
+        (
+            "missed_cleavages",
+            left.missed_cleavages,
+            right.missed_cleavages,
+            "missed-cleavage policy changes the enumerated peptide space",
+        ),
+        (
+            "precursor_tolerance",
+            left.precursor_tolerance,
+            right.precursor_tolerance,
+            "precursor tolerance differences change precursor matching strictness",
+        ),
+        (
+            "precursor_tolerance_unit",
+            left.precursor_tolerance_unit,
+            right.precursor_tolerance_unit,
+            "precursor tolerance units must be aligned before comparing parameter strictness",
+        ),
+        (
+            "fragment_tolerance",
+            left.fragment_tolerance,
+            right.fragment_tolerance,
+            "fragment tolerance differences change fragment matching strictness",
+        ),
+        (
+            "fragment_tolerance_unit",
+            left.fragment_tolerance_unit,
+            right.fragment_tolerance_unit,
+            "fragment tolerance units must be aligned before comparing parameter strictness",
+        ),
+        (
+            "database_path",
+            left.database_path,
+            right.database_path,
+            "database path differences may indicate distinct search databases",
+        ),
+        (
+            "decoy_prefix",
+            left.decoy_prefix,
+            right.decoy_prefix,
+            "decoy-prefix differences change decoy interpretation and downstream FDR expectations",
+        ),
+        (
+            "fixed_modifications",
+            left.fixed_modifications,
+            right.fixed_modifications,
+            "fixed modification differences change the assumed peptide masses",
+        ),
+        (
+            "variable_modifications",
+            left.variable_modifications,
+            right.variable_modifications,
+            "variable modification differences change the allowed search hypotheses",
+        ),
+    ):
+        rendered_left = _render_parameter_value(left_value)
+        rendered_right = _render_parameter_value(right_value)
+        differences.append(
+            SearchParameterDifferenceEntry(
+                field_name=field_name,
+                left_value=rendered_left,
+                right_value=rendered_right,
+                severity="compatible"
+                if rendered_left == rendered_right
+                else "different",
+                note=note,
+            )
+        )
+    return SearchParameterComparisonReport(
+        left_adapter_kind=left.adapter_kind,
+        right_adapter_kind=right.adapter_kind,
+        left_adapter_name=left.adapter_name,
+        right_adapter_name=right.adapter_name,
+        comparable=comparable,
+        differences=tuple(differences),
     )
 
 

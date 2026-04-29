@@ -19,6 +19,7 @@ from bijux_proteomics import (
     build_search_adapter_capability_matrix,
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
+    compare_search_parameters,
     compare_search_result_reports,
     get_search_adapter_manifest,
     normalize_search_results_with_adapter,
@@ -277,6 +278,25 @@ def test_search_config_validation_flags_missing_decoys_and_invalid_tolerances() 
         "invalid_fragment_tolerance",
         "overlapping_modification_definition",
     } <= codes
+
+
+def test_search_parameter_comparison_reports_engine_assumption_differences() -> None:
+    comet = parse_search_parameter_file(
+        source_path=_fixture("comet.params"),
+        adapter_kind=SearchAdapterKind.COMET,
+    )
+    fragger = parse_search_parameter_file(
+        source_path=_fixture("msfragger.params"),
+        adapter_kind=SearchAdapterKind.MSFRAGGER,
+    )
+
+    comparison = compare_search_parameters(comet, fragger)
+
+    assert comparison.comparable is False
+    differences = {entry.field_name: entry for entry in comparison.differences}
+    assert differences["enzyme"].severity == "compatible"
+    assert differences["fragment_tolerance"].severity == "different"
+    assert differences["variable_modifications"].severity == "different"
 
 
 def test_search_result_comparability_normalizes_score_orientation() -> None:
