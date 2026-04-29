@@ -66,6 +66,38 @@ def test_mzml_validation_catches_binary_array_length_mismatches() -> None:
     }
 
 
+def test_mzml_validation_rejects_unsupported_binary_compression_and_precision() -> (
+    None
+):
+    numpress_report = parse_mzml(_format_fixture("unsupported_numpress.mzml"))
+    numpress_validation = validate_proteomics_input(
+        _format_fixture("unsupported_numpress.mzml"),
+        input_kind=ProteomicsFormatKind.MZML,
+    )
+    integer_report = parse_mzml(_format_fixture("unsupported_integer_precision.mzml"))
+    integer_validation = validate_proteomics_input(
+        _format_fixture("unsupported_integer_precision.mzml"),
+        input_kind=ProteomicsFormatKind.MZML,
+    )
+
+    assert len(numpress_report.accepted_spectra) == 0
+    assert {issue.code for issue in numpress_report.rejected_spectra[0].issues} >= {
+        "unsupported_binary_compression"
+    }
+    assert numpress_validation.valid is False
+    assert {issue.code for issue in numpress_validation.issues} >= {
+        "unsupported_binary_compression"
+    }
+    assert len(integer_report.accepted_spectra) == 0
+    assert {issue.code for issue in integer_report.rejected_spectra[0].issues} >= {
+        "unsupported_binary_precision"
+    }
+    assert integer_validation.valid is False
+    assert {issue.code for issue in integer_validation.issues} >= {
+        "unsupported_binary_precision"
+    }
+
+
 def test_format_detection_and_design_table_parsing_are_stable() -> None:
     design_report = parse_experimental_design_table(_format_fixture("valid.design.tsv"))
     invalid_design = validate_proteomics_input(

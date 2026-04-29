@@ -48,6 +48,11 @@ _CV_FLOAT32 = "MS:1000521"
 _CV_FLOAT64 = "MS:1000523"
 _CV_ZLIB = "MS:1000574"
 _CV_NO_COMPRESSION = "MS:1000576"
+_CV_INT32 = "MS:1000519"
+_CV_INT64 = "MS:1000522"
+_CV_NUMPRESS_LINEAR = "MS:1002312"
+_CV_NUMPRESS_PIC = "MS:1002313"
+_CV_NUMPRESS_SLOF = "MS:1002314"
 _CV_SCAN_START_TIME = "MS:1000016"
 _CV_SELECTED_ION_MZ = "MS:1000744"
 _CV_CHARGE_STATE = "MS:1000041"
@@ -333,6 +338,10 @@ def _parse_binary_values(
     float_size = 8
     compressed = False
     binary_text = ""
+    precision_accessions: list[str] = []
+    compression_accessions: list[str] = []
+    supported_precisions = {_CV_FLOAT32, _CV_FLOAT64}
+    supported_compressions = {_CV_ZLIB, _CV_NO_COMPRESSION}
     for element in binary_data_array.iter():
         if _local_name(element.tag) == "cvParam":
             accession = element.attrib.get("accession")
@@ -342,12 +351,24 @@ def _parse_binary_values(
                 kind = "intensity"
             elif accession == _CV_FLOAT32:
                 float_size = 4
+                precision_accessions.append(accession)
             elif accession == _CV_FLOAT64:
                 float_size = 8
+                precision_accessions.append(accession)
+            elif accession in {_CV_INT32, _CV_INT64}:
+                precision_accessions.append(accession)
             elif accession == _CV_ZLIB:
                 compressed = True
+                compression_accessions.append(accession)
             elif accession == _CV_NO_COMPRESSION:
                 compressed = False
+                compression_accessions.append(accession)
+            elif accession in {
+                _CV_NUMPRESS_LINEAR,
+                _CV_NUMPRESS_PIC,
+                _CV_NUMPRESS_SLOF,
+            }:
+                compression_accessions.append(accession)
         elif _local_name(element.tag) == "binary":
             binary_text = (element.text or "").strip()
     if kind is None:
@@ -359,6 +380,57 @@ def _parse_binary_values(
             )
         )
         return None, None, issues
+    if not precision_accessions:
+        issues.append(
+            _issue(
+                "missing_binary_precision",
+                "binaryDataArray is missing a floating-point precision cvParam",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    if len(set(precision_accessions)) > 1:
+        issues.append(
+            _issue(
+                "conflicting_binary_precision",
+                "binaryDataArray declares multiple precision encodings",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    precision_accession = precision_accessions[0]
+    if precision_accession not in supported_precisions:
+        issues.append(
+            _issue(
+                "unsupported_binary_precision",
+                f"binaryDataArray precision {precision_accession} is not supported",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    if len(set(compression_accessions)) > 1:
+        issues.append(
+            _issue(
+                "conflicting_binary_compression",
+                "binaryDataArray declares multiple compression encodings",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    if compression_accessions and compression_accessions[0] not in supported_compressions:
+        issues.append(
+            _issue(
+                "unsupported_binary_compression",
+                f"binaryDataArray compression {compression_accessions[0]} is not supported",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
     if not binary_text:
         issues.append(
             _issue(
