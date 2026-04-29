@@ -292,7 +292,11 @@ class ContainerizedStepSpec(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     step_id: str = Field(..., min_length=1)
+    step_kind: WorkflowStepKind
     image: str = Field(..., min_length=1)
+    manifest_sha256: str = Field(..., min_length=64, max_length=64)
+    command_sha256: str = Field(..., min_length=64, max_length=64)
+    descriptor_sha256: str = Field(..., min_length=64, max_length=64)
     command: tuple[str, ...] = Field(default_factory=tuple)
     mounts: tuple[ContainerMount, ...] = Field(default_factory=tuple)
     network_policy: str = Field(..., min_length=1)
@@ -327,6 +331,9 @@ class HpcJobDescriptor(JsonModel):
     scheduler: WorkflowSchedulerKind
     workflow_id: str = Field(..., min_length=1)
     job_name: str = Field(..., min_length=1)
+    manifest_sha256: str = Field(..., min_length=64, max_length=64)
+    ordered_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    descriptor_sha256: str = Field(..., min_length=64, max_length=64)
     cpus: int = Field(..., ge=1)
     memory_gb: int = Field(..., ge=1)
     walltime_minutes: int = Field(..., ge=1)
@@ -1203,6 +1210,7 @@ def build_containerized_step_specs(
     manifest: ProteomicsWorkflowManifest,
 ) -> tuple[ContainerizedStepSpec, ...]:
     """Build container execution specs for each workflow step."""
+    manifest_sha256 = _stable_model_sha256(manifest)
     mounts = tuple(
         ContainerMount(
             source_path=asset.path,
@@ -1217,17 +1225,43 @@ def build_containerized_step_specs(
             read_only=False,
         ),
     )
-    return tuple(
-        ContainerizedStepSpec(
-            step_id=step.step_id,
-            image=manifest.default_container_image,
-            command=step.command_preview,
-            mounts=mounts,
-            network_policy="isolated",
-            workdir="/workspace",
+    container_steps = []
+    for step in manifest.steps:
+        command_sha256 = _stable_sequence_sha256(step.command_preview)
+        descriptor_sha256 = hashlib.sha256(
+            "|".join(
+                (
+                    step.step_id,
+                    step.kind.value,
+                    manifest.default_container_image,
+                    manifest_sha256,
+                    command_sha256,
+                    _stable_sequence_sha256(
+                        tuple(
+                            f"{mount.source_path}->{mount.target_path}:{mount.read_only}"
+                            for mount in mounts
+                        )
+                    ),
+                    "isolated",
+                    "/workspace",
+                )
+            ).encode("utf-8")
+        ).hexdigest()
+        container_steps.append(
+            ContainerizedStepSpec(
+                step_id=step.step_id,
+                step_kind=step.kind,
+                image=manifest.default_container_image,
+                manifest_sha256=manifest_sha256,
+                command_sha256=command_sha256,
+                descriptor_sha256=descriptor_sha256,
+                command=step.command_preview,
+                mounts=mounts,
+                network_policy="isolated",
+                workdir="/workspace",
+            )
         )
-        for step in manifest.steps
-    )
+    return tuple(container_steps)
 
 
 def build_external_search_tool_contract(
@@ -1582,6 +1616,7 @@ def build_hpc_job_descriptor(
 ) -> HpcJobDescriptor:
     """Export one scheduler-ready descriptor for the workflow bundle."""
     resolved_scheduler = scheduler or manifest.scheduler
+    manifest_sha256 = _stable_model_sha256(manifest)
     script_path = f"{manifest.artifacts_dir}/jobs/{manifest.workflow_id}.{resolved_scheduler.value}"
     lines = ["#!/usr/bin/env bash", "set -euo pipefail"]
     if resolved_scheduler is WorkflowSchedulerKind.SLURM:
@@ -1603,11 +1638,27 @@ def build_hpc_job_descriptor(
         if step.command_preview:
             lines.append(" ".join(step.command_preview))
     script_text = "\n".join(lines) + "\n"
+    ordered_step_ids = tuple(step.step_id for step in manifest.steps)
+    descriptor_sha256 = hashlib.sha256(
+        "|".join(
+            (
+                manifest.workflow_id,
+                resolved_scheduler.value,
+                manifest_sha256,
+                *ordered_step_ids,
+                script_path,
+                script_text,
+            )
+        ).encode("utf-8")
+    ).hexdigest()
     payload = HpcJobDescriptor(
         document_schema=_build_document_schema("hpc_job_descriptor"),
         scheduler=resolved_scheduler,
         workflow_id=manifest.workflow_id,
         job_name=manifest.workflow_id,
+        manifest_sha256=manifest_sha256,
+        ordered_step_ids=ordered_step_ids,
+        descriptor_sha256=descriptor_sha256,
         cpus=4,
         memory_gb=16,
         walltime_minutes=120,

@@ -81,6 +81,8 @@ def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_scri
 
     assert bundle.dag_plan.nodes
     assert bundle.container_steps
+    assert len(bundle.container_steps[0].descriptor_sha256) == 64
+    assert bundle.container_steps[0].step_kind is WorkflowStepKind.VALIDATE_INPUTS
     assert bundle.search_contract.tool_name == "Generic search table"
     assert bundle.deterministic_execution.workflow_id == bundle.manifest.workflow_id
     assert bundle.runtime_state.workflow_id == bundle.manifest.workflow_id
@@ -89,6 +91,7 @@ def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_scri
     assert bundle.artifact_registry.artifacts
     assert bundle.parallel_plan.groups[0].step_ids
     assert "#SBATCH --job-name=" in bundle.hpc_job.script_text
+    assert len(bundle.hpc_job.descriptor_sha256) == 64
     assert bundle.checkpoint.steps[0].status is WorkflowCheckpointStatus.READY
     assert bundle.checkpoint.blocked_step_ids
 
