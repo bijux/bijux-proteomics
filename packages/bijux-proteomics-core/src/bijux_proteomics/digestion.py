@@ -168,6 +168,7 @@ def digest_sequence(
     protease: ProteaseRule | str = "trypsin",
     source_accession: str = "sequence",
     source_identifier: str | None = None,
+    missed_cleavages: int = 0,
 ) -> tuple[DigestedPeptide, ...]:
     """Digest one sequence with full enzymatic specificity."""
     normalized = sequence.strip().upper()
@@ -175,23 +176,26 @@ def digest_sequence(
     boundaries = _full_digest_boundaries(normalized, rule)
     peptides: list[DigestedPeptide] = []
     identifier = source_identifier or source_accession
-    for start, end in zip(boundaries, boundaries[1:]):
-        peptide = normalized[start:end]
-        if not peptide:
-            continue
-        peptides.append(
-            DigestedPeptide(
-                source_accession=source_accession,
-                source_identifier=identifier,
-                sequence=peptide,
-                start=start + 1,
-                end=end,
-                missed_cleavages=0,
-                protease=rule.name,
-                digestion_mode=PeptideDigestionMode.FULL,
-                cleavage_type="enzymatic",
+    for start_index, start in enumerate(boundaries[:-1]):
+        max_span = min(missed_cleavages + 1, len(boundaries) - start_index - 1)
+        for span in range(1, max_span + 1):
+            end = boundaries[start_index + span]
+            peptide = normalized[start:end]
+            if not peptide:
+                continue
+            peptides.append(
+                DigestedPeptide(
+                    source_accession=source_accession,
+                    source_identifier=identifier,
+                    sequence=peptide,
+                    start=start + 1,
+                    end=end,
+                    missed_cleavages=span - 1,
+                    protease=rule.name,
+                    digestion_mode=PeptideDigestionMode.FULL,
+                    cleavage_type="enzymatic",
+                )
             )
-        )
     return tuple(peptides)
 
 

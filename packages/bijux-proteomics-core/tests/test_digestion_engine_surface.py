@@ -28,3 +28,20 @@ def test_digest_sequence_honors_trypsin_proline_block() -> None:
     peptides = digest_sequence("AKRPQKAAAR", source_accession="block-test")
 
     assert [peptide.sequence for peptide in peptides] == ["AK", "RPQK", "AAAR"]
+
+
+def test_digest_sequence_supports_missed_cleavages() -> None:
+    peptides = digest_sequence(
+        "AKAAKAAK",
+        source_accession="missed-cleavage-test",
+        missed_cleavages=1,
+    )
+
+    assert [peptide.sequence for peptide in peptides] == [
+        "AK",
+        "AKAAK",
+        "AAK",
+        "AAKAAK",
+        "AAK",
+    ]
+    assert [peptide.missed_cleavages for peptide in peptides] == [0, 1, 0, 1, 0]
