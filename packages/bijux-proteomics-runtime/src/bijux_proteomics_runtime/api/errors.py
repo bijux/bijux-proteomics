@@ -118,7 +118,12 @@ def _build_error(
     ).model_dump(mode="json")
 
 
-def raise_http_error(exc: Exception, instance: str) -> NoReturn:
+def raise_http_error(
+    exc: Exception,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> NoReturn:
     """raise_http_error."""
     status_code, error_type = map_exception(exc)
     detail = _build_error(error_type, status_code, str(exc), instance)
@@ -126,12 +131,17 @@ def raise_http_error(exc: Exception, instance: str) -> NoReturn:
         status="error",
         data=None,
         error=ErrorResponse.model_validate(detail),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
     raise ApiError(status_code=status_code, payload=payload) from exc
 
 
-def validation_error(detail: str, instance: str) -> dict[str, Any]:
+def validation_error(
+    detail: str,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """validation_error."""
     error = _build_error(
         "invalid_input", status.HTTP_422_UNPROCESSABLE_CONTENT, detail, instance
@@ -140,11 +150,16 @@ def validation_error(detail: str, instance: str) -> dict[str, Any]:
         status="error",
         data=None,
         error=ErrorResponse.model_validate(error),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
 
 
-def method_not_allowed(detail: str, instance: str) -> dict[str, Any]:
+def method_not_allowed(
+    detail: str,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """method_not_allowed."""
     error = ErrorResponse(
         type=_METHOD_NOT_ALLOWED_TYPE,
@@ -160,11 +175,17 @@ def method_not_allowed(detail: str, instance: str) -> dict[str, Any]:
         status="error",
         data=None,
         error=ErrorResponse.model_validate(error),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
 
 
-def http_error(status_code: int, detail: str, instance: str) -> dict[str, Any]:
+def http_error(
+    status_code: int,
+    detail: str,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """http_error."""
     title = "HTTP error"
     error_type = _ERROR_TYPES["unexpected"]
@@ -194,7 +215,7 @@ def http_error(status_code: int, detail: str, instance: str) -> dict[str, Any]:
         status="error",
         data=None,
         error=ErrorResponse.model_validate(error),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
 
 

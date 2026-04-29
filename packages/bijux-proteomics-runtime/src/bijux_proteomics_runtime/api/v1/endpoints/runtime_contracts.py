@@ -10,6 +10,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
+from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
 from bijux_proteomics_runtime.api.catalog import (
     build_artifact_lookup_response,
     build_evidence_lookup_response,
@@ -43,6 +44,7 @@ def run_status_endpoint(
     max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
     """Return the stable runtime status contract for one run."""
+    meta = build_request_correlation_meta(request, "run-status", run_id)
     try:
         response = build_runtime_status_response(
             base_dir,
@@ -50,9 +52,9 @@ def run_status_endpoint(
             include_documents=include_documents,
             max_inline_bytes=max_inline_bytes,
         )
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
 
 @router.get(
@@ -66,11 +68,12 @@ def run_artifacts_endpoint(
     base_dir: Annotated[Path, Depends(get_base_dir)],
 ) -> ApiEnvelope:
     """Return the stable artifact inventory for one run."""
+    meta = build_request_correlation_meta(request, "run-artifacts", run_id)
     try:
         response = build_run_artifacts_response(base_dir, run_id)
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
 
 @router.get(
@@ -86,6 +89,7 @@ def run_evidence_endpoint(
     max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
     """Return the stable evidence-bundle surface for one run."""
+    meta = build_request_correlation_meta(request, "run-evidence-bundle", run_id)
     try:
         response = build_run_evidence_response(
             base_dir,
@@ -93,9 +97,9 @@ def run_evidence_endpoint(
             include_document=include_document,
             max_inline_bytes=max_inline_bytes,
         )
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
 
 @router.get(
@@ -111,6 +115,7 @@ def run_review_endpoint(
     max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
     """Return the stable review-packet surface for one run."""
+    meta = build_request_correlation_meta(request, "run-review-packet", run_id)
     try:
         response = build_run_review_response(
             base_dir,
@@ -118,9 +123,9 @@ def run_review_endpoint(
             include_document=include_document,
             max_inline_bytes=max_inline_bytes,
         )
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
 
 @router.get(
@@ -133,11 +138,12 @@ def runtime_health_endpoint(
     base_dir: Annotated[Path, Depends(get_base_dir)],
 ) -> ApiEnvelope:
     """Return the typed runtime health report."""
+    meta = build_request_correlation_meta(request, "runtime-health", request.url.path)
     try:
         response = build_runtime_health_response(base_dir)
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
 
 @router.get(
@@ -157,6 +163,7 @@ def run_history_endpoint(
     max_query_cost: int = 1000,
 ) -> ApiEnvelope:
     """Return the stable run-history lookup response."""
+    meta = build_request_correlation_meta(request, "run-history", request.url.path)
     try:
         response = build_run_history_response(
             base_dir,
@@ -168,9 +175,9 @@ def run_history_endpoint(
             page_size=page_size,
             max_query_cost=max_query_cost,
         )
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
 
 @router.get(
@@ -188,6 +195,7 @@ def artifact_lookup_endpoint(
     max_query_cost: int = 1000,
 ) -> ApiEnvelope:
     """Return the stable artifact lookup response."""
+    meta = build_request_correlation_meta(request, "artifact-lookup", request.url.path)
     try:
         response = build_artifact_lookup_response(
             base_dir,
@@ -197,9 +205,9 @@ def artifact_lookup_endpoint(
             page_size=page_size,
             max_query_cost=max_query_cost,
         )
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
 
 @router.get(
@@ -218,6 +226,7 @@ def evidence_lookup_endpoint(
     max_query_cost: int = 1000,
 ) -> ApiEnvelope:
     """Return the stable evidence and review lookup response."""
+    meta = build_request_correlation_meta(request, "evidence-lookup", request.url.path)
     try:
         response = build_evidence_lookup_response(
             base_dir,
@@ -228,6 +237,6 @@ def evidence_lookup_endpoint(
             page_size=page_size,
             max_query_cost=max_query_cost,
         )
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)

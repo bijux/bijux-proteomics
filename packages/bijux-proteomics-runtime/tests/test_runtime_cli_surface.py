@@ -83,6 +83,8 @@ def test_runtime_api_status_cli_uses_canonical_envelope(
     assert result.exit_code == 0
     payload = json.loads(result.output)
     assert payload["status"] == "ok"
+    assert payload["meta"]["request_id"] == "cli:runtime-status"
+    assert payload["meta"]["trace_id"]
     assert payload["data"]["summary"]["run_id"] == run_id
     assert payload["data"]["evidence_bundle"]["availability"] == "available"
 

@@ -25,6 +25,7 @@ from bijux_proteomics_runtime.api.catalog import (
     build_run_review_response,
     build_runtime_status_response,
 )
+from bijux_proteomics_runtime.api.correlation import build_correlation_meta
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiCandidate,
     ApiEnvelope,
@@ -244,13 +245,22 @@ def _emit_api_envelope(
     pretty: bool,
     error: ErrorResponse | None = None,
     meta: dict[str, Any] | None = None,
+    surface: str = "cli",
+    correlation_key: str | None = None,
 ) -> None:
     """Emit a canonical API-style envelope for CLI JSON flows."""
+    base_meta = build_correlation_meta(
+        surface,
+        f"cli:{surface}",
+        correlation_key,
+    )
+    if meta:
+        base_meta.update(meta)
     payload = ApiEnvelope(
         status="error" if error is not None else "ok",
         data=data,
         error=error,
-        meta=meta or {},
+        meta=base_meta,
     ).model_dump(mode="json")
     _emit_json_payload(payload, pretty=pretty)
 
@@ -393,6 +403,7 @@ def run(
             _emit_api_envelope(
                 None,
                 pretty=pretty,
+                surface="run",
                 error=ErrorResponse(
                     type="about:blank",
                     title="CLI error",
@@ -408,7 +419,12 @@ def run(
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_api_envelope(RunResponse.model_validate(summary), pretty=pretty)
+        _emit_api_envelope(
+            RunResponse.model_validate(summary),
+            pretty=pretty,
+            surface="run",
+            correlation_key=run_output.run_id,
+        )
         return
     _emit_run_summary_human(summary)
 
@@ -465,6 +481,7 @@ def resume(
             _emit_api_envelope(
                 None,
                 pretty=pretty,
+                surface="resume",
                 error=ErrorResponse(
                     type="about:blank",
                     title="CLI error",
@@ -480,7 +497,12 @@ def resume(
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_api_envelope(RunResponse.model_validate(summary), pretty=pretty)
+        _emit_api_envelope(
+            RunResponse.model_validate(summary),
+            pretty=pretty,
+            surface="resume",
+            correlation_key=run_output.run_id,
+        )
         return
     _emit_run_summary_human(summary)
 
@@ -499,6 +521,7 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
             _emit_api_envelope(
                 None,
                 pretty=pretty,
+                surface="compare",
                 error=ErrorResponse(
                     type="about:blank",
                     title="CLI error",
@@ -517,6 +540,8 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
         _emit_api_envelope(
             CompareResponse.model_validate(comparison),
             pretty=pretty,
+            surface="compare",
+            correlation_key=f"{run_a}:{run_b}",
         )
         return
     _emit_json_payload(comparison, pretty=True)
@@ -535,6 +560,7 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
             _emit_api_envelope(
                 None,
                 pretty=pretty,
+                surface="inspect-candidate",
                 error=ErrorResponse(
                     type="about:blank",
                     title="CLI error",
@@ -555,7 +581,12 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
         artifacts={},
     )
     if json_output:
-        _emit_api_envelope(payload, pretty=pretty)
+        _emit_api_envelope(
+            payload,
+            pretty=pretty,
+            surface="inspect-candidate",
+            correlation_key=candidate_id,
+        )
         return
     _emit_json_payload(payload.model_dump(mode="json"), pretty=True)
 
@@ -627,7 +658,7 @@ def api_status(
         include_documents=include_documents,
         max_inline_bytes=max_inline_bytes,
     )
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(response, pretty=pretty, surface="runtime-status", correlation_key=run_id)
 
 
 @api.command("artifacts")
@@ -636,7 +667,7 @@ def api_status(
 def api_artifacts(run_id: str, pretty: bool) -> None:
     """Emit the canonical run-artifacts contract via CLI."""
     response = build_run_artifacts_response(Path.cwd(), run_id)
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(response, pretty=pretty, surface="run-artifacts", correlation_key=run_id)
 
 
 @api.command("evidence-bundle")
@@ -657,7 +688,12 @@ def api_evidence_bundle(
         include_document=include_document,
         max_inline_bytes=max_inline_bytes,
     )
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(
+        response,
+        pretty=pretty,
+        surface="run-evidence-bundle",
+        correlation_key=run_id,
+    )
 
 
 @api.command("review-packet")
@@ -678,7 +714,12 @@ def api_review_packet(
         include_document=include_document,
         max_inline_bytes=max_inline_bytes,
     )
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(
+        response,
+        pretty=pretty,
+        surface="run-review-packet",
+        correlation_key=run_id,
+    )
 
 
 @api.command("health")
@@ -686,7 +727,7 @@ def api_review_packet(
 def api_health(pretty: bool) -> None:
     """Emit the canonical runtime health contract via CLI."""
     response = build_runtime_health_response(Path.cwd())
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(response, pretty=pretty, surface="runtime-health")
 
 
 @api.command("history")
@@ -719,7 +760,7 @@ def api_history(
         page_size=page_size,
         max_query_cost=max_query_cost,
     )
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(response, pretty=pretty, surface="run-history")
 
 
 @api.command("lookup-artifacts")
@@ -746,7 +787,7 @@ def api_lookup_artifacts(
         page_size=page_size,
         max_query_cost=max_query_cost,
     )
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(response, pretty=pretty, surface="artifact-lookup")
 
 
 @api.command("lookup-evidence")
@@ -776,7 +817,7 @@ def api_lookup_evidence(
         page_size=page_size,
         max_query_cost=max_query_cost,
     )
-    _emit_api_envelope(response, pretty=pretty)
+    _emit_api_envelope(response, pretty=pretty, surface="evidence-lookup")
 
 
 @cli.command("reproduce")

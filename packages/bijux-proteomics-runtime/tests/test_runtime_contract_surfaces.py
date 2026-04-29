@@ -58,6 +58,8 @@ def test_runtime_status_contract_reports_evidence_and_review_documents(
 
     assert response.status_code == 200
     payload = response.json()
+    assert payload["meta"]["request_id"]
+    assert payload["meta"]["trace_id"]
     assert payload["data"]["summary"]["run_id"] == run_id
     assert payload["data"]["evidence_bundle"]["availability"] == "available"
     assert payload["data"]["evidence_bundle"]["content"]["bundle_id"] == "bundle-1"

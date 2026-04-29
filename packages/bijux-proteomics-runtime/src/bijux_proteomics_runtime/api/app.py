@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.routing import Match
 
+from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
 from bijux_proteomics_runtime.api.errors import (
     ApiError,
     http_error,
@@ -83,8 +84,15 @@ def create_app(config: AppConfig) -> FastAPI:
                         allowed_methods.update(route_methods)
             if matched and request.method not in allowed_methods:
                 allow_header = ", ".join(sorted(allowed_methods))
+                meta = build_request_correlation_meta(
+                    request,
+                    "method-guard",
+                    request.url.path,
+                )
                 payload = method_not_allowed(
-                    f"Method {request.method} not allowed.", str(request.url)
+                    f"Method {request.method} not allowed.",
+                    str(request.url),
+                    meta=meta,
                 )
                 return JSONResponse(
                     status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
@@ -103,7 +111,12 @@ def create_app(config: AppConfig) -> FastAPI:
         request: Request, exc: HTTPException
     ) -> JSONResponse:
         """_handle_http_exception."""
-        payload = http_error(exc.status_code, str(exc.detail), str(request.url))
+        payload = http_error(
+            exc.status_code,
+            str(exc.detail),
+            str(request.url),
+            meta=build_request_correlation_meta(request, "http-error", request.url.path),
+        )
         return JSONResponse(status_code=exc.status_code, content=payload)
 
     @app.exception_handler(StarletteHTTPException)
@@ -111,7 +124,16 @@ def create_app(config: AppConfig) -> FastAPI:
         request: Request, exc: StarletteHTTPException
     ) -> JSONResponse:
         """_handle_starlette_http_exception."""
-        payload = http_error(exc.status_code, str(exc.detail), str(request.url))
+        payload = http_error(
+            exc.status_code,
+            str(exc.detail),
+            str(request.url),
+            meta=build_request_correlation_meta(
+                request,
+                "starlette-http-error",
+                request.url.path,
+            ),
+        )
         return JSONResponse(status_code=exc.status_code, content=payload)
 
     @app.exception_handler(RequestValidationError)
@@ -119,20 +141,31 @@ def create_app(config: AppConfig) -> FastAPI:
         request: Request, exc: RequestValidationError
     ) -> JSONResponse:
         """_handle_validation_error."""
-        payload = validation_error(str(exc), str(request.url))
+        payload = validation_error(
+            str(exc),
+            str(request.url),
+            meta=build_request_correlation_meta(
+                request,
+                "validation-error",
+                request.url.path,
+            ),
+        )
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content=payload
         )
 
     @app.get("/health", tags=["health"], response_model=ApiEnvelope)
     @app.get("/api/v1/health", tags=["health"], response_model=ApiEnvelope)
-    def health() -> dict[str, object]:
+    def health(request: Request) -> dict[str, object]:
         """health."""
-        return ok_envelope({"status": "ok", "runtime": runtime_banner()})
+        return ok_envelope(
+            {"status": "ok", "runtime": runtime_banner()},
+            meta=build_request_correlation_meta(request, "health", "/health"),
+        )
 
     @app.get("/ready", tags=["health"], response_model=ApiEnvelope)
     @app.get("/api/v1/ready", tags=["health"], response_model=ApiEnvelope)
-    def ready() -> dict[str, object]:
+    def ready(request: Request) -> dict[str, object]:
         """ready."""
         providers: dict[str, object] = {}
         try:
@@ -149,7 +182,8 @@ def create_app(config: AppConfig) -> FastAPI:
                 "status": status_value,
                 "runtime": runtime_banner(),
                 "providers": providers,
-            }
+            },
+            meta=build_request_correlation_meta(request, "ready", "/ready"),
         )
 
     app.include_router(v1_router, prefix="/api/v1")

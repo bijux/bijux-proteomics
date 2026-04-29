@@ -15,10 +15,14 @@ def test_runtime_cli_identity_command() -> None:
 
 def test_runtime_api_health_endpoint() -> None:
     client = TestClient(app)
-    response = client.get("/health")
+    response = client.get("/health", headers={"x-request-id": "req-health-1"})
     assert response.status_code == 200
     payload = response.json()
     assert payload["status"] == "ok"
+    assert payload["meta"]["request_id"] == "req-health-1"
+    assert payload["meta"]["trace_id"]
+    assert response.headers["x-request-id"] == "req-health-1"
+    assert response.headers["x-trace-id"]
     assert (
         payload["data"]["runtime"]
         == "bijux-proteomics-runtime canonical runtime surface"

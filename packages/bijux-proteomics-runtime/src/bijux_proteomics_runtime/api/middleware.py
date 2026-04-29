@@ -14,6 +14,8 @@ import uuid
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
+from bijux_proteomics_runtime.api.correlation import build_trace_id
+
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
     """Attach a request id header for tracing."""
@@ -24,8 +26,14 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         """Inject a request id for correlation across logs."""
         request_id = request.headers.get("x-request-id", str(uuid.uuid4()))
         request.state.request_id = request_id
+        request.state.trace_id = build_trace_id(
+            request.url.path,
+            request_id,
+            request.url.path,
+        )
         response: Response = await call_next(request)
         response.headers["x-request-id"] = request_id
+        response.headers["x-trace-id"] = request.state.trace_id
         return response
 
 
@@ -40,6 +48,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
         request_id = request.headers.get("x-request-id") or getattr(
             request.state, "request_id", "unknown"
         )
+        trace_id = getattr(request.state, "trace_id", "unknown")
         base_dir = getattr(request.app.state, "base_dir", None)
         log_path = None
         if isinstance(base_dir, Path):
@@ -51,6 +60,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
                     "timestamp": datetime.now(UTC).isoformat(),
                     "event": "request_start",
                     "correlation_id": request_id,
+                    "trace_id": trace_id,
                     "method": request.method,
                     "path": request.url.path,
                 },
@@ -63,6 +73,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
                     "timestamp": datetime.now(UTC).isoformat(),
                     "event": "request_complete",
                     "correlation_id": request_id,
+                    "trace_id": trace_id,
                     "method": request.method,
                     "path": request.url.path,
                     "status_code": response.status_code,
