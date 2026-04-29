@@ -119,6 +119,18 @@ class PeptideUniquenessEntry(JsonModel):
     uniqueness: PeptideUniqueness
 
 
+class PeptideProteinIndexEntry(JsonModel):
+    """Index entry from peptide sequence to source proteins and positions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(..., min_length=1)
+    protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    source_identifiers: tuple[str, ...] = Field(default_factory=tuple)
+    coordinates: tuple[tuple[str, int, int], ...] = Field(default_factory=tuple)
+    uniqueness: PeptideUniqueness
+
+
 _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
     "trypsin": ProteaseRule(
         name="trypsin",
@@ -271,6 +283,42 @@ def classify_peptide_uniqueness(
         )
         for sequence, accessions in sorted(sequence_to_accessions.items())
     ]
+    return tuple(entries)
+
+
+def build_peptide_protein_index(
+    peptides: tuple[DigestedPeptide, ...],
+) -> tuple[PeptideProteinIndexEntry, ...]:
+    """Build a stable peptide-to-protein index."""
+    grouped: dict[str, list[DigestedPeptide]] = {}
+    for peptide in peptides:
+        grouped.setdefault(peptide.sequence, []).append(peptide)
+
+    entries: list[PeptideProteinIndexEntry] = []
+    for sequence, members in sorted(grouped.items()):
+        accessions = tuple(sorted({member.source_accession for member in members}))
+        identifiers = tuple(sorted({member.source_identifier for member in members}))
+        coordinates = tuple(
+            sorted(
+                {
+                    (member.source_accession, member.start, member.end)
+                    for member in members
+                }
+            )
+        )
+        entries.append(
+            PeptideProteinIndexEntry(
+                sequence=sequence,
+                protein_accessions=accessions,
+                source_identifiers=identifiers,
+                coordinates=coordinates,
+                uniqueness=(
+                    PeptideUniqueness.UNIQUE
+                    if len(accessions) == 1
+                    else PeptideUniqueness.SHARED
+                ),
+            )
+        )
     return tuple(entries)
 
 
