@@ -7,6 +7,14 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    apply_q_values,
+    build_peptide_summary_report,
+    build_protein_summary_report,
+    build_psm_summary_report,
+    build_search_result_provenance_manifest,
+    export_psm_tsv,
+    FdrPolicy,
+    filter_psms_by_fdr,
     PsmSortField,
     SearchResultColumnMapping,
     TargetDecoyLabel,
@@ -154,3 +162,84 @@ def test_protein_level_evidence_rollup_counts_unique_and_shared_peptides() -> No
     assert protein_rollup.shared_peptide_count == 1
     assert shared_rollup.unique_peptide_count == 0
     assert decoy_rollup.target_decoy_label is TargetDecoyLabel.DECOY
+
+
+def test_basic_target_decoy_fdr_and_q_values_are_monotonic() -> None:
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+    annotated = apply_q_values(report.accepted_records)
+
+    assert [record.q_value for record in annotated] == sorted(
+        (record.q_value for record in annotated)
+    )
+    assert annotated[0].q_value == 0.0
+    assert annotated[-1].q_value == 2 / 3
+
+
+def test_fdr_threshold_filter_keeps_requested_cutoff() -> None:
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.5)
+
+    assert len(accepted) == 3
+    strict = filter_psms_by_fdr(report.accepted_records, threshold=0.34)
+    assert len(strict) == 1
+
+
+def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    summary = build_psm_summary_report(report.accepted_records)
+
+    assert summary.total_psms == 3
+    assert summary.target_psms == 2
+    assert summary.decoy_psms == 1
+    assert summary.counts_by_charge["2"] == 2
+
+
+def test_peptide_summary_report_counts_modified_and_shared_peptides() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    summary = build_peptide_summary_report(report.accepted_records)
+
+    assert summary.total_peptides == 3
+    assert summary.modified_peptides == 1
+    assert summary.shared_peptides == 1
+
+
+def test_protein_summary_report_supports_optional_coverage() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    summary = build_protein_summary_report(
+        report.accepted_records,
+        protein_lengths={"P12345": 20, "Q22222": 20, "DECOY_P99999": 20},
+    )
+
+    first = next(group for group in summary.protein_groups if group.protein_ref == "P12345")
+    assert summary.total_proteins == 3
+    assert first.coverage_fraction is not None
+    assert 0.0 < first.coverage_fraction <= 1.0
+
+
+def test_search_result_provenance_manifest_records_input_mapping_and_policy() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    manifest = build_search_result_provenance_manifest(
+        source_path=_psm_fixture("minimal_results.tsv"),
+        parse_report=report,
+        decoy_policy=TargetDecoyLabelPolicy(),
+        fdr_policy=FdrPolicy(threshold=0.01),
+    )
+
+    assert manifest.document_schema.document_kind == "search_result_provenance_manifest"
+    assert manifest.source_sha256
+    assert manifest.column_mapping.spectrum_id == "spectrum_id"
+    assert manifest.fdr_policy is not None
+
+
+def test_psm_export_tsv_and_jsonl_are_stable() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    jsonl_path = _psm_fixture("normalized_again.jsonl")
+    tsv_path = _psm_fixture("normalized_again.tsv")
+    try:
+        export_psm_jsonl(report.accepted_records, jsonl_path)
+        export_psm_tsv(report.accepted_records, tsv_path)
+        assert len(jsonl_path.read_text().strip().splitlines()) == 3
+        assert tsv_path.read_text().splitlines()[0].startswith("spectrum_id\tpeptide")
+    finally:
+        jsonl_path.unlink(missing_ok=True)
+        tsv_path.unlink(missing_ok=True)

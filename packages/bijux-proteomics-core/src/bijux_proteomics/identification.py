@@ -8,13 +8,14 @@ from __future__ import annotations
 from collections import defaultdict
 import csv
 from enum import StrEnum
+import hashlib
 import json
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
 class TargetDecoyLabel(StrEnum):
@@ -168,6 +169,95 @@ class ProteinEvidenceEntry(JsonModel):
     peptides: tuple[str, ...] = Field(default_factory=tuple)
     spectrum_count: int = Field(..., ge=1)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
+
+
+class FdrPolicy(JsonModel):
+    """Stable policy for basic target-decoy FDR evaluation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    score_orientation: str = Field(default="higher_better", pattern="^(higher_better|lower_better)$")
+    threshold: float | None = Field(default=None, ge=0.0)
+    decoy_policy: TargetDecoyLabelPolicy = Field(default_factory=TargetDecoyLabelPolicy)
+
+
+class FdrAnnotatedPsm(JsonModel):
+    """PSM record plus cumulative target-decoy FDR state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    psm: PsmRecord
+    rank: int = Field(..., ge=1)
+    cumulative_targets: int = Field(..., ge=0)
+    cumulative_decoys: int = Field(..., ge=0)
+    fdr: float = Field(..., ge=0.0)
+    q_value: float = Field(..., ge=0.0)
+    accepted: bool = True
+
+
+class PsmSummaryReport(JsonModel):
+    """Compact search-result summary over normalized PSM records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_psms: int = Field(..., ge=0)
+    target_psms: int = Field(..., ge=0)
+    decoy_psms: int = Field(..., ge=0)
+    mixed_psms: int = Field(..., ge=0)
+    unknown_psms: int = Field(..., ge=0)
+    counts_by_charge: dict[str, int] = Field(default_factory=dict)
+    counts_by_score_bin: dict[str, int] = Field(default_factory=dict)
+
+
+class PeptideSummaryReport(JsonModel):
+    """Compact peptide-level summary derived from PSM records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_peptides: int = Field(..., ge=0)
+    modified_peptides: int = Field(..., ge=0)
+    unique_peptides: int = Field(..., ge=0)
+    shared_peptides: int = Field(..., ge=0)
+    decoy_peptides: int = Field(..., ge=0)
+
+
+class ProteinSummaryEntry(JsonModel):
+    """One protein summary row with optional sequence coverage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    peptide_count: int = Field(..., ge=0)
+    unique_peptide_count: int = Field(..., ge=0)
+    shared_peptide_count: int = Field(..., ge=0)
+    coverage_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class ProteinSummaryReport(JsonModel):
+    """Compact protein-level summary over evidence rollups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_proteins: int = Field(..., ge=0)
+    target_proteins: int = Field(..., ge=0)
+    decoy_proteins: int = Field(..., ge=0)
+    protein_groups: tuple[ProteinSummaryEntry, ...] = Field(default_factory=tuple)
+
+
+class SearchResultProvenanceManifest(JsonModel):
+    """Stable manifest for one search-result parsing and filtering operation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    source_path: str | None = None
+    source_sha256: str | None = None
+    total_rows: int = Field(..., ge=0)
+    accepted_rows: int = Field(..., ge=0)
+    rejected_rows: int = Field(..., ge=0)
+    column_mapping: SearchResultColumnMapping
+    decoy_policy: TargetDecoyLabelPolicy
+    fdr_policy: FdrPolicy | None = None
 
 
 def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...]:
@@ -380,6 +470,38 @@ def export_psm_jsonl(records: tuple[PsmRecord, ...], path: Path) -> None:
             handle.write("\n")
 
 
+def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
+    """Write normalized PSM records as a stable TSV table."""
+    normalized = normalize_psm_records(records)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow(
+            [
+                "spectrum_id",
+                "peptide",
+                "canonical_peptide",
+                "charge",
+                "score",
+                "q_value",
+                "protein_refs",
+                "target_decoy_label",
+            ]
+        )
+        for record in normalized:
+            writer.writerow(
+                [
+                    record.spectrum_id,
+                    record.peptide,
+                    record.canonical_peptide,
+                    record.charge,
+                    record.score,
+                    "" if record.q_value is None else record.q_value,
+                    ";".join(record.protein_refs),
+                    record.target_decoy_label.value,
+                ]
+            )
+
+
 def sort_psm_records(
     records: tuple[PsmRecord, ...],
     *,
@@ -505,3 +627,201 @@ def rollup_protein_evidence(records: tuple[PsmRecord, ...]) -> tuple[ProteinEvid
             )
         )
     return tuple(rollups)
+
+
+def calculate_basic_target_decoy_fdr(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float | None = None,
+    score_orientation: str = "higher_better",
+) -> tuple[FdrAnnotatedPsm, ...]:
+    """Annotate PSMs with cumulative target-decoy FDR and monotonic q-values."""
+    if score_orientation not in {"higher_better", "lower_better"}:
+        raise ValueError("score_orientation must be 'higher_better' or 'lower_better'")
+
+    sorted_records = tuple(
+        sorted(
+            records,
+            key=(
+                (lambda record: (-record.score, record.spectrum_id, record.canonical_peptide))
+                if score_orientation == "higher_better"
+                else (lambda record: (record.score, record.spectrum_id, record.canonical_peptide))
+            ),
+        )
+    )
+    annotated: list[FdrAnnotatedPsm] = []
+    cumulative_targets = 0
+    cumulative_decoys = 0
+    for rank, record in enumerate(sorted_records, start=1):
+        if record.target_decoy_label is TargetDecoyLabel.DECOY:
+            cumulative_decoys += 1
+        else:
+            cumulative_targets += 1
+        fdr = cumulative_decoys / max(cumulative_targets, 1)
+        annotated.append(
+            FdrAnnotatedPsm(
+                psm=record,
+                rank=rank,
+                cumulative_targets=cumulative_targets,
+                cumulative_decoys=cumulative_decoys,
+                fdr=fdr,
+                q_value=fdr,
+                accepted=threshold is None or fdr <= threshold,
+            )
+        )
+
+    running_min = float("inf")
+    revised: list[FdrAnnotatedPsm] = []
+    for entry in reversed(annotated):
+        running_min = min(running_min, entry.fdr)
+        revised.append(
+            entry.model_copy(
+                update={
+                    "q_value": running_min,
+                    "accepted": threshold is None or running_min <= threshold,
+                }
+            )
+        )
+    return tuple(reversed(revised))
+
+
+def apply_q_values(records: tuple[PsmRecord, ...]) -> tuple[PsmRecord, ...]:
+    """Return PSM records with q-values filled from target-decoy FDR."""
+    annotated = calculate_basic_target_decoy_fdr(records)
+    return tuple(
+        entry.psm.model_copy(update={"q_value": entry.q_value})
+        for entry in annotated
+    )
+
+
+def filter_psms_by_fdr(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float,
+) -> tuple[PsmRecord, ...]:
+    """Filter PSMs to those that pass the requested q-value threshold."""
+    annotated = calculate_basic_target_decoy_fdr(records, threshold=threshold)
+    return tuple(entry.psm.model_copy(update={"q_value": entry.q_value}) for entry in annotated if entry.accepted)
+
+
+def build_psm_summary_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_bin_size: float = 10.0,
+) -> PsmSummaryReport:
+    """Build a compact summary report over normalized PSM records."""
+    counts_by_charge: dict[str, int] = defaultdict(int)
+    counts_by_score_bin: dict[str, int] = defaultdict(int)
+    target_psms = 0
+    decoy_psms = 0
+    mixed_psms = 0
+    unknown_psms = 0
+    for record in records:
+        counts_by_charge[str(record.charge)] += 1
+        lower = int(record.score // score_bin_size) * int(score_bin_size)
+        upper = lower + int(score_bin_size)
+        counts_by_score_bin[f"{lower}-{upper}"] += 1
+        if record.target_decoy_label is TargetDecoyLabel.TARGET:
+            target_psms += 1
+        elif record.target_decoy_label is TargetDecoyLabel.DECOY:
+            decoy_psms += 1
+        elif record.target_decoy_label is TargetDecoyLabel.MIXED:
+            mixed_psms += 1
+        else:
+            unknown_psms += 1
+    return PsmSummaryReport(
+        total_psms=len(records),
+        target_psms=target_psms,
+        decoy_psms=decoy_psms,
+        mixed_psms=mixed_psms,
+        unknown_psms=unknown_psms,
+        counts_by_charge=dict(sorted(counts_by_charge.items())),
+        counts_by_score_bin=dict(sorted(counts_by_score_bin.items())),
+    )
+
+
+def build_peptide_summary_report(records: tuple[PsmRecord, ...]) -> PeptideSummaryReport:
+    """Build a compact peptide-level summary report."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    return PeptideSummaryReport(
+        total_peptides=len(peptide_rollups),
+        modified_peptides=sum(1 for peptide in peptide_rollups if "[" in peptide.canonical_peptide),
+        unique_peptides=sum(1 for peptide in peptide_rollups if len(peptide.protein_refs) == 1),
+        shared_peptides=sum(1 for peptide in peptide_rollups if len(peptide.protein_refs) > 1),
+        decoy_peptides=sum(1 for peptide in peptide_rollups if peptide.target_decoy_label is TargetDecoyLabel.DECOY),
+    )
+
+
+def build_protein_summary_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    protein_lengths: dict[str, int] | None = None,
+) -> ProteinSummaryReport:
+    """Build a compact protein-level summary report with optional coverage."""
+    rollups = rollup_protein_evidence(records)
+    summary_entries: list[ProteinSummaryEntry] = []
+    target_proteins = 0
+    decoy_proteins = 0
+    for rollup in rollups:
+        coverage_fraction: float | None = None
+        if protein_lengths and protein_lengths.get(rollup.protein_ref):
+            covered_residues = {
+                residue_index
+                for peptide in rollup.peptides
+                for residue_index in range(1, len(peptide) + 1)
+            }
+            coverage_fraction = min(
+                len(covered_residues) / protein_lengths[rollup.protein_ref],
+                1.0,
+            )
+        summary_entries.append(
+            ProteinSummaryEntry(
+                protein_ref=rollup.protein_ref,
+                peptide_count=rollup.peptide_count,
+                unique_peptide_count=rollup.unique_peptide_count,
+                shared_peptide_count=rollup.shared_peptide_count,
+                coverage_fraction=coverage_fraction,
+            )
+        )
+        if rollup.target_decoy_label is TargetDecoyLabel.DECOY:
+            decoy_proteins += 1
+        else:
+            target_proteins += 1
+    return ProteinSummaryReport(
+        total_proteins=len(summary_entries),
+        target_proteins=target_proteins,
+        decoy_proteins=decoy_proteins,
+        protein_groups=tuple(summary_entries),
+    )
+
+
+def build_search_result_provenance_manifest(
+    *,
+    source_path: Path,
+    parse_report: PsmParseReport,
+    decoy_policy: TargetDecoyLabelPolicy,
+    fdr_policy: FdrPolicy | None = None,
+) -> SearchResultProvenanceManifest:
+    """Build a stable provenance manifest for one parsed search-result table."""
+    source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="search_result_provenance_manifest",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    manifest = SearchResultProvenanceManifest(
+        document_schema=schema,
+        source_path=str(source_path),
+        source_sha256=source_sha256,
+        total_rows=parse_report.total_rows,
+        accepted_rows=len(parse_report.accepted_records),
+        rejected_rows=len(parse_report.rejected_rows),
+        column_mapping=parse_report.column_mapping,
+        decoy_policy=decoy_policy,
+        fdr_policy=fdr_policy,
+    )
+    payload = manifest.to_dict()
+    return manifest.model_copy(
+        update={"document_schema": manifest.document_schema.with_content_hash(payload)}
+    )

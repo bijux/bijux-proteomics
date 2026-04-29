@@ -296,3 +296,62 @@ def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
 
         assert result.exit_code != 0
         assert "not valid on residue" in result.output
+
+
+def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv"
+        shutil.copy(source, "results.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "psm-inspect",
+                "results.tsv",
+                "--jsonl-out",
+                "normalized.jsonl",
+                "--tsv-out",
+                "normalized.tsv",
+                "--provenance-out",
+                "provenance.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 3
+        assert payload["psm_summary"]["decoy_psms"] == 1
+        assert Path("normalized.jsonl").exists()
+        assert Path("normalized.tsv").exists()
+        manifest = json.loads(Path("provenance.json").read_text())
+        assert manifest["document_schema"]["document_kind"] == "search_result_provenance_manifest"
+
+
+def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "psm" / "fdr_results.tsv"
+        shutil.copy(source, "fdr.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "fdr.tsv",
+                "--threshold",
+                "0.5",
+                "--jsonl-out",
+                "accepted.jsonl",
+                "--provenance-out",
+                "fdr.provenance.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["threshold"] == 0.5
+        assert payload["accepted_psms"] == 3
+        assert Path("accepted.jsonl").exists()
+        manifest = json.loads(Path("fdr.provenance.json").read_text())
+        assert manifest["fdr_policy"]["threshold"] == 0.5

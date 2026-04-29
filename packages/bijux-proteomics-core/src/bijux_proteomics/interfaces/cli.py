@@ -31,6 +31,20 @@ from bijux_proteomics.digestion import (
     get_protease_rule,
     peptide_export_fingerprint,
 )
+from bijux_proteomics.identification import (
+    apply_q_values,
+    build_peptide_summary_report,
+    build_protein_summary_report,
+    build_psm_summary_report,
+    build_search_result_provenance_manifest,
+    export_psm_jsonl,
+    export_psm_tsv,
+    FdrPolicy,
+    filter_psms_by_fdr,
+    parse_psm_tsv,
+    SearchResultColumnMapping,
+    TargetDecoyLabelPolicy,
+)
 from bijux_proteomics.programs import ProgramSpec, create_program_spec, program_summary
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
@@ -99,6 +113,40 @@ def _export_format_choice() -> click.Choice:
 
 def _fragment_series_choice() -> click.Choice:
     return click.Choice([series.value for series in FragmentIonSeries], case_sensitive=False)
+
+
+def _build_psm_mapping(
+    *,
+    spectrum_id_column: str,
+    peptide_column: str,
+    charge_column: str,
+    score_column: str,
+    q_value_column: str | None,
+    protein_refs_column: str | None,
+    decoy_label_column: str | None,
+    protein_separator: str,
+) -> SearchResultColumnMapping:
+    return SearchResultColumnMapping(
+        spectrum_id=spectrum_id_column,
+        peptide=peptide_column,
+        charge=charge_column,
+        score=score_column,
+        q_value=q_value_column,
+        protein_refs=protein_refs_column,
+        decoy_label=decoy_label_column,
+        protein_separator=protein_separator,
+    )
+
+
+def _build_decoy_policy(
+    *,
+    decoy_prefix: str | None,
+    decoy_suffix: str | None,
+) -> TargetDecoyLabelPolicy:
+    return TargetDecoyLabelPolicy(
+        protein_prefix=decoy_prefix,
+        protein_suffix=decoy_suffix,
+    )
 
 
 @click.group()
@@ -565,5 +613,174 @@ def peptide_mass_command(
         "localization": localization.to_dict(),
         "fragment_ion_count": len(fragments),
         "fragments": [fragment.to_dict() for fragment in fragments],
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("psm-inspect")
+@click.argument("input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--decoy-label-column", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--decoy-prefix", default="DECOY_", show_default=True)
+@click.option("--decoy-suffix", default=None)
+@click.option("--jsonl-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--provenance-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def psm_inspect_command(
+    input_tsv: Path,
+    spectrum_id_column: str,
+    peptide_column: str,
+    charge_column: str,
+    score_column: str,
+    q_value_column: str | None,
+    protein_refs_column: str | None,
+    decoy_label_column: str | None,
+    protein_separator: str,
+    decoy_prefix: str | None,
+    decoy_suffix: str | None,
+    jsonl_out: Path | None,
+    tsv_out: Path | None,
+    provenance_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Inspect a generic PSM TSV and emit normalized summaries."""
+    try:
+        mapping = _build_psm_mapping(
+            spectrum_id_column=spectrum_id_column,
+            peptide_column=peptide_column,
+            charge_column=charge_column,
+            score_column=score_column,
+            q_value_column=q_value_column,
+            protein_refs_column=protein_refs_column,
+            decoy_label_column=decoy_label_column,
+            protein_separator=protein_separator,
+        )
+        decoy_policy = _build_decoy_policy(
+            decoy_prefix=decoy_prefix,
+            decoy_suffix=decoy_suffix,
+        )
+        report = parse_psm_tsv(
+            input_tsv,
+            mapping=mapping,
+            decoy_policy=decoy_policy,
+        )
+        normalized = apply_q_values(report.accepted_records)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if jsonl_out is not None:
+        export_psm_jsonl(normalized, jsonl_out)
+    if tsv_out is not None:
+        export_psm_tsv(normalized, tsv_out)
+
+    provenance = build_search_result_provenance_manifest(
+        source_path=input_tsv,
+        parse_report=report,
+        decoy_policy=decoy_policy,
+    )
+    if provenance_out is not None:
+        provenance_out.write_text(provenance.to_stable_json() + "\n")
+
+    payload = {
+        "accepted_rows": len(report.accepted_records),
+        "rejected_rows": len(report.rejected_rows),
+        "psm_summary": build_psm_summary_report(normalized).to_dict(),
+        "peptide_summary": build_peptide_summary_report(normalized).to_dict(),
+        "protein_summary": build_protein_summary_report(normalized).to_dict(),
+        "provenance": provenance.to_dict(),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("fdr")
+@click.argument("input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--threshold", type=float, default=0.01, show_default=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--decoy-label-column", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--decoy-prefix", default="DECOY_", show_default=True)
+@click.option("--decoy-suffix", default=None)
+@click.option("--jsonl-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--provenance-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def fdr_command(
+    input_tsv: Path,
+    threshold: float,
+    spectrum_id_column: str,
+    peptide_column: str,
+    charge_column: str,
+    score_column: str,
+    q_value_column: str | None,
+    protein_refs_column: str | None,
+    decoy_label_column: str | None,
+    protein_separator: str,
+    decoy_prefix: str | None,
+    decoy_suffix: str | None,
+    jsonl_out: Path | None,
+    tsv_out: Path | None,
+    provenance_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Apply basic target-decoy FDR and emit filtered PSM summaries."""
+    try:
+        mapping = _build_psm_mapping(
+            spectrum_id_column=spectrum_id_column,
+            peptide_column=peptide_column,
+            charge_column=charge_column,
+            score_column=score_column,
+            q_value_column=q_value_column,
+            protein_refs_column=protein_refs_column,
+            decoy_label_column=decoy_label_column,
+            protein_separator=protein_separator,
+        )
+        decoy_policy = _build_decoy_policy(
+            decoy_prefix=decoy_prefix,
+            decoy_suffix=decoy_suffix,
+        )
+        parse_report = parse_psm_tsv(
+            input_tsv,
+            mapping=mapping,
+            decoy_policy=decoy_policy,
+        )
+        accepted = filter_psms_by_fdr(parse_report.accepted_records, threshold=threshold)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if jsonl_out is not None:
+        export_psm_jsonl(accepted, jsonl_out)
+    if tsv_out is not None:
+        export_psm_tsv(accepted, tsv_out)
+
+    fdr_policy = FdrPolicy(threshold=threshold, decoy_policy=decoy_policy)
+    provenance = build_search_result_provenance_manifest(
+        source_path=input_tsv,
+        parse_report=parse_report,
+        decoy_policy=decoy_policy,
+        fdr_policy=fdr_policy,
+    )
+    if provenance_out is not None:
+        provenance_out.write_text(provenance.to_stable_json() + "\n")
+
+    payload = {
+        "threshold": threshold,
+        "input_psms": len(parse_report.accepted_records),
+        "accepted_psms": len(accepted),
+        "psm_summary": build_psm_summary_report(accepted).to_dict(),
+        "peptide_summary": build_peptide_summary_report(accepted).to_dict(),
+        "protein_summary": build_protein_summary_report(accepted).to_dict(),
+        "provenance": provenance.to_dict(),
     }
     _emit_json(payload, out_path=out_path)
