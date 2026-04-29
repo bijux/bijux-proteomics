@@ -121,6 +121,10 @@ from bijux_proteomics.search_adapters import (
     ScoreOrientation,
     validate_search_parameters,
 )
+from bijux_proteomics.workflow_runtime import (
+    build_proteomics_workflow_runtime_bundle,
+    WorkflowSchedulerKind,
+)
 from bijux_proteomics.exceptions import ProteomicsOperatorError, ProteomicsOperatorErrorCode
 from bijux_proteomics.programs import ProgramSpec, create_program_spec, program_summary
 from bijux_proteomics.sequences import (
@@ -242,6 +246,10 @@ def _quant_rollup_choice() -> click.Choice:
 
 def _normalization_choice() -> click.Choice:
     return click.Choice([method.value for method in NormalizationMethod], case_sensitive=False)
+
+
+def _workflow_scheduler_choice() -> click.Choice:
+    return click.Choice([scheduler.value for scheduler in WorkflowSchedulerKind], case_sensitive=False)
 
 
 def _select_design_entry(
@@ -1571,6 +1579,65 @@ def bundle_run_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(manifest)
+
+
+@cli.command("workflow-plan")
+@click.option("--proteins", "proteins_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+@click.option("--spectra", "spectra_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+@click.option("--identifications", "identifications_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--features", "features_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--design", "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--sample-id", default=None)
+@click.option("--search-adapter", type=_search_adapter_choice(), default=SearchAdapterKind.GENERIC.value, show_default=True)
+@click.option("--scheduler", type=_workflow_scheduler_choice(), default=WorkflowSchedulerKind.SLURM.value, show_default=True)
+@click.option("--container-image", default="ghcr.io/bijux/proteomics-runtime:stable", show_default=True)
+@click.option("--artifacts-dir", type=click.Path(path_type=Path, file_okay=False), default=None)
+@click.option("--completed-step", "completed_steps", multiple=True)
+@click.option("--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--dag-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--job-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--checkpoint-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+def workflow_plan_command(
+    proteins_path: Path,
+    spectra_path: Path,
+    identifications_path: Path | None,
+    features_path: Path | None,
+    design_path: Path | None,
+    sample_id: str | None,
+    search_adapter: str,
+    scheduler: str,
+    container_image: str,
+    artifacts_dir: Path | None,
+    completed_steps: tuple[str, ...],
+    out_path: Path | None,
+    dag_out: Path | None,
+    job_out: Path | None,
+    checkpoint_out: Path | None,
+) -> None:
+    """Build a workflow-runtime bundle for digest/search/FDR/quant/QC execution."""
+    try:
+        bundle = build_proteomics_workflow_runtime_bundle(
+            proteins_path=proteins_path,
+            spectra_path=spectra_path,
+            identifications_path=identifications_path,
+            features_path=features_path,
+            design_path=design_path,
+            sample_id=sample_id,
+            search_adapter_kind=SearchAdapterKind(search_adapter),
+            scheduler=WorkflowSchedulerKind(scheduler),
+            default_container_image=container_image,
+            artifacts_dir=artifacts_dir,
+            completed_step_ids=tuple(completed_steps),
+        )
+        if dag_out is not None:
+            dag_out.write_text(bundle.dag_plan.to_stable_json() + "\n", encoding="utf-8")
+        if job_out is not None:
+            job_out.write_text(bundle.hpc_job.script_text, encoding="utf-8")
+        if checkpoint_out is not None:
+            checkpoint_out.write_text(bundle.checkpoint.to_stable_json() + "\n", encoding="utf-8")
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(bundle, out_path=out_path)
 
 
 @cli.group("qc")

@@ -839,3 +839,54 @@ def test_qc_report_command_reports_structured_policy_errors() -> None:
 
         assert result.exit_code != 0
         assert "QC_POLICY_INVALID" in result.output
+
+
+def test_workflow_plan_command_emits_runtime_bundle_and_sidecar_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        for name in (
+            "spectra.mgf",
+            "results.tsv",
+            "proteins.fasta",
+            "design.tsv",
+            "ms1_features.tsv",
+        ):
+            shutil.copy(fixture_dir / name, name)
+
+        result = runner.invoke(
+            cli,
+            [
+                "workflow-plan",
+                "--proteins",
+                "proteins.fasta",
+                "--spectra",
+                "spectra.mgf",
+                "--identifications",
+                "results.tsv",
+                "--features",
+                "ms1_features.tsv",
+                "--design",
+                "design.tsv",
+                "--sample-id",
+                "sample-A",
+                "--search-adapter",
+                "generic",
+                "--dag-out",
+                "workflow.dag.json",
+                "--job-out",
+                "workflow.slurm",
+                "--checkpoint-out",
+                "workflow.checkpoint.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["manifest"]["workflow_id"].startswith("sample-a-generic-workflow")
+        assert payload["dag_plan"]["nodes"][0]["step_kind"] == "validate-inputs"
+        assert payload["search_contract"]["adapter_kind"] == "generic"
+        assert Path("workflow.dag.json").exists()
+        assert "#SBATCH --job-name=" in Path("workflow.slurm").read_text()
+        checkpoint = json.loads(Path("workflow.checkpoint.json").read_text())
+        assert checkpoint["document_schema"]["document_kind"] == "workflow_checkpoint"
