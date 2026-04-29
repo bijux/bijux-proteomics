@@ -10,6 +10,7 @@ from bijux_proteomics import (
     PeakNormalizationPolicy,
     SpectralSimilarityMethod,
     annotate_spectrum_fragments,
+    build_annotated_spectrum_bundle,
     build_spectrum_collection_summary,
     build_spectrum_lookup_index,
     build_spectrum_metrics,
@@ -18,6 +19,7 @@ from bijux_proteomics import (
     calculate_precursor_mass_error,
     calculate_spectral_similarity,
     export_spectrum_annotation_tsv,
+    export_annotated_spectrum_bundle,
     filter_spectrum_peaks,
     lookup_spectra,
     normalize_spectrum_scan_key,
@@ -284,3 +286,31 @@ def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:
     assert summary.issue_counts == {}
     assert manifest.document_schema.document_kind == "spectrum_provenance_manifest"
     assert manifest.source_sha256
+
+
+def test_annotated_spectrum_bundle_exports_raw_and_theoretical_evidence() -> None:
+    spectrum = normalize_spectrum_peaks(
+        parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
+    )
+    bundle = build_annotated_spectrum_bundle(
+        spectrum,
+        peptide="PEPTIDE",
+        tolerance_da=0.01,
+        include_neutral_losses=False,
+    )
+
+    assert bundle.document_schema.document_kind == "annotated_spectrum_bundle"
+    assert bundle.spectrum.spectrum_id == spectrum.spectrum_id
+    assert bundle.annotation.matches
+    assert bundle.theoretical_fragments
+    assert bundle.parameters.include_neutral_losses is False
+
+    output_path = _spectrum_fixture("annotated_bundle.json")
+    try:
+        export_annotated_spectrum_bundle(bundle, output_path)
+        payload = json.loads(output_path.read_text())
+        assert payload["document_schema"]["document_kind"] == "annotated_spectrum_bundle"
+        assert payload["annotation"]["matches"]
+        assert payload["theoretical_fragments"]
+    finally:
+        output_path.unlink(missing_ok=True)

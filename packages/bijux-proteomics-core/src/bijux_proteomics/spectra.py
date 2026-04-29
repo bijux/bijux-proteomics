@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 import hashlib
+import json
 from pathlib import Path
 import re
 
@@ -269,6 +270,28 @@ class SpectrumPlotPayload(JsonModel):
     precursor_mz: float = Field(..., gt=0.0)
     precursor_charge: int | None = Field(default=None, ge=1)
     peaks: tuple[SpectrumPlotPeak, ...] = Field(default_factory=tuple)
+
+
+class SpectrumAnnotationParameters(JsonModel):
+    """Stable parameter set for one spectrum-annotation bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    peptide: str = Field(..., min_length=1)
+    tolerance_da: float = Field(..., gt=0.0)
+    include_neutral_losses: bool
+
+
+class AnnotatedSpectrumBundle(JsonModel):
+    """Single export bundle with raw peaks, annotation, theoretical ions, and parameters."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    spectrum: SpectrumModel
+    annotation: SpectrumAnnotation
+    theoretical_fragments: tuple[FragmentIon, ...] = Field(default_factory=tuple)
+    parameters: SpectrumAnnotationParameters
 
 
 class _MgfBlock:
@@ -1062,4 +1085,60 @@ def build_spectrum_plot_payload(
                 payload.to_dict()
             )
         }
+    )
+
+
+def build_annotated_spectrum_bundle(
+    spectrum: SpectrumModel,
+    *,
+    peptide: str | ParsedModifiedPeptide,
+    tolerance_da: float = 0.5,
+    include_neutral_losses: bool = True,
+) -> AnnotatedSpectrumBundle:
+    """Build one self-contained annotation bundle with raw and theoretical evidence."""
+    canonical = _canonical_peptide_text(peptide)
+    theoretical_fragments = calculate_fragment_ions(
+        peptide,
+        include_neutral_losses=include_neutral_losses,
+    )
+    annotation = annotate_spectrum_fragments(
+        spectrum,
+        peptide=peptide,
+        tolerance_da=tolerance_da,
+        include_neutral_losses=include_neutral_losses,
+    )
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="annotated_spectrum_bundle",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    bundle = AnnotatedSpectrumBundle(
+        document_schema=schema,
+        spectrum=spectrum,
+        annotation=annotation,
+        theoretical_fragments=theoretical_fragments,
+        parameters=SpectrumAnnotationParameters(
+            peptide=canonical,
+            tolerance_da=tolerance_da,
+            include_neutral_losses=include_neutral_losses,
+        ),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_annotated_spectrum_bundle(
+    bundle: AnnotatedSpectrumBundle,
+    path: Path,
+) -> None:
+    """Write one annotated spectrum bundle as stable JSON."""
+    path.write_text(
+        json.dumps(bundle.to_dict(), sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
     )
