@@ -14,6 +14,7 @@ from bijux_proteomics_runtime.api.catalog import (
     build_run_artifacts_response,
     build_run_evidence_response,
     build_run_review_response,
+    build_runtime_health_response,
     build_runtime_status_response,
 )
 from bijux_proteomics_runtime.api.deps import get_base_dir
@@ -108,6 +109,23 @@ def run_review_endpoint(
             run_id,
             include_document=include_document,
         )
+        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+    except Exception as exc:  # noqa: BLE001
+        raise_http_error(exc, str(request.url))
+
+
+@router.get(
+    "/runtime-health",
+    response_model=ApiEnvelope,
+    responses={500: {"model": ErrorResponse}},
+)
+def runtime_health_endpoint(
+    request: Request,
+    base_dir: Annotated[Path, Depends(get_base_dir)],
+) -> ApiEnvelope:
+    """Return the typed runtime health report."""
+    try:
+        response = build_runtime_health_response(base_dir)
         return ApiEnvelope(status="ok", data=response, error=None, meta={})
     except Exception as exc:  # noqa: BLE001
         raise_http_error(exc, str(request.url))

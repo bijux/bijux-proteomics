@@ -91,3 +91,29 @@ def test_runtime_document_contracts_report_missing_files_honestly(tmp_path: Path
     assert response.status_code == 200
     payload = response.json()
     assert payload["data"]["review_packet"]["availability"] == "missing"
+
+
+def test_runtime_health_contract_distinguishes_component_failures(
+    monkeypatch, tmp_path: Path
+) -> None:
+    (tmp_path / "apis" / "bijux-proteomics-runtime" / "v1").mkdir(parents=True)
+    for name in ("schema.yaml", "pinned_openapi.json", "schema.hash"):
+        (tmp_path / "apis" / "bijux-proteomics-runtime" / "v1" / name).write_text(
+            "ok",
+            encoding="utf-8",
+        )
+    client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
+    monkeypatch.setattr(
+        "bijux_proteomics_runtime.api.catalog.provider_requirements",
+        lambda name: {"provider": name},
+    )
+
+    response = client.get("/api/v1/runtime-health")
+
+    assert response.status_code == 200
+    payload = response.json()
+    components = {item["component"]: item for item in payload["data"]["components"]}
+    assert components["storage"]["state"] == "healthy"
+    assert components["cache"]["state"] == "degraded"
+    assert components["tooling"]["state"] == "healthy"
+    assert components["manifest"]["state"] == "healthy"

@@ -14,12 +14,18 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RunArtifactsResponse,
     RunEvidenceResponse,
     RunReviewResponse,
+    RuntimeHealthComponent,
+    RuntimeHealthComponentState,
+    RuntimeHealthResponse,
     RuntimeArtifactRecord,
     RuntimeDocumentAvailability,
     RuntimeDocumentReference,
     RuntimeStatusResponse,
     RunResponse,
 )
+from bijux_proteomics_runtime.providers import provider_metadata
+from bijux_proteomics_runtime.providers.factory import provider_requirements
+from bijux_proteomics_runtime.runtime_identity import runtime_banner
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 _DOCUMENT_MAX_INLINE_BYTES = 256_000
@@ -55,9 +61,29 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ),
 )
 
+_RUNTIME_API_CONTRACT_FILES: tuple[str, ...] = (
+    "apis/bijux-proteomics-runtime/v1/schema.yaml",
+    "apis/bijux-proteomics-runtime/v1/pinned_openapi.json",
+    "apis/bijux-proteomics-runtime/v1/schema.hash",
+)
+
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _component(
+    name: str,
+    state: RuntimeHealthComponentState,
+    detail: str,
+    remediation_hint: str,
+) -> RuntimeHealthComponent:
+    return RuntimeHealthComponent(
+        component=name,
+        state=state,
+        detail=detail,
+        remediation_hint=remediation_hint,
+    )
 
 
 def _load_run_summary_payload(
@@ -282,4 +308,108 @@ def build_run_review_response(
             supported=True,
             max_inline_bytes=max_inline_bytes,
         ),
+    )
+
+
+def build_runtime_health_response(base_dir: Path) -> RuntimeHealthResponse:
+    """Build a typed runtime health report for operator diagnostics."""
+    artifacts_root = base_dir / "artifacts"
+    cache_root = artifacts_root / "cache"
+    components: list[RuntimeHealthComponent] = []
+
+    if base_dir.exists() and artifacts_root.parent.exists():
+        components.append(
+            _component(
+                "storage",
+                RuntimeHealthComponentState.HEALTHY,
+                f"runtime base directory is present at {base_dir}",
+                "ensure the runtime base directory stays readable and writable",
+            )
+        )
+    else:
+        components.append(
+            _component(
+                "storage",
+                RuntimeHealthComponentState.FAILED,
+                f"runtime base directory is missing at {base_dir}",
+                "start the runtime from a valid workspace or restore the storage root",
+            )
+        )
+
+    if cache_root.exists() and cache_root.is_dir():
+        components.append(
+            _component(
+                "cache",
+                RuntimeHealthComponentState.HEALTHY,
+                f"runtime cache root is available at {cache_root}",
+                "keep the cache directory writable for future reuse surfaces",
+            )
+        )
+    else:
+        components.append(
+            _component(
+                "cache",
+                RuntimeHealthComponentState.DEGRADED,
+                f"runtime cache root is not provisioned at {cache_root}",
+                "create artifacts/cache when cache-backed runtime reuse is required",
+            )
+        )
+
+    try:
+        providers = tuple(provider_metadata())
+        for name in providers:
+            provider_requirements(name)
+        components.append(
+            _component(
+                "tooling",
+                RuntimeHealthComponentState.HEALTHY,
+                f"provider metadata resolved for {len(providers)} providers",
+                "keep provider metadata and requirement probes importable",
+            )
+        )
+    except Exception as exc:  # noqa: BLE001
+        components.append(
+            _component(
+                "tooling",
+                RuntimeHealthComponentState.FAILED,
+                f"provider requirement probing failed: {exc}",
+                "repair provider configuration or dependency imports before execution",
+            )
+        )
+
+    missing_contracts = [
+        rel_path
+        for rel_path in _RUNTIME_API_CONTRACT_FILES
+        if not (base_dir / rel_path).exists()
+    ]
+    if missing_contracts:
+        components.append(
+            _component(
+                "manifest",
+                RuntimeHealthComponentState.FAILED,
+                "runtime API contract files are missing",
+                f"restore the checked-in API contracts: {', '.join(missing_contracts)}",
+            )
+        )
+    else:
+        components.append(
+            _component(
+                "manifest",
+                RuntimeHealthComponentState.HEALTHY,
+                "runtime API contract files are present",
+                "keep schema, pinned_openapi, and schema.hash synchronized",
+            )
+        )
+
+    status = "ok"
+    states = {component.state for component in components}
+    if RuntimeHealthComponentState.FAILED in states:
+        status = "failed"
+    elif RuntimeHealthComponentState.DEGRADED in states:
+        status = "degraded"
+
+    return RuntimeHealthResponse(
+        status=status,
+        runtime=runtime_banner(),
+        components=components,
     )

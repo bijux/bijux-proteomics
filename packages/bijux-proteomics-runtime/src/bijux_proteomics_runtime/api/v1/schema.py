@@ -213,6 +213,40 @@ class ReadyResponse(BaseModel):
     )
 
 
+class RuntimeHealthComponentState(StrEnum):
+    """Health state for one runtime service component."""
+
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    FAILED = "failed"
+
+
+class RuntimeHealthComponent(BaseModel):
+    """One runtime health component check."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    component: str = Field(..., min_length=1, description="Component identifier.")
+    state: RuntimeHealthComponentState = Field(..., description="Component health.")
+    detail: str = Field(..., min_length=1, description="Human-readable detail.")
+    remediation_hint: str = Field(
+        ..., min_length=1, description="Operator remediation hint."
+    )
+
+
+class RuntimeHealthResponse(BaseModel):
+    """Typed runtime health report across storage, cache, tool, and manifest checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str = Field(..., description="Aggregate health status.")
+    runtime: str = Field(..., description="Canonical runtime identity.")
+    components: list[RuntimeHealthComponent] = Field(
+        default_factory=list,
+        description="Per-component health details.",
+    )
+
+
 class RuntimeDocumentAvailability(StrEnum):
     """Availability state for one runtime-managed document surface."""
 
@@ -322,6 +356,7 @@ class ApiEnvelope(BaseModel):
         | CompareResponse
         | HealthResponse
         | ReadyResponse
+        | RuntimeHealthResponse
         | None
     ) = Field(default=None, description="Successful response payload.")
     error: ErrorResponse | None = Field(

@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
 from bijux_proteomics_runtime.api.catalog import (
+    build_runtime_health_response,
     build_run_artifacts_response,
     build_run_evidence_response,
     build_run_review_response,
@@ -644,6 +645,14 @@ def api_review_packet(run_id: str, include_document: bool, pretty: bool) -> None
         run_id,
         include_document=include_document,
     )
+    _emit_api_envelope(response, pretty=pretty)
+
+
+@api.command("health")
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_health(pretty: bool) -> None:
+    """Emit the canonical runtime health contract via CLI."""
+    response = build_runtime_health_response(Path.cwd())
     _emit_api_envelope(response, pretty=pretty)
 
 

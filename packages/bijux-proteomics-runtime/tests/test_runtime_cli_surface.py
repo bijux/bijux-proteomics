@@ -143,3 +143,28 @@ def test_runtime_run_json_output_uses_api_envelope(monkeypatch, tmp_path: Path) 
     payload = json.loads(result.output)
     assert payload["status"] == "ok"
     assert payload["data"]["run_id"] == run_id
+
+
+def test_runtime_api_health_cli_uses_component_report(
+    monkeypatch, tmp_path: Path
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "apis" / "bijux-proteomics-runtime" / "v1").mkdir(parents=True)
+    for name in ("schema.yaml", "pinned_openapi.json", "schema.hash"):
+        (tmp_path / "apis" / "bijux-proteomics-runtime" / "v1" / name).write_text(
+            "ok",
+            encoding="utf-8",
+        )
+
+    runner = CliRunner()
+    monkeypatch.setattr(
+        "bijux_proteomics_runtime.api.catalog.provider_requirements",
+        lambda name: {"provider": name},
+    )
+    result = runner.invoke(cli, ["api", "health"], catch_exceptions=False)
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["status"] == "ok"
+    components = {item["component"]: item for item in payload["data"]["components"]}
+    assert components["manifest"]["state"] == "healthy"
