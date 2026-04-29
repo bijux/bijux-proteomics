@@ -348,6 +348,10 @@ def test_differential_abundance_and_bh_correction_surface_signal() -> None:
     )
     assert p001.log2_fold_change > 0
     assert p002.log2_fold_change < 0
+    assert p001.standard_error is not None
+    assert p001.confidence_interval_low is not None
+    assert p001.confidence_interval_high is not None
+    assert p001.effect_size_cohens_d is not None
 
 
 def test_differential_abundance_respects_minimum_replicate_policy() -> None:

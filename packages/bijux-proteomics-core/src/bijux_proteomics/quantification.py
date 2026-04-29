@@ -690,6 +690,11 @@ class DifferentialAbundanceEntry(JsonModel):
     log2_fold_change: float
     p_value: float = Field(..., ge=0.0, le=1.0)
     adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    standard_error: float | None = Field(default=None, ge=0.0)
+    confidence_interval_low: float | None = None
+    confidence_interval_high: float | None = None
+    effect_size_cohens_d: float | None = None
+    uncertainty_note: str | None = None
 
 
 class DifferentialAbundanceReport(JsonModel):
@@ -1946,6 +1951,43 @@ def _welch_t_test(values_a: np.ndarray, values_b: np.ndarray) -> tuple[float, fl
     )
 
 
+def _effect_size_and_uncertainty(
+    values_a: np.ndarray,
+    values_b: np.ndarray,
+    log2_fold_change: float,
+) -> tuple[float | None, float | None, float | None, float | None, str | None]:
+    if values_a.size < 2 or values_b.size < 2:
+        return (
+            None,
+            None,
+            None,
+            None,
+            "confidence intervals and effect sizes require at least two observations per condition",
+        )
+    variance_a = float(np.var(values_a, ddof=1))
+    variance_b = float(np.var(values_b, ddof=1))
+    standard_error = math.sqrt(
+        variance_a / float(values_a.size) + variance_b / float(values_b.size)
+    )
+    interval_radius = 1.96 * standard_error
+    pooled_variance_numerator = (
+        (values_a.size - 1) * variance_a + (values_b.size - 1) * variance_b
+    )
+    pooled_variance_denominator = values_a.size + values_b.size - 2
+    pooled_sd = math.sqrt(pooled_variance_numerator / pooled_variance_denominator)
+    cohens_d = (log2_fold_change / pooled_sd) if pooled_sd > 0 else None
+    note = None
+    if standard_error > 1.0:
+        note = "uncertainty remains wide relative to the estimated fold change"
+    return (
+        standard_error,
+        log2_fold_change - interval_radius,
+        log2_fold_change + interval_radius,
+        cohens_d,
+        note,
+    )
+
+
 def parse_ms1_feature_table(
     path: Path,
     *,
@@ -2676,6 +2718,13 @@ def build_differential_abundance_report(
         mean_a = float(np.mean(values_a)) if values_a.size else 0.0
         mean_b = float(np.mean(values_b)) if values_b.size else 0.0
         log2_fold_change, p_value = _welch_t_test(values_a, values_b)
+        (
+            standard_error,
+            confidence_interval_low,
+            confidence_interval_high,
+            effect_size_cohens_d,
+            uncertainty_note,
+        ) = _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
         entries.append(
             DifferentialAbundanceEntry(
                 entity_id=entity_id,
@@ -2687,6 +2736,11 @@ def build_differential_abundance_report(
                 mean_log2_abundance_b=mean_b,
                 log2_fold_change=log2_fold_change,
                 p_value=p_value,
+                standard_error=standard_error,
+                confidence_interval_low=confidence_interval_low,
+                confidence_interval_high=confidence_interval_high,
+                effect_size_cohens_d=effect_size_cohens_d,
+                uncertainty_note=uncertainty_note,
             )
         )
     entries = sorted(
