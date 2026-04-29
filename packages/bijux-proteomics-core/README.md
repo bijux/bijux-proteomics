@@ -135,6 +135,25 @@ bijux-proteomics digest proteins.fasta \
   --manifest-out digest.manifest.json
 ```
 
+Peptide chemistry and modification handling are also first-class contracts in
+the same package:
+
+```python
+from bijux_proteomics import (
+    calculate_fragment_ions,
+    calculate_monoisotopic_peptide_mass,
+    calculate_peptide_mz,
+    modification_registry,
+    parse_modified_peptide,
+)
+
+registry = modification_registry()
+peptide = parse_modified_peptide("[Acetyl]-ACDM[Oxidation]K", registry=registry)
+neutral_mass = calculate_monoisotopic_peptide_mass(peptide)
+precursor_mz = calculate_peptide_mz(peptide, charge=2)
+fragments = calculate_fragment_ions(peptide, include_neutral_losses=True)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -224,6 +243,7 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`src/bijux_proteomics/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/repositories.py) for decision and gate repository protocols
 - [`src/bijux_proteomics/sequences.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences.py) for FASTA parsing, protein normalization, checksums, filtering, provenance, and target-decoy utilities
 - [`src/bijux_proteomics/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py) for protease rules, digestion modes, peptide filters, uniqueness, and peptide-to-protein indexing
+- [`src/bijux_proteomics/chemistry.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry.py) for peptide masses, precursor m/z, fragment ions, neutral losses, modification registries, and modified-peptide parsing
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations

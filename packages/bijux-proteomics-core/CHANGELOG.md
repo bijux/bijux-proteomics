@@ -10,10 +10,12 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Added CLI surfaces for FASTA parsing, stats, deduplication, filtering, provenance manifests, sequence checksums, decoy generation, and target-decoy validation.
 - Added protease registry contracts, full/semi-specific/non-specific digestion, missed-cleavage support, peptide length and mass filtering, uniqueness classification, and peptide-to-protein indexing in `bijux_proteomics.digestion`.
 - Added digest manifests, stable TSV/JSONL exports, optional Parquet export, reproducibility fingerprints, benchmark reporting, and the `bijux-proteomics digest` CLI workflow with explicit diagnostics.
+- Added peptide chemistry contracts for monoisotopic and average mass calculation, precursor m/z, fragment ions, neutral losses, static and variable modification models, modification registries, registry-file validation, and modified-peptide parsing in `bijux_proteomics.chemistry`.
 
 ### Changed
 
 - Exported the new FASTA and sequence-operation contracts through the package public API and README examples.
+- Exported the new peptide chemistry and modification contracts through the package public API and README examples.
 
 ## 0.3.7 - 2026-04-21
 
