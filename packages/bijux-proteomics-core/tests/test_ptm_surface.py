@@ -9,6 +9,7 @@ from bijux_proteomics import (
     build_ptm_enrichment_input,
     build_ptm_motif_background_report,
     build_ptm_motif_windows,
+    build_ptm_site_group_evidence,
     build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
     build_ptm_site_fdr,
@@ -18,6 +19,7 @@ from bijux_proteomics import (
     parse_fasta_document,
     parse_ms1_feature_table,
     parse_ptm_localization_tsv,
+    PtmSiteGroupEvidenceEntry,
     validate_ptm_site_coordinates,
 )
 from bijux_proteomics.sequences import FastaParseMode
@@ -124,6 +126,21 @@ def test_ptm_ambiguity_coverage_and_fdr_reports_are_stable() -> None:
     )
     assert target.accepted is True
     assert decoy.accepted is False
+
+
+def test_ptm_site_group_evidence_preserves_unresolved_candidate_sets() -> None:
+    evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = build_ptm_site_table(mappings)
+    groups = build_ptm_site_group_evidence(site_table)
+
+    assert any(isinstance(entry, PtmSiteGroupEvidenceEntry) for entry in groups)
+    unresolved = next(entry for entry in groups if entry.unresolved)
+    assert len(unresolved.candidate_positions) > 1
+    assert unresolved.site_keys
 
 
 def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> None:
