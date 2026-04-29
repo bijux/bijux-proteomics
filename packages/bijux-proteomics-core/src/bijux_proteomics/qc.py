@@ -570,6 +570,12 @@ def _assessment_message(
     return f"{rule.metric_label} breached fail threshold at {value_text}{unit}"
 
 
+def _format_metric_value(value: float | None) -> str:
+    if value is None:
+        return ""
+    return f"{value:.4f}".rstrip("0").rstrip(".")
+
+
 def _build_run_anomalies(
     *,
     identification_rate: float,
@@ -972,9 +978,7 @@ def render_qc_assessment_tsv(
                 run_assessment.run_id,
                 assessment.metric_key,
                 assessment.metric_label,
-                ""
-                if assessment.observed_value is None
-                else str(assessment.observed_value),
+                _format_metric_value(assessment.observed_value),
                 assessment.unit or "",
                 assessment.severity.value,
                 assessment.disposition.value,
@@ -991,9 +995,7 @@ def render_qc_assessment_tsv(
                     entity_id,
                     assessment.metric_key,
                     assessment.metric_label,
-                    ""
-                    if assessment.observed_value is None
-                    else str(assessment.observed_value),
+                    _format_metric_value(assessment.observed_value),
                     assessment.unit or "",
                     assessment.severity.value,
                     assessment.disposition.value,
@@ -1017,7 +1019,7 @@ def render_qc_assessment_html(
         rows.append(
             "<tr>"
             f"<td>run</td><td>{run_assessment.run_id}</td><td>{assessment.metric_label}</td>"
-            f"<td>{'' if assessment.observed_value is None else assessment.observed_value}</td>"
+            f"<td>{_format_metric_value(assessment.observed_value)}</td>"
             f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
             "</tr>"
         )
@@ -1027,7 +1029,7 @@ def render_qc_assessment_html(
             rows.append(
                 "<tr>"
                 f"<td>batch</td><td>{entity_id}</td><td>{assessment.metric_label}</td>"
-                f"<td>{'' if assessment.observed_value is None else assessment.observed_value}</td>"
+                f"<td>{_format_metric_value(assessment.observed_value)}</td>"
                 f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
                 "</tr>"
             )

@@ -29,6 +29,8 @@ from bijux_proteomics import (
     parse_experimental_design_table,
     parse_ms1_feature_table,
     NormalizationMethod,
+    render_qc_assessment_html,
+    render_qc_assessment_tsv,
 )
 
 PROTEIN_SEQUENCES = {
@@ -48,6 +50,19 @@ def _quant_fixture(name: str) -> Path:
 def _design_entries() -> dict[str, ExperimentalDesignEntry]:
     report = parse_experimental_design_table(_qc_fixture("batch.design.tsv"))
     return {entry.sample_id: entry for entry in report.accepted_entries}
+
+
+def _strict_qc_policy():
+    return default_qc_threshold_policy().model_copy(
+        update={
+            "rules": tuple(
+                rule.model_copy(update={"lower_fail": 0.5})
+                if rule.metric_key == "identification_rate"
+                else rule
+                for rule in default_qc_threshold_policy().rules
+            )
+        }
+    )
 
 
 def _spectrum_for_peptide(
@@ -474,16 +489,7 @@ def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
         design_entry=design_entries["S3"],
         protein_sequences=PROTEIN_SEQUENCES,
     )
-    policy = default_qc_threshold_policy().model_copy(
-        update={
-            "rules": tuple(
-                rule.model_copy(update={"lower_fail": 0.5})
-                if rule.metric_key == "identification_rate"
-                else rule
-                for rule in default_qc_threshold_policy().rules
-            )
-        }
-    )
+    policy = _strict_qc_policy()
 
     run_assessment = build_run_qc_assessment(run_c, policy=policy)
     batch_report = build_instrument_batch_qc_report((run_a, run_c))
@@ -507,6 +513,37 @@ def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
         entry.metric_key == "outlier_run_count"
         for entry in batch_assessment.metric_assessments
     )
+
+
+def test_qc_renderers_match_regression_fixtures() -> None:
+    design_entries = _design_entries()
+    run_a = build_lcms_run_qc_report(
+        _run_a_spectra(),
+        _run_a_psms(),
+        design_entry=design_entries["S1"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    run_c = build_lcms_run_qc_report(
+        _run_c_spectra(),
+        _run_c_psms(),
+        design_entry=design_entries["S3"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    policy = _strict_qc_policy()
+    run_assessment = build_run_qc_assessment(run_c, policy=policy)
+    batch_report = build_instrument_batch_qc_report((run_a, run_c))
+    batch_assessment = build_batch_qc_assessment(batch_report, policy=policy)
+
+    tsv = render_qc_assessment_tsv(run_assessment, batch_assessment=batch_assessment)
+    html = render_qc_assessment_html(
+        run_c,
+        run_assessment,
+        batch_report=batch_report,
+        batch_assessment=batch_assessment,
+    )
+
+    assert tsv == _qc_fixture("qc_assessment_expected.tsv").read_text(encoding="utf-8")
+    assert html == _qc_fixture("qc_assessment_expected.html").read_text(encoding="utf-8")
 
 
 def test_qc_manifest_and_performance_snapshot_bind_outputs_to_inputs() -> None:
