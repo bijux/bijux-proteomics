@@ -37,6 +37,12 @@ from bijux_proteomics_foundation.ids import (
     ensure_identifier_kind,
 )
 from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
+from bijux_proteomics_foundation.primitives import (
+    DurationValue,
+    SequenceCoordinateRange,
+    SequenceCoordinateSystem,
+    UtcTimestamp,
+)
 from bijux_proteomics_foundation.schema import (
     DocumentSchema,
     SchemaCompatibility,
@@ -70,11 +76,15 @@ __all__ = [
     "PromotionId",
     "ProteinId",
     "ProgramId",
+    "DurationValue",
     "ReviewId",
     "RunId",
     "SchemaMigration",
     "SpectrumId",
+    "SequenceCoordinateRange",
+    "SequenceCoordinateSystem",
     "TargetId",
+    "UtcTimestamp",
     "build_identifier",
     "classify_identifier",
     "ensure_identifier_kind",

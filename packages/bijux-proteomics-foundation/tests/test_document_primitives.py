@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -13,6 +14,7 @@ from bijux_proteomics_foundation import (
     ContractNotFoundError,
     ContractValidationError,
     DocumentSchema,
+    DurationValue,
     ExperimentId,
     FoundationContractError,
     IdentifierKind,
@@ -28,7 +30,10 @@ from bijux_proteomics_foundation import (
     RunId,
     SchemaCompatibility,
     SchemaMigration,
+    SequenceCoordinateRange,
+    SequenceCoordinateSystem,
     SpectrumId,
+    UtcTimestamp,
     assess_schema_compatibility,
     build_identifier,
     classify_identifier,
@@ -187,6 +192,37 @@ def test_identifier_helpers_validate_new_scientific_kinds() -> None:
 
     with pytest.raises(ValueError, match="should use 'run-' prefix"):
         ensure_identifier_kind("experiment-dose-response", IdentifierKind.RUN)
+
+
+def test_utc_timestamp_normalizes_to_utc() -> None:
+    timestamp = UtcTimestamp(
+        value=datetime.fromisoformat("2026-04-29T12:00:00+02:00")
+    )
+
+    assert timestamp.value.tzinfo is UTC
+    assert timestamp.to_dict()["value"] == "2026-04-29T10:00:00Z"
+
+
+def test_duration_value_round_trips_with_timedelta() -> None:
+    duration = DurationValue.from_timedelta(timedelta(minutes=12, seconds=30))
+
+    assert duration.seconds == 750.0
+    assert duration.to_timedelta() == timedelta(minutes=12, seconds=30)
+
+
+def test_sequence_coordinate_range_uses_inclusive_one_based_coordinates() -> None:
+    interval = SequenceCoordinateRange(
+        start=12,
+        end=19,
+        coordinate_system=SequenceCoordinateSystem.ONE_BASED_CLOSED,
+    )
+
+    assert interval.length == 8
+
+
+def test_sequence_coordinate_range_rejects_inverted_intervals() -> None:
+    with pytest.raises(ValidationError, match="end coordinate must be greater"):
+        SequenceCoordinateRange(start=9, end=4)
 
 
 def test_foundation_contract_errors_share_common_base() -> None:
