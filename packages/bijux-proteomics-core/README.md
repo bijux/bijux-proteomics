@@ -120,6 +120,21 @@ index = build_peptide_protein_index(peptides)
 uniqueness = classify_peptide_uniqueness(peptides)
 ```
 
+The same digestion surface is available from the CLI with explicit export and
+manifest outputs:
+
+```bash
+bijux-proteomics digest proteins.fasta \
+  --protease trypsin \
+  --missed-cleavages 1 \
+  --digestion-mode full \
+  --min-length 7 \
+  --max-length 30 \
+  --format jsonl \
+  --out peptides.jsonl \
+  --manifest-out digest.manifest.json
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
