@@ -167,6 +167,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "WorkflowCacheMissExplanationReport" in bijux_proteomics.__all__
     assert "WorkflowCacheMissReason" in bijux_proteomics.__all__
     assert "WorkflowPathKind" in bijux_proteomics.__all__
+    assert "WorkflowResumeKind" in bijux_proteomics.__all__
     assert "WorkflowRunDirectoryLayout" in bijux_proteomics.__all__
     assert "WorkflowRunDirectoryLayoutEntry" in bijux_proteomics.__all__
     assert "WorkflowRuntimeStateManifest" in bijux_proteomics.__all__

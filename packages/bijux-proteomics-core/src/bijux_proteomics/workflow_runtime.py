@@ -110,6 +110,14 @@ class WorkflowCacheMissReason(StrEnum):
     CACHE_LAYOUT_CHANGED = "cache-layout-changed"
 
 
+class WorkflowResumeKind(StrEnum):
+    """Stable resume semantics for one workflow step."""
+
+    RESUMABLE = "resumable"
+    NON_RESUMABLE = "non-resumable"
+    EXTERNAL_STATE = "external-state"
+
+
 class DeterministicExecutionContract(JsonModel):
     """Stable reproducibility contract over one runtime execution plan."""
 
@@ -448,6 +456,8 @@ class WorkflowCheckpointStep(JsonModel):
 
     step_id: str = Field(..., min_length=1)
     status: WorkflowCheckpointStatus
+    resume_kind: WorkflowResumeKind
+    resume_rationale: str = Field(..., min_length=1)
     expected_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -459,6 +469,9 @@ class WorkflowCheckpoint(JsonModel):
     document_schema: DocumentSchema
     workflow_id: str = Field(..., min_length=1)
     completed_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    resumable_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    non_resumable_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    external_state_step_ids: tuple[str, ...] = Field(default_factory=tuple)
     pending_step_ids: tuple[str, ...] = Field(default_factory=tuple)
     blocked_step_ids: tuple[str, ...] = Field(default_factory=tuple)
     artifact_registry_sha256: str = Field(..., min_length=64, max_length=64)
@@ -1629,6 +1642,9 @@ def build_workflow_checkpoint(
         for step in manifest.steps
     }
     steps: list[WorkflowCheckpointStep] = []
+    resumable_step_ids: list[str] = []
+    non_resumable_step_ids: list[str] = []
+    external_state_step_ids: list[str] = []
     pending_step_ids: list[str] = []
     blocked_step_ids: list[str] = []
     for step in manifest.steps:
@@ -1643,10 +1659,30 @@ def build_workflow_checkpoint(
         else:
             status = WorkflowCheckpointStatus.PENDING
             pending_step_ids.append(step.step_id)
+        if step.kind is WorkflowStepKind.RUN_SEARCH_ENGINE:
+            resume_kind = WorkflowResumeKind.EXTERNAL_STATE
+            resume_rationale = (
+                "search submission depends on external runtime state and must be reconciled explicitly"
+            )
+            external_state_step_ids.append(step.step_id)
+        elif step.cacheable:
+            resume_kind = WorkflowResumeKind.RESUMABLE
+            resume_rationale = (
+                "step outputs are deterministic and may be resumed from verified artifacts"
+            )
+            resumable_step_ids.append(step.step_id)
+        else:
+            resume_kind = WorkflowResumeKind.NON_RESUMABLE
+            resume_rationale = (
+                "step should be replayed instead of skipped because it is not marked cacheable"
+            )
+            non_resumable_step_ids.append(step.step_id)
         steps.append(
             WorkflowCheckpointStep(
                 step_id=step.step_id,
                 status=status,
+                resume_kind=resume_kind,
+                resume_rationale=resume_rationale,
                 expected_artifact_ids=step_outputs.get(step.step_id, ()),
             )
         )
@@ -1656,6 +1692,9 @@ def build_workflow_checkpoint(
         completed_step_ids=tuple(
             step_id for step_id in manifest.checkpointable_steps if step_id in completed
         ),
+        resumable_step_ids=tuple(resumable_step_ids),
+        non_resumable_step_ids=tuple(non_resumable_step_ids),
+        external_state_step_ids=tuple(external_state_step_ids),
         pending_step_ids=tuple(pending_step_ids),
         blocked_step_ids=tuple(blocked_step_ids),
         artifact_registry_sha256=_stable_model_sha256(artifact_registry),

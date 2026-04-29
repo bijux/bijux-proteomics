@@ -18,6 +18,7 @@ from bijux_proteomics import (
     WorkflowSchedulerKind,
     WorkflowStepKind,
     WorkflowStreamingMode,
+    WorkflowResumeKind,
     build_hpc_job_descriptor,
     build_large_file_streaming_policy,
     build_parallel_execution_plan,
@@ -278,5 +279,12 @@ def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> Non
     assert checkpoint.completed_step_ids == (
         f"{manifest.workflow_id}-validate-inputs",
         f"{manifest.workflow_id}-digest-database",
+    )
+    assert checkpoint.steps[0].resume_kind is WorkflowResumeKind.NON_RESUMABLE
+    assert checkpoint.steps[1].resume_kind is WorkflowResumeKind.RESUMABLE
+    assert any(
+        step.resume_kind is WorkflowResumeKind.EXTERNAL_STATE
+        for step in checkpoint.steps
+        if step.step_id.endswith("run-search-engine")
     )
     assert "search-runner submit" in hpc_job.script_text
