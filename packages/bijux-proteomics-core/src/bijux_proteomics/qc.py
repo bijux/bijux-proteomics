@@ -5,8 +5,9 @@
 
 from __future__ import annotations
 
-from collections import Counter, defaultdict
+from collections import Counter
 from enum import StrEnum
+import hashlib
 from pathlib import Path
 from statistics import median
 
@@ -96,6 +97,144 @@ class QcContaminantPolicy(JsonModel):
     substrings: tuple[str, ...] = ("KERATIN", "CONTAMINANT", "CRAP")
 
 
+class QcAssessmentDisposition(StrEnum):
+    """Whether a QC rule is advisory or enforced."""
+
+    ADVISORY = "ADVISORY"
+    ENFORCED = "ENFORCED"
+
+
+class QcAssessmentSeverity(StrEnum):
+    """Stable QC outcome severity."""
+
+    PASS = "PASS"
+    WARN = "WARN"
+    FAIL = "FAIL"
+    NOT_ASSESSED = "NOT_ASSESSED"
+
+
+class QcThresholdRule(JsonModel):
+    """One named threshold rule over a numeric QC metric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric_key: str = Field(..., min_length=1)
+    metric_label: str = Field(..., min_length=1)
+    unit: str | None = None
+    lower_warn: float | None = None
+    lower_fail: float | None = None
+    upper_warn: float | None = None
+    upper_fail: float | None = None
+    disposition: QcAssessmentDisposition = QcAssessmentDisposition.ADVISORY
+    description: str = ""
+
+
+class QcThresholdPolicy(JsonModel):
+    """Stable QC threshold policy document."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    policy_name: str = Field(..., min_length=1)
+    version: str = Field(..., min_length=1)
+    rules: tuple[QcThresholdRule, ...] = Field(default_factory=tuple)
+
+
+class QcMetricAssessment(JsonModel):
+    """One measured QC metric evaluated against a threshold rule."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric_key: str = Field(..., min_length=1)
+    metric_label: str = Field(..., min_length=1)
+    observed_value: float | None = None
+    unit: str | None = None
+    severity: QcAssessmentSeverity
+    disposition: QcAssessmentDisposition
+    threshold_rule: QcThresholdRule | None = None
+    message: str = Field(..., min_length=1)
+    enforced_violation: bool = False
+
+
+class QcRunAssessmentReport(JsonModel):
+    """Stable assessment payload for one run-level QC report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    run_id: str = Field(..., min_length=1)
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    overall_severity: QcAssessmentSeverity
+    blocked: bool = False
+    metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
+
+
+class QcBatchAssessmentReport(JsonModel):
+    """Stable assessment payload for one batch-level QC report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    batch_id: str | None = None
+    instrument: str | None = None
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    overall_severity: QcAssessmentSeverity
+    blocked: bool = False
+    metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
+
+
+class QcEvidenceInputFile(JsonModel):
+    """Stable source-file record for a QC evidence manifest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    path: str = Field(..., min_length=1)
+    sha256: str = Field(..., min_length=64, max_length=64)
+    role: str = Field(..., min_length=1)
+
+
+class ProteomicsPerformanceOperation(JsonModel):
+    """One benchmarked operation within a production snapshot."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    operation: str = Field(..., min_length=1)
+    elapsed_seconds: float = Field(..., ge=0.0)
+    item_count: int | None = Field(default=None, ge=0)
+    throughput_per_second: float | None = Field(default=None, ge=0.0)
+
+
+class ProteomicsPerformanceSnapshot(JsonModel):
+    """Stable benchmark artifact over production-facing proteomics operations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    run_id: str = Field(..., min_length=1)
+    operations: tuple[ProteomicsPerformanceOperation, ...] = Field(default_factory=tuple)
+    total_elapsed_seconds: float = Field(..., ge=0.0)
+
+
+class QcEvidenceManifest(JsonModel):
+    """Stable evidence manifest for one QC assessment run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    run_id: str = Field(..., min_length=1)
+    batch_id: str | None = None
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    input_files: tuple[QcEvidenceInputFile, ...] = Field(default_factory=tuple)
+    run_report_sha256: str = Field(..., min_length=64, max_length=64)
+    run_assessment_sha256: str = Field(..., min_length=64, max_length=64)
+    batch_report_sha256: str | None = Field(default=None, min_length=64, max_length=64)
+    batch_assessment_sha256: str | None = Field(default=None, min_length=64, max_length=64)
+    benchmark_sha256: str | None = Field(default=None, min_length=64, max_length=64)
+
+
 class LcmsRunQcReport(JsonModel):
     """Run-level LC-MS QC summary built from spectra and identifications."""
 
@@ -166,6 +305,14 @@ def _build_document_schema(document_kind: str) -> DocumentSchema:
     )
 
 
+def _stable_sha256(payload: JsonModel) -> str:
+    return hashlib.sha256(payload.to_stable_json().encode("utf-8")).hexdigest()
+
+
+def _hash_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def _resolve_run_id(run_id: str | None, design_entry: ExperimentalDesignEntry | None) -> str:
     if run_id:
         return run_id
@@ -198,6 +345,340 @@ def _build_charge_distribution(counts: Counter[str], total: int) -> tuple[QcChar
     return tuple(
         QcChargeStateEntry(charge_label=label, count=count, fraction=_fraction(count, total))
         for label, count in sorted(counts.items(), key=lambda item: item[0])
+    )
+
+
+def _severity_rank(severity: QcAssessmentSeverity) -> int:
+    return {
+        QcAssessmentSeverity.PASS: 0,
+        QcAssessmentSeverity.NOT_ASSESSED: 1,
+        QcAssessmentSeverity.WARN: 2,
+        QcAssessmentSeverity.FAIL: 3,
+    }[severity]
+
+
+def _assessment_message(rule: QcThresholdRule, severity: QcAssessmentSeverity, observed_value: float | None) -> str:
+    if observed_value is None:
+        return f"{rule.metric_label} was not assessed"
+    value_text = f"{observed_value:.4f}".rstrip("0").rstrip(".")
+    unit = f" {rule.unit}" if rule.unit else ""
+    if severity is QcAssessmentSeverity.PASS:
+        return f"{rule.metric_label} is within policy at {value_text}{unit}"
+    if severity is QcAssessmentSeverity.WARN:
+        return f"{rule.metric_label} breached advisory threshold at {value_text}{unit}"
+    return f"{rule.metric_label} breached fail threshold at {value_text}{unit}"
+
+
+def _evaluate_rule(rule: QcThresholdRule, observed_value: float | None) -> QcMetricAssessment:
+    if observed_value is None:
+        severity = QcAssessmentSeverity.NOT_ASSESSED
+    else:
+        severity = QcAssessmentSeverity.PASS
+        if rule.lower_fail is not None and observed_value < rule.lower_fail:
+            severity = QcAssessmentSeverity.FAIL
+        elif rule.upper_fail is not None and observed_value > rule.upper_fail:
+            severity = QcAssessmentSeverity.FAIL
+        elif rule.lower_warn is not None and observed_value < rule.lower_warn:
+            severity = QcAssessmentSeverity.WARN
+        elif rule.upper_warn is not None and observed_value > rule.upper_warn:
+            severity = QcAssessmentSeverity.WARN
+    return QcMetricAssessment(
+        metric_key=rule.metric_key,
+        metric_label=rule.metric_label,
+        observed_value=observed_value,
+        unit=rule.unit,
+        severity=severity,
+        disposition=rule.disposition,
+        threshold_rule=rule,
+        message=_assessment_message(rule, severity, observed_value),
+        enforced_violation=severity is QcAssessmentSeverity.FAIL and rule.disposition is QcAssessmentDisposition.ENFORCED,
+    )
+
+
+def default_qc_threshold_policy() -> QcThresholdPolicy:
+    """Return a durable default QC threshold policy for run diagnostics."""
+    return QcThresholdPolicy(
+        document_schema=_build_document_schema("qc_threshold_policy"),
+        policy_name="default-lcms-qc",
+        version="1.0.0",
+        rules=(
+            QcThresholdRule(
+                metric_key="spectrum_count",
+                metric_label="Spectrum count",
+                lower_warn=1000.0,
+                lower_fail=500.0,
+                disposition=QcAssessmentDisposition.ADVISORY,
+            ),
+            QcThresholdRule(
+                metric_key="identification_rate",
+                metric_label="Identification rate",
+                unit="fraction",
+                lower_warn=0.2,
+                lower_fail=0.1,
+                disposition=QcAssessmentDisposition.ENFORCED,
+            ),
+            QcThresholdRule(
+                metric_key="median_abs_mass_error_ppm",
+                metric_label="Median absolute precursor error",
+                unit="ppm",
+                upper_warn=10.0,
+                upper_fail=20.0,
+                disposition=QcAssessmentDisposition.ENFORCED,
+            ),
+            QcThresholdRule(
+                metric_key="contaminant_psm_fraction",
+                metric_label="Contaminant PSM fraction",
+                unit="fraction",
+                upper_warn=0.1,
+                upper_fail=0.2,
+                disposition=QcAssessmentDisposition.ADVISORY,
+            ),
+            QcThresholdRule(
+                metric_key="missed_cleavage_rate",
+                metric_label="Missed-cleavage rate",
+                unit="fraction",
+                upper_warn=0.2,
+                upper_fail=0.35,
+                disposition=QcAssessmentDisposition.ADVISORY,
+            ),
+            QcThresholdRule(
+                metric_key="non_specific_fraction",
+                metric_label="Non-specific peptide fraction",
+                unit="fraction",
+                upper_warn=0.15,
+                upper_fail=0.3,
+                disposition=QcAssessmentDisposition.ADVISORY,
+            ),
+        ),
+    )
+
+
+def load_qc_threshold_policy(path: Path) -> QcThresholdPolicy:
+    """Load a QC threshold policy from JSON."""
+    return QcThresholdPolicy.model_validate_json(path.read_text(encoding="utf-8"))
+
+
+def build_run_qc_assessment(
+    run_report: LcmsRunQcReport,
+    *,
+    policy: QcThresholdPolicy,
+) -> QcRunAssessmentReport:
+    """Assess one run-level QC report against a threshold policy."""
+    specificity_lookup = {
+        entry.specificity: entry.fraction
+        for entry in run_report.digestion_specificity
+    }
+    observed_metrics = {
+        "spectrum_count": float(run_report.spectrum_count),
+        "identification_rate": run_report.identification_rate,
+        "median_abs_mass_error_ppm": run_report.mass_error.median_abs_ppm,
+        "contaminant_psm_fraction": run_report.contaminant_summary.contaminant_psm_fraction,
+        "missed_cleavage_rate": run_report.missed_cleavage_rate,
+        "non_specific_fraction": specificity_lookup.get(QcDigestionSpecificity.NON_SPECIFIC, 0.0),
+    }
+    assessments = tuple(
+        _evaluate_rule(rule, observed_metrics.get(rule.metric_key))
+        for rule in policy.rules
+    )
+    overall = max(assessments, key=lambda entry: _severity_rank(entry.severity), default=None)
+    return QcRunAssessmentReport(
+        document_schema=_build_document_schema("qc_run_assessment_report"),
+        run_id=run_report.run_id,
+        policy_name=policy.policy_name,
+        policy_version=policy.version,
+        overall_severity=QcAssessmentSeverity.PASS if overall is None else overall.severity,
+        blocked=any(entry.enforced_violation for entry in assessments),
+        metric_assessments=assessments,
+    )
+
+
+def build_batch_qc_assessment(
+    batch_report: InstrumentBatchQcReport,
+    *,
+    policy: QcThresholdPolicy,
+) -> QcBatchAssessmentReport:
+    """Assess one batch-level QC report against a threshold policy."""
+    metrics = {
+        "median_spectrum_count": batch_report.median_spectrum_count,
+        "median_identification_rate": batch_report.median_identification_rate,
+        "median_abs_mass_error_ppm": batch_report.median_abs_mass_error_ppm,
+        "outlier_run_count": float(len(batch_report.outlier_run_ids)),
+    }
+    rules = []
+    for rule in policy.rules:
+        if rule.metric_key == "spectrum_count":
+            rules.append(rule.model_copy(update={"metric_key": "median_spectrum_count", "metric_label": "Median spectrum count"}))
+        elif rule.metric_key == "identification_rate":
+            rules.append(rule.model_copy(update={"metric_key": "median_identification_rate", "metric_label": "Median identification rate"}))
+        elif rule.metric_key == "median_abs_mass_error_ppm":
+            rules.append(rule)
+    rules.append(
+        QcThresholdRule(
+            metric_key="outlier_run_count",
+            metric_label="Outlier run count",
+            upper_warn=0.0,
+            upper_fail=1.0,
+            disposition=QcAssessmentDisposition.ADVISORY,
+        )
+    )
+    assessments = tuple(_evaluate_rule(rule, metrics.get(rule.metric_key)) for rule in rules)
+    overall = max(assessments, key=lambda entry: _severity_rank(entry.severity), default=None)
+    return QcBatchAssessmentReport(
+        document_schema=_build_document_schema("qc_batch_assessment_report"),
+        batch_id=batch_report.batch_id,
+        instrument=batch_report.instrument,
+        policy_name=policy.policy_name,
+        policy_version=policy.version,
+        overall_severity=QcAssessmentSeverity.PASS if overall is None else overall.severity,
+        blocked=any(entry.enforced_violation for entry in assessments),
+        metric_assessments=assessments,
+    )
+
+
+def build_qc_evidence_manifest(
+    *,
+    run_report: LcmsRunQcReport,
+    run_assessment: QcRunAssessmentReport,
+    policy: QcThresholdPolicy,
+    input_files: tuple[QcEvidenceInputFile, ...],
+    batch_report: InstrumentBatchQcReport | None = None,
+    batch_assessment: QcBatchAssessmentReport | None = None,
+    benchmark: ProteomicsPerformanceSnapshot | None = None,
+) -> QcEvidenceManifest:
+    """Build a stable manifest binding QC outputs to input hashes and policy."""
+    return QcEvidenceManifest(
+        document_schema=_build_document_schema("qc_evidence_manifest"),
+        run_id=run_report.run_id,
+        batch_id=batch_report.batch_id if batch_report else run_report.batch,
+        policy_name=policy.policy_name,
+        policy_version=policy.version,
+        input_files=input_files,
+        run_report_sha256=_stable_sha256(run_report),
+        run_assessment_sha256=_stable_sha256(run_assessment),
+        batch_report_sha256=None if batch_report is None else _stable_sha256(batch_report),
+        batch_assessment_sha256=None if batch_assessment is None else _stable_sha256(batch_assessment),
+        benchmark_sha256=None if benchmark is None else _stable_sha256(benchmark),
+    )
+
+
+def build_performance_snapshot(
+    run_id: str,
+    *,
+    operations: dict[str, tuple[float, int | None]],
+) -> ProteomicsPerformanceSnapshot:
+    """Build a stable performance snapshot from named elapsed operations."""
+    entries: list[ProteomicsPerformanceOperation] = []
+    total_elapsed_seconds = 0.0
+    for operation_name, (elapsed_seconds, item_count) in sorted(operations.items()):
+        total_elapsed_seconds += elapsed_seconds
+        throughput = None
+        if item_count is not None and elapsed_seconds > 0:
+            throughput = item_count / elapsed_seconds
+        entries.append(
+            ProteomicsPerformanceOperation(
+                operation=operation_name,
+                elapsed_seconds=elapsed_seconds,
+                item_count=item_count,
+                throughput_per_second=throughput,
+            )
+        )
+    return ProteomicsPerformanceSnapshot(
+        document_schema=_build_document_schema("proteomics_performance_snapshot"),
+        run_id=run_id,
+        operations=tuple(entries),
+        total_elapsed_seconds=total_elapsed_seconds,
+    )
+
+
+def render_qc_assessment_tsv(
+    run_assessment: QcRunAssessmentReport,
+    *,
+    batch_assessment: QcBatchAssessmentReport | None = None,
+) -> str:
+    """Render QC assessment rows as a TSV string."""
+    rows = [
+        ["scope", "entity_id", "metric_key", "metric_label", "observed_value", "unit", "severity", "disposition", "enforced_violation", "message"]
+    ]
+    for assessment in run_assessment.metric_assessments:
+        rows.append(
+            [
+                "run",
+                run_assessment.run_id,
+                assessment.metric_key,
+                assessment.metric_label,
+                "" if assessment.observed_value is None else str(assessment.observed_value),
+                assessment.unit or "",
+                assessment.severity.value,
+                assessment.disposition.value,
+                "true" if assessment.enforced_violation else "false",
+                assessment.message,
+            ]
+        )
+    if batch_assessment is not None:
+        entity_id = batch_assessment.batch_id or "batch"
+        for assessment in batch_assessment.metric_assessments:
+            rows.append(
+                [
+                    "batch",
+                    entity_id,
+                    assessment.metric_key,
+                    assessment.metric_label,
+                    "" if assessment.observed_value is None else str(assessment.observed_value),
+                    assessment.unit or "",
+                    assessment.severity.value,
+                    assessment.disposition.value,
+                    "true" if assessment.enforced_violation else "false",
+                    assessment.message,
+                ]
+            )
+    return "\n".join("\t".join(row) for row in rows) + "\n"
+
+
+def render_qc_assessment_html(
+    run_report: LcmsRunQcReport,
+    run_assessment: QcRunAssessmentReport,
+    *,
+    batch_report: InstrumentBatchQcReport | None = None,
+    batch_assessment: QcBatchAssessmentReport | None = None,
+) -> str:
+    """Render a compact static HTML QC report."""
+    rows = []
+    for assessment in run_assessment.metric_assessments:
+        rows.append(
+            "<tr>"
+            f"<td>run</td><td>{run_assessment.run_id}</td><td>{assessment.metric_label}</td>"
+            f"<td>{'' if assessment.observed_value is None else assessment.observed_value}</td>"
+            f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
+            "</tr>"
+        )
+    if batch_assessment is not None:
+        entity_id = batch_assessment.batch_id or "batch"
+        for assessment in batch_assessment.metric_assessments:
+            rows.append(
+                "<tr>"
+                f"<td>batch</td><td>{entity_id}</td><td>{assessment.metric_label}</td>"
+                f"<td>{'' if assessment.observed_value is None else assessment.observed_value}</td>"
+                f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
+                "</tr>"
+            )
+    batch_summary = ""
+    if batch_report is not None:
+        batch_summary = (
+            f"<p><strong>Batch</strong>: {batch_report.batch_id or 'n/a'} | "
+            f"<strong>Instrument</strong>: {batch_report.instrument or 'n/a'} | "
+            f"<strong>Outliers</strong>: {', '.join(batch_report.outlier_run_ids) or 'none'}</p>"
+        )
+    return (
+        "<html><head><title>Bijux Proteomics QC Report</title></head><body>"
+        f"<h1>QC report for {run_report.run_id}</h1>"
+        f"<p><strong>Sample</strong>: {run_report.sample_id or 'n/a'} | "
+        f"<strong>Overall</strong>: {run_assessment.overall_severity.value} | "
+        f"<strong>Blocked</strong>: {'yes' if run_assessment.blocked else 'no'}</p>"
+        f"{batch_summary}"
+        "<table border='1' cellspacing='0' cellpadding='4'>"
+        "<thead><tr><th>Scope</th><th>Entity</th><th>Metric</th><th>Observed</th><th>Severity</th><th>Disposition</th><th>Message</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table>"
+        "</body></html>\n"
     )
 
 

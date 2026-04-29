@@ -5,9 +5,33 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 
 class BijuxProteomicsError(Exception):
     """Base exception for the core package."""
+
+
+class ProteomicsOperatorErrorCode(StrEnum):
+    """Stable operator-facing error codes for CLI and workflow surfaces."""
+
+    INPUT_FASTA_REJECTED = "INPUT_FASTA_REJECTED"
+    INPUT_DESIGN_INVALID = "INPUT_DESIGN_INVALID"
+    QC_POLICY_INVALID = "QC_POLICY_INVALID"
+    QC_SAMPLE_NOT_FOUND = "QC_SAMPLE_NOT_FOUND"
+    QC_BUILD_FAILED = "QC_BUILD_FAILED"
+    QC_OUTPUT_WRITE_FAILED = "QC_OUTPUT_WRITE_FAILED"
+
+
+class ProteomicsOperatorError(BijuxProteomicsError):
+    """Raised for operator-facing failures with a stable error code."""
+
+    def __init__(self, code: ProteomicsOperatorErrorCode, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+    def __str__(self) -> str:
+        return f"{self.code.value}: {super().__str__()}"
 
 
 class ProgramValidationError(BijuxProteomicsError):

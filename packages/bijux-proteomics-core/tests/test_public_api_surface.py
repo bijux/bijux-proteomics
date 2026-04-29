@@ -75,8 +75,15 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "estimate_ptm_site_occupancy" in bijux_proteomics.__all__
     assert "build_lcms_run_qc_report" in bijux_proteomics.__all__
     assert "build_instrument_batch_qc_report" in bijux_proteomics.__all__
+    assert "default_qc_threshold_policy" in bijux_proteomics.__all__
+    assert "build_run_qc_assessment" in bijux_proteomics.__all__
+    assert "build_qc_evidence_manifest" in bijux_proteomics.__all__
+    assert "build_performance_snapshot" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
+    assert "QcThresholdPolicy" in bijux_proteomics.__all__
+    assert "QcEvidenceManifest" in bijux_proteomics.__all__
+    assert "ProteomicsOperatorErrorCode" in bijux_proteomics.__all__
 
 
 def test_intelligence_public_api_contains_expected_exports() -> None:

@@ -6,12 +6,19 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import (
+    build_batch_qc_assessment,
     build_instrument_batch_qc_report,
     build_lcms_run_qc_report,
+    build_performance_snapshot,
+    build_qc_evidence_manifest,
+    build_run_qc_assessment,
     calculate_peptide_mz,
+    default_qc_threshold_policy,
     parse_experimental_design_table,
     PsmRecord,
+    QcAssessmentSeverity,
     QcDigestionSpecificity,
+    QcEvidenceInputFile,
     SpectrumModel,
     SpectrumPeak,
     TargetDecoyLabel,
@@ -229,3 +236,76 @@ def test_build_instrument_batch_qc_report_flags_outlier_run() -> None:
     assert batch_report.outlier_run_ids == ("run-c",)
     assert "low_identification_rate" in outlier.outlier_reasons
     assert "high_mass_error" in outlier.outlier_reasons
+
+
+def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
+    design_entries = _design_entries()
+    run_a = build_lcms_run_qc_report(
+        _run_a_spectra(),
+        _run_a_psms(),
+        design_entry=design_entries["S1"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    run_c = build_lcms_run_qc_report(
+        _run_c_spectra(),
+        _run_c_psms(),
+        design_entry=design_entries["S3"],
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    policy = default_qc_threshold_policy().model_copy(
+        update={
+            "rules": tuple(
+                rule.model_copy(update={"lower_fail": 0.5})
+                if rule.metric_key == "identification_rate"
+                else rule
+                for rule in default_qc_threshold_policy().rules
+            )
+        }
+    )
+
+    run_assessment = build_run_qc_assessment(run_c, policy=policy)
+    batch_report = build_instrument_batch_qc_report((run_a, run_c))
+    batch_assessment = build_batch_qc_assessment(batch_report, policy=policy)
+
+    assert run_assessment.blocked is True
+    assert run_assessment.overall_severity is QcAssessmentSeverity.FAIL
+    assert any(entry.metric_key == "identification_rate" and entry.enforced_violation for entry in run_assessment.metric_assessments)
+    assert batch_assessment.overall_severity in {QcAssessmentSeverity.WARN, QcAssessmentSeverity.FAIL}
+    assert any(entry.metric_key == "outlier_run_count" for entry in batch_assessment.metric_assessments)
+
+
+def test_qc_manifest_and_performance_snapshot_bind_outputs_to_inputs() -> None:
+    design_entry = _design_entries()["S1"]
+    run_report = build_lcms_run_qc_report(
+        _run_a_spectra(),
+        _run_a_psms(),
+        design_entry=design_entry,
+        protein_sequences=PROTEIN_SEQUENCES,
+    )
+    policy = default_qc_threshold_policy()
+    run_assessment = build_run_qc_assessment(run_report, policy=policy)
+    benchmark = build_performance_snapshot(
+        run_report.run_id,
+        operations={
+            "parse_fasta": (0.01, 2),
+            "parse_psms": (0.02, 5),
+            "parse_spectra": (0.03, 6),
+            "build_run_qc": (0.01, 6),
+        },
+    )
+    manifest = build_qc_evidence_manifest(
+        run_report=run_report,
+        run_assessment=run_assessment,
+        policy=policy,
+        input_files=(
+            QcEvidenceInputFile(path="spectra.mgf", sha256="a" * 64, role="spectra"),
+            QcEvidenceInputFile(path="results.tsv", sha256="b" * 64, role="identifications"),
+        ),
+        benchmark=benchmark,
+    )
+
+    assert benchmark.total_elapsed_seconds == 0.07
+    assert manifest.policy_name == "default-lcms-qc"
+    assert manifest.run_report_sha256
+    assert manifest.run_assessment_sha256
+    assert manifest.benchmark_sha256
