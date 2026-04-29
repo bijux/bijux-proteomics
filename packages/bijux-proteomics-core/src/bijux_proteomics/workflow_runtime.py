@@ -560,6 +560,29 @@ class WorkflowRuntimeExportBundle(JsonModel):
     checkpoint: WorkflowCheckpoint
 
 
+class WorkflowRuntimeValidationIssue(JsonModel):
+    """One integrity issue discovered while validating a runtime bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+    message: str = Field(..., min_length=1)
+
+
+class WorkflowRuntimeValidationReport(JsonModel):
+    """Fast integrity report over a runtime bundle without executing the workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    valid: bool
+    checked_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    export_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    issues: tuple[WorkflowRuntimeValidationIssue, ...] = Field(default_factory=tuple)
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -1986,6 +2009,157 @@ def build_workflow_runtime_export_bundle(
         streaming_policy=runtime_bundle.streaming_policy,
         parallel_plan=runtime_bundle.parallel_plan,
         checkpoint=runtime_bundle.checkpoint,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_runtime_validation_report(
+    runtime_bundle: ProteomicsWorkflowRuntimeBundle,
+) -> WorkflowRuntimeValidationReport:
+    """Validate runtime manifest, artifact, checkpoint, and cache integrity."""
+    issues: list[WorkflowRuntimeValidationIssue] = []
+    artifacts_root = Path(runtime_bundle.manifest.artifacts_dir)
+    export_bundle = build_workflow_runtime_export_bundle(runtime_bundle)
+
+    if runtime_bundle.deterministic_execution.manifest_sha256 != _stable_model_sha256(
+        runtime_bundle.manifest
+    ):
+        issues.append(
+            WorkflowRuntimeValidationIssue(
+                code="deterministic_manifest_mismatch",
+                severity="error",
+                message="deterministic execution contract no longer matches the workflow manifest",
+            )
+        )
+    if runtime_bundle.runtime_state.manifest_sha256 != _stable_model_sha256(
+        runtime_bundle.manifest
+    ):
+        issues.append(
+            WorkflowRuntimeValidationIssue(
+                code="runtime_state_manifest_mismatch",
+                severity="error",
+                message="runtime state manifest no longer matches the workflow manifest",
+            )
+        )
+    if runtime_bundle.runtime_state.deterministic_execution_sha256 != _stable_model_sha256(
+        runtime_bundle.deterministic_execution
+    ):
+        issues.append(
+            WorkflowRuntimeValidationIssue(
+                code="runtime_state_execution_mismatch",
+                severity="error",
+                message="runtime state manifest no longer matches the deterministic execution contract",
+            )
+        )
+
+    registry_by_id = {
+        artifact.artifact_id: artifact for artifact in runtime_bundle.artifact_registry.artifacts
+    }
+    layout_paths = {
+        entry.relative_path
+        for entry in runtime_bundle.run_directory_layout.entries
+        if entry.path_kind is WorkflowPathKind.FILE
+    }
+    for artifact in runtime_bundle.artifact_inventory.artifacts:
+        if artifact.artifact_id not in registry_by_id:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code="artifact_inventory_registry_mismatch",
+                    severity="error",
+                    message=f"artifact inventory entry {artifact.artifact_id} is missing from the artifact registry",
+                )
+            )
+        if artifact.relative_path not in layout_paths:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code="artifact_inventory_layout_mismatch",
+                    severity="error",
+                    message=f"artifact inventory path {artifact.relative_path} is missing from the run-directory layout",
+                )
+            )
+        if artifacts_root not in Path(artifact.absolute_path).parents:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code="artifact_inventory_path_outside_root",
+                    severity="error",
+                    message=f"artifact {artifact.artifact_id} does not live under the declared artifacts root",
+                )
+            )
+
+    cache_root = artifacts_root / "cache"
+    for entry in runtime_bundle.cache_manifest.entries:
+        cache_path = Path(entry.cache_path)
+        if cache_root not in cache_path.parents:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code="cache_path_outside_root",
+                    severity="error",
+                    message=f"cache entry {entry.surface} does not live under the declared cache directory",
+                )
+            )
+        if len(entry.cache_key) != 64:
+            issues.append(
+                WorkflowRuntimeValidationIssue(
+                    code="cache_key_invalid_length",
+                    severity="error",
+                    message=f"cache entry {entry.surface} does not carry a stable sha256 cache key",
+                )
+            )
+
+    if runtime_bundle.checkpoint.artifact_registry_sha256 != _stable_model_sha256(
+        runtime_bundle.artifact_registry
+    ):
+        issues.append(
+            WorkflowRuntimeValidationIssue(
+                code="checkpoint_registry_hash_mismatch",
+                severity="error",
+                message="checkpoint artifact-registry hash no longer matches the registry payload",
+            )
+        )
+    if runtime_bundle.checkpoint.cache_manifest_sha256 != _stable_model_sha256(
+        runtime_bundle.cache_manifest
+    ):
+        issues.append(
+            WorkflowRuntimeValidationIssue(
+                code="checkpoint_cache_hash_mismatch",
+                severity="error",
+                message="checkpoint cache-manifest hash no longer matches the cache payload",
+            )
+        )
+    checkpoint_step_ids = {step.step_id for step in runtime_bundle.checkpoint.steps}
+    manifest_step_ids = {step.step_id for step in runtime_bundle.manifest.steps}
+    if checkpoint_step_ids != manifest_step_ids:
+        issues.append(
+            WorkflowRuntimeValidationIssue(
+                code="checkpoint_step_coverage_mismatch",
+                severity="error",
+                message="checkpoint step coverage no longer matches the workflow manifest",
+            )
+        )
+
+    payload = WorkflowRuntimeValidationReport(
+        document_schema=_build_document_schema("workflow_runtime_validation_report"),
+        workflow_id=runtime_bundle.manifest.workflow_id,
+        valid=not issues,
+        checked_surfaces=(
+            "manifest",
+            "deterministic-execution",
+            "runtime-state",
+            "run-directory-layout",
+            "cache-manifest",
+            "artifact-registry",
+            "artifact-inventory",
+            "checkpoint",
+            "export-bundle",
+        ),
+        export_bundle_sha256=export_bundle.export_bundle_sha256,
+        issues=tuple(issues),
     )
     return payload.model_copy(
         update={

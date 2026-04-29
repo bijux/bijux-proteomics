@@ -12,6 +12,7 @@ from bijux_proteomics import (
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_workflow_run_directory_layout,
+    build_workflow_runtime_validation_report,
     build_workflow_runtime_state_manifest,
     WorkflowCacheMissReason,
     WorkflowCheckpointStatus,
@@ -210,6 +211,24 @@ def test_runtime_export_bundle_is_deterministic_for_same_inputs() -> None:
     assert first.artifact_inventory.artifacts[0].artifact_id.startswith(
         f"{bundle.manifest.workflow_id}:"
     )
+
+
+def test_runtime_validation_report_confirms_bundle_integrity() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = build_workflow_runtime_validation_report(bundle)
+
+    assert report.valid is True
+    assert report.export_bundle_sha256
+    assert "artifact-inventory" in report.checked_surfaces
 
 
 def test_large_file_policy_and_parallel_groups_are_explicit() -> None:

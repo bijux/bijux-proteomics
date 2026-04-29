@@ -154,6 +154,7 @@ from bijux_proteomics.spectra import (
 from bijux_proteomics.workflow_runtime import (
     WorkflowSchedulerKind,
     build_proteomics_workflow_runtime_bundle,
+    build_workflow_runtime_validation_report,
 )
 
 
@@ -1973,6 +1974,97 @@ def workflow_plan_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(bundle, out_path=out_path)
+
+
+@cli.command("workflow-validate")
+@click.option(
+    "--proteins",
+    "proteins_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--spectra",
+    "spectra_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--identifications",
+    "identifications_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--features",
+    "features_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--sample-id", default=None)
+@click.option(
+    "--search-adapter",
+    type=_search_adapter_choice(),
+    default=SearchAdapterKind.GENERIC.value,
+    show_default=True,
+)
+@click.option(
+    "--scheduler",
+    type=_workflow_scheduler_choice(),
+    default=WorkflowSchedulerKind.SLURM.value,
+    show_default=True,
+)
+@click.option(
+    "--container-image",
+    default="ghcr.io/bijux/proteomics-runtime:stable",
+    show_default=True,
+)
+@click.option(
+    "--artifacts-dir", type=click.Path(path_type=Path, file_okay=False), default=None
+)
+@click.option("--completed-step", "completed_steps", multiple=True)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def workflow_validate_command(
+    proteins_path: Path,
+    spectra_path: Path,
+    identifications_path: Path | None,
+    features_path: Path | None,
+    design_path: Path | None,
+    sample_id: str | None,
+    search_adapter: str,
+    scheduler: str,
+    container_image: str,
+    artifacts_dir: Path | None,
+    completed_steps: tuple[str, ...],
+    out_path: Path | None,
+) -> None:
+    """Validate workflow runtime integrity without executing the workflow."""
+    try:
+        bundle = build_proteomics_workflow_runtime_bundle(
+            proteins_path=proteins_path,
+            spectra_path=spectra_path,
+            identifications_path=identifications_path,
+            features_path=features_path,
+            design_path=design_path,
+            sample_id=sample_id,
+            search_adapter_kind=SearchAdapterKind(search_adapter),
+            scheduler=WorkflowSchedulerKind(scheduler),
+            default_container_image=container_image,
+            artifacts_dir=artifacts_dir,
+            completed_step_ids=tuple(completed_steps),
+        )
+        report = build_workflow_runtime_validation_report(bundle)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(report, out_path=out_path)
 
 
 @cli.group("qc")
