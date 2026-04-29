@@ -31,6 +31,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "filter_psms_by_fdr" in bijux_proteomics.__all__
     assert "build_search_result_provenance_manifest" in bijux_proteomics.__all__
     assert "export_psm_tsv" in bijux_proteomics.__all__
+    assert "SpectrumModel" in bijux_proteomics.__all__
+    assert "parse_mgf" in bijux_proteomics.__all__
+    assert "annotate_spectrum_fragments" in bijux_proteomics.__all__
 
 
 def test_intelligence_public_api_contains_expected_exports() -> None:
