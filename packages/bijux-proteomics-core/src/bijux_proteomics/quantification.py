@@ -415,6 +415,28 @@ class QuantReproducibilityManifest(JsonModel):
     reproducibility_hash: str = Field(..., min_length=64, max_length=64)
 
 
+class NormalizationStrategySummaryEntry(JsonModel):
+    """One normalization method summarized across sample-balance metrics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: NormalizationMethod
+    total_abundance_cv: float = Field(..., ge=0.0)
+    median_abundance_cv: float = Field(..., ge=0.0)
+    interquartile_range_cv: float = Field(..., ge=0.0)
+    balance_score: float = Field(..., ge=0.0)
+
+
+class NormalizationStrategyComparisonReport(JsonModel):
+    """Explicit comparison of normalization methods on one quant table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[NormalizationStrategySummaryEntry, ...] = Field(default_factory=tuple)
+    recommended_method: NormalizationMethod
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -1736,6 +1758,61 @@ def build_normalization_comparison_report(
         normalization_factors=after.normalization_factors,
         before=tuple(_sample_snapshot(before, sample_id) for sample_id in before.sample_ids),
         after=tuple(_sample_snapshot(after, sample_id) for sample_id in after.sample_ids),
+    )
+
+
+def _coefficient_of_variation(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    mean_value = float(np.mean(np.array(values, dtype=float)))
+    if mean_value == 0.0:
+        return 0.0
+    return float(np.std(np.array(values, dtype=float)) / mean_value)
+
+
+def build_normalization_strategy_comparison_report(
+    table: LabelFreeQuantTable,
+    *,
+    methods: tuple[NormalizationMethod, ...] = (
+        NormalizationMethod.NONE,
+        NormalizationMethod.TIC,
+        NormalizationMethod.MEDIAN,
+        NormalizationMethod.QUANTILE,
+    ),
+) -> NormalizationStrategyComparisonReport:
+    """Compare normalization methods using stable sample-balance summary metrics."""
+    entries: list[NormalizationStrategySummaryEntry] = []
+    for method in methods:
+        candidate = normalize_label_free_table(table, method=method)
+        snapshots = [_sample_snapshot(candidate, sample_id) for sample_id in candidate.sample_ids]
+        total_cv = _coefficient_of_variation(
+            [snapshot.total_abundance for snapshot in snapshots]
+        )
+        median_cv = _coefficient_of_variation(
+            [snapshot.median_abundance for snapshot in snapshots]
+        )
+        iqr_cv = _coefficient_of_variation(
+            [snapshot.interquartile_range for snapshot in snapshots]
+        )
+        entries.append(
+            NormalizationStrategySummaryEntry(
+                method=method,
+                total_abundance_cv=total_cv,
+                median_abundance_cv=median_cv,
+                interquartile_range_cv=iqr_cv,
+                balance_score=total_cv + median_cv + iqr_cv,
+            )
+        )
+    ordered = tuple(
+        sorted(
+            entries,
+            key=lambda entry: (entry.balance_score, entry.method.value),
+        )
+    )
+    return NormalizationStrategyComparisonReport(
+        entity_level=table.entity_level,
+        entries=ordered,
+        recommended_method=ordered[0].method,
     )
 
 

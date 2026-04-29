@@ -21,6 +21,7 @@ from bijux_proteomics import (
     MissingValueSummaryPolicy,
     MultiplexChannelBalanceReport,
     NormalizationMethod,
+    NormalizationStrategyComparisonReport,
     ProteinQuantAssignmentPolicy,
     ProteinQuantPolicyComparisonReport,
     QuantReproducibilityManifest,
@@ -37,6 +38,7 @@ from bijux_proteomics import (
     build_label_free_provenance_bundle,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
+    build_normalization_strategy_comparison_report,
     build_protein_quant_policy_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
@@ -584,6 +586,22 @@ def test_quant_reproducibility_manifest_matches_stable_fixture() -> None:
         )
     finally:
         output_path.unlink(missing_ok=True)
+
+
+def test_normalization_strategy_comparison_reports_rank_methods_explicitly() -> None:
+    feature_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    comparison = build_normalization_strategy_comparison_report(table)
+
+    assert isinstance(comparison, NormalizationStrategyComparisonReport)
+    assert len(comparison.entries) == 4
+    assert comparison.entries[0].balance_score <= comparison.entries[-1].balance_score
+    assert comparison.recommended_method is comparison.entries[0].method
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (
