@@ -29,6 +29,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "parse_psm_tsv" in bijux_proteomics.__all__
     assert "rollup_protein_evidence" in bijux_proteomics.__all__
     assert "filter_psms_by_fdr" in bijux_proteomics.__all__
+    assert "build_fdr_audit_trail" in bijux_proteomics.__all__
+    assert "compute_fdr_reproducibility_hash" in bijux_proteomics.__all__
+    assert "normalize_psm_score_orientation" in bijux_proteomics.__all__
     assert "build_search_result_provenance_manifest" in bijux_proteomics.__all__
     assert "export_psm_tsv" in bijux_proteomics.__all__
     assert "SpectrumModel" in bijux_proteomics.__all__
@@ -41,6 +44,10 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_normalized_run_bundle" in bijux_proteomics.__all__
     assert "normalize_search_results_with_adapter" in bijux_proteomics.__all__
     assert "build_search_adapter_capability_matrix" in bijux_proteomics.__all__
+    assert "parse_search_parameter_file" in bijux_proteomics.__all__
+    assert "validate_search_parameters" in bijux_proteomics.__all__
+    assert "compare_search_result_reports" in bijux_proteomics.__all__
+    assert "build_search_adapter_conformance_report" in bijux_proteomics.__all__
     assert "SearchAdapterKind" in bijux_proteomics.__all__
 
 

@@ -195,6 +195,71 @@ class FdrAnnotatedPsm(JsonModel):
     accepted: bool = True
 
 
+class NormalizedScoreEntry(JsonModel):
+    """One PSM score normalized onto an orientation-stable rank scale."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    raw_score: float
+    normalized_score: float = Field(..., ge=0.0, le=1.0)
+    rank: int = Field(..., ge=1)
+    target_decoy_label: TargetDecoyLabel
+
+
+class CalibrationPlotBin(JsonModel):
+    """One score-calibration bin over normalized target-decoy evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bin_lower: float = Field(..., ge=0.0, le=1.0)
+    bin_upper: float = Field(..., ge=0.0, le=1.0)
+    target_count: int = Field(..., ge=0)
+    decoy_count: int = Field(..., ge=0)
+    mixed_count: int = Field(..., ge=0)
+    unknown_count: int = Field(..., ge=0)
+    decoy_fraction: float = Field(..., ge=0.0)
+
+
+class CalibrationPlotData(JsonModel):
+    """Plot-ready calibration data for one scored target-decoy ranking."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    total_psms: int = Field(..., ge=0)
+    bins: tuple[CalibrationPlotBin, ...] = Field(default_factory=tuple)
+
+
+class FdrAuditEntry(JsonModel):
+    """One sorted FDR-audit row with cumulative derivation state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rank: int = Field(..., ge=1)
+    spectrum_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    raw_score: float
+    normalized_score: float = Field(..., ge=0.0, le=1.0)
+    target_decoy_label: TargetDecoyLabel
+    cumulative_targets: int = Field(..., ge=0)
+    cumulative_decoys: int = Field(..., ge=0)
+    fdr: float = Field(..., ge=0.0)
+    q_value: float = Field(..., ge=0.0)
+    accepted: bool
+
+
+class FdrAuditTrail(JsonModel):
+    """Stable audit payload for one target-decoy FDR calculation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: FdrPolicy
+    entries: tuple[FdrAuditEntry, ...] = Field(default_factory=tuple)
+    reproducibility_hash: str = Field(..., min_length=64, max_length=64)
+
+
 class PsmSummaryReport(JsonModel):
     """Compact search-result summary over normalized PSM records."""
 
@@ -657,7 +722,7 @@ def calculate_basic_target_decoy_fdr(
             cumulative_decoys += 1
         else:
             cumulative_targets += 1
-        fdr = cumulative_decoys / max(cumulative_targets, 1)
+        fdr = min(cumulative_decoys / max(cumulative_targets, 1), 1.0)
         annotated.append(
             FdrAnnotatedPsm(
                 psm=record,
@@ -681,13 +746,199 @@ def calculate_basic_target_decoy_fdr(
                     "accepted": threshold is None or running_min <= threshold,
                 }
             )
-        )
+    )
     return tuple(reversed(revised))
 
 
-def apply_q_values(records: tuple[PsmRecord, ...]) -> tuple[PsmRecord, ...]:
+def normalize_psm_score_orientation(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_orientation: str = "higher_better",
+) -> tuple[NormalizedScoreEntry, ...]:
+    """Normalize scores onto a stable best-to-worst rank scale."""
+    if score_orientation not in {"higher_better", "lower_better"}:
+        raise ValueError("score_orientation must be 'higher_better' or 'lower_better'")
+
+    sorted_records = tuple(
+        sorted(
+            records,
+            key=(
+                (lambda record: (-record.score, record.spectrum_id, record.canonical_peptide, record.charge))
+                if score_orientation == "higher_better"
+                else (lambda record: (record.score, record.spectrum_id, record.canonical_peptide, record.charge))
+            ),
+        )
+    )
+    if not sorted_records:
+        return ()
+
+    denominator = max(len(sorted_records) - 1, 1)
+    normalized_entries: list[NormalizedScoreEntry] = []
+    for rank, record in enumerate(sorted_records, start=1):
+        normalized_score = 1.0 if len(sorted_records) == 1 else 1.0 - ((rank - 1) / denominator)
+        normalized_entries.append(
+            NormalizedScoreEntry(
+                spectrum_id=record.spectrum_id,
+                canonical_peptide=record.canonical_peptide,
+                raw_score=record.score,
+                normalized_score=normalized_score,
+                rank=rank,
+                target_decoy_label=record.target_decoy_label,
+            )
+        )
+    return tuple(normalized_entries)
+
+
+def build_calibration_plot_data(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_orientation: str = "higher_better",
+    bin_count: int = 10,
+) -> CalibrationPlotData:
+    """Build plot-ready score calibration bins over target-decoy evidence."""
+    if bin_count < 1:
+        raise ValueError("bin_count must be at least 1")
+
+    normalized_entries = normalize_psm_score_orientation(
+        records,
+        score_orientation=score_orientation,
+    )
+    bins: list[CalibrationPlotBin] = []
+    for index in range(bin_count):
+        lower = index / bin_count
+        upper = (index + 1) / bin_count
+        if index == bin_count - 1:
+            bucket = tuple(
+                entry
+                for entry in normalized_entries
+                if lower <= entry.normalized_score <= upper
+            )
+        else:
+            bucket = tuple(
+                entry
+                for entry in normalized_entries
+                if lower <= entry.normalized_score < upper
+            )
+        target_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.TARGET)
+        decoy_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.DECOY)
+        mixed_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.MIXED)
+        unknown_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.UNKNOWN)
+        denominator = target_count + decoy_count
+        bins.append(
+            CalibrationPlotBin(
+                bin_lower=lower,
+                bin_upper=upper,
+                target_count=target_count,
+                decoy_count=decoy_count,
+                mixed_count=mixed_count,
+                unknown_count=unknown_count,
+                decoy_fraction=decoy_count / denominator if denominator else 0.0,
+            )
+        )
+    return CalibrationPlotData(
+        score_orientation=score_orientation,
+        total_psms=len(records),
+        bins=tuple(bins),
+    )
+
+
+def compute_fdr_reproducibility_hash(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float | None = None,
+    score_orientation: str = "higher_better",
+) -> str:
+    """Compute a stable digest over the sorted FDR derivation inputs."""
+    annotated = calculate_basic_target_decoy_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    payload = {
+        "score_orientation": score_orientation,
+        "threshold": threshold,
+        "entries": [
+            {
+                "rank": entry.rank,
+                "spectrum_id": entry.psm.spectrum_id,
+                "canonical_peptide": entry.psm.canonical_peptide,
+                "charge": entry.psm.charge,
+                "score": entry.psm.score,
+                "target_decoy_label": entry.psm.target_decoy_label.value,
+                "cumulative_targets": entry.cumulative_targets,
+                "cumulative_decoys": entry.cumulative_decoys,
+                "fdr": entry.fdr,
+                "q_value": entry.q_value,
+                "accepted": entry.accepted,
+            }
+            for entry in annotated
+        ],
+    }
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def build_fdr_audit_trail(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float | None = None,
+    score_orientation: str = "higher_better",
+) -> FdrAuditTrail:
+    """Build a stable audit trail for one target-decoy FDR calculation."""
+    policy = FdrPolicy(score_orientation=score_orientation, threshold=threshold)
+    normalized_entries = normalize_psm_score_orientation(
+        records,
+        score_orientation=score_orientation,
+    )
+    score_index = {
+        (entry.spectrum_id, entry.canonical_peptide, entry.rank): entry
+        for entry in normalized_entries
+    }
+    annotated = calculate_basic_target_decoy_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    audit_entries: list[FdrAuditEntry] = []
+    for entry in annotated:
+        normalized_entry = score_index.get(
+            (entry.psm.spectrum_id, entry.psm.canonical_peptide, entry.rank)
+        )
+        audit_entries.append(
+            FdrAuditEntry(
+                rank=entry.rank,
+                spectrum_id=entry.psm.spectrum_id,
+                canonical_peptide=entry.psm.canonical_peptide,
+                raw_score=entry.psm.score,
+                normalized_score=normalized_entry.normalized_score if normalized_entry is not None else 0.0,
+                target_decoy_label=entry.psm.target_decoy_label,
+                cumulative_targets=entry.cumulative_targets,
+                cumulative_decoys=entry.cumulative_decoys,
+                fdr=entry.fdr,
+                q_value=entry.q_value,
+                accepted=entry.accepted,
+            )
+        )
+    return FdrAuditTrail(
+        policy=policy,
+        entries=tuple(audit_entries),
+        reproducibility_hash=compute_fdr_reproducibility_hash(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        ),
+    )
+
+
+def apply_q_values(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_orientation: str = "higher_better",
+) -> tuple[PsmRecord, ...]:
     """Return PSM records with q-values filled from target-decoy FDR."""
-    annotated = calculate_basic_target_decoy_fdr(records)
+    annotated = calculate_basic_target_decoy_fdr(
+        records,
+        score_orientation=score_orientation,
+    )
     return tuple(
         entry.psm.model_copy(update={"q_value": entry.q_value})
         for entry in annotated
@@ -698,9 +949,14 @@ def filter_psms_by_fdr(
     records: tuple[PsmRecord, ...],
     *,
     threshold: float,
+    score_orientation: str = "higher_better",
 ) -> tuple[PsmRecord, ...]:
     """Filter PSMs to those that pass the requested q-value threshold."""
-    annotated = calculate_basic_target_decoy_fdr(records, threshold=threshold)
+    annotated = calculate_basic_target_decoy_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
     return tuple(entry.psm.model_copy(update={"q_value": entry.q_value}) for entry in annotated if entry.accepted)
 
 

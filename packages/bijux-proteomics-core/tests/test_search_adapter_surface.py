@@ -7,13 +7,17 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    build_search_adapter_conformance_report,
     build_search_adapter_capability_matrix,
     build_search_adapter_provenance_manifest,
+    compare_search_result_reports,
     get_search_adapter_manifest,
     normalize_search_results_with_adapter,
+    parse_search_parameter_file,
     ScoreOrientation,
     SearchAdapterKind,
     SearchResultColumnMapping,
+    validate_search_parameters,
 )
 
 
@@ -99,3 +103,78 @@ def test_built_in_manifests_are_self_describing() -> None:
     assert manifest.display_name == "MaxQuant evidence"
     assert "Modified sequence" in manifest.native_columns
     assert rendered["adapter_kind"] == "maxquant-evidence"
+
+
+def test_search_parameter_parsers_extract_enzyme_tolerances_and_mods() -> None:
+    comet = parse_search_parameter_file(
+        source_path=_fixture("comet.params"),
+        adapter_kind=SearchAdapterKind.COMET,
+    )
+    fragger = parse_search_parameter_file(
+        source_path=_fixture("msfragger.params"),
+        adapter_kind=SearchAdapterKind.MSFRAGGER,
+    )
+    sage = parse_search_parameter_file(
+        source_path=_fixture("sage_search.json"),
+        adapter_kind=SearchAdapterKind.SAGE,
+    )
+
+    assert comet.enzyme == "trypsin"
+    assert comet.precursor_tolerance_unit.value == "ppm"
+    assert comet.fixed_modifications[0].site == "C"
+    assert fragger.fragment_tolerance == 20.0
+    assert fragger.decoy_prefix == "DECOY_"
+    assert sage.variable_modifications[0].site == "M"
+    assert sage.has_decoy_strategy is True
+
+
+def test_search_config_validation_flags_missing_decoys_and_invalid_tolerances() -> None:
+    invalid = parse_search_parameter_file(
+        source_path=_fixture("comet_invalid.params"),
+        adapter_kind=SearchAdapterKind.COMET,
+    )
+    report = validate_search_parameters(invalid)
+
+    assert report.valid is False
+    codes = {issue.code for issue in report.issues}
+    assert {
+        "unknown_enzyme",
+        "missing_decoy_strategy",
+        "invalid_precursor_tolerance",
+        "invalid_fragment_tolerance",
+        "overlapping_modification_definition",
+    } <= codes
+
+
+def test_search_result_comparability_normalizes_score_orientation() -> None:
+    sage = normalize_search_results_with_adapter(
+        source_path=_fixture("sage_results.tsv"),
+        adapter_kind=SearchAdapterKind.SAGE,
+    )
+    generic = normalize_search_results_with_adapter(
+        source_path=_fixture("sage_results.tsv"),
+        adapter_kind=SearchAdapterKind.GENERIC,
+        mapping=SearchResultColumnMapping.model_validate_json(_fixture("sage_mapping.json").read_text()),
+    )
+    report = compare_search_result_reports(sage, generic)
+
+    assert report.shared_spectrum_count == 2
+    assert report.exact_match_count == 2
+    assert report.label_conflict_count == 0
+    assert report.peptide_agreement_fraction == 1.0
+
+
+def test_search_adapter_conformance_reports_rejection_and_unknown_label_failures() -> None:
+    malformed = normalize_search_results_with_adapter(
+        source_path=_fixture("sage_malformed.tsv"),
+        adapter_kind=SearchAdapterKind.SAGE,
+    )
+    conformance = build_search_adapter_conformance_report(malformed)
+
+    assert conformance.passes is False
+    assert conformance.rejection_issue_counts["invalid_score"] == 1
+    assert conformance.rejection_issue_counts["invalid_q_value"] == 1
+    explicit_check = next(check for check in conformance.checks if check.code == "explicit_decoy_contract")
+    assert explicit_check.passed is False
+    assert conformance.fdr_audit_trail is not None
+    assert conformance.calibration_plot is not None

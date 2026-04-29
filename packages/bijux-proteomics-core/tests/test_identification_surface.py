@@ -8,14 +8,19 @@ from pathlib import Path
 
 from bijux_proteomics import (
     apply_q_values,
+    build_calibration_plot_data,
+    build_fdr_audit_trail,
     build_peptide_summary_report,
     build_protein_summary_report,
     build_psm_summary_report,
     build_search_result_provenance_manifest,
+    compute_fdr_reproducibility_hash,
     export_psm_tsv,
     FdrPolicy,
     filter_psms_by_fdr,
+    normalize_psm_score_orientation,
     PsmSortField,
+    PsmRecord,
     SearchResultColumnMapping,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
@@ -182,6 +187,73 @@ def test_fdr_threshold_filter_keeps_requested_cutoff() -> None:
     assert len(accepted) == 3
     strict = filter_psms_by_fdr(report.accepted_records, threshold=0.34)
     assert len(strict) == 1
+
+
+def test_score_orientation_normalization_supports_higher_and_lower_better() -> None:
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+    higher = normalize_psm_score_orientation(report.accepted_records, score_orientation="higher_better")
+    lower = normalize_psm_score_orientation(report.accepted_records, score_orientation="lower_better")
+
+    assert higher[0].raw_score == 100.0
+    assert higher[0].normalized_score == 1.0
+    assert lower[0].raw_score == 80.0
+    assert lower[0].normalized_score == 1.0
+
+
+def test_fdr_audit_trail_and_calibration_bins_are_stable() -> None:
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+    audit = build_fdr_audit_trail(
+        report.accepted_records,
+        threshold=0.5,
+        score_orientation="higher_better",
+    )
+    calibration = build_calibration_plot_data(
+        report.accepted_records,
+        score_orientation="higher_better",
+        bin_count=4,
+    )
+
+    assert len(audit.entries) == 5
+    assert len(audit.reproducibility_hash) == 64
+    assert audit.entries[-1].q_value >= audit.entries[0].q_value
+    assert len(calibration.bins) == 4
+    assert sum(bin.target_count + bin.decoy_count + bin.mixed_count + bin.unknown_count for bin in calibration.bins) == 5
+
+
+def test_fdr_reproducibility_and_edge_cases_are_explicit() -> None:
+    no_decoys = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=20.0,
+            protein_refs=("P1",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-b",
+            peptide="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            charge=2,
+            score=20.0,
+            protein_refs=("P2",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+    )
+    all_decoys = tuple(
+        record.model_copy(update={"target_decoy_label": TargetDecoyLabel.DECOY})
+        for record in no_decoys
+    )
+
+    target_hash = compute_fdr_reproducibility_hash(no_decoys, threshold=0.01)
+    repeated_hash = compute_fdr_reproducibility_hash(no_decoys, threshold=0.01)
+    decoy_hash = compute_fdr_reproducibility_hash(all_decoys, threshold=0.01)
+    annotated_decoys = apply_q_values(all_decoys)
+
+    assert target_hash == repeated_hash
+    assert target_hash != decoy_hash
+    assert all(record.q_value == 1.0 for record in annotated_decoys)
 
 
 def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:

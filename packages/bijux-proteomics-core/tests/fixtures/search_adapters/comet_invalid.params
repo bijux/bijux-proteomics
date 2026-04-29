@@ -1,0 +1,9 @@
+database_name = databases/target.fasta
+search_enzyme_name = mysteryase
+allowed_missed_cleavage = 2
+peptide_mass_tolerance = -20.0
+peptide_mass_units = 2
+fragment_bin_tol = 0.0
+add_C_cysteine = 57.021464
+variable_mod01 = 57.021464 C 0 3 -1 0 0
+decoy_search = 0
