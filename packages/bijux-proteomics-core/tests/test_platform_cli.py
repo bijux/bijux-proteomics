@@ -432,7 +432,7 @@ def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(fasta_fixture_
         assert mgf_result.exit_code == 0
         assert json.loads(mgf_result.output)["valid"] is True
         assert registry_result.exit_code == 0
-        assert json.loads(registry_result.output)["variable_modifications"] >= 1
+        assert json.loads(registry_result.output)["summary"]["variable_modifications"] >= 1
 
 
 def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -> None:
@@ -452,3 +452,73 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
         assert json.loads(psm_result.output)["psm_summary"]["total_psms"] == 3
         assert mgf_result.exit_code == 0
         assert json.loads(mgf_result.output)["summary"]["spectrum_count"] == 2
+
+
+def test_validate_and_summarize_commands_support_mzml_and_design_tables() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(Path(__file__).parent / "fixtures" / "formats" / "simple.mzml", "simple.mzml")
+        shutil.copy(Path(__file__).parent / "fixtures" / "formats" / "valid.design.tsv", "design.tsv")
+
+        validate_mzml = runner.invoke(cli, ["validate", "simple.mzml", "--kind", "mzml"])
+        summarize_mzml = runner.invoke(cli, ["summarize", "simple.mzml", "--kind", "mzml"])
+        validate_design = runner.invoke(cli, ["validate", "design.tsv", "--kind", "design-table"])
+        summarize_design = runner.invoke(cli, ["summarize", "design.tsv", "--kind", "design-table"])
+
+        assert validate_mzml.exit_code == 0
+        assert json.loads(validate_mzml.output)["detected_format"] == "mzml"
+        assert summarize_mzml.exit_code == 0
+        assert json.loads(summarize_mzml.output)["metadata"]["run_id"] == "RUN_001"
+        assert validate_design.exit_code == 0
+        assert json.loads(validate_design.output)["detected_format"] == "design-table"
+        assert summarize_design.exit_code == 0
+        assert json.loads(summarize_design.output)["accepted_entries"] == 1
+
+
+def test_format_convert_and_bundle_run_commands_materialize_normalized_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(Path(__file__).parent / "fixtures" / "formats" / "simple.mzml", "simple.mzml")
+        shutil.copy(Path(__file__).parent / "fixtures" / "formats" / "valid.design.tsv", "design.tsv")
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "first_useful_run" / "results.tsv",
+            "results.tsv",
+        )
+
+        convert_result = runner.invoke(
+            cli,
+            [
+                "format-convert",
+                "simple.mzml",
+                "--kind",
+                "mzml",
+                "--to",
+                "mgf",
+                "--out",
+                "converted.mgf",
+            ],
+        )
+        bundle_result = runner.invoke(
+            cli,
+            [
+                "bundle-run",
+                "--spectra",
+                "simple.mzml",
+                "--identifications",
+                "results.tsv",
+                "--design",
+                "design.tsv",
+                "--out-dir",
+                "bundle",
+            ],
+        )
+
+        assert convert_result.exit_code == 0
+        assert json.loads(convert_result.output)["written_record_count"] == 2
+        assert Path("converted.mgf").exists()
+        assert "BEGIN IONS" in Path("converted.mgf").read_text()
+        assert bundle_result.exit_code == 0
+        bundle_manifest = json.loads(bundle_result.output)
+        assert bundle_manifest["spectrum_count"] == 2
+        assert bundle_manifest["psm_count"] == 2
+        assert Path("bundle/bundle.manifest.json").exists()

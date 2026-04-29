@@ -31,6 +31,16 @@ from bijux_proteomics.digestion import (
     get_protease_rule,
     peptide_export_fingerprint,
 )
+from bijux_proteomics.formats import (
+    build_mzml_collection_summary,
+    build_normalized_run_bundle,
+    convert_proteomics_format,
+    FormatConversionTarget,
+    parse_experimental_design_table,
+    parse_mzml,
+    ProteomicsFormatKind,
+    validate_proteomics_input,
+)
 from bijux_proteomics.identification import (
     apply_q_values,
     build_peptide_summary_report,
@@ -125,7 +135,14 @@ def _fragment_series_choice() -> click.Choice:
 
 
 def _validate_kind_choice() -> click.Choice:
-    return click.Choice(["auto", "fasta", "psm", "mgf", "mod-registry"], case_sensitive=False)
+    return click.Choice(
+        ["auto", "fasta", "psm", "mgf", "mzml", "mod-registry", "design-table"],
+        case_sensitive=False,
+    )
+
+
+def _conversion_target_choice() -> click.Choice:
+    return click.Choice([target.value for target in FormatConversionTarget], case_sensitive=False)
 
 
 def _build_psm_mapping(
@@ -181,12 +198,16 @@ def _infer_input_kind(input_path: Path, explicit_kind: str) -> str:
         return "fasta"
     if suffix == ".mgf":
         return "mgf"
+    if suffix == ".mzml":
+        return "mzml"
+    if path.name.endswith(".design.tsv") or path.name.endswith(".design.csv"):
+        return "design-table"
     if suffix == ".tsv":
         return "psm"
     if suffix == ".json":
         return "mod-registry"
     raise click.ClickException(
-        f"cannot infer input kind for {input_path.name!r}; use --kind fasta, psm, mgf, or mod-registry"
+        f"cannot infer input kind for {input_path.name!r}; use --kind fasta, psm, mgf, mzml, design-table, or mod-registry"
     )
 
 
@@ -927,47 +948,16 @@ def validate_command(
     mode: str,
     out_path: Path | None,
 ) -> None:
-    """Validate one FASTA, PSM TSV, MGF, or modification registry input."""
+    """Validate one FASTA, PSM TSV, MGF, mzML, design table, or modification registry input."""
     resolved_kind = _infer_input_kind(input_path, input_kind)
-    if resolved_kind == "fasta":
-        report = parse_fasta_document(input_path.read_text(), mode=FastaParseMode(mode))
-        payload = {
-            "input_kind": resolved_kind,
-            "valid": len(report.rejected_records) == 0,
-            "accepted_records": len(report.accepted_records),
-            "rejected_records": len(report.rejected_records),
-            "rejections": [rejected.to_dict() for rejected in report.rejected_records],
-        }
-    elif resolved_kind == "psm":
-        report = parse_psm_tsv(input_path, mapping=_default_psm_mapping())
-        payload = {
-            "input_kind": resolved_kind,
-            "valid": len(report.rejected_rows) == 0,
-            "accepted_rows": len(report.accepted_records),
-            "rejected_rows": len(report.rejected_rows),
-            "rejections": [rejected.to_dict() for rejected in report.rejected_rows],
-        }
-    elif resolved_kind == "mgf":
-        report = parse_mgf(input_path)
-        payload = {
-            "input_kind": resolved_kind,
-            "valid": len(report.rejected_blocks) == 0,
-            "accepted_spectra": len(report.accepted_spectra),
-            "rejected_blocks": len(report.rejected_blocks),
-            "rejections": [rejected.to_dict() for rejected in report.rejected_blocks],
-        }
-    else:
-        try:
-            registry = load_modification_registry(input_path)
-        except Exception as exc:  # noqa: BLE001
-            raise click.ClickException(str(exc)) from exc
-        payload = {
-            "input_kind": resolved_kind,
-            "valid": True,
-            "static_modifications": len(registry.static_modifications),
-            "variable_modifications": len(registry.variable_modifications),
-        }
-    _emit_json(payload, out_path=out_path)
+    try:
+        report = validate_proteomics_input(
+            input_path,
+            input_kind=ProteomicsFormatKind(resolved_kind),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(report, out_path=out_path)
 
 
 @cli.command("summarize")
@@ -987,7 +977,7 @@ def summarize_command(
     mode: str,
     out_path: Path | None,
 ) -> None:
-    """Summarize one FASTA, PSM TSV, or MGF input."""
+    """Summarize one FASTA, PSM TSV, MGF, mzML, or design-table input."""
     resolved_kind = _infer_input_kind(input_path, input_kind)
     if resolved_kind == "fasta":
         report = parse_fasta_document(input_path.read_text(), mode=FastaParseMode(mode))
@@ -1013,6 +1003,108 @@ def summarize_command(
             "summary": build_spectrum_collection_summary(report).to_dict(),
             "metrics": [build_spectrum_metrics(spectrum).to_dict() for spectrum in report.accepted_spectra],
         }
+    elif resolved_kind == "mzml":
+        report = parse_mzml(input_path)
+        payload = {
+            "input_kind": resolved_kind,
+            "metadata": report.metadata.to_dict(),
+            "summary": build_mzml_collection_summary(report).to_dict(),
+            "metrics": [build_spectrum_metrics(spectrum).to_dict() for spectrum in report.accepted_spectra],
+        }
+    elif resolved_kind == "design-table":
+        report = parse_experimental_design_table(input_path)
+        payload = {
+            "input_kind": resolved_kind,
+            "accepted_entries": len(report.accepted_entries),
+            "rejected_rows": len(report.rejected_rows),
+            "instruments": sorted(
+                {
+                    entry.instrument
+                    for entry in report.accepted_entries
+                    if entry.instrument is not None
+                }
+            ),
+            "search_engines": sorted(
+                {
+                    entry.search_engine
+                    for entry in report.accepted_entries
+                    if entry.search_engine is not None
+                }
+            ),
+        }
     else:
-        raise click.ClickException("summarize currently supports fasta, psm, and mgf inputs")
+        raise click.ClickException(
+            "summarize currently supports fasta, psm, mgf, mzml, and design-table inputs"
+        )
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("format-convert")
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--kind", "input_kind", type=_validate_kind_choice(), default="auto", show_default=True)
+@click.option("--to", "target_format", type=_conversion_target_choice(), required=True)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    required=True,
+    help="Where to write the converted normalized output.",
+)
+def format_convert_command(
+    input_path: Path,
+    input_kind: str,
+    target_format: str,
+    out_path: Path,
+) -> None:
+    """Convert one supported input into a normalized Bijux output surface."""
+    resolved_kind = _infer_input_kind(input_path, input_kind)
+    try:
+        report = convert_proteomics_format(
+            input_path=input_path,
+            output_path=out_path,
+            input_kind=ProteomicsFormatKind(resolved_kind),
+            target_format=FormatConversionTarget(target_format),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(report)
+
+
+@cli.command("bundle-run")
+@click.option("--spectra", "spectra_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=True)
+@click.option(
+    "--identifications",
+    "identifications_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--out-dir",
+    "out_dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    required=True,
+    help="Directory where the normalized run bundle should be written.",
+)
+def bundle_run_command(
+    spectra_path: Path,
+    identifications_path: Path | None,
+    design_path: Path | None,
+    out_dir: Path,
+) -> None:
+    """Build one normalized run bundle from spectra, IDs, and optional design metadata."""
+    try:
+        manifest = build_normalized_run_bundle(
+            bundle_dir=out_dir,
+            spectra_path=spectra_path,
+            identifications_path=identifications_path,
+            design_path=design_path,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(manifest)
