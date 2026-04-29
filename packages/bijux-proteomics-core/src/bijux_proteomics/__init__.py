@@ -145,6 +145,8 @@ from bijux_proteomics.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.identification import (
+    AcceptedPsmProvenanceEntry,
+    AcceptedPsmProvenanceReport,
     CalibrationPlotBin,
     CalibrationPlotData,
     ConfidenceAssignment,
@@ -194,6 +196,7 @@ from bijux_proteomics.identification import (
     assign_level_specific_confidence_labels,
     assign_razor_peptides,
     build_calibration_plot_data,
+    build_accepted_psm_provenance_report,
     build_fdr_audit_trail,
     build_fdr_edge_case_report,
     build_peptide_summary_report,
@@ -523,6 +526,8 @@ from bijux_proteomics_foundation import DocumentSchema, JsonModel
 __all__ = [
     "AssayRequirement",
     "AppliedModification",
+    "AcceptedPsmProvenanceEntry",
+    "AcceptedPsmProvenanceReport",
     "apply_q_values",
     "assign_confidence_labels",
     "assign_level_specific_confidence_labels",
@@ -533,6 +538,7 @@ __all__ = [
     "build_modified_peptide_export_record",
     "build_modified_peptide",
     "build_calibration_plot_data",
+    "build_accepted_psm_provenance_report",
     "build_fdr_audit_trail",
     "build_fdr_edge_case_report",
     "build_peptide_uniqueness_across_database",

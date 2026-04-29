@@ -18,6 +18,7 @@ from bijux_proteomics import (
     assign_confidence_labels,
     assign_level_specific_confidence_labels,
     assign_razor_peptides,
+    build_accepted_psm_provenance_report,
     build_calibration_plot_data,
     build_fdr_audit_trail,
     build_fdr_edge_case_report,
@@ -273,6 +274,28 @@ def test_fdr_threshold_filter_keeps_requested_cutoff() -> None:
     assert len(accepted) == 3
     strict = filter_psms_by_fdr(report.accepted_records, threshold=0.34)
     assert len(strict) == 1
+
+
+def test_accepted_psm_provenance_report_tracks_rank_counts_threshold_and_transform() -> (
+    None
+):
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+
+    provenance = build_accepted_psm_provenance_report(
+        report.accepted_records,
+        threshold=0.5,
+        score_orientation="higher_better",
+    )
+
+    assert provenance.threshold == 0.5
+    assert provenance.score_transform == "rank_normalized_psm_score"
+    assert len(provenance.entries) == 3
+    first = provenance.entries[0]
+    assert first.rank == 1
+    assert first.cumulative_targets == 1
+    assert first.cumulative_decoys == 0
+    assert first.score_orientation == "higher_better"
+    assert first.normalized_score == 1.0
 
 
 def test_score_orientation_normalization_supports_higher_and_lower_better() -> None:

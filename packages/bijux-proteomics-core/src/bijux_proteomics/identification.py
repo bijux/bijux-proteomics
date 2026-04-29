@@ -533,6 +533,45 @@ class LevelSpecificConfidenceReport(JsonModel):
     )
 
 
+class AcceptedPsmProvenanceEntry(JsonModel):
+    """Full accepted-PSM provenance row after target-decoy thresholding."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    peptide: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    target_decoy_label: TargetDecoyLabel
+    raw_score: float
+    normalized_score: float = Field(..., ge=0.0, le=1.0)
+    rank: int = Field(..., ge=1)
+    tie_group_rank: int = Field(..., ge=1)
+    tie_group_size: int = Field(..., ge=1)
+    cumulative_targets: int = Field(..., ge=0)
+    cumulative_decoys: int = Field(..., ge=0)
+    fdr: float = Field(..., ge=0.0)
+    q_value: float = Field(..., ge=0.0)
+    threshold: float | None = Field(default=None, ge=0.0)
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    score_transform: str = Field(..., min_length=1)
+
+
+class AcceptedPsmProvenanceReport(JsonModel):
+    """Accepted PSMs plus the exact policy context that retained them."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    threshold: float | None = Field(default=None, ge=0.0)
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    tie_handling: str = Field(
+        ..., pattern="^(score_group|stable_record_order)$"
+    )
+    score_transform: str = Field(..., min_length=1)
+    entries: tuple[AcceptedPsmProvenanceEntry, ...] = Field(default_factory=tuple)
+
+
 class PsmSummaryReport(JsonModel):
     """Compact search-result summary over normalized PSM records."""
 
@@ -1683,6 +1722,107 @@ def _build_q_value_monotonicity_check(
         entry_count=len(entries),
         valid=first_break_rank is None,
         first_break_rank=first_break_rank,
+    )
+
+
+def _psm_identity_key(record: PsmRecord) -> tuple[object, ...]:
+    return (
+        record.spectrum_id,
+        record.peptide,
+        record.canonical_peptide,
+        record.charge,
+        record.score,
+        record.q_value,
+        record.protein_refs,
+        record.target_decoy_label.value,
+    )
+
+
+def _score_sorted_psm_records(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_orientation: str,
+) -> tuple[PsmRecord, ...]:
+    if score_orientation == "higher_better":
+        key_fn = lambda record: (  # noqa: E731
+            -record.score,
+            record.spectrum_id,
+            record.canonical_peptide,
+            record.charge,
+        )
+    else:
+        key_fn = lambda record: (  # noqa: E731
+            record.score,
+            record.spectrum_id,
+            record.canonical_peptide,
+            record.charge,
+        )
+    return tuple(sorted(records, key=key_fn))
+
+
+def build_accepted_psm_provenance_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float,
+    score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
+) -> AcceptedPsmProvenanceReport:
+    """Build accepted-PSM provenance with explicit ranked FDR derivation state."""
+    annotated = calculate_basic_target_decoy_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        decoy_policy=None,
+    )
+    normalized_entries = normalize_psm_score_orientation(
+        records,
+        score_orientation=score_orientation,
+    )
+    normalized_by_identity: dict[tuple[object, ...], list[NormalizedScoreEntry]] = (
+        defaultdict(list)
+    )
+    for record, entry in zip(
+        _score_sorted_psm_records(records, score_orientation=score_orientation),
+        normalized_entries,
+        strict=True,
+    ):
+        normalized_by_identity[_psm_identity_key(record)].append(entry)
+
+    accepted_entries: list[AcceptedPsmProvenanceEntry] = []
+    for annotated_entry in annotated:
+        if not annotated_entry.accepted:
+            continue
+        identity = _psm_identity_key(annotated_entry.psm)
+        normalized_entry = normalized_by_identity[identity].pop(0)
+        accepted_entries.append(
+            AcceptedPsmProvenanceEntry(
+                spectrum_id=annotated_entry.psm.spectrum_id,
+                peptide=annotated_entry.psm.peptide,
+                canonical_peptide=annotated_entry.psm.canonical_peptide,
+                charge=annotated_entry.psm.charge,
+                protein_refs=annotated_entry.psm.protein_refs,
+                target_decoy_label=annotated_entry.psm.target_decoy_label,
+                raw_score=annotated_entry.psm.score,
+                normalized_score=normalized_entry.normalized_score,
+                rank=annotated_entry.rank,
+                tie_group_rank=annotated_entry.tie_group_rank,
+                tie_group_size=annotated_entry.tie_group_size,
+                cumulative_targets=annotated_entry.cumulative_targets,
+                cumulative_decoys=annotated_entry.cumulative_decoys,
+                fdr=annotated_entry.fdr,
+                q_value=annotated_entry.q_value,
+                threshold=threshold,
+                score_orientation=score_orientation,
+                score_transform="rank_normalized_psm_score",
+            )
+        )
+    return AcceptedPsmProvenanceReport(
+        threshold=threshold,
+        score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        score_transform="rank_normalized_psm_score",
+        entries=tuple(accepted_entries),
     )
 
 
