@@ -135,6 +135,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_deterministic_execution_contract" in bijux_proteomics.__all__
     assert "build_external_tool_capability_report" in bijux_proteomics.__all__
     assert "build_external_search_tool_contract" in bijux_proteomics.__all__
+    assert "build_workflow_execution_readiness_report" in bijux_proteomics.__all__
     assert "build_hpc_job_descriptor" in bijux_proteomics.__all__
     assert "build_workflow_runtime_cache" in bijux_proteomics.__all__
     assert "build_proteomics_artifact_inventory" in bijux_proteomics.__all__
@@ -175,6 +176,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ExternalToolCapabilityReport" in bijux_proteomics.__all__
     assert "ExternalSearchToolContract" in bijux_proteomics.__all__
     assert "HpcJobDescriptor" in bijux_proteomics.__all__
+    assert "WorkflowExecutionReadinessReport" in bijux_proteomics.__all__
     assert "WorkflowCacheManifest" in bijux_proteomics.__all__
     assert "WorkflowCacheMissExplanationEntry" in bijux_proteomics.__all__
     assert "WorkflowCacheMissExplanationReport" in bijux_proteomics.__all__

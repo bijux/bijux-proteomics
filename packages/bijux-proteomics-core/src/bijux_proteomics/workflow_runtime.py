@@ -249,6 +249,27 @@ class ExternalToolCapabilityReport(JsonModel):
     issues: tuple[ExternalToolCapabilityIssue, ...] = Field(default_factory=tuple)
 
 
+class WorkflowExecutionReadinessIssue(JsonModel):
+    """One refusal or warning about workflow execution readiness."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+    message: str = Field(..., min_length=1)
+
+
+class WorkflowExecutionReadinessReport(JsonModel):
+    """Execution readiness over tool versions, scheduler, and resource guarantees."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    ready: bool
+    issues: tuple[WorkflowExecutionReadinessIssue, ...] = Field(default_factory=tuple)
+
+
 class CoreResultRuntimeBinding(JsonModel):
     """One binding between a core result surface and runtime materialization."""
 
@@ -1423,6 +1444,71 @@ def build_external_tool_capability_report(
         workflow_id=manifest.workflow_id,
         adapter_kind=manifest.search_adapter_kind,
         executable=not any(issue.severity == "error" for issue in issues),
+        issues=tuple(issues),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_workflow_execution_readiness_report(
+    manifest: ProteomicsWorkflowManifest,
+    *,
+    hpc_job: HpcJobDescriptor,
+    available_tool_versions: tuple[str, ...],
+    available_schedulers: tuple[WorkflowSchedulerKind, ...] = (
+        WorkflowSchedulerKind.LOCAL,
+        WorkflowSchedulerKind.SLURM,
+    ),
+    max_cpus: int = 4,
+    max_memory_gb: int = 16,
+    max_walltime_minutes: int = 120,
+) -> WorkflowExecutionReadinessReport:
+    """Refuse execution when required tool versions or resource guarantees are absent."""
+    issues: list[WorkflowExecutionReadinessIssue] = []
+    capability_report = build_external_tool_capability_report(manifest)
+    for issue in capability_report.issues:
+        if issue.severity == "error":
+            issues.append(
+                WorkflowExecutionReadinessIssue(
+                    code=issue.code,
+                    severity=issue.severity,
+                    message=issue.message,
+                )
+            )
+    if manifest.scheduler not in available_schedulers:
+        issues.append(
+            WorkflowExecutionReadinessIssue(
+                code="scheduler_unavailable",
+                severity="error",
+                message="required scheduler is not available for this workflow execution",
+            )
+        )
+    required_tool_versions = set(_workflow_tool_versions(manifest))
+    if not required_tool_versions.issubset(set(available_tool_versions)):
+        issues.append(
+            WorkflowExecutionReadinessIssue(
+                code="tool_versions_unavailable",
+                severity="error",
+                message="required workflow tool versions are not all available in the execution environment",
+            )
+        )
+    if hpc_job.cpus > max_cpus or hpc_job.memory_gb > max_memory_gb or hpc_job.walltime_minutes > max_walltime_minutes:
+        issues.append(
+            WorkflowExecutionReadinessIssue(
+                code="resource_guarantee_missing",
+                severity="error",
+                message="available runtime resource guarantees are below the workflow descriptor requirements",
+            )
+        )
+    payload = WorkflowExecutionReadinessReport(
+        document_schema=_build_document_schema("workflow_execution_readiness_report"),
+        workflow_id=manifest.workflow_id,
+        ready=not any(issue.severity == "error" for issue in issues),
         issues=tuple(issues),
     )
     return payload.model_copy(

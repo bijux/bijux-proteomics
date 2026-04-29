@@ -12,6 +12,7 @@ from bijux_proteomics import (
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
     build_external_tool_capability_report,
+    build_workflow_execution_readiness_report,
     build_reproducible_workflow_blueprint,
     build_workflow_manifest_explanation_report,
     build_workflow_run_directory_layout,
@@ -23,6 +24,7 @@ from bijux_proteomics import (
     ExternalToolCapabilityReport,
     WorkflowScientificSurface,
     WorkflowExecutionMode,
+    WorkflowExecutionReadinessReport,
     WorkflowInputRole,
     WorkflowManifestExplanationReport,
     WorkflowSchedulerKind,
@@ -179,6 +181,36 @@ def test_external_tool_capability_report_blocks_nonlaunchable_adapters() -> None
     assert isinstance(report, ExternalToolCapabilityReport)
     assert report.executable is False
     assert any(issue.code == "adapter_not_launchable" for issue in report.issues)
+
+
+def test_workflow_execution_readiness_refuses_missing_tool_versions_and_resources() -> (
+    None
+):
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    hpc_job = build_hpc_job_descriptor(manifest)
+
+    report = build_workflow_execution_readiness_report(
+        manifest,
+        hpc_job=hpc_job,
+        available_tool_versions=("bijux-proteomics-core@0.0.0",),
+        max_cpus=1,
+        max_memory_gb=4,
+        max_walltime_minutes=30,
+    )
+
+    assert isinstance(report, WorkflowExecutionReadinessReport)
+    assert report.ready is False
+    assert {issue.code for issue in report.issues} >= {
+        "tool_versions_unavailable",
+        "resource_guarantee_missing",
+    }
 
 
 def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (
