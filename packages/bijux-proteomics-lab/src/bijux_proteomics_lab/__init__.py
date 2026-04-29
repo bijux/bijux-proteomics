@@ -6,6 +6,14 @@
 from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_lab.lifecycle import (
+    ReviewLifecycleAuditIssue,
+    ReviewQueueDecision,
+    ReviewQueueState,
+    ReviewQueueTransition,
+    transition_review_queue,
+    validate_review_transition_history,
+)
 from bijux_proteomics_lab.design import (
     BatchRandomizationPlan,
     CarryoverRiskAdvisory,
@@ -236,6 +244,12 @@ __all__ = [
     "ContrastRecommendation",
     "ContrastRejectionReason",
     "DesignIssueSeverity",
+    "ReviewQueueDecision",
+    "ReviewQueueState",
+    "ReviewQueueTransition",
+    "ReviewLifecycleAuditIssue",
+    "transition_review_queue",
+    "validate_review_transition_history",
     "ExperimentDesignValidationIssue",
     "ExperimentDesignValidationReport",
     "FractionAssignment",
