@@ -318,10 +318,16 @@ bijux-proteomics search-adapter compare \
   sage results.tsv \
   generic results.tsv \
   --right-mapping-json sage-mapping.json
+
+bijux-proteomics infer-proteins results.tsv \
+  --threshold 0.05 \
+  --fasta proteins.fasta
 ```
 
 That workflow is documented in
 [`docs/SEARCH_ADAPTERS.md`](./docs/SEARCH_ADAPTERS.md).
+Protein inference is documented in
+[`docs/PROTEIN_INFERENCE.md`](./docs/PROTEIN_INFERENCE.md).
 
 ## Package identity
 
@@ -420,6 +426,7 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
 - [`docs/FORMAT_INGESTION.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FORMAT_INGESTION.md) for mzML, design-table, format-conversion, and run-bundle workflows
+- [`docs/PROTEIN_INFERENCE.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PROTEIN_INFERENCE.md) for multi-level FDR, grouping, parsimony, picked protein FDR, and sequence-aware coverage workflows
 - [`docs/SEARCH_ADAPTERS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/SEARCH_ADAPTERS.md) for engine-specific table normalization and adapter provenance workflows
 - [`docs/FIRST_USEFUL_RUN.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FIRST_USEFUL_RUN.md) for a copy-paste path from fixture inputs to thresholded reports and spectrum annotation
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
