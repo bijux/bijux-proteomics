@@ -1,0 +1,30 @@
+[
+  {
+    "expected": "PEPTIDE",
+    "inputs": [
+      "PEPTIDE",
+      "peptide"
+    ]
+  },
+  {
+    "expected": "ACDM[Oxidation]K",
+    "inputs": [
+      "ACDM[Oxidation]K",
+      "ACDM[+15.994915]K"
+    ]
+  },
+  {
+    "expected": "[Acetyl]-PEPTIDE",
+    "inputs": [
+      "[Acetyl]-PEPTIDE",
+      "[+42.010565]-PEPTIDE"
+    ]
+  },
+  {
+    "expected": "PEPTIDE-[Amidated]",
+    "inputs": [
+      "PEPTIDE-[Amidated]",
+      "PEPTIDE-[-0.984016]"
+    ]
+  }
+]

@@ -698,6 +698,31 @@ def test_chemistry_regression_fixture_pack_stays_stable() -> None:
         )
 
 
+def test_modified_peptide_canonicalization_fixture_pack_is_deterministic() -> None:
+    cases = json.loads(_chemistry_fixture("canonicalization_cases.json").read_text())
+    registry = modification_registry()
+
+    for case in cases:
+        for notation in case["inputs"]:
+            assert (
+                canonicalize_modified_peptide(notation, registry=registry)
+                == case["expected"]
+            )
+
+    forward = build_modified_peptide(
+        "PESTIDE",
+        assignments=("Acetyl@n-term", "Phospho@3"),
+        registry=registry,
+    )
+    reversed_assignments = build_modified_peptide(
+        "PESTIDE",
+        assignments=("Phospho@3", "Acetyl@n-term"),
+        registry=registry,
+    )
+
+    assert forward.canonical_notation == reversed_assignments.canonical_notation
+
+
 def test_mz_calculator_rejects_invalid_charge() -> None:
     with pytest.raises(ValueError, match="charge must be at least 1"):
         calculate_peptide_mz("PEPTIDE", charge=0, mass_type=MassType.MONOISOTOPIC)
