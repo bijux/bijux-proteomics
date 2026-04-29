@@ -25,11 +25,14 @@ from bijux_proteomics_intelligence import (
     OptimizationAxis,
     PortfolioSelectionPolicy,
     RankedCandidate,
+    RankingAssumptionScenario,
     RankingFactor,
     RankingPolicy,
+    RankingStabilityReport,
     RejectionReasonCode,
     ScientificMetricClass,
     audit_metric_catalog,
+    analyze_ranking_stability,
     build_design_brief,
     build_ranking_diagnostics,
     build_ranking_provenance_report,
@@ -219,7 +222,9 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
     assert ranking.provenance_entries[0].accepted is True
 
 
-def test_build_ranking_provenance_report_tracks_ranked_and_rejected_candidates() -> None:
+def test_build_ranking_provenance_report_tracks_ranked_and_rejected_candidates() -> (
+    None
+):
     program = create_program_spec(
         program_id="prog-provenance",
         name="provenance profile",
@@ -269,6 +274,70 @@ def test_build_ranking_provenance_report_tracks_ranked_and_rejected_candidates()
     assert provenance.policy_id == "provenance-policy"
     assert provenance.entries[0].weighted_contributions
     assert any(entry.accepted is False for entry in provenance.entries)
+
+
+def test_analyze_ranking_stability_reports_sensitivity_to_policy_weights() -> None:
+    program = create_program_spec(
+        program_id="prog-stability",
+        name="ranking stability",
+        objective="test ranking sensitivity",
+        target_id="target-stability",
+        target_name="Target Stability",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="compare candidate ordering under alternative priorities",
+    )
+    program.success_criteria.append(
+        SuccessCriterion(
+            criterion_id="binding",
+            metric="binding_score",
+            direction=MeasurementDirection.MAXIMIZE,
+            threshold=0.75,
+        )
+    )
+    candidates = [
+        CandidateAssessment(
+            candidate_id="candidate-a",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            metric_scores={"binding_score": 0.8},
+            manufacturability_score=0.55,
+            uncertainty=0.15,
+            evidence_support=0.92,
+        ),
+        CandidateAssessment(
+            candidate_id="candidate-b",
+            sequence="ACDEFGHIKLMNPQRSTVWYA",
+            metric_scores={"binding_score": 0.84},
+            manufacturability_score=0.9,
+            uncertainty=0.2,
+            evidence_support=0.58,
+        ),
+    ]
+
+    report = analyze_ranking_stability(
+        program,
+        candidates,
+        policies=[
+            RankingPolicy(policy_id="baseline-stability"),
+            RankingPolicy(
+                policy_id="manufacturability-heavy",
+                factor_weights={
+                    RankingFactor.CRITERIA: 0.3,
+                    RankingFactor.EVIDENCE: 0.1,
+                    RankingFactor.MANUFACTURABILITY: 0.4,
+                    RankingFactor.LIABILITY: 0.1,
+                    RankingFactor.UNCERTAINTY: 0.1,
+                },
+            ),
+        ],
+    )
+
+    assert isinstance(report, RankingStabilityReport)
+    assert report.baseline_policy_id == "baseline-stability"
+    assert report.stable_top_candidate is False
+    assert report.top_candidate_frequencies == {"candidate-a": 1, "candidate-b": 1}
+    assert isinstance(report.scenarios[0], RankingAssumptionScenario)
+    assert any("changes across scoring assumptions" in note for note in report.notes)
 
 
 def test_prioritize_candidates_applies_profile_hard_filters() -> None:

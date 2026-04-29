@@ -334,6 +334,31 @@ class RankingRobustnessReport(JsonModel):
     )
 
 
+class RankingAssumptionScenario(JsonModel):
+    """One ranking run under a named scoring-assumption policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1)
+    top_candidate_id: str | None = Field(default=None)
+    ranked_candidate_ids: list[str] = Field(default_factory=list)
+    drift_from_baseline: RankingDriftReport = Field(...)
+
+
+class RankingStabilityReport(JsonModel):
+    """Sensitivity report for ranking outcomes under alternative assumptions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    baseline_policy_id: str = Field(..., min_length=1)
+    baseline_top_candidate_id: str | None = Field(default=None)
+    stable_top_candidate: bool = Field(...)
+    top_candidate_frequencies: dict[str, int] = Field(default_factory=dict)
+    scenarios: list[RankingAssumptionScenario] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
 class MetricCoverageSummary(JsonModel):
     """Coverage summary of candidate metrics against program criteria."""
 
@@ -1040,6 +1065,74 @@ def summarize_ranking_drift(
         moved_candidates=moved,
         newly_ranked_candidate_ids=newly_ranked,
         dropped_candidate_ids=dropped,
+    )
+
+
+def analyze_ranking_stability(
+    program: ProgramSpec,
+    candidates: list[CandidateAssessment],
+    *,
+    policies: list[RankingPolicy],
+) -> RankingStabilityReport:
+    """Measure how ranking priorities change under scoring assumptions."""
+    if not policies:
+        raise ValueError("at least one ranking policy is required")
+    rankings = [
+        (policy, prioritize_candidates(program, candidates, policy))
+        for policy in policies
+    ]
+    baseline_policy, baseline_ranking = rankings[0]
+    baseline_top = (
+        baseline_ranking.ranked_candidates[0].candidate_id
+        if baseline_ranking.ranked_candidates
+        else None
+    )
+    top_frequencies: dict[str, int] = {}
+    scenarios: list[RankingAssumptionScenario] = []
+    for policy, ranking in rankings:
+        top_candidate_id = (
+            ranking.ranked_candidates[0].candidate_id
+            if ranking.ranked_candidates
+            else None
+        )
+        if top_candidate_id is not None:
+            top_frequencies[top_candidate_id] = (
+                top_frequencies.get(top_candidate_id, 0) + 1
+            )
+        scenarios.append(
+            RankingAssumptionScenario(
+                policy_id=policy.policy_id,
+                top_candidate_id=top_candidate_id,
+                ranked_candidate_ids=[
+                    candidate.candidate_id for candidate in ranking.ranked_candidates
+                ],
+                drift_from_baseline=summarize_ranking_drift(baseline_ranking, ranking),
+            )
+        )
+    stable_top_candidate = len(top_frequencies) <= 1
+    notes: list[str] = []
+    if stable_top_candidate:
+        notes.append("top candidate remains stable across tested scoring assumptions")
+    else:
+        notes.append(
+            "top candidate changes across scoring assumptions: "
+            + ", ".join(sorted(top_frequencies))
+        )
+    if any(
+        scenario.drift_from_baseline.moved_candidates
+        or scenario.drift_from_baseline.newly_ranked_candidate_ids
+        or scenario.drift_from_baseline.dropped_candidate_ids
+        for scenario in scenarios[1:]
+    ):
+        notes.append("rank ordering is sensitive beyond the top candidate")
+    return RankingStabilityReport(
+        program_id=program.program_id,
+        baseline_policy_id=baseline_policy.policy_id,
+        baseline_top_candidate_id=baseline_top,
+        stable_top_candidate=stable_top_candidate,
+        top_candidate_frequencies=top_frequencies,
+        scenarios=scenarios,
+        notes=notes,
     )
 
 
