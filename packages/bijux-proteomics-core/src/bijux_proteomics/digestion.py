@@ -102,6 +102,23 @@ class PeptideFilterReport(JsonModel):
     excluded_by_mass: int = Field(default=0, ge=0)
 
 
+class PeptideUniqueness(StrEnum):
+    """Classification of peptide uniqueness across proteins."""
+
+    UNIQUE = "unique"
+    SHARED = "shared"
+
+
+class PeptideUniquenessEntry(JsonModel):
+    """One peptide uniqueness classification entry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(..., min_length=1)
+    protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    uniqueness: PeptideUniqueness
+
+
 _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
     "trypsin": ProteaseRule(
         name="trypsin",
@@ -230,6 +247,31 @@ def filter_digested_peptides(
         excluded_by_length=excluded_by_length,
         excluded_by_mass=excluded_by_mass,
     )
+
+
+def classify_peptide_uniqueness(
+    peptides: tuple[DigestedPeptide, ...],
+) -> tuple[PeptideUniquenessEntry, ...]:
+    """Classify peptides as unique or shared across parent proteins."""
+    sequence_to_accessions: dict[str, set[str]] = {}
+    for peptide in peptides:
+        sequence_to_accessions.setdefault(peptide.sequence, set()).add(
+            peptide.source_accession
+        )
+
+    entries = [
+        PeptideUniquenessEntry(
+            sequence=sequence,
+            protein_accessions=tuple(sorted(accessions)),
+            uniqueness=(
+                PeptideUniqueness.UNIQUE
+                if len(accessions) == 1
+                else PeptideUniqueness.SHARED
+            ),
+        )
+        for sequence, accessions in sorted(sequence_to_accessions.items())
+    ]
+    return tuple(entries)
 
 
 def digest_sequence(
