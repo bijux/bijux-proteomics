@@ -435,6 +435,30 @@ class CandidateLifecycleSummary(JsonModel):
     )
 
 
+class CandidateReviewMovement(JsonModel):
+    """One explained transition between candidate review states."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    from_status: CandidateStatus
+    to_status: CandidateStatus
+    reason: str = Field(..., min_length=1)
+    review_gate_id: str | None = None
+    evidence_ids: list[str] = Field(default_factory=list)
+    explanation: str = Field(..., min_length=1)
+
+
+class CandidateReviewMovementReport(JsonModel):
+    """Review-facing explanation of how a candidate moved through states."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    movement_count: int = Field(..., ge=0)
+    current_status: CandidateStatus
+    movements: list[CandidateReviewMovement] = Field(default_factory=list)
+
+
 ALLOWED_CANDIDATE_TRANSITIONS: dict[CandidateStatus, set[CandidateStatus]] = {
     CandidateStatus.PROPOSED: {
         CandidateStatus.SCREENED,
@@ -721,6 +745,58 @@ def summarize_candidate_lifecycle(
         transition_count=len(ordered),
         latest_status=latest_status,
         visited_statuses=visited,
+    )
+
+
+def build_candidate_review_movement_report(
+    transitions: list[CandidateTransition],
+) -> CandidateReviewMovementReport:
+    """Explain why a candidate moved between review-facing lifecycle states."""
+    if not transitions:
+        raise ValueError("at least one transition is required to explain lifecycle")
+    ordered = sorted(transitions, key=lambda transition: transition.changed_at)
+    movements = [
+        CandidateReviewMovement(
+            from_status=transition.from_status,
+            to_status=transition.to_status,
+            reason=transition.reason,
+            review_gate_id=transition.review_gate_id,
+            evidence_ids=transition.evidence_ids,
+            explanation=_explain_review_movement(transition),
+        )
+        for transition in ordered
+    ]
+    return CandidateReviewMovementReport(
+        candidate_id=ordered[0].candidate_id,
+        movement_count=len(movements),
+        current_status=ordered[-1].to_status,
+        movements=movements,
+    )
+
+
+def _explain_review_movement(transition: CandidateTransition) -> str:
+    evidence_suffix = ""
+    if transition.evidence_ids:
+        evidence_suffix = " backed by " + ", ".join(transition.evidence_ids[:3])
+    gate_suffix = ""
+    if transition.review_gate_id:
+        gate_suffix = f" at gate {transition.review_gate_id}"
+    if transition.to_status in {
+        CandidateStatus.PRIORITIZED,
+        CandidateStatus.ADVANCED,
+        CandidateStatus.REOPENED,
+    }:
+        return (
+            f"moved from {transition.from_status.value} to {transition.to_status.value}"
+            f"{gate_suffix} because {transition.reason}{evidence_suffix}"
+        )
+    if transition.to_status in {CandidateStatus.DEFERRED, CandidateStatus.PARKED}:
+        return f"held in {transition.to_status.value}{gate_suffix} because {transition.reason}"
+    if transition.to_status is CandidateStatus.REJECTED:
+        return f"stopped at {transition.to_status.value}{gate_suffix} because {transition.reason}"
+    return (
+        f"progressed from {transition.from_status.value} to {transition.to_status.value}"
+        f"{gate_suffix} because {transition.reason}"
     )
 
 
