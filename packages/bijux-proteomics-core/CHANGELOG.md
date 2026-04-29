@@ -17,6 +17,7 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Added spectrum contracts for MGF parsing/rendering, peak normalization and filtering, TIC/base-peak metrics, precursor mass error, fragment annotation, TSV annotation export, and plot payload generation in `bijux_proteomics.spectra`.
 - Added spectral similarity scoring, parser line diagnostics, spectrum provenance manifests, `spectrum-stats`, `spectrum-annotate`, `validate`, and `summarize` CLI workflows, and a checked first useful proteomics run fixture pack plus walkthrough documentation.
 - Added mzML parsing, mzML metadata extraction, binary-array validation, streaming-spectrum iteration, format detection, design-table validation, normalized format conversion, run-bundle materialization, and ingestion documentation in `bijux_proteomics.formats`.
+- Added typed search-engine adapter manifests, built-in Comet/MSFragger/Sage/MaxQuant/DIA-NN/Spectronaut normalization, generic mapped search-table support, adapter capability reporting, adapter provenance manifests, and search-adapter CLI workflows in `bijux_proteomics.search_adapters`.
 
 ### Changed
 
@@ -27,6 +28,7 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Expanded the README package examples to cover spectrum parsing, annotation, and plot payload generation.
 - Expanded package docs with spectrum CLI examples and a copy-paste first useful proteomics run guide.
 - Expanded package docs with mzML ingestion, design-table validation, format conversion, and normalized run-bundle examples.
+- Expanded package docs with search-adapter inspection, normalization, and provenance workflows.
 
 ## 0.3.7 - 2026-04-21
 
