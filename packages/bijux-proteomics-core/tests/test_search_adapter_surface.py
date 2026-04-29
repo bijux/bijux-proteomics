@@ -12,6 +12,7 @@ from bijux_proteomics import (
     SearchAdapterFieldAccounting,
     SearchAdapterKind,
     SearchNormalizedEvidenceEntry,
+    SearchRegressionFixtureKind,
     SearchResultColumnMapping,
     SearchResultFamily,
     SearchScoreFamily,
@@ -19,6 +20,7 @@ from bijux_proteomics import (
     build_search_adapter_capability_matrix,
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
+    build_search_adapter_regression_corpus_manifest,
     compare_search_parameters,
     compare_search_result_reports,
     get_search_adapter_manifest,
@@ -53,6 +55,21 @@ def test_search_adapter_registry_exposes_capability_matrix() -> None:
     )
     assert by_kind[SearchAdapterKind.SAGE].supports_q_value is True
     assert by_kind[SearchAdapterKind.GENERIC].supports_config_hash is True
+
+
+def test_search_adapter_regression_corpus_manifest_covers_engine_like_and_failure_fixtures() -> (
+    None
+):
+    manifest = build_search_adapter_regression_corpus_manifest(_fixture(""))
+
+    assert SearchAdapterKind.COMET in manifest.covered_adapter_kinds
+    assert SearchAdapterKind.SAGE in manifest.covered_adapter_kinds
+    assert manifest.engine_export_like_count >= 8
+    assert manifest.failure_case_count >= 2
+    assert any(
+        entry.fixture_kind is SearchRegressionFixtureKind.PIPELINE_EXPORT
+        for entry in manifest.entries
+    )
 
 
 def test_search_adapter_extension_dialect_normalizes_without_core_rewrites() -> None:
