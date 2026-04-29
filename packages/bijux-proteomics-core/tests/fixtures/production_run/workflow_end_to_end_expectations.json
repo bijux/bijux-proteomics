@@ -1,0 +1,43 @@
+{
+  "imported_lfq_review": {
+    "execution_mode": "import-results",
+    "step_kinds": [
+      "validate-inputs",
+      "digest-database",
+      "normalize-identifications",
+      "calculate-fdr",
+      "quantify-features",
+      "run-qc",
+      "build-run-bundle"
+    ],
+    "scientific_surfaces": [
+      "sequence_intake",
+      "search_ingestion",
+      "confidence_scoring",
+      "quantification",
+      "quality_control",
+      "evidence_synthesis"
+    ]
+  },
+  "external_search_lfq_review": {
+    "execution_mode": "external-search",
+    "step_kinds": [
+      "validate-inputs",
+      "digest-database",
+      "run-search-engine",
+      "normalize-identifications",
+      "calculate-fdr",
+      "quantify-features",
+      "run-qc",
+      "build-run-bundle"
+    ],
+    "scientific_surfaces": [
+      "sequence_intake",
+      "search_ingestion",
+      "confidence_scoring",
+      "quantification",
+      "quality_control",
+      "evidence_synthesis"
+    ]
+  }
+}

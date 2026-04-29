@@ -17,14 +17,20 @@ from bijux_proteomics import (
     build_label_free_intensity_table,
     build_lcms_run_qc_report,
     build_performance_snapshot,
+    build_proteomics_workflow_runtime_bundle,
+    build_proteomics_workflow_template,
     build_qc_evidence_manifest,
+    build_reproducible_workflow_blueprint,
     build_run_qc_assessment,
+    build_workflow_runtime_validation_report,
     default_qc_threshold_policy,
+    instantiate_proteomics_workflow_template,
     parse_experimental_design_table,
     parse_fasta_document,
     parse_mgf,
     parse_ms1_feature_table,
     parse_psm_tsv,
+    WorkflowTemplateKind,
 )
 
 
@@ -155,3 +161,61 @@ def test_production_run_builds_qc_manifest_and_benchmark_artifacts() -> None:
 
     assert benchmark.operations
     assert manifest.benchmark_sha256
+
+
+def test_production_run_workflow_fixtures_validate_imported_and_external_paths() -> None:
+    expectations = json.loads(
+        _fixture("workflow_end_to_end_expectations.json").read_text(encoding="utf-8")
+    )
+
+    imported_template = build_proteomics_workflow_template(
+        WorkflowTemplateKind.IMPORTED_LFQ_REVIEW
+    )
+    imported_manifest = instantiate_proteomics_workflow_template(
+        imported_template,
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+    )
+    imported_blueprint = build_reproducible_workflow_blueprint(imported_manifest)
+    imported_bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+    )
+    imported_validation = build_workflow_runtime_validation_report(imported_bundle)
+
+    external_template = build_proteomics_workflow_template(
+        WorkflowTemplateKind.EXTERNAL_SEARCH_LFQ_REVIEW
+    )
+    external_manifest = instantiate_proteomics_workflow_template(
+        external_template,
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+    )
+    external_blueprint = build_reproducible_workflow_blueprint(external_manifest)
+
+    imported_expected = expectations["imported_lfq_review"]
+    external_expected = expectations["external_search_lfq_review"]
+
+    assert imported_manifest.execution_mode.value == imported_expected["execution_mode"]
+    assert [step.kind.value for step in imported_manifest.steps] == imported_expected["step_kinds"]
+    assert sorted({step.scientific_surface.value for step in imported_blueprint.steps}) == sorted(
+        imported_expected["scientific_surfaces"]
+    )
+    assert imported_validation.valid is True
+
+    assert external_manifest.execution_mode.value == external_expected["execution_mode"]
+    assert [step.kind.value for step in external_manifest.steps] == external_expected["step_kinds"]
+    assert sorted({step.scientific_surface.value for step in external_blueprint.steps}) == sorted(
+        external_expected["scientific_surfaces"]
+    )
