@@ -331,6 +331,18 @@ class OutlierSampleExplanation(JsonModel):
     interpretation_summary: str = Field(..., min_length=1)
 
 
+class QuantQcEvidenceIntegrationReport(JsonModel):
+    """Joint missingness, outlier, and QC interpretation over one quant surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: str = Field(..., min_length=1)
+    missingness: MissingnessPatternAnalysis
+    outliers: tuple[OutlierSampleExplanation, ...] = Field(default_factory=tuple)
+    blocked_run_ids: tuple[str, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class RankedEntityScore(JsonModel):
     """One ranked entity for GSEA-style enrichment."""
 
@@ -1054,6 +1066,44 @@ def explain_outlier_samples(
                 )
             )
     return tuple(explanations)
+
+
+def integrate_quant_qc_evidence(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    batch_report: InstrumentBatchQcReport,
+    replicate_report: ReplicateCorrelationReport,
+    *,
+    run_assessments: tuple[QcRunAssessmentReport, ...] = (),
+) -> QuantQcEvidenceIntegrationReport:
+    """Integrate quant missingness and QC outlier evidence into one report."""
+    missingness = analyze_missingness_patterns(table, design_entries)
+    outliers = explain_outlier_samples(batch_report, replicate_report)
+    blocked_run_ids = tuple(
+        sorted(
+            assessment.run_id for assessment in run_assessments if assessment.blocked
+        )
+    )
+    notes: list[str] = []
+    if outliers:
+        notes.append(f"{len(outliers)} samples show QC-supported outlier behavior")
+    if missingness.overall_label is not MissingnessPatternLabel.MOSTLY_OBSERVED:
+        notes.append(
+            f"missingness remains {missingness.overall_label.value} at the {table.entity_level.value} level"
+        )
+    if blocked_run_ids:
+        notes.append("blocked QC runs: " + ", ".join(blocked_run_ids))
+    if not notes:
+        notes.append(
+            "quant and QC evidence are jointly consistent for this analysis surface"
+        )
+    return QuantQcEvidenceIntegrationReport(
+        entity_level=table.entity_level.value,
+        missingness=missingness,
+        outliers=outliers,
+        blocked_run_ids=blocked_run_ids,
+        notes=tuple(notes),
+    )
 
 
 def compute_ranked_enrichment(
