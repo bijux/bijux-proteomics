@@ -267,6 +267,13 @@ def test_build_governed_evidence_bundle_links_runtime_summary_and_review_surface
     assert governed.document_schema.content_hash is not None
 
 
+def test_evidence_bundle_defaults_to_explicit_document_kind() -> None:
+    bundle = EvidenceBundle(bundle_id="bundle-schema", target_id="target-schema")
+
+    assert bundle.document_schema.document_kind == "evidence_bundle"
+    assert bundle.document_schema.package_name == "bijux-proteomics-knowledge"
+
+
 def test_assess_decision_readiness_reports_blockers() -> None:
     bundle = EvidenceBundle(
         bundle_id="bundle-1",

@@ -303,7 +303,12 @@ class EvidenceBundle(JsonModel):
     bundle_id: EvidenceId = Field(..., description="Stable bundle identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
     document_schema: DocumentSchema = Field(
-        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-knowledge"),
+        default_factory=lambda: DocumentSchema(
+            created_by="bijux-proteomics-knowledge",
+            document_kind="evidence_bundle",
+            package_name="bijux-proteomics-knowledge",
+            status="generated",
+        ),
         description="Schema and provenance metadata.",
     )
     records: list[EvidenceRecord] = Field(
@@ -342,7 +347,12 @@ class GovernedEvidenceBundle(JsonModel):
     target_id: TargetId = Field(..., description="Target identifier.")
     decision_tag: str = Field(..., min_length=1)
     document_schema: DocumentSchema = Field(
-        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-knowledge"),
+        default_factory=lambda: DocumentSchema(
+            created_by="bijux-proteomics-knowledge",
+            document_kind="governed_evidence_bundle",
+            package_name="bijux-proteomics-knowledge",
+            status="generated",
+        ),
         description="Schema and provenance metadata.",
     )
     evidence_bundle_id: EvidenceId = Field(..., description="Underlying evidence bundle.")

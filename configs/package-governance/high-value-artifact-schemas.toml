@@ -1,0 +1,76 @@
+[[artifact_schema]]
+document_kind = "evidence_bundle"
+package_name = "bijux-proteomics-knowledge"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py"
+rationale = "evidence bundles are the durable scientific input for review, trust scoring, and runtime API publication"
+
+[[artifact_schema]]
+document_kind = "workflow_runtime_export_bundle"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py"
+rationale = "runtime export bundles are the canonical replay and offline-review artifact for one workflow execution"
+
+[[artifact_schema]]
+document_kind = "workflow_runtime_validation_report"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py"
+rationale = "validation reports are the durable integrity proof for exported workflow bundles"
+
+[[artifact_schema]]
+document_kind = "workflow_replay_proof_report"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py"
+rationale = "replay proof reports explain whether same-workflow reruns changed and why"
+
+[[artifact_schema]]
+document_kind = "proteomics_artifact_inventory"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py"
+rationale = "artifact inventories are the durable file-level lineage surface for exported runtime bundles"
+
+[[artifact_schema]]
+document_kind = "review_ready_evidence_bundle"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification.py"
+rationale = "review-ready evidence bundles connect identifications to the review process and external inspection"
+
+[[artifact_schema]]
+document_kind = "label_free_provenance_bundle"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification.py"
+rationale = "label-free provenance bundles preserve peptide-to-protein quant lineage for archival and audit"
+
+[[artifact_schema]]
+document_kind = "quant_reproducibility_manifest"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification.py"
+rationale = "quant reproducibility manifests stabilize the comparison contract across repeated quant runs"
+
+[[artifact_schema]]
+document_kind = "quant_artifact_bundle"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification.py"
+rationale = "quant artifact bundles are the reviewable package-level export for downstream interpretation and publication"
+
+[[artifact_schema]]
+document_kind = "qc_evidence_manifest"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/qc.py"
+rationale = "qc evidence manifests preserve run and study quality context for release and review decisions"
+
+[[artifact_schema]]
+document_kind = "search_result_provenance_manifest"
+package_name = "bijux-proteomics-core"
+schema_version = "1.0.0"
+contract_path = "packages/bijux-proteomics-core/src/bijux_proteomics/search_adapters.py"
+rationale = "search provenance manifests preserve native engine evidence and parameter context across imports"
