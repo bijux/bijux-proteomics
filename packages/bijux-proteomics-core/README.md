@@ -285,6 +285,23 @@ digest and search-result normalization, and finishes with FDR filtering plus
 spectrum annotation, see
 [`docs/FIRST_USEFUL_RUN.md`](./docs/FIRST_USEFUL_RUN.md).
 
+Multi-format ingestion now also covers mzML, design tables, normalized format
+conversion, and run-bundle materialization:
+
+```bash
+bijux-proteomics validate run.mzml --kind mzml
+bijux-proteomics summarize experiment.design.tsv --kind design-table
+bijux-proteomics format-convert run.mzml --kind mzml --to mgf --out run.converted.mgf
+bijux-proteomics bundle-run \
+  --spectra run.mzml \
+  --identifications results.tsv \
+  --design experiment.design.tsv \
+  --out-dir bundle
+```
+
+That workflow is documented in
+[`docs/FORMAT_INGESTION.md`](./docs/FORMAT_INGESTION.md).
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -376,9 +393,11 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`src/bijux_proteomics/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py) for protease rules, digestion modes, peptide filters, uniqueness, and peptide-to-protein indexing
 - [`src/bijux_proteomics/chemistry.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry.py) for peptide masses, precursor m/z, fragment ions, neutral losses, modification registries, and modified-peptide parsing
 - [`src/bijux_proteomics/identification.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification.py) for PSM parsing, validation, target-decoy labeling, stable export, sorting, best-hit selection, and peptide/protein rollups
+- [`src/bijux_proteomics/formats.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/formats.py) for mzML parsing, format detection, design-table validation, normalized conversion, and run bundles
 - [`src/bijux_proteomics/spectra.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/spectra.py) for spectrum models, MGF parsing/rendering, peak normalization and filtering, fragment annotation, and plot payload export
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
+- [`docs/FORMAT_INGESTION.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FORMAT_INGESTION.md) for mzML, design-table, format-conversion, and run-bundle workflows
 - [`docs/FIRST_USEFUL_RUN.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FIRST_USEFUL_RUN.md) for a copy-paste path from fixture inputs to thresholded reports and spectrum annotation
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
 
