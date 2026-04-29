@@ -467,6 +467,19 @@ class MissingDataMechanismReport(JsonModel):
     summary_counts: dict[MissingDataMechanism, int] = Field(default_factory=dict)
 
 
+class QuantArtifactBundle(JsonModel):
+    """Review-ready quantification artifact bundle independent of runtime logs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    matrix_export: QuantMatrixExport
+    missing_value_summary: MissingValueSummaryReport
+    reproducibility_manifest: QuantReproducibilityManifest
+    normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
+    differential_abundance_report: DifferentialAbundanceReport | None = None
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -1752,6 +1765,47 @@ def export_quant_reproducibility_manifest(
 ) -> None:
     """Write a stable JSON reproducibility manifest for quantification outputs."""
     path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+
+def build_quant_artifact_bundle(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...] = (),
+    missing_value_policy: MissingValueSummaryPolicy | None = None,
+    normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
+    differential_abundance_report: DifferentialAbundanceReport | None = None,
+) -> QuantArtifactBundle:
+    """Bundle quant outputs so review can happen without workflow runtime logs."""
+    bundle = QuantArtifactBundle(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="quant_artifact_bundle",
+            package_name="bijux-proteomics-core",
+            status="generated",
+            created_at=_STABLE_DOCUMENT_TIME,
+            updated_at=_STABLE_DOCUMENT_TIME,
+        ),
+        matrix_export=build_quant_matrix_export(table, design_entries=design_entries),
+        missing_value_summary=summarize_missing_values(
+            table,
+            policy=missing_value_policy,
+        ),
+        reproducibility_manifest=build_quant_reproducibility_manifest(table),
+        normalization_strategy_report=normalization_strategy_report,
+        differential_abundance_report=differential_abundance_report,
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_quant_artifact_bundle(bundle: QuantArtifactBundle, path: Path) -> None:
+    """Write a stable JSON artifact bundle for quant review."""
+    path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
 
 
 def _sample_snapshot(

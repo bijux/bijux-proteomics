@@ -27,6 +27,7 @@ from bijux_proteomics import (
     ProteinQuantAssignmentPolicy,
     ProteinQuantPolicyComparisonReport,
     QuantReproducibilityManifest,
+    QuantArtifactBundle,
     QuantEntityLevel,
     QuantRollupMethod,
     QuantAssessmentDisposition,
@@ -45,6 +46,7 @@ from bijux_proteomics import (
     build_protein_quant_policy_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
+    build_quant_artifact_bundle,
     build_quant_reproducibility_manifest,
     build_replicate_correlation_report,
     build_spectral_count_table,
@@ -52,6 +54,7 @@ from bijux_proteomics import (
     build_study_scale_replicate_correlation_report,
     export_label_free_provenance_bundle,
     export_quant_matrix_tsv,
+    export_quant_artifact_bundle,
     export_quant_reproducibility_manifest,
     normalize_multiplex_quant_table,
     normalize_label_free_table,
@@ -635,6 +638,55 @@ def test_missing_data_mechanism_report_distinguishes_biology_from_failure() -> N
     assert pbio.mechanism is MissingDataMechanism.LIKELY_BIOLOGICAL_SPARSE
     assert ptech.mechanism is MissingDataMechanism.LIKELY_TECHNICAL_FAILURE
     assert pmix.mechanism is MissingDataMechanism.MIXED_OR_UNRESOLVED
+
+
+def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
+    feature_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    design_report = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
+    table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            feature_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.TOP_N,
+            top_n=2,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    differential = apply_benjamini_hochberg(
+        build_differential_abundance_report(
+            table,
+            design_report.accepted_entries,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
+    strategy = build_normalization_strategy_comparison_report(
+        build_label_free_intensity_table(
+            feature_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.TOP_N,
+            top_n=2,
+        )
+    )
+
+    bundle = build_quant_artifact_bundle(
+        table,
+        design_entries=design_report.accepted_entries,
+        differential_abundance_report=differential,
+        normalization_strategy_report=strategy,
+    )
+
+    assert isinstance(bundle, QuantArtifactBundle)
+    assert bundle.document_schema.document_kind == "quant_artifact_bundle"
+    assert bundle.matrix_export.rows
+    assert bundle.reproducibility_manifest.reproducibility_hash
+
+    output_path = _quant_fixture("quant_artifact_bundle.json")
+    try:
+        export_quant_artifact_bundle(bundle, output_path)
+        assert "quant_artifact_bundle" in output_path.read_text(encoding="utf-8")
+    finally:
+        output_path.unlink(missing_ok=True)
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (
