@@ -522,3 +522,59 @@ def test_format_convert_and_bundle_run_commands_materialize_normalized_outputs()
         assert bundle_manifest["spectrum_count"] == 2
         assert bundle_manifest["psm_count"] == 2
         assert Path("bundle/bundle.manifest.json").exists()
+
+
+def test_search_adapter_inspect_and_normalize_commands_work() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "search_adapters"
+        shutil.copy(fixture_dir / "sage_results.tsv", "sage_results.tsv")
+        shutil.copy(fixture_dir / "sage_config.json", "sage_config.json")
+        shutil.copy(fixture_dir / "generic_results.tsv", "generic_results.tsv")
+        shutil.copy(fixture_dir / "generic_mapping.json", "generic_mapping.json")
+
+        inspect_result = runner.invoke(cli, ["search-adapter", "inspect", "--adapter", "sage"])
+        matrix_result = runner.invoke(cli, ["search-adapter", "inspect"])
+        normalize_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "normalize",
+                "sage",
+                "sage_results.tsv",
+                "--adapter-version",
+                "0.16.0",
+                "--config",
+                "sage_config.json",
+                "--jsonl-out",
+                "sage.jsonl",
+                "--provenance-out",
+                "sage.provenance.json",
+            ],
+        )
+        generic_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "normalize",
+                "generic",
+                "generic_results.tsv",
+                "--mapping-json",
+                "generic_mapping.json",
+            ],
+        )
+
+        assert inspect_result.exit_code == 0
+        assert json.loads(inspect_result.output)["adapter_kind"] == "sage"
+        assert matrix_result.exit_code == 0
+        assert any(
+            row["adapter_kind"] == "comet"
+            for row in json.loads(matrix_result.output)["capabilities"]
+        )
+        assert normalize_result.exit_code == 0
+        normalize_payload = json.loads(normalize_result.output)
+        assert normalize_payload["accepted_rows"] == 2
+        assert Path("sage.jsonl").exists()
+        assert Path("sage.provenance.json").exists()
+        assert generic_result.exit_code == 0
+        assert json.loads(generic_result.output)["adapter"]["adapter_kind"] == "generic"

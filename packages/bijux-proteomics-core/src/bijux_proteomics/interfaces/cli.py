@@ -55,6 +55,13 @@ from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     TargetDecoyLabelPolicy,
 )
+from bijux_proteomics.search_adapters import (
+    build_search_adapter_capability_matrix,
+    build_search_adapter_provenance_manifest,
+    get_search_adapter_manifest,
+    normalize_search_results_with_adapter,
+    SearchAdapterKind,
+)
 from bijux_proteomics.programs import ProgramSpec, create_program_spec, program_summary
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
@@ -143,6 +150,10 @@ def _validate_kind_choice() -> click.Choice:
 
 def _conversion_target_choice() -> click.Choice:
     return click.Choice([target.value for target in FormatConversionTarget], case_sensitive=False)
+
+
+def _search_adapter_choice() -> click.Choice:
+    return click.Choice([adapter.value for adapter in SearchAdapterKind], case_sensitive=False)
 
 
 def _build_psm_mapping(
@@ -1108,3 +1119,79 @@ def bundle_run_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(manifest)
+
+
+@cli.group("search-adapter")
+def search_adapter_group() -> None:
+    """Inspect and normalize search-engine-specific result tables."""
+
+
+@search_adapter_group.command("inspect")
+@click.option("--adapter", "adapter_name", type=_search_adapter_choice(), default=None)
+def search_adapter_inspect_command(adapter_name: str | None) -> None:
+    """Inspect one adapter manifest or the full capability matrix."""
+    if adapter_name is None:
+        payload = {
+            "capabilities": [row.to_dict() for row in build_search_adapter_capability_matrix()],
+        }
+        _emit_json(payload)
+        return
+    manifest = get_search_adapter_manifest(SearchAdapterKind(adapter_name))
+    _emit_json(manifest)
+
+
+@search_adapter_group.command("normalize")
+@click.argument("adapter_name", type=_search_adapter_choice())
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--mapping-json", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--adapter-version", default=None)
+@click.option("--config", "config_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), default=None)
+@click.option("--jsonl-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--provenance-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON normalization output path.",
+)
+def search_adapter_normalize_command(
+    adapter_name: str,
+    input_path: Path,
+    mapping_json: Path | None,
+    adapter_version: str | None,
+    config_path: Path | None,
+    jsonl_out: Path | None,
+    provenance_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Normalize one engine-specific search-result table into stable PSM records."""
+    mapping = None
+    if mapping_json is not None:
+        mapping = SearchResultColumnMapping.model_validate_json(mapping_json.read_text())
+    try:
+        report = normalize_search_results_with_adapter(
+            source_path=input_path,
+            adapter_kind=SearchAdapterKind(adapter_name),
+            mapping=mapping,
+        )
+        provenance = build_search_adapter_provenance_manifest(
+            source_path=input_path,
+            normalization_report=report,
+            adapter_version=adapter_version,
+            config_path=config_path,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    if jsonl_out is not None:
+        export_psm_jsonl(report.normalized_records, jsonl_out)
+    if provenance_out is not None:
+        provenance_out.write_text(provenance.to_stable_json() + "\n")
+    payload = {
+        "adapter": report.adapter_manifest.to_dict(),
+        "accepted_rows": len(report.parse_report.accepted_records),
+        "rejected_rows": len(report.parse_report.rejected_rows),
+        "normalized_records": [record.to_dict() for record in report.normalized_records],
+        "provenance": provenance.to_dict(),
+    }
+    _emit_json(payload, out_path=out_path)
