@@ -37,6 +37,11 @@ class SpectrumModel(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     spectrum_id: str = Field(..., min_length=1)
+    native_id: str | None = None
+    scan_number: int | None = Field(default=None, ge=1)
+    ms_level: int | None = Field(default=None, ge=1)
+    parent_spectrum_id: str | None = None
+    product_isolation_mz: float | None = Field(default=None, gt=0.0)
     precursor_mz: float = Field(..., gt=0.0)
     precursor_charge: int | None = Field(default=None, ge=1)
     retention_time_seconds: float | None = Field(default=None, ge=0.0)
@@ -245,6 +250,17 @@ class _MgfBlock:
         self.raw_lines: list[str] = []
 
 
+def _scan_number_from_text(value: str | None) -> int | None:
+    if value is None:
+        return None
+    match = re.search(r"scan=(\d+)", value, flags=re.IGNORECASE)
+    if match is not None:
+        return int(match.group(1))
+    if value.isdigit():
+        return int(value)
+    return None
+
+
 def _issue(
     block_index: int,
     code: str,
@@ -318,6 +334,8 @@ def parse_mgf(path: Path) -> MgfParseReport:
         accepted.append(
             SpectrumModel(
                 spectrum_id=spectrum_id,
+                native_id=block.spectrum_id,
+                scan_number=_scan_number_from_text(block.spectrum_id or block.title),
                 precursor_mz=block.precursor_mz or 1.0,
                 precursor_charge=block.precursor_charge,
                 retention_time_seconds=block.retention_time_seconds,

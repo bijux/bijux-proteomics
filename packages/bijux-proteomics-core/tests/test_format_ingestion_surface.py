@@ -42,9 +42,25 @@ def test_mzml_reader_and_metadata_extract_stable_spectrum_contracts() -> None:
     assert metadata.start_time_iso == "2026-04-29T10:00:00Z"
     assert metadata.instrument_names == ("Q Exactive",)
     assert streamed[0].spectrum_id == "scan=5001"
+    assert streamed[0].native_id == "scan=5001"
+    assert streamed[0].scan_number == 5001
+    assert streamed[0].ms_level == 2
+    assert streamed[0].parent_spectrum_id == "scan=5000"
     assert streamed[1].precursor_charge == 3
     assert summary.spectrum_count == 2
     assert summary.issue_counts == {}
+
+
+def test_mzml_scan_hierarchy_preserves_precursor_and_product_relationships() -> None:
+    report = parse_mzml(_format_fixture("hierarchy.mzml"))
+
+    assert len(report.accepted_spectra) == 1
+    spectrum = report.accepted_spectra[0]
+    assert spectrum.native_id == "controllerType=0 controllerNumber=1 scan=8101"
+    assert spectrum.scan_number == 8101
+    assert spectrum.ms_level == 2
+    assert spectrum.parent_spectrum_id == "controllerType=0 controllerNumber=1 scan=8100"
+    assert spectrum.product_isolation_mz == 175.1
 
 
 def test_mzml_validation_catches_binary_array_length_mismatches() -> None:

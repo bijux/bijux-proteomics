@@ -13,6 +13,7 @@ from enum import StrEnum
 import hashlib
 import json
 from pathlib import Path
+import re
 import struct
 from typing import Any
 import zlib
@@ -53,9 +54,11 @@ _CV_INT64 = "MS:1000522"
 _CV_NUMPRESS_LINEAR = "MS:1002312"
 _CV_NUMPRESS_PIC = "MS:1002313"
 _CV_NUMPRESS_SLOF = "MS:1002314"
+_CV_MS_LEVEL = "MS:1000511"
 _CV_SCAN_START_TIME = "MS:1000016"
 _CV_SELECTED_ION_MZ = "MS:1000744"
 _CV_CHARGE_STATE = "MS:1000041"
+_CV_ISOLATION_WINDOW_TARGET_MZ = "MS:1000827"
 
 
 class ProteomicsFormatKind(StrEnum):
@@ -327,6 +330,17 @@ def _build_document_schema(document_kind: str) -> DocumentSchema:
     )
 
 
+def _scan_number_from_text(value: str | None) -> int | None:
+    if value is None:
+        return None
+    match = re.search(r"scan=(\d+)", value, flags=re.IGNORECASE)
+    if match is not None:
+        return int(match.group(1))
+    if value.isdigit():
+        return int(value)
+    return None
+
+
 def _parse_binary_values(
     binary_data_array: Any,
     *,
@@ -495,9 +509,12 @@ def _parse_spectrum_element(
     )
     issues: list[FormatValidationIssue] = []
     expected_length = int(spectrum.attrib.get("defaultArrayLength", "0") or "0")
+    ms_level: int | None = None
     retention_time_seconds: float | None = None
     precursor_mz: float | None = None
     precursor_charge: int | None = None
+    parent_spectrum_id: str | None = None
+    product_isolation_mz: float | None = None
     mz_values: tuple[float, ...] | None = None
     intensity_values: tuple[float, ...] | None = None
 
@@ -505,7 +522,19 @@ def _parse_spectrum_element(
         if _local_name(element.tag) != "cvParam":
             continue
         accession = element.attrib.get("accession")
-        if accession == _CV_SCAN_START_TIME:
+        if accession == _CV_MS_LEVEL:
+            try:
+                ms_level = int(element.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_ms_level",
+                        str(exc),
+                        field="ms_level",
+                        record_id=spectrum_id,
+                    )
+                )
+        elif accession == _CV_SCAN_START_TIME:
             try:
                 retention_time_seconds = _parse_time_seconds(element)
             except ValueError as exc:
@@ -541,6 +570,34 @@ def _parse_spectrum_element(
                         record_id=spectrum_id,
                     )
                 )
+
+    for precursor in spectrum.iter():
+        if _local_name(precursor.tag) != "precursor":
+            continue
+        parent_spectrum_id = _strip_text(precursor.attrib.get("spectrumRef"))
+        break
+
+    for product in spectrum.iter():
+        if _local_name(product.tag) != "product":
+            continue
+        for cv_param in product.iter():
+            if _local_name(cv_param.tag) != "cvParam":
+                continue
+            if cv_param.attrib.get("accession") != _CV_ISOLATION_WINDOW_TARGET_MZ:
+                continue
+            try:
+                product_isolation_mz = float(cv_param.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_product_isolation_mz",
+                        str(exc),
+                        field="product_isolation_mz",
+                        record_id=spectrum_id,
+                    )
+                )
+            break
+        break
 
     for binary_data_array in spectrum.iter():
         if _local_name(binary_data_array.tag) != "binaryDataArray":
@@ -604,6 +661,11 @@ def _parse_spectrum_element(
     return (
         SpectrumModel(
             spectrum_id=spectrum_id,
+            native_id=spectrum_id,
+            scan_number=_scan_number_from_text(spectrum_id),
+            ms_level=ms_level,
+            parent_spectrum_id=parent_spectrum_id,
+            product_isolation_mz=product_isolation_mz,
             precursor_mz=precursor_mz or 1.0,
             precursor_charge=precursor_charge,
             retention_time_seconds=retention_time_seconds,
