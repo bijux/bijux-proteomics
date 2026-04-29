@@ -67,6 +67,17 @@ class DigestedPeptide(JsonModel):
         return value.strip().upper()
 
 
+class PeptideFilterReport(JsonModel):
+    """Accounting for peptide-level post-digestion filtering."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_peptides: int = Field(..., ge=0)
+    output_peptides: int = Field(..., ge=0)
+    excluded_by_length: int = Field(default=0, ge=0)
+    excluded_by_mass: int = Field(default=0, ge=0)
+
+
 _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
     "trypsin": ProteaseRule(
         name="trypsin",
@@ -159,6 +170,31 @@ def parse_custom_protease_rule(specification: str, *, name: str = "custom") -> P
         blocked_by_next=fields.get("block_next", ""),
         blocked_by_previous=fields.get("block_previous", ""),
         description=fields.get("description", ""),
+    )
+
+
+def filter_digested_peptides(
+    peptides: tuple[DigestedPeptide, ...],
+    *,
+    min_length: int | None = None,
+    max_length: int | None = None,
+) -> tuple[tuple[DigestedPeptide, ...], PeptideFilterReport]:
+    """Filter digested peptides by sequence length."""
+    filtered: list[DigestedPeptide] = []
+    excluded_by_length = 0
+    for peptide in peptides:
+        if min_length is not None and len(peptide.sequence) < min_length:
+            excluded_by_length += 1
+            continue
+        if max_length is not None and len(peptide.sequence) > max_length:
+            excluded_by_length += 1
+            continue
+        filtered.append(peptide)
+    return tuple(filtered), PeptideFilterReport(
+        input_peptides=len(peptides),
+        output_peptides=len(filtered),
+        excluded_by_length=excluded_by_length,
+        excluded_by_mass=0,
     )
 
 

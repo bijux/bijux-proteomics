@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from bijux_proteomics import PeptideDigestionMode, digest_sequence
+from bijux_proteomics import (
+    PeptideDigestionMode,
+    digest_sequence,
+    filter_digested_peptides,
+)
 
 
 def test_digest_sequence_performs_full_tryptic_cleavage() -> None:
@@ -77,3 +81,13 @@ def test_digest_sequence_supports_bounded_non_specific_mode() -> None:
     ]
     assert all(3 <= len(peptide.sequence) <= 4 for peptide in peptides)
     assert all(peptide.cleavage_type == "non_specific" for peptide in peptides)
+
+
+def test_filter_digested_peptides_supports_length_bounds() -> None:
+    peptides = digest_sequence("MKWVTFISLLFLFSSAYSRGVFR", source_accession="filter-test")
+    filtered, report = filter_digested_peptides(peptides, min_length=3, max_length=10)
+
+    assert [peptide.sequence for peptide in filtered] == ["GVFR"]
+    assert report.input_peptides == len(peptides)
+    assert report.output_peptides == 1
+    assert report.excluded_by_length == len(peptides) - 1
