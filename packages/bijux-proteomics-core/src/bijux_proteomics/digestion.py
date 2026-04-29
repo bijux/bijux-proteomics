@@ -84,6 +84,30 @@ class PeptideFilterReport(JsonModel):
     excluded_by_mass: int = Field(default=0, ge=0)
 
 
+class DigestDuplicateSequenceEntry(JsonModel):
+    """One repeated peptide sequence with explicit occurrence accounting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(..., min_length=1)
+    occurrence_count: int = Field(..., ge=2)
+    protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DigestDuplicateAccounting(JsonModel):
+    """Honest peptide duplicate accounting for one digestion result."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_peptide_occurrences: int = Field(..., ge=0)
+    unique_sequence_count: int = Field(..., ge=0)
+    duplicate_sequence_count: int = Field(..., ge=0)
+    duplicate_occurrence_count: int = Field(..., ge=0)
+    repeated_sequences: tuple[DigestDuplicateSequenceEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class PeptideUniqueness(StrEnum):
     """Classification of peptide uniqueness across proteins."""
 
@@ -319,6 +343,36 @@ def classify_peptide_uniqueness(
         for sequence, members in sorted(sequence_to_peptides.items())
     ]
     return tuple(entries)
+
+
+def build_digest_duplicate_accounting(
+    peptides: tuple[DigestedPeptide, ...],
+) -> DigestDuplicateAccounting:
+    """Summarize repeated peptide sequences without hiding total occurrences."""
+    grouped: dict[str, list[DigestedPeptide]] = {}
+    for peptide in peptides:
+        grouped.setdefault(peptide.sequence, []).append(peptide)
+
+    repeated_sequences = tuple(
+        DigestDuplicateSequenceEntry(
+            sequence=sequence,
+            occurrence_count=len(members),
+            protein_accessions=tuple(
+                sorted({member.source_accession for member in members})
+            ),
+        )
+        for sequence, members in sorted(grouped.items())
+        if len(members) > 1
+    )
+    return DigestDuplicateAccounting(
+        total_peptide_occurrences=len(peptides),
+        unique_sequence_count=len(grouped),
+        duplicate_sequence_count=len(repeated_sequences),
+        duplicate_occurrence_count=sum(
+            entry.occurrence_count - 1 for entry in repeated_sequences
+        ),
+        repeated_sequences=repeated_sequences,
+    )
 
 
 def build_peptide_protein_index(

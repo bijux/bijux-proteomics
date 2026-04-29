@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from bijux_proteomics import (
     PeptideDigestionMode,
+    build_digest_duplicate_accounting,
     digest_sequence,
     filter_digested_peptides,
 )
@@ -109,3 +110,27 @@ def test_filter_digested_peptides_supports_mass_bounds() -> None:
 
     assert [peptide.sequence for peptide in filtered] == ["AKAAK", "AAKAAK"]
     assert report.excluded_by_mass == len(peptides) - len(filtered)
+
+
+def test_digest_duplicate_accounting_distinguishes_occurrences_from_unique_sequences() -> (
+    None
+):
+    peptides = digest_sequence(
+        "AKAAKAAK",
+        source_accession="duplicate-accounting-test",
+        missed_cleavages=1,
+    )
+
+    accounting = build_digest_duplicate_accounting(peptides)
+
+    assert accounting.total_peptide_occurrences == 5
+    assert accounting.unique_sequence_count == 4
+    assert accounting.duplicate_sequence_count == 1
+    assert accounting.duplicate_occurrence_count == 1
+    assert [entry.model_dump() for entry in accounting.repeated_sequences] == [
+        {
+            "sequence": "AAK",
+            "occurrence_count": 2,
+            "protein_accessions": ("duplicate-accounting-test",),
+        }
+    ]
