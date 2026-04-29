@@ -21,6 +21,7 @@ from bijux_proteomics_foundation import (
     FoundationContractError,
     StableHashPolicy,
     SchemaFormatContract,
+    SchemaEvolutionAssessment,
     IdentifierKind,
     JsonModel,
     MigrationExecutionError,
@@ -47,6 +48,7 @@ from bijux_proteomics_foundation import (
     normalize_controlled_term,
     present_value,
     assess_schema_compatibility,
+    assess_schema_evolution,
     build_identifier,
     build_schema_format_contract,
     classify_identifier,
@@ -364,6 +366,46 @@ def test_schema_format_contract_is_serializable() -> None:
     )
 
     assert contract.to_dict()["artifact_format"] == "artifact_bundle"
+
+
+def test_schema_evolution_assessment_reports_available_migrations() -> None:
+    registry = MigrationRegistry()
+    registry.register(
+        SchemaMigration(
+            from_version="1.0.0",
+            to_version="1.1.0",
+            description="raise schema version",
+            migrate=lambda payload: {
+                **payload,
+                "document_schema": {
+                    **payload["document_schema"],
+                    "schema_version": "1.1.0",
+                },
+            },
+        )
+    )
+
+    assessment = assess_schema_evolution(
+        observed_version="1.0.0",
+        target_version="1.1.0",
+        registry=registry,
+    )
+
+    assert isinstance(assessment, SchemaEvolutionAssessment)
+    assert assessment.migration_required is True
+    assert assessment.migration_available is True
+
+
+def test_schema_evolution_assessment_reports_missing_migration_path() -> None:
+    registry = MigrationRegistry()
+    assessment = assess_schema_evolution(
+        observed_version="1.0.0",
+        target_version="1.1.0",
+        registry=registry,
+    )
+
+    assert assessment.migration_available is False
+    assert "no migration path is available" in assessment.notes[1]
 
 
 def test_foundation_contract_errors_share_common_base() -> None:

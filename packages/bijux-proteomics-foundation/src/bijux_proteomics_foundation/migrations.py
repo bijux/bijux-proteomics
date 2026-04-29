@@ -79,6 +79,14 @@ class MigrationRegistry:
         """Validate that the migration path exists and has no loops."""
         self.migration_path(from_version, target_version)
 
+    def can_migrate_to(self, from_version: str, target_version: str) -> bool:
+        """Return whether a valid migration path exists."""
+        try:
+            self.validate_path(from_version, target_version)
+        except MigrationPathError:
+            return False
+        return True
+
     def mark_deprecated(self, schema_version: str) -> None:
         """Mark one schema version as deprecated."""
         self._deprecated_versions.add(schema_version)

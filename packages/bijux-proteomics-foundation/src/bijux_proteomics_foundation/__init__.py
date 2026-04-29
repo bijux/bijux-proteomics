@@ -13,6 +13,10 @@ from bijux_proteomics_foundation.errors import (
     MigrationExecutionError,
     MigrationPathError,
 )
+from bijux_proteomics_foundation.evolution import (
+    SchemaEvolutionAssessment,
+    assess_schema_evolution,
+)
 from bijux_proteomics_foundation.ids import (
     AssayId,
     BatchId,
@@ -88,7 +92,9 @@ __all__ = [
     "ContractValidationError",
     "DocumentSchema",
     "SchemaCompatibility",
+    "SchemaEvolutionAssessment",
     "assess_schema_compatibility",
+    "assess_schema_evolution",
     "EvidenceId",
     "ExperimentId",
     "FoundationContractError",
