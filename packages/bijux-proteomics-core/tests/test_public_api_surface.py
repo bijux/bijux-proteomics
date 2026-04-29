@@ -93,6 +93,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "Ms1FeatureRecord" in bijux_proteomics.__all__
     assert "parse_ms1_feature_table" in bijux_proteomics.__all__
     assert "build_label_free_intensity_table" in bijux_proteomics.__all__
+    assert "build_normalization_comparison_report" in bijux_proteomics.__all__
     assert "build_protein_quant_rollup_evidence" in bijux_proteomics.__all__
     assert "build_quant_matrix_export" in bijux_proteomics.__all__
     assert "build_spectral_count_table" in bijux_proteomics.__all__

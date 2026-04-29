@@ -258,6 +258,28 @@ class ProteinQuantRollupEvidenceEntry(JsonModel):
     missing_value_kind: MissingValueKind
 
 
+class NormalizationSampleSnapshot(JsonModel):
+    """Per-sample totals, medians, and spread for a quant table snapshot."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    total_abundance: float = Field(..., ge=0.0)
+    median_abundance: float = Field(..., ge=0.0)
+    interquartile_range: float = Field(..., ge=0.0)
+
+
+class NormalizationComparisonReport(JsonModel):
+    """Before/after report for one normalization operation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: NormalizationMethod
+    normalization_factors: dict[str, float] = Field(default_factory=dict)
+    before: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
+    after: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
+
+
 class MissingValueSummaryEntry(JsonModel):
     """Missing-value counts for one sample within a quant table."""
 
@@ -764,6 +786,48 @@ def export_quant_matrix_tsv(
                     ),
                 ]
             )
+
+
+def _sample_snapshot(
+    table: LabelFreeQuantTable,
+    sample_id: str,
+) -> NormalizationSampleSnapshot:
+    abundances = np.array(
+        [
+            value.abundance
+            for value in table.values
+            if value.sample_id == sample_id and value.abundance is not None
+        ],
+        dtype=float,
+    )
+    if abundances.size == 0:
+        return NormalizationSampleSnapshot(
+            sample_id=sample_id,
+            total_abundance=0.0,
+            median_abundance=0.0,
+            interquartile_range=0.0,
+        )
+    return NormalizationSampleSnapshot(
+        sample_id=sample_id,
+        total_abundance=float(np.sum(abundances)),
+        median_abundance=float(np.median(abundances)),
+        interquartile_range=float(np.percentile(abundances, 75) - np.percentile(abundances, 25)),
+    )
+
+
+def build_normalization_comparison_report(
+    before: LabelFreeQuantTable,
+    after: LabelFreeQuantTable,
+) -> NormalizationComparisonReport:
+    """Build a before/after normalization summary over sample totals and spread."""
+    if before.sample_ids != after.sample_ids or before.entity_ids != after.entity_ids:
+        raise ValueError("before and after tables must cover the same sample/entity grid")
+    return NormalizationComparisonReport(
+        method=after.normalization_method,
+        normalization_factors=after.normalization_factors,
+        before=tuple(_sample_snapshot(before, sample_id) for sample_id in before.sample_ids),
+        after=tuple(_sample_snapshot(after, sample_id) for sample_id in after.sample_ids),
+    )
 
 
 def _log2_values(table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:

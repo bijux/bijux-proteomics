@@ -16,6 +16,7 @@ from bijux_proteomics import (
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_normalization_comparison_report,
     build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
     build_replicate_correlation_report,
@@ -216,6 +217,13 @@ def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -
         for sample_id in quantile.sample_ids
     ]
     assert len(set(quantile_sorted)) == 1
+
+    comparison = build_normalization_comparison_report(table, median)
+    before_totals = [entry.total_abundance for entry in comparison.before]
+    after_medians = [entry.median_abundance for entry in comparison.after]
+    assert comparison.method.value == "median"
+    assert max(before_totals) - min(before_totals) > 0.0
+    assert max(after_medians) - min(after_medians) < 1e-6
 
 
 def test_batch_effect_and_replicate_correlation_reports_are_stable() -> None:
