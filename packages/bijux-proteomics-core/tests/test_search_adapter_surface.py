@@ -8,6 +8,7 @@ from pathlib import Path
 
 from bijux_proteomics import (
     ScoreOrientation,
+    SearchAdapterDialectManifest,
     SearchAdapterKind,
     SearchResultColumnMapping,
     build_search_adapter_capability_matrix,
@@ -36,6 +37,45 @@ def test_search_adapter_registry_exposes_capability_matrix() -> None:
     )
     assert by_kind[SearchAdapterKind.SAGE].supports_q_value is True
     assert by_kind[SearchAdapterKind.GENERIC].supports_config_hash is True
+
+
+def test_search_adapter_extension_dialect_normalizes_without_core_rewrites() -> None:
+    dialect = SearchAdapterDialectManifest(
+        adapter_kind=SearchAdapterKind.SAGE,
+        dialect_id="pipeline-export",
+        display_name="Sage pipeline export",
+        description="Normalize a Sage-like pipeline export with renamed score fields.",
+        native_columns=(
+            "scan_id",
+            "stripped_peptide",
+            "precursor_charge",
+            "score_discriminant",
+            "protein_group",
+            "decoy_flag",
+            "qvalue",
+        ),
+        mapping=SearchResultColumnMapping(
+            spectrum_id="scan_id",
+            peptide="stripped_peptide",
+            charge="precursor_charge",
+            score="score_discriminant",
+            protein_refs="protein_group",
+            q_value="qvalue",
+            decoy_label="decoy_flag",
+            protein_separator=";",
+        ),
+    )
+
+    report = normalize_search_results_with_adapter(
+        source_path=_fixture("sage_pipeline_export.tsv"),
+        adapter_kind=SearchAdapterKind.SAGE,
+        dialect_id="pipeline-export",
+        additional_dialects=(dialect,),
+    )
+
+    assert report.adapter_manifest.display_name == "Sage pipeline export"
+    assert report.normalized_records[0].canonical_peptide == "PEPTIDE"
+    assert report.normalized_records[1].target_decoy_label.value == "decoy"
 
 
 def test_engine_specific_adapters_normalize_psm_contracts() -> None:

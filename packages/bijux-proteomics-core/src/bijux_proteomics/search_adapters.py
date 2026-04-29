@@ -77,6 +77,19 @@ class SearchAdapterManifest(JsonModel):
     supports_config_hash: bool = False
 
 
+class SearchAdapterDialectManifest(JsonModel):
+    """One controlled adapter dialect extension over a base engine family."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_kind: SearchAdapterKind
+    dialect_id: str = Field(..., min_length=1)
+    display_name: str = Field(..., min_length=1)
+    description: str = Field(..., min_length=1)
+    native_columns: tuple[str, ...] = Field(default_factory=tuple)
+    mapping: SearchResultColumnMapping
+
+
 class SearchAdapterCapability(JsonModel):
     """Compact capability row for one search adapter."""
 
@@ -436,6 +449,21 @@ _GENERIC_MANIFEST = SearchAdapterManifest(
 )
 
 
+def _default_dialect_from_manifest(
+    manifest: SearchAdapterManifest,
+) -> SearchAdapterDialectManifest | None:
+    if manifest.mapping is None:
+        return None
+    return SearchAdapterDialectManifest(
+        adapter_kind=manifest.adapter_kind,
+        dialect_id="default",
+        display_name=manifest.display_name,
+        description=manifest.description,
+        native_columns=manifest.native_columns,
+        mapping=manifest.mapping,
+    )
+
+
 def search_adapter_registry() -> dict[SearchAdapterKind, SearchAdapterManifest]:
     """Return the built-in search adapter registry."""
     manifests = (
@@ -450,11 +478,70 @@ def search_adapter_registry() -> dict[SearchAdapterKind, SearchAdapterManifest]:
     return {manifest.adapter_kind: manifest for manifest in manifests}
 
 
+def search_adapter_dialect_registry() -> dict[
+    tuple[SearchAdapterKind, str], SearchAdapterDialectManifest
+]:
+    """Return the built-in search adapter dialect registry."""
+    dialects = [
+        dialect
+        for dialect in (
+            _default_dialect_from_manifest(manifest)
+            for manifest in search_adapter_registry().values()
+        )
+        if dialect is not None
+    ]
+    return {
+        (dialect.adapter_kind, dialect.dialect_id): dialect for dialect in dialects
+    }
+
+
 def get_search_adapter_manifest(
     adapter_kind: SearchAdapterKind,
 ) -> SearchAdapterManifest:
     """Fetch one built-in adapter manifest."""
     return search_adapter_registry()[adapter_kind]
+
+
+def _resolve_search_adapter_dialect(
+    *,
+    adapter_kind: SearchAdapterKind,
+    dialect_id: str,
+    additional_dialects: tuple[SearchAdapterDialectManifest, ...],
+) -> SearchAdapterDialectManifest | None:
+    built_in = search_adapter_dialect_registry()
+    extensions = {
+        (dialect.adapter_kind, dialect.dialect_id): dialect
+        for dialect in additional_dialects
+    }
+    if len(extensions) != len(additional_dialects):
+        raise ValueError("additional adapter dialects must not contain duplicates")
+    key = (adapter_kind, dialect_id)
+    dialect = extensions.get(key) or built_in.get(key)
+    if dialect is None:
+        if adapter_kind is SearchAdapterKind.GENERIC and dialect_id == "default":
+            return None
+        raise ValueError(
+            f"search adapter dialect {dialect_id!r} is not registered for {adapter_kind.value!r}"
+        )
+    return dialect
+
+
+def _manifest_for_dialect(
+    *,
+    adapter_kind: SearchAdapterKind,
+    dialect: SearchAdapterDialectManifest | None,
+) -> SearchAdapterManifest:
+    manifest = get_search_adapter_manifest(adapter_kind)
+    if dialect is None:
+        return manifest
+    return manifest.model_copy(
+        update={
+            "description": dialect.description,
+            "display_name": dialect.display_name,
+            "native_columns": dialect.native_columns,
+            "mapping": dialect.mapping,
+        }
+    )
 
 
 def build_search_adapter_capability_matrix() -> tuple[SearchAdapterCapability, ...]:
@@ -862,12 +949,19 @@ def normalize_search_results_with_adapter(
     *,
     source_path: Path,
     adapter_kind: SearchAdapterKind,
+    dialect_id: str = "default",
     mapping: SearchResultColumnMapping | None = None,
     decoy_policy: TargetDecoyLabelPolicy | None = None,
+    additional_dialects: tuple[SearchAdapterDialectManifest, ...] = (),
 ) -> SearchAdapterNormalizationReport:
     """Normalize one search table with a built-in or user-supplied adapter mapping."""
-    manifest = get_search_adapter_manifest(adapter_kind)
-    resolved_mapping = mapping or manifest.mapping
+    dialect = _resolve_search_adapter_dialect(
+        adapter_kind=adapter_kind,
+        dialect_id=dialect_id,
+        additional_dialects=additional_dialects,
+    )
+    manifest = _manifest_for_dialect(adapter_kind=adapter_kind, dialect=dialect)
+    resolved_mapping = mapping or (None if dialect is None else dialect.mapping) or manifest.mapping
     if resolved_mapping is None:
         raise ValueError(
             "generic adapter normalization requires an explicit column mapping"
