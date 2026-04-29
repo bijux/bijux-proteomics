@@ -64,6 +64,6 @@ def test_package_boundary_docs_keep_escalation_guidance_substantive() -> None:
                     f"{path.relative_to(REPO_ROOT).as_posix()}: boundary failure section needs at least three bullets"
                 )
 
-    assert not failures, (
-        "package boundary escalation guidance failed:\n" + "\n".join(failures)
+    assert not failures, "package boundary escalation guidance failed:\n" + "\n".join(
+        failures
     )

@@ -52,8 +52,8 @@ def test_publishable_packages_do_not_ship_package_local_release_guides() -> None
         for path in [_package_dir(package_name) / "docs" / "maintainer" / "pypi.md"]
         if path.exists()
     ]
-    assert not unexpected, (
-        "unexpected package release guides remain:\n" + "\n".join(unexpected)
+    assert not unexpected, "unexpected package release guides remain:\n" + "\n".join(
+        unexpected
     )
 
 

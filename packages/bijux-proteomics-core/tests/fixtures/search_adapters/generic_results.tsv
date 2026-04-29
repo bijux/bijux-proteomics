@@ -1,0 +1,3 @@
+scan_ref	sequence_text	z	state_score	accessions	decoy_state
+generic-1	PEPTIDE	2	55.0	P12345	target
+generic-2	DECOYPEP	2	12.0	DECOY_P54321	decoy

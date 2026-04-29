@@ -1,0 +1,9 @@
+{
+  "spectrum_id": "scan_ref",
+  "peptide": "sequence_text",
+  "charge": "z",
+  "score": "state_score",
+  "protein_refs": "accessions",
+  "decoy_label": "decoy_state",
+  "protein_separator": ";"
+}

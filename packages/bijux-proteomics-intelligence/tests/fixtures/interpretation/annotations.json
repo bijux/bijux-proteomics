@@ -1,0 +1,66 @@
+[
+  {
+    "protein_ref": "P001",
+    "term_id": "PWY:MAPK",
+    "term_name": "MAPK signaling",
+    "category": "pathway",
+    "source": "fixture:pathway",
+    "confidence": 0.95
+  },
+  {
+    "protein_ref": "P001",
+    "term_id": "COMP:NUC",
+    "term_name": "nucleus",
+    "category": "compartment",
+    "source": "fixture:compartment",
+    "confidence": 0.8
+  },
+  {
+    "protein_ref": "P002",
+    "term_id": "PWY:STRESS",
+    "term_name": "stress response",
+    "category": "pathway",
+    "source": "fixture:pathway",
+    "confidence": 0.9
+  },
+  {
+    "protein_ref": "P003",
+    "term_id": "PWY:MAPK",
+    "term_name": "MAPK signaling",
+    "category": "pathway",
+    "source": "fixture:pathway",
+    "confidence": 0.93
+  },
+  {
+    "protein_ref": "P003",
+    "term_id": "COMP:CYT",
+    "term_name": "cytoplasm",
+    "category": "compartment",
+    "source": "fixture:compartment",
+    "confidence": 0.78
+  },
+  {
+    "protein_ref": "P11111",
+    "term_id": "KIN:ERK",
+    "term_name": "ERK substrate program",
+    "category": "kinase",
+    "source": "fixture:kinase",
+    "confidence": 0.92
+  },
+  {
+    "protein_ref": "P11111",
+    "term_id": "PWY:MAPK",
+    "term_name": "MAPK signaling",
+    "category": "pathway",
+    "source": "fixture:pathway",
+    "confidence": 0.9
+  },
+  {
+    "protein_ref": "P22222",
+    "term_id": "KIN:CK2",
+    "term_name": "CK2 substrate program",
+    "category": "kinase",
+    "source": "fixture:kinase",
+    "confidence": 0.88
+  }
+]

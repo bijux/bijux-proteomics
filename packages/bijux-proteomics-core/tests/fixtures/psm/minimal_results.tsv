@@ -1,0 +1,4 @@
+spectrum_id	peptide	charge	score	q_value	proteins
+scan=1001	PEPTIDE	2	50.2	0.01	P12345
+scan=1002	ACDM[Oxidation]K	3	48.7	0.015	P12345;Q22222
+scan=1003	DECOYPEP	2	42.1	0.05	DECOY_P99999

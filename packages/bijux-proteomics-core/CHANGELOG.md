@@ -4,9 +4,45 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 
 ## Unreleased
 
+### Added
+
+- Added strict and permissive FASTA parsing, protein normalization, sequence validation, normalized sequence checksums, FASTA deduplication, filtering, stats, provenance manifests, decoy generation, and target-decoy validation in `bijux_proteomics.sequences`.
+- Added CLI surfaces for FASTA parsing, stats, deduplication, filtering, provenance manifests, sequence checksums, decoy generation, and target-decoy validation.
+- Added protease registry contracts, full/semi-specific/non-specific digestion, missed-cleavage support, peptide length and mass filtering, uniqueness classification, and peptide-to-protein indexing in `bijux_proteomics.digestion`.
+- Added digest manifests, stable TSV/JSONL exports, optional Parquet export, reproducibility fingerprints, benchmark reporting, and the `bijux-proteomics digest` CLI workflow with explicit diagnostics.
+- Added peptide chemistry contracts for monoisotopic and average mass calculation, precursor m/z, fragment ions, neutral losses, static and variable modification models, modification registries, registry-file validation, and modified-peptide parsing in `bijux_proteomics.chemistry`.
+- Added modified-peptide canonicalization, site-validation reports, charge-state models, isotope-envelope approximation, localization advisory output, checked chemistry regression fixtures, and the `bijux-proteomics peptide-mass` CLI workflow.
+- Added search-result identification contracts for PSM parsing, engine column mapping, validation, target-decoy labeling, stable JSONL export, sorting, best-spectrum-hit selection, and peptide/protein evidence rollups in `bijux_proteomics.identification`.
+- Added basic target-decoy FDR, monotonic q-value assignment, threshold filtering, PSM/peptide/protein summary reporting, provenance manifests, stable TSV export, and the `bijux-proteomics psm-inspect` and `bijux-proteomics fdr` CLI workflows.
+- Added spectrum contracts for MGF parsing/rendering, peak normalization and filtering, TIC/base-peak metrics, precursor mass error, fragment annotation, TSV annotation export, and plot payload generation in `bijux_proteomics.spectra`.
+- Added spectral similarity scoring, parser line diagnostics, spectrum provenance manifests, `spectrum-stats`, `spectrum-annotate`, `validate`, and `summarize` CLI workflows, and a checked first useful proteomics run fixture pack plus walkthrough documentation.
+- Added mzML parsing, mzML metadata extraction, binary-array validation, streaming-spectrum iteration, format detection, design-table validation, normalized format conversion, run-bundle materialization, and ingestion documentation in `bijux_proteomics.formats`.
+- Added typed search-engine adapter manifests, built-in Comet/MSFragger/Sage/MaxQuant/DIA-NN/Spectronaut normalization, generic mapped search-table support, adapter capability reporting, adapter provenance manifests, and search-adapter CLI workflows in `bijux_proteomics.search_adapters`.
+- Added search-parameter parsing for Comet, MSFragger, and Sage configs, config validation, adapter comparability reports, conformance reports, score-orientation normalization, calibration plot export, and FDR audit/reproducibility surfaces.
+- Added multi-level and grouped FDR reporting, picked protein FDR, protein grouping, greedy parsimony inference, razor assignment, sequence-aware coverage, database peptide uniqueness, confidence labels, and the `bijux-proteomics infer-proteins` CLI workflow.
+- Added label-free quantification contracts for MS1 feature parsing, peptide/protein intensity tables, spectral counting, missing-value states, TIC/median/quantile normalization, batch-effect advisories, replicate correlations, differential abundance, Benjamini-Hochberg correction, and the `bijux-proteomics quantify` CLI workflow.
+- Added PTM localization contracts for evidence parsing, peptide-to-protein site mapping, site tables, ambiguity reporting, site-level FDR, occupancy estimation, motif windows, enrichment export, and the `bijux-proteomics ptm summarize` CLI workflow.
+- Added LC-MS run QC contracts for spectrum counts, identification rates, precursor mass-error summaries, retention-time coverage, charge distributions, missed-cleavage rates, contaminant burden, digestion specificity, and batch-level outlier reporting.
+- Added QC threshold policies, run and batch assessments, QC evidence manifests, performance benchmark snapshots, a production-style fixture pack, and the `bijux-proteomics qc report` CLI workflow with JSON, TSV, HTML, and manifest outputs.
+- Added workflow-runtime planning contracts for proteomics manifests, DAG projection, container step specs, external search-tool contracts, HPC job export, cache manifests, artifact registries, large-file streaming policy, checkpoints, and the `bijux-proteomics workflow-plan` CLI workflow.
+
 ### Changed
 
-- No unreleased changes yet.
+- Exported the new FASTA and sequence-operation contracts through the package public API and README examples.
+- Exported the new peptide chemistry and modification contracts through the package public API and README examples.
+- Exported the new search-result identification contracts through the package public API and README examples.
+- Expanded the README identification examples to cover thresholded FDR filtering, provenance manifests, and CLI inspection/export workflows.
+- Expanded the README package examples to cover spectrum parsing, annotation, and plot payload generation.
+- Expanded package docs with spectrum CLI examples and a copy-paste first useful proteomics run guide.
+- Expanded package docs with mzML ingestion, design-table validation, format conversion, and normalized run-bundle examples.
+- Expanded package docs with search-adapter inspection, normalization, and provenance workflows.
+- Expanded package docs with search-parameter parsing, config validation, adapter comparison, conformance, and FDR-audit workflows.
+- Expanded package docs with protein inference workflows covering multi-level FDR, grouping, parsimony, picked protein FDR, and coverage interpretation.
+- Expanded package docs with a dedicated quantification workflow note covering input tables, design metadata, output semantics, and operator CLI usage.
+- Expanded package docs with a dedicated PTM workflow note covering localized evidence parsing, site aggregation, motif extraction, occupancy, and CLI usage.
+- Expanded the README package examples to cover run-level LC-MS QC and batch outlier diagnostics.
+- Expanded package docs with a QC operator guide covering threshold interpretation, advisory versus enforced labels, evidence manifests, and failed-run diagnosis.
+- Expanded package docs with a workflow runtime planning guide covering manifest semantics, DAG projection, cache and artifact lineage, scheduler export, and checkpoint behavior.
 
 ## 0.3.7 - 2026-04-21
 

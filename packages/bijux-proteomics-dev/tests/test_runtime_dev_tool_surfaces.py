@@ -4,7 +4,12 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 TOOLS_ROOT = (
-    REPO_ROOT / "packages" / "bijux-proteomics-dev" / "src" / "bijux_proteomics_dev" / "tools"
+    REPO_ROOT
+    / "packages"
+    / "bijux-proteomics-dev"
+    / "src"
+    / "bijux_proteomics_dev"
+    / "tools"
 )
 
 
@@ -37,7 +42,9 @@ def test_minimal_repro_example_uses_canonical_biology_imports() -> None:
 def test_manage_examples_uses_canonical_runtime_user_agent() -> None:
     text = _tool_text("manage_examples.py")
     assert "agentic-proteins-example-prep" not in text
-    assert 'USER_AGENT = "bijux-proteomics-example-prep/1.0 (+https://rcsb.org)"' in text
+    assert (
+        'USER_AGENT = "bijux-proteomics-example-prep/1.0 (+https://rcsb.org)"' in text
+    )
 
 
 def test_manage_models_uses_canonical_esmfold_image_tag() -> None:

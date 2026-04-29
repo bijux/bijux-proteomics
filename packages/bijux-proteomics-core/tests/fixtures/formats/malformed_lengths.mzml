@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mzML xmlns="http://psi.hupo.org/ms/mzml" version="1.1.0">
+  <run id="RUN_BAD" startTimeStamp="2026-04-29T11:00:00Z">
+    <spectrumList count="1">
+      <spectrum id="scan=7001" index="0" defaultArrayLength="2">
+        <scanList count="1">
+          <scan>
+            <cvParam accession="MS:1000016" name="scan start time" value="50.0" unitName="second" />
+          </scan>
+        </scanList>
+        <precursorList count="1">
+          <precursor spectrumRef="scan=7000">
+            <selectedIonList count="1">
+              <selectedIon>
+                <cvParam accession="MS:1000744" name="selected ion m/z" value="410.2" />
+                <cvParam accession="MS:1000041" name="charge state" value="2" />
+              </selectedIon>
+            </selectedIonList>
+          </precursor>
+        </precursorList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="24">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAAAAWUAAAAAAAMBiQA==</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="12">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAAAANEA=</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+    </spectrumList>
+  </run>
+</mzML>

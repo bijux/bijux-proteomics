@@ -66,6 +66,7 @@ nav:
           - Documentation System: 01-bijux-proteomics/foundation/documentation-system.md
           - Change Principles: 01-bijux-proteomics/foundation/change-principles.md
           - Decision Rules: 01-bijux-proteomics/foundation/decision-rules.md
+          - Scientific Workflow Roadmap: 01-bijux-proteomics/foundation/scientific-workflow-roadmap.md
       - Operations:
           - Operations: 01-bijux-proteomics/operations/index.md
           - Local Development: 01-bijux-proteomics/operations/local-development.md

@@ -1,0 +1,10 @@
+{
+  "spectrum_id": "scannr",
+  "peptide": "peptide",
+  "charge": "charge",
+  "score": "discriminant_score",
+  "protein_refs": "proteins",
+  "q_value": "q_value",
+  "decoy_label": "label",
+  "protein_separator": ";"
+}

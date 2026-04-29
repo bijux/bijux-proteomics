@@ -16,6 +16,7 @@ from bijux_proteomics_runtime.providers.heuristic import HeuristicStructureProvi
 __all__ = [
     "PROVIDER_CAPABILITIES",
     "_require_module",
+    "cuda_available",
     "create_provider",
     "provider_requirements",
 ]
@@ -53,9 +54,7 @@ def create_provider(name: str) -> BaseProvider:
     if name == HeuristicStructureProvider.name:
         return HeuristicStructureProvider()
     if name == "local_esmfold":
-        _require_module(
-            "torch", "pip install bijux-proteomics-runtime[local-esmfold]"
-        )
+        _require_module("torch", "pip install bijux-proteomics-runtime[local-esmfold]")
         _require_module(
             "transformers", "pip install bijux-proteomics-runtime[local-esmfold]"
         )

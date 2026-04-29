@@ -37,6 +37,7 @@ dependencies = [
   "pydantic>=2.0.2",
   "numpy>=1.26,<3.0",
   "biopython>=1.83",
+  "defusedxml>=0.7.1,<1.0",
   "loguru>=0.7",
   "bijux-proteomics-foundation>=0.3.6",
 ]
@@ -51,6 +52,11 @@ Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.scripts]
 bijux-proteomics = "bijux_proteomics.interfaces.cli:cli"
+
+[project.optional-dependencies]
+parquet = [
+  "pyarrow>=16,<20",
+]
 
 [tool.hatch.version]
 source = "vcs"
@@ -71,3 +77,12 @@ packages = ["src/bijux_proteomics"]
 
 [tool.hatch.build.targets.wheel.package-data]
 "bijux_proteomics" = ["py.typed"]
+
+[tool.pytest.ini_options]
+markers = [
+  "unit: marks package-level unit tests",
+]
+
+[tool.interrogate]
+fail-under = 32
+color = true

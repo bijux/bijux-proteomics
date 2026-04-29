@@ -57,6 +57,6 @@ def test_nested_compat_init_modules_must_be_forwarding_only() -> None:
             tree, policy.compat_forwarding.forwarding_target_prefixes
         ):
             failures.append(str(path.relative_to(REPO_ROOT)))
-    assert not failures, "nested compat __init__ modules must forward only:\n" + "\n".join(
-        failures
+    assert not failures, (
+        "nested compat __init__ modules must forward only:\n" + "\n".join(failures)
     )

@@ -5,13 +5,15 @@ from bijux_proteomics_runtime.core.api_lock import (
     DEPRECATED_EXTENSIONS,
     DO_NOT_EXTEND_ZONES,
 )
-from bijux_proteomics_runtime.core.stability import STABILITY_EXPECTATIONS, StabilityLevel
+from bijux_proteomics_runtime.core.stability import (
+    STABILITY_EXPECTATIONS,
+    StabilityLevel,
+)
 
 
 def test_runtime_stability_marks_canonical_public_modules_stable() -> None:
     assert (
-        STABILITY_EXPECTATIONS["bijux_proteomics_runtime.api"]
-        == StabilityLevel.STABLE
+        STABILITY_EXPECTATIONS["bijux_proteomics_runtime.api"] == StabilityLevel.STABLE
     )
     assert (
         STABILITY_EXPECTATIONS["bijux_proteomics_runtime.interfaces"]

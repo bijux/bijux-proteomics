@@ -94,7 +94,9 @@ def test_maintainer_scope_doc_has_owned_surfaces_and_routing_sections() -> None:
 
 
 def test_runtime_boundary_doc_has_escalation_section() -> None:
-    path = REPO_ROOT / "packages" / "bijux-proteomics-runtime" / "docs" / "BOUNDARIES.md"
+    path = (
+        REPO_ROOT / "packages" / "bijux-proteomics-runtime" / "docs" / "BOUNDARIES.md"
+    )
     text = path.read_text(encoding="utf-8")
     expected_bits = [
         "## Escalation signals",

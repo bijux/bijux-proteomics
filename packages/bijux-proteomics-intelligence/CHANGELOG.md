@@ -4,9 +4,17 @@ All notable changes for `bijux-proteomics-intelligence` are recorded here.
 
 ## Unreleased
 
+### Added
+
+- Added typed proteomics interpretation contracts for run summaries,
+  differential-abundance interpretation, PTM interpretation, contaminant and
+  artifact intelligence, contrast recommendation, missingness analysis, outlier
+  explanation, overrepresentation enrichment, and ranked enrichment.
+
 ### Changed
 
-- No unreleased changes yet.
+- Expanded package documentation with a dedicated interpretation workflow guide
+  and README coverage for the new intelligence surface.
 
 ## 0.3.7 - 2026-04-21
 

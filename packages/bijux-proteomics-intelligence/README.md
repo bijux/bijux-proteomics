@@ -44,6 +44,11 @@ replace it. Intelligence explains readiness and recommendation pressure, but it
 does not define workflow stages or pretend ranking alone is the whole
 proteomics engine.
 
+It also now provides typed proteomics interpretation helpers that sit on top of
+`bijux-proteomics-core` evidence surfaces when you need deterministic summaries
+for QC posture, differential abundance, PTM interpretation, enrichment, and
+operator-facing review notes.
+
 ## Why teams pick this package
 
 - policy-first ranking and recommendation outputs with traceable decision rationale
@@ -57,6 +62,8 @@ proteomics engine.
 - generate scenario recommendations for advancement or redesign
 - produce explainable shortlists for expert review boards
 - aggregate portfolio-level signals for sequencing and prioritization
+- interpret proteomics QC, quantification, PTM, and enrichment outputs into
+  typed biological review artifacts
 
 ## Installation
 
@@ -70,15 +77,30 @@ pip install bijux-proteomics-intelligence
 from bijux_proteomics_intelligence import briefs, policies, evaluators
 ```
 
+For proteomics evidence interpretation:
+
+```python
+from bijux_proteomics_intelligence import (
+    build_run_interpretation_summary,
+    interpret_differential_abundance,
+    interpret_ptm_sites,
+)
+```
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-intelligence`
 - Import root: `bijux_proteomics_intelligence`
-- Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`, and `outcomes`
+- Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`,
+  `outcomes`, and `interpretation`
 
 ## Package boundaries
 
 This package owns decision intelligence, ranking policy, scenario scoring, and explainability outputs.
+
+It also owns deterministic interpretation contracts over already-typed
+proteomics evidence when those summaries belong at the intelligence layer
+rather than in raw scientific parsing or runtime execution.
 
 It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
 
@@ -158,6 +180,7 @@ parallel workflow story of its own.
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
 - [`src/bijux_proteomics_intelligence/policies.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py) for ranking and decision policy models
 - [`src/bijux_proteomics_intelligence/evaluators.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py) for scenario and portfolio evaluators
+- [`src/bijux_proteomics_intelligence/interpretation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation.py) for run summaries, proteomics interpretation, and enrichment contracts
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
 
 ## Documentation
@@ -167,3 +190,4 @@ parallel workflow story of its own.
 - [Architecture overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
 - [Interface contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/)
 - [Release and versioning](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/operations/release-and-versioning/)
+- [Interpretation workflows](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/docs/INTERPRETATION.md)

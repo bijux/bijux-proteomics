@@ -1,0 +1,4 @@
+scannr	peptide	charge	discriminant_score	proteins	label	q_value
+scan-bad-1	PEPTIDE	2		P12345	target	0.002
+scan-bad-2	PEPTIDER	2	65.0	P12345	decoy	not-a-number
+scan-bad-3	PEPTIDEM	3	60.0		mystery	0.010

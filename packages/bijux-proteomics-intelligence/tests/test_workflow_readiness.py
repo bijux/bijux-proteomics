@@ -76,9 +76,7 @@ def test_summarize_workflow_readiness_surfaces_missing_assay_and_reviews() -> No
     assert summary.blocking_review_gate_ids == ["review-pre-synthesis"]
     assert summary.blocked_step_count >= 2
     blocked = {
-        step.step_id: step.blockers
-        for step in summary.step_statuses
-        if not step.ready
+        step.step_id: step.blockers for step in summary.step_statuses if not step.ready
     }
     assert "prog-1-assay-execution" in blocked
     assert "blocking_assay:assay-primary-binding" in blocked["prog-1-assay-execution"]

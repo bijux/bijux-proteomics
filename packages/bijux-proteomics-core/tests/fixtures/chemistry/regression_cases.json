@@ -1,0 +1,26 @@
+[
+  {
+    "notation": "M[Oxidation]PEPTIDE",
+    "canonical_notation": "M[Oxidation]PEPTIDE",
+    "monoisotopic_mass": 946.395345,
+    "average_mass": 947.02478,
+    "charge": 2,
+    "mz": 474.20494896681205
+  },
+  {
+    "notation": "[Acetyl]-PEPTIDEK-[Amidated]",
+    "canonical_notation": "[Acetyl]-PEPTIDEK-[Amidated]",
+    "monoisotopic_mass": 968.4814490000001,
+    "average_mass": 969.05878,
+    "charge": 3,
+    "mz": 323.8344261334787
+  },
+  {
+    "notation": "ACDM[+15.994915]K",
+    "canonical_notation": "ACDM[Oxidation]K",
+    "monoisotopic_mass": 582.214165,
+    "average_mass": 582.683095,
+    "charge": 2,
+    "mz": 292.114358966812
+  }
+]

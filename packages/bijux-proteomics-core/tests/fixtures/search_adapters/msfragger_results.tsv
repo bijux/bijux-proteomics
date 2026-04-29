@@ -1,0 +1,3 @@
+Spectrum	Peptide	Charge	Hyperscore	Protein	IsDecoy
+fragger-1	PEPTIDEK	2	125.0	P11111	0
+fragger-2	DECOYMOD	3	77.2	DECOY_Q22222	1

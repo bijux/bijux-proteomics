@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 
@@ -11,3 +13,8 @@ def pytest_collection_modifyitems(
 ) -> None:
     for item in items:
         item.add_marker(pytest.mark.unit)
+
+
+@pytest.fixture
+def fasta_fixture_dir() -> Path:
+    return Path(__file__).parent / "fixtures" / "fasta"

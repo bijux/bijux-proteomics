@@ -1,0 +1,5 @@
+spectrum_id	peptide	charge	score	q_value	proteins
+	PEPTIDE	2	50.2	0.01	P12345
+scan=3002		2	49.0	0.02	P12345
+scan=3003	PEPTIDE	0	40.1	0.04	P12345
+scan=3004	PEPTIDE	X	abc	0.05	DECOY_P99999

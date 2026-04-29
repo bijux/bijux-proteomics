@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import shutil
 
 from click.testing import CliRunner
 
@@ -44,3 +45,948 @@ def test_program_template_writes_manifest() -> None:
         assert payload["program_id"] == "prog-1"
         manifest = json.loads(Path("program.json").read_text())
         assert manifest["document_schema"]["schema_version"] == "1.0.0"
+
+
+def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+        shutil.copy(fasta_fixture_dir / "dedup_input.fasta", "dedup.fasta")
+
+        parse_result = runner.invoke(
+            cli, ["fasta-parse", "valid.fasta", "--mode", "strict"]
+        )
+        assert parse_result.exit_code == 0
+        parse_payload = json.loads(parse_result.output)
+        assert parse_payload["total_records"] == 3
+
+        stats_result = runner.invoke(
+            cli, ["fasta-stats", "dedup.fasta", "--mode", "permissive"]
+        )
+        assert stats_result.exit_code == 0
+        stats_payload = json.loads(stats_result.output)
+        assert stats_payload["duplicate_sequence_count"] == 2
+
+        dedup_result = runner.invoke(
+            cli,
+            [
+                "fasta-dedup",
+                "dedup.fasta",
+                "--mode",
+                "permissive",
+                "--out-fasta",
+                "deduped.fasta",
+            ],
+        )
+        assert dedup_result.exit_code == 0
+        dedup_payload = json.loads(dedup_result.output)
+        assert dedup_payload["output_records"] == 2
+        assert Path("deduped.fasta").read_text().count(">") == 2
+
+        filter_result = runner.invoke(
+            cli,
+            [
+                "fasta-filter",
+                "dedup.fasta",
+                "--mode",
+                "permissive",
+                "--organism",
+                "Homo sapiens",
+                "--exclude-contaminants",
+                "--out-fasta",
+                "filtered.fasta",
+            ],
+        )
+        assert filter_result.exit_code == 0
+        filter_payload = json.loads(filter_result.output)
+        assert filter_payload["excluded_as_contaminant"] == 1
+        assert "CON__CRAP" not in Path("filtered.fasta").read_text()
+
+        provenance_result = runner.invoke(
+            cli,
+            [
+                "fasta-provenance",
+                "valid.fasta",
+                "--mode",
+                "strict",
+                "--out",
+                "provenance.json",
+            ],
+        )
+        assert provenance_result.exit_code == 0
+        provenance_payload = json.loads(Path("provenance.json").read_text())
+        assert (
+            provenance_payload["document_schema"]["document_kind"]
+            == "fasta_provenance_manifest"
+        )
+
+        decoy_result = runner.invoke(
+            cli,
+            [
+                "fasta-decoy",
+                "valid.fasta",
+                "--mode",
+                "strict",
+                "--decoy-mode",
+                "reverse",
+                "--out-fasta",
+                "target_decoy.fasta",
+            ],
+        )
+        assert decoy_result.exit_code == 0
+        decoy_payload = json.loads(decoy_result.output)
+        assert decoy_payload["valid"] is True
+        assert Path("target_decoy.fasta").read_text().count(">") == 6
+
+
+def test_sequence_checksum_and_target_decoy_validate_commands(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        checksum_result = runner.invoke(
+            cli,
+            ["sequence-checksum", "--sequence", " acd ef "],
+        )
+        assert checksum_result.exit_code == 0
+        checksum_payload = json.loads(checksum_result.output)
+        assert checksum_payload["normalized_sequence"] == "ACDEF"
+        assert len(checksum_payload["sequence_checksum"]) == 64
+
+        shutil.copy(
+            fasta_fixture_dir / "target_decoy_valid.fasta", "target_decoy_valid.fasta"
+        )
+        validation_result = runner.invoke(
+            cli,
+            ["target-decoy-validate", "target_decoy_valid.fasta"],
+        )
+        assert validation_result.exit_code == 0
+        validation_payload = json.loads(validation_result.output)
+        assert validation_payload["valid"] is True
+
+
+def test_digest_command_writes_export_and_manifest(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "valid.fasta",
+                "--protease",
+                "trypsin",
+                "--missed-cleavages",
+                "1",
+                "--digestion-mode",
+                "full",
+                "--min-length",
+                "3",
+                "--format",
+                "jsonl",
+                "--out",
+                "peptides.jsonl",
+                "--manifest-out",
+                "digest.manifest.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["protease"] == "trypsin"
+        assert payload["output_peptide_count"] > 0
+        assert Path("peptides.jsonl").exists()
+        manifest = json.loads(Path("digest.manifest.json").read_text())
+        assert manifest["document_schema"]["document_kind"] == "peptide_digest_manifest"
+
+
+def test_digest_command_reports_invalid_protease_and_invalid_fasta(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "mixed_quality.fasta", "mixed_quality.fasta")
+
+        invalid_protease = runner.invoke(
+            cli,
+            [
+                "digest",
+                "mixed_quality.fasta",
+                "--protease",
+                "not-a-protease",
+                "--out",
+                "peptides.tsv",
+            ],
+        )
+        assert invalid_protease.exit_code != 0
+        assert "unknown protease rule" in invalid_protease.output
+
+        invalid_fasta = runner.invoke(
+            cli,
+            [
+                "digest",
+                "mixed_quality.fasta",
+                "--protease",
+                "trypsin",
+                "--mode",
+                "strict",
+                "--out",
+                "peptides.tsv",
+            ],
+        )
+        assert invalid_fasta.exit_code != 0
+        assert "rejected records" in invalid_fasta.output
+
+
+def test_digest_command_reports_invalid_output_path(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "valid.fasta",
+                "--protease",
+                "trypsin",
+                "--out",
+                "missing/peptides.tsv",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "No such file or directory" in result.output
+
+
+def test_peptide_mass_command_reports_mass_fragments_and_localization() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-mass",
+                "PESTIDE",
+                "--mod",
+                "Phospho@3",
+                "--charge",
+                "2",
+                "--include-neutral-losses",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["canonical_notation"] == "PES[Phospho]TIDE"
+        assert payload["charge_state"]["charge"] == 2
+        assert payload["fragment_ion_count"] > 0
+        assert payload["localization"]["status"] == "advisory"
+
+
+def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-mass",
+                "PEPTIDE",
+                "--mod",
+                "Phospho@1",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "not valid on residue" in result.output
+
+
+def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv"
+        shutil.copy(source, "results.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "psm-inspect",
+                "results.tsv",
+                "--jsonl-out",
+                "normalized.jsonl",
+                "--tsv-out",
+                "normalized.tsv",
+                "--provenance-out",
+                "provenance.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 3
+        assert payload["psm_summary"]["decoy_psms"] == 1
+        assert Path("normalized.jsonl").exists()
+        assert Path("normalized.tsv").exists()
+        manifest = json.loads(Path("provenance.json").read_text())
+        assert (
+            manifest["document_schema"]["document_kind"]
+            == "search_result_provenance_manifest"
+        )
+
+
+def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "psm" / "fdr_results.tsv"
+        shutil.copy(source, "fdr.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "fdr.tsv",
+                "--threshold",
+                "0.5",
+                "--jsonl-out",
+                "accepted.jsonl",
+                "--provenance-out",
+                "fdr.provenance.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["threshold"] == 0.5
+        assert payload["accepted_psms"] == 3
+        assert Path("accepted.jsonl").exists()
+        manifest = json.loads(Path("fdr.provenance.json").read_text())
+        assert manifest["fdr_policy"]["threshold"] == 0.5
+
+
+def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "spectra" / "multi.mgf"
+        shutil.copy(source, "multi.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-stats",
+                "multi.mgf",
+                "--provenance-out",
+                "multi.provenance.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["spectrum_count"] == 2
+        assert payload["metrics"][0]["peak_count"] >= 1
+        provenance = json.loads(Path("multi.provenance.json").read_text())
+        assert (
+            provenance["document_schema"]["document_kind"]
+            == "spectrum_provenance_manifest"
+        )
+
+
+def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "spectra" / "simple.mgf"
+        shutil.copy(source, "simple.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-annotate",
+                "simple.mgf",
+                "--peptide",
+                "PEPTIDE",
+                "--tsv-out",
+                "annotation.tsv",
+                "--plot-out",
+                "plot.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert (
+            payload["annotation"]["document_schema"]["document_kind"]
+            == "spectrum_annotation"
+        )
+        assert payload["annotation"]["matches"]
+        assert Path("annotation.tsv").exists()
+        assert Path("plot.json").exists()
+
+
+def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv",
+            "results.tsv",
+        )
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "spectra" / "simple.mgf", "simple.mgf"
+        )
+        shutil.copy(
+            Path(__file__).parent
+            / "fixtures"
+            / "modifications"
+            / "valid_registry.json",
+            "registry.json",
+        )
+
+        fasta_result = runner.invoke(
+            cli, ["validate", "valid.fasta", "--kind", "fasta"]
+        )
+        psm_result = runner.invoke(cli, ["validate", "results.tsv", "--kind", "psm"])
+        mgf_result = runner.invoke(cli, ["validate", "simple.mgf", "--kind", "mgf"])
+        registry_result = runner.invoke(
+            cli, ["validate", "registry.json", "--kind", "mod-registry"]
+        )
+
+        assert fasta_result.exit_code == 0
+        assert json.loads(fasta_result.output)["valid"] is True
+        assert psm_result.exit_code == 0
+        assert json.loads(psm_result.output)["valid"] is True
+        assert mgf_result.exit_code == 0
+        assert json.loads(mgf_result.output)["valid"] is True
+        assert registry_result.exit_code == 0
+        assert (
+            json.loads(registry_result.output)["summary"]["variable_modifications"] >= 1
+        )
+
+
+def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv",
+            "results.tsv",
+        )
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "spectra" / "multi.mgf", "multi.mgf"
+        )
+
+        fasta_result = runner.invoke(
+            cli, ["summarize", "valid.fasta", "--kind", "fasta"]
+        )
+        psm_result = runner.invoke(cli, ["summarize", "results.tsv", "--kind", "psm"])
+        mgf_result = runner.invoke(cli, ["summarize", "multi.mgf", "--kind", "mgf"])
+
+        assert fasta_result.exit_code == 0
+        assert json.loads(fasta_result.output)["summary"]["total_records"] == 3
+        assert psm_result.exit_code == 0
+        assert json.loads(psm_result.output)["psm_summary"]["total_psms"] == 3
+        assert mgf_result.exit_code == 0
+        assert json.loads(mgf_result.output)["summary"]["spectrum_count"] == 2
+
+
+def test_validate_and_summarize_commands_support_mzml_and_design_tables() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "formats" / "simple.mzml",
+            "simple.mzml",
+        )
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "formats" / "valid.design.tsv",
+            "design.tsv",
+        )
+
+        validate_mzml = runner.invoke(
+            cli, ["validate", "simple.mzml", "--kind", "mzml"]
+        )
+        summarize_mzml = runner.invoke(
+            cli, ["summarize", "simple.mzml", "--kind", "mzml"]
+        )
+        validate_design = runner.invoke(
+            cli, ["validate", "design.tsv", "--kind", "design-table"]
+        )
+        summarize_design = runner.invoke(
+            cli, ["summarize", "design.tsv", "--kind", "design-table"]
+        )
+
+        assert validate_mzml.exit_code == 0
+        assert json.loads(validate_mzml.output)["detected_format"] == "mzml"
+        assert summarize_mzml.exit_code == 0
+        assert json.loads(summarize_mzml.output)["metadata"]["run_id"] == "RUN_001"
+        assert validate_design.exit_code == 0
+        assert json.loads(validate_design.output)["detected_format"] == "design-table"
+        assert summarize_design.exit_code == 0
+        assert json.loads(summarize_design.output)["accepted_entries"] == 1
+
+
+def test_format_convert_and_bundle_run_commands_materialize_normalized_outputs() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "formats" / "simple.mzml",
+            "simple.mzml",
+        )
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "formats" / "valid.design.tsv",
+            "design.tsv",
+        )
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "first_useful_run" / "results.tsv",
+            "results.tsv",
+        )
+
+        convert_result = runner.invoke(
+            cli,
+            [
+                "format-convert",
+                "simple.mzml",
+                "--kind",
+                "mzml",
+                "--to",
+                "mgf",
+                "--out",
+                "converted.mgf",
+            ],
+        )
+        bundle_result = runner.invoke(
+            cli,
+            [
+                "bundle-run",
+                "--spectra",
+                "simple.mzml",
+                "--identifications",
+                "results.tsv",
+                "--design",
+                "design.tsv",
+                "--out-dir",
+                "bundle",
+            ],
+        )
+
+        assert convert_result.exit_code == 0
+        assert json.loads(convert_result.output)["written_record_count"] == 2
+        assert Path("converted.mgf").exists()
+        assert "BEGIN IONS" in Path("converted.mgf").read_text()
+        assert bundle_result.exit_code == 0
+        bundle_manifest = json.loads(bundle_result.output)
+        assert bundle_manifest["spectrum_count"] == 2
+        assert bundle_manifest["psm_count"] == 2
+        assert Path("bundle/bundle.manifest.json").exists()
+
+
+def test_search_adapter_inspect_and_normalize_commands_work() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "search_adapters"
+        shutil.copy(fixture_dir / "sage_results.tsv", "sage_results.tsv")
+        shutil.copy(fixture_dir / "sage_config.json", "sage_config.json")
+        shutil.copy(fixture_dir / "generic_results.tsv", "generic_results.tsv")
+        shutil.copy(fixture_dir / "generic_mapping.json", "generic_mapping.json")
+
+        inspect_result = runner.invoke(
+            cli, ["search-adapter", "inspect", "--adapter", "sage"]
+        )
+        matrix_result = runner.invoke(cli, ["search-adapter", "inspect"])
+        normalize_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "normalize",
+                "sage",
+                "sage_results.tsv",
+                "--adapter-version",
+                "0.16.0",
+                "--config",
+                "sage_config.json",
+                "--jsonl-out",
+                "sage.jsonl",
+                "--provenance-out",
+                "sage.provenance.json",
+            ],
+        )
+        generic_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "normalize",
+                "generic",
+                "generic_results.tsv",
+                "--mapping-json",
+                "generic_mapping.json",
+            ],
+        )
+
+        assert inspect_result.exit_code == 0
+        assert json.loads(inspect_result.output)["adapter_kind"] == "sage"
+        assert matrix_result.exit_code == 0
+        assert any(
+            row["adapter_kind"] == "comet"
+            for row in json.loads(matrix_result.output)["capabilities"]
+        )
+        assert normalize_result.exit_code == 0
+        normalize_payload = json.loads(normalize_result.output)
+        assert normalize_payload["accepted_rows"] == 2
+        assert Path("sage.jsonl").exists()
+        assert Path("sage.provenance.json").exists()
+        assert generic_result.exit_code == 0
+        assert json.loads(generic_result.output)["adapter"]["adapter_kind"] == "generic"
+
+
+def test_search_adapter_params_compare_and_conformance_commands_work() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "search_adapters"
+        shutil.copy(fixture_dir / "comet.params", "comet.params")
+        shutil.copy(fixture_dir / "comet_invalid.params", "comet_invalid.params")
+        shutil.copy(fixture_dir / "sage_results.tsv", "sage_results.tsv")
+        shutil.copy(fixture_dir / "sage_mapping.json", "sage_mapping.json")
+        shutil.copy(fixture_dir / "sage_malformed.tsv", "sage_malformed.tsv")
+
+        params_result = runner.invoke(
+            cli,
+            ["search-adapter", "params", "comet", "comet.params"],
+        )
+        validate_result = runner.invoke(
+            cli,
+            ["search-adapter", "validate-config", "comet", "comet_invalid.params"],
+        )
+        compare_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "compare",
+                "sage",
+                "sage_results.tsv",
+                "generic",
+                "sage_results.tsv",
+                "--right-mapping-json",
+                "sage_mapping.json",
+            ],
+        )
+        conformance_result = runner.invoke(
+            cli,
+            [
+                "search-adapter",
+                "conformance",
+                "sage",
+                "sage_malformed.tsv",
+            ],
+        )
+
+        assert params_result.exit_code == 0
+        assert json.loads(params_result.output)["enzyme"] == "trypsin"
+        assert validate_result.exit_code == 0
+        validate_payload = json.loads(validate_result.output)
+        assert validate_payload["valid"] is False
+        assert any(
+            issue["code"] == "missing_decoy_strategy"
+            for issue in validate_payload["issues"]
+        )
+        assert compare_result.exit_code == 0
+        compare_payload = json.loads(compare_result.output)
+        assert compare_payload["exact_match_count"] == 2
+        assert conformance_result.exit_code == 0
+        conformance_payload = json.loads(conformance_result.output)
+        assert conformance_payload["passes"] is False
+        assert conformance_payload["rejection_issue_counts"]["invalid_q_value"] == 1
+
+
+def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "psm"
+        shutil.copy(fixture_dir / "fdr_results.tsv", "fdr_results.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "fdr_results.tsv",
+                "--threshold",
+                "0.5",
+                "--score-orientation",
+                "higher_better",
+                "--audit-out",
+                "audit.json",
+                "--calibration-out",
+                "calibration.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_psms"] == 3
+        assert payload["audit_trail"]["reproducibility_hash"]
+        assert Path("audit.json").exists()
+        assert Path("calibration.json").exists()
+
+
+def test_infer_proteins_command_emits_grouping_and_coverage_artifacts() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        psm_fixture_dir = Path(__file__).parent / "fixtures" / "psm"
+        fasta_fixture_dir = Path(__file__).parent / "fixtures" / "fasta"
+        shutil.copy(
+            psm_fixture_dir / "protein_inference_results.tsv",
+            "protein_inference_results.tsv",
+        )
+        shutil.copy(
+            fasta_fixture_dir / "protein_inference.fasta", "protein_inference.fasta"
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "infer-proteins",
+                "protein_inference_results.tsv",
+                "--threshold",
+                "0.05",
+                "--fasta",
+                "protein_inference.fasta",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_psms"] == 4
+        assert len(payload["protein_groups"]) >= 3
+        assert {entry["protein_ref"] for entry in payload["parsimony_proteins"]} == {
+            "P11111",
+            "P22222",
+            "P33333",
+        }
+        assert any(
+            entry["canonical_peptide"] == "SHAREDK"
+            for entry in payload["razor_assignments"]
+        )
+        assert any(
+            entry["protein_ref"] == "P11111" for entry in payload["protein_coverage"]
+        )
+
+
+def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--normalization",
+                "median",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_features"] == 32
+        assert payload["rejected_features"] == 0
+        assert payload["table"]["entity_level"] == "protein"
+        assert payload["table"]["normalization_method"] == "median"
+        assert payload["missing_summary"]["entries"][0]["zero_count"] == 1
+        assert payload["batch_effect"]["disposition"] == "ADVISORY"
+        assert payload["replicate_correlations"]["entries"]
+        assert payload["differential_abundance"]["condition_a"] == "control"
+        assert any(
+            entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0
+            for entry in payload["differential_abundance"]["entries"]
+        )
+
+
+def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = Path(__file__).parent / "fixtures" / "ptm"
+        fasta_fixture_dir = Path(__file__).parent / "fixtures" / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv", "localization_results.tsv"
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "summarize",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "--features",
+                "ptm_features.tsv",
+                "--threshold",
+                "0.1",
+                "--flank-size",
+                "3",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert any(
+            entry["site_key"] == "P11111:S5:Phospho" for entry in payload["site_table"]
+        )
+        assert len(payload["ambiguity_report"]) == 2
+        assert payload["fdr_report"]["entries"][-1]["accepted"] is False
+        assert any(
+            entry["sample_id"] == "T2" and entry["occupancy_fraction"] == 0.79
+            for entry in payload["occupancy"]
+        )
+
+
+def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        for name in (
+            "spectra.mgf",
+            "results.tsv",
+            "proteins.fasta",
+            "design.tsv",
+            "qc_policy.json",
+        ):
+            shutil.copy(fixture_dir / name, name)
+
+        result = runner.invoke(
+            cli,
+            [
+                "qc",
+                "report",
+                "spectra.mgf",
+                "results.tsv",
+                "proteins.fasta",
+                "--design",
+                "design.tsv",
+                "--policy",
+                "qc_policy.json",
+                "--tsv-out",
+                "qc.tsv",
+                "--html-out",
+                "qc.html",
+                "--manifest-out",
+                "qc.manifest.json",
+                "--benchmark-out",
+                "qc.benchmark.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["run_report"]["run_id"] == "spectra"
+        assert payload["run_assessment"]["policy_name"] == "production-demo-qc"
+        assert Path("qc.tsv").read_text().startswith("scope\tentity_id\tmetric_key")
+        assert "Bijux Proteomics QC Report" in Path("qc.html").read_text()
+        manifest = json.loads(Path("qc.manifest.json").read_text())
+        benchmark = json.loads(Path("qc.benchmark.json").read_text())
+        assert manifest["document_schema"]["document_kind"] == "qc_evidence_manifest"
+        assert (
+            benchmark["document_schema"]["document_kind"]
+            == "proteomics_performance_snapshot"
+        )
+
+
+def test_qc_report_command_reports_structured_policy_errors() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        for name in ("spectra.mgf", "results.tsv", "proteins.fasta"):
+            shutil.copy(fixture_dir / name, name)
+        Path("bad-policy.json").write_text("{not valid json}\n")
+
+        result = runner.invoke(
+            cli,
+            [
+                "qc",
+                "report",
+                "spectra.mgf",
+                "results.tsv",
+                "proteins.fasta",
+                "--policy",
+                "bad-policy.json",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "QC_POLICY_INVALID" in result.output
+
+
+def test_workflow_plan_command_emits_runtime_bundle_and_sidecar_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        for name in (
+            "spectra.mgf",
+            "results.tsv",
+            "proteins.fasta",
+            "design.tsv",
+            "ms1_features.tsv",
+        ):
+            shutil.copy(fixture_dir / name, name)
+
+        result = runner.invoke(
+            cli,
+            [
+                "workflow-plan",
+                "--proteins",
+                "proteins.fasta",
+                "--spectra",
+                "spectra.mgf",
+                "--identifications",
+                "results.tsv",
+                "--features",
+                "ms1_features.tsv",
+                "--design",
+                "design.tsv",
+                "--sample-id",
+                "sample-A",
+                "--search-adapter",
+                "generic",
+                "--dag-out",
+                "workflow.dag.json",
+                "--job-out",
+                "workflow.slurm",
+                "--checkpoint-out",
+                "workflow.checkpoint.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["manifest"]["workflow_id"].startswith(
+            "sample-a-generic-workflow"
+        )
+        assert payload["dag_plan"]["nodes"][0]["step_kind"] == "validate-inputs"
+        assert payload["search_contract"]["adapter_kind"] == "generic"
+        assert Path("workflow.dag.json").exists()
+        assert "#SBATCH --job-name=" in Path("workflow.slurm").read_text()
+        checkpoint = json.loads(Path("workflow.checkpoint.json").read_text())
+        assert checkpoint["document_schema"]["document_kind"] == "workflow_checkpoint"
