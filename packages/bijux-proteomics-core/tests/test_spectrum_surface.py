@@ -8,15 +8,19 @@ from pathlib import Path
 
 from bijux_proteomics import (
     annotate_spectrum_fragments,
+    build_spectrum_collection_summary,
     build_spectrum_metrics,
     build_spectrum_plot_payload,
+    build_spectrum_provenance_manifest,
     calculate_precursor_mass_error,
+    calculate_spectral_similarity,
     export_spectrum_annotation_tsv,
     filter_spectrum_peaks,
     normalize_spectrum_peaks,
     parse_mgf,
     PeakNormalizationPolicy,
     render_mgf,
+    SpectralSimilarityMethod,
 )
 
 
@@ -55,6 +59,14 @@ def test_mgf_parser_accepts_multi_block_and_rejects_malformed_fixture() -> None:
     assert "invalid_pepmass" in codes
     assert "invalid_peak_value" in codes
     assert "missing_end_ions" in codes
+    invalid_pepmass_issue = next(
+        issue
+        for block in rejected.rejected_blocks
+        for issue in block.issues
+        if issue.code == "invalid_pepmass"
+    )
+    assert invalid_pepmass_issue.field == "PEPMASS"
+    assert invalid_pepmass_issue.line_number is None or invalid_pepmass_issue.line_number >= 1
 
 
 def test_mgf_writer_roundtrip_preserves_spectrum_contracts() -> None:
@@ -146,3 +158,27 @@ def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() 
     assert rendered["document_schema"]["document_kind"] == "spectrum_plot_payload"
     labeled_peaks = [peak for peak in rendered["peaks"] if peak["labels"]]
     assert labeled_peaks
+
+
+def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:
+    reference = normalize_spectrum_peaks(parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0])
+    query = normalize_spectrum_peaks(parse_mgf(_spectrum_fixture("multi.mgf")).accepted_spectra[0])
+    similarity = calculate_spectral_similarity(
+        reference,
+        query,
+        tolerance_da=0.02,
+        method=SpectralSimilarityMethod.COSINE,
+    )
+    report = parse_mgf(_spectrum_fixture("multi.mgf"))
+    summary = build_spectrum_collection_summary(report)
+    manifest = build_spectrum_provenance_manifest(
+        source_path=_spectrum_fixture("multi.mgf"),
+        parse_report=report,
+    )
+
+    assert similarity.matched_peak_count >= 2
+    assert similarity.score > 0.9
+    assert summary.spectrum_count == 2
+    assert summary.issue_counts == {}
+    assert manifest.document_schema.document_kind == "spectrum_provenance_manifest"
+    assert manifest.source_sha256

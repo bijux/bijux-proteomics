@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+import hashlib
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, field_validator
@@ -58,6 +59,9 @@ class SpectrumValidationIssue(JsonModel):
     code: str = Field(..., min_length=1)
     message: str = Field(..., min_length=1)
     block_index: int = Field(..., ge=1)
+    field: str | None = None
+    line_number: int | None = Field(default=None, ge=1)
+    raw_line: str | None = None
 
 
 class RejectedSpectrumBlock(JsonModel):
@@ -79,6 +83,54 @@ class MgfParseReport(JsonModel):
     total_blocks: int = Field(..., ge=0)
     accepted_spectra: tuple[SpectrumModel, ...] = Field(default_factory=tuple)
     rejected_blocks: tuple[RejectedSpectrumBlock, ...] = Field(default_factory=tuple)
+
+
+class SpectrumCollectionSummary(JsonModel):
+    """Compact summary over one parsed MGF collection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_count: int = Field(..., ge=0)
+    rejected_block_count: int = Field(..., ge=0)
+    total_peak_count: int = Field(..., ge=0)
+    average_peak_count: float = Field(..., ge=0.0)
+    counts_by_charge: dict[str, int] = Field(default_factory=dict)
+    issue_counts: dict[str, int] = Field(default_factory=dict)
+
+
+class SpectralSimilarityMethod(StrEnum):
+    """Supported basic spectral similarity methods."""
+
+    COSINE = "cosine"
+    DOT_PRODUCT = "dot_product"
+
+
+class SpectralSimilarityScore(JsonModel):
+    """Basic spectral similarity score for two spectra."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: SpectralSimilarityMethod
+    tolerance_da: float = Field(..., gt=0.0)
+    score: float = Field(..., ge=0.0)
+    matched_peak_count: int = Field(..., ge=0)
+    reference_peak_count: int = Field(..., ge=0)
+    query_peak_count: int = Field(..., ge=0)
+
+
+class SpectrumProvenanceManifest(JsonModel):
+    """Stable provenance manifest for a parsed spectrum collection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    source_path: str
+    source_sha256: str
+    format: str = Field(default="mgf", frozen=True)
+    total_blocks: int = Field(..., ge=0)
+    accepted_spectra: int = Field(..., ge=0)
+    rejected_blocks: int = Field(..., ge=0)
+    issue_counts: dict[str, int] = Field(default_factory=dict)
 
 
 class PeakNormalizationPolicy(JsonModel):
@@ -192,8 +244,23 @@ class _MgfBlock:
         self.raw_lines: list[str] = []
 
 
-def _issue(block_index: int, code: str, message: str) -> SpectrumValidationIssue:
-    return SpectrumValidationIssue(code=code, message=message, block_index=block_index)
+def _issue(
+    block_index: int,
+    code: str,
+    message: str,
+    *,
+    field: str | None = None,
+    line_number: int | None = None,
+    raw_line: str | None = None,
+) -> SpectrumValidationIssue:
+    return SpectrumValidationIssue(
+        code=code,
+        message=message,
+        block_index=block_index,
+        field=field,
+        line_number=line_number,
+        raw_line=raw_line,
+    )
 
 
 def _parse_charge(token: str) -> int:
@@ -238,13 +305,21 @@ def parse_mgf(path: Path) -> MgfParseReport:
             )
         )
 
-    for raw_line in lines:
+    for line_number, raw_line in enumerate(lines, start=1):
         line = raw_line.strip()
         if not line or line.startswith("#") or line.startswith(";"):
             continue
         if line.upper() == "BEGIN IONS":
             if current is not None:
-                current.issues.append(_issue(current.block_index, "missing_end_ions", "missing END IONS before next block"))
+                current.issues.append(
+                    _issue(
+                        current.block_index,
+                        "missing_end_ions",
+                        "missing END IONS before next block",
+                        line_number=line_number,
+                        raw_line=raw_line,
+                    )
+                )
                 finalize_block(current)
             block_index += 1
             current = _MgfBlock(block_index)
@@ -274,16 +349,43 @@ def parse_mgf(path: Path) -> MgfParseReport:
                 elif key == "RTINSECONDS":
                     current.retention_time_seconds = float(value)
             except ValueError as exc:
-                current.issues.append(_issue(current.block_index, f"invalid_{key.lower()}", str(exc)))
+                current.issues.append(
+                    _issue(
+                        current.block_index,
+                        f"invalid_{key.lower()}",
+                        str(exc),
+                        field=key,
+                        line_number=line_number,
+                        raw_line=raw_line,
+                    )
+                )
             continue
         tokens = line.split()
         if len(tokens) != 2:
-            current.issues.append(_issue(current.block_index, "invalid_peak_line", f"invalid peak line {line!r}"))
+            current.issues.append(
+                _issue(
+                    current.block_index,
+                    "invalid_peak_line",
+                    f"invalid peak line {line!r}",
+                    field="PEAK",
+                    line_number=line_number,
+                    raw_line=raw_line,
+                )
+            )
             continue
         try:
             peak = SpectrumPeak(mz=float(tokens[0]), intensity=float(tokens[1]))
         except ValueError as exc:
-            current.issues.append(_issue(current.block_index, "invalid_peak_value", str(exc)))
+            current.issues.append(
+                _issue(
+                    current.block_index,
+                    "invalid_peak_value",
+                    str(exc),
+                    field="PEAK",
+                    line_number=line_number,
+                    raw_line=raw_line,
+                )
+            )
             continue
         current.peaks.append(peak)
 
@@ -295,6 +397,56 @@ def parse_mgf(path: Path) -> MgfParseReport:
         total_blocks=block_index,
         accepted_spectra=tuple(accepted),
         rejected_blocks=tuple(rejected),
+    )
+
+
+def build_spectrum_collection_summary(parse_report: MgfParseReport) -> SpectrumCollectionSummary:
+    """Build a compact summary for one parsed spectrum collection."""
+    counts_by_charge: dict[str, int] = {}
+    issue_counts: dict[str, int] = {}
+    total_peak_count = 0
+    for spectrum in parse_report.accepted_spectra:
+        total_peak_count += len(spectrum.peaks)
+        key = "unknown" if spectrum.precursor_charge is None else str(spectrum.precursor_charge)
+        counts_by_charge[key] = counts_by_charge.get(key, 0) + 1
+    for block in parse_report.rejected_blocks:
+        for issue in block.issues:
+            issue_counts[issue.code] = issue_counts.get(issue.code, 0) + 1
+    spectrum_count = len(parse_report.accepted_spectra)
+    return SpectrumCollectionSummary(
+        spectrum_count=spectrum_count,
+        rejected_block_count=len(parse_report.rejected_blocks),
+        total_peak_count=total_peak_count,
+        average_peak_count=(total_peak_count / spectrum_count) if spectrum_count else 0.0,
+        counts_by_charge=dict(sorted(counts_by_charge.items())),
+        issue_counts=dict(sorted(issue_counts.items())),
+    )
+
+
+def build_spectrum_provenance_manifest(
+    *,
+    source_path: Path,
+    parse_report: MgfParseReport,
+) -> SpectrumProvenanceManifest:
+    """Build a stable provenance manifest for one MGF parse run."""
+    issue_counts = build_spectrum_collection_summary(parse_report).issue_counts
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="spectrum_provenance_manifest",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    manifest = SpectrumProvenanceManifest(
+        document_schema=schema,
+        source_path=str(source_path),
+        source_sha256=hashlib.sha256(source_path.read_bytes()).hexdigest(),
+        total_blocks=parse_report.total_blocks,
+        accepted_spectra=len(parse_report.accepted_spectra),
+        rejected_blocks=len(parse_report.rejected_blocks),
+        issue_counts=issue_counts,
+    )
+    return manifest.model_copy(
+        update={"document_schema": manifest.document_schema.with_content_hash(manifest.to_dict())}
     )
 
 
@@ -448,6 +600,52 @@ def calculate_precursor_mass_error(
         theoretical_mz=theoretical_mz,
         delta_da=delta_da,
         delta_ppm=delta_ppm,
+    )
+
+
+def calculate_spectral_similarity(
+    reference_spectrum: SpectrumModel,
+    query_spectrum: SpectrumModel,
+    *,
+    tolerance_da: float = 0.02,
+    method: SpectralSimilarityMethod = SpectralSimilarityMethod.COSINE,
+) -> SpectralSimilarityScore:
+    """Calculate a basic matched-peak spectral similarity score."""
+    matched_reference: list[float] = []
+    matched_query: list[float] = []
+    used_reference_indices: set[int] = set()
+    for query_peak in sorted(query_spectrum.peaks, key=lambda peak: peak.mz):
+        best_index: int | None = None
+        best_error: float | None = None
+        for index, reference_peak in enumerate(reference_spectrum.peaks):
+            if index in used_reference_indices:
+                continue
+            error = query_peak.mz - reference_peak.mz
+            if abs(error) > tolerance_da:
+                continue
+            if best_index is None or abs(error) < abs(best_error):
+                best_index = index
+                best_error = error
+        if best_index is None:
+            continue
+        used_reference_indices.add(best_index)
+        matched_reference.append(reference_spectrum.peaks[best_index].intensity)
+        matched_query.append(query_peak.intensity)
+
+    dot_product = sum(reference * query for reference, query in zip(matched_reference, matched_query))
+    if method is SpectralSimilarityMethod.DOT_PRODUCT:
+        score = dot_product
+    else:
+        reference_norm = sum(value * value for value in matched_reference) ** 0.5
+        query_norm = sum(value * value for value in matched_query) ** 0.5
+        score = 0.0 if reference_norm == 0.0 or query_norm == 0.0 else dot_product / (reference_norm * query_norm)
+    return SpectralSimilarityScore(
+        method=method,
+        tolerance_da=tolerance_da,
+        score=score,
+        matched_peak_count=len(matched_reference),
+        reference_peak_count=len(reference_spectrum.peaks),
+        query_peak_count=len(query_spectrum.peaks),
     )
 
 
