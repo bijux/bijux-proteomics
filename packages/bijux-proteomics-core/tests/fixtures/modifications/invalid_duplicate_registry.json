@@ -1,0 +1,38 @@
+{
+  "document_schema": {
+    "created_by": "bijux-proteomics-core-tests",
+    "document_kind": "peptide_modification_registry",
+    "package_name": "bijux-proteomics-core",
+    "schema_version": "1.0.0",
+    "status": "generated"
+  },
+  "static_modifications": [],
+  "variable_modifications": [
+    {
+      "application": "variable",
+      "controlled_id": "UNIMOD:35",
+      "mass_delta_average": 15.9994,
+      "mass_delta_monoisotopic": 15.994915,
+      "max_occurrences": 2,
+      "name": "Oxidation",
+      "neutral_losses": [],
+      "position": "anywhere",
+      "residues": [
+        "M"
+      ]
+    },
+    {
+      "application": "variable",
+      "controlled_id": "UNIMOD:35",
+      "mass_delta_average": 15.9994,
+      "mass_delta_monoisotopic": 15.994915,
+      "max_occurrences": 2,
+      "name": "Oxidation",
+      "neutral_losses": [],
+      "position": "anywhere",
+      "residues": [
+        "M"
+      ]
+    }
+  ]
+}

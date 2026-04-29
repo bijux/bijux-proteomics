@@ -15,6 +15,7 @@ from bijux_proteomics import (
     MassType,
     ModificationLocalizationState,
     ModificationPosition,
+    ModificationRegistryDocument,
     ParsedModifiedPeptide,
     StaticModification,
     VariableModification,
@@ -37,6 +38,7 @@ from bijux_proteomics import (
     load_modification_registry,
     modification_registry,
     parse_modified_peptide,
+    validate_modification_registry,
     validate_modified_peptide_fragment_ions,
     validate_modified_peptide_sites,
 )
@@ -303,6 +305,32 @@ def test_build_modification_registry_creates_stable_document() -> None:
 
     assert registry.document_schema.document_kind == "peptide_modification_registry"
     assert registry.document_schema.content_hash is not None
+
+
+def test_modification_registry_validation_catches_duplicate_and_conflicting_definitions() -> (
+    None
+):
+    duplicate_registry = ModificationRegistryDocument.model_validate_json(
+        _modification_fixture("invalid_duplicate_registry.json").read_text()
+    )
+    conflicting_registry = ModificationRegistryDocument.model_validate_json(
+        _modification_fixture("invalid_conflicting_registry.json").read_text()
+    )
+
+    duplicate_report = validate_modification_registry(duplicate_registry)
+    conflicting_report = validate_modification_registry(conflicting_registry)
+
+    assert duplicate_report.valid is False
+    assert duplicate_report.issues[0].code == "duplicate_modification_name"
+    assert conflicting_report.valid is False
+    assert conflicting_report.issues[0].code == "conflicting_controlled_id"
+
+    with pytest.raises(ValueError, match="defined more than once"):
+        load_modification_registry(_modification_fixture("invalid_duplicate_registry.json"))
+    with pytest.raises(ValueError, match="conflicting registry definitions"):
+        load_modification_registry(
+            _modification_fixture("invalid_conflicting_registry.json")
+        )
 
 
 def test_modified_peptide_parser_rejects_invalid_site_assignment() -> None:

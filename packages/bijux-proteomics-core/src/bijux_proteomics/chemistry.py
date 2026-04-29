@@ -175,6 +175,28 @@ class ModificationRegistryDocument(JsonModel):
     )
 
 
+class ModificationRegistryValidationIssue(JsonModel):
+    """One registry-definition validation issue."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    modification_name: str | None = None
+    controlled_id: str | None = None
+
+
+class ModificationRegistryValidationReport(JsonModel):
+    """Structured validation result for one modification registry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[ModificationRegistryValidationIssue, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class ModificationProvenance(JsonModel):
     """Provenance for one applied peptide modification."""
 
@@ -534,6 +556,101 @@ def _build_modification_provenance(
     )
 
 
+def validate_modification_registry(
+    registry: ModificationRegistryDocument,
+) -> ModificationRegistryValidationReport:
+    """Validate duplicate and conflicting registry definitions."""
+    issues: list[ModificationRegistryValidationIssue] = []
+    by_name: dict[str, _BaseModification] = {}
+    by_controlled_id: dict[str, _BaseModification] = {}
+    for modification in (
+        *registry.static_modifications,
+        *registry.variable_modifications,
+    ):
+        normalized_name = modification.name.strip().lower()
+        previous = by_name.get(normalized_name)
+        if previous is not None:
+            conflict_code = (
+                "duplicate_modification_name"
+                if _registry_validation_signature(previous)
+                == _registry_validation_signature(modification)
+                else "conflicting_modification_name"
+            )
+            issues.append(
+                ModificationRegistryValidationIssue(
+                    code=conflict_code,
+                    message=(
+                        f"modification {modification.name!r} is defined more than once"
+                        if conflict_code == "duplicate_modification_name"
+                        else f"modification {modification.name!r} has conflicting definitions"
+                    ),
+                    modification_name=modification.name,
+                    controlled_id=modification.controlled_id,
+                )
+            )
+        else:
+            by_name[normalized_name] = modification
+
+        if modification.controlled_id is None:
+            continue
+        previous_controlled = by_controlled_id.get(modification.controlled_id)
+        if previous_controlled is not None and (
+            _registry_validation_signature(previous_controlled)
+            != _registry_validation_signature(modification)
+        ):
+            issues.append(
+                ModificationRegistryValidationIssue(
+                    code="conflicting_controlled_id",
+                    message=(
+                        f"controlled modification id {modification.controlled_id!r} maps "
+                        "to conflicting registry definitions"
+                    ),
+                    modification_name=modification.name,
+                    controlled_id=modification.controlled_id,
+                )
+            )
+        else:
+            by_controlled_id[modification.controlled_id] = modification
+
+    return ModificationRegistryValidationReport(
+        valid=not issues,
+        issues=tuple(issues),
+    )
+
+
+def _registry_validation_signature(
+    modification: _BaseModification,
+) -> tuple[object, ...]:
+    return (
+        modification.application,
+        modification.position,
+        modification.residues,
+        modification.mass_delta_monoisotopic,
+        modification.mass_delta_average,
+        tuple(
+            (
+                neutral_loss.name,
+                neutral_loss.monoisotopic_mass,
+                neutral_loss.average_mass,
+            )
+            for neutral_loss in modification.neutral_losses
+        ),
+        modification.max_occurrences
+        if isinstance(modification, VariableModification)
+        else None,
+    )
+
+
+def _raise_on_invalid_modification_registry(
+    registry: ModificationRegistryDocument,
+) -> None:
+    report = validate_modification_registry(registry)
+    if report.valid:
+        return
+    messages = "; ".join(issue.message for issue in report.issues)
+    raise ValueError(f"invalid modification registry: {messages}")
+
+
 def _build_builtin_registry() -> ModificationRegistryDocument:
     schema = DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -593,6 +710,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
             ),
         ),
     )
+    _raise_on_invalid_modification_registry(registry)
     payload = registry.to_dict()
     return registry.model_copy(
         update={"document_schema": registry.document_schema.with_content_hash(payload)}
@@ -619,6 +737,7 @@ def build_modification_registry(
         static_modifications=static_modifications,
         variable_modifications=variable_modifications,
     )
+    _raise_on_invalid_modification_registry(registry)
     payload = registry.to_dict()
     return registry.model_copy(
         update={"document_schema": registry.document_schema.with_content_hash(payload)}
@@ -632,7 +751,9 @@ def modification_registry() -> ModificationRegistryDocument:
 
 def load_modification_registry(path: Path) -> ModificationRegistryDocument:
     """Load and validate a modification registry document from JSON."""
-    return ModificationRegistryDocument.model_validate_json(path.read_text())
+    registry = ModificationRegistryDocument.model_validate_json(path.read_text())
+    _raise_on_invalid_modification_registry(registry)
+    return registry
 
 
 def _registry_lookup(

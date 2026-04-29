@@ -23,6 +23,8 @@ from bijux_proteomics.chemistry import (
     ModificationProvenance,
     ModificationPosition,
     ModificationRegistryDocument,
+    ModificationRegistryValidationIssue,
+    ModificationRegistryValidationReport,
     ModificationSiteValidationIssue,
     ModificationSiteValidationReport,
     NeutralLoss,
@@ -53,6 +55,7 @@ from bijux_proteomics.chemistry import (
     load_modification_registry,
     modification_registry,
     parse_modified_peptide,
+    validate_modification_registry,
     validate_modified_peptide_sites,
 )
 from bijux_proteomics.constraints import (
@@ -627,6 +630,8 @@ __all__ = [
     "ModificationProvenance",
     "ModificationPosition",
     "ModificationRegistryDocument",
+    "ModificationRegistryValidationIssue",
+    "ModificationRegistryValidationReport",
     "ModificationSiteValidationIssue",
     "ModificationSiteValidationReport",
     "ModifiedPeptideExportRecord",
@@ -636,6 +641,7 @@ __all__ = [
     "export_modified_peptides_jsonl",
     "export_modified_peptides_tsv",
     "parse_modified_peptide",
+    "validate_modification_registry",
     "ParsedModifiedPeptide",
     "PeptideChargeState",
     "PeptideIsotopeEnvelope",
