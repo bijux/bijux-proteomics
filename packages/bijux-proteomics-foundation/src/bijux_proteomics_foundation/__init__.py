@@ -37,6 +37,12 @@ from bijux_proteomics_foundation.ids import (
     ensure_identifier_kind,
 )
 from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
+from bijux_proteomics_foundation.nullability import (
+    NullabilityState,
+    NullableValue,
+    absent_value,
+    present_value,
+)
 from bijux_proteomics_foundation.primitives import (
     DurationValue,
     SequenceCoordinateRange,
@@ -83,6 +89,8 @@ __all__ = [
     "ProteinId",
     "ProgramId",
     "DurationValue",
+    "NullabilityState",
+    "NullableValue",
     "ReviewId",
     "RunId",
     "SchemaMigration",
@@ -95,7 +103,9 @@ __all__ = [
     "ControlledVocabularyTerm",
     "DEFAULT_CONTROLLED_VOCABULARY",
     "normalize_controlled_term",
+    "absent_value",
     "build_identifier",
     "classify_identifier",
     "ensure_identifier_kind",
+    "present_value",
 ]

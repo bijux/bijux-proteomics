@@ -23,6 +23,8 @@ from bijux_proteomics_foundation import (
     MigrationExecutionError,
     MigrationPathError,
     MigrationRegistry,
+    NullabilityState,
+    NullableValue,
     PeptideId,
     ProteinId,
     ProgramId,
@@ -35,7 +37,9 @@ from bijux_proteomics_foundation import (
     SequenceCoordinateSystem,
     SpectrumId,
     UtcTimestamp,
+    absent_value,
     normalize_controlled_term,
+    present_value,
     assess_schema_compatibility,
     build_identifier,
     classify_identifier,
@@ -246,6 +250,34 @@ def test_controlled_vocabulary_returns_none_for_unknown_term() -> None:
         )
         is None
     )
+
+
+def test_nullable_value_tracks_present_payloads_explicitly() -> None:
+    payload = present_value(0.82)
+
+    assert payload.state is NullabilityState.PRESENT
+    assert payload.as_optional() == 0.82
+
+
+def test_nullable_value_tracks_absent_states_without_payloads() -> None:
+    payload = absent_value(
+        NullabilityState.NOT_MEASURED,
+        reason="instrument channel was disabled",
+    )
+
+    assert payload.value is None
+    assert payload.reason == "instrument channel was disabled"
+
+
+def test_nullable_value_rejects_inconsistent_state_and_payload_combinations() -> None:
+    with pytest.raises(ValidationError, match="present values must carry"):
+        NullableValue(state=NullabilityState.PRESENT, value=None)
+
+    with pytest.raises(ValidationError, match="must not carry a payload"):
+        NullableValue(state=NullabilityState.UNKNOWN, value=1.0)
+
+    with pytest.raises(ValidationError, match="must include a reason"):
+        NullableValue(state=NullabilityState.WITHHELD)
 
 
 def test_foundation_contract_errors_share_common_base() -> None:
