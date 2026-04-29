@@ -117,6 +117,27 @@ class PtmProteinSiteMapping(JsonModel):
     ambiguous: bool = False
 
 
+class PtmCoordinateValidationIssue(JsonModel):
+    """One PTM coordinate validation issue over peptide and protein mappings."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    site_key: str = Field(..., min_length=1)
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class PtmCoordinateValidationReport(JsonModel):
+    """Validation result for PTM peptide/protein coordinate consistency."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[PtmCoordinateValidationIssue, ...] = Field(default_factory=tuple)
+
+
 class PtmSiteEntry(JsonModel):
     """One aggregated PTM site row."""
 
@@ -642,6 +663,80 @@ def build_ptm_site_coverage_report(
             peptides=tuple(sorted({mapping.localized_peptide for mapping in bucket})),
         )
         for site_key, bucket in sorted(grouped.items())
+    )
+
+
+def validate_ptm_site_coordinates(
+    mappings: tuple[PtmProteinSiteMapping, ...],
+    *,
+    protein_sequences: dict[str, str],
+) -> PtmCoordinateValidationReport:
+    """Validate that peptide-localized PTM coordinates agree with protein mappings."""
+    issues: list[PtmCoordinateValidationIssue] = []
+    for mapping in mappings:
+        sequence = protein_sequences.get(mapping.protein_ref)
+        site_key = (
+            f"{mapping.protein_ref}:{mapping.residue}{mapping.protein_position}:{mapping.modification_name}"
+        )
+        if sequence is None:
+            issues.append(
+                PtmCoordinateValidationIssue(
+                    spectrum_id=mapping.spectrum_id,
+                    protein_ref=mapping.protein_ref,
+                    site_key=site_key,
+                    code="missing_protein_sequence",
+                    message="protein sequence is required for PTM coordinate validation",
+                )
+            )
+            continue
+        if mapping.peptide_site_index > len(mapping.sequence):
+            issues.append(
+                PtmCoordinateValidationIssue(
+                    spectrum_id=mapping.spectrum_id,
+                    protein_ref=mapping.protein_ref,
+                    site_key=site_key,
+                    code="peptide_site_out_of_range",
+                    message="peptide-localized site index exceeds the peptide sequence length",
+                )
+            )
+            continue
+        if mapping.protein_position > len(sequence):
+            issues.append(
+                PtmCoordinateValidationIssue(
+                    spectrum_id=mapping.spectrum_id,
+                    protein_ref=mapping.protein_ref,
+                    site_key=site_key,
+                    code="protein_position_out_of_range",
+                    message="mapped protein position exceeds the protein sequence length",
+                )
+            )
+            continue
+        peptide_residue = mapping.sequence[mapping.peptide_site_index - 1]
+        protein_residue = sequence[mapping.protein_position - 1]
+        if peptide_residue != mapping.residue or protein_residue != mapping.residue:
+            issues.append(
+                PtmCoordinateValidationIssue(
+                    spectrum_id=mapping.spectrum_id,
+                    protein_ref=mapping.protein_ref,
+                    site_key=site_key,
+                    code="residue_mismatch",
+                    message="peptide, mapping, and protein residues do not agree at the localized site",
+                )
+            )
+        for candidate_position in mapping.candidate_protein_positions:
+            if candidate_position < 1 or candidate_position > len(sequence):
+                issues.append(
+                    PtmCoordinateValidationIssue(
+                        spectrum_id=mapping.spectrum_id,
+                        protein_ref=mapping.protein_ref,
+                        site_key=site_key,
+                        code="candidate_position_out_of_range",
+                        message="candidate protein position falls outside the protein sequence",
+                    )
+                )
+    return PtmCoordinateValidationReport(
+        valid=not issues,
+        issues=tuple(issues),
     )
 
 

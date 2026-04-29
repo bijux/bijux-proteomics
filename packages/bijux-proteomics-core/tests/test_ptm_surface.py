@@ -17,6 +17,7 @@ from bijux_proteomics import (
     parse_fasta_document,
     parse_ms1_feature_table,
     parse_ptm_localization_tsv,
+    validate_ptm_site_coordinates,
 )
 from bijux_proteomics.sequences import FastaParseMode
 
@@ -94,6 +95,12 @@ def test_ptm_site_mapping_and_table_cover_unique_and_ambiguous_sites() -> None:
     )
     assert p11111_site.spectrum_count == 4
     assert p11111_site.best_q_value == 0.003
+
+    validation = validate_ptm_site_coordinates(
+        mappings,
+        protein_sequences=_protein_sequences(),
+    )
+    assert validation.valid is True
 
 
 def test_ptm_ambiguity_coverage_and_fdr_reports_are_stable() -> None:

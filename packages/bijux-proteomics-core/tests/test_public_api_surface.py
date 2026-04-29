@@ -107,6 +107,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "PtmEvidenceRecord" in bijux_proteomics.__all__
     assert "parse_ptm_localization_tsv" in bijux_proteomics.__all__
     assert "map_ptm_evidence_to_protein_sites" in bijux_proteomics.__all__
+    assert "validate_ptm_site_coordinates" in bijux_proteomics.__all__
     assert "build_ptm_site_table" in bijux_proteomics.__all__
     assert "build_ptm_site_fdr" in bijux_proteomics.__all__
     assert "estimate_ptm_site_occupancy" in bijux_proteomics.__all__

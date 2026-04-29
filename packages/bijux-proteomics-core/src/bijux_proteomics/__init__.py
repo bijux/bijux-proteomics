@@ -263,6 +263,8 @@ from bijux_proteomics.ptm import (
     PtmEnrichmentInput,
     PtmEvidenceParseReport,
     PtmEvidenceRecord,
+    PtmCoordinateValidationIssue,
+    PtmCoordinateValidationReport,
     PtmLocalizationColumnMapping,
     PtmMotifWindow,
     PtmOccupancyEntry,
@@ -283,6 +285,7 @@ from bijux_proteomics.ptm import (
     estimate_ptm_site_occupancy,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
+    validate_ptm_site_coordinates,
 )
 from bijux_proteomics.qc import (
     InstrumentBatchQcReport,
@@ -957,6 +960,7 @@ __all__ = [
     "estimate_ptm_site_occupancy",
     "build_ptm_enrichment_input",
     "build_ptm_motif_windows",
+    "validate_ptm_site_coordinates",
     "build_lcms_run_qc_report",
     "build_instrument_batch_qc_report",
     "default_qc_threshold_policy",
@@ -999,6 +1003,8 @@ __all__ = [
     "PtmEnrichmentInput",
     "PtmEvidenceParseReport",
     "PtmEvidenceRecord",
+    "PtmCoordinateValidationIssue",
+    "PtmCoordinateValidationReport",
     "PtmLocalizationColumnMapping",
     "PtmMotifWindow",
     "PtmOccupancyEntry",
