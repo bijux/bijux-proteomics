@@ -268,6 +268,18 @@ class ExecutableAssayPlan(JsonModel):
     )
 
 
+class ExecutionPlanUncertaintyReport(JsonModel):
+    """Uncertainty summary attached to an executable assay plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    uncertain_instruction_ids: list[str] = Field(default_factory=list)
+    uncertainty_sources: list[str] = Field(default_factory=list)
+    readiness_confidence: float = Field(..., ge=0.0, le=1.0)
+    notes: list[str] = Field(default_factory=list)
+
+
 class WorkflowBatchOutline(JsonModel):
     """Execution-oriented outline derived from the scientific workflow."""
 
@@ -1421,6 +1433,37 @@ def build_executable_assay_plan(
         instructions=instructions,
         blocked_by=blocked_by,
         ready_for_execution=not blocked_by,
+    )
+
+
+def report_execution_plan_uncertainty(
+    executable_plan: ExecutableAssayPlan,
+    *,
+    open_evidence_gaps: list[str] | None = None,
+) -> ExecutionPlanUncertaintyReport:
+    """Summarize uncertainty that still affects a lab execution plan."""
+    open_evidence_gaps = open_evidence_gaps or []
+    uncertainty_sources = [
+        *executable_plan.blocked_by,
+        *(f"open evidence gap: {gap}" for gap in open_evidence_gaps),
+    ]
+    confidence = 1.0
+    if executable_plan.blocked_by:
+        confidence -= 0.4
+    if open_evidence_gaps:
+        confidence -= min(0.4, len(open_evidence_gaps) * 0.1)
+    return ExecutionPlanUncertaintyReport(
+        batch_id=executable_plan.batch_id,
+        uncertain_instruction_ids=[
+            instruction.instruction_id for instruction in executable_plan.instructions
+        ],
+        uncertainty_sources=uncertainty_sources,
+        readiness_confidence=round(max(0.0, confidence), 4),
+        notes=(
+            ["execution uncertainty should be resolved before scheduling"]
+            if uncertainty_sources
+            else ["execution plan is fully specified at current scope"]
+        ),
     )
 
 

@@ -65,6 +65,7 @@ from bijux_proteomics_lab import (
     plan_uncertainty_reduction_assays,
     prioritize_batches_by_material_feasibility,
     prioritize_next_assays,
+    report_execution_plan_uncertainty,
     recommend_next_best_experiment,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
@@ -499,6 +500,25 @@ def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressu
     assert advisory.feasible_batch_ids == ["b1"]
     assert advisory.deferred_batch_ids == ["b2"]
     assert advisory.budget_remaining == 0.5
+
+
+def test_report_execution_plan_uncertainty_makes_blockers_explicit() -> None:
+    executable_plan = ExecutableAssayPlan(
+        program_id="prog-uncertainty",
+        batch_id="batch-uncertainty",
+        instructions=[],
+        blocked_by=["review gate pending: gate-a"],
+        ready_for_execution=False,
+    )
+
+    report = report_execution_plan_uncertainty(
+        executable_plan,
+        open_evidence_gaps=["structure"],
+    )
+
+    assert "review gate pending: gate-a" in report.uncertainty_sources
+    assert "open evidence gap: structure" in report.uncertainty_sources
+    assert report.readiness_confidence < 1.0
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:

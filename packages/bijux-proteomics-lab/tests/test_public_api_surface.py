@@ -10,6 +10,7 @@ def test_design_public_api_contains_expected_exports() -> None:
     assert "CandidateLabAdvancementDecision" in bijux_proteomics_lab.__all__
     assert "CandidatePrioritySignal" in bijux_proteomics_lab.__all__
     assert "ExecutionCapacityAdvisory" in bijux_proteomics_lab.__all__
+    assert "ExecutionPlanUncertaintyReport" in bijux_proteomics_lab.__all__
     assert "ExperimentDesignStructureSummary" in bijux_proteomics_lab.__all__
     assert "EvidenceNeedWetLabAction" in bijux_proteomics_lab.__all__
     assert "LabExecutionRequest" in bijux_proteomics_lab.__all__
