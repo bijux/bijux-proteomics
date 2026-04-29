@@ -472,11 +472,20 @@ class SharedPeptideAmbiguityReport(JsonModel):
     entries: tuple[SharedPeptideAmbiguityEntry, ...] = Field(default_factory=tuple)
 
 
+class ParsimonyVariant(StrEnum):
+    """Named protein-parsimony policies supported by core inference."""
+
+    GREEDY_COVERAGE = "greedy_coverage"
+    UNIQUE_EVIDENCE_PRIORITY = "unique_evidence_priority"
+    BEST_SCORE_PRIORITY = "best_score_priority"
+
+
 class ParsimonyProteinEntry(JsonModel):
     """One protein selected by the greedy parsimony inference policy."""
 
     model_config = ConfigDict(extra="forbid")
 
+    variant: ParsimonyVariant
     selection_rank: int = Field(..., ge=1)
     protein_ref: str = Field(..., min_length=1)
     source_group_id: str = Field(..., min_length=1)
@@ -496,6 +505,39 @@ class RazorPeptideAssignment(JsonModel):
     candidate_proteins: tuple[str, ...] = Field(default_factory=tuple)
     assigned_protein: str = Field(..., min_length=1)
     rationale: str = Field(..., min_length=1)
+
+
+class ParsimonyVariantResult(JsonModel):
+    """Selections produced by one named protein-parsimony policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    variant: ParsimonyVariant
+    selected_proteins: tuple[ParsimonyProteinEntry, ...] = Field(default_factory=tuple)
+
+
+class ParsimonyVariantDifferenceEntry(JsonModel):
+    """Difference summary between two named parsimony policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    left_variant: ParsimonyVariant
+    right_variant: ParsimonyVariant
+    first_difference_rank: int | None = Field(default=None, ge=1)
+    shared_selected_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    left_only_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    right_only_proteins: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ParsimonyVariantComparisonReport(JsonModel):
+    """Comparison across multiple named parsimony policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    results: tuple[ParsimonyVariantResult, ...] = Field(default_factory=tuple)
+    differences: tuple[ParsimonyVariantDifferenceEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class ProteinCoverageEntry(JsonModel):
@@ -2369,8 +2411,37 @@ def assign_razor_peptides(
     return tuple(assignments)
 
 
+def _parsimony_sort_key(
+    group: ProteinGroupEntry,
+    newly_explained: tuple[str, ...],
+    variant: ParsimonyVariant,
+) -> tuple[float | int | str, ...]:
+    if variant is ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY:
+        return (
+            -group.unique_peptide_count,
+            -len(newly_explained),
+            -group.best_score,
+            group.representative_protein,
+        )
+    if variant is ParsimonyVariant.BEST_SCORE_PRIORITY:
+        return (
+            -group.best_score,
+            -len(newly_explained),
+            -group.unique_peptide_count,
+            group.representative_protein,
+        )
+    return (
+        -len(newly_explained),
+        -group.unique_peptide_count,
+        -group.best_score,
+        group.representative_protein,
+    )
+
+
 def infer_proteins_by_parsimony(
     records: tuple[PsmRecord, ...],
+    *,
+    variant: ParsimonyVariant = ParsimonyVariant.GREEDY_COVERAGE,
 ) -> tuple[ParsimonyProteinEntry, ...]:
     """Greedily select a parsimonious protein set that explains observed peptides."""
     protein_groups = build_protein_groups(records)
@@ -2392,16 +2463,12 @@ def infer_proteins_by_parsimony(
         if not scored_candidates:
             break
         scored_candidates.sort(
-            key=lambda item: (
-                -len(item[1]),
-                -item[0].unique_peptide_count,
-                -item[0].best_score,
-                item[0].representative_protein,
-            )
+            key=lambda item: _parsimony_sort_key(item[0], item[1], variant)
         )
         group, newly_explained = scored_candidates[0]
         selected.append(
             ParsimonyProteinEntry(
+                variant=variant,
                 selection_rank=rank,
                 protein_ref=group.representative_protein,
                 source_group_id=group.group_id,
@@ -2416,6 +2483,59 @@ def infer_proteins_by_parsimony(
         available = [entry for entry in available if entry.group_id != group.group_id]
         rank += 1
     return tuple(selected)
+
+
+def compare_parsimony_variants(
+    records: tuple[PsmRecord, ...],
+    *,
+    variants: tuple[ParsimonyVariant, ...] = (
+        ParsimonyVariant.GREEDY_COVERAGE,
+        ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ParsimonyVariant.BEST_SCORE_PRIORITY,
+    ),
+) -> ParsimonyVariantComparisonReport:
+    """Compare multiple named parsimony policies over the same PSM evidence."""
+    results = tuple(
+        ParsimonyVariantResult(
+            variant=variant,
+            selected_proteins=infer_proteins_by_parsimony(records, variant=variant),
+        )
+        for variant in variants
+    )
+    differences: list[ParsimonyVariantDifferenceEntry] = []
+    for left_index, left in enumerate(results):
+        for right in results[left_index + 1 :]:
+            left_order = [entry.protein_ref for entry in left.selected_proteins]
+            right_order = [entry.protein_ref for entry in right.selected_proteins]
+            first_difference_rank = next(
+                (
+                    rank
+                    for rank, (left_ref, right_ref) in enumerate(
+                        zip(left_order, right_order, strict=False),
+                        start=1,
+                    )
+                    if left_ref != right_ref
+                ),
+                None,
+            )
+            if first_difference_rank is None and len(left_order) != len(right_order):
+                first_difference_rank = min(len(left_order), len(right_order)) + 1
+            left_set = set(left_order)
+            right_set = set(right_order)
+            differences.append(
+                ParsimonyVariantDifferenceEntry(
+                    left_variant=left.variant,
+                    right_variant=right.variant,
+                    first_difference_rank=first_difference_rank,
+                    shared_selected_proteins=tuple(sorted(left_set & right_set)),
+                    left_only_proteins=tuple(sorted(left_set - right_set)),
+                    right_only_proteins=tuple(sorted(right_set - left_set)),
+                )
+            )
+    return ParsimonyVariantComparisonReport(
+        results=results,
+        differences=tuple(differences),
+    )
 
 
 def build_protein_coverage_map(

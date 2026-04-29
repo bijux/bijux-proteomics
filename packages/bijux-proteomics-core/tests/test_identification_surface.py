@@ -9,6 +9,7 @@ from pathlib import Path
 from bijux_proteomics import (
     FastaParseMode,
     FdrPolicy,
+    ParsimonyVariant,
     PsmRecord,
     PsmSortField,
     SearchResultColumnMapping,
@@ -34,6 +35,7 @@ from bijux_proteomics import (
     calculate_grouped_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
+    compare_parsimony_variants,
     compute_fdr_reproducibility_hash,
     detect_score_orientation_advisory,
     export_psm_jsonl,
@@ -661,6 +663,37 @@ def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
     assert {entry.protein_ref for entry in parsimony} == {"P11111", "P22222", "P33333"}
     assert shared_assignment.assigned_protein == "P11111"
     assert shared_assignment.rationale == "unique_evidence_priority"
+
+
+def test_named_parsimony_variants_are_explicit_and_comparable() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_parsimony_variants.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    greedy = infer_proteins_by_parsimony(
+        accepted,
+        variant=ParsimonyVariant.GREEDY_COVERAGE,
+    )
+    unique_first = infer_proteins_by_parsimony(
+        accepted,
+        variant=ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+    )
+    comparison = compare_parsimony_variants(
+        accepted,
+        variants=(
+            ParsimonyVariant.GREEDY_COVERAGE,
+            ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ),
+    )
+
+    assert greedy[0].variant is ParsimonyVariant.GREEDY_COVERAGE
+    assert greedy[0].protein_ref == "P10001"
+    assert unique_first[0].variant is ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY
+    assert unique_first[0].protein_ref == "P20002"
+    difference = comparison.differences[0]
+    assert difference.first_difference_rank == 1
+    assert difference.shared_selected_proteins == ("P10001", "P20002")
 
 
 def test_shared_peptide_ambiguity_report_explains_group_membership() -> None:
