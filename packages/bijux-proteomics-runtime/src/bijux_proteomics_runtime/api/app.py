@@ -44,7 +44,7 @@ class AppConfig:
     description: str = (
         "HTTP API exposing the same capabilities as the CLI, nothing more."
     )
-    version: str = "0.1"
+    version: str = "2.0.0"
 
 
 def create_app(config: AppConfig) -> FastAPI:

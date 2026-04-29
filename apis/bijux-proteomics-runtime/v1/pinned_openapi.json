@@ -3,83 +3,108 @@
     "schemas": {
       "ApiCandidate": {
         "additionalProperties": false,
+        "description": "ApiCandidate.",
         "properties": {
           "candidate_id": {
-            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
+            "description": "Candidate identifier.",
             "minLength": 1,
+            "title": "Candidate Id",
             "type": "string"
           },
           "confidence": {
             "additionalProperties": true,
+            "description": "Confidence vector.",
+            "title": "Confidence",
             "type": "object"
           },
           "created_at": {
-            "example": "2025-01-01T00:00:00+00:00",
+            "description": "Created timestamp.",
+            "title": "Created At",
             "type": "string"
           },
           "flags": {
+            "description": "Flags.",
             "items": {
               "type": "string"
             },
+            "title": "Flags",
             "type": "array"
           },
           "metrics": {
             "additionalProperties": {
               "type": "number"
             },
+            "description": "Candidate metrics.",
+            "title": "Metrics",
             "type": "object"
           },
           "provenance": {
             "additionalProperties": true,
+            "description": "Provenance metadata.",
+            "title": "Provenance",
             "type": "object"
           },
           "sequence": {
-            "example": "ACDEFGHIKLMNPQRSTVWY",
+            "description": "Sequence.",
             "minLength": 1,
+            "title": "Sequence",
             "type": "string"
           },
           "structures": {
+            "description": "Structures.",
             "items": {
               "$ref": "#/components/schemas/ApiCandidateStructure"
             },
+            "title": "Structures",
             "type": "array"
           }
         },
         "required": [
           "candidate_id",
           "sequence",
-          "structures",
-          "metrics",
-          "flags",
-          "provenance",
-          "confidence",
           "created_at"
         ],
+        "title": "ApiCandidate",
         "type": "object"
       },
       "ApiCandidateStructure": {
         "additionalProperties": false,
+        "description": "ApiCandidateStructure.",
         "properties": {
           "metadata": {
             "additionalProperties": true,
+            "description": "Structure metadata.",
+            "title": "Metadata",
             "type": "object"
           },
           "metrics": {
             "additionalProperties": {
               "type": "number"
             },
+            "description": "Structure metrics.",
+            "title": "Metrics",
             "type": "object"
           },
           "pdb_text": {
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional PDB.",
+            "title": "Pdb Text"
           },
           "provider": {
-            "example": "heuristic_proxy",
+            "description": "Provider name.",
+            "title": "Provider",
             "type": "string"
           },
           "structure_id": {
-            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0-s0",
+            "description": "Structure identifier.",
+            "title": "Structure Id",
             "type": "string"
           }
         },
@@ -87,16 +112,38 @@
           "structure_id",
           "provider"
         ],
+        "title": "ApiCandidateStructure",
         "type": "object"
       },
       "ApiEnvelope": {
         "additionalProperties": false,
+        "description": "ApiEnvelope.",
         "properties": {
           "data": {
-            "nullable": true,
-            "oneOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/RunResponse"
+              },
+              {
+                "$ref": "#/components/schemas/RuntimeStatusResponse"
+              },
+              {
+                "$ref": "#/components/schemas/RunArtifactsResponse"
+              },
+              {
+                "$ref": "#/components/schemas/RunEvidenceResponse"
+              },
+              {
+                "$ref": "#/components/schemas/RunReviewResponse"
+              },
+              {
+                "$ref": "#/components/schemas/RunHistoryResponse"
+              },
+              {
+                "$ref": "#/components/schemas/ArtifactLookupResponse"
+              },
+              {
+                "$ref": "#/components/schemas/EvidenceLookupResponse"
               },
               {
                 "$ref": "#/components/schemas/InspectResponse"
@@ -109,50 +156,87 @@
               },
               {
                 "$ref": "#/components/schemas/ReadyResponse"
+              },
+              {
+                "$ref": "#/components/schemas/RuntimeHealthResponse"
+              },
+              {
+                "type": "null"
               }
             ],
-            "type": "object"
+            "description": "Successful response payload.",
+            "title": "Data"
           },
           "error": {
-            "nullable": true,
-            "oneOf": [
+            "anyOf": [
               {
                 "$ref": "#/components/schemas/ErrorResponse"
+              },
+              {
+                "type": "null"
               }
             ],
-            "type": "object"
+            "description": "Structured error payload."
           },
           "meta": {
             "additionalProperties": true,
+            "description": "Meta fields.",
+            "title": "Meta",
             "type": "object"
           },
           "status": {
+            "description": "Response status.",
             "enum": [
               "ok",
               "error"
             ],
+            "title": "Status",
             "type": "string"
           }
         },
         "required": [
-          "status",
-          "data",
-          "error",
-          "meta"
+          "status"
         ],
+        "title": "ApiEnvelope",
+        "type": "object"
+      },
+      "ArtifactLookupResponse": {
+        "additionalProperties": false,
+        "description": "Stable cross-run artifact lookup response.",
+        "properties": {
+          "artifacts": {
+            "description": "Artifacts that match the requested filters.",
+            "items": {
+              "$ref": "#/components/schemas/RuntimeArtifactRecord"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "page": {
+            "$ref": "#/components/schemas/PaginationMeta",
+            "description": "Pagination and query-cost metadata."
+          }
+        },
+        "required": [
+          "page"
+        ],
+        "title": "ArtifactLookupResponse",
         "type": "object"
       },
       "CompareRequest": {
         "additionalProperties": false,
+        "description": "CompareRequest.",
         "properties": {
           "run_id_a": {
-            "example": "artifacts/run-a",
+            "description": "First run id.",
             "minLength": 1,
+            "title": "Run Id A",
             "type": "string"
           },
           "run_id_b": {
-            "example": "artifacts/run-b",
+            "description": "Second run id.",
             "minLength": 1,
+            "title": "Run Id B",
             "type": "string"
           }
         },
@@ -160,28 +244,47 @@
           "run_id_a",
           "run_id_b"
         ],
+        "title": "CompareRequest",
         "type": "object"
       },
       "CompareResponse": {
         "additionalProperties": false,
+        "description": "CompareResponse.",
         "properties": {
           "candidate_trajectories": {
             "additionalProperties": true,
+            "description": "Candidate trajectories.",
+            "title": "Candidate Trajectories",
             "type": "object"
           },
           "final_outcome": {
-            "additionalProperties": true,
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "description": "Final outcome summaries.",
+            "title": "Final Outcome",
             "type": "object"
           },
           "iteration_deltas": {
             "additionalProperties": true,
+            "description": "Iteration deltas.",
+            "title": "Iteration Deltas",
             "type": "object"
           },
           "run_ids": {
             "additionalProperties": {
-              "nullable": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
+            "description": "Run ids.",
+            "title": "Run Ids",
             "type": "object"
           }
         },
@@ -191,286 +294,604 @@
           "candidate_trajectories",
           "iteration_deltas"
         ],
+        "title": "CompareResponse",
         "type": "object"
       },
       "ErrorResponse": {
         "additionalProperties": false,
+        "description": "ErrorResponse.",
         "properties": {
           "detail": {
-            "example": "Provide sequence or sequence_file.",
+            "description": "Human-readable explanation.",
+            "title": "Detail",
+            "type": "string"
+          },
+          "evidence_pointer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional path or identifier that points to relevant evidence.",
+            "title": "Evidence Pointer"
+          },
+          "failure_class": {
+            "description": "Stable failure class.",
+            "minLength": 1,
+            "title": "Failure Class",
             "type": "string"
           },
           "instance": {
-            "example": "http://127.0.0.1:8000/api/v1/run",
+            "description": "URI reference for this occurrence.",
+            "title": "Instance",
+            "type": "string"
+          },
+          "remediation_hint": {
+            "description": "Operator-facing remediation hint.",
+            "minLength": 1,
+            "title": "Remediation Hint",
             "type": "string"
           },
           "status": {
-            "example": 422,
+            "description": "HTTP status code.",
+            "title": "Status",
             "type": "integer"
           },
           "title": {
-            "example": "Validation error",
+            "description": "Short, human-readable summary.",
+            "title": "Title",
             "type": "string"
           },
           "type": {
-            "example": "https://bijux-cli.dev/docs/errors/validation-error",
+            "default": "about:blank",
+            "description": "Problem type URI.",
+            "format": "uri",
+            "minLength": 1,
+            "title": "Type",
             "type": "string"
           }
         },
         "required": [
-          "type",
           "title",
           "status",
           "detail",
-          "instance"
+          "instance",
+          "failure_class",
+          "remediation_hint"
         ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "EvidenceLookupResponse": {
+        "additionalProperties": false,
+        "description": "Stable cross-run evidence and review lookup response.",
+        "properties": {
+          "documents": {
+            "description": "Evidence and review documents matching the requested filters.",
+            "items": {
+              "$ref": "#/components/schemas/RuntimeDocumentReference"
+            },
+            "title": "Documents",
+            "type": "array"
+          },
+          "page": {
+            "$ref": "#/components/schemas/PaginationMeta",
+            "description": "Pagination and query-cost metadata."
+          }
+        },
+        "required": [
+          "page"
+        ],
+        "title": "EvidenceLookupResponse",
+        "type": "object"
+      },
+      "ExecutionStatus": {
+        "description": "ExecutionStatus.",
+        "enum": [
+          "completed",
+          "errored",
+          "aborted"
+        ],
+        "title": "ExecutionStatus",
+        "type": "string"
+      },
+      "FailureType": {
+        "description": "FailureType.",
+        "enum": [
+          "none",
+          "input_invalid",
+          "invalid_plan",
+          "capability_missing",
+          "tool_timeout",
+          "oom",
+          "tool_crash",
+          "tool_failure",
+          "invalid_output",
+          "biological_implausibility",
+          "convergence_failure",
+          "human_decision_missing",
+          "unknown"
+        ],
+        "title": "FailureType",
+        "type": "string"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
         "type": "object"
       },
       "HealthResponse": {
         "additionalProperties": false,
+        "description": "HealthResponse.",
         "properties": {
+          "runtime": {
+            "description": "Canonical runtime identity.",
+            "title": "Runtime",
+            "type": "string"
+          },
           "status": {
-            "example": "ok",
+            "description": "Health status.",
+            "title": "Status",
             "type": "string"
           }
         },
         "required": [
-          "status"
+          "status",
+          "runtime"
         ],
+        "title": "HealthResponse",
         "type": "object"
       },
       "InspectResponse": {
         "additionalProperties": false,
+        "description": "InspectResponse.",
         "properties": {
           "artifacts": {
             "additionalProperties": {
               "type": "string"
             },
+            "description": "Artifact paths.",
+            "title": "Artifacts",
             "type": "object"
           },
           "candidate": {
-            "$ref": "#/components/schemas/ApiCandidate"
+            "$ref": "#/components/schemas/ApiCandidate",
+            "description": "Candidate."
           },
           "qc_status": {
-            "example": "acceptable",
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "QC status.",
+            "title": "Qc Status"
           }
         },
         "required": [
-          "candidate",
-          "artifacts"
+          "candidate"
         ],
+        "title": "InspectResponse",
+        "type": "object"
+      },
+      "Outcome": {
+        "description": "Outcome.",
+        "enum": [
+          "accepted",
+          "rejected",
+          "needs_review",
+          "inconclusive"
+        ],
+        "title": "Outcome",
+        "type": "string"
+      },
+      "PaginationMeta": {
+        "additionalProperties": false,
+        "description": "Stable pagination and query-cost metadata for collection responses.",
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Current cursor.",
+            "title": "Cursor"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Next cursor.",
+            "title": "Next Cursor"
+          },
+          "page_size": {
+            "description": "Requested page size.",
+            "minimum": 1.0,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "query_cost_units": {
+            "description": "Estimated query cost.",
+            "minimum": 0.0,
+            "title": "Query Cost Units",
+            "type": "integer"
+          },
+          "returned_count": {
+            "description": "Returned item count.",
+            "minimum": 0.0,
+            "title": "Returned Count",
+            "type": "integer"
+          },
+          "scanned_count": {
+            "description": "Scanned item count.",
+            "minimum": 0.0,
+            "title": "Scanned Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page_size",
+          "returned_count",
+          "scanned_count",
+          "query_cost_units"
+        ],
+        "title": "PaginationMeta",
         "type": "object"
       },
       "ReadyResponse": {
         "additionalProperties": false,
+        "description": "ReadyResponse.",
         "properties": {
           "providers": {
             "additionalProperties": true,
+            "description": "Provider readiness details.",
+            "title": "Providers",
             "type": "object"
           },
+          "runtime": {
+            "description": "Canonical runtime identity.",
+            "title": "Runtime",
+            "type": "string"
+          },
           "status": {
-            "example": "ok",
+            "description": "Readiness status.",
+            "title": "Status",
             "type": "string"
           }
         },
         "required": [
           "status",
-          "providers"
+          "runtime"
         ],
+        "title": "ReadyResponse",
         "type": "object"
       },
       "ResumeRequest": {
         "additionalProperties": false,
-        "oneOf": [
-          {
-            "required": [
-              "run_id"
-            ]
-          },
-          {
-            "required": [
-              "candidate_id"
-            ]
-          }
-        ],
+        "description": "ResumeRequest.",
         "properties": {
           "artifacts_dir": {
-            "example": "artifacts",
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Artifacts root.",
+            "title": "Artifacts Dir"
           },
           "candidate_id": {
-            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
-            "minLength": 1,
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Candidate identifier.",
+            "title": "Candidate Id"
           },
           "execution_mode": {
             "default": "auto",
-            "example": "auto",
+            "description": "Provider execution mode.",
+            "title": "Execution Mode",
             "type": "string"
           },
           "provider": {
-            "example": "heuristic_proxy",
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional provider.",
+            "title": "Provider"
           },
           "rounds": {
             "default": 1,
-            "example": 1,
-            "minimum": 1,
+            "description": "Loop iterations.",
+            "minimum": 1.0,
+            "title": "Rounds",
             "type": "integer"
           },
           "run_id": {
-            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Run identifier.",
+            "title": "Run Id"
+          }
+        },
+        "title": "ResumeRequest",
+        "type": "object"
+      },
+      "RunArtifactsResponse": {
+        "additionalProperties": false,
+        "description": "Stable artifact listing for one run.",
+        "properties": {
+          "artifacts": {
+            "description": "Artifacts attached to the run.",
+            "items": {
+              "$ref": "#/components/schemas/RuntimeArtifactRecord"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "run_id": {
+            "description": "Run identifier.",
             "minLength": 1,
-            "nullable": true,
+            "title": "Run Id",
             "type": "string"
           }
         },
+        "required": [
+          "run_id"
+        ],
+        "title": "RunArtifactsResponse",
+        "type": "object"
+      },
+      "RunEvidenceResponse": {
+        "additionalProperties": false,
+        "description": "Stable evidence-bundle availability response for one run.",
+        "properties": {
+          "evidence_bundle": {
+            "$ref": "#/components/schemas/RuntimeDocumentReference",
+            "description": "Evidence-bundle availability."
+          },
+          "run_id": {
+            "description": "Run identifier.",
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "evidence_bundle"
+        ],
+        "title": "RunEvidenceResponse",
+        "type": "object"
+      },
+      "RunHistoryResponse": {
+        "additionalProperties": false,
+        "description": "Stable run-history lookup response.",
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/PaginationMeta",
+            "description": "Pagination and query-cost metadata."
+          },
+          "runs": {
+            "description": "Runs that match the requested filters.",
+            "items": {
+              "$ref": "#/components/schemas/RunResponse"
+            },
+            "title": "Runs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "page"
+        ],
+        "title": "RunHistoryResponse",
         "type": "object"
       },
       "RunRequest": {
         "additionalProperties": false,
-        "oneOf": [
-          {
-            "required": [
-              "sequence"
-            ]
-          },
-          {
-            "required": [
-              "sequence_file"
-            ]
-          }
-        ],
+        "description": "RunRequest.",
         "properties": {
           "artifacts_dir": {
-            "example": "artifacts",
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Artifacts root.",
+            "title": "Artifacts Dir"
           },
           "dry_run": {
             "default": false,
-            "example": false,
+            "description": "Dry-run mode.",
+            "title": "Dry Run",
             "type": "boolean"
           },
           "execution_mode": {
             "default": "auto",
-            "example": "auto",
+            "description": "Provider execution mode.",
+            "title": "Execution Mode",
             "type": "string"
           },
           "ground_truth": {
-            "example": "AF2",
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional ground-truth reference.",
+            "title": "Ground Truth"
           },
           "provider": {
-            "example": "heuristic_proxy",
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional provider.",
+            "title": "Provider"
           },
           "rounds": {
             "default": 1,
-            "example": 1,
-            "minimum": 1,
+            "description": "Loop iterations.",
+            "minimum": 1.0,
+            "title": "Rounds",
             "type": "integer"
           },
           "sequence": {
-            "example": "ACDEFGHIKLMNPQRSTVWY",
-            "minLength": 1,
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inline sequence.",
+            "title": "Sequence"
           },
           "sequence_file": {
-            "example": "tests/fixtures/proteins/small_enzyme.fasta",
-            "minLength": 1,
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "FASTA file path on server.",
+            "title": "Sequence File"
           }
         },
+        "title": "RunRequest",
         "type": "object"
       },
       "RunResponse": {
         "additionalProperties": false,
+        "description": "RunResponse.",
         "properties": {
           "artifacts_dir": {
-            "example": "artifacts/9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
+            "description": "Artifacts directory.",
+            "title": "Artifacts Dir",
             "type": "string"
           },
           "candidate_id": {
-            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d-c0",
+            "description": "Candidate identifier.",
             "minLength": 1,
+            "title": "Candidate Id",
             "type": "string"
           },
           "command": {
-            "example": "run",
+            "description": "Command name.",
+            "title": "Command",
             "type": "string"
           },
           "execution_status": {
-            "enum": [
-              "completed",
-              "errored",
-              "aborted"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/ExecutionStatus",
+            "description": "Execution status."
           },
           "failure": {
-            "example": null,
-            "nullable": true,
-            "type": "string"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FailureType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Failure type."
           },
           "outcome": {
-            "enum": [
-              "accepted",
-              "rejected",
-              "needs_review",
-              "inconclusive"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/Outcome"
           },
           "provider": {
-            "example": "heuristic_proxy",
+            "description": "Provider name.",
+            "title": "Provider",
             "type": "string"
           },
           "qc_status": {
-            "example": "acceptable",
+            "description": "QC status.",
+            "title": "Qc Status",
             "type": "string"
           },
           "run_id": {
-            "example": "9f3b7c2d1a4e5f6b7c8d9e0f1a2b3c4d",
+            "description": "Run identifier.",
             "minLength": 1,
+            "title": "Run Id",
             "type": "string"
           },
           "tool_status": {
-            "enum": [
-              "success",
-              "degraded",
-              "failed",
-              "skipped"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/ToolStatus",
+            "description": "Tool status."
           },
           "version": {
-            "$ref": "#/components/schemas/VersionInfo"
+            "$ref": "#/components/schemas/VersionInfo",
+            "description": "Version info."
           },
           "warnings": {
-            "example": [],
+            "description": "Warnings.",
             "items": {
               "type": "string"
             },
+            "title": "Warnings",
             "type": "array"
           },
           "workflow_state": {
-            "enum": [
-              "running",
-              "paused",
-              "awaiting_human_review",
-              "done"
-            ],
-            "type": "string"
+            "$ref": "#/components/schemas/WorkflowState",
+            "description": "Workflow state."
           }
         },
         "required": [
@@ -484,52 +905,512 @@
           "tool_status",
           "qc_status",
           "artifacts_dir",
-          "warnings",
           "version"
         ],
+        "title": "RunResponse",
+        "type": "object"
+      },
+      "RunReviewResponse": {
+        "additionalProperties": false,
+        "description": "Stable review-packet availability response for one run.",
+        "properties": {
+          "review_packet": {
+            "$ref": "#/components/schemas/RuntimeDocumentReference",
+            "description": "Review-packet availability."
+          },
+          "run_id": {
+            "description": "Run identifier.",
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "review_packet"
+        ],
+        "title": "RunReviewResponse",
+        "type": "object"
+      },
+      "RuntimeArtifactRecord": {
+        "additionalProperties": false,
+        "description": "Stable runtime artifact descriptor for lookup and review.",
+        "properties": {
+          "artifact_key": {
+            "description": "Stable artifact key.",
+            "minLength": 1,
+            "title": "Artifact Key",
+            "type": "string"
+          },
+          "artifact_kind": {
+            "description": "Artifact kind.",
+            "minLength": 1,
+            "title": "Artifact Kind",
+            "type": "string"
+          },
+          "description": {
+            "description": "Artifact description.",
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "path": {
+            "description": "Repository-local artifact path.",
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "run_id": {
+            "description": "Run identifier.",
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "sha256": {
+            "description": "Artifact hash.",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Sha256",
+            "type": "string"
+          },
+          "size_bytes": {
+            "description": "Artifact size in bytes.",
+            "minimum": 0.0,
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "tags": {
+            "description": "Artifact tags.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "run_id",
+          "artifact_key",
+          "artifact_kind",
+          "path",
+          "size_bytes",
+          "sha256",
+          "description"
+        ],
+        "title": "RuntimeArtifactRecord",
+        "type": "object"
+      },
+      "RuntimeDocumentAvailability": {
+        "description": "Availability state for one runtime-managed document surface.",
+        "enum": [
+          "available",
+          "missing",
+          "too_large",
+          "unsupported"
+        ],
+        "title": "RuntimeDocumentAvailability",
+        "type": "string"
+      },
+      "RuntimeDocumentReference": {
+        "additionalProperties": false,
+        "description": "Stable reference to a runtime evidence or review document.",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/RuntimeDocumentAvailability",
+            "description": "Availability state for this document."
+          },
+          "content": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inline document content when small enough and requested.",
+            "title": "Content"
+          },
+          "document_kind": {
+            "description": "Document kind.",
+            "minLength": 1,
+            "title": "Document Kind",
+            "type": "string"
+          },
+          "guard_limit_bytes": {
+            "default": 0,
+            "description": "Inline-ingestion guard applied to this document request.",
+            "minimum": 0.0,
+            "title": "Guard Limit Bytes",
+            "type": "integer"
+          },
+          "note": {
+            "description": "Human-readable availability note.",
+            "minLength": 1,
+            "title": "Note",
+            "type": "string"
+          },
+          "path": {
+            "description": "Repository-local document path.",
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "run_id": {
+            "description": "Run identifier.",
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Document hash when known.",
+            "title": "Sha256"
+          },
+          "size_bytes": {
+            "default": 0,
+            "description": "Document size in bytes when known.",
+            "minimum": 0.0,
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "document_kind",
+          "availability",
+          "path",
+          "note"
+        ],
+        "title": "RuntimeDocumentReference",
+        "type": "object"
+      },
+      "RuntimeHealthComponent": {
+        "additionalProperties": false,
+        "description": "One runtime health component check.",
+        "properties": {
+          "component": {
+            "description": "Component identifier.",
+            "minLength": 1,
+            "title": "Component",
+            "type": "string"
+          },
+          "detail": {
+            "description": "Human-readable detail.",
+            "minLength": 1,
+            "title": "Detail",
+            "type": "string"
+          },
+          "remediation_hint": {
+            "description": "Operator remediation hint.",
+            "minLength": 1,
+            "title": "Remediation Hint",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/RuntimeHealthComponentState",
+            "description": "Component health."
+          }
+        },
+        "required": [
+          "component",
+          "state",
+          "detail",
+          "remediation_hint"
+        ],
+        "title": "RuntimeHealthComponent",
+        "type": "object"
+      },
+      "RuntimeHealthComponentState": {
+        "description": "Health state for one runtime service component.",
+        "enum": [
+          "healthy",
+          "degraded",
+          "failed"
+        ],
+        "title": "RuntimeHealthComponentState",
+        "type": "string"
+      },
+      "RuntimeHealthResponse": {
+        "additionalProperties": false,
+        "description": "Typed runtime health report across storage, cache, tool, and manifest checks.",
+        "properties": {
+          "components": {
+            "description": "Per-component health details.",
+            "items": {
+              "$ref": "#/components/schemas/RuntimeHealthComponent"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "runtime": {
+            "description": "Canonical runtime identity.",
+            "title": "Runtime",
+            "type": "string"
+          },
+          "status": {
+            "description": "Aggregate health status.",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "runtime"
+        ],
+        "title": "RuntimeHealthResponse",
+        "type": "object"
+      },
+      "RuntimeStatusResponse": {
+        "additionalProperties": false,
+        "description": "Stable runtime status response for one run.",
+        "properties": {
+          "evidence_bundle": {
+            "$ref": "#/components/schemas/RuntimeDocumentReference",
+            "description": "Evidence-bundle availability for the run."
+          },
+          "review_packet": {
+            "$ref": "#/components/schemas/RuntimeDocumentReference",
+            "description": "Review-packet availability for the run."
+          },
+          "summary": {
+            "$ref": "#/components/schemas/RunResponse",
+            "description": "Canonical run summary."
+          }
+        },
+        "required": [
+          "summary",
+          "evidence_bundle",
+          "review_packet"
+        ],
+        "title": "RuntimeStatusResponse",
+        "type": "object"
+      },
+      "ToolStatus": {
+        "description": "ToolStatus.",
+        "enum": [
+          "success",
+          "degraded",
+          "failed",
+          "skipped"
+        ],
+        "title": "ToolStatus",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
         "type": "object"
       },
       "VersionInfo": {
         "additionalProperties": false,
+        "description": "VersionInfo.",
         "properties": {
           "app": {
-            "example": "0.1.0",
+            "description": "Application version.",
+            "title": "App",
             "type": "string"
           },
           "git_commit": {
-            "example": "unknown",
+            "description": "Git commit hash.",
+            "title": "Git Commit",
             "type": "string"
           },
           "tool_versions": {
             "additionalProperties": {
               "type": "string"
             },
-            "example": {},
+            "description": "Tool version mapping.",
+            "title": "Tool Versions",
             "type": "object"
           }
         },
         "required": [
           "app",
-          "git_commit",
-          "tool_versions"
+          "git_commit"
         ],
+        "title": "VersionInfo",
         "type": "object"
+      },
+      "WorkflowState": {
+        "description": "WorkflowState.",
+        "enum": [
+          "running",
+          "paused",
+          "awaiting_human_review",
+          "done"
+        ],
+        "title": "WorkflowState",
+        "type": "string"
       }
     }
   },
   "info": {
-    "license": {
-      "name": "Apache-2.0",
-      "url": "https://www.apache.org/licenses/LICENSE-2.0"
-    },
-    "title": "agentic-proteins API schemas",
-    "version": "1.0.0"
+    "description": "HTTP API exposing the same capabilities as the CLI, nothing more.",
+    "title": "bijux-proteomics-runtime",
+    "version": "2.0.0"
   },
-  "openapi": "3.0.3",
+  "openapi": "3.1.0",
   "paths": {
-    "/compare": {
+    "/api/v1/artifacts": {
+      "get": {
+        "description": "Return the stable artifact lookup response.",
+        "operationId": "artifact_lookup_endpoint_api_v1_artifacts_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "run_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Run Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "artifact_kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Artifact Kind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_query_cost",
+            "required": false,
+            "schema": {
+              "default": 1000,
+              "title": "Max Query Cost",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Artifact Lookup Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/api/v1/compare": {
       "post": {
-        "operationId": "compareRuns",
+        "description": "compare_endpoint.",
+        "operationId": "compare_endpoint_api_v1_compare_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -549,43 +1430,23 @@
                 }
               }
             },
-            "description": "Comparison report"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
-                }
-              }
-            },
-            "description": "Bad request"
+            "description": "Successful Response"
           },
           "404": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Not found"
-          },
-          "405": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
-                }
-              }
-            },
-            "description": "Method not allowed"
+            "description": "Not Found"
           },
           "409": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
@@ -595,19 +1456,109 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation error"
+            "description": "Unprocessable Content"
           }
         },
-        "summary": "Compare runs"
+        "summary": "Compare Endpoint",
+        "tags": [
+          "compare"
+        ]
       }
     },
-    "/health": {
+    "/api/v1/evidence": {
       "get": {
-        "operationId": "health",
+        "description": "Return the stable evidence and review lookup response.",
+        "operationId": "evidence_lookup_endpoint_api_v1_evidence_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "run_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Run Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "document_kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Kind"
+            }
+          },
+          {
+            "in": "query",
+            "name": "availability",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Availability"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_query_cost",
+            "required": false,
+            "schema": {
+              "default": 1000,
+              "title": "Max Query Cost",
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -617,9 +1568,41 @@
                 }
               }
             },
-            "description": "Health response"
+            "description": "Successful Response"
           },
-          "405": {
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Evidence Lookup Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "description": "health.",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -627,21 +1610,26 @@
                 }
               }
             },
-            "description": "Method not allowed"
+            "description": "Successful Response"
           }
         },
-        "summary": "Health check"
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
       }
     },
-    "/inspect/{candidate_id}": {
+    "/api/v1/inspect/{candidate_id}": {
       "get": {
-        "operationId": "inspectCandidate",
+        "description": "inspect_endpoint.",
+        "operationId": "inspect_endpoint_api_v1_inspect__candidate_id__get",
         "parameters": [
           {
             "in": "path",
             "name": "candidate_id",
             "required": true,
             "schema": {
+              "title": "Candidate Id",
               "type": "string"
             }
           }
@@ -655,35 +1643,39 @@
                 }
               }
             },
-            "description": "Candidate inspection"
+            "description": "Successful Response"
           },
           "404": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Not found"
+            "description": "Not Found"
           },
-          "405": {
+          "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             },
-            "description": "Method not allowed"
+            "description": "Validation Error"
           }
         },
-        "summary": "Inspect a candidate"
+        "summary": "Inspect Endpoint",
+        "tags": [
+          "inspect"
+        ]
       }
     },
-    "/ready": {
+    "/api/v1/ready": {
       "get": {
-        "operationId": "ready",
+        "description": "ready.",
+        "operationId": "ready_api_v1_ready_get",
         "responses": {
           "200": {
             "content": {
@@ -693,25 +1685,19 @@
                 }
               }
             },
-            "description": "Readiness response"
-          },
-          "405": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
-                }
-              }
-            },
-            "description": "Method not allowed"
+            "description": "Successful Response"
           }
         },
-        "summary": "Readiness check"
+        "summary": "Ready",
+        "tags": [
+          "health"
+        ]
       }
     },
-    "/resume": {
+    "/api/v1/resume": {
       "post": {
-        "operationId": "resumeRun",
+        "description": "resume_endpoint.",
+        "operationId": "resume_endpoint_api_v1_resume_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -731,7 +1717,7 @@
                 }
               }
             },
-            "description": "Run resumed"
+            "description": "Successful Response"
           },
           "202": {
             "content": {
@@ -741,43 +1727,23 @@
                 }
               }
             },
-            "description": "Run awaiting human review"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
-                }
-              }
-            },
-            "description": "Bad request"
+            "description": "Accepted"
           },
           "404": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Not found"
-          },
-          "405": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
-                }
-              }
-            },
-            "description": "Method not allowed"
+            "description": "Not Found"
           },
           "409": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
@@ -787,19 +1753,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation error"
+            "description": "Unprocessable Content"
           }
         },
-        "summary": "Resume a run"
+        "summary": "Resume Endpoint",
+        "tags": [
+          "resume"
+        ]
       }
     },
-    "/run": {
+    "/api/v1/run": {
       "post": {
-        "operationId": "runSequence",
+        "description": "run_endpoint.",
+        "operationId": "run_endpoint_api_v1_run_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -819,7 +1789,7 @@
                 }
               }
             },
-            "description": "Run completed"
+            "description": "Successful Response"
           },
           "202": {
             "content": {
@@ -829,43 +1799,23 @@
                 }
               }
             },
-            "description": "Run awaiting human review"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
-                }
-              }
-            },
-            "description": "Bad request"
+            "description": "Accepted"
           },
           "404": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Not found"
-          },
-          "405": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
-                }
-              }
-            },
-            "description": "Method not allowed"
+            "description": "Not Found"
           },
           "409": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
@@ -875,13 +1825,137 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiEnvelope"
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             },
-            "description": "Validation error"
+            "description": "Unprocessable Content"
           },
           "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Run Endpoint",
+        "tags": [
+          "run"
+        ]
+      }
+    },
+    "/api/v1/runs/history": {
+      "get": {
+        "description": "Return the stable run-history lookup response.",
+        "operationId": "run_history_endpoint_api_v1_runs_history_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "provider",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Provider"
+            }
+          },
+          {
+            "in": "query",
+            "name": "workflow_state",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Workflow State"
+            }
+          },
+          {
+            "in": "query",
+            "name": "outcome",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Outcome"
+            }
+          },
+          {
+            "in": "query",
+            "name": "candidate_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Candidate Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_query_cost",
+            "required": false,
+            "schema": {
+              "default": 1000,
+              "title": "Max Query Cost",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -889,17 +1963,382 @@
                 }
               }
             },
-            "description": "Unexpected error"
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
           }
         },
-        "summary": "Run a sequence"
+        "summary": "Run History Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/artifacts": {
+      "get": {
+        "description": "Return the stable artifact inventory for one run.",
+        "operationId": "run_artifacts_endpoint_api_v1_runs__run_id__artifacts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Artifacts Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/evidence-bundle": {
+      "get": {
+        "description": "Return the stable evidence-bundle surface for one run.",
+        "operationId": "run_evidence_endpoint_api_v1_runs__run_id__evidence_bundle_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_document",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Document",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_inline_bytes",
+            "required": false,
+            "schema": {
+              "default": 256000,
+              "title": "Max Inline Bytes",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Evidence Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/review-packet": {
+      "get": {
+        "description": "Return the stable review-packet surface for one run.",
+        "operationId": "run_review_endpoint_api_v1_runs__run_id__review_packet_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_document",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Document",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_inline_bytes",
+            "required": false,
+            "schema": {
+              "default": 256000,
+              "title": "Max Inline Bytes",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Review Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/status": {
+      "get": {
+        "description": "Return the stable runtime status contract for one run.",
+        "operationId": "run_status_endpoint_api_v1_runs__run_id__status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_documents",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Documents",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "max_inline_bytes",
+            "required": false,
+            "schema": {
+              "default": 256000,
+              "title": "Max Inline Bytes",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Run Status Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/api/v1/runtime-health": {
+      "get": {
+        "description": "Return the typed runtime health report.",
+        "operationId": "runtime_health_endpoint_api_v1_runtime_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Runtime Health Endpoint",
+        "tags": [
+          "runtime-contracts"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "health.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "description": "ready.",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "health"
+        ]
       }
     }
-  },
-  "security": [],
-  "servers": [
-    {
-      "url": "/"
-    }
-  ]
+  }
 }
