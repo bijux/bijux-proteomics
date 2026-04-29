@@ -550,6 +550,20 @@ def validate_experiment_design(
         )
         or "no conditions"
     )
+    return ExperimentDesignValidationReport(
+        sample_count=len({entry.sample_id for entry in entries}),
+        condition_count=len(conditions),
+        fraction_count=len({(entry.sample_id, entry.fraction) for entry in entries}),
+        structure_summary=structure_summary,
+        valid_contrasts=tuple(valid_contrasts),
+        rejected_contrasts=tuple(rejected_contrasts),
+        issues=tuple(issues),
+        interpretation_summary=(
+            f"{len(valid_contrasts)} valid contrasts, {len(rejected_contrasts)} rejected contrasts; "
+            f"replicate counts: {condition_summary}; "
+            f"multiplexed={structure_summary.multiplexed}, fractionated={structure_summary.fractionated}."
+        ),
+    )
 
 
 def build_sample_tracking_plate_advisory(
@@ -611,20 +625,6 @@ def build_sample_tracking_plate_advisory(
         notes=(
             "plate layout groups entries deterministically by batch, condition, replicate, and sample id.",
             "lineage labels preserve sample identity across replicate and fraction handling.",
-        ),
-    )
-    return ExperimentDesignValidationReport(
-        sample_count=len({entry.sample_id for entry in entries}),
-        condition_count=len(conditions),
-        fraction_count=len({(entry.sample_id, entry.fraction) for entry in entries}),
-        structure_summary=structure_summary,
-        valid_contrasts=tuple(valid_contrasts),
-        rejected_contrasts=tuple(rejected_contrasts),
-        issues=tuple(issues),
-        interpretation_summary=(
-            f"{len(valid_contrasts)} valid contrasts, {len(rejected_contrasts)} rejected contrasts; "
-            f"replicate counts: {condition_summary}; "
-            f"multiplexed={structure_summary.multiplexed}, fractionated={structure_summary.fractionated}."
         ),
     )
 

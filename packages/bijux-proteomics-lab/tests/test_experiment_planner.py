@@ -412,8 +412,10 @@ def test_build_lab_execution_request_preserves_review_evidence_and_instructions(
     assert request.evidence_ids == ["lit-1", "structure-1"]
     assert request.batch_id == "batch-handoff"
     assert request.scientific_rationale
-    assert request.unresolved_risks == []
-    assert request.ready_for_lab_review is True
+    assert request.unresolved_risks == [
+        "not enough decisive evidence for an irreversible decision"
+    ]
+    assert request.ready_for_lab_review is False
 
 
 def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> None:
