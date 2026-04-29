@@ -179,6 +179,34 @@ class CandidateRanking(JsonModel):
         default_factory=list,
         description="Tie-break decisions that affected ranking order.",
     )
+    provenance_entries: list[RankingProvenanceEntry] = Field(
+        default_factory=list,
+        description="Per-candidate provenance for ranking and rejection outcomes.",
+    )
+
+
+class RankingProvenanceEntry(JsonModel):
+    """Explainable provenance for one ranking or rejection outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
+    accepted: bool
+    final_score: float = Field(..., ge=0.0)
+    normalized_factor_scores: dict[str, float] = Field(default_factory=dict)
+    weighted_contributions: dict[str, float] = Field(default_factory=dict)
+    applied_rules: list[str] = Field(default_factory=list)
+    rationale: list[str] = Field(default_factory=list)
+
+
+class CandidateRankingProvenanceReport(JsonModel):
+    """Provenance report for a candidate ranking run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    policy_id: str = Field(..., min_length=1)
+    entries: list[RankingProvenanceEntry] = Field(default_factory=list)
 
 
 class CandidateExplainabilitySummary(JsonModel):
@@ -644,29 +672,77 @@ def prioritize_candidates(
                 )
             )
 
+    ranked_candidates = [
+        RankedCandidate(
+            candidate_id=candidate.candidate_id,
+            score=round(score, 4),
+            rank=index,
+            reasons=reasons,
+            explainability={
+                "top_drivers": reasons[:3],
+                "blockers": [flag.summary for flag in candidate.liabilities[:3]],
+                "confidence": round(1.0 - candidate.uncertainty, 4),
+                "factor_scores": factor_scores,
+                "missing_evidence": [],
+            },
+        )
+        for index, (candidate, score, reasons, factor_scores) in enumerate(
+            ranked, start=1
+        )
+    ]
+    provenance_entries = [
+        RankingProvenanceEntry(
+            candidate_id=candidate.candidate_id,
+            accepted=True,
+            final_score=round(score, 4),
+            normalized_factor_scores=factor_scores,
+            weighted_contributions={
+                factor.value: round(
+                    factor_scores[factor.value] * weight,
+                    4,
+                )
+                for factor, weight in policy.factor_weights.items()
+            },
+            applied_rules=[rule.value for rule in policy.tie_break_rules],
+            rationale=reasons,
+        )
+        for candidate, score, reasons, factor_scores in ranked
+    ] + [
+        RankingProvenanceEntry(
+            candidate_id=rejection.candidate_id,
+            accepted=False,
+            final_score=0.0,
+            applied_rules=["screening-filter"],
+            rationale=[
+                *rejection.reasons,
+                *[
+                    f"reason_code={reason_code.value}"
+                    for reason_code in rejection.reason_codes
+                ],
+            ],
+        )
+        for rejection in rejections
+    ]
+
     return CandidateRanking(
         program_id=program.program_id,
-        ranked_candidates=[
-            RankedCandidate(
-                candidate_id=candidate.candidate_id,
-                score=round(score, 4),
-                rank=index,
-                reasons=reasons,
-                explainability={
-                    "top_drivers": reasons[:3],
-                    "blockers": [flag.summary for flag in candidate.liabilities[:3]],
-                    "confidence": round(1.0 - candidate.uncertainty, 4),
-                    "factor_scores": factor_scores,
-                    "missing_evidence": [],
-                },
-            )
-            for index, (candidate, score, reasons, factor_scores) in enumerate(
-                ranked, start=1
-            )
-        ],
+        ranked_candidates=ranked_candidates,
         rejected_candidates=rejected,
         rejections=rejections,
         tie_breaks=tie_breaks,
+        provenance_entries=provenance_entries,
+    )
+
+
+def build_ranking_provenance_report(
+    ranking: CandidateRanking,
+    policy: RankingPolicy,
+) -> CandidateRankingProvenanceReport:
+    """Build a stable provenance report for one ranking result."""
+    return CandidateRankingProvenanceReport(
+        program_id=ranking.program_id,
+        policy_id=policy.policy_id,
+        entries=ranking.provenance_entries,
     )
 
 
