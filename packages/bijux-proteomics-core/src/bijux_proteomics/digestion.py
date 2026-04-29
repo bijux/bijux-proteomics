@@ -6,11 +6,14 @@
 from __future__ import annotations
 
 from enum import StrEnum
+import hashlib
+import json
+from pathlib import Path
 from typing import Literal
 
 from pydantic import ConfigDict, Field, field_validator
 
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 _MONOISOTOPIC_RESIDUE_MASS: dict[str, float] = {
     "A": 71.03711,
@@ -129,6 +132,39 @@ class PeptideProteinIndexEntry(JsonModel):
     source_identifiers: tuple[str, ...] = Field(default_factory=tuple)
     coordinates: tuple[tuple[str, int, int], ...] = Field(default_factory=tuple)
     uniqueness: PeptideUniqueness
+
+
+class PeptideDigestManifest(JsonModel):
+    """Stable manifest for one digestion job."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    protease: str = Field(..., min_length=1)
+    digestion_mode: PeptideDigestionMode
+    missed_cleavages: int = Field(..., ge=0)
+    min_length: int | None = None
+    max_length: int | None = None
+    min_mass: float | None = None
+    max_mass: float | None = None
+    source_path: str | None = None
+    source_sha256: str | None = None
+    input_record_count: int = Field(..., ge=0)
+    output_peptide_count: int = Field(..., ge=0)
+    output_sha256: str = Field(..., min_length=64, max_length=64)
+
+
+class DigestBenchmarkReport(JsonModel):
+    """Measured digestion benchmark summary."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_count: int = Field(..., ge=0)
+    total_residues: int = Field(..., ge=0)
+    peptide_count: int = Field(..., ge=0)
+    elapsed_seconds: float = Field(..., ge=0.0)
+    peak_memory_bytes: int | None = Field(default=None, ge=0)
+    peptides_per_second: float = Field(..., ge=0.0)
 
 
 _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
@@ -322,6 +358,51 @@ def build_peptide_protein_index(
     return tuple(entries)
 
 
+def digest_protein_records(
+    records: tuple[object, ...],
+    *,
+    protease: ProteaseRule | str = "trypsin",
+    missed_cleavages: int = 0,
+    mode: PeptideDigestionMode = PeptideDigestionMode.FULL,
+    min_length: int = 1,
+    max_length: int | None = None,
+    min_mass: float | None = None,
+    max_mass: float | None = None,
+) -> tuple[DigestedPeptide, ...]:
+    """Digest normalized protein records or FASTA-like records into peptides."""
+    peptides: list[DigestedPeptide] = []
+    for record in records:
+        accession = getattr(record, "canonical_accession", None) or getattr(
+            record, "identifier", None
+        )
+        identifier = getattr(record, "source_identifier", None) or getattr(
+            record, "identifier", None
+        )
+        residues = getattr(record, "residues", None)
+        if accession is None or identifier is None or residues is None:
+            raise TypeError("digest_protein_records expects records with accession, identifier, and residues")
+        peptides.extend(
+            digest_sequence(
+                residues,
+                protease=protease,
+                source_accession=str(accession),
+                source_identifier=str(identifier),
+                missed_cleavages=missed_cleavages,
+                mode=mode,
+                min_length=min_length,
+                max_length=max_length,
+            )
+        )
+    filtered, _report = filter_digested_peptides(
+        tuple(peptides),
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+    )
+    return filtered
+
+
 def digest_sequence(
     sequence: str,
     *,
@@ -380,6 +461,171 @@ def digest_sequence(
                 )
             )
     return tuple(peptides)
+
+
+def export_peptides_tsv(peptides: tuple[DigestedPeptide, ...], path: Path) -> Path:
+    """Write a stable TSV export for digested peptides."""
+    header = "\t".join(
+        [
+            "source_accession",
+            "source_identifier",
+            "sequence",
+            "start",
+            "end",
+            "missed_cleavages",
+            "protease",
+            "digestion_mode",
+            "cleavage_type",
+            "neutral_mass",
+        ]
+    )
+    lines = [header]
+    for peptide in peptides:
+        lines.append(
+            "\t".join(
+                [
+                    peptide.source_accession,
+                    peptide.source_identifier,
+                    peptide.sequence,
+                    str(peptide.start),
+                    str(peptide.end),
+                    str(peptide.missed_cleavages),
+                    peptide.protease,
+                    peptide.digestion_mode.value,
+                    peptide.cleavage_type,
+                    f"{_peptide_neutral_mass(peptide.sequence):.5f}",
+                ]
+            )
+        )
+    path.write_text("\n".join(lines) + "\n")
+    return path
+
+
+def export_peptides_jsonl(peptides: tuple[DigestedPeptide, ...], path: Path) -> Path:
+    """Write a stable JSONL export for digested peptides."""
+    payload = []
+    for peptide in peptides:
+        entry = peptide.to_dict()
+        entry["neutral_mass"] = round(_peptide_neutral_mass(peptide.sequence), 5)
+        payload.append(entry)
+    path.write_text("\n".join(json.dumps(entry, sort_keys=True) for entry in payload) + "\n")
+    return path
+
+
+def export_peptides_parquet(peptides: tuple[DigestedPeptide, ...], path: Path) -> Path:
+    """Write an optional Parquet export for digested peptides."""
+    try:
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+    except ImportError as exc:
+        raise RuntimeError(
+            "Parquet export requires optional dependency 'pyarrow'"
+        ) from exc
+
+    rows = []
+    for peptide in peptides:
+        rows.append(
+            {
+                "source_accession": peptide.source_accession,
+                "source_identifier": peptide.source_identifier,
+                "sequence": peptide.sequence,
+                "start": peptide.start,
+                "end": peptide.end,
+                "missed_cleavages": peptide.missed_cleavages,
+                "protease": peptide.protease,
+                "digestion_mode": peptide.digestion_mode.value,
+                "cleavage_type": peptide.cleavage_type,
+                "neutral_mass": round(_peptide_neutral_mass(peptide.sequence), 5),
+            }
+        )
+    table = pa.Table.from_pylist(rows)
+    pq.write_table(table, path)
+    return path
+
+
+def peptide_export_fingerprint(peptides: tuple[DigestedPeptide, ...]) -> str:
+    """Return a stable digest over peptide export content."""
+    payload = [
+        {
+            "source_accession": peptide.source_accession,
+            "source_identifier": peptide.source_identifier,
+            "sequence": peptide.sequence,
+            "start": peptide.start,
+            "end": peptide.end,
+            "missed_cleavages": peptide.missed_cleavages,
+            "protease": peptide.protease,
+            "digestion_mode": peptide.digestion_mode.value,
+            "cleavage_type": peptide.cleavage_type,
+            "neutral_mass": round(_peptide_neutral_mass(peptide.sequence), 5),
+        }
+        for peptide in peptides
+    ]
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def build_digest_manifest(
+    *,
+    peptides: tuple[DigestedPeptide, ...],
+    protease: str,
+    digestion_mode: PeptideDigestionMode,
+    missed_cleavages: int,
+    min_length: int | None,
+    max_length: int | None,
+    min_mass: float | None,
+    max_mass: float | None,
+    source_path: Path | None,
+    input_record_count: int,
+) -> PeptideDigestManifest:
+    """Build a stable digestion manifest."""
+    source_sha256 = (
+        hashlib.sha256(source_path.read_bytes()).hexdigest()
+        if source_path is not None
+        else None
+    )
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="peptide_digest_manifest",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    manifest = PeptideDigestManifest(
+        document_schema=schema,
+        protease=protease,
+        digestion_mode=digestion_mode,
+        missed_cleavages=missed_cleavages,
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+        source_path=str(source_path) if source_path is not None else None,
+        source_sha256=source_sha256,
+        input_record_count=input_record_count,
+        output_peptide_count=len(peptides),
+        output_sha256=peptide_export_fingerprint(peptides),
+    )
+    payload = manifest.to_dict()
+    return manifest.model_copy(
+        update={"document_schema": manifest.document_schema.with_content_hash(payload)}
+    )
+
+
+def build_digest_benchmark_report(
+    *,
+    protein_count: int,
+    total_residues: int,
+    peptides: tuple[DigestedPeptide, ...],
+    elapsed_seconds: float,
+    peak_memory_bytes: int | None = None,
+) -> DigestBenchmarkReport:
+    """Build an explicit digestion benchmark report."""
+    return DigestBenchmarkReport(
+        protein_count=protein_count,
+        total_residues=total_residues,
+        peptide_count=len(peptides),
+        elapsed_seconds=elapsed_seconds,
+        peak_memory_bytes=peak_memory_bytes,
+        peptides_per_second=(len(peptides) / elapsed_seconds if elapsed_seconds > 0 else 0.0),
+    )
 
 
 def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...]:
