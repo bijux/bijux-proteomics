@@ -179,6 +179,43 @@ class ResolutionPolicyComparison(JsonModel):
     )
 
 
+class ContradictoryInterpretationCase(JsonModel):
+    """Named dataset or interpretation slice used for contradiction comparison."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str = Field(..., min_length=1)
+    dataset_label: str = Field(..., min_length=1)
+    interpretation_label: str = Field(..., min_length=1)
+    evidence_ids: list[str] = Field(default_factory=list)
+
+
+class ContradictoryInterpretationOutcome(JsonModel):
+    """Conflict-resolution outcome for one named interpretation slice."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str = Field(..., min_length=1)
+    dataset_label: str = Field(..., min_length=1)
+    interpretation_label: str = Field(..., min_length=1)
+    evidence_ids: list[str] = Field(default_factory=list)
+    conflict_count: int = Field(default=0, ge=0)
+    conflict_types: list[str] = Field(default_factory=list)
+    resolution_summary: ResolutionSummary = Field(...)
+
+
+class ContradictoryInterpretationComparison(JsonModel):
+    """Comparison report across contradictory dataset or search interpretations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    policy_id: str = Field(..., min_length=1)
+    outcomes: list[ContradictoryInterpretationOutcome] = Field(default_factory=list)
+    contradictory_case_pairs: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
 class ResolutionEscalationItem(JsonModel):
     """Prioritized escalation item for curator review."""
 
@@ -530,6 +567,71 @@ def compare_resolution_policies(
         target_id=bundle.target_id,
         policy_action_counts=policy_action_counts,
         policy_hold_flags=policy_hold_flags,
+    )
+
+
+def compare_contradictory_interpretations(
+    bundle: EvidenceBundle,
+    *,
+    cases: list[ContradictoryInterpretationCase],
+    policy: ResolutionPolicy | None = None,
+) -> ContradictoryInterpretationComparison:
+    """Compare contradictory datasets or search interpretations explicitly."""
+    policy = policy or ResolutionPolicy(policy_id="default-resolution-policy")
+    record_map = {record.evidence_id: record for record in bundle.records}
+    outcomes: list[ContradictoryInterpretationOutcome] = []
+    notes: list[str] = []
+    for case in cases:
+        missing = sorted(
+            evidence_id
+            for evidence_id in case.evidence_ids
+            if evidence_id not in record_map
+        )
+        if missing:
+            raise ValueError(
+                f"case {case.case_id} references unknown evidence ids: {', '.join(missing)}"
+            )
+        subbundle = bundle.model_copy(
+            update={
+                "records": [
+                    record_map[evidence_id] for evidence_id in case.evidence_ids
+                ]
+            }
+        )
+        trust, resolutions = resolve_conflicts(subbundle, policy=policy)
+        summary = summarize_resolutions(resolutions, policy=policy)
+        outcomes.append(
+            ContradictoryInterpretationOutcome(
+                case_id=case.case_id,
+                dataset_label=case.dataset_label,
+                interpretation_label=case.interpretation_label,
+                evidence_ids=case.evidence_ids,
+                conflict_count=len(trust.conflicts),
+                conflict_types=sorted(
+                    {conflict.conflict_type for conflict in trust.conflicts}
+                ),
+                resolution_summary=summary,
+            )
+        )
+        if summary.hold_required:
+            notes.append(
+                f"{case.case_id} requires hold under {case.dataset_label}/{case.interpretation_label}"
+            )
+    contradictory_pairs = sorted(
+        f"{left.case_id}<>{right.case_id}"
+        for index, left in enumerate(cases)
+        for right in cases[index + 1 :]
+    )
+    if not notes:
+        notes.append(
+            "all contradictory interpretation slices remain reviewable without mandatory hold"
+        )
+    return ContradictoryInterpretationComparison(
+        target_id=bundle.target_id,
+        policy_id=policy.policy_id,
+        outcomes=sorted(outcomes, key=lambda outcome: outcome.case_id),
+        contradictory_case_pairs=contradictory_pairs,
+        notes=notes,
     )
 
 
