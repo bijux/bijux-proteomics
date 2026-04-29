@@ -60,6 +60,15 @@ from bijux_proteomics.sequences import (
     sequence_checksum,
     validate_target_decoy_database,
 )
+from bijux_proteomics.spectra import (
+    annotate_spectrum_fragments,
+    build_spectrum_collection_summary,
+    build_spectrum_metrics,
+    build_spectrum_plot_payload,
+    build_spectrum_provenance_manifest,
+    export_spectrum_annotation_tsv,
+    parse_mgf,
+)
 
 
 def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
@@ -115,6 +124,10 @@ def _fragment_series_choice() -> click.Choice:
     return click.Choice([series.value for series in FragmentIonSeries], case_sensitive=False)
 
 
+def _validate_kind_choice() -> click.Choice:
+    return click.Choice(["auto", "fasta", "psm", "mgf", "mod-registry"], case_sensitive=False)
+
+
 def _build_psm_mapping(
     *,
     spectrum_id_column: str,
@@ -146,6 +159,34 @@ def _build_decoy_policy(
     return TargetDecoyLabelPolicy(
         protein_prefix=decoy_prefix,
         protein_suffix=decoy_suffix,
+    )
+
+
+def _default_psm_mapping() -> SearchResultColumnMapping:
+    return SearchResultColumnMapping(
+        spectrum_id="spectrum_id",
+        peptide="peptide",
+        charge="charge",
+        score="score",
+        q_value="q_value",
+        protein_refs="proteins",
+    )
+
+
+def _infer_input_kind(input_path: Path, explicit_kind: str) -> str:
+    if explicit_kind != "auto":
+        return explicit_kind
+    suffix = input_path.suffix.lower()
+    if suffix in {".fasta", ".fa", ".faa"}:
+        return "fasta"
+    if suffix == ".mgf":
+        return "mgf"
+    if suffix == ".tsv":
+        return "psm"
+    if suffix == ".json":
+        return "mod-registry"
+    raise click.ClickException(
+        f"cannot infer input kind for {input_path.name!r}; use --kind fasta, psm, mgf, or mod-registry"
     )
 
 
@@ -783,4 +824,195 @@ def fdr_command(
         "protein_summary": build_protein_summary_report(accepted).to_dict(),
         "provenance": provenance.to_dict(),
     }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectrum-stats")
+@click.argument("input_mgf", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--provenance-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def spectrum_stats_command(
+    input_mgf: Path,
+    provenance_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Summarize one MGF collection."""
+    report = parse_mgf(input_mgf)
+    summary = build_spectrum_collection_summary(report)
+    provenance = build_spectrum_provenance_manifest(source_path=input_mgf, parse_report=report)
+    if provenance_out is not None:
+        provenance_out.write_text(provenance.to_stable_json() + "\n")
+    payload = {
+        "summary": summary.to_dict(),
+        "provenance": provenance.to_dict(),
+        "metrics": [build_spectrum_metrics(spectrum).to_dict() for spectrum in report.accepted_spectra],
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectrum-annotate")
+@click.argument("input_mgf", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--peptide", required=True)
+@click.option("--spectrum-id", default=None, help="Optional target spectrum id; defaults to the first accepted spectrum.")
+@click.option("--tolerance-da", type=float, default=0.02, show_default=True)
+@click.option("--tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option("--plot-out", type=click.Path(path_type=Path, dir_okay=False), default=None)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON annotation output path.",
+)
+def spectrum_annotate_command(
+    input_mgf: Path,
+    peptide: str,
+    spectrum_id: str | None,
+    tolerance_da: float,
+    tsv_out: Path | None,
+    plot_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Annotate one spectrum against a peptide sequence."""
+    report = parse_mgf(input_mgf)
+    if not report.accepted_spectra:
+        raise click.ClickException("MGF input does not contain an accepted spectrum to annotate")
+    if spectrum_id is None:
+        spectrum = report.accepted_spectra[0]
+    else:
+        try:
+            spectrum = next(item for item in report.accepted_spectra if item.spectrum_id == spectrum_id)
+        except StopIteration as exc:
+            raise click.ClickException(f"unknown spectrum id {spectrum_id!r}") from exc
+    try:
+        annotation = annotate_spectrum_fragments(
+            spectrum,
+            peptide=peptide,
+            tolerance_da=tolerance_da,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    plot_payload = build_spectrum_plot_payload(spectrum, annotation=annotation)
+    if tsv_out is not None:
+        export_spectrum_annotation_tsv(annotation, tsv_out)
+    if plot_out is not None:
+        plot_out.write_text(plot_payload.to_stable_json() + "\n")
+    payload = {
+        "annotation": annotation.to_dict(),
+        "plot_payload": plot_payload.to_dict(),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("validate")
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--kind", "input_kind", type=_validate_kind_choice(), default="auto", show_default=True)
+@click.option("--mode", type=_mode_choice(), default=FastaParseMode.STRICT.value, show_default=True)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON validation output path.",
+)
+def validate_command(
+    input_path: Path,
+    input_kind: str,
+    mode: str,
+    out_path: Path | None,
+) -> None:
+    """Validate one FASTA, PSM TSV, MGF, or modification registry input."""
+    resolved_kind = _infer_input_kind(input_path, input_kind)
+    if resolved_kind == "fasta":
+        report = parse_fasta_document(input_path.read_text(), mode=FastaParseMode(mode))
+        payload = {
+            "input_kind": resolved_kind,
+            "valid": len(report.rejected_records) == 0,
+            "accepted_records": len(report.accepted_records),
+            "rejected_records": len(report.rejected_records),
+            "rejections": [rejected.to_dict() for rejected in report.rejected_records],
+        }
+    elif resolved_kind == "psm":
+        report = parse_psm_tsv(input_path, mapping=_default_psm_mapping())
+        payload = {
+            "input_kind": resolved_kind,
+            "valid": len(report.rejected_rows) == 0,
+            "accepted_rows": len(report.accepted_records),
+            "rejected_rows": len(report.rejected_rows),
+            "rejections": [rejected.to_dict() for rejected in report.rejected_rows],
+        }
+    elif resolved_kind == "mgf":
+        report = parse_mgf(input_path)
+        payload = {
+            "input_kind": resolved_kind,
+            "valid": len(report.rejected_blocks) == 0,
+            "accepted_spectra": len(report.accepted_spectra),
+            "rejected_blocks": len(report.rejected_blocks),
+            "rejections": [rejected.to_dict() for rejected in report.rejected_blocks],
+        }
+    else:
+        try:
+            registry = load_modification_registry(input_path)
+        except Exception as exc:  # noqa: BLE001
+            raise click.ClickException(str(exc)) from exc
+        payload = {
+            "input_kind": resolved_kind,
+            "valid": True,
+            "static_modifications": len(registry.static_modifications),
+            "variable_modifications": len(registry.variable_modifications),
+        }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("summarize")
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--kind", "input_kind", type=_validate_kind_choice(), default="auto", show_default=True)
+@click.option("--mode", type=_mode_choice(), default=FastaParseMode.STRICT.value, show_default=True)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON summary output path.",
+)
+def summarize_command(
+    input_path: Path,
+    input_kind: str,
+    mode: str,
+    out_path: Path | None,
+) -> None:
+    """Summarize one FASTA, PSM TSV, or MGF input."""
+    resolved_kind = _infer_input_kind(input_path, input_kind)
+    if resolved_kind == "fasta":
+        report = parse_fasta_document(input_path.read_text(), mode=FastaParseMode(mode))
+        payload = {
+            "input_kind": resolved_kind,
+            "summary": build_fasta_stats(report.accepted_records).to_dict(),
+            "rejected_records": len(report.rejected_records),
+        }
+    elif resolved_kind == "psm":
+        report = parse_psm_tsv(input_path, mapping=_default_psm_mapping())
+        normalized = apply_q_values(report.accepted_records)
+        payload = {
+            "input_kind": resolved_kind,
+            "psm_summary": build_psm_summary_report(normalized).to_dict(),
+            "peptide_summary": build_peptide_summary_report(normalized).to_dict(),
+            "protein_summary": build_protein_summary_report(normalized).to_dict(),
+            "rejected_rows": len(report.rejected_rows),
+        }
+    elif resolved_kind == "mgf":
+        report = parse_mgf(input_path)
+        payload = {
+            "input_kind": resolved_kind,
+            "summary": build_spectrum_collection_summary(report).to_dict(),
+            "metrics": [build_spectrum_metrics(spectrum).to_dict() for spectrum in report.accepted_spectra],
+        }
+    else:
+        raise click.ClickException("summarize currently supports fasta, psm, and mgf inputs")
     _emit_json(payload, out_path=out_path)

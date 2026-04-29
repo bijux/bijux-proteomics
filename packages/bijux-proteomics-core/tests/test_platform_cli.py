@@ -355,3 +355,100 @@ def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
         assert Path("accepted.jsonl").exists()
         manifest = json.loads(Path("fdr.provenance.json").read_text())
         assert manifest["fdr_policy"]["threshold"] == 0.5
+
+
+def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "spectra" / "multi.mgf"
+        shutil.copy(source, "multi.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-stats",
+                "multi.mgf",
+                "--provenance-out",
+                "multi.provenance.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["spectrum_count"] == 2
+        assert payload["metrics"][0]["peak_count"] >= 1
+        provenance = json.loads(Path("multi.provenance.json").read_text())
+        assert provenance["document_schema"]["document_kind"] == "spectrum_provenance_manifest"
+
+
+def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = Path(__file__).parent / "fixtures" / "spectra" / "simple.mgf"
+        shutil.copy(source, "simple.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-annotate",
+                "simple.mgf",
+                "--peptide",
+                "PEPTIDE",
+                "--tsv-out",
+                "annotation.tsv",
+                "--plot-out",
+                "plot.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["annotation"]["document_schema"]["document_kind"] == "spectrum_annotation"
+        assert payload["annotation"]["matches"]
+        assert Path("annotation.tsv").exists()
+        assert Path("plot.json").exists()
+
+
+def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(fasta_fixture_dir: Path) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+        shutil.copy(Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv", "results.tsv")
+        shutil.copy(Path(__file__).parent / "fixtures" / "spectra" / "simple.mgf", "simple.mgf")
+        shutil.copy(
+            Path(__file__).parent / "fixtures" / "modifications" / "valid_registry.json",
+            "registry.json",
+        )
+
+        fasta_result = runner.invoke(cli, ["validate", "valid.fasta", "--kind", "fasta"])
+        psm_result = runner.invoke(cli, ["validate", "results.tsv", "--kind", "psm"])
+        mgf_result = runner.invoke(cli, ["validate", "simple.mgf", "--kind", "mgf"])
+        registry_result = runner.invoke(cli, ["validate", "registry.json", "--kind", "mod-registry"])
+
+        assert fasta_result.exit_code == 0
+        assert json.loads(fasta_result.output)["valid"] is True
+        assert psm_result.exit_code == 0
+        assert json.loads(psm_result.output)["valid"] is True
+        assert mgf_result.exit_code == 0
+        assert json.loads(mgf_result.output)["valid"] is True
+        assert registry_result.exit_code == 0
+        assert json.loads(registry_result.output)["variable_modifications"] >= 1
+
+
+def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+        shutil.copy(Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv", "results.tsv")
+        shutil.copy(Path(__file__).parent / "fixtures" / "spectra" / "multi.mgf", "multi.mgf")
+
+        fasta_result = runner.invoke(cli, ["summarize", "valid.fasta", "--kind", "fasta"])
+        psm_result = runner.invoke(cli, ["summarize", "results.tsv", "--kind", "psm"])
+        mgf_result = runner.invoke(cli, ["summarize", "multi.mgf", "--kind", "mgf"])
+
+        assert fasta_result.exit_code == 0
+        assert json.loads(fasta_result.output)["summary"]["total_records"] == 3
+        assert psm_result.exit_code == 0
+        assert json.loads(psm_result.output)["psm_summary"]["total_psms"] == 3
+        assert mgf_result.exit_code == 0
+        assert json.loads(mgf_result.output)["summary"]["spectrum_count"] == 2
