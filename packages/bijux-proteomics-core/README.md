@@ -264,6 +264,27 @@ annotation = annotate_spectrum_fragments(spectrum, peptide="PEPTIDE", tolerance_
 plot_payload = build_spectrum_plot_payload(spectrum, annotation=annotation)
 ```
 
+The same spectrum surface is available from the CLI for file validation,
+summary, provenance capture, and peptide-to-spectrum annotation:
+
+```bash
+bijux-proteomics spectrum-stats spectra.mgf \
+  --provenance-out spectra.provenance.json
+
+bijux-proteomics spectrum-annotate spectra.mgf \
+  --peptide PEPTIDEK \
+  --tsv-out annotation.tsv \
+  --plot-out plot.json
+
+bijux-proteomics validate spectra.mgf --kind mgf
+bijux-proteomics summarize spectra.mgf --kind mgf
+```
+
+For a minimal end-to-end example that starts from FASTA, carries through
+digest and search-result normalization, and finishes with FDR filtering plus
+spectrum annotation, see
+[`docs/FIRST_USEFUL_RUN.md`](./docs/FIRST_USEFUL_RUN.md).
+
 ## Package identity
 
 - Distribution name: `bijux-proteomics-core`
@@ -358,6 +379,7 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`src/bijux_proteomics/spectra.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/spectra.py) for spectrum models, MGF parsing/rendering, peak normalization and filtering, fragment annotation, and plot payload export
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
+- [`docs/FIRST_USEFUL_RUN.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FIRST_USEFUL_RUN.md) for a copy-paste path from fixture inputs to thresholded reports and spectrum annotation
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/tests) for executable behavior expectations
 
 ## Documentation

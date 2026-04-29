@@ -15,6 +15,7 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Added search-result identification contracts for PSM parsing, engine column mapping, validation, target-decoy labeling, stable JSONL export, sorting, best-spectrum-hit selection, and peptide/protein evidence rollups in `bijux_proteomics.identification`.
 - Added basic target-decoy FDR, monotonic q-value assignment, threshold filtering, PSM/peptide/protein summary reporting, provenance manifests, stable TSV export, and the `bijux-proteomics psm-inspect` and `bijux-proteomics fdr` CLI workflows.
 - Added spectrum contracts for MGF parsing/rendering, peak normalization and filtering, TIC/base-peak metrics, precursor mass error, fragment annotation, TSV annotation export, and plot payload generation in `bijux_proteomics.spectra`.
+- Added spectral similarity scoring, parser line diagnostics, spectrum provenance manifests, `spectrum-stats`, `spectrum-annotate`, `validate`, and `summarize` CLI workflows, and a checked first useful proteomics run fixture pack plus walkthrough documentation.
 
 ### Changed
 
@@ -23,6 +24,7 @@ All notable changes for `bijux-proteomics-core` are recorded here.
 - Exported the new search-result identification contracts through the package public API and README examples.
 - Expanded the README identification examples to cover thresholded FDR filtering, provenance manifests, and CLI inspection/export workflows.
 - Expanded the README package examples to cover spectrum parsing, annotation, and plot payload generation.
+- Expanded package docs with spectrum CLI examples and a copy-paste first useful proteomics run guide.
 
 ## 0.3.7 - 2026-04-21
 
