@@ -623,6 +623,52 @@ def test_shared_peptide_ambiguity_report_explains_group_membership() -> None:
     assert mixed_entry.outside_group_proteins == ("P11111",)
 
 
+def test_grouped_and_picked_fdr_regression_fixture_covers_realistic_edge_cases() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("grouped_picked_fdr_edge_cases.tsv"), mapping=_default_mapping()
+    )
+
+    grouped_charge = calculate_grouped_fdr(
+        report.accepted_records,
+        group_by="charge_state",
+        threshold=0.1,
+        score_orientation="higher_better",
+    )
+    grouped_modification = calculate_grouped_fdr(
+        report.accepted_records,
+        group_by="modification_state",
+        threshold=0.1,
+        score_orientation="higher_better",
+    )
+    picked = calculate_picked_protein_fdr(
+        report.accepted_records,
+        threshold=0.1,
+        score_orientation="higher_better",
+    )
+
+    assert {bucket.group_key for bucket in grouped_charge.groups} == {"z2", "z3", "z4"}
+    assert {bucket.group_key for bucket in grouped_modification.groups} == {
+        "modified",
+        "unmodified",
+    }
+    assert {entry.protein_ref for entry in picked} == {
+        "P11111",
+        "P22222",
+        "P33333",
+        "P44444",
+        "DECOY_P55555",
+    }
+    assert next(entry for entry in picked if entry.protein_ref == "P11111").partner_ref == (
+        "DECOY_P11111"
+    )
+    assert next(
+        entry for entry in picked if entry.protein_ref == "DECOY_P55555"
+    ).partner_ref == "P55555"
+    assert [entry.q_value for entry in picked] == sorted(entry.q_value for entry in picked)
+
+
 def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> (
     None
 ):
