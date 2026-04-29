@@ -536,6 +536,30 @@ class ProteomicsWorkflowRuntimeBundle(JsonModel):
     checkpoint: WorkflowCheckpoint
 
 
+class WorkflowRuntimeExportBundle(JsonModel):
+    """Deterministic export bundle for local review and bug reproduction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    export_bundle_sha256: str = Field(..., min_length=64, max_length=64)
+    manifest: ProteomicsWorkflowManifest
+    dag_plan: ProteomicsDagPlan
+    deterministic_execution: DeterministicExecutionContract
+    runtime_state: WorkflowRuntimeStateManifest
+    run_directory_layout: WorkflowRunDirectoryLayout
+    container_steps: tuple[ContainerizedStepSpec, ...] = Field(default_factory=tuple)
+    search_contract: ExternalSearchToolContract
+    hpc_job: HpcJobDescriptor
+    cache_manifest: WorkflowCacheManifest
+    artifact_registry: ProteomicsArtifactRegistry
+    artifact_inventory: ProteomicsArtifactInventory
+    streaming_policy: LargeFileStreamingPolicy
+    parallel_plan: ParallelExecutionPlan
+    checkpoint: WorkflowCheckpoint
+
+
 def _build_document_schema(document_kind: str) -> DocumentSchema:
     return DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -1912,4 +1936,61 @@ def build_proteomics_workflow_runtime_bundle(
         streaming_policy=streaming_policy,
         parallel_plan=parallel_plan,
         checkpoint=checkpoint,
+    )
+
+
+def build_workflow_runtime_export_bundle(
+    runtime_bundle: ProteomicsWorkflowRuntimeBundle,
+) -> WorkflowRuntimeExportBundle:
+    """Assemble a deterministic runtime export bundle for review and reproduction."""
+    export_bundle_sha256 = hashlib.sha256(
+        "|".join(
+            (
+                _stable_model_sha256(runtime_bundle.manifest),
+                _stable_model_sha256(runtime_bundle.dag_plan),
+                _stable_model_sha256(runtime_bundle.deterministic_execution),
+                _stable_model_sha256(runtime_bundle.runtime_state),
+                _stable_model_sha256(runtime_bundle.run_directory_layout),
+                _stable_sequence_sha256(
+                    tuple(
+                        _stable_model_sha256(step)
+                        for step in runtime_bundle.container_steps
+                    )
+                ),
+                _stable_model_sha256(runtime_bundle.search_contract),
+                _stable_model_sha256(runtime_bundle.hpc_job),
+                _stable_model_sha256(runtime_bundle.cache_manifest),
+                _stable_model_sha256(runtime_bundle.artifact_registry),
+                _stable_model_sha256(runtime_bundle.artifact_inventory),
+                _stable_model_sha256(runtime_bundle.streaming_policy),
+                _stable_model_sha256(runtime_bundle.parallel_plan),
+                _stable_model_sha256(runtime_bundle.checkpoint),
+            )
+        ).encode("utf-8")
+    ).hexdigest()
+    payload = WorkflowRuntimeExportBundle(
+        document_schema=_build_document_schema("workflow_runtime_export_bundle"),
+        workflow_id=runtime_bundle.manifest.workflow_id,
+        export_bundle_sha256=export_bundle_sha256,
+        manifest=runtime_bundle.manifest,
+        dag_plan=runtime_bundle.dag_plan,
+        deterministic_execution=runtime_bundle.deterministic_execution,
+        runtime_state=runtime_bundle.runtime_state,
+        run_directory_layout=runtime_bundle.run_directory_layout,
+        container_steps=runtime_bundle.container_steps,
+        search_contract=runtime_bundle.search_contract,
+        hpc_job=runtime_bundle.hpc_job,
+        cache_manifest=runtime_bundle.cache_manifest,
+        artifact_registry=runtime_bundle.artifact_registry,
+        artifact_inventory=runtime_bundle.artifact_inventory,
+        streaming_policy=runtime_bundle.streaming_policy,
+        parallel_plan=runtime_bundle.parallel_plan,
+        checkpoint=runtime_bundle.checkpoint,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
