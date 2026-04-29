@@ -668,6 +668,41 @@ class ConfidenceAssignment(JsonModel):
     explanation: str = Field(..., min_length=1)
 
 
+class ConfidenceCalibrationLevel(StrEnum):
+    """Evidence levels supported by the calibration assessment surface."""
+
+    PSM = "psm"
+    PEPTIDE = "peptide"
+    PROTEIN = "protein"
+
+
+class ConfidenceCalibrationEntry(JsonModel):
+    """Calibration-aware confidence summary beyond raw q-values."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_level: ConfidenceCalibrationLevel
+    entity_id: str = Field(..., min_length=1)
+    q_value: float | None = Field(default=None, ge=0.0)
+    normalized_score: float = Field(..., ge=0.0, le=1.0)
+    calibration_bin_lower: float = Field(..., ge=0.0, le=1.0)
+    calibration_bin_upper: float = Field(..., ge=0.0, le=1.0)
+    empirical_decoy_fraction: float = Field(..., ge=0.0, le=1.0)
+    support_score: float = Field(..., ge=0.0, le=1.0)
+    note: str = Field(..., min_length=1)
+
+
+class ConfidenceCalibrationReport(JsonModel):
+    """Calibration assessment that keeps empirical decoy context beside q-values."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_level: ConfidenceCalibrationLevel
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    entries: tuple[ConfidenceCalibrationEntry, ...] = Field(default_factory=tuple)
+    calibration_plot: CalibrationPlotData
+
+
 class LevelSpecificConfidenceAssignment(JsonModel):
     """Confidence assignment for one explicit evidence level."""
 
@@ -1569,6 +1604,119 @@ def detect_score_orientation_advisory(
         support_gap=support_gap,
         candidates=tuple(sorted_candidates),
         note=note,
+    )
+
+
+def _records_for_confidence_calibration(
+    records: tuple[PsmRecord, ...],
+    *,
+    evidence_level: ConfidenceCalibrationLevel,
+) -> tuple[PsmRecord, ...]:
+    if evidence_level is ConfidenceCalibrationLevel.PSM:
+        return records
+    if evidence_level is ConfidenceCalibrationLevel.PEPTIDE:
+        rollups = rollup_peptide_evidence(records)
+        return tuple(
+            PsmRecord(
+                spectrum_id=entry.canonical_peptide,
+                peptide=entry.peptide,
+                canonical_peptide=entry.canonical_peptide,
+                charge=max(entry.charge_states) if entry.charge_states else 1,
+                score=entry.best_score,
+                q_value=entry.best_q_value,
+                protein_refs=entry.protein_refs,
+                target_decoy_label=entry.target_decoy_label,
+            )
+            for entry in rollups
+        )
+    rollups = rollup_protein_evidence(records)
+    return tuple(
+        PsmRecord(
+            spectrum_id=entry.protein_ref,
+            peptide=entry.protein_ref,
+            canonical_peptide=entry.protein_ref,
+            charge=1,
+            score=entry.best_score,
+            q_value=entry.best_q_value,
+            protein_refs=(entry.protein_ref,),
+            target_decoy_label=entry.target_decoy_label,
+        )
+        for entry in rollups
+    )
+
+
+def build_confidence_calibration_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    evidence_level: ConfidenceCalibrationLevel = ConfidenceCalibrationLevel.PSM,
+    score_orientation: str = "higher_better",
+    bin_count: int = 10,
+) -> ConfidenceCalibrationReport:
+    """Assess confidence with empirical calibration context beyond q-values."""
+    calibration_records = _records_for_confidence_calibration(
+        records,
+        evidence_level=evidence_level,
+    )
+    calibration_plot = build_calibration_plot_data(
+        calibration_records,
+        score_orientation=score_orientation,
+        bin_count=bin_count,
+    )
+    normalized_entries = normalize_psm_score_orientation(
+        calibration_records,
+        score_orientation=score_orientation,
+    )
+    entries: list[ConfidenceCalibrationEntry] = []
+    for entry in normalized_entries:
+        bin_match = next(
+            (
+                calibration_bin
+                for calibration_bin in calibration_plot.bins
+                if calibration_bin.bin_lower <= entry.normalized_score
+                and (
+                    entry.normalized_score < calibration_bin.bin_upper
+                    or calibration_bin.bin_upper == 1.0
+                )
+            ),
+            calibration_plot.bins[-1] if calibration_plot.bins else None,
+        )
+        if bin_match is None:
+            continue
+        q_value = next(
+            (
+                record.q_value
+                for record in calibration_records
+                if record.spectrum_id == entry.spectrum_id
+            ),
+            None,
+        )
+        q_component = 1.0 - min(q_value if q_value is not None else 0.5, 1.0)
+        support_score = max(
+            0.0,
+            min(
+                1.0,
+                ((1.0 - bin_match.decoy_fraction) + entry.normalized_score + q_component)
+                / 3.0,
+            ),
+        )
+        entries.append(
+            ConfidenceCalibrationEntry(
+                evidence_level=evidence_level,
+                entity_id=entry.spectrum_id,
+                q_value=q_value,
+                normalized_score=entry.normalized_score,
+                calibration_bin_lower=bin_match.bin_lower,
+                calibration_bin_upper=bin_match.bin_upper,
+                empirical_decoy_fraction=bin_match.decoy_fraction,
+                support_score=support_score,
+                note="support combines normalized rank, q-value, and empirical decoy fraction in the matched calibration bin",
+            )
+        )
+    return ConfidenceCalibrationReport(
+        evidence_level=evidence_level,
+        score_orientation=score_orientation,
+        entries=tuple(entries),
+        calibration_plot=calibration_plot,
     )
 
 

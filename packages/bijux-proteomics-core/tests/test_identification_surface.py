@@ -9,6 +9,7 @@ from pathlib import Path
 from bijux_proteomics import (
     FastaParseMode,
     FdrPolicy,
+    ConfidenceCalibrationLevel,
     ParsimonyVariant,
     PsmRecord,
     PsmSortField,
@@ -19,6 +20,7 @@ from bijux_proteomics import (
     assign_confidence_labels,
     assign_level_specific_confidence_labels,
     assign_razor_peptides,
+    build_confidence_calibration_report,
     build_accepted_psm_provenance_report,
     build_calibration_plot_data,
     build_confidence_threshold_sensitivity_report,
@@ -717,6 +719,29 @@ def test_combined_evidence_report_joins_identification_ptm_and_quant_support() -
     assert shared.ptm_site_keys == ("P11111:S5:Phospho",)
     assert shared.quant_support[0].sample_id == "C1"
     assert ParsimonyVariant.GREEDY_COVERAGE in shared.parsimony_variants
+
+
+def test_confidence_calibration_report_adds_empirical_context_beyond_q_values() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+
+    psm_calibration = build_confidence_calibration_report(
+        report.accepted_records,
+        score_orientation="higher_better",
+    )
+    protein_calibration = build_confidence_calibration_report(
+        report.accepted_records,
+        evidence_level=ConfidenceCalibrationLevel.PROTEIN,
+        score_orientation="higher_better",
+    )
+
+    first_psm = psm_calibration.entries[0]
+    assert first_psm.evidence_level.value == "psm"
+    assert 0.0 <= first_psm.empirical_decoy_fraction <= 1.0
+    assert 0.0 <= first_psm.support_score <= 1.0
+    assert protein_calibration.evidence_level.value == "protein"
+    assert any(entry.entity_id == "P11111" for entry in protein_calibration.entries)
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:
