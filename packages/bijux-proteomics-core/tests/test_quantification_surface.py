@@ -16,6 +16,7 @@ from bijux_proteomics import (
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_protein_quant_rollup_evidence,
     build_quant_matrix_export,
     build_replicate_correlation_report,
     build_spectral_count_table,
@@ -158,6 +159,25 @@ def test_quant_matrix_export_preserves_sample_metadata_missingness_and_provenanc
         assert header.startswith("sample_id\tcondition\treplicate")
     finally:
         output_path.unlink(missing_ok=True)
+
+
+def test_protein_quant_rollup_evidence_lists_contributing_features_and_peptides() -> (
+    None
+):
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+
+    evidence = build_protein_quant_rollup_evidence(
+        report.accepted_records,
+        aggregation_method=QuantRollupMethod.TOP_N,
+        top_n=2,
+    )
+
+    entry = next(
+        entry for entry in evidence if entry.protein_ref == "P001" and entry.sample_id == "C1"
+    )
+    assert entry.abundance == 1900.0
+    assert entry.contributing_feature_ids == ("f001", "f002")
+    assert entry.contributing_peptides == ("APEPTIDE", "APEPTIDER")
 
 
 def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -> None:

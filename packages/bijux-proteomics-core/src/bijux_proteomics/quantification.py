@@ -244,6 +244,20 @@ class QuantMatrixExport(JsonModel):
     normalization_provenance: QuantNormalizationProvenance
 
 
+class ProteinQuantRollupEvidenceEntry(JsonModel):
+    """One protein/sample rollup with explicit contributing peptide and feature evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    aggregation_method: QuantRollupMethod
+    abundance: float | None = Field(default=None, ge=0.0)
+    contributing_feature_ids: tuple[str, ...] = Field(default_factory=tuple)
+    contributing_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    missing_value_kind: MissingValueKind
+
+
 class MissingValueSummaryEntry(JsonModel):
     """Missing-value counts for one sample within a quant table."""
 
@@ -625,6 +639,73 @@ def build_quant_matrix_export(
             normalization_factors=table.normalization_factors,
             note=note,
         ),
+    )
+
+
+def build_protein_quant_rollup_evidence(
+    records: tuple[Ms1FeatureRecord, ...],
+    *,
+    aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
+    top_n: int = 3,
+) -> tuple[ProteinQuantRollupEvidenceEntry, ...]:
+    """Build explicit protein rollup evidence from contributing peptide features."""
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    grouped_features: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
+    for record in records:
+        for protein_ref in record.protein_refs:
+            grouped_features.setdefault((protein_ref, record.sample_id), []).append(record)
+
+    entries: list[ProteinQuantRollupEvidenceEntry] = []
+    value_lookup = _matrix_value_index(table)
+    for protein_ref in table.entity_ids:
+        for sample_id in table.sample_ids:
+            bucket = sorted(
+                grouped_features.get((protein_ref, sample_id), ()),
+                key=lambda record: (
+                    -(record.intensity or 0.0),
+                    record.canonical_peptide,
+                    record.feature_id,
+                ),
+            )
+            entries.append(
+                ProteinQuantRollupEvidenceEntry(
+                    protein_ref=protein_ref,
+                    sample_id=sample_id,
+                    aggregation_method=aggregation_method,
+                    abundance=value_lookup[(protein_ref, sample_id)].abundance,
+                    contributing_feature_ids=tuple(
+                        record.feature_id
+                        for record in (
+                            bucket[:top_n]
+                            if aggregation_method is QuantRollupMethod.TOP_N
+                            else bucket
+                        )
+                    ),
+                    contributing_peptides=tuple(
+                        dict.fromkeys(
+                            record.canonical_peptide
+                            for record in (
+                                bucket[:top_n]
+                                if aggregation_method is QuantRollupMethod.TOP_N
+                                else bucket
+                            )
+                        )
+                    ),
+                    missing_value_kind=value_lookup[
+                        (protein_ref, sample_id)
+                    ].missing_value_kind,
+                )
+            )
+    return tuple(
+        sorted(
+            entries,
+            key=lambda entry: (entry.protein_ref, entry.sample_id),
+        )
     )
 
 
