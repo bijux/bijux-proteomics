@@ -75,6 +75,7 @@ nav:
           - API and Schema Governance: 01-bijux-proteomics/operations/api-and-schema-governance.md
           - Runtime Migration Validation: 01-bijux-proteomics/operations/runtime-migration-validation.md
           - Contributor Workflows: 01-bijux-proteomics/operations/contributor-workflows.md
+          - Package Contributor Onboarding: 01-bijux-proteomics/operations/package-contributor-onboarding.md
           - Automation Surfaces: 01-bijux-proteomics/operations/automation-surfaces.md
           - Artifact Governance: 01-bijux-proteomics/operations/artifact-governance.md
           - Review Expectations: 01-bijux-proteomics/operations/review-expectations.md

@@ -289,6 +289,7 @@ def test_repository_operations_leaf_pages_keep_section_sidebar(
         "API and Schema Governance",
         "Runtime Migration Validation",
         "Contributor Workflows",
+        "Package Contributor Onboarding",
         "Automation Surfaces",
         "Artifact Governance",
         "Review Expectations",
