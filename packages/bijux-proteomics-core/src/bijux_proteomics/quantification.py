@@ -349,6 +349,15 @@ class ReplicateCorrelationReport(JsonModel):
     between_condition_mean: float | None = Field(default=None, ge=-1.0, le=1.0)
 
 
+class DifferentialReplicatePolicy(JsonModel):
+    """Minimum replicate policy for differential abundance comparisons."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min_replicates_per_condition: int = Field(default=2, ge=1)
+    disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ENFORCED
+
+
 class DifferentialAbundanceEntry(JsonModel):
     """One entity-level two-condition differential abundance result."""
 
@@ -375,6 +384,9 @@ class DifferentialAbundanceReport(JsonModel):
     normalization_method: NormalizationMethod
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
+    replicate_policy: DifferentialReplicatePolicy = Field(
+        default_factory=DifferentialReplicatePolicy
+    )
     entries: tuple[DifferentialAbundanceEntry, ...] = Field(default_factory=tuple)
 
 
@@ -1405,8 +1417,10 @@ def build_differential_abundance_report(
     *,
     condition_a: str | None = None,
     condition_b: str | None = None,
+    replicate_policy: DifferentialReplicatePolicy | None = None,
 ) -> DifferentialAbundanceReport:
     """Run a basic two-condition Welch-style differential abundance test."""
+    active_policy = replicate_policy or DifferentialReplicatePolicy()
     condition_by_sample = _condition_lookup(design_entries)
     conditions = sorted(
         {condition for condition in condition_by_sample.values() if condition}
@@ -1429,6 +1443,14 @@ def build_differential_abundance_report(
     )
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
+    if (
+        len(samples_a) < active_policy.min_replicates_per_condition
+        or len(samples_b) < active_policy.min_replicates_per_condition
+    ):
+        if active_policy.disposition is QuantAssessmentDisposition.ENFORCED:
+            raise ValueError(
+                "minimum replicate policy not satisfied for differential abundance"
+            )
 
     lookup = _matrix_value_index(table)
     entries: list[DifferentialAbundanceEntry] = []
@@ -1480,6 +1502,7 @@ def build_differential_abundance_report(
         normalization_method=table.normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
+        replicate_policy=active_policy,
         entries=tuple(entries),
     )
 

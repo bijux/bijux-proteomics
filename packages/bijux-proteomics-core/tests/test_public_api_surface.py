@@ -101,6 +101,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_batch_effect_advisory" in bijux_proteomics.__all__
     assert "build_replicate_correlation_report" in bijux_proteomics.__all__
     assert "build_differential_abundance_report" in bijux_proteomics.__all__
+    assert "DifferentialReplicatePolicy" in bijux_proteomics.__all__
     assert "apply_benjamini_hochberg" in bijux_proteomics.__all__
     assert "PtmEvidenceRecord" in bijux_proteomics.__all__
     assert "parse_ptm_localization_tsv" in bijux_proteomics.__all__

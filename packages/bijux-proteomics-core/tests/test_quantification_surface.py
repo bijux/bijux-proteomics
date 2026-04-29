@@ -12,6 +12,7 @@ from bijux_proteomics import (
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
+    QuantAssessmentDisposition,
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
@@ -21,6 +22,7 @@ from bijux_proteomics import (
     build_quant_matrix_export,
     build_replicate_correlation_report,
     build_spectral_count_table,
+    DifferentialReplicatePolicy,
     export_quant_matrix_tsv,
     normalize_label_free_table,
     parse_experimental_design_table,
@@ -280,3 +282,50 @@ def test_differential_abundance_and_bh_correction_surface_signal() -> None:
     assert all(entry.adjusted_p_value is not None for entry in differential.entries)
     assert p001.log2_fold_change > 0
     assert p002.log2_fold_change < 0
+
+
+def test_differential_abundance_respects_minimum_replicate_policy() -> None:
+    feature_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    design_report = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
+    table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            feature_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.TOP_N,
+            top_n=2,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    one_vs_two_design = tuple(
+        entry
+        for entry in design_report.accepted_entries
+        if entry.sample_id in {"C1", "T1", "T2"}
+    )
+
+    try:
+        build_differential_abundance_report(
+            table,
+            one_vs_two_design,
+            condition_a="control",
+            condition_b="treatment",
+            replicate_policy=DifferentialReplicatePolicy(
+                min_replicates_per_condition=2,
+                disposition=QuantAssessmentDisposition.ENFORCED,
+            ),
+        )
+    except ValueError as exc:
+        assert "minimum replicate policy" in str(exc)
+    else:
+        raise AssertionError("expected enforced replicate policy failure")
+
+    advisory = build_differential_abundance_report(
+        table,
+        one_vs_two_design,
+        condition_a="control",
+        condition_b="treatment",
+        replicate_policy=DifferentialReplicatePolicy(
+            min_replicates_per_condition=2,
+            disposition=QuantAssessmentDisposition.ADVISORY,
+        ),
+    )
+    assert advisory.replicate_policy.disposition.value == "ADVISORY"
