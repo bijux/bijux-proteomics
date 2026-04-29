@@ -242,6 +242,27 @@ class PtmMotifWindow(JsonModel):
     flank_size: int = Field(..., ge=0)
 
 
+class PtmMotifBackgroundEntry(JsonModel):
+    """Foreground/background residue counts for PTM motif interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    residue: str = Field(..., min_length=1, max_length=1)
+    foreground_site_count: int = Field(..., ge=0)
+    background_site_count: int = Field(..., ge=0)
+
+
+class PtmMotifBackgroundReport(JsonModel):
+    """Residue background report for one PTM modification class."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    modification_name: str = Field(..., min_length=1)
+    total_foreground_sites: int = Field(..., ge=0)
+    total_background_sites: int = Field(..., ge=0)
+    entries: tuple[PtmMotifBackgroundEntry, ...] = Field(default_factory=tuple)
+
+
 def _parse_protein_refs(raw_value: str, separator: str) -> tuple[str, ...]:
     refs = tuple(token.strip() for token in raw_value.split(separator) if token.strip())
     return tuple(dict.fromkeys(refs))
@@ -860,6 +881,46 @@ def build_ptm_enrichment_input(
         modification_name=modification_name,
         site_ids=tuple(site_ids),
         background_ids=tuple(background),
+    )
+
+
+def build_ptm_motif_background_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    protein_sequences: dict[str, str],
+    modification_name: str = "Phospho",
+) -> PtmMotifBackgroundReport:
+    """Build a residue background report for PTM motif interpretation."""
+    relevant_entries = tuple(
+        entry
+        for entry in site_entries
+        if entry.modification_name == modification_name
+        and entry.target_decoy_label is not TargetDecoyLabel.DECOY
+    )
+    target_residues = tuple(
+        sorted({entry.residue for entry in relevant_entries})
+    ) or ("S", "T", "Y")
+    foreground_counts = {
+        residue: sum(1 for entry in relevant_entries if entry.residue == residue)
+        for residue in target_residues
+    }
+    background_counts = {
+        residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
+        for residue in target_residues
+    }
+    entries = tuple(
+        PtmMotifBackgroundEntry(
+            residue=residue,
+            foreground_site_count=foreground_counts[residue],
+            background_site_count=background_counts[residue],
+        )
+        for residue in target_residues
+    )
+    return PtmMotifBackgroundReport(
+        modification_name=modification_name,
+        total_foreground_sites=sum(foreground_counts.values()),
+        total_background_sites=sum(background_counts.values()),
+        entries=entries,
     )
 
 

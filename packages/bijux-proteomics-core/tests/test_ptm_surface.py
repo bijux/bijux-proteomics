@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics import (
     build_ptm_enrichment_input,
+    build_ptm_motif_background_report,
     build_ptm_motif_windows,
     build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
@@ -143,6 +144,10 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
     enrichment = build_ptm_enrichment_input(
         site_table, protein_sequences=_protein_sequences()
     )
+    background = build_ptm_motif_background_report(
+        site_table,
+        protein_sequences=_protein_sequences(),
+    )
 
     c1 = next(
         entry
@@ -161,3 +166,5 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
     assert motif.window == "AAASPEP"
     assert "P11111:S5:Phospho" in enrichment.site_ids
     assert "P11111:S5" in enrichment.background_ids
+    assert background.total_foreground_sites >= 1
+    assert next(entry for entry in background.entries if entry.residue == "S").background_site_count >= 1
