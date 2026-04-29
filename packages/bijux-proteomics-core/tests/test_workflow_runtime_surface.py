@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics import (
     SearchAdapterKind,
     build_deterministic_execution_contract,
+    build_workflow_run_directory_layout,
     build_workflow_runtime_state_manifest,
     WorkflowCheckpointStatus,
     WorkflowExecutionMode,
@@ -80,6 +81,7 @@ def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_scri
     assert bundle.search_contract.tool_name == "Generic search table"
     assert bundle.deterministic_execution.workflow_id == bundle.manifest.workflow_id
     assert bundle.runtime_state.workflow_id == bundle.manifest.workflow_id
+    assert bundle.run_directory_layout.root_dir == bundle.manifest.artifacts_dir
     assert bundle.cache_manifest.entries
     assert bundle.artifact_registry.artifacts
     assert bundle.parallel_plan.groups[0].step_ids
@@ -136,6 +138,26 @@ def test_runtime_state_manifest_links_result_bindings_to_runtime_paths() -> None
     )
     assert runtime_state.result_bindings[0].runtime_path.startswith(
         bundle.manifest.artifacts_dir
+    )
+
+
+def test_workflow_run_directory_layout_is_predictable_and_reviewable() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    layout = build_workflow_run_directory_layout(manifest)
+
+    assert layout.root_dir == manifest.artifacts_dir
+    assert any(entry.relative_path == "digest" for entry in layout.entries)
+    assert any(
+        entry.relative_path == "bundle/bundle.manifest.json" for entry in layout.entries
     )
 
 

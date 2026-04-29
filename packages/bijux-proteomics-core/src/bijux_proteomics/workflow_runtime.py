@@ -93,6 +93,13 @@ class WorkflowCheckpointStatus(StrEnum):
     BLOCKED = "blocked"
 
 
+class WorkflowPathKind(StrEnum):
+    """Stable distinction between runtime files and directories."""
+
+    FILE = "file"
+    DIRECTORY = "directory"
+
+
 class DeterministicExecutionContract(JsonModel):
     """Stable reproducibility contract over one runtime execution plan."""
 
@@ -135,6 +142,33 @@ class WorkflowRuntimeStateManifest(JsonModel):
     deterministic_execution_sha256: str = Field(..., min_length=64, max_length=64)
     checkpointable_step_ids: tuple[str, ...] = Field(default_factory=tuple)
     result_bindings: tuple[CoreResultRuntimeBinding, ...] = Field(default_factory=tuple)
+
+
+class WorkflowRunDirectoryLayoutEntry(JsonModel):
+    """One predictable runtime path inside the workflow artifacts tree."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entry_id: str = Field(..., min_length=1)
+    path_kind: WorkflowPathKind
+    relative_path: str = Field(..., min_length=1)
+    description: str = Field(..., min_length=1)
+    producer_step_id: str | None = None
+    expected_artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(
+        default_factory=tuple
+    )
+    required: bool = True
+
+
+class WorkflowRunDirectoryLayout(JsonModel):
+    """Stable contract for predictable workflow artifact layout."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    root_dir: str = Field(..., min_length=1)
+    entries: tuple[WorkflowRunDirectoryLayoutEntry, ...] = Field(default_factory=tuple)
 
 
 class WorkflowInputAsset(JsonModel):
@@ -404,6 +438,7 @@ class ProteomicsWorkflowRuntimeBundle(JsonModel):
     dag_plan: ProteomicsDagPlan
     deterministic_execution: DeterministicExecutionContract
     runtime_state: WorkflowRuntimeStateManifest
+    run_directory_layout: WorkflowRunDirectoryLayout
     container_steps: tuple[ContainerizedStepSpec, ...] = Field(default_factory=tuple)
     search_contract: ExternalSearchToolContract
     hpc_job: HpcJobDescriptor
@@ -455,6 +490,45 @@ def _expected_artifact_document_kind(
         WorkflowArtifactKind.CHECKPOINT: "workflow_checkpoint",
     }
     return mapping.get(artifact_kind)
+
+
+def _artifact_relative_path(
+    artifact_kind: WorkflowArtifactKind,
+    workflow_id: str,
+) -> str:
+    if artifact_kind is WorkflowArtifactKind.DIGEST_MANIFEST:
+        return "digest/manifest.json"
+    if artifact_kind is WorkflowArtifactKind.DIGEST_EXPORT:
+        return "digest/peptides.jsonl"
+    if artifact_kind is WorkflowArtifactKind.SEARCH_JOB:
+        return "search/submit.json"
+    if artifact_kind is WorkflowArtifactKind.SEARCH_RESULTS:
+        return "search/results.tsv"
+    if artifact_kind is WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS:
+        return "identifications.normalized.json"
+    if artifact_kind is WorkflowArtifactKind.FDR_REPORT:
+        return "fdr.report.json"
+    if artifact_kind is WorkflowArtifactKind.QUANT_REPORT:
+        return "quant.report.json"
+    if artifact_kind is WorkflowArtifactKind.QC_REPORT:
+        return "qc.report.json"
+    if artifact_kind is WorkflowArtifactKind.RUN_BUNDLE:
+        return "bundle/bundle.manifest.json"
+    if artifact_kind is WorkflowArtifactKind.JOB_DESCRIPTOR:
+        return f"jobs/{workflow_id}.slurm"
+    if artifact_kind is WorkflowArtifactKind.CHECKPOINT:
+        return f"checkpoints/{workflow_id}.json"
+    return f"{artifact_kind.value}.json"
+
+
+def _artifact_path_for_kind(
+    manifest: ProteomicsWorkflowManifest,
+    artifact_kind: WorkflowArtifactKind,
+) -> str:
+    return str(
+        Path(manifest.artifacts_dir)
+        / _artifact_relative_path(artifact_kind, manifest.workflow_id)
+    )
 
 
 def _resolve_streaming_mode(
@@ -942,6 +1016,84 @@ def build_workflow_runtime_state_manifest(
     )
 
 
+def build_workflow_run_directory_layout(
+    manifest: ProteomicsWorkflowManifest,
+) -> WorkflowRunDirectoryLayout:
+    """Declare the predictable run-directory tree for one workflow."""
+    entries = [
+        WorkflowRunDirectoryLayoutEntry(
+            entry_id=f"{manifest.workflow_id}:cache-dir",
+            path_kind=WorkflowPathKind.DIRECTORY,
+            relative_path="cache",
+            description="cache entries for reusable runtime surfaces",
+            required=False,
+        ),
+        WorkflowRunDirectoryLayoutEntry(
+            entry_id=f"{manifest.workflow_id}:checkpoints-dir",
+            path_kind=WorkflowPathKind.DIRECTORY,
+            relative_path="checkpoints",
+            description="checkpoint documents for resumable runtime state",
+            required=False,
+        ),
+        WorkflowRunDirectoryLayoutEntry(
+            entry_id=f"{manifest.workflow_id}:jobs-dir",
+            path_kind=WorkflowPathKind.DIRECTORY,
+            relative_path="jobs",
+            description="scheduler scripts and submission descriptors",
+            required=False,
+        ),
+        WorkflowRunDirectoryLayoutEntry(
+            entry_id=f"{manifest.workflow_id}:digest-dir",
+            path_kind=WorkflowPathKind.DIRECTORY,
+            relative_path="digest",
+            description="digest outputs and policy manifests",
+            producer_step_id=f"{manifest.workflow_id}-digest-database",
+        ),
+        WorkflowRunDirectoryLayoutEntry(
+            entry_id=f"{manifest.workflow_id}:search-dir",
+            path_kind=WorkflowPathKind.DIRECTORY,
+            relative_path="search",
+            description="external search submissions and collected results",
+            producer_step_id=f"{manifest.workflow_id}-run-search-engine",
+            required=manifest.execution_mode is WorkflowExecutionMode.EXTERNAL_SEARCH,
+        ),
+        WorkflowRunDirectoryLayoutEntry(
+            entry_id=f"{manifest.workflow_id}:bundle-dir",
+            path_kind=WorkflowPathKind.DIRECTORY,
+            relative_path="bundle",
+            description="normalized bundle exports for review and transport",
+            producer_step_id=f"{manifest.workflow_id}-build-run-bundle",
+        ),
+    ]
+    for step in manifest.steps:
+        for artifact_kind in step.produces_artifacts:
+            entries.append(
+                WorkflowRunDirectoryLayoutEntry(
+                    entry_id=f"{manifest.workflow_id}:{artifact_kind.value}",
+                    path_kind=WorkflowPathKind.FILE,
+                    relative_path=_artifact_relative_path(
+                        artifact_kind, manifest.workflow_id
+                    ),
+                    description=f"materialized {artifact_kind.value} output",
+                    producer_step_id=step.step_id,
+                    expected_artifact_kinds=(artifact_kind,),
+                )
+            )
+    payload = WorkflowRunDirectoryLayout(
+        document_schema=_build_document_schema("workflow_run_directory_layout"),
+        workflow_id=manifest.workflow_id,
+        root_dir=manifest.artifacts_dir,
+        entries=tuple(entries),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
 def build_containerized_step_specs(
     manifest: ProteomicsWorkflowManifest,
 ) -> tuple[ContainerizedStepSpec, ...]:
@@ -1119,27 +1271,12 @@ def build_proteomics_artifact_registry(
         for artifact_kind in step.produces_artifacts:
             artifact_id = f"{manifest.workflow_id}:{artifact_kind.value}"
             produced_ids.append(artifact_id)
-            artifact_path = f"{manifest.artifacts_dir}/{artifact_kind.value}.json"
-            if artifact_kind is WorkflowArtifactKind.DIGEST_EXPORT:
-                artifact_path = f"{manifest.artifacts_dir}/digest/peptides.jsonl"
-            elif artifact_kind is WorkflowArtifactKind.SEARCH_RESULTS:
-                artifact_path = f"{manifest.artifacts_dir}/search/results.tsv"
-            elif artifact_kind is WorkflowArtifactKind.RUN_BUNDLE:
-                artifact_path = f"{manifest.artifacts_dir}/bundle/bundle.manifest.json"
-            elif artifact_kind is WorkflowArtifactKind.JOB_DESCRIPTOR:
-                artifact_path = (
-                    f"{manifest.artifacts_dir}/jobs/{manifest.workflow_id}.slurm"
-                )
-            elif artifact_kind is WorkflowArtifactKind.CHECKPOINT:
-                artifact_path = (
-                    f"{manifest.artifacts_dir}/checkpoints/{manifest.workflow_id}.json"
-                )
             artifacts.append(
                 ArtifactRegistryEntry(
                     artifact_id=artifact_id,
                     artifact_kind=artifact_kind,
                     producer_step_id=step.step_id,
-                    path=artifact_path,
+                    path=_artifact_path_for_kind(manifest, artifact_kind),
                     upstream_artifact_ids=upstream_artifact_ids,
                 )
             )
@@ -1404,6 +1541,7 @@ def build_proteomics_workflow_runtime_bundle(
         deterministic_execution=deterministic_execution,
         artifact_registry=artifact_registry,
     )
+    run_directory_layout = build_workflow_run_directory_layout(manifest)
     checkpoint = build_workflow_checkpoint(
         manifest,
         artifact_registry=artifact_registry,
@@ -1415,6 +1553,7 @@ def build_proteomics_workflow_runtime_bundle(
         dag_plan=dag_plan,
         deterministic_execution=deterministic_execution,
         runtime_state=runtime_state,
+        run_directory_layout=run_directory_layout,
         container_steps=container_steps,
         search_contract=search_contract,
         hpc_job=hpc_job,

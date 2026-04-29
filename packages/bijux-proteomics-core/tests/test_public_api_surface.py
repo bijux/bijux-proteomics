@@ -135,6 +135,7 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_proteomics_artifact_registry" in bijux_proteomics.__all__
     assert "build_large_file_streaming_policy" in bijux_proteomics.__all__
     assert "build_parallel_execution_plan" in bijux_proteomics.__all__
+    assert "build_workflow_run_directory_layout" in bijux_proteomics.__all__
     assert "build_workflow_runtime_state_manifest" in bijux_proteomics.__all__
     assert "build_workflow_checkpoint" in bijux_proteomics.__all__
     assert "build_proteomics_workflow_runtime_bundle" in bijux_proteomics.__all__
@@ -161,6 +162,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ExternalSearchToolContract" in bijux_proteomics.__all__
     assert "HpcJobDescriptor" in bijux_proteomics.__all__
     assert "WorkflowCacheManifest" in bijux_proteomics.__all__
+    assert "WorkflowPathKind" in bijux_proteomics.__all__
+    assert "WorkflowRunDirectoryLayout" in bijux_proteomics.__all__
+    assert "WorkflowRunDirectoryLayoutEntry" in bijux_proteomics.__all__
     assert "WorkflowRuntimeStateManifest" in bijux_proteomics.__all__
     assert "ProteomicsArtifactRegistry" in bijux_proteomics.__all__
     assert "LargeFileStreamingPolicy" in bijux_proteomics.__all__
