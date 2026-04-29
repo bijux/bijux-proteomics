@@ -168,3 +168,50 @@ def test_runtime_api_health_cli_uses_component_report(
     assert payload["status"] == "ok"
     components = {item["component"]: item for item in payload["data"]["components"]}
     assert components["manifest"]["state"] == "healthy"
+
+
+def test_runtime_api_evidence_cli_surfaces_large_document_guard(
+    monkeypatch, tmp_path: Path
+) -> None:
+    run_id = "cli-large-1"
+    monkeypatch.chdir(tmp_path)
+    run_dir = tmp_path / "artifacts" / run_id / "artifacts"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    _write_json(tmp_path / "artifacts" / run_id / "run_summary.json", {
+        "run_id": run_id,
+        "candidate_id": f"{run_id}-c0",
+        "command": "run",
+        "execution_status": "completed",
+        "workflow_state": "done",
+        "outcome": "accepted",
+        "provider": "heuristic_proxy",
+        "tool_status": "success",
+        "qc_status": "acceptable",
+        "artifacts_dir": str(tmp_path / "artifacts" / run_id),
+        "warnings": [],
+        "failure": None,
+        "version": {"app": "0+local", "git_commit": "unknown", "tool_versions": {}},
+    })
+    (run_dir / "evidence_bundle.json").write_text(
+        json.dumps({"payload": "x" * 2048}),
+        encoding="utf-8",
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "api",
+            "evidence-bundle",
+            run_id,
+            "--include-document",
+            "--max-inline-bytes",
+            "128",
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["data"]["evidence_bundle"]["availability"] == "too_large"
+    assert payload["data"]["evidence_bundle"]["guard_limit_bytes"] == 128

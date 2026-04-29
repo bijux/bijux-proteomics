@@ -600,13 +600,17 @@ def api_serve(host: str, port: int, reload: bool, no_docs: bool) -> None:
 @api.command("status")
 @click.argument("run_id", type=str)
 @click.option("--include-documents", is_flag=True, help="Inline small documents.")
+@click.option("--max-inline-bytes", type=int, default=256000, show_default=True)
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
-def api_status(run_id: str, include_documents: bool, pretty: bool) -> None:
+def api_status(
+    run_id: str, include_documents: bool, max_inline_bytes: int, pretty: bool
+) -> None:
     """Emit the canonical runtime-status contract via CLI."""
     response = build_runtime_status_response(
         Path.cwd(),
         run_id,
         include_documents=include_documents,
+        max_inline_bytes=max_inline_bytes,
     )
     _emit_api_envelope(response, pretty=pretty)
 
@@ -623,13 +627,20 @@ def api_artifacts(run_id: str, pretty: bool) -> None:
 @api.command("evidence-bundle")
 @click.argument("run_id", type=str)
 @click.option("--include-document", is_flag=True, help="Inline small documents.")
+@click.option("--max-inline-bytes", type=int, default=256000, show_default=True)
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
-def api_evidence_bundle(run_id: str, include_document: bool, pretty: bool) -> None:
+def api_evidence_bundle(
+    run_id: str,
+    include_document: bool,
+    max_inline_bytes: int,
+    pretty: bool,
+) -> None:
     """Emit the canonical evidence-bundle contract via CLI."""
     response = build_run_evidence_response(
         Path.cwd(),
         run_id,
         include_document=include_document,
+        max_inline_bytes=max_inline_bytes,
     )
     _emit_api_envelope(response, pretty=pretty)
 
@@ -637,13 +648,20 @@ def api_evidence_bundle(run_id: str, include_document: bool, pretty: bool) -> No
 @api.command("review-packet")
 @click.argument("run_id", type=str)
 @click.option("--include-document", is_flag=True, help="Inline small documents.")
+@click.option("--max-inline-bytes", type=int, default=256000, show_default=True)
 @click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
-def api_review_packet(run_id: str, include_document: bool, pretty: bool) -> None:
+def api_review_packet(
+    run_id: str,
+    include_document: bool,
+    max_inline_bytes: int,
+    pretty: bool,
+) -> None:
     """Emit the canonical review-packet contract via CLI."""
     response = build_run_review_response(
         Path.cwd(),
         run_id,
         include_document=include_document,
+        max_inline_bytes=max_inline_bytes,
     )
     _emit_api_envelope(response, pretty=pretty)
 

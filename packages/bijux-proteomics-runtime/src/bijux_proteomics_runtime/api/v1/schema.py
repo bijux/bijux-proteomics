@@ -285,6 +285,11 @@ class RuntimeDocumentReference(BaseModel):
     size_bytes: int = Field(
         default=0, ge=0, description="Document size in bytes when known."
     )
+    guard_limit_bytes: int = Field(
+        default=0,
+        ge=0,
+        description="Inline-ingestion guard applied to this document request.",
+    )
     sha256: str | None = Field(default=None, description="Document hash when known.")
     note: str = Field(..., min_length=1, description="Human-readable availability note.")
     content: dict[str, Any] | None = Field(

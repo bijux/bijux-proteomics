@@ -29,6 +29,7 @@ from bijux_proteomics_runtime.runtime_identity import runtime_banner
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 _DOCUMENT_MAX_INLINE_BYTES = 256_000
+_MAX_ARTIFACT_LOAD_BYTES = 1_000_000
 
 _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("config", "runtime-config", "runtime configuration"),
@@ -86,6 +87,16 @@ def _component(
     )
 
 
+def _bounded_inline_limit(max_inline_bytes: int) -> int:
+    if max_inline_bytes < 1:
+        raise ValueError("max_inline_bytes must be >= 1")
+    if max_inline_bytes > _MAX_ARTIFACT_LOAD_BYTES:
+        raise ValueError(
+            f"max_inline_bytes exceeds the guarded limit of {_MAX_ARTIFACT_LOAD_BYTES}"
+        )
+    return max_inline_bytes
+
+
 def _load_run_summary_payload(
     base_dir: Path,
     run_id: str,
@@ -130,12 +141,14 @@ def _document_reference(
     supported: bool,
     max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
 ) -> RuntimeDocumentReference:
+    max_inline_bytes = _bounded_inline_limit(max_inline_bytes)
     if not supported:
         return RuntimeDocumentReference(
             run_id=run_id,
             document_kind=document_kind,
             availability=RuntimeDocumentAvailability.UNSUPPORTED,
             path=str(path),
+            guard_limit_bytes=max_inline_bytes,
             note="runtime does not currently generate this document kind for the run",
         )
     if not path.exists():
@@ -144,6 +157,7 @@ def _document_reference(
             document_kind=document_kind,
             availability=RuntimeDocumentAvailability.MISSING,
             path=str(path),
+            guard_limit_bytes=max_inline_bytes,
             note="document path is defined but no file is present for this run",
         )
     size_bytes = path.stat().st_size
@@ -155,6 +169,7 @@ def _document_reference(
             availability=RuntimeDocumentAvailability.TOO_LARGE,
             path=str(path),
             size_bytes=size_bytes,
+            guard_limit_bytes=max_inline_bytes,
             sha256=sha256,
             note="document exists but exceeds the inline-load guard",
         )
@@ -168,6 +183,7 @@ def _document_reference(
         availability=RuntimeDocumentAvailability.AVAILABLE,
         path=str(path),
         size_bytes=size_bytes,
+        guard_limit_bytes=max_inline_bytes,
         sha256=sha256,
         note="document is available for review",
         content=content,

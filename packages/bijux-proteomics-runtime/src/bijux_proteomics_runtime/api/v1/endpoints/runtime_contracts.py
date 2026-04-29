@@ -37,6 +37,7 @@ def run_status_endpoint(
     request: Request,
     base_dir: Annotated[Path, Depends(get_base_dir)],
     include_documents: bool = False,
+    max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
     """Return the stable runtime status contract for one run."""
     try:
@@ -44,6 +45,7 @@ def run_status_endpoint(
             base_dir,
             run_id,
             include_documents=include_documents,
+            max_inline_bytes=max_inline_bytes,
         )
         return ApiEnvelope(status="ok", data=response, error=None, meta={})
     except Exception as exc:  # noqa: BLE001
@@ -78,6 +80,7 @@ def run_evidence_endpoint(
     request: Request,
     base_dir: Annotated[Path, Depends(get_base_dir)],
     include_document: bool = False,
+    max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
     """Return the stable evidence-bundle surface for one run."""
     try:
@@ -85,6 +88,7 @@ def run_evidence_endpoint(
             base_dir,
             run_id,
             include_document=include_document,
+            max_inline_bytes=max_inline_bytes,
         )
         return ApiEnvelope(status="ok", data=response, error=None, meta={})
     except Exception as exc:  # noqa: BLE001
@@ -101,6 +105,7 @@ def run_review_endpoint(
     request: Request,
     base_dir: Annotated[Path, Depends(get_base_dir)],
     include_document: bool = False,
+    max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
     """Return the stable review-packet surface for one run."""
     try:
@@ -108,6 +113,7 @@ def run_review_endpoint(
             base_dir,
             run_id,
             include_document=include_document,
+            max_inline_bytes=max_inline_bytes,
         )
         return ApiEnvelope(status="ok", data=response, error=None, meta={})
     except Exception as exc:  # noqa: BLE001

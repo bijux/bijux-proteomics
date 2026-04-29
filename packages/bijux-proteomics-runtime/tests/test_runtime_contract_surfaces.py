@@ -117,3 +117,25 @@ def test_runtime_health_contract_distinguishes_component_failures(
     assert components["cache"]["state"] == "degraded"
     assert components["tooling"]["state"] == "healthy"
     assert components["manifest"]["state"] == "healthy"
+
+
+def test_runtime_document_contract_applies_inline_ingestion_guard(
+    tmp_path: Path,
+) -> None:
+    run_id = "run-large-1"
+    run_dir = _seed_run(tmp_path, run_id)
+    (run_dir / "artifacts" / "evidence_bundle.json").write_text(
+        json.dumps({"payload": "x" * 2048}),
+        encoding="utf-8",
+    )
+    client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
+
+    response = client.get(
+        f"/api/v1/runs/{run_id}/evidence-bundle",
+        params={"include_document": "true", "max_inline_bytes": "128"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["data"]["evidence_bundle"]["availability"] == "too_large"
+    assert payload["data"]["evidence_bundle"]["guard_limit_bytes"] == 128
