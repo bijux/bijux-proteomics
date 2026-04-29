@@ -67,6 +67,13 @@ class QuantAssessmentDisposition(StrEnum):
     ADVISORY = "ADVISORY"
 
 
+class MissingValueCorrectionPolicy(StrEnum):
+    """Deterministic remapping policy for missing-value summary categories."""
+
+    PRESERVE = "preserve"
+    TREAT_AS_NOT_OBSERVED = "treat_as_not_observed"
+
+
 class Ms1FeatureColumnMapping(JsonModel):
     """User-supplied mapping from feature-table columns to the quant contract."""
 
@@ -292,13 +299,26 @@ class MissingValueSummaryEntry(JsonModel):
     filtered_count: int = Field(..., ge=0)
 
 
+class MissingValueSummaryPolicy(JsonModel):
+    """Correction and filtering rules applied before missing-value summarization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    zero_policy: MissingValueCorrectionPolicy = MissingValueCorrectionPolicy.PRESERVE
+    filtered_policy: MissingValueCorrectionPolicy = MissingValueCorrectionPolicy.PRESERVE
+    min_observed_samples_per_entity: int = Field(default=0, ge=0)
+
+
 class MissingValueSummaryReport(JsonModel):
     """Stable missing-value summary over a quantification matrix."""
 
     model_config = ConfigDict(extra="forbid")
 
     entity_level: QuantEntityLevel
+    policy: MissingValueSummaryPolicy
     entries: tuple[MissingValueSummaryEntry, ...] = Field(default_factory=tuple)
+    included_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+    excluded_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class BatchEffectBatchEntry(JsonModel):
@@ -1187,8 +1207,47 @@ def build_spectral_count_table(
     )
 
 
-def summarize_missing_values(table: LabelFreeQuantTable) -> MissingValueSummaryReport:
-    """Summarize missing, zero, filtered, and observed quant cells by sample."""
+def _apply_missing_value_summary_policy(
+    kind: MissingValueKind,
+    *,
+    policy: MissingValueSummaryPolicy,
+) -> MissingValueKind:
+    if (
+        kind is MissingValueKind.ZERO
+        and policy.zero_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
+    ):
+        return MissingValueKind.NOT_OBSERVED
+    if (
+        kind is MissingValueKind.FILTERED
+        and policy.filtered_policy
+        is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
+    ):
+        return MissingValueKind.NOT_OBSERVED
+    return kind
+
+
+def summarize_missing_values(
+    table: LabelFreeQuantTable,
+    *,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingValueSummaryReport:
+    """Summarize missing values with explicit correction and sparse-entity filters."""
+    active_policy = policy or MissingValueSummaryPolicy()
+    lookup = _matrix_value_index(table)
+    included_entity_ids: list[str] = []
+    excluded_entity_ids: list[str] = []
+    for entity_id in table.entity_ids:
+        observed_samples = sum(
+            1
+            for sample_id in table.sample_ids
+            if lookup[(entity_id, sample_id)].missing_value_kind
+            in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+        )
+        if observed_samples < active_policy.min_observed_samples_per_entity:
+            excluded_entity_ids.append(entity_id)
+            continue
+        included_entity_ids.append(entity_id)
+
     entries: list[MissingValueSummaryEntry] = []
     for sample_id in table.sample_ids:
         counts = {
@@ -1197,10 +1256,12 @@ def summarize_missing_values(table: LabelFreeQuantTable) -> MissingValueSummaryR
             MissingValueKind.NOT_OBSERVED: 0,
             MissingValueKind.FILTERED: 0,
         }
-        for value in table.values:
-            if value.sample_id != sample_id:
-                continue
-            counts[value.missing_value_kind] += 1
+        for entity_id in included_entity_ids:
+            kind = _apply_missing_value_summary_policy(
+                lookup[(entity_id, sample_id)].missing_value_kind,
+                policy=active_policy,
+            )
+            counts[kind] += 1
         entries.append(
             MissingValueSummaryEntry(
                 sample_id=sample_id,
@@ -1211,7 +1272,11 @@ def summarize_missing_values(table: LabelFreeQuantTable) -> MissingValueSummaryR
             )
         )
     return MissingValueSummaryReport(
-        entity_level=table.entity_level, entries=tuple(entries)
+        entity_level=table.entity_level,
+        policy=active_policy,
+        entries=tuple(entries),
+        included_entity_ids=tuple(included_entity_ids),
+        excluded_entity_ids=tuple(excluded_entity_ids),
     )
 
 

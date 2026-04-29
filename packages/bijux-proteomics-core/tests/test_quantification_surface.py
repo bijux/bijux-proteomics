@@ -8,7 +8,10 @@ from pathlib import Path
 import numpy as np
 
 from bijux_proteomics import (
+    DifferentialReplicatePolicy,
     LabelFreeQuantTable,
+    MissingValueCorrectionPolicy,
+    MissingValueSummaryPolicy,
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -22,7 +25,6 @@ from bijux_proteomics import (
     build_quant_matrix_export,
     build_replicate_correlation_report,
     build_spectral_count_table,
-    DifferentialReplicatePolicy,
     export_quant_matrix_tsv,
     normalize_label_free_table,
     parse_experimental_design_table,
@@ -386,3 +388,34 @@ def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_r
     core = next(entry for entry in differential.entries if entry.entity_id == "P100")
     assert core.observations_a == 3
     assert core.observations_b == 2
+
+
+def test_missing_value_summary_policy_applies_deterministic_correction_and_filtering() -> (
+    None
+):
+    feature_report = parse_ms1_feature_table(_quant_fixture("edge_case_ms1_features.tsv"))
+    peptide_table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+    )
+
+    summary = summarize_missing_values(
+        peptide_table,
+        policy=MissingValueSummaryPolicy(
+            zero_policy=MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED,
+            filtered_policy=MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED,
+            min_observed_samples_per_entity=2,
+        ),
+    )
+    summary_lookup = {entry.sample_id: entry for entry in summary.entries}
+
+    assert summary.policy.zero_policy.value == "treat_as_not_observed"
+    assert summary.policy.filtered_policy.value == "treat_as_not_observed"
+    assert summary.included_entity_ids == ("COREPEP", "FILTERPEP", "ZEROPEP")
+    assert summary.excluded_entity_ids == ("SPARSEPEP",)
+    assert summary_lookup["C1"].observed_count == 1
+    assert summary_lookup["C1"].zero_count == 0
+    assert summary_lookup["C1"].filtered_count == 0
+    assert summary_lookup["C1"].not_observed_count == 2
+    assert summary_lookup["T2"].observed_count == 2
+    assert summary_lookup["T2"].not_observed_count == 1
