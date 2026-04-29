@@ -1,0 +1,156 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from bijux_proteomics import (
+    PsmSortField,
+    SearchResultColumnMapping,
+    TargetDecoyLabel,
+    TargetDecoyLabelPolicy,
+    export_psm_jsonl,
+    normalize_psm_records,
+    parse_psm_tsv,
+    parse_target_decoy_label,
+    rollup_peptide_evidence,
+    rollup_protein_evidence,
+    select_best_psm_per_spectrum,
+    sort_psm_records,
+)
+
+
+def _psm_fixture(name: str) -> Path:
+    return Path(__file__).parent / "fixtures" / "psm" / name
+
+
+def _default_mapping() -> SearchResultColumnMapping:
+    return SearchResultColumnMapping(
+        spectrum_id="spectrum_id",
+        peptide="peptide",
+        charge="charge",
+        score="score",
+        q_value="q_value",
+        protein_refs="proteins",
+    )
+
+
+def test_psm_model_and_tsv_parser_accept_minimal_fixture() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+
+    assert report.total_rows == 3
+    assert len(report.accepted_records) == 3
+    first = report.accepted_records[0]
+    assert first.spectrum_id == "scan=1001"
+    assert first.canonical_peptide == "PEPTIDE"
+    assert first.charge == 2
+    assert first.q_value == 0.01
+
+
+def test_search_result_column_mapping_supports_engine_specific_headers() -> None:
+    mapping = SearchResultColumnMapping(
+        spectrum_id="SpecID",
+        peptide="Sequence",
+        charge="Z",
+        score="PrimaryScore",
+        q_value="PosteriorError",
+        protein_refs="Proteins",
+        decoy_label="DecoyFlag",
+    )
+
+    report = parse_psm_tsv(_psm_fixture("engine_mapped_results.tsv"), mapping=mapping)
+
+    assert len(report.accepted_records) == 3
+    assert report.accepted_records[1].canonical_peptide == "PES[Phospho]TIDE"
+    assert report.accepted_records[2].target_decoy_label is TargetDecoyLabel.DECOY
+
+
+def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
+    report = parse_psm_tsv(_psm_fixture("malformed_results.tsv"), mapping=_default_mapping())
+
+    assert len(report.accepted_records) == 0
+    assert len(report.rejected_rows) == 4
+    codes = {
+        issue.code
+        for rejected in report.rejected_rows
+        for issue in rejected.issues
+    }
+    assert {"missing_spectrum_id", "missing_peptide", "invalid_charge", "invalid_score"} <= codes
+
+
+def test_normalization_exports_stable_jsonl() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    normalized = normalize_psm_records(report.accepted_records)
+    output_path = _psm_fixture("normalized.jsonl")
+    try:
+        export_psm_jsonl(normalized, output_path)
+        lines = output_path.read_text().strip().splitlines()
+        assert len(lines) == 3
+        payload = json.loads(lines[0])
+        assert payload["spectrum_id"] == "scan=1001"
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
+def test_target_decoy_label_parser_supports_prefix_suffix_and_explicit_labels() -> None:
+    prefix_label = parse_target_decoy_label(protein_refs=("DECOY_P99999",))
+    suffix_label = parse_target_decoy_label(
+        protein_refs=("P12345_decoy",),
+        policy=TargetDecoyLabelPolicy(protein_prefix=None, protein_suffix="_decoy"),
+    )
+    explicit_label = parse_target_decoy_label(explicit_label="decoy")
+
+    assert prefix_label is TargetDecoyLabel.DECOY
+    assert suffix_label is TargetDecoyLabel.DECOY
+    assert explicit_label is TargetDecoyLabel.DECOY
+
+
+def test_psm_sorting_policy_covers_spectrum_score_qvalue_and_peptide() -> None:
+    report = parse_psm_tsv(_psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping())
+
+    by_spectrum = sort_psm_records(report.accepted_records, by=PsmSortField.SPECTRUM)
+    by_score = sort_psm_records(report.accepted_records, by=PsmSortField.SCORE)
+    by_q_value = sort_psm_records(report.accepted_records, by=PsmSortField.Q_VALUE)
+    by_peptide = sort_psm_records(report.accepted_records, by=PsmSortField.PEPTIDE)
+
+    assert by_spectrum[0].spectrum_id == "scan=2001"
+    assert by_score[0].score == 51.0
+    assert by_q_value[0].q_value == 0.01
+    assert by_peptide[0].canonical_peptide == "PEPTIDE"
+
+
+def test_best_psm_per_spectrum_selector_prefers_highest_score() -> None:
+    report = parse_psm_tsv(_psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping())
+    selected = select_best_psm_per_spectrum(report.accepted_records)
+
+    assert len(selected) == 2
+    best_scan_2001 = next(record for record in selected if record.spectrum_id == "scan=2001")
+    assert best_scan_2001.canonical_peptide == "PEPTIDER"
+    assert best_scan_2001.score == 47.0
+
+
+def test_peptide_level_rollup_combines_multiple_psms() -> None:
+    report = parse_psm_tsv(_psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping())
+    rollups = rollup_peptide_evidence(report.accepted_records)
+
+    assert len(rollups) == 2
+    peptide_rollup = next(rollup for rollup in rollups if rollup.canonical_peptide == "PEPTIDER")
+    assert peptide_rollup.psm_count == 2
+    assert peptide_rollup.spectrum_count == 2
+    assert peptide_rollup.protein_refs == ("P12345", "Q11111")
+
+
+def test_protein_level_evidence_rollup_counts_unique_and_shared_peptides() -> None:
+    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    rollups = rollup_protein_evidence(report.accepted_records)
+
+    protein_rollup = next(rollup for rollup in rollups if rollup.protein_ref == "P12345")
+    shared_rollup = next(rollup for rollup in rollups if rollup.protein_ref == "Q22222")
+    decoy_rollup = next(rollup for rollup in rollups if rollup.protein_ref == "DECOY_P99999")
+
+    assert protein_rollup.unique_peptide_count == 1
+    assert protein_rollup.shared_peptide_count == 1
+    assert shared_rollup.unique_peptide_count == 0
+    assert decoy_rollup.target_decoy_label is TargetDecoyLabel.DECOY

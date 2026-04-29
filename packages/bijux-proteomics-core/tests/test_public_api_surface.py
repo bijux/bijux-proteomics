@@ -25,6 +25,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "canonicalize_modified_peptide" in bijux_proteomics.__all__
     assert "build_peptide_charge_state" in bijux_proteomics.__all__
     assert "approximate_peptide_isotope_envelope" in bijux_proteomics.__all__
+    assert "PsmRecord" in bijux_proteomics.__all__
+    assert "parse_psm_tsv" in bijux_proteomics.__all__
+    assert "rollup_protein_evidence" in bijux_proteomics.__all__
 
 
 def test_intelligence_public_api_contains_expected_exports() -> None:

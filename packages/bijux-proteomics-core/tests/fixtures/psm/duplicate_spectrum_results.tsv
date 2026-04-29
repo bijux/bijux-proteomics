@@ -1,0 +1,4 @@
+spectrum_id	peptide	charge	score	q_value	proteins
+scan=2001	PEPTIDE	2	45.0	0.02	P12345
+scan=2001	PEPTIDER	2	47.0	0.03	P12345
+scan=2002	PEPTIDER	3	51.0	0.01	Q11111
