@@ -65,6 +65,5 @@ def test_maintainer_release_docs_keep_communication_guidance_substantive() -> No
         )
 
     assert not failures, (
-        "maintainer release communication guidance failed:\n"
-        + "\n".join(failures)
+        "maintainer release communication guidance failed:\n" + "\n".join(failures)
     )

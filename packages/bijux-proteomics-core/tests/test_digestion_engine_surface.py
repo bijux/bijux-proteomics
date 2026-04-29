@@ -84,7 +84,9 @@ def test_digest_sequence_supports_bounded_non_specific_mode() -> None:
 
 
 def test_filter_digested_peptides_supports_length_bounds() -> None:
-    peptides = digest_sequence("MKWVTFISLLFLFSSAYSRGVFR", source_accession="filter-test")
+    peptides = digest_sequence(
+        "MKWVTFISLLFLFSSAYSRGVFR", source_accession="filter-test"
+    )
     filtered, report = filter_digested_peptides(peptides, min_length=3, max_length=10)
 
     assert [peptide.sequence for peptide in filtered] == ["GVFR"]

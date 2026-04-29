@@ -7,15 +7,15 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    FormatConversionTarget,
+    ProteomicsFormatKind,
     build_mzml_collection_summary,
     build_normalized_run_bundle,
     convert_proteomics_format,
     detect_proteomics_format,
     extract_mzml_metadata,
-    FormatConversionTarget,
     parse_experimental_design_table,
     parse_mzml,
-    ProteomicsFormatKind,
     stream_mzml_spectra,
     validate_proteomics_input,
 )
@@ -60,7 +60,10 @@ def test_mzml_validation_catches_binary_array_length_mismatches() -> None:
     assert "array_length_mismatch" in codes
     assert "peak_array_length_mismatch" in codes
     assert validation.valid is False
-    assert {issue.code for issue in validation.issues} >= {"array_length_mismatch", "peak_array_length_mismatch"}
+    assert {issue.code for issue in validation.issues} >= {
+        "array_length_mismatch",
+        "peak_array_length_mismatch",
+    }
 
 
 def test_format_detection_and_design_table_parsing_are_stable() -> None:
@@ -70,9 +73,18 @@ def test_format_detection_and_design_table_parsing_are_stable() -> None:
         input_kind=ProteomicsFormatKind.DESIGN_TABLE,
     )
 
-    assert detect_proteomics_format(_format_fixture("simple.mzml")) is ProteomicsFormatKind.MZML
-    assert detect_proteomics_format(_format_fixture("valid.design.tsv")) is ProteomicsFormatKind.DESIGN_TABLE
-    assert detect_proteomics_format(_workflow_fixture("results.tsv")) is ProteomicsFormatKind.PSM
+    assert (
+        detect_proteomics_format(_format_fixture("simple.mzml"))
+        is ProteomicsFormatKind.MZML
+    )
+    assert (
+        detect_proteomics_format(_format_fixture("valid.design.tsv"))
+        is ProteomicsFormatKind.DESIGN_TABLE
+    )
+    assert (
+        detect_proteomics_format(_workflow_fixture("results.tsv"))
+        is ProteomicsFormatKind.PSM
+    )
     assert len(design_report.accepted_entries) == 1
     assert design_report.accepted_entries[0].search_engine == "Sage"
     assert invalid_design.valid is False
@@ -112,5 +124,8 @@ def test_format_conversion_and_run_bundle_outputs_are_stable(tmp_path: Path) -> 
     assert manifest.metadata.instrument == "Q Exactive"
     assert (bundle_dir / "bundle.manifest.json").exists()
     generated = json.loads((bundle_dir / "bundle.manifest.json").read_text())
-    assert generated["document_schema"]["document_kind"] == "normalized_proteomics_run_bundle"
+    assert (
+        generated["document_schema"]["document_kind"]
+        == "normalized_proteomics_run_bundle"
+    )
     assert "spectra.normalized.mgf" in generated["generated_files"]

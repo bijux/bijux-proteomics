@@ -7,15 +7,22 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    FastaParseMode,
+    FdrPolicy,
+    PsmRecord,
+    PsmSortField,
+    SearchResultColumnMapping,
+    TargetDecoyLabel,
+    TargetDecoyLabelPolicy,
     apply_q_values,
     assign_confidence_labels,
     assign_razor_peptides,
-    build_peptide_uniqueness_across_database,
-    build_protein_coverage_map,
-    build_protein_groups,
     build_calibration_plot_data,
     build_fdr_audit_trail,
     build_peptide_summary_report,
+    build_peptide_uniqueness_across_database,
+    build_protein_coverage_map,
+    build_protein_groups,
     build_protein_summary_report,
     build_psm_summary_report,
     build_search_result_provenance_manifest,
@@ -23,18 +30,12 @@ from bijux_proteomics import (
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
     compute_fdr_reproducibility_hash,
+    export_psm_jsonl,
     export_psm_tsv,
-    FdrPolicy,
     filter_psms_by_fdr,
     infer_proteins_by_parsimony,
-    normalize_psm_score_orientation,
-    PsmSortField,
-    PsmRecord,
-    SearchResultColumnMapping,
-    TargetDecoyLabel,
-    TargetDecoyLabelPolicy,
-    export_psm_jsonl,
     normalize_psm_records,
+    normalize_psm_score_orientation,
     parse_fasta_document,
     parse_psm_tsv,
     parse_target_decoy_label,
@@ -65,7 +66,9 @@ def _default_mapping() -> SearchResultColumnMapping:
 
 
 def test_psm_model_and_tsv_parser_accept_minimal_fixture() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
 
     assert report.total_rows == 3
     assert len(report.accepted_records) == 3
@@ -95,20 +98,27 @@ def test_search_result_column_mapping_supports_engine_specific_headers() -> None
 
 
 def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
-    report = parse_psm_tsv(_psm_fixture("malformed_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("malformed_results.tsv"), mapping=_default_mapping()
+    )
 
     assert len(report.accepted_records) == 0
     assert len(report.rejected_rows) == 4
     codes = {
-        issue.code
-        for rejected in report.rejected_rows
-        for issue in rejected.issues
+        issue.code for rejected in report.rejected_rows for issue in rejected.issues
     }
-    assert {"missing_spectrum_id", "missing_peptide", "invalid_charge", "invalid_score"} <= codes
+    assert {
+        "missing_spectrum_id",
+        "missing_peptide",
+        "invalid_charge",
+        "invalid_score",
+    } <= codes
 
 
 def test_normalization_exports_stable_jsonl() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
     normalized = normalize_psm_records(report.accepted_records)
     output_path = _psm_fixture("normalized.jsonl")
     try:
@@ -135,7 +145,9 @@ def test_target_decoy_label_parser_supports_prefix_suffix_and_explicit_labels() 
 
 
 def test_psm_sorting_policy_covers_spectrum_score_qvalue_and_peptide() -> None:
-    report = parse_psm_tsv(_psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping()
+    )
 
     by_spectrum = sort_psm_records(report.accepted_records, by=PsmSortField.SPECTRUM)
     by_score = sort_psm_records(report.accepted_records, by=PsmSortField.SCORE)
@@ -149,33 +161,47 @@ def test_psm_sorting_policy_covers_spectrum_score_qvalue_and_peptide() -> None:
 
 
 def test_best_psm_per_spectrum_selector_prefers_highest_score() -> None:
-    report = parse_psm_tsv(_psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping()
+    )
     selected = select_best_psm_per_spectrum(report.accepted_records)
 
     assert len(selected) == 2
-    best_scan_2001 = next(record for record in selected if record.spectrum_id == "scan=2001")
+    best_scan_2001 = next(
+        record for record in selected if record.spectrum_id == "scan=2001"
+    )
     assert best_scan_2001.canonical_peptide == "PEPTIDER"
     assert best_scan_2001.score == 47.0
 
 
 def test_peptide_level_rollup_combines_multiple_psms() -> None:
-    report = parse_psm_tsv(_psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping()
+    )
     rollups = rollup_peptide_evidence(report.accepted_records)
 
     assert len(rollups) == 2
-    peptide_rollup = next(rollup for rollup in rollups if rollup.canonical_peptide == "PEPTIDER")
+    peptide_rollup = next(
+        rollup for rollup in rollups if rollup.canonical_peptide == "PEPTIDER"
+    )
     assert peptide_rollup.psm_count == 2
     assert peptide_rollup.spectrum_count == 2
     assert peptide_rollup.protein_refs == ("P12345", "Q11111")
 
 
 def test_protein_level_evidence_rollup_counts_unique_and_shared_peptides() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
     rollups = rollup_protein_evidence(report.accepted_records)
 
-    protein_rollup = next(rollup for rollup in rollups if rollup.protein_ref == "P12345")
+    protein_rollup = next(
+        rollup for rollup in rollups if rollup.protein_ref == "P12345"
+    )
     shared_rollup = next(rollup for rollup in rollups if rollup.protein_ref == "Q22222")
-    decoy_rollup = next(rollup for rollup in rollups if rollup.protein_ref == "DECOY_P99999")
+    decoy_rollup = next(
+        rollup for rollup in rollups if rollup.protein_ref == "DECOY_P99999"
+    )
 
     assert protein_rollup.unique_peptide_count == 1
     assert protein_rollup.shared_peptide_count == 1
@@ -187,9 +213,9 @@ def test_basic_target_decoy_fdr_and_q_values_are_monotonic() -> None:
     report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
     annotated = apply_q_values(report.accepted_records)
 
-    assert [record.q_value for record in annotated] == sorted(
-        (record.q_value for record in annotated)
-    )
+    assert all(record.q_value is not None for record in annotated)
+    q_values = [record.q_value for record in annotated if record.q_value is not None]
+    assert q_values == sorted(q_values)
     assert annotated[0].q_value == 0.0
     assert annotated[-1].q_value == 2 / 3
 
@@ -205,8 +231,12 @@ def test_fdr_threshold_filter_keeps_requested_cutoff() -> None:
 
 def test_score_orientation_normalization_supports_higher_and_lower_better() -> None:
     report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
-    higher = normalize_psm_score_orientation(report.accepted_records, score_orientation="higher_better")
-    lower = normalize_psm_score_orientation(report.accepted_records, score_orientation="lower_better")
+    higher = normalize_psm_score_orientation(
+        report.accepted_records, score_orientation="higher_better"
+    )
+    lower = normalize_psm_score_orientation(
+        report.accepted_records, score_orientation="lower_better"
+    )
 
     assert higher[0].raw_score == 100.0
     assert higher[0].normalized_score == 1.0
@@ -231,7 +261,13 @@ def test_fdr_audit_trail_and_calibration_bins_are_stable() -> None:
     assert len(audit.reproducibility_hash) == 64
     assert audit.entries[-1].q_value >= audit.entries[0].q_value
     assert len(calibration.bins) == 4
-    assert sum(bin.target_count + bin.decoy_count + bin.mixed_count + bin.unknown_count for bin in calibration.bins) == 5
+    assert (
+        sum(
+            bin.target_count + bin.decoy_count + bin.mixed_count + bin.unknown_count
+            for bin in calibration.bins
+        )
+        == 5
+    )
 
 
 def test_fdr_reproducibility_and_edge_cases_are_explicit() -> None:
@@ -271,7 +307,9 @@ def test_fdr_reproducibility_and_edge_cases_are_explicit() -> None:
 
 
 def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
     summary = build_psm_summary_report(report.accepted_records)
 
     assert summary.total_psms == 3
@@ -281,7 +319,9 @@ def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:
 
 
 def test_peptide_summary_report_counts_modified_and_shared_peptides() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
     summary = build_peptide_summary_report(report.accepted_records)
 
     assert summary.total_peptides == 3
@@ -290,20 +330,26 @@ def test_peptide_summary_report_counts_modified_and_shared_peptides() -> None:
 
 
 def test_protein_summary_report_supports_optional_coverage() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
     summary = build_protein_summary_report(
         report.accepted_records,
         protein_lengths={"P12345": 20, "Q22222": 20, "DECOY_P99999": 20},
     )
 
-    first = next(group for group in summary.protein_groups if group.protein_ref == "P12345")
+    first = next(
+        group for group in summary.protein_groups if group.protein_ref == "P12345"
+    )
     assert summary.total_proteins == 3
     assert first.coverage_fraction is not None
     assert 0.0 < first.coverage_fraction <= 1.0
 
 
 def test_search_result_provenance_manifest_records_input_mapping_and_policy() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
     manifest = build_search_result_provenance_manifest(
         source_path=_psm_fixture("minimal_results.tsv"),
         parse_report=report,
@@ -318,7 +364,9 @@ def test_search_result_provenance_manifest_records_input_mapping_and_policy() ->
 
 
 def test_psm_export_tsv_and_jsonl_are_stable() -> None:
-    report = parse_psm_tsv(_psm_fixture("minimal_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+    )
     jsonl_path = _psm_fixture("normalized_again.jsonl")
     tsv_path = _psm_fixture("normalized_again.tsv")
     try:
@@ -331,8 +379,12 @@ def test_psm_export_tsv_and_jsonl_are_stable() -> None:
         tsv_path.unlink(missing_ok=True)
 
 
-def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels() -> None:
-    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
     level_report = calculate_level_specific_fdr(
         report.accepted_records,
         threshold=0.05,
@@ -353,14 +405,20 @@ def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels()
 
 
 def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
-    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
     accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
     groups = build_protein_groups(accepted)
     parsimony = infer_proteins_by_parsimony(accepted)
     razor = assign_razor_peptides(accepted)
 
-    indistinguishable = next(group for group in groups if group.protein_refs == ("P22222", "P44444"))
-    shared_assignment = next(entry for entry in razor if entry.canonical_peptide == "SHAREDK")
+    indistinguishable = next(
+        group for group in groups if group.protein_refs == ("P22222", "P44444")
+    )
+    shared_assignment = next(
+        entry for entry in razor if entry.canonical_peptide == "SHAREDK"
+    )
 
     assert indistinguishable.peptides == ("GLYGLYK", "SHAREDK")
     assert parsimony[0].protein_ref == "P11111"
@@ -369,20 +427,50 @@ def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
     assert shared_assignment.rationale == "unique_evidence_priority"
 
 
-def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> None:
-    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
     accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
     picked = calculate_picked_protein_fdr(accepted, threshold=0.05)
-    confidence = assign_confidence_labels(picked, high_threshold=0.01, medium_threshold=0.05)
-    fasta_report = parse_fasta_document(_fasta_fixture("protein_inference.fasta").read_text(), mode="strict")
-    protein_sequences = {record.canonical_accession: record.residues for record in fasta_report.accepted_records}
+    confidence = assign_confidence_labels(
+        picked, high_threshold=0.01, medium_threshold=0.05
+    )
+    fasta_report = parse_fasta_document(
+        _fasta_fixture("protein_inference.fasta").read_text(),
+        mode=FastaParseMode.STRICT,
+    )
+    protein_sequences = {
+        record.canonical_accession: record.residues
+        for record in fasta_report.accepted_records
+    }
     coverage = build_protein_coverage_map(accepted, protein_sequences=protein_sequences)
     uniqueness = build_peptide_uniqueness_across_database(
         tuple(dict.fromkeys(record.canonical_peptide for record in accepted)),
         protein_sequences=protein_sequences,
     )
 
-    assert {entry.protein_ref for entry in picked} == {"P11111", "P22222", "P33333", "P44444"}
-    assert next(entry for entry in confidence if entry.entity_id == "P11111").label.value == "high"
-    assert next(entry for entry in coverage if entry.protein_ref == "P11111").coverage_fraction > 0.0
-    assert next(entry for entry in uniqueness if entry.canonical_peptide == "SHAREDK").uniqueness.value == "shared"
+    assert {entry.protein_ref for entry in picked} == {
+        "P11111",
+        "P22222",
+        "P33333",
+        "P44444",
+    }
+    assert (
+        next(entry for entry in confidence if entry.entity_id == "P11111").label.value
+        == "high"
+    )
+    assert (
+        next(
+            entry for entry in coverage if entry.protein_ref == "P11111"
+        ).coverage_fraction
+        > 0.0
+    )
+    assert (
+        next(
+            entry for entry in uniqueness if entry.canonical_peptide == "SHAREDK"
+        ).uniqueness.value
+        == "shared"
+    )

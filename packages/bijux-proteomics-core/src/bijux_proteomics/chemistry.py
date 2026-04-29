@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import StrEnum
 from math import exp, factorial
 from pathlib import Path
@@ -125,16 +126,24 @@ class _BaseModification(JsonModel):
         if isinstance(value, str):
             residues = tuple(value.strip().upper())
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("modification residues must be iterable")
             residues = tuple(str(token).strip().upper() for token in value)
-        invalid = [residue for residue in residues if residue not in _CANONICAL_RESIDUES]
+        invalid = [
+            residue for residue in residues if residue not in _CANONICAL_RESIDUES
+        ]
         if invalid:
-            raise ValueError(f"invalid modification residues: {', '.join(sorted(set(invalid)))}")
+            raise ValueError(
+                f"invalid modification residues: {', '.join(sorted(set(invalid)))}"
+            )
         return tuple(sorted(dict.fromkeys(residues)))
 
     @model_validator(mode="after")
     def _validate_site_specificity(self) -> _BaseModification:
         if self.position is ModificationPosition.ANYWHERE and not self.residues:
-            raise ValueError("residue-scoped modifications must declare at least one target residue")
+            raise ValueError(
+                "residue-scoped modifications must declare at least one target residue"
+            )
         return self
 
 
@@ -158,7 +167,9 @@ class ModificationRegistryDocument(JsonModel):
 
     document_schema: DocumentSchema
     static_modifications: tuple[StaticModification, ...] = Field(default_factory=tuple)
-    variable_modifications: tuple[VariableModification, ...] = Field(default_factory=tuple)
+    variable_modifications: tuple[VariableModification, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class AppliedModification(JsonModel):
@@ -313,7 +324,9 @@ class ModificationLocalizationAdvisory(JsonModel):
     status: ModificationLocalizationStatus = ModificationLocalizationStatus.ADVISORY
     canonical_notation: str = Field(..., min_length=1)
     note: str = Field(..., min_length=1)
-    candidates: tuple[ModificationLocalizationCandidate, ...] = Field(default_factory=tuple)
+    candidates: tuple[ModificationLocalizationCandidate, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def _format_mass_delta(delta: float) -> str:
@@ -332,7 +345,9 @@ def _build_applied_modification(
     mapping = _registry_lookup(registry)
     stripped_token = token.strip()
     definition = (
-        None if _DELTA_TOKEN_RE.fullmatch(stripped_token) else mapping.get(stripped_token.lower())
+        None
+        if _DELTA_TOKEN_RE.fullmatch(stripped_token)
+        else mapping.get(stripped_token.lower())
     )
     residue = _validate_definition_site(
         definition=definition,
@@ -371,9 +386,13 @@ def _candidate_definition_for_delta(
             continue
         if definition.position is not site:
             continue
-        if site is ModificationPosition.ANYWHERE and residue is not None:
-            if definition.residues and residue not in definition.residues:
-                continue
+        if (
+            site is ModificationPosition.ANYWHERE
+            and residue is not None
+            and definition.residues
+            and residue not in definition.residues
+        ):
+            continue
         return definition
     return None
 
@@ -484,11 +503,10 @@ def _registry_lookup(
 ) -> dict[str, StaticModification | VariableModification]:
     active_registry = registry or modification_registry()
     mapping: dict[str, StaticModification | VariableModification] = {}
-    for modification in (
-        *active_registry.static_modifications,
-        *active_registry.variable_modifications,
-    ):
+    for modification in active_registry.static_modifications:
         mapping[modification.name.strip().lower()] = modification
+    for variable_modification in active_registry.variable_modifications:
+        mapping[variable_modification.name.strip().lower()] = variable_modification
     return mapping
 
 
@@ -506,10 +524,14 @@ def get_modification(
 
 
 def _coerce_sequence(peptide: str | ParsedModifiedPeptide) -> str:
-    sequence = peptide.sequence if isinstance(peptide, ParsedModifiedPeptide) else peptide
+    sequence = (
+        peptide.sequence if isinstance(peptide, ParsedModifiedPeptide) else peptide
+    )
     normalized = sequence.strip().upper()
     if not _RESIDUE_TOKEN_RE.fullmatch(normalized):
-        raise ValueError("peptide sequence must use canonical uppercase amino-acid symbols")
+        raise ValueError(
+            "peptide sequence must use canonical uppercase amino-acid symbols"
+        )
     return normalized
 
 
@@ -540,8 +562,16 @@ def _mass_delta_for(
 
 
 def _base_residue_mass(sequence: str, mass_type: MassType) -> float:
-    table = _MONOISOTOPIC_RESIDUE_MASS if mass_type is MassType.MONOISOTOPIC else _AVERAGE_RESIDUE_MASS
-    water_mass = _WATER_MONOISOTOPIC_MASS if mass_type is MassType.MONOISOTOPIC else _WATER_AVERAGE_MASS
+    table = (
+        _MONOISOTOPIC_RESIDUE_MASS
+        if mass_type is MassType.MONOISOTOPIC
+        else _AVERAGE_RESIDUE_MASS
+    )
+    water_mass = (
+        _WATER_MONOISOTOPIC_MASS
+        if mass_type is MassType.MONOISOTOPIC
+        else _WATER_AVERAGE_MASS
+    )
     return water_mass + sum(table[residue] for residue in sequence)
 
 
@@ -567,9 +597,13 @@ def _matching_static_mass_delta(
             for residue in sequence[start - 1 : finish]:
                 if residue in modification.residues:
                     total += delta
-        elif modification.position is ModificationPosition.PEPTIDE_N_TERM and include_n_term:
-            total += delta
-        elif modification.position is ModificationPosition.PEPTIDE_C_TERM and include_c_term:
+        elif (
+            modification.position is ModificationPosition.PEPTIDE_N_TERM
+            and include_n_term
+        ) or (
+            modification.position is ModificationPosition.PEPTIDE_C_TERM
+            and include_c_term
+        ):
             total += delta
     return total
 
@@ -592,12 +626,18 @@ def _applied_modification_mass_delta(
             average=modification.mass_delta_average,
         )
         if modification.site is ModificationPosition.ANYWHERE:
-            assert modification.site_index is not None
-            if modification.site_index >= start and (finish is None or modification.site_index <= finish):
+            site_index = modification.site_index
+            if site_index is None:
+                raise ValueError(
+                    "residue modification is missing a required site index"
+                )
+            if site_index >= start and (finish is None or site_index <= finish):
                 total += delta
-        elif modification.site is ModificationPosition.PEPTIDE_N_TERM and include_n_term:
-            total += delta
-        elif modification.site is ModificationPosition.PEPTIDE_C_TERM and include_c_term:
+        elif (
+            modification.site is ModificationPosition.PEPTIDE_N_TERM and include_n_term
+        ) or (
+            modification.site is ModificationPosition.PEPTIDE_C_TERM and include_c_term
+        ):
             total += delta
     return total
 
@@ -610,11 +650,15 @@ def calculate_monoisotopic_peptide_mass(
 ) -> float:
     """Calculate the monoisotopic neutral mass for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
-    return _base_residue_mass(parsed.sequence, MassType.MONOISOTOPIC) + _matching_static_mass_delta(
-        parsed.sequence,
-        static_modifications,
-        MassType.MONOISOTOPIC,
-    ) + _applied_modification_mass_delta(parsed.modifications, MassType.MONOISOTOPIC)
+    return (
+        _base_residue_mass(parsed.sequence, MassType.MONOISOTOPIC)
+        + _matching_static_mass_delta(
+            parsed.sequence,
+            static_modifications,
+            MassType.MONOISOTOPIC,
+        )
+        + _applied_modification_mass_delta(parsed.modifications, MassType.MONOISOTOPIC)
+    )
 
 
 def calculate_average_peptide_mass(
@@ -625,11 +669,15 @@ def calculate_average_peptide_mass(
 ) -> float:
     """Calculate the average neutral mass for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
-    return _base_residue_mass(parsed.sequence, MassType.AVERAGE) + _matching_static_mass_delta(
-        parsed.sequence,
-        static_modifications,
-        MassType.AVERAGE,
-    ) + _applied_modification_mass_delta(parsed.modifications, MassType.AVERAGE)
+    return (
+        _base_residue_mass(parsed.sequence, MassType.AVERAGE)
+        + _matching_static_mass_delta(
+            parsed.sequence,
+            static_modifications,
+            MassType.AVERAGE,
+        )
+        + _applied_modification_mass_delta(parsed.modifications, MassType.AVERAGE)
+    )
 
 
 def calculate_peptide_mz(
@@ -657,7 +705,9 @@ def calculate_peptide_mz(
         )
     )
     proton_mass = (
-        _PROTON_MONOISOTOPIC_MASS if mass_type is MassType.MONOISOTOPIC else _PROTON_AVERAGE_MASS
+        _PROTON_MONOISOTOPIC_MASS
+        if mass_type is MassType.MONOISOTOPIC
+        else _PROTON_AVERAGE_MASS
     )
     return (neutral_mass + (charge * proton_mass)) / charge
 
@@ -845,7 +895,10 @@ def _validate_definition_site(
             f"modification {definition.name!r} requires site {definition.position.value}, got {site.value}"
         )
     if site is ModificationPosition.ANYWHERE:
-        assert site_index is not None
+        if site_index is None:
+            raise ValueError(
+                f"modification {definition.name!r} requires a residue site index"
+            )
         residue = sequence[site_index - 1]
         if definition.residues and residue not in definition.residues:
             allowed = ",".join(definition.residues)
@@ -871,7 +924,9 @@ def parse_modified_peptide(
     if text.startswith("["):
         close = text.find("]")
         if close == -1 or close + 1 >= len(text) or text[close + 1] != "-":
-            raise ValueError("N-terminal modifications must use [token]-PEPTIDE notation")
+            raise ValueError(
+                "N-terminal modifications must use [token]-PEPTIDE notation"
+            )
         token = text[1:close]
         modifications.append(
             _build_applied_modification(
@@ -915,7 +970,9 @@ def parse_modified_peptide(
 
     if index < len(text):
         if not text[index:].startswith("-[") or not text.endswith("]"):
-            raise ValueError("C-terminal modifications must use PEPTIDE-[token] notation")
+            raise ValueError(
+                "C-terminal modifications must use PEPTIDE-[token] notation"
+            )
         token = text[index + 2 : -1]
         modifications.append(
             _build_applied_modification(
@@ -962,14 +1019,18 @@ def build_modified_peptide(
             except ValueError as exc:
                 raise ValueError(f"invalid modification site {site_token!r}") from exc
             if site_index < 1 or site_index > len(normalized):
-                raise ValueError(f"modification site {site_index} is outside peptide length {len(normalized)}")
+                raise ValueError(
+                    f"modification site {site_index} is outside peptide length {len(normalized)}"
+                )
             site = ModificationPosition.ANYWHERE
         modifications.append(
             _build_applied_modification(
                 token=token,
                 site=site,
                 site_index=site_index,
-                sequence=normalized if site is ModificationPosition.ANYWHERE else normalized,
+                sequence=normalized
+                if site is ModificationPosition.ANYWHERE
+                else normalized,
                 registry=registry,
             )
         )
@@ -1021,14 +1082,14 @@ def canonicalize_modified_peptide(
                 continue
         elif modification.source == "registry":
             canonicalized.append(
-                modification.model_copy(
-                    update={"token": modification.name}
-                )
+                modification.model_copy(update={"token": modification.name})
             )
             continue
         canonicalized.append(
             modification.model_copy(
-                update={"token": _format_mass_delta(modification.mass_delta_monoisotopic)}
+                update={
+                    "token": _format_mass_delta(modification.mass_delta_monoisotopic)
+                }
             )
         )
     ordered = tuple(
@@ -1054,8 +1115,14 @@ def validate_modified_peptide_sites(
     try:
         parsed = _ensure_parsed_peptide(peptide, registry=registry)
     except ValueError as exc:
-        text = peptide.sequence if isinstance(peptide, ParsedModifiedPeptide) else str(peptide)
-        sequence = "".join(character for character in text.upper() if character.isalpha())
+        text = (
+            peptide.sequence
+            if isinstance(peptide, ParsedModifiedPeptide)
+            else str(peptide)
+        )
+        sequence = "".join(
+            character for character in text.upper() if character.isalpha()
+        )
         return ModificationSiteValidationReport(
             valid=False,
             sequence=sequence or "UNKNOWN",
@@ -1089,8 +1156,12 @@ def _render_modified_peptide(
         elif modification.site is ModificationPosition.PEPTIDE_C_TERM:
             c_term_tokens.append(f"[{token}]")
         else:
-            assert modification.site_index is not None
-            tokens_by_index.setdefault(modification.site_index, []).append(f"[{token}]")
+            site_index = modification.site_index
+            if site_index is None:
+                raise ValueError(
+                    "residue modification is missing a required site index"
+                )
+            tokens_by_index.setdefault(site_index, []).append(f"[{token}]")
 
     rendered = "".join(n_term_tokens)
     if n_term_tokens:
@@ -1141,10 +1212,14 @@ def _fragment_modifications(
             if series is FragmentIonSeries.Y:
                 selected.append(modification)
         else:
-            assert modification.site_index is not None
-            if series is FragmentIonSeries.B and modification.site_index <= ordinal:
+            site_index = modification.site_index
+            if site_index is None:
+                raise ValueError(
+                    "residue modification is missing a required site index"
+                )
+            if series is FragmentIonSeries.B and site_index <= ordinal:
                 selected.append(modification)
-            if series is FragmentIonSeries.Y and modification.site_index > sequence_length - ordinal:
+            if series is FragmentIonSeries.Y and site_index > sequence_length - ordinal:
                 selected.append(modification)
     return tuple(selected)
 
@@ -1171,8 +1246,12 @@ def calculate_fragment_ions(
         for ordinal in range(1, len(parsed.sequence)):
             if fragment_series is FragmentIonSeries.B:
                 fragment_sequence = parsed.sequence[:ordinal]
-                mono_neutral = sum(_MONOISOTOPIC_RESIDUE_MASS[residue] for residue in fragment_sequence)
-                average_neutral = sum(_AVERAGE_RESIDUE_MASS[residue] for residue in fragment_sequence)
+                mono_neutral = sum(
+                    _MONOISOTOPIC_RESIDUE_MASS[residue] for residue in fragment_sequence
+                )
+                average_neutral = sum(
+                    _AVERAGE_RESIDUE_MASS[residue] for residue in fragment_sequence
+                )
                 mono_neutral += _matching_static_mass_delta(
                     parsed.sequence,
                     static_modifications,
@@ -1243,6 +1322,9 @@ def calculate_fragment_ions(
 
             def append_ion(
                 *,
+                series: FragmentIonSeries,
+                ion_ordinal: int,
+                ion_sequence: str,
                 neutral_mass_monoisotopic: float,
                 neutral_mass_average: float,
                 neutral_loss_name: str | None = None,
@@ -1250,15 +1332,16 @@ def calculate_fragment_ions(
                 for charge in charges:
                     ions.append(
                         FragmentIon(
-                            series=fragment_series,
-                            ordinal=ordinal,
+                            series=series,
+                            ordinal=ion_ordinal,
                             charge=charge,
-                            sequence=fragment_sequence,
+                            sequence=ion_sequence,
                             neutral_loss=neutral_loss_name,
                             neutral_mass_monoisotopic=neutral_mass_monoisotopic,
                             neutral_mass_average=neutral_mass_average,
                             mz_monoisotopic=(
-                                neutral_mass_monoisotopic + (charge * _PROTON_MONOISOTOPIC_MASS)
+                                neutral_mass_monoisotopic
+                                + (charge * _PROTON_MONOISOTOPIC_MASS)
                             )
                             / charge,
                             mz_average=(
@@ -1269,12 +1352,19 @@ def calculate_fragment_ions(
                     )
 
             append_ion(
+                series=fragment_series,
+                ion_ordinal=ordinal,
+                ion_sequence=fragment_sequence,
                 neutral_mass_monoisotopic=mono_neutral,
                 neutral_mass_average=average_neutral,
             )
             for neutral_loss in neutral_losses.values():
                 append_ion(
-                    neutral_mass_monoisotopic=mono_neutral - neutral_loss.monoisotopic_mass,
+                    series=fragment_series,
+                    ion_ordinal=ordinal,
+                    ion_sequence=fragment_sequence,
+                    neutral_mass_monoisotopic=mono_neutral
+                    - neutral_loss.monoisotopic_mass,
                     neutral_mass_average=average_neutral - neutral_loss.average_mass,
                     neutral_loss_name=neutral_loss.name,
                 )

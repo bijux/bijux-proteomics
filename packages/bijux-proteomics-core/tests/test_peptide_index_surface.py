@@ -26,8 +26,12 @@ def test_classify_peptide_uniqueness_distinguishes_unique_and_shared_peptides() 
 
 def test_build_peptide_protein_index_tracks_parent_coordinates() -> None:
     peptides = (
-        *digest_sequence("AKAAK", source_accession="P11111", source_identifier="protein-1"),
-        *digest_sequence("KAAK", source_accession="P22222", source_identifier="protein-2"),
+        *digest_sequence(
+            "AKAAK", source_accession="P11111", source_identifier="protein-1"
+        ),
+        *digest_sequence(
+            "KAAK", source_accession="P22222", source_identifier="protein-2"
+        ),
     )
 
     entries = build_peptide_protein_index(tuple(peptides))

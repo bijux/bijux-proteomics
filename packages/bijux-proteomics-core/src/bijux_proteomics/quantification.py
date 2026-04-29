@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
 from enum import StrEnum
@@ -141,8 +142,10 @@ class Ms1FeatureRecord(JsonModel):
         if value in (None, ""):
             return ()
         if isinstance(value, str):
-            refs = (value,)
+            refs: tuple[str, ...] = (value,)
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("protein references must be iterable")
             refs = tuple(str(token) for token in value)
         normalized = tuple(token.strip() for token in refs if token.strip())
         return tuple(dict.fromkeys(normalized))
@@ -300,7 +303,8 @@ def _detect_delimiter(first_line: str) -> str:
 def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...]:
     if raw_value in (None, ""):
         return ()
-    refs = tuple(token.strip() for token in raw_value.split(separator) if token.strip())
+    text = raw_value.strip() if raw_value is not None else ""
+    refs = tuple(token.strip() for token in text.split(separator) if token.strip())
     return tuple(dict.fromkeys(refs))
 
 
@@ -308,7 +312,9 @@ def _row_issue(code: str, message: str, row_number: int) -> QuantValidationIssue
     return QuantValidationIssue(code=code, message=message, row_number=row_number)
 
 
-def _matrix_value_index(table: LabelFreeQuantTable) -> dict[tuple[str, str], QuantValue]:
+def _matrix_value_index(
+    table: LabelFreeQuantTable,
+) -> dict[tuple[str, str], QuantValue]:
     return {(value.entity_id, value.sample_id): value for value in table.values}
 
 
@@ -339,7 +345,9 @@ def _feature_entity_ids(
 
 
 def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValueKind:
-    if any(kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds):
+    if any(
+        kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds
+    ):
         if any(kind is MissingValueKind.ZERO for kind in kinds) and not any(
             kind is MissingValueKind.OBSERVED for kind in kinds
         ):
@@ -389,12 +397,17 @@ def _build_table(
         for entity_id in entity_ids:
             key = (entity_id, record.sample_id)
             missing_kinds.setdefault(key, []).append(record.missing_value_kind)
-            peptides_by_entity.setdefault(entity_id, set()).add(record.canonical_peptide)
+            peptides_by_entity.setdefault(entity_id, set()).add(
+                record.canonical_peptide
+            )
             if entity_level is QuantEntityLevel.PEPTIDE:
                 protein_refs_by_entity.setdefault(entity_id, record.protein_refs)
             else:
                 protein_refs_by_entity.setdefault(entity_id, (entity_id,))
-            if record.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO):
+            if record.missing_value_kind in (
+                MissingValueKind.OBSERVED,
+                MissingValueKind.ZERO,
+            ):
                 grouped.setdefault(key, []).append(float(record.intensity or 0.0))
                 feature_counts[key] = feature_counts.get(key, 0) + 1
 
@@ -445,8 +458,12 @@ def _build_table(
     )
 
 
-def _table_matrix(table: LabelFreeQuantTable) -> tuple[np.ndarray, list[tuple[str, str]]]:
-    matrix = np.full((len(table.entity_ids), len(table.sample_ids)), np.nan, dtype=float)
+def _table_matrix(
+    table: LabelFreeQuantTable,
+) -> tuple[np.ndarray, list[tuple[str, str]]]:
+    matrix = np.full(
+        (len(table.entity_ids), len(table.sample_ids)), np.nan, dtype=float
+    )
     rows = list(table.entity_ids)
     cols = list(table.sample_ids)
     row_index = {entity_id: index for index, entity_id in enumerate(rows)}
@@ -454,7 +471,9 @@ def _table_matrix(table: LabelFreeQuantTable) -> tuple[np.ndarray, list[tuple[st
     for value in table.values:
         if value.abundance is None:
             continue
-        matrix[row_index[value.entity_id], col_index[value.sample_id]] = float(value.abundance)
+        matrix[row_index[value.entity_id], col_index[value.sample_id]] = float(
+            value.abundance
+        )
     return matrix, [(entity_id, sample_id) for entity_id in rows for sample_id in cols]
 
 
@@ -465,13 +484,19 @@ def _rebuild_table_from_matrix(
     normalization_method: NormalizationMethod,
     normalization_factors: dict[str, float],
 ) -> LabelFreeQuantTable:
-    sample_index = {sample_id: index for index, sample_id in enumerate(table.sample_ids)}
-    entity_index = {entity_id: index for index, entity_id in enumerate(table.entity_ids)}
+    sample_index = {
+        sample_id: index for index, sample_id in enumerate(table.sample_ids)
+    }
+    entity_index = {
+        entity_id: index for index, entity_id in enumerate(table.entity_ids)
+    }
     values: list[QuantValue] = []
     for value in table.values:
         rebuilt = value
         if value.abundance is not None:
-            abundance = float(matrix[entity_index[value.entity_id], sample_index[value.sample_id]])
+            abundance = float(
+                matrix[entity_index[value.entity_id], sample_index[value.sample_id]]
+            )
             rebuilt = value.model_copy(update={"abundance": max(abundance, 0.0)})
         values.append(rebuilt)
     return table.model_copy(
@@ -545,8 +570,14 @@ def _regularized_beta(x: float, a: float, b: float) -> float:
     return 1.0 - front * _betacf(b, a, 1.0 - x) / b
 
 
-def _student_t_two_sided_p_value(t_statistic: float, degrees_of_freedom: float) -> float:
-    if not math.isfinite(t_statistic) or not math.isfinite(degrees_of_freedom) or degrees_of_freedom <= 0:
+def _student_t_two_sided_p_value(
+    t_statistic: float, degrees_of_freedom: float
+) -> float:
+    if (
+        not math.isfinite(t_statistic)
+        or not math.isfinite(degrees_of_freedom)
+        or degrees_of_freedom <= 0
+    ):
         return 1.0
     x = degrees_of_freedom / (degrees_of_freedom + t_statistic * t_statistic)
     return min(max(_regularized_beta(x, degrees_of_freedom / 2.0, 0.5), 0.0), 1.0)
@@ -572,7 +603,9 @@ def _welch_t_test(values_a: np.ndarray, values_b: np.ndarray) -> tuple[float, fl
     if denominator_df == 0.0:
         return mean_b - mean_a, 1.0
     degrees_of_freedom = numerator / denominator_df
-    return mean_b - mean_a, _student_t_two_sided_p_value(abs(t_statistic), degrees_of_freedom)
+    return mean_b - mean_a, _student_t_two_sided_p_value(
+        abs(t_statistic), degrees_of_freedom
+    )
 
 
 def parse_ms1_feature_table(
@@ -614,7 +647,9 @@ def parse_ms1_feature_table(
     accepted: list[Ms1FeatureRecord] = []
     rejected: list[RejectedMs1FeatureRow] = []
     for row_number, row in enumerate(reader, start=2):
-        raw_fields = {str(key): str(value or "") for key, value in row.items() if key is not None}
+        raw_fields = {
+            str(key): str(value or "") for key, value in row.items() if key is not None
+        }
         issues: list[QuantValidationIssue] = []
         sample_id = raw_fields.get(active_mapping.sample_id, "").strip()
         peptide = raw_fields.get(active_mapping.peptide, "").strip()
@@ -625,21 +660,28 @@ def parse_ms1_feature_table(
             else ""
         )
         if not sample_id:
-            issues.append(_row_issue("missing_sample_id", "missing sample identifier", row_number))
+            issues.append(
+                _row_issue("missing_sample_id", "missing sample identifier", row_number)
+            )
         if not peptide:
-            issues.append(_row_issue("missing_peptide", "missing peptide sequence", row_number))
+            issues.append(
+                _row_issue("missing_peptide", "missing peptide sequence", row_number)
+            )
         canonical_peptide = peptide
         if peptide:
             try:
                 canonical_peptide = canonicalize_modified_peptide(peptide)
             except ValueError as exc:
-                issues.append(_row_issue("invalid_peptide_notation", str(exc), row_number))
+                issues.append(
+                    _row_issue("invalid_peptide_notation", str(exc), row_number)
+                )
 
         intensity: float | None
         missing_value_kind: MissingValueKind
-        if intensity_token == "":
+        normalized_missing_reason = missing_reason.strip().lower()
+        if not intensity_token:
             intensity = None
-            if missing_reason.strip().lower() == "filtered":
+            if normalized_missing_reason == "filtered":
                 missing_value_kind = MissingValueKind.FILTERED
             else:
                 missing_value_kind = MissingValueKind.NOT_OBSERVED
@@ -647,10 +689,20 @@ def parse_ms1_feature_table(
             try:
                 intensity = float(intensity_token)
             except ValueError:
-                issues.append(_row_issue("invalid_intensity", "invalid intensity value", row_number))
+                issues.append(
+                    _row_issue(
+                        "invalid_intensity", "invalid intensity value", row_number
+                    )
+                )
                 intensity = None
             if intensity is not None and intensity < 0:
-                issues.append(_row_issue("negative_intensity", "intensity must be non-negative", row_number))
+                issues.append(
+                    _row_issue(
+                        "negative_intensity",
+                        "intensity must be non-negative",
+                        row_number,
+                    )
+                )
             if intensity is not None and intensity == 0:
                 missing_value_kind = MissingValueKind.ZERO
             else:
@@ -665,7 +717,9 @@ def parse_ms1_feature_table(
                     if charge < 1:
                         raise ValueError
                 except ValueError:
-                    issues.append(_row_issue("invalid_charge", "invalid charge value", row_number))
+                    issues.append(
+                        _row_issue("invalid_charge", "invalid charge value", row_number)
+                    )
 
         mz: float | None = None
         if active_mapping.mz:
@@ -676,7 +730,11 @@ def parse_ms1_feature_table(
                     if mz <= 0:
                         raise ValueError
                 except ValueError:
-                    issues.append(_row_issue("invalid_mz", "invalid precursor m/z value", row_number))
+                    issues.append(
+                        _row_issue(
+                            "invalid_mz", "invalid precursor m/z value", row_number
+                        )
+                    )
 
         retention_time_seconds: float | None = None
         if active_mapping.retention_time_seconds:
@@ -696,7 +754,9 @@ def parse_ms1_feature_table(
                     )
 
         protein_refs = _parse_protein_refs(
-            raw_fields.get(active_mapping.protein_refs, "") if active_mapping.protein_refs else "",
+            raw_fields.get(active_mapping.protein_refs, "")
+            if active_mapping.protein_refs
+            else "",
             active_mapping.protein_separator,
         )
 
@@ -804,7 +864,9 @@ def summarize_missing_values(table: LabelFreeQuantTable) -> MissingValueSummaryR
                 filtered_count=counts[MissingValueKind.FILTERED],
             )
         )
-    return MissingValueSummaryReport(entity_level=table.entity_level, entries=tuple(entries))
+    return MissingValueSummaryReport(
+        entity_level=table.entity_level, entries=tuple(entries)
+    )
 
 
 def normalize_label_free_table(
@@ -819,7 +881,7 @@ def normalize_label_free_table(
         return table.model_copy(
             update={
                 "normalization_method": method,
-                "normalization_factors": {sample_id: 1.0 for sample_id in table.sample_ids},
+                "normalization_factors": dict.fromkeys(table.sample_ids, 1.0),
             }
         )
 
@@ -828,7 +890,9 @@ def normalize_label_free_table(
 
     if method is NormalizationMethod.TIC:
         totals = np.nansum(matrix, axis=0)
-        global_total = float(np.nanmean(totals[totals > 0])) if np.any(totals > 0) else 1.0
+        global_total = (
+            float(np.nanmean(totals[totals > 0])) if np.any(totals > 0) else 1.0
+        )
         factors = {
             sample_id: (global_total / float(total)) if total > 0 else 1.0
             for sample_id, total in zip(sample_ids, totals, strict=True)
@@ -853,7 +917,9 @@ def normalize_label_free_table(
             ],
             dtype=float,
         )
-        global_median = float(np.nanmedian(medians)) if np.any(~np.isnan(medians)) else 1.0
+        global_median = (
+            float(np.nanmedian(medians)) if np.any(~np.isnan(medians)) else 1.0
+        )
         factors = {
             sample_id: (
                 global_median / float(medians[index])
@@ -888,7 +954,7 @@ def normalize_label_free_table(
             table,
             quantile_matrix,
             normalization_method=method,
-            normalization_factors={sample_id: 1.0 for sample_id in sample_ids},
+            normalization_factors=dict.fromkeys(sample_ids, 1.0),
         )
     rank_matrix = np.full((max_length, len(sample_ids)), np.nan, dtype=float)
     for index, column in enumerate(sorted_columns):
@@ -902,7 +968,7 @@ def normalize_label_free_table(
         table,
         normalized,
         normalization_method=method,
-        normalization_factors={sample_id: 1.0 for sample_id in sample_ids},
+        normalization_factors=dict.fromkeys(sample_ids, 1.0),
     )
 
 
@@ -919,11 +985,13 @@ def build_batch_effect_advisory(
         return BatchEffectAdvisoryReport(
             batch_field=batch_field,
             global_median_log2_abundance=0.0,
-            batches=tuple(),
+            batches=(),
             note="No batch metadata was provided; batch advisory remains empty.",
         )
 
-    per_sample = {sample_id: _log2_values(table, sample_id) for sample_id in table.sample_ids}
+    per_sample = {
+        sample_id: _log2_values(table, sample_id) for sample_id in table.sample_ids
+    }
     finite_samples = [values for values in per_sample.values() if values.size > 0]
     global_median = (
         float(np.median(np.concatenate(finite_samples))) if finite_samples else 0.0
@@ -935,7 +1003,11 @@ def build_batch_effect_advisory(
 
     batches: list[BatchEffectBatchEntry] = []
     for batch_id, sample_ids in sorted(grouped.items()):
-        values = [per_sample[sample_id] for sample_id in sample_ids if per_sample[sample_id].size > 0]
+        values = [
+            per_sample[sample_id]
+            for sample_id in sample_ids
+            if per_sample[sample_id].size > 0
+        ]
         batch_median = float(np.median(np.concatenate(values))) if values else 0.0
         shift = batch_median - global_median
         batches.append(
@@ -996,8 +1068,12 @@ def build_replicate_correlation_report(
     return ReplicateCorrelationReport(
         entity_level=table.entity_level,
         entries=tuple(entries),
-        within_condition_mean=float(np.mean(within_condition)) if within_condition else None,
-        between_condition_mean=float(np.mean(between_condition)) if between_condition else None,
+        within_condition_mean=float(np.mean(within_condition))
+        if within_condition
+        else None,
+        between_condition_mean=float(np.mean(between_condition))
+        if between_condition
+        else None,
     )
 
 
@@ -1010,13 +1086,25 @@ def build_differential_abundance_report(
 ) -> DifferentialAbundanceReport:
     """Run a basic two-condition Welch-style differential abundance test."""
     condition_by_sample = _condition_lookup(design_entries)
-    conditions = sorted({condition for condition in condition_by_sample.values() if condition})
+    conditions = sorted(
+        {condition for condition in condition_by_sample.values() if condition}
+    )
     if condition_a is None or condition_b is None:
         if len(conditions) != 2:
-            raise ValueError("differential abundance requires exactly two conditions or explicit condition names")
+            raise ValueError(
+                "differential abundance requires exactly two conditions or explicit condition names"
+            )
         condition_a, condition_b = conditions
-    samples_a = tuple(sample_id for sample_id, condition in condition_by_sample.items() if condition == condition_a)
-    samples_b = tuple(sample_id for sample_id, condition in condition_by_sample.items() if condition == condition_b)
+    samples_a = tuple(
+        sample_id
+        for sample_id, condition in condition_by_sample.items()
+        if condition == condition_a
+    )
+    samples_b = tuple(
+        sample_id
+        for sample_id, condition in condition_by_sample.items()
+        if condition == condition_b
+    )
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
 
@@ -1027,7 +1115,8 @@ def build_differential_abundance_report(
             [
                 math.log2(cell.abundance + 1.0)
                 for sample_id in samples_a
-                if (cell := lookup.get((entity_id, sample_id))) is not None and cell.abundance is not None
+                if (cell := lookup.get((entity_id, sample_id))) is not None
+                and cell.abundance is not None
             ],
             dtype=float,
         )
@@ -1035,7 +1124,8 @@ def build_differential_abundance_report(
             [
                 math.log2(cell.abundance + 1.0)
                 for sample_id in samples_b
-                if (cell := lookup.get((entity_id, sample_id))) is not None and cell.abundance is not None
+                if (cell := lookup.get((entity_id, sample_id))) is not None
+                and cell.abundance is not None
             ],
             dtype=float,
         )
@@ -1055,7 +1145,14 @@ def build_differential_abundance_report(
                 p_value=p_value,
             )
         )
-    entries = sorted(entries, key=lambda entry: (entry.p_value, -abs(entry.log2_fold_change), entry.entity_id))
+    entries = sorted(
+        entries,
+        key=lambda entry: (
+            entry.p_value,
+            -abs(entry.log2_fold_change),
+            entry.entity_id,
+        ),
+    )
     return DifferentialAbundanceReport(
         entity_level=table.entity_level,
         normalization_method=table.normalization_method,

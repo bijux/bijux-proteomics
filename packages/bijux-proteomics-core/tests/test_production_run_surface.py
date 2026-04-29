@@ -9,22 +9,22 @@ from pathlib import Path
 import time
 
 from bijux_proteomics import (
+    FastaParseMode,
+    QcEvidenceInputFile,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    SearchResultColumnMapping,
     build_label_free_intensity_table,
     build_lcms_run_qc_report,
     build_performance_snapshot,
     build_qc_evidence_manifest,
     build_run_qc_assessment,
     default_qc_threshold_policy,
-    FastaParseMode,
     parse_experimental_design_table,
     parse_fasta_document,
     parse_mgf,
     parse_ms1_feature_table,
     parse_psm_tsv,
-    QcEvidenceInputFile,
-    QuantEntityLevel,
-    QuantRollupMethod,
-    SearchResultColumnMapping,
 )
 
 
@@ -34,7 +34,9 @@ def _fixture(name: str) -> Path:
 
 def test_production_run_fixture_covers_identify_quant_and_qc() -> None:
     design = parse_experimental_design_table(_fixture("design.tsv")).accepted_entries[0]
-    fasta_report = parse_fasta_document(_fixture("proteins.fasta").read_text(), mode=FastaParseMode.STRICT)
+    fasta_report = parse_fasta_document(
+        _fixture("proteins.fasta").read_text(), mode=FastaParseMode.STRICT
+    )
     protein_sequences = {
         record.canonical_accession: record.residues
         for record in fasta_report.accepted_records
@@ -87,7 +89,9 @@ def test_production_run_fixture_manifest_hashes_match_payload() -> None:
 
 def test_production_run_builds_qc_manifest_and_benchmark_artifacts() -> None:
     design = parse_experimental_design_table(_fixture("design.tsv")).accepted_entries[0]
-    fasta_report = parse_fasta_document(_fixture("proteins.fasta").read_text(), mode=FastaParseMode.STRICT)
+    fasta_report = parse_fasta_document(
+        _fixture("proteins.fasta").read_text(), mode=FastaParseMode.STRICT
+    )
     protein_sequences = {
         record.canonical_accession: record.residues
         for record in fasta_report.accepted_records
@@ -117,14 +121,19 @@ def test_production_run_builds_qc_manifest_and_benchmark_artifacts() -> None:
         design_entry=design,
         protein_sequences=protein_sequences,
     )
-    run_assessment = build_run_qc_assessment(run_report, policy=default_qc_threshold_policy())
+    run_assessment = build_run_qc_assessment(
+        run_report, policy=default_qc_threshold_policy()
+    )
     build_qc_elapsed = time.perf_counter() - started
 
     benchmark = build_performance_snapshot(
         run_report.run_id,
         operations={
             "parse_psms": (parse_psms_elapsed, len(psm_report.accepted_records)),
-            "parse_spectra": (parse_spectra_elapsed, len(spectrum_report.accepted_spectra)),
+            "parse_spectra": (
+                parse_spectra_elapsed,
+                len(spectrum_report.accepted_spectra),
+            ),
             "build_run_qc": (build_qc_elapsed, len(run_assessment.metric_assessments)),
         },
     )
@@ -134,8 +143,12 @@ def test_production_run_builds_qc_manifest_and_benchmark_artifacts() -> None:
         policy=default_qc_threshold_policy(),
         input_files=(
             QcEvidenceInputFile(path="spectra.mgf", sha256="a" * 64, role="spectra"),
-            QcEvidenceInputFile(path="results.tsv", sha256="b" * 64, role="identifications"),
-            QcEvidenceInputFile(path="proteins.fasta", sha256="c" * 64, role="proteins"),
+            QcEvidenceInputFile(
+                path="results.tsv", sha256="b" * 64, role="identifications"
+            ),
+            QcEvidenceInputFile(
+                path="proteins.fasta", sha256="c" * 64, role="proteins"
+            ),
         ),
         benchmark=benchmark,
     )

@@ -6,13 +6,14 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 import hashlib
+from pathlib import Path
 import random
 import re
 from statistics import median
-from pathlib import Path
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -27,13 +28,9 @@ _UNIPROT_ACCESSION_RE = re.compile(
 _REFSEQ_ACCESSION_RE = re.compile(
     r"^(?P<accession>(?:NP|XP|YP|WP|AP|ZP)_[0-9]+(?:\.[0-9]+)?)$"
 )
-_ENSEMBL_ACCESSION_RE = re.compile(
-    r"^(?P<accession>ENS[A-Z]*P[0-9]{6,})(?:\.[0-9]+)?$"
-)
+_ENSEMBL_ACCESSION_RE = re.compile(r"^(?P<accession>ENS[A-Z]*P[0-9]{6,})(?:\.[0-9]+)?$")
 _GENE_FIELD_RE = re.compile(r"\bGN=(?P<gene>[A-Za-z0-9_.-]+)")
-_ORGANISM_FIELD_RE = re.compile(
-    r"\bOS=(?P<organism>.+?)(?=\s(?:OX|GN|PE|SV)=|$)"
-)
+_ORGANISM_FIELD_RE = re.compile(r"\bOS=(?P<organism>.+?)(?=\s(?:OX|GN|PE|SV)=|$)")
 _ENSEMBL_GENE_SYMBOL_RE = re.compile(r"\bgene_symbol:(?P<gene>[A-Za-z0-9_.-]+)")
 _ENSEMBL_DESCRIPTION_RE = re.compile(r"\bdescription:(?P<description>.+)")
 
@@ -101,7 +98,9 @@ class SequenceValidationResult(JsonModel):
     @property
     def is_valid(self) -> bool:
         """Return whether the sequence passes the active parser policy."""
-        return all(issue.severity is not SequenceIssueSeverity.ERROR for issue in self.issues)
+        return all(
+            issue.severity is not SequenceIssueSeverity.ERROR for issue in self.issues
+        )
 
 
 class NormalizedProteinRecord(JsonModel):
@@ -122,7 +121,9 @@ class NormalizedProteinRecord(JsonModel):
     residue_count: int = Field(..., ge=1)
     sequence_checksum: str = Field(..., min_length=64, max_length=64)
     contaminant: bool = False
-    validation_issues: tuple[SequenceValidationIssue, ...] = Field(default_factory=tuple)
+    validation_issues: tuple[SequenceValidationIssue, ...] = Field(
+        default_factory=tuple
+    )
 
     @field_validator("residues")
     @classmethod
@@ -257,7 +258,9 @@ def sequence_length(sequence: ProteinSequence) -> int:
 
 def sequence_checksum(residues: str) -> str:
     """Return a stable SHA-256 checksum over normalized residues."""
-    normalized = "".join(character for character in residues.strip().upper() if not character.isspace())
+    normalized = "".join(
+        character for character in residues.strip().upper() if not character.isspace()
+    )
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
@@ -339,7 +342,9 @@ def validate_protein_sequence(
 ) -> SequenceValidationResult:
     """Validate one protein sequence string under the active parser policy."""
     issues: list[SequenceValidationIssue] = []
-    had_lowercase = any(character.isalpha() and character.islower() for character in sequence)
+    had_lowercase = any(
+        character.isalpha() and character.islower() for character in sequence
+    )
     had_whitespace = any(character.isspace() for character in sequence)
     collapsed = "".join(character for character in sequence if not character.isspace())
 
@@ -370,7 +375,9 @@ def validate_protein_sequence(
         return SequenceValidationResult(normalized_residues="", issues=tuple(issues))
 
     normalized = collapsed.upper()
-    stop_positions = [index + 1 for index, residue in enumerate(normalized) if residue == "*"]
+    stop_positions = [
+        index + 1 for index, residue in enumerate(normalized) if residue == "*"
+    ]
     if stop_positions:
         trailing = len(stop_positions)
         terminal_only = stop_positions == list(
@@ -443,8 +450,12 @@ def normalize_protein_record(
     validation_issues: tuple[SequenceValidationIssue, ...] = (),
 ) -> NormalizedProteinRecord:
     """Normalize one FASTA record into a stable protein record."""
-    residues = normalized_residues if normalized_residues is not None else record.residues
-    accession_namespace, canonical_accession, isoform = _normalize_accession(record.identifier)
+    residues = (
+        normalized_residues if normalized_residues is not None else record.residues
+    )
+    accession_namespace, canonical_accession, isoform = _normalize_accession(
+        record.identifier
+    )
     gene = _extract_gene(record)
     organism = _extract_organism(record)
     description = _extract_description(record)
@@ -476,10 +487,14 @@ def build_fasta_stats(
     lengths = [record.residue_count for record in records]
     namespace_counts = Counter(record.accession_namespace for record in records)
     duplicate_identifier_count = sum(
-        count - 1 for count in Counter(record.source_identifier for record in records).values() if count > 1
+        count - 1
+        for count in Counter(record.source_identifier for record in records).values()
+        if count > 1
     )
     duplicate_sequence_count = sum(
-        count - 1 for count in Counter(record.sequence_checksum for record in records).values() if count > 1
+        count - 1
+        for count in Counter(record.sequence_checksum for record in records).values()
+        if count > 1
     )
     return FastaStatsReport(
         total_records=len(records),
@@ -774,8 +789,12 @@ def _build_fasta_record(header: str, residues: list[str]) -> FastaSequenceRecord
     )
 
 
-def _duplicate_identifiers(identifiers: list[str] | tuple[str, ...] | object) -> set[str]:
-    counts = Counter(identifiers)
+def _duplicate_identifiers(
+    identifiers: list[str] | tuple[str, ...] | object,
+) -> set[str]:
+    if not isinstance(identifiers, Iterable) or isinstance(identifiers, str):
+        return set()
+    counts: Counter[str] = Counter(str(identifier) for identifier in identifiers)
     return {identifier for identifier, count in counts.items() if count > 1}
 
 

@@ -30,8 +30,13 @@ def _fasta_fixture(name: str) -> Path:
 
 
 def _protein_sequences() -> dict[str, str]:
-    report = parse_fasta_document(_fasta_fixture("ptm_sites.fasta").read_text(), mode=FastaParseMode.STRICT)
-    return {record.canonical_accession: record.residues for record in report.accepted_records}
+    report = parse_fasta_document(
+        _fasta_fixture("ptm_sites.fasta").read_text(), mode=FastaParseMode.STRICT
+    )
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
 
 
 def test_ptm_localization_parser_accepts_fixture_and_candidate_sites() -> None:
@@ -40,7 +45,11 @@ def test_ptm_localization_parser_accepts_fixture_and_candidate_sites() -> None:
     assert report.total_rows == 8
     assert len(report.accepted_records) == 8
     first = report.accepted_records[0]
-    ambiguous = next(record for record in report.accepted_records if record.spectrum_id == "scan=ptm-005")
+    ambiguous = next(
+        record
+        for record in report.accepted_records
+        if record.spectrum_id == "scan=ptm-005"
+    )
 
     assert first.modification_names == ("Phospho",)
     assert ambiguous.candidate_site_indices == (2, 3, 4)
@@ -48,12 +57,19 @@ def test_ptm_localization_parser_accepts_fixture_and_candidate_sites() -> None:
 
 
 def test_ptm_localization_parser_rejects_malformed_rows() -> None:
-    report = parse_ptm_localization_tsv(_ptm_fixture("malformed_localization_results.tsv"))
+    report = parse_ptm_localization_tsv(
+        _ptm_fixture("malformed_localization_results.tsv")
+    )
 
     assert len(report.accepted_records) == 0
     assert len(report.rejected_rows) == 4
     codes = {issue.code for row in report.rejected_rows for issue in row.issues}
-    assert {"missing_spectrum_id", "invalid_charge", "invalid_score", "missing_protein_refs"} <= codes
+    assert {
+        "missing_spectrum_id",
+        "invalid_charge",
+        "invalid_score",
+        "missing_protein_refs",
+    } <= codes
 
 
 def test_ptm_site_mapping_and_table_cover_unique_and_ambiguous_sites() -> None:
@@ -64,10 +80,18 @@ def test_ptm_site_mapping_and_table_cover_unique_and_ambiguous_sites() -> None:
     )
     site_table = build_ptm_site_table(mappings)
 
-    assert any(mapping.protein_ref == "P11111" and mapping.protein_position == 5 for mapping in mappings)
-    assert any(mapping.protein_ref == "P22222" and mapping.protein_position == 18 for mapping in mappings)
+    assert any(
+        mapping.protein_ref == "P11111" and mapping.protein_position == 5
+        for mapping in mappings
+    )
+    assert any(
+        mapping.protein_ref == "P22222" and mapping.protein_position == 18
+        for mapping in mappings
+    )
     assert len(site_table) == 5
-    p11111_site = next(entry for entry in site_table if entry.site_key == "P11111:S5:Phospho")
+    p11111_site = next(
+        entry for entry in site_table if entry.site_key == "P11111:S5:Phospho"
+    )
     assert p11111_site.spectrum_count == 4
     assert p11111_site.best_q_value == 0.003
 
@@ -87,7 +111,9 @@ def test_ptm_ambiguity_coverage_and_fdr_reports_are_stable() -> None:
     assert all(entry.candidate_positions for entry in ambiguity)
     assert any(entry.site_key == "P11111:S5:Phospho" for entry in coverage)
     decoy = next(entry for entry in fdr.entries if entry.site_key.startswith("Q9DEC1"))
-    target = next(entry for entry in fdr.entries if entry.site_key == "P11111:S5:Phospho")
+    target = next(
+        entry for entry in fdr.entries if entry.site_key == "P11111:S5:Phospho"
+    )
     assert target.accepted is True
     assert decoy.accepted is False
 
@@ -104,11 +130,23 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
         site_table,
         feature_records=features.accepted_records,
     )
-    motifs = build_ptm_motif_windows(site_table, protein_sequences=_protein_sequences(), flank_size=3)
-    enrichment = build_ptm_enrichment_input(site_table, protein_sequences=_protein_sequences())
+    motifs = build_ptm_motif_windows(
+        site_table, protein_sequences=_protein_sequences(), flank_size=3
+    )
+    enrichment = build_ptm_enrichment_input(
+        site_table, protein_sequences=_protein_sequences()
+    )
 
-    c1 = next(entry for entry in occupancy if entry.site_key == "P11111:S5:Phospho" and entry.sample_id == "C1")
-    t2 = next(entry for entry in occupancy if entry.site_key == "P11111:S5:Phospho" and entry.sample_id == "T2")
+    c1 = next(
+        entry
+        for entry in occupancy
+        if entry.site_key == "P11111:S5:Phospho" and entry.sample_id == "C1"
+    )
+    t2 = next(
+        entry
+        for entry in occupancy
+        if entry.site_key == "P11111:S5:Phospho" and entry.sample_id == "T2"
+    )
     motif = next(entry for entry in motifs if entry.site_key == "P11111:S5:Phospho")
 
     assert c1.occupancy_fraction == 0.12

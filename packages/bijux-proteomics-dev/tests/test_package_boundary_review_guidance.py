@@ -57,6 +57,6 @@ def test_package_boundary_docs_keep_review_guidance_substantive() -> None:
                 f"{path.relative_to(REPO_ROOT).as_posix()}: review section needs at least three bullets"
             )
 
-    assert not failures, (
-        "package boundary review guidance failed:\n" + "\n".join(failures)
+    assert not failures, "package boundary review guidance failed:\n" + "\n".join(
+        failures
     )

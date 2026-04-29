@@ -6,13 +6,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import (
-    build_hpc_job_descriptor,
-    build_large_file_streaming_policy,
-    build_parallel_execution_plan,
-    build_proteomics_workflow_manifest,
-    build_proteomics_workflow_runtime_bundle,
-    build_workflow_checkpoint,
-    build_workflow_runtime_cache,
     SearchAdapterKind,
     WorkflowCheckpointStatus,
     WorkflowExecutionMode,
@@ -20,6 +13,13 @@ from bijux_proteomics import (
     WorkflowSchedulerKind,
     WorkflowStepKind,
     WorkflowStreamingMode,
+    build_hpc_job_descriptor,
+    build_large_file_streaming_policy,
+    build_parallel_execution_plan,
+    build_proteomics_workflow_manifest,
+    build_proteomics_workflow_runtime_bundle,
+    build_workflow_checkpoint,
+    build_workflow_runtime_cache,
 )
 
 
@@ -50,9 +50,7 @@ def test_workflow_manifest_projects_imported_results_into_dag_ready_steps() -> N
         WorkflowStepKind.RUN_QC,
         WorkflowStepKind.BUILD_RUN_BUNDLE,
     ]
-    assert {
-        asset.role for asset in manifest.input_assets
-    } == {
+    assert {asset.role for asset in manifest.input_assets} == {
         WorkflowInputRole.PROTEINS,
         WorkflowInputRole.SPECTRA,
         WorkflowInputRole.IDENTIFICATIONS,
@@ -61,7 +59,9 @@ def test_workflow_manifest_projects_imported_results_into_dag_ready_steps() -> N
     }
 
 
-def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> None:
+def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (
+    None
+):
     bundle = build_proteomics_workflow_runtime_bundle(
         proteins_path=_fixture("proteins.fasta"),
         spectra_path=_fixture("spectra.mgf"),
@@ -98,7 +98,9 @@ def test_large_file_policy_and_parallel_groups_are_explicit() -> None:
     policy = build_large_file_streaming_policy(manifest, threshold_bytes=1)
     parallel = build_parallel_execution_plan(manifest)
 
-    assert all(entry.mode is WorkflowStreamingMode.STREAMING for entry in policy.entries)
+    assert all(
+        entry.mode is WorkflowStreamingMode.STREAMING for entry in policy.entries
+    )
     assert parallel.groups[0].step_ids == (f"{manifest.workflow_id}-validate-inputs",)
     assert len(parallel.groups) >= 3
 
@@ -132,7 +134,9 @@ def test_external_search_mode_and_checkpoint_resume_contract_are_stable() -> Non
     hpc_job = build_hpc_job_descriptor(manifest)
 
     assert manifest.execution_mode is WorkflowExecutionMode.EXTERNAL_SEARCH
-    assert any(step.kind is WorkflowStepKind.RUN_SEARCH_ENGINE for step in manifest.steps)
+    assert any(
+        step.kind is WorkflowStepKind.RUN_SEARCH_ENGINE for step in manifest.steps
+    )
     assert checkpoint.completed_step_ids == (
         f"{manifest.workflow_id}-validate-inputs",
         f"{manifest.workflow_id}-digest-database",

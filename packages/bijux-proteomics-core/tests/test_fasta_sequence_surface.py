@@ -66,11 +66,17 @@ def test_parse_fasta_document_permissive_accepts_ambiguous_terminal_stop_with_wa
     )
 
     ambiguous = next(
-        record for record in report.accepted_records if record.source_identifier == "custom_ambig"
+        record
+        for record in report.accepted_records
+        if record.source_identifier == "custom_ambig"
     )
     issue_codes = {issue.code for issue in ambiguous.validation_issues}
     assert ambiguous.residues == "ACDXZ"
-    assert {"lowercase_residues", "terminal_stop_codon_removed", "ambiguous_residue"} <= issue_codes
+    assert {
+        "lowercase_residues",
+        "terminal_stop_codon_removed",
+        "ambiguous_residue",
+    } <= issue_codes
 
 
 def test_validate_protein_sequence_flags_invalid_character_and_stop_codon() -> None:
@@ -125,7 +131,9 @@ def test_build_fasta_stats_reports_lengths_duplicates_and_contaminants(
 
     assert stats.total_records == 4
     assert stats.unique_accessions == 3
-    assert stats.total_residues == sum(record.residue_count for record in report.accepted_records)
+    assert stats.total_residues == sum(
+        record.residue_count for record in report.accepted_records
+    )
     assert stats.duplicate_identifier_count == 1
     assert stats.duplicate_sequence_count == 2
     assert stats.contaminant_count == 1
@@ -183,7 +191,9 @@ def test_build_fasta_provenance_manifest_records_source_hash_and_counts(
     )
 
     assert manifest.source_path == str(input_fasta)
-    assert manifest.source_sha256 == hashlib.sha256(input_fasta.read_bytes()).hexdigest()
+    assert (
+        manifest.source_sha256 == hashlib.sha256(input_fasta.read_bytes()).hexdigest()
+    )
     assert manifest.accepted_record_count == 3
     assert manifest.document_schema.document_kind == "fasta_provenance_manifest"
     assert manifest.document_schema.content_hash is not None
@@ -236,4 +246,8 @@ def test_validate_target_decoy_database_reports_missing_decoys(
     validation = validate_target_decoy_database(report.accepted_records)
 
     assert validation.valid is False
-    assert set(validation.missing_decoys) == {"P04637", "NP_000537.3", "ENSP00000354587"}
+    assert set(validation.missing_decoys) == {
+        "P04637",
+        "NP_000537.3",
+        "ENSP00000354587",
+    }

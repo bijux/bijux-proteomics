@@ -64,6 +64,6 @@ def test_maintainer_release_docs_keep_review_guidance_substantive() -> None:
             f"{index_path.relative_to(REPO_ROOT).as_posix()}: release review section needs at least three bullets"
         )
 
-    assert not failures, (
-        "maintainer release review guidance failed:\n" + "\n".join(failures)
+    assert not failures, "maintainer release review guidance failed:\n" + "\n".join(
+        failures
     )

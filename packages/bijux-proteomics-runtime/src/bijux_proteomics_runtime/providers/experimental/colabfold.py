@@ -85,7 +85,7 @@ class APIColabFoldProvider(BaseProvider):
         """
         try:
             r = self.session.get(self.api_url, timeout=5)
-            return r.status_code == 200
+            return bool(r.status_code == 200)
         except Exception:
             return False
 

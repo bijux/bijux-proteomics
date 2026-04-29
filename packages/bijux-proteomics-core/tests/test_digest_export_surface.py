@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 import json
 from pathlib import Path
 
@@ -86,8 +87,12 @@ def test_digest_export_fingerprint_is_reproducible(fasta_fixture_dir: Path) -> N
         (fasta_fixture_dir / "valid_records.fasta").read_text(),
         mode=FastaParseMode.STRICT,
     )
-    left = digest_protein_records(report.accepted_records, protease="trypsin", min_length=3)
-    right = digest_protein_records(report.accepted_records, protease="trypsin", min_length=3)
+    left = digest_protein_records(
+        report.accepted_records, protease="trypsin", min_length=3
+    )
+    right = digest_protein_records(
+        report.accepted_records, protease="trypsin", min_length=3
+    )
 
     assert peptide_export_fingerprint(left) == peptide_export_fingerprint(right)
 
@@ -131,10 +136,16 @@ def test_export_peptides_parquet_is_feature_gated(
 
     original_import = builtins.__import__
 
-    def fake_import(name: str, *args: object, **kwargs: object):
+    def fake_import(
+        name: str,
+        globals: Mapping[str, object] | None = None,
+        locals: Mapping[str, object] | None = None,
+        fromlist: tuple[str, ...] = (),
+        level: int = 0,
+    ) -> object:
         if name.startswith("pyarrow"):
             raise ImportError("simulated missing pyarrow")
-        return original_import(name, *args, **kwargs)
+        return original_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", fake_import)
     with pytest.raises(RuntimeError, match="pyarrow"):

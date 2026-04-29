@@ -19,7 +19,9 @@ def test_interpretation_public_api_contains_expected_exports() -> None:
     assert "compute_ranked_enrichment" in bijux_proteomics_intelligence.__all__
     assert "ContrastRejectionReason" in bijux_proteomics_intelligence.__all__
     assert "RunInterpretationSummary" in bijux_proteomics_intelligence.__all__
-    assert "DifferentialAbundanceInterpretation" in bijux_proteomics_intelligence.__all__
+    assert (
+        "DifferentialAbundanceInterpretation" in bijux_proteomics_intelligence.__all__
+    )
     assert "PtmInterpretationReport" in bijux_proteomics_intelligence.__all__
     assert "ContaminantArtifactIntelligence" in bijux_proteomics_intelligence.__all__
     assert "ContrastRecommendationReport" in bijux_proteomics_intelligence.__all__

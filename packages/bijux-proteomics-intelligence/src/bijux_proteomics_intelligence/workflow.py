@@ -58,7 +58,9 @@ def summarize_workflow_readiness(
 ) -> WorkflowReadinessSummary:
     """Summarize workflow readiness from current evidence and workflow shape."""
     blueprint = workflow_blueprint_for_program(program)
-    missing = set(evidence_gaps(bundle, [need.value for need in program.evidence_needs]))
+    missing = set(
+        evidence_gaps(bundle, [need.value for need in program.evidence_needs])
+    )
     step_statuses: list[WorkflowReadinessStep] = []
 
     for step in blueprint.steps:
@@ -73,7 +75,8 @@ def summarize_workflow_readiness(
             and "assay" in missing
         ):
             blockers.extend(
-                f"blocking_assay:{assay_id}" for assay_id in blueprint.blocking_assay_ids
+                f"blocking_assay:{assay_id}"
+                for assay_id in blueprint.blocking_assay_ids
             )
         if (
             step.stage_kind is WorkflowStageKind.DECISION_REVIEW

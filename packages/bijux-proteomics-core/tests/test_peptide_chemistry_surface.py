@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
+import json
 from math import isclose
 from pathlib import Path
-import json
 
 import pytest
 
@@ -16,8 +16,8 @@ from bijux_proteomics import (
     StaticModification,
     VariableModification,
     approximate_peptide_isotope_envelope,
-    build_modification_registry,
     build_modification_localization_advisory,
+    build_modification_registry,
     build_modified_peptide,
     build_peptide_charge_state,
     calculate_average_peptide_mass,
@@ -35,12 +35,7 @@ from bijux_proteomics import (
 
 
 def _modification_fixture(name: str) -> Path:
-    return (
-        Path(__file__).parent
-        / "fixtures"
-        / "modifications"
-        / name
-    )
+    return Path(__file__).parent / "fixtures" / "modifications" / name
 
 
 def _chemistry_fixture(name: str) -> Path:
@@ -74,7 +69,9 @@ def test_static_modification_model_applies_residue_delta() -> None:
     assert isclose(modified_mass, 364.105264, rel_tol=0.0, abs_tol=1e-6)
 
 
-def test_variable_modification_registry_and_parser_support_named_and_delta_notation() -> None:
+def test_variable_modification_registry_and_parser_support_named_and_delta_notation() -> (
+    None
+):
     registry = modification_registry()
 
     named = parse_modified_peptide("M[Oxidation]PEPTIDE", registry=registry)
@@ -104,8 +101,12 @@ def test_canonicalizer_normalizes_equivalent_named_and_delta_notation() -> None:
     assert canonical_delta == canonical_named
 
 
-def test_modification_registry_loader_accepts_valid_fixture_and_rejects_invalid_fixture() -> None:
-    valid_registry = load_modification_registry(_modification_fixture("valid_registry.json"))
+def test_modification_registry_loader_accepts_valid_fixture_and_rejects_invalid_fixture() -> (
+    None
+):
+    valid_registry = load_modification_registry(
+        _modification_fixture("valid_registry.json")
+    )
 
     assert valid_registry.static_modifications[0].name == "Carbamidomethyl"
     assert valid_registry.variable_modifications[0].max_occurrences == 2
@@ -129,8 +130,12 @@ def test_fragment_ion_calculator_emits_b_and_y_series() -> None:
         series=(FragmentIonSeries.B, FragmentIonSeries.Y),
     )
 
-    b1 = next(ion for ion in ions if ion.series is FragmentIonSeries.B and ion.ordinal == 1)
-    y1 = next(ion for ion in ions if ion.series is FragmentIonSeries.Y and ion.ordinal == 1)
+    b1 = next(
+        ion for ion in ions if ion.series is FragmentIonSeries.B and ion.ordinal == 1
+    )
+    y1 = next(
+        ion for ion in ions if ion.series is FragmentIonSeries.Y and ion.ordinal == 1
+    )
 
     assert isclose(b1.mz_monoisotopic, 72.044386466812, rel_tol=0.0, abs_tol=1e-9)
     assert isclose(y1.mz_monoisotopic, 148.060426466812, rel_tol=0.0, abs_tol=1e-9)
@@ -146,12 +151,16 @@ def test_fragment_ions_support_water_and_ammonia_losses() -> None:
     water_loss = [
         ion
         for ion in ions
-        if ion.neutral_loss == "water" and ion.series is FragmentIonSeries.B and ion.ordinal == 1
+        if ion.neutral_loss == "water"
+        and ion.series is FragmentIonSeries.B
+        and ion.ordinal == 1
     ]
     ammonia_loss = [
         ion
         for ion in ions
-        if ion.neutral_loss == "ammonia" and ion.series is FragmentIonSeries.Y and ion.ordinal == 1
+        if ion.neutral_loss == "ammonia"
+        and ion.series is FragmentIonSeries.Y
+        and ion.ordinal == 1
     ]
 
     assert water_loss
@@ -221,7 +230,9 @@ def test_site_validation_report_exposes_invalid_assignment() -> None:
 
 
 def test_modified_peptide_mass_wrapper_and_charge_state_model() -> None:
-    peptide = parse_modified_peptide("M[Oxidation]PEPTIDE", registry=modification_registry())
+    peptide = parse_modified_peptide(
+        "M[Oxidation]PEPTIDE", registry=modification_registry()
+    )
 
     neutral_mass = calculate_modified_peptide_mass(peptide)
     charge_state = build_peptide_charge_state(peptide, charge=3)
@@ -246,7 +257,9 @@ def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:
 
     assert envelope.status.value == "advisory"
     assert len(envelope.peaks) == 4
-    assert isclose(sum(peak.intensity for peak in envelope.peaks), 1.0, rel_tol=0.0, abs_tol=1e-9)
+    assert isclose(
+        sum(peak.intensity for peak in envelope.peaks), 1.0, rel_tol=0.0, abs_tol=1e-9
+    )
     assert envelope.peaks[1].mz > envelope.peaks[0].mz
 
 
@@ -273,7 +286,10 @@ def test_chemistry_regression_fixture_pack_stays_stable() -> None:
 
     for case in cases:
         peptide = parse_modified_peptide(case["notation"], registry=registry)
-        assert canonicalize_modified_peptide(peptide, registry=registry) == case["canonical_notation"]
+        assert (
+            canonicalize_modified_peptide(peptide, registry=registry)
+            == case["canonical_notation"]
+        )
         assert isclose(
             calculate_modified_peptide_mass(peptide, registry=registry),
             case["monoisotopic_mass"],

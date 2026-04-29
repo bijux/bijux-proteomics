@@ -14,10 +14,14 @@ from statistics import median
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import calculate_peptide_mz
-from bijux_proteomics.digestion import get_protease_rule, ProteaseCleavageMode, ProteaseRule
+from bijux_proteomics.digestion import (
+    ProteaseCleavageMode,
+    ProteaseRule,
+    get_protease_rule,
+)
 from bijux_proteomics.formats import ExperimentalDesignEntry
 from bijux_proteomics.identification import PsmRecord
-from bijux_proteomics.spectra import calculate_precursor_mass_error, SpectrumModel
+from bijux_proteomics.spectra import SpectrumModel, calculate_precursor_mass_error
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -107,9 +111,9 @@ class QcAssessmentDisposition(StrEnum):
 class QcAssessmentSeverity(StrEnum):
     """Stable QC outcome severity."""
 
-    PASS = "PASS"
-    WARN = "WARN"
-    FAIL = "FAIL"
+    PASSED = "PASS"
+    WARNING = "WARN"
+    FAILED = "FAIL"
     NOT_ASSESSED = "NOT_ASSESSED"
 
 
@@ -213,7 +217,9 @@ class ProteomicsPerformanceSnapshot(JsonModel):
 
     document_schema: DocumentSchema
     run_id: str = Field(..., min_length=1)
-    operations: tuple[ProteomicsPerformanceOperation, ...] = Field(default_factory=tuple)
+    operations: tuple[ProteomicsPerformanceOperation, ...] = Field(
+        default_factory=tuple
+    )
     total_elapsed_seconds: float = Field(..., ge=0.0)
 
 
@@ -231,7 +237,9 @@ class QcEvidenceManifest(JsonModel):
     run_report_sha256: str = Field(..., min_length=64, max_length=64)
     run_assessment_sha256: str = Field(..., min_length=64, max_length=64)
     batch_report_sha256: str | None = Field(default=None, min_length=64, max_length=64)
-    batch_assessment_sha256: str | None = Field(default=None, min_length=64, max_length=64)
+    batch_assessment_sha256: str | None = Field(
+        default=None, min_length=64, max_length=64
+    )
     benchmark_sha256: str | None = Field(default=None, min_length=64, max_length=64)
 
 
@@ -252,14 +260,20 @@ class LcmsRunQcReport(JsonModel):
     identified_spectrum_count: int = Field(..., ge=0)
     psm_count: int = Field(..., ge=0)
     identification_rate: float = Field(..., ge=0.0, le=1.0)
-    spectrum_charge_distribution: tuple[QcChargeStateEntry, ...] = Field(default_factory=tuple)
-    identified_charge_distribution: tuple[QcChargeStateEntry, ...] = Field(default_factory=tuple)
+    spectrum_charge_distribution: tuple[QcChargeStateEntry, ...] = Field(
+        default_factory=tuple
+    )
+    identified_charge_distribution: tuple[QcChargeStateEntry, ...] = Field(
+        default_factory=tuple
+    )
     mass_error: QcMassErrorSummary
     retention_time: QcRetentionTimeSummary
     missed_cleavage_count: int = Field(..., ge=0)
     missed_cleavage_rate: float = Field(..., ge=0.0, le=1.0)
     contaminant_summary: QcContaminantSummary
-    digestion_specificity: tuple[QcDigestionSpecificityEntry, ...] = Field(default_factory=tuple)
+    digestion_specificity: tuple[QcDigestionSpecificityEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class InstrumentBatchQcRunEntry(JsonModel):
@@ -313,7 +327,9 @@ def _hash_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _resolve_run_id(run_id: str | None, design_entry: ExperimentalDesignEntry | None) -> str:
+def _resolve_run_id(
+    run_id: str | None, design_entry: ExperimentalDesignEntry | None
+) -> str:
     if run_id:
         return run_id
     if design_entry and design_entry.spectra_file:
@@ -341,47 +357,61 @@ def _fraction(count: int, total: int) -> float:
     return 0.0 if total == 0 else count / total
 
 
-def _build_charge_distribution(counts: Counter[str], total: int) -> tuple[QcChargeStateEntry, ...]:
+def _build_charge_distribution(
+    counts: Counter[str], total: int
+) -> tuple[QcChargeStateEntry, ...]:
     return tuple(
-        QcChargeStateEntry(charge_label=label, count=count, fraction=_fraction(count, total))
+        QcChargeStateEntry(
+            charge_label=label, count=count, fraction=_fraction(count, total)
+        )
         for label, count in sorted(counts.items(), key=lambda item: item[0])
     )
 
 
 def _severity_rank(severity: QcAssessmentSeverity) -> int:
     return {
-        QcAssessmentSeverity.PASS: 0,
+        QcAssessmentSeverity.PASSED: 0,
         QcAssessmentSeverity.NOT_ASSESSED: 1,
-        QcAssessmentSeverity.WARN: 2,
-        QcAssessmentSeverity.FAIL: 3,
+        QcAssessmentSeverity.WARNING: 2,
+        QcAssessmentSeverity.FAILED: 3,
     }[severity]
 
 
-def _assessment_message(rule: QcThresholdRule, severity: QcAssessmentSeverity, observed_value: float | None) -> str:
+def _assessment_message(
+    rule: QcThresholdRule, severity: QcAssessmentSeverity, observed_value: float | None
+) -> str:
     if observed_value is None:
         return f"{rule.metric_label} was not assessed"
     value_text = f"{observed_value:.4f}".rstrip("0").rstrip(".")
     unit = f" {rule.unit}" if rule.unit else ""
-    if severity is QcAssessmentSeverity.PASS:
+    if severity is QcAssessmentSeverity.PASSED:
         return f"{rule.metric_label} is within policy at {value_text}{unit}"
-    if severity is QcAssessmentSeverity.WARN:
+    if severity is QcAssessmentSeverity.WARNING:
         return f"{rule.metric_label} breached advisory threshold at {value_text}{unit}"
     return f"{rule.metric_label} breached fail threshold at {value_text}{unit}"
 
 
-def _evaluate_rule(rule: QcThresholdRule, observed_value: float | None) -> QcMetricAssessment:
+def _evaluate_rule(
+    rule: QcThresholdRule, observed_value: float | None
+) -> QcMetricAssessment:
     if observed_value is None:
         severity = QcAssessmentSeverity.NOT_ASSESSED
     else:
-        severity = QcAssessmentSeverity.PASS
-        if rule.lower_fail is not None and observed_value < rule.lower_fail:
-            severity = QcAssessmentSeverity.FAIL
-        elif rule.upper_fail is not None and observed_value > rule.upper_fail:
-            severity = QcAssessmentSeverity.FAIL
-        elif rule.lower_warn is not None and observed_value < rule.lower_warn:
-            severity = QcAssessmentSeverity.WARN
-        elif rule.upper_warn is not None and observed_value > rule.upper_warn:
-            severity = QcAssessmentSeverity.WARN
+        severity = QcAssessmentSeverity.PASSED
+        if (
+            rule.lower_fail is not None
+            and observed_value < rule.lower_fail
+            or rule.upper_fail is not None
+            and observed_value > rule.upper_fail
+        ):
+            severity = QcAssessmentSeverity.FAILED
+        elif (
+            rule.lower_warn is not None
+            and observed_value < rule.lower_warn
+            or rule.upper_warn is not None
+            and observed_value > rule.upper_warn
+        ):
+            severity = QcAssessmentSeverity.WARNING
     return QcMetricAssessment(
         metric_key=rule.metric_key,
         metric_label=rule.metric_label,
@@ -391,7 +421,8 @@ def _evaluate_rule(rule: QcThresholdRule, observed_value: float | None) -> QcMet
         disposition=rule.disposition,
         threshold_rule=rule,
         message=_assessment_message(rule, severity, observed_value),
-        enforced_violation=severity is QcAssessmentSeverity.FAIL and rule.disposition is QcAssessmentDisposition.ENFORCED,
+        enforced_violation=severity is QcAssessmentSeverity.FAILED
+        and rule.disposition is QcAssessmentDisposition.ENFORCED,
     )
 
 
@@ -465,8 +496,7 @@ def build_run_qc_assessment(
 ) -> QcRunAssessmentReport:
     """Assess one run-level QC report against a threshold policy."""
     specificity_lookup = {
-        entry.specificity: entry.fraction
-        for entry in run_report.digestion_specificity
+        entry.specificity: entry.fraction for entry in run_report.digestion_specificity
     }
     observed_metrics = {
         "spectrum_count": float(run_report.spectrum_count),
@@ -474,19 +504,25 @@ def build_run_qc_assessment(
         "median_abs_mass_error_ppm": run_report.mass_error.median_abs_ppm,
         "contaminant_psm_fraction": run_report.contaminant_summary.contaminant_psm_fraction,
         "missed_cleavage_rate": run_report.missed_cleavage_rate,
-        "non_specific_fraction": specificity_lookup.get(QcDigestionSpecificity.NON_SPECIFIC, 0.0),
+        "non_specific_fraction": specificity_lookup.get(
+            QcDigestionSpecificity.NON_SPECIFIC, 0.0
+        ),
     }
     assessments = tuple(
         _evaluate_rule(rule, observed_metrics.get(rule.metric_key))
         for rule in policy.rules
     )
-    overall = max(assessments, key=lambda entry: _severity_rank(entry.severity), default=None)
+    overall = max(
+        assessments, key=lambda entry: _severity_rank(entry.severity), default=None
+    )
     return QcRunAssessmentReport(
         document_schema=_build_document_schema("qc_run_assessment_report"),
         run_id=run_report.run_id,
         policy_name=policy.policy_name,
         policy_version=policy.version,
-        overall_severity=QcAssessmentSeverity.PASS if overall is None else overall.severity,
+        overall_severity=QcAssessmentSeverity.PASSED
+        if overall is None
+        else overall.severity,
         blocked=any(entry.enforced_violation for entry in assessments),
         metric_assessments=assessments,
     )
@@ -507,9 +543,23 @@ def build_batch_qc_assessment(
     rules = []
     for rule in policy.rules:
         if rule.metric_key == "spectrum_count":
-            rules.append(rule.model_copy(update={"metric_key": "median_spectrum_count", "metric_label": "Median spectrum count"}))
+            rules.append(
+                rule.model_copy(
+                    update={
+                        "metric_key": "median_spectrum_count",
+                        "metric_label": "Median spectrum count",
+                    }
+                )
+            )
         elif rule.metric_key == "identification_rate":
-            rules.append(rule.model_copy(update={"metric_key": "median_identification_rate", "metric_label": "Median identification rate"}))
+            rules.append(
+                rule.model_copy(
+                    update={
+                        "metric_key": "median_identification_rate",
+                        "metric_label": "Median identification rate",
+                    }
+                )
+            )
         elif rule.metric_key == "median_abs_mass_error_ppm":
             rules.append(rule)
     rules.append(
@@ -521,15 +571,21 @@ def build_batch_qc_assessment(
             disposition=QcAssessmentDisposition.ADVISORY,
         )
     )
-    assessments = tuple(_evaluate_rule(rule, metrics.get(rule.metric_key)) for rule in rules)
-    overall = max(assessments, key=lambda entry: _severity_rank(entry.severity), default=None)
+    assessments = tuple(
+        _evaluate_rule(rule, metrics.get(rule.metric_key)) for rule in rules
+    )
+    overall = max(
+        assessments, key=lambda entry: _severity_rank(entry.severity), default=None
+    )
     return QcBatchAssessmentReport(
         document_schema=_build_document_schema("qc_batch_assessment_report"),
         batch_id=batch_report.batch_id,
         instrument=batch_report.instrument,
         policy_name=policy.policy_name,
         policy_version=policy.version,
-        overall_severity=QcAssessmentSeverity.PASS if overall is None else overall.severity,
+        overall_severity=QcAssessmentSeverity.PASSED
+        if overall is None
+        else overall.severity,
         blocked=any(entry.enforced_violation for entry in assessments),
         metric_assessments=assessments,
     )
@@ -555,8 +611,12 @@ def build_qc_evidence_manifest(
         input_files=input_files,
         run_report_sha256=_stable_sha256(run_report),
         run_assessment_sha256=_stable_sha256(run_assessment),
-        batch_report_sha256=None if batch_report is None else _stable_sha256(batch_report),
-        batch_assessment_sha256=None if batch_assessment is None else _stable_sha256(batch_assessment),
+        batch_report_sha256=None
+        if batch_report is None
+        else _stable_sha256(batch_report),
+        batch_assessment_sha256=None
+        if batch_assessment is None
+        else _stable_sha256(batch_assessment),
         benchmark_sha256=None if benchmark is None else _stable_sha256(benchmark),
     )
 
@@ -597,7 +657,18 @@ def render_qc_assessment_tsv(
 ) -> str:
     """Render QC assessment rows as a TSV string."""
     rows = [
-        ["scope", "entity_id", "metric_key", "metric_label", "observed_value", "unit", "severity", "disposition", "enforced_violation", "message"]
+        [
+            "scope",
+            "entity_id",
+            "metric_key",
+            "metric_label",
+            "observed_value",
+            "unit",
+            "severity",
+            "disposition",
+            "enforced_violation",
+            "message",
+        ]
     ]
     for assessment in run_assessment.metric_assessments:
         rows.append(
@@ -606,7 +677,9 @@ def render_qc_assessment_tsv(
                 run_assessment.run_id,
                 assessment.metric_key,
                 assessment.metric_label,
-                "" if assessment.observed_value is None else str(assessment.observed_value),
+                ""
+                if assessment.observed_value is None
+                else str(assessment.observed_value),
                 assessment.unit or "",
                 assessment.severity.value,
                 assessment.disposition.value,
@@ -623,7 +696,9 @@ def render_qc_assessment_tsv(
                     entity_id,
                     assessment.metric_key,
                     assessment.metric_label,
-                    "" if assessment.observed_value is None else str(assessment.observed_value),
+                    ""
+                    if assessment.observed_value is None
+                    else str(assessment.observed_value),
                     assessment.unit or "",
                     assessment.severity.value,
                     assessment.disposition.value,
@@ -684,9 +759,9 @@ def render_qc_assessment_html(
 
 def _is_contaminant_reference(reference: str, policy: QcContaminantPolicy) -> bool:
     normalized = reference.strip().upper()
-    return normalized.startswith(tuple(prefix.upper() for prefix in policy.prefixes)) or any(
-        token.upper() in normalized for token in policy.substrings
-    )
+    return normalized.startswith(
+        tuple(prefix.upper() for prefix in policy.prefixes)
+    ) or any(token.upper() in normalized for token in policy.substrings)
 
 
 def _count_missed_cleavages(sequence: str, rule: ProteaseRule) -> int:
@@ -697,13 +772,19 @@ def _count_missed_cleavages(sequence: str, rule: ProteaseRule) -> int:
         for index in range(len(sequence) - 1):
             residue = sequence[index]
             next_residue = sequence[index + 1]
-            if residue in rule.cleavage_residues and next_residue not in rule.blocked_by_next:
+            if (
+                residue in rule.cleavage_residues
+                and next_residue not in rule.blocked_by_next
+            ):
                 count += 1
         return count
     for index in range(1, len(sequence)):
         residue = sequence[index]
         previous_residue = sequence[index - 1]
-        if residue in rule.cleavage_residues and previous_residue not in rule.blocked_by_previous:
+        if (
+            residue in rule.cleavage_residues
+            and previous_residue not in rule.blocked_by_previous
+        ):
             count += 1
     return count
 
@@ -722,13 +803,19 @@ def _boundary_valid(
         else:
             left_residue = protein_sequence[peptide_start - 2]
             first_peptide_residue = protein_sequence[peptide_start - 1]
-            left_valid = left_residue in rule.cleavage_residues and first_peptide_residue not in rule.blocked_by_next
+            left_valid = (
+                left_residue in rule.cleavage_residues
+                and first_peptide_residue not in rule.blocked_by_next
+            )
         if peptide_end == sequence_length:
             right_valid = True
         else:
             last_peptide_residue = protein_sequence[peptide_end - 1]
             right_neighbor = protein_sequence[peptide_end]
-            right_valid = last_peptide_residue in rule.cleavage_residues and right_neighbor not in rule.blocked_by_next
+            right_valid = (
+                last_peptide_residue in rule.cleavage_residues
+                and right_neighbor not in rule.blocked_by_next
+            )
         return left_valid, right_valid
 
     if peptide_start == 1:
@@ -736,13 +823,19 @@ def _boundary_valid(
     else:
         left_neighbor = protein_sequence[peptide_start - 2]
         first_peptide_residue = protein_sequence[peptide_start - 1]
-        left_valid = first_peptide_residue in rule.cleavage_residues and left_neighbor not in rule.blocked_by_previous
+        left_valid = (
+            first_peptide_residue in rule.cleavage_residues
+            and left_neighbor not in rule.blocked_by_previous
+        )
     if peptide_end == sequence_length:
         right_valid = True
     else:
         last_peptide_residue = protein_sequence[peptide_end - 1]
         right_neighbor = protein_sequence[peptide_end]
-        right_valid = right_neighbor in rule.cleavage_residues and last_peptide_residue not in rule.blocked_by_previous
+        right_valid = (
+            right_neighbor in rule.cleavage_residues
+            and last_peptide_residue not in rule.blocked_by_previous
+        )
     return left_valid, right_valid
 
 
@@ -793,16 +886,23 @@ def build_lcms_run_qc_report(
 
     spectrum_charge_counts: Counter[str] = Counter()
     for spectrum in spectra:
-        label = "unknown" if spectrum.precursor_charge is None else str(spectrum.precursor_charge)
+        label = (
+            "unknown"
+            if spectrum.precursor_charge is None
+            else str(spectrum.precursor_charge)
+        )
         spectrum_charge_counts[label] += 1
 
-    identified_charge_counts: Counter[str] = Counter(str(record.charge) for record in psm_records)
+    identified_charge_counts: Counter[str] = Counter(
+        str(record.charge) for record in psm_records
+    )
 
     mass_errors_ppm: list[float] = []
     for record in psm_records:
-        spectrum = spectra_by_id.get(record.spectrum_id)
-        if spectrum is None:
+        candidate_spectrum = spectra_by_id.get(record.spectrum_id)
+        if candidate_spectrum is None:
             continue
+        spectrum = candidate_spectrum
         theoretical_mz = calculate_peptide_mz(record.peptide, charge=record.charge)
         mass_error = calculate_precursor_mass_error(
             observed_mz=spectrum.precursor_mz,
@@ -813,10 +913,16 @@ def build_lcms_run_qc_report(
     sorted_abs_mass_errors = sorted(abs(value) for value in mass_errors_ppm)
     mass_error_summary = QcMassErrorSummary(
         matched_psm_count=len(mass_errors_ppm),
-        mean_ppm=None if not mass_errors_ppm else sum(mass_errors_ppm) / len(mass_errors_ppm),
+        mean_ppm=None
+        if not mass_errors_ppm
+        else sum(mass_errors_ppm) / len(mass_errors_ppm),
         median_ppm=None if not mass_errors_ppm else median(mass_errors_ppm),
-        median_abs_ppm=None if not sorted_abs_mass_errors else median(sorted_abs_mass_errors),
-        p95_abs_ppm=None if not sorted_abs_mass_errors else _quantile(sorted_abs_mass_errors, 0.95),
+        median_abs_ppm=None
+        if not sorted_abs_mass_errors
+        else median(sorted_abs_mass_errors),
+        p95_abs_ppm=None
+        if not sorted_abs_mass_errors
+        else _quantile(sorted_abs_mass_errors, 0.95),
         max_abs_ppm=None if not sorted_abs_mass_errors else max(sorted_abs_mass_errors),
     )
 
@@ -825,24 +931,40 @@ def build_lcms_run_qc_report(
         for spectrum in spectra
         if spectrum.retention_time_seconds is not None
     )
-    identified_retention_times = sorted(
-        spectra_by_id[record.spectrum_id].retention_time_seconds
+    identified_retention_times: list[float] = sorted(
+        retention_time
         for record in psm_records
-        if record.spectrum_id in spectra_by_id and spectra_by_id[record.spectrum_id].retention_time_seconds is not None
+        for spectrum in [spectra_by_id.get(record.spectrum_id)]
+        if spectrum is not None
+        for retention_time in [spectrum.retention_time_seconds]
+        if retention_time is not None
     )
     retention_summary = QcRetentionTimeSummary(
         spectra_with_retention_time=len(retention_times),
         identified_with_retention_time=len(identified_retention_times),
         min_retention_time_seconds=None if not retention_times else retention_times[0],
         max_retention_time_seconds=None if not retention_times else retention_times[-1],
-        span_seconds=None if len(retention_times) < 2 else retention_times[-1] - retention_times[0],
-        identified_min_retention_time_seconds=None if not identified_retention_times else identified_retention_times[0],
-        identified_max_retention_time_seconds=None if not identified_retention_times else identified_retention_times[-1],
-        identified_span_seconds=None if len(identified_retention_times) < 2 else identified_retention_times[-1] - identified_retention_times[0],
-        identified_median_retention_time_seconds=None if not identified_retention_times else median(identified_retention_times),
+        span_seconds=None
+        if len(retention_times) < 2
+        else retention_times[-1] - retention_times[0],
+        identified_min_retention_time_seconds=None
+        if not identified_retention_times
+        else identified_retention_times[0],
+        identified_max_retention_time_seconds=None
+        if not identified_retention_times
+        else identified_retention_times[-1],
+        identified_span_seconds=None
+        if len(identified_retention_times) < 2
+        else identified_retention_times[-1] - identified_retention_times[0],
+        identified_median_retention_time_seconds=None
+        if not identified_retention_times
+        else median(identified_retention_times),
     )
 
-    missed_cleavage_count = sum(_count_missed_cleavages(record.canonical_peptide, active_rule) for record in psm_records)
+    missed_cleavage_count = sum(
+        _count_missed_cleavages(record.canonical_peptide, active_rule)
+        for record in psm_records
+    )
 
     contaminant_proteins: Counter[str] = Counter()
     contaminant_psm_count = 0
@@ -877,7 +999,9 @@ def build_lcms_run_qc_report(
         QcDigestionSpecificityEntry(
             specificity=specificity,
             count=specificity_counts.get(specificity, 0),
-            fraction=_fraction(specificity_counts.get(specificity, 0), len(psm_records)),
+            fraction=_fraction(
+                specificity_counts.get(specificity, 0), len(psm_records)
+            ),
         )
         for specificity in (
             QcDigestionSpecificity.ENZYMATIC,
@@ -899,9 +1023,15 @@ def build_lcms_run_qc_report(
         spectrum_count=len(spectra),
         identified_spectrum_count=len(identified_spectrum_ids & set(spectra_by_id)),
         psm_count=len(psm_records),
-        identification_rate=_fraction(len(identified_spectrum_ids & set(spectra_by_id)), len(spectra)),
-        spectrum_charge_distribution=_build_charge_distribution(spectrum_charge_counts, len(spectra)),
-        identified_charge_distribution=_build_charge_distribution(identified_charge_counts, len(psm_records)),
+        identification_rate=_fraction(
+            len(identified_spectrum_ids & set(spectra_by_id)), len(spectra)
+        ),
+        spectrum_charge_distribution=_build_charge_distribution(
+            spectrum_charge_counts, len(spectra)
+        ),
+        identified_charge_distribution=_build_charge_distribution(
+            identified_charge_counts, len(psm_records)
+        ),
         mass_error=mass_error_summary,
         retention_time=retention_summary,
         missed_cleavage_count=missed_cleavage_count,
@@ -944,7 +1074,9 @@ def build_instrument_batch_qc_report(
         if report.mass_error.median_abs_ppm is not None
     ]
     median_abs_mass_error_ppm = (
-        None if not median_abs_mass_error_values else float(median(median_abs_mass_error_values))
+        None
+        if not median_abs_mass_error_values
+        else float(median(median_abs_mass_error_values))
     )
     identified_median_rt_values = [
         report.retention_time.identified_median_retention_time_seconds
@@ -952,27 +1084,35 @@ def build_instrument_batch_qc_report(
         if report.retention_time.identified_median_retention_time_seconds is not None
     ]
     median_identified_retention_time_seconds = (
-        None if not identified_median_rt_values else float(median(identified_median_rt_values))
+        None
+        if not identified_median_rt_values
+        else float(median(identified_median_rt_values))
     )
 
     run_entries: list[InstrumentBatchQcRunEntry] = []
     outlier_run_ids: list[str] = []
     for report in sorted(run_reports, key=lambda item: item.run_id):
         reasons: list[str] = []
-        if median_spectrum_count > 0 and report.spectrum_count < (median_spectrum_count * spectrum_count_floor_ratio):
+        if median_spectrum_count > 0 and report.spectrum_count < (
+            median_spectrum_count * spectrum_count_floor_ratio
+        ):
             reasons.append("low_spectrum_count")
-        if median_identification_rate > 0 and report.identification_rate < (median_identification_rate * identification_rate_floor_ratio):
+        if median_identification_rate > 0 and report.identification_rate < (
+            median_identification_rate * identification_rate_floor_ratio
+        ):
             reasons.append("low_identification_rate")
         if (
             median_abs_mass_error_ppm is not None
             and report.mass_error.median_abs_ppm is not None
-            and report.mass_error.median_abs_ppm > max(5.0, median_abs_mass_error_ppm * median_abs_mass_error_multiplier)
+            and report.mass_error.median_abs_ppm
+            > max(5.0, median_abs_mass_error_ppm * median_abs_mass_error_multiplier)
         ):
             reasons.append("high_mass_error")
         retention_time_shift_seconds = None
         if (
             median_identified_retention_time_seconds is not None
-            and report.retention_time.identified_median_retention_time_seconds is not None
+            and report.retention_time.identified_median_retention_time_seconds
+            is not None
         ):
             retention_time_shift_seconds = (
                 report.retention_time.identified_median_retention_time_seconds

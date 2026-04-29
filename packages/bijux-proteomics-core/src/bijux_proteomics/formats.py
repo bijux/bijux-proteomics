@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import base64
+from collections.abc import Iterator
 import csv
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -13,30 +14,30 @@ import hashlib
 import json
 from pathlib import Path
 import struct
-from typing import Any, Iterator
-import xml.etree.ElementTree as ET
+from typing import Any
 import zlib
 
+from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field, field_validator
 
+from bijux_proteomics.chemistry import load_modification_registry
 from bijux_proteomics.identification import (
+    PsmRecord,
+    SearchResultColumnMapping,
     build_psm_summary_report,
     export_psm_jsonl,
     parse_psm_tsv,
-    PsmRecord,
-    SearchResultColumnMapping,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.spectra import (
-    build_spectrum_collection_summary,
     MgfParseReport,
-    parse_mgf,
-    render_mgf,
     SpectrumCollectionSummary,
     SpectrumModel,
     SpectrumPeak,
+    build_spectrum_collection_summary,
+    parse_mgf,
+    render_mgf,
 )
-from bijux_proteomics.chemistry import load_modification_registry
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 _NS_MZML = "http://psi.hupo.org/ms/mzml"
@@ -156,7 +157,9 @@ class ExperimentalDesignReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     accepted_entries: tuple[ExperimentalDesignEntry, ...] = Field(default_factory=tuple)
-    rejected_rows: tuple[ExperimentalDesignRejectedRow, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[ExperimentalDesignRejectedRow, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class ProteomicsRunMetadata(JsonModel):
@@ -300,7 +303,9 @@ def _hash_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _source_file_entry(path: Path, detected_format: ProteomicsFormatKind) -> SourceFileManifestEntry:
+def _source_file_entry(
+    path: Path, detected_format: ProteomicsFormatKind
+) -> SourceFileManifestEntry:
     return SourceFileManifestEntry(
         path=str(path),
         detected_format=detected_format,
@@ -318,7 +323,7 @@ def _build_document_schema(document_kind: str) -> DocumentSchema:
 
 
 def _parse_binary_values(
-    binary_data_array: ET.Element,
+    binary_data_array: Any,
     *,
     expected_length: int | None,
     spectrum_id: str,
@@ -346,17 +351,33 @@ def _parse_binary_values(
         elif _local_name(element.tag) == "binary":
             binary_text = (element.text or "").strip()
     if kind is None:
-        issues.append(_issue("missing_binary_array_kind", "binaryDataArray is missing array-kind cvParam", record_id=spectrum_id))
+        issues.append(
+            _issue(
+                "missing_binary_array_kind",
+                "binaryDataArray is missing array-kind cvParam",
+                record_id=spectrum_id,
+            )
+        )
         return None, None, issues
     if not binary_text:
-        issues.append(_issue("missing_binary_payload", "binaryDataArray is missing encoded payload", record_id=spectrum_id))
+        issues.append(
+            _issue(
+                "missing_binary_payload",
+                "binaryDataArray is missing encoded payload",
+                record_id=spectrum_id,
+            )
+        )
         return kind, None, issues
     try:
         payload = base64.b64decode(binary_text)
         if compressed:
             payload = zlib.decompress(payload)
     except Exception as exc:  # noqa: BLE001
-        issues.append(_issue("invalid_binary_payload", str(exc), field=kind, record_id=spectrum_id))
+        issues.append(
+            _issue(
+                "invalid_binary_payload", str(exc), field=kind, record_id=spectrum_id
+            )
+        )
         return kind, None, issues
     if len(payload) % float_size != 0:
         issues.append(
@@ -383,7 +404,7 @@ def _parse_binary_values(
     return kind, tuple(float(value) for value in values), issues
 
 
-def _parse_time_seconds(scan_cv: ET.Element) -> float | None:
+def _parse_time_seconds(scan_cv: Any) -> float | None:
     value = _strip_text(scan_cv.attrib.get("value"))
     if value is None:
         return None
@@ -394,8 +415,12 @@ def _parse_time_seconds(scan_cv: ET.Element) -> float | None:
     return numeric
 
 
-def _parse_spectrum_element(spectrum: ET.Element) -> tuple[SpectrumModel | None, list[FormatValidationIssue]]:
-    spectrum_id = spectrum.attrib.get("id") or f"index={spectrum.attrib.get('index', 'unknown')}"
+def _parse_spectrum_element(
+    spectrum: Any,
+) -> tuple[SpectrumModel | None, list[FormatValidationIssue]]:
+    spectrum_id = (
+        spectrum.attrib.get("id") or f"index={spectrum.attrib.get('index', 'unknown')}"
+    )
     issues: list[FormatValidationIssue] = []
     expected_length = int(spectrum.attrib.get("defaultArrayLength", "0") or "0")
     retention_time_seconds: float | None = None
@@ -412,17 +437,38 @@ def _parse_spectrum_element(spectrum: ET.Element) -> tuple[SpectrumModel | None,
             try:
                 retention_time_seconds = _parse_time_seconds(element)
             except ValueError as exc:
-                issues.append(_issue("invalid_scan_start_time", str(exc), field="scan_start_time", record_id=spectrum_id))
+                issues.append(
+                    _issue(
+                        "invalid_scan_start_time",
+                        str(exc),
+                        field="scan_start_time",
+                        record_id=spectrum_id,
+                    )
+                )
         elif accession == _CV_SELECTED_ION_MZ:
             try:
                 precursor_mz = float(element.attrib["value"])
             except (KeyError, ValueError) as exc:
-                issues.append(_issue("invalid_precursor_mz", str(exc), field="precursor_mz", record_id=spectrum_id))
+                issues.append(
+                    _issue(
+                        "invalid_precursor_mz",
+                        str(exc),
+                        field="precursor_mz",
+                        record_id=spectrum_id,
+                    )
+                )
         elif accession == _CV_CHARGE_STATE:
             try:
                 precursor_charge = int(element.attrib["value"])
             except (KeyError, ValueError) as exc:
-                issues.append(_issue("invalid_precursor_charge", str(exc), field="precursor_charge", record_id=spectrum_id))
+                issues.append(
+                    _issue(
+                        "invalid_precursor_charge",
+                        str(exc),
+                        field="precursor_charge",
+                        record_id=spectrum_id,
+                    )
+                )
 
     for binary_data_array in spectrum.iter():
         if _local_name(binary_data_array.tag) != "binaryDataArray":
@@ -439,12 +485,37 @@ def _parse_spectrum_element(spectrum: ET.Element) -> tuple[SpectrumModel | None,
             intensity_values = values
 
     if precursor_mz is None:
-        issues.append(_issue("missing_precursor_mz", "mzML spectrum is missing selected ion m/z", field="precursor_mz", record_id=spectrum_id))
+        issues.append(
+            _issue(
+                "missing_precursor_mz",
+                "mzML spectrum is missing selected ion m/z",
+                field="precursor_mz",
+                record_id=spectrum_id,
+            )
+        )
     if mz_values is None:
-        issues.append(_issue("missing_mz_array", "mzML spectrum is missing an m/z array", field="mz", record_id=spectrum_id))
+        issues.append(
+            _issue(
+                "missing_mz_array",
+                "mzML spectrum is missing an m/z array",
+                field="mz",
+                record_id=spectrum_id,
+            )
+        )
     if intensity_values is None:
-        issues.append(_issue("missing_intensity_array", "mzML spectrum is missing an intensity array", field="intensity", record_id=spectrum_id))
-    if mz_values is not None and intensity_values is not None and len(mz_values) != len(intensity_values):
+        issues.append(
+            _issue(
+                "missing_intensity_array",
+                "mzML spectrum is missing an intensity array",
+                field="intensity",
+                record_id=spectrum_id,
+            )
+        )
+    if (
+        mz_values is not None
+        and intensity_values is not None
+        and len(mz_values) != len(intensity_values)
+    ):
         issues.append(
             _issue(
                 "peak_array_length_mismatch",
@@ -456,7 +527,7 @@ def _parse_spectrum_element(spectrum: ET.Element) -> tuple[SpectrumModel | None,
         return None, issues
     peaks = tuple(
         SpectrumPeak(mz=mz, intensity=intensity)
-        for mz, intensity in zip(mz_values or (), intensity_values or ())
+        for mz, intensity in zip(mz_values or (), intensity_values or (), strict=True)
     )
     return (
         SpectrumModel(
@@ -471,7 +542,7 @@ def _parse_spectrum_element(spectrum: ET.Element) -> tuple[SpectrumModel | None,
     )
 
 
-def _instrument_name(instrument_configuration: ET.Element) -> str | None:
+def _instrument_name(instrument_configuration: Any) -> str | None:
     for child in instrument_configuration.iter():
         if _local_name(child.tag) != "cvParam":
             continue
@@ -481,16 +552,23 @@ def _instrument_name(instrument_configuration: ET.Element) -> str | None:
     return None
 
 
-def _iter_mzml_spectra(path: Path, accumulator: _MzmlAccumulator) -> Iterator[SpectrumModel]:
+def _iter_mzml_spectra(
+    path: Path, accumulator: _MzmlAccumulator
+) -> Iterator[SpectrumModel]:
     for event, element in ET.iterparse(path, events=("start", "end")):
         tag = _local_name(element.tag)
         if event == "start" and tag == "run":
             accumulator.run_id = _strip_text(element.attrib.get("id"))
-            accumulator.start_time_iso = _strip_text(element.attrib.get("startTimeStamp"))
+            accumulator.start_time_iso = _strip_text(
+                element.attrib.get("startTimeStamp")
+            )
             continue
         if event == "end" and tag == "instrumentConfiguration":
             configuration_id = _strip_text(element.attrib.get("id"))
-            if configuration_id and configuration_id not in accumulator.instrument_configuration_ids:
+            if (
+                configuration_id
+                and configuration_id not in accumulator.instrument_configuration_ids
+            ):
                 accumulator.instrument_configuration_ids.append(configuration_id)
             instrument_name = _instrument_name(element)
             if instrument_name and instrument_name not in accumulator.instrument_names:
@@ -501,7 +579,10 @@ def _iter_mzml_spectra(path: Path, accumulator: _MzmlAccumulator) -> Iterator[Sp
             accumulator.total_spectra += 1
             spectrum, issues = _parse_spectrum_element(element)
             if spectrum is None:
-                spectrum_id = element.attrib.get("id") or f"index={element.attrib.get('index', 'unknown')}"
+                spectrum_id = (
+                    element.attrib.get("id")
+                    or f"index={element.attrib.get('index', 'unknown')}"
+                )
                 accumulator.rejected_spectra.append(
                     RejectedMzmlSpectrum(spectrum_id=spectrum_id, issues=tuple(issues))
                 )
@@ -540,14 +621,20 @@ def extract_mzml_metadata(path: Path) -> MzmlRunMetadata:
     return parse_mzml(path).metadata
 
 
-def build_mzml_collection_summary(parse_report: MzmlParseReport) -> SpectrumCollectionSummary:
+def build_mzml_collection_summary(
+    parse_report: MzmlParseReport,
+) -> SpectrumCollectionSummary:
     """Build a compact summary for one parsed mzML run."""
     counts_by_charge: dict[str, int] = {}
     issue_counts: dict[str, int] = {}
     total_peak_count = 0
     for spectrum in parse_report.accepted_spectra:
         total_peak_count += len(spectrum.peaks)
-        key = "unknown" if spectrum.precursor_charge is None else str(spectrum.precursor_charge)
+        key = (
+            "unknown"
+            if spectrum.precursor_charge is None
+            else str(spectrum.precursor_charge)
+        )
         counts_by_charge[key] = counts_by_charge.get(key, 0) + 1
     for rejected in parse_report.rejected_spectra:
         for issue in rejected.issues:
@@ -557,7 +644,9 @@ def build_mzml_collection_summary(parse_report: MzmlParseReport) -> SpectrumColl
         spectrum_count=spectrum_count,
         rejected_block_count=len(parse_report.rejected_spectra),
         total_peak_count=total_peak_count,
-        average_peak_count=(total_peak_count / spectrum_count) if spectrum_count else 0.0,
+        average_peak_count=(total_peak_count / spectrum_count)
+        if spectrum_count
+        else 0.0,
         counts_by_charge=dict(sorted(counts_by_charge.items())),
         issue_counts=dict(sorted(issue_counts.items())),
     )
@@ -567,7 +656,9 @@ def export_spectra_jsonl(spectra: tuple[SpectrumModel, ...], path: Path) -> None
     """Write normalized spectra as stable JSONL."""
     with path.open("w", encoding="utf-8") as handle:
         for spectrum in spectra:
-            handle.write(json.dumps(spectrum.to_dict(), sort_keys=True, separators=(",", ":")))
+            handle.write(
+                json.dumps(spectrum.to_dict(), sort_keys=True, separators=(",", ":"))
+            )
             handle.write("\n")
 
 
@@ -590,12 +681,19 @@ def detect_proteomics_format(path: Path) -> ProteomicsFormatKind:
         return ProteomicsFormatKind.MGF
     if stripped.startswith(">"):
         return ProteomicsFormatKind.FASTA
-    if suffix == ".json":
-        if '"static_modifications"' in text or '"variable_modifications"' in text:
-            return ProteomicsFormatKind.MOD_REGISTRY
+    if suffix == ".json" and (
+        '"static_modifications"' in text or '"variable_modifications"' in text
+    ):
+        return ProteomicsFormatKind.MOD_REGISTRY
     header = stripped.splitlines()[0] if stripped.splitlines() else ""
-    header_columns = {column.strip() for column in header.split(_detect_delimiter(header)) if column.strip()}
-    if {"sample_id", "condition", "replicate", "fraction", "spectra_file"}.issubset(header_columns):
+    header_columns = {
+        column.strip()
+        for column in header.split(_detect_delimiter(header))
+        if column.strip()
+    }
+    if {"sample_id", "condition", "replicate", "fraction", "spectra_file"}.issubset(
+        header_columns
+    ):
         return ProteomicsFormatKind.DESIGN_TABLE
     if {"spectrum_id", "peptide", "charge", "score"}.issubset(header_columns):
         return ProteomicsFormatKind.PSM
@@ -611,11 +709,17 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
     reader = csv.DictReader(lines, delimiter=delimiter)
     accepted_entries: list[ExperimentalDesignEntry] = []
     rejected_rows: list[ExperimentalDesignRejectedRow] = []
-    required_fields = {"sample_id", "condition", "replicate", "fraction", "spectra_file"}
+    required_fields = {
+        "sample_id",
+        "condition",
+        "replicate",
+        "fraction",
+        "spectra_file",
+    }
     header_fields = set(reader.fieldnames or [])
     missing_fields = required_fields - header_fields
     if missing_fields:
-        issues = tuple(
+        header_issues = tuple(
             _issue(
                 "missing_design_column",
                 f"design table is missing required column {field!r}",
@@ -625,12 +729,20 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
             for field in sorted(missing_fields)
         )
         return ExperimentalDesignReport(
-            accepted_entries=tuple(),
-            rejected_rows=(ExperimentalDesignRejectedRow(row_number=1, values={}, issues=issues),),
+            accepted_entries=(),
+            rejected_rows=(
+                ExperimentalDesignRejectedRow(
+                    row_number=1,
+                    values={},
+                    issues=header_issues,
+                ),
+            ),
         )
 
     for row_number, row in enumerate(reader, start=2):
-        values = {key: (value or "").strip() for key, value in row.items() if key is not None}
+        values = {
+            key: (value or "").strip() for key, value in row.items() if key is not None
+        }
         issues: list[FormatValidationIssue] = []
         for field_name in sorted(required_fields):
             if not values.get(field_name):
@@ -698,16 +810,26 @@ def harmonize_run_metadata(
         instrument=(
             design_entry.instrument
             if design_entry is not None and design_entry.instrument is not None
-            else (mzml_metadata.instrument_names[0] if mzml_metadata and mzml_metadata.instrument_names else None)
+            else (
+                mzml_metadata.instrument_names[0]
+                if mzml_metadata and mzml_metadata.instrument_names
+                else None
+            )
         ),
         search_engine=design_entry.search_engine if design_entry is not None else None,
         run_id=mzml_metadata.run_id if mzml_metadata is not None else None,
-        acquisition_start_time_iso=mzml_metadata.start_time_iso if mzml_metadata is not None else None,
+        acquisition_start_time_iso=mzml_metadata.start_time_iso
+        if mzml_metadata is not None
+        else None,
         spectra_format=spectra_format,
         identification_format=identification_format,
-        spectra_source_path=str(spectra_source_path) if spectra_source_path is not None else None,
+        spectra_source_path=str(spectra_source_path)
+        if spectra_source_path is not None
+        else None,
         identifications_source_path=(
-            str(identifications_source_path) if identifications_source_path is not None else None
+            str(identifications_source_path)
+            if identifications_source_path is not None
+            else None
         ),
     )
 
@@ -722,24 +844,38 @@ def validate_proteomics_input(
     issues: list[FormatValidationIssue] = []
     summary: dict[str, Any] = {}
     if resolved_kind is ProteomicsFormatKind.FASTA:
-        report = parse_fasta_document(path.read_text(), mode=FastaParseMode.STRICT)
-        for rejected in report.rejected_records:
-            issues.append(_issue("rejected_fasta_record", "; ".join(rejected.issues), record_id=rejected.source_identifier))
+        fasta_report = parse_fasta_document(
+            path.read_text(), mode=FastaParseMode.STRICT
+        )
+        for rejected_record in fasta_report.rejected_records:
+            issues.append(
+                _issue(
+                    "rejected_fasta_record",
+                    "; ".join(issue.message for issue in rejected_record.issues),
+                    record_id=rejected_record.source_identifier,
+                )
+            )
         summary = {
-            "accepted_records": len(report.accepted_records),
-            "rejected_records": len(report.rejected_records),
+            "accepted_records": len(fasta_report.accepted_records),
+            "rejected_records": len(fasta_report.rejected_records),
         }
     elif resolved_kind is ProteomicsFormatKind.PSM:
-        report = parse_psm_tsv(path, mapping=_default_psm_mapping())
-        for rejected in report.rejected_rows:
-            issues.append(_issue("rejected_psm_row", "; ".join(rejected.issues), line_number=rejected.row_number))
+        psm_report = parse_psm_tsv(path, mapping=_default_psm_mapping())
+        for rejected_row in psm_report.rejected_rows:
+            issues.append(
+                _issue(
+                    "rejected_psm_row",
+                    "; ".join(issue.message for issue in rejected_row.issues),
+                    line_number=rejected_row.row_number,
+                )
+            )
         summary = {
-            "accepted_rows": len(report.accepted_records),
-            "rejected_rows": len(report.rejected_rows),
+            "accepted_rows": len(psm_report.accepted_records),
+            "rejected_rows": len(psm_report.rejected_rows),
         }
     elif resolved_kind is ProteomicsFormatKind.MGF:
-        report: MgfParseReport = parse_mgf(path)
-        for block in report.rejected_blocks:
+        mgf_report: MgfParseReport = parse_mgf(path)
+        for block in mgf_report.rejected_blocks:
             for issue in block.issues:
                 issues.append(
                     _issue(
@@ -750,14 +886,14 @@ def validate_proteomics_input(
                         record_id=block.title or f"block-{block.block_index}",
                     )
                 )
-        summary = build_spectrum_collection_summary(report).to_dict()
+        summary = build_spectrum_collection_summary(mgf_report).to_dict()
     elif resolved_kind is ProteomicsFormatKind.MZML:
-        report = parse_mzml(path)
-        for rejected in report.rejected_spectra:
-            issues.extend(rejected.issues)
+        mzml_report = parse_mzml(path)
+        for rejected_spectrum in mzml_report.rejected_spectra:
+            issues.extend(rejected_spectrum.issues)
         summary = {
-            "metadata": report.metadata.to_dict(),
-            "summary": build_mzml_collection_summary(report).to_dict(),
+            "metadata": mzml_report.metadata.to_dict(),
+            "summary": build_mzml_collection_summary(mzml_report).to_dict(),
         }
     elif resolved_kind is ProteomicsFormatKind.MOD_REGISTRY:
         registry = load_modification_registry(path)
@@ -766,12 +902,12 @@ def validate_proteomics_input(
             "variable_modifications": len(registry.variable_modifications),
         }
     else:
-        report = parse_experimental_design_table(path)
-        for rejected in report.rejected_rows:
-            issues.extend(rejected.issues)
+        design_report = parse_experimental_design_table(path)
+        for design_rejected_row in design_report.rejected_rows:
+            issues.extend(design_rejected_row.issues)
         summary = {
-            "accepted_entries": len(report.accepted_entries),
-            "rejected_rows": len(report.rejected_rows),
+            "accepted_entries": len(design_report.accepted_entries),
+            "rejected_rows": len(design_report.rejected_rows),
         }
     return FormatValidationReport(
         input_path=str(path),
@@ -809,18 +945,22 @@ def convert_proteomics_format(
     elif target_format is FormatConversionTarget.PSM_JSONL:
         if resolved_kind is not ProteomicsFormatKind.PSM:
             raise ValueError("psm-jsonl conversion requires PSM TSV input")
-        records: tuple[PsmRecord, ...] = parse_psm_tsv(input_path, mapping=_default_psm_mapping()).accepted_records
+        records: tuple[PsmRecord, ...] = parse_psm_tsv(
+            input_path, mapping=_default_psm_mapping()
+        ).accepted_records
         export_psm_jsonl(records, output_path)
         written_record_count = len(records)
     else:
         if resolved_kind is not ProteomicsFormatKind.DESIGN_TABLE:
             raise ValueError("design-jsonl conversion requires a design-table input")
-        report = parse_experimental_design_table(input_path)
+        design_report = parse_experimental_design_table(input_path)
         with output_path.open("w", encoding="utf-8") as handle:
-            for entry in report.accepted_entries:
-                handle.write(json.dumps(entry.to_dict(), sort_keys=True, separators=(",", ":")))
+            for entry in design_report.accepted_entries:
+                handle.write(
+                    json.dumps(entry.to_dict(), sort_keys=True, separators=(",", ":"))
+                )
                 handle.write("\n")
-        written_record_count = len(report.accepted_entries)
+        written_record_count = len(design_report.accepted_entries)
     return FormatConversionReport(
         input_path=str(input_path),
         output_path=str(output_path),
@@ -844,7 +984,9 @@ def build_normalized_run_bundle(
         raise ValueError("run bundle spectra input must be mzML or MGF")
 
     generated_files: list[str] = []
-    source_files: list[SourceFileManifestEntry] = [_source_file_entry(spectra_path, spectra_kind)]
+    source_files: list[SourceFileManifestEntry] = [
+        _source_file_entry(spectra_path, spectra_kind)
+    ]
     rejected_spectra = 0
     mzml_metadata: MzmlRunMetadata | None = None
 
@@ -863,8 +1005,12 @@ def build_normalized_run_bundle(
     generated_files.append(spectra_output_path.name)
 
     spectra_validation_path = bundle_dir / "spectra.validation.json"
-    spectra_validation = validate_proteomics_input(spectra_path, input_kind=spectra_kind)
-    spectra_validation_path.write_text(spectra_validation.to_stable_json() + "\n", encoding="utf-8")
+    spectra_validation = validate_proteomics_input(
+        spectra_path, input_kind=spectra_kind
+    )
+    spectra_validation_path.write_text(
+        spectra_validation.to_stable_json() + "\n", encoding="utf-8"
+    )
     generated_files.append(spectra_validation_path.name)
 
     psm_count = 0
@@ -873,8 +1019,12 @@ def build_normalized_run_bundle(
     if identifications_path is not None:
         identification_kind = detect_proteomics_format(identifications_path)
         if identification_kind is not ProteomicsFormatKind.PSM:
-            raise ValueError("run bundle identification input must be a normalized or generic PSM TSV")
-        source_files.append(_source_file_entry(identifications_path, identification_kind))
+            raise ValueError(
+                "run bundle identification input must be a normalized or generic PSM TSV"
+            )
+        source_files.append(
+            _source_file_entry(identifications_path, identification_kind)
+        )
         psm_report = parse_psm_tsv(identifications_path, mapping=_default_psm_mapping())
         psm_count = len(psm_report.accepted_records)
         rejected_identification_rows = len(psm_report.rejected_rows)
@@ -883,7 +1033,9 @@ def build_normalized_run_bundle(
         generated_files.append(psm_output_path.name)
         psm_summary_path = bundle_dir / "identifications.summary.json"
         psm_summary = build_psm_summary_report(psm_report.accepted_records)
-        psm_summary_path.write_text(psm_summary.to_stable_json() + "\n", encoding="utf-8")
+        psm_summary_path.write_text(
+            psm_summary.to_stable_json() + "\n", encoding="utf-8"
+        )
         generated_files.append(psm_summary_path.name)
 
     design_entry: ExperimentalDesignEntry | None = None
@@ -898,7 +1050,9 @@ def build_normalized_run_bundle(
         design_output_path = bundle_dir / "design.normalized.jsonl"
         with design_output_path.open("w", encoding="utf-8") as handle:
             for entry in design_report.accepted_entries:
-                handle.write(json.dumps(entry.to_dict(), sort_keys=True, separators=(",", ":")))
+                handle.write(
+                    json.dumps(entry.to_dict(), sort_keys=True, separators=(",", ":"))
+                )
                 handle.write("\n")
         generated_files.append(design_output_path.name)
 
@@ -926,7 +1080,11 @@ def build_normalized_run_bundle(
         rejected_identification_rows=rejected_identification_rows,
     )
     manifest = manifest.model_copy(
-        update={"document_schema": manifest.document_schema.with_content_hash(manifest.to_dict())}
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(
+                manifest.to_dict()
+            )
+        }
     )
     manifest_path = bundle_dir / "bundle.manifest.json"
     manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")

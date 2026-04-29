@@ -16,6 +16,7 @@ from pydantic import ConfigDict, Field, field_validator
 from bijux_proteomics.chemistry import calculate_monoisotopic_peptide_mass
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
+
 class ProteaseCleavageMode(StrEnum):
     """Direction for protease cleavage semantics."""
 
@@ -196,15 +197,15 @@ def get_protease_rule(name: str) -> ProteaseRule:
         raise ValueError(f"unknown protease rule {name!r}") from exc
 
 
-def parse_custom_protease_rule(specification: str, *, name: str = "custom") -> ProteaseRule:
-    """Parse a user-defined protease rule from a compact textual form.
-
-    Supported keys:
-    - ``after`` or ``before`` for cleavage residues
-    - ``block_next`` for residues that block a C-terminal cut
-    - ``block_previous`` for residues that block an N-terminal cut
-    - ``description`` for human-readable metadata
-    """
+def parse_custom_protease_rule(
+    specification: str, *, name: str = "custom"
+) -> ProteaseRule:
+    """Parse a user-defined protease rule from a compact textual form."""
+    # Supported keys:
+    # - ``after`` or ``before`` for cleavage residues
+    # - ``block_next`` for residues that block a C-terminal cut
+    # - ``block_previous`` for residues that block an N-terminal cut
+    # - ``description`` for human-readable metadata
 
     fields: dict[str, str] = {}
     for fragment in specification.split(";"):
@@ -221,13 +222,18 @@ def parse_custom_protease_rule(specification: str, *, name: str = "custom") -> P
     after = fields.get("after")
     before = fields.get("before")
     if bool(after) == bool(before):
-        raise ValueError("custom protease rule must define exactly one of 'after' or 'before'")
+        raise ValueError(
+            "custom protease rule must define exactly one of 'after' or 'before'"
+        )
 
     cleavage_mode = (
-        ProteaseCleavageMode.C_TERMINAL if after is not None else ProteaseCleavageMode.N_TERMINAL
+        ProteaseCleavageMode.C_TERMINAL
+        if after is not None
+        else ProteaseCleavageMode.N_TERMINAL
     )
     cleavage_residues = after if after is not None else before
-    assert cleavage_residues is not None
+    if cleavage_residues is None:
+        raise ValueError("custom protease rule must resolve to a cleavage residue set")
     return ProteaseRule(
         name=name,
         cleavage_mode=cleavage_mode,
@@ -356,7 +362,9 @@ def digest_protein_records(
         )
         residues = getattr(record, "residues", None)
         if accession is None or identifier is None or residues is None:
-            raise TypeError("digest_protein_records expects records with accession, identifier, and residues")
+            raise TypeError(
+                "digest_protein_records expects records with accession, identifier, and residues"
+            )
         peptides.extend(
             digest_sequence(
                 residues,
@@ -421,7 +429,11 @@ def digest_sequence(
         for span in range(1, max_span + 1):
             end = boundaries[start_index + span]
             peptide = normalized[start:end]
-            if not peptide or len(peptide) < min_length or len(peptide) > max_peptide_length:
+            if (
+                not peptide
+                or len(peptide) < min_length
+                or len(peptide) > max_peptide_length
+            ):
                 continue
             peptides.append(
                 DigestedPeptide(
@@ -484,15 +496,17 @@ def export_peptides_jsonl(peptides: tuple[DigestedPeptide, ...], path: Path) -> 
         entry = peptide.to_dict()
         entry["neutral_mass"] = round(_peptide_neutral_mass(peptide.sequence), 5)
         payload.append(entry)
-    path.write_text("\n".join(json.dumps(entry, sort_keys=True) for entry in payload) + "\n")
+    path.write_text(
+        "\n".join(json.dumps(entry, sort_keys=True) for entry in payload) + "\n"
+    )
     return path
 
 
 def export_peptides_parquet(peptides: tuple[DigestedPeptide, ...], path: Path) -> Path:
     """Write an optional Parquet export for digested peptides."""
     try:
-        import pyarrow as pa
-        import pyarrow.parquet as pq
+        import pyarrow as pa  # type: ignore[import-not-found]
+        import pyarrow.parquet as pq  # type: ignore[import-not-found]
     except ImportError as exc:
         raise RuntimeError(
             "Parquet export requires optional dependency 'pyarrow'"
@@ -536,7 +550,9 @@ def peptide_export_fingerprint(peptides: tuple[DigestedPeptide, ...]) -> str:
         }
         for peptide in peptides
     ]
-    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True).encode("utf-8")
+    ).hexdigest()
 
 
 def build_digest_manifest(
@@ -600,7 +616,9 @@ def build_digest_benchmark_report(
         peptide_count=len(peptides),
         elapsed_seconds=elapsed_seconds,
         peak_memory_bytes=peak_memory_bytes,
-        peptides_per_second=(len(peptides) / elapsed_seconds if elapsed_seconds > 0 else 0.0),
+        peptides_per_second=(
+            len(peptides) / elapsed_seconds if elapsed_seconds > 0 else 0.0
+        ),
     )
 
 
@@ -622,7 +640,10 @@ def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...
             if residue not in rule.cleavage_residues:
                 continue
             previous_residue = sequence[index - 1] if index > 0 else None
-            if previous_residue is not None and previous_residue in rule.blocked_by_previous:
+            if (
+                previous_residue is not None
+                and previous_residue in rule.blocked_by_previous
+            ):
                 continue
             if index not in boundaries:
                 boundaries.append(index)
@@ -648,6 +669,7 @@ def _semi_specific_digest(
 
     for start in boundaries[:-1]:
         for end in range(start + 1, len(sequence) + 1):
+            cleavage_type: Literal["enzymatic", "semi_specific", "non_specific"]
             if end not in enzymatic_bounds:
                 cleavage_type = "semi_specific"
             else:
@@ -673,7 +695,7 @@ def _semi_specific_digest(
                 )
             )
 
-    for start in range(0, len(sequence)):
+    for start in range(len(sequence)):
         if start in enzymatic_bounds:
             continue
         for end in boundaries[1:]:
@@ -714,8 +736,10 @@ def _non_specific_digest(
     max_length: int,
 ) -> tuple[DigestedPeptide, ...]:
     peptides: list[DigestedPeptide] = []
-    for start in range(0, len(sequence)):
-        for end in range(start + min_length, min(len(sequence), start + max_length) + 1):
+    for start in range(len(sequence)):
+        for end in range(
+            start + min_length, min(len(sequence), start + max_length) + 1
+        ):
             peptide = sequence[start:end]
             peptides.append(
                 DigestedPeptide(

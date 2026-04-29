@@ -194,8 +194,12 @@ class DifferentialAbundanceInterpretation(JsonModel):
 
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
-    top_upregulated: tuple[DifferentialConditionSignal, ...] = Field(default_factory=tuple)
-    top_downregulated: tuple[DifferentialConditionSignal, ...] = Field(default_factory=tuple)
+    top_upregulated: tuple[DifferentialConditionSignal, ...] = Field(
+        default_factory=tuple
+    )
+    top_downregulated: tuple[DifferentialConditionSignal, ...] = Field(
+        default_factory=tuple
+    )
     enriched_terms: tuple[ProteinSetEnrichmentEntry, ...] = Field(default_factory=tuple)
     theme_summary: tuple[BiologicalTheme, ...] = Field(default_factory=tuple)
     statistical_provenance: DifferentialStatisticalProvenance
@@ -258,7 +262,9 @@ class ContrastRecommendation(JsonModel):
     valid: bool
     replicate_counts: dict[str, int] = Field(default_factory=dict)
     shared_batches: tuple[str, ...] = Field(default_factory=tuple)
-    rejection_reasons: tuple[ContrastRejectionReason, ...] = Field(default_factory=tuple)
+    rejection_reasons: tuple[ContrastRejectionReason, ...] = Field(
+        default_factory=tuple
+    )
     rationale: str = Field(..., min_length=1)
 
 
@@ -269,7 +275,9 @@ class ContrastRecommendationReport(JsonModel):
 
     condition_count: int = Field(..., ge=0)
     valid_contrasts: tuple[ContrastRecommendation, ...] = Field(default_factory=tuple)
-    rejected_contrasts: tuple[ContrastRecommendation, ...] = Field(default_factory=tuple)
+    rejected_contrasts: tuple[ContrastRecommendation, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class MissingnessPatternEntry(JsonModel):
@@ -389,7 +397,9 @@ def _term_lookup(
     return lookup
 
 
-def _hypergeometric_tail(population_size: int, successes: int, draws: int, overlap: int) -> float:
+def _hypergeometric_tail(
+    population_size: int, successes: int, draws: int, overlap: int
+) -> float:
     denominator = math.comb(population_size, draws)
     tail = 0.0
     upper = min(successes, draws)
@@ -411,7 +421,10 @@ def _odds_ratio(
     a = overlap + 0.5
     b = max(query_size - overlap, 0) + 0.5
     c = max(annotated_background_count - overlap, 0) + 0.5
-    d = max(background_size - query_size - annotated_background_count + overlap, 0) + 0.5
+    d = (
+        max(background_size - query_size - annotated_background_count + overlap, 0)
+        + 0.5
+    )
     return (a * d) / (b * c)
 
 
@@ -429,7 +442,7 @@ def build_run_interpretation_summary(
             RunInterpretationSignal(
                 code="qc-blocked",
                 summary="QC policy blocks routine downstream interpretation for this run.",
-                severity=QcAssessmentSeverity.FAIL,
+                severity=QcAssessmentSeverity.FAILED,
                 evidence_refs=("qc_run_assessment_report",),
             )
         )
@@ -438,7 +451,7 @@ def build_run_interpretation_summary(
             RunInterpretationSignal(
                 code="identification-ready",
                 summary="Identification rate is high enough for routine interpretation.",
-                severity=QcAssessmentSeverity.PASS,
+                severity=QcAssessmentSeverity.PASSED,
                 evidence_refs=("lcms_run_qc_report.identification_rate",),
             )
         )
@@ -447,7 +460,7 @@ def build_run_interpretation_summary(
             RunInterpretationSignal(
                 code="contaminant-pressure",
                 summary="Contaminant burden is high enough to color biological interpretation.",
-                severity=QcAssessmentSeverity.WARN,
+                severity=QcAssessmentSeverity.WARNING,
                 evidence_refs=("lcms_run_qc_report.contaminant_summary",),
             )
         )
@@ -456,7 +469,7 @@ def build_run_interpretation_summary(
             RunInterpretationSignal(
                 code="quant-available",
                 summary=f"{len(quant_table.entity_ids)} quantified entities are available for follow-on interpretation.",
-                severity=QcAssessmentSeverity.PASS,
+                severity=QcAssessmentSeverity.PASSED,
                 evidence_refs=("label_free_quant_table",),
             )
         )
@@ -494,9 +507,15 @@ def compute_protein_set_enrichment(
     background_set = set(background)
     query_set = set(query)
     entries: list[ProteinSetEnrichmentEntry] = []
-    for (term_id, category, term_name, source), proteins in _term_lookup(annotations).items():
-        annotated_background = tuple(sorted(protein for protein in proteins if protein in background_set))
-        overlap_proteins = tuple(sorted(protein for protein in annotated_background if protein in query_set))
+    for (term_id, category, term_name, source), proteins in _term_lookup(
+        annotations
+    ).items():
+        annotated_background = tuple(
+            sorted(protein for protein in proteins if protein in background_set)
+        )
+        overlap_proteins = tuple(
+            sorted(protein for protein in annotated_background if protein in query_set)
+        )
         if not overlap_proteins:
             continue
         p_value = _hypergeometric_tail(
@@ -555,7 +574,9 @@ def extract_biological_themes(
     max_terms: int = 5,
 ) -> BiologicalThemeExtraction:
     """Extract top biological themes from enriched annotations."""
-    enrichment = compute_protein_set_enrichment(query_proteins, background_proteins, annotations)
+    enrichment = compute_protein_set_enrichment(
+        query_proteins, background_proteins, annotations
+    )
     themes = tuple(
         BiologicalTheme(
             term_id=entry.term_id,
@@ -568,7 +589,9 @@ def extract_biological_themes(
         )
         for entry in enrichment.entries[:max_terms]
     )
-    return BiologicalThemeExtraction(query_protein_count=len(query_proteins), themes=themes)
+    return BiologicalThemeExtraction(
+        query_protein_count=len(query_proteins), themes=themes
+    )
 
 
 def interpret_differential_abundance(
@@ -584,7 +607,11 @@ def interpret_differential_abundance(
     significant = [
         entry
         for entry in report.entries
-        if (entry.adjusted_p_value if entry.adjusted_p_value is not None else entry.p_value)
+        if (
+            entry.adjusted_p_value
+            if entry.adjusted_p_value is not None
+            else entry.p_value
+        )
         <= significance_threshold
     ]
     ordered_up = sorted(
@@ -599,7 +626,9 @@ def interpret_differential_abundance(
     def _signal(entry: DifferentialAbundanceEntry) -> DifferentialConditionSignal:
         return DifferentialConditionSignal(
             entity_id=entry.entity_id,
-            direction=SignalDirection.UP if entry.log2_fold_change > 0 else SignalDirection.DOWN,
+            direction=SignalDirection.UP
+            if entry.log2_fold_change > 0
+            else SignalDirection.DOWN,
             log2_fold_change=entry.log2_fold_change,
             adjusted_p_value=entry.adjusted_p_value,
             annotation_terms=tuple(
@@ -614,7 +643,9 @@ def interpret_differential_abundance(
 
     query_proteins = tuple(entry.entity_id for entry in significant)
     background_proteins = tuple(entry.entity_id for entry in report.entries)
-    enrichment = compute_protein_set_enrichment(query_proteins, background_proteins, annotations)
+    enrichment = compute_protein_set_enrichment(
+        query_proteins, background_proteins, annotations
+    )
     themes = extract_biological_themes(
         query_proteins,
         background_proteins,
@@ -656,11 +687,7 @@ def interpret_ptm_sites(
     occupancy_shift_threshold: float = 0.2,
 ) -> PtmInterpretationReport:
     """Interpret PTM site evidence with occupancy and motif context."""
-    accepted_sites = {
-        entry.site_key
-        for entry in fdr_report.entries
-        if entry.accepted
-    }
+    accepted_sites = {entry.site_key for entry in fdr_report.entries if entry.accepted}
     motif_lookup: dict[str, list[str]] = defaultdict(list)
     for motif in motif_windows:
         motif_lookup[motif.site_key].append(motif.window)
@@ -684,7 +711,8 @@ def interpret_ptm_sites(
                 {
                     annotation.term_name
                     for annotation in annotation_lookup.get(site.protein_ref, ())
-                    if annotation.category in {AnnotationCategory.KINASE, AnnotationCategory.PATHWAY}
+                    if annotation.category
+                    in {AnnotationCategory.KINASE, AnnotationCategory.PATHWAY}
                 }
             )
         )
@@ -725,7 +753,7 @@ def interpret_contaminant_artifacts(
             ContaminantArtifactFinding(
                 code="contaminant-burden",
                 summary="Contaminant burden is high enough to suggest sample carryover or cleanup failure.",
-                severity=QcAssessmentSeverity.WARN,
+                severity=QcAssessmentSeverity.WARNING,
                 supporting_metrics={
                     "contaminant_psm_fraction": run_report.contaminant_summary.contaminant_psm_fraction,
                 },
@@ -737,18 +765,27 @@ def interpret_contaminant_artifacts(
             ContaminantArtifactFinding(
                 code="digestion-specificity-loss",
                 summary="Missed-cleavage pressure suggests incomplete digestion or protease mismatch.",
-                severity=QcAssessmentSeverity.WARN,
-                supporting_metrics={"missed_cleavage_rate": run_report.missed_cleavage_rate},
+                severity=QcAssessmentSeverity.WARNING,
+                supporting_metrics={
+                    "missed_cleavage_rate": run_report.missed_cleavage_rate
+                },
                 suggested_action="inspect digestion conditions and enzyme configuration",
             )
         )
-    if run_report.mass_error.median_abs_ppm is not None and run_report.mass_error.median_abs_ppm >= 10.0:
+    if (
+        run_report.mass_error.median_abs_ppm is not None
+        and run_report.mass_error.median_abs_ppm >= 10.0
+    ):
         findings.append(
             ContaminantArtifactFinding(
                 code="mass-calibration-drift",
                 summary="Precursor error is elevated enough to suggest calibration or alignment drift.",
-                severity=QcAssessmentSeverity.FAIL if run_assessment.blocked else QcAssessmentSeverity.WARN,
-                supporting_metrics={"median_abs_mass_error_ppm": run_report.mass_error.median_abs_ppm},
+                severity=QcAssessmentSeverity.FAILED
+                if run_assessment.blocked
+                else QcAssessmentSeverity.WARNING,
+                supporting_metrics={
+                    "median_abs_mass_error_ppm": run_report.mass_error.median_abs_ppm
+                },
                 suggested_action="inspect instrument calibration and precursor matching settings",
             )
         )
@@ -757,8 +794,12 @@ def interpret_contaminant_artifacts(
             ContaminantArtifactFinding(
                 code="low-identification-rate",
                 summary="Low identification rate suggests acquisition or search-configuration mismatch.",
-                severity=QcAssessmentSeverity.FAIL if run_assessment.blocked else QcAssessmentSeverity.WARN,
-                supporting_metrics={"identification_rate": run_report.identification_rate},
+                severity=QcAssessmentSeverity.FAILED
+                if run_assessment.blocked
+                else QcAssessmentSeverity.WARNING,
+                supporting_metrics={
+                    "identification_rate": run_report.identification_rate
+                },
                 suggested_action="review search parameters, database choice, and acquisition quality",
             )
         )
@@ -767,7 +808,7 @@ def interpret_contaminant_artifacts(
             ContaminantArtifactFinding(
                 code="no-major-artifact",
                 summary="No dominant contaminant or acquisition artifact stands out from the QC surface.",
-                severity=QcAssessmentSeverity.PASS,
+                severity=QcAssessmentSeverity.PASSED,
                 supporting_metrics={},
                 suggested_action="continue with biological interpretation",
             )
@@ -787,11 +828,11 @@ def recommend_experimental_contrasts(
     """Recommend valid pairwise contrasts from an experimental design."""
     conditions = sorted({entry.condition for entry in entries})
     if len(conditions) < 2:
-        rejected = ContrastRecommendation(
+        rejected_contrast = ContrastRecommendation(
             condition_a=conditions[0] if conditions else "condition-a",
             condition_b=conditions[0] if conditions else "condition-b",
             valid=False,
-            replicate_counts={condition: 0 for condition in conditions},
+            replicate_counts=dict.fromkeys(conditions, 0),
             shared_batches=(),
             rejection_reasons=(ContrastRejectionReason.SINGLE_CONDITION,),
             rationale="at least two conditions are required for a contrast",
@@ -799,13 +840,13 @@ def recommend_experimental_contrasts(
         return ContrastRecommendationReport(
             condition_count=len(conditions),
             valid_contrasts=(),
-            rejected_contrasts=(rejected,),
+            rejected_contrasts=(rejected_contrast,),
         )
     grouped: dict[str, list[ExperimentalDesignEntry]] = defaultdict(list)
     for entry in entries:
         grouped[entry.condition].append(entry)
     valid: list[ContrastRecommendation] = []
-    rejected: list[ContrastRecommendation] = []
+    rejected_contrasts: list[ContrastRecommendation] = []
     for index, left in enumerate(conditions):
         for right in conditions[index + 1 :]:
             left_entries = grouped[left]
@@ -814,7 +855,10 @@ def recommend_experimental_contrasts(
             right_batches = {entry.batch for entry in right_entries if entry.batch}
             shared_batches = tuple(sorted(left_batches & right_batches))
             reasons: list[ContrastRejectionReason] = []
-            if len(left_entries) < min_replicates or len(right_entries) < min_replicates:
+            if (
+                len(left_entries) < min_replicates
+                or len(right_entries) < min_replicates
+            ):
                 reasons.append(ContrastRejectionReason.INSUFFICIENT_REPLICATES)
             if left_batches and right_batches and not shared_batches:
                 reasons.append(ContrastRejectionReason.BATCH_CONFOUNDED)
@@ -834,11 +878,11 @@ def recommend_experimental_contrasts(
             if recommendation.valid:
                 valid.append(recommendation)
             else:
-                rejected.append(recommendation)
+                rejected_contrasts.append(recommendation)
     return ContrastRecommendationReport(
         condition_count=len(conditions),
         valid_contrasts=tuple(valid),
-        rejected_contrasts=tuple(rejected),
+        rejected_contrasts=tuple(rejected_contrasts),
     )
 
 
@@ -848,24 +892,40 @@ def analyze_missingness_patterns(
 ) -> MissingnessPatternAnalysis:
     """Classify missingness patterns from a quantification matrix and design."""
     condition_lookup = {entry.sample_id: entry.condition for entry in design_entries}
-    entity_values: dict[str, list[tuple[str, MissingValueKind, float | None]]] = defaultdict(list)
+    entity_values: dict[str, list[tuple[str, MissingValueKind, float | None]]] = (
+        defaultdict(list)
+    )
     observed_values: list[float] = []
     for value in table.values:
-        entity_values[value.entity_id].append((value.sample_id, value.missing_value_kind, value.abundance))
+        entity_values[value.entity_id].append(
+            (value.sample_id, value.missing_value_kind, value.abundance)
+        )
         if value.abundance is not None:
             observed_values.append(value.abundance)
-    abundance_median = sorted(observed_values)[len(observed_values) // 2] if observed_values else 0.0
+    abundance_median = (
+        sorted(observed_values)[len(observed_values) // 2] if observed_values else 0.0
+    )
     entries: list[MissingnessPatternEntry] = []
     label_counts: Counter[MissingnessPatternLabel] = Counter()
     for entity_id, values in sorted(entity_values.items()):
-        observed_count = sum(1 for _, kind, _ in values if kind in {MissingValueKind.OBSERVED, MissingValueKind.ZERO})
+        observed_count = sum(
+            1
+            for _, kind, _ in values
+            if kind in {MissingValueKind.OBSERVED, MissingValueKind.ZERO}
+        )
         missing_count = len(values) - observed_count
         condition_missing_counts: Counter[str] = Counter()
         filtered_count = 0
-        observed_abundances = [abundance for _, kind, abundance in values if kind is MissingValueKind.OBSERVED and abundance is not None]
+        observed_abundances = [
+            abundance
+            for _, kind, abundance in values
+            if kind is MissingValueKind.OBSERVED and abundance is not None
+        ]
         for sample_id, kind, _ in values:
             if kind in {MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED}:
-                condition_missing_counts[condition_lookup.get(sample_id, sample_id)] += 1
+                condition_missing_counts[
+                    condition_lookup.get(sample_id, sample_id)
+                ] += 1
             if kind is MissingValueKind.FILTERED:
                 filtered_count += 1
         if missing_count == 0:
@@ -874,7 +934,10 @@ def analyze_missingness_patterns(
         elif filtered_count == missing_count and missing_count > 0:
             label = MissingnessPatternLabel.FILTER_DOMINATED
             note = "missingness is dominated by feature-level filtering"
-        elif len([count for count in condition_missing_counts.values() if count > 0]) == 1:
+        elif (
+            len([count for count in condition_missing_counts.values() if count > 0])
+            == 1
+        ):
             label = MissingnessPatternLabel.CONDITION_LINKED
             note = "missingness is concentrated in one condition"
         elif observed_abundances and max(observed_abundances) <= abundance_median:
@@ -943,7 +1006,9 @@ def explain_outlier_samples(
             "identification_rate": run.identification_rate,
         }
         if run.median_abs_mass_error_ppm is not None:
-            supporting_metrics["median_abs_mass_error_ppm"] = run.median_abs_mass_error_ppm
+            supporting_metrics["median_abs_mass_error_ppm"] = (
+                run.median_abs_mass_error_ppm
+            )
         sample_correlations = correlation_map.get(run.sample_id or run.run_id, [])
         if sample_correlations and min(sample_correlations) < low_correlation_threshold:
             reasons.append("low_replicate_correlation")
@@ -955,7 +1020,8 @@ def explain_outlier_samples(
                     batch_id=run.batch,
                     reasons=tuple(dict.fromkeys(reasons)),
                     supporting_metrics=supporting_metrics,
-                    interpretation_summary=f"{run.sample_id or run.run_id} is outlying because " + ", ".join(dict.fromkeys(reasons)),
+                    interpretation_summary=f"{run.sample_id or run.run_id} is outlying because "
+                    + ", ".join(dict.fromkeys(reasons)),
                 )
             )
     return tuple(explanations)
@@ -969,7 +1035,9 @@ def compute_ranked_enrichment(
     ranked = tuple(ranked_entities)
     total_entities = len(ranked)
     entries: list[RankedEnrichmentEntry] = []
-    for (term_id, category, term_name, source), proteins in _term_lookup(annotations).items():
+    for (term_id, category, term_name, source), proteins in _term_lookup(
+        annotations
+    ).items():
         hits = [entry for entry in ranked if entry.entity_id in proteins]
         if not hits:
             continue
@@ -999,7 +1067,9 @@ def compute_ranked_enrichment(
                 category=category,
                 source=source,
                 enrichment_score=best_score,
-                direction=SignalDirection.UP if best_score >= 0 else SignalDirection.DOWN,
+                direction=SignalDirection.UP
+                if best_score >= 0
+                else SignalDirection.DOWN,
                 hit_count=len(hits),
                 leading_edge=tuple(leading_edge),
             )

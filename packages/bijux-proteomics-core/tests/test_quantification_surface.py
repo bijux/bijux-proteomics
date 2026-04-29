@@ -8,6 +8,10 @@ from pathlib import Path
 import numpy as np
 
 from bijux_proteomics import (
+    LabelFreeQuantTable,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantRollupMethod,
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
@@ -15,11 +19,8 @@ from bijux_proteomics import (
     build_replicate_correlation_report,
     build_spectral_count_table,
     normalize_label_free_table,
-    NormalizationMethod,
     parse_experimental_design_table,
     parse_ms1_feature_table,
-    QuantEntityLevel,
-    QuantRollupMethod,
     summarize_missing_values,
 )
 
@@ -28,14 +29,22 @@ def _quant_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "quant" / name
 
 
-def test_ms1_feature_parser_accepts_quant_fixture_and_preserves_missing_states() -> None:
+def test_ms1_feature_parser_accepts_quant_fixture_and_preserves_missing_states() -> (
+    None
+):
     report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
 
     assert report.total_rows == 32
     assert len(report.accepted_records) == 32
-    zero_feature = next(record for record in report.accepted_records if record.feature_id == "f008")
-    filtered_feature = next(record for record in report.accepted_records if record.feature_id == "f006")
-    missing_feature = next(record for record in report.accepted_records if record.feature_id == "f007")
+    zero_feature = next(
+        record for record in report.accepted_records if record.feature_id == "f008"
+    )
+    filtered_feature = next(
+        record for record in report.accepted_records if record.feature_id == "f006"
+    )
+    missing_feature = next(
+        record for record in report.accepted_records if record.feature_id == "f007"
+    )
 
     assert zero_feature.missing_value_kind.value == "zero"
     assert filtered_feature.missing_value_kind.value == "filtered"
@@ -48,7 +57,12 @@ def test_ms1_feature_parser_rejects_invalid_rows() -> None:
     assert len(report.accepted_records) == 0
     assert len(report.rejected_rows) == 4
     codes = {issue.code for row in report.rejected_rows for issue in row.issues}
-    assert {"missing_sample_id", "negative_intensity", "invalid_intensity", "invalid_charge"} <= codes
+    assert {
+        "missing_sample_id",
+        "negative_intensity",
+        "invalid_intensity",
+        "invalid_charge",
+    } <= codes
 
 
 def test_label_free_intensity_rollups_cover_sum_median_and_top_n() -> None:
@@ -71,7 +85,9 @@ def test_label_free_intensity_rollups_cover_sum_median_and_top_n() -> None:
         top_n=2,
     )
     lookup_sum = {(value.entity_id, value.sample_id): value for value in summed.values}
-    lookup_median = {(value.entity_id, value.sample_id): value for value in median.values}
+    lookup_median = {
+        (value.entity_id, value.sample_id): value for value in median.values
+    }
     lookup_top_n = {(value.entity_id, value.sample_id): value for value in top_n.values}
 
     assert lookup_sum[("P001", "C1")].abundance == 2200.0
@@ -79,7 +95,9 @@ def test_label_free_intensity_rollups_cover_sum_median_and_top_n() -> None:
     assert lookup_top_n[("P001", "C1")].abundance == 1900.0
 
 
-def test_spectral_count_table_and_missing_summary_distinguish_zero_filtered_and_missing() -> None:
+def test_spectral_count_table_and_missing_summary_distinguish_zero_filtered_and_missing() -> (
+    None
+):
     report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
     table = build_spectral_count_table(
         report.accepted_records,
@@ -109,7 +127,7 @@ def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -
     median = normalize_label_free_table(table, method=NormalizationMethod.MEDIAN)
     quantile = normalize_label_free_table(table, method=NormalizationMethod.QUANTILE)
 
-    def sample_values(active_table: object, sample_id: str) -> np.ndarray:
+    def sample_values(active_table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:
         values = [
             value.abundance
             for value in active_table.values
@@ -117,13 +135,21 @@ def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -
         ]
         return np.array(values, dtype=float)
 
-    tic_totals = [float(np.sum(sample_values(tic, sample_id))) for sample_id in tic.sample_ids]
+    tic_totals = [
+        float(np.sum(sample_values(tic, sample_id))) for sample_id in tic.sample_ids
+    ]
     assert max(tic_totals) - min(tic_totals) < 1e-6
 
-    median_values = [float(np.median(sample_values(median, sample_id))) for sample_id in median.sample_ids]
+    median_values = [
+        float(np.median(sample_values(median, sample_id)))
+        for sample_id in median.sample_ids
+    ]
     assert max(median_values) - min(median_values) < 1e-6
 
-    quantile_sorted = [tuple(np.round(np.sort(sample_values(quantile, sample_id)), 6)) for sample_id in quantile.sample_ids]
+    quantile_sorted = [
+        tuple(np.round(np.sort(sample_values(quantile, sample_id)), 6))
+        for sample_id in quantile.sample_ids
+    ]
     assert len(set(quantile_sorted)) == 1
 
 
@@ -140,7 +166,9 @@ def test_batch_effect_and_replicate_correlation_reports_are_stable() -> None:
     )
 
     batch_report = build_batch_effect_advisory(table, design_report.accepted_entries)
-    replicate_report = build_replicate_correlation_report(table, design_report.accepted_entries)
+    replicate_report = build_replicate_correlation_report(
+        table, design_report.accepted_entries
+    )
 
     assert batch_report.disposition.value == "ADVISORY"
     assert len(batch_report.batches) == 2

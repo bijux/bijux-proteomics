@@ -6,6 +6,14 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import (
+    ExperimentalDesignEntry,
+    PsmRecord,
+    QcAssessmentSeverity,
+    QcDigestionSpecificity,
+    QcEvidenceInputFile,
+    SpectrumModel,
+    SpectrumPeak,
+    TargetDecoyLabel,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
     build_lcms_run_qc_report,
@@ -15,15 +23,7 @@ from bijux_proteomics import (
     calculate_peptide_mz,
     default_qc_threshold_policy,
     parse_experimental_design_table,
-    PsmRecord,
-    QcAssessmentSeverity,
-    QcDigestionSpecificity,
-    QcEvidenceInputFile,
-    SpectrumModel,
-    SpectrumPeak,
-    TargetDecoyLabel,
 )
-
 
 PROTEIN_SEQUENCES = {
     "P11111": "KACDEFGKRAA",
@@ -35,7 +35,7 @@ def _qc_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "qc" / name
 
 
-def _design_entries() -> dict[str, object]:
+def _design_entries() -> dict[str, ExperimentalDesignEntry]:
     report = parse_experimental_design_table(_qc_fixture("batch.design.tsv"))
     return {entry.sample_id: entry for entry in report.accepted_entries}
 
@@ -103,60 +103,180 @@ def _psm(
 
 def _run_a_spectra() -> tuple[SpectrumModel, ...]:
     return (
-        _spectrum_for_peptide("run-a:scan-001", "ACDEFGK", charge=2, retention_time_seconds=100.0, ppm_error=1.0),
-        _spectrum_for_peptide("run-a:scan-002", "ACDEFGKR", charge=3, retention_time_seconds=160.0, ppm_error=-1.5),
-        _spectrum_for_peptide("run-a:scan-003", "CDEFGK", charge=2, retention_time_seconds=220.0, ppm_error=2.0),
-        _spectrum_for_peptide("run-a:scan-004", "DEFG", charge=1, retention_time_seconds=280.0, ppm_error=-2.5),
-        _spectrum_for_peptide("run-a:scan-005", "MSSQQLLLLK", charge=2, retention_time_seconds=340.0, ppm_error=1.2),
-        _unidentified_spectrum("run-a:scan-006", charge=2, retention_time_seconds=400.0),
+        _spectrum_for_peptide(
+            "run-a:scan-001",
+            "ACDEFGK",
+            charge=2,
+            retention_time_seconds=100.0,
+            ppm_error=1.0,
+        ),
+        _spectrum_for_peptide(
+            "run-a:scan-002",
+            "ACDEFGKR",
+            charge=3,
+            retention_time_seconds=160.0,
+            ppm_error=-1.5,
+        ),
+        _spectrum_for_peptide(
+            "run-a:scan-003",
+            "CDEFGK",
+            charge=2,
+            retention_time_seconds=220.0,
+            ppm_error=2.0,
+        ),
+        _spectrum_for_peptide(
+            "run-a:scan-004",
+            "DEFG",
+            charge=1,
+            retention_time_seconds=280.0,
+            ppm_error=-2.5,
+        ),
+        _spectrum_for_peptide(
+            "run-a:scan-005",
+            "MSSQQLLLLK",
+            charge=2,
+            retention_time_seconds=340.0,
+            ppm_error=1.2,
+        ),
+        _unidentified_spectrum(
+            "run-a:scan-006", charge=2, retention_time_seconds=400.0
+        ),
     )
 
 
 def _run_a_psms() -> tuple[PsmRecord, ...]:
     return (
-        _psm("run-a:scan-001", "ACDEFGK", charge=2, score=120.0, protein_refs=("P11111",)),
-        _psm("run-a:scan-002", "ACDEFGKR", charge=3, score=118.0, protein_refs=("P11111",)),
-        _psm("run-a:scan-003", "CDEFGK", charge=2, score=110.0, protein_refs=("P11111",)),
+        _psm(
+            "run-a:scan-001", "ACDEFGK", charge=2, score=120.0, protein_refs=("P11111",)
+        ),
+        _psm(
+            "run-a:scan-002",
+            "ACDEFGKR",
+            charge=3,
+            score=118.0,
+            protein_refs=("P11111",),
+        ),
+        _psm(
+            "run-a:scan-003", "CDEFGK", charge=2, score=110.0, protein_refs=("P11111",)
+        ),
         _psm("run-a:scan-004", "DEFG", charge=1, score=90.0, protein_refs=("P11111",)),
-        _psm("run-a:scan-005", "MSSQQLLLLK", charge=2, score=87.0, protein_refs=("CON__KERATIN",)),
+        _psm(
+            "run-a:scan-005",
+            "MSSQQLLLLK",
+            charge=2,
+            score=87.0,
+            protein_refs=("CON__KERATIN",),
+        ),
     )
 
 
 def _run_b_spectra() -> tuple[SpectrumModel, ...]:
     return (
-        _spectrum_for_peptide("run-b:scan-001", "ACDEFGK", charge=2, retention_time_seconds=105.0, ppm_error=0.8),
-        _spectrum_for_peptide("run-b:scan-002", "ACDEFGKR", charge=3, retention_time_seconds=165.0, ppm_error=-1.1),
-        _spectrum_for_peptide("run-b:scan-003", "CDEFGK", charge=2, retention_time_seconds=230.0, ppm_error=1.7),
-        _spectrum_for_peptide("run-b:scan-004", "MSSQQLLLLK", charge=2, retention_time_seconds=295.0, ppm_error=1.4),
-        _unidentified_spectrum("run-b:scan-005", charge=2, retention_time_seconds=360.0),
-        _unidentified_spectrum("run-b:scan-006", charge=3, retention_time_seconds=420.0),
+        _spectrum_for_peptide(
+            "run-b:scan-001",
+            "ACDEFGK",
+            charge=2,
+            retention_time_seconds=105.0,
+            ppm_error=0.8,
+        ),
+        _spectrum_for_peptide(
+            "run-b:scan-002",
+            "ACDEFGKR",
+            charge=3,
+            retention_time_seconds=165.0,
+            ppm_error=-1.1,
+        ),
+        _spectrum_for_peptide(
+            "run-b:scan-003",
+            "CDEFGK",
+            charge=2,
+            retention_time_seconds=230.0,
+            ppm_error=1.7,
+        ),
+        _spectrum_for_peptide(
+            "run-b:scan-004",
+            "MSSQQLLLLK",
+            charge=2,
+            retention_time_seconds=295.0,
+            ppm_error=1.4,
+        ),
+        _unidentified_spectrum(
+            "run-b:scan-005", charge=2, retention_time_seconds=360.0
+        ),
+        _unidentified_spectrum(
+            "run-b:scan-006", charge=3, retention_time_seconds=420.0
+        ),
     )
 
 
 def _run_b_psms() -> tuple[PsmRecord, ...]:
     return (
-        _psm("run-b:scan-001", "ACDEFGK", charge=2, score=122.0, protein_refs=("P11111",)),
-        _psm("run-b:scan-002", "ACDEFGKR", charge=3, score=117.0, protein_refs=("P11111",)),
-        _psm("run-b:scan-003", "CDEFGK", charge=2, score=111.0, protein_refs=("P11111",)),
-        _psm("run-b:scan-004", "MSSQQLLLLK", charge=2, score=88.0, protein_refs=("CON__KERATIN",)),
+        _psm(
+            "run-b:scan-001", "ACDEFGK", charge=2, score=122.0, protein_refs=("P11111",)
+        ),
+        _psm(
+            "run-b:scan-002",
+            "ACDEFGKR",
+            charge=3,
+            score=117.0,
+            protein_refs=("P11111",),
+        ),
+        _psm(
+            "run-b:scan-003", "CDEFGK", charge=2, score=111.0, protein_refs=("P11111",)
+        ),
+        _psm(
+            "run-b:scan-004",
+            "MSSQQLLLLK",
+            charge=2,
+            score=88.0,
+            protein_refs=("CON__KERATIN",),
+        ),
     )
 
 
 def _run_c_spectra() -> tuple[SpectrumModel, ...]:
     return (
-        _spectrum_for_peptide("run-c:scan-001", "ACDEFGK", charge=2, retention_time_seconds=110.0, ppm_error=12.0),
-        _spectrum_for_peptide("run-c:scan-002", "MSSQQLLLLK", charge=2, retention_time_seconds=175.0, ppm_error=-14.0),
-        _unidentified_spectrum("run-c:scan-003", charge=2, retention_time_seconds=240.0),
-        _unidentified_spectrum("run-c:scan-004", charge=2, retention_time_seconds=305.0),
-        _unidentified_spectrum("run-c:scan-005", charge=3, retention_time_seconds=370.0),
-        _unidentified_spectrum("run-c:scan-006", charge=2, retention_time_seconds=435.0),
+        _spectrum_for_peptide(
+            "run-c:scan-001",
+            "ACDEFGK",
+            charge=2,
+            retention_time_seconds=110.0,
+            ppm_error=12.0,
+        ),
+        _spectrum_for_peptide(
+            "run-c:scan-002",
+            "MSSQQLLLLK",
+            charge=2,
+            retention_time_seconds=175.0,
+            ppm_error=-14.0,
+        ),
+        _unidentified_spectrum(
+            "run-c:scan-003", charge=2, retention_time_seconds=240.0
+        ),
+        _unidentified_spectrum(
+            "run-c:scan-004", charge=2, retention_time_seconds=305.0
+        ),
+        _unidentified_spectrum(
+            "run-c:scan-005", charge=3, retention_time_seconds=370.0
+        ),
+        _unidentified_spectrum(
+            "run-c:scan-006", charge=2, retention_time_seconds=435.0
+        ),
     )
 
 
 def _run_c_psms() -> tuple[PsmRecord, ...]:
     return (
-        _psm("run-c:scan-001", "ACDEFGK", charge=2, score=101.0, protein_refs=("P11111",)),
-        _psm("run-c:scan-002", "MSSQQLLLLK", charge=2, score=74.0, protein_refs=("CON__KERATIN",)),
+        _psm(
+            "run-c:scan-001", "ACDEFGK", charge=2, score=101.0, protein_refs=("P11111",)
+        ),
+        _psm(
+            "run-c:scan-002",
+            "MSSQQLLLLK",
+            charge=2,
+            score=74.0,
+            protein_refs=("CON__KERATIN",),
+        ),
     )
 
 
@@ -196,8 +316,13 @@ def test_build_lcms_run_qc_report_tracks_charge_and_contaminant_distribution() -
         protein_sequences=PROTEIN_SEQUENCES,
     )
 
-    spectrum_charges = {entry.charge_label: entry.count for entry in report.spectrum_charge_distribution}
-    identified_charges = {entry.charge_label: entry.count for entry in report.identified_charge_distribution}
+    spectrum_charges = {
+        entry.charge_label: entry.count for entry in report.spectrum_charge_distribution
+    }
+    identified_charges = {
+        entry.charge_label: entry.count
+        for entry in report.identified_charge_distribution
+    }
 
     assert spectrum_charges == {"1": 1, "2": 4, "3": 1}
     assert identified_charges == {"1": 1, "2": 3, "3": 1}
@@ -268,10 +393,19 @@ def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
     batch_assessment = build_batch_qc_assessment(batch_report, policy=policy)
 
     assert run_assessment.blocked is True
-    assert run_assessment.overall_severity is QcAssessmentSeverity.FAIL
-    assert any(entry.metric_key == "identification_rate" and entry.enforced_violation for entry in run_assessment.metric_assessments)
-    assert batch_assessment.overall_severity in {QcAssessmentSeverity.WARN, QcAssessmentSeverity.FAIL}
-    assert any(entry.metric_key == "outlier_run_count" for entry in batch_assessment.metric_assessments)
+    assert run_assessment.overall_severity is QcAssessmentSeverity.FAILED
+    assert any(
+        entry.metric_key == "identification_rate" and entry.enforced_violation
+        for entry in run_assessment.metric_assessments
+    )
+    assert batch_assessment.overall_severity in {
+        QcAssessmentSeverity.WARNING,
+        QcAssessmentSeverity.FAILED,
+    }
+    assert any(
+        entry.metric_key == "outlier_run_count"
+        for entry in batch_assessment.metric_assessments
+    )
 
 
 def test_qc_manifest_and_performance_snapshot_bind_outputs_to_inputs() -> None:
@@ -299,7 +433,9 @@ def test_qc_manifest_and_performance_snapshot_bind_outputs_to_inputs() -> None:
         policy=policy,
         input_files=(
             QcEvidenceInputFile(path="spectra.mgf", sha256="a" * 64, role="spectra"),
-            QcEvidenceInputFile(path="results.tsv", sha256="b" * 64, role="identifications"),
+            QcEvidenceInputFile(
+                path="results.tsv", sha256="b" * 64, role="identifications"
+            ),
         ),
         benchmark=benchmark,
     )

@@ -7,18 +7,18 @@ from pathlib import Path
 
 from bijux_proteomics import parse_experimental_design_table
 from bijux_proteomics_lab import (
-    assess_carryover_risk,
-    build_fractionation_plan,
-    build_lab_protocol_evidence_bundle,
-    build_power_analysis_advisory,
     CarryoverRiskLevel,
     ContrastRejectionReason,
     InstrumentMethodMetadata,
     MultiplexChannelRole,
+    SamplePreparationMetadata,
+    assess_carryover_risk,
+    build_fractionation_plan,
+    build_lab_protocol_evidence_bundle,
+    build_power_analysis_advisory,
     plan_batch_randomization,
     plan_multiplex_labeling,
     plan_spike_in_qc_samples,
-    SamplePreparationMetadata,
     validate_experiment_design,
 )
 
@@ -28,16 +28,29 @@ def _repo_packages_dir() -> Path:
 
 
 def _core_fixture(package: str, name: str) -> Path:
-    return _repo_packages_dir() / "bijux-proteomics-core" / "tests" / "fixtures" / package / name
+    return (
+        _repo_packages_dir()
+        / "bijux-proteomics-core"
+        / "tests"
+        / "fixtures"
+        / package
+        / name
+    )
 
 
 def _local_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "design" / name
 
 
-def test_validate_experiment_design_distinguishes_valid_and_confounded_contrasts() -> None:
-    valid_entries = parse_experimental_design_table(_core_fixture("quant", "quant.design.tsv")).accepted_entries
-    confounded_entries = parse_experimental_design_table(_local_fixture("confounded.design.tsv")).accepted_entries
+def test_validate_experiment_design_distinguishes_valid_and_confounded_contrasts() -> (
+    None
+):
+    valid_entries = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    ).accepted_entries
+    confounded_entries = parse_experimental_design_table(
+        _local_fixture("confounded.design.tsv")
+    ).accepted_entries
 
     valid_report = validate_experiment_design(valid_entries)
     confounded_report = validate_experiment_design(confounded_entries)
@@ -46,12 +59,21 @@ def test_validate_experiment_design_distinguishes_valid_and_confounded_contrasts
     assert valid_report.valid_contrasts[0].condition_a == "control"
     assert valid_report.valid_contrasts[0].condition_b == "treatment"
     assert len(confounded_report.rejected_contrasts) == 1
-    assert ContrastRejectionReason.BATCH_CONFOUNDED in confounded_report.rejected_contrasts[0].rejection_reasons
-    assert any(issue.code == "contrast-batch_confounded" for issue in confounded_report.issues)
+    assert (
+        ContrastRejectionReason.BATCH_CONFOUNDED
+        in confounded_report.rejected_contrasts[0].rejection_reasons
+    )
+    assert any(
+        issue.code == "contrast-batch_confounded" for issue in confounded_report.issues
+    )
 
 
-def test_build_power_analysis_advisory_exposes_current_and_recommended_replication() -> None:
-    entries = parse_experimental_design_table(_core_fixture("quant", "quant.design.tsv")).accepted_entries
+def test_build_power_analysis_advisory_exposes_current_and_recommended_replication() -> (
+    None
+):
+    entries = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    ).accepted_entries
 
     advisory = build_power_analysis_advisory(
         entries,
@@ -66,7 +88,9 @@ def test_build_power_analysis_advisory_exposes_current_and_recommended_replicati
 
 
 def test_plan_batch_randomization_is_deterministic_and_condition_balanced() -> None:
-    entries = parse_experimental_design_table(_local_fixture("multiplex.design.tsv")).accepted_entries
+    entries = parse_experimental_design_table(
+        _local_fixture("multiplex.design.tsv")
+    ).accepted_entries
 
     first = plan_batch_randomization(entries, seed=17)
     second = plan_batch_randomization(entries, seed=17)
@@ -79,7 +103,9 @@ def test_plan_batch_randomization_is_deterministic_and_condition_balanced() -> N
 
 
 def test_build_fractionation_plan_links_samples_fractions_and_run_labels() -> None:
-    entries = parse_experimental_design_table(_local_fixture("fractionated.design.tsv")).accepted_entries
+    entries = parse_experimental_design_table(
+        _local_fixture("fractionated.design.tsv")
+    ).accepted_entries
 
     plan = build_fractionation_plan(entries)
 
@@ -94,7 +120,9 @@ def test_build_fractionation_plan_links_samples_fractions_and_run_labels() -> No
 
 
 def test_plan_multiplex_labeling_reserves_reference_and_qc_channels() -> None:
-    entries = parse_experimental_design_table(_local_fixture("multiplex.design.tsv")).accepted_entries
+    entries = parse_experimental_design_table(
+        _local_fixture("multiplex.design.tsv")
+    ).accepted_entries
 
     plan = plan_multiplex_labeling(
         entries,
@@ -131,7 +159,12 @@ def test_plan_spike_in_qc_samples_inserts_qc_and_spike_in_at_intervals() -> None
         "SPIKE-STD",
         "T3",
     )
-    assert [insertion.role for insertion in plan.insertions] == ["qc", "spike_in", "qc", "spike_in"]
+    assert [insertion.role for insertion in plan.insertions] == [
+        "qc",
+        "spike_in",
+        "qc",
+        "spike_in",
+    ]
 
 
 def test_assess_carryover_risk_flags_high_to_sensitive_transitions() -> None:
@@ -151,7 +184,9 @@ def test_assess_carryover_risk_flags_high_to_sensitive_transitions() -> None:
 
 
 def test_build_lab_protocol_evidence_bundle_collects_protocol_context() -> None:
-    entries = parse_experimental_design_table(_local_fixture("fractionated.design.tsv")).accepted_entries
+    entries = parse_experimental_design_table(
+        _local_fixture("fractionated.design.tsv")
+    ).accepted_entries
     validation = validate_experiment_design(entries, min_replicates=1)
     randomization = plan_batch_randomization(entries, seed=5)
     fractionation = build_fractionation_plan(entries)
@@ -162,7 +197,7 @@ def test_build_lab_protocol_evidence_bundle_collects_protocol_context() -> None:
     )
     carryover = assess_carryover_risk(
         tuple(qc_plan.expanded_run_order),
-        abundance_tiers={sample_id: "medium" for sample_id in qc_plan.expanded_run_order},
+        abundance_tiers=dict.fromkeys(qc_plan.expanded_run_order, "medium"),
     )
 
     bundle = build_lab_protocol_evidence_bundle(

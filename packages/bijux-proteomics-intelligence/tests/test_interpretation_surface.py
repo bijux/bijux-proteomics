@@ -7,52 +7,51 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    FastaParseMode,
+    InstrumentBatchQcReport,
+    InstrumentBatchQcRunEntry,
+    LabelFreeQuantTable,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    ReplicateCorrelationEntry,
+    ReplicateCorrelationReport,
+    SearchResultColumnMapping,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
-    build_instrument_batch_qc_report,
     build_label_free_intensity_table,
     build_lcms_run_qc_report,
     build_ptm_motif_windows,
     build_ptm_site_fdr,
     build_ptm_site_table,
-    build_replicate_correlation_report,
     build_run_qc_assessment,
     build_spectral_count_table,
+    default_qc_threshold_policy,
     estimate_ptm_site_occupancy,
-    FastaParseMode,
-    InstrumentBatchQcReport,
-    InstrumentBatchQcRunEntry,
-    LabelFreeQuantTable,
+    map_ptm_evidence_to_protein_sites,
+    normalize_label_free_table,
     parse_experimental_design_table,
     parse_fasta_document,
     parse_mgf,
     parse_ms1_feature_table,
     parse_psm_tsv,
     parse_ptm_localization_tsv,
-    ReplicateCorrelationEntry,
-    ReplicateCorrelationReport,
-    SearchResultColumnMapping,
-    default_qc_threshold_policy,
-    map_ptm_evidence_to_protein_sites,
-    NormalizationMethod,
-    normalize_label_free_table,
-    QuantEntityLevel,
-    QuantRollupMethod,
 )
+from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_intelligence import (
+    ContrastRejectionReason,
+    MissingnessPatternLabel,
+    ProteinAnnotationAssignment,
+    RankedEntityScore,
     analyze_missingness_patterns,
     build_run_interpretation_summary,
     compute_protein_set_enrichment,
     compute_ranked_enrichment,
-    ContrastRejectionReason,
     explain_outlier_samples,
     extract_biological_themes,
     interpret_contaminant_artifacts,
     interpret_differential_abundance,
     interpret_ptm_sites,
-    MissingnessPatternLabel,
-    ProteinAnnotationAssignment,
-    RankedEntityScore,
     recommend_experimental_contrasts,
 )
 
@@ -62,7 +61,14 @@ def _repo_packages_dir() -> Path:
 
 
 def _core_fixture(package: str, name: str) -> Path:
-    return _repo_packages_dir() / "bijux-proteomics-core" / "tests" / "fixtures" / package / name
+    return (
+        _repo_packages_dir()
+        / "bijux-proteomics-core"
+        / "tests"
+        / "fixtures"
+        / package
+        / name
+    )
 
 
 def _local_fixture(name: str) -> Path:
@@ -74,8 +80,12 @@ def _annotations() -> tuple[ProteinAnnotationAssignment, ...]:
     return tuple(ProteinAnnotationAssignment.model_validate(item) for item in payload)
 
 
-def test_run_interpretation_summary_and_artifact_intelligence_use_real_qc_surface() -> None:
-    design = parse_experimental_design_table(_core_fixture("production_run", "design.tsv")).accepted_entries[0]
+def test_run_interpretation_summary_and_artifact_intelligence_use_real_qc_surface() -> (
+    None
+):
+    design = parse_experimental_design_table(
+        _core_fixture("production_run", "design.tsv")
+    ).accepted_entries[0]
     fasta_report = parse_fasta_document(
         _core_fixture("production_run", "proteins.fasta").read_text(),
         mode=FastaParseMode.STRICT,
@@ -95,7 +105,9 @@ def test_run_interpretation_summary_and_artifact_intelligence_use_real_qc_surfac
             protein_refs="proteins",
         ),
     ).accepted_records
-    features = parse_ms1_feature_table(_core_fixture("production_run", "ms1_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _core_fixture("production_run", "ms1_features.tsv")
+    ).accepted_records
     quant_table = build_label_free_intensity_table(
         features,
         entity_level=QuantEntityLevel.PROTEIN,
@@ -107,20 +119,28 @@ def test_run_interpretation_summary_and_artifact_intelligence_use_real_qc_surfac
         design_entry=design,
         protein_sequences=proteins,
     )
-    assessment = build_run_qc_assessment(run_report, policy=default_qc_threshold_policy())
+    assessment = build_run_qc_assessment(
+        run_report, policy=default_qc_threshold_policy()
+    )
 
-    summary = build_run_interpretation_summary(run_report, assessment, quant_table=quant_table)
+    summary = build_run_interpretation_summary(
+        run_report, assessment, quant_table=quant_table
+    )
     artifacts = interpret_contaminant_artifacts(run_report, assessment)
 
     assert summary.run_id == "spectra"
     assert summary.quantified_entity_count == 1
     assert any(signal.code == "quant-available" for signal in summary.major_signals)
-    assert any(finding.code == "mass-calibration-drift" for finding in artifacts.findings)
+    assert any(
+        finding.code == "mass-calibration-drift" for finding in artifacts.findings
+    )
 
 
 def test_differential_interpretation_and_theme_extraction_surface_signal() -> None:
     feature_report = parse_ms1_feature_table(_core_fixture("quant", "ms1_features.tsv"))
-    design_report = parse_experimental_design_table(_core_fixture("quant", "quant.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    )
     table = normalize_label_free_table(
         build_label_free_intensity_table(
             feature_report.accepted_records,
@@ -154,19 +174,31 @@ def test_differential_interpretation_and_theme_extraction_surface_signal() -> No
     assert themes.themes[0].term_name == "MAPK signaling"
 
 
-def test_ptm_interpretation_surfaces_changed_sites_motifs_and_kinase_advisories() -> None:
-    evidence = parse_ptm_localization_tsv(_core_fixture("ptm", "localization_results.tsv"))
+def test_ptm_interpretation_surfaces_changed_sites_motifs_and_kinase_advisories() -> (
+    None
+):
+    evidence = parse_ptm_localization_tsv(
+        _core_fixture("ptm", "localization_results.tsv")
+    )
     fasta = parse_fasta_document(
         _core_fixture("fasta", "ptm_sites.fasta").read_text(),
         mode=FastaParseMode.STRICT,
     )
-    proteins = {record.canonical_accession: record.residues for record in fasta.accepted_records}
-    mappings = map_ptm_evidence_to_protein_sites(evidence.accepted_records, protein_sequences=proteins)
+    proteins = {
+        record.canonical_accession: record.residues for record in fasta.accepted_records
+    }
+    mappings = map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records, protein_sequences=proteins
+    )
     site_table = build_ptm_site_table(mappings)
     fdr = build_ptm_site_fdr(site_table, threshold=0.1)
-    motifs = build_ptm_motif_windows(site_table, protein_sequences=proteins, flank_size=3)
+    motifs = build_ptm_motif_windows(
+        site_table, protein_sequences=proteins, flank_size=3
+    )
     features = parse_ms1_feature_table(_core_fixture("ptm", "ptm_features.tsv"))
-    occupancy = estimate_ptm_site_occupancy(site_table, feature_records=features.accepted_records)
+    occupancy = estimate_ptm_site_occupancy(
+        site_table, feature_records=features.accepted_records
+    )
 
     report = interpret_ptm_sites(
         site_table,
@@ -181,9 +213,15 @@ def test_ptm_interpretation_surfaces_changed_sites_motifs_and_kinase_advisories(
     assert "ERK substrate program" in report.advisory_kinases
 
 
-def test_experimental_contrast_recommender_distinguishes_valid_and_confounded_pairs() -> None:
-    valid_design = parse_experimental_design_table(_core_fixture("quant", "quant.design.tsv"))
-    confounded_design = parse_experimental_design_table(_local_fixture("confounded.design.tsv"))
+def test_experimental_contrast_recommender_distinguishes_valid_and_confounded_pairs() -> (
+    None
+):
+    valid_design = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    )
+    confounded_design = parse_experimental_design_table(
+        _local_fixture("confounded.design.tsv")
+    )
 
     valid = recommend_experimental_contrasts(valid_design.accepted_entries)
     rejected = recommend_experimental_contrasts(confounded_design.accepted_entries)
@@ -191,12 +229,19 @@ def test_experimental_contrast_recommender_distinguishes_valid_and_confounded_pa
     assert len(valid.valid_contrasts) == 1
     assert valid.valid_contrasts[0].condition_a == "control"
     assert len(rejected.rejected_contrasts) == 1
-    assert ContrastRejectionReason.BATCH_CONFOUNDED in rejected.rejected_contrasts[0].rejection_reasons
+    assert (
+        ContrastRejectionReason.BATCH_CONFOUNDED
+        in rejected.rejected_contrasts[0].rejection_reasons
+    )
 
 
-def test_missingness_pattern_analysis_classifies_filtered_and_condition_linked_cases() -> None:
+def test_missingness_pattern_analysis_classifies_filtered_and_condition_linked_cases() -> (
+    None
+):
     feature_report = parse_ms1_feature_table(_core_fixture("quant", "ms1_features.tsv"))
-    design_report = parse_experimental_design_table(_core_fixture("quant", "quant.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    )
     table: LabelFreeQuantTable = build_spectral_count_table(
         feature_report.accepted_records,
         entity_level=QuantEntityLevel.PEPTIDE,
@@ -211,7 +256,12 @@ def test_missingness_pattern_analysis_classifies_filtered_and_condition_linked_c
 
 def test_outlier_sample_explainer_uses_batch_and_correlation_signals() -> None:
     batch_report = InstrumentBatchQcReport(
-        document_schema={"created_by": "test", "document_kind": "instrument_batch_qc_report", "package_name": "test", "status": "generated"},
+        document_schema=DocumentSchema(
+            created_by="test",
+            document_kind="instrument_batch_qc_report",
+            package_name="test",
+            status="generated",
+        ),
         batch_id="batch-z",
         instrument="orbitrap-z",
         run_count=3,
@@ -292,7 +342,9 @@ def test_outlier_sample_explainer_uses_batch_and_correlation_signals() -> None:
     assert "low_replicate_correlation" in by_sample["T2"].reasons
 
 
-def test_protein_set_and_ranked_enrichment_reports_are_ordered_and_deterministic() -> None:
+def test_protein_set_and_ranked_enrichment_reports_are_ordered_and_deterministic() -> (
+    None
+):
     annotations = _annotations()
     overrepresentation = compute_protein_set_enrichment(
         ("P001", "P003"),

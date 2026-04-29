@@ -5,27 +5,27 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 import hashlib
 import json
-from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import (
-    build_calibration_plot_data,
-    build_fdr_audit_trail,
-    FdrAuditTrail,
     CalibrationPlotData,
-    normalize_psm_score_orientation,
-    normalize_psm_records,
-    parse_psm_tsv,
+    FdrAuditTrail,
     PsmParseReport,
     PsmRecord,
     SearchResultColumnMapping,
     SearchResultProvenanceManifest,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
+    build_calibration_plot_data,
+    build_fdr_audit_trail,
+    normalize_psm_records,
+    normalize_psm_score_orientation,
+    parse_psm_tsv,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -67,7 +67,9 @@ class SearchAdapterManifest(JsonModel):
     score_orientation: ScoreOrientation
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     mapping: SearchResultColumnMapping | None = None
-    default_decoy_policy: TargetDecoyLabelPolicy = Field(default_factory=TargetDecoyLabelPolicy)
+    default_decoy_policy: TargetDecoyLabelPolicy = Field(
+        default_factory=TargetDecoyLabelPolicy
+    )
     supported_extensions: tuple[str, ...] = Field(default_factory=tuple)
     supports_q_value: bool = False
     supports_explicit_decoy_label: bool = False
@@ -145,8 +147,12 @@ class SearchParameterReport(JsonModel):
     database_path: str | None = None
     decoy_prefix: str | None = None
     has_decoy_strategy: bool = False
-    fixed_modifications: tuple[SearchModificationDefinition, ...] = Field(default_factory=tuple)
-    variable_modifications: tuple[SearchModificationDefinition, ...] = Field(default_factory=tuple)
+    fixed_modifications: tuple[SearchModificationDefinition, ...] = Field(
+        default_factory=tuple
+    )
+    variable_modifications: tuple[SearchModificationDefinition, ...] = Field(
+        default_factory=tuple
+    )
     raw_fields: dict[str, str] = Field(default_factory=dict)
 
 
@@ -219,7 +225,14 @@ _COMET_MANIFEST = SearchAdapterManifest(
     display_name="Comet",
     description="Normalize Comet-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.LOWER_BETTER,
-    native_columns=("scan", "plain_peptide", "charge", "expect", "protein", "target_decoy"),
+    native_columns=(
+        "scan",
+        "plain_peptide",
+        "charge",
+        "expect",
+        "protein",
+        "target_decoy",
+    ),
     mapping=SearchResultColumnMapping(
         spectrum_id="scan",
         peptide="plain_peptide",
@@ -244,7 +257,14 @@ _MSFRAGGER_MANIFEST = SearchAdapterManifest(
     display_name="MSFragger",
     description="Normalize MSFragger-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
-    native_columns=("Spectrum", "Peptide", "Charge", "Hyperscore", "Protein", "IsDecoy"),
+    native_columns=(
+        "Spectrum",
+        "Peptide",
+        "Charge",
+        "Hyperscore",
+        "Protein",
+        "IsDecoy",
+    ),
     mapping=SearchResultColumnMapping(
         spectrum_id="Spectrum",
         peptide="Peptide",
@@ -269,7 +289,15 @@ _SAGE_MANIFEST = SearchAdapterManifest(
     display_name="Sage",
     description="Normalize Sage-like tabular search outputs into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
-    native_columns=("scannr", "peptide", "charge", "discriminant_score", "proteins", "label", "q_value"),
+    native_columns=(
+        "scannr",
+        "peptide",
+        "charge",
+        "discriminant_score",
+        "proteins",
+        "label",
+        "q_value",
+    ),
     mapping=SearchResultColumnMapping(
         spectrum_id="scannr",
         peptide="peptide",
@@ -296,7 +324,15 @@ _MAXQUANT_MANIFEST = SearchAdapterManifest(
     display_name="MaxQuant evidence",
     description="Normalize MaxQuant evidence-like tables into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
-    native_columns=("MS/MS scan number", "Modified sequence", "Charge", "Score", "Proteins", "Reverse", "PEP"),
+    native_columns=(
+        "MS/MS scan number",
+        "Modified sequence",
+        "Charge",
+        "Score",
+        "Proteins",
+        "Reverse",
+        "PEP",
+    ),
     mapping=SearchResultColumnMapping(
         spectrum_id="MS/MS scan number",
         peptide="Modified sequence",
@@ -323,7 +359,14 @@ _DIANN_MANIFEST = SearchAdapterManifest(
     display_name="DIA-NN",
     description="Normalize DIA-NN report-style tables into stable PSM-like records.",
     score_orientation=ScoreOrientation.LOWER_BETTER,
-    native_columns=("Precursor.Id", "Stripped.Sequence", "Precursor.Charge", "Q.Value", "Protein.Ids", "Decoy"),
+    native_columns=(
+        "Precursor.Id",
+        "Stripped.Sequence",
+        "Precursor.Charge",
+        "Q.Value",
+        "Protein.Ids",
+        "Decoy",
+    ),
     mapping=SearchResultColumnMapping(
         spectrum_id="Precursor.Id",
         peptide="Stripped.Sequence",
@@ -350,7 +393,14 @@ _SPECTRONAUT_MANIFEST = SearchAdapterManifest(
     display_name="Spectronaut",
     description="Normalize Spectronaut-like tables into stable PSM-like records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
-    native_columns=("EG.PrecursorId", "PEP.StrippedSequence", "FG.Charge", "EG.Cscore", "PG.ProteinAccessions", "EG.IsDecoy"),
+    native_columns=(
+        "EG.PrecursorId",
+        "PEP.StrippedSequence",
+        "FG.Charge",
+        "EG.Cscore",
+        "PG.ProteinAccessions",
+        "EG.IsDecoy",
+    ),
     mapping=SearchResultColumnMapping(
         spectrum_id="EG.PrecursorId",
         peptide="PEP.StrippedSequence",
@@ -375,7 +425,7 @@ _GENERIC_MANIFEST = SearchAdapterManifest(
     display_name="Generic search table",
     description="Normalize a user-mapped generic search-result table into stable PSM records.",
     score_orientation=ScoreOrientation.HIGHER_BETTER,
-    native_columns=tuple(),
+    native_columns=(),
     mapping=None,
     default_decoy_policy=TargetDecoyLabelPolicy(),
     supported_extensions=(".tsv", ".txt"),
@@ -400,7 +450,9 @@ def search_adapter_registry() -> dict[SearchAdapterKind, SearchAdapterManifest]:
     return {manifest.adapter_kind: manifest for manifest in manifests}
 
 
-def get_search_adapter_manifest(adapter_kind: SearchAdapterKind) -> SearchAdapterManifest:
+def get_search_adapter_manifest(
+    adapter_kind: SearchAdapterKind,
+) -> SearchAdapterManifest:
     """Fetch one built-in adapter manifest."""
     return search_adapter_registry()[adapter_kind]
 
@@ -465,7 +517,9 @@ def _parse_key_value_parameters(path: Path) -> dict[str, str]:
     return fields
 
 
-def _fixed_modifications_from_fields(fields: dict[str, str]) -> tuple[SearchModificationDefinition, ...]:
+def _fixed_modifications_from_fields(
+    fields: dict[str, str],
+) -> tuple[SearchModificationDefinition, ...]:
     definitions: list[SearchModificationDefinition] = []
     for key, value in sorted(fields.items()):
         if not key.startswith("add_"):
@@ -491,7 +545,9 @@ def _fixed_modifications_from_fields(fields: dict[str, str]) -> tuple[SearchModi
     return tuple(definitions)
 
 
-def _variable_modifications_from_key_value_fields(fields: dict[str, str]) -> tuple[SearchModificationDefinition, ...]:
+def _variable_modifications_from_key_value_fields(
+    fields: dict[str, str],
+) -> tuple[SearchModificationDefinition, ...]:
     definitions: list[SearchModificationDefinition] = []
     for key, value in sorted(fields.items()):
         if not key.startswith("variable_mod"):
@@ -517,22 +573,38 @@ def _variable_modifications_from_key_value_fields(fields: dict[str, str]) -> tup
 
 def _parse_comet_parameters(path: Path) -> SearchParameterReport:
     fields = _parse_key_value_parameters(path)
-    precursor_units = SearchToleranceUnit.PPM if fields.get("peptide_mass_units") == "2" else SearchToleranceUnit.DA
-    enzyme = _COMET_ENZYME_BY_NUMBER.get(fields.get("search_enzyme_number", "").strip(), fields.get("search_enzyme_name", "unknown").strip().lower())
+    precursor_units = (
+        SearchToleranceUnit.PPM
+        if fields.get("peptide_mass_units") == "2"
+        else SearchToleranceUnit.DA
+    )
+    enzyme = _COMET_ENZYME_BY_NUMBER.get(
+        fields.get("search_enzyme_number", "").strip(),
+        fields.get("search_enzyme_name", "unknown").strip().lower(),
+    )
     database_path = fields.get("database_name")
     decoy_search = fields.get("decoy_search", "0").strip() in {"1", "true", "yes"}
     return SearchParameterReport(
         adapter_kind=SearchAdapterKind.COMET,
         adapter_name="Comet",
         enzyme=enzyme,
-        missed_cleavages=int(fields["allowed_missed_cleavage"]) if fields.get("allowed_missed_cleavage") else None,
-        precursor_tolerance=float(fields["peptide_mass_tolerance"]) if fields.get("peptide_mass_tolerance") else None,
+        missed_cleavages=int(fields["allowed_missed_cleavage"])
+        if fields.get("allowed_missed_cleavage")
+        else None,
+        precursor_tolerance=float(fields["peptide_mass_tolerance"])
+        if fields.get("peptide_mass_tolerance")
+        else None,
         precursor_tolerance_unit=precursor_units,
-        fragment_tolerance=float(fields["fragment_bin_tol"]) if fields.get("fragment_bin_tol") else None,
-        fragment_tolerance_unit=SearchToleranceUnit.DA if fields.get("fragment_bin_tol") else None,
+        fragment_tolerance=float(fields["fragment_bin_tol"])
+        if fields.get("fragment_bin_tol")
+        else None,
+        fragment_tolerance_unit=SearchToleranceUnit.DA
+        if fields.get("fragment_bin_tol")
+        else None,
         database_path=database_path,
         decoy_prefix="DECOY_" if decoy_search else None,
-        has_decoy_strategy=decoy_search or bool(database_path and "decoy" in database_path.lower()),
+        has_decoy_strategy=decoy_search
+        or bool(database_path and "decoy" in database_path.lower()),
         fixed_modifications=_fixed_modifications_from_fields(fields),
         variable_modifications=_variable_modifications_from_key_value_fields(fields),
         raw_fields=fields,
@@ -541,25 +613,54 @@ def _parse_comet_parameters(path: Path) -> SearchParameterReport:
 
 def _parse_msfragger_parameters(path: Path) -> SearchParameterReport:
     fields = _parse_key_value_parameters(path)
-    precursor_unit = SearchToleranceUnit.PPM if fields.get("precursor_mass_units") == "1" else SearchToleranceUnit.DA
-    fragment_unit = SearchToleranceUnit.PPM if fields.get("fragment_mass_units") == "1" else SearchToleranceUnit.DA
-    lower = abs(float(fields["precursor_mass_lower"])) if fields.get("precursor_mass_lower") else None
-    upper = abs(float(fields["precursor_mass_upper"])) if fields.get("precursor_mass_upper") else None
-    precursor_tolerance = max(lower or 0.0, upper or 0.0) if lower is not None or upper is not None else None
+    precursor_unit = (
+        SearchToleranceUnit.PPM
+        if fields.get("precursor_mass_units") == "1"
+        else SearchToleranceUnit.DA
+    )
+    fragment_unit = (
+        SearchToleranceUnit.PPM
+        if fields.get("fragment_mass_units") == "1"
+        else SearchToleranceUnit.DA
+    )
+    lower = (
+        abs(float(fields["precursor_mass_lower"]))
+        if fields.get("precursor_mass_lower")
+        else None
+    )
+    upper = (
+        abs(float(fields["precursor_mass_upper"]))
+        if fields.get("precursor_mass_upper")
+        else None
+    )
+    precursor_tolerance = (
+        max(lower or 0.0, upper or 0.0)
+        if lower is not None or upper is not None
+        else None
+    )
     database_path = fields.get("database_name")
     decoy_prefix = fields.get("decoy_prefix")
     return SearchParameterReport(
         adapter_kind=SearchAdapterKind.MSFRAGGER,
         adapter_name="MSFragger",
         enzyme=fields.get("search_enzyme_name", "unknown").strip().lower(),
-        missed_cleavages=int(fields["allowed_missed_cleavage"]) if fields.get("allowed_missed_cleavage") else None,
+        missed_cleavages=int(fields["allowed_missed_cleavage"])
+        if fields.get("allowed_missed_cleavage")
+        else None,
         precursor_tolerance=precursor_tolerance,
-        precursor_tolerance_unit=precursor_unit if precursor_tolerance is not None else None,
-        fragment_tolerance=float(fields["fragment_mass_tolerance"]) if fields.get("fragment_mass_tolerance") else None,
-        fragment_tolerance_unit=fragment_unit if fields.get("fragment_mass_tolerance") else None,
+        precursor_tolerance_unit=precursor_unit
+        if precursor_tolerance is not None
+        else None,
+        fragment_tolerance=float(fields["fragment_mass_tolerance"])
+        if fields.get("fragment_mass_tolerance")
+        else None,
+        fragment_tolerance_unit=fragment_unit
+        if fields.get("fragment_mass_tolerance")
+        else None,
         database_path=database_path,
         decoy_prefix=decoy_prefix,
-        has_decoy_strategy=bool(decoy_prefix) or bool(database_path and "decoy" in database_path.lower()),
+        has_decoy_strategy=bool(decoy_prefix)
+        or bool(database_path and "decoy" in database_path.lower()),
         fixed_modifications=_fixed_modifications_from_fields(fields),
         variable_modifications=_variable_modifications_from_key_value_fields(fields),
         raw_fields=fields,
@@ -592,25 +693,51 @@ def _parse_sage_parameters(path: Path) -> SearchParameterReport:
         for site, deltas in sorted((mods_payload.get("variable") or {}).items())
         for mass_delta in deltas
     )
-    precursor_unit = SearchToleranceUnit.PPM if "ppm" in precursor_payload else SearchToleranceUnit.DA if "da" in precursor_payload else None
-    fragment_unit = SearchToleranceUnit.PPM if "ppm" in fragment_payload else SearchToleranceUnit.DA if "da" in fragment_payload else None
+    precursor_unit = (
+        SearchToleranceUnit.PPM
+        if "ppm" in precursor_payload
+        else SearchToleranceUnit.DA
+        if "da" in precursor_payload
+        else None
+    )
+    fragment_unit = (
+        SearchToleranceUnit.PPM
+        if "ppm" in fragment_payload
+        else SearchToleranceUnit.DA
+        if "da" in fragment_payload
+        else None
+    )
     database_path = database_payload.get("fasta")
     decoy_prefix = database_payload.get("decoy_tag")
     return SearchParameterReport(
         adapter_kind=SearchAdapterKind.SAGE,
         adapter_name="Sage",
         enzyme=str(enzyme_payload.get("name", "unknown")).strip().lower(),
-        missed_cleavages=int(enzyme_payload["missed_cleavages"]) if enzyme_payload.get("missed_cleavages") is not None else None,
-        precursor_tolerance=float(precursor_payload.get("ppm", precursor_payload.get("da"))) if precursor_unit is not None else None,
+        missed_cleavages=int(enzyme_payload["missed_cleavages"])
+        if enzyme_payload.get("missed_cleavages") is not None
+        else None,
+        precursor_tolerance=float(
+            precursor_payload.get("ppm", precursor_payload.get("da"))
+        )
+        if precursor_unit is not None
+        else None,
         precursor_tolerance_unit=precursor_unit,
-        fragment_tolerance=float(fragment_payload.get("ppm", fragment_payload.get("da"))) if fragment_unit is not None else None,
+        fragment_tolerance=float(
+            fragment_payload.get("ppm", fragment_payload.get("da"))
+        )
+        if fragment_unit is not None
+        else None,
         fragment_tolerance_unit=fragment_unit,
         database_path=database_path,
         decoy_prefix=decoy_prefix,
-        has_decoy_strategy=bool(decoy_prefix) or bool(database_path and "decoy" in database_path.lower()),
+        has_decoy_strategy=bool(decoy_prefix)
+        or bool(database_path and "decoy" in database_path.lower()),
         fixed_modifications=fixed_definitions,
         variable_modifications=variable_definitions,
-        raw_fields={key: json.dumps(value, sort_keys=True) for key, value in sorted(payload.items())},
+        raw_fields={
+            key: json.dumps(value, sort_keys=True)
+            for key, value in sorted(payload.items())
+        },
     )
 
 
@@ -631,7 +758,9 @@ def parse_search_parameter_file(
     )
 
 
-def validate_search_parameters(parameters: SearchParameterReport) -> SearchConfigValidationReport:
+def validate_search_parameters(
+    parameters: SearchParameterReport,
+) -> SearchConfigValidationReport:
     """Validate one parsed search-engine configuration."""
     issues: list[SearchConfigValidationIssue] = []
     if parameters.enzyme not in _SUPPORTED_ENZYMES:
@@ -721,7 +850,11 @@ def _build_parse_provenance(
         fdr_policy=None,
     )
     return manifest.model_copy(
-        update={"document_schema": manifest.document_schema.with_content_hash(manifest.to_dict())}
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(
+                manifest.to_dict()
+            )
+        }
     )
 
 
@@ -736,7 +869,9 @@ def normalize_search_results_with_adapter(
     manifest = get_search_adapter_manifest(adapter_kind)
     resolved_mapping = mapping or manifest.mapping
     if resolved_mapping is None:
-        raise ValueError("generic adapter normalization requires an explicit column mapping")
+        raise ValueError(
+            "generic adapter normalization requires an explicit column mapping"
+        )
     parse_report = parse_psm_tsv(
         source_path,
         mapping=resolved_mapping,
@@ -795,8 +930,12 @@ def compare_search_result_reports(
             exact_match_count += 1
         if left_record.target_decoy_label is not right_record.target_decoy_label:
             label_conflict_count += 1
-        left_score = left_normalized.get((left_record.spectrum_id, left_record.canonical_peptide), 0.0)
-        right_score = right_normalized.get((right_record.spectrum_id, right_record.canonical_peptide), 0.0)
+        left_score = left_normalized.get(
+            (left_record.spectrum_id, left_record.canonical_peptide), 0.0
+        )
+        right_score = right_normalized.get(
+            (right_record.spectrum_id, right_record.canonical_peptide), 0.0
+        )
         total_score_delta += abs(left_score - right_score)
     shared_count = len(shared_spectra)
     return SearchResultComparabilityReport(
@@ -810,8 +949,12 @@ def compare_search_result_reports(
         shared_peptide_count=len(shared_peptides),
         exact_match_count=exact_match_count,
         label_conflict_count=label_conflict_count,
-        peptide_agreement_fraction=exact_match_count / shared_count if shared_count else 0.0,
-        mean_normalized_score_delta=total_score_delta / shared_count if shared_count else 0.0,
+        peptide_agreement_fraction=exact_match_count / shared_count
+        if shared_count
+        else 0.0,
+        mean_normalized_score_delta=total_score_delta / shared_count
+        if shared_count
+        else 0.0,
     )
 
 
@@ -823,19 +966,25 @@ def build_search_adapter_conformance_report(
     rejection_issue_counts: dict[str, int] = {}
     for rejected in normalization_report.parse_report.rejected_rows:
         for issue in rejected.issues:
-            rejection_issue_counts[issue.code] = rejection_issue_counts.get(issue.code, 0) + 1
+            rejection_issue_counts[issue.code] = (
+                rejection_issue_counts.get(issue.code, 0) + 1
+            )
 
     checks = [
         SearchAdapterConformanceCheck(
             code="stable_normalized_order",
-            passed=normalization_report.normalized_records == normalize_psm_records(normalization_report.normalized_records),
+            passed=normalization_report.normalized_records
+            == normalize_psm_records(normalization_report.normalized_records),
             detail="normalized output order matches the shared stable PSM ordering",
         ),
         SearchAdapterConformanceCheck(
             code="q_value_contract",
             passed=(
                 not manifest.supports_q_value
-                or all(record.q_value is not None for record in normalization_report.normalized_records)
+                or all(
+                    record.q_value is not None
+                    for record in normalization_report.normalized_records
+                )
             ),
             detail="q-value-supporting adapters must emit q-values for accepted records",
         ),
@@ -843,7 +992,10 @@ def build_search_adapter_conformance_report(
             code="explicit_decoy_contract",
             passed=(
                 not manifest.supports_explicit_decoy_label
-                or all(record.target_decoy_label is not TargetDecoyLabel.UNKNOWN for record in normalization_report.normalized_records)
+                or all(
+                    record.target_decoy_label is not TargetDecoyLabel.UNKNOWN
+                    for record in normalization_report.normalized_records
+                )
             ),
             detail="explicit-decoy adapters must not leave accepted rows with unknown labels",
         ),
@@ -851,7 +1003,10 @@ def build_search_adapter_conformance_report(
             code="protein_reference_contract",
             passed=(
                 not manifest.supports_protein_refs
-                or all(record.protein_refs for record in normalization_report.normalized_records)
+                or all(
+                    record.protein_refs
+                    for record in normalization_report.normalized_records
+                )
             ),
             detail="protein-aware adapters must emit at least one protein reference per accepted row",
         ),
@@ -919,5 +1074,9 @@ def build_search_adapter_provenance_manifest(
         parse_provenance=parse_provenance,
     )
     return manifest.model_copy(
-        update={"document_schema": manifest.document_schema.with_content_hash(manifest.to_dict())}
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(
+                manifest.to_dict()
+            )
+        }
     )

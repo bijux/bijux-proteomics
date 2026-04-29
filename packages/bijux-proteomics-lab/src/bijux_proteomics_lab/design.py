@@ -104,7 +104,9 @@ class ContrastRecommendation(JsonModel):
     valid: bool
     replicate_counts: dict[str, int] = Field(default_factory=dict)
     shared_batches: tuple[str, ...] = Field(default_factory=tuple)
-    rejection_reasons: tuple[ContrastRejectionReason, ...] = Field(default_factory=tuple)
+    rejection_reasons: tuple[ContrastRejectionReason, ...] = Field(
+        default_factory=tuple
+    )
     rationale: str = Field(..., min_length=1)
 
 
@@ -120,7 +122,9 @@ class ExperimentDesignValidationReport(JsonModel):
     condition_count: int = Field(..., ge=0)
     fraction_count: int = Field(..., ge=0)
     valid_contrasts: tuple[ContrastRecommendation, ...] = Field(default_factory=tuple)
-    rejected_contrasts: tuple[ContrastRecommendation, ...] = Field(default_factory=tuple)
+    rejected_contrasts: tuple[ContrastRecommendation, ...] = Field(
+        default_factory=tuple
+    )
     issues: tuple[ExperimentDesignValidationIssue, ...] = Field(default_factory=tuple)
     interpretation_summary: str = Field(..., min_length=1)
 
@@ -285,7 +289,7 @@ def _shared_batches(
 ) -> tuple[str, ...]:
     left_batches = {entry.batch for entry in left_entries if entry.batch}
     right_batches = {entry.batch for entry in right_entries if entry.batch}
-    return tuple(sorted((left_batches & right_batches)))
+    return tuple(sorted(left_batches & right_batches))
 
 
 def validate_experiment_design(
@@ -343,7 +347,10 @@ def validate_experiment_design(
             right_entries = grouped[right]
             shared_batches = _shared_batches(left_entries, right_entries)
             reasons: list[ContrastRejectionReason] = []
-            if len(left_entries) < min_replicates or len(right_entries) < min_replicates:
+            if (
+                len(left_entries) < min_replicates
+                or len(right_entries) < min_replicates
+            ):
                 reasons.append(ContrastRejectionReason.INSUFFICIENT_REPLICATES)
             left_batches = {entry.batch for entry in left_entries if entry.batch}
             right_batches = {entry.batch for entry in right_entries if entry.batch}
@@ -381,9 +388,13 @@ def validate_experiment_design(
                             conditions=(left, right),
                         )
                     )
-    condition_summary = ", ".join(
-        f"{condition}={count}" for condition, count in sorted(_replicate_counts(entries).items())
-    ) or "no conditions"
+    condition_summary = (
+        ", ".join(
+            f"{condition}={count}"
+            for condition, count in sorted(_replicate_counts(entries).items())
+        )
+        or "no conditions"
+    )
     return ExperimentDesignValidationReport(
         sample_count=len({entry.sample_id for entry in entries}),
         condition_count=len(conditions),
@@ -415,8 +426,12 @@ def build_power_analysis_advisory(
     normal = NormalDist()
     z_alpha = normal.inv_cdf(1.0 - alpha / 2.0)
     z_beta = normal.inv_cdf(target_power)
-    recommended = max(2, math.ceil(2.0 * ((z_alpha + z_beta) ** 2) / (standardized_effect_size**2)))
-    estimated = normal.cdf(math.sqrt(current_n / 2.0) * standardized_effect_size - z_alpha)
+    recommended = max(
+        2, math.ceil(2.0 * ((z_alpha + z_beta) ** 2) / (standardized_effect_size**2))
+    )
+    estimated = normal.cdf(
+        math.sqrt(current_n / 2.0) * standardized_effect_size - z_alpha
+    )
     return PowerAnalysisAdvisory(
         condition_a=condition_a,
         condition_b=condition_b,
@@ -454,7 +469,9 @@ def plan_batch_randomization(
         condition_order = sorted(per_condition)
         previous_condition: str | None = None
         while any(per_condition.values()):
-            available = [condition for condition in condition_order if per_condition[condition]]
+            available = [
+                condition for condition in condition_order if per_condition[condition]
+            ]
             available.sort(
                 key=lambda condition: (
                     condition == previous_condition,
@@ -499,7 +516,9 @@ def build_fractionation_plan(
             run_label=f"{entry.sample_id}-f{entry.fraction:02d}",
             spectra_file=entry.spectra_file,
         )
-        for entry in sorted(entries, key=lambda item: (item.sample_id, item.fraction, item.spectra_file))
+        for entry in sorted(
+            entries, key=lambda item: (item.sample_id, item.fraction, item.spectra_file)
+        )
     )
     return FractionationPlan(
         sample_count=len({entry.sample_id for entry in entries}),
@@ -517,11 +536,17 @@ def plan_multiplex_labeling(
     qc_bridge_channel: str | None = None,
 ) -> MultiplexLabelingPlan:
     """Assign samples to multiplex channels while balancing conditions."""
-    reserved_channels = {channel for channel in (pooled_reference_channel, qc_bridge_channel) if channel}
-    sample_channels = [channel for channel in channels if channel not in reserved_channels]
+    reserved_channels = {
+        channel for channel in (pooled_reference_channel, qc_bridge_channel) if channel
+    }
+    sample_channels = [
+        channel for channel in channels if channel not in reserved_channels
+    ]
     unique_entries: list[ExperimentalDesignEntry] = []
     seen_samples: set[str] = set()
-    for entry in sorted(entries, key=lambda item: (item.condition, item.sample_id, item.fraction)):
+    for entry in sorted(
+        entries, key=lambda item: (item.condition, item.sample_id, item.fraction)
+    ):
         if entry.sample_id not in seen_samples:
             unique_entries.append(entry)
             seen_samples.add(entry.sample_id)
@@ -533,7 +558,9 @@ def plan_multiplex_labeling(
     assignments: list[MultiplexChannelAssignment] = []
     queue: list[ExperimentalDesignEntry] = []
     while any(per_condition.values()):
-        for condition in sorted(per_condition, key=lambda key: (-len(per_condition[key]), key)):
+        for condition in sorted(
+            per_condition, key=lambda key: (-len(per_condition[key]), key)
+        ):
             if per_condition[condition]:
                 queue.append(per_condition[condition].pop(0))
     for channel, entry in zip(sample_channels, queue, strict=False):
@@ -564,9 +591,17 @@ def plan_multiplex_labeling(
         )
     assignments.sort(key=lambda item: channels.index(item.channel))
     condition_counts = dict(
-        Counter(assignment.condition for assignment in assignments if assignment.condition is not None)
+        Counter(
+            assignment.condition
+            for assignment in assignments
+            if assignment.condition is not None
+        )
     )
-    spread = 0 if not condition_counts else max(condition_counts.values()) - min(condition_counts.values())
+    spread = (
+        0
+        if not condition_counts
+        else max(condition_counts.values()) - min(condition_counts.values())
+    )
     return MultiplexLabelingPlan(
         plex_size=len(channels),
         assignments=tuple(assignments),

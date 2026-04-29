@@ -8,19 +8,19 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    FastaParseMode,
+    SearchResultColumnMapping,
     annotate_spectrum_fragments,
     apply_q_values,
     build_protein_summary_report,
     build_psm_summary_report,
     build_spectrum_collection_summary,
     digest_protein_records,
-    FastaParseMode,
     filter_psms_by_fdr,
     get_protease_rule,
     parse_fasta_document,
     parse_mgf,
     parse_psm_tsv,
-    SearchResultColumnMapping,
 )
 
 

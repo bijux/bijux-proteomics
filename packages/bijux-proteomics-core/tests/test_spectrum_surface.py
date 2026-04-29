@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    PeakNormalizationPolicy,
+    SpectralSimilarityMethod,
     annotate_spectrum_fragments,
     build_spectrum_collection_summary,
     build_spectrum_metrics,
@@ -18,9 +20,7 @@ from bijux_proteomics import (
     filter_spectrum_peaks,
     normalize_spectrum_peaks,
     parse_mgf,
-    PeakNormalizationPolicy,
     render_mgf,
-    SpectralSimilarityMethod,
 )
 
 
@@ -50,11 +50,7 @@ def test_mgf_parser_accepts_multi_block_and_rejects_malformed_fixture() -> None:
     assert accepted.accepted_spectra[1].title is None
     assert len(rejected.accepted_spectra) == 0
     assert len(rejected.rejected_blocks) == 2
-    codes = {
-        issue.code
-        for block in rejected.rejected_blocks
-        for issue in block.issues
-    }
+    codes = {issue.code for block in rejected.rejected_blocks for issue in block.issues}
     assert "missing_precursor_mz" in codes
     assert "invalid_pepmass" in codes
     assert "invalid_peak_value" in codes
@@ -66,7 +62,10 @@ def test_mgf_parser_accepts_multi_block_and_rejects_malformed_fixture() -> None:
         if issue.code == "invalid_pepmass"
     )
     assert invalid_pepmass_issue.field == "PEPMASS"
-    assert invalid_pepmass_issue.line_number is None or invalid_pepmass_issue.line_number >= 1
+    assert (
+        invalid_pepmass_issue.line_number is None
+        or invalid_pepmass_issue.line_number >= 1
+    )
 
 
 def test_mgf_writer_roundtrip_preserves_spectrum_contracts() -> None:
@@ -77,7 +76,10 @@ def test_mgf_writer_roundtrip_preserves_spectrum_contracts() -> None:
         output_path.write_text(rendered)
         roundtrip = parse_mgf(output_path)
         assert len(roundtrip.accepted_spectra) == 2
-        assert roundtrip.accepted_spectra[0].precursor_mz == report.accepted_spectra[0].precursor_mz
+        assert (
+            roundtrip.accepted_spectra[0].precursor_mz
+            == report.accepted_spectra[0].precursor_mz
+        )
         assert roundtrip.accepted_spectra[1].precursor_charge == 3
     finally:
         output_path.unlink(missing_ok=True)
@@ -90,14 +92,20 @@ def test_spectrum_peak_normalization_sorts_merges_duplicates_and_drops_zero() ->
         policy=PeakNormalizationPolicy(merge_tolerance_da=0.0),
     )
 
-    assert [peak.mz for peak in normalized.peaks] == sorted(peak.mz for peak in normalized.peaks)
+    assert [peak.mz for peak in normalized.peaks] == sorted(
+        peak.mz for peak in normalized.peaks
+    )
     assert len(normalized.peaks) == 4
-    duplicate_peak = next(peak for peak in normalized.peaks if abs(peak.mz - 150.0) < 1e-9)
+    duplicate_peak = next(
+        peak for peak in normalized.peaks if abs(peak.mz - 150.0) < 1e-9
+    )
     assert duplicate_peak.intensity == 45.0
 
 
 def test_spectrum_filtering_supports_top_n_intensity_and_mz_window() -> None:
-    spectrum = normalize_spectrum_peaks(parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0])
+    spectrum = normalize_spectrum_peaks(
+        parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
+    )
     report = filter_spectrum_peaks(
         spectrum,
         top_n=2,
@@ -114,7 +122,9 @@ def test_spectrum_filtering_supports_top_n_intensity_and_mz_window() -> None:
 
 
 def test_spectrum_metrics_cover_tic_and_base_peak() -> None:
-    spectrum = normalize_spectrum_peaks(parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0])
+    spectrum = normalize_spectrum_peaks(
+        parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
+    )
     metrics = build_spectrum_metrics(spectrum)
 
     assert metrics.peak_count == 4
@@ -131,7 +141,9 @@ def test_precursor_mass_error_reports_dalton_and_ppm() -> None:
 
 
 def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() -> None:
-    spectrum = normalize_spectrum_peaks(parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0])
+    spectrum = normalize_spectrum_peaks(
+        parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
+    )
     annotation = annotate_spectrum_fragments(
         spectrum,
         peptide="PEPTIDE",
@@ -161,8 +173,12 @@ def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() 
 
 
 def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:
-    reference = normalize_spectrum_peaks(parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0])
-    query = normalize_spectrum_peaks(parse_mgf(_spectrum_fixture("multi.mgf")).accepted_spectra[0])
+    reference = normalize_spectrum_peaks(
+        parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
+    )
+    query = normalize_spectrum_peaks(
+        parse_mgf(_spectrum_fixture("multi.mgf")).accepted_spectra[0]
+    )
     similarity = calculate_spectral_similarity(
         reference,
         query,

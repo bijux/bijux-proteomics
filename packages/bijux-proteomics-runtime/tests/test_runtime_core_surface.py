@@ -10,8 +10,8 @@ from bijux_proteomics_runtime.core import (
     deterministic_id,
     suggest_next_action,
 )
-from bijux_proteomics_runtime.core.surface_area import PUBLIC_ENTRYPOINTS
 from bijux_proteomics_runtime.core.execution import ExecutionContext
+from bijux_proteomics_runtime.core.surface_area import PUBLIC_ENTRYPOINTS
 from bijux_proteomics_runtime.core.tooling import ToolInvocationSpec
 
 
@@ -31,10 +31,10 @@ def test_runtime_core_exports_deterministic_id() -> None:
 
 
 def test_runtime_core_exports_status_enums() -> None:
-    assert ExecutionStatus.COMPLETED == "completed"
-    assert WorkflowState.DONE == "done"
-    assert Outcome.ACCEPTED == "accepted"
-    assert ToolStatus.SUCCESS == "success"
+    assert ExecutionStatus.COMPLETED.value == "completed"
+    assert WorkflowState.DONE.value == "done"
+    assert Outcome.ACCEPTED.value == "accepted"
+    assert ToolStatus.SUCCESS.value == "success"
 
 
 def test_runtime_surface_area_uses_canonical_cli_entrypoint() -> None:

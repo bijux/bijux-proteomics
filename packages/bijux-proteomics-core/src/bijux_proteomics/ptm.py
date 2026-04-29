@@ -6,10 +6,9 @@
 from __future__ import annotations
 
 import csv
-from enum import StrEnum
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import (
     ModificationPosition,
@@ -17,7 +16,11 @@ from bijux_proteomics.chemistry import (
     build_modification_localization_advisory,
     parse_modified_peptide,
 )
-from bijux_proteomics.identification import TargetDecoyLabel, TargetDecoyLabelPolicy, parse_target_decoy_label
+from bijux_proteomics.identification import (
+    TargetDecoyLabel,
+    TargetDecoyLabelPolicy,
+    parse_target_decoy_label,
+)
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
@@ -283,38 +286,62 @@ def parse_ptm_localization_tsv(
         )
         for required_column in required:
             if required_column not in reader.fieldnames:
-                raise ValueError(f"missing required PTM evidence column {required_column!r}")
+                raise ValueError(
+                    f"missing required PTM evidence column {required_column!r}"
+                )
 
         accepted: list[PtmEvidenceRecord] = []
         rejected: list[RejectedPtmEvidenceRow] = []
         for row_number, row in enumerate(reader, start=2):
-            raw_fields = {str(key): str(value or "") for key, value in row.items() if key is not None}
+            raw_fields = {
+                str(key): str(value or "")
+                for key, value in row.items()
+                if key is not None
+            }
             issues: list[PtmValidationIssue] = []
             spectrum_id = raw_fields.get(active_mapping.spectrum_id, "").strip()
             peptide = raw_fields.get(active_mapping.peptide, "").strip()
             if not spectrum_id:
-                issues.append(_row_issue("missing_spectrum_id", "missing spectrum identifier", row_number))
+                issues.append(
+                    _row_issue(
+                        "missing_spectrum_id", "missing spectrum identifier", row_number
+                    )
+                )
             if not peptide:
-                issues.append(_row_issue("missing_peptide", "missing localized peptide", row_number))
+                issues.append(
+                    _row_issue(
+                        "missing_peptide", "missing localized peptide", row_number
+                    )
+                )
             try:
                 charge = int(raw_fields.get(active_mapping.charge, "").strip())
                 if charge < 1:
                     raise ValueError
             except ValueError:
-                issues.append(_row_issue("invalid_charge", "invalid charge value", row_number))
+                issues.append(
+                    _row_issue("invalid_charge", "invalid charge value", row_number)
+                )
                 charge = 0
             try:
                 score = float(raw_fields.get(active_mapping.score, "").strip())
             except ValueError:
-                issues.append(_row_issue("invalid_score", "invalid score value", row_number))
+                issues.append(
+                    _row_issue("invalid_score", "invalid score value", row_number)
+                )
                 score = 0.0
             try:
-                localization_score = float(raw_fields.get(active_mapping.localization_score, "").strip())
+                localization_score = float(
+                    raw_fields.get(active_mapping.localization_score, "").strip()
+                )
                 if localization_score < 0:
                     raise ValueError
             except ValueError:
                 issues.append(
-                    _row_issue("invalid_localization_score", "invalid localization score", row_number)
+                    _row_issue(
+                        "invalid_localization_score",
+                        "invalid localization score",
+                        row_number,
+                    )
                 )
                 localization_score = 0.0
 
@@ -327,19 +354,27 @@ def parse_ptm_localization_tsv(
                         if q_value < 0:
                             raise ValueError
                     except ValueError:
-                        issues.append(_row_issue("invalid_q_value", "invalid q-value", row_number))
+                        issues.append(
+                            _row_issue("invalid_q_value", "invalid q-value", row_number)
+                        )
 
             protein_refs = _parse_protein_refs(
                 raw_fields.get(active_mapping.protein_refs, ""),
                 active_mapping.protein_separator,
             )
             if not protein_refs:
-                issues.append(_row_issue("missing_protein_refs", "missing protein references", row_number))
+                issues.append(
+                    _row_issue(
+                        "missing_protein_refs", "missing protein references", row_number
+                    )
+                )
 
             try:
                 parsed = parse_modified_peptide(peptide, registry=registry)
             except ValueError as exc:
-                issues.append(_row_issue("invalid_modified_peptide", str(exc), row_number))
+                issues.append(
+                    _row_issue("invalid_modified_peptide", str(exc), row_number)
+                )
                 parsed = None
 
             candidate_sites: tuple[int, ...] = ()
@@ -352,7 +387,11 @@ def parse_ptm_localization_tsv(
                     )
                 except ValueError:
                     issues.append(
-                        _row_issue("invalid_candidate_sites", "candidate sites must be integers", row_number)
+                        _row_issue(
+                            "invalid_candidate_sites",
+                            "candidate sites must be integers",
+                            row_number,
+                        )
                     )
 
             modification_names: tuple[str, ...] = ()
@@ -373,7 +412,9 @@ def parse_ptm_localization_tsv(
                         )
                     )
                 if not candidate_sites:
-                    advisory = build_modification_localization_advisory(parsed, registry=registry)
+                    advisory = build_modification_localization_advisory(
+                        parsed, registry=registry
+                    )
                     for candidate in advisory.candidates:
                         if candidate.assigned_site_index is not None:
                             candidate_sites = candidate.candidate_site_indices
@@ -392,7 +433,8 @@ def parse_ptm_localization_tsv(
             accepted.append(
                 PtmEvidenceRecord(
                     spectrum_id=spectrum_id,
-                    sample_id=raw_fields.get(active_mapping.sample_id, "").strip() or None
+                    sample_id=raw_fields.get(active_mapping.sample_id, "").strip()
+                    or None
                     if active_mapping.sample_id
                     else None,
                     localized_peptide=peptide,
@@ -404,7 +446,9 @@ def parse_ptm_localization_tsv(
                     protein_refs=protein_refs,
                     target_decoy_label=parse_target_decoy_label(
                         protein_refs=protein_refs,
-                        explicit_label=raw_fields.get(active_mapping.decoy_label) if active_mapping.decoy_label else None,
+                        explicit_label=raw_fields.get(active_mapping.decoy_label)
+                        if active_mapping.decoy_label
+                        else None,
                         policy=active_decoy_policy,
                     ),
                     localization_score=localization_score,
@@ -448,12 +492,16 @@ def map_ptm_evidence_to_protein_sites(
             if not starts:
                 continue
             for modification in parsed.modifications:
-                if modification.site is not ModificationPosition.ANYWHERE or modification.site_index is None:
+                if (
+                    modification.site is not ModificationPosition.ANYWHERE
+                    or modification.site_index is None
+                ):
                     continue
                 for start in starts:
                     protein_position = start + modification.site_index - 1
                     candidate_positions = tuple(
-                        start + site_index - 1 for site_index in record.candidate_site_indices
+                        start + site_index - 1
+                        for site_index in record.candidate_site_indices
                     ) or (protein_position,)
                     mappings.append(
                         PtmProteinSiteMapping(
@@ -495,13 +543,17 @@ def build_ptm_site_table(
     for mapping in mappings:
         grouped.setdefault(
             (mapping.protein_ref, mapping.protein_position, mapping.modification_name),
-            []
+            [],
         ).append(mapping)
 
     entries: list[PtmSiteEntry] = []
-    for (protein_ref, protein_position, modification_name), bucket in sorted(grouped.items()):
+    for (protein_ref, protein_position, modification_name), bucket in sorted(
+        grouped.items()
+    ):
         best_score = max(mapping.localization_score for mapping in bucket)
-        q_values = [mapping.q_value for mapping in bucket if mapping.q_value is not None]
+        q_values = [
+            mapping.q_value for mapping in bucket if mapping.q_value is not None
+        ]
         residue = bucket[0].residue
         site_key = f"{protein_ref}:{residue}{protein_position}:{modification_name}"
         entries.append(
@@ -518,15 +570,31 @@ def build_ptm_site_table(
                 localized_peptides=tuple(
                     sorted({mapping.localized_peptide for mapping in bucket})
                 ),
-                sample_ids=tuple(sorted({mapping.sample_id for mapping in bucket if mapping.sample_id})),
+                sample_ids=tuple(
+                    sorted(
+                        {mapping.sample_id for mapping in bucket if mapping.sample_id}
+                    )
+                ),
                 target_decoy_label=max(
                     (mapping.target_decoy_label for mapping in bucket),
                     key=lambda label: (
-                        3 if label is TargetDecoyLabel.DECOY else 2 if label is TargetDecoyLabel.MIXED else 1 if label is TargetDecoyLabel.TARGET else 0
+                        3
+                        if label is TargetDecoyLabel.DECOY
+                        else 2
+                        if label is TargetDecoyLabel.MIXED
+                        else 1
+                        if label is TargetDecoyLabel.TARGET
+                        else 0
                     ),
                 ),
                 candidate_positions=tuple(
-                    sorted({position for mapping in bucket for position in mapping.candidate_protein_positions})
+                    sorted(
+                        {
+                            position
+                            for mapping in bucket
+                            for position in mapping.candidate_protein_positions
+                        }
+                    )
                 ),
                 ambiguous=any(mapping.ambiguous for mapping in bucket),
             )
@@ -567,7 +635,9 @@ def build_ptm_site_coverage_report(
             site_key=site_key,
             spectrum_count=len({mapping.spectrum_id for mapping in bucket}),
             peptide_count=len({mapping.canonical_peptide for mapping in bucket}),
-            sample_count=len({mapping.sample_id for mapping in bucket if mapping.sample_id}),
+            sample_count=len(
+                {mapping.sample_id for mapping in bucket if mapping.sample_id}
+            ),
             spectra=tuple(sorted({mapping.spectrum_id for mapping in bucket})),
             peptides=tuple(sorted({mapping.localized_peptide for mapping in bucket})),
         )
@@ -583,7 +653,11 @@ def build_ptm_site_fdr(
     """Compute a simple target-decoy FDR over PTM sites."""
     ranked = sorted(
         site_entries,
-        key=lambda entry: (-entry.localization_score, entry.best_q_value if entry.best_q_value is not None else float("inf"), entry.site_key),
+        key=lambda entry: (
+            -entry.localization_score,
+            entry.best_q_value if entry.best_q_value is not None else float("inf"),
+            entry.site_key,
+        ),
     )
     interim: list[PtmSiteFdrEntry] = []
     target_count = 0
@@ -607,11 +681,11 @@ def build_ptm_site_fdr(
         )
     running = 1.0
     finalized: list[PtmSiteFdrEntry] = []
-    for entry in reversed(interim):
-        running = min(running, entry.fdr)
+    for fdr_entry in reversed(interim):
+        running = min(running, fdr_entry.fdr)
         q_value = running
         finalized.append(
-            entry.model_copy(
+            fdr_entry.model_copy(
                 update={
                     "q_value": q_value,
                     "accepted": q_value <= threshold,
@@ -645,7 +719,10 @@ def estimate_ptm_site_occupancy(
                 for peptide in entry.localized_peptides
             }
             for record in sample_records:
-                if entry.protein_ref not in record.protein_refs or record.intensity is None:
+                if (
+                    entry.protein_ref not in record.protein_refs
+                    or record.intensity is None
+                ):
                     continue
                 if record.canonical_peptide in localized_peptides:
                     numerator += record.intensity
@@ -676,7 +753,8 @@ def build_ptm_enrichment_input(
     site_ids = tuple(
         entry.site_key
         for entry in site_entries
-        if entry.modification_name == modification_name and entry.target_decoy_label is not TargetDecoyLabel.DECOY
+        if entry.modification_name == modification_name
+        and entry.target_decoy_label is not TargetDecoyLabel.DECOY
     )
     background: list[str] = []
     for protein_ref, sequence in sorted(protein_sequences.items()):

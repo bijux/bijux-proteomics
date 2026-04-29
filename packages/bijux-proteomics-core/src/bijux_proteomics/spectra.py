@@ -13,10 +13,10 @@ from pathlib import Path
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry import (
-    calculate_fragment_ions,
-    canonicalize_modified_peptide,
     FragmentIon,
     ParsedModifiedPeptide,
+    calculate_fragment_ions,
+    canonicalize_modified_peptide,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -280,10 +280,18 @@ def parse_mgf(path: Path) -> MgfParseReport:
 
     def finalize_block(block: _MgfBlock) -> None:
         if block.precursor_mz is None:
-            block.issues.append(_issue(block.block_index, "missing_precursor_mz", "PEPMASS is required"))
+            block.issues.append(
+                _issue(block.block_index, "missing_precursor_mz", "PEPMASS is required")
+            )
         if not block.peaks:
-            block.issues.append(_issue(block.block_index, "missing_peaks", "at least one peak is required"))
-        spectrum_id = block.spectrum_id or block.title or f"spectrum-{block.block_index}"
+            block.issues.append(
+                _issue(
+                    block.block_index, "missing_peaks", "at least one peak is required"
+                )
+            )
+        spectrum_id = (
+            block.spectrum_id or block.title or f"spectrum-{block.block_index}"
+        )
         if block.issues:
             rejected.append(
                 RejectedSpectrumBlock(
@@ -297,7 +305,7 @@ def parse_mgf(path: Path) -> MgfParseReport:
         accepted.append(
             SpectrumModel(
                 spectrum_id=spectrum_id,
-                precursor_mz=block.precursor_mz,
+                precursor_mz=block.precursor_mz or 1.0,
                 precursor_charge=block.precursor_charge,
                 retention_time_seconds=block.retention_time_seconds,
                 peaks=tuple(block.peaks),
@@ -307,7 +315,7 @@ def parse_mgf(path: Path) -> MgfParseReport:
 
     for line_number, raw_line in enumerate(lines, start=1):
         line = raw_line.strip()
-        if not line or line.startswith("#") or line.startswith(";"):
+        if not line or line.startswith(("#", ";")):
             continue
         if line.upper() == "BEGIN IONS":
             if current is not None:
@@ -390,7 +398,11 @@ def parse_mgf(path: Path) -> MgfParseReport:
         current.peaks.append(peak)
 
     if current is not None:
-        current.issues.append(_issue(current.block_index, "missing_end_ions", "unterminated spectrum block"))
+        current.issues.append(
+            _issue(
+                current.block_index, "missing_end_ions", "unterminated spectrum block"
+            )
+        )
         finalize_block(current)
 
     return MgfParseReport(
@@ -400,14 +412,20 @@ def parse_mgf(path: Path) -> MgfParseReport:
     )
 
 
-def build_spectrum_collection_summary(parse_report: MgfParseReport) -> SpectrumCollectionSummary:
+def build_spectrum_collection_summary(
+    parse_report: MgfParseReport,
+) -> SpectrumCollectionSummary:
     """Build a compact summary for one parsed spectrum collection."""
     counts_by_charge: dict[str, int] = {}
     issue_counts: dict[str, int] = {}
     total_peak_count = 0
     for spectrum in parse_report.accepted_spectra:
         total_peak_count += len(spectrum.peaks)
-        key = "unknown" if spectrum.precursor_charge is None else str(spectrum.precursor_charge)
+        key = (
+            "unknown"
+            if spectrum.precursor_charge is None
+            else str(spectrum.precursor_charge)
+        )
         counts_by_charge[key] = counts_by_charge.get(key, 0) + 1
     for block in parse_report.rejected_blocks:
         for issue in block.issues:
@@ -417,7 +435,9 @@ def build_spectrum_collection_summary(parse_report: MgfParseReport) -> SpectrumC
         spectrum_count=spectrum_count,
         rejected_block_count=len(parse_report.rejected_blocks),
         total_peak_count=total_peak_count,
-        average_peak_count=(total_peak_count / spectrum_count) if spectrum_count else 0.0,
+        average_peak_count=(total_peak_count / spectrum_count)
+        if spectrum_count
+        else 0.0,
         counts_by_charge=dict(sorted(counts_by_charge.items())),
         issue_counts=dict(sorted(issue_counts.items())),
     )
@@ -446,7 +466,11 @@ def build_spectrum_provenance_manifest(
         issue_counts=issue_counts,
     )
     return manifest.model_copy(
-        update={"document_schema": manifest.document_schema.with_content_hash(manifest.to_dict())}
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(
+                manifest.to_dict()
+            )
+        }
     )
 
 
@@ -462,7 +486,11 @@ def render_mgf(spectra: tuple[SpectrumModel, ...]) -> str:
         if spectrum.precursor_charge is not None:
             lines.append(f"CHARGE={spectrum.precursor_charge}+")
         if spectrum.retention_time_seconds is not None:
-            lines.append(f"RTINSECONDS={spectrum.retention_time_seconds:.4f}".rstrip("0").rstrip("."))
+            lines.append(
+                f"RTINSECONDS={spectrum.retention_time_seconds:.4f}".rstrip("0").rstrip(
+                    "."
+                )
+            )
         for peak in spectrum.peaks:
             lines.append(
                 f"{peak.mz:.6f}".rstrip("0").rstrip(".")
@@ -487,7 +515,9 @@ def normalize_spectrum_peaks(
             continue
         if merged and abs(merged[-1].mz - peak.mz) <= active_policy.merge_tolerance_da:
             previous = merged[-1]
-            weighted_mz = ((previous.mz * previous.intensity) + (peak.mz * peak.intensity)) / max(
+            weighted_mz = (
+                (previous.mz * previous.intensity) + (peak.mz * peak.intensity)
+            ) / max(
                 previous.intensity + peak.intensity,
                 1e-12,
             )
@@ -504,7 +534,9 @@ def normalize_spectrum_peaks(
                 SpectrumPeak(mz=peak.mz, intensity=peak.intensity / base_peak.intensity)
                 for peak in merged
             ]
-    return spectrum.model_copy(update={"peaks": tuple(sorted(merged, key=lambda item: item.mz))})
+    return spectrum.model_copy(
+        update={"peaks": tuple(sorted(merged, key=lambda item: item.mz))}
+    )
 
 
 def filter_spectrum_peaks(
@@ -556,7 +588,9 @@ def filter_spectrum_peaks(
                 removed_by_rank += 1
         peaks = retained
 
-    filtered_spectrum = spectrum.model_copy(update={"peaks": tuple(sorted(peaks, key=lambda item: item.mz))})
+    filtered_spectrum = spectrum.model_copy(
+        update={"peaks": tuple(sorted(peaks, key=lambda item: item.mz))}
+    )
     return SpectrumFilterReport(
         input_peak_count=len(spectrum.peaks),
         output_peak_count=len(filtered_spectrum.peaks),
@@ -623,7 +657,7 @@ def calculate_spectral_similarity(
             error = query_peak.mz - reference_peak.mz
             if abs(error) > tolerance_da:
                 continue
-            if best_index is None or abs(error) < abs(best_error):
+            if best_index is None or best_error is None or abs(error) < abs(best_error):
                 best_index = index
                 best_error = error
         if best_index is None:
@@ -632,13 +666,20 @@ def calculate_spectral_similarity(
         matched_reference.append(reference_spectrum.peaks[best_index].intensity)
         matched_query.append(query_peak.intensity)
 
-    dot_product = sum(reference * query for reference, query in zip(matched_reference, matched_query))
+    dot_product = sum(
+        reference * query
+        for reference, query in zip(matched_reference, matched_query, strict=True)
+    )
     if method is SpectralSimilarityMethod.DOT_PRODUCT:
         score = dot_product
     else:
         reference_norm = sum(value * value for value in matched_reference) ** 0.5
         query_norm = sum(value * value for value in matched_query) ** 0.5
-        score = 0.0 if reference_norm == 0.0 or query_norm == 0.0 else dot_product / (reference_norm * query_norm)
+        score = (
+            0.0
+            if reference_norm == 0.0 or query_norm == 0.0
+            else dot_product / (reference_norm * query_norm)
+        )
     return SpectralSimilarityScore(
         method=method,
         tolerance_da=tolerance_da,
@@ -681,8 +722,14 @@ def annotate_spectrum_fragments(
             error = peak.mz - fragment.mz_monoisotopic
             if abs(error) > tolerance_da:
                 continue
-            if best_peak is None or abs(error) < abs(best_error) or (
-                abs(error) == abs(best_error) and peak.intensity > best_peak.intensity
+            if (
+                best_peak is None
+                or best_error is None
+                or abs(error) < abs(best_error)
+                or (
+                    abs(error) == abs(best_error)
+                    and peak.intensity > best_peak.intensity
+                )
             ):
                 best_peak = peak
                 best_error = error
@@ -712,14 +759,27 @@ def annotate_spectrum_fragments(
         precursor_mz=spectrum.precursor_mz,
         precursor_charge=spectrum.precursor_charge,
         tolerance_da=tolerance_da,
-        matches=tuple(sorted(matches, key=lambda match: (match.fragment.series.value, match.fragment.ordinal, match.fragment.charge))),
+        matches=tuple(
+            sorted(
+                matches,
+                key=lambda match: (
+                    match.fragment.series.value,
+                    match.fragment.ordinal,
+                    match.fragment.charge,
+                ),
+            )
+        ),
         unmatched_peak_count=sum(
-            1 for peak in spectrum.peaks if (peak.mz, peak.intensity) not in matched_peak_keys
+            1
+            for peak in spectrum.peaks
+            if (peak.mz, peak.intensity) not in matched_peak_keys
         ),
     )
     payload = annotation.to_dict()
     return annotation.model_copy(
-        update={"document_schema": annotation.document_schema.with_content_hash(payload)}
+        update={
+            "document_schema": annotation.document_schema.with_content_hash(payload)
+        }
     )
 
 
@@ -769,9 +829,9 @@ def build_spectrum_plot_payload(
     labels_by_peak: dict[tuple[float, float], list[str]] = {}
     if annotation is not None:
         for match in annotation.matches:
-            labels_by_peak.setdefault((match.observed_mz, match.observed_intensity), []).append(
-                match.fragment_label
-            )
+            labels_by_peak.setdefault(
+                (match.observed_mz, match.observed_intensity), []
+            ).append(match.fragment_label)
     peaks = tuple(
         SpectrumPlotPeak(
             mz=peak.mz,
@@ -794,5 +854,9 @@ def build_spectrum_plot_payload(
         peaks=peaks,
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )

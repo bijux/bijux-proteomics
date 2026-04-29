@@ -7,16 +7,16 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
-    build_search_adapter_conformance_report,
+    ScoreOrientation,
+    SearchAdapterKind,
+    SearchResultColumnMapping,
     build_search_adapter_capability_matrix,
+    build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
     compare_search_result_reports,
     get_search_adapter_manifest,
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
-    ScoreOrientation,
-    SearchAdapterKind,
-    SearchResultColumnMapping,
     validate_search_parameters,
 )
 
@@ -30,7 +30,10 @@ def test_search_adapter_registry_exposes_capability_matrix() -> None:
     by_kind = {row.adapter_kind: row for row in matrix}
 
     assert SearchAdapterKind.COMET in by_kind
-    assert by_kind[SearchAdapterKind.COMET].score_orientation is ScoreOrientation.LOWER_BETTER
+    assert (
+        by_kind[SearchAdapterKind.COMET].score_orientation
+        is ScoreOrientation.LOWER_BETTER
+    )
     assert by_kind[SearchAdapterKind.SAGE].supports_q_value is True
     assert by_kind[SearchAdapterKind.GENERIC].supports_config_hash is True
 
@@ -72,7 +75,9 @@ def test_engine_specific_adapters_normalize_psm_contracts() -> None:
 
 
 def test_generic_adapter_and_provenance_manifest_are_stable() -> None:
-    mapping = SearchResultColumnMapping.model_validate_json(_fixture("generic_mapping.json").read_text())
+    mapping = SearchResultColumnMapping.model_validate_json(
+        _fixture("generic_mapping.json").read_text()
+    )
     generic = normalize_search_results_with_adapter(
         source_path=_fixture("generic_results.tsv"),
         adapter_kind=SearchAdapterKind.GENERIC,
@@ -120,6 +125,7 @@ def test_search_parameter_parsers_extract_enzyme_tolerances_and_mods() -> None:
     )
 
     assert comet.enzyme == "trypsin"
+    assert comet.precursor_tolerance_unit is not None
     assert comet.precursor_tolerance_unit.value == "ppm"
     assert comet.fixed_modifications[0].site == "C"
     assert fragger.fragment_tolerance == 20.0
@@ -154,7 +160,9 @@ def test_search_result_comparability_normalizes_score_orientation() -> None:
     generic = normalize_search_results_with_adapter(
         source_path=_fixture("sage_results.tsv"),
         adapter_kind=SearchAdapterKind.GENERIC,
-        mapping=SearchResultColumnMapping.model_validate_json(_fixture("sage_mapping.json").read_text()),
+        mapping=SearchResultColumnMapping.model_validate_json(
+            _fixture("sage_mapping.json").read_text()
+        ),
     )
     report = compare_search_result_reports(sage, generic)
 
@@ -164,7 +172,9 @@ def test_search_result_comparability_normalizes_score_orientation() -> None:
     assert report.peptide_agreement_fraction == 1.0
 
 
-def test_search_adapter_conformance_reports_rejection_and_unknown_label_failures() -> None:
+def test_search_adapter_conformance_reports_rejection_and_unknown_label_failures() -> (
+    None
+):
     malformed = normalize_search_results_with_adapter(
         source_path=_fixture("sage_malformed.tsv"),
         adapter_kind=SearchAdapterKind.SAGE,
@@ -174,7 +184,9 @@ def test_search_adapter_conformance_reports_rejection_and_unknown_label_failures
     assert conformance.passes is False
     assert conformance.rejection_issue_counts["invalid_score"] == 1
     assert conformance.rejection_issue_counts["invalid_q_value"] == 1
-    explicit_check = next(check for check in conformance.checks if check.code == "explicit_decoy_contract")
+    explicit_check = next(
+        check for check in conformance.checks if check.code == "explicit_decoy_contract"
+    )
     assert explicit_check.passed is False
     assert conformance.fdr_audit_trail is not None
     assert conformance.calibration_plot is not None

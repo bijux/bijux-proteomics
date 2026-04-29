@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable
 import csv
 from enum import StrEnum
 import hashlib
@@ -67,8 +68,10 @@ class TargetDecoyLabelPolicy(JsonModel):
         if value is None:
             return ()
         if isinstance(value, str):
-            values = (value,)
+            values: tuple[str, ...] = (value,)
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("decoy label values must be iterable")
             values = tuple(str(token) for token in value)
         return tuple(token.strip().lower() for token in values if token.strip())
 
@@ -103,6 +106,8 @@ class PsmRecord(JsonModel):
         if isinstance(value, str):
             refs = [value]
         else:
+            if not isinstance(value, Iterable):
+                raise ValueError("protein references must be iterable")
             refs = [str(token) for token in value]
         normalized = tuple(token.strip() for token in refs if token.strip())
         return tuple(dict.fromkeys(normalized))
@@ -176,7 +181,9 @@ class FdrPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    score_orientation: str = Field(default="higher_better", pattern="^(higher_better|lower_better)$")
+    score_orientation: str = Field(
+        default="higher_better", pattern="^(higher_better|lower_better)$"
+    )
     threshold: float | None = Field(default=None, ge=0.0)
     decoy_policy: TargetDecoyLabelPolicy = Field(default_factory=TargetDecoyLabelPolicy)
 
@@ -495,7 +502,8 @@ class SearchResultProvenanceManifest(JsonModel):
 def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...]:
     if raw_value in (None, ""):
         return ()
-    refs = tuple(token.strip() for token in raw_value.split(separator) if token.strip())
+    text = raw_value.strip() if raw_value is not None else ""
+    refs = tuple(token.strip() for token in text.split(separator) if token.strip())
     return tuple(dict.fromkeys(refs))
 
 
@@ -540,24 +548,24 @@ def parse_target_decoy_label(
     if not protein_refs:
         return TargetDecoyLabel.UNKNOWN
 
+    prefix = active_policy.protein_prefix or ""
+    suffix = active_policy.protein_suffix or ""
     labels: list[TargetDecoyLabel] = []
     for protein_ref in protein_refs:
-        is_prefix = (
-            bool(active_policy.protein_prefix)
-            and protein_ref.startswith(active_policy.protein_prefix)
-        )
-        is_suffix = (
-            bool(active_policy.protein_suffix)
-            and protein_ref.endswith(active_policy.protein_suffix)
-        )
+        is_prefix = bool(prefix) and protein_ref.startswith(prefix)
+        is_suffix = bool(suffix) and protein_ref.endswith(suffix)
         labels.append(
-            TargetDecoyLabel.DECOY if is_prefix or is_suffix else TargetDecoyLabel.TARGET
+            TargetDecoyLabel.DECOY
+            if is_prefix or is_suffix
+            else TargetDecoyLabel.TARGET
         )
     return _combine_labels(tuple(labels))
 
 
 def _row_issue(code: str, message: str, row_number: int) -> SearchResultValidationIssue:
-    return SearchResultValidationIssue(code=code, message=message, row_number=row_number)
+    return SearchResultValidationIssue(
+        code=code, message=message, row_number=row_number
+    )
 
 
 def _parse_psm_row(
@@ -571,11 +579,15 @@ def _parse_psm_row(
 
     spectrum_id = row.get(mapping.spectrum_id, "").strip()
     if not spectrum_id:
-        issues.append(_row_issue("missing_spectrum_id", "missing spectrum identifier", row_number))
+        issues.append(
+            _row_issue("missing_spectrum_id", "missing spectrum identifier", row_number)
+        )
 
     peptide = row.get(mapping.peptide, "").strip()
     if not peptide:
-        issues.append(_row_issue("missing_peptide", "missing peptide sequence", row_number))
+        issues.append(
+            _row_issue("missing_peptide", "missing peptide sequence", row_number)
+        )
 
     try:
         charge = int(row.get(mapping.charge, "").strip())
@@ -600,9 +612,14 @@ def _parse_psm_row(
                 if q_value < 0:
                     raise ValueError
             except ValueError:
-                issues.append(_row_issue("invalid_q_value", "invalid q-value", row_number))
+                issues.append(
+                    _row_issue("invalid_q_value", "invalid q-value", row_number)
+                )
 
-    protein_refs = _parse_protein_refs(row.get(mapping.protein_refs) if mapping.protein_refs else None, mapping.protein_separator)
+    protein_refs = _parse_protein_refs(
+        row.get(mapping.protein_refs) if mapping.protein_refs else None,
+        mapping.protein_separator,
+    )
     explicit_label = row.get(mapping.decoy_label) if mapping.decoy_label else None
 
     canonical_peptide = peptide
@@ -613,7 +630,11 @@ def _parse_psm_row(
             issues.append(_row_issue("invalid_peptide_notation", str(exc), row_number))
 
     if issues:
-        raise ValueError(RejectedPsmRow(row_number=row_number, raw_fields=row, issues=tuple(issues)).to_stable_json())
+        raise ValueError(
+            RejectedPsmRow(
+                row_number=row_number, raw_fields=row, issues=tuple(issues)
+            ).to_stable_json()
+        )
 
     return PsmRecord(
         spectrum_id=spectrum_id,
@@ -656,7 +677,9 @@ def parse_psm_tsv(
                 raise ValueError(f"missing required PSM column {required_column!r}")
 
         for index, row in enumerate(reader, start=2):
-            normalized_row = {str(key): str(value) for key, value in row.items() if key is not None}
+            normalized_row = {
+                str(key): str(value) for key, value in row.items() if key is not None
+            }
             try:
                 accepted_records.append(
                     _parse_psm_row(
@@ -698,7 +721,9 @@ def export_psm_jsonl(records: tuple[PsmRecord, ...], path: Path) -> None:
     normalized = normalize_psm_records(records)
     with path.open("w", encoding="utf-8") as handle:
         for record in normalized:
-            handle.write(json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":")))
+            handle.write(
+                json.dumps(record.to_dict(), sort_keys=True, separators=(",", ":"))
+            )
             handle.write("\n")
 
 
@@ -741,15 +766,54 @@ def sort_psm_records(
 ) -> tuple[PsmRecord, ...]:
     """Sort PSMs by one stable policy."""
     if by is PsmSortField.SPECTRUM:
-        return tuple(sorted(records, key=lambda record: (record.spectrum_id, -record.score, record.canonical_peptide)))
+        return tuple(
+            sorted(
+                records,
+                key=lambda record: (
+                    record.spectrum_id,
+                    -record.score,
+                    record.canonical_peptide,
+                ),
+            )
+        )
     if by is PsmSortField.SCORE:
-        return tuple(sorted(records, key=lambda record: (-record.score, record.spectrum_id, record.canonical_peptide)))
+        return tuple(
+            sorted(
+                records,
+                key=lambda record: (
+                    -record.score,
+                    record.spectrum_id,
+                    record.canonical_peptide,
+                ),
+            )
+        )
     if by is PsmSortField.Q_VALUE:
-        return tuple(sorted(records, key=lambda record: (record.q_value if record.q_value is not None else float("inf"), record.spectrum_id, -record.score, record.canonical_peptide)))
-    return tuple(sorted(records, key=lambda record: (record.canonical_peptide, record.spectrum_id, -record.score)))
+        return tuple(
+            sorted(
+                records,
+                key=lambda record: (
+                    record.q_value if record.q_value is not None else float("inf"),
+                    record.spectrum_id,
+                    -record.score,
+                    record.canonical_peptide,
+                ),
+            )
+        )
+    return tuple(
+        sorted(
+            records,
+            key=lambda record: (
+                record.canonical_peptide,
+                record.spectrum_id,
+                -record.score,
+            ),
+        )
+    )
 
 
-def select_best_psm_per_spectrum(records: tuple[PsmRecord, ...]) -> tuple[PsmRecord, ...]:
+def select_best_psm_per_spectrum(
+    records: tuple[PsmRecord, ...],
+) -> tuple[PsmRecord, ...]:
     """Select one best PSM per spectrum with stable tie-breaking."""
     best_by_spectrum: dict[str, PsmRecord] = {}
     for record in records:
@@ -774,7 +838,9 @@ def select_best_psm_per_spectrum(records: tuple[PsmRecord, ...]) -> tuple[PsmRec
     return tuple(best_by_spectrum[key] for key in sorted(best_by_spectrum))
 
 
-def rollup_peptide_evidence(records: tuple[PsmRecord, ...]) -> tuple[PeptideEvidenceEntry, ...]:
+def rollup_peptide_evidence(
+    records: tuple[PsmRecord, ...],
+) -> tuple[PeptideEvidenceEntry, ...]:
     """Roll up multiple PSMs into peptide-level evidence rows."""
     grouped: dict[str, list[PsmRecord]] = defaultdict(list)
     for record in records:
@@ -793,11 +859,7 @@ def rollup_peptide_evidence(records: tuple[PsmRecord, ...]) -> tuple[PeptideEvid
         )
         protein_refs = tuple(
             sorted(
-                {
-                    protein_ref
-                    for record in group
-                    for protein_ref in record.protein_refs
-                }
+                {protein_ref for record in group for protein_ref in record.protein_refs}
             )
         )
         charge_states = tuple(sorted({record.charge for record in group}))
@@ -813,13 +875,17 @@ def rollup_peptide_evidence(records: tuple[PsmRecord, ...]) -> tuple[PeptideEvid
                 best_q_value=min(q_values) if q_values else None,
                 charge_states=charge_states,
                 protein_refs=protein_refs,
-                target_decoy_label=_combine_labels(tuple(record.target_decoy_label for record in group)),
+                target_decoy_label=_combine_labels(
+                    tuple(record.target_decoy_label for record in group)
+                ),
             )
         )
     return tuple(rollups)
 
 
-def rollup_protein_evidence(records: tuple[PsmRecord, ...]) -> tuple[ProteinEvidenceEntry, ...]:
+def rollup_protein_evidence(
+    records: tuple[PsmRecord, ...],
+) -> tuple[ProteinEvidenceEntry, ...]:
     """Roll up PSMs and peptides into protein-level evidence rows."""
     peptide_rollups = rollup_peptide_evidence(records)
     protein_to_peptides: dict[str, list[PeptideEvidenceEntry]] = defaultdict(list)
@@ -840,9 +906,17 @@ def rollup_protein_evidence(records: tuple[PsmRecord, ...]) -> tuple[ProteinEvid
     for protein_ref in sorted(protein_to_peptides):
         peptides = protein_to_peptides[protein_ref]
         peptide_names = tuple(sorted(peptide.canonical_peptide for peptide in peptides))
-        unique_peptide_count = sum(1 for peptide in peptides if len(peptide.protein_refs) == 1)
-        shared_peptide_count = sum(1 for peptide in peptides if len(peptide.protein_refs) > 1)
-        q_values = [peptide.best_q_value for peptide in peptides if peptide.best_q_value is not None]
+        unique_peptide_count = sum(
+            1 for peptide in peptides if len(peptide.protein_refs) == 1
+        )
+        shared_peptide_count = sum(
+            1 for peptide in peptides if len(peptide.protein_refs) > 1
+        )
+        q_values = [
+            peptide.best_q_value
+            for peptide in peptides
+            if peptide.best_q_value is not None
+        ]
         rollups.append(
             ProteinEvidenceEntry(
                 protein_ref=protein_ref,
@@ -875,9 +949,21 @@ def calculate_basic_target_decoy_fdr(
         sorted(
             records,
             key=(
-                (lambda record: (-record.score, record.spectrum_id, record.canonical_peptide))
+                (
+                    lambda record: (
+                        -record.score,
+                        record.spectrum_id,
+                        record.canonical_peptide,
+                    )
+                )
                 if score_orientation == "higher_better"
-                else (lambda record: (record.score, record.spectrum_id, record.canonical_peptide))
+                else (
+                    lambda record: (
+                        record.score,
+                        record.spectrum_id,
+                        record.canonical_peptide,
+                    )
+                )
             ),
         )
     )
@@ -913,7 +999,7 @@ def calculate_basic_target_decoy_fdr(
                     "accepted": threshold is None or running_min <= threshold,
                 }
             )
-    )
+        )
     return tuple(reversed(revised))
 
 
@@ -930,9 +1016,23 @@ def normalize_psm_score_orientation(
         sorted(
             records,
             key=(
-                (lambda record: (-record.score, record.spectrum_id, record.canonical_peptide, record.charge))
+                (
+                    lambda record: (
+                        -record.score,
+                        record.spectrum_id,
+                        record.canonical_peptide,
+                        record.charge,
+                    )
+                )
                 if score_orientation == "higher_better"
-                else (lambda record: (record.score, record.spectrum_id, record.canonical_peptide, record.charge))
+                else (
+                    lambda record: (
+                        record.score,
+                        record.spectrum_id,
+                        record.canonical_peptide,
+                        record.charge,
+                    )
+                )
             ),
         )
     )
@@ -942,7 +1042,9 @@ def normalize_psm_score_orientation(
     denominator = max(len(sorted_records) - 1, 1)
     normalized_entries: list[NormalizedScoreEntry] = []
     for rank, record in enumerate(sorted_records, start=1):
-        normalized_score = 1.0 if len(sorted_records) == 1 else 1.0 - ((rank - 1) / denominator)
+        normalized_score = (
+            1.0 if len(sorted_records) == 1 else 1.0 - ((rank - 1) / denominator)
+        )
         normalized_entries.append(
             NormalizedScoreEntry(
                 spectrum_id=record.spectrum_id,
@@ -986,10 +1088,20 @@ def build_calibration_plot_data(
                 for entry in normalized_entries
                 if lower <= entry.normalized_score < upper
             )
-        target_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.TARGET)
-        decoy_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.DECOY)
-        mixed_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.MIXED)
-        unknown_count = sum(1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.UNKNOWN)
+        target_count = sum(
+            1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.TARGET
+        )
+        decoy_count = sum(
+            1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.DECOY
+        )
+        mixed_count = sum(
+            1 for entry in bucket if entry.target_decoy_label is TargetDecoyLabel.MIXED
+        )
+        unknown_count = sum(
+            1
+            for entry in bucket
+            if entry.target_decoy_label is TargetDecoyLabel.UNKNOWN
+        )
         denominator = target_count + decoy_count
         bins.append(
             CalibrationPlotBin(
@@ -1041,7 +1153,9 @@ def compute_fdr_reproducibility_hash(
             for entry in annotated
         ],
     }
-    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 
 
 def build_fdr_audit_trail(
@@ -1076,7 +1190,9 @@ def build_fdr_audit_trail(
                 spectrum_id=entry.psm.spectrum_id,
                 canonical_peptide=entry.psm.canonical_peptide,
                 raw_score=entry.psm.score,
-                normalized_score=normalized_entry.normalized_score if normalized_entry is not None else 0.0,
+                normalized_score=normalized_entry.normalized_score
+                if normalized_entry is not None
+                else 0.0,
                 target_decoy_label=entry.psm.target_decoy_label,
                 cumulative_targets=entry.cumulative_targets,
                 cumulative_decoys=entry.cumulative_decoys,
@@ -1107,8 +1223,7 @@ def apply_q_values(
         score_orientation=score_orientation,
     )
     return tuple(
-        entry.psm.model_copy(update={"q_value": entry.q_value})
-        for entry in annotated
+        entry.psm.model_copy(update={"q_value": entry.q_value}) for entry in annotated
     )
 
 
@@ -1124,7 +1239,11 @@ def filter_psms_by_fdr(
         threshold=threshold,
         score_orientation=score_orientation,
     )
-    return tuple(entry.psm.model_copy(update={"q_value": entry.q_value}) for entry in annotated if entry.accepted)
+    return tuple(
+        entry.psm.model_copy(update={"q_value": entry.q_value})
+        for entry in annotated
+        if entry.accepted
+    )
 
 
 def build_psm_summary_report(
@@ -1163,15 +1282,27 @@ def build_psm_summary_report(
     )
 
 
-def build_peptide_summary_report(records: tuple[PsmRecord, ...]) -> PeptideSummaryReport:
+def build_peptide_summary_report(
+    records: tuple[PsmRecord, ...],
+) -> PeptideSummaryReport:
     """Build a compact peptide-level summary report."""
     peptide_rollups = rollup_peptide_evidence(records)
     return PeptideSummaryReport(
         total_peptides=len(peptide_rollups),
-        modified_peptides=sum(1 for peptide in peptide_rollups if "[" in peptide.canonical_peptide),
-        unique_peptides=sum(1 for peptide in peptide_rollups if len(peptide.protein_refs) == 1),
-        shared_peptides=sum(1 for peptide in peptide_rollups if len(peptide.protein_refs) > 1),
-        decoy_peptides=sum(1 for peptide in peptide_rollups if peptide.target_decoy_label is TargetDecoyLabel.DECOY),
+        modified_peptides=sum(
+            1 for peptide in peptide_rollups if "[" in peptide.canonical_peptide
+        ),
+        unique_peptides=sum(
+            1 for peptide in peptide_rollups if len(peptide.protein_refs) == 1
+        ),
+        shared_peptides=sum(
+            1 for peptide in peptide_rollups if len(peptide.protein_refs) > 1
+        ),
+        decoy_peptides=sum(
+            1
+            for peptide in peptide_rollups
+            if peptide.target_decoy_label is TargetDecoyLabel.DECOY
+        ),
     )
 
 
@@ -1381,7 +1512,9 @@ def calculate_grouped_fdr(
     )
 
 
-def build_protein_groups(records: tuple[PsmRecord, ...]) -> tuple[ProteinGroupEntry, ...]:
+def build_protein_groups(
+    records: tuple[PsmRecord, ...],
+) -> tuple[ProteinGroupEntry, ...]:
     """Group indistinguishable proteins by their peptide evidence sets."""
     peptide_rollups = rollup_peptide_evidence(records)
     protein_to_peptides: dict[str, set[str]] = defaultdict(set)
@@ -1399,7 +1532,9 @@ def build_protein_groups(records: tuple[PsmRecord, ...]) -> tuple[ProteinGroupEn
         grouped[tuple(sorted(peptides))].append(protein_ref)
 
     entries: list[ProteinGroupEntry] = []
-    for index, (peptide_set, protein_refs) in enumerate(sorted(grouped.items()), start=1):
+    for index, (peptide_set, protein_refs) in enumerate(
+        sorted(grouped.items()), start=1
+    ):
         sorted_proteins = tuple(sorted(protein_refs))
         representative = sorted_proteins[0]
         entries.append(
@@ -1432,7 +1567,12 @@ def build_protein_groups(records: tuple[PsmRecord, ...]) -> tuple[ProteinGroupEn
                     )
                     > 1
                 ),
-                best_score=max(protein_to_scores[protein_ref][0] if len(protein_to_scores[protein_ref]) == 1 else max(protein_to_scores[protein_ref]) for protein_ref in sorted_proteins),
+                best_score=max(
+                    protein_to_scores[protein_ref][0]
+                    if len(protein_to_scores[protein_ref]) == 1
+                    else max(protein_to_scores[protein_ref])
+                    for protein_ref in sorted_proteins
+                ),
                 best_q_value=min(
                     (
                         q_value
@@ -1442,14 +1582,19 @@ def build_protein_groups(records: tuple[PsmRecord, ...]) -> tuple[ProteinGroupEn
                     default=None,
                 ),
                 target_decoy_label=_combine_labels(
-                    tuple(parse_target_decoy_label(protein_refs=(protein_ref,)) for protein_ref in sorted_proteins)
+                    tuple(
+                        parse_target_decoy_label(protein_refs=(protein_ref,))
+                        for protein_ref in sorted_proteins
+                    )
                 ),
             )
         )
     return tuple(entries)
 
 
-def assign_razor_peptides(records: tuple[PsmRecord, ...]) -> tuple[RazorPeptideAssignment, ...]:
+def assign_razor_peptides(
+    records: tuple[PsmRecord, ...],
+) -> tuple[RazorPeptideAssignment, ...]:
     """Assign shared peptides to one representative protein by razor rules."""
     peptide_rollups = rollup_peptide_evidence(records)
     unique_counts: dict[str, int] = defaultdict(int)
@@ -1494,7 +1639,9 @@ def assign_razor_peptides(records: tuple[PsmRecord, ...]) -> tuple[RazorPeptideA
     return tuple(assignments)
 
 
-def infer_proteins_by_parsimony(records: tuple[PsmRecord, ...]) -> tuple[ParsimonyProteinEntry, ...]:
+def infer_proteins_by_parsimony(
+    records: tuple[PsmRecord, ...],
+) -> tuple[ParsimonyProteinEntry, ...]:
     """Greedily select a parsimonious protein set that explains observed peptides."""
     protein_groups = build_protein_groups(records)
     remaining = {
@@ -1550,7 +1697,9 @@ def build_protein_coverage_map(
     protein_to_peptides: dict[str, set[str]] = defaultdict(set)
     for rollup in rollup_peptide_evidence(records):
         for protein_ref in rollup.protein_refs:
-            protein_to_peptides[protein_ref].add(rollup.canonical_peptide.replace("[", "").replace("]", ""))
+            protein_to_peptides[protein_ref].add(
+                rollup.canonical_peptide.replace("[", "").replace("]", "")
+            )
 
     coverage_entries: list[ProteinCoverageEntry] = []
     for protein_ref in sorted(protein_to_peptides):
@@ -1571,7 +1720,9 @@ def build_protein_coverage_map(
                 protein_ref=protein_ref,
                 residue_count=len(sequence),
                 covered_residue_count=len(covered_positions),
-                coverage_fraction=min(len(covered_positions) / len(sequence), 1.0) if sequence else 0.0,
+                coverage_fraction=min(len(covered_positions) / len(sequence), 1.0)
+                if sequence
+                else 0.0,
                 covered_ranges=tuple(sorted(covered_ranges)),
                 covered_peptides=tuple(sorted(protein_to_peptides[protein_ref])),
             )
@@ -1623,9 +1774,13 @@ def calculate_picked_protein_fdr(
 
     def _base_accession(protein_ref: str) -> str:
         value = protein_ref
-        if active_policy.protein_prefix and value.startswith(active_policy.protein_prefix):
+        if active_policy.protein_prefix and value.startswith(
+            active_policy.protein_prefix
+        ):
             value = value[len(active_policy.protein_prefix) :]
-        if active_policy.protein_suffix and value.endswith(active_policy.protein_suffix):
+        if active_policy.protein_suffix and value.endswith(
+            active_policy.protein_suffix
+        ):
             value = value[: -len(active_policy.protein_suffix)]
         return value
 
@@ -1633,18 +1788,26 @@ def calculate_picked_protein_fdr(
     for rollup in protein_rollups:
         paired[_base_accession(rollup.protein_ref)].append(rollup)
 
-    selected_entities: list[tuple[str, float, TargetDecoyLabel, tuple[str, ...], str | None]] = []
-    for base_accession, entries in sorted(paired.items()):
+    selected_entities: list[
+        tuple[str, float, TargetDecoyLabel, tuple[str, ...], str | None]
+    ] = []
+    for _base_accession_key, entries in sorted(paired.items()):
         sorted_entries = sorted(
             entries,
             key=lambda entry: (
-                -entry.best_score if score_orientation == "higher_better" else entry.best_score,
+                -entry.best_score
+                if score_orientation == "higher_better"
+                else entry.best_score,
                 entry.protein_ref,
             ),
         )
         winner = sorted_entries[0]
         partner_ref = next(
-            (entry.protein_ref for entry in sorted_entries[1:] if entry.target_decoy_label is not winner.target_decoy_label),
+            (
+                entry.protein_ref
+                for entry in sorted_entries[1:]
+                if entry.target_decoy_label is not winner.target_decoy_label
+            ),
             None,
         )
         selected_entities.append(

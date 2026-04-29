@@ -5,22 +5,21 @@
 
 from __future__ import annotations
 
-import hashlib
 from enum import StrEnum
+import hashlib
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.formats import (
-    detect_proteomics_format,
     ExperimentalDesignEntry,
+    detect_proteomics_format,
     parse_experimental_design_table,
-    ProteomicsFormatKind,
 )
 from bijux_proteomics.qc import _stable_sha256 as _stable_model_sha256
 from bijux_proteomics.search_adapters import (
-    get_search_adapter_manifest,
     SearchAdapterKind,
+    get_search_adapter_manifest,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -383,7 +382,11 @@ def _hash_file(path: Path) -> str:
 
 
 def _sanitize_identifier(value: str) -> str:
-    return "".join(character if character.isalnum() else "-" for character in value).strip("-").lower()
+    return (
+        "".join(character if character.isalnum() else "-" for character in value)
+        .strip("-")
+        .lower()
+    )
 
 
 def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
@@ -393,15 +396,27 @@ def _resolve_input_kind(path: Path, role: WorkflowInputRole) -> str:
     return detected.value
 
 
-def _resolve_streaming_mode(path: Path, role: WorkflowInputRole, threshold_bytes: int) -> WorkflowStreamingMode:
-    if role in {WorkflowInputRole.SPECTRA, WorkflowInputRole.IDENTIFICATIONS, WorkflowInputRole.FEATURES} and path.stat().st_size >= threshold_bytes:
+def _resolve_streaming_mode(
+    path: Path, role: WorkflowInputRole, threshold_bytes: int
+) -> WorkflowStreamingMode:
+    if (
+        role
+        in {
+            WorkflowInputRole.SPECTRA,
+            WorkflowInputRole.IDENTIFICATIONS,
+            WorkflowInputRole.FEATURES,
+        }
+        and path.stat().st_size >= threshold_bytes
+    ):
         return WorkflowStreamingMode.STREAMING
     if path.suffix.lower() == ".mzml":
         return WorkflowStreamingMode.STREAMING
     return WorkflowStreamingMode.EAGER
 
 
-def _input_asset(path: Path, role: WorkflowInputRole, threshold_bytes: int) -> WorkflowInputAsset:
+def _input_asset(
+    path: Path, role: WorkflowInputRole, threshold_bytes: int
+) -> WorkflowInputAsset:
     return WorkflowInputAsset(
         role=role,
         path=str(path),
@@ -486,8 +501,12 @@ def build_proteomics_workflow_manifest(
     adapter_manifest = get_search_adapter_manifest(search_adapter_kind)
 
     input_assets = [
-        _input_asset(proteins_path, WorkflowInputRole.PROTEINS, streaming_threshold_bytes),
-        _input_asset(spectra_path, WorkflowInputRole.SPECTRA, streaming_threshold_bytes),
+        _input_asset(
+            proteins_path, WorkflowInputRole.PROTEINS, streaming_threshold_bytes
+        ),
+        _input_asset(
+            spectra_path, WorkflowInputRole.SPECTRA, streaming_threshold_bytes
+        ),
     ]
     if identifications_path is not None:
         input_assets.append(
@@ -499,11 +518,15 @@ def build_proteomics_workflow_manifest(
         )
     if features_path is not None:
         input_assets.append(
-            _input_asset(features_path, WorkflowInputRole.FEATURES, streaming_threshold_bytes)
+            _input_asset(
+                features_path, WorkflowInputRole.FEATURES, streaming_threshold_bytes
+            )
         )
     if design_path is not None:
         input_assets.append(
-            _input_asset(design_path, WorkflowInputRole.DESIGN, streaming_threshold_bytes)
+            _input_asset(
+                design_path, WorkflowInputRole.DESIGN, streaming_threshold_bytes
+            )
         )
 
     validate_step_id = f"{workflow_id}-validate-inputs"
@@ -522,7 +545,13 @@ def build_proteomics_workflow_manifest(
             label="validate workflow inputs and detect supported proteomics formats",
             consumes_roles=tuple(asset.role for asset in input_assets),
             produces_artifacts=(),
-            command_preview=("bijux-proteomics", "validate", str(spectra_path), "--kind", "auto"),
+            command_preview=(
+                "bijux-proteomics",
+                "validate",
+                str(spectra_path),
+                "--kind",
+                "auto",
+            ),
             cacheable=False,
         ),
         _build_step(
@@ -580,8 +609,16 @@ def build_proteomics_workflow_manifest(
             normalize_step_id,
             WorkflowStepKind.NORMALIZE_IDENTIFICATIONS,
             label="normalize search results into stable PSM contracts",
-            depends_on=((search_step_id,) if execution_mode is WorkflowExecutionMode.EXTERNAL_SEARCH else (validate_step_id,)),
-            consumes_roles=((WorkflowInputRole.IDENTIFICATIONS,) if identifications_path is not None else (WorkflowInputRole.SPECTRA,)),
+            depends_on=(
+                (search_step_id,)
+                if execution_mode is WorkflowExecutionMode.EXTERNAL_SEARCH
+                else (validate_step_id,)
+            ),
+            consumes_roles=(
+                (WorkflowInputRole.IDENTIFICATIONS,)
+                if identifications_path is not None
+                else (WorkflowInputRole.SPECTRA,)
+            ),
             produces_artifacts=(WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
             command_preview=(
                 "bijux-proteomics",
@@ -696,11 +733,17 @@ def build_proteomics_workflow_manifest(
         checkpointable_steps=tuple(step.step_id for step in steps),
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
-def build_proteomics_dag_plan(manifest: ProteomicsWorkflowManifest) -> ProteomicsDagPlan:
+def build_proteomics_dag_plan(
+    manifest: ProteomicsWorkflowManifest,
+) -> ProteomicsDagPlan:
     """Project a workflow manifest into a DAG-shaped execution plan."""
     nodes = tuple(
         WorkflowDagNode(
@@ -730,7 +773,11 @@ def build_proteomics_dag_plan(manifest: ProteomicsWorkflowManifest) -> Proteomic
         edges=edges,
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
@@ -770,7 +817,11 @@ def build_external_search_tool_contract(
 ) -> ExternalSearchToolContract:
     """Build a submit/wait/collect contract for the workflow search surface."""
     submit_step_id = next(
-        (step.step_id for step in manifest.steps if step.kind is WorkflowStepKind.RUN_SEARCH_ENGINE),
+        (
+            step.step_id
+            for step in manifest.steps
+            if step.kind is WorkflowStepKind.RUN_SEARCH_ENGINE
+        ),
         f"{manifest.workflow_id}-run-search-engine",
     )
     collect_step_id = next(
@@ -816,7 +867,11 @@ def build_external_search_tool_contract(
         ),
     )
     return contract.model_copy(
-        update={"document_schema": contract.document_schema.with_content_hash(contract.to_dict())}
+        update={
+            "document_schema": contract.document_schema.with_content_hash(
+                contract.to_dict()
+            )
+        }
     )
 
 
@@ -837,7 +892,11 @@ def build_workflow_runtime_cache(
         ),
         (
             "search-normalization",
-            ((WorkflowInputRole.IDENTIFICATIONS,) if WorkflowInputRole.IDENTIFICATIONS in asset_by_role else (WorkflowInputRole.SPECTRA,)),
+            (
+                (WorkflowInputRole.IDENTIFICATIONS,)
+                if WorkflowInputRole.IDENTIFICATIONS in asset_by_role
+                else (WorkflowInputRole.SPECTRA,)
+            ),
             (WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS,),
         ),
         (
@@ -875,7 +934,11 @@ def build_workflow_runtime_cache(
         entries=tuple(entries),
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
@@ -903,9 +966,13 @@ def build_proteomics_artifact_registry(
             elif artifact_kind is WorkflowArtifactKind.RUN_BUNDLE:
                 artifact_path = f"{manifest.artifacts_dir}/bundle/bundle.manifest.json"
             elif artifact_kind is WorkflowArtifactKind.JOB_DESCRIPTOR:
-                artifact_path = f"{manifest.artifacts_dir}/jobs/{manifest.workflow_id}.slurm"
+                artifact_path = (
+                    f"{manifest.artifacts_dir}/jobs/{manifest.workflow_id}.slurm"
+                )
             elif artifact_kind is WorkflowArtifactKind.CHECKPOINT:
-                artifact_path = f"{manifest.artifacts_dir}/checkpoints/{manifest.workflow_id}.json"
+                artifact_path = (
+                    f"{manifest.artifacts_dir}/checkpoints/{manifest.workflow_id}.json"
+                )
             artifacts.append(
                 ArtifactRegistryEntry(
                     artifact_id=artifact_id,
@@ -922,7 +989,11 @@ def build_proteomics_artifact_registry(
         artifacts=tuple(artifacts),
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
@@ -936,7 +1007,8 @@ def build_large_file_streaming_policy(
     for asset in manifest.input_assets:
         mode = (
             WorkflowStreamingMode.STREAMING
-            if asset.streaming_mode is WorkflowStreamingMode.STREAMING or asset.size_bytes >= threshold_bytes
+            if asset.streaming_mode is WorkflowStreamingMode.STREAMING
+            or asset.size_bytes >= threshold_bytes
             else WorkflowStreamingMode.EAGER
         )
         rationale = (
@@ -960,7 +1032,11 @@ def build_large_file_streaming_policy(
         entries=tuple(entries),
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
@@ -976,11 +1052,17 @@ def build_parallel_execution_plan(
         for step_id in tuple(unresolved):
             step = step_by_id[step_id]
             if all(dependency in levels for dependency in step.depends_on):
-                levels[step_id] = 0 if not step.depends_on else max(levels[dependency] for dependency in step.depends_on) + 1
+                levels[step_id] = (
+                    0
+                    if not step.depends_on
+                    else max(levels[dependency] for dependency in step.depends_on) + 1
+                )
                 unresolved.remove(step_id)
                 progressed = True
         if not progressed:
-            raise ValueError("workflow steps contain a cycle and cannot be parallelized deterministically")
+            raise ValueError(
+                "workflow steps contain a cycle and cannot be parallelized deterministically"
+            )
     grouped: dict[int, list[str]] = {}
     for step_id, level in levels.items():
         grouped.setdefault(level, []).append(step_id)
@@ -998,7 +1080,11 @@ def build_parallel_execution_plan(
         groups=groups,
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
@@ -1043,7 +1129,11 @@ def build_hpc_job_descriptor(
         script_text=script_text,
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
@@ -1089,7 +1179,9 @@ def build_workflow_checkpoint(
     payload = WorkflowCheckpoint(
         document_schema=_build_document_schema("workflow_checkpoint"),
         workflow_id=manifest.workflow_id,
-        completed_step_ids=tuple(step_id for step_id in manifest.checkpointable_steps if step_id in completed),
+        completed_step_ids=tuple(
+            step_id for step_id in manifest.checkpointable_steps if step_id in completed
+        ),
         pending_step_ids=tuple(pending_step_ids),
         blocked_step_ids=tuple(blocked_step_ids),
         artifact_registry_sha256=_stable_model_sha256(artifact_registry),
@@ -1097,7 +1189,11 @@ def build_workflow_checkpoint(
         steps=tuple(steps),
     )
     return payload.model_copy(
-        update={"document_schema": payload.document_schema.with_content_hash(payload.to_dict())}
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
     )
 
 
