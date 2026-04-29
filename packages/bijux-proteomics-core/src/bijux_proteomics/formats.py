@@ -118,6 +118,7 @@ class ExperimentalDesignEntry(JsonModel):
     fraction: int = Field(..., ge=1)
     spectra_file: str = Field(..., min_length=1)
     identifications_file: str | None = None
+    batch: str | None = None
     instrument: str | None = None
     search_engine: str | None = None
 
@@ -126,6 +127,7 @@ class ExperimentalDesignEntry(JsonModel):
         "condition",
         "spectra_file",
         "identifications_file",
+        "batch",
         "instrument",
         "search_engine",
         mode="before",
@@ -166,6 +168,7 @@ class ProteomicsRunMetadata(JsonModel):
     condition: str | None = None
     replicate: int | None = Field(default=None, ge=1)
     fraction: int | None = Field(default=None, ge=1)
+    batch: str | None = None
     instrument: str | None = None
     search_engine: str | None = None
     run_id: str | None = None
@@ -647,6 +650,7 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 fraction=int(values.get("fraction") or "0"),
                 spectra_file=values.get("spectra_file") or "",
                 identifications_file=values.get("identifications_file"),
+                batch=values.get("batch"),
                 instrument=values.get("instrument"),
                 search_engine=values.get("search_engine"),
             )
@@ -690,6 +694,7 @@ def harmonize_run_metadata(
         condition=design_entry.condition if design_entry is not None else None,
         replicate=design_entry.replicate if design_entry is not None else None,
         fraction=design_entry.fraction if design_entry is not None else None,
+        batch=design_entry.batch if design_entry is not None else None,
         instrument=(
             design_entry.instrument
             if design_entry is not None and design_entry.instrument is not None

@@ -58,6 +58,15 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "compare_search_result_reports" in bijux_proteomics.__all__
     assert "build_search_adapter_conformance_report" in bijux_proteomics.__all__
     assert "SearchAdapterKind" in bijux_proteomics.__all__
+    assert "Ms1FeatureRecord" in bijux_proteomics.__all__
+    assert "parse_ms1_feature_table" in bijux_proteomics.__all__
+    assert "build_label_free_intensity_table" in bijux_proteomics.__all__
+    assert "build_spectral_count_table" in bijux_proteomics.__all__
+    assert "normalize_label_free_table" in bijux_proteomics.__all__
+    assert "build_batch_effect_advisory" in bijux_proteomics.__all__
+    assert "build_replicate_correlation_report" in bijux_proteomics.__all__
+    assert "build_differential_abundance_report" in bijux_proteomics.__all__
+    assert "apply_benjamini_hochberg" in bijux_proteomics.__all__
 
 
 def test_intelligence_public_api_contains_expected_exports() -> None:
