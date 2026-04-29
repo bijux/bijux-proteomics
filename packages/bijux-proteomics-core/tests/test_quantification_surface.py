@@ -280,6 +280,11 @@ def test_differential_abundance_and_bh_correction_surface_signal() -> None:
 
     assert first.adjusted_p_value is not None
     assert all(entry.adjusted_p_value is not None for entry in differential.entries)
+    assert differential.assumption_report.test_type == "welch_t_test"
+    assert (
+        differential.assumption_report.multiple_testing_scope
+        == "benjamini_hochberg_report_wide_entities"
+    )
     assert p001.log2_fold_change > 0
     assert p002.log2_fold_change < 0
 

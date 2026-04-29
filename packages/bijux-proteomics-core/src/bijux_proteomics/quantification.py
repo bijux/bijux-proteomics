@@ -358,6 +358,17 @@ class DifferentialReplicatePolicy(JsonModel):
     disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ENFORCED
 
 
+class DifferentialAbundanceAssumptionReport(JsonModel):
+    """Test and correction assumptions carried by a differential abundance report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    test_type: str = Field(..., min_length=1)
+    variance_assumption: str = Field(..., min_length=1)
+    multiple_testing_scope: str = Field(..., min_length=1)
+    replicate_policy: DifferentialReplicatePolicy
+
+
 class DifferentialAbundanceEntry(JsonModel):
     """One entity-level two-condition differential abundance result."""
 
@@ -387,6 +398,7 @@ class DifferentialAbundanceReport(JsonModel):
     replicate_policy: DifferentialReplicatePolicy = Field(
         default_factory=DifferentialReplicatePolicy
     )
+    assumption_report: DifferentialAbundanceAssumptionReport
     entries: tuple[DifferentialAbundanceEntry, ...] = Field(default_factory=tuple)
 
 
@@ -1503,6 +1515,12 @@ def build_differential_abundance_report(
         condition_a=condition_a,
         condition_b=condition_b,
         replicate_policy=active_policy,
+        assumption_report=DifferentialAbundanceAssumptionReport(
+            test_type="welch_t_test",
+            variance_assumption="unequal_variance",
+            multiple_testing_scope="uncorrected_report_wide_entities",
+            replicate_policy=active_policy,
+        ),
         entries=tuple(entries),
     )
 
@@ -1525,4 +1543,13 @@ def apply_benjamini_hochberg(
         entry.model_copy(update={"adjusted_p_value": adjusted[index]})
         for index, entry in enumerate(report.entries)
     )
-    return report.model_copy(update={"entries": entries})
+    return report.model_copy(
+        update={
+            "entries": entries,
+            "assumption_report": report.assumption_report.model_copy(
+                update={
+                    "multiple_testing_scope": "benjamini_hochberg_report_wide_entities"
+                }
+            ),
+        }
+    )

@@ -320,6 +320,7 @@ from bijux_proteomics.qc import (
 from bijux_proteomics.quantification import (
     BatchEffectAdvisoryReport,
     BatchEffectBatchEntry,
+    DifferentialAbundanceAssumptionReport,
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialReplicatePolicy,
@@ -968,6 +969,7 @@ __all__ = [
     "render_qc_assessment_html",
     "BatchEffectAdvisoryReport",
     "BatchEffectBatchEntry",
+    "DifferentialAbundanceAssumptionReport",
     "DifferentialAbundanceEntry",
     "DifferentialAbundanceReport",
     "DifferentialReplicatePolicy",
