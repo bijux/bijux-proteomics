@@ -118,6 +118,17 @@ class WorkflowResumeKind(StrEnum):
     EXTERNAL_STATE = "external-state"
 
 
+class WorkflowScientificSurface(StrEnum):
+    """Scientific surfaces connected by a runtime workflow blueprint."""
+
+    SEQUENCE_INTAKE = "sequence_intake"
+    SEARCH_INGESTION = "search_ingestion"
+    CONFIDENCE_SCORING = "confidence_scoring"
+    QUANTIFICATION = "quantification"
+    QUALITY_CONTROL = "quality_control"
+    EVIDENCE_SYNTHESIS = "evidence_synthesis"
+
+
 class DeterministicExecutionContract(JsonModel):
     """Stable reproducibility contract over one runtime execution plan."""
 
@@ -133,6 +144,33 @@ class DeterministicExecutionContract(JsonModel):
     container_steps_sha256: str = Field(..., min_length=64, max_length=64)
     hpc_job_sha256: str = Field(..., min_length=64, max_length=64)
     execution_fingerprint: str = Field(..., min_length=64, max_length=64)
+
+
+class WorkflowBlueprintStepMapping(JsonModel):
+    """One manifest step mapped onto a scientific workflow surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    step_kind: WorkflowStepKind
+    scientific_surface: WorkflowScientificSurface
+    required_input_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
+    produced_artifact_kinds: tuple[WorkflowArtifactKind, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
+
+
+class ReproducibleWorkflowBlueprint(JsonModel):
+    """Reviewable scientific blueprint projected from a runtime workflow manifest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    workflow_id: str = Field(..., min_length=1)
+    execution_mode: WorkflowExecutionMode
+    input_roles: tuple[WorkflowInputRole, ...] = Field(default_factory=tuple)
+    steps: tuple[WorkflowBlueprintStepMapping, ...] = Field(default_factory=tuple)
 
 
 class CoreResultRuntimeBinding(JsonModel):
@@ -1102,6 +1140,55 @@ def build_proteomics_dag_plan(
         workflow_id=manifest.workflow_id,
         nodes=nodes,
         edges=edges,
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
+def build_reproducible_workflow_blueprint(
+    manifest: ProteomicsWorkflowManifest,
+) -> ReproducibleWorkflowBlueprint:
+    """Project a runtime manifest onto scientific workflow surfaces."""
+    surface_by_kind = {
+        WorkflowStepKind.VALIDATE_INPUTS: WorkflowScientificSurface.SEQUENCE_INTAKE,
+        WorkflowStepKind.DIGEST_DATABASE: WorkflowScientificSurface.SEQUENCE_INTAKE,
+        WorkflowStepKind.RUN_SEARCH_ENGINE: WorkflowScientificSurface.SEARCH_INGESTION,
+        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS: WorkflowScientificSurface.SEARCH_INGESTION,
+        WorkflowStepKind.CALCULATE_FDR: WorkflowScientificSurface.CONFIDENCE_SCORING,
+        WorkflowStepKind.QUANTIFY_FEATURES: WorkflowScientificSurface.QUANTIFICATION,
+        WorkflowStepKind.RUN_QC: WorkflowScientificSurface.QUALITY_CONTROL,
+        WorkflowStepKind.BUILD_RUN_BUNDLE: WorkflowScientificSurface.EVIDENCE_SYNTHESIS,
+    }
+    note_by_surface = {
+        WorkflowScientificSurface.SEQUENCE_INTAKE: "sequence and raw-input intake stays explicit before search interpretation begins",
+        WorkflowScientificSurface.SEARCH_INGESTION: "search evidence is normalized before any confidence interpretation is attached",
+        WorkflowScientificSurface.CONFIDENCE_SCORING: "target-decoy confidence is separated from raw search ingestion",
+        WorkflowScientificSurface.QUANTIFICATION: "quantification remains an explicit scientific surface instead of a runtime side effect",
+        WorkflowScientificSurface.QUALITY_CONTROL: "quality control remains inspectable alongside identification and quant outputs",
+        WorkflowScientificSurface.EVIDENCE_SYNTHESIS: "reviewable evidence artifacts are assembled only after scientific sub-results exist",
+    }
+    steps = tuple(
+        WorkflowBlueprintStepMapping(
+            step_id=step.step_id,
+            step_kind=step.kind,
+            scientific_surface=surface_by_kind[step.kind],
+            required_input_roles=step.consumes_roles,
+            produced_artifact_kinds=step.produces_artifacts,
+            note=note_by_surface[surface_by_kind[step.kind]],
+        )
+        for step in manifest.steps
+    )
+    payload = ReproducibleWorkflowBlueprint(
+        document_schema=_build_document_schema("reproducible_workflow_blueprint"),
+        workflow_id=manifest.workflow_id,
+        execution_mode=manifest.execution_mode,
+        input_roles=tuple(asset.role for asset in manifest.input_assets),
+        steps=steps,
     )
     return payload.model_copy(
         update={

@@ -11,11 +11,13 @@ from bijux_proteomics import (
     build_workflow_runtime_export_bundle,
     build_workflow_cache_miss_explanation_report,
     build_deterministic_execution_contract,
+    build_reproducible_workflow_blueprint,
     build_workflow_run_directory_layout,
     build_workflow_runtime_validation_report,
     build_workflow_runtime_state_manifest,
     WorkflowCacheMissReason,
     WorkflowCheckpointStatus,
+    WorkflowScientificSurface,
     WorkflowExecutionMode,
     WorkflowInputRole,
     WorkflowSchedulerKind,
@@ -66,6 +68,31 @@ def test_workflow_manifest_projects_imported_results_into_dag_ready_steps() -> N
         WorkflowInputRole.FEATURES,
         WorkflowInputRole.DESIGN,
     }
+
+
+def test_reproducible_workflow_blueprint_connects_sequence_search_fdr_quant_qc_and_evidence() -> (
+    None
+):
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    blueprint = build_reproducible_workflow_blueprint(manifest)
+
+    assert blueprint.workflow_id == manifest.workflow_id
+    surfaces = {entry.scientific_surface for entry in blueprint.steps}
+    assert WorkflowScientificSurface.SEQUENCE_INTAKE in surfaces
+    assert WorkflowScientificSurface.SEARCH_INGESTION in surfaces
+    assert WorkflowScientificSurface.CONFIDENCE_SCORING in surfaces
+    assert WorkflowScientificSurface.QUANTIFICATION in surfaces
+    assert WorkflowScientificSurface.QUALITY_CONTROL in surfaces
+    assert WorkflowScientificSurface.EVIDENCE_SYNTHESIS in surfaces
 
 
 def test_workflow_runtime_bundle_surfaces_cache_registry_checkpoint_and_job_script() -> (
