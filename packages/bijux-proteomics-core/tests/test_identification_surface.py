@@ -28,6 +28,7 @@ from bijux_proteomics import (
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
     build_protein_groups,
+    build_razor_peptide_provenance_report,
     build_shared_peptide_ambiguity_report,
     build_protein_summary_report,
     build_psm_summary_report,
@@ -663,6 +664,29 @@ def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
     assert {entry.protein_ref for entry in parsimony} == {"P11111", "P22222", "P33333"}
     assert shared_assignment.assigned_protein == "P11111"
     assert shared_assignment.rationale == "unique_evidence_priority"
+
+
+def test_razor_peptide_provenance_report_explains_assignment_policy() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    provenance = build_razor_peptide_provenance_report(accepted)
+
+    shared = next(
+        entry for entry in provenance.entries if entry.canonical_peptide == "SHAREDK"
+    )
+    assert provenance.policy_name == "unique_peptide_then_best_score_then_lexicographic"
+    assert provenance.tie_break_order == (
+        "unique_peptide_count",
+        "best_score",
+        "protein_accession",
+    )
+    assert shared.assigned_protein == "P11111"
+    assert shared.candidate_unique_peptide_counts["P11111"] == 1
+    assert shared.candidate_unique_peptide_counts["P22222"] == 0
+    assert shared.candidate_best_scores["P11111"] == 100.0
 
 
 def test_named_parsimony_variants_are_explicit_and_comparable() -> None:

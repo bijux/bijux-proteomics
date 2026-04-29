@@ -507,6 +507,29 @@ class RazorPeptideAssignment(JsonModel):
     rationale: str = Field(..., min_length=1)
 
 
+class RazorPeptideProvenanceEntry(JsonModel):
+    """Audit-friendly evidence for one razor peptide assignment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    candidate_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    assigned_protein: str = Field(..., min_length=1)
+    rationale: str = Field(..., min_length=1)
+    candidate_unique_peptide_counts: dict[str, int] = Field(default_factory=dict)
+    candidate_best_scores: dict[str, float] = Field(default_factory=dict)
+
+
+class RazorPeptideProvenanceReport(JsonModel):
+    """Razor assignment policy plus per-peptide audit evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_name: str = Field(..., min_length=1)
+    tie_break_order: tuple[str, ...] = Field(default_factory=tuple)
+    entries: tuple[RazorPeptideProvenanceEntry, ...] = Field(default_factory=tuple)
+
+
 class ParsimonyVariantResult(JsonModel):
     """Selections produced by one named protein-parsimony policy."""
 
@@ -2409,6 +2432,54 @@ def assign_razor_peptides(
             )
         )
     return tuple(assignments)
+
+
+def build_razor_peptide_provenance_report(
+    records: tuple[PsmRecord, ...],
+) -> RazorPeptideProvenanceReport:
+    """Build an explicit provenance report for razor peptide assignments."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    unique_counts: dict[str, int] = defaultdict(int)
+    best_scores: dict[str, float] = defaultdict(float)
+    for rollup in peptide_rollups:
+        for protein_ref in rollup.protein_refs:
+            best_scores[protein_ref] = max(best_scores[protein_ref], rollup.best_score)
+        if len(rollup.protein_refs) == 1:
+            unique_counts[rollup.protein_refs[0]] += 1
+
+    assignments = {
+        entry.canonical_peptide: entry for entry in assign_razor_peptides(records)
+    }
+    entries: list[RazorPeptideProvenanceEntry] = []
+    for rollup in sorted(peptide_rollups, key=lambda entry: entry.canonical_peptide):
+        assignment = assignments.get(rollup.canonical_peptide)
+        if assignment is None:
+            continue
+        entries.append(
+            RazorPeptideProvenanceEntry(
+                canonical_peptide=rollup.canonical_peptide,
+                candidate_proteins=assignment.candidate_proteins,
+                assigned_protein=assignment.assigned_protein,
+                rationale=assignment.rationale,
+                candidate_unique_peptide_counts={
+                    protein_ref: unique_counts.get(protein_ref, 0)
+                    for protein_ref in assignment.candidate_proteins
+                },
+                candidate_best_scores={
+                    protein_ref: best_scores.get(protein_ref, 0.0)
+                    for protein_ref in assignment.candidate_proteins
+                },
+            )
+        )
+    return RazorPeptideProvenanceReport(
+        policy_name="unique_peptide_then_best_score_then_lexicographic",
+        tie_break_order=(
+            "unique_peptide_count",
+            "best_score",
+            "protein_accession",
+        ),
+        entries=tuple(entries),
+    )
 
 
 def _parsimony_sort_key(
