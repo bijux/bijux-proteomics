@@ -772,3 +772,70 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
         assert len(payload["ambiguity_report"]) == 2
         assert payload["fdr_report"]["entries"][-1]["accepted"] is False
         assert any(entry["sample_id"] == "T2" and entry["occupancy_fraction"] == 0.79 for entry in payload["occupancy"])
+
+
+def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        for name in ("spectra.mgf", "results.tsv", "proteins.fasta", "design.tsv", "qc_policy.json"):
+            shutil.copy(fixture_dir / name, name)
+
+        result = runner.invoke(
+            cli,
+            [
+                "qc",
+                "report",
+                "spectra.mgf",
+                "results.tsv",
+                "proteins.fasta",
+                "--design",
+                "design.tsv",
+                "--policy",
+                "qc_policy.json",
+                "--tsv-out",
+                "qc.tsv",
+                "--html-out",
+                "qc.html",
+                "--manifest-out",
+                "qc.manifest.json",
+                "--benchmark-out",
+                "qc.benchmark.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["run_report"]["run_id"] == "spectra"
+        assert payload["run_assessment"]["policy_name"] == "production-demo-qc"
+        assert Path("qc.tsv").read_text().startswith("scope\tentity_id\tmetric_key")
+        assert "Bijux Proteomics QC Report" in Path("qc.html").read_text()
+        manifest = json.loads(Path("qc.manifest.json").read_text())
+        benchmark = json.loads(Path("qc.benchmark.json").read_text())
+        assert manifest["document_schema"]["document_kind"] == "qc_evidence_manifest"
+        assert benchmark["document_schema"]["document_kind"] == "proteomics_performance_snapshot"
+
+
+def test_qc_report_command_reports_structured_policy_errors() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        for name in ("spectra.mgf", "results.tsv", "proteins.fasta"):
+            shutil.copy(fixture_dir / name, name)
+        Path("bad-policy.json").write_text("{not valid json}\n")
+
+        result = runner.invoke(
+            cli,
+            [
+                "qc",
+                "report",
+                "spectra.mgf",
+                "results.tsv",
+                "proteins.fasta",
+                "--policy",
+                "bad-policy.json",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "QC_POLICY_INVALID" in result.output
