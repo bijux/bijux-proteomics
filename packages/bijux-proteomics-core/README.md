@@ -360,6 +360,26 @@ bijux-proteomics bundle-run \
 That workflow is documented in
 [`docs/FORMAT_INGESTION.md`](./docs/FORMAT_INGESTION.md).
 
+Workflow-runtime planning is also available as a first-class operator surface:
+
+```bash
+bijux-proteomics workflow-plan \
+  --proteins proteins.fasta \
+  --spectra spectra.mgf \
+  --identifications results.tsv \
+  --features ms1_features.tsv \
+  --design design.tsv \
+  --sample-id sample-A \
+  --search-adapter generic \
+  --dag-out workflow.dag.json \
+  --job-out workflow.slurm \
+  --checkpoint-out workflow.checkpoint.json \
+  --out workflow.bundle.json
+```
+
+That workflow is documented in
+[`docs/WORKFLOW_RUNTIME.md`](./docs/WORKFLOW_RUNTIME.md).
+
 Search-result adapters are also first-class now:
 
 ```bash
@@ -557,9 +577,11 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 - [`src/bijux_proteomics/formats.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/formats.py) for mzML parsing, format detection, design-table validation, normalized conversion, and run bundles
 - [`src/bijux_proteomics/search_adapters.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/search_adapters.py) for engine-specific manifests, adapter normalization, capability matrices, and adapter provenance
 - [`src/bijux_proteomics/spectra.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/spectra.py) for spectrum models, MGF parsing/rendering, peak normalization and filtering, fragment annotation, and plot payload export
+- [`src/bijux_proteomics/workflow_runtime.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py) for workflow manifests, DAG projection, container and HPC planning, cache contracts, artifact lineage, streaming policy, and checkpoints
 - [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
 - [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
 - [`docs/FORMAT_INGESTION.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FORMAT_INGESTION.md) for mzML, design-table, format-conversion, and run-bundle workflows
+- [`docs/WORKFLOW_RUNTIME.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/WORKFLOW_RUNTIME.md) for workflow manifests, DAG projection, cache/artifact planning, scheduler export, and checkpoint semantics
 - [`docs/PROTEIN_INFERENCE.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PROTEIN_INFERENCE.md) for multi-level FDR, grouping, parsimony, picked protein FDR, and sequence-aware coverage workflows
 - [`docs/PTM_WORKFLOWS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PTM_WORKFLOWS.md) for localized PTM evidence parsing, site aggregation, ambiguity reporting, site FDR, motif windows, enrichment export, and occupancy estimation
 - [`docs/SEARCH_ADAPTERS.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/SEARCH_ADAPTERS.md) for engine-specific table normalization and adapter provenance workflows
