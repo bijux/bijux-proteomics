@@ -193,3 +193,7 @@ def test_runtime_lookup_contracts_apply_pagination_and_query_cost(
     assert len(paged_payload["data"]["runs"]) == 2
     assert paged_payload["data"]["page"]["next_cursor"] is None
     assert rejected_response.status_code == 422
+    error_payload = rejected_response.json()["error"]
+    assert error_payload["failure_class"] == "input"
+    assert error_payload["remediation_hint"]
+    assert error_payload["evidence_pointer"] is None

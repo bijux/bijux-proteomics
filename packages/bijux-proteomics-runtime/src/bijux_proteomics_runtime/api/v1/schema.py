@@ -29,6 +29,14 @@ class ErrorResponse(BaseModel):
     status: int = Field(..., description="HTTP status code.")
     detail: str = Field(..., description="Human-readable explanation.")
     instance: str = Field(..., description="URI reference for this occurrence.")
+    failure_class: str = Field(..., min_length=1, description="Stable failure class.")
+    remediation_hint: str = Field(
+        ..., min_length=1, description="Operator-facing remediation hint."
+    )
+    evidence_pointer: str | None = Field(
+        default=None,
+        description="Optional path or identifier that points to relevant evidence.",
+    )
 
 
 class VersionInfo(BaseModel):

@@ -399,6 +399,9 @@ def run(
                     status=1,
                     detail=str(exc),
                     instance="cli:run",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
                 ),
             )
         else:
@@ -468,6 +471,9 @@ def resume(
                     status=1,
                     detail=str(exc),
                     instance="cli:resume",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
                 ),
             )
         else:
@@ -499,6 +505,9 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
                     status=1,
                     detail=str(exc),
                     instance="cli:compare",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
                 ),
             )
         else:
@@ -532,6 +541,9 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
                     status=1,
                     detail=str(exc),
                     instance="cli:inspect-candidate",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
                 ),
             )
         else:
