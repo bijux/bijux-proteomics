@@ -43,6 +43,7 @@ from bijux_proteomics import (
     rollup_protein_evidence,
     select_best_psm_per_spectrum,
     sort_psm_records,
+    verify_fdr_q_value_monotonicity,
 )
 
 
@@ -444,6 +445,24 @@ def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels()
     assert len(level_report.protein_entries) == 5
     assert len(grouped_report.groups) == 1
     assert grouped_report.groups[0].group_key == "z2"
+
+
+def test_fdr_monotonicity_verification_covers_supported_levels() -> None:
+    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+    monotonicity = verify_fdr_q_value_monotonicity(
+        report.accepted_records,
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+
+    assert monotonicity.valid is True
+    assert {check.scope for check in monotonicity.checks} >= {
+        "psm",
+        "peptide",
+        "protein",
+        "picked_protein",
+    }
+    assert all(check.first_break_rank is None for check in monotonicity.checks)
 
 
 def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:

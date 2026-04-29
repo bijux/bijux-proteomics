@@ -311,6 +311,26 @@ class LevelSpecificFdrReport(JsonModel):
     protein_entries: tuple[FdrLevelEntry, ...] = Field(default_factory=tuple)
 
 
+class FdrQValueMonotonicityCheck(JsonModel):
+    """One monotonicity verification result over an ordered FDR surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scope: str = Field(..., min_length=1)
+    entry_count: int = Field(..., ge=0)
+    valid: bool
+    first_break_rank: int | None = Field(default=None, ge=1)
+
+
+class FdrQValueMonotonicityReport(JsonModel):
+    """Verification report for q-value monotonicity across supported FDR surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    checks: tuple[FdrQValueMonotonicityCheck, ...] = Field(default_factory=tuple)
+
+
 class GroupedFdrBucket(JsonModel):
     """One grouped-FDR bucket with its own ranked entries."""
 
@@ -1455,6 +1475,28 @@ def _entity_fdr_entries(
     )
 
 
+def _build_q_value_monotonicity_check(
+    *,
+    scope: str,
+    entries: tuple[FdrLevelEntry, ...] | tuple[PickedProteinFdrEntry, ...],
+) -> FdrQValueMonotonicityCheck:
+    previous_q_value = -1.0
+    first_break_rank: int | None = None
+    for entry in entries:
+        q_value = entry.q_value
+        rank = entry.rank
+        if q_value < previous_q_value:
+            first_break_rank = rank
+            break
+        previous_q_value = q_value
+    return FdrQValueMonotonicityCheck(
+        scope=scope,
+        entry_count=len(entries),
+        valid=first_break_rank is None,
+        first_break_rank=first_break_rank,
+    )
+
+
 def calculate_level_specific_fdr(
     records: tuple[PsmRecord, ...],
     *,
@@ -1572,6 +1614,69 @@ def calculate_grouped_fdr(
         score_orientation=score_orientation,
         threshold=threshold,
         groups=tuple(buckets),
+    )
+
+
+def verify_fdr_q_value_monotonicity(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float | None = None,
+    score_orientation: str = "higher_better",
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+) -> FdrQValueMonotonicityReport:
+    """Verify monotonic q-values across supported FDR calculation surfaces."""
+    level_report = calculate_level_specific_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    grouped_charge = calculate_grouped_fdr(
+        records,
+        group_by="charge_state",
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    grouped_modification = calculate_grouped_fdr(
+        records,
+        group_by="modification_state",
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    picked = calculate_picked_protein_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        decoy_policy=decoy_policy,
+    )
+    checks = [
+        _build_q_value_monotonicity_check(
+            scope="psm",
+            entries=level_report.psm_entries,
+        ),
+        _build_q_value_monotonicity_check(
+            scope="peptide",
+            entries=level_report.peptide_entries,
+        ),
+        _build_q_value_monotonicity_check(
+            scope="protein",
+            entries=level_report.protein_entries,
+        ),
+        *[
+            _build_q_value_monotonicity_check(
+                scope=f"grouped:{bucket.group_key}",
+                entries=bucket.entries,
+            )
+            for report in (grouped_charge, grouped_modification)
+            for bucket in report.groups
+        ],
+        _build_q_value_monotonicity_check(
+            scope="picked_protein",
+            entries=picked,
+        ),
+    ]
+    return FdrQValueMonotonicityReport(
+        valid=all(check.valid for check in checks),
+        checks=tuple(checks),
     )
 
 

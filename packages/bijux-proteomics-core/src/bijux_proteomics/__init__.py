@@ -157,6 +157,8 @@ from bijux_proteomics.identification import (
     FdrEvidenceLevel,
     FdrLevelEntry,
     FdrPolicy,
+    FdrQValueMonotonicityCheck,
+    FdrQValueMonotonicityReport,
     GroupedFdrBucket,
     GroupedFdrReport,
     LevelSpecificFdrReport,
@@ -209,6 +211,7 @@ from bijux_proteomics.identification import (
     rollup_protein_evidence,
     select_best_psm_per_spectrum,
     sort_psm_records,
+    verify_fdr_q_value_monotonicity,
 )
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.lifecycle import (
@@ -682,6 +685,8 @@ __all__ = [
     "FdrEvidenceLevel",
     "FdrLevelEntry",
     "FdrPolicy",
+    "FdrQValueMonotonicityCheck",
+    "FdrQValueMonotonicityReport",
     "FormatConversionReport",
     "FormatConversionTarget",
     "FormatValidationIssue",
@@ -701,6 +706,7 @@ __all__ = [
     "parse_psm_tsv",
     "parse_search_parameter_file",
     "parse_target_decoy_label",
+    "verify_fdr_q_value_monotonicity",
     "NormalizedScoreEntry",
     "ParsimonyProteinEntry",
     "PeptideEvidenceEntry",
