@@ -1522,6 +1522,87 @@ def _parse_sage_parameters(path: Path) -> SearchParameterReport:
     precursor_payload = payload.get("precursor_tol", {})
     fragment_payload = payload.get("fragment_tol", {})
     mods_payload = payload.get("mods", {})
+
+    enzyme_name = (
+        str(enzyme_payload).strip().lower()
+        if isinstance(enzyme_payload, str)
+        else str(enzyme_payload.get("name", "unknown")).strip().lower()
+    )
+    missed_cleavages = (
+        payload.get("missed_cleavages")
+        if isinstance(enzyme_payload, str)
+        else enzyme_payload.get("missed_cleavages")
+    )
+    precursor_value = None
+    precursor_unit = None
+    if isinstance(precursor_payload, dict) and precursor_payload:
+        precursor_unit = (
+            SearchToleranceUnit.PPM
+            if "ppm" in precursor_payload
+            else SearchToleranceUnit.DA
+            if "da" in precursor_payload
+            else None
+        )
+        precursor_value = precursor_payload.get("ppm", precursor_payload.get("da"))
+    elif payload.get("precursor_tol_ppm") is not None:
+        precursor_unit = SearchToleranceUnit.PPM
+        precursor_value = payload.get("precursor_tol_ppm")
+    elif payload.get("precursor_tol_da") is not None:
+        precursor_unit = SearchToleranceUnit.DA
+        precursor_value = payload.get("precursor_tol_da")
+
+    fragment_value = None
+    fragment_unit = None
+    if isinstance(fragment_payload, dict) and fragment_payload:
+        fragment_unit = (
+            SearchToleranceUnit.PPM
+            if "ppm" in fragment_payload
+            else SearchToleranceUnit.DA
+            if "da" in fragment_payload
+            else None
+        )
+        fragment_value = fragment_payload.get("ppm", fragment_payload.get("da"))
+    elif payload.get("fragment_tol_ppm") is not None:
+        fragment_unit = SearchToleranceUnit.PPM
+        fragment_value = payload.get("fragment_tol_ppm")
+    elif payload.get("fragment_tol_da") is not None:
+        fragment_unit = SearchToleranceUnit.DA
+        fragment_value = payload.get("fragment_tol_da")
+
+    def _mass_delta_for_named_modification(name: str) -> float:
+        known = {
+            "acetyl": 42.010565,
+            "carbamidomethyl": 57.021464,
+            "oxidation": 15.994915,
+            "phospho": 79.966331,
+        }
+        return known.get(name.strip().lower(), 0.0)
+
+    def _compact_sage_modifications(
+        values: object,
+        *,
+        variable: bool,
+        prefix: str,
+    ) -> tuple[SearchModificationDefinition, ...]:
+        if not isinstance(values, list):
+            return ()
+        definitions: list[SearchModificationDefinition] = []
+        for token in values:
+            if not isinstance(token, str) or "@" not in token:
+                continue
+            name, residues = token.split("@", 1)
+            mass_delta = _mass_delta_for_named_modification(name)
+            for residue in residues:
+                definitions.append(
+                    SearchModificationDefinition(
+                        site=residue.upper(),
+                        mass_delta=mass_delta,
+                        variable=variable,
+                        source_key=f"{prefix}.{name}@{residue.upper()}",
+                    )
+                )
+        return tuple(definitions)
+
     fixed_definitions = tuple(
         SearchModificationDefinition(
             site=str(site).upper(),
@@ -1529,7 +1610,11 @@ def _parse_sage_parameters(path: Path) -> SearchParameterReport:
             variable=False,
             source_key=f"mods.static.{site}",
         )
-        for site, mass_delta in sorted((mods_payload.get("static") or {}).items())
+        for site, mass_delta in sorted(
+            (mods_payload.get("static") or {}).items()
+            if isinstance(mods_payload, dict)
+            else {}
+        )
     )
     variable_definitions = tuple(
         SearchModificationDefinition(
@@ -1538,41 +1623,47 @@ def _parse_sage_parameters(path: Path) -> SearchParameterReport:
             variable=True,
             source_key=f"mods.variable.{site}",
         )
-        for site, deltas in sorted((mods_payload.get("variable") or {}).items())
+        for site, deltas in sorted(
+            (mods_payload.get("variable") or {}).items()
+            if isinstance(mods_payload, dict)
+            else {}
+        )
         for mass_delta in deltas
     )
-    precursor_unit = (
-        SearchToleranceUnit.PPM
-        if "ppm" in precursor_payload
-        else SearchToleranceUnit.DA
-        if "da" in precursor_payload
-        else None
+    if not fixed_definitions:
+        fixed_definitions = _compact_sage_modifications(
+            payload.get("fixed_modifications"),
+            variable=False,
+            prefix="fixed_modifications",
+        )
+    if not variable_definitions:
+        variable_definitions = _compact_sage_modifications(
+            payload.get("variable_modifications"),
+            variable=True,
+            prefix="variable_modifications",
+        )
+    database_path = (
+        database_payload.get("fasta")
+        if isinstance(database_payload, dict)
+        else payload.get("database_path")
     )
-    fragment_unit = (
-        SearchToleranceUnit.PPM
-        if "ppm" in fragment_payload
-        else SearchToleranceUnit.DA
-        if "da" in fragment_payload
-        else None
+    decoy_prefix = (
+        database_payload.get("decoy_tag")
+        if isinstance(database_payload, dict)
+        else payload.get("decoy_prefix")
     )
-    database_path = database_payload.get("fasta")
-    decoy_prefix = database_payload.get("decoy_tag")
     return SearchParameterReport(
         adapter_kind=SearchAdapterKind.SAGE,
         adapter_name="Sage",
-        enzyme=str(enzyme_payload.get("name", "unknown")).strip().lower(),
-        missed_cleavages=int(enzyme_payload["missed_cleavages"])
-        if enzyme_payload.get("missed_cleavages") is not None
+        enzyme=enzyme_name,
+        missed_cleavages=int(missed_cleavages)
+        if missed_cleavages is not None
         else None,
-        precursor_tolerance=float(
-            precursor_payload.get("ppm", precursor_payload.get("da"))
-        )
+        precursor_tolerance=float(precursor_value)
         if precursor_unit is not None
         else None,
         precursor_tolerance_unit=precursor_unit,
-        fragment_tolerance=float(
-            fragment_payload.get("ppm", fragment_payload.get("da"))
-        )
+        fragment_tolerance=float(fragment_value)
         if fragment_unit is not None
         else None,
         fragment_tolerance_unit=fragment_unit,

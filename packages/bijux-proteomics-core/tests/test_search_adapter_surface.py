@@ -282,6 +282,18 @@ def test_search_parameter_parsers_extract_enzyme_tolerances_and_mods() -> None:
     assert sage.has_decoy_strategy is True
 
 
+def test_compact_sage_config_shapes_still_produce_parameter_provenance() -> None:
+    sage = parse_search_parameter_file(
+        source_path=_fixture("sage_config.json"),
+        adapter_kind=SearchAdapterKind.SAGE,
+    )
+
+    assert sage.enzyme == "trypsin"
+    assert sage.fragment_tolerance == 20.0
+    assert sage.precursor_tolerance == 10.0
+    assert {entry.site for entry in sage.variable_modifications} == {"S", "T", "Y"}
+
+
 def test_search_config_validation_flags_missing_decoys_and_invalid_tolerances() -> None:
     invalid = parse_search_parameter_file(
         source_path=_fixture("comet_invalid.params"),
