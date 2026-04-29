@@ -139,6 +139,41 @@ def test_plan_multiplex_labeling_reserves_reference_and_qc_channels() -> None:
     assert plan.condition_channel_counts == {"control": 3, "treatment": 3}
 
 
+def test_plan_multiplex_labeling_preserves_explicit_design_channel_semantics() -> None:
+    entries = parse_experimental_design_table(
+        _core_fixture("formats", "semantic.design.tsv")
+    ).accepted_entries
+
+    plan = plan_multiplex_labeling(
+        entries,
+        channels=("126", "127N", "128N"),
+        pooled_reference_channel="128N",
+    )
+
+    assignments = {assignment.channel: assignment for assignment in plan.assignments}
+
+    assert assignments["126"].sample_id == "CTRL-01"
+    assert assignments["127N"].sample_id == "TRT-01"
+    assert assignments["128N"].role is MultiplexChannelRole.POOLED_REFERENCE
+
+
+def test_plan_multiplex_labeling_rejects_conflicting_reserved_channel_hints() -> None:
+    entries = parse_experimental_design_table(
+        _core_fixture("formats", "semantic.design.tsv")
+    ).accepted_entries
+
+    try:
+        plan_multiplex_labeling(
+            entries,
+            channels=("126", "127N", "128N"),
+            pooled_reference_channel="126",
+        )
+    except ValueError as exc:
+        assert "explicit pooled_reference row" in str(exc)
+    else:
+        raise AssertionError("expected explicit pooled-reference conflict to fail")
+
+
 def test_plan_spike_in_qc_samples_inserts_qc_and_spike_in_at_intervals() -> None:
     plan = plan_spike_in_qc_samples(
         ("C1", "C2", "T1", "T2", "T3"),

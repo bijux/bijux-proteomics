@@ -13,7 +13,7 @@ from statistics import NormalDist
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics import ExperimentalDesignEntry
+from bijux_proteomics import ExperimentalDesignEntry, ExperimentalDesignSampleRole
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -539,23 +539,86 @@ def plan_multiplex_labeling(
     reserved_channels = {
         channel for channel in (pooled_reference_channel, qc_bridge_channel) if channel
     }
-    sample_channels = [
-        channel for channel in channels if channel not in reserved_channels
-    ]
     unique_entries: list[ExperimentalDesignEntry] = []
     seen_samples: set[str] = set()
     for entry in sorted(
-        entries, key=lambda item: (item.condition, item.sample_id, item.fraction)
+        entries,
+        key=lambda item: (
+            item.multiplex_group or "",
+            item.condition,
+            item.sample_id,
+            item.fraction,
+        ),
     ):
         if entry.sample_id not in seen_samples:
             unique_entries.append(entry)
             seen_samples.add(entry.sample_id)
-    if len(unique_entries) > len(sample_channels):
+    explicit_entries = [entry for entry in unique_entries if entry.multiplex_channel]
+    explicit_channels = {entry.multiplex_channel for entry in explicit_entries}
+    explicit_pooled_reference = next(
+        (
+            entry.multiplex_channel
+            for entry in explicit_entries
+            if entry.sample_role is ExperimentalDesignSampleRole.POOLED_REFERENCE
+        ),
+        None,
+    )
+    explicit_qc_bridge = next(
+        (
+            entry.multiplex_channel
+            for entry in explicit_entries
+            if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE
+        ),
+        None,
+    )
+    if len(explicit_channels) != len(explicit_entries):
+        raise ValueError("design contains duplicate explicit multiplex_channel values")
+    if not explicit_channels.issubset(set(channels)):
+        raise ValueError("design multiplex_channel values must be present in channels")
+    if (
+        pooled_reference_channel
+        and explicit_pooled_reference
+        and pooled_reference_channel != explicit_pooled_reference
+    ):
+        raise ValueError(
+            "pooled_reference_channel does not match explicit pooled_reference row"
+        )
+    if (
+        qc_bridge_channel
+        and explicit_qc_bridge
+        and qc_bridge_channel != explicit_qc_bridge
+    ):
+        raise ValueError("qc_bridge_channel does not match explicit qc_bridge row")
+    sample_channels = [
+        channel
+        for channel in channels
+        if channel not in reserved_channels and channel not in explicit_channels
+    ]
+    if len(unique_entries) > len(sample_channels) + len(explicit_entries):
         raise ValueError("not enough free multiplex channels for the provided samples")
     per_condition: dict[str, list[ExperimentalDesignEntry]] = defaultdict(list)
     for entry in unique_entries:
+        if entry.multiplex_channel:
+            continue
         per_condition[entry.condition].append(entry)
     assignments: list[MultiplexChannelAssignment] = []
+    role_map = {
+        ExperimentalDesignSampleRole.SAMPLE: MultiplexChannelRole.SAMPLE,
+        ExperimentalDesignSampleRole.POOLED_REFERENCE: (
+            MultiplexChannelRole.POOLED_REFERENCE
+        ),
+        ExperimentalDesignSampleRole.QC_BRIDGE: MultiplexChannelRole.QC_BRIDGE,
+    }
+    for entry in explicit_entries:
+        assignments.append(
+            MultiplexChannelAssignment(
+                channel=entry.multiplex_channel or "",
+                role=role_map[entry.sample_role],
+                sample_id=entry.sample_id,
+                condition=entry.condition,
+                batch=entry.batch,
+            )
+        )
     queue: list[ExperimentalDesignEntry] = []
     while any(per_condition.values()):
         for condition in sorted(
@@ -573,7 +636,8 @@ def plan_multiplex_labeling(
                 batch=entry.batch,
             )
         )
-    if pooled_reference_channel:
+    assigned_channels = {assignment.channel for assignment in assignments}
+    if pooled_reference_channel and pooled_reference_channel not in assigned_channels:
         assignments.append(
             MultiplexChannelAssignment(
                 channel=pooled_reference_channel,
@@ -581,7 +645,7 @@ def plan_multiplex_labeling(
                 sample_id="pooled-reference",
             )
         )
-    if qc_bridge_channel:
+    if qc_bridge_channel and qc_bridge_channel not in assigned_channels:
         assignments.append(
             MultiplexChannelAssignment(
                 channel=qc_bridge_channel,
