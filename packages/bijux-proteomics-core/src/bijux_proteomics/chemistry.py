@@ -95,6 +95,8 @@ class ModificationPosition(StrEnum):
     ANYWHERE = "anywhere"
     PEPTIDE_N_TERM = "peptide_n_term"
     PEPTIDE_C_TERM = "peptide_c_term"
+    PROTEIN_N_TERM = "protein_n_term"
+    PROTEIN_C_TERM = "protein_c_term"
 
 
 class NeutralLoss(JsonModel):
@@ -206,6 +208,8 @@ class ParsedModifiedPeptide(JsonModel):
 
     sequence: str = Field(..., min_length=1)
     modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
+    at_protein_n_term: bool = False
+    at_protein_c_term: bool = False
     canonical_notation: str = Field(..., min_length=1)
 
     @field_validator("sequence")
@@ -341,6 +345,8 @@ def _build_applied_modification(
     site_index: int | None,
     sequence: str,
     registry: ModificationRegistryDocument | None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
 ) -> AppliedModification:
     mapping = _registry_lookup(registry)
     stripped_token = token.strip()
@@ -354,6 +360,8 @@ def _build_applied_modification(
         sequence=sequence,
         site=site,
         site_index=site_index,
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
     )
     name, mono, average, losses, controlled_id, source = _resolve_token(
         stripped_token,
@@ -548,8 +556,26 @@ def _ensure_parsed_peptide(
     return ParsedModifiedPeptide(
         sequence=normalized,
         modifications=(),
+        at_protein_n_term=False,
+        at_protein_c_term=False,
         canonical_notation=normalized,
     )
+
+
+def _normalize_terminal_token(
+    token: str,
+    *,
+    default_site: ModificationPosition,
+) -> tuple[str, ModificationPosition]:
+    name, separator, site_token = token.partition("@")
+    if not separator:
+        return token, default_site
+    site_label = site_token.strip().lower()
+    if site_label in {"protein-n-term", "protein_n_term", "protein-nterm"}:
+        return name, ModificationPosition.PROTEIN_N_TERM
+    if site_label in {"protein-c-term", "protein_c_term", "protein-cterm"}:
+        return name, ModificationPosition.PROTEIN_C_TERM
+    raise ValueError(f"unsupported terminal modification site {site_token!r}")
 
 
 def _mass_delta_for(
@@ -599,11 +625,13 @@ def _matching_static_mass_delta(
                     total += delta
         elif (
             modification.position is ModificationPosition.PEPTIDE_N_TERM
-            and include_n_term
-        ) or (
+            or modification.position is ModificationPosition.PROTEIN_N_TERM
+        ) and include_n_term:
+            total += delta
+        elif (
             modification.position is ModificationPosition.PEPTIDE_C_TERM
-            and include_c_term
-        ):
+            or modification.position is ModificationPosition.PROTEIN_C_TERM
+        ) and include_c_term:
             total += delta
     return total
 
@@ -634,10 +662,14 @@ def _applied_modification_mass_delta(
             if site_index >= start and (finish is None or site_index <= finish):
                 total += delta
         elif (
-            modification.site is ModificationPosition.PEPTIDE_N_TERM and include_n_term
-        ) or (
-            modification.site is ModificationPosition.PEPTIDE_C_TERM and include_c_term
-        ):
+            modification.site is ModificationPosition.PEPTIDE_N_TERM
+            or modification.site is ModificationPosition.PROTEIN_N_TERM
+        ) and include_n_term:
+            total += delta
+        elif (
+            modification.site is ModificationPosition.PEPTIDE_C_TERM
+            or modification.site is ModificationPosition.PROTEIN_C_TERM
+        ) and include_c_term:
             total += delta
     return total
 
@@ -887,10 +919,17 @@ def _validate_definition_site(
     sequence: str,
     site: ModificationPosition,
     site_index: int | None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
 ) -> str | None:
     if definition is None:
         return sequence[site_index - 1] if site_index is not None else None
-    if definition.position is not site:
+    allowed_sites = {definition.position}
+    if definition.position is ModificationPosition.PEPTIDE_N_TERM:
+        allowed_sites.add(ModificationPosition.PROTEIN_N_TERM)
+    if definition.position is ModificationPosition.PEPTIDE_C_TERM:
+        allowed_sites.add(ModificationPosition.PROTEIN_C_TERM)
+    if site not in allowed_sites:
         raise ValueError(
             f"modification {definition.name!r} requires site {definition.position.value}, got {site.value}"
         )
@@ -906,6 +945,14 @@ def _validate_definition_site(
                 f"modification {definition.name!r} is not valid on residue {residue} at position {site_index}; expected one of {allowed}"
             )
         return residue
+    if site is ModificationPosition.PROTEIN_N_TERM and not at_protein_n_term:
+        raise ValueError(
+            f"modification {definition.name!r} requires a peptide at the protein N-terminus"
+        )
+    if site is ModificationPosition.PROTEIN_C_TERM and not at_protein_c_term:
+        raise ValueError(
+            f"modification {definition.name!r} requires a peptide at the protein C-terminus"
+        )
     return None
 
 
@@ -913,6 +960,8 @@ def parse_modified_peptide(
     notation: str,
     *,
     registry: ModificationRegistryDocument | None = None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
 ) -> ParsedModifiedPeptide:
     """Parse modified peptide bracket notation into a stable contract."""
     text = notation.strip()
@@ -928,13 +977,19 @@ def parse_modified_peptide(
                 "N-terminal modifications must use [token]-PEPTIDE notation"
             )
         token = text[1:close]
+        token, parsed_site = _normalize_terminal_token(
+            token,
+            default_site=ModificationPosition.PEPTIDE_N_TERM,
+        )
         modifications.append(
             _build_applied_modification(
                 token=token,
-                site=ModificationPosition.PEPTIDE_N_TERM,
+                site=parsed_site,
                 site_index=None,
                 sequence="",
                 registry=registry,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
             )
         )
         index = close + 2
@@ -960,6 +1015,8 @@ def parse_modified_peptide(
                     site_index=len(sequence),
                     sequence=sequence,
                     registry=registry,
+                    at_protein_n_term=at_protein_n_term,
+                    at_protein_c_term=at_protein_c_term,
                 )
             )
             index = close + 1
@@ -974,19 +1031,27 @@ def parse_modified_peptide(
                 "C-terminal modifications must use PEPTIDE-[token] notation"
             )
         token = text[index + 2 : -1]
+        token, parsed_site = _normalize_terminal_token(
+            token,
+            default_site=ModificationPosition.PEPTIDE_C_TERM,
+        )
         modifications.append(
             _build_applied_modification(
                 token=token,
-                site=ModificationPosition.PEPTIDE_C_TERM,
+                site=parsed_site,
                 site_index=None,
                 sequence=sequence,
                 registry=registry,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
             )
         )
 
     return ParsedModifiedPeptide(
         sequence=sequence,
         modifications=tuple(modifications),
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
         canonical_notation=_render_modified_peptide(sequence, tuple(modifications)),
     )
 
@@ -996,6 +1061,8 @@ def build_modified_peptide(
     *,
     assignments: tuple[str, ...] = (),
     registry: ModificationRegistryDocument | None = None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
 ) -> ParsedModifiedPeptide:
     """Build a modified peptide from site-assignment strings."""
     normalized = _coerce_sequence(sequence)
@@ -1010,8 +1077,14 @@ def build_modified_peptide(
         if site_label in {"n-term", "nterm", "peptide_n_term"}:
             site = ModificationPosition.PEPTIDE_N_TERM
             site_index = None
+        elif site_label in {"protein-n-term", "protein_n_term", "protein-nterm"}:
+            site = ModificationPosition.PROTEIN_N_TERM
+            site_index = None
         elif site_label in {"c-term", "cterm", "peptide_c_term"}:
             site = ModificationPosition.PEPTIDE_C_TERM
+            site_index = None
+        elif site_label in {"protein-c-term", "protein_c_term", "protein-cterm"}:
+            site = ModificationPosition.PROTEIN_C_TERM
             site_index = None
         else:
             try:
@@ -1032,6 +1105,8 @@ def build_modified_peptide(
                 if site is ModificationPosition.ANYWHERE
                 else normalized,
                 registry=registry,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
             )
         )
     ordered = tuple(
@@ -1048,6 +1123,8 @@ def build_modified_peptide(
     return ParsedModifiedPeptide(
         sequence=normalized,
         modifications=ordered,
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
         canonical_notation=_render_modified_peptide(normalized, ordered),
     )
 
@@ -1150,10 +1227,16 @@ def _render_modified_peptide(
     n_term_tokens: list[str] = []
     c_term_tokens: list[str] = []
     for modification in modifications:
-        token = modification.token
-        if modification.site is ModificationPosition.PEPTIDE_N_TERM:
+        token = _render_modification_token(modification)
+        if modification.site in {
+            ModificationPosition.PEPTIDE_N_TERM,
+            ModificationPosition.PROTEIN_N_TERM,
+        }:
             n_term_tokens.append(f"[{token}]")
-        elif modification.site is ModificationPosition.PEPTIDE_C_TERM:
+        elif modification.site in {
+            ModificationPosition.PEPTIDE_C_TERM,
+            ModificationPosition.PROTEIN_C_TERM,
+        }:
             c_term_tokens.append(f"[{token}]")
         else:
             site_index = modification.site_index
@@ -1173,6 +1256,14 @@ def _render_modified_peptide(
     if c_term_tokens:
         rendered += "-" + "".join(c_term_tokens)
     return rendered
+
+
+def _render_modification_token(modification: AppliedModification) -> str:
+    if modification.site is ModificationPosition.PROTEIN_N_TERM:
+        return f"{modification.token}@protein-n-term"
+    if modification.site is ModificationPosition.PROTEIN_C_TERM:
+        return f"{modification.token}@protein-c-term"
+    return modification.token
 
 
 def _residue_neutral_losses(fragment_sequence: str) -> tuple[NeutralLoss, ...]:
@@ -1208,7 +1299,13 @@ def _fragment_modifications(
         if modification.site is ModificationPosition.PEPTIDE_N_TERM:
             if series is FragmentIonSeries.B:
                 selected.append(modification)
+        elif modification.site is ModificationPosition.PROTEIN_N_TERM:
+            if series is FragmentIonSeries.B:
+                selected.append(modification)
         elif modification.site is ModificationPosition.PEPTIDE_C_TERM:
+            if series is FragmentIonSeries.Y:
+                selected.append(modification)
+        elif modification.site is ModificationPosition.PROTEIN_C_TERM:
             if series is FragmentIonSeries.Y:
                 selected.append(modification)
         else:

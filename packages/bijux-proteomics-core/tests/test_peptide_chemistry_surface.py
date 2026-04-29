@@ -276,6 +276,49 @@ def test_build_modified_peptide_supports_assignment_syntax() -> None:
     assert peptide.canonical_notation == "[Acetyl]-PES[Phospho]TIDE"
 
 
+def test_build_modified_peptide_supports_explicit_protein_terminal_assignments() -> (
+    None
+):
+    peptide = build_modified_peptide(
+        "PEPTIDE",
+        assignments=("Acetyl@protein-n-term", "Amidated@protein-c-term"),
+        registry=modification_registry(),
+        at_protein_n_term=True,
+        at_protein_c_term=True,
+    )
+
+    assert peptide.modifications[0].site is ModificationPosition.PROTEIN_N_TERM
+    assert peptide.modifications[1].site is ModificationPosition.PROTEIN_C_TERM
+    assert (
+        peptide.canonical_notation
+        == "[Acetyl@protein-n-term]-PEPTIDE-[Amidated@protein-c-term]"
+    )
+
+
+def test_parse_modified_peptide_supports_explicit_protein_terminal_notation() -> None:
+    peptide = parse_modified_peptide(
+        "[Acetyl@protein-n-term]-PEPTIDE-[Amidated@protein-c-term]",
+        registry=modification_registry(),
+        at_protein_n_term=True,
+        at_protein_c_term=True,
+    )
+
+    assert peptide.at_protein_n_term is True
+    assert peptide.at_protein_c_term is True
+    assert peptide.canonical_notation == (
+        "[Acetyl@protein-n-term]-PEPTIDE-[Amidated@protein-c-term]"
+    )
+
+
+def test_protein_terminal_modifications_require_explicit_terminal_context() -> None:
+    with pytest.raises(ValueError, match="protein N-terminus"):
+        build_modified_peptide(
+            "PEPTIDE",
+            assignments=("Acetyl@protein-n-term",),
+            registry=modification_registry(),
+        )
+
+
 def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:
     envelope = approximate_peptide_isotope_envelope("PEPTIDE", charge=2, peak_count=4)
 
