@@ -1,0 +1,3 @@
+MS/MS scan number	Modified sequence	Charge	Score	Proteins	Reverse	PEP
+5001	PEPTIDE	2	145.0	P12345		0.001
+5002	DECOYMOD	3	88.0	REV__P54321	+	0.020
