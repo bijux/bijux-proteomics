@@ -1449,6 +1449,38 @@ def _physical_site_key(
     return None
 
 
+def _raise_on_impossible_modification_combination(
+    modifications: tuple[AppliedModification, ...],
+) -> None:
+    by_site: dict[tuple[str, int | None], list[AppliedModification]] = {}
+    for modification in modifications:
+        site_key = _physical_site_key(modification)
+        if site_key is None:
+            continue
+        by_site.setdefault(site_key, []).append(modification)
+
+    conflicting_sites = [
+        (site_key, site_modifications)
+        for site_key, site_modifications in by_site.items()
+        if len(site_modifications) > 1
+    ]
+    if not conflicting_sites:
+        return
+
+    site_key, site_modifications = conflicting_sites[0]
+    site_label = (
+        f"residue {site_key[1]}"
+        if site_key[0] == "residue"
+        else "peptide N-terminus"
+        if site_key[0] == "n_term"
+        else "peptide C-terminus"
+    )
+    tokens = ", ".join(modification.token for modification in site_modifications)
+    raise ValueError(
+        f"chemically incompatible modifications occupy the same physical site ({site_label}): {tokens}"
+    )
+
+
 def parse_modified_peptide(
     notation: str,
     *,
@@ -1540,6 +1572,7 @@ def parse_modified_peptide(
             )
         )
 
+    _raise_on_impossible_modification_combination(tuple(modifications))
     return ParsedModifiedPeptide(
         sequence=sequence,
         modifications=tuple(modifications),
@@ -1602,6 +1635,7 @@ def build_modified_peptide(
                 at_protein_c_term=at_protein_c_term,
             )
         )
+    _raise_on_impossible_modification_combination(tuple(modifications))
     ordered = tuple(
         sorted(
             modifications,

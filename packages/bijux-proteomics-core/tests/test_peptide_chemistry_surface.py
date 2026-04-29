@@ -440,6 +440,15 @@ def test_protein_terminal_modifications_require_explicit_terminal_context() -> N
         )
 
 
+def test_same_site_modification_stacking_is_refused() -> None:
+    with pytest.raises(ValueError, match="same physical site"):
+        build_modified_peptide(
+            "PESTIDE",
+            assignments=("Phospho@3", "+10.0@3"),
+            registry=modification_registry(),
+        )
+
+
 def test_variable_modification_enumeration_is_bounded_and_reported() -> None:
     report = enumerate_variable_modifications(
         "MMMM",
