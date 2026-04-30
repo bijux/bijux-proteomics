@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MzIdentML xmlns="http://psidev.info/psi/pi/mzIdentML/1.2.0">
+  <DataCollection>
+    <AnalysisData>
+      <SpectrumIdentificationList id="SIL_1">
+        <SpectrumIdentificationResult id="SIR_1" spectrumID="scan=5001">
+          <SpectrumIdentificationItem id="SII_1" rank="1" chargeState="2" experimentalMassToCharge="500.2" peptide_ref="PEP_1"/>
+        </SpectrumIdentificationResult>
+        <SpectrumIdentificationResult id="SIR_2" spectrumID="scan=5002">
+          <SpectrumIdentificationItem id="SII_2" rank="1" chargeState="3" experimentalMassToCharge="600.3" peptide_ref="PEP_2"/>
+        </SpectrumIdentificationResult>
+      </SpectrumIdentificationList>
+    </AnalysisData>
+  </DataCollection>
+</MzIdentML>
