@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<msms_pipeline_analysis>
+  <msms_run_summary base_name="run_01">
+    <spectrum_query spectrum="scan=5001" start_scan="5001" end_scan="5001" precursor_neutral_mass="998.4" assumed_charge="2" index="1"/>
+    <spectrum_query spectrum="scan=5002" start_scan="5002" end_scan="5002" precursor_neutral_mass="1200.6" assumed_charge="3" index="2"/>
+  </msms_run_summary>
+</msms_pipeline_analysis>

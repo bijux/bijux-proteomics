@@ -40,6 +40,18 @@ class MzTabIngestionReport(JsonModel):
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class XmlIdentificationBoundaryReport(JsonModel):
+    """Boundary report for pepXML/idXML identification XML formats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    detected_format: str | None = None
+    supported: bool
+    required_conversion: str | None = None
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
+    record_count: int = Field(default=0, ge=0)
+
+
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
     """Parse mzIdentML core identification surfaces or return precise refusal details."""
     root = ET.parse(path).getroot()
@@ -156,6 +168,43 @@ def parse_mztab_or_refuse(path: Path) -> MzTabIngestionReport:
             "parsed mzTab table sections and preserved section row counts",
             "reported optional fields outside current normalized schema mapping",
         ),
+    )
+
+
+def evaluate_pepxml_idxml_boundary(path: Path) -> XmlIdentificationBoundaryReport:
+    """Detect pepXML/idXML roots and return explicit conversion/support boundaries."""
+    root = ET.parse(path).getroot()
+    tag = _local_name(root.tag)
+    if tag == "msms_pipeline_analysis":
+        count = len(root.findall(".//{*}spectrum_query"))
+        return XmlIdentificationBoundaryReport(
+            detected_format="pepXML",
+            supported=False,
+            required_conversion="convert pepXML to normalized PSM TSV or mzIdentML before ingestion",
+            diagnostics=(
+                "pepXML root detected",
+                "native pepXML mapping is not yet guaranteed to preserve all score families",
+            ),
+            record_count=count,
+        )
+    if tag == "IdXML":
+        count = len(root.findall(".//{*}PeptideIdentification"))
+        return XmlIdentificationBoundaryReport(
+            detected_format="idXML",
+            supported=False,
+            required_conversion="convert idXML to normalized PSM TSV or mzIdentML before ingestion",
+            diagnostics=(
+                "idXML root detected",
+                "native idXML mapping is not yet guaranteed to preserve all metadata fields",
+            ),
+            record_count=count,
+        )
+    return XmlIdentificationBoundaryReport(
+        detected_format=tag,
+        supported=False,
+        required_conversion=None,
+        diagnostics=("unsupported XML identification format root",),
+        record_count=0,
     )
 
 
