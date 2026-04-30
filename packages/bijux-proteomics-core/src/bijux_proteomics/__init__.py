@@ -108,6 +108,11 @@ from bijux_proteomics.digestion import (
     peptide_export_fingerprint,
     protease_registry,
 )
+from bijux_proteomics.enzyme_rule_provenance import (
+    EnzymeRuleProvenance,
+    EnzymeRuleSupportState,
+    build_enzyme_rule_provenance,
+)
 from bijux_proteomics.exceptions import (
     BijuxProteomicsError,
     InvalidLifecycleTransitionError,
@@ -276,6 +281,58 @@ from bijux_proteomics.identification import (
     validate_ptm_identification_confidence,
     validate_target_decoy_accession_collisions,
     verify_fdr_q_value_monotonicity,
+)
+from bijux_proteomics.isotope_adduct_annotation import (
+    AdductHypothesis,
+    IsotopeAdductAnnotationReport,
+    annotate_isotope_and_adduct_hypotheses,
+)
+from bijux_proteomics.modified_peptide_conflicts import (
+    ModifiedPeptideConflictIssue,
+    ModifiedPeptideConflictReport,
+    validate_advanced_modified_peptide_conflicts,
+)
+from bijux_proteomics.open_search_unknown_mod import (
+    OpenSearchUnknownModificationReport,
+    UnknownModificationHypothesis,
+    build_open_search_unknown_mod_report,
+)
+from bijux_proteomics.peptide_uniqueness_audit import (
+    PeptideUniquenessAuditClass,
+    PeptideUniquenessAuditEntry,
+    PeptideUniquenessAuditReport,
+    build_peptide_uniqueness_audit_report,
+)
+from bijux_proteomics.protease_digest_comparison import (
+    ProteaseDigestComparisonEntry,
+    ProteaseDigestComparisonReport,
+    build_protease_digest_comparison_report,
+)
+from bijux_proteomics.protein_family_evidence_graph import (
+    ProteinFamilyEvidenceEdge,
+    ProteinFamilyEvidenceGraph,
+    ProteinFamilyEvidenceNode,
+    ProteinFamilyEvidenceNodeKind,
+    build_protein_family_evidence_graph,
+)
+from bijux_proteomics.proteoform_identity import (
+    ProteoformEvidenceLevel,
+    ProteoformIdentity,
+    ProteoformPtmAssignment,
+    build_proteoform_identity,
+)
+from bijux_proteomics.stable_isotope_labeling import (
+    StableIsotopeLabelChannel,
+    StableIsotopeLabelChemistry,
+    StableIsotopeLabelingModel,
+    build_stable_isotope_labeling_model,
+)
+from bijux_proteomics.theoretical_fragment_reference import (
+    TheoreticalFragmentReferenceCase,
+    TheoreticalFragmentReferenceIon,
+    TheoreticalFragmentValidationEntry,
+    TheoreticalFragmentValidationReport,
+    validate_theoretical_fragment_reference_cases,
 )
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.lifecycle import (
@@ -1425,4 +1482,41 @@ __all__ = [
     "WorkflowStepKind",
     "WorkflowTemplateKind",
     "WorkflowStreamingMode",
+    "AdductHypothesis",
+    "EnzymeRuleProvenance",
+    "EnzymeRuleSupportState",
+    "IsotopeAdductAnnotationReport",
+    "ModifiedPeptideConflictIssue",
+    "ModifiedPeptideConflictReport",
+    "OpenSearchUnknownModificationReport",
+    "PeptideUniquenessAuditClass",
+    "PeptideUniquenessAuditEntry",
+    "PeptideUniquenessAuditReport",
+    "ProteaseDigestComparisonEntry",
+    "ProteaseDigestComparisonReport",
+    "ProteinFamilyEvidenceEdge",
+    "ProteinFamilyEvidenceGraph",
+    "ProteinFamilyEvidenceNode",
+    "ProteinFamilyEvidenceNodeKind",
+    "ProteoformEvidenceLevel",
+    "ProteoformIdentity",
+    "ProteoformPtmAssignment",
+    "StableIsotopeLabelChannel",
+    "StableIsotopeLabelChemistry",
+    "StableIsotopeLabelingModel",
+    "TheoreticalFragmentReferenceCase",
+    "TheoreticalFragmentReferenceIon",
+    "TheoreticalFragmentValidationEntry",
+    "TheoreticalFragmentValidationReport",
+    "UnknownModificationHypothesis",
+    "annotate_isotope_and_adduct_hypotheses",
+    "build_enzyme_rule_provenance",
+    "build_open_search_unknown_mod_report",
+    "build_peptide_uniqueness_audit_report",
+    "build_protease_digest_comparison_report",
+    "build_protein_family_evidence_graph",
+    "build_proteoform_identity",
+    "build_stable_isotope_labeling_model",
+    "validate_advanced_modified_peptide_conflicts",
+    "validate_theoretical_fragment_reference_cases",
 ]
