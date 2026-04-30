@@ -1,0 +1,46 @@
+[
+  {
+    "case_id": "unmodified_acde",
+    "modified_peptide": "ACDE",
+    "expected_ions": [
+      {
+        "series": "b",
+        "ordinal": 1,
+        "charge": 1,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 72.044386466812,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "y",
+        "ordinal": 1,
+        "charge": 1,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 148.060426466812,
+        "tolerance_da": 0.0001
+      }
+    ]
+  },
+  {
+    "case_id": "acetylated_pemtide",
+    "modified_peptide": "[Acetyl]-PEMTIDE",
+    "expected_ions": [
+      {
+        "series": "b",
+        "ordinal": 2,
+        "charge": 1,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 269.113191466812,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "b",
+        "ordinal": 2,
+        "charge": 1,
+        "neutral_loss": "water",
+        "expected_mz_monoisotopic": 251.10263146681197,
+        "tolerance_da": 0.0001
+      }
+    ]
+  }
+]
