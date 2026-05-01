@@ -312,3 +312,47 @@ def build_contradiction_mini_study_bundle(
     if not entries:
         raise ValueError("contradiction mini-study must include at least one contradiction entry")
     return ContradictionMiniStudyBundle(study_id=study_id, entries=entries)
+
+
+class NegativeScienceCaseOutcome(StrEnum):
+    """Outcome classes for scientifically incoherent corpus inputs."""
+
+    REFUSED = "refused"
+    CAVEATED = "caveated"
+
+
+class NegativeScienceCase(JsonModel):
+    """One incoherent scientific input with expected refusal/caveat behavior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str = Field(..., min_length=1)
+    incoherence_reason: str = Field(..., min_length=1)
+    expected_outcome: NegativeScienceCaseOutcome
+    evidence_pointer: str = Field(..., min_length=1)
+
+
+class NegativeScienceCorpusReport(JsonModel):
+    """Negative corpus report with refusal/caveat expectations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cases: tuple[NegativeScienceCase, ...] = Field(default_factory=tuple)
+    refusal_case_count: int = Field(..., ge=0)
+    caveated_case_count: int = Field(..., ge=0)
+
+
+def build_negative_science_corpus_report(
+    cases: tuple[NegativeScienceCase, ...],
+) -> NegativeScienceCorpusReport:
+    """Build negative-science corpus expectations for refusal/caveated outputs."""
+
+    return NegativeScienceCorpusReport(
+        cases=cases,
+        refusal_case_count=sum(
+            1 for case in cases if case.expected_outcome is NegativeScienceCaseOutcome.REFUSED
+        ),
+        caveated_case_count=sum(
+            1 for case in cases if case.expected_outcome is NegativeScienceCaseOutcome.CAVEATED
+        ),
+    )
