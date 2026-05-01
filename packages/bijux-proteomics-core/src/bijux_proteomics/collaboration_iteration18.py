@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from hashlib import sha256
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
@@ -318,3 +320,91 @@ def run_collaborator_challenge_workflow(
         for item in items
     )
     return CollaboratorChallengeWorkflowReport(entries=entries)
+
+
+class SignedReviewerBundleInput(JsonModel):
+    """Input payload for signing reviewer bundles."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    manifest_entries: tuple[str, ...] = Field(default_factory=tuple)
+    schema_refs: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+    review_packet_ids: tuple[str, ...] = Field(default_factory=tuple)
+    hash_ledger_entries: tuple[str, ...] = Field(default_factory=tuple)
+    signing_key_id: str = Field(..., min_length=1)
+    signing_secret: str = Field(..., min_length=8)
+
+
+class SignedReviewerBundle(JsonModel):
+    """Signed reviewer bundle with canonicalized references and signature metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    manifest_entries: tuple[str, ...] = Field(default_factory=tuple)
+    schema_refs: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+    review_packet_ids: tuple[str, ...] = Field(default_factory=tuple)
+    hash_ledger_entries: tuple[str, ...] = Field(default_factory=tuple)
+    signing_key_id: str = Field(..., min_length=1)
+    signature_algorithm: str = Field(..., min_length=1)
+    signature_hex: str = Field(..., min_length=1)
+
+
+def _canonical_signed_bundle_message(payload: SignedReviewerBundleInput) -> str:
+    manifest = tuple(sorted(set(payload.manifest_entries)))
+    schemas = tuple(sorted(set(payload.schema_refs)))
+    evidence = tuple(sorted(set(payload.evidence_pointer_ids)))
+    packets = tuple(sorted(set(payload.review_packet_ids)))
+    ledger = tuple(sorted(set(payload.hash_ledger_entries)))
+    sections = (
+        payload.bundle_id.strip(),
+        "|".join(manifest),
+        "|".join(schemas),
+        "|".join(evidence),
+        "|".join(packets),
+        "|".join(ledger),
+    )
+    return "||".join(sections)
+
+
+def build_signed_reviewer_bundle(
+    payload: SignedReviewerBundleInput,
+) -> SignedReviewerBundle:
+    """Sign canonical reviewer bundle content and emit deterministic signature metadata."""
+
+    message = _canonical_signed_bundle_message(payload)
+    signature_hex = sha256(f"{payload.signing_secret}::{message}".encode("utf-8")).hexdigest()
+    return SignedReviewerBundle(
+        bundle_id=payload.bundle_id,
+        manifest_entries=tuple(sorted(set(payload.manifest_entries))),
+        schema_refs=tuple(sorted(set(payload.schema_refs))),
+        evidence_pointer_ids=tuple(sorted(set(payload.evidence_pointer_ids))),
+        review_packet_ids=tuple(sorted(set(payload.review_packet_ids))),
+        hash_ledger_entries=tuple(sorted(set(payload.hash_ledger_entries))),
+        signing_key_id=payload.signing_key_id,
+        signature_algorithm="sha256-secret-v1",
+        signature_hex=signature_hex,
+    )
+
+
+def verify_signed_reviewer_bundle(
+    bundle: SignedReviewerBundle,
+    signing_secret: str,
+) -> bool:
+    """Verify signed reviewer bundle integrity using the canonical signing message."""
+
+    rebuilt_payload = SignedReviewerBundleInput(
+        bundle_id=bundle.bundle_id,
+        manifest_entries=bundle.manifest_entries,
+        schema_refs=bundle.schema_refs,
+        evidence_pointer_ids=bundle.evidence_pointer_ids,
+        review_packet_ids=bundle.review_packet_ids,
+        hash_ledger_entries=bundle.hash_ledger_entries,
+        signing_key_id=bundle.signing_key_id,
+        signing_secret=signing_secret,
+    )
+    expected = build_signed_reviewer_bundle(rebuilt_payload)
+    return expected.signature_hex == bundle.signature_hex
