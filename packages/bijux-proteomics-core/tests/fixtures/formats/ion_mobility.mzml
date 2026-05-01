@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mzML xmlns="http://psi.hupo.org/ms/mzml" version="1.1.0">
+  <cvList count="1">
+    <cv id="MS" fullName="Proteomics Standards Initiative Mass Spectrometry Ontology" version="4.1.0" URI="https://example.org/ms.obo" />
+  </cvList>
+  <run id="RUN_IM_01">
+    <spectrumList count="1">
+      <spectrum id="scan=7101" index="0" defaultArrayLength="2">
+        <cvParam accession="MS:1000511" name="ms level" value="2" />
+        <scanList count="1">
+          <scan>
+            <cvParam accession="MS:1000016" name="scan start time" value="87.5" unitName="second" />
+            <cvParam accession="MS:1002476" name="ion mobility drift time" value="1.27" unitName="millisecond" />
+          </scan>
+        </scanList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="24">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAAAAWUAAAAAAAMBiQA==</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="24">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAAAANEAAAAAAAIBGQA==</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+    </spectrumList>
+  </run>
+</mzML>

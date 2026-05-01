@@ -122,6 +122,29 @@ class SpectrumLibraryBoundaryReport(JsonModel):
     mapped_fields: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class IonMobilityObservation(JsonModel):
+    """One ion-mobility observation extracted from mzML scan metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    accession: str = Field(..., min_length=1)
+    value: float
+    unit_name: str | None = None
+
+
+class IonMobilitySupportReport(JsonModel):
+    """Ion mobility support report for mzML ingestion surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    supported: bool
+    total_spectra: int = Field(..., ge=0)
+    observed_count: int = Field(..., ge=0)
+    observations: tuple[IonMobilityObservation, ...] = Field(default_factory=tuple)
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
     """Parse mzIdentML core identification surfaces or return precise refusal details."""
     root = ET.parse(path).getroot()
@@ -434,6 +457,48 @@ def evaluate_spectrum_library_boundary(path: Path) -> SpectrumLibraryBoundaryRep
         support_mode=None,
         entry_count=0,
         diagnostics=("unsupported spectral-library file extension",),
+    )
+
+
+def extract_ion_mobility_support(path: Path) -> IonMobilitySupportReport:
+    """Extract ion-mobility fields from mzML and report support boundaries."""
+    root = ET.parse(path).getroot()
+    mobility_accessions = {
+        "MS:1002476",  # ion mobility drift time
+        "MS:1002815",  # inverse reduced ion mobility
+        "MS:1002954",  # collisional cross sectional area
+    }
+    observations: list[IonMobilityObservation] = []
+    spectra = root.findall(".//{*}spectrum")
+    for spectrum in spectra:
+        spectrum_id = spectrum.attrib.get("id", "unknown")
+        for param in spectrum.findall(".//{*}cvParam"):
+            accession = param.attrib.get("accession", "").strip()
+            if accession not in mobility_accessions:
+                continue
+            value = _parse_float(param.attrib.get("value"))
+            if value is None:
+                continue
+            observations.append(
+                IonMobilityObservation(
+                    spectrum_id=spectrum_id,
+                    accession=accession,
+                    value=value,
+                    unit_name=param.attrib.get("unitName"),
+                )
+            )
+    supported = bool(observations)
+    diagnostics = (
+        "ion mobility fields were extracted with accession-level provenance"
+        if supported
+        else "no supported ion mobility cvParam entries were detected in mzML scans"
+    )
+    return IonMobilitySupportReport(
+        supported=supported,
+        total_spectra=len(spectra),
+        observed_count=len(observations),
+        observations=tuple(observations),
+        diagnostics=(diagnostics,),
     )
 
 
