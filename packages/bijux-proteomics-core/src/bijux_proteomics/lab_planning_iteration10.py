@@ -419,3 +419,73 @@ def validate_targeted_transition_list(
                 )
             )
     return TargetedTransitionListValidationReport(valid=not issues, issues=tuple(issues))
+
+
+class TargetedWorkflowMethod(StrEnum):
+    """Targeted workflow methods with explicit planning boundaries."""
+
+    PRM = "prm"
+    SRM = "srm"
+    MRM = "mrm"
+
+
+class TargetedWorkflowBoundaryInput(JsonModel):
+    """Inputs needed to evaluate targeted workflow boundary readiness."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: TargetedWorkflowMethod
+    has_transition_list: bool
+    has_retention_windows: bool
+    has_collision_energy_profile: bool
+    has_instrument_method_template: bool
+
+
+class TargetedWorkflowBoundaryReport(JsonModel):
+    """Support/refusal result for PRM/SRM/MRM targeted workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: TargetedWorkflowMethod
+    supported: bool
+    assumptions: tuple[str, ...] = Field(default_factory=tuple)
+    refusal_reason: str | None = None
+
+
+def evaluate_targeted_workflow_boundary(
+    payload: TargetedWorkflowBoundaryInput,
+) -> TargetedWorkflowBoundaryReport:
+    """Support or refuse targeted workflows with explicit method assumptions."""
+
+    assumptions = [
+        "transition list quality is reviewable before execution",
+        "retention windows reflect comparable LC conditions",
+        "instrument templates are reviewed by lab operators",
+    ]
+    missing: list[str] = []
+    if not payload.has_transition_list:
+        missing.append("transition_list")
+    if not payload.has_retention_windows:
+        missing.append("retention_windows")
+    if not payload.has_collision_energy_profile:
+        missing.append("collision_energy_profile")
+    if not payload.has_instrument_method_template:
+        missing.append("instrument_method_template")
+
+    if missing:
+        return TargetedWorkflowBoundaryReport(
+            method=payload.method,
+            supported=False,
+            assumptions=tuple(assumptions),
+            refusal_reason=(
+                "workflow is refused because required targeted-method assumptions are missing: "
+                + ", ".join(missing)
+            ),
+        )
+
+    return TargetedWorkflowBoundaryReport(
+        method=payload.method,
+        supported=True,
+        assumptions=tuple(assumptions),
+        refusal_reason=None,
+    )
