@@ -286,6 +286,41 @@ class LocalExternalToolRunReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class WorkflowReplayOutcome(StrEnum):
+    """Replay/cache outcome classification for one workflow surface."""
+
+    REUSED = "reused"
+    RERUN = "rerun"
+    CHANGED = "changed"
+    UNCHANGED = "unchanged"
+    REFUSED = "refused"
+
+
+class WorkflowCacheReplayEntry(JsonModel):
+    """One workflow surface outcome across repeated runtime runs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: str = Field(..., min_length=1)
+    previous_hash: str | None = None
+    current_hash: str | None = None
+    outcome: WorkflowReplayOutcome
+    detail: str = Field(..., min_length=1)
+
+
+class WorkflowCacheReplayReport(JsonModel):
+    """Cache/replay report over repeated workflow runs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[WorkflowCacheReplayEntry, ...] = Field(default_factory=tuple)
+    reused_count: int = Field(..., ge=0)
+    rerun_count: int = Field(..., ge=0)
+    changed_count: int = Field(..., ge=0)
+    unchanged_count: int = Field(..., ge=0)
+    refused_count: int = Field(..., ge=0)
+
+
 def _stable_runtime_key(payload: object) -> str:
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -977,4 +1012,61 @@ def run_local_external_tool(
         validated_artifacts=validated,
         missing_artifacts=missing,
         note=note,
+    )
+
+
+def build_proteomics_workflow_cache_replay_report(
+    *,
+    previous_artifact_hashes: dict[str, str],
+    current_artifact_hashes: dict[str, str],
+    reused_surfaces: tuple[str, ...] = (),
+    refused_surfaces: tuple[str, ...] = (),
+) -> WorkflowCacheReplayReport:
+    """Classify cache/replay outcomes across repeated workflow runs."""
+    surface_names = sorted(
+        set(previous_artifact_hashes)
+        | set(current_artifact_hashes)
+        | set(reused_surfaces)
+        | set(refused_surfaces)
+    )
+    entries: list[WorkflowCacheReplayEntry] = []
+    for surface in surface_names:
+        previous_hash = previous_artifact_hashes.get(surface)
+        current_hash = current_artifact_hashes.get(surface)
+        if surface in refused_surfaces:
+            outcome = WorkflowReplayOutcome.REFUSED
+            detail = "surface was refused during replay because execution constraints were not met"
+        elif surface in reused_surfaces and previous_hash == current_hash and current_hash is not None:
+            outcome = WorkflowReplayOutcome.REUSED
+            detail = "surface reused cached output with stable content hash"
+        elif previous_hash is None and current_hash is not None:
+            outcome = WorkflowReplayOutcome.RERUN
+            detail = "surface was produced in current run because no previous output hash existed"
+        elif previous_hash is not None and current_hash is None:
+            outcome = WorkflowReplayOutcome.REFUSED
+            detail = "surface is missing in current run and is treated as refused output"
+        elif previous_hash == current_hash:
+            outcome = WorkflowReplayOutcome.UNCHANGED
+            detail = "surface output remained unchanged across repeated runs"
+        else:
+            outcome = WorkflowReplayOutcome.CHANGED
+            detail = "surface output hash changed across repeated runs"
+        entries.append(
+            WorkflowCacheReplayEntry(
+                surface=surface,
+                previous_hash=previous_hash,
+                current_hash=current_hash,
+                outcome=outcome,
+                detail=detail,
+            )
+        )
+    return WorkflowCacheReplayReport(
+        entries=tuple(entries),
+        reused_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.REUSED),
+        rerun_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.RERUN),
+        changed_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.CHANGED),
+        unchanged_count=sum(
+            1 for entry in entries if entry.outcome is WorkflowReplayOutcome.UNCHANGED
+        ),
+        refused_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.REFUSED),
     )
