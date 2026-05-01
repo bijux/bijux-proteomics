@@ -161,6 +161,26 @@ class StreamingParseProfile(JsonModel):
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class FormatCapabilityEntry(JsonModel):
+    """Capability classification for one observed fixture format."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    format_name: str
+    state: str
+    fixture_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
+class FormatCapabilityMatrixReport(JsonModel):
+    """Generated capability matrix over fixture-derived format surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[FormatCapabilityEntry, ...] = Field(default_factory=tuple)
+    generated_from: str = Field(..., min_length=1)
+
+
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
     """Parse mzIdentML core identification surfaces or return precise refusal details."""
     root = ET.parse(path).getroot()
@@ -608,6 +628,57 @@ def build_streaming_parse_profile(
             "streaming profile computed without relying on full-run normalization side effects",
             "chunk_count expresses bounded processing batches for larger files",
         ),
+    )
+
+
+def build_format_capability_matrix_from_fixtures(
+    fixtures_dir: Path,
+) -> FormatCapabilityMatrixReport:
+    """Generate parse/write/normalized/unsupported capability states from fixtures."""
+    format_files: dict[str, list[Path]] = {}
+    for path in sorted(fixtures_dir.iterdir()):
+        if not path.is_file():
+            continue
+        suffix = path.suffix.lower()
+        if suffix in {".mzml", ".mzid", ".mztab", ".pepxml", ".idxml", ".msp", ".mgf"}:
+            format_files.setdefault(suffix, []).append(path)
+
+    entries: list[FormatCapabilityEntry] = []
+    for suffix, files in sorted(format_files.items()):
+        if suffix == ".mzml":
+            state = "parse_and_normalize"
+            note = "mzML fixtures parse to stable spectrum contracts and normalized exports"
+        elif suffix == ".mgf":
+            state = "parse_and_write"
+            note = "MGF fixtures parse and support deterministic stream profiling"
+        elif suffix == ".mzid":
+            supported = any(parse_mzidentml_or_refuse(path).supported for path in files)
+            state = "parse_only" if supported else "unsupported"
+            note = "mzIdentML fixtures expose identification parse boundaries"
+        elif suffix == ".mztab":
+            supported = any(parse_mztab_or_refuse(path).supported for path in files)
+            state = "parse_only" if supported else "unsupported"
+            note = "mzTab fixtures expose mapped/lost/unsupported table fields"
+        elif suffix in {".pepxml", ".idxml"}:
+            state = "unsupported_with_conversion"
+            note = "XML identification fixtures require conversion before normalized ingestion"
+        elif suffix == ".msp":
+            state = "parse_only"
+            note = "MSP fixtures support library parse boundaries"
+        else:
+            state = "unsupported"
+            note = "no active capability mapping"
+        entries.append(
+            FormatCapabilityEntry(
+                format_name=suffix.lstrip("."),
+                state=state,
+                fixture_count=len(files),
+                note=note,
+            )
+        )
+    return FormatCapabilityMatrixReport(
+        entries=tuple(entries),
+        generated_from=str(fixtures_dir),
     )
 
 
