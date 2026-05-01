@@ -637,3 +637,62 @@ def build_evidence_freshness_report(
         )
 
     return EvidenceFreshnessReport(entries=tuple(entries))
+
+
+class DecisionRelevantContradiction(JsonModel):
+    """Contradiction requiring potential lab resolution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contradiction_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    decision_impact: float = Field(..., ge=0.0, le=1.0)
+    unresolved_risk: float = Field(..., ge=0.0, le=1.0)
+    suggested_experiment: str = Field(..., min_length=1)
+
+
+class ContradictionAwareLabRecommendation(JsonModel):
+    """Lab recommendation targeting high-impact unresolved contradictions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contradiction_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    suggested_experiment: str = Field(..., min_length=1)
+    resolution_priority_score: float = Field(..., ge=0.0)
+    rationale: str = Field(..., min_length=1)
+
+
+class ContradictionAwareLabRecommendationReport(JsonModel):
+    """Recommendation report for contradiction-resolving experiments."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    recommendations: tuple[ContradictionAwareLabRecommendation, ...] = Field(default_factory=tuple)
+
+
+def build_contradiction_aware_lab_recommendation_report(
+    contradictions: tuple[DecisionRelevantContradiction, ...],
+) -> ContradictionAwareLabRecommendationReport:
+    """Recommend experiments that resolve the most decision-relevant contradictions."""
+
+    ranked: list[ContradictionAwareLabRecommendation] = []
+    for contradiction in contradictions:
+        score = 0.7 * contradiction.decision_impact + 0.3 * contradiction.unresolved_risk
+        ranked.append(
+            ContradictionAwareLabRecommendation(
+                contradiction_id=contradiction.contradiction_id,
+                candidate_id=contradiction.candidate_id,
+                suggested_experiment=contradiction.suggested_experiment,
+                resolution_priority_score=score,
+                rationale=(
+                    "prioritized by decision impact and unresolved risk to maximize "
+                    "decision-relevant contradiction resolution"
+                ),
+            )
+        )
+
+    ranked.sort(
+        key=lambda rec: (-rec.resolution_priority_score, rec.candidate_id, rec.contradiction_id)
+    )
+    return ContradictionAwareLabRecommendationReport(recommendations=tuple(ranked))
