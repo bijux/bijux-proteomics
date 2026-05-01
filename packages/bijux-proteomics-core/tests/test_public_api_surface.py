@@ -164,8 +164,28 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_ptm_site_table" in bijux_proteomics.__all__
     assert "build_ptm_site_fdr" in bijux_proteomics.__all__
     assert "estimate_ptm_site_occupancy" in bijux_proteomics.__all__
+    assert "build_ptm_site_localization_evidence_graph" in bijux_proteomics.__all__
+    assert "evaluate_ptm_site_fdr_boundary" in bijux_proteomics.__all__
+    assert "build_ptm_occupancy_counterpart_report" in bijux_proteomics.__all__
+    assert "build_ptm_motif_enrichment_background_provenance_report" in bijux_proteomics.__all__
+    assert "build_phospho_specific_review_fixture_report" in bijux_proteomics.__all__
+    assert "build_acetyl_specific_review_fixture_report" in bijux_proteomics.__all__
+    assert "build_ubiquitin_remnant_workflow_report" in bijux_proteomics.__all__
+    assert "evaluate_glycopeptide_support_boundary" in bijux_proteomics.__all__
+    assert "build_ptm_cooccurrence_caution_report" in bijux_proteomics.__all__
+    assert "build_ptm_lab_validation_packet" in bijux_proteomics.__all__
     assert "build_ptm_motif_background_report" in bijux_proteomics.__all__
     assert "PtmOccupancyUncertainty" in bijux_proteomics.__all__
+    assert "PtmSiteLocalizationEvidenceGraph" in bijux_proteomics.__all__
+    assert "PtmSiteFdrBoundaryReport" in bijux_proteomics.__all__
+    assert "PtmOccupancyCounterpartEvidenceReport" in bijux_proteomics.__all__
+    assert "PtmMotifEnrichmentBackgroundProvenanceReport" in bijux_proteomics.__all__
+    assert "PtmPhosphoReviewFixtureReport" in bijux_proteomics.__all__
+    assert "PtmAcetylReviewFixtureReport" in bijux_proteomics.__all__
+    assert "UbiquitinRemnantWorkflowReport" in bijux_proteomics.__all__
+    assert "GlycopeptideSupportBoundaryReport" in bijux_proteomics.__all__
+    assert "PtmCooccurrenceCautionReport" in bijux_proteomics.__all__
+    assert "PtmLabValidationPacket" in bijux_proteomics.__all__
     assert "build_lcms_run_qc_report" in bijux_proteomics.__all__
     assert "build_instrument_batch_qc_report" in bijux_proteomics.__all__
     assert "build_study_qc_summary" in bijux_proteomics.__all__
