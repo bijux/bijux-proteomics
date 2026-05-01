@@ -11,6 +11,7 @@ from pathlib import Path
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.formats import parse_mzml
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -50,6 +51,20 @@ class XmlIdentificationBoundaryReport(JsonModel):
     required_conversion: str | None = None
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
     record_count: int = Field(default=0, ge=0)
+
+
+class MzmlDecodingSupportReport(JsonModel):
+    """Decoding capability report over one mzML binary-array surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    supported: bool
+    spectrum_count: int = Field(..., ge=0)
+    accepted_spectrum_count: int = Field(..., ge=0)
+    rejected_spectrum_count: int = Field(..., ge=0)
+    compression_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    precision_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
@@ -205,6 +220,59 @@ def evaluate_pepxml_idxml_boundary(path: Path) -> XmlIdentificationBoundaryRepor
         required_conversion=None,
         diagnostics=("unsupported XML identification format root",),
         record_count=0,
+    )
+
+
+def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
+    """Inspect mzML binary arrays and summarize decoding support boundaries."""
+    root = ET.parse(path).getroot()
+    compression: set[str] = set()
+    precision: set[str] = set()
+    for param in root.findall(".//{*}cvParam"):
+        accession = param.attrib.get("accession", "").strip()
+        if not accession:
+            continue
+        if accession in {
+            "MS:1000574",  # zlib compression
+            "MS:1000576",  # no compression
+            "MS:1002312",  # numpress linear
+            "MS:1002313",  # numpress pic
+            "MS:1002314",  # numpress slof
+        }:
+            compression.add(accession)
+        if accession in {
+            "MS:1000521",  # 32-bit float
+            "MS:1000523",  # 64-bit float
+            "MS:1000519",  # 32-bit integer
+            "MS:1000522",  # 64-bit integer
+        }:
+            precision.add(accession)
+
+    parse_report = parse_mzml(path)
+    issue_codes = {
+        issue.code
+        for rejected in parse_report.rejected_spectra
+        for issue in rejected.issues
+    }
+    supported = not issue_codes.intersection(
+        {"unsupported_binary_compression", "unsupported_binary_precision"}
+    )
+    diagnostics = (
+        "mzML decoding supports zlib/no-compression float arrays",
+        "unsupported compression or precision is reported with explicit issue codes",
+    )
+    if not supported:
+        diagnostics = diagnostics + (
+            "this file includes unsupported binary decoding settings for current ingestion boundaries",
+        )
+    return MzmlDecodingSupportReport(
+        supported=supported,
+        spectrum_count=parse_report.total_spectra,
+        accepted_spectrum_count=len(parse_report.accepted_spectra),
+        rejected_spectrum_count=len(parse_report.rejected_spectra),
+        compression_accessions=tuple(sorted(compression)),
+        precision_accessions=tuple(sorted(precision)),
+        diagnostics=diagnostics,
     )
 
 
