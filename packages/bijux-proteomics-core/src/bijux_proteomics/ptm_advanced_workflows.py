@@ -194,6 +194,26 @@ class UbiquitinRemnantWorkflowReport(JsonModel):
     non_lysine_entry_count: int = Field(..., ge=0)
 
 
+class GlycopeptideBoundaryDisposition(StrEnum):
+    """Support boundary disposition for glycopeptide workflows."""
+
+    SUPPORTED = "supported"
+    REFUSED = "refused"
+
+
+class GlycopeptideSupportBoundaryReport(JsonModel):
+    """Support or refusal boundary for glycopeptide-specific PTM workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    requested_workflow: str = Field(..., min_length=1)
+    disposition: GlycopeptideBoundaryDisposition
+    reason: str = Field(..., min_length=1)
+    required_evidence_fields: tuple[str, ...] = Field(default_factory=tuple)
+    missing_evidence_fields: tuple[str, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def _to_probability(score: float) -> float:
     """Map non-negative localization score to a bounded probability-like signal."""
     if score <= 0.0:
@@ -566,4 +586,52 @@ def build_ubiquitin_remnant_workflow_report(
         entries=tuple(rows),
         ambiguous_entry_count=sum(1 for row in rows if row.ambiguous),
         non_lysine_entry_count=sum(1 for row in rows if not row.lysine_consistent),
+    )
+
+
+def evaluate_glycopeptide_support_boundary(
+    *,
+    requested_workflow: str,
+    has_glycan_composition: bool,
+    has_glycosite_localization: bool,
+    has_oxonium_ion_support: bool,
+    treats_as_ordinary_modification: bool,
+) -> GlycopeptideSupportBoundaryReport:
+    """Support or refuse glycopeptide workflows without flattening glyco semantics."""
+    required = (
+        "glycan_composition",
+        "glycosite_localization",
+        "oxonium_ion_support",
+    )
+    available = {
+        "glycan_composition": has_glycan_composition,
+        "glycosite_localization": has_glycosite_localization,
+        "oxonium_ion_support": has_oxonium_ion_support,
+    }
+    missing = tuple(name for name in required if not available[name])
+    notes: list[str] = []
+    if treats_as_ordinary_modification:
+        notes.append(
+            "workflow treats glycopeptides as ordinary residue modifications, which is refused"
+        )
+    if missing or treats_as_ordinary_modification:
+        return GlycopeptideSupportBoundaryReport(
+            requested_workflow=requested_workflow,
+            disposition=GlycopeptideBoundaryDisposition.REFUSED,
+            reason=(
+                "glycopeptide workflow is refused because glyco-specific evidence and "
+                "semantics are incomplete"
+            ),
+            required_evidence_fields=required,
+            missing_evidence_fields=missing,
+            notes=tuple(notes),
+        )
+    return GlycopeptideSupportBoundaryReport(
+        requested_workflow=requested_workflow,
+        disposition=GlycopeptideBoundaryDisposition.SUPPORTED,
+        reason=(
+            "glycopeptide workflow is supported with glycan composition, site localization, "
+            "and oxonium-ion evidence"
+        ),
+        required_evidence_fields=required,
     )
