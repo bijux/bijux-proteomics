@@ -114,3 +114,45 @@ def build_complete_dia_mini_study_bundle(
         protein_quantity_rows=protein_quantity_rows,
         evidence_pointers=tuple(sorted(evidence_pointers)),
     )
+
+
+class LfqMiniStudyBundle(JsonModel):
+    """Complete LFQ mini-study package with normalization and DA context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    study_id: str = Field(..., min_length=1)
+    feature_matrix_path: str = Field(..., min_length=1)
+    peptide_matrix_path: str = Field(..., min_length=1)
+    protein_matrix_path: str = Field(..., min_length=1)
+    normalization_method: str = Field(..., min_length=1)
+    missingness_summary_path: str = Field(..., min_length=1)
+    differential_abundance_report_path: str = Field(..., min_length=1)
+    review_packet_path: str = Field(..., min_length=1)
+
+
+def build_complete_lfq_mini_study_bundle(
+    *,
+    study_id: str,
+    feature_matrix_path: str,
+    peptide_matrix_path: str,
+    protein_matrix_path: str,
+    normalization_method: str,
+    missingness_summary_path: str,
+    differential_abundance_report_path: str,
+    review_packet_path: str,
+) -> LfqMiniStudyBundle:
+    """Curate LFQ matrices and downstream review outputs for a complete mini-study."""
+
+    if normalization_method.lower() not in {"median", "vsn", "quantile", "none"}:
+        raise ValueError("LFQ mini-study normalization method is not recognized")
+    return LfqMiniStudyBundle(
+        study_id=study_id,
+        feature_matrix_path=feature_matrix_path,
+        peptide_matrix_path=peptide_matrix_path,
+        protein_matrix_path=protein_matrix_path,
+        normalization_method=normalization_method,
+        missingness_summary_path=missingness_summary_path,
+        differential_abundance_report_path=differential_abundance_report_path,
+        review_packet_path=review_packet_path,
+    )
