@@ -351,6 +351,38 @@ class SearchMergeCompatibilityReport(JsonModel):
     issues: tuple[SearchMergeCompatibilityIssue, ...] = Field(default_factory=tuple)
 
 
+class ExternalEngineDisagreementKind(StrEnum):
+    """Primary disagreement categories across external engine outputs."""
+
+    MISSING_EVIDENCE = "missing_evidence"
+    PEPTIDE_CONFLICT = "peptide_conflict"
+    CHARGE_CONFLICT = "charge_conflict"
+    LABEL_CONFLICT = "label_conflict"
+    CONFIDENCE_GAP = "confidence_gap"
+
+
+class ExternalEngineDisagreementEntry(JsonModel):
+    """One disagreement entry across two or more engine outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    kind: ExternalEngineDisagreementKind
+    adapter_kinds: tuple[SearchAdapterKind, ...] = Field(default_factory=tuple)
+    message: str = Field(..., min_length=1)
+    normalized_score_delta: float | None = Field(default=None, ge=0.0)
+
+
+class ExternalEngineDisagreementReport(JsonModel):
+    """Stable disagreement report over multiple normalized adapter outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_kinds: tuple[SearchAdapterKind, ...] = Field(default_factory=tuple)
+    entries: tuple[ExternalEngineDisagreementEntry, ...] = Field(default_factory=tuple)
+    disagreement_counts: dict[str, int] = Field(default_factory=dict)
+
+
 class SearchRegressionFixtureKind(StrEnum):
     """Fixture categories within the search adapter regression corpus."""
 
@@ -2497,6 +2529,150 @@ def merge_search_result_reports_with_compatibility(
             f"multi-engine merge refused due to compatibility errors: {rendered}"
         )
     return merge_search_result_reports(reports)
+
+
+def build_external_engine_disagreement_report(
+    reports: tuple[SearchAdapterNormalizationReport, ...],
+    *,
+    confidence_delta_threshold: float = 0.35,
+) -> ExternalEngineDisagreementReport:
+    """Build disagreement diagnostics across external engine outputs."""
+    if not reports:
+        return ExternalEngineDisagreementReport(
+            adapter_kinds=(),
+            entries=(),
+            disagreement_counts={},
+        )
+    per_report_best: list[tuple[SearchAdapterNormalizationReport, dict[str, PsmRecord]]] = []
+    normalized_scores: dict[SearchAdapterKind, dict[tuple[str, str], float]] = {}
+    for report in reports:
+        best = {
+            record.spectrum_id: record
+            for record in select_best_psm_per_spectrum(report.normalized_records)
+        }
+        per_report_best.append((report, best))
+        normalized_scores[report.adapter_manifest.adapter_kind] = {
+            (entry.spectrum_id, entry.canonical_peptide): entry.normalized_score
+            for entry in normalize_psm_score_orientation(
+                report.normalized_records,
+                score_orientation=report.adapter_manifest.score_orientation.value,
+            )
+        }
+    all_spectrum_ids = sorted(
+        {
+            spectrum_id
+            for _, best in per_report_best
+            for spectrum_id in best
+        }
+    )
+    entries: list[ExternalEngineDisagreementEntry] = []
+    for spectrum_id in all_spectrum_ids:
+        observations: list[tuple[SearchAdapterKind, PsmRecord, float]] = []
+        for report, best in per_report_best:
+            record = best.get(spectrum_id)
+            if record is None:
+                continue
+            adapter_kind = report.adapter_manifest.adapter_kind
+            observations.append(
+                (
+                    adapter_kind,
+                    record,
+                    normalized_scores[adapter_kind].get(
+                        (record.spectrum_id, record.canonical_peptide), 0.0
+                    ),
+                )
+            )
+        if len(observations) < len(reports):
+            missing_kinds = tuple(
+                sorted(
+                    {
+                        report.adapter_manifest.adapter_kind
+                        for report, best in per_report_best
+                        if spectrum_id not in best
+                    },
+                    key=lambda kind: kind.value,
+                )
+            )
+            present_kinds = tuple(
+                sorted(
+                    {entry[0] for entry in observations},
+                    key=lambda kind: kind.value,
+                )
+            )
+            entries.append(
+                ExternalEngineDisagreementEntry(
+                    spectrum_id=spectrum_id,
+                    kind=ExternalEngineDisagreementKind.MISSING_EVIDENCE,
+                    adapter_kinds=tuple(sorted(set(missing_kinds + present_kinds), key=lambda kind: kind.value)),
+                    message="at least one engine is missing accepted evidence for this spectrum id",
+                    normalized_score_delta=None,
+                )
+            )
+        if len(observations) < 2:
+            continue
+        peptides = {entry[1].canonical_peptide for entry in observations}
+        charges = {entry[1].charge for entry in observations}
+        labels = {entry[1].target_decoy_label for entry in observations}
+        adapter_kinds = tuple(
+            sorted({entry[0] for entry in observations}, key=lambda kind: kind.value)
+        )
+        if len(peptides) > 1:
+            entries.append(
+                ExternalEngineDisagreementEntry(
+                    spectrum_id=spectrum_id,
+                    kind=ExternalEngineDisagreementKind.PEPTIDE_CONFLICT,
+                    adapter_kinds=adapter_kinds,
+                    message="engines disagree on the accepted peptide assignment",
+                    normalized_score_delta=None,
+                )
+            )
+        if len(charges) > 1:
+            entries.append(
+                ExternalEngineDisagreementEntry(
+                    spectrum_id=spectrum_id,
+                    kind=ExternalEngineDisagreementKind.CHARGE_CONFLICT,
+                    adapter_kinds=adapter_kinds,
+                    message="engines disagree on precursor charge assignment",
+                    normalized_score_delta=None,
+                )
+            )
+        if len(labels) > 1:
+            entries.append(
+                ExternalEngineDisagreementEntry(
+                    spectrum_id=spectrum_id,
+                    kind=ExternalEngineDisagreementKind.LABEL_CONFLICT,
+                    adapter_kinds=adapter_kinds,
+                    message="engines disagree on target-decoy interpretation",
+                    normalized_score_delta=None,
+                )
+            )
+        score_values = [entry[2] for entry in observations]
+        score_delta = max(score_values) - min(score_values)
+        if score_delta >= confidence_delta_threshold:
+            entries.append(
+                ExternalEngineDisagreementEntry(
+                    spectrum_id=spectrum_id,
+                    kind=ExternalEngineDisagreementKind.CONFIDENCE_GAP,
+                    adapter_kinds=adapter_kinds,
+                    message="engine confidence differs materially after orientation normalization",
+                    normalized_score_delta=score_delta,
+                )
+            )
+    disagreement_counts: dict[str, int] = {}
+    for entry in entries:
+        disagreement_counts[entry.kind.value] = (
+            disagreement_counts.get(entry.kind.value, 0) + 1
+        )
+    return ExternalEngineDisagreementReport(
+        adapter_kinds=tuple(
+            sorted(
+                {report.adapter_manifest.adapter_kind for report in reports},
+                key=lambda kind: kind.value,
+            )
+        ),
+        entries=tuple(entries),
+        disagreement_counts=dict(sorted(disagreement_counts.items())),
+    )
 
 
 def _fixture_adapter_kind(path: Path) -> SearchAdapterKind | None:
