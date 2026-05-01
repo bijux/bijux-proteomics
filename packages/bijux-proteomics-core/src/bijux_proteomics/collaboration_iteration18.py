@@ -96,3 +96,38 @@ def build_redacted_collaboration_bundle(
         redacted_file_paths=redacted_paths,
         provenance_links=tuple(payload.provenance_links),
     )
+
+
+class MethodsSectionInput(JsonModel):
+    """Structured workflow evidence used to render methods text."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(..., min_length=1)
+    workflow_steps: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_refs: tuple[str, ...] = Field(default_factory=tuple)
+    software_versions: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class MethodsSectionDocument(JsonModel):
+    """Generated methods section fragment with explicit evidence references."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(..., min_length=1)
+    body: str = Field(..., min_length=1)
+
+
+def generate_methods_section_from_workflow_evidence(
+    payload: MethodsSectionInput,
+) -> MethodsSectionDocument:
+    """Generate methods narrative from exact workflow and evidence references."""
+
+    steps = "; ".join(payload.workflow_steps) if payload.workflow_steps else "workflow steps unspecified"
+    versions = ", ".join(payload.software_versions) if payload.software_versions else "software versions unavailable"
+    refs = ", ".join(payload.evidence_refs) if payload.evidence_refs else "no evidence references"
+    body = (
+        f"{payload.title}: executed pipeline steps [{steps}] using software versions [{versions}]. "
+        f"Evidence linkage references: [{refs}]."
+    )
+    return MethodsSectionDocument(title=payload.title, body=body)
