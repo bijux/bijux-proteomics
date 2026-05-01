@@ -125,3 +125,64 @@ def build_spectral_library_identity_ledger(
         ),
         library_source_count=len({entry.library_source for entry in entries}),
     )
+
+
+class SpectralLibraryValidationIssue(JsonModel):
+    """Validation issue for spectral-library identity workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    spectrum_id: str | None = None
+
+
+class SpectralLibraryValidationReport(JsonModel):
+    """Validation report over library fields, duplicates, decoys, mods, and provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[SpectralLibraryValidationIssue, ...] = Field(default_factory=tuple)
+
+
+def validate_spectral_library_identity_entries(
+    entries: tuple[SpectralLibraryIdentityEntry, ...],
+) -> SpectralLibraryValidationReport:
+    """Validate spectral-library identity fields, duplicates, decoys, modifications, provenance."""
+
+    issues: list[SpectralLibraryValidationIssue] = []
+    seen: set[tuple[str, str]] = set()
+    has_decoy = False
+    for entry in entries:
+        key = (entry.library_source, entry.spectrum_id)
+        if key in seen:
+            issues.append(
+                SpectralLibraryValidationIssue(
+                    code="duplicate_spectrum_id",
+                    message="library_source/spectrum_id combination must be unique",
+                    spectrum_id=entry.spectrum_id,
+                )
+            )
+        else:
+            seen.add(key)
+        if entry.decoy:
+            has_decoy = True
+        for token in entry.modifications:
+            if "[" not in token or "]" not in token:
+                issues.append(
+                    SpectralLibraryValidationIssue(
+                        code="invalid_modification_token",
+                        message="modification tokens should use Name[Residue] format",
+                        spectrum_id=entry.spectrum_id,
+                    )
+                )
+    if not has_decoy:
+        issues.append(
+            SpectralLibraryValidationIssue(
+                code="missing_decoy_entries",
+                message="at least one decoy spectral-library entry is required",
+            )
+        )
+
+    return SpectralLibraryValidationReport(valid=not issues, issues=tuple(issues))
