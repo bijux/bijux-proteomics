@@ -296,3 +296,43 @@ def build_mature_ecosystem_comparison_report(
         average_scope_match_score=scope_avg,
         average_evidence_traceability_score=evidence_avg,
     )
+
+
+class BijuxCoreIntegrationContractInput(JsonModel):
+    """Input describing compatibility between proteomics outputs and Bijux core contracts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contract_id: str = Field(..., min_length=1)
+    dag_nodes_emitted: tuple[str, ...] = Field(default_factory=tuple)
+    edge_types_emitted: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_payload_refs: tuple[str, ...] = Field(default_factory=tuple)
+    incompatible_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BijuxCoreIntegrationContractReport(JsonModel):
+    """Compatibility report for emitting Bijux core DAG and evidence contracts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contract_id: str = Field(..., min_length=1)
+    dag_nodes_emitted: tuple[str, ...] = Field(default_factory=tuple)
+    edge_types_emitted: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_payload_refs: tuple[str, ...] = Field(default_factory=tuple)
+    incompatible_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    compatible: bool
+
+
+def build_bijux_core_integration_contract_report(
+    payload: BijuxCoreIntegrationContractInput,
+) -> BijuxCoreIntegrationContractReport:
+    """Build compatibility report for Bijux core DAG/evidence integration."""
+
+    return BijuxCoreIntegrationContractReport(
+        contract_id=payload.contract_id,
+        dag_nodes_emitted=tuple(sorted(set(payload.dag_nodes_emitted))),
+        edge_types_emitted=tuple(sorted(set(payload.edge_types_emitted))),
+        evidence_payload_refs=tuple(sorted(set(payload.evidence_payload_refs))),
+        incompatible_surfaces=tuple(sorted(set(payload.incompatible_surfaces))),
+        compatible=not payload.incompatible_surfaces,
+    )
