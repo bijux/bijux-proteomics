@@ -257,6 +257,53 @@ class LabHandoffExportBundle(JsonModel):
     executable_label: str = Field(..., min_length=1)
 
 
+class PlannedLabOutcome(JsonModel):
+    """One planned lab outcome expectation for a target/sample pair."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    expected_state: str = Field(..., min_length=1)
+    planned_note: str = ""
+
+
+class ObservedLabOutcome(JsonModel):
+    """One observed lab outcome measurement for a target/sample pair."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    observed_state: str = Field(..., min_length=1)
+    observed_note: str = ""
+
+
+class LabOutcomeReconciliationEntry(JsonModel):
+    """Reconciled planned-vs-observed outcome entry without destructive overwrite."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    expected_state: str = Field(..., min_length=1)
+    observed_state: str | None = None
+    matched: bool
+    evidence_state: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
+
+
+class LabOutcomeReconciliationReport(JsonModel):
+    """Summary report for planned-vs-observed lab outcomes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[LabOutcomeReconciliationEntry, ...] = Field(default_factory=tuple)
+    matched_count: int = Field(..., ge=0)
+    mismatched_count: int = Field(..., ge=0)
+    unobserved_count: int = Field(..., ge=0)
+
+
 _FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
 _CHANNEL_RE = re.compile(r"^(12[6-9]|13[01])[NC]?$")
 _WELL_RE = re.compile(r"^[A-H](?:[1-9]|1[0-2])$")
@@ -640,4 +687,53 @@ def build_lab_handoff_export_bundle(
         plate_layout_tsv="\n".join([header, *rows]) + ("\n" if rows else ""),
         advisory_label="advisory",
         executable_label="executable",
+    )
+
+
+def reconcile_planned_and_observed_lab_outcomes(
+    planned: tuple[PlannedLabOutcome, ...],
+    observed: tuple[ObservedLabOutcome, ...],
+) -> LabOutcomeReconciliationReport:
+    """Ingest observed outcomes without mutating planned expectations and update evidence state."""
+    observed_map = {
+        (entry.target_id, entry.sample_id): entry
+        for entry in observed
+    }
+    entries: list[LabOutcomeReconciliationEntry] = []
+    for planned_entry in planned:
+        observed_entry = observed_map.get((planned_entry.target_id, planned_entry.sample_id))
+        if observed_entry is None:
+            entries.append(
+                LabOutcomeReconciliationEntry(
+                    target_id=planned_entry.target_id,
+                    sample_id=planned_entry.sample_id,
+                    expected_state=planned_entry.expected_state,
+                    observed_state=None,
+                    matched=False,
+                    evidence_state="awaiting_observation",
+                    note="planned expectation preserved while observed outcome is still missing",
+                )
+            )
+            continue
+        matched = observed_entry.observed_state == planned_entry.expected_state
+        entries.append(
+            LabOutcomeReconciliationEntry(
+                target_id=planned_entry.target_id,
+                sample_id=planned_entry.sample_id,
+                expected_state=planned_entry.expected_state,
+                observed_state=observed_entry.observed_state,
+                matched=matched,
+                evidence_state="confirmed" if matched else "contradicted",
+                note="observed outcome aligned with planned expectation"
+                if matched
+                else "observed outcome diverged from planned expectation without altering planned state",
+            )
+        )
+    return LabOutcomeReconciliationReport(
+        entries=tuple(entries),
+        matched_count=sum(1 for entry in entries if entry.matched),
+        mismatched_count=sum(
+            1 for entry in entries if entry.observed_state is not None and not entry.matched
+        ),
+        unobserved_count=sum(1 for entry in entries if entry.observed_state is None),
     )
