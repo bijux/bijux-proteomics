@@ -155,6 +155,19 @@ class PtmPhosphoReviewFixtureReport(JsonModel):
     caveats: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class PtmAcetylReviewFixtureReport(JsonModel):
+    """Acetyl-focused review fixture summary for terminal/residue placement context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    acetyl_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    protein_terminal_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    residue_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    motif_window_count: int = Field(..., ge=0)
+    quantified_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def _to_probability(score: float) -> float:
     """Map non-negative localization score to a bounded probability-like signal."""
     if score <= 0.0:
@@ -427,6 +440,50 @@ def build_phospho_specific_review_fixture_report(
             sorted(entry.site_key for entry in phospho_entries if entry.ambiguous)
         ),
         occupancy_sample_count=len(occupancy_report.entries),
+        motif_window_count=len(motif_windows),
+        quantified_sample_ids=tuple(
+            sorted({entry.sample_id for entry in occupancy_report.entries})
+        ),
+        caveats=tuple(caveats),
+    )
+
+
+def build_acetyl_specific_review_fixture_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    protein_sequences: dict[str, str],
+) -> PtmAcetylReviewFixtureReport:
+    """Build an acetyl-focused review fixture report with placement semantics."""
+    acetyl_entries = tuple(
+        entry for entry in site_entries if entry.modification_name == "Acetyl"
+    )
+    occupancy_report = build_ptm_occupancy_counterpart_report(
+        acetyl_entries,
+        feature_records=feature_records,
+    )
+    motif_windows = build_ptm_motif_windows(
+        acetyl_entries,
+        protein_sequences=protein_sequences,
+        flank_size=7,
+    )
+    protein_terminal_keys = tuple(
+        sorted(entry.site_key for entry in acetyl_entries if entry.position == 1)
+    )
+    residue_keys = tuple(
+        sorted(entry.site_key for entry in acetyl_entries if entry.position != 1)
+    )
+    caveats: list[str] = []
+    if protein_terminal_keys:
+        caveats.append("contains protein-terminal acetylation placements")
+    if residue_keys:
+        caveats.append("contains residue-level acetylation placements")
+    if occupancy_report.missing_counterpart_count > 0:
+        caveats.append("contains missing counterpart occupancy caveats")
+    return PtmAcetylReviewFixtureReport(
+        acetyl_site_keys=tuple(sorted(entry.site_key for entry in acetyl_entries)),
+        protein_terminal_site_keys=protein_terminal_keys,
+        residue_site_keys=residue_keys,
         motif_window_count=len(motif_windows),
         quantified_sample_ids=tuple(
             sorted({entry.sample_id for entry in occupancy_report.entries})
