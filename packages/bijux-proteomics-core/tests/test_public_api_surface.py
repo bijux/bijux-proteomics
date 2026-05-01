@@ -267,6 +267,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "apply_planned_observed_learning_loop" in bijux_proteomics.__all__
     assert "render_lab_review_packet" in bijux_proteomics.__all__
     assert "enforce_wet_lab_automation_boundary" in bijux_proteomics.__all__
+    assert "build_complete_dda_mini_study_bundle" in bijux_proteomics.__all__
+    assert "build_complete_dia_mini_study_bundle" in bijux_proteomics.__all__
+    assert "build_complete_lfq_mini_study_bundle" in bijux_proteomics.__all__
+    assert "build_complete_tmt_mini_study_bundle" in bijux_proteomics.__all__
+    assert "build_complete_ptm_mini_study_bundle" in bijux_proteomics.__all__
+    assert "build_known_mixture_mini_study_bundle" in bijux_proteomics.__all__
+    assert "build_contradiction_mini_study_bundle" in bijux_proteomics.__all__
+    assert "build_negative_science_corpus_report" in bijux_proteomics.__all__
+    assert "build_external_engine_corpus_licensing_plan" in bijux_proteomics.__all__
+    assert "build_example_index_by_scientific_question" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -308,6 +318,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "PlannedObservedLearningLoopReport" in bijux_proteomics.__all__
     assert "LabReviewPacketRendered" in bijux_proteomics.__all__
     assert "WetLabAutomationBoundaryReport" in bijux_proteomics.__all__
+    assert "DdaMiniStudyBundle" in bijux_proteomics.__all__
+    assert "DiaMiniStudyBundle" in bijux_proteomics.__all__
+    assert "LfqMiniStudyBundle" in bijux_proteomics.__all__
+    assert "TmtMiniStudyBundle" in bijux_proteomics.__all__
+    assert "PtmMiniStudyBundle" in bijux_proteomics.__all__
+    assert "KnownMixtureMiniStudyBundle" in bijux_proteomics.__all__
+    assert "ContradictionMiniStudyBundle" in bijux_proteomics.__all__
+    assert "NegativeScienceCorpusReport" in bijux_proteomics.__all__
+    assert "ExternalEngineCorpusLicensingPlan" in bijux_proteomics.__all__
+    assert "ScientificQuestionExampleIndex" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
