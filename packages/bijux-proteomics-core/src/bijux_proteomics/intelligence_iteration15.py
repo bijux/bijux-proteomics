@@ -416,3 +416,64 @@ def build_ranking_policy_language_document(
         rules=normalized_rules,
         policy_digest=digest,
     )
+
+
+class CandidateComparisonInput(JsonModel):
+    """Scored candidate inputs used to explain ranking differences."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    rank: int = Field(..., ge=1)
+    evidence_score: float = Field(..., ge=0.0, le=1.0)
+    novelty_score: float = Field(..., ge=0.0, le=1.0)
+    feasibility_score: float = Field(..., ge=0.0, le=1.0)
+    risk_penalty: float = Field(..., ge=0.0, le=1.0)
+    caveat_ids: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class CandidateComparisonPacket(JsonModel):
+    """Justification packet for why one candidate outranks another."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    preferred_candidate_id: str = Field(..., min_length=1)
+    other_candidate_id: str = Field(..., min_length=1)
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+    caveat_ids: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_candidate_comparison_packet(
+    *,
+    preferred: CandidateComparisonInput,
+    other: CandidateComparisonInput,
+) -> CandidateComparisonPacket:
+    """Generate evidence-linked packet describing why one candidate outranks another."""
+
+    reasons: list[str] = []
+    if preferred.rank > other.rank:
+        raise ValueError("preferred candidate rank must be better or equal to comparator")
+    if preferred.evidence_score > other.evidence_score:
+        reasons.append("preferred candidate has stronger evidence support")
+    if preferred.novelty_score > other.novelty_score:
+        reasons.append("preferred candidate offers higher novelty value")
+    if preferred.feasibility_score > other.feasibility_score:
+        reasons.append("preferred candidate is more feasible for lab follow-up")
+    if preferred.risk_penalty < other.risk_penalty:
+        reasons.append("preferred candidate carries lower risk burden")
+    if not reasons:
+        reasons.append("preferred candidate retains tie-break priority in ranking policy")
+
+    merged_caveats = tuple(sorted(set(preferred.caveat_ids + other.caveat_ids)))
+    merged_evidence = tuple(
+        sorted(set(preferred.evidence_pointer_ids + other.evidence_pointer_ids))
+    )
+    return CandidateComparisonPacket(
+        preferred_candidate_id=preferred.candidate_id,
+        other_candidate_id=other.candidate_id,
+        reasons=tuple(reasons),
+        caveat_ids=merged_caveats,
+        evidence_pointer_ids=merged_evidence,
+    )
