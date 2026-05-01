@@ -15,6 +15,16 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.digestion import digest_protein_records
 from bijux_proteomics.formats import ExperimentalDesignEntry
+from bijux_proteomics.ptm import (
+    build_ptm_motif_windows,
+    build_ptm_site_table,
+    map_ptm_evidence_to_protein_sites,
+    parse_ptm_localization_tsv,
+)
+from bijux_proteomics.ptm_advanced_workflows import (
+    build_ptm_lab_validation_packet,
+    build_ptm_occupancy_counterpart_report,
+)
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics.quantification_iteration05 import build_quant_review_bundle
 from bijux_proteomics.sequences import (
@@ -138,6 +148,26 @@ class QuantRuntimeWorkflowRunReport(JsonModel):
     condition_count: int = Field(..., ge=0)
     outlier_sample_count: int = Field(..., ge=0)
     review_bundle_hash: str = Field(..., min_length=1)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    replay_cache_key: str = Field(..., min_length=64, max_length=64)
+    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class PtmRuntimeWorkflowRunReport(JsonModel):
+    """End-to-end runtime report for PTM workflow execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    status: RuntimeWorkflowStatus
+    accepted_identification_count: int = Field(..., ge=0)
+    mapped_site_count: int = Field(..., ge=0)
+    motif_window_count: int = Field(..., ge=0)
+    occupancy_entry_count: int = Field(..., ge=0)
+    lab_packet_target_count: int = Field(..., ge=0)
+    unresolved_risk_count: int = Field(..., ge=0)
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
@@ -483,4 +513,94 @@ def run_quant_workflow_end_to_end(
             ),
         ),
         note="workflow completed quant matrix, normalization, differential abundance, and review bundle surfaces",
+    )
+
+
+def run_ptm_workflow_end_to_end(
+    ptm_evidence_path: Path,
+    *,
+    protein_sequences: dict[str, str],
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    artifact_root: str = "artifacts/workflows/ptm-runtime",
+) -> PtmRuntimeWorkflowRunReport:
+    """Execute PTM runtime flow: identification -> localization -> occupancy/motif -> packet."""
+    parse_report = parse_ptm_localization_tsv(ptm_evidence_path)
+    mappings = map_ptm_evidence_to_protein_sites(
+        parse_report.accepted_records,
+        protein_sequences=protein_sequences,
+    )
+    site_entries = build_ptm_site_table(mappings)
+    occupancy = build_ptm_occupancy_counterpart_report(
+        site_entries,
+        feature_records=feature_records,
+    )
+    motifs = build_ptm_motif_windows(site_entries, protein_sequences=protein_sequences)
+    lab_packet = build_ptm_lab_validation_packet(
+        site_entries,
+        occupancy_report=occupancy,
+    )
+    key = _stable_runtime_key(
+        {
+            "workflow": "ptm-runtime",
+            "ptm_evidence_path": str(ptm_evidence_path),
+            "accepted_identification_count": len(parse_report.accepted_records),
+            "mapped_site_count": len(site_entries),
+            "feature_count": len(feature_records),
+        }
+    )
+    return PtmRuntimeWorkflowRunReport(
+        workflow_id="ptm-runtime",
+        status=RuntimeWorkflowStatus.COMPLETED,
+        accepted_identification_count=len(parse_report.accepted_records),
+        mapped_site_count=len(site_entries),
+        motif_window_count=len(motifs),
+        occupancy_entry_count=len(occupancy.entries),
+        lab_packet_target_count=len(lab_packet.entries),
+        unresolved_risk_count=lab_packet.unresolved_risk_count,
+        artifact_paths=(
+            f"{artifact_root}/ptm_sites.tsv",
+            f"{artifact_root}/ptm_occupancy.tsv",
+            f"{artifact_root}/ptm_motif_windows.tsv",
+            f"{artifact_root}/ptm_lab_packet.json",
+        ),
+        evidence_pointers=(
+            "ptm.accepted_identifications",
+            "ptm.site_entries",
+            "ptm.occupancy_entries",
+            "ptm.lab_validation_packet",
+        ),
+        replay_cache_key=key,
+        steps=(
+            RuntimeWorkflowStepRecord(
+                step_id="parse-identifications",
+                description="parse PTM identification/localization evidence table",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(parse_report.accepted_records),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="map-localization",
+                description="map localized PTM evidence to protein site coordinates",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(site_entries),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="estimate-occupancy",
+                description="estimate modified/unmodified occupancy with counterpart caveats",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(occupancy.entries),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="build-motif",
+                description="build PTM motif windows around mapped protein sites",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(motifs),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="build-review-packet",
+                description="build PTM lab validation packet with risk and controls",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(lab_packet.entries),
+            ),
+        ),
+        note="workflow completed PTM localization, occupancy, motif, and lab validation packet surfaces",
     )
