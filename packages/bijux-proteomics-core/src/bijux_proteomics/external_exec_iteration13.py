@@ -401,3 +401,41 @@ def build_external_quant_execution_contract(
         tool_version=tool_version,
         execution_mode=execution_mode,
     )
+
+
+class ProviderCapabilityState(StrEnum):
+    """Provider capability maturity and usage boundaries."""
+
+    PRODUCTION = "production"
+    ADVISORY = "advisory"
+    UNSUPPORTED = "unsupported"
+
+
+class ProviderCapabilityEntry(JsonModel):
+    """Capability entry for local/remote/model/tool providers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    provider_id: str = Field(..., min_length=1)
+    provider_type: str = Field(..., min_length=1)
+    capabilities: tuple[str, ...] = Field(default_factory=tuple)
+    state: ProviderCapabilityState
+    note: str = Field(..., min_length=1)
+
+
+class ProviderCapabilityRegistry(JsonModel):
+    """Registry of provider capabilities and production/advisory states."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[ProviderCapabilityEntry, ...] = Field(default_factory=tuple)
+
+
+def build_provider_capability_registry(
+    entries: tuple[ProviderCapabilityEntry, ...],
+) -> ProviderCapabilityRegistry:
+    """Record local/remote/model/tool provider capabilities and support state."""
+
+    return ProviderCapabilityRegistry(
+        entries=tuple(sorted(entries, key=lambda entry: (entry.provider_type, entry.provider_id)))
+    )
