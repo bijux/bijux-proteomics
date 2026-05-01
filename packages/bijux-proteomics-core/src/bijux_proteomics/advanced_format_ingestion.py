@@ -109,6 +109,19 @@ class Ms1FeatureTableIngestionReport(JsonModel):
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class SpectrumLibraryBoundaryReport(JsonModel):
+    """Boundary report for spectral-library format support/refusal."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    format_name: str
+    supported: bool
+    support_mode: str | None = None
+    entry_count: int = Field(default=0, ge=0)
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
+    mapped_fields: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
     """Parse mzIdentML core identification surfaces or return precise refusal details."""
     root = ET.parse(path).getroot()
@@ -382,6 +395,45 @@ def parse_ms1_feature_table_with_provenance(
             "MS1 feature ingestion preserves sample/peptide/intensity required fields",
             "optional charge, m/z, and retention-time provenance are counted explicitly",
         ),
+    )
+
+
+def evaluate_spectrum_library_boundary(path: Path) -> SpectrumLibraryBoundaryReport:
+    """Detect spectrum-library format boundaries and support/refusal modes."""
+    suffix = path.suffix.lower()
+    if suffix == ".msp":
+        text = path.read_text(encoding="utf-8")
+        entry_count = text.count("\nName:")
+        if text.startswith("Name:"):
+            entry_count += 1
+        return SpectrumLibraryBoundaryReport(
+            format_name="MSP",
+            supported=True,
+            support_mode="parse_only",
+            entry_count=entry_count,
+            mapped_fields=("Name", "MW", "Comment", "Num peaks"),
+            diagnostics=(
+                "MSP library detected with parse-only support mode",
+                "normalization preserves entry counting and key header fields",
+            ),
+        )
+    if suffix in {".sptxt", ".traml", ".elib"}:
+        return SpectrumLibraryBoundaryReport(
+            format_name=suffix.lstrip("."),
+            supported=False,
+            support_mode=None,
+            entry_count=0,
+            diagnostics=(
+                "library format detected but normalization support is not yet implemented",
+                "convert to MSP or normalized PSM/feature exports for current ingestion workflows",
+            ),
+        )
+    return SpectrumLibraryBoundaryReport(
+        format_name=suffix.lstrip(".") or "unknown",
+        supported=False,
+        support_mode=None,
+        entry_count=0,
+        diagnostics=("unsupported spectral-library file extension",),
     )
 
 
