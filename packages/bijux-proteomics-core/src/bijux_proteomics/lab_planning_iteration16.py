@@ -420,3 +420,61 @@ def evaluate_protocol_attachment_boundary(
         protocol_ref=f"{payload.protocol_id}@{payload.protocol_version}",
         reason="protocol reference attached as external metadata only",
     )
+
+
+class LimsExportInputRow(JsonModel):
+    """One LIMS export row with sample/assay/request fields."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    assay_id: str = Field(..., min_length=1)
+    request_id: str = Field(..., min_length=1)
+    priority: str = Field(..., min_length=1)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LimsOrientedExportRow(JsonModel):
+    """LIMS-oriented export row rendered for downstream import."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    assay_id: str = Field(..., min_length=1)
+    request_id: str = Field(..., min_length=1)
+    priority: str = Field(..., min_length=1)
+    caveat_text: str = ""
+
+
+class LimsOrientedExportBundle(JsonModel):
+    """Export bundle with caveated rows and serialized TSV payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rows: tuple[LimsOrientedExportRow, ...] = Field(default_factory=tuple)
+    tsv_payload: str = Field(..., min_length=1)
+
+
+def build_lims_oriented_export_bundle(
+    rows: tuple[LimsExportInputRow, ...],
+) -> LimsOrientedExportBundle:
+    """Export LIMS-oriented sample/assay/request fields with explicit caveats."""
+
+    rendered_rows = tuple(
+        LimsOrientedExportRow(
+            sample_id=row.sample_id,
+            assay_id=row.assay_id,
+            request_id=row.request_id,
+            priority=row.priority,
+            caveat_text="; ".join(sorted(set(row.caveats))),
+        )
+        for row in rows
+    )
+
+    header = "sample_id\tassay_id\trequest_id\tpriority\tcaveats"
+    lines = [
+        f"{row.sample_id}\t{row.assay_id}\t{row.request_id}\t{row.priority}\t{row.caveat_text}"
+        for row in rendered_rows
+    ]
+    payload = "\n".join([header, *lines]) if lines else header
+    return LimsOrientedExportBundle(rows=rendered_rows, tsv_payload=payload)
