@@ -67,6 +67,29 @@ class MzmlDecodingSupportReport(JsonModel):
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class ChromatogramQcPoint(JsonModel):
+    """One chromatogram QC data point with TIC/BPC support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    scan_time_seconds: float = Field(..., ge=0.0)
+    tic: float | None = Field(default=None, ge=0.0)
+    bpc: float | None = Field(default=None, ge=0.0)
+
+
+class ChromatogramQcIngestionReport(JsonModel):
+    """Chromatogram QC ingestion report with unknown-vs-failed metric clarity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_rows: int = Field(..., ge=0)
+    accepted_points: tuple[ChromatogramQcPoint, ...] = Field(default_factory=tuple)
+    unknown_metric_rows: int = Field(..., ge=0)
+    failed_metric_rows: int = Field(..., ge=0)
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
     """Parse mzIdentML core identification surfaces or return precise refusal details."""
     root = ET.parse(path).getroot()
@@ -276,7 +299,57 @@ def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
     )
 
 
+def parse_chromatogram_qc_table(path: Path) -> ChromatogramQcIngestionReport:
+    """Parse TIC/BPC chromatogram QC tables and distinguish unknown from failed metrics."""
+    reader = csv.DictReader(path.read_text(encoding="utf-8").splitlines(), delimiter="\t")
+    points: list[ChromatogramQcPoint] = []
+    unknown_rows = 0
+    failed_rows = 0
+    total = 0
+    for row in reader:
+        total += 1
+        run_id = (row.get("run_id") or "").strip()
+        rt = _parse_float(row.get("scan_time_seconds"))
+        tic = _parse_float(row.get("tic"))
+        bpc = _parse_float(row.get("bpc"))
+        if not run_id or rt is None:
+            failed_rows += 1
+            continue
+        if tic is None and bpc is None:
+            unknown_rows += 1
+        points.append(
+            ChromatogramQcPoint(
+                run_id=run_id,
+                scan_time_seconds=rt,
+                tic=tic,
+                bpc=bpc,
+            )
+        )
+    return ChromatogramQcIngestionReport(
+        total_rows=total,
+        accepted_points=tuple(points),
+        unknown_metric_rows=unknown_rows,
+        failed_metric_rows=failed_rows,
+        diagnostics=(
+            "chromatogram QC ingestion preserves TIC/BPC values when present",
+            "rows missing both TIC and BPC are tracked as unknown metrics rather than hard parse failures",
+        ),
+    )
+
+
 def _local_name(tag: str) -> str:
     if "}" not in tag:
         return tag
     return tag.rsplit("}", 1)[1]
+
+
+def _parse_float(raw: str | None) -> float | None:
+    if raw is None:
+        return None
+    text = raw.strip()
+    if not text:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
