@@ -327,6 +327,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_assay_expected_evidence_gain_report" in bijux_proteomics.__all__
     assert "build_lab_queue_prioritization_report" in bijux_proteomics.__all__
     assert "apply_lab_feedback_to_intelligence_prioritization" in bijux_proteomics.__all__
+    assert "build_million_psm_ingestion_benchmark_report" in bijux_proteomics.__all__
+    assert "build_dense_quant_matrix_benchmark_report" in bijux_proteomics.__all__
+    assert "build_large_spectra_streaming_benchmark_report" in bijux_proteomics.__all__
+    assert "build_evidence_graph_scale_benchmark_report" in bijux_proteomics.__all__
+    assert "build_review_packet_scale_benchmark_report" in bijux_proteomics.__all__
+    assert "build_workflow_startup_benchmark_report" in bijux_proteomics.__all__
+    assert "classify_benchmark_corpus" in bijux_proteomics.__all__
+    assert "build_benchmark_output_bundle" in bijux_proteomics.__all__
+    assert "build_long_horizon_reproducibility_report" in bijux_proteomics.__all__
+    assert "build_dependency_update_replay_report" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -428,6 +438,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "AssayExpectedEvidenceGainReport" in bijux_proteomics.__all__
     assert "LabQueuePrioritizationReport" in bijux_proteomics.__all__
     assert "IntelligenceFeedbackReport" in bijux_proteomics.__all__
+    assert "MillionPsmIngestionBenchmarkReport" in bijux_proteomics.__all__
+    assert "DenseQuantMatrixBenchmarkReport" in bijux_proteomics.__all__
+    assert "LargeSpectraStreamingBenchmarkReport" in bijux_proteomics.__all__
+    assert "EvidenceGraphScaleBenchmarkReport" in bijux_proteomics.__all__
+    assert "ReviewPacketScaleBenchmarkReport" in bijux_proteomics.__all__
+    assert "WorkflowStartupBenchmarkReport" in bijux_proteomics.__all__
+    assert "BenchmarkCorpusDescriptor" in bijux_proteomics.__all__
+    assert "BenchmarkOutputBundle" in bijux_proteomics.__all__
+    assert "LongHorizonReproducibilityReport" in bijux_proteomics.__all__
+    assert "DependencyUpdateReplayReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
