@@ -443,3 +443,50 @@ def optimize_targeted_assay_candidates(
         )
 
     return TargetedAssayOptimizationReport(entries=tuple(entries))
+
+
+class TransitionListExportEntry(JsonModel):
+    """Transition list export row for targeted validation handoff."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    transition_label: str = Field(..., min_length=1)
+    precursor_mz: float = Field(..., gt=0.0)
+    fragment_mz: float = Field(..., gt=0.0)
+    control: bool = False
+    caveat: str = ""
+
+
+class TransitionListExportBundle(JsonModel):
+    """Exported transition list payload for targeted validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tsv_payload: str = Field(..., min_length=1)
+    row_count: int = Field(..., ge=0)
+
+
+def export_transition_list_candidates(
+    entries: tuple[TransitionListExportEntry, ...],
+) -> TransitionListExportBundle:
+    """Export targeted validation transition candidates with caveats and controls."""
+
+    header = "candidate_id\tpeptide_sequence\ttransition_label\tprecursor_mz\tfragment_mz\tcontrol\tcaveat"
+    rows = [
+        "\t".join(
+            (
+                entry.candidate_id,
+                entry.peptide_sequence,
+                entry.transition_label,
+                f"{entry.precursor_mz:.4f}",
+                f"{entry.fragment_mz:.4f}",
+                "1" if entry.control else "0",
+                entry.caveat,
+            )
+        )
+        for entry in sorted(entries, key=lambda entry: (entry.candidate_id, entry.transition_label))
+    ]
+    payload = "\n".join([header, *rows]) + ("\n" if rows else "")
+    return TransitionListExportBundle(tsv_payload=payload, row_count=len(entries))
