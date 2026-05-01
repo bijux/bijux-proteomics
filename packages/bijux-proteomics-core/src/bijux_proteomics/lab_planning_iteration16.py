@@ -241,3 +241,80 @@ def evaluate_validation_stage_progression_policy(
         eligible_for_targeted_follow_up=follow_up,
         reasons=tuple(reasons),
     )
+
+
+class LabOutcomeIngestionRecord(JsonModel):
+    """Observed lab outcome event for evidence/lifecycle ingestion."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    outcome_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    observed_status: str = Field(..., min_length=1)
+    evidence_pointer_id: str = Field(..., min_length=1)
+    observed_at_utc: str = Field(..., min_length=1)
+
+
+class LabOutcomeIngestionPolicy(JsonModel):
+    """Versioned policy for lab outcome ingestion behavior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+
+
+class LabOutcomeIngestionUpdate(JsonModel):
+    """Derived update from one ingested lab outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    lifecycle_state: str = Field(..., min_length=1)
+    evidence_update: str = Field(..., min_length=1)
+
+
+class LabOutcomeIngestionReport(JsonModel):
+    """Ingestion report with versioned policy trace and updates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    updates: tuple[LabOutcomeIngestionUpdate, ...] = Field(default_factory=tuple)
+
+
+def ingest_lab_outcomes_with_versioned_policy(
+    *,
+    outcomes: tuple[LabOutcomeIngestionRecord, ...],
+    policy: LabOutcomeIngestionPolicy,
+) -> LabOutcomeIngestionReport:
+    """Ingest outcomes and produce evidence/lifecycle updates with policy version trace."""
+
+    updates = []
+    for outcome in outcomes:
+        status = outcome.observed_status.lower()
+        if status in {"validated", "confirmed"}:
+            lifecycle = "validation_confirmed"
+        elif status in {"failed", "rejected"}:
+            lifecycle = "requires_reassessment"
+        else:
+            lifecycle = "under_review"
+
+        updates.append(
+            LabOutcomeIngestionUpdate(
+                candidate_id=outcome.candidate_id,
+                lifecycle_state=lifecycle,
+                evidence_update=(
+                    f"link {outcome.evidence_pointer_id} from {outcome.outcome_id} "
+                    f"at {outcome.observed_at_utc}"
+                ),
+            )
+        )
+
+    updates.sort(key=lambda item: item.candidate_id)
+    return LabOutcomeIngestionReport(
+        policy_id=policy.policy_id,
+        policy_version=policy.policy_version,
+        updates=tuple(updates),
+    )
