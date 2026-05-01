@@ -101,6 +101,26 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_search_adapter_corpus_conformance_matrix" in bijux_proteomics.__all__
     assert "build_external_engine_disagreement_report" in bijux_proteomics.__all__
     assert "SearchAdapterKind" in bijux_proteomics.__all__
+    assert "build_target_decoy_strategy_registry" in bijux_proteomics.__all__
+    assert "build_empirical_score_calibration_report" in bijux_proteomics.__all__
+    assert "compare_protein_inference_strategies" in bijux_proteomics.__all__
+    assert "build_psm_peptide_protein_trace_bundle" in bijux_proteomics.__all__
+    assert "build_confidence_threshold_sensitivity_bundle" in bijux_proteomics.__all__
+    assert "build_grouped_confidence_summary_report" in bijux_proteomics.__all__
+    assert "validate_custom_decoy_strategy" in bijux_proteomics.__all__
+    assert "evaluate_library_search_confidence_boundary" in bijux_proteomics.__all__
+    assert "build_dia_native_fdr_model_report" in bijux_proteomics.__all__
+    assert "build_inference_disagreement_review_packet" in bijux_proteomics.__all__
+    assert "TargetDecoyStrategyKind" in bijux_proteomics.__all__
+    assert "EmpiricalScoreCalibrationReport" in bijux_proteomics.__all__
+    assert "ProteinInferenceStrategyComparisonReport" in bijux_proteomics.__all__
+    assert "PsmPeptideProteinTraceBundle" in bijux_proteomics.__all__
+    assert "ConfidenceThresholdSensitivityBundle" in bijux_proteomics.__all__
+    assert "GroupedConfidenceSummaryReport" in bijux_proteomics.__all__
+    assert "CustomDecoyValidationReport" in bijux_proteomics.__all__
+    assert "LibrarySearchConfidenceBoundaryReport" in bijux_proteomics.__all__
+    assert "DiaNativeFdrModelReport" in bijux_proteomics.__all__
+    assert "InferenceDisagreementReviewPacket" in bijux_proteomics.__all__
     assert "Ms1FeatureRecord" in bijux_proteomics.__all__
     assert "parse_ms1_feature_table" in bijux_proteomics.__all__
     assert "build_label_free_intensity_table" in bijux_proteomics.__all__
