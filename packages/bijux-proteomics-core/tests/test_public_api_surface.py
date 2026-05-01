@@ -297,6 +297,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_external_quant_execution_contract" in bijux_proteomics.__all__
     assert "build_provider_capability_registry" in bijux_proteomics.__all__
     assert "run_environment_qa_for_proteomics_workflows" in bijux_proteomics.__all__
+    assert "build_runtime_workflow_blueprint" in bijux_proteomics.__all__
+    assert "build_workflow_run_diff_report" in bijux_proteomics.__all__
+    assert "plan_partial_workflow_rerun" in bijux_proteomics.__all__
+    assert "verify_workflow_artifact_inventory" in bijux_proteomics.__all__
+    assert "build_portable_workflow_run_bundle" in bijux_proteomics.__all__
+    assert "explain_workflow_cache_decisions" in bijux_proteomics.__all__
+    assert "query_workflow_run_history" in bijux_proteomics.__all__
+    assert "evaluate_workflow_api_cli_parity" in bijux_proteomics.__all__
+    assert "guard_large_artifact_uploads" in bijux_proteomics.__all__
+    assert "build_stable_runtime_error_envelope" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -368,6 +378,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ExternalQuantExecutionContract" in bijux_proteomics.__all__
     assert "ProviderCapabilityRegistry" in bijux_proteomics.__all__
     assert "EnvironmentQaReport" in bijux_proteomics.__all__
+    assert "RuntimeWorkflowBlueprint" in bijux_proteomics.__all__
+    assert "WorkflowRunDiffReport" in bijux_proteomics.__all__
+    assert "PartialWorkflowRerunPlan" in bijux_proteomics.__all__
+    assert "ArtifactInventoryVerificationReport" in bijux_proteomics.__all__
+    assert "PortableRunBundle" in bijux_proteomics.__all__
+    assert "CacheDecisionExplanationReport" in bijux_proteomics.__all__
+    assert "WorkflowRunHistoryQueryReport" in bijux_proteomics.__all__
+    assert "WorkflowApiCliParityReport" in bijux_proteomics.__all__
+    assert "LargeArtifactUploadGuardReport" in bijux_proteomics.__all__
+    assert "StableRuntimeErrorEnvelope" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
