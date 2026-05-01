@@ -6,9 +6,9 @@ from __future__ import annotations
 from bijux_proteomics import create_program_spec
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
-    ComparativeCandidateReviewPacket,
     CandidateRanking,
     CandidateRiskProfile,
+    ComparativeCandidateReviewPacket,
     EvaluatorPolicyBundle,
     HoldPolicyConfig,
     HypothesisStatus,
@@ -27,8 +27,8 @@ from bijux_proteomics_intelligence import (
     UncertaintyPreservingInterpretationSummary,
     build_advanced_review_packet,
     build_comparative_candidate_review_packet,
-    build_intelligence_decision_support_envelope,
     build_final_decision_recommendation,
+    build_intelligence_decision_support_envelope,
     build_intelligence_review_packet,
     derive_decision_escalation_flags,
     evaluate_all_scenarios,

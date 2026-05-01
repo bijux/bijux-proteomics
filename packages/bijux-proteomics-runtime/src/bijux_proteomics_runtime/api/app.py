@@ -115,7 +115,9 @@ def create_app(config: AppConfig) -> FastAPI:
             exc.status_code,
             str(exc.detail),
             str(request.url),
-            meta=build_request_correlation_meta(request, "http-error", request.url.path),
+            meta=build_request_correlation_meta(
+                request, "http-error", request.url.path
+            ),
         )
         return JSONResponse(status_code=exc.status_code, content=payload)
 

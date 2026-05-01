@@ -98,7 +98,9 @@ def _build_error(
         remediation_hint = "correct the request payload or query parameters"
     elif error_type == "not_found":
         failure_class = "storage"
-        remediation_hint = "verify the requested run id, artifact path, or workspace root"
+        remediation_hint = (
+            "verify the requested run id, artifact path, or workspace root"
+        )
         evidence_pointer = instance
     elif error_type == "conflict":
         failure_class = "state_conflict"

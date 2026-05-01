@@ -115,11 +115,12 @@ def build_compatibility_migration_guide(
             continue
         tree = parse_python_module(path).tree
         targets = tuple(sorted(import_references(tree)))
-        legacy_module = (
-            "agentic_proteins."
-            + relative_path.removesuffix(".py").replace("/", ".").replace(".__init__", "")
-        )
-        if _is_forwarding_module(tree, policy.compat_forwarding.forwarding_target_prefixes):
+        legacy_module = "agentic_proteins." + relative_path.removesuffix(".py").replace(
+            "/", "."
+        ).replace(".__init__", "")
+        if _is_forwarding_module(
+            tree, policy.compat_forwarding.forwarding_target_prefixes
+        ):
             action = (
                 f"replace `{legacy_module}` with `{targets[0]}`"
                 if len(targets) == 1
@@ -127,14 +128,10 @@ def build_compatibility_migration_guide(
             )
             status = "forwarding-only"
         elif relative_path in allowlist:
-            action = (
-                f"review `{legacy_module}` manually before moving callers because it is allowlisted as non-forwarding"
-            )
+            action = f"review `{legacy_module}` manually before moving callers because it is allowlisted as non-forwarding"
             status = "review-required"
         else:
-            action = (
-                f"review `{legacy_module}` manually because it is not a pure forwarding module"
-            )
+            action = f"review `{legacy_module}` manually because it is not a pure forwarding module"
             status = "non-forwarding"
         entries.append(
             CompatibilityMigrationGuideEntry(
@@ -208,7 +205,9 @@ def run(check: bool = False) -> int:
     entries = build_compatibility_migration_guide(REPO_ROOT)
     if check:
         if _is_up_to_date(entries):
-            print(f"compatibility migration guide is up to date for {len(entries)} modules")
+            print(
+                f"compatibility migration guide is up to date for {len(entries)} modules"
+            )
             return 0
         print("compatibility migration guide is stale; regenerate it")
         return 1

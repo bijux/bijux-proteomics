@@ -33,16 +33,22 @@ def _pressure_level(score: int) -> str:
     return "stable"
 
 
-def build_package_coupling_report(repo_root: Path) -> tuple[PackageCouplingHotspot, ...]:
+def build_package_coupling_report(
+    repo_root: Path,
+) -> tuple[PackageCouplingHotspot, ...]:
     """Build a workspace package coupling report from declared dependencies."""
     graph = build_workspace_package_graph(repo_root)
     rows: list[PackageCouplingHotspot] = []
     for package in graph.packages:
         direct_dependency_count = len(package.workspace_dependencies)
-        reverse_dependency_count = len(graph.reverse_dependencies_of(package.package_name))
+        reverse_dependency_count = len(
+            graph.reverse_dependencies_of(package.package_name)
+        )
         external_dependency_count = len(package.external_dependencies)
-        coupling_score = direct_dependency_count + reverse_dependency_count + max(
-            external_dependency_count - 2, 0
+        coupling_score = (
+            direct_dependency_count
+            + reverse_dependency_count
+            + max(external_dependency_count - 2, 0)
         )
         notes: list[str] = []
         if reverse_dependency_count >= 4:

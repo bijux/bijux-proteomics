@@ -14,14 +14,11 @@ from bijux_proteomics_foundation import (
     ContractConflictError,
     ContractNotFoundError,
     ContractValidationError,
+    ControlledVocabularyDomain,
     DocumentSchema,
     DurationValue,
-    ControlledVocabularyDomain,
     ExperimentId,
     FoundationContractError,
-    StableHashPolicy,
-    SchemaFormatContract,
-    SchemaEvolutionAssessment,
     IdentifierKind,
     JsonModel,
     MigrationExecutionError,
@@ -30,31 +27,34 @@ from bijux_proteomics_foundation import (
     NullabilityState,
     NullableValue,
     PeptideId,
-    ProteinId,
     ProgramId,
     PromotionId,
+    ProteinId,
     ReviewId,
     RunId,
     SchemaCompatibility,
+    SchemaEvolutionAssessment,
+    SchemaFormatContract,
     SchemaMigration,
     SequenceCoordinateRange,
     SequenceCoordinateSystem,
     SpectrumId,
+    StableHashPolicy,
     UtcTimestamp,
     absent_value,
-    default_hash_policy,
-    hash_model,
-    hash_payload,
-    normalize_controlled_term,
-    present_value,
     assess_schema_compatibility,
     assess_schema_evolution,
     build_identifier,
     build_schema_format_contract,
     classify_identifier,
+    default_hash_policy,
     default_schema_format_contracts,
     ensure_identifier_kind,
     evaluate_schema_format_contract,
+    hash_model,
+    hash_payload,
+    normalize_controlled_term,
+    present_value,
 )
 
 
@@ -212,9 +212,7 @@ def test_identifier_helpers_validate_new_scientific_kinds() -> None:
 
 
 def test_utc_timestamp_normalizes_to_utc() -> None:
-    timestamp = UtcTimestamp(
-        value=datetime.fromisoformat("2026-04-29T12:00:00+02:00")
-    )
+    timestamp = UtcTimestamp(value=datetime.fromisoformat("2026-04-29T12:00:00+02:00"))
 
     assert timestamp.value.tzinfo is UTC
     assert timestamp.to_dict()["value"] == "2026-04-29T10:00:00Z"

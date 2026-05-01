@@ -17,20 +17,20 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RunArtifactsResponse,
     RunEvidenceResponse,
     RunHistoryResponse,
+    RunResponse,
     RunReviewResponse,
-    RuntimeHealthComponent,
-    RuntimeHealthComponentState,
-    RuntimeHealthResponse,
     RuntimeArtifactRecord,
     RuntimeDocumentAvailability,
     RuntimeDocumentReference,
+    RuntimeHealthComponent,
+    RuntimeHealthComponentState,
+    RuntimeHealthResponse,
     RuntimeStatusResponse,
-    RunResponse,
 )
 from bijux_proteomics_runtime.providers import provider_metadata
 from bijux_proteomics_runtime.providers.factory import provider_requirements
-from bijux_proteomics_runtime.runtime_identity import runtime_banner
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.runtime_identity import runtime_banner
 
 _DOCUMENT_MAX_INLINE_BYTES = 256_000
 _MAX_ARTIFACT_LOAD_BYTES = 1_000_000
@@ -255,7 +255,9 @@ def build_runtime_status_response(
     summary = RunResponse.model_validate(
         _load_run_summary_payload(base_dir, run_id, artifacts_dir)
     )
-    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    workspace = RunWorkspace.for_run(
+        base_dir, run_id, artifacts_root_override=artifacts_dir
+    )
     evidence_path = workspace.artifact_items_dir / "evidence_bundle.json"
     review_path = workspace.artifact_items_dir / "review_packet.json"
     return RuntimeStatusResponse(
@@ -286,7 +288,9 @@ def build_run_artifacts_response(
     artifacts_dir: Path | None = None,
 ) -> RunArtifactsResponse:
     """Build the stable artifact inventory for one run."""
-    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    workspace = RunWorkspace.for_run(
+        base_dir, run_id, artifacts_root_override=artifacts_dir
+    )
     if not workspace.run_dir.exists():
         raise FileNotFoundError(f"Run not found at {workspace.run_dir}")
     artifacts: list[RuntimeArtifactRecord] = []
@@ -341,7 +345,9 @@ def build_run_evidence_response(
     max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
 ) -> RunEvidenceResponse:
     """Build the stable evidence-bundle surface for one run."""
-    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    workspace = RunWorkspace.for_run(
+        base_dir, run_id, artifacts_root_override=artifacts_dir
+    )
     path = workspace.artifact_items_dir / "evidence_bundle.json"
     return RunEvidenceResponse(
         run_id=run_id,
@@ -365,7 +371,9 @@ def build_run_review_response(
     max_inline_bytes: int = _DOCUMENT_MAX_INLINE_BYTES,
 ) -> RunReviewResponse:
     """Build the stable review-packet surface for one run."""
-    workspace = RunWorkspace.for_run(base_dir, run_id, artifacts_root_override=artifacts_dir)
+    workspace = RunWorkspace.for_run(
+        base_dir, run_id, artifacts_root_override=artifacts_dir
+    )
     path = workspace.artifact_items_dir / "review_packet.json"
     return RunReviewResponse(
         run_id=run_id,
@@ -503,7 +511,10 @@ def build_run_history_response(
         )
         if provider is not None and response.provider != provider:
             continue
-        if workflow_state is not None and response.workflow_state.value != workflow_state:
+        if (
+            workflow_state is not None
+            and response.workflow_state.value != workflow_state
+        ):
             continue
         if outcome is not None and response.outcome.value != outcome:
             continue
@@ -532,7 +543,9 @@ def build_artifact_lookup_response(
     records: list[RuntimeArtifactRecord] = []
     run_ids = [run_id] if run_id is not None else _iter_run_ids(base_dir)
     for current_run_id in run_ids:
-        for artifact in build_run_artifacts_response(base_dir, current_run_id).artifacts:
+        for artifact in build_run_artifacts_response(
+            base_dir, current_run_id
+        ).artifacts:
             if artifact_kind is not None and artifact.artifact_kind != artifact_kind:
                 continue
             records.append(artifact)

@@ -1397,10 +1397,7 @@ def build_executable_assay_plan(
         if sample_kind not in available_sample_kind_set
     ]
     blocked_by = [
-        *[
-            f"review gate pending: {gate_id}"
-            for gate_id in batch.blocking_review_gates
-        ],
+        *[f"review gate pending: {gate_id}" for gate_id in batch.blocking_review_gates],
         *[
             f"missing sample kind: {sample_kind}"
             for sample_kind in missing_sample_kinds

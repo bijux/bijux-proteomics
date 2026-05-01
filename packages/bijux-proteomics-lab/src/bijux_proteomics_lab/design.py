@@ -394,7 +394,9 @@ def _summarize_design_structure(
             replicate_counts=replicate_counts,
             minimum_replicates=min(replicate_counts.values(), default=0),
             maximum_replicates=max(replicate_counts.values(), default=0),
-            balanced=len(set(replicate_counts.values())) <= 1 if replicate_counts else True,
+            balanced=len(set(replicate_counts.values())) <= 1
+            if replicate_counts
+            else True,
         ),
     )
 
@@ -465,7 +467,9 @@ def validate_experiment_design(
                 code="replication-strategy-asymmetric",
                 severity=DesignIssueSeverity.WARN,
                 summary="replication counts are asymmetric across conditions and should be justified explicitly.",
-                conditions=tuple(sorted(structure_summary.replication.replicate_counts)),
+                conditions=tuple(
+                    sorted(structure_summary.replication.replicate_counts)
+                ),
             )
         )
     if structure_summary.fractionated:

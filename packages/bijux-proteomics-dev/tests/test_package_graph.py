@@ -11,7 +11,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_workspace_packages_load_expected_import_roots() -> None:
-    packages = {package.package_name: package for package in load_workspace_packages(REPO_ROOT)}
+    packages = {
+        package.package_name: package for package in load_workspace_packages(REPO_ROOT)
+    }
 
     assert packages["bijux-proteomics-core"].import_root == "bijux_proteomics"
     assert packages["agentic-proteins"].import_root == "agentic_proteins"

@@ -132,5 +132,7 @@ def validate_workspace_dependency_boundaries(
         package = packages[policy.package_name]
         violations.extend(evaluate_dependency_boundary_policy(package, policy))
     return tuple(
-        sorted(violations, key=lambda violation: (violation.package_name, violation.code))
+        sorted(
+            violations, key=lambda violation: (violation.package_name, violation.code)
+        )
     )

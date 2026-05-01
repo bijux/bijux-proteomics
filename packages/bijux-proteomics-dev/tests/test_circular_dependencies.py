@@ -29,7 +29,7 @@ def _write_package(
         [
             "[project]",
             f'name = "{distribution_name}"',
-            "version = \"0.0.0\"",
+            'version = "0.0.0"',
             "dependencies = [",
             dependency_block,
             "]",

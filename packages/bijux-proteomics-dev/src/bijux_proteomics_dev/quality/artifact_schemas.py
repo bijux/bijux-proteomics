@@ -54,7 +54,9 @@ def _load_toml(path: Path) -> dict[str, Any]:
         return tomllib.load(handle)
 
 
-def load_high_value_artifact_schemas(repo_root: Path) -> tuple[HighValueArtifactSchema, ...]:
+def load_high_value_artifact_schemas(
+    repo_root: Path,
+) -> tuple[HighValueArtifactSchema, ...]:
     """Load curated high-value artifact schemas from the governance manifest."""
     raw = _load_toml(artifact_schema_manifest_path(repo_root))
     entries = [
@@ -77,7 +79,7 @@ def _document_kind_is_declared(repo_root: Path, entry: HighValueArtifactSchema) 
         search_roots.append(repo_root / "apis")
     patterns = (
         f'document_kind="{entry.document_kind}"',
-        f"_build_document_schema(\"{entry.document_kind}\")",
+        f'_build_document_schema("{entry.document_kind}")',
         f"document_kind='{entry.document_kind}'",
         f"_build_document_schema('{entry.document_kind}')",
     )

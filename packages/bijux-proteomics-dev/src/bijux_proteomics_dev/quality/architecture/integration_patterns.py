@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics_dev.quality.package_graph import (
-    WorkspaceDependencyEdge,
     WorkspacePackageGraph,
     build_workspace_package_graph,
 )

@@ -53,22 +53,23 @@ def validate_runtime_live_contract(repo_root: Path) -> list[str]:
 
     if not schema_yaml.exists():
         failures.append("runtime api contract missing schema.yaml")
-    else:
-        if _canonicalize(_load_yaml(schema_yaml)) != live:
-            failures.append("runtime schema.yaml drifted from the live runtime app")
+    elif _canonicalize(_load_yaml(schema_yaml)) != live:
+        failures.append("runtime schema.yaml drifted from the live runtime app")
 
     if not pinned_json.exists():
         failures.append("runtime api contract missing pinned_openapi.json")
-    else:
-        if _canonicalize(_load_json(pinned_json)) != live:
-            failures.append("runtime pinned_openapi.json drifted from the live runtime app")
+    elif _canonicalize(_load_json(pinned_json)) != live:
+        failures.append("runtime pinned_openapi.json drifted from the live runtime app")
 
     for filename in ("schema.yaml", "pinned_openapi.json", "schema.hash"):
         runtime_path = runtime_root / filename
         compat_path = compat_root / filename
-        if runtime_path.exists() and compat_path.exists():
-            if runtime_path.read_bytes() != compat_path.read_bytes():
-                failures.append(
-                    f"compat api contract drifted from runtime mirror: {filename}"
-                )
+        if (
+            runtime_path.exists()
+            and compat_path.exists()
+            and runtime_path.read_bytes() != compat_path.read_bytes()
+        ):
+            failures.append(
+                f"compat api contract drifted from runtime mirror: {filename}"
+            )
     return failures

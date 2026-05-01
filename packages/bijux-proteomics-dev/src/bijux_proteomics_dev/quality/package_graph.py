@@ -174,6 +174,8 @@ def build_workspace_package_graph(repo_root: Path) -> WorkspacePackageGraph:
     return WorkspacePackageGraph(
         packages=packages,
         dependency_edges=tuple(
-            sorted(edges, key=lambda edge: (edge.depender_package, edge.dependee_package))
+            sorted(
+                edges, key=lambda edge: (edge.depender_package, edge.dependee_package)
+            )
         ),
     )

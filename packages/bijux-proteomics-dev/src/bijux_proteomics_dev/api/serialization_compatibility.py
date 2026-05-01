@@ -11,7 +11,11 @@ from bijux_proteomics_foundation import (
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     evaluate_schema_compatibility,
+)
+from bijux_proteomics_knowledge import (
     fingerprint_model as fingerprint_knowledge_model,
+)
+from bijux_proteomics_knowledge import (
     to_canonical_json as knowledge_to_canonical_json,
 )
 from bijux_proteomics_lab import (
@@ -19,9 +23,13 @@ from bijux_proteomics_lab import (
     build_canonical_artifact_envelope,
     build_lab_schema_upgrade_advisory,
     evaluate_lab_artifact_with_registry,
-    fingerprint_model as fingerprint_lab_model,
-    to_canonical_json as lab_to_canonical_json,
     verify_canonical_artifact_envelope,
+)
+from bijux_proteomics_lab import (
+    fingerprint_model as fingerprint_lab_model,
+)
+from bijux_proteomics_lab import (
+    to_canonical_json as lab_to_canonical_json,
 )
 
 __all__ = [
@@ -89,7 +97,9 @@ def _knowledge_result(schema_version: str) -> PackageSerializationCompatibilityR
         package_name="bijux-proteomics-knowledge",
         artifact_kind="evidence_bundle",
         schema_version=schema_version,
-        compatibility_status="compatible" if compatibility.compatible else "incompatible",
+        compatibility_status="compatible"
+        if compatibility.compatible
+        else "incompatible",
         compatible=compatibility.compatible,
         roundtrip_stable=knowledge_to_canonical_json(reparsed) == serialized,
         content_fingerprint=fingerprint_knowledge_model(bundle),
@@ -124,7 +134,9 @@ def _lab_result(schema_version: str) -> PackageSerializationCompatibilityResult:
         package_name="bijux-proteomics-lab",
         artifact_kind="plan",
         schema_version=schema_version,
-        compatibility_status="compatible" if compatibility.compatible else "incompatible",
+        compatibility_status="compatible"
+        if compatibility.compatible
+        else "incompatible",
         compatible=compatibility.compatible,
         roundtrip_stable=(
             lab_to_canonical_json(reparsed) == lab_to_canonical_json(plan)

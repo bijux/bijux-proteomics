@@ -123,9 +123,7 @@ def test_validate_promotion_transition_history_flags_broken_chains() -> None:
     assert issues[0].code == "broken-promotion-chain"
 
 
-def test_decide_candidate_lab_advancement_returns_promote_and_refuse_outcomes() -> (
-    None
-):
+def test_decide_candidate_lab_advancement_returns_promote_and_refuse_outcomes() -> None:
     promoted = decide_candidate_lab_advancement(
         program_id="prog-lab",
         candidate_id="cand-1",

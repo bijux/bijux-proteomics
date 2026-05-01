@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
-    ClaimPolarity,
     ClaimEvidenceState,
+    ClaimPolarity,
     ClaimQuery,
     ClaimResolutionState,
     ClaimStatus,
@@ -20,10 +20,10 @@ from bijux_proteomics_knowledge import (
     audit_claim_evidence_links,
     build_claim,
     build_claim_trust_gap_report,
-    classify_claim_evidence_state,
     build_contradiction_matrix,
     build_decision_lineage,
     build_hypothesis_dossier,
+    classify_claim_evidence_state,
     close_claim,
     evaluate_claim_consistency,
     evaluate_claim_falsifiability,

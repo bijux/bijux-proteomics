@@ -299,7 +299,9 @@ class RuntimeDocumentReference(BaseModel):
         description="Inline-ingestion guard applied to this document request.",
     )
     sha256: str | None = Field(default=None, description="Document hash when known.")
-    note: str = Field(..., min_length=1, description="Human-readable availability note.")
+    note: str = Field(
+        ..., min_length=1, description="Human-readable availability note."
+    )
     content: dict[str, Any] | None = Field(
         default=None,
         description="Inline document content when small enough and requested.",

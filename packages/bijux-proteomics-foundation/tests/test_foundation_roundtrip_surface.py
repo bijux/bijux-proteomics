@@ -37,7 +37,9 @@ class FoundationSurfaceDocument(JsonModel):
 def test_foundation_surface_round_trips_across_json_jsonl_and_tsv(
     tmp_path: Path,
 ) -> None:
-    phospho = normalize_controlled_term(ControlledVocabularyDomain.MODIFICATION, "phosphorylation")
+    phospho = normalize_controlled_term(
+        ControlledVocabularyDomain.MODIFICATION, "phosphorylation"
+    )
     assert phospho is not None
     document = FoundationSurfaceDocument(
         observed_at=UtcTimestamp(value=datetime(2026, 4, 29, 10, 30, tzinfo=UTC)),
