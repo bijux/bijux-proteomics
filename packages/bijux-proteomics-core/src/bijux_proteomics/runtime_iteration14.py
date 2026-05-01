@@ -257,3 +257,129 @@ def build_workflow_run_diff_report(
         same_sample=baseline.sample_id == candidate.sample_id,
         entries=tuple(entries),
     )
+
+
+class WorkflowStepExecutionStatus(StrEnum):
+    """Execution status of a workflow step in one run snapshot."""
+
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+
+
+class WorkflowStepRunState(JsonModel):
+    """Materialized state for one step in an existing workflow run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    status: WorkflowStepExecutionStatus
+    depends_on: tuple[str, ...] = Field(default_factory=tuple)
+    output_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class PartialWorkflowRerunRequest(JsonModel):
+    """Request to rerun selected workflow steps while preserving lineage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    prior_run_id: str = Field(..., min_length=1)
+    selected_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    rerun_failed_steps: bool = True
+
+
+class PartialWorkflowRerunAction(JsonModel):
+    """One step action in a partial rerun plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    action: str = Field(..., pattern=r"^(rerun|reuse)$")
+    reason: str = Field(..., min_length=1)
+
+
+class PartialWorkflowRerunPlan(JsonModel):
+    """Dependency-aware partial rerun plan with preserved lineage and evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    prior_run_id: str = Field(..., min_length=1)
+    actions: tuple[PartialWorkflowRerunAction, ...] = Field(default_factory=tuple)
+    rerun_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    reused_step_ids: tuple[str, ...] = Field(default_factory=tuple)
+    preserved_evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def plan_partial_workflow_rerun(
+    *,
+    request: PartialWorkflowRerunRequest,
+    step_states: tuple[WorkflowStepRunState, ...],
+) -> PartialWorkflowRerunPlan:
+    """Plan dependency-safe partial reruns while preserving unaffected historical evidence."""
+
+    if not step_states:
+        raise ValueError("partial rerun planning requires existing workflow step states")
+
+    by_id = {step.step_id: step for step in step_states}
+    rerun_candidates = set(request.selected_step_ids)
+    if request.rerun_failed_steps:
+        rerun_candidates.update(
+            step.step_id
+            for step in step_states
+            if step.status is WorkflowStepExecutionStatus.FAILED
+        )
+
+    for step_id in tuple(rerun_candidates):
+        if step_id not in by_id:
+            raise ValueError(f"selected rerun step is not present in prior run: {step_id}")
+
+    changed = set(rerun_candidates)
+    grew = True
+    while grew:
+        grew = False
+        for step in step_states:
+            if step.step_id in changed:
+                continue
+            if any(parent in changed for parent in step.depends_on):
+                changed.add(step.step_id)
+                grew = True
+
+    actions: list[PartialWorkflowRerunAction] = []
+    preserved_evidence: list[str] = []
+    for step in step_states:
+        if step.step_id in changed:
+            reason = (
+                "requested rerun"
+                if step.step_id in rerun_candidates
+                else "depends on rerun step output"
+            )
+            actions.append(
+                PartialWorkflowRerunAction(
+                    step_id=step.step_id,
+                    action="rerun",
+                    reason=reason,
+                )
+            )
+            continue
+
+        actions.append(
+            PartialWorkflowRerunAction(
+                step_id=step.step_id,
+                action="reuse",
+                reason="unchanged dependencies; preserve prior evidence",
+            )
+        )
+        preserved_evidence.extend(step.evidence_pointers)
+
+    rerun_step_ids = tuple(action.step_id for action in actions if action.action == "rerun")
+    reused_step_ids = tuple(action.step_id for action in actions if action.action == "reuse")
+    preserved_evidence = sorted(set(preserved_evidence))
+
+    return PartialWorkflowRerunPlan(
+        prior_run_id=request.prior_run_id,
+        actions=tuple(actions),
+        rerun_step_ids=rerun_step_ids,
+        reused_step_ids=reused_step_ids,
+        preserved_evidence_pointers=tuple(preserved_evidence),
+    )
