@@ -509,3 +509,138 @@ def build_protein_rollup_strategy_comparison_report(
                 )
             )
     return ProteinRollupStrategyComparisonReport(entries=tuple(entries))
+
+
+class DifferentialAbundanceDesignIssue(JsonModel):
+    """One design-validation issue for differential abundance configuration."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+
+
+class DifferentialAbundanceDesignValidationReport(JsonModel):
+    """Validation report over contrasts, covariates, blocking, and replicate support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    condition_replicates: dict[str, int] = Field(default_factory=dict)
+    issues: tuple[DifferentialAbundanceDesignIssue, ...] = Field(default_factory=tuple)
+
+
+def validate_differential_abundance_design_context(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    contrasts: tuple[tuple[str, str], ...],
+    covariates: tuple[str, ...] = (),
+    blocking_field: str | None = "batch",
+    min_replicates_per_condition: int = 2,
+    multiple_testing_scope: str = "global_per_analysis",
+) -> DifferentialAbundanceDesignValidationReport:
+    """Validate DA design assumptions before running statistical comparisons."""
+    by_condition: dict[str, set[str]] = {}
+    for entry in design_entries:
+        by_condition.setdefault(entry.condition, set()).add(entry.sample_id)
+    condition_replicates = {
+        condition: len(sample_ids) for condition, sample_ids in by_condition.items()
+    }
+    issues: list[DifferentialAbundanceDesignIssue] = []
+    known_conditions = set(by_condition)
+    for left, right in contrasts:
+        if left == right:
+            issues.append(
+                DifferentialAbundanceDesignIssue(
+                    code="degenerate_contrast",
+                    message=f"contrast {left} vs {right} is degenerate",
+                    severity="error",
+                )
+            )
+        missing = [condition for condition in (left, right) if condition not in known_conditions]
+        if missing:
+            issues.append(
+                DifferentialAbundanceDesignIssue(
+                    code="unknown_contrast_condition",
+                    message=f"contrast references unknown conditions: {', '.join(missing)}",
+                    severity="error",
+                )
+            )
+    for condition, replicate_count in sorted(condition_replicates.items()):
+        if replicate_count < min_replicates_per_condition:
+            issues.append(
+                DifferentialAbundanceDesignIssue(
+                    code="insufficient_replicates",
+                    message=(
+                        f"condition {condition} has {replicate_count} replicates; "
+                        f"minimum is {min_replicates_per_condition}"
+                    ),
+                    severity="error",
+                )
+            )
+    covariate_lookup = {
+        "batch": lambda entry: entry.batch,
+        "instrument": lambda entry: entry.instrument,
+        "fraction": lambda entry: entry.fraction,
+        "replicate": lambda entry: entry.replicate,
+    }
+    for covariate in covariates:
+        resolver = covariate_lookup.get(covariate)
+        if resolver is None:
+            issues.append(
+                DifferentialAbundanceDesignIssue(
+                    code="unknown_covariate",
+                    message=f"covariate {covariate!r} is not recognized",
+                    severity="warning",
+                )
+            )
+            continue
+        values = [resolver(entry) for entry in design_entries]
+        if all(value in (None, "", 0) for value in values):
+            issues.append(
+                DifferentialAbundanceDesignIssue(
+                    code="empty_covariate",
+                    message=f"covariate {covariate!r} has no populated values",
+                    severity="warning",
+                )
+            )
+    if blocking_field:
+        resolver = covariate_lookup.get(blocking_field)
+        if resolver is None:
+            issues.append(
+                DifferentialAbundanceDesignIssue(
+                    code="unknown_blocking_field",
+                    message=f"blocking field {blocking_field!r} is not recognized",
+                    severity="warning",
+                )
+            )
+        else:
+            if all(resolver(entry) in (None, "", 0) for entry in design_entries):
+                issues.append(
+                    DifferentialAbundanceDesignIssue(
+                        code="missing_blocking_values",
+                        message=f"blocking field {blocking_field!r} has no populated values",
+                        severity="warning",
+                    )
+                )
+    if multiple_testing_scope not in {
+        "global_per_analysis",
+        "per_contrast",
+        "hierarchical",
+    }:
+        issues.append(
+            DifferentialAbundanceDesignIssue(
+                code="unsupported_multiple_testing_scope",
+                message=(
+                    "multiple-testing scope must be one of "
+                    "'global_per_analysis', 'per_contrast', or 'hierarchical'"
+                ),
+                severity="error",
+            )
+        )
+    return DifferentialAbundanceDesignValidationReport(
+        valid=not any(issue.severity == "error" for issue in issues),
+        condition_replicates=condition_replicates,
+        issues=tuple(issues),
+    )
