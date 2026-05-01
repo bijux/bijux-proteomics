@@ -336,3 +336,43 @@ def build_bijux_core_integration_contract_report(
         incompatible_surfaces=tuple(sorted(set(payload.incompatible_surfaces))),
         compatible=not payload.incompatible_surfaces,
     )
+
+
+class AgenticProteinsMigrationItem(JsonModel):
+    """One migration mapping from legacy agentic-proteins surface to canonical package usage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    legacy_surface: str = Field(..., min_length=1)
+    canonical_surface: str = Field(..., min_length=1)
+    compatibility_mode: str = Field(..., min_length=1)
+
+
+class AgenticProteinsMigrationReport(JsonModel):
+    """Migration report for maintaining legacy users while promoting canonical usage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    migration_id: str = Field(..., min_length=1)
+    mappings: tuple[AgenticProteinsMigrationItem, ...] = Field(default_factory=tuple)
+    blocking_gaps: tuple[str, ...] = Field(default_factory=tuple)
+    migration_ready: bool
+
+
+def build_agentic_proteins_migration_report(
+    migration_id: str,
+    mappings: tuple[AgenticProteinsMigrationItem, ...],
+    *,
+    blocking_gaps: tuple[str, ...] = (),
+) -> AgenticProteinsMigrationReport:
+    """Build migration report for legacy-to-canonical proteomics usage transition."""
+
+    ordered_mappings = tuple(
+        sorted(mappings, key=lambda mapping: mapping.legacy_surface.lower())
+    )
+    return AgenticProteinsMigrationReport(
+        migration_id=migration_id,
+        mappings=ordered_mappings,
+        blocking_gaps=tuple(sorted(set(blocking_gaps))),
+        migration_ready=bool(ordered_mappings) and not blocking_gaps,
+    )
