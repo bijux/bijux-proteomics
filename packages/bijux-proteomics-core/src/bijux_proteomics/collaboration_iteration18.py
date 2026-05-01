@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
+import re
 
 from pydantic import ConfigDict, Field
 
@@ -408,3 +409,72 @@ def verify_signed_reviewer_bundle(
     )
     expected = build_signed_reviewer_bundle(rebuilt_payload)
     return expected.signature_hex == bundle.signature_hex
+
+
+_PATH_PATTERN = re.compile(r"(?<!\w)(?:[A-Za-z]:\\[^\s]+|/[^\s]+)")
+_SECRET_PATTERNS = (
+    re.compile(r"(?i)\b(api[_-]?key|secret|token|password)\s*[:=]\s*([^\s,;]+)"),
+    re.compile(r"(?i)\b(bearer)\s+([a-z0-9._\-]+)"),
+)
+
+
+class CollaborationSurfaceRedactionInput(JsonModel):
+    """Potentially sensitive collaboration text surfaces for redaction checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    log_lines: tuple[str, ...] = Field(default_factory=tuple)
+    api_errors: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_notes: tuple[str, ...] = Field(default_factory=tuple)
+    review_packet_notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class CollaborationSurfaceRedactionReport(JsonModel):
+    """Redacted collaboration surfaces while preserving diagnostic sentence structure."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    log_lines: tuple[str, ...] = Field(default_factory=tuple)
+    api_errors: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_notes: tuple[str, ...] = Field(default_factory=tuple)
+    review_packet_notes: tuple[str, ...] = Field(default_factory=tuple)
+    redaction_count: int = Field(..., ge=0)
+
+
+def _redact_text(value: str) -> tuple[str, int]:
+    updated = value
+    redactions = 0
+    for pattern in _SECRET_PATTERNS:
+        updated, hits = pattern.subn(lambda match: f"{match.group(1)}=<redacted-secret>", updated)
+        redactions += hits
+    updated, path_hits = _PATH_PATTERN.subn("<redacted-path>", updated)
+    redactions += path_hits
+    return updated, redactions
+
+
+def _redact_collection(values: tuple[str, ...]) -> tuple[tuple[str, ...], int]:
+    redacted: list[str] = []
+    total_hits = 0
+    for entry in values:
+        updated, hits = _redact_text(entry)
+        redacted.append(updated)
+        total_hits += hits
+    return tuple(redacted), total_hits
+
+
+def redact_collaboration_surfaces(
+    payload: CollaborationSurfaceRedactionInput,
+) -> CollaborationSurfaceRedactionReport:
+    """Redact secrets and path disclosures across collaboration-facing text surfaces."""
+
+    redacted_logs, log_hits = _redact_collection(payload.log_lines)
+    redacted_errors, error_hits = _redact_collection(payload.api_errors)
+    redacted_evidence, evidence_hits = _redact_collection(payload.evidence_notes)
+    redacted_packets, packet_hits = _redact_collection(payload.review_packet_notes)
+    return CollaborationSurfaceRedactionReport(
+        log_lines=redacted_logs,
+        api_errors=redacted_errors,
+        evidence_notes=redacted_evidence,
+        review_packet_notes=redacted_packets,
+        redaction_count=log_hits + error_hits + evidence_hits + packet_hits,
+    )
