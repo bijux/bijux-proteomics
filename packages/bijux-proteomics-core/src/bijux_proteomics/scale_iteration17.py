@@ -199,3 +199,47 @@ def build_evidence_graph_scale_benchmark_report(
         edges_processed_per_second=edges_processed / total,
         bottleneck_stage=max(durations.items(), key=lambda row: row[1])[0],
     )
+
+
+class ReviewPacketScaleBenchmarkInput(JsonModel):
+    """Scale observations for rendering and navigating large review packets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_count: int = Field(..., ge=1)
+    evidence_entry_count: int = Field(..., ge=0)
+    render_seconds: float = Field(..., gt=0.0)
+    navigation_seconds: float = Field(..., gt=0.0)
+    export_seconds: float = Field(..., gt=0.0)
+
+
+class ReviewPacketScaleBenchmarkReport(JsonModel):
+    """Scale benchmark report for large review packet surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_count: int = Field(..., ge=1)
+    evidence_entry_count: int = Field(..., ge=0)
+    total_seconds: float = Field(..., gt=0.0)
+    candidates_per_second: float = Field(..., gt=0.0)
+    bottleneck_stage: str = Field(..., min_length=1)
+
+
+def build_review_packet_scale_benchmark_report(
+    payload: ReviewPacketScaleBenchmarkInput,
+) -> ReviewPacketScaleBenchmarkReport:
+    """Measure review-packet render/navigation/export behavior at large candidate counts."""
+
+    durations = {
+        "render": payload.render_seconds,
+        "navigation": payload.navigation_seconds,
+        "export": payload.export_seconds,
+    }
+    total = sum(durations.values())
+    return ReviewPacketScaleBenchmarkReport(
+        candidate_count=payload.candidate_count,
+        evidence_entry_count=payload.evidence_entry_count,
+        total_seconds=total,
+        candidates_per_second=payload.candidate_count / total,
+        bottleneck_stage=max(durations.items(), key=lambda row: row[1])[0],
+    )
