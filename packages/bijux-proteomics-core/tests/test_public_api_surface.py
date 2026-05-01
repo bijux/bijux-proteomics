@@ -132,7 +132,27 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_batch_effect_advisory" in bijux_proteomics.__all__
     assert "build_replicate_correlation_report" in bijux_proteomics.__all__
     assert "build_differential_abundance_report" in bijux_proteomics.__all__
+    assert "build_lfq_feature_peptide_protein_provenance_report" in bijux_proteomics.__all__
+    assert "build_label_based_quant_channel_ledger" in bijux_proteomics.__all__
+    assert "build_multiplex_channel_balance_diagnostics_report" in bijux_proteomics.__all__
+    assert "build_normalization_policy_comparison_matrix_report" in bijux_proteomics.__all__
+    assert "build_protein_rollup_strategy_comparison_report" in bijux_proteomics.__all__
+    assert "validate_differential_abundance_design_context" in bijux_proteomics.__all__
+    assert "build_effect_size_first_differential_abundance_report" in bijux_proteomics.__all__
+    assert "build_missingness_mechanism_profile_report" in bijux_proteomics.__all__
+    assert "build_replicate_and_batch_qc_report" in bijux_proteomics.__all__
+    assert "build_quant_review_bundle" in bijux_proteomics.__all__
     assert "DifferentialReplicatePolicy" in bijux_proteomics.__all__
+    assert "LfqFeaturePeptideProteinProvenanceReport" in bijux_proteomics.__all__
+    assert "LabelBasedQuantChannelLedgerReport" in bijux_proteomics.__all__
+    assert "MultiplexChannelBalanceDiagnosticsReport" in bijux_proteomics.__all__
+    assert "NormalizationPolicyComparisonMatrixReport" in bijux_proteomics.__all__
+    assert "ProteinRollupStrategyComparisonReport" in bijux_proteomics.__all__
+    assert "DifferentialAbundanceDesignValidationReport" in bijux_proteomics.__all__
+    assert "EffectSizeFirstDaReport" in bijux_proteomics.__all__
+    assert "MissingnessMechanismProfileReport" in bijux_proteomics.__all__
+    assert "ReplicateAndBatchQcReport" in bijux_proteomics.__all__
+    assert "QuantReviewBundle" in bijux_proteomics.__all__
     assert "DifferentialAbundanceAssumptionReport" in bijux_proteomics.__all__
     assert "MissingValueCorrectionPolicy" in bijux_proteomics.__all__
     assert "MissingValueSummaryPolicy" in bijux_proteomics.__all__
