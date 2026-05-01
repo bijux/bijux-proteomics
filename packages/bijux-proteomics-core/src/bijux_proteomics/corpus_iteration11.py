@@ -278,3 +278,37 @@ def build_known_mixture_mini_study_bundle(
         truth_reference_path=truth_reference_path,
         boundaries=tuple(boundaries),
     )
+
+
+class ContradictionMiniStudyEntry(JsonModel):
+    """One preserved contradiction across workflow surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contradiction_id: str = Field(..., min_length=1)
+    engine_disagreement: str = Field(..., min_length=1)
+    quant_disagreement: str = Field(..., min_length=1)
+    ptm_disagreement: str = Field(..., min_length=1)
+    qc_disagreement: str = Field(..., min_length=1)
+    lab_disagreement: str = Field(..., min_length=1)
+
+
+class ContradictionMiniStudyBundle(JsonModel):
+    """Mini-study bundle preserving contradictory proteomics evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    study_id: str = Field(..., min_length=1)
+    entries: tuple[ContradictionMiniStudyEntry, ...] = Field(default_factory=tuple)
+
+
+def build_contradiction_mini_study_bundle(
+    *,
+    study_id: str,
+    entries: tuple[ContradictionMiniStudyEntry, ...],
+) -> ContradictionMiniStudyBundle:
+    """Build contradiction mini-study fixture without flattening disagreements."""
+
+    if not entries:
+        raise ValueError("contradiction mini-study must include at least one contradiction entry")
+    return ContradictionMiniStudyBundle(study_id=study_id, entries=entries)
