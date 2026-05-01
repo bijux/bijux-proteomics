@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
+import re
 
 from pydantic import ConfigDict, Field
 
@@ -27,6 +28,8 @@ class StudyMetadataRecord(JsonModel):
     instrument_id: str = Field(..., min_length=1)
     run_id: str = Field(..., min_length=1)
     batch_id: str = Field(..., min_length=1)
+    multiplex_channel: str | None = None
+    spectra_file: str | None = None
 
 
 class StudyMetadataModel(JsonModel):
@@ -68,6 +71,30 @@ class DesignTableParseReport(JsonModel):
     total_rows: int = Field(..., ge=0)
     accepted_records: tuple[StudyMetadataRecord, ...] = Field(default_factory=tuple)
     rejected_rows: tuple[RejectedDesignTableRow, ...] = Field(default_factory=tuple)
+
+
+class ExperimentalDesignValidationIssue(JsonModel):
+    """One deterministic experimental design validation issue."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    condition_id: str | None = None
+
+
+class ExperimentalDesignValidationReport(JsonModel):
+    """Validation report for study metadata experimental design entries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[ExperimentalDesignValidationIssue, ...] = Field(default_factory=tuple)
+
+
+_FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
+_CHANNEL_RE = re.compile(r"^(12[6-9]|13[01])[NC]?$")
 
 
 def build_study_metadata_model(
@@ -136,6 +163,9 @@ def parse_study_design_table(path: Path) -> DesignTableParseReport:
                     instrument_id=raw_fields["instrument_id"].strip(),
                     run_id=raw_fields["run_id"].strip(),
                     batch_id=raw_fields["batch_id"].strip(),
+                    multiplex_channel=raw_fields.get("multiplex_channel", "").strip()
+                    or None,
+                    spectra_file=raw_fields.get("spectra_file", "").strip() or None,
                 )
             )
     return DesignTableParseReport(
@@ -143,3 +173,69 @@ def parse_study_design_table(path: Path) -> DesignTableParseReport:
         accepted_records=tuple(accepted),
         rejected_rows=tuple(rejected),
     )
+
+
+def validate_experimental_design_records(
+    records: tuple[StudyMetadataRecord, ...],
+    *,
+    expected_spectra_files: tuple[str, ...] = (),
+) -> ExperimentalDesignValidationReport:
+    """Reject inconsistent experimental design entries with deterministic issue reports."""
+    issues: list[ExperimentalDesignValidationIssue] = []
+    seen_samples: set[str] = set()
+    condition_counts: dict[str, int] = {}
+    expected_files = set(expected_spectra_files)
+    for record in records:
+        if record.sample_id in seen_samples:
+            issues.append(
+                ExperimentalDesignValidationIssue(
+                    code="duplicate_sample_id",
+                    message="sample_id appears more than once in the design table",
+                    sample_id=record.sample_id,
+                    condition_id=record.condition_id,
+                )
+            )
+        else:
+            seen_samples.add(record.sample_id)
+        condition_counts[record.condition_id] = (
+            condition_counts.get(record.condition_id, 0) + 1
+        )
+        if not _FRACTION_RE.match(record.fraction_id):
+            issues.append(
+                ExperimentalDesignValidationIssue(
+                    code="invalid_fraction_id",
+                    message="fraction_id must match F<number> pattern such as F1",
+                    sample_id=record.sample_id,
+                    condition_id=record.condition_id,
+                )
+            )
+        if record.multiplex_channel and not _CHANNEL_RE.match(record.multiplex_channel):
+            issues.append(
+                ExperimentalDesignValidationIssue(
+                    code="invalid_multiplex_channel",
+                    message="multiplex_channel is not a recognized reporter-channel token",
+                    sample_id=record.sample_id,
+                    condition_id=record.condition_id,
+                )
+            )
+        if expected_files and (
+            record.spectra_file is None or record.spectra_file not in expected_files
+        ):
+            issues.append(
+                ExperimentalDesignValidationIssue(
+                    code="inconsistent_spectra_file",
+                    message="spectra_file is missing from expected file manifests",
+                    sample_id=record.sample_id,
+                    condition_id=record.condition_id,
+                )
+            )
+    for condition_id, count in sorted(condition_counts.items()):
+        if count < 2:
+            issues.append(
+                ExperimentalDesignValidationIssue(
+                    code="missing_replicates",
+                    message="condition has fewer than two replicate samples",
+                    condition_id=condition_id,
+                )
+            )
+    return ExperimentalDesignValidationReport(valid=not issues, issues=tuple(issues))
