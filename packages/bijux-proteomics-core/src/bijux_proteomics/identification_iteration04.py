@@ -17,8 +17,10 @@ from bijux_proteomics.identification import (
     PsmRecord,
     TargetDecoyLabel,
     assign_razor_peptides,
+    build_confidence_threshold_sensitivity_report,
     build_peptide_protein_trace_report,
     build_protein_groups,
+    calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
     infer_proteins_by_parsimony,
     normalize_psm_score_orientation,
@@ -479,3 +481,92 @@ def export_psm_peptide_protein_trace_bundle(
 ) -> None:
     """Write a JSON export of the trace bundle for scientific review."""
     destination.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
+
+
+class ConfidenceThresholdBundleEntry(JsonModel):
+    """Accepted evidence snapshot at one explicit confidence threshold."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    threshold: float = Field(..., ge=0.0, le=1.0)
+    accepted_psm_count: int = Field(..., ge=0)
+    accepted_peptide_count: int = Field(..., ge=0)
+    accepted_protein_count: int = Field(..., ge=0)
+    newly_accepted_psm_count: int = Field(..., ge=0)
+    newly_accepted_peptide_count: int = Field(..., ge=0)
+    newly_accepted_protein_count: int = Field(..., ge=0)
+
+
+class ConfidenceThresholdSensitivityBundle(JsonModel):
+    """Cross-threshold confidence bundle for review and inference reproducibility."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    thresholds: tuple[float, ...] = Field(default_factory=tuple)
+    entries: tuple[ConfidenceThresholdBundleEntry, ...] = Field(default_factory=tuple)
+    source_reproducibility_hash: str = Field(..., min_length=64, max_length=64)
+
+
+def build_confidence_threshold_sensitivity_bundle(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_orientation: str = "higher_better",
+    thresholds: tuple[float, ...] = (0.001, 0.01, 0.05, 0.1),
+) -> ConfidenceThresholdSensitivityBundle:
+    """Build a reproducible multi-threshold confidence snapshot bundle."""
+    sensitivity = build_confidence_threshold_sensitivity_report(
+        records,
+        thresholds=thresholds,
+        score_orientation=score_orientation,
+    )
+    entries: list[ConfidenceThresholdBundleEntry] = []
+    previous_psm_ids: set[str] = set()
+    previous_peptides: set[str] = set()
+    previous_proteins: set[str] = set()
+    for threshold in sensitivity.thresholds:
+        level_report = calculate_level_specific_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        accepted_psms = {
+            entry.entity_id for entry in level_report.psm_entries if entry.accepted
+        }
+        accepted_peptides = {
+            entry.entity_id for entry in level_report.peptide_entries if entry.accepted
+        }
+        accepted_proteins = {
+            entry.entity_id for entry in level_report.protein_entries if entry.accepted
+        }
+        entries.append(
+            ConfidenceThresholdBundleEntry(
+                threshold=threshold,
+                accepted_psm_count=len(accepted_psms),
+                accepted_peptide_count=len(accepted_peptides),
+                accepted_protein_count=len(accepted_proteins),
+                newly_accepted_psm_count=len(accepted_psms - previous_psm_ids),
+                newly_accepted_peptide_count=len(
+                    accepted_peptides - previous_peptides
+                ),
+                newly_accepted_protein_count=len(
+                    accepted_proteins - previous_proteins
+                ),
+            )
+        )
+        previous_psm_ids = accepted_psms
+        previous_peptides = accepted_peptides
+        previous_proteins = accepted_proteins
+    payload = {
+        "score_orientation": score_orientation,
+        "thresholds": list(sensitivity.thresholds),
+        "entries": [entry.to_dict() for entry in entries],
+    }
+    return ConfidenceThresholdSensitivityBundle(
+        score_orientation=score_orientation,
+        thresholds=sensitivity.thresholds,
+        entries=tuple(entries),
+        source_reproducibility_hash=hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest(),
+    )
