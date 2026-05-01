@@ -421,3 +421,42 @@ def build_final_flagship_proteomics_demo_report(
         lab_handoff_ref=payload.lab_handoff_ref,
         complete_demo=complete,
     )
+
+
+class UsageSimplificationCandidate(JsonModel):
+    """One product surface candidate for keep/demote/remove decision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface_id: str = Field(..., min_length=1)
+    recent_usage_count: int = Field(..., ge=0)
+    user_value_summary: str = Field(..., min_length=1)
+    decision: str = Field(..., min_length=1)
+
+
+class ProductSimplificationByUsageReport(JsonModel):
+    """Simplification report from observed usage and explicit value statements."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidates: tuple[UsageSimplificationCandidate, ...] = Field(default_factory=tuple)
+    remove_count: int = Field(..., ge=0)
+    demote_count: int = Field(..., ge=0)
+    keep_count: int = Field(..., ge=0)
+
+
+def build_product_simplification_by_real_usage_report(
+    candidates: tuple[UsageSimplificationCandidate, ...],
+) -> ProductSimplificationByUsageReport:
+    """Build simplification report that removes or demotes low-value unused surfaces."""
+
+    ordered = tuple(sorted(candidates, key=lambda item: item.surface_id.lower()))
+    remove_count = sum(1 for item in ordered if item.decision == "remove")
+    demote_count = sum(1 for item in ordered if item.decision == "demote")
+    keep_count = sum(1 for item in ordered if item.decision == "keep")
+    return ProductSimplificationByUsageReport(
+        candidates=ordered,
+        remove_count=remove_count,
+        demote_count=demote_count,
+        keep_count=keep_count,
+    )
