@@ -252,3 +252,72 @@ def export_slurm_job_script(payload: SlurmJobScriptInput) -> SlurmJobScriptExpor
         f"{payload.command}\n"
     )
     return SlurmJobScriptExport(script_text=script)
+
+
+class SlurmLifecycleState(StrEnum):
+    """Mocked Slurm job lifecycle states."""
+
+    SUBMITTED = "submitted"
+    RUNNING = "running"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    CANCELED = "canceled"
+
+
+class SlurmLifecycleEvent(JsonModel):
+    """One lifecycle event from mocked Slurm interactions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    state: SlurmLifecycleState
+    detail: str = Field(..., min_length=1)
+
+
+class SlurmLifecycleReport(JsonModel):
+    """Mocked Slurm submit/poll/cancel/success/failure lifecycle report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    job_id: str = Field(..., min_length=1)
+    events: tuple[SlurmLifecycleEvent, ...] = Field(default_factory=tuple)
+    final_state: SlurmLifecycleState
+    collected_logs: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def run_mocked_slurm_lifecycle(
+    *,
+    job_id: str,
+    outcome: SlurmLifecycleState,
+    collected_logs: tuple[str, ...],
+) -> SlurmLifecycleReport:
+    """Mock submit, poll, cancel, success, failure, and log collection lifecycle."""
+
+    if outcome not in {
+        SlurmLifecycleState.SUCCEEDED,
+        SlurmLifecycleState.FAILED,
+        SlurmLifecycleState.CANCELED,
+    }:
+        raise ValueError("mocked Slurm outcome must be succeeded, failed, or canceled")
+
+    events = [
+        SlurmLifecycleEvent(state=SlurmLifecycleState.SUBMITTED, detail="job submitted"),
+        SlurmLifecycleEvent(state=SlurmLifecycleState.RUNNING, detail="job is running"),
+    ]
+
+    if outcome is SlurmLifecycleState.SUCCEEDED:
+        events.append(
+            SlurmLifecycleEvent(state=SlurmLifecycleState.SUCCEEDED, detail="job completed")
+        )
+    elif outcome is SlurmLifecycleState.FAILED:
+        events.append(SlurmLifecycleEvent(state=SlurmLifecycleState.FAILED, detail="job failed"))
+    else:
+        events.append(
+            SlurmLifecycleEvent(state=SlurmLifecycleState.CANCELED, detail="job canceled")
+        )
+
+    return SlurmLifecycleReport(
+        job_id=job_id,
+        events=tuple(events),
+        final_state=outcome,
+        collected_logs=tuple(sorted(collected_logs)),
+    )
