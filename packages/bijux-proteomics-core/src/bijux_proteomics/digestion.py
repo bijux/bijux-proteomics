@@ -136,7 +136,7 @@ class PeptideProteinIndexEntry(JsonModel):
     protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
     protein_families: tuple[str, ...] = Field(default_factory=tuple)
     source_identifiers: tuple[str, ...] = Field(default_factory=tuple)
-    coordinates: tuple["PeptideOriginCoordinate", ...] = Field(default_factory=tuple)
+    coordinates: tuple[PeptideOriginCoordinate, ...] = Field(default_factory=tuple)
     uniqueness: PeptideUniqueness
 
 
@@ -159,7 +159,7 @@ class PeptideDigestManifest(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     document_schema: DocumentSchema
-    digest_policy: "DigestPolicy"
+    digest_policy: DigestPolicy
     policy_hash: str = Field(..., min_length=64, max_length=64)
     protease: str = Field(..., min_length=1)
     digestion_mode: PeptideDigestionMode

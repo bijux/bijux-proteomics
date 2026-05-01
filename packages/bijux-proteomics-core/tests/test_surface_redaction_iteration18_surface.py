@@ -12,15 +12,9 @@ from bijux_proteomics.collaboration_iteration18 import (
 def test_redact_collaboration_surfaces_masks_secrets_and_paths() -> None:
     report = redact_collaboration_surfaces(
         CollaborationSurfaceRedactionInput(
-            log_lines=(
-                "read /Users/alice/raw/run01.mzML with token=abc123",
-            ),
-            api_errors=(
-                "failed request: api_key=topsecret path=/tmp/private.tsv",
-            ),
-            evidence_notes=(
-                "evidence pointer kept; password=hunter2",
-            ),
+            log_lines=("read /Users/alice/raw/run01.mzML with token=abc123",),
+            api_errors=("failed request: api_key=topsecret path=/tmp/private.tsv",),
+            evidence_notes=("evidence pointer kept; password=hunter2",),
             review_packet_notes=(
                 "Bearer qwerty-987 checked against /var/tmp/bundle.json",
             ),

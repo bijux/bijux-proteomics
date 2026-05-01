@@ -10,7 +10,9 @@ from bijux_proteomics.ptm import (
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.ptm_advanced_workflows import build_ptm_occupancy_counterpart_report
+from bijux_proteomics.ptm_advanced_workflows import (
+    build_ptm_occupancy_counterpart_report,
+)
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
@@ -22,16 +24,23 @@ def _fixture_path(name: str) -> Path:
 def _protein_sequences() -> dict[str, str]:
     fasta = Path(__file__).parent / "fixtures" / "fasta" / "ptm_sites.fasta"
     report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
-    return {record.canonical_accession: record.residues for record in report.accepted_records}
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
 
 
-def test_ptm_occupancy_counterpart_report_marks_missing_counterparts_and_ambiguity() -> None:
+def test_ptm_occupancy_counterpart_report_marks_missing_counterparts_and_ambiguity() -> (
+    None
+):
     parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         parsed.accepted_records, protein_sequences=_protein_sequences()
     )
     site_entries = build_ptm_site_table(mappings)
-    feature_records = parse_ms1_feature_table(_fixture_path("ptm_features.tsv")).accepted_records
+    feature_records = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
 
     feature_records = tuple(
         record
@@ -48,6 +57,8 @@ def test_ptm_occupancy_counterpart_report_marks_missing_counterparts_and_ambigui
     assert report.ambiguous_site_count >= 1
 
     missing_entry = next(
-        entry for entry in report.entries if entry.counterpart_status.value == "missing_counterpart"
+        entry
+        for entry in report.entries
+        if entry.counterpart_status.value == "missing_counterpart"
     )
     assert "incomplete" in missing_entry.caveat

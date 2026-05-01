@@ -26,4 +26,6 @@ def test_build_lims_handoff_profile_exports_versioned_json_and_tsv() -> None:
 
     assert profile.profile_version == "1.0.0"
     assert '"handoff_id":"handoff-10"' in profile.json_payload
-    assert "sample_id\ttarget_id\tmethod\tplate_well\treplicate_id" in profile.tsv_payload
+    assert (
+        "sample_id\ttarget_id\tmethod\tplate_well\treplicate_id" in profile.tsv_payload
+    )

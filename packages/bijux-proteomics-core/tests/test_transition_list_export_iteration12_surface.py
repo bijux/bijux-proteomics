@@ -9,7 +9,9 @@ from bijux_proteomics.dia_iteration12 import (
 )
 
 
-def test_export_transition_list_candidates_renders_tsv_with_control_and_caveat_columns() -> None:
+def test_export_transition_list_candidates_renders_tsv_with_control_and_caveat_columns() -> (
+    None
+):
     bundle = export_transition_list_candidates(
         (
             TransitionListExportEntry(

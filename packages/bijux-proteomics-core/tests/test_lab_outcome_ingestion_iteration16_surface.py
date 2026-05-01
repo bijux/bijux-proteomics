@@ -21,7 +21,9 @@ def test_ingest_lab_outcomes_with_versioned_policy_tracks_policy_version() -> No
                 observed_at_utc="2026-05-01T00:00:00Z",
             ),
         ),
-        policy=LabOutcomeIngestionPolicy(policy_id="lab-outcome-ingest", policy_version="v1.0.0"),
+        policy=LabOutcomeIngestionPolicy(
+            policy_id="lab-outcome-ingest", policy_version="v1.0.0"
+        ),
     )
 
     assert report.policy_version == "v1.0.0"

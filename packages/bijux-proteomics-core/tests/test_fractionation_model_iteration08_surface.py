@@ -9,7 +9,9 @@ from bijux_proteomics.study_metadata_iteration08 import (
 )
 
 
-def test_build_fractionation_aggregation_report_tracks_pooling_and_evidence_links() -> None:
+def test_build_fractionation_aggregation_report_tracks_pooling_and_evidence_links() -> (
+    None
+):
     report = build_fractionation_aggregation_report(
         (
             FractionationRecord(

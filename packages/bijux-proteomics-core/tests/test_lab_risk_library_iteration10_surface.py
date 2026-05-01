@@ -10,7 +10,9 @@ from bijux_proteomics.lab_planning_iteration10 import (
 )
 
 
-def test_evaluate_lab_risks_triggers_material_control_and_instrument_boundaries() -> None:
+def test_evaluate_lab_risks_triggers_material_control_and_instrument_boundaries() -> (
+    None
+):
     report = evaluate_lab_risks(
         LabRiskAssessmentContext(
             available_material_ng=200.0,

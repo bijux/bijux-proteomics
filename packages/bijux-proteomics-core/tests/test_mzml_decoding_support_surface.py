@@ -22,7 +22,9 @@ def test_inspect_mzml_decoding_support_reports_supported_simple_fixture() -> Non
 
 
 def test_inspect_mzml_decoding_support_reports_unsupported_numpress_precision() -> None:
-    numpress = inspect_mzml_decoding_support(_format_fixture("unsupported_numpress.mzml"))
+    numpress = inspect_mzml_decoding_support(
+        _format_fixture("unsupported_numpress.mzml")
+    )
     integer = inspect_mzml_decoding_support(
         _format_fixture("unsupported_integer_precision.mzml")
     )

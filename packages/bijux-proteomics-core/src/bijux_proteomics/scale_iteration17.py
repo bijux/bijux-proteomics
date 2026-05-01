@@ -416,7 +416,9 @@ def build_long_horizon_reproducibility_report(
     """Rerun workflow snapshots across releases and report reproducibility drift."""
 
     if not runs:
-        raise ValueError("long-horizon reproducibility report requires at least one run")
+        raise ValueError(
+            "long-horizon reproducibility report requires at least one run"
+        )
 
     sorted_runs = sorted(runs, key=lambda run: run.release_tag)
     entries = []
@@ -486,7 +488,11 @@ def build_dependency_update_replay_report(
     actions = []
     for mapping in mappings:
         triggered = tuple(
-            sorted(surface for surface in mapping.dependency_surfaces if surface in updated_surfaces)
+            sorted(
+                surface
+                for surface in mapping.dependency_surfaces
+                if surface in updated_surfaces
+            )
         )
         actions.append(
             DependencyUpdateReplayAction(

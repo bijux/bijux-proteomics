@@ -24,7 +24,10 @@ def _ptm_fixture(name: str) -> Path:
 def _protein_sequences() -> dict[str, str]:
     fasta = Path(__file__).parent / "fixtures" / "fasta" / "ptm_sites.fasta"
     report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
-    return {record.canonical_accession: record.residues for record in report.accepted_records}
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
 
 
 def test_phospho_review_fixture_report_tracks_motif_occupancy_and_ambiguity() -> None:
@@ -33,7 +36,9 @@ def test_phospho_review_fixture_report_tracks_motif_occupancy_and_ambiguity() ->
         parsed.accepted_records, protein_sequences=_protein_sequences()
     )
     site_entries = build_ptm_site_table(mappings)
-    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _ptm_fixture("ptm_features.tsv")
+    ).accepted_records
 
     report = build_phospho_specific_review_fixture_report(
         site_entries,

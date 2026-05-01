@@ -55,7 +55,9 @@ def _records() -> tuple[Ms1FeatureRecord, ...]:
     )
 
 
-def test_lfq_feature_peptide_protein_provenance_report_preserves_provenance_and_missingness() -> None:
+def test_lfq_feature_peptide_protein_provenance_report_preserves_provenance_and_missingness() -> (
+    None
+):
     report = build_lfq_feature_peptide_protein_provenance_report(
         _records(),
         aggregation_method=QuantRollupMethod.SUM,

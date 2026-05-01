@@ -9,7 +9,9 @@ from bijux_proteomics.runtime_iteration14 import (
 )
 
 
-def test_build_portable_workflow_run_bundle_rewrites_paths_and_hashes_manifest() -> None:
+def test_build_portable_workflow_run_bundle_rewrites_paths_and_hashes_manifest() -> (
+    None
+):
     bundle = build_portable_workflow_run_bundle(
         run_id="run-77",
         records=(

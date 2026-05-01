@@ -51,7 +51,11 @@ def test_inference_disagreement_review_packet_surfaces_review_severity() -> None
     assert packet.entry_count >= 1
     assert packet.warning_count + packet.blocking_count == packet.entry_count
     assert any(
-        entry.severity in {InferenceDisagreementSeverity.WARNING, InferenceDisagreementSeverity.BLOCKING}
+        entry.severity
+        in {
+            InferenceDisagreementSeverity.WARNING,
+            InferenceDisagreementSeverity.BLOCKING,
+        }
         for entry in packet.entries
     )
     assert len(packet.recommendation) > 10

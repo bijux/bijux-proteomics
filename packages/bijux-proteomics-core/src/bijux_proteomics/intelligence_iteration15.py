@@ -8,6 +8,7 @@ from __future__ import annotations
 from enum import StrEnum
 import hashlib
 import json
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
@@ -114,7 +115,9 @@ def build_pathway_network_caution_report(
                 message="pathway evidence contains unresolved contradictions",
             )
         )
-    if claims_mechanistic_truth and (supporting_evidence_count < 4 or contradiction_count > 0):
+    if claims_mechanistic_truth and (
+        supporting_evidence_count < 4 or contradiction_count > 0
+    ):
         issues.append(
             PathwayCautionIssue(
                 code="mechanistic_overreach",
@@ -280,7 +283,9 @@ def prioritize_candidates_from_evidence_graph(
     scored.sort(key=lambda item: (-item[1], item[0]))
 
     entries = tuple(
-        CandidatePriorityEntry(candidate_id=candidate_id, priority_score=score, rank=index + 1)
+        CandidatePriorityEntry(
+            candidate_id=candidate_id, priority_score=score, rank=index + 1
+        )
         for index, (candidate_id, score) in enumerate(scored)
     )
     return CandidatePriorityReport(entries=entries)
@@ -454,7 +459,9 @@ def build_candidate_comparison_packet(
 
     reasons: list[str] = []
     if preferred.rank > other.rank:
-        raise ValueError("preferred candidate rank must be better or equal to comparator")
+        raise ValueError(
+            "preferred candidate rank must be better or equal to comparator"
+        )
     if preferred.evidence_score > other.evidence_score:
         reasons.append("preferred candidate has stronger evidence support")
     if preferred.novelty_score > other.novelty_score:
@@ -464,7 +471,9 @@ def build_candidate_comparison_packet(
     if preferred.risk_penalty < other.risk_penalty:
         reasons.append("preferred candidate carries lower risk burden")
     if not reasons:
-        reasons.append("preferred candidate retains tie-break priority in ranking policy")
+        reasons.append(
+            "preferred candidate retains tie-break priority in ranking policy"
+        )
 
     merged_caveats = tuple(sorted(set(preferred.caveat_ids + other.caveat_ids)))
     merged_evidence = tuple(
@@ -543,7 +552,11 @@ def run_review_board_workflow(
     decisions: list[ReviewBoardDecisionEntry] = []
     for entry in agenda:
         candidate_votes = votes_by_candidate.get(entry.candidate_id, [])
-        counts = {ReviewBoardVote.APPROVE: 0, ReviewBoardVote.DEFER: 0, ReviewBoardVote.REJECT: 0}
+        counts = {
+            ReviewBoardVote.APPROVE: 0,
+            ReviewBoardVote.DEFER: 0,
+            ReviewBoardVote.REJECT: 0,
+        }
         for vote in candidate_votes:
             counts[vote.vote] += 1
 
@@ -567,7 +580,9 @@ def run_review_board_workflow(
         )
 
     decisions.sort(key=lambda decision: decision.candidate_id)
-    return ReviewBoardWorkflowReport(board_id=board_id, agenda=agenda, decisions=tuple(decisions))
+    return ReviewBoardWorkflowReport(
+        board_id=board_id, agenda=agenda, decisions=tuple(decisions)
+    )
 
 
 class EvidenceFreshnessState(StrEnum):
@@ -619,7 +634,9 @@ def build_evidence_freshness_report(
         elif age_days >= stale_after_days:
             state = EvidenceFreshnessState.STALE
             requires_review = True
-            reason = f"evidence age {age_days}d exceeds stale threshold {stale_after_days}d"
+            reason = (
+                f"evidence age {age_days}d exceeds stale threshold {stale_after_days}d"
+            )
         else:
             state = EvidenceFreshnessState.FRESH
             requires_review = False
@@ -668,7 +685,9 @@ class ContradictionAwareLabRecommendationReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    recommendations: tuple[ContradictionAwareLabRecommendation, ...] = Field(default_factory=tuple)
+    recommendations: tuple[ContradictionAwareLabRecommendation, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def build_contradiction_aware_lab_recommendation_report(
@@ -678,7 +697,9 @@ def build_contradiction_aware_lab_recommendation_report(
 
     ranked: list[ContradictionAwareLabRecommendation] = []
     for contradiction in contradictions:
-        score = 0.7 * contradiction.decision_impact + 0.3 * contradiction.unresolved_risk
+        score = (
+            0.7 * contradiction.decision_impact + 0.3 * contradiction.unresolved_risk
+        )
         ranked.append(
             ContradictionAwareLabRecommendation(
                 contradiction_id=contradiction.contradiction_id,
@@ -693,6 +714,10 @@ def build_contradiction_aware_lab_recommendation_report(
         )
 
     ranked.sort(
-        key=lambda rec: (-rec.resolution_priority_score, rec.candidate_id, rec.contradiction_id)
+        key=lambda rec: (
+            -rec.resolution_priority_score,
+            rec.candidate_id,
+            rec.contradiction_id,
+        )
     )
     return ContradictionAwareLabRecommendationReport(recommendations=tuple(ranked))

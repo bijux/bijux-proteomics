@@ -320,7 +320,9 @@ def plan_partial_workflow_rerun(
     """Plan dependency-safe partial reruns while preserving unaffected historical evidence."""
 
     if not step_states:
-        raise ValueError("partial rerun planning requires existing workflow step states")
+        raise ValueError(
+            "partial rerun planning requires existing workflow step states"
+        )
 
     by_id = {step.step_id: step for step in step_states}
     rerun_candidates = set(request.selected_step_ids)
@@ -333,7 +335,9 @@ def plan_partial_workflow_rerun(
 
     for step_id in tuple(rerun_candidates):
         if step_id not in by_id:
-            raise ValueError(f"selected rerun step is not present in prior run: {step_id}")
+            raise ValueError(
+                f"selected rerun step is not present in prior run: {step_id}"
+            )
 
     changed = set(rerun_candidates)
     grew = True
@@ -373,8 +377,12 @@ def plan_partial_workflow_rerun(
         )
         preserved_evidence.extend(step.evidence_pointers)
 
-    rerun_step_ids = tuple(action.step_id for action in actions if action.action == "rerun")
-    reused_step_ids = tuple(action.step_id for action in actions if action.action == "reuse")
+    rerun_step_ids = tuple(
+        action.step_id for action in actions if action.action == "rerun"
+    )
+    reused_step_ids = tuple(
+        action.step_id for action in actions if action.action == "reuse"
+    )
     preserved_evidence = sorted(set(preserved_evidence))
 
     return PartialWorkflowRerunPlan(
@@ -417,7 +425,9 @@ class ArtifactInventoryVerificationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     verified: bool
-    issues: tuple[ArtifactInventoryVerificationIssue, ...] = Field(default_factory=tuple)
+    issues: tuple[ArtifactInventoryVerificationIssue, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def verify_workflow_artifact_inventory(
@@ -487,7 +497,9 @@ def verify_workflow_artifact_inventory(
                 )
 
     issues.sort(key=lambda issue: (issue.severity, issue.code, issue.artifact_id))
-    return ArtifactInventoryVerificationReport(verified=not issues, issues=tuple(issues))
+    return ArtifactInventoryVerificationReport(
+        verified=not issues, issues=tuple(issues)
+    )
 
 
 class PortableRunBundleFile(JsonModel):
@@ -533,7 +545,9 @@ def build_portable_workflow_run_bundle(
             )
         )
 
-    normalized_files.sort(key=lambda entry: (entry.role, entry.portable_path, entry.artifact_id))
+    normalized_files.sort(
+        key=lambda entry: (entry.role, entry.portable_path, entry.artifact_id)
+    )
     manifest_sha256 = _stable_sha256(
         {
             "run_id": run_id,
@@ -671,7 +685,10 @@ def explain_workflow_cache_decisions(
             for record in matching_tool
         ):
             reasons.append("parameter_fingerprint changed")
-        if not any(record.input_fingerprint == probe.input_fingerprint for record in matching_tool):
+        if not any(
+            record.input_fingerprint == probe.input_fingerprint
+            for record in matching_tool
+        ):
             reasons.append("input_fingerprint changed")
         if not any(
             record.environment_fingerprint == probe.environment_fingerprint
@@ -679,11 +696,14 @@ def explain_workflow_cache_decisions(
         ):
             reasons.append("environment_fingerprint changed")
         if not any(
-            record.policy_fingerprint == probe.policy_fingerprint for record in matching_tool
+            record.policy_fingerprint == probe.policy_fingerprint
+            for record in matching_tool
         ):
             reasons.append("policy_fingerprint changed")
         if not reasons:
-            reasons.append("cache record exists but composite fingerprint does not match")
+            reasons.append(
+                "cache record exists but composite fingerprint does not match"
+            )
 
         entries.append(
             CacheDecisionExplanationEntry(
@@ -694,8 +714,12 @@ def explain_workflow_cache_decisions(
         )
 
     hit_count = sum(1 for entry in entries if entry.outcome is CacheDecisionOutcome.HIT)
-    miss_count = sum(1 for entry in entries if entry.outcome is CacheDecisionOutcome.MISS)
-    refused_count = sum(1 for entry in entries if entry.outcome is CacheDecisionOutcome.REFUSED)
+    miss_count = sum(
+        1 for entry in entries if entry.outcome is CacheDecisionOutcome.MISS
+    )
+    refused_count = sum(
+        1 for entry in entries if entry.outcome is CacheDecisionOutcome.REFUSED
+    )
     return CacheDecisionExplanationReport(
         entries=tuple(entries),
         hit_count=hit_count,
@@ -774,7 +798,10 @@ def query_workflow_run_history(
         and (query.status is None or entry.status is query.status)
         and (
             query.requires_artifact_role is None
-            or any(artifact.role == query.requires_artifact_role for artifact in entry.artifacts)
+            or any(
+                artifact.role == query.requires_artifact_role
+                for artifact in entry.artifacts
+            )
         )
     ]
     filtered.sort(key=lambda entry: entry.started_at_utc, reverse=True)
@@ -896,7 +923,9 @@ class LargeArtifactUploadGuardReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     accepted: bool
-    decisions: tuple[LargeArtifactUploadGuardDecision, ...] = Field(default_factory=tuple)
+    decisions: tuple[LargeArtifactUploadGuardDecision, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def guard_large_artifact_uploads(
@@ -972,7 +1001,9 @@ class StableRuntimeErrorEnvelope(JsonModel):
 
 def _normalize_error_code(value: str) -> str:
     normalized = value.strip().lower().replace("-", "_").replace(" ", "_")
-    normalized = "".join(character for character in normalized if character.isalnum() or character == "_")
+    normalized = "".join(
+        character for character in normalized if character.isalnum() or character == "_"
+    )
     return normalized or "unknown_error"
 
 

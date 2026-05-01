@@ -189,7 +189,9 @@ class UbiquitinRemnantWorkflowReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[UbiquitinRemnantSiteWorkflowEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[UbiquitinRemnantSiteWorkflowEntry, ...] = Field(
+        default_factory=tuple
+    )
     ambiguous_entry_count: int = Field(..., ge=0)
     non_lysine_entry_count: int = Field(..., ge=0)
 
@@ -299,7 +301,9 @@ def build_ptm_site_localization_evidence_graph(
 
     nodes: list[PtmSiteLocalizationEvidenceNode] = []
     for site_key, bucket in sorted(grouped.items()):
-        scores = tuple(sorted((mapping.localization_score for mapping in bucket), reverse=True))
+        scores = tuple(
+            sorted((mapping.localization_score for mapping in bucket), reverse=True)
+        )
         max_score = scores[0] if scores else 0.0
         spectrum_ids = tuple(sorted({mapping.spectrum_id for mapping in bucket}))
         fragment_ions: set[str] = set()
@@ -420,7 +424,9 @@ def build_ptm_occupancy_counterpart_report(
     for occupancy in occupancy_entries:
         if occupancy.uncertainty is PtmOccupancyUncertainty.AMBIGUOUS_SITE:
             status = PtmOccupancyCounterpartStatus.AMBIGUOUS_SITE
-            caveat = "site mapping ambiguity limits interpretation of occupancy estimates"
+            caveat = (
+                "site mapping ambiguity limits interpretation of occupancy estimates"
+            )
         elif occupancy.uncertainty is PtmOccupancyUncertainty.MISSING_COUNTERPART:
             status = PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
             caveat = (
@@ -484,7 +490,8 @@ def build_ptm_motif_enrichment_background_provenance_report(
         foreground_count = sum(1 for entry in relevant if entry.residue == residue)
         background_count = residue_background_counts[residue]
         ratio = (
-            (foreground_count / foreground_total) / (background_count / max(background_total, 1))
+            (foreground_count / foreground_total)
+            / (background_count / max(background_total, 1))
             if foreground_total > 0 and background_count > 0
             else None
         )
@@ -537,7 +544,9 @@ def build_phospho_specific_review_fixture_report(
     if any(entry.ambiguous for entry in phospho_entries):
         caveats.append("phospho fixture includes ambiguous localization examples")
     if occupancy_report.missing_counterpart_count > 0:
-        caveats.append("phospho fixture includes missing counterpart occupancy examples")
+        caveats.append(
+            "phospho fixture includes missing counterpart occupancy examples"
+        )
     return PtmPhosphoReviewFixtureReport(
         phospho_site_keys=tuple(sorted(entry.site_key for entry in phospho_entries)),
         ambiguous_site_keys=tuple(
@@ -615,14 +624,17 @@ def build_ubiquitin_remnant_workflow_report(
                 {
                     record.sample_id
                     for record in feature_records
-                    if entry.protein_ref in record.protein_refs and record.intensity is not None
+                    if entry.protein_ref in record.protein_refs
+                    and record.intensity is not None
                 }
             )
         )
         caveats: list[str] = []
         lysine_consistent = entry.residue == "K"
         if not lysine_consistent:
-            caveats.append("site residue is not lysine for a ubiquitin-remnant assumption")
+            caveats.append(
+                "site residue is not lysine for a ubiquitin-remnant assumption"
+            )
         if entry.ambiguous:
             caveats.append("site localization remains ambiguous")
         if not quantified_samples:
@@ -717,20 +729,30 @@ def build_ptm_cooccurrence_caution_report(
             right_bucket = grouped[right_key]
             left_peptides = {mapping.canonical_peptide for mapping in left_bucket}
             right_peptides = {mapping.canonical_peptide for mapping in right_bucket}
-            left_samples = {mapping.sample_id for mapping in left_bucket if mapping.sample_id}
+            left_samples = {
+                mapping.sample_id for mapping in left_bucket if mapping.sample_id
+            }
             right_samples = {
                 mapping.sample_id for mapping in right_bucket if mapping.sample_id
             }
             left_spectra = {mapping.spectrum_id for mapping in left_bucket}
             right_spectra = {mapping.spectrum_id for mapping in right_bucket}
-            left_runs = {
-                spectrum_run_by_id.get(spectrum_id, spectrum_id)
-                for spectrum_id in left_spectra
-            } if spectrum_run_by_id else set()
-            right_runs = {
-                spectrum_run_by_id.get(spectrum_id, spectrum_id)
-                for spectrum_id in right_spectra
-            } if spectrum_run_by_id else set()
+            left_runs = (
+                {
+                    spectrum_run_by_id.get(spectrum_id, spectrum_id)
+                    for spectrum_id in left_spectra
+                }
+                if spectrum_run_by_id
+                else set()
+            )
+            right_runs = (
+                {
+                    spectrum_run_by_id.get(spectrum_id, spectrum_id)
+                    for spectrum_id in right_spectra
+                }
+                if spectrum_run_by_id
+                else set()
+            )
 
             same_peptide = bool(left_peptides & right_peptides)
             same_protein = left_bucket[0].protein_ref == right_bucket[0].protein_ref
@@ -766,9 +788,15 @@ def build_ptm_cooccurrence_caution_report(
 
     return PtmCooccurrenceCautionReport(
         entries=tuple(entries),
-        same_peptide_pair_count=sum(1 for entry in entries if entry.same_peptide_evidence),
-        same_protein_pair_count=sum(1 for entry in entries if entry.same_protein_evidence),
-        same_sample_pair_count=sum(1 for entry in entries if entry.same_sample_evidence),
+        same_peptide_pair_count=sum(
+            1 for entry in entries if entry.same_peptide_evidence
+        ),
+        same_protein_pair_count=sum(
+            1 for entry in entries if entry.same_protein_evidence
+        ),
+        same_sample_pair_count=sum(
+            1 for entry in entries if entry.same_sample_evidence
+        ),
         same_run_pair_count=sum(1 for entry in entries if entry.same_run_evidence),
         true_colocalization_pair_count=sum(
             1 for entry in entries if entry.true_colocalization_evidence
@@ -812,10 +840,16 @@ def build_ptm_lab_validation_packet(
             risk = PtmLabAssayRisk.MEDIUM
         else:
             risk = PtmLabAssayRisk.LOW
-        controls = ["isotype_or_matrix_control", "site-matched_unmodified_peptide_control"]
+        controls = [
+            "isotype_or_matrix_control",
+            "site-matched_unmodified_peptide_control",
+        ]
         if site.site_key in coloc_site_keys:
             controls.append("co-localization_disruption_control")
-        evidence_needs = ["site-localizing_fragment_ions", "orthogonal_site_assay_confirmation"]
+        evidence_needs = [
+            "site-localizing_fragment_ions",
+            "orthogonal_site_assay_confirmation",
+        ]
         if has_missing_counterpart:
             evidence_needs.append("complete_modified_unmodified_counterpart_quant")
         entries.append(

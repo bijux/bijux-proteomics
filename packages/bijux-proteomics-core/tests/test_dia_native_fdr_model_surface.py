@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
-from bijux_proteomics.identification_iteration04 import build_dia_native_fdr_model_report
+from bijux_proteomics.identification_iteration04 import (
+    build_dia_native_fdr_model_report,
+)
 
 
 def _records() -> tuple[PsmRecord, ...]:
@@ -52,7 +54,10 @@ def test_dia_native_fdr_model_report_produces_multi_level_snapshots() -> None:
     assert report.compatible is True
     assert report.thresholds == (0.01, 0.05, 0.1)
     assert len(report.snapshots) == 3
-    assert report.snapshots[0].accepted_precursor_count <= report.snapshots[-1].accepted_precursor_count
+    assert (
+        report.snapshots[0].accepted_precursor_count
+        <= report.snapshots[-1].accepted_precursor_count
+    )
 
 
 def test_dia_native_fdr_model_report_refuses_non_dia_context() -> None:

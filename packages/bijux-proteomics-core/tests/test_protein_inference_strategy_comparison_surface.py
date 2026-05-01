@@ -67,6 +67,4 @@ def test_compare_protein_inference_strategies_reports_pairwise_overlaps() -> Non
         ProteinInferenceStrategyKind.CONSERVATIVE,
     }
     assert len(report.comparisons) == 10
-    assert any(
-        comparison.jaccard_similarity < 1.0 for comparison in report.comparisons
-    )
+    assert any(comparison.jaccard_similarity < 1.0 for comparison in report.comparisons)

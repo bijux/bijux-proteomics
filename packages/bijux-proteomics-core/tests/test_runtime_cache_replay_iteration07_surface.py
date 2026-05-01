@@ -3,10 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.runtime_iteration07 import build_proteomics_workflow_cache_replay_report
+from bijux_proteomics.runtime_iteration07 import (
+    build_proteomics_workflow_cache_replay_report,
+)
 
 
-def test_build_proteomics_workflow_cache_replay_report_classifies_all_outcomes() -> None:
+def test_build_proteomics_workflow_cache_replay_report_classifies_all_outcomes() -> (
+    None
+):
     report = build_proteomics_workflow_cache_replay_report(
         previous_artifact_hashes={
             "matrix": "aaa",

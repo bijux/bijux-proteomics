@@ -5,7 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.ptm import map_ptm_evidence_to_protein_sites, parse_ptm_localization_tsv
+from bijux_proteomics.ptm import (
+    map_ptm_evidence_to_protein_sites,
+    parse_ptm_localization_tsv,
+)
 from bijux_proteomics.ptm_advanced_workflows import (
     build_ptm_site_localization_evidence_graph,
 )
@@ -19,10 +22,15 @@ def _fixture_path(name: str) -> Path:
 def _protein_sequences() -> dict[str, str]:
     fasta = Path(__file__).parent / "fixtures" / "fasta" / "ptm_sites.fasta"
     report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
-    return {record.canonical_accession: record.residues for record in report.accepted_records}
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
 
 
-def test_ptm_site_localization_evidence_graph_links_core_coordinates_and_fragments() -> None:
+def test_ptm_site_localization_evidence_graph_links_core_coordinates_and_fragments() -> (
+    None
+):
     parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         parsed.accepted_records, protein_sequences=_protein_sequences()

@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.formats import ExperimentalDesignEntry, ExperimentalDesignSampleRole
+from bijux_proteomics.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
 from bijux_proteomics.quantification import (
     LabelBasedChannelPolicyEntry,
     LabelBasedChannelRole,
@@ -68,7 +71,9 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def test_label_based_quant_channel_ledger_tracks_channel_roles_and_missing_channels() -> None:
+def test_label_based_quant_channel_ledger_tracks_channel_roles_and_missing_channels() -> (
+    None
+):
     table = build_label_free_intensity_table(
         _records(),
         entity_level=QuantEntityLevel.PEPTIDE,
@@ -104,9 +109,7 @@ def test_label_based_quant_channel_ledger_tracks_channel_roles_and_missing_chann
     assert len(ledger.entries) >= 3
     assert ledger.missing_channel_count >= 1
     reference_row = next(
-        entry
-        for entry in ledger.entries
-        if entry.multiplex_channel == "127"
+        entry for entry in ledger.entries if entry.multiplex_channel == "127"
     )
     assert reference_row.channel_role is LabelBasedChannelRole.REFERENCE
     assert reference_row.reagent_lot == "LOT-42"

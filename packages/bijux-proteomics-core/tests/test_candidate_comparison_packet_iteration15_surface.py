@@ -9,7 +9,9 @@ from bijux_proteomics.intelligence_iteration15 import (
 )
 
 
-def test_build_candidate_comparison_packet_explains_ranking_with_evidence_links() -> None:
+def test_build_candidate_comparison_packet_explains_ranking_with_evidence_links() -> (
+    None
+):
     packet = build_candidate_comparison_packet(
         preferred=CandidateComparisonInput(
             candidate_id="cand-a",

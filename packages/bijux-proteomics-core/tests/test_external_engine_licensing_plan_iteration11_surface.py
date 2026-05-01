@@ -10,7 +10,9 @@ from bijux_proteomics.corpus_iteration11 import (
 )
 
 
-def test_build_external_engine_corpus_licensing_plan_sorts_unique_artifact_classes() -> None:
+def test_build_external_engine_corpus_licensing_plan_sorts_unique_artifact_classes() -> (
+    None
+):
     plan = build_external_engine_corpus_licensing_plan(
         (
             ExternalEngineCorpusLicensingEntry(

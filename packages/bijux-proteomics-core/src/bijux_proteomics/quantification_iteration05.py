@@ -5,8 +5,9 @@
 
 from __future__ import annotations
 
-from pydantic import ConfigDict, Field
 from enum import StrEnum
+
+from pydantic import ConfigDict, Field
 
 from bijux_proteomics.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
@@ -14,23 +15,22 @@ from bijux_proteomics.quantification import (
     LabelBasedQuantPolicy,
     LabelFreeProvenanceBundle,
     LabelFreeQuantTable,
-    MultiplexNormalizationPolicy,
     MissingChannelPolicy,
     MissingValueSummaryReport,
     Ms1FeatureRecord,
+    MultiplexNormalizationPolicy,
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
+    build_batch_effect_advisory,
+    build_differential_abundance_report,
+    build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
-    build_label_based_quant_bundle,
     build_multiplex_channel_balance_report,
     build_normalization_strategy_comparison_report,
-    build_differential_abundance_report,
-    build_replicate_correlation_report,
-    build_batch_effect_advisory,
     build_quant_artifact_bundle,
-    build_normalization_comparison_report,
+    build_replicate_correlation_report,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -79,8 +79,12 @@ def build_lfq_feature_peptide_protein_provenance_report(
         top_n=top_n,
     )
     if normalization_method is not NormalizationMethod.NONE:
-        peptide_table = normalize_label_free_table(peptide_table, method=normalization_method)
-        protein_table = normalize_label_free_table(protein_table, method=normalization_method)
+        peptide_table = normalize_label_free_table(
+            peptide_table, method=normalization_method
+        )
+        protein_table = normalize_label_free_table(
+            protein_table, method=normalization_method
+        )
 
     peptide_missingness = summarize_missing_values(peptide_table)
     protein_missingness = summarize_missing_values(protein_table)
@@ -121,7 +125,9 @@ class LabelBasedQuantChannelLedgerReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     missing_channel_policy: MissingChannelPolicy
-    entries: tuple[LabelBasedQuantChannelLedgerEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[LabelBasedQuantChannelLedgerEntry, ...] = Field(
+        default_factory=tuple
+    )
     missing_channel_count: int = Field(..., ge=0)
 
 
@@ -230,7 +236,8 @@ def build_multiplex_channel_balance_diagnostics_report(
     carrier_effect = tuple(
         entry
         for entry in flagged
-        if entry.channel_role in {LabelBasedChannelRole.CARRIER, LabelBasedChannelRole.REFERENCE}
+        if entry.channel_role
+        in {LabelBasedChannelRole.CARRIER, LabelBasedChannelRole.REFERENCE}
     )
     batch_by_sample = {
         entry.sample_id: entry.batch
@@ -238,13 +245,13 @@ def build_multiplex_channel_balance_diagnostics_report(
         if entry.sample_id and entry.batch
     }
     batch_caveat_count = sum(
-        1
-        for entry in flagged
-        if batch_by_sample.get(entry.sample_id) is not None
+        1 for entry in flagged if batch_by_sample.get(entry.sample_id) is not None
     )
     caveats: list[str] = []
     if flagged:
-        caveats.append("one or more multiplex channels exceed configured balance ratio thresholds")
+        caveats.append(
+            "one or more multiplex channels exceed configured balance ratio thresholds"
+        )
     if carrier_effect:
         caveats.append(
             "carrier/reference channels are among flagged channels and may distort ratio interpretation"
@@ -298,7 +305,9 @@ class NormalizationPolicyComparisonMatrixReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[NormalizationPolicyComparisonEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[NormalizationPolicyComparisonEntry, ...] = Field(
+        default_factory=tuple
+    )
     recommended_supported_policy: QuantNormalizationPolicyKind | None = None
 
 
@@ -401,7 +410,9 @@ class ProteinRollupStrategyComparisonEntry(JsonModel):
 
     protein_ref: str = Field(..., min_length=1)
     sample_id: str = Field(..., min_length=1)
-    strategy_values: tuple[ProteinRollupStrategyValue, ...] = Field(default_factory=tuple)
+    strategy_values: tuple[ProteinRollupStrategyValue, ...] = Field(
+        default_factory=tuple
+    )
     max_strategy_difference: float = Field(..., ge=0.0)
 
 
@@ -410,7 +421,9 @@ class ProteinRollupStrategyComparisonReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[ProteinRollupStrategyComparisonEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[ProteinRollupStrategyComparisonEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def _rollup_value_for_strategy(
@@ -470,11 +483,7 @@ def build_protein_rollup_strategy_comparison_report(
     """Compare protein rollup outcomes across six explicit strategy families."""
     proteins = tuple(
         sorted(
-            {
-                protein_ref
-                for record in records
-                for protein_ref in record.protein_refs
-            }
+            {protein_ref for record in records for protein_ref in record.protein_refs}
         )
     )
     samples = tuple(sorted({record.sample_id for record in records}))
@@ -502,7 +511,9 @@ def build_protein_rollup_strategy_comparison_report(
                 )
                 for strategy in strategies
             )
-            finite = [value.abundance for value in values if value.abundance is not None]
+            finite = [
+                value.abundance for value in values if value.abundance is not None
+            ]
             entries.append(
                 ProteinRollupStrategyComparisonEntry(
                     protein_ref=protein_ref,
@@ -563,7 +574,11 @@ def validate_differential_abundance_design_context(
                     severity="error",
                 )
             )
-        missing = [condition for condition in (left, right) if condition not in known_conditions]
+        missing = [
+            condition
+            for condition in (left, right)
+            if condition not in known_conditions
+        ]
         if missing:
             issues.append(
                 DifferentialAbundanceDesignIssue(
@@ -726,7 +741,11 @@ def build_effect_size_first_differential_abundance_report(
         sorted(
             entries,
             key=lambda item: (
-                -(abs(item.effect_size_cohens_d) if item.effect_size_cohens_d is not None else abs(item.log2_fold_change)),
+                -(
+                    abs(item.effect_size_cohens_d)
+                    if item.effect_size_cohens_d is not None
+                    else abs(item.log2_fold_change)
+                ),
                 item.adjusted_p_value if item.adjusted_p_value is not None else 1.0,
                 item.entity_id,
             ),
@@ -738,7 +757,9 @@ def build_effect_size_first_differential_abundance_report(
     if any(entry.observations_a < 2 or entry.observations_b < 2 for entry in ranked):
         global_caveats.append("one or more entities have low replicate support")
     if not global_caveats:
-        global_caveats.append("effect-size ranking includes complete statistical annotations")
+        global_caveats.append(
+            "effect-size ranking includes complete statistical annotations"
+        )
     return EffectSizeFirstDaReport(
         condition_a=condition_a,
         condition_b=condition_b,
@@ -786,14 +807,16 @@ def build_missingness_mechanism_profile_report(
     """Classify entity-level missingness into review-oriented mechanism categories."""
     lookup = {(value.entity_id, value.sample_id): value for value in table.values}
     condition_by_sample = {entry.sample_id: entry.condition for entry in design_entries}
-    batch_by_sample = {entry.sample_id: entry.batch for entry in design_entries if entry.batch}
+    batch_by_sample = {
+        entry.sample_id: entry.batch for entry in design_entries if entry.batch
+    }
     channel_by_sample = {
         entry.sample_id: (entry.multiplex_group, entry.multiplex_channel)
         for entry in design_entries
         if entry.multiplex_group and entry.multiplex_channel
     }
     entries: list[MissingnessMechanismProfileEntry] = []
-    summary = {kind: 0 for kind in MissingnessMechanismKind}
+    summary = dict.fromkeys(MissingnessMechanismKind, 0)
     for entity_id in table.entity_ids:
         observed: list[str] = []
         missing: list[str] = []
@@ -807,10 +830,22 @@ def build_missingness_mechanism_profile_report(
             mechanism = MissingnessMechanismKind.UNKNOWN
             note = "entity has no missing values under the current table snapshot"
         else:
-            observed_conditions = {condition_by_sample.get(sample_id, "unknown") for sample_id in observed}
-            missing_conditions = {condition_by_sample.get(sample_id, "unknown") for sample_id in missing}
-            missing_batches = {batch_by_sample.get(sample_id) for sample_id in missing if batch_by_sample.get(sample_id)}
-            missing_channels = {channel_by_sample.get(sample_id) for sample_id in missing if channel_by_sample.get(sample_id)}
+            observed_conditions = {
+                condition_by_sample.get(sample_id, "unknown") for sample_id in observed
+            }
+            missing_conditions = {
+                condition_by_sample.get(sample_id, "unknown") for sample_id in missing
+            }
+            missing_batches = {
+                batch_by_sample.get(sample_id)
+                for sample_id in missing
+                if batch_by_sample.get(sample_id)
+            }
+            missing_channels = {
+                channel_by_sample.get(sample_id)
+                for sample_id in missing
+                if channel_by_sample.get(sample_id)
+            }
             if (
                 len(observed_conditions) == 1
                 and len(missing_conditions) >= 1
@@ -821,7 +856,9 @@ def build_missingness_mechanism_profile_report(
             elif len(missing) == 1:
                 mechanism = MissingnessMechanismKind.TECHNICAL_FAILURE
                 note = "single isolated missing value suggests localized technical loss"
-            elif len(missing_batches) == 1 or (len(missing_channels) == 1 and len(missing) >= 2):
+            elif len(missing_batches) == 1 or (
+                len(missing_channels) == 1 and len(missing) >= 2
+            ):
                 mechanism = MissingnessMechanismKind.BATCH_OR_CHANNEL_ISSUE
                 note = "missingness aligns with one batch or one multiplex channel grouping"
             elif len(missing_conditions) > 1:
@@ -829,7 +866,9 @@ def build_missingness_mechanism_profile_report(
                 note = "missing values are distributed across conditions without a dominant structured pattern"
             else:
                 mechanism = MissingnessMechanismKind.UNKNOWN
-                note = "missingness pattern is unresolved under current metadata context"
+                note = (
+                    "missingness pattern is unresolved under current metadata context"
+                )
         summary[mechanism] += 1
         entries.append(
             MissingnessMechanismProfileEntry(
@@ -887,7 +926,10 @@ def build_replicate_and_batch_qc_report(
     design_by_sample = {entry.sample_id: entry for entry in design_entries}
     flagged_samples: dict[str, set[str]] = {}
     for entry in replicate.entries:
-        if entry.condition_a == entry.condition_b and entry.correlation < within_condition_warning_threshold:
+        if (
+            entry.condition_a == entry.condition_b
+            and entry.correlation < within_condition_warning_threshold
+        ):
             flagged_samples.setdefault(entry.sample_a, set()).add(
                 "low within-condition replicate correlation"
             )
@@ -980,7 +1022,9 @@ def build_quant_review_bundle(
         aggregation_method=aggregation_method,
         normalization_method=normalization_method,
     )
-    normalization_matrix = build_normalization_policy_comparison_matrix_report(peptide_table)
+    normalization_matrix = build_normalization_policy_comparison_matrix_report(
+        peptide_table
+    )
     rollup_strategy = build_protein_rollup_strategy_comparison_report(records)
     missingness = build_missingness_mechanism_profile_report(
         normalized_table,
@@ -1001,9 +1045,13 @@ def build_quant_review_bundle(
         )
     caveats: list[str] = []
     if da_report is None:
-        caveats.append("differential abundance report is unavailable because fewer than two conditions were provided")
+        caveats.append(
+            "differential abundance report is unavailable because fewer than two conditions were provided"
+        )
     if qc_report.outlier_samples:
-        caveats.append("qc outlier samples were detected and should be reviewed before publication decisions")
+        caveats.append(
+            "qc outlier samples were detected and should be reviewed before publication decisions"
+        )
     evidence_pointers = (
         "quant_artifact_bundle.matrix_export",
         "lfq_provenance.feature_entries",

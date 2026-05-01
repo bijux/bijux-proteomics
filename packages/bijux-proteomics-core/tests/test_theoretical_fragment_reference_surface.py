@@ -16,9 +16,15 @@ def _chemistry_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "chemistry" / name
 
 
-def test_validate_theoretical_fragment_reference_cases_matches_curated_fixture() -> None:
-    raw_cases = json.loads(_chemistry_fixture("theoretical_fragment_reference_cases.json").read_text())
-    cases = [TheoreticalFragmentReferenceCase.model_validate(case) for case in raw_cases]
+def test_validate_theoretical_fragment_reference_cases_matches_curated_fixture() -> (
+    None
+):
+    raw_cases = json.loads(
+        _chemistry_fixture("theoretical_fragment_reference_cases.json").read_text()
+    )
+    cases = [
+        TheoreticalFragmentReferenceCase.model_validate(case) for case in raw_cases
+    ]
 
     report = validate_theoretical_fragment_reference_cases(cases)
 

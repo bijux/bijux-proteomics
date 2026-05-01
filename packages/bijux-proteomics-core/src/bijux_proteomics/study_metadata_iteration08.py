@@ -344,7 +344,9 @@ def parse_study_design_table(path: Path) -> DesignTableParseReport:
         accepted: list[StudyMetadataRecord] = []
         rejected: list[RejectedDesignTableRow] = []
         for row_number, row in enumerate(reader, start=2):
-            raw_fields = {str(key): str(value or "") for key, value in row.items() if key}
+            raw_fields = {
+                str(key): str(value or "") for key, value in row.items() if key
+            }
             issues: list[DesignTableParseIssue] = []
             for column in required:
                 if not raw_fields.get(column, "").strip():
@@ -481,7 +483,9 @@ def build_instrument_run_summary_report(
         batch_count=len({record.batch_id for record in records}),
         qc_sample_count=sum(1 for record in records if record.qc_sample),
         methods=tuple(sorted({record.acquisition_method for record in records})),
-        records=tuple(sorted(records, key=lambda record: (record.batch_id, record.run_order))),
+        records=tuple(
+            sorted(records, key=lambda record: (record.batch_id, record.run_order))
+        ),
     )
 
 
@@ -537,8 +541,12 @@ def build_sample_lineage_report(
         )
     return SampleLineageReport(
         entries=tuple(entries),
-        fully_traced_sample_count=sum(1 for entry in entries if not entry.missing_surfaces),
-        missing_lineage_sample_count=sum(1 for entry in entries if entry.missing_surfaces),
+        fully_traced_sample_count=sum(
+            1 for entry in entries if not entry.missing_surfaces
+        ),
+        missing_lineage_sample_count=sum(
+            1 for entry in entries if entry.missing_surfaces
+        ),
     )
 
 
@@ -612,7 +620,9 @@ def validate_plate_layout(
     return PlateLayoutValidationReport(valid=not issues, issues=tuple(issues))
 
 
-def validate_lab_request_schema(request: LabRequestSchema) -> LabRequestValidationReport:
+def validate_lab_request_schema(
+    request: LabRequestSchema,
+) -> LabRequestValidationReport:
     """Validate lab request schema integrity for assay planning and handoff."""
     issues: list[LabRequestValidationIssue] = []
     if not request.target_entries:
@@ -695,13 +705,12 @@ def reconcile_planned_and_observed_lab_outcomes(
     observed: tuple[ObservedLabOutcome, ...],
 ) -> LabOutcomeReconciliationReport:
     """Ingest observed outcomes without mutating planned expectations and update evidence state."""
-    observed_map = {
-        (entry.target_id, entry.sample_id): entry
-        for entry in observed
-    }
+    observed_map = {(entry.target_id, entry.sample_id): entry for entry in observed}
     entries: list[LabOutcomeReconciliationEntry] = []
     for planned_entry in planned:
-        observed_entry = observed_map.get((planned_entry.target_id, planned_entry.sample_id))
+        observed_entry = observed_map.get(
+            (planned_entry.target_id, planned_entry.sample_id)
+        )
         if observed_entry is None:
             entries.append(
                 LabOutcomeReconciliationEntry(
@@ -733,7 +742,9 @@ def reconcile_planned_and_observed_lab_outcomes(
         entries=tuple(entries),
         matched_count=sum(1 for entry in entries if entry.matched),
         mismatched_count=sum(
-            1 for entry in entries if entry.observed_state is not None and not entry.matched
+            1
+            for entry in entries
+            if entry.observed_state is not None and not entry.matched
         ),
         unobserved_count=sum(1 for entry in entries if entry.observed_state is None),
     )

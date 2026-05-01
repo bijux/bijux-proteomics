@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.ptm_advanced_workflows import evaluate_glycopeptide_support_boundary
+from bijux_proteomics.ptm_advanced_workflows import (
+    evaluate_glycopeptide_support_boundary,
+)
 
 
 def test_glycopeptide_support_boundary_accepts_glyco_specific_evidence() -> None:

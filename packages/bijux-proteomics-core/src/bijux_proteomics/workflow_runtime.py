@@ -973,29 +973,20 @@ def _artifact_relative_path(
     artifact_kind: WorkflowArtifactKind,
     workflow_id: str,
 ) -> str:
-    if artifact_kind is WorkflowArtifactKind.DIGEST_MANIFEST:
-        return "digest/manifest.json"
-    if artifact_kind is WorkflowArtifactKind.DIGEST_EXPORT:
-        return "digest/peptides.jsonl"
-    if artifact_kind is WorkflowArtifactKind.SEARCH_JOB:
-        return "search/submit.json"
-    if artifact_kind is WorkflowArtifactKind.SEARCH_RESULTS:
-        return "search/results.tsv"
-    if artifact_kind is WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS:
-        return "identifications.normalized.json"
-    if artifact_kind is WorkflowArtifactKind.FDR_REPORT:
-        return "fdr.report.json"
-    if artifact_kind is WorkflowArtifactKind.QUANT_REPORT:
-        return "quant.report.json"
-    if artifact_kind is WorkflowArtifactKind.QC_REPORT:
-        return "qc.report.json"
-    if artifact_kind is WorkflowArtifactKind.RUN_BUNDLE:
-        return "bundle/bundle.manifest.json"
-    if artifact_kind is WorkflowArtifactKind.JOB_DESCRIPTOR:
-        return f"jobs/{workflow_id}.slurm"
-    if artifact_kind is WorkflowArtifactKind.CHECKPOINT:
-        return f"checkpoints/{workflow_id}.json"
-    return f"{artifact_kind.value}.json"
+    mapping: dict[WorkflowArtifactKind, str] = {
+        WorkflowArtifactKind.DIGEST_MANIFEST: "digest/manifest.json",
+        WorkflowArtifactKind.DIGEST_EXPORT: "digest/peptides.jsonl",
+        WorkflowArtifactKind.SEARCH_JOB: "search/submit.json",
+        WorkflowArtifactKind.SEARCH_RESULTS: "search/results.tsv",
+        WorkflowArtifactKind.NORMALIZED_IDENTIFICATIONS: "identifications.normalized.json",
+        WorkflowArtifactKind.FDR_REPORT: "fdr.report.json",
+        WorkflowArtifactKind.QUANT_REPORT: "quant.report.json",
+        WorkflowArtifactKind.QC_REPORT: "qc.report.json",
+        WorkflowArtifactKind.RUN_BUNDLE: "bundle/bundle.manifest.json",
+        WorkflowArtifactKind.JOB_DESCRIPTOR: f"jobs/{workflow_id}.slurm",
+        WorkflowArtifactKind.CHECKPOINT: f"checkpoints/{workflow_id}.json",
+    }
+    return mapping.get(artifact_kind, f"{artifact_kind.value}.json")
 
 
 def _artifact_path_for_kind(

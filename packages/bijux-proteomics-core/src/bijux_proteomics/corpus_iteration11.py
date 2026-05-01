@@ -65,10 +65,14 @@ def build_complete_dda_mini_study_bundle(
     roles = {entry.role for entry in asset_entries}
     missing = sorted(required_roles - roles)
     if missing:
-        raise ValueError(f"DDA mini-study is missing required asset roles: {', '.join(missing)}")
+        raise ValueError(
+            f"DDA mini-study is missing required asset roles: {', '.join(missing)}"
+        )
     return DdaMiniStudyBundle(
         study_id=study_id,
-        asset_entries=tuple(sorted(asset_entries, key=lambda entry: (entry.role, entry.path))),
+        asset_entries=tuple(
+            sorted(asset_entries, key=lambda entry: (entry.role, entry.path))
+        ),
         expected_outputs=tuple(sorted(expected_outputs)),
         evidence_pointers=tuple(sorted(evidence_pointers)),
     )
@@ -106,10 +110,14 @@ def build_complete_dia_mini_study_bundle(
     roles = {entry.role for entry in asset_entries}
     missing = sorted(required_roles - roles)
     if missing:
-        raise ValueError(f"DIA mini-study is missing required asset roles: {', '.join(missing)}")
+        raise ValueError(
+            f"DIA mini-study is missing required asset roles: {', '.join(missing)}"
+        )
     return DiaMiniStudyBundle(
         study_id=study_id,
-        asset_entries=tuple(sorted(asset_entries, key=lambda entry: (entry.role, entry.path))),
+        asset_entries=tuple(
+            sorted(asset_entries, key=lambda entry: (entry.role, entry.path))
+        ),
         precursor_quantity_rows=precursor_quantity_rows,
         protein_quantity_rows=protein_quantity_rows,
         evidence_pointers=tuple(sorted(evidence_pointers)),
@@ -228,7 +236,9 @@ def build_complete_ptm_mini_study_bundle(
     """Curate PTM localization/motif/occupancy/quant outputs and lab suggestions."""
 
     if not lab_target_suggestions:
-        raise ValueError("PTM mini-study should include at least one lab target suggestion")
+        raise ValueError(
+            "PTM mini-study should include at least one lab target suggestion"
+        )
     return PtmMiniStudyBundle(
         study_id=study_id,
         localization_report_path=localization_report_path,
@@ -271,7 +281,9 @@ def build_known_mixture_mini_study_bundle(
     """Build known-mixture bundle with explicit accuracy-claim boundaries."""
 
     if not boundaries:
-        raise ValueError("known-mixture mini-study must include at least one truth boundary")
+        raise ValueError(
+            "known-mixture mini-study must include at least one truth boundary"
+        )
     return KnownMixtureMiniStudyBundle(
         study_id=study_id,
         mixture_asset_path=mixture_asset_path,
@@ -310,7 +322,9 @@ def build_contradiction_mini_study_bundle(
     """Build contradiction mini-study fixture without flattening disagreements."""
 
     if not entries:
-        raise ValueError("contradiction mini-study must include at least one contradiction entry")
+        raise ValueError(
+            "contradiction mini-study must include at least one contradiction entry"
+        )
     return ContradictionMiniStudyBundle(study_id=study_id, entries=entries)
 
 
@@ -350,10 +364,14 @@ def build_negative_science_corpus_report(
     return NegativeScienceCorpusReport(
         cases=cases,
         refusal_case_count=sum(
-            1 for case in cases if case.expected_outcome is NegativeScienceCaseOutcome.REFUSED
+            1
+            for case in cases
+            if case.expected_outcome is NegativeScienceCaseOutcome.REFUSED
         ),
         caveated_case_count=sum(
-            1 for case in cases if case.expected_outcome is NegativeScienceCaseOutcome.CAVEATED
+            1
+            for case in cases
+            if case.expected_outcome is NegativeScienceCaseOutcome.CAVEATED
         ),
     )
 
@@ -383,7 +401,9 @@ class ExternalEngineCorpusLicensingPlan(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[ExternalEngineCorpusLicensingEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[ExternalEngineCorpusLicensingEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def build_external_engine_corpus_licensing_plan(
@@ -393,7 +413,9 @@ def build_external_engine_corpus_licensing_plan(
 
     classes = [entry.artifact_class for entry in entries]
     if len(classes) != len(set(classes)):
-        raise ValueError("external-engine corpus licensing plan requires unique artifact classes")
+        raise ValueError(
+            "external-engine corpus licensing plan requires unique artifact classes"
+        )
     return ExternalEngineCorpusLicensingPlan(
         entries=tuple(sorted(entries, key=lambda entry: entry.artifact_class))
     )
@@ -417,7 +439,9 @@ class ScientificQuestionExampleIndex(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[ScientificQuestionExampleIndexEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[ScientificQuestionExampleIndexEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def build_example_index_by_scientific_question(
@@ -426,5 +450,7 @@ def build_example_index_by_scientific_question(
     """Index examples by input type, workflow, output, evidence grade, and caveats."""
 
     return ScientificQuestionExampleIndex(
-        entries=tuple(sorted(entries, key=lambda entry: (entry.question, entry.workflow)))
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.question, entry.workflow))
+        )
     )

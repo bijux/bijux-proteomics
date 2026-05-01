@@ -17,11 +17,16 @@ def _ptm_fixture(name: str) -> Path:
 def _protein_sequences() -> dict[str, str]:
     fasta = Path(__file__).parent / "fixtures" / "fasta" / "ptm_sites.fasta"
     report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
-    return {record.canonical_accession: record.residues for record in report.accepted_records}
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
 
 
 def test_run_ptm_workflow_end_to_end_tracks_localization_to_packet() -> None:
-    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _ptm_fixture("ptm_features.tsv")
+    ).accepted_records
     report = run_ptm_workflow_end_to_end(
         _ptm_fixture("localization_results.tsv"),
         protein_sequences=_protein_sequences(),

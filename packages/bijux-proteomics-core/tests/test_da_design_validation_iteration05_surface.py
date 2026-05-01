@@ -38,7 +38,9 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def test_validate_differential_abundance_design_context_reports_contrast_and_replicate_issues() -> None:
+def test_validate_differential_abundance_design_context_reports_contrast_and_replicate_issues() -> (
+    None
+):
     report = validate_differential_abundance_design_context(
         _design(),
         contrasts=(("case", "ctrl"), ("ctrl", "ctrl"), ("case", "missing")),

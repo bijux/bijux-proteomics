@@ -290,7 +290,9 @@ def build_mature_ecosystem_comparison_report(
             average_evidence_traceability_score=0.0,
         )
     scope_avg = sum(item.scope_match_score for item in ordered) / len(ordered)
-    evidence_avg = sum(item.evidence_traceability_score for item in ordered) / len(ordered)
+    evidence_avg = sum(item.evidence_traceability_score for item in ordered) / len(
+        ordered
+    )
     return MatureEcosystemComparisonReport(
         entries=ordered,
         average_scope_match_score=scope_avg,

@@ -23,7 +23,10 @@ def _fixture_path(name: str) -> Path:
 def _protein_sequences() -> dict[str, str]:
     fasta = Path(__file__).parent / "fixtures" / "fasta" / "ptm_sites.fasta"
     report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
-    return {record.canonical_accession: record.residues for record in report.accepted_records}
+    return {
+        record.canonical_accession: record.residues
+        for record in report.accepted_records
+    }
 
 
 def test_ptm_motif_enrichment_background_report_preserves_provenance() -> None:

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from bijux_proteomics import (
+    FastaParseMode,
     PeptideUniqueness,
     build_peptide_protein_index,
     classify_peptide_uniqueness,
     digest_protein_records,
     digest_sequence,
     parse_fasta_document,
-    FastaParseMode,
 )
 
 
@@ -43,7 +43,9 @@ def test_build_peptide_protein_index_tracks_parent_coordinates() -> None:
     by_sequence = {entry.sequence: entry for entry in entries}
 
     assert by_sequence["AAK"].protein_accessions == ("P11111", "P22222")
-    assert [coordinate.model_dump() for coordinate in by_sequence["AAK"].coordinates] == [
+    assert [
+        coordinate.model_dump() for coordinate in by_sequence["AAK"].coordinates
+    ] == [
         {
             "protein_accession": "P11111",
             "protein_family": "P11111",
@@ -73,13 +75,17 @@ def test_digest_protein_records_preserves_isoform_specific_origin_coordinates() 
         mode=FastaParseMode.STRICT,
     )
 
-    entries = build_peptide_protein_index(digest_protein_records(report.accepted_records))
+    entries = build_peptide_protein_index(
+        digest_protein_records(report.accepted_records)
+    )
     by_sequence = {entry.sequence: entry for entry in entries}
 
     assert by_sequence["AK"].protein_accessions == ("P12345", "P12345-2")
     assert by_sequence["AK"].protein_families == ("P12345",)
     assert by_sequence["AK"].uniqueness is PeptideUniqueness.SHARED_ISOFORM_FAMILY
-    assert [coordinate.model_dump() for coordinate in by_sequence["AK"].coordinates] == [
+    assert [
+        coordinate.model_dump() for coordinate in by_sequence["AK"].coordinates
+    ] == [
         {
             "protein_accession": "P12345",
             "protein_family": "P12345",

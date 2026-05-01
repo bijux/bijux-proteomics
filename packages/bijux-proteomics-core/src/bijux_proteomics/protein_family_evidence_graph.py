@@ -58,7 +58,9 @@ def build_protein_family_evidence_graph(
     homolog_pairs: Sequence[tuple[str, str]] = (),
 ) -> ProteinFamilyEvidenceGraph:
     """Build a protein-family evidence graph from peptide-protein mappings."""
-    node_map: dict[tuple[ProteinFamilyEvidenceNodeKind, str], ProteinFamilyEvidenceNode] = {}
+    node_map: dict[
+        tuple[ProteinFamilyEvidenceNodeKind, str], ProteinFamilyEvidenceNode
+    ] = {}
     edges: list[ProteinFamilyEvidenceEdge] = []
 
     def _node(kind: ProteinFamilyEvidenceNodeKind, token: str, label: str) -> str:

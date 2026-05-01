@@ -274,11 +274,14 @@ def test_decoy_generation_manifest_captures_reproducibility_hash(
     )
 
     assert manifest.output_record_count == len(output_records)
-    assert manifest.reproducibility_hash == compute_decoy_generation_reproducibility_hash(
-        report.accepted_records,
-        mode=DecoyGenerationMode.SHUFFLE,
-        prefix="DECOY_",
-        seed=11,
+    assert (
+        manifest.reproducibility_hash
+        == compute_decoy_generation_reproducibility_hash(
+            report.accepted_records,
+            mode=DecoyGenerationMode.SHUFFLE,
+            prefix="DECOY_",
+            seed=11,
+        )
     )
     assert manifest.document_schema.document_kind == "decoy_generation_manifest"
 

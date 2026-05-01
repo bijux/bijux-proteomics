@@ -10,12 +10,18 @@ from bijux_proteomics.study_metadata_iteration08 import (
 )
 
 
-def test_validate_lab_request_schema_rejects_missing_targets_controls_and_evidence() -> None:
+def test_validate_lab_request_schema_rejects_missing_targets_controls_and_evidence() -> (
+    None
+):
     report = validate_lab_request_schema(
         LabRequestSchema(
             request_id="req-001",
             method="unsupported_method",
-            target_entries=(LabRequestTarget(target_id="t1", assay_type="PTM", expected_evidence=()),),
+            target_entries=(
+                LabRequestTarget(
+                    target_id="t1", assay_type="PTM", expected_evidence=()
+                ),
+            ),
             sample_ids=(),
             control_ids=(),
             constraints=("max_injection_time=100ms",),

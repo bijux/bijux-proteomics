@@ -11,25 +11,25 @@ from bijux_proteomics import (
     SearchAdapterDialectManifest,
     SearchAdapterFieldAccounting,
     SearchAdapterKind,
-    SearchNormalizedEvidenceEntry,
     SearchInputRefusalKind,
+    SearchNormalizedEvidenceEntry,
     SearchRegressionFixtureKind,
     SearchResultColumnMapping,
     SearchResultFamily,
     SearchScoreFamily,
-    build_search_result_family_policy,
+    assess_search_result_input,
     build_search_adapter_capability_matrix,
     build_search_adapter_conformance_report,
     build_search_adapter_provenance_manifest,
     build_search_adapter_regression_corpus_manifest,
-    assess_search_result_input,
+    build_search_result_family_policy,
     compare_search_parameters,
     compare_search_result_reports,
     get_search_adapter_manifest,
+    merge_search_result_reports,
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
     search_adapter_dialect_registry,
-    merge_search_result_reports,
     validate_search_parameters,
 )
 
@@ -177,8 +177,7 @@ def test_normalization_report_preserves_raw_engine_evidence_rows() -> None:
     assert accepted_row.unmapped_native_fields == {}
     assert accepted_row.normalized_record is not None
     assert (
-        report.family_policy.result_family
-        is SearchResultFamily.DATABASE_TARGET_DECOY
+        report.family_policy.result_family is SearchResultFamily.DATABASE_TARGET_DECOY
     )
 
 
@@ -360,7 +359,9 @@ def test_search_input_assessment_classifies_refusals_explicitly() -> None:
     assert malformed.valid is False
     assert malformed.refusals[0].kind is SearchInputRefusalKind.MALFORMED_INPUT
     assert underspecified.valid is False
-    assert underspecified.refusals[0].kind is SearchInputRefusalKind.UNDER_SPECIFIED_INPUT
+    assert (
+        underspecified.refusals[0].kind is SearchInputRefusalKind.UNDER_SPECIFIED_INPUT
+    )
     assert incompatible.valid is False
     assert any(
         refusal.kind is SearchInputRefusalKind.SCIENTIFIC_INCOMPATIBILITY
@@ -402,8 +403,12 @@ def test_multi_engine_merge_preserves_engine_specific_uncertainty() -> None:
 
     merged = merge_search_result_reports((comet, sage))
 
-    exact = next(entry for entry in merged.merged_entries if entry.spectrum_id == "shared-1001")
-    conflict = next(entry for entry in merged.merged_entries if entry.spectrum_id == "shared-1002")
+    exact = next(
+        entry for entry in merged.merged_entries if entry.spectrum_id == "shared-1001"
+    )
+    conflict = next(
+        entry for entry in merged.merged_entries if entry.spectrum_id == "shared-1002"
+    )
 
     assert merged.exact_agreement_count == 1
     assert merged.conflict_count == 1
@@ -423,7 +428,9 @@ def test_mixed_target_library_results_keep_explicit_family_policy() -> None:
     )
     policy = build_search_result_family_policy(report.adapter_manifest)
 
-    assert report.adapter_manifest.result_family is SearchResultFamily.MIXED_TARGET_LIBRARY
+    assert (
+        report.adapter_manifest.result_family is SearchResultFamily.MIXED_TARGET_LIBRARY
+    )
     assert report.family_policy == policy
     assert policy.requires_target_decoy_evidence is False
     assert policy.allows_library_style_scores is True
@@ -449,9 +456,7 @@ def test_search_adapter_conformance_reports_rejection_and_unknown_label_failures
     assert conformance.calibration_plot is not None
 
 
-def test_adapter_conformance_reports_mapped_preserved_and_unsupported_fields() -> (
-    None
-):
+def test_adapter_conformance_reports_mapped_preserved_and_unsupported_fields() -> None:
     dialect = SearchAdapterDialectManifest(
         adapter_kind=SearchAdapterKind.SAGE,
         dialect_id="conformance-fields",

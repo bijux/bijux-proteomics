@@ -9,7 +9,9 @@ from bijux_proteomics.corpus_iteration11 import (
 )
 
 
-def test_build_contradiction_mini_study_bundle_preserves_multi_surface_disagreement() -> None:
+def test_build_contradiction_mini_study_bundle_preserves_multi_surface_disagreement() -> (
+    None
+):
     bundle = build_contradiction_mini_study_bundle(
         study_id="contradiction-mini-01",
         entries=(

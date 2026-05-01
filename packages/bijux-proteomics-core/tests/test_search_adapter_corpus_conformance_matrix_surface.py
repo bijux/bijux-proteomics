@@ -15,7 +15,9 @@ def _matrix_root() -> Path:
     return Path(__file__).parent / "fixtures" / "search_adapter_corpora"
 
 
-def test_search_adapter_corpus_conformance_matrix_summarizes_all_built_in_adapters() -> None:
+def test_search_adapter_corpus_conformance_matrix_summarizes_all_built_in_adapters() -> (
+    None
+):
     matrix = build_search_adapter_corpus_conformance_matrix(_matrix_root())
 
     assert matrix.passes is True

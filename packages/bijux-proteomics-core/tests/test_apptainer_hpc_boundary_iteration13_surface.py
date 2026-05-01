@@ -10,7 +10,9 @@ from bijux_proteomics.external_exec_iteration13 import (
 )
 
 
-def test_evaluate_apptainer_hpc_boundary_refuses_when_semantics_are_incomplete() -> None:
+def test_evaluate_apptainer_hpc_boundary_refuses_when_semantics_are_incomplete() -> (
+    None
+):
     report = evaluate_apptainer_hpc_boundary(
         HpcContainerBoundaryInput(
             runtime=HpcContainerRuntime.APPTAINER,

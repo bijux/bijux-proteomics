@@ -132,13 +132,24 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_batch_effect_advisory" in bijux_proteomics.__all__
     assert "build_replicate_correlation_report" in bijux_proteomics.__all__
     assert "build_differential_abundance_report" in bijux_proteomics.__all__
-    assert "build_lfq_feature_peptide_protein_provenance_report" in bijux_proteomics.__all__
+    assert (
+        "build_lfq_feature_peptide_protein_provenance_report"
+        in bijux_proteomics.__all__
+    )
     assert "build_label_based_quant_channel_ledger" in bijux_proteomics.__all__
-    assert "build_multiplex_channel_balance_diagnostics_report" in bijux_proteomics.__all__
-    assert "build_normalization_policy_comparison_matrix_report" in bijux_proteomics.__all__
+    assert (
+        "build_multiplex_channel_balance_diagnostics_report" in bijux_proteomics.__all__
+    )
+    assert (
+        "build_normalization_policy_comparison_matrix_report"
+        in bijux_proteomics.__all__
+    )
     assert "build_protein_rollup_strategy_comparison_report" in bijux_proteomics.__all__
     assert "validate_differential_abundance_design_context" in bijux_proteomics.__all__
-    assert "build_effect_size_first_differential_abundance_report" in bijux_proteomics.__all__
+    assert (
+        "build_effect_size_first_differential_abundance_report"
+        in bijux_proteomics.__all__
+    )
     assert "build_missingness_mechanism_profile_report" in bijux_proteomics.__all__
     assert "build_replicate_and_batch_qc_report" in bijux_proteomics.__all__
     assert "build_quant_review_bundle" in bijux_proteomics.__all__
@@ -167,7 +178,10 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_ptm_site_localization_evidence_graph" in bijux_proteomics.__all__
     assert "evaluate_ptm_site_fdr_boundary" in bijux_proteomics.__all__
     assert "build_ptm_occupancy_counterpart_report" in bijux_proteomics.__all__
-    assert "build_ptm_motif_enrichment_background_provenance_report" in bijux_proteomics.__all__
+    assert (
+        "build_ptm_motif_enrichment_background_provenance_report"
+        in bijux_proteomics.__all__
+    )
     assert "build_phospho_specific_review_fixture_report" in bijux_proteomics.__all__
     assert "build_acetyl_specific_review_fixture_report" in bijux_proteomics.__all__
     assert "build_ubiquitin_remnant_workflow_report" in bijux_proteomics.__all__
@@ -316,7 +330,10 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_candidate_comparison_packet" in bijux_proteomics.__all__
     assert "run_review_board_workflow" in bijux_proteomics.__all__
     assert "build_evidence_freshness_report" in bijux_proteomics.__all__
-    assert "build_contradiction_aware_lab_recommendation_report" in bijux_proteomics.__all__
+    assert (
+        "build_contradiction_aware_lab_recommendation_report"
+        in bijux_proteomics.__all__
+    )
     assert "build_lab_cost_model_report" in bijux_proteomics.__all__
     assert "build_plate_randomization_plan" in bijux_proteomics.__all__
     assert "evaluate_validation_stage_progression_policy" in bijux_proteomics.__all__
@@ -326,7 +343,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_lims_oriented_export_bundle" in bijux_proteomics.__all__
     assert "build_assay_expected_evidence_gain_report" in bijux_proteomics.__all__
     assert "build_lab_queue_prioritization_report" in bijux_proteomics.__all__
-    assert "apply_lab_feedback_to_intelligence_prioritization" in bijux_proteomics.__all__
+    assert (
+        "apply_lab_feedback_to_intelligence_prioritization" in bijux_proteomics.__all__
+    )
     assert "build_million_psm_ingestion_benchmark_report" in bijux_proteomics.__all__
     assert "build_dense_quant_matrix_benchmark_report" in bijux_proteomics.__all__
     assert "build_large_spectra_streaming_benchmark_report" in bijux_proteomics.__all__
@@ -367,7 +386,9 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_bijux_core_integration_contract_report" in bijux_proteomics.__all__
     assert "build_agentic_proteins_migration_report" in bijux_proteomics.__all__
     assert "build_final_flagship_proteomics_demo_report" in bijux_proteomics.__all__
-    assert "build_product_simplification_by_real_usage_report" in bijux_proteomics.__all__
+    assert (
+        "build_product_simplification_by_real_usage_report" in bijux_proteomics.__all__
+    )
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__

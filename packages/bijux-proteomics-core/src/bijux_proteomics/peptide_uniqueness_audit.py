@@ -72,9 +72,8 @@ def build_peptide_uniqueness_audit_report(
             explanation = (
                 "peptide maps to multiple proteins that collapse into one protein group"
             )
-        elif (
-            entry.uniqueness is PeptideUniqueness.SHARED_ISOFORM_FAMILY
-            or (len(entry.protein_families) == 1 and len(entry.protein_accessions) > 1)
+        elif entry.uniqueness is PeptideUniqueness.SHARED_ISOFORM_FAMILY or (
+            len(entry.protein_families) == 1 and len(entry.protein_accessions) > 1
         ):
             audit_class = PeptideUniquenessAuditClass.ISOFORM_SPECIFIC
             explanation = "peptide is shared across isoforms within one protein family"

@@ -91,8 +91,12 @@ def build_redacted_collaboration_bundle(
 ) -> RedactedCollaborationBundle:
     """Redact sensitive sample/path fields while preserving provenance link structure."""
 
-    redacted_samples = tuple(f"SAMPLE_{index + 1:03d}" for index, _ in enumerate(payload.sample_ids))
-    redacted_paths = tuple(f"<redacted-path-{index + 1:03d}>" for index, _ in enumerate(payload.file_paths))
+    redacted_samples = tuple(
+        f"SAMPLE_{index + 1:03d}" for index, _ in enumerate(payload.sample_ids)
+    )
+    redacted_paths = tuple(
+        f"<redacted-path-{index + 1:03d}>" for index, _ in enumerate(payload.file_paths)
+    )
     return RedactedCollaborationBundle(
         bundle_id=payload.bundle_id,
         redacted_sample_ids=redacted_samples,
@@ -126,9 +130,21 @@ def generate_methods_section_from_workflow_evidence(
 ) -> MethodsSectionDocument:
     """Generate methods narrative from exact workflow and evidence references."""
 
-    steps = "; ".join(payload.workflow_steps) if payload.workflow_steps else "workflow steps unspecified"
-    versions = ", ".join(payload.software_versions) if payload.software_versions else "software versions unavailable"
-    refs = ", ".join(payload.evidence_refs) if payload.evidence_refs else "no evidence references"
+    steps = (
+        "; ".join(payload.workflow_steps)
+        if payload.workflow_steps
+        else "workflow steps unspecified"
+    )
+    versions = (
+        ", ".join(payload.software_versions)
+        if payload.software_versions
+        else "software versions unavailable"
+    )
+    refs = (
+        ", ".join(payload.evidence_refs)
+        if payload.evidence_refs
+        else "no evidence references"
+    )
     body = (
         f"{payload.title}: executed pipeline steps [{steps}] using software versions [{versions}]. "
         f"Evidence linkage references: [{refs}]."
@@ -161,7 +177,9 @@ def build_citation_registry_document(
 ) -> CitationRegistryDocument:
     """Attach tool/algorithm/reference/method citations to evidence pointers."""
 
-    normalized = tuple(sorted(entries, key=lambda entry: (entry.citation_kind, entry.citation_id)))
+    normalized = tuple(
+        sorted(entries, key=lambda entry: (entry.citation_kind, entry.citation_id))
+    )
     return CitationRegistryDocument(entries=normalized)
 
 
@@ -377,7 +395,7 @@ def build_signed_reviewer_bundle(
     """Sign canonical reviewer bundle content and emit deterministic signature metadata."""
 
     message = _canonical_signed_bundle_message(payload)
-    signature_hex = sha256(f"{payload.signing_secret}::{message}".encode("utf-8")).hexdigest()
+    signature_hex = sha256(f"{payload.signing_secret}::{message}".encode()).hexdigest()
     return SignedReviewerBundle(
         bundle_id=payload.bundle_id,
         manifest_entries=tuple(sorted(set(payload.manifest_entries))),
@@ -445,7 +463,9 @@ def _redact_text(value: str) -> tuple[str, int]:
     updated = value
     redactions = 0
     for pattern in _SECRET_PATTERNS:
-        updated, hits = pattern.subn(lambda match: f"{match.group(1)}=<redacted-secret>", updated)
+        updated, hits = pattern.subn(
+            lambda match: f"{match.group(1)}=<redacted-secret>", updated
+        )
         redactions += hits
     updated, path_hits = _PATH_PATTERN.subn("<redacted-path>", updated)
     redactions += path_hits

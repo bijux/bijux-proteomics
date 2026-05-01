@@ -21,7 +21,9 @@ def test_query_workflow_run_history_filters_by_status_and_artifact_role() -> Non
                 sample_id="sample-01",
                 status=WorkflowRunHistoryStatus.COMPLETED,
                 started_at_utc="2026-05-01T10:00:00Z",
-                artifacts=(WorkflowRunHistoryArtifact(artifact_id="a1", role="review_packet"),),
+                artifacts=(
+                    WorkflowRunHistoryArtifact(artifact_id="a1", role="review_packet"),
+                ),
             ),
             WorkflowRunHistoryEntry(
                 run_id="run-2",
@@ -29,7 +31,9 @@ def test_query_workflow_run_history_filters_by_status_and_artifact_role() -> Non
                 sample_id="sample-02",
                 status=WorkflowRunHistoryStatus.FAILED,
                 started_at_utc="2026-05-01T11:00:00Z",
-                artifacts=(WorkflowRunHistoryArtifact(artifact_id="a2", role="qc_report"),),
+                artifacts=(
+                    WorkflowRunHistoryArtifact(artifact_id="a2", role="qc_report"),
+                ),
             ),
         ),
         query=WorkflowRunHistoryQuery(

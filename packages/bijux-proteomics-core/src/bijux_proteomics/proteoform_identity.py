@@ -75,9 +75,7 @@ def build_proteoform_identity(
         f"{entry.site}:{entry.name}:{entry.localization_state}"
         for entry in normalized_assignments
     )
-    canonical_key = (
-        f"{normalized_sequence}::{protein_origin.strip()}::{assignment_token or 'unmodified'}"
-    )
+    canonical_key = f"{normalized_sequence}::{protein_origin.strip()}::{assignment_token or 'unmodified'}"
     return ProteoformIdentity(
         sequence=normalized_sequence,
         protein_origin=protein_origin.strip(),

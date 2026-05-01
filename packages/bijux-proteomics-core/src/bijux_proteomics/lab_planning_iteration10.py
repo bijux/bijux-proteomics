@@ -262,27 +262,29 @@ def evaluate_lab_risks(
 ) -> LabRiskAssessmentReport:
     """Evaluate assay context against risk-library conditions."""
 
-    library = risk_library if risk_library is not None else build_default_lab_risk_library()
+    library = (
+        risk_library if risk_library is not None else build_default_lab_risk_library()
+    )
     triggered: list[LabRiskRule] = []
 
     for rule in library:
         if (
-            rule.kind is LabRiskKind.INSUFFICIENT_MATERIAL
-            and context.available_material_ng < context.required_material_ng
-        ):
-            triggered.append(rule)
-        elif rule.kind is LabRiskKind.MISSING_CONTROLS and context.control_count == 0:
-            triggered.append(rule)
-        elif rule.kind is LabRiskKind.POOR_REPLICATION and context.replicate_count < 2:
-            triggered.append(rule)
-        elif (
-            rule.kind is LabRiskKind.INSTRUMENT_LIMIT
-            and context.requested_hours > context.instrument_capacity_hours
-        ):
-            triggered.append(rule)
-        elif (
-            rule.kind is LabRiskKind.AMBIGUOUS_TARGET_PEPTIDES
-            and context.ambiguous_target_peptide_count > 0
+            (
+                rule.kind is LabRiskKind.INSUFFICIENT_MATERIAL
+                and context.available_material_ng < context.required_material_ng
+            )
+            or rule.kind is LabRiskKind.MISSING_CONTROLS
+            and context.control_count == 0
+            or rule.kind is LabRiskKind.POOR_REPLICATION
+            and context.replicate_count < 2
+            or (
+                rule.kind is LabRiskKind.INSTRUMENT_LIMIT
+                and context.requested_hours > context.instrument_capacity_hours
+            )
+            or (
+                rule.kind is LabRiskKind.AMBIGUOUS_TARGET_PEPTIDES
+                and context.ambiguous_target_peptide_count > 0
+            )
         ):
             triggered.append(rule)
 
@@ -393,7 +395,9 @@ class TargetedTransitionListValidationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     valid: bool
-    issues: tuple[TargetedTransitionListValidationIssue, ...] = Field(default_factory=tuple)
+    issues: tuple[TargetedTransitionListValidationIssue, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def validate_targeted_transition_list(
@@ -419,7 +423,9 @@ def validate_targeted_transition_list(
                     transition_id=entry.transition_id,
                 )
             )
-    return TargetedTransitionListValidationReport(valid=not issues, issues=tuple(issues))
+    return TargetedTransitionListValidationReport(
+        valid=not issues, issues=tuple(issues)
+    )
 
 
 class TargetedWorkflowMethod(StrEnum):

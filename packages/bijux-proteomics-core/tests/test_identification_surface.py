@@ -7,13 +7,13 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    ConfidenceCalibrationLevel,
     FastaParseMode,
     FdrPolicy,
-    ConfidenceCalibrationLevel,
     ParsimonyVariant,
-    PtmIdentificationObservation,
     PsmRecord,
     PsmSortField,
+    PtmIdentificationObservation,
     SearchResultColumnMapping,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
@@ -21,25 +21,26 @@ from bijux_proteomics import (
     assign_confidence_labels,
     assign_level_specific_confidence_labels,
     assign_razor_peptides,
-    build_confidence_calibration_report,
     build_accepted_psm_provenance_report,
     build_calibration_plot_data,
-    build_confidence_threshold_sensitivity_report,
     build_combined_evidence_report,
+    build_confidence_calibration_report,
+    build_confidence_threshold_sensitivity_report,
     build_fdr_audit_trail,
     build_fdr_edge_case_report,
     build_grouped_confidence_report,
     build_inference_disagreement_report,
-    build_review_ready_evidence_bundle,
+    build_peptide_protein_trace_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
     build_protein_groups,
-    build_razor_peptide_provenance_report,
-    build_shared_peptide_ambiguity_report,
     build_protein_summary_report,
     build_psm_summary_report,
+    build_razor_peptide_provenance_report,
+    build_review_ready_evidence_bundle,
     build_search_result_provenance_manifest,
+    build_shared_peptide_ambiguity_report,
     calculate_grouped_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
@@ -56,16 +57,15 @@ from bijux_proteomics import (
     normalize_psm_records,
     normalize_psm_score_orientation,
     parse_fasta_document,
-    build_peptide_protein_trace_report,
     parse_psm_tsv,
     parse_target_decoy_label,
     rollup_peptide_evidence,
     rollup_protein_evidence,
     select_best_psm_per_spectrum,
     sort_psm_records,
-    validate_target_decoy_policy,
     validate_ptm_identification_confidence,
     validate_target_decoy_accession_collisions,
+    validate_target_decoy_policy,
     verify_fdr_q_value_monotonicity,
 )
 
@@ -620,26 +620,24 @@ def test_level_specific_confidence_labels_keep_evidence_levels_separate() -> Non
     assert confidence.psm_assignments
     assert confidence.peptide_assignments
     assert confidence.protein_assignments
-    assert {
-        entry.evidence_level.value for entry in confidence.psm_assignments
-    } == {"psm"}
-    assert {
-        entry.evidence_level.value for entry in confidence.peptide_assignments
-    } == {"peptide"}
-    assert {
-        entry.evidence_level.value for entry in confidence.protein_assignments
-    } == {"protein"}
+    assert {entry.evidence_level.value for entry in confidence.psm_assignments} == {
+        "psm"
+    }
+    assert {entry.evidence_level.value for entry in confidence.peptide_assignments} == {
+        "peptide"
+    }
+    assert {entry.evidence_level.value for entry in confidence.protein_assignments} == {
+        "protein"
+    }
     assert confidence.psm_assignments[0].entity_id.startswith("scan=")
-    assert "GLYGLYK" in {
-        entry.entity_id for entry in confidence.peptide_assignments
-    }
-    assert "P11111" in {
-        entry.entity_id for entry in confidence.protein_assignments
-    }
+    assert "GLYGLYK" in {entry.entity_id for entry in confidence.peptide_assignments}
+    assert "P11111" in {entry.entity_id for entry in confidence.protein_assignments}
 
 
 def test_fdr_monotonicity_verification_covers_supported_levels() -> None:
-    report = parse_psm_tsv(_psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping())
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
     monotonicity = verify_fdr_q_value_monotonicity(
         report.accepted_records,
         threshold=0.05,
@@ -773,8 +771,10 @@ def test_peptide_to_protein_trace_report_remains_stable_across_exports() -> None
         export_peptide_protein_trace_jsonl(trace, jsonl_path)
         export_peptide_protein_trace_tsv(trace, tsv_path)
         assert '"canonical_peptide":"SHAREDK"' in jsonl_path.read_text()
-        assert tsv_path.read_text().splitlines()[0].startswith(
-            "canonical_peptide\tpeptide\tspectrum_ids"
+        assert (
+            tsv_path.read_text()
+            .splitlines()[0]
+            .startswith("canonical_peptide\tpeptide\tspectrum_ids")
         )
     finally:
         jsonl_path.unlink(missing_ok=True)
@@ -793,15 +793,12 @@ def test_inference_disagreement_report_surfaces_strategy_divergence() -> None:
         entry for entry in disagreement.entries if entry.subject_id == "BRAVOK"
     )
     protein_set_entry = next(
-        entry
-        for entry in disagreement.entries
-        if entry.kind.value == "protein_set"
+        entry for entry in disagreement.entries if entry.kind.value == "protein_set"
     )
     assert peptide_entry.kind.value == "peptide_assignment"
     assert peptide_entry.strategy_assignments["razor"] == ("P20002",)
     assert (
-        peptide_entry.strategy_assignments["parsimony:greedy_coverage"][0]
-        == "P10001"
+        peptide_entry.strategy_assignments["parsimony:greedy_coverage"][0] == "P10001"
     )
     assert protein_set_entry.strategy_assignments["greedy_coverage"] == (
         "P10001",
@@ -827,9 +824,7 @@ def test_grouped_confidence_report_summarizes_indistinguishable_protein_groups()
     assert ambiguous.confidence_label.value in {"medium", "high"}
 
 
-def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -> (
-    None
-):
+def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -> None:
     invalid = validate_target_decoy_policy(
         TargetDecoyLabelPolicy(
             explicit_decoy_values=("decoy", "target"),
@@ -873,8 +868,12 @@ def test_ptm_specific_identification_confidence_validation_is_explicit() -> None
         )
     )
 
-    confident = next(entry for entry in report.entries if entry.spectrum_id == "scan=ptm-001")
-    ambiguous = next(entry for entry in report.entries if entry.spectrum_id == "scan=ptm-005")
+    confident = next(
+        entry for entry in report.entries if entry.spectrum_id == "scan=ptm-001"
+    )
+    ambiguous = next(
+        entry for entry in report.entries if entry.spectrum_id == "scan=ptm-005"
+    )
     assert confident.valid is True
     assert ambiguous.valid is True
     assert {issue.code for issue in ambiguous.issues} == {
@@ -997,13 +996,18 @@ def test_grouped_and_picked_fdr_regression_fixture_covers_realistic_edge_cases()
         "P44444",
         "DECOY_P55555",
     }
-    assert next(entry for entry in picked if entry.protein_ref == "P11111").partner_ref == (
-        "DECOY_P11111"
-    )
     assert next(
-        entry for entry in picked if entry.protein_ref == "DECOY_P55555"
-    ).partner_ref == "P55555"
-    assert [entry.q_value for entry in picked] == sorted(entry.q_value for entry in picked)
+        entry for entry in picked if entry.protein_ref == "P11111"
+    ).partner_ref == ("DECOY_P11111")
+    assert (
+        next(
+            entry for entry in picked if entry.protein_ref == "DECOY_P55555"
+        ).partner_ref
+        == "P55555"
+    )
+    assert [entry.q_value for entry in picked] == sorted(
+        entry.q_value for entry in picked
+    )
 
 
 def test_confidence_threshold_sensitivity_report_tracks_incremental_acceptance() -> (
@@ -1021,9 +1025,12 @@ def test_confidence_threshold_sensitivity_report_tracks_incremental_acceptance()
 
     assert sensitivity.thresholds == (0.001, 0.01, 0.05, 0.1)
     assert [entry.accepted_psm_count for entry in sensitivity.entries] == [5, 5, 5, 5]
-    assert [
-        entry.accepted_picked_protein_count for entry in sensitivity.entries
-    ] == [4, 4, 4, 4]
+    assert [entry.accepted_picked_protein_count for entry in sensitivity.entries] == [
+        4,
+        4,
+        4,
+        4,
+    ]
     assert sensitivity.entries[0].newly_accepted_psm_ids == (
         "scan=8001",
         "scan=8002",
@@ -1037,9 +1044,7 @@ def test_confidence_threshold_sensitivity_report_tracks_incremental_acceptance()
         "P33333",
         "P44444",
     )
-    assert all(
-        not entry.newly_accepted_psm_ids for entry in sensitivity.entries[1:]
-    )
+    assert all(not entry.newly_accepted_psm_ids for entry in sensitivity.entries[1:])
 
 
 def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> (

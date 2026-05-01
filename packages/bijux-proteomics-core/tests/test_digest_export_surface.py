@@ -167,11 +167,15 @@ def test_digest_repeatability_fixture_produces_identical_peptide_and_manifest_ou
         input_record_count=report.total_records,
     )
 
-    assert [peptide.to_dict() for peptide in left] == [peptide.to_dict() for peptide in right]
+    assert [peptide.to_dict() for peptide in left] == [
+        peptide.to_dict() for peptide in right
+    ]
     assert peptide_export_fingerprint(left) == peptide_export_fingerprint(right)
     assert left_manifest.policy_hash == right_manifest.policy_hash
     assert left_manifest.output_sha256 == right_manifest.output_sha256
-    assert left_manifest.digest_policy.to_dict() == right_manifest.digest_policy.to_dict()
+    assert (
+        left_manifest.digest_policy.to_dict() == right_manifest.digest_policy.to_dict()
+    )
 
 
 def test_digest_benchmark_report_exposes_rate_metrics() -> None:

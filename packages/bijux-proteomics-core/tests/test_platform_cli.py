@@ -147,7 +147,10 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
             decoy_manifest["document_schema"]["document_kind"]
             == "decoy_generation_manifest"
         )
-        assert decoy_manifest["reproducibility_hash"] == decoy_payload["reproducibility_hash"]
+        assert (
+            decoy_manifest["reproducibility_hash"]
+            == decoy_payload["reproducibility_hash"]
+        )
 
 
 def test_sequence_checksum_and_target_decoy_validate_commands(

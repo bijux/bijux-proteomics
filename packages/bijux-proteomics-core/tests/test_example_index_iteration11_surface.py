@@ -9,7 +9,9 @@ from bijux_proteomics.corpus_iteration11 import (
 )
 
 
-def test_build_example_index_by_scientific_question_sorts_by_question_and_workflow() -> None:
+def test_build_example_index_by_scientific_question_sorts_by_question_and_workflow() -> (
+    None
+):
     index = build_example_index_by_scientific_question(
         (
             ScientificQuestionExampleIndexEntry(

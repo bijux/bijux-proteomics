@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 from bijux_proteomics.review_iteration09 import (
+    ReviewerChallengeEntry,
     ReviewPacketDecisionEntry,
     ReviewPacketEvidenceEntry,
-    ReviewerChallengeEntry,
     build_review_packet_schema,
     run_reviewer_challenge_workflow,
 )

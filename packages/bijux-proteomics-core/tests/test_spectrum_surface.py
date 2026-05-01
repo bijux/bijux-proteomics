@@ -9,6 +9,8 @@ from pathlib import Path
 from bijux_proteomics import (
     PeakNormalizationPolicy,
     SpectralSimilarityMethod,
+    SpectrumModel,
+    SpectrumPeak,
     SpectrumSimilarityMode,
     annotate_spectrum_fragments,
     build_annotated_spectrum_bundle,
@@ -17,21 +19,19 @@ from bijux_proteomics import (
     build_spectrum_metrics,
     build_spectrum_plot_payload,
     build_spectrum_provenance_manifest,
+    calculate_fragment_ions,
     calculate_precursor_mass_error,
     calculate_spectral_similarity,
     detect_precursor_isotope_offset_advisory,
-    export_spectrum_annotation_tsv,
     export_annotated_spectrum_bundle,
+    export_spectrum_annotation_tsv,
     filter_spectrum_peaks,
     lookup_spectra,
-    normalize_spectrum_scan_key,
     normalize_spectrum_peaks,
+    normalize_spectrum_scan_key,
     parse_mgf,
     parse_mzml,
     render_mgf,
-    calculate_fragment_ions,
-    SpectrumModel,
-    SpectrumPeak,
 )
 
 
@@ -190,25 +190,24 @@ def test_spectrum_metrics_cover_tic_and_base_peak() -> None:
     assert metrics.base_peak_intensity == 100.0
 
 
-def test_spectrum_lookup_index_supports_native_title_scan_number_and_scan_key() -> (
-    None
-):
+def test_spectrum_lookup_index_supports_native_title_scan_number_and_scan_key() -> None:
     mgf_report = parse_mgf(_spectrum_fixture("dialect_cases.mgf"))
-    mzml_spectrum = (
-        parse_mzml(_format_fixture("hierarchy.mzml")).accepted_spectra[0]
-    )
-    index = build_spectrum_lookup_index(
-        mgf_report.accepted_spectra + (mzml_spectrum,)
-    )
+    mzml_spectrum = parse_mzml(_format_fixture("hierarchy.mzml")).accepted_spectra[0]
+    index = build_spectrum_lookup_index(mgf_report.accepted_spectra + (mzml_spectrum,))
 
     by_native = lookup_spectra(index, native_id="scan=9002")
     by_title = lookup_spectra(index, title="weird=title=with=equals")
     by_scan_number = lookup_spectra(index, scan_number=8101)
-    by_scan_key = lookup_spectra(index, scan_key="controllerType=0 controllerNumber=1 scan=8101")
+    by_scan_key = lookup_spectra(
+        index, scan_key="controllerType=0 controllerNumber=1 scan=8101"
+    )
 
     assert by_native[0].title == "weird=title=with=equals"
     assert by_title[0].spectrum_id == "scan=9002"
-    assert by_scan_number[0].parent_spectrum_id == "controllerType=0 controllerNumber=1 scan=8100"
+    assert (
+        by_scan_number[0].parent_spectrum_id
+        == "controllerType=0 controllerNumber=1 scan=8100"
+    )
     assert by_scan_key[0].product_isolation_mz == 175.1
     assert normalize_spectrum_scan_key(by_scan_key[0]) == "scan:8101"
 
@@ -384,7 +383,9 @@ def test_annotated_spectrum_bundle_exports_raw_and_theoretical_evidence() -> Non
     try:
         export_annotated_spectrum_bundle(bundle, output_path)
         payload = json.loads(output_path.read_text())
-        assert payload["document_schema"]["document_kind"] == "annotated_spectrum_bundle"
+        assert (
+            payload["document_schema"]["document_kind"] == "annotated_spectrum_bundle"
+        )
         assert payload["annotation"]["matches"]
         assert payload["theoretical_fragments"]
     finally:

@@ -3,10 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.dia_iteration12 import compare_library_and_database_search_evidence
+from bijux_proteomics.dia_iteration12 import (
+    compare_library_and_database_search_evidence,
+)
 
 
-def test_compare_library_and_database_search_evidence_reports_preferred_source() -> None:
+def test_compare_library_and_database_search_evidence_reports_preferred_source() -> (
+    None
+):
     report = compare_library_and_database_search_evidence(
         library_q_values={"PEPTIDEK": 0.01, "ACDMPEP": 0.03},
         database_q_values={"PEPTIDEK": 0.02, "ACDMPEP": 0.01},

@@ -154,7 +154,9 @@ def build_plate_randomization_plan(
         rng.shuffle(ordered)
     else:
         grouped: dict[str, list[str]] = {}
-        for sample_id, block in zip(request.sample_ids, request.block_labels, strict=False):
+        for sample_id, block in zip(
+            request.sample_ids, request.block_labels, strict=False
+        ):
             grouped.setdefault(block, []).append(sample_id)
         block_keys = sorted(grouped)
         rng.shuffle(block_keys)
@@ -634,7 +636,9 @@ class IntelligenceFeedbackReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    adjustments: tuple[IntelligenceFeedbackAdjustment, ...] = Field(default_factory=tuple)
+    adjustments: tuple[IntelligenceFeedbackAdjustment, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def apply_lab_feedback_to_intelligence_prioritization(

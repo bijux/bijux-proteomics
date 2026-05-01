@@ -129,9 +129,9 @@ from bijux_proteomics.search_adapters import (
 )
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
-    build_decoy_generation_manifest,
     FastaParseMode,
     FastaParseReport,
+    build_decoy_generation_manifest,
     build_fasta_provenance_manifest,
     build_fasta_stats,
     deduplicate_fasta_records,

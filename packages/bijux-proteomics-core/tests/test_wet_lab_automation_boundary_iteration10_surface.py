@@ -9,7 +9,9 @@ from bijux_proteomics.lab_planning_iteration10 import (
 )
 
 
-def test_enforce_wet_lab_automation_boundary_refuses_execution_without_adapter_proof() -> None:
+def test_enforce_wet_lab_automation_boundary_refuses_execution_without_adapter_proof() -> (
+    None
+):
     report = enforce_wet_lab_automation_boundary(
         WetLabAutomationBoundaryInput(
             planning_payload_id="plan-10",

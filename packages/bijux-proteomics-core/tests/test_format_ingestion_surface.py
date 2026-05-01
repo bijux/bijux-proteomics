@@ -61,7 +61,9 @@ def test_mzml_scan_hierarchy_preserves_precursor_and_product_relationships() -> 
     assert spectrum.native_id == "controllerType=0 controllerNumber=1 scan=8101"
     assert spectrum.scan_number == 8101
     assert spectrum.ms_level == 2
-    assert spectrum.parent_spectrum_id == "controllerType=0 controllerNumber=1 scan=8100"
+    assert (
+        spectrum.parent_spectrum_id == "controllerType=0 controllerNumber=1 scan=8100"
+    )
     assert spectrum.product_isolation_mz == 175.1
 
 
@@ -84,9 +86,7 @@ def test_mzml_validation_catches_binary_array_length_mismatches() -> None:
     }
 
 
-def test_mzml_validation_rejects_unsupported_binary_compression_and_precision() -> (
-    None
-):
+def test_mzml_validation_rejects_unsupported_binary_compression_and_precision() -> None:
     numpress_report = parse_mzml(_format_fixture("unsupported_numpress.mzml"))
     numpress_validation = validate_proteomics_input(
         _format_fixture("unsupported_numpress.mzml"),
@@ -161,9 +161,10 @@ def test_design_table_parser_rejects_partial_multiplex_semantics() -> None:
 
     assert not report.accepted_entries
     assert len(report.rejected_rows) == 1
-    assert "multiplex_group and multiplex_channel" in report.rejected_rows[0].issues[
-        0
-    ].message
+    assert (
+        "multiplex_group and multiplex_channel"
+        in report.rejected_rows[0].issues[0].message
+    )
 
 
 def test_unsupported_format_diagnostic_reports_detection_failure_reasons() -> None:

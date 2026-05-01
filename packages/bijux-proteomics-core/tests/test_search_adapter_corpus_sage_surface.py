@@ -12,12 +12,7 @@ from bijux_proteomics.search_adapters import (
 
 
 def _corpus_root() -> Path:
-    return (
-        Path(__file__).parent
-        / "fixtures"
-        / "search_adapter_corpora"
-        / "sage"
-    )
+    return Path(__file__).parent / "fixtures" / "search_adapter_corpora" / "sage"
 
 
 def test_sage_output_corpus_report_covers_native_and_pipeline_exports() -> None:

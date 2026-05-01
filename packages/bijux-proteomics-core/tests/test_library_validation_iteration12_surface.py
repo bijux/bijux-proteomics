@@ -9,7 +9,9 @@ from bijux_proteomics.dia_iteration12 import (
 )
 
 
-def test_validate_spectral_library_identity_entries_reports_duplicates_and_missing_decoys() -> None:
+def test_validate_spectral_library_identity_entries_reports_duplicates_and_missing_decoys() -> (
+    None
+):
     report = validate_spectral_library_identity_entries(
         (
             SpectralLibraryIdentityEntry(

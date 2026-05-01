@@ -48,10 +48,14 @@ def build_enzyme_rule_provenance(
     notes: list[str] = []
     support_state = EnzymeRuleSupportState.SUPPORTED
     if digestion_mode is PeptideDigestionMode.SEMI_SPECIFIC:
-        notes.append("semi-specific digestion is advisory for strict cross-protease comparability")
+        notes.append(
+            "semi-specific digestion is advisory for strict cross-protease comparability"
+        )
         support_state = EnzymeRuleSupportState.ADVISORY
     if digestion_mode is PeptideDigestionMode.NON_SPECIFIC:
-        notes.append("non-specific digestion is exploratory and should remain separated from enzyme-specific evidence")
+        notes.append(
+            "non-specific digestion is exploratory and should remain separated from enzyme-specific evidence"
+        )
         support_state = EnzymeRuleSupportState.ADVISORY
     if unsupported_reason:
         notes.append(unsupported_reason)

@@ -13,12 +13,7 @@ from bijux_proteomics.search_adapters import (
 
 
 def _corpus_fixture(*parts: str) -> Path:
-    return (
-        Path(__file__).parent
-        / "fixtures"
-        / "search_adapter_corpora"
-        / Path(*parts)
-    )
+    return Path(__file__).parent / "fixtures" / "search_adapter_corpora" / Path(*parts)
 
 
 def test_maxquant_parameter_parser_extracts_core_provenance_fields() -> None:

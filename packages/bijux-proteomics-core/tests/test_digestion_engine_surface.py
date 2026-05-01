@@ -93,7 +93,9 @@ def test_digest_sequence_supports_bounded_non_specific_mode() -> None:
 
 
 def test_digest_sequence_matches_curated_protease_reference_cases() -> None:
-    fixture = json.loads(_digestion_fixture("protease_reference_cases.json").read_text())
+    fixture = json.loads(
+        _digestion_fixture("protease_reference_cases.json").read_text()
+    )
 
     for case in fixture:
         peptides = digest_sequence(

@@ -9,7 +9,9 @@ from bijux_proteomics.runtime_iteration07 import (
 )
 
 
-def test_run_knowledge_review_workflow_end_to_end_tracks_ranking_and_contradictions() -> None:
+def test_run_knowledge_review_workflow_end_to_end_tracks_ranking_and_contradictions() -> (
+    None
+):
     evidence = (
         KnowledgeEvidenceInput(
             evidence_id="E1",

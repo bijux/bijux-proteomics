@@ -9,7 +9,9 @@ from bijux_proteomics.scale_iteration17 import (
 )
 
 
-def test_build_workflow_startup_benchmark_report_identifies_startup_bottleneck() -> None:
+def test_build_workflow_startup_benchmark_report_identifies_startup_bottleneck() -> (
+    None
+):
     report = build_workflow_startup_benchmark_report(
         WorkflowStartupBenchmarkInput(
             workflow_id="wf-dda-main",

@@ -18,19 +18,19 @@ from bijux_proteomics import (
     MissingChannelPolicy,
     MissingDataMechanism,
     MissingDataMechanismReport,
-    MultiplexNormalizationPolicy,
     MissingValueCorrectionPolicy,
     MissingValueSummaryPolicy,
     MultiplexChannelBalanceReport,
+    MultiplexNormalizationPolicy,
     NormalizationMethod,
     NormalizationStrategyComparisonReport,
     ProteinQuantAssignmentPolicy,
     ProteinQuantPolicyComparisonReport,
-    QuantReproducibilityManifest,
     QuantArtifactBundle,
-    QuantEntityLevel,
-    QuantRollupMethod,
     QuantAssessmentDisposition,
+    QuantEntityLevel,
+    QuantReproducibilityManifest,
+    QuantRollupMethod,
     StudyScaleBatchEffectReport,
     StudyScaleReplicateCorrelationReport,
     apply_benjamini_hochberg,
@@ -45,19 +45,19 @@ from bijux_proteomics import (
     build_normalization_strategy_comparison_report,
     build_protein_quant_policy_comparison_report,
     build_protein_quant_rollup_evidence,
-    build_quant_matrix_export,
     build_quant_artifact_bundle,
+    build_quant_matrix_export,
     build_quant_reproducibility_manifest,
     build_replicate_correlation_report,
     build_spectral_count_table,
     build_study_scale_batch_effect_report,
     build_study_scale_replicate_correlation_report,
     export_label_free_provenance_bundle,
-    export_quant_matrix_tsv,
     export_quant_artifact_bundle,
+    export_quant_matrix_tsv,
     export_quant_reproducibility_manifest,
-    normalize_multiplex_quant_table,
     normalize_label_free_table,
+    normalize_multiplex_quant_table,
     parse_experimental_design_table,
     parse_ms1_feature_table,
     summarize_missing_values,
@@ -209,7 +209,9 @@ def test_protein_quant_rollup_evidence_lists_contributing_features_and_peptides(
     )
 
     entry = next(
-        entry for entry in evidence if entry.protein_ref == "P001" and entry.sample_id == "C1"
+        entry
+        for entry in evidence
+        if entry.protein_ref == "P001" and entry.sample_id == "C1"
     )
     assert entry.abundance == 1900.0
     assert entry.contributing_feature_ids == ("f001", "f002")
@@ -234,7 +236,9 @@ def test_label_free_provenance_bundle_preserves_feature_and_peptide_lineage() ->
         if entry.canonical_peptide == "APEPTIDE" and entry.sample_id == "C1"
     )
     protein = next(
-        entry for entry in bundle.protein_entries if entry.protein_ref == "P001" and entry.sample_id == "C1"
+        entry
+        for entry in bundle.protein_entries
+        if entry.protein_ref == "P001" and entry.sample_id == "C1"
     )
     assert peptide.contributing_feature_ids == ("f001",)
     assert protein.contributing_feature_ids == ("f001", "f002")
@@ -395,8 +399,12 @@ def test_differential_abundance_respects_minimum_replicate_policy() -> None:
 def test_label_based_quant_bundle_preserves_channel_roles_and_missing_channel_policy() -> (
     None
 ):
-    feature_report = parse_ms1_feature_table(_quant_fixture("multiplex_ms1_features.tsv"))
-    design_report = parse_experimental_design_table(_quant_fixture("multiplex.design.tsv"))
+    feature_report = parse_ms1_feature_table(
+        _quant_fixture("multiplex_ms1_features.tsv")
+    )
+    design_report = parse_experimental_design_table(
+        _quant_fixture("multiplex.design.tsv")
+    )
     table = build_label_free_intensity_table(
         feature_report.accepted_records,
         entity_level=QuantEntityLevel.PROTEIN,
@@ -468,8 +476,12 @@ def test_label_based_quant_bundle_preserves_channel_roles_and_missing_channel_po
 
 
 def test_multiplex_normalization_and_channel_balance_follow_group_policy() -> None:
-    feature_report = parse_ms1_feature_table(_quant_fixture("multiplex_ms1_features.tsv"))
-    design_report = parse_experimental_design_table(_quant_fixture("multiplex.design.tsv"))
+    feature_report = parse_ms1_feature_table(
+        _quant_fixture("multiplex_ms1_features.tsv")
+    )
+    design_report = parse_experimental_design_table(
+        _quant_fixture("multiplex.design.tsv")
+    )
     table = build_label_free_intensity_table(
         feature_report.accepted_records,
         entity_level=QuantEntityLevel.PROTEIN,
@@ -500,14 +512,10 @@ def test_multiplex_normalization_and_channel_balance_follow_group_policy() -> No
     ]
     assert min(plex_a_values) > 0.0
     carrier = next(
-        entry
-        for entry in balance.entries
-        if entry.sample_id == "plex_a_128N"
+        entry for entry in balance.entries if entry.sample_id == "plex_a_128N"
     )
     control = next(
-        entry
-        for entry in balance.entries
-        if entry.sample_id == "plex_a_126"
+        entry for entry in balance.entries if entry.sample_id == "plex_a_126"
     )
     assert carrier.flagged is True
     assert carrier.channel_role is LabelBasedChannelRole.REFERENCE
@@ -543,7 +551,9 @@ def test_study_scale_quant_reports_summarize_large_designs_compactly() -> None:
     feature_report = parse_ms1_feature_table(
         _quant_fixture("study_scale_ms1_features.tsv")
     )
-    design_report = parse_experimental_design_table(_quant_fixture("study_scale.design.tsv"))
+    design_report = parse_experimental_design_table(
+        _quant_fixture("study_scale.design.tsv")
+    )
     table = build_label_free_intensity_table(
         feature_report.accepted_records,
         entity_level=QuantEntityLevel.PROTEIN,
@@ -692,8 +702,12 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (
     None
 ):
-    feature_report = parse_ms1_feature_table(_quant_fixture("edge_case_ms1_features.tsv"))
-    design_report = parse_experimental_design_table(_quant_fixture("edge_case.design.tsv"))
+    feature_report = parse_ms1_feature_table(
+        _quant_fixture("edge_case_ms1_features.tsv")
+    )
+    design_report = parse_experimental_design_table(
+        _quant_fixture("edge_case.design.tsv")
+    )
     peptide_table = build_label_free_intensity_table(
         feature_report.accepted_records,
         entity_level=QuantEntityLevel.PEPTIDE,
@@ -706,22 +720,30 @@ def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_r
 
     assert feature_report.total_rows == 20
     assert len(feature_report.accepted_records) == 20
-    assert len(
-        [
-            entry
-            for entry in design_report.accepted_entries
-            if entry.condition == "control"
-        ]
-    ) == 3
-    assert len(
-        [
-            entry
-            for entry in design_report.accepted_entries
-            if entry.condition == "treatment"
-        ]
-    ) == 2
+    assert (
+        len(
+            [
+                entry
+                for entry in design_report.accepted_entries
+                if entry.condition == "control"
+            ]
+        )
+        == 3
+    )
+    assert (
+        len(
+            [
+                entry
+                for entry in design_report.accepted_entries
+                if entry.condition == "treatment"
+            ]
+        )
+        == 2
+    )
     assert lookup[("SPARSEPEP", "T1")].abundance == 400.0
-    assert lookup[("SPARSEPEP", "C1")].missing_value_kind.value == "missing_not_observed"
+    assert (
+        lookup[("SPARSEPEP", "C1")].missing_value_kind.value == "missing_not_observed"
+    )
     assert lookup[("FILTERPEP", "C1")].missing_value_kind.value == "filtered"
     assert lookup[("ZEROPEP", "C1")].missing_value_kind.value == "zero"
     assert summary_lookup["C1"].filtered_count == 1
@@ -744,7 +766,9 @@ def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_r
 def test_missing_value_summary_policy_applies_deterministic_correction_and_filtering() -> (
     None
 ):
-    feature_report = parse_ms1_feature_table(_quant_fixture("edge_case_ms1_features.tsv"))
+    feature_report = parse_ms1_feature_table(
+        _quant_fixture("edge_case_ms1_features.tsv")
+    )
     peptide_table = build_label_free_intensity_table(
         feature_report.accepted_records,
         entity_level=QuantEntityLevel.PEPTIDE,

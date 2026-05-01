@@ -14,7 +14,9 @@ def test_run_hostile_input_protection_refuses_unsafe_inputs() -> None:
         HostileInputProtectionInput(
             archive_members=("../secrets.env", "raw/unsafe;name.tsv"),
             record_sizes_bytes=(12, 8_000_001),
-            xml_payloads=("<!DOCTYPE data [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]>",),
+            xml_payloads=(
+                "<!DOCTYPE data [<!ENTITY xxe SYSTEM 'file:///etc/passwd'>]>",
+            ),
             table_rows=("id\tvalue", "a\tb\tc"),
             max_record_size_bytes=1_000_000,
         )

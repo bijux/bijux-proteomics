@@ -12,12 +12,7 @@ from bijux_proteomics.search_adapters import (
 
 
 def _corpus_root() -> Path:
-    return (
-        Path(__file__).parent
-        / "fixtures"
-        / "search_adapter_corpora"
-        / "diann"
-    )
+    return Path(__file__).parent / "fixtures" / "search_adapter_corpora" / "diann"
 
 
 def test_diann_output_corpus_report_covers_native_and_pipeline_exports() -> None:
@@ -35,8 +30,5 @@ def test_diann_output_corpus_report_covers_native_and_pipeline_exports() -> None
     for entry in report.entries:
         assert entry.source_sha256
         assert entry.config_sha256
-        assert any(
-            column in entry.mapped_columns
-            for column in ("Q.Value", "qvalue")
-        )
+        assert any(column in entry.mapped_columns for column in ("Q.Value", "qvalue"))
         assert entry.unsupported_columns == ()

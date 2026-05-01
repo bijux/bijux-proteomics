@@ -83,7 +83,11 @@ def validate_advanced_modified_peptide_conflicts(
 
     assignments_by_site = defaultdict(list)
     for modification in peptide.modifications:
-        site_key = (modification.site.value, modification.site_index, modification.residue)
+        site_key = (
+            modification.site.value,
+            modification.site_index,
+            modification.residue,
+        )
         assignments_by_site[site_key].append(modification)
     for site_modifications in assignments_by_site.values():
         if len(site_modifications) < 2:

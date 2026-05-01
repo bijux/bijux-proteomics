@@ -9,7 +9,9 @@ from bijux_proteomics.external_exec_iteration13 import (
 )
 
 
-def test_run_environment_qa_for_proteomics_workflows_reports_missing_readiness_inputs() -> None:
+def test_run_environment_qa_for_proteomics_workflows_reports_missing_readiness_inputs() -> (
+    None
+):
     report = run_environment_qa_for_proteomics_workflows(
         EnvironmentQaSnapshot(
             python_version="3.12.2",

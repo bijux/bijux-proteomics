@@ -9,7 +9,9 @@ from bijux_proteomics.corpus_iteration11 import (
 )
 
 
-def test_build_known_mixture_mini_study_bundle_keeps_truth_boundaries_explicit() -> None:
+def test_build_known_mixture_mini_study_bundle_keeps_truth_boundaries_explicit() -> (
+    None
+):
     bundle = build_known_mixture_mini_study_bundle(
         study_id="mix-mini-01",
         mixture_asset_path="inputs/mixture.mzml",

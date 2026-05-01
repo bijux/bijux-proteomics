@@ -31,7 +31,9 @@ def test_build_dia_native_data_model_counts_and_sorts_entities() -> None:
             ),
         ),
         fragments=(
-            DiaNativeFragment(precursor_id="p1", fragment_id="y7", mz=712.3, intensity=500.0),
+            DiaNativeFragment(
+                precursor_id="p1", fragment_id="y7", mz=712.3, intensity=500.0
+            ),
         ),
         protein_groups=(
             DiaNativeProteinGroupQuantity(

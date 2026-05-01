@@ -3,7 +3,10 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.formats import ExperimentalDesignEntry, ExperimentalDesignSampleRole
+from bijux_proteomics.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
 from bijux_proteomics.quantification import (
     LabelBasedChannelPolicyEntry,
     LabelBasedChannelRole,
@@ -71,7 +74,9 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def test_multiplex_channel_balance_diagnostics_report_flags_imbalance_and_caveats() -> None:
+def test_multiplex_channel_balance_diagnostics_report_flags_imbalance_and_caveats() -> (
+    None
+):
     table = build_label_free_intensity_table(
         _records(),
         entity_level=QuantEntityLevel.PEPTIDE,

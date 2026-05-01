@@ -10,7 +10,9 @@ from bijux_proteomics.lab_planning_iteration10 import (
 )
 
 
-def test_evaluate_targeted_workflow_boundary_refuses_when_required_assumptions_missing() -> None:
+def test_evaluate_targeted_workflow_boundary_refuses_when_required_assumptions_missing() -> (
+    None
+):
     report = evaluate_targeted_workflow_boundary(
         TargetedWorkflowBoundaryInput(
             method=TargetedWorkflowMethod.PRM,

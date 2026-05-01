@@ -8,7 +8,9 @@ from pathlib import Path
 from bijux_proteomics.runtime_iteration07 import run_local_external_tool
 
 
-def test_run_local_external_tool_executes_and_validates_artifact(tmp_path: Path) -> None:
+def test_run_local_external_tool_executes_and_validates_artifact(
+    tmp_path: Path,
+) -> None:
     artifact = tmp_path / "tool-output.txt"
     report = run_local_external_tool(
         command=("sh", "-c", f"printf 'ok' > {artifact}"),

@@ -17,6 +17,9 @@ def test_build_pathway_network_caution_report_refuses_mechanistic_overreach() ->
         claims_mechanistic_truth=True,
     )
 
-    assert report.interpretation_state is PathwayInterpretationState.MECHANISTIC_CLAIM_REFUSED
+    assert (
+        report.interpretation_state
+        is PathwayInterpretationState.MECHANISTIC_CLAIM_REFUSED
+    )
     codes = {issue.code for issue in report.issue_list}
     assert "mechanistic_overreach" in codes

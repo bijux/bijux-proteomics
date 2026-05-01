@@ -602,7 +602,9 @@ def build_spectrum_lookup_index(
     normalized_spectra = tuple(sorted(spectra, key=lambda item: item.spectrum_id))
     for spectrum in normalized_spectra:
         if spectrum.native_id:
-            native_id_index.setdefault(spectrum.native_id, []).append(spectrum.spectrum_id)
+            native_id_index.setdefault(spectrum.native_id, []).append(
+                spectrum.spectrum_id
+            )
         if spectrum.title:
             title_index.setdefault(spectrum.title, []).append(spectrum.spectrum_id)
         if spectrum.scan_number is not None:
@@ -636,9 +638,10 @@ def lookup_spectra(
     scan_key: str | None = None,
 ) -> tuple[SpectrumModel, ...]:
     """Look up spectra by one stable key family."""
-    if sum(
-        query is not None for query in (native_id, title, scan_number, scan_key)
-    ) != 1:
+    if (
+        sum(query is not None for query in (native_id, title, scan_number, scan_key))
+        != 1
+    ):
         raise ValueError(
             "exactly one of native_id, title, scan_number, or scan_key must be provided"
         )
@@ -864,14 +867,12 @@ def detect_precursor_isotope_offset_advisory(
             expected_mz=theoretical_mz + (isotope_delta * offset),
             delta_da=observed_mz - (theoretical_mz + (isotope_delta * offset)),
             delta_ppm=(
-                (
-                    observed_mz - (theoretical_mz + (isotope_delta * offset))
-                )
+                (observed_mz - (theoretical_mz + (isotope_delta * offset)))
                 / (theoretical_mz + (isotope_delta * offset))
             )
             * 1_000_000.0,
         )
-        for offset in range(0, max_offset + 1)
+        for offset in range(max_offset + 1)
     )
     ranked = tuple(
         sorted(
@@ -1062,9 +1063,9 @@ def annotate_spectrum_fragments(
                 )
             )
         for peak in candidate_peaks:
-            candidate_fragments_by_peak.setdefault((peak.mz, peak.intensity), []).append(
-                fragment_label
-            )
+            candidate_fragments_by_peak.setdefault(
+                (peak.mz, peak.intensity), []
+            ).append(fragment_label)
         best_peak: SpectrumPeak | None = None
         best_error: float | None = None
         for peak in spectrum.peaks:

@@ -68,7 +68,9 @@ class TheoreticalFragmentValidationReport(JsonModel):
     case_count: int = Field(..., ge=0)
     entry_count: int = Field(..., ge=0)
     failed_entry_count: int = Field(..., ge=0)
-    entries: tuple[TheoreticalFragmentValidationEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[TheoreticalFragmentValidationEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def validate_theoretical_fragment_reference_cases(

@@ -18,7 +18,9 @@ def _fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "search_adapters" / name
 
 
-def test_external_engine_disagreement_report_detects_missing_and_peptide_conflicts() -> None:
+def test_external_engine_disagreement_report_detects_missing_and_peptide_conflicts() -> (
+    None
+):
     comet = normalize_search_results_with_adapter(
         source_path=_fixture("comet_merge.tsv"),
         adapter_kind=SearchAdapterKind.COMET,

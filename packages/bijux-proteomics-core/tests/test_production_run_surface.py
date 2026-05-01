@@ -14,6 +14,7 @@ from bijux_proteomics import (
     QuantEntityLevel,
     QuantRollupMethod,
     SearchResultColumnMapping,
+    WorkflowTemplateKind,
     build_label_free_intensity_table,
     build_lcms_run_qc_report,
     build_performance_snapshot,
@@ -30,7 +31,6 @@ from bijux_proteomics import (
     parse_mgf,
     parse_ms1_feature_table,
     parse_psm_tsv,
-    WorkflowTemplateKind,
 )
 
 
@@ -163,7 +163,9 @@ def test_production_run_builds_qc_manifest_and_benchmark_artifacts() -> None:
     assert manifest.benchmark_sha256
 
 
-def test_production_run_workflow_fixtures_validate_imported_and_external_paths() -> None:
+def test_production_run_workflow_fixtures_validate_imported_and_external_paths() -> (
+    None
+):
     expectations = json.loads(
         _fixture("workflow_end_to_end_expectations.json").read_text(encoding="utf-8")
     )
@@ -208,14 +210,18 @@ def test_production_run_workflow_fixtures_validate_imported_and_external_paths()
     external_expected = expectations["external_search_lfq_review"]
 
     assert imported_manifest.execution_mode.value == imported_expected["execution_mode"]
-    assert [step.kind.value for step in imported_manifest.steps] == imported_expected["step_kinds"]
-    assert sorted({step.scientific_surface.value for step in imported_blueprint.steps}) == sorted(
-        imported_expected["scientific_surfaces"]
-    )
+    assert [step.kind.value for step in imported_manifest.steps] == imported_expected[
+        "step_kinds"
+    ]
+    assert sorted(
+        {step.scientific_surface.value for step in imported_blueprint.steps}
+    ) == sorted(imported_expected["scientific_surfaces"])
     assert imported_validation.valid is True
 
     assert external_manifest.execution_mode.value == external_expected["execution_mode"]
-    assert [step.kind.value for step in external_manifest.steps] == external_expected["step_kinds"]
-    assert sorted({step.scientific_surface.value for step in external_blueprint.steps}) == sorted(
-        external_expected["scientific_surfaces"]
-    )
+    assert [step.kind.value for step in external_manifest.steps] == external_expected[
+        "step_kinds"
+    ]
+    assert sorted(
+        {step.scientific_surface.value for step in external_blueprint.steps}
+    ) == sorted(external_expected["scientific_surfaces"])

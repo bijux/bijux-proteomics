@@ -39,5 +39,7 @@ def test_validate_advanced_modified_peptide_conflicts_rejects_terminal_collision
     report = validate_advanced_modified_peptide_conflicts(peptide)
 
     assert report.valid is False
-    assert any(issue.code == "multiple_n_terminal_modifications" for issue in report.issues)
+    assert any(
+        issue.code == "multiple_n_terminal_modifications" for issue in report.issues
+    )
     assert any(issue.code == "terminal_label_collision" for issue in report.issues)

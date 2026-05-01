@@ -3,10 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab_planning_iteration10 import build_capacity_model_with_uncertainty
+from bijux_proteomics.lab_planning_iteration10 import (
+    build_capacity_model_with_uncertainty,
+)
 
 
-def test_build_capacity_model_with_uncertainty_marks_constrained_when_overbooked() -> None:
+def test_build_capacity_model_with_uncertainty_marks_constrained_when_overbooked() -> (
+    None
+):
     model = build_capacity_model_with_uncertainty(
         instrument_hours_available=12.0,
         instrument_hours_required=14.0,

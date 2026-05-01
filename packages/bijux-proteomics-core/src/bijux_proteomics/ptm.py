@@ -679,7 +679,9 @@ def build_ptm_site_group_evidence(
     grouped: dict[tuple[str, str, tuple[int, ...]], list[PtmSiteEntry]] = {}
     for entry in site_entries:
         candidate_positions = (
-            entry.candidate_positions if entry.candidate_positions else (entry.position,)
+            entry.candidate_positions
+            if entry.candidate_positions
+            else (entry.position,)
         )
         grouped.setdefault(
             (entry.protein_ref, entry.modification_name, candidate_positions),
@@ -690,7 +692,9 @@ def build_ptm_site_group_evidence(
     for (protein_ref, modification_name, candidate_positions), bucket in sorted(
         grouped.items()
     ):
-        unresolved = len(candidate_positions) > 1 or any(entry.ambiguous for entry in bucket)
+        unresolved = len(candidate_positions) > 1 or any(
+            entry.ambiguous for entry in bucket
+        )
         positions_token = "|".join(str(position) for position in candidate_positions)
         note = (
             "site evidence remains unresolved across multiple candidate positions"
@@ -774,9 +778,7 @@ def validate_ptm_site_coordinates(
     issues: list[PtmCoordinateValidationIssue] = []
     for mapping in mappings:
         sequence = protein_sequences.get(mapping.protein_ref)
-        site_key = (
-            f"{mapping.protein_ref}:{mapping.residue}{mapping.protein_position}:{mapping.modification_name}"
-        )
+        site_key = f"{mapping.protein_ref}:{mapping.residue}{mapping.protein_position}:{mapping.modification_name}"
         if sequence is None:
             issues.append(
                 PtmCoordinateValidationIssue(
@@ -986,9 +988,11 @@ def build_ptm_motif_background_report(
         if entry.modification_name == modification_name
         and entry.target_decoy_label is not TargetDecoyLabel.DECOY
     )
-    target_residues = tuple(
-        sorted({entry.residue for entry in relevant_entries})
-    ) or ("S", "T", "Y")
+    target_residues = tuple(sorted({entry.residue for entry in relevant_entries})) or (
+        "S",
+        "T",
+        "Y",
+    )
     foreground_counts = {
         residue: sum(1 for entry in relevant_entries if entry.residue == residue)
         for residue in target_residues

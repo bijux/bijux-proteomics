@@ -44,7 +44,9 @@ def _records() -> tuple[PsmRecord, ...]:
     )
 
 
-def test_empirical_score_calibration_report_tracks_bins_and_top_fraction_behavior() -> None:
+def test_empirical_score_calibration_report_tracks_bins_and_top_fraction_behavior() -> (
+    None
+):
     report = build_empirical_score_calibration_report(
         _records(),
         score_orientation="higher_better",

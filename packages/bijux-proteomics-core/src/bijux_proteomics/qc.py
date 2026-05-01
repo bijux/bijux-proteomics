@@ -235,7 +235,7 @@ class QcMetricAssessment(JsonModel):
     severity: QcAssessmentSeverity
     disposition: QcAssessmentDisposition
     threshold_rule: QcThresholdRule | None = None
-    provenance: "QcAssessmentProvenance | None" = None
+    provenance: QcAssessmentProvenance | None = None
     unknown_state_reason: QcUnknownStateReason | None = None
     message: str = Field(..., min_length=1)
     enforced_violation: bool = False
@@ -462,7 +462,9 @@ class StudyQcSummaryReport(JsonModel):
     document_schema: DocumentSchema
     study_id: str = Field(..., min_length=1)
     run_count: int = Field(..., ge=0)
-    condition_summaries: tuple[StudyQcConditionSummary, ...] = Field(default_factory=tuple)
+    condition_summaries: tuple[StudyQcConditionSummary, ...] = Field(
+        default_factory=tuple
+    )
     batch_summaries: tuple[StudyQcBatchSummary, ...] = Field(default_factory=tuple)
     overall_identification_rate_span: float = Field(..., ge=0.0)
     overall_spectrum_count_span: float = Field(..., ge=0.0)
@@ -575,10 +577,13 @@ def _build_quant_summary(
         float(value.abundance)
         for value in sample_values
         if value.abundance is not None
-        and value.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+        and value.missing_value_kind
+        in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
     ]
     zero_count = sum(
-        1 for value in sample_values if value.missing_value_kind is MissingValueKind.ZERO
+        1
+        for value in sample_values
+        if value.missing_value_kind is MissingValueKind.ZERO
     )
     filtered_count = sum(
         1
@@ -593,7 +598,8 @@ def _build_quant_summary(
     observed_count = sum(
         1
         for value in sample_values
-        if value.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+        if value.missing_value_kind
+        in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
     )
     total_count = len(sample_values)
     return QcQuantSummary(
@@ -606,7 +612,9 @@ def _build_quant_summary(
         total_entity_count=total_count,
         observed_fraction=_fraction(observed_count, total_count),
         missing_fraction=_fraction(filtered_count + not_observed_count, total_count),
-        median_observed_abundance=None if not observed_values else median(observed_values),
+        median_observed_abundance=None
+        if not observed_values
+        else median(observed_values),
         normalization_method=table.normalization_method.value,
     )
 
@@ -901,7 +909,8 @@ def build_run_qc_assessment(
     advisory_failure_metric_keys = tuple(
         assessment.metric_key
         for assessment in assessments
-        if assessment.severity in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
+        if assessment.severity
+        in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
         and assessment.disposition is QcAssessmentDisposition.ADVISORY
     )
     enforced_failure_metric_keys = tuple(
@@ -996,13 +1005,12 @@ def build_batch_qc_assessment(
         )
         for rule in rules
     )
-    threshold_profile = build_qc_threshold_profile(
-        batch_policy
-    )
+    threshold_profile = build_qc_threshold_profile(batch_policy)
     advisory_failure_metric_keys = tuple(
         assessment.metric_key
         for assessment in assessments
-        if assessment.severity in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
+        if assessment.severity
+        in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
         and assessment.disposition is QcAssessmentDisposition.ADVISORY
     )
     enforced_failure_metric_keys = tuple(
@@ -1118,9 +1126,8 @@ def build_qc_publication_decision(
     blocking_metric_keys = sorted(set(blocking_metric_keys))
     advisory_metric_keys = sorted(set(advisory_metric_keys))
     if blocking_metric_keys:
-        reason = (
-            "mandatory qc gates failed for metrics: "
-            + ", ".join(blocking_metric_keys)
+        reason = "mandatory qc gates failed for metrics: " + ", ".join(
+            blocking_metric_keys
         )
         return QcPublicationDecision(
             run_id=run_assessment.run_id,
@@ -1761,7 +1768,9 @@ def build_study_qc_summary(
             ),
             outlier_run_ids=tuple(
                 sorted(
-                    build_instrument_batch_qc_report(tuple(reports), batch_id=batch_id).outlier_run_ids
+                    build_instrument_batch_qc_report(
+                        tuple(reports), batch_id=batch_id
+                    ).outlier_run_ids
                 )
             ),
         )
@@ -1776,6 +1785,7 @@ def build_study_qc_summary(
         run_count=len(run_reports),
         condition_summaries=condition_summaries,
         batch_summaries=batch_summaries,
-        overall_identification_rate_span=max(identification_rates) - min(identification_rates),
+        overall_identification_rate_span=max(identification_rates)
+        - min(identification_rates),
         overall_spectrum_count_span=max(spectrum_counts) - min(spectrum_counts),
     )

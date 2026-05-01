@@ -48,7 +48,9 @@ def test_psm_peptide_protein_trace_bundle_keeps_hash_and_counts() -> None:
     assert len(bundle.trace_hash) == 64
 
 
-def test_export_psm_peptide_protein_trace_bundle_writes_json_payload(tmp_path: Path) -> None:
+def test_export_psm_peptide_protein_trace_bundle_writes_json_payload(
+    tmp_path: Path,
+) -> None:
     bundle = build_psm_peptide_protein_trace_bundle(_records())
     destination = tmp_path / "trace_bundle.json"
 

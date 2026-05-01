@@ -12,12 +12,7 @@ from bijux_proteomics.search_adapters import (
 
 
 def _corpus_root() -> Path:
-    return (
-        Path(__file__).parent
-        / "fixtures"
-        / "search_adapter_corpora"
-        / "comet"
-    )
+    return Path(__file__).parent / "fixtures" / "search_adapter_corpora" / "comet"
 
 
 def test_comet_output_corpus_report_covers_native_and_pipeline_exports() -> None:
@@ -36,7 +31,6 @@ def test_comet_output_corpus_report_covers_native_and_pipeline_exports() -> None
         assert entry.source_sha256
         assert entry.config_sha256
         assert any(
-            column in entry.mapped_columns
-            for column in ("expect", "expectation_value")
+            column in entry.mapped_columns for column in ("expect", "expectation_value")
         )
         assert entry.unsupported_columns == ()

@@ -65,7 +65,9 @@ def build_docker_image_descriptor(
         image_digest=image_digest,
         run_as_user=run_as_user,
         workdir=workdir,
-        mounts=tuple(sorted(mounts, key=lambda mount: (mount.host_path, mount.container_path))),
+        mounts=tuple(
+            sorted(mounts, key=lambda mount: (mount.host_path, mount.container_path))
+        ),
         network_mode=network_mode,
         cpu_limit=cpu_limit,
         memory_gb_limit=memory_gb_limit,
@@ -236,7 +238,8 @@ def export_slurm_job_script(payload: SlurmJobScriptInput) -> SlurmJobScriptExpor
     """Generate Slurm script with resources, logs, scratch, env, and artifact paths."""
 
     env_lines = "\n".join(
-        f"export {key}={value}" for key, value in sorted(payload.environment_exports.items())
+        f"export {key}={value}"
+        for key, value in sorted(payload.environment_exports.items())
     )
     script = (
         "#!/bin/bash\n"
@@ -246,7 +249,7 @@ def export_slurm_job_script(payload: SlurmJobScriptInput) -> SlurmJobScriptExpor
         f"#SBATCH --mem={payload.memory_gb}G\n"
         f"#SBATCH --output={payload.log_path}\n"
         f"SCRATCH_DIR={payload.scratch_dir}\n"
-        "mkdir -p \"$SCRATCH_DIR\"\n"
+        'mkdir -p "$SCRATCH_DIR"\n'
         f"mkdir -p {payload.artifact_dir}\n"
         f"{env_lines}\n"
         f"{payload.command}\n"
@@ -300,19 +303,27 @@ def run_mocked_slurm_lifecycle(
         raise ValueError("mocked Slurm outcome must be succeeded, failed, or canceled")
 
     events = [
-        SlurmLifecycleEvent(state=SlurmLifecycleState.SUBMITTED, detail="job submitted"),
+        SlurmLifecycleEvent(
+            state=SlurmLifecycleState.SUBMITTED, detail="job submitted"
+        ),
         SlurmLifecycleEvent(state=SlurmLifecycleState.RUNNING, detail="job is running"),
     ]
 
     if outcome is SlurmLifecycleState.SUCCEEDED:
         events.append(
-            SlurmLifecycleEvent(state=SlurmLifecycleState.SUCCEEDED, detail="job completed")
+            SlurmLifecycleEvent(
+                state=SlurmLifecycleState.SUCCEEDED, detail="job completed"
+            )
         )
     elif outcome is SlurmLifecycleState.FAILED:
-        events.append(SlurmLifecycleEvent(state=SlurmLifecycleState.FAILED, detail="job failed"))
+        events.append(
+            SlurmLifecycleEvent(state=SlurmLifecycleState.FAILED, detail="job failed")
+        )
     else:
         events.append(
-            SlurmLifecycleEvent(state=SlurmLifecycleState.CANCELED, detail="job canceled")
+            SlurmLifecycleEvent(
+                state=SlurmLifecycleState.CANCELED, detail="job canceled"
+            )
         )
 
     return SlurmLifecycleReport(
@@ -437,7 +448,9 @@ def build_provider_capability_registry(
     """Record local/remote/model/tool provider capabilities and support state."""
 
     return ProviderCapabilityRegistry(
-        entries=tuple(sorted(entries, key=lambda entry: (entry.provider_type, entry.provider_id)))
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.provider_type, entry.provider_id))
+        )
     )
 
 

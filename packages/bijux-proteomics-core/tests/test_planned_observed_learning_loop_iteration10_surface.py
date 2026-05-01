@@ -12,7 +12,9 @@ from bijux_proteomics.lab_planning_iteration10 import (
 )
 
 
-def test_apply_planned_observed_learning_loop_updates_scores_and_keeps_history_locked() -> None:
+def test_apply_planned_observed_learning_loop_updates_scores_and_keeps_history_locked() -> (
+    None
+):
     report = apply_planned_observed_learning_loop(
         planned=(
             PlannedRecommendation(

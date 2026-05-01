@@ -50,7 +50,9 @@ def test_library_search_confidence_boundary_classifies_supported_families() -> N
     assert report.classified_families["dia-a"] is ConfidenceResultFamily.DIA_LIBRARY
 
 
-def test_library_search_confidence_boundary_refuses_incompatible_family_mixtures() -> None:
+def test_library_search_confidence_boundary_refuses_incompatible_family_mixtures() -> (
+    None
+):
     report = evaluate_library_search_confidence_boundary(
         (
             LibrarySearchConfidenceBoundaryInput(

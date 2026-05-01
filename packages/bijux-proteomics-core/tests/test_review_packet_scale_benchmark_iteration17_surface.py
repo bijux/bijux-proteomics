@@ -9,7 +9,9 @@ from bijux_proteomics.scale_iteration17 import (
 )
 
 
-def test_build_review_packet_scale_benchmark_report_reports_navigation_bottleneck() -> None:
+def test_build_review_packet_scale_benchmark_report_reports_navigation_bottleneck() -> (
+    None
+):
     report = build_review_packet_scale_benchmark_report(
         ReviewPacketScaleBenchmarkInput(
             candidate_count=5000,

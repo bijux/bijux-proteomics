@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.external_exec_iteration13 import build_external_search_execution_contract
+from bijux_proteomics.external_exec_iteration13 import (
+    build_external_search_execution_contract,
+)
 
 
 def test_build_external_search_execution_contract_tracks_command_context() -> None:

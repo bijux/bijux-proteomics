@@ -20,4 +20,7 @@ def test_route_runtime_execution_api_exposes_artifact_and_route_pointer() -> Non
 
     assert response.schema_ref == "api.runtime-execution.route.v1"
     assert response.route_pointer == "runtime/artifacts/run-001"
-    assert response.artifact_pointer == "artifacts/runtime/workflow.dda-import/run-001.json"
+    assert (
+        response.artifact_pointer
+        == "artifacts/runtime/workflow.dda-import/run-001.json"
+    )

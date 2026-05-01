@@ -805,7 +805,9 @@ def compute_decoy_generation_reproducibility_hash(
             for record in records
         ],
     }
-    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True).encode("utf-8")
+    ).hexdigest()
 
 
 def build_decoy_generation_manifest(

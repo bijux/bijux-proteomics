@@ -11,7 +11,9 @@ from bijux_proteomics.runtime_iteration14 import (
 )
 
 
-def test_plan_partial_workflow_rerun_expands_dependencies_and_preserves_evidence() -> None:
+def test_plan_partial_workflow_rerun_expands_dependencies_and_preserves_evidence() -> (
+    None
+):
     plan = plan_partial_workflow_rerun(
         request=PartialWorkflowRerunRequest(
             prior_run_id="run-1",

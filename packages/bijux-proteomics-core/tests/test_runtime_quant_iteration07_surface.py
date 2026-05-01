@@ -15,7 +15,9 @@ def _fixture_path(name: str) -> Path:
 
 
 def test_run_quant_workflow_end_to_end_builds_review_bundle_runtime_report() -> None:
-    features = parse_ms1_feature_table(_fixture_path("ptm_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
     design_entries = (
         ExperimentalDesignEntry(
             sample_id="C1",

@@ -9,7 +9,9 @@ from bijux_proteomics.scale_iteration17 import (
 )
 
 
-def test_build_dense_quant_matrix_benchmark_report_tracks_cells_and_bottleneck() -> None:
+def test_build_dense_quant_matrix_benchmark_report_tracks_cells_and_bottleneck() -> (
+    None
+):
     report = build_dense_quant_matrix_benchmark_report(
         DenseQuantMatrixBenchmarkInput(
             matrix_rows=40_000,

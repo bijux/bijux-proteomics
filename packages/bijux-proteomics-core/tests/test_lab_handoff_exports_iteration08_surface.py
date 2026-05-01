@@ -38,8 +38,11 @@ def test_build_lab_handoff_export_bundle_renders_json_and_tsv_labels() -> None:
         ),
     )
 
-    assert "\"label\":\"advisory\"" in bundle.request_json
-    assert "sample_id\treplicate_id\twell_position\tcontrol\trandomized\tlabel" in bundle.plate_layout_tsv
+    assert '"label":"advisory"' in bundle.request_json
+    assert (
+        "sample_id\treplicate_id\twell_position\tcontrol\trandomized\tlabel"
+        in bundle.plate_layout_tsv
+    )
     assert "\texecutable" in bundle.plate_layout_tsv
     assert bundle.advisory_label == "advisory"
     assert bundle.executable_label == "executable"

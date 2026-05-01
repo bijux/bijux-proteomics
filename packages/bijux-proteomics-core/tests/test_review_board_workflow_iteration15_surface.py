@@ -15,7 +15,9 @@ def test_run_review_board_workflow_tracks_disagreement_and_follow_up() -> None:
     report = run_review_board_workflow(
         board_id="rb-1",
         agenda=(
-            ReviewBoardAgendaEntry(candidate_id="cand-1", agenda_reason="top ranked target"),
+            ReviewBoardAgendaEntry(
+                candidate_id="cand-1", agenda_reason="top ranked target"
+            ),
         ),
         votes=(
             ReviewBoardVoteEntry(

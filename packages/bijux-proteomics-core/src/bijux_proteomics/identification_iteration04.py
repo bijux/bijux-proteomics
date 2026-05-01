@@ -5,17 +5,17 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 import hashlib
 import json
-from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import (
+    ConfidenceLabel,
     ParsimonyVariant,
     PsmRecord,
-    ConfidenceLabel,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     assign_razor_peptides,
@@ -72,7 +72,9 @@ class TargetDecoyStrategyRegistry(JsonModel):
     reproducibility_hash: str = Field(..., min_length=64, max_length=64)
 
 
-def _default_target_decoy_strategy_definitions() -> tuple[TargetDecoyStrategyDefinition, ...]:
+def _default_target_decoy_strategy_definitions() -> tuple[
+    TargetDecoyStrategyDefinition, ...
+]:
     return (
         TargetDecoyStrategyDefinition(
             strategy_kind=TargetDecoyStrategyKind.CONCATENATED,
@@ -169,7 +171,9 @@ def build_target_decoy_strategy_registry(
     }
     for entry in custom_entries:
         entries_by_kind[entry.strategy_kind] = entry
-    entries = tuple(sorted(entries_by_kind.values(), key=lambda entry: entry.strategy_kind.value))
+    entries = tuple(
+        sorted(entries_by_kind.values(), key=lambda entry: entry.strategy_kind.value)
+    )
     payload = [entry.to_dict() for entry in entries]
     reproducibility_hash = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -263,13 +267,9 @@ def build_empirical_score_calibration_report(
     if not top_ranked:
         advisory = "no records are available for empirical calibration"
     elif top_decoys == 0:
-        advisory = (
-            "top-ranked evidence is target-dominant; retain calibration snapshots to verify stability across runs"
-        )
+        advisory = "top-ranked evidence is target-dominant; retain calibration snapshots to verify stability across runs"
     else:
-        advisory = (
-            "top-ranked evidence includes decoys; confidence cutoffs should be reviewed before biological promotion"
-        )
+        advisory = "top-ranked evidence includes decoys; confidence cutoffs should be reviewed before biological promotion"
     return EmpiricalScoreCalibrationReport(
         score_orientation=score_orientation,
         total_records=total,
@@ -348,12 +348,7 @@ def compare_protein_inference_strategies(
         )
     )
     razor = tuple(
-        sorted(
-            {
-                entry.assigned_protein
-                for entry in assign_razor_peptides(records)
-            }
-        )
+        sorted({entry.assigned_protein for entry in assign_razor_peptides(records)})
     )
     picked = tuple(
         sorted(
@@ -363,12 +358,15 @@ def compare_protein_inference_strategies(
                     records,
                     threshold=picked_threshold,
                 )
-                if entry.accepted and entry.target_decoy_label is not TargetDecoyLabel.DECOY
+                if entry.accepted
+                and entry.target_decoy_label is not TargetDecoyLabel.DECOY
             }
         )
     )
     grouped = tuple(
-        sorted({group.representative_protein for group in build_protein_groups(records)})
+        sorted(
+            {group.representative_protein for group in build_protein_groups(records)}
+        )
     )
     conservative = tuple(
         sorted(
@@ -430,7 +428,9 @@ def compare_protein_inference_strategies(
                     shared_proteins=tuple(sorted(intersection)),
                     left_only_proteins=tuple(sorted(left_set - right_set)),
                     right_only_proteins=tuple(sorted(right_set - left_set)),
-                    jaccard_similarity=(len(intersection) / len(union)) if union else 1.0,
+                    jaccard_similarity=(len(intersection) / len(union))
+                    if union
+                    else 1.0,
                 )
             )
     return ProteinInferenceStrategyComparisonReport(
@@ -468,9 +468,7 @@ def build_psm_peptide_protein_trace_bundle(
     }
     peptides = {row["canonical_peptide"] for row in trace_rows}
     proteins = {
-        protein
-        for row in trace_rows
-        for protein in row.get("protein_refs", ())
+        protein for row in trace_rows for protein in row.get("protein_refs", ())
     }
     return PsmPeptideProteinTraceBundle(
         trace_entry_count=len(trace_rows),
@@ -553,12 +551,8 @@ def build_confidence_threshold_sensitivity_bundle(
                 accepted_peptide_count=len(accepted_peptides),
                 accepted_protein_count=len(accepted_proteins),
                 newly_accepted_psm_count=len(accepted_psms - previous_psm_ids),
-                newly_accepted_peptide_count=len(
-                    accepted_peptides - previous_peptides
-                ),
-                newly_accepted_protein_count=len(
-                    accepted_proteins - previous_proteins
-                ),
+                newly_accepted_peptide_count=len(accepted_peptides - previous_peptides),
+                newly_accepted_protein_count=len(accepted_proteins - previous_proteins),
             )
         )
         previous_psm_ids = accepted_psms
@@ -668,11 +662,7 @@ def validate_custom_decoy_strategy(
     """Validate custom decoy strategy and collision risks prior to FDR use."""
     sample_refs = tuple(
         sorted(
-            {
-                protein_ref
-                for record in records
-                for protein_ref in record.protein_refs
-            }
+            {protein_ref for record in records for protein_ref in record.protein_refs}
         )
     )
     sample_labels = tuple(
@@ -703,17 +693,11 @@ def validate_custom_decoy_strategy(
     )
     valid = (not fatal_policy_issue) and collisions.valid
     if valid:
-        risk_summary = (
-            "custom decoy policy is internally consistent and no accession collisions were detected"
-        )
+        risk_summary = "custom decoy policy is internally consistent and no accession collisions were detected"
     elif collision_accessions or "shared_base_accession_pairs" in issue_codes:
-        risk_summary = (
-            "custom decoy construction yields target-decoy accession collisions that must be resolved before FDR"
-        )
+        risk_summary = "custom decoy construction yields target-decoy accession collisions that must be resolved before FDR"
     else:
-        risk_summary = (
-            "custom decoy policy has validation issues that should be resolved before confidence thresholds are applied"
-        )
+        risk_summary = "custom decoy policy has validation issues that should be resolved before confidence thresholds are applied"
     return CustomDecoyValidationReport(
         valid=valid,
         policy_issue_codes=issue_codes,
@@ -760,7 +744,9 @@ class LibrarySearchConfidenceBoundaryReport(JsonModel):
 
     classified_families: dict[str, ConfidenceResultFamily] = Field(default_factory=dict)
     compatible: bool
-    issues: tuple[LibrarySearchConfidenceBoundaryIssue, ...] = Field(default_factory=tuple)
+    issues: tuple[LibrarySearchConfidenceBoundaryIssue, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def _classify_confidence_result_family(
@@ -808,17 +794,24 @@ def evaluate_library_search_confidence_boundary(
         )
     for descriptor in descriptors:
         family = classified[descriptor.run_id]
-        if family is ConfidenceResultFamily.DATABASE_DDA and not descriptor.has_target_decoy:
+        if (
+            family is ConfidenceResultFamily.DATABASE_DDA
+            and not descriptor.has_target_decoy
+        ):
             issues.append(
                 LibrarySearchConfidenceBoundaryIssue(
                     code="dda_missing_target_decoy",
                     message=f"run {descriptor.run_id} is classified as database DDA but lacks target-decoy evidence",
                 )
             )
-        if family in {
-            ConfidenceResultFamily.SPECTRAL_LIBRARY,
-            ConfidenceResultFamily.DIA_LIBRARY,
-        } and not descriptor.has_library_scores:
+        if (
+            family
+            in {
+                ConfidenceResultFamily.SPECTRAL_LIBRARY,
+                ConfidenceResultFamily.DIA_LIBRARY,
+            }
+            and not descriptor.has_library_scores
+        ):
             issues.append(
                 LibrarySearchConfidenceBoundaryIssue(
                     code="library_missing_library_scores",
@@ -898,7 +891,8 @@ def build_dia_native_fdr_model_report(
         accepted_precursors = {
             entry.psm.spectrum_id
             for entry in precursor
-            if entry.accepted and entry.psm.target_decoy_label is not TargetDecoyLabel.DECOY
+            if entry.accepted
+            and entry.psm.target_decoy_label is not TargetDecoyLabel.DECOY
         }
         level = calculate_level_specific_fdr(
             records,
@@ -916,7 +910,9 @@ def build_dia_native_fdr_model_report(
             if entry.accepted and entry.target_decoy_label is not TargetDecoyLabel.DECOY
         }
         library_entries = {
-            "|".join(record.protein_refs) if record.protein_refs else record.canonical_peptide
+            "|".join(record.protein_refs)
+            if record.protein_refs
+            else record.canonical_peptide
             for record in records
             if record.target_decoy_label is not TargetDecoyLabel.DECOY
             and (record.q_value is None or record.q_value <= threshold)
@@ -998,17 +994,13 @@ def build_inference_disagreement_review_packet(
         for comparison in strategy_report.comparisons
     )
     if not entries and strategy_overlap_alert_count == 0:
-        recommendation = (
-            "inference strategies are consistent; proceed with standard review gate checks"
-        )
-    elif any(entry.severity is InferenceDisagreementSeverity.BLOCKING for entry in entries):
-        recommendation = (
-            "blocking inference disagreements were detected; require strategy adjudication before release"
-        )
+        recommendation = "inference strategies are consistent; proceed with standard review gate checks"
+    elif any(
+        entry.severity is InferenceDisagreementSeverity.BLOCKING for entry in entries
+    ):
+        recommendation = "blocking inference disagreements were detected; require strategy adjudication before release"
     else:
-        recommendation = (
-            "review warnings were detected; include disagreement rationale in the evidence handoff"
-        )
+        recommendation = "review warnings were detected; include disagreement rationale in the evidence handoff"
     return InferenceDisagreementReviewPacket(
         entry_count=len(entries),
         blocking_count=sum(
@@ -1016,8 +1008,7 @@ def build_inference_disagreement_review_packet(
             for entry in entries
         ),
         warning_count=sum(
-            entry.severity is InferenceDisagreementSeverity.WARNING
-            for entry in entries
+            entry.severity is InferenceDisagreementSeverity.WARNING for entry in entries
         ),
         strategy_overlap_alert_count=strategy_overlap_alert_count,
         entries=tuple(entries),

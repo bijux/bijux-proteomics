@@ -38,8 +38,12 @@ def test_query_evidence_graph_filters_nodes_and_connecting_edges() -> None:
         ),
     )
     edges = (
-        EvidenceGraphEdge(source_node_id="n1", target_node_id="n2", relation="supports"),
-        EvidenceGraphEdge(source_node_id="n1", target_node_id="n3", relation="competes"),
+        EvidenceGraphEdge(
+            source_node_id="n1", target_node_id="n2", relation="supports"
+        ),
+        EvidenceGraphEdge(
+            source_node_id="n1", target_node_id="n3", relation="competes"
+        ),
     )
 
     result = query_evidence_graph(

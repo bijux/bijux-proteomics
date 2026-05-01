@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 from enum import StrEnum
-import json
 
 from pydantic import ConfigDict, Field
 
@@ -62,8 +61,12 @@ class DiaNativeDataModel(JsonModel):
 
     precursors: tuple[DiaNativePrecursor, ...] = Field(default_factory=tuple)
     fragments: tuple[DiaNativeFragment, ...] = Field(default_factory=tuple)
-    protein_groups: tuple[DiaNativeProteinGroupQuantity, ...] = Field(default_factory=tuple)
-    library_refs: tuple[DiaNativeLibraryEntryReference, ...] = Field(default_factory=tuple)
+    protein_groups: tuple[DiaNativeProteinGroupQuantity, ...] = Field(
+        default_factory=tuple
+    )
+    library_refs: tuple[DiaNativeLibraryEntryReference, ...] = Field(
+        default_factory=tuple
+    )
     precursor_count: int = Field(..., ge=0)
     fragment_count: int = Field(..., ge=0)
     protein_group_count: int = Field(..., ge=0)
@@ -83,8 +86,12 @@ def build_dia_native_data_model(
         fragments=tuple(
             sorted(fragments, key=lambda entry: (entry.precursor_id, entry.fragment_id))
         ),
-        protein_groups=tuple(sorted(protein_groups, key=lambda entry: entry.protein_group_id)),
-        library_refs=tuple(sorted(library_refs, key=lambda entry: entry.library_entry_id)),
+        protein_groups=tuple(
+            sorted(protein_groups, key=lambda entry: entry.protein_group_id)
+        ),
+        library_refs=tuple(
+            sorted(library_refs, key=lambda entry: entry.library_entry_id)
+        ),
         precursor_count=len(precursors),
         fragment_count=len(fragments),
         protein_group_count=len(protein_groups),
@@ -232,8 +239,12 @@ def import_dia_nn_rows(
     protein_quantity: dict[str, float] = {}
     protein_q: dict[str, float] = {}
     for row in rows:
-        protein_quantity[row.protein_group_id] = protein_quantity.get(row.protein_group_id, 0.0) + row.quantity
-        protein_q[row.protein_group_id] = min(protein_q.get(row.protein_group_id, 1.0), row.q_value)
+        protein_quantity[row.protein_group_id] = (
+            protein_quantity.get(row.protein_group_id, 0.0) + row.quantity
+        )
+        protein_q[row.protein_group_id] = min(
+            protein_q.get(row.protein_group_id, 1.0), row.q_value
+        )
 
     proteins = [
         DiaNativeProteinGroupQuantity(
@@ -245,7 +256,9 @@ def import_dia_nn_rows(
     ]
 
     return DiaNnImportReport(
-        imported_precursors=tuple(sorted(precursors, key=lambda entry: entry.precursor_id)),
+        imported_precursors=tuple(
+            sorted(precursors, key=lambda entry: entry.precursor_id)
+        ),
         imported_protein_groups=tuple(proteins),
         imported_count=len(rows),
     )
@@ -285,7 +298,11 @@ def compare_library_and_database_search_evidence(
         library_q = library_q_values[peptide]
         database_q = database_q_values[peptide]
         preferred = "library" if library_q <= database_q else "database"
-        note = "library evidence is stronger" if preferred == "library" else "database evidence is stronger"
+        note = (
+            "library evidence is stronger"
+            if preferred == "library"
+            else "database evidence is stronger"
+        )
         entries.append(
             LibrarySearchComparisonEntry(
                 peptide_sequence=peptide,
@@ -342,7 +359,14 @@ def build_dia_quant_missingness_report(
         counts[entry.reason.value] = counts.get(entry.reason.value, 0) + 1
     return DiaQuantMissingnessReport(
         entries=tuple(
-            sorted(entries, key=lambda entry: (entry.run_id, entry.protein_group_id, entry.precursor_id))
+            sorted(
+                entries,
+                key=lambda entry: (
+                    entry.run_id,
+                    entry.protein_group_id,
+                    entry.precursor_id,
+                ),
+            )
         ),
         reason_counts=dict(sorted(counts.items())),
     )
@@ -376,7 +400,9 @@ def build_dia_ion_mobility_evidence_report(
     """Preserve ion mobility/CCS fields and whether they were used in evidence."""
 
     return DiaIonMobilityEvidenceReport(
-        entries=tuple(sorted(entries, key=lambda entry: (entry.run_id, entry.precursor_id))),
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.run_id, entry.precursor_id))
+        ),
         used_count=sum(1 for entry in entries if entry.evidence_used),
     )
 
@@ -486,7 +512,9 @@ def export_transition_list_candidates(
                 entry.caveat,
             )
         )
-        for entry in sorted(entries, key=lambda entry: (entry.candidate_id, entry.transition_label))
+        for entry in sorted(
+            entries, key=lambda entry: (entry.candidate_id, entry.transition_label)
+        )
     ]
     payload = "\n".join([header, *rows]) + ("\n" if rows else "")
     return TransitionListExportBundle(tsv_payload=payload, row_count=len(entries))
@@ -528,7 +556,13 @@ def build_dia_capability_matrix(
 
     return DiaCapabilityMatrixReport(
         entries=tuple(sorted(entries, key=lambda entry: entry.surface)),
-        supported_count=sum(1 for entry in entries if entry.status is DiaCapabilityStatus.SUPPORTED),
-        partial_count=sum(1 for entry in entries if entry.status is DiaCapabilityStatus.PARTIAL),
-        unsupported_count=sum(1 for entry in entries if entry.status is DiaCapabilityStatus.UNSUPPORTED),
+        supported_count=sum(
+            1 for entry in entries if entry.status is DiaCapabilityStatus.SUPPORTED
+        ),
+        partial_count=sum(
+            1 for entry in entries if entry.status is DiaCapabilityStatus.PARTIAL
+        ),
+        unsupported_count=sum(
+            1 for entry in entries if entry.status is DiaCapabilityStatus.UNSUPPORTED
+        ),
     )

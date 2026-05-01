@@ -8,7 +8,9 @@ from pathlib import Path
 from bijux_proteomics.study_metadata_iteration08 import parse_study_design_table
 
 
-def test_parse_study_design_table_accepts_valid_rows_and_rejects_invalid(tmp_path: Path) -> None:
+def test_parse_study_design_table_accepts_valid_rows_and_rejects_invalid(
+    tmp_path: Path,
+) -> None:
     table = tmp_path / "design.tsv"
     table.write_text(
         "study_id\tcohort_id\tcondition_id\tsample_id\treplicate_id\tfraction_id\tinstrument_id\trun_id\tbatch_id\n"

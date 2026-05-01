@@ -10,7 +10,9 @@ from bijux_proteomics.protein_family_evidence_graph import (
 )
 
 
-def test_build_protein_family_evidence_graph_links_peptides_proteins_and_families() -> None:
+def test_build_protein_family_evidence_graph_links_peptides_proteins_and_families() -> (
+    None
+):
     graph = build_protein_family_evidence_graph(
         (
             PeptideProteinIndexEntry(
@@ -31,8 +33,12 @@ def test_build_protein_family_evidence_graph_links_peptides_proteins_and_familie
         homolog_pairs=(("P002", "P003"),),
     )
 
-    assert any(node.kind is ProteinFamilyEvidenceNodeKind.PEPTIDE for node in graph.nodes)
-    assert any(node.kind is ProteinFamilyEvidenceNodeKind.PROTEIN for node in graph.nodes)
+    assert any(
+        node.kind is ProteinFamilyEvidenceNodeKind.PEPTIDE for node in graph.nodes
+    )
+    assert any(
+        node.kind is ProteinFamilyEvidenceNodeKind.PROTEIN for node in graph.nodes
+    )
     assert any(
         edge.relation == "member_of_family"
         and edge.source_node_id == "protein:P001"

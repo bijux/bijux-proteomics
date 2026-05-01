@@ -46,12 +46,10 @@ def build_package_level_example_workflow_catalog(
     """Verify every required package exposes at least one example workflow."""
 
     normalized = tuple(sorted(entries, key=lambda entry: entry.package_name))
-    available = {
-        entry.package_name
-        for entry in normalized
-        if entry.workflow_ids
-    }
-    missing = tuple(package for package in required_packages if package not in available)
+    available = {entry.package_name for entry in normalized if entry.workflow_ids}
+    missing = tuple(
+        package for package in required_packages if package not in available
+    )
     return PackageLevelExampleWorkflowCatalog(
         required_packages=required_packages,
         entries=normalized,
@@ -61,7 +59,7 @@ def build_package_level_example_workflow_catalog(
 
 
 class CliWorkflowCommandEntry(JsonModel):
-    """One CLI command mapped to a workflow-oriented surface.""" 
+    """One CLI command mapped to a workflow-oriented surface."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -145,9 +143,7 @@ def route_review_packet_api(
             )
         )
     if payload.operation == "export":
-        result_pointer = (
-            f"review/export/{payload.packet_id}.{payload.export_format}"
-        )
+        result_pointer = f"review/export/{payload.packet_id}.{payload.export_format}"
     return ReviewPacketRouteResponse(
         operation=payload.operation,
         packet_id=payload.packet_id,
@@ -164,9 +160,9 @@ class LabHandoffRouteRequest(JsonModel):
 
     operation: Literal["request", "export", "status"]
     assay_request_id: str = Field(..., min_length=1)
-    lifecycle_state: Literal["planned", "queued", "running", "completed", "rejected"] = (
-        "planned"
-    )
+    lifecycle_state: Literal[
+        "planned", "queued", "running", "completed", "rejected"
+    ] = "planned"
     export_format: Literal["json", "csv", "tsv"] = "json"
 
 
@@ -418,9 +414,13 @@ def build_script_safe_command_output(
 ) -> ScriptSafeCommandOutput:
     """Render deterministic JSON output and concise human output for major commands."""
 
-    payload = {field.key: field.value for field in sorted(fields, key=lambda entry: entry.key)}
+    payload = {
+        field.key: field.value for field in sorted(fields, key=lambda entry: entry.key)
+    }
     json_output = json.dumps(payload, sort_keys=True, separators=(",", ":"))
-    human_output = f"{command}: {', '.join(f'{key}={value}' for key, value in payload.items())}"
+    human_output = (
+        f"{command}: {', '.join(f'{key}={value}' for key, value in payload.items())}"
+    )
     return ScriptSafeCommandOutput(
         command=command,
         schema_ref="api.script-safe-command-output.v1",

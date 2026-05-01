@@ -12,8 +12,8 @@ import pytest
 from bijux_proteomics import (
     AppliedModification,
     FragmentIonSeries,
-    MassType,
     IsotopicLabelingPolicy,
+    MassType,
     ModificationLocalizationState,
     ModificationPosition,
     ModificationRegistryDocument,
@@ -23,8 +23,8 @@ from bijux_proteomics import (
     approximate_peptide_isotope_envelope,
     build_modification_localization_advisory,
     build_modification_registry,
-    build_modified_peptide_export_record,
     build_modified_peptide,
+    build_modified_peptide_export_record,
     build_peptide_charge_state,
     calculate_average_peptide_mass,
     calculate_fragment_ions,
@@ -257,9 +257,7 @@ def test_fragment_ion_shift_validation_matches_only_impacted_fragments() -> None
 
     assert report.valid is True
     assert b1.shifted is True
-    assert isclose(
-        b1.expected_shift_monoisotopic, 42.010565, rel_tol=0.0, abs_tol=1e-9
-    )
+    assert isclose(b1.expected_shift_monoisotopic, 42.010565, rel_tol=0.0, abs_tol=1e-9)
     assert b2.shifted is True
     assert isclose(
         b2.expected_shift_monoisotopic,
@@ -327,7 +325,9 @@ def test_modification_registry_validation_catches_duplicate_and_conflicting_defi
     assert conflicting_report.issues[0].code == "conflicting_controlled_id"
 
     with pytest.raises(ValueError, match="defined more than once"):
-        load_modification_registry(_modification_fixture("invalid_duplicate_registry.json"))
+        load_modification_registry(
+            _modification_fixture("invalid_duplicate_registry.json")
+        )
     with pytest.raises(ValueError, match="conflicting registry definitions"):
         load_modification_registry(
             _modification_fixture("invalid_conflicting_registry.json")
@@ -547,7 +547,9 @@ def test_modified_peptide_export_record_stays_stable_across_jsonl_and_tsv(
     jsonl_path = tmp_path / "modified_peptides.jsonl"
     tsv_path = tmp_path / "modified_peptides.tsv"
 
-    export_modified_peptides_jsonl(peptides, jsonl_path, registry=modification_registry())
+    export_modified_peptides_jsonl(
+        peptides, jsonl_path, registry=modification_registry()
+    )
     export_modified_peptides_tsv(peptides, tsv_path, registry=modification_registry())
 
     jsonl_rows = [json.loads(line) for line in jsonl_path.read_text().splitlines()]

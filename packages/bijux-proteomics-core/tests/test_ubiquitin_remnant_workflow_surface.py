@@ -5,11 +5,15 @@ from __future__ import annotations
 
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm import PtmSiteEntry
-from bijux_proteomics.ptm_advanced_workflows import build_ubiquitin_remnant_workflow_report
+from bijux_proteomics.ptm_advanced_workflows import (
+    build_ubiquitin_remnant_workflow_report,
+)
 from bijux_proteomics.quantification import MissingValueKind, Ms1FeatureRecord
 
 
-def test_ubiquitin_remnant_workflow_report_captures_kgg_assumptions_and_quant_links() -> None:
+def test_ubiquitin_remnant_workflow_report_captures_kgg_assumptions_and_quant_links() -> (
+    None
+):
     site_entries = (
         PtmSiteEntry(
             site_key="P2:K48:GlyGly",
@@ -80,7 +84,9 @@ def test_ubiquitin_remnant_workflow_report_captures_kgg_assumptions_and_quant_li
     assert report.ambiguous_entry_count == 1
     assert report.non_lysine_entry_count == 1
     kgg = next(entry for entry in report.entries if entry.site_key == "P2:K48:GlyGly")
-    non_lysine = next(entry for entry in report.entries if entry.site_key == "P2:S52:K-GG")
+    non_lysine = next(
+        entry for entry in report.entries if entry.site_key == "P2:S52:K-GG"
+    )
     assert kgg.lysine_consistent is True
     assert kgg.quantified_sample_ids == ("S1", "S2")
     assert non_lysine.lysine_consistent is False

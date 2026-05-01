@@ -104,7 +104,11 @@ def query_evidence_graph(
         connecting_edges=tuple(
             sorted(
                 connecting,
-                key=lambda edge: (edge.source_node_id, edge.target_node_id, edge.relation),
+                key=lambda edge: (
+                    edge.source_node_id,
+                    edge.target_node_id,
+                    edge.relation,
+                ),
             )
         ),
         node_count=len(matched),
@@ -321,7 +325,9 @@ def build_ranking_sensitivity_report(
         decompositions,
         key=lambda entry: (-entry.final_score, entry.candidate_id),
     )
-    base_ranks = {entry.candidate_id: rank for rank, entry in enumerate(base_sorted, start=1)}
+    base_ranks = {
+        entry.candidate_id: rank for rank, entry in enumerate(base_sorted, start=1)
+    }
 
     rank_history: dict[str, list[int]] = {
         entry.candidate_id: [base_ranks[entry.candidate_id]] for entry in decompositions
@@ -405,7 +411,9 @@ def replay_candidate_lifecycle(
     """Explain movement between accepted/rejected/deferred/promoted/lab-requested states."""
 
     per_candidate: dict[str, list[CandidateLifecycleEvent]] = {}
-    for event in sorted(events, key=lambda item: (item.candidate_id, item.sequence_index)):
+    for event in sorted(
+        events, key=lambda item: (item.candidate_id, item.sequence_index)
+    ):
         per_candidate.setdefault(event.candidate_id, []).append(event)
 
     entries: list[CandidateLifecycleReplayEntry] = []
@@ -477,7 +485,9 @@ def prioritize_evidence_gaps(
         surface_weight = 1.0 + (0.1 * len(set(gap.decision_surfaces)))
         uncertainty_weight = 1.0 + (0.5 * gap.uncertainty)
         effort_divisor = 1.0 + gap.collection_effort
-        score = (gap.decision_impact * surface_weight * uncertainty_weight) / effort_divisor
+        score = (
+            gap.decision_impact * surface_weight * uncertainty_weight
+        ) / effort_divisor
         scored.append((gap, score))
 
     scored.sort(key=lambda item: (-item[1], item[0].gap_id))
@@ -575,7 +585,9 @@ class ReviewPacketSchema(JsonModel):
     run_id: str = Field(..., min_length=1)
     evidence: tuple[ReviewPacketEvidenceEntry, ...] = Field(default_factory=tuple)
     trust_scores: dict[str, float] = Field(default_factory=dict)
-    contradictions: tuple[ReviewPacketContradictionEntry, ...] = Field(default_factory=tuple)
+    contradictions: tuple[ReviewPacketContradictionEntry, ...] = Field(
+        default_factory=tuple
+    )
     qc_caveats: tuple[ReviewPacketQcCaveatEntry, ...] = Field(default_factory=tuple)
     assay_plans: tuple[ReviewPacketAssayPlanEntry, ...] = Field(default_factory=tuple)
     risks: tuple[ReviewPacketRiskEntry, ...] = Field(default_factory=tuple)
@@ -640,7 +652,9 @@ class ReviewerChallengeWorkflowReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    resolutions: tuple[ReviewerChallengeResolutionEntry, ...] = Field(default_factory=tuple)
+    resolutions: tuple[ReviewerChallengeResolutionEntry, ...] = Field(
+        default_factory=tuple
+    )
     open_count: int = Field(..., ge=0)
     resolved_count: int = Field(..., ge=0)
 
@@ -654,12 +668,16 @@ def run_reviewer_challenge_workflow(
     packet_evidence_ids = {entry.evidence_id for entry in packet.evidence}
     decisions_by_candidate: dict[str, list[str]] = {}
     for decision in packet.decisions:
-        decisions_by_candidate.setdefault(decision.candidate_id, []).append(decision.decision_id)
+        decisions_by_candidate.setdefault(decision.candidate_id, []).append(
+            decision.decision_id
+        )
 
     resolutions: list[ReviewerChallengeResolutionEntry] = []
     for challenge in sorted(challenges, key=lambda entry: entry.challenge_id):
         missing_evidence = [
-            evidence_id for evidence_id in challenge.evidence_ids if evidence_id not in packet_evidence_ids
+            evidence_id
+            for evidence_id in challenge.evidence_ids
+            if evidence_id not in packet_evidence_ids
         ]
         if missing_evidence:
             resolutions.append(
@@ -679,7 +697,9 @@ def run_reviewer_challenge_workflow(
                 challenge_id=challenge.challenge_id,
                 status="resolved",
                 rationale="challenge evidence was found and linked for board review",
-                impacted_decision_ids=tuple(decisions_by_candidate.get(challenge.candidate_id, [])),
+                impacted_decision_ids=tuple(
+                    decisions_by_candidate.get(challenge.candidate_id, [])
+                ),
             )
         )
 
@@ -813,8 +833,12 @@ def diff_review_packets(
                 )
             )
 
-    before_decisions = {entry.decision_id: entry.decision_state for entry in before.decisions}
-    after_decisions = {entry.decision_id: entry.decision_state for entry in after.decisions}
+    before_decisions = {
+        entry.decision_id: entry.decision_state for entry in before.decisions
+    }
+    after_decisions = {
+        entry.decision_id: entry.decision_state for entry in after.decisions
+    }
     for decision_id in sorted(before_decisions.keys() & after_decisions.keys()):
         if before_decisions[decision_id] != after_decisions[decision_id]:
             entries.append(

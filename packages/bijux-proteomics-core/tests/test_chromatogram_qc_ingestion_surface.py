@@ -12,7 +12,9 @@ def _format_fixture(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "formats" / name
 
 
-def test_parse_chromatogram_qc_table_distinguishes_unknown_from_failed_metrics() -> None:
+def test_parse_chromatogram_qc_table_distinguishes_unknown_from_failed_metrics() -> (
+    None
+):
     report = parse_chromatogram_qc_table(_format_fixture("chromatogram_qc.tsv"))
 
     assert report.total_rows == 4

@@ -12,12 +12,7 @@ from bijux_proteomics.search_adapters import (
 
 
 def _corpus_root() -> Path:
-    return (
-        Path(__file__).parent
-        / "fixtures"
-        / "search_adapter_corpora"
-        / "spectronaut"
-    )
+    return Path(__file__).parent / "fixtures" / "search_adapter_corpora" / "spectronaut"
 
 
 def test_spectronaut_output_corpus_report_covers_native_and_pipeline_exports() -> None:
@@ -36,7 +31,6 @@ def test_spectronaut_output_corpus_report_covers_native_and_pipeline_exports() -
         assert entry.source_sha256
         assert entry.config_sha256
         assert any(
-            column in entry.mapped_columns
-            for column in ("EG.Cscore", "cscore_value")
+            column in entry.mapped_columns for column in ("EG.Cscore", "cscore_value")
         )
         assert entry.unsupported_columns == ()

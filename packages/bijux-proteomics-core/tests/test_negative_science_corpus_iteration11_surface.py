@@ -10,7 +10,9 @@ from bijux_proteomics.corpus_iteration11 import (
 )
 
 
-def test_build_negative_science_corpus_report_counts_refusal_and_caveated_cases() -> None:
+def test_build_negative_science_corpus_report_counts_refusal_and_caveated_cases() -> (
+    None
+):
     report = build_negative_science_corpus_report(
         (
             NegativeScienceCase(
