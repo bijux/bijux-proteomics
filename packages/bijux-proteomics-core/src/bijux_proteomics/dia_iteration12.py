@@ -186,3 +186,66 @@ def validate_spectral_library_identity_entries(
         )
 
     return SpectralLibraryValidationReport(valid=not issues, issues=tuple(issues))
+
+
+class DiaNnImportRow(JsonModel):
+    """Normalized representation of one DIA-NN-style output row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    q_value: float = Field(..., ge=0.0, le=1.0)
+    quantity: float = Field(..., ge=0.0)
+    protein_group_id: str = Field(..., min_length=1)
+
+
+class DiaNnImportReport(JsonModel):
+    """Import report mapping DIA-NN rows into DIA-native quant/evidence structures."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    imported_precursors: tuple[DiaNativePrecursor, ...] = Field(default_factory=tuple)
+    imported_protein_groups: tuple[DiaNativeProteinGroupQuantity, ...] = Field(
+        default_factory=tuple
+    )
+    imported_count: int = Field(..., ge=0)
+
+
+def import_dia_nn_rows(
+    rows: tuple[DiaNnImportRow, ...],
+) -> DiaNnImportReport:
+    """Import DIA-NN-style rows into DIA-native precursor/protein-quant surfaces."""
+
+    precursors = [
+        DiaNativePrecursor(
+            precursor_id=row.precursor_id,
+            peptide_sequence=row.peptide_sequence,
+            charge=row.charge,
+            q_value=row.q_value,
+            quantity=row.quantity,
+        )
+        for row in rows
+    ]
+
+    protein_quantity: dict[str, float] = {}
+    protein_q: dict[str, float] = {}
+    for row in rows:
+        protein_quantity[row.protein_group_id] = protein_quantity.get(row.protein_group_id, 0.0) + row.quantity
+        protein_q[row.protein_group_id] = min(protein_q.get(row.protein_group_id, 1.0), row.q_value)
+
+    proteins = [
+        DiaNativeProteinGroupQuantity(
+            protein_group_id=protein_group_id,
+            q_value=protein_q[protein_group_id],
+            quantity=quantity,
+        )
+        for protein_group_id, quantity in sorted(protein_quantity.items())
+    ]
+
+    return DiaNnImportReport(
+        imported_precursors=tuple(sorted(precursors, key=lambda entry: entry.precursor_id)),
+        imported_protein_groups=tuple(proteins),
+        imported_count=len(rows),
+    )
