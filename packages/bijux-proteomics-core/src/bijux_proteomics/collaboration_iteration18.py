@@ -160,3 +160,70 @@ def build_citation_registry_document(
 
     normalized = tuple(sorted(entries, key=lambda entry: (entry.citation_kind, entry.citation_id)))
     return CitationRegistryDocument(entries=normalized)
+
+
+class StandaloneVerifierInput(JsonModel):
+    """Standalone verifier input that does not depend on repository checkout paths."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    schema_refs: tuple[str, ...] = Field(default_factory=tuple)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    hash_ledger_entries: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class StandaloneVerifierIssue(JsonModel):
+    """Verifier issue found during standalone bundle validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class StandaloneVerifierReport(JsonModel):
+    """Standalone verification report for external bundles."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    verified: bool
+    issues: tuple[StandaloneVerifierIssue, ...] = Field(default_factory=tuple)
+
+
+def run_standalone_bundle_verifier(
+    payload: StandaloneVerifierInput,
+) -> StandaloneVerifierReport:
+    """Verify bundle structure without requiring repository checkout context."""
+
+    issues: list[StandaloneVerifierIssue] = []
+    if not payload.schema_refs:
+        issues.append(
+            StandaloneVerifierIssue(
+                code="missing_schema_refs",
+                message="bundle must include at least one schema reference",
+            )
+        )
+    if not payload.hash_ledger_entries:
+        issues.append(
+            StandaloneVerifierIssue(
+                code="missing_hash_ledger",
+                message="bundle must include hash ledger entries",
+            )
+        )
+    for path in payload.artifact_paths:
+        if path.startswith("/"):
+            issues.append(
+                StandaloneVerifierIssue(
+                    code="absolute_artifact_path",
+                    message="artifact paths must be portable relative paths",
+                )
+            )
+            break
+
+    return StandaloneVerifierReport(
+        bundle_id=payload.bundle_id,
+        verified=not issues,
+        issues=tuple(issues),
+    )
