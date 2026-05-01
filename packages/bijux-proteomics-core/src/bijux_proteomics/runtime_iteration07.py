@@ -14,6 +14,9 @@ import tempfile
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.digestion import digest_protein_records
+from bijux_proteomics.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.quantification_iteration05 import build_quant_review_bundle
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,
@@ -116,6 +119,25 @@ class DiaImportWorkflowRunReport(JsonModel):
     protein_count: int = Field(..., ge=0)
     quantified_precursor_count: int = Field(..., ge=0)
     qc_missing_intensity_count: int = Field(..., ge=0)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    replay_cache_key: str = Field(..., min_length=64, max_length=64)
+    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class QuantRuntimeWorkflowRunReport(JsonModel):
+    """End-to-end runtime report for quant workflow execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    status: RuntimeWorkflowStatus
+    feature_record_count: int = Field(..., ge=0)
+    design_entry_count: int = Field(..., ge=0)
+    condition_count: int = Field(..., ge=0)
+    outlier_sample_count: int = Field(..., ge=0)
+    review_bundle_hash: str = Field(..., min_length=1)
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
@@ -384,4 +406,81 @@ def run_dia_import_workflow_end_to_end(
             ),
         ),
         note="workflow completed DIA import with precursor/peptide/protein quant and QC evidence",
+    )
+
+
+def run_quant_workflow_end_to_end(
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    artifact_root: str = "artifacts/workflows/quant-runtime",
+) -> QuantRuntimeWorkflowRunReport:
+    """Execute quant runtime flow: matrix -> normalization -> DA -> review bundle."""
+    review_bundle = build_quant_review_bundle(
+        feature_records,
+        design_entries=design_entries,
+    )
+    conditions = tuple(sorted({entry.condition for entry in design_entries}))
+    key = _stable_runtime_key(
+        {
+            "workflow": "quant-runtime",
+            "feature_count": len(feature_records),
+            "design_count": len(design_entries),
+            "condition_count": len(conditions),
+            "bundle_hash": review_bundle.artifact_bundle_hash,
+        }
+    )
+    outlier_count = len(review_bundle.qc_report.outlier_samples)
+    return QuantRuntimeWorkflowRunReport(
+        workflow_id="quant-runtime",
+        status=RuntimeWorkflowStatus.COMPLETED,
+        feature_record_count=len(feature_records),
+        design_entry_count=len(design_entries),
+        condition_count=len(conditions),
+        outlier_sample_count=outlier_count,
+        review_bundle_hash=review_bundle.artifact_bundle_hash or "missing",
+        artifact_paths=(
+            f"{artifact_root}/matrix.tsv",
+            f"{artifact_root}/normalization.json",
+            f"{artifact_root}/differential_abundance.tsv",
+            f"{artifact_root}/review_bundle.json",
+        ),
+        evidence_pointers=(
+            "quant.feature_records",
+            "quant.normalization_matrix",
+            "quant.effect_size_da_report",
+            "quant.qc_report",
+        ),
+        replay_cache_key=key,
+        steps=(
+            RuntimeWorkflowStepRecord(
+                step_id="build-matrix",
+                description="build peptide-level quant matrix from features",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(feature_records),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="normalize",
+                description="normalize quant matrix across samples",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(conditions),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="differential-abundance",
+                description="compute effect-size-first differential abundance entries",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=(
+                    len(review_bundle.effect_size_da_report.entries)
+                    if review_bundle.effect_size_da_report is not None
+                    else 0
+                ),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="review-bundle",
+                description="assemble integrated quant review bundle",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(review_bundle.evidence_pointers),
+            ),
+        ),
+        note="workflow completed quant matrix, normalization, differential abundance, and review bundle surfaces",
     )
