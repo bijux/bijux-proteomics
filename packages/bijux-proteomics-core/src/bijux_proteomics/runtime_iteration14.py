@@ -8,6 +8,7 @@ from __future__ import annotations
 from enum import StrEnum
 import hashlib
 import json
+from pathlib import PurePosixPath
 
 from pydantic import ConfigDict, Field
 
@@ -487,3 +488,63 @@ def verify_workflow_artifact_inventory(
 
     issues.sort(key=lambda issue: (issue.severity, issue.code, issue.artifact_id))
     return ArtifactInventoryVerificationReport(verified=not issues, issues=tuple(issues))
+
+
+class PortableRunBundleFile(JsonModel):
+    """Portable bundle entry detached from original machine-specific paths."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    role: str = Field(..., min_length=1)
+    portable_path: str = Field(..., min_length=1)
+    content_sha256: str = Field(..., min_length=64, max_length=64)
+
+
+class PortableRunBundle(JsonModel):
+    """Portable workflow run bundle that remains inspectable on another machine."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    bundle_version: str = Field(..., min_length=1)
+    files: tuple[PortableRunBundleFile, ...] = Field(default_factory=tuple)
+    manifest_sha256: str = Field(..., min_length=64, max_length=64)
+
+
+def build_portable_workflow_run_bundle(
+    *,
+    run_id: str,
+    records: tuple[ArtifactInventoryRecord, ...],
+    bundle_version: str = "1",
+) -> PortableRunBundle:
+    """Build portable run bundle entries without hard-coded original absolute paths."""
+
+    normalized_files: list[PortableRunBundleFile] = []
+    for index, record in enumerate(records):
+        filename = PurePosixPath(record.path).name or f"{record.artifact_id}.dat"
+        portable_path = f"artifacts/{record.role}/{index:03d}_{filename}"
+        normalized_files.append(
+            PortableRunBundleFile(
+                artifact_id=record.artifact_id,
+                role=record.role,
+                portable_path=portable_path,
+                content_sha256=record.content_sha256,
+            )
+        )
+
+    normalized_files.sort(key=lambda entry: (entry.role, entry.portable_path, entry.artifact_id))
+    manifest_sha256 = _stable_sha256(
+        {
+            "run_id": run_id,
+            "bundle_version": bundle_version,
+            "files": [entry.model_dump(mode="json") for entry in normalized_files],
+        }
+    )
+
+    return PortableRunBundle(
+        run_id=run_id,
+        bundle_version=bundle_version,
+        files=tuple(normalized_files),
+        manifest_sha256=manifest_sha256,
+    )
