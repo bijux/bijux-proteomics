@@ -497,3 +497,115 @@ def prioritize_evidence_gaps(
         )
 
     return EvidenceGapPrioritizationReport(entries=tuple(entries))
+
+
+class ReviewPacketEvidenceEntry(JsonModel):
+    """Evidence record bundled into a review packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    claim: str = Field(..., min_length=1)
+    source: str = Field(..., min_length=1)
+    trust_score: float = Field(..., ge=0.0, le=1.0)
+
+
+class ReviewPacketContradictionEntry(JsonModel):
+    """Contradiction row included in the review packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contradiction_id: str = Field(..., min_length=1)
+    category: str = Field(..., min_length=1)
+    evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class ReviewPacketQcCaveatEntry(JsonModel):
+    """QC caveat associated with review interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    caveat_id: str = Field(..., min_length=1)
+    severity: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReviewPacketAssayPlanEntry(JsonModel):
+    """Assay planning entry included for lab follow-up."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    plan_id: str = Field(..., min_length=1)
+    method: str = Field(..., min_length=1)
+    target_ids: tuple[str, ...] = Field(default_factory=tuple)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReviewPacketRiskEntry(JsonModel):
+    """Risk and mitigation row in review packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    risk_id: str = Field(..., min_length=1)
+    severity: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    mitigation: str = Field(..., min_length=1)
+
+
+class ReviewPacketDecisionEntry(JsonModel):
+    """Decision row in review packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    decision_state: str = Field(..., min_length=1)
+    rationale: str = Field(..., min_length=1)
+    evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReviewPacketSchema(JsonModel):
+    """Review packet schema bundling evidence, caveats, plans, risks, and decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    packet_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    evidence: tuple[ReviewPacketEvidenceEntry, ...] = Field(default_factory=tuple)
+    trust_scores: dict[str, float] = Field(default_factory=dict)
+    contradictions: tuple[ReviewPacketContradictionEntry, ...] = Field(default_factory=tuple)
+    qc_caveats: tuple[ReviewPacketQcCaveatEntry, ...] = Field(default_factory=tuple)
+    assay_plans: tuple[ReviewPacketAssayPlanEntry, ...] = Field(default_factory=tuple)
+    risks: tuple[ReviewPacketRiskEntry, ...] = Field(default_factory=tuple)
+    decisions: tuple[ReviewPacketDecisionEntry, ...] = Field(default_factory=tuple)
+
+
+def build_review_packet_schema(
+    *,
+    packet_id: str,
+    run_id: str,
+    evidence: tuple[ReviewPacketEvidenceEntry, ...],
+    trust_scores: dict[str, float],
+    contradictions: tuple[ReviewPacketContradictionEntry, ...],
+    qc_caveats: tuple[ReviewPacketQcCaveatEntry, ...],
+    assay_plans: tuple[ReviewPacketAssayPlanEntry, ...],
+    risks: tuple[ReviewPacketRiskEntry, ...],
+    decisions: tuple[ReviewPacketDecisionEntry, ...],
+) -> ReviewPacketSchema:
+    """Build one deterministic review packet bundle from structured facts."""
+
+    return ReviewPacketSchema(
+        packet_id=packet_id,
+        run_id=run_id,
+        evidence=tuple(sorted(evidence, key=lambda entry: entry.evidence_id)),
+        trust_scores=dict(sorted(trust_scores.items())),
+        contradictions=tuple(
+            sorted(contradictions, key=lambda entry: entry.contradiction_id)
+        ),
+        qc_caveats=tuple(sorted(qc_caveats, key=lambda entry: entry.caveat_id)),
+        assay_plans=tuple(sorted(assay_plans, key=lambda entry: entry.plan_id)),
+        risks=tuple(sorted(risks, key=lambda entry: entry.risk_id)),
+        decisions=tuple(sorted(decisions, key=lambda entry: entry.decision_id)),
+    )
