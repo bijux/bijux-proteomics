@@ -548,3 +548,157 @@ def build_portable_workflow_run_bundle(
         files=tuple(normalized_files),
         manifest_sha256=manifest_sha256,
     )
+
+
+class CacheDecisionOutcome(StrEnum):
+    """Cache outcome for one workflow step probe."""
+
+    HIT = "hit"
+    MISS = "miss"
+    REFUSED = "refused"
+
+
+class WorkflowCacheProbe(JsonModel):
+    """Runtime cache probe input for one tool invocation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    tool_name: str = Field(..., min_length=1)
+    schema_ref: str = Field(..., min_length=1)
+    parameter_fingerprint: str = Field(..., min_length=8)
+    input_fingerprint: str = Field(..., min_length=8)
+    environment_fingerprint: str = Field(..., min_length=8)
+    policy_fingerprint: str = Field(..., min_length=8)
+    cache_allowed: bool = True
+
+
+class WorkflowCacheRecord(JsonModel):
+    """Materialized cache entry metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    record_id: str = Field(..., min_length=1)
+    tool_name: str = Field(..., min_length=1)
+    schema_ref: str = Field(..., min_length=1)
+    parameter_fingerprint: str = Field(..., min_length=8)
+    input_fingerprint: str = Field(..., min_length=8)
+    environment_fingerprint: str = Field(..., min_length=8)
+    policy_fingerprint: str = Field(..., min_length=8)
+
+
+class CacheDecisionExplanationEntry(JsonModel):
+    """Explainable cache decision for one probe."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    outcome: CacheDecisionOutcome
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class CacheDecisionExplanationReport(JsonModel):
+    """Cache decision explain report across workflow probes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CacheDecisionExplanationEntry, ...] = Field(default_factory=tuple)
+    hit_count: int = Field(..., ge=0)
+    miss_count: int = Field(..., ge=0)
+    refused_count: int = Field(..., ge=0)
+
+
+def explain_workflow_cache_decisions(
+    *,
+    probes: tuple[WorkflowCacheProbe, ...],
+    cache_records: tuple[WorkflowCacheRecord, ...],
+) -> CacheDecisionExplanationReport:
+    """Explain cache hit/miss/refusal by tool, schema, params, input, environment, and policy."""
+
+    entries: list[CacheDecisionExplanationEntry] = []
+
+    for probe in probes:
+        if not probe.cache_allowed:
+            entries.append(
+                CacheDecisionExplanationEntry(
+                    step_id=probe.step_id,
+                    outcome=CacheDecisionOutcome.REFUSED,
+                    reasons=("cache policy forbids reuse for this step",),
+                )
+            )
+            continue
+
+        matching_tool = [
+            record for record in cache_records if record.tool_name == probe.tool_name
+        ]
+        exact_match = next(
+            (
+                record
+                for record in matching_tool
+                if record.schema_ref == probe.schema_ref
+                and record.parameter_fingerprint == probe.parameter_fingerprint
+                and record.input_fingerprint == probe.input_fingerprint
+                and record.environment_fingerprint == probe.environment_fingerprint
+                and record.policy_fingerprint == probe.policy_fingerprint
+            ),
+            None,
+        )
+        if exact_match is not None:
+            entries.append(
+                CacheDecisionExplanationEntry(
+                    step_id=probe.step_id,
+                    outcome=CacheDecisionOutcome.HIT,
+                    reasons=(f"reused cache record: {exact_match.record_id}",),
+                )
+            )
+            continue
+
+        if not matching_tool:
+            entries.append(
+                CacheDecisionExplanationEntry(
+                    step_id=probe.step_id,
+                    outcome=CacheDecisionOutcome.MISS,
+                    reasons=("no prior cache entry for tool",),
+                )
+            )
+            continue
+
+        reasons: list[str] = []
+        if not any(record.schema_ref == probe.schema_ref for record in matching_tool):
+            reasons.append("schema_ref changed")
+        if not any(
+            record.parameter_fingerprint == probe.parameter_fingerprint
+            for record in matching_tool
+        ):
+            reasons.append("parameter_fingerprint changed")
+        if not any(record.input_fingerprint == probe.input_fingerprint for record in matching_tool):
+            reasons.append("input_fingerprint changed")
+        if not any(
+            record.environment_fingerprint == probe.environment_fingerprint
+            for record in matching_tool
+        ):
+            reasons.append("environment_fingerprint changed")
+        if not any(
+            record.policy_fingerprint == probe.policy_fingerprint for record in matching_tool
+        ):
+            reasons.append("policy_fingerprint changed")
+        if not reasons:
+            reasons.append("cache record exists but composite fingerprint does not match")
+
+        entries.append(
+            CacheDecisionExplanationEntry(
+                step_id=probe.step_id,
+                outcome=CacheDecisionOutcome.MISS,
+                reasons=tuple(reasons),
+            )
+        )
+
+    hit_count = sum(1 for entry in entries if entry.outcome is CacheDecisionOutcome.HIT)
+    miss_count = sum(1 for entry in entries if entry.outcome is CacheDecisionOutcome.MISS)
+    refused_count = sum(1 for entry in entries if entry.outcome is CacheDecisionOutcome.REFUSED)
+    return CacheDecisionExplanationReport(
+        entries=tuple(entries),
+        hit_count=hit_count,
+        miss_count=miss_count,
+        refused_count=refused_count,
+    )
