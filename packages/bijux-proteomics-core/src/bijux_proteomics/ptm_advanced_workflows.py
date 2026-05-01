@@ -214,6 +214,34 @@ class GlycopeptideSupportBoundaryReport(JsonModel):
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class PtmCooccurrencePairCautionEntry(JsonModel):
+    """One pairwise PTM co-occurrence caution entry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    left_site_key: str = Field(..., min_length=1)
+    right_site_key: str = Field(..., min_length=1)
+    same_peptide_evidence: bool
+    same_protein_evidence: bool
+    same_sample_evidence: bool
+    same_run_evidence: bool
+    true_colocalization_evidence: bool
+    caution: str = Field(..., min_length=1)
+
+
+class PtmCooccurrenceCautionReport(JsonModel):
+    """Co-occurrence caution report separating evidence levels."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[PtmCooccurrencePairCautionEntry, ...] = Field(default_factory=tuple)
+    same_peptide_pair_count: int = Field(..., ge=0)
+    same_protein_pair_count: int = Field(..., ge=0)
+    same_sample_pair_count: int = Field(..., ge=0)
+    same_run_pair_count: int = Field(..., ge=0)
+    true_colocalization_pair_count: int = Field(..., ge=0)
+
+
 def _to_probability(score: float) -> float:
     """Map non-negative localization score to a bounded probability-like signal."""
     if score <= 0.0:
@@ -634,4 +662,85 @@ def evaluate_glycopeptide_support_boundary(
             "and oxonium-ion evidence"
         ),
         required_evidence_fields=required,
+    )
+
+
+def build_ptm_cooccurrence_caution_report(
+    mappings: tuple[PtmProteinSiteMapping, ...],
+    *,
+    spectrum_run_by_id: dict[str, str] | None = None,
+) -> PtmCooccurrenceCautionReport:
+    """Build caution report for PTM co-occurrence evidence levels."""
+    grouped: dict[str, list[PtmProteinSiteMapping]] = {}
+    for mapping in mappings:
+        site_key = (
+            f"{mapping.protein_ref}:{mapping.residue}"
+            f"{mapping.protein_position}:{mapping.modification_name}"
+        )
+        grouped.setdefault(site_key, []).append(mapping)
+
+    ordered_keys = sorted(grouped)
+    entries: list[PtmCooccurrencePairCautionEntry] = []
+    for index, left_key in enumerate(ordered_keys):
+        for right_key in ordered_keys[index + 1 :]:
+            left_bucket = grouped[left_key]
+            right_bucket = grouped[right_key]
+            left_peptides = {mapping.canonical_peptide for mapping in left_bucket}
+            right_peptides = {mapping.canonical_peptide for mapping in right_bucket}
+            left_samples = {mapping.sample_id for mapping in left_bucket if mapping.sample_id}
+            right_samples = {
+                mapping.sample_id for mapping in right_bucket if mapping.sample_id
+            }
+            left_spectra = {mapping.spectrum_id for mapping in left_bucket}
+            right_spectra = {mapping.spectrum_id for mapping in right_bucket}
+            left_runs = {
+                spectrum_run_by_id.get(spectrum_id, spectrum_id)
+                for spectrum_id in left_spectra
+            } if spectrum_run_by_id else set()
+            right_runs = {
+                spectrum_run_by_id.get(spectrum_id, spectrum_id)
+                for spectrum_id in right_spectra
+            } if spectrum_run_by_id else set()
+
+            same_peptide = bool(left_peptides & right_peptides)
+            same_protein = left_bucket[0].protein_ref == right_bucket[0].protein_ref
+            same_sample = bool(left_samples & right_samples)
+            same_run = bool(left_runs & right_runs) if spectrum_run_by_id else False
+            true_colocalized = bool(left_spectra & right_spectra)
+
+            if true_colocalized:
+                caution = "co-localization signal is present within shared spectra and should still be reviewed"
+            elif same_run:
+                caution = "co-occurrence is observed in the same run but without shared spectral localization"
+            elif same_sample:
+                caution = "co-occurrence is sample-level and not direct co-localization evidence"
+            elif same_protein:
+                caution = "co-occurrence is protein-level only and may reflect independent sites"
+            elif same_peptide:
+                caution = "co-occurrence is peptide-level only and requires localization review"
+            else:
+                caution = "no co-occurrence coupling evidence detected between sites"
+
+            entries.append(
+                PtmCooccurrencePairCautionEntry(
+                    left_site_key=left_key,
+                    right_site_key=right_key,
+                    same_peptide_evidence=same_peptide,
+                    same_protein_evidence=same_protein,
+                    same_sample_evidence=same_sample,
+                    same_run_evidence=same_run,
+                    true_colocalization_evidence=true_colocalized,
+                    caution=caution,
+                )
+            )
+
+    return PtmCooccurrenceCautionReport(
+        entries=tuple(entries),
+        same_peptide_pair_count=sum(1 for entry in entries if entry.same_peptide_evidence),
+        same_protein_pair_count=sum(1 for entry in entries if entry.same_protein_evidence),
+        same_sample_pair_count=sum(1 for entry in entries if entry.same_sample_evidence),
+        same_run_pair_count=sum(1 for entry in entries if entry.same_run_evidence),
+        true_colocalization_pair_count=sum(
+            1 for entry in entries if entry.true_colocalization_evidence
+        ),
     )
