@@ -204,6 +204,47 @@ class PlateLayoutValidationReport(JsonModel):
     issues: tuple[PlateLayoutValidationIssue, ...] = Field(default_factory=tuple)
 
 
+class LabRequestTarget(JsonModel):
+    """One assay target entry in a lab request schema."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    assay_type: str = Field(..., min_length=1)
+    expected_evidence: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LabRequestSchema(JsonModel):
+    """Structured lab request with targets, samples, controls, and constraints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    request_id: str = Field(..., min_length=1)
+    method: str = Field(..., min_length=1)
+    target_entries: tuple[LabRequestTarget, ...] = Field(default_factory=tuple)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    control_ids: tuple[str, ...] = Field(default_factory=tuple)
+    constraints: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LabRequestValidationIssue(JsonModel):
+    """One issue for lab-request schema validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class LabRequestValidationReport(JsonModel):
+    """Validation report for lab request schema surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[LabRequestValidationIssue, ...] = Field(default_factory=tuple)
+
+
 _FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
 _CHANNEL_RE = re.compile(r"^(12[6-9]|13[01])[NC]?$")
 _WELL_RE = re.compile(r"^[A-H](?:[1-9]|1[0-2])$")
@@ -510,3 +551,45 @@ def validate_plate_layout(
                 )
             )
     return PlateLayoutValidationReport(valid=not issues, issues=tuple(issues))
+
+
+def validate_lab_request_schema(request: LabRequestSchema) -> LabRequestValidationReport:
+    """Validate lab request schema integrity for assay planning and handoff."""
+    issues: list[LabRequestValidationIssue] = []
+    if not request.target_entries:
+        issues.append(
+            LabRequestValidationIssue(
+                code="missing_targets",
+                message="lab request must include at least one target entry",
+            )
+        )
+    if not request.sample_ids:
+        issues.append(
+            LabRequestValidationIssue(
+                code="missing_samples",
+                message="lab request must include at least one sample",
+            )
+        )
+    if not request.control_ids:
+        issues.append(
+            LabRequestValidationIssue(
+                code="missing_controls",
+                message="lab request must include at least one control",
+            )
+        )
+    if request.method.lower() not in {"prm", "srm", "dda_validation", "dia_validation"}:
+        issues.append(
+            LabRequestValidationIssue(
+                code="unsupported_method",
+                message="lab request method is not supported by this schema validator",
+            )
+        )
+    for target in request.target_entries:
+        if not target.expected_evidence:
+            issues.append(
+                LabRequestValidationIssue(
+                    code="target_missing_expected_evidence",
+                    message=f"target {target.target_id!r} does not include expected evidence requirements",
+                )
+            )
+    return LabRequestValidationReport(valid=not issues, issues=tuple(issues))
