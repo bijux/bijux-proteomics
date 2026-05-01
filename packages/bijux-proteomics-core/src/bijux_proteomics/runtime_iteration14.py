@@ -702,3 +702,81 @@ def explain_workflow_cache_decisions(
         miss_count=miss_count,
         refused_count=refused_count,
     )
+
+
+class WorkflowRunHistoryStatus(StrEnum):
+    """Run lifecycle status for history querying."""
+
+    COMPLETED = "completed"
+    FAILED = "failed"
+    REFUSED = "refused"
+    RUNNING = "running"
+
+
+class WorkflowRunHistoryArtifact(JsonModel):
+    """Artifact reference attached to one historical workflow run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    role: str = Field(..., min_length=1)
+
+
+class WorkflowRunHistoryEntry(JsonModel):
+    """One workflow run record indexed for history queries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    study_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    status: WorkflowRunHistoryStatus
+    started_at_utc: str = Field(..., min_length=1)
+    artifacts: tuple[WorkflowRunHistoryArtifact, ...] = Field(default_factory=tuple)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+    review_packet_id: str | None = None
+    lab_handoff_id: str | None = None
+
+
+class WorkflowRunHistoryQuery(JsonModel):
+    """Run history query by study/sample/status/artifact role."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    study_id: str | None = None
+    sample_id: str | None = None
+    status: WorkflowRunHistoryStatus | None = None
+    requires_artifact_role: str | None = None
+    limit: int = Field(default=20, ge=1, le=500)
+
+
+class WorkflowRunHistoryQueryReport(JsonModel):
+    """Run history query results."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_matches: int = Field(..., ge=0)
+    runs: tuple[WorkflowRunHistoryEntry, ...] = Field(default_factory=tuple)
+
+
+def query_workflow_run_history(
+    *,
+    entries: tuple[WorkflowRunHistoryEntry, ...],
+    query: WorkflowRunHistoryQuery,
+) -> WorkflowRunHistoryQueryReport:
+    """Query runs, artifacts, evidence, reviews, and handoffs by study/sample/status."""
+
+    filtered = [
+        entry
+        for entry in entries
+        if (query.study_id is None or entry.study_id == query.study_id)
+        and (query.sample_id is None or entry.sample_id == query.sample_id)
+        and (query.status is None or entry.status is query.status)
+        and (
+            query.requires_artifact_role is None
+            or any(artifact.role == query.requires_artifact_role for artifact in entry.artifacts)
+        )
+    ]
+    filtered.sort(key=lambda entry: entry.started_at_utc, reverse=True)
+    limited = tuple(filtered[: query.limit])
+    return WorkflowRunHistoryQueryReport(total_matches=len(filtered), runs=limited)
