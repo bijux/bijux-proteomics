@@ -363,3 +363,71 @@ def build_ranking_sensitivity_report(
         stable_candidate_count=sum(1 for entry in entries if entry.stable),
         unstable_candidate_count=sum(1 for entry in entries if not entry.stable),
     )
+
+
+class CandidateLifecycleEvent(JsonModel):
+    """One candidate-state transition event for lifecycle replay."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    from_state: str = Field(..., min_length=1)
+    to_state: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=1)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    sequence_index: int = Field(..., ge=0)
+
+
+class CandidateLifecycleReplayEntry(JsonModel):
+    """Replayed lifecycle movement summary for one candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    state_path: tuple[str, ...] = Field(default_factory=tuple)
+    transition_count: int = Field(..., ge=0)
+    current_state: str = Field(..., min_length=1)
+    movement_explanation: str = Field(..., min_length=1)
+
+
+class CandidateLifecycleReplayReport(JsonModel):
+    """Lifecycle replay report across candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CandidateLifecycleReplayEntry, ...] = Field(default_factory=tuple)
+    candidate_count: int = Field(..., ge=0)
+
+
+def replay_candidate_lifecycle(
+    events: tuple[CandidateLifecycleEvent, ...],
+) -> CandidateLifecycleReplayReport:
+    """Explain movement between accepted/rejected/deferred/promoted/lab-requested states."""
+
+    per_candidate: dict[str, list[CandidateLifecycleEvent]] = {}
+    for event in sorted(events, key=lambda item: (item.candidate_id, item.sequence_index)):
+        per_candidate.setdefault(event.candidate_id, []).append(event)
+
+    entries: list[CandidateLifecycleReplayEntry] = []
+    for candidate_id, candidate_events in sorted(per_candidate.items()):
+        state_path = [candidate_events[0].from_state]
+        for event in candidate_events:
+            state_path.append(event.to_state)
+        explanation = "; ".join(
+            f"{event.from_state}->{event.to_state}: {event.reason}"
+            for event in candidate_events
+        )
+        entries.append(
+            CandidateLifecycleReplayEntry(
+                candidate_id=candidate_id,
+                state_path=tuple(state_path),
+                transition_count=len(candidate_events),
+                current_state=state_path[-1],
+                movement_explanation=explanation,
+            )
+        )
+
+    return CandidateLifecycleReplayReport(
+        entries=tuple(entries),
+        candidate_count=len(entries),
+    )
