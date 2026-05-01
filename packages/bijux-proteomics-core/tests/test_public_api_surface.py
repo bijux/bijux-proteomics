@@ -246,6 +246,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "validate_lab_request_schema" in bijux_proteomics.__all__
     assert "build_lab_handoff_export_bundle" in bijux_proteomics.__all__
     assert "reconcile_planned_and_observed_lab_outcomes" in bijux_proteomics.__all__
+    assert "query_evidence_graph" in bijux_proteomics.__all__
+    assert "classify_contradictions" in bijux_proteomics.__all__
+    assert "decompose_trust_score" in bijux_proteomics.__all__
+    assert "build_ranking_sensitivity_report" in bijux_proteomics.__all__
+    assert "replay_candidate_lifecycle" in bijux_proteomics.__all__
+    assert "prioritize_evidence_gaps" in bijux_proteomics.__all__
+    assert "build_review_packet_schema" in bijux_proteomics.__all__
+    assert "run_reviewer_challenge_workflow" in bijux_proteomics.__all__
+    assert "generate_review_narrative_from_structured_facts" in bijux_proteomics.__all__
+    assert "diff_review_packets" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -267,6 +277,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "LabRequestValidationReport" in bijux_proteomics.__all__
     assert "LabHandoffExportBundle" in bijux_proteomics.__all__
     assert "LabOutcomeReconciliationReport" in bijux_proteomics.__all__
+    assert "EvidenceGraphQueryResult" in bijux_proteomics.__all__
+    assert "ContradictionTaxonomyReport" in bijux_proteomics.__all__
+    assert "TrustScoreDecomposition" in bijux_proteomics.__all__
+    assert "RankingSensitivityReport" in bijux_proteomics.__all__
+    assert "CandidateLifecycleReplayReport" in bijux_proteomics.__all__
+    assert "EvidenceGapPrioritizationReport" in bijux_proteomics.__all__
+    assert "ReviewPacketSchema" in bijux_proteomics.__all__
+    assert "ReviewerChallengeWorkflowReport" in bijux_proteomics.__all__
+    assert "ReviewNarrativeReport" in bijux_proteomics.__all__
+    assert "ReviewPacketDiffReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
