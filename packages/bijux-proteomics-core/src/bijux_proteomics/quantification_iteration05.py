@@ -26,6 +26,7 @@ from bijux_proteomics.quantification import (
     build_label_based_quant_bundle,
     build_multiplex_channel_balance_report,
     build_normalization_strategy_comparison_report,
+    build_differential_abundance_report,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -643,4 +644,100 @@ def validate_differential_abundance_design_context(
         valid=not any(issue.severity == "error" for issue in issues),
         condition_replicates=condition_replicates,
         issues=tuple(issues),
+    )
+
+
+class EffectSizeFirstDaEntry(JsonModel):
+    """Differential abundance entry ranked primarily by effect size magnitude."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    log2_fold_change: float
+    effect_size_cohens_d: float | None = None
+    standard_error: float | None = Field(default=None, ge=0.0)
+    confidence_interval_low: float | None = None
+    confidence_interval_high: float | None = None
+    p_value: float = Field(..., ge=0.0, le=1.0)
+    adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    observations_a: int = Field(..., ge=0)
+    observations_b: int = Field(..., ge=0)
+    uncertainty_note: str | None = None
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class EffectSizeFirstDaReport(JsonModel):
+    """Effect-size-first differential abundance report with integrated caveats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    entries: tuple[EffectSizeFirstDaEntry, ...] = Field(default_factory=tuple)
+    global_caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_effect_size_first_differential_abundance_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    condition_a: str,
+    condition_b: str,
+) -> EffectSizeFirstDaReport:
+    """Build a DA report ranked by effect size with statistical and QC caveats retained."""
+    da = build_differential_abundance_report(
+        table,
+        design_entries,
+        condition_a=condition_a,
+        condition_b=condition_b,
+    )
+    entries: list[EffectSizeFirstDaEntry] = []
+    for entry in da.entries:
+        caveats: list[str] = []
+        if entry.observations_a == 0 or entry.observations_b == 0:
+            caveats.append("one condition has no observed replicates for this entity")
+        if entry.adjusted_p_value is None:
+            caveats.append("adjusted p-value is unavailable")
+        if entry.uncertainty_note:
+            caveats.append(entry.uncertainty_note)
+        if entry.effect_size_cohens_d is None:
+            caveats.append("effect size could not be estimated robustly")
+        entries.append(
+            EffectSizeFirstDaEntry(
+                entity_id=entry.entity_id,
+                log2_fold_change=entry.log2_fold_change,
+                effect_size_cohens_d=entry.effect_size_cohens_d,
+                standard_error=entry.standard_error,
+                confidence_interval_low=entry.confidence_interval_low,
+                confidence_interval_high=entry.confidence_interval_high,
+                p_value=entry.p_value,
+                adjusted_p_value=entry.adjusted_p_value,
+                observations_a=entry.observations_a,
+                observations_b=entry.observations_b,
+                uncertainty_note=entry.uncertainty_note,
+                caveats=tuple(caveats),
+            )
+        )
+    ranked = tuple(
+        sorted(
+            entries,
+            key=lambda item: (
+                -(abs(item.effect_size_cohens_d) if item.effect_size_cohens_d is not None else abs(item.log2_fold_change)),
+                item.adjusted_p_value if item.adjusted_p_value is not None else 1.0,
+                item.entity_id,
+            ),
+        )
+    )
+    global_caveats: list[str] = []
+    if any(entry.adjusted_p_value is None for entry in ranked):
+        global_caveats.append("some entities are missing adjusted p-values")
+    if any(entry.observations_a < 2 or entry.observations_b < 2 for entry in ranked):
+        global_caveats.append("one or more entities have low replicate support")
+    if not global_caveats:
+        global_caveats.append("effect-size ranking includes complete statistical annotations")
+    return EffectSizeFirstDaReport(
+        condition_a=condition_a,
+        condition_b=condition_b,
+        entries=ranked,
+        global_caveats=tuple(global_caveats),
     )
