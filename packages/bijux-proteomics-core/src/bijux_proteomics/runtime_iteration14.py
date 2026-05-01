@@ -846,3 +846,103 @@ def evaluate_workflow_api_cli_parity(
         actions_checked=required_actions,
         issues=tuple(issues),
     )
+
+
+class ArtifactTrustLevel(StrEnum):
+    """Trust level for uploaded or ingested large artifact sources."""
+
+    TRUSTED = "trusted"
+    UNKNOWN = "unknown"
+    UNTRUSTED = "untrusted"
+
+
+class LargeArtifactUploadDescriptor(JsonModel):
+    """Descriptor for one large upload/ingestion artifact candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_name: str = Field(..., min_length=1)
+    format_name: str = Field(..., min_length=1)
+    file_size_bytes: int = Field(..., ge=0)
+    content_sha256: str | None = None
+    trust_level: ArtifactTrustLevel = ArtifactTrustLevel.UNKNOWN
+
+
+class LargeArtifactUploadGuardPolicy(JsonModel):
+    """Policy for size/format/trust checks over uploaded large artifacts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_size_bytes_total: int = Field(..., ge=1)
+    max_size_bytes_by_format: dict[str, int] = Field(default_factory=dict)
+    allowed_formats: tuple[str, ...] = Field(default_factory=tuple)
+    require_content_hash: bool = True
+    max_untrusted_size_bytes: int = Field(default=100_000_000, ge=1)
+
+
+class LargeArtifactUploadGuardDecision(JsonModel):
+    """Decision for one artifact after upload guard checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_name: str = Field(..., min_length=1)
+    accepted: bool
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LargeArtifactUploadGuardReport(JsonModel):
+    """Aggregate upload/ingestion guard report for large artifacts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    accepted: bool
+    decisions: tuple[LargeArtifactUploadGuardDecision, ...] = Field(default_factory=tuple)
+
+
+def guard_large_artifact_uploads(
+    *,
+    artifacts: tuple[LargeArtifactUploadDescriptor, ...],
+    policy: LargeArtifactUploadGuardPolicy,
+) -> LargeArtifactUploadGuardReport:
+    """Protect large spectra/search/quant uploads with size, format, and trust checks."""
+
+    allowed_formats = set(policy.allowed_formats)
+    decisions: list[LargeArtifactUploadGuardDecision] = []
+
+    for artifact in artifacts:
+        reasons: list[str] = []
+        if artifact.format_name not in allowed_formats:
+            reasons.append(f"unsupported format: {artifact.format_name}")
+
+        format_limit = policy.max_size_bytes_by_format.get(
+            artifact.format_name, policy.max_size_bytes_total
+        )
+        if artifact.file_size_bytes > format_limit:
+            reasons.append(
+                f"format size limit exceeded ({artifact.file_size_bytes} > {format_limit})"
+            )
+        if artifact.file_size_bytes > policy.max_size_bytes_total:
+            reasons.append(
+                f"global size limit exceeded ({artifact.file_size_bytes} > "
+                f"{policy.max_size_bytes_total})"
+            )
+        if (
+            artifact.trust_level is ArtifactTrustLevel.UNTRUSTED
+            and artifact.file_size_bytes > policy.max_untrusted_size_bytes
+        ):
+            reasons.append(
+                "untrusted artifact exceeds max_untrusted_size_bytes policy threshold"
+            )
+        if policy.require_content_hash and not artifact.content_sha256:
+            reasons.append("content hash is required for upload verification")
+
+        decisions.append(
+            LargeArtifactUploadGuardDecision(
+                artifact_name=artifact.artifact_name,
+                accepted=not reasons,
+                reasons=tuple(reasons),
+            )
+        )
+
+    accepted = all(decision.accepted for decision in decisions)
+    return LargeArtifactUploadGuardReport(accepted=accepted, decisions=tuple(decisions))
