@@ -1,740 +1,95 @@
-openapi: 3.1.0
-info:
-  title: bijux-proteomics-runtime
-  description: HTTP API exposing the same capabilities as the CLI, nothing more.
-  version: 2.0.0
-paths:
-  /api/v1/health:
-    get:
-      tags:
-      - health
-      summary: Health
-      description: health.
-      operationId: health_api_v1_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-  /health:
-    get:
-      tags:
-      - health
-      summary: Health
-      description: health.
-      operationId: health_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-  /api/v1/ready:
-    get:
-      tags:
-      - health
-      summary: Ready
-      description: ready.
-      operationId: ready_api_v1_ready_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-  /ready:
-    get:
-      tags:
-      - health
-      summary: Ready
-      description: ready.
-      operationId: ready_ready_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-  /api/v1/run:
-    post:
-      tags:
-      - run
-      summary: Run Endpoint
-      description: run_endpoint.
-      operationId: run_endpoint_api_v1_run_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RunRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '202':
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '422':
-          description: Unprocessable Content
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /api/v1/resume:
-    post:
-      tags:
-      - resume
-      summary: Resume Endpoint
-      description: resume_endpoint.
-      operationId: resume_endpoint_api_v1_resume_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResumeRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '202':
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '422':
-          description: Unprocessable Content
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /api/v1/inspect/{candidate_id}:
-    get:
-      tags:
-      - inspect
-      summary: Inspect Endpoint
-      description: inspect_endpoint.
-      operationId: inspect_endpoint_api_v1_inspect__candidate_id__get
-      parameters:
-      - name: candidate_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Candidate Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/compare:
-    post:
-      tags:
-      - compare
-      summary: Compare Endpoint
-      description: compare_endpoint.
-      operationId: compare_endpoint_api_v1_compare_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CompareRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '422':
-          description: Unprocessable Content
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /api/v1/runs/{run_id}/status:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Run Status Endpoint
-      description: Return the stable runtime status contract for one run.
-      operationId: run_status_endpoint_api_v1_runs__run_id__status_get
-      parameters:
-      - name: run_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Run Id
-      - name: include_documents
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-          title: Include Documents
-      - name: max_inline_bytes
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 256000
-          title: Max Inline Bytes
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Unprocessable Content
-  /api/v1/runs/{run_id}/artifacts:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Run Artifacts Endpoint
-      description: Return the stable artifact inventory for one run.
-      operationId: run_artifacts_endpoint_api_v1_runs__run_id__artifacts_get
-      parameters:
-      - name: run_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Run Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/runs/{run_id}/evidence-bundle:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Run Evidence Endpoint
-      description: Return the stable evidence-bundle surface for one run.
-      operationId: run_evidence_endpoint_api_v1_runs__run_id__evidence_bundle_get
-      parameters:
-      - name: run_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Run Id
-      - name: include_document
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-          title: Include Document
-      - name: max_inline_bytes
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 256000
-          title: Max Inline Bytes
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/runs/{run_id}/review-packet:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Run Review Endpoint
-      description: Return the stable review-packet surface for one run.
-      operationId: run_review_endpoint_api_v1_runs__run_id__review_packet_get
-      parameters:
-      - name: run_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Run Id
-      - name: include_document
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-          title: Include Document
-      - name: max_inline_bytes
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 256000
-          title: Max Inline Bytes
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Not Found
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/runtime-health:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Runtime Health Endpoint
-      description: Return the typed runtime health report.
-      operationId: runtime_health_endpoint_api_v1_runtime_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /api/v1/runs/history:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Run History Endpoint
-      description: Return the stable run-history lookup response.
-      operationId: run_history_endpoint_api_v1_runs_history_get
-      parameters:
-      - name: provider
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Provider
-      - name: workflow_state
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Workflow State
-      - name: outcome
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Outcome
-      - name: candidate_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Candidate Id
-      - name: cursor
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cursor
-      - name: page_size
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 20
-          title: Page Size
-      - name: max_query_cost
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 1000
-          title: Max Query Cost
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '500':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Internal Server Error
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/artifacts:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Artifact Lookup Endpoint
-      description: Return the stable artifact lookup response.
-      operationId: artifact_lookup_endpoint_api_v1_artifacts_get
-      parameters:
-      - name: run_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Run Id
-      - name: artifact_kind
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Artifact Kind
-      - name: cursor
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cursor
-      - name: page_size
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 20
-          title: Page Size
-      - name: max_query_cost
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 1000
-          title: Max Query Cost
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '500':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Internal Server Error
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/evidence:
-    get:
-      tags:
-      - runtime-contracts
-      summary: Evidence Lookup Endpoint
-      description: Return the stable evidence and review lookup response.
-      operationId: evidence_lookup_endpoint_api_v1_evidence_get
-      parameters:
-      - name: run_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Run Id
-      - name: document_kind
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Document Kind
-      - name: availability
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Availability
-      - name: cursor
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Cursor
-      - name: page_size
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 20
-          title: Page Size
-      - name: max_query_cost
-        in: query
-        required: false
-        schema:
-          type: integer
-          default: 1000
-          title: Max Query Cost
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiEnvelope'
-        '500':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-          description: Internal Server Error
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     ApiCandidate:
+      additionalProperties: false
+      description: ApiCandidate.
       properties:
         candidate_id:
-          type: string
+          description: Candidate identifier.
           minLength: 1
           title: Candidate Id
-          description: Candidate identifier.
-        sequence:
           type: string
-          minLength: 1
-          title: Sequence
-          description: Sequence.
-        structures:
+        confidence:
+          additionalProperties: true
+          description: Confidence vector.
+          title: Confidence
+          type: object
+        created_at:
+          description: Created timestamp.
+          title: Created At
+          type: string
+        flags:
+          description: Flags.
           items:
-            $ref: '#/components/schemas/ApiCandidateStructure'
+            type: string
+          title: Flags
           type: array
-          title: Structures
-          description: Structures.
         metrics:
           additionalProperties:
             type: number
-          type: object
-          title: Metrics
           description: Candidate metrics.
-        flags:
-          items:
-            type: string
-          type: array
-          title: Flags
-          description: Flags.
+          title: Metrics
+          type: object
         provenance:
           additionalProperties: true
-          type: object
-          title: Provenance
           description: Provenance metadata.
-        confidence:
-          additionalProperties: true
+          title: Provenance
           type: object
-          title: Confidence
-          description: Confidence vector.
-        created_at:
+        sequence:
+          description: Sequence.
+          minLength: 1
+          title: Sequence
           type: string
-          title: Created At
-          description: Created timestamp.
-      additionalProperties: false
-      type: object
+        structures:
+          description: Structures.
+          items:
+            $ref: '#/components/schemas/ApiCandidateStructure'
+          title: Structures
+          type: array
       required:
       - candidate_id
       - sequence
       - created_at
       title: ApiCandidate
-      description: ApiCandidate.
+      type: object
     ApiCandidateStructure:
+      additionalProperties: false
+      description: ApiCandidateStructure.
       properties:
-        structure_id:
-          type: string
-          title: Structure Id
-          description: Structure identifier.
-        provider:
-          type: string
-          title: Provider
-          description: Provider name.
+        metadata:
+          additionalProperties: true
+          description: Structure metadata.
+          title: Metadata
+          type: object
+        metrics:
+          additionalProperties:
+            type: number
+          description: Structure metrics.
+          title: Metrics
+          type: object
         pdb_text:
           anyOf:
           - type: string
           - type: 'null'
-          title: Pdb Text
           description: Optional PDB.
-        metrics:
-          additionalProperties:
-            type: number
-          type: object
-          title: Metrics
-          description: Structure metrics.
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-          description: Structure metadata.
-      additionalProperties: false
-      type: object
+          title: Pdb Text
+        provider:
+          description: Provider name.
+          title: Provider
+          type: string
+        structure_id:
+          description: Structure identifier.
+          title: Structure Id
+          type: string
       required:
       - structure_id
       - provider
       title: ApiCandidateStructure
-      description: ApiCandidateStructure.
+      type: object
     ApiEnvelope:
+      additionalProperties: false
+      description: ApiEnvelope.
       properties:
-        status:
-          type: string
-          enum:
-          - ok
-          - error
-          title: Status
-          description: Response status.
         data:
           anyOf:
           - $ref: '#/components/schemas/RunResponse'
@@ -751,8 +106,8 @@ components:
           - $ref: '#/components/schemas/ReadyResponse'
           - $ref: '#/components/schemas/RuntimeHealthResponse'
           - type: 'null'
-          title: Data
           description: Successful response payload.
+          title: Data
         error:
           anyOf:
           - $ref: '#/components/schemas/ErrorResponse'
@@ -760,130 +115,135 @@ components:
           description: Structured error payload.
         meta:
           additionalProperties: true
-          type: object
-          title: Meta
           description: Meta fields.
-      additionalProperties: false
-      type: object
+          title: Meta
+          type: object
+        status:
+          description: Response status.
+          enum:
+          - ok
+          - error
+          title: Status
+          type: string
       required:
       - status
       title: ApiEnvelope
-      description: ApiEnvelope.
+      type: object
     ArtifactLookupResponse:
+      additionalProperties: false
+      description: Stable cross-run artifact lookup response.
       properties:
         artifacts:
+          description: Artifacts that match the requested filters.
           items:
             $ref: '#/components/schemas/RuntimeArtifactRecord'
-          type: array
           title: Artifacts
-          description: Artifacts that match the requested filters.
+          type: array
         page:
           $ref: '#/components/schemas/PaginationMeta'
           description: Pagination and query-cost metadata.
-      additionalProperties: false
-      type: object
       required:
       - page
       title: ArtifactLookupResponse
-      description: Stable cross-run artifact lookup response.
+      type: object
     CompareRequest:
+      additionalProperties: false
+      description: CompareRequest.
       properties:
         run_id_a:
-          type: string
+          description: First run id.
           minLength: 1
           title: Run Id A
-          description: First run id.
-        run_id_b:
           type: string
+        run_id_b:
+          description: Second run id.
           minLength: 1
           title: Run Id B
-          description: Second run id.
-      additionalProperties: false
-      type: object
+          type: string
       required:
       - run_id_a
       - run_id_b
       title: CompareRequest
-      description: CompareRequest.
+      type: object
     CompareResponse:
+      additionalProperties: false
+      description: CompareResponse.
       properties:
+        candidate_trajectories:
+          additionalProperties: true
+          description: Candidate trajectories.
+          title: Candidate Trajectories
+          type: object
+        final_outcome:
+          additionalProperties:
+            additionalProperties: true
+            type: object
+          description: Final outcome summaries.
+          title: Final Outcome
+          type: object
+        iteration_deltas:
+          additionalProperties: true
+          description: Iteration deltas.
+          title: Iteration Deltas
+          type: object
         run_ids:
           additionalProperties:
             anyOf:
             - type: string
             - type: 'null'
-          type: object
-          title: Run Ids
           description: Run ids.
-        final_outcome:
-          additionalProperties:
-            additionalProperties: true
-            type: object
+          title: Run Ids
           type: object
-          title: Final Outcome
-          description: Final outcome summaries.
-        candidate_trajectories:
-          additionalProperties: true
-          type: object
-          title: Candidate Trajectories
-          description: Candidate trajectories.
-        iteration_deltas:
-          additionalProperties: true
-          type: object
-          title: Iteration Deltas
-          description: Iteration deltas.
-      additionalProperties: false
-      type: object
       required:
       - run_ids
       - final_outcome
       - candidate_trajectories
       - iteration_deltas
       title: CompareResponse
-      description: CompareResponse.
+      type: object
     ErrorResponse:
+      additionalProperties: false
+      description: ErrorResponse.
       properties:
-        type:
-          type: string
-          minLength: 1
-          format: uri
-          title: Type
-          description: Problem type URI.
-          default: about:blank
-        title:
-          type: string
-          title: Title
-          description: Short, human-readable summary.
-        status:
-          type: integer
-          title: Status
-          description: HTTP status code.
         detail:
-          type: string
-          title: Detail
           description: Human-readable explanation.
-        instance:
+          title: Detail
           type: string
-          title: Instance
-          description: URI reference for this occurrence.
-        failure_class:
-          type: string
-          minLength: 1
-          title: Failure Class
-          description: Stable failure class.
-        remediation_hint:
-          type: string
-          minLength: 1
-          title: Remediation Hint
-          description: Operator-facing remediation hint.
         evidence_pointer:
           anyOf:
           - type: string
           - type: 'null'
-          title: Evidence Pointer
           description: Optional path or identifier that points to relevant evidence.
-      additionalProperties: false
-      type: object
+          title: Evidence Pointer
+        failure_class:
+          description: Stable failure class.
+          minLength: 1
+          title: Failure Class
+          type: string
+        instance:
+          description: URI reference for this occurrence.
+          title: Instance
+          type: string
+        remediation_hint:
+          description: Operator-facing remediation hint.
+          minLength: 1
+          title: Remediation Hint
+          type: string
+        status:
+          description: HTTP status code.
+          title: Status
+          type: integer
+        title:
+          description: Short, human-readable summary.
+          title: Title
+          type: string
+        type:
+          default: about:blank
+          description: Problem type URI.
+          format: uri
+          minLength: 1
+          title: Type
+          type: string
       required:
       - title
       - status
@@ -892,34 +252,34 @@ components:
       - failure_class
       - remediation_hint
       title: ErrorResponse
-      description: ErrorResponse.
+      type: object
     EvidenceLookupResponse:
+      additionalProperties: false
+      description: Stable cross-run evidence and review lookup response.
       properties:
         documents:
+          description: Evidence and review documents matching the requested filters.
           items:
             $ref: '#/components/schemas/RuntimeDocumentReference'
-          type: array
           title: Documents
-          description: Evidence and review documents matching the requested filters.
+          type: array
         page:
           $ref: '#/components/schemas/PaginationMeta'
           description: Pagination and query-cost metadata.
-      additionalProperties: false
-      type: object
       required:
       - page
       title: EvidenceLookupResponse
-      description: Stable cross-run evidence and review lookup response.
+      type: object
     ExecutionStatus:
-      type: string
+      description: ExecutionStatus.
       enum:
       - completed
       - errored
       - aborted
       title: ExecutionStatus
-      description: ExecutionStatus.
-    FailureType:
       type: string
+    FailureType:
+      description: FailureType.
       enum:
       - none
       - input_invalid
@@ -935,35 +295,43 @@ components:
       - human_decision_missing
       - unknown
       title: FailureType
-      description: FailureType.
+      type: string
     HTTPValidationError:
       properties:
         detail:
           items:
             $ref: '#/components/schemas/ValidationError'
-          type: array
           title: Detail
-      type: object
+          type: array
       title: HTTPValidationError
-    HealthResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-          description: Health status.
-        runtime:
-          type: string
-          title: Runtime
-          description: Canonical runtime identity.
-      additionalProperties: false
       type: object
+    HealthResponse:
+      additionalProperties: false
+      description: HealthResponse.
+      properties:
+        runtime:
+          description: Canonical runtime identity.
+          title: Runtime
+          type: string
+        status:
+          description: Health status.
+          title: Status
+          type: string
       required:
       - status
       - runtime
       title: HealthResponse
-      description: HealthResponse.
+      type: object
     InspectResponse:
+      additionalProperties: false
+      description: InspectResponse.
       properties:
+        artifacts:
+          additionalProperties:
+            type: string
+          description: Artifact paths.
+          title: Artifacts
+          type: object
         candidate:
           $ref: '#/components/schemas/ApiCandidate'
           description: Candidate.
@@ -971,299 +339,291 @@ components:
           anyOf:
           - type: string
           - type: 'null'
-          title: Qc Status
           description: QC status.
-        artifacts:
-          additionalProperties:
-            type: string
-          type: object
-          title: Artifacts
-          description: Artifact paths.
-      additionalProperties: false
-      type: object
+          title: Qc Status
       required:
       - candidate
       title: InspectResponse
-      description: InspectResponse.
+      type: object
     Outcome:
-      type: string
+      description: Outcome.
       enum:
       - accepted
       - rejected
       - needs_review
       - inconclusive
       title: Outcome
-      description: Outcome.
+      type: string
     PaginationMeta:
+      additionalProperties: false
+      description: Stable pagination and query-cost metadata for collection responses.
       properties:
         cursor:
           anyOf:
           - type: string
           - type: 'null'
-          title: Cursor
           description: Current cursor.
+          title: Cursor
         next_cursor:
           anyOf:
           - type: string
           - type: 'null'
-          title: Next Cursor
           description: Next cursor.
+          title: Next Cursor
         page_size:
-          type: integer
+          description: Requested page size.
           minimum: 1.0
           title: Page Size
-          description: Requested page size.
-        returned_count:
           type: integer
-          minimum: 0.0
-          title: Returned Count
-          description: Returned item count.
-        scanned_count:
-          type: integer
-          minimum: 0.0
-          title: Scanned Count
-          description: Scanned item count.
         query_cost_units:
-          type: integer
+          description: Estimated query cost.
           minimum: 0.0
           title: Query Cost Units
-          description: Estimated query cost.
-      additionalProperties: false
-      type: object
+          type: integer
+        returned_count:
+          description: Returned item count.
+          minimum: 0.0
+          title: Returned Count
+          type: integer
+        scanned_count:
+          description: Scanned item count.
+          minimum: 0.0
+          title: Scanned Count
+          type: integer
       required:
       - page_size
       - returned_count
       - scanned_count
       - query_cost_units
       title: PaginationMeta
-      description: Stable pagination and query-cost metadata for collection responses.
+      type: object
     ReadyResponse:
+      additionalProperties: false
+      description: ReadyResponse.
       properties:
-        status:
-          type: string
-          title: Status
-          description: Readiness status.
-        runtime:
-          type: string
-          title: Runtime
-          description: Canonical runtime identity.
         providers:
           additionalProperties: true
-          type: object
-          title: Providers
           description: Provider readiness details.
-      additionalProperties: false
-      type: object
+          title: Providers
+          type: object
+        runtime:
+          description: Canonical runtime identity.
+          title: Runtime
+          type: string
+        status:
+          description: Readiness status.
+          title: Status
+          type: string
       required:
       - status
       - runtime
       title: ReadyResponse
-      description: ReadyResponse.
+      type: object
     ResumeRequest:
+      additionalProperties: false
+      description: ResumeRequest.
       properties:
-        run_id:
-          anyOf:
-          - type: string
-            minLength: 1
-          - type: 'null'
-          title: Run Id
-          description: Run identifier.
-        candidate_id:
-          anyOf:
-          - type: string
-            minLength: 1
-          - type: 'null'
-          title: Candidate Id
-          description: Candidate identifier.
-        rounds:
-          type: integer
-          minimum: 1.0
-          title: Rounds
-          description: Loop iterations.
-          default: 1
-        provider:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Provider
-          description: Optional provider.
         artifacts_dir:
           anyOf:
           - type: string
           - type: 'null'
-          title: Artifacts Dir
           description: Artifacts root.
+          title: Artifacts Dir
+        candidate_id:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: Candidate identifier.
+          title: Candidate Id
         execution_mode:
-          type: string
-          title: Execution Mode
-          description: Provider execution mode.
           default: auto
-      additionalProperties: false
-      type: object
-      title: ResumeRequest
-      description: ResumeRequest.
-    RunArtifactsResponse:
-      properties:
-        run_id:
+          description: Provider execution mode.
+          title: Execution Mode
           type: string
-          minLength: 1
-          title: Run Id
+        provider:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional provider.
+          title: Provider
+        rounds:
+          default: 1
+          description: Loop iterations.
+          minimum: 1.0
+          title: Rounds
+          type: integer
+        run_id:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
           description: Run identifier.
+          title: Run Id
+      title: ResumeRequest
+      type: object
+    RunArtifactsResponse:
+      additionalProperties: false
+      description: Stable artifact listing for one run.
+      properties:
         artifacts:
+          description: Artifacts attached to the run.
           items:
             $ref: '#/components/schemas/RuntimeArtifactRecord'
-          type: array
           title: Artifacts
-          description: Artifacts attached to the run.
-      additionalProperties: false
-      type: object
+          type: array
+        run_id:
+          description: Run identifier.
+          minLength: 1
+          title: Run Id
+          type: string
       required:
       - run_id
       title: RunArtifactsResponse
-      description: Stable artifact listing for one run.
+      type: object
     RunEvidenceResponse:
+      additionalProperties: false
+      description: Stable evidence-bundle availability response for one run.
       properties:
-        run_id:
-          type: string
-          minLength: 1
-          title: Run Id
-          description: Run identifier.
         evidence_bundle:
           $ref: '#/components/schemas/RuntimeDocumentReference'
           description: Evidence-bundle availability.
-      additionalProperties: false
-      type: object
+        run_id:
+          description: Run identifier.
+          minLength: 1
+          title: Run Id
+          type: string
       required:
       - run_id
       - evidence_bundle
       title: RunEvidenceResponse
-      description: Stable evidence-bundle availability response for one run.
+      type: object
     RunHistoryResponse:
+      additionalProperties: false
+      description: Stable run-history lookup response.
       properties:
-        runs:
-          items:
-            $ref: '#/components/schemas/RunResponse'
-          type: array
-          title: Runs
-          description: Runs that match the requested filters.
         page:
           $ref: '#/components/schemas/PaginationMeta'
           description: Pagination and query-cost metadata.
-      additionalProperties: false
-      type: object
+        runs:
+          description: Runs that match the requested filters.
+          items:
+            $ref: '#/components/schemas/RunResponse'
+          title: Runs
+          type: array
       required:
       - page
       title: RunHistoryResponse
-      description: Stable run-history lookup response.
+      type: object
     RunRequest:
+      additionalProperties: false
+      description: RunRequest.
       properties:
-        sequence:
+        artifacts_dir:
           anyOf:
           - type: string
-            minLength: 1
           - type: 'null'
-          title: Sequence
-          description: Inline sequence.
-        sequence_file:
-          anyOf:
-          - type: string
-            minLength: 1
-          - type: 'null'
-          title: Sequence File
-          description: FASTA file path on server.
+          description: Artifacts root.
+          title: Artifacts Dir
+        dry_run:
+          default: false
+          description: Dry-run mode.
+          title: Dry Run
+          type: boolean
+        execution_mode:
+          default: auto
+          description: Provider execution mode.
+          title: Execution Mode
+          type: string
         ground_truth:
           anyOf:
           - type: string
           - type: 'null'
-          title: Ground Truth
           description: Optional ground-truth reference.
-        rounds:
-          type: integer
-          minimum: 1.0
-          title: Rounds
-          description: Loop iterations.
-          default: 1
+          title: Ground Truth
         provider:
           anyOf:
           - type: string
           - type: 'null'
-          title: Provider
           description: Optional provider.
-        artifacts_dir:
+          title: Provider
+        rounds:
+          default: 1
+          description: Loop iterations.
+          minimum: 1.0
+          title: Rounds
+          type: integer
+        sequence:
           anyOf:
-          - type: string
+          - minLength: 1
+            type: string
           - type: 'null'
-          title: Artifacts Dir
-          description: Artifacts root.
-        dry_run:
-          type: boolean
-          title: Dry Run
-          description: Dry-run mode.
-          default: false
-        execution_mode:
-          type: string
-          title: Execution Mode
-          description: Provider execution mode.
-          default: auto
-      additionalProperties: false
-      type: object
+          description: Inline sequence.
+          title: Sequence
+        sequence_file:
+          anyOf:
+          - minLength: 1
+            type: string
+          - type: 'null'
+          description: FASTA file path on server.
+          title: Sequence File
       title: RunRequest
-      description: RunRequest.
+      type: object
     RunResponse:
+      additionalProperties: false
+      description: RunResponse.
       properties:
-        run_id:
+        artifacts_dir:
+          description: Artifacts directory.
+          title: Artifacts Dir
           type: string
-          minLength: 1
-          title: Run Id
-          description: Run identifier.
         candidate_id:
-          type: string
+          description: Candidate identifier.
           minLength: 1
           title: Candidate Id
-          description: Candidate identifier.
-        command:
           type: string
-          title: Command
+        command:
           description: Command name.
+          title: Command
+          type: string
         execution_status:
           $ref: '#/components/schemas/ExecutionStatus'
           description: Execution status.
-        workflow_state:
-          $ref: '#/components/schemas/WorkflowState'
-          description: Workflow state.
-        outcome:
-          $ref: '#/components/schemas/Outcome'
-        provider:
-          type: string
-          title: Provider
-          description: Provider name.
-        tool_status:
-          $ref: '#/components/schemas/ToolStatus'
-          description: Tool status.
-        qc_status:
-          type: string
-          title: Qc Status
-          description: QC status.
-        artifacts_dir:
-          type: string
-          title: Artifacts Dir
-          description: Artifacts directory.
-        warnings:
-          items:
-            type: string
-          type: array
-          title: Warnings
-          description: Warnings.
         failure:
           anyOf:
           - $ref: '#/components/schemas/FailureType'
           - type: 'null'
           description: Failure type.
+        outcome:
+          $ref: '#/components/schemas/Outcome'
+        provider:
+          description: Provider name.
+          title: Provider
+          type: string
+        qc_status:
+          description: QC status.
+          title: Qc Status
+          type: string
+        run_id:
+          description: Run identifier.
+          minLength: 1
+          title: Run Id
+          type: string
+        tool_status:
+          $ref: '#/components/schemas/ToolStatus'
+          description: Tool status.
         version:
           $ref: '#/components/schemas/VersionInfo'
           description: Version info.
-      additionalProperties: false
-      type: object
+        warnings:
+          description: Warnings.
+          items:
+            type: string
+          title: Warnings
+          type: array
+        workflow_state:
+          $ref: '#/components/schemas/WorkflowState'
+          description: Workflow state.
       required:
       - run_id
       - candidate_id
@@ -1277,70 +637,70 @@ components:
       - artifacts_dir
       - version
       title: RunResponse
-      description: RunResponse.
+      type: object
     RunReviewResponse:
+      additionalProperties: false
+      description: Stable review-packet availability response for one run.
       properties:
-        run_id:
-          type: string
-          minLength: 1
-          title: Run Id
-          description: Run identifier.
         review_packet:
           $ref: '#/components/schemas/RuntimeDocumentReference'
           description: Review-packet availability.
-      additionalProperties: false
-      type: object
+        run_id:
+          description: Run identifier.
+          minLength: 1
+          title: Run Id
+          type: string
       required:
       - run_id
       - review_packet
       title: RunReviewResponse
-      description: Stable review-packet availability response for one run.
+      type: object
     RuntimeArtifactRecord:
+      additionalProperties: false
+      description: Stable runtime artifact descriptor for lookup and review.
       properties:
-        run_id:
-          type: string
-          minLength: 1
-          title: Run Id
-          description: Run identifier.
         artifact_key:
-          type: string
+          description: Stable artifact key.
           minLength: 1
           title: Artifact Key
-          description: Stable artifact key.
-        artifact_kind:
           type: string
+        artifact_kind:
+          description: Artifact kind.
           minLength: 1
           title: Artifact Kind
-          description: Artifact kind.
-        path:
           type: string
+        description:
+          description: Artifact description.
+          minLength: 1
+          title: Description
+          type: string
+        path:
+          description: Repository-local artifact path.
           minLength: 1
           title: Path
-          description: Repository-local artifact path.
-        size_bytes:
-          type: integer
-          minimum: 0.0
-          title: Size Bytes
-          description: Artifact size in bytes.
-        sha256:
           type: string
+        run_id:
+          description: Run identifier.
+          minLength: 1
+          title: Run Id
+          type: string
+        sha256:
+          description: Artifact hash.
           maxLength: 64
           minLength: 64
           title: Sha256
-          description: Artifact hash.
+          type: string
+        size_bytes:
+          description: Artifact size in bytes.
+          minimum: 0.0
+          title: Size Bytes
+          type: integer
         tags:
+          description: Artifact tags.
           items:
             type: string
-          type: array
           title: Tags
-          description: Artifact tags.
-        description:
-          type: string
-          minLength: 1
-          title: Description
-          description: Artifact description.
-      additionalProperties: false
-      type: object
+          type: array
       required:
       - run_id
       - artifact_key
@@ -1350,68 +710,68 @@ components:
       - sha256
       - description
       title: RuntimeArtifactRecord
-      description: Stable runtime artifact descriptor for lookup and review.
+      type: object
     RuntimeDocumentAvailability:
-      type: string
+      description: Availability state for one runtime-managed document surface.
       enum:
       - available
       - missing
       - too_large
       - unsupported
       title: RuntimeDocumentAvailability
-      description: Availability state for one runtime-managed document surface.
+      type: string
     RuntimeDocumentReference:
+      additionalProperties: false
+      description: Stable reference to a runtime evidence or review document.
       properties:
-        run_id:
-          type: string
-          minLength: 1
-          title: Run Id
-          description: Run identifier.
-        document_kind:
-          type: string
-          minLength: 1
-          title: Document Kind
-          description: Document kind.
         availability:
           $ref: '#/components/schemas/RuntimeDocumentAvailability'
           description: Availability state for this document.
-        path:
-          type: string
-          minLength: 1
-          title: Path
-          description: Repository-local document path.
-        size_bytes:
-          type: integer
-          minimum: 0.0
-          title: Size Bytes
-          description: Document size in bytes when known.
-          default: 0
-        guard_limit_bytes:
-          type: integer
-          minimum: 0.0
-          title: Guard Limit Bytes
-          description: Inline-ingestion guard applied to this document request.
-          default: 0
-        sha256:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Sha256
-          description: Document hash when known.
-        note:
-          type: string
-          minLength: 1
-          title: Note
-          description: Human-readable availability note.
         content:
           anyOf:
           - additionalProperties: true
             type: object
           - type: 'null'
-          title: Content
           description: Inline document content when small enough and requested.
-      additionalProperties: false
-      type: object
+          title: Content
+        document_kind:
+          description: Document kind.
+          minLength: 1
+          title: Document Kind
+          type: string
+        guard_limit_bytes:
+          default: 0
+          description: Inline-ingestion guard applied to this document request.
+          minimum: 0.0
+          title: Guard Limit Bytes
+          type: integer
+        note:
+          description: Human-readable availability note.
+          minLength: 1
+          title: Note
+          type: string
+        path:
+          description: Repository-local document path.
+          minLength: 1
+          title: Path
+          type: string
+        run_id:
+          description: Run identifier.
+          minLength: 1
+          title: Run Id
+          type: string
+        sha256:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Document hash when known.
+          title: Sha256
+        size_bytes:
+          default: 0
+          description: Document size in bytes when known.
+          minimum: 0.0
+          title: Size Bytes
+          type: integer
       required:
       - run_id
       - document_kind
@@ -1419,151 +779,791 @@ components:
       - path
       - note
       title: RuntimeDocumentReference
-      description: Stable reference to a runtime evidence or review document.
+      type: object
     RuntimeHealthComponent:
+      additionalProperties: false
+      description: One runtime health component check.
       properties:
         component:
-          type: string
+          description: Component identifier.
           minLength: 1
           title: Component
-          description: Component identifier.
+          type: string
+        detail:
+          description: Human-readable detail.
+          minLength: 1
+          title: Detail
+          type: string
+        remediation_hint:
+          description: Operator remediation hint.
+          minLength: 1
+          title: Remediation Hint
+          type: string
         state:
           $ref: '#/components/schemas/RuntimeHealthComponentState'
           description: Component health.
-        detail:
-          type: string
-          minLength: 1
-          title: Detail
-          description: Human-readable detail.
-        remediation_hint:
-          type: string
-          minLength: 1
-          title: Remediation Hint
-          description: Operator remediation hint.
-      additionalProperties: false
-      type: object
       required:
       - component
       - state
       - detail
       - remediation_hint
       title: RuntimeHealthComponent
-      description: One runtime health component check.
+      type: object
     RuntimeHealthComponentState:
-      type: string
+      description: Health state for one runtime service component.
       enum:
       - healthy
       - degraded
       - failed
       title: RuntimeHealthComponentState
-      description: Health state for one runtime service component.
+      type: string
     RuntimeHealthResponse:
+      additionalProperties: false
+      description: Typed runtime health report across storage, cache, tool, and manifest
+        checks.
       properties:
-        status:
-          type: string
-          title: Status
-          description: Aggregate health status.
-        runtime:
-          type: string
-          title: Runtime
-          description: Canonical runtime identity.
         components:
+          description: Per-component health details.
           items:
             $ref: '#/components/schemas/RuntimeHealthComponent'
-          type: array
           title: Components
-          description: Per-component health details.
-      additionalProperties: false
-      type: object
+          type: array
+        runtime:
+          description: Canonical runtime identity.
+          title: Runtime
+          type: string
+        status:
+          description: Aggregate health status.
+          title: Status
+          type: string
       required:
       - status
       - runtime
       title: RuntimeHealthResponse
-      description: Typed runtime health report across storage, cache, tool, and manifest
-        checks.
+      type: object
     RuntimeStatusResponse:
+      additionalProperties: false
+      description: Stable runtime status response for one run.
       properties:
-        summary:
-          $ref: '#/components/schemas/RunResponse'
-          description: Canonical run summary.
         evidence_bundle:
           $ref: '#/components/schemas/RuntimeDocumentReference'
           description: Evidence-bundle availability for the run.
         review_packet:
           $ref: '#/components/schemas/RuntimeDocumentReference'
           description: Review-packet availability for the run.
-      additionalProperties: false
-      type: object
+        summary:
+          $ref: '#/components/schemas/RunResponse'
+          description: Canonical run summary.
       required:
       - summary
       - evidence_bundle
       - review_packet
       title: RuntimeStatusResponse
-      description: Stable runtime status response for one run.
+      type: object
     ToolStatus:
-      type: string
+      description: ToolStatus.
       enum:
       - success
       - degraded
       - failed
       - skipped
       title: ToolStatus
-      description: ToolStatus.
+      type: string
     ValidationError:
       properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
         loc:
           items:
             anyOf:
             - type: string
             - type: integer
-          type: array
           title: Location
+          type: array
         msg:
-          type: string
           title: Message
-        type:
           type: string
+        type:
           title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
+          type: string
       required:
       - loc
       - msg
       - type
       title: ValidationError
+      type: object
     VersionInfo:
+      additionalProperties: false
+      description: VersionInfo.
       properties:
         app:
-          type: string
-          title: App
           description: Application version.
-        git_commit:
+          title: App
           type: string
-          title: Git Commit
+        git_commit:
           description: Git commit hash.
+          title: Git Commit
+          type: string
         tool_versions:
           additionalProperties:
             type: string
-          type: object
-          title: Tool Versions
           description: Tool version mapping.
-      additionalProperties: false
-      type: object
+          title: Tool Versions
+          type: object
       required:
       - app
       - git_commit
       title: VersionInfo
-      description: VersionInfo.
+      type: object
     WorkflowState:
-      type: string
+      description: WorkflowState.
       enum:
       - running
       - paused
       - awaiting_human_review
       - done
       title: WorkflowState
-      description: WorkflowState.
+      type: string
+info:
+  description: HTTP API exposing the same capabilities as the CLI, nothing more.
+  title: bijux-proteomics-runtime
+  version: 2.0.0
+openapi: 3.1.0
+paths:
+  /api/v1/artifacts:
+    get:
+      description: Return the stable artifact lookup response.
+      operationId: artifact_lookup_endpoint_api_v1_artifacts_get
+      parameters:
+      - in: query
+        name: run_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+      - in: query
+        name: artifact_kind
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Artifact Kind
+      - in: query
+        name: cursor
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cursor
+      - in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          title: Page Size
+          type: integer
+      - in: query
+        name: max_query_cost
+        required: false
+        schema:
+          default: 1000
+          title: Max Query Cost
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Artifact Lookup Endpoint
+      tags:
+      - runtime-contracts
+  /api/v1/compare:
+    post:
+      description: compare_endpoint.
+      operationId: compare_endpoint_api_v1_compare_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompareRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+      summary: Compare Endpoint
+      tags:
+      - compare
+  /api/v1/evidence:
+    get:
+      description: Return the stable evidence and review lookup response.
+      operationId: evidence_lookup_endpoint_api_v1_evidence_get
+      parameters:
+      - in: query
+        name: run_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Run Id
+      - in: query
+        name: document_kind
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Document Kind
+      - in: query
+        name: availability
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Availability
+      - in: query
+        name: cursor
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cursor
+      - in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          title: Page Size
+          type: integer
+      - in: query
+        name: max_query_cost
+        required: false
+        schema:
+          default: 1000
+          title: Max Query Cost
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Evidence Lookup Endpoint
+      tags:
+      - runtime-contracts
+  /api/v1/health:
+    get:
+      description: health.
+      operationId: health_api_v1_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+      summary: Health
+      tags:
+      - health
+  /api/v1/inspect/{candidate_id}:
+    get:
+      description: inspect_endpoint.
+      operationId: inspect_endpoint_api_v1_inspect__candidate_id__get
+      parameters:
+      - in: path
+        name: candidate_id
+        required: true
+        schema:
+          title: Candidate Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Inspect Endpoint
+      tags:
+      - inspect
+  /api/v1/ready:
+    get:
+      description: ready.
+      operationId: ready_api_v1_ready_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+      summary: Ready
+      tags:
+      - health
+  /api/v1/resume:
+    post:
+      description: resume_endpoint.
+      operationId: resume_endpoint_api_v1_resume_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResumeRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Accepted
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+      summary: Resume Endpoint
+      tags:
+      - resume
+  /api/v1/run:
+    post:
+      description: run_endpoint.
+      operationId: run_endpoint_api_v1_run_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Accepted
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Run Endpoint
+      tags:
+      - run
+  /api/v1/runs/history:
+    get:
+      description: Return the stable run-history lookup response.
+      operationId: run_history_endpoint_api_v1_runs_history_get
+      parameters:
+      - in: query
+        name: provider
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider
+      - in: query
+        name: workflow_state
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Workflow State
+      - in: query
+        name: outcome
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Outcome
+      - in: query
+        name: candidate_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Candidate Id
+      - in: query
+        name: cursor
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cursor
+      - in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          title: Page Size
+          type: integer
+      - in: query
+        name: max_query_cost
+        required: false
+        schema:
+          default: 1000
+          title: Max Query Cost
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Run History Endpoint
+      tags:
+      - runtime-contracts
+  /api/v1/runs/{run_id}/artifacts:
+    get:
+      description: Return the stable artifact inventory for one run.
+      operationId: run_artifacts_endpoint_api_v1_runs__run_id__artifacts_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Run Artifacts Endpoint
+      tags:
+      - runtime-contracts
+  /api/v1/runs/{run_id}/evidence-bundle:
+    get:
+      description: Return the stable evidence-bundle surface for one run.
+      operationId: run_evidence_endpoint_api_v1_runs__run_id__evidence_bundle_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      - in: query
+        name: include_document
+        required: false
+        schema:
+          default: false
+          title: Include Document
+          type: boolean
+      - in: query
+        name: max_inline_bytes
+        required: false
+        schema:
+          default: 256000
+          title: Max Inline Bytes
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Run Evidence Endpoint
+      tags:
+      - runtime-contracts
+  /api/v1/runs/{run_id}/review-packet:
+    get:
+      description: Return the stable review-packet surface for one run.
+      operationId: run_review_endpoint_api_v1_runs__run_id__review_packet_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      - in: query
+        name: include_document
+        required: false
+        schema:
+          default: false
+          title: Include Document
+          type: boolean
+      - in: query
+        name: max_inline_bytes
+        required: false
+        schema:
+          default: 256000
+          title: Max Inline Bytes
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Run Review Endpoint
+      tags:
+      - runtime-contracts
+  /api/v1/runs/{run_id}/status:
+    get:
+      description: Return the stable runtime status contract for one run.
+      operationId: run_status_endpoint_api_v1_runs__run_id__status_get
+      parameters:
+      - in: path
+        name: run_id
+        required: true
+        schema:
+          title: Run Id
+          type: string
+      - in: query
+        name: include_documents
+        required: false
+        schema:
+          default: false
+          title: Include Documents
+          type: boolean
+      - in: query
+        name: max_inline_bytes
+        required: false
+        schema:
+          default: 256000
+          title: Max Inline Bytes
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+      summary: Run Status Endpoint
+      tags:
+      - runtime-contracts
+  /api/v1/runtime-health:
+    get:
+      description: Return the typed runtime health report.
+      operationId: runtime_health_endpoint_api_v1_runtime_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Internal Server Error
+      summary: Runtime Health Endpoint
+      tags:
+      - runtime-contracts
+  /health:
+    get:
+      description: health.
+      operationId: health_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+      summary: Health
+      tags:
+      - health
+  /ready:
+    get:
+      description: ready.
+      operationId: ready_ready_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiEnvelope'
+          description: Successful Response
+      summary: Ready
+      tags:
+      - health
