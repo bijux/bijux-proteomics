@@ -34,6 +34,7 @@ def test_spectronaut_output_corpus_report_covers_native_and_pipeline_exports() -
     }
     for entry in report.entries:
         assert entry.source_sha256
+        assert entry.config_sha256
         assert any(
             column in entry.mapped_columns
             for column in ("EG.Cscore", "cscore_value")

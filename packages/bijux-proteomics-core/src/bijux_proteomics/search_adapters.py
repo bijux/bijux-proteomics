@@ -1690,6 +1690,180 @@ def _parse_sage_parameters(path: Path) -> SearchParameterReport:
     )
 
 
+def _modification_definitions_from_compact_value(
+    value: str | None,
+    *,
+    variable: bool,
+    source_key: str,
+) -> tuple[SearchModificationDefinition, ...]:
+    if not value:
+        return ()
+    definitions: list[SearchModificationDefinition] = []
+    for token in value.split(";"):
+        entry = token.strip()
+        if not entry or ":" not in entry:
+            continue
+        site, delta = entry.split(":", 1)
+        site_clean = site.strip().upper()
+        if not site_clean:
+            continue
+        try:
+            mass_delta = float(delta.strip())
+        except ValueError:
+            continue
+        definitions.append(
+            SearchModificationDefinition(
+                site=site_clean,
+                mass_delta=mass_delta,
+                variable=variable,
+                source_key=f"{source_key}.{site_clean}",
+            )
+        )
+    return tuple(definitions)
+
+
+def _parse_maxquant_parameters(path: Path) -> SearchParameterReport:
+    fields = _parse_key_value_parameters(path)
+    fixed_modifications = _modification_definitions_from_compact_value(
+        fields.get("fixed_modifications"),
+        variable=False,
+        source_key="fixed_modifications",
+    )
+    variable_modifications = _modification_definitions_from_compact_value(
+        fields.get("variable_modifications"),
+        variable=True,
+        source_key="variable_modifications",
+    )
+    database_path = fields.get("fasta_file")
+    decoy_prefix = fields.get("decoy_prefix", "REV__").strip() or None
+    return SearchParameterReport(
+        adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
+        adapter_name="MaxQuant evidence",
+        enzyme=fields.get("enzyme", "unknown").strip().lower(),
+        missed_cleavages=int(fields["max_missed_cleavages"])
+        if fields.get("max_missed_cleavages")
+        else None,
+        precursor_tolerance=float(fields["precursor_tolerance_ppm"])
+        if fields.get("precursor_tolerance_ppm")
+        else None,
+        precursor_tolerance_unit=SearchToleranceUnit.PPM
+        if fields.get("precursor_tolerance_ppm")
+        else None,
+        fragment_tolerance=float(fields["fragment_tolerance_da"])
+        if fields.get("fragment_tolerance_da")
+        else None,
+        fragment_tolerance_unit=SearchToleranceUnit.DA
+        if fields.get("fragment_tolerance_da")
+        else None,
+        database_path=database_path,
+        decoy_prefix=decoy_prefix,
+        has_decoy_strategy=bool(decoy_prefix)
+        or bool(database_path and "decoy" in database_path.lower()),
+        fixed_modifications=fixed_modifications,
+        variable_modifications=variable_modifications,
+        raw_fields=fields,
+    )
+
+
+def _parse_diann_parameters(path: Path) -> SearchParameterReport:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError("dia-nn parameter payload must be a JSON object")
+    fixed_modifications = _modification_definitions_from_compact_value(
+        str(payload.get("fixed_modifications", "")),
+        variable=False,
+        source_key="fixed_modifications",
+    )
+    variable_modifications = _modification_definitions_from_compact_value(
+        str(payload.get("variable_modifications", "")),
+        variable=True,
+        source_key="variable_modifications",
+    )
+    database_path = (
+        str(payload.get("fasta_file", "")).strip()
+        or str(payload.get("library_file", "")).strip()
+        or None
+    )
+    decoy_prefix = str(payload.get("decoy_prefix", "")).strip() or None
+    precursor_value = payload.get("precursor_tolerance_ppm")
+    fragment_value = payload.get("fragment_tolerance_ppm")
+    return SearchParameterReport(
+        adapter_kind=SearchAdapterKind.DIANN,
+        adapter_name="DIA-NN",
+        enzyme=str(payload.get("enzyme", "unspecific")).strip().lower(),
+        missed_cleavages=int(payload["max_missed_cleavages"])
+        if payload.get("max_missed_cleavages") is not None
+        else None,
+        precursor_tolerance=float(precursor_value)
+        if precursor_value is not None
+        else None,
+        precursor_tolerance_unit=SearchToleranceUnit.PPM
+        if precursor_value is not None
+        else None,
+        fragment_tolerance=float(fragment_value)
+        if fragment_value is not None
+        else None,
+        fragment_tolerance_unit=SearchToleranceUnit.PPM
+        if fragment_value is not None
+        else None,
+        database_path=database_path,
+        decoy_prefix=decoy_prefix,
+        has_decoy_strategy=bool(decoy_prefix)
+        or bool(database_path and "decoy" in database_path.lower()),
+        fixed_modifications=fixed_modifications,
+        variable_modifications=variable_modifications,
+        raw_fields={
+            key: json.dumps(value, sort_keys=True)
+            for key, value in sorted(payload.items())
+        },
+    )
+
+
+def _parse_spectronaut_parameters(path: Path) -> SearchParameterReport:
+    fields = _parse_key_value_parameters(path)
+    fixed_modifications = _modification_definitions_from_compact_value(
+        fields.get("fixed_modifications"),
+        variable=False,
+        source_key="fixed_modifications",
+    )
+    variable_modifications = _modification_definitions_from_compact_value(
+        fields.get("variable_modifications"),
+        variable=True,
+        source_key="variable_modifications",
+    )
+    database_path = (
+        fields.get("library_file") or fields.get("fasta_file") or None
+    )
+    decoy_prefix = fields.get("decoy_prefix")
+    return SearchParameterReport(
+        adapter_kind=SearchAdapterKind.SPECTRONAUT,
+        adapter_name="Spectronaut",
+        enzyme=fields.get("digestion_enzyme", "unknown").strip().lower(),
+        missed_cleavages=int(fields["max_missed_cleavages"])
+        if fields.get("max_missed_cleavages")
+        else None,
+        precursor_tolerance=float(fields["precursor_tolerance_ppm"])
+        if fields.get("precursor_tolerance_ppm")
+        else None,
+        precursor_tolerance_unit=SearchToleranceUnit.PPM
+        if fields.get("precursor_tolerance_ppm")
+        else None,
+        fragment_tolerance=float(fields["fragment_tolerance_ppm"])
+        if fields.get("fragment_tolerance_ppm")
+        else None,
+        fragment_tolerance_unit=SearchToleranceUnit.PPM
+        if fields.get("fragment_tolerance_ppm")
+        else None,
+        database_path=database_path,
+        decoy_prefix=decoy_prefix,
+        has_decoy_strategy=bool(decoy_prefix)
+        or bool(database_path and "decoy" in database_path.lower()),
+        fixed_modifications=fixed_modifications,
+        variable_modifications=variable_modifications,
+        raw_fields=fields,
+    )
+
+
 def parse_search_parameter_file(
     *,
     source_path: Path,
@@ -1702,6 +1876,12 @@ def parse_search_parameter_file(
         return _parse_msfragger_parameters(source_path)
     if adapter_kind is SearchAdapterKind.SAGE:
         return _parse_sage_parameters(source_path)
+    if adapter_kind is SearchAdapterKind.MAXQUANT_EVIDENCE:
+        return _parse_maxquant_parameters(source_path)
+    if adapter_kind is SearchAdapterKind.DIANN:
+        return _parse_diann_parameters(source_path)
+    if adapter_kind is SearchAdapterKind.SPECTRONAUT:
+        return _parse_spectronaut_parameters(source_path)
     raise ValueError(
         f"search parameter parsing is not supported for adapter {adapter_kind.value!r}"
     )
@@ -1712,6 +1892,9 @@ def _supports_search_parameter_parsing(adapter_kind: SearchAdapterKind) -> bool:
         SearchAdapterKind.COMET,
         SearchAdapterKind.MSFRAGGER,
         SearchAdapterKind.SAGE,
+        SearchAdapterKind.MAXQUANT_EVIDENCE,
+        SearchAdapterKind.DIANN,
+        SearchAdapterKind.SPECTRONAUT,
     }
 
 
@@ -2629,11 +2812,13 @@ def build_maxquant_output_corpus_report(
                 adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
                 dialect_id="default",
                 result_file="maxquant_evidence.tsv",
+                config_file="maxquant_settings.txt",
             ),
             SearchCorpusInputSpecification(
                 adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
                 dialect_id="pipeline-export",
                 result_file="maxquant_pipeline_export.tsv",
+                config_file="maxquant_settings.txt",
             ),
         ),
     )
@@ -2649,11 +2834,13 @@ def build_diann_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusRep
                 adapter_kind=SearchAdapterKind.DIANN,
                 dialect_id="default",
                 result_file="diann_report.tsv",
+                config_file="diann_config.json",
             ),
             SearchCorpusInputSpecification(
                 adapter_kind=SearchAdapterKind.DIANN,
                 dialect_id="pipeline-export",
                 result_file="diann_pipeline_export.tsv",
+                config_file="diann_config.json",
             ),
         ),
     )
@@ -2671,11 +2858,13 @@ def build_spectronaut_output_corpus_report(
                 adapter_kind=SearchAdapterKind.SPECTRONAUT,
                 dialect_id="default",
                 result_file="spectronaut_report.tsv",
+                config_file="spectronaut_settings.txt",
             ),
             SearchCorpusInputSpecification(
                 adapter_kind=SearchAdapterKind.SPECTRONAUT,
                 dialect_id="pipeline-export",
                 result_file="spectronaut_pipeline_export.tsv",
+                config_file="spectronaut_settings.txt",
             ),
         ),
     )

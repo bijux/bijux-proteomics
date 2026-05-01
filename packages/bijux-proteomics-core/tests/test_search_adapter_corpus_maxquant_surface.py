@@ -34,7 +34,7 @@ def test_maxquant_output_corpus_report_covers_native_and_pipeline_exports() -> N
     }
     for entry in report.entries:
         assert entry.source_sha256
-        assert entry.config_sha256 is None
+        assert entry.config_sha256
         assert any(
             column in entry.mapped_columns
             for column in ("Score", "score_value")

@@ -1,0 +1,8 @@
+enzyme = trypsin
+max_missed_cleavages = 2
+precursor_tolerance_ppm = 10
+fragment_tolerance_da = 0.02
+fasta_file = /data/human_decoy.fasta
+decoy_prefix = REV__
+fixed_modifications = C:57.021464
+variable_modifications = M:15.994915;S:79.966331
