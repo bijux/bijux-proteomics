@@ -478,3 +478,119 @@ def redact_collaboration_surfaces(
         review_packet_notes=redacted_packets,
         redaction_count=log_hits + error_hits + evidence_hits + packet_hits,
     )
+
+
+class HostileInputProtectionInput(JsonModel):
+    """Untrusted archive and table metadata entering collaboration pipelines."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    archive_members: tuple[str, ...] = Field(default_factory=tuple)
+    record_sizes_bytes: tuple[int, ...] = Field(default_factory=tuple)
+    xml_payloads: tuple[str, ...] = Field(default_factory=tuple)
+    table_rows: tuple[str, ...] = Field(default_factory=tuple)
+    max_record_size_bytes: int = Field(default=5_000_000, ge=1)
+
+
+class HostileInputProtectionIssue(JsonModel):
+    """Refusal reason for unsafe external input."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class HostileInputProtectionReport(JsonModel):
+    """Validation outcome for hostile input protection checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    accepted: bool
+    issues: tuple[HostileInputProtectionIssue, ...] = Field(default_factory=tuple)
+
+
+_HOSTILE_FILENAME_PATTERN = re.compile(r"[`$|;&<>]")
+
+
+def run_hostile_input_protection(
+    payload: HostileInputProtectionInput,
+) -> HostileInputProtectionReport:
+    """Refuse malformed archives, unsafe paths, oversized records, and corrupt content."""
+
+    issues: list[HostileInputProtectionIssue] = []
+
+    for member in payload.archive_members:
+        if not member or "\x00" in member:
+            issues.append(
+                HostileInputProtectionIssue(
+                    code="malformed_archive_member",
+                    message="archive member name is empty or contains NUL byte",
+                )
+            )
+            continue
+        if member.startswith(("/", "\\")) or re.match(r"^[A-Za-z]:[\\/]", member):
+            issues.append(
+                HostileInputProtectionIssue(
+                    code="absolute_archive_path",
+                    message="archive member must be a relative path",
+                )
+            )
+        parts = re.split(r"[\\/]+", member)
+        if ".." in parts:
+            issues.append(
+                HostileInputProtectionIssue(
+                    code="path_traversal",
+                    message="archive member includes parent path traversal",
+                )
+            )
+        if _HOSTILE_FILENAME_PATTERN.search(member):
+            issues.append(
+                HostileInputProtectionIssue(
+                    code="hostile_filename",
+                    message="archive member contains unsafe shell metacharacters",
+                )
+            )
+
+    for size in payload.record_sizes_bytes:
+        if size > payload.max_record_size_bytes:
+            issues.append(
+                HostileInputProtectionIssue(
+                    code="oversized_record",
+                    message="record exceeds maximum safe byte size",
+                )
+            )
+            break
+
+    for xml in payload.xml_payloads:
+        normalized = xml.upper()
+        if "<!DOCTYPE" in normalized or "<!ENTITY" in normalized:
+            issues.append(
+                HostileInputProtectionIssue(
+                    code="xml_entity_abuse",
+                    message="xml payload contains forbidden doctype/entity declarations",
+                )
+            )
+            break
+
+    if payload.table_rows:
+        expected_columns = len(payload.table_rows[0].split("\t"))
+        for row in payload.table_rows:
+            if "\x00" in row:
+                issues.append(
+                    HostileInputProtectionIssue(
+                        code="corrupt_table",
+                        message="table row contains NUL byte",
+                    )
+                )
+                break
+            if len(row.split("\t")) != expected_columns:
+                issues.append(
+                    HostileInputProtectionIssue(
+                        code="corrupt_table",
+                        message="table rows contain inconsistent column counts",
+                    )
+                )
+                break
+
+    return HostileInputProtectionReport(accepted=not issues, issues=tuple(issues))
