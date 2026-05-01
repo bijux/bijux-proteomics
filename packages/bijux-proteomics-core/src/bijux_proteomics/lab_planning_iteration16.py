@@ -535,3 +535,63 @@ def build_assay_expected_evidence_gain_report(
 
     entries.sort(key=lambda entry: (-entry.expected_decision_value, entry.action_id))
     return AssayExpectedEvidenceGainReport(entries=tuple(entries))
+
+
+class LabQueuePrioritizationInput(JsonModel):
+    """Inputs used to prioritize candidate placement in lab execution queue."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    candidate_score: float = Field(..., ge=0.0, le=1.0)
+    evidence_gap_count: int = Field(..., ge=0)
+    cost_score: float = Field(..., ge=0.0, le=1.0)
+    capacity_pressure_score: float = Field(..., ge=0.0, le=1.0)
+    assay_constraint_penalty: float = Field(..., ge=0.0, le=1.0)
+
+
+class LabQueuePrioritizationEntry(JsonModel):
+    """Prioritized queue entry with rationale score."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    queue_priority_score: float
+    queue_rank: int = Field(..., ge=1)
+
+
+class LabQueuePrioritizationReport(JsonModel):
+    """Queue prioritization report for candidate lab actions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[LabQueuePrioritizationEntry, ...] = Field(default_factory=tuple)
+
+
+def build_lab_queue_prioritization_report(
+    items: tuple[LabQueuePrioritizationInput, ...],
+) -> LabQueuePrioritizationReport:
+    """Prioritize queue using candidate score, gaps, cost, capacity, and constraints."""
+
+    scored = []
+    for item in items:
+        gap_bonus = min(1.0, item.evidence_gap_count / 5.0)
+        score = (
+            (0.4 * item.candidate_score)
+            + (0.2 * gap_bonus)
+            + (0.15 * (1.0 - item.cost_score))
+            + (0.15 * (1.0 - item.capacity_pressure_score))
+            + (0.1 * (1.0 - item.assay_constraint_penalty))
+        )
+        scored.append((item.candidate_id, score))
+
+    scored.sort(key=lambda row: (-row[1], row[0]))
+    entries = tuple(
+        LabQueuePrioritizationEntry(
+            candidate_id=candidate_id,
+            queue_priority_score=score,
+            queue_rank=index + 1,
+        )
+        for index, (candidate_id, score) in enumerate(scored)
+    )
+    return LabQueuePrioritizationReport(entries=entries)
