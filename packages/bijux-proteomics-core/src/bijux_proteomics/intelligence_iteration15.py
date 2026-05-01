@@ -132,3 +132,94 @@ def build_pathway_network_caution_report(
         contradiction_count=contradiction_count,
         issue_list=tuple(issues),
     )
+
+
+class QuantOutlierObservation(JsonModel):
+    """Observed quant outlier bound to run/sample/protein context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    outlier_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    protein_id: str = Field(..., min_length=1)
+    z_score: float
+    batch_id: str = Field(..., min_length=1)
+
+
+class RunQcSummaryLink(JsonModel):
+    """QC linkage for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    qc_disposition: str = Field(..., min_length=1)
+    qc_issue_codes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class OutlierQcIntegratedEntry(JsonModel):
+    """One outlier with integrated QC and batch/sample metadata context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    outlier_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    protein_id: str = Field(..., min_length=1)
+    batch_id: str = Field(..., min_length=1)
+    z_score: float
+    qc_disposition: str = Field(..., min_length=1)
+    qc_issue_codes: tuple[str, ...] = Field(default_factory=tuple)
+    triage_priority: int = Field(..., ge=1, le=3)
+
+
+class OutlierQcIntegratedReport(JsonModel):
+    """Outlier analysis integrated with quant, QC, batch, and sample metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[OutlierQcIntegratedEntry, ...] = Field(default_factory=tuple)
+
+
+def build_outlier_qc_integrated_report(
+    *,
+    outliers: tuple[QuantOutlierObservation, ...],
+    qc_summaries: tuple[RunQcSummaryLink, ...],
+) -> OutlierQcIntegratedReport:
+    """Connect outliers to run QC summaries, batch assignment, and sample-level metadata."""
+
+    qc_by_run = {summary.run_id: summary for summary in qc_summaries}
+    entries: list[OutlierQcIntegratedEntry] = []
+
+    for outlier in outliers:
+        qc = qc_by_run.get(outlier.run_id)
+        if qc is None:
+            qc_disposition = "unknown"
+            qc_issue_codes: tuple[str, ...] = ()
+            triage_priority = 3
+        else:
+            qc_disposition = qc.qc_disposition
+            qc_issue_codes = qc.qc_issue_codes
+            if qc.qc_disposition in {"failed", "refused"}:
+                triage_priority = 1
+            elif abs(outlier.z_score) >= 3.0 or qc_issue_codes:
+                triage_priority = 2
+            else:
+                triage_priority = 3
+
+        entries.append(
+            OutlierQcIntegratedEntry(
+                outlier_id=outlier.outlier_id,
+                sample_id=outlier.sample_id,
+                run_id=outlier.run_id,
+                protein_id=outlier.protein_id,
+                batch_id=outlier.batch_id,
+                z_score=outlier.z_score,
+                qc_disposition=qc_disposition,
+                qc_issue_codes=qc_issue_codes,
+                triage_priority=triage_priority,
+            )
+        )
+
+    entries.sort(key=lambda entry: (entry.triage_priority, entry.outlier_id))
+    return OutlierQcIntegratedReport(entries=tuple(entries))
