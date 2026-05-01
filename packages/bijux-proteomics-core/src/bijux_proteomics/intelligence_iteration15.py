@@ -282,3 +282,65 @@ def prioritize_candidates_from_evidence_graph(
         for index, (candidate_id, score) in enumerate(scored)
     )
     return CandidatePriorityReport(entries=entries)
+
+
+class MultiObjectiveRankingInput(JsonModel):
+    """Candidate objective inputs for multi-objective ranking."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    evidence_score: float = Field(..., ge=0.0, le=1.0)
+    novelty_score: float = Field(..., ge=0.0, le=1.0)
+    lab_feasibility_score: float = Field(..., ge=0.0, le=1.0)
+    cost_penalty: float = Field(..., ge=0.0, le=1.0)
+    risk_penalty: float = Field(..., ge=0.0, le=1.0)
+    expected_gain_score: float = Field(..., ge=0.0, le=1.0)
+
+
+class MultiObjectiveRankingEntry(JsonModel):
+    """Multi-objective score and ranking result for one candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    objective_score: float
+    rank: int = Field(..., ge=1)
+
+
+class MultiObjectiveRankingReport(JsonModel):
+    """Ranking report across evidence, novelty, feasibility, cost, risk, and gain."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[MultiObjectiveRankingEntry, ...] = Field(default_factory=tuple)
+
+
+def build_multi_objective_ranking_report(
+    candidates: tuple[MultiObjectiveRankingInput, ...],
+) -> MultiObjectiveRankingReport:
+    """Rank candidates across weighted objectives while keeping penalties explicit."""
+
+    scored = [
+        (
+            candidate.candidate_id,
+            0.24 * candidate.evidence_score
+            + 0.14 * candidate.novelty_score
+            + 0.2 * candidate.lab_feasibility_score
+            + 0.22 * candidate.expected_gain_score
+            + 0.1 * (1.0 - candidate.cost_penalty)
+            + 0.1 * (1.0 - candidate.risk_penalty),
+        )
+        for candidate in candidates
+    ]
+    scored.sort(key=lambda item: (-item[1], item[0]))
+    return MultiObjectiveRankingReport(
+        entries=tuple(
+            MultiObjectiveRankingEntry(
+                candidate_id=candidate_id,
+                objective_score=score,
+                rank=index + 1,
+            )
+            for index, (candidate_id, score) in enumerate(scored)
+        )
+    )
