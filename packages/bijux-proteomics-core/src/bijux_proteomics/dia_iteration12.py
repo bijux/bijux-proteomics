@@ -300,3 +300,49 @@ def compare_library_and_database_search_evidence(
         entries=tuple(entries),
         shared_peptide_count=len(shared),
     )
+
+
+class DiaMissingnessReason(StrEnum):
+    """Library/method-driven missingness reasons in DIA quantification."""
+
+    LIBRARY_COVERAGE_GAP = "library_coverage_gap"
+    SIGNAL_BELOW_THRESHOLD = "signal_below_threshold"
+    INTERFERENCE_FILTERED = "interference_filtered"
+    ACQUISITION_MISSING = "acquisition_missing"
+
+
+class DiaQuantMissingnessEntry(JsonModel):
+    """One DIA missingness observation across precursor/peptide/protein/run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    protein_group_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    reason: DiaMissingnessReason
+
+
+class DiaQuantMissingnessReport(JsonModel):
+    """Missingness report for DIA quant semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[DiaQuantMissingnessEntry, ...] = Field(default_factory=tuple)
+    reason_counts: dict[str, int] = Field(default_factory=dict)
+
+
+def build_dia_quant_missingness_report(
+    entries: tuple[DiaQuantMissingnessEntry, ...],
+) -> DiaQuantMissingnessReport:
+    """Represent DIA quant missingness by precursor/peptide/protein/run and reason."""
+
+    counts: dict[str, int] = {}
+    for entry in entries:
+        counts[entry.reason.value] = counts.get(entry.reason.value, 0) + 1
+    return DiaQuantMissingnessReport(
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.run_id, entry.protein_group_id, entry.precursor_id))
+        ),
+        reason_counts=dict(sorted(counts.items())),
+    )
