@@ -5,9 +5,11 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.ptm import PtmEvidenceRecord, PtmProteinSiteMapping
+from bijux_proteomics.ptm import PtmEvidenceRecord, PtmProteinSiteMapping, PtmSiteEntry
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -39,6 +41,35 @@ class PtmSiteLocalizationEvidenceGraph(JsonModel):
     nodes: tuple[PtmSiteLocalizationEvidenceNode, ...] = Field(default_factory=tuple)
     source_spectrum_count: int = Field(..., ge=0)
     source_record_count: int = Field(..., ge=0)
+
+
+class PtmSiteFdrBoundaryDisposition(StrEnum):
+    """Disposition for PTM site-level FDR boundary checks."""
+
+    SUPPORTED = "supported"
+    REFUSED = "refused"
+
+
+class PtmSiteFdrBoundaryIssue(JsonModel):
+    """One issue explaining why PTM site-level confidence is refused."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class PtmSiteFdrBoundaryReport(JsonModel):
+    """Boundary check result for PTM site-level FDR usage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    requested_confidence_family: str = Field(..., min_length=1)
+    preserve_site_level: bool
+    disposition: PtmSiteFdrBoundaryDisposition
+    reason: str = Field(..., min_length=1)
+    supporting_site_count: int = Field(..., ge=0)
+    issues: tuple[PtmSiteFdrBoundaryIssue, ...] = Field(default_factory=tuple)
 
 
 def _to_probability(score: float) -> float:
@@ -112,4 +143,64 @@ def build_ptm_site_localization_evidence_graph(
         nodes=tuple(nodes),
         source_spectrum_count=len(record_by_spectrum),
         source_record_count=len(records),
+    )
+
+
+def evaluate_ptm_site_fdr_boundary(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    requested_confidence_family: str,
+    has_site_level_decoys: bool,
+) -> PtmSiteFdrBoundaryReport:
+    """Support or refuse PTM site-level FDR without collapsing confidence families."""
+    issues: list[PtmSiteFdrBoundaryIssue] = []
+    normalized_family = requested_confidence_family.strip().lower()
+    if normalized_family != "ptm_site":
+        issues.append(
+            PtmSiteFdrBoundaryIssue(
+                code="non_site_confidence_family",
+                message=(
+                    "PTM site-level FDR is refused because the requested confidence "
+                    "family is not PTM-site specific."
+                ),
+            )
+        )
+    if not has_site_level_decoys:
+        issues.append(
+            PtmSiteFdrBoundaryIssue(
+                code="missing_site_level_decoy_support",
+                message=(
+                    "PTM site-level FDR is refused because site-level decoy or "
+                    "entrapment evidence is missing."
+                ),
+            )
+        )
+    if not site_entries:
+        issues.append(
+            PtmSiteFdrBoundaryIssue(
+                code="missing_site_evidence",
+                message="PTM site-level FDR is refused because no PTM site evidence exists.",
+            )
+        )
+    if issues:
+        return PtmSiteFdrBoundaryReport(
+            requested_confidence_family=requested_confidence_family,
+            preserve_site_level=False,
+            disposition=PtmSiteFdrBoundaryDisposition.REFUSED,
+            reason=(
+                "site-level FDR was refused to avoid collapsing PTM-site confidence "
+                "into peptide/protein confidence families"
+            ),
+            supporting_site_count=len(site_entries),
+            issues=tuple(issues),
+        )
+    return PtmSiteFdrBoundaryReport(
+        requested_confidence_family=requested_confidence_family,
+        preserve_site_level=True,
+        disposition=PtmSiteFdrBoundaryDisposition.SUPPORTED,
+        reason=(
+            "site-level FDR is supported with PTM-site confidence family and "
+            "site-level decoy support"
+        ),
+        supporting_site_count=len(site_entries),
     )
