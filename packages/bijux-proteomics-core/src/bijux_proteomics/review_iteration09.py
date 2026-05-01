@@ -110,3 +110,96 @@ def query_evidence_graph(
         node_count=len(matched),
         edge_count=len(connecting),
     )
+
+
+class ContradictionObservation(JsonModel):
+    """One observed contradiction between two evidence records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contradiction_id: str = Field(..., min_length=1)
+    left_evidence_id: str = Field(..., min_length=1)
+    right_evidence_id: str = Field(..., min_length=1)
+    left_source: str = Field(..., min_length=1)
+    right_source: str = Field(..., min_length=1)
+    left_method: str = Field(..., min_length=1)
+    right_method: str = Field(..., min_length=1)
+    left_score: float = Field(..., ge=0.0, le=1.0)
+    right_score: float = Field(..., ge=0.0, le=1.0)
+    left_quant_state: str = Field(..., min_length=1)
+    right_quant_state: str = Field(..., min_length=1)
+    left_ptm_state: str = Field(..., min_length=1)
+    right_ptm_state: str = Field(..., min_length=1)
+    left_qc_state: str = Field(..., min_length=1)
+    right_qc_state: str = Field(..., min_length=1)
+    left_lab_outcome: str = Field(..., min_length=1)
+    right_lab_outcome: str = Field(..., min_length=1)
+
+
+class ContradictionTaxonomyEntry(JsonModel):
+    """One taxonomy classification for an observed contradiction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contradiction_id: str = Field(..., min_length=1)
+    category: str = Field(..., min_length=1)
+    rationale: str = Field(..., min_length=1)
+    evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ContradictionTaxonomyReport(JsonModel):
+    """Deterministic contradiction taxonomy report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[ContradictionTaxonomyEntry, ...] = Field(default_factory=tuple)
+    category_counts: dict[str, int] = Field(default_factory=dict)
+
+
+def classify_contradictions(
+    observations: tuple[ContradictionObservation, ...],
+) -> ContradictionTaxonomyReport:
+    """Classify contradictions by source/method/score/quant/PTM/QC/lab disagreement."""
+
+    entries: list[ContradictionTaxonomyEntry] = []
+    counts: dict[str, int] = {}
+    for observation in observations:
+        if observation.left_source != observation.right_source:
+            category = "source_disagreement"
+            rationale = "evidence sources disagree"
+        elif observation.left_method != observation.right_method:
+            category = "method_disagreement"
+            rationale = "methods differ across contradicting evidence"
+        elif abs(observation.left_score - observation.right_score) >= 0.2:
+            category = "score_disagreement"
+            rationale = "confidence scores diverge materially"
+        elif observation.left_quant_state != observation.right_quant_state:
+            category = "quant_disagreement"
+            rationale = "quantification state conflicts"
+        elif observation.left_ptm_state != observation.right_ptm_state:
+            category = "ptm_disagreement"
+            rationale = "PTM state conflicts"
+        elif observation.left_qc_state != observation.right_qc_state:
+            category = "qc_disagreement"
+            rationale = "QC states disagree"
+        else:
+            category = "lab_outcome_disagreement"
+            rationale = "lab outcomes disagree while upstream context matches"
+
+        counts[category] = counts.get(category, 0) + 1
+        entries.append(
+            ContradictionTaxonomyEntry(
+                contradiction_id=observation.contradiction_id,
+                category=category,
+                rationale=rationale,
+                evidence_ids=(
+                    observation.left_evidence_id,
+                    observation.right_evidence_id,
+                ),
+            )
+        )
+
+    return ContradictionTaxonomyReport(
+        entries=tuple(sorted(entries, key=lambda entry: entry.contradiction_id)),
+        category_counts=dict(sorted(counts.items())),
+    )
