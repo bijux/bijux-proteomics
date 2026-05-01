@@ -9,8 +9,8 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import EvidenceId, JsonModel, TargetId
-from bijux_proteomics_knowledge.evidence import EvidenceBundle
+from bijux_proteomics_foundation import ClaimId, EvidenceId, JsonModel, TargetId
+from bijux_proteomics_knowledge.evidence import EvidenceBundle, compute_bundle_trust
 
 
 class ClaimStatus(StrEnum):
@@ -37,6 +37,15 @@ class ClaimResolutionState(StrEnum):
     CLOSED = "closed"
 
 
+class ClaimEvidenceState(StrEnum):
+    """Explicit scientific evidence state for one claim."""
+
+    SUPPORTED = "supported"
+    CONTRADICTED = "contradicted"
+    CONFLICTED = "conflicted"
+    UNRESOLVED = "unresolved"
+
+
 class ClaimType(StrEnum):
     """Structured taxonomy for scientific claim content."""
 
@@ -52,7 +61,7 @@ class EvidenceClaim(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Stable claim identifier.")
+    claim_id: ClaimId = Field(..., description="Stable claim identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
     statement: str = Field(
         ..., min_length=1, description="Human-readable claim statement."
@@ -100,6 +109,10 @@ class EvidenceClaim(JsonModel):
         default=ClaimResolutionState.OPEN,
         description="Whether the claim still needs active resolution.",
     )
+    evidence_state: ClaimEvidenceState = Field(
+        default=ClaimEvidenceState.UNRESOLVED,
+        description="Explicit scientific evidence state for the claim.",
+    )
     confidence: float = Field(
         default=0.5,
         ge=0.0,
@@ -123,11 +136,11 @@ class DecisionLineage(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     decision_tag: str = Field(..., min_length=1, description="Decision area label.")
-    claim_ids: list[EvidenceId] = Field(
+    claim_ids: list[ClaimId] = Field(
         default_factory=list,
         description="Claims that inform the decision.",
     )
-    disputed_claim_ids: list[EvidenceId] = Field(
+    disputed_claim_ids: list[ClaimId] = Field(
         default_factory=list,
         description="Claims that dispute or contradict the decision context.",
     )
@@ -142,7 +155,7 @@ class ClaimStrengthUpdate(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     previous_confidence: float = Field(
         ..., ge=0.0, le=1.0, description="Confidence before update."
     )
@@ -157,7 +170,7 @@ class ClaimValidationIssue(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     code: str = Field(..., min_length=1, description="Stable validation issue code.")
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
@@ -171,13 +184,13 @@ class HypothesisDossier(JsonModel):
     decision_tag: str = Field(
         ..., min_length=1, description="Decision tag under review."
     )
-    supporting_claim_ids: list[EvidenceId] = Field(
+    supporting_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Supporting claim identifiers."
     )
-    contradicting_claim_ids: list[EvidenceId] = Field(
+    contradicting_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Contradicting claim identifiers."
     )
-    unresolved_claim_ids: list[EvidenceId] = Field(
+    unresolved_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Open claims requiring more work."
     )
     required_resolution_assays: list[str] = Field(
@@ -193,7 +206,7 @@ class ResolutionAssayOutcome(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     assay_name: str = Field(..., min_length=1, description="Assay used for resolution.")
     confirms_claim: bool = Field(
         ..., description="Whether the assay confirms the claim direction."
@@ -216,9 +229,26 @@ class KnowledgeGap(JsonModel):
     message: str = Field(
         ..., min_length=1, description="Human-readable gap description."
     )
-    related_claim_ids: list[EvidenceId] = Field(
+    related_claim_ids: list[ClaimId] = Field(
         default_factory=list, description="Claim identifiers tied to this gap."
     )
+
+
+class ClaimTrustGapReport(JsonModel):
+    """What is still missing before one claim can be trusted for a decision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: ClaimId = Field(..., description="Claim identifier under review.")
+    decision_tag: str = Field(..., min_length=1)
+    evidence_state: ClaimEvidenceState
+    trust_score: float = Field(..., ge=0.0, le=1.0)
+    minimum_trust_score: float = Field(..., ge=0.0, le=1.0)
+    trust_ready: bool
+    supporting_evidence_ids: list[EvidenceId] = Field(default_factory=list)
+    contradicting_evidence_ids: list[EvidenceId] = Field(default_factory=list)
+    blocking_gaps: list[str] = Field(default_factory=list)
+    recommendations: list[str] = Field(default_factory=list)
 
 
 class ClaimConsistencyReport(JsonModel):
@@ -244,7 +274,7 @@ class MechanisticCompletenessReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     completeness_score: float = Field(
         ..., ge=0.0, le=1.0, description="Mechanistic completeness score."
     )
@@ -275,7 +305,7 @@ class ClaimEvidenceLinkIssue(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     code: str = Field(..., min_length=1, description="Stable issue code.")
     message: str = Field(..., min_length=1, description="Human-readable issue message.")
 
@@ -285,7 +315,7 @@ class ClaimFalsifiabilityReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    claim_id: EvidenceId = Field(..., description="Claim identifier.")
+    claim_id: ClaimId = Field(..., description="Claim identifier.")
     falsifiable: bool = Field(
         ..., description="Whether claim is structured for falsification."
     )
@@ -297,9 +327,33 @@ class ClaimFalsifiabilityReport(JsonModel):
     )
 
 
+def classify_claim_evidence_state(
+    *,
+    status: ClaimStatus,
+    polarity: ClaimPolarity,
+    resolution_state: ClaimResolutionState,
+    evidence_ids: list[str],
+    contradicting_evidence_ids: list[str],
+) -> ClaimEvidenceState:
+    """Classify one claim into an explicit scientific evidence state."""
+    if resolution_state is ClaimResolutionState.OPEN and (
+        status is ClaimStatus.INSUFFICIENT or not evidence_ids
+    ):
+        return ClaimEvidenceState.UNRESOLVED
+    if contradicting_evidence_ids and evidence_ids:
+        return ClaimEvidenceState.CONFLICTED
+    if polarity is ClaimPolarity.CONTRADICTING:
+        return ClaimEvidenceState.CONTRADICTED
+    if status is ClaimStatus.SUPPORTED:
+        return ClaimEvidenceState.SUPPORTED
+    if status in {ClaimStatus.DISPUTED, ClaimStatus.INSUFFICIENT}:
+        return ClaimEvidenceState.UNRESOLVED
+    return ClaimEvidenceState.SUPPORTED
+
+
 def build_claim(
     *,
-    claim_id: str,
+    claim_id: ClaimId,
     target_id: str,
     statement: str,
     evidence_ids: list[str],
@@ -321,17 +375,26 @@ def build_claim(
     magnitude: float | None = None,
 ) -> EvidenceClaim:
     """Build a claim from explicit evidence identifiers."""
+    resolved_contradicting_evidence_ids = contradicting_evidence_ids or []
+    resolved_evidence_ids = evidence_ids
     return EvidenceClaim(
         claim_id=claim_id,
         target_id=target_id,
         statement=statement,
-        evidence_ids=evidence_ids,
-        contradicting_evidence_ids=contradicting_evidence_ids or [],
+        evidence_ids=resolved_evidence_ids,
+        contradicting_evidence_ids=resolved_contradicting_evidence_ids,
         assumptions=assumptions or [],
         resolution_assays=resolution_assays or [],
         status=status,
         polarity=polarity,
         resolution_state=resolution_state,
+        evidence_state=classify_claim_evidence_state(
+            status=status,
+            polarity=polarity,
+            resolution_state=resolution_state,
+            evidence_ids=resolved_evidence_ids,
+            contradicting_evidence_ids=resolved_contradicting_evidence_ids,
+        ),
         claim_type=claim_type,
         confidence=confidence,
         contradiction_group=contradiction_group,
@@ -414,7 +477,18 @@ def build_decision_lineage(
 
 def close_claim(claim: EvidenceClaim) -> EvidenceClaim:
     """Return a claim marked as closed in the resolution workflow."""
-    return claim.model_copy(update={"resolution_state": ClaimResolutionState.CLOSED})
+    return claim.model_copy(
+        update={
+            "resolution_state": ClaimResolutionState.CLOSED,
+            "evidence_state": classify_claim_evidence_state(
+                status=claim.status,
+                polarity=claim.polarity,
+                resolution_state=ClaimResolutionState.CLOSED,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
+    )
 
 
 def link_evidence_to_claim(
@@ -427,7 +501,18 @@ def link_evidence_to_claim(
     for evidence_id in sorted(known_ids):
         if evidence_id not in linked:
             linked.append(evidence_id)
-    return claim.model_copy(update={"evidence_ids": linked})
+    return claim.model_copy(
+        update={
+            "evidence_ids": linked,
+            "evidence_state": classify_claim_evidence_state(
+                status=claim.status,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=linked,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
+    )
 
 
 def strengthen_claim(
@@ -439,7 +524,17 @@ def strengthen_claim(
     """Increase claim confidence by a bounded delta."""
     updated_confidence = min(1.0, round(claim.confidence + max(delta, 0.0), 4))
     updated = claim.model_copy(
-        update={"confidence": updated_confidence, "status": ClaimStatus.SUPPORTED}
+        update={
+            "confidence": updated_confidence,
+            "status": ClaimStatus.SUPPORTED,
+            "evidence_state": classify_claim_evidence_state(
+                status=ClaimStatus.SUPPORTED,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
     )
     return updated, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
@@ -459,7 +554,17 @@ def weaken_claim(
     updated_confidence = max(0.0, round(claim.confidence - max(delta, 0.0), 4))
     updated_status = ClaimStatus.DISPUTED if updated_confidence < 0.5 else claim.status
     updated = claim.model_copy(
-        update={"confidence": updated_confidence, "status": updated_status}
+        update={
+            "confidence": updated_confidence,
+            "status": updated_status,
+            "evidence_state": classify_claim_evidence_state(
+                status=updated_status,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
     )
     return updated, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
@@ -502,6 +607,17 @@ def validate_claims(claims: list[EvidenceClaim]) -> list[ClaimValidationIssue]:
                     claim_id=claim.claim_id,
                     code="contradicting-evidence-missing",
                     message="contradicting claims should include contradicting_evidence_ids",
+                )
+            )
+        if (
+            claim.evidence_state is ClaimEvidenceState.CONFLICTED
+            and not claim.contradicting_evidence_ids
+        ):
+            issues.append(
+                ClaimValidationIssue(
+                    claim_id=claim.claim_id,
+                    code="conflicted-claim-missing-contradiction-links",
+                    message="conflicted claims should link both supporting and contradicting evidence identifiers",
                 )
             )
         if (
@@ -637,7 +753,17 @@ def apply_resolution_assay_outcome(
     if outcome.note:
         rationale = f"{rationale}; {outcome.note}"
     updated_claim = claim.model_copy(
-        update={"confidence": updated_confidence, "status": updated_status}
+        update={
+            "confidence": updated_confidence,
+            "status": updated_status,
+            "evidence_state": classify_claim_evidence_state(
+                status=updated_status,
+                polarity=claim.polarity,
+                resolution_state=claim.resolution_state,
+                evidence_ids=claim.evidence_ids,
+                contradicting_evidence_ids=claim.contradicting_evidence_ids,
+            ),
+        }
     )
     return updated_claim, ClaimStrengthUpdate(
         claim_id=claim.claim_id,
@@ -724,6 +850,69 @@ def identify_knowledge_gaps(
             )
         )
     return gaps
+
+
+def build_claim_trust_gap_report(
+    bundle: EvidenceBundle,
+    claim: EvidenceClaim,
+    *,
+    decision_tag: str,
+    minimum_trust_score: float = 0.7,
+) -> ClaimTrustGapReport:
+    """Summarize what still blocks trusting one claim for a concrete decision."""
+    claim_evidence_ids = set(claim.evidence_ids) | set(claim.contradicting_evidence_ids)
+    scoped_records = [
+        record for record in bundle.records if record.evidence_id in claim_evidence_ids
+    ]
+    scoped_bundle = bundle.model_copy(update={"records": scoped_records})
+    trust_score = (
+        compute_bundle_trust(scoped_bundle).trust_score if scoped_records else 0.0
+    )
+    evidence_state = classify_claim_evidence_state(
+        status=claim.status,
+        polarity=claim.polarity,
+        resolution_state=claim.resolution_state,
+        evidence_ids=claim.evidence_ids,
+        contradicting_evidence_ids=claim.contradicting_evidence_ids,
+    )
+    knowledge_gaps = identify_knowledge_gaps(
+        scoped_bundle, [claim], decision_tag=decision_tag
+    )
+    blocking_gaps = [gap.message for gap in knowledge_gaps]
+    recommendations = []
+    if trust_score < minimum_trust_score:
+        blocking_gaps.append(
+            f"trust score {trust_score:.2f} is below minimum {minimum_trust_score:.2f}"
+        )
+        recommendations.append(
+            "strengthen the claim with higher-trust or orthogonal evidence"
+        )
+    if not claim.evidence_ids:
+        blocking_gaps.append("claim has no linked supporting evidence")
+        recommendations.append(
+            "link the claim to at least one supporting evidence record"
+        )
+    if claim.contradicting_evidence_ids:
+        recommendations.append(
+            "resolve contradicting evidence before treating the claim as trusted"
+        )
+    if claim.resolution_state is ClaimResolutionState.OPEN and claim.resolution_assays:
+        recommendations.append(
+            "close the open claim with the declared resolution assays"
+        )
+    trust_ready = not blocking_gaps and evidence_state is ClaimEvidenceState.SUPPORTED
+    return ClaimTrustGapReport(
+        claim_id=claim.claim_id,
+        decision_tag=decision_tag,
+        evidence_state=evidence_state,
+        trust_score=round(trust_score, 4),
+        minimum_trust_score=minimum_trust_score,
+        trust_ready=trust_ready,
+        supporting_evidence_ids=list(claim.evidence_ids),
+        contradicting_evidence_ids=list(claim.contradicting_evidence_ids),
+        blocking_gaps=blocking_gaps,
+        recommendations=sorted(set(recommendations)),
+    )
 
 
 def evaluate_claim_consistency(

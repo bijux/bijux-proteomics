@@ -13,7 +13,7 @@ from statistics import NormalDist
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics import ExperimentalDesignEntry
+from bijux_proteomics import ExperimentalDesignEntry, ExperimentalDesignSampleRole
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -110,6 +110,33 @@ class ContrastRecommendation(JsonModel):
     rationale: str = Field(..., min_length=1)
 
 
+class ReplicationStrategySummary(JsonModel):
+    """Replication posture summarized across design conditions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    replicate_counts: dict[str, int] = Field(default_factory=dict)
+    minimum_replicates: int = Field(..., ge=0)
+    maximum_replicates: int = Field(..., ge=0)
+    balanced: bool
+
+
+class ExperimentDesignStructureSummary(JsonModel):
+    """Explicit multiplex, fractionation, control, and replication semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplexed: bool
+    multiplex_group_count: int = Field(default=0, ge=0)
+    multiplex_channel_count: int = Field(default=0, ge=0)
+    fractionated: bool
+    maximum_fraction_count: int = Field(default=0, ge=0)
+    control_like_condition_count: int = Field(default=0, ge=0)
+    pooled_reference_count: int = Field(default=0, ge=0)
+    qc_bridge_count: int = Field(default=0, ge=0)
+    replication: ReplicationStrategySummary
+
+
 class ExperimentDesignValidationReport(JsonModel):
     """Validation and contrast-readiness report for one design table."""
 
@@ -121,6 +148,7 @@ class ExperimentDesignValidationReport(JsonModel):
     sample_count: int = Field(..., ge=0)
     condition_count: int = Field(..., ge=0)
     fraction_count: int = Field(..., ge=0)
+    structure_summary: ExperimentDesignStructureSummary
     valid_contrasts: tuple[ContrastRecommendation, ...] = Field(default_factory=tuple)
     rejected_contrasts: tuple[ContrastRecommendation, ...] = Field(
         default_factory=tuple
@@ -279,8 +307,42 @@ class LabProtocolEvidenceBundle(JsonModel):
     carryover_advisory: CarryoverRiskAdvisory | None = None
 
 
+class SampleTrackingPlateAssignment(JsonModel):
+    """Tracked sample placement in a deterministic plate layout."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    replicate: int = Field(..., ge=1)
+    fraction: int = Field(..., ge=1)
+    batch: str | None = None
+    plate_id: str = Field(..., min_length=1)
+    well_id: str = Field(..., min_length=1)
+    lineage_label: str = Field(..., min_length=1)
+
+
+class SampleTrackingPlateAdvisory(JsonModel):
+    """Advisory sample-tracking and plate-layout plan for lab execution prep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    plate_id: str = Field(..., min_length=1)
+    row_count: int = Field(..., ge=1)
+    column_count: int = Field(..., ge=1)
+    assignments: tuple[SampleTrackingPlateAssignment, ...] = Field(
+        default_factory=tuple
+    )
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def _replicate_counts(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, int]:
-    return dict(Counter(entry.condition for entry in entries))
+    replicate_units: dict[str, set[tuple[str, int]]] = defaultdict(set)
+    for entry in entries:
+        replicate_units[entry.condition].add((entry.sample_id, entry.replicate))
+    return {
+        condition: len(units) for condition, units in sorted(replicate_units.items())
+    }
 
 
 def _shared_batches(
@@ -292,6 +354,53 @@ def _shared_batches(
     return tuple(sorted(left_batches & right_batches))
 
 
+def _summarize_design_structure(
+    entries: tuple[ExperimentalDesignEntry, ...],
+) -> ExperimentDesignStructureSummary:
+    replicate_counts = _replicate_counts(entries)
+    multiplex_groups = {
+        entry.multiplex_group for entry in entries if entry.multiplex_group
+    }
+    multiplex_channels = {
+        entry.multiplex_channel for entry in entries if entry.multiplex_channel
+    }
+    sample_fraction_counts = Counter(entry.sample_id for entry in entries)
+    control_like_conditions = {
+        entry.condition
+        for entry in entries
+        if any(
+            token in entry.condition.lower()
+            for token in ("control", "vehicle", "reference", "baseline")
+        )
+    }
+    return ExperimentDesignStructureSummary(
+        multiplexed=bool(multiplex_groups),
+        multiplex_group_count=len(multiplex_groups),
+        multiplex_channel_count=len(multiplex_channels),
+        fractionated=max(sample_fraction_counts.values(), default=0) > 1,
+        maximum_fraction_count=max(sample_fraction_counts.values(), default=0),
+        control_like_condition_count=len(control_like_conditions),
+        pooled_reference_count=sum(
+            1
+            for entry in entries
+            if entry.sample_role is ExperimentalDesignSampleRole.POOLED_REFERENCE
+        ),
+        qc_bridge_count=sum(
+            1
+            for entry in entries
+            if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE
+        ),
+        replication=ReplicationStrategySummary(
+            replicate_counts=replicate_counts,
+            minimum_replicates=min(replicate_counts.values(), default=0),
+            maximum_replicates=max(replicate_counts.values(), default=0),
+            balanced=len(set(replicate_counts.values())) <= 1
+            if replicate_counts
+            else True,
+        ),
+    )
+
+
 def validate_experiment_design(
     entries: tuple[ExperimentalDesignEntry, ...],
     *,
@@ -299,6 +408,7 @@ def validate_experiment_design(
 ) -> ExperimentDesignValidationReport:
     """Validate design structure and pairwise contrast readiness."""
     issues: list[ExperimentDesignValidationIssue] = []
+    structure_summary = _summarize_design_structure(entries)
     conditions = sorted({entry.condition for entry in entries})
     grouped: dict[str, list[ExperimentalDesignEntry]] = defaultdict(list)
     duplicate_tracker: dict[tuple[str, int], list[str]] = defaultdict(list)
@@ -339,18 +449,67 @@ def validate_experiment_design(
                 conditions=tuple(conditions),
             )
         )
+    if (
+        structure_summary.control_like_condition_count == 0
+        and structure_summary.pooled_reference_count == 0
+    ):
+        issues.append(
+            ExperimentDesignValidationIssue(
+                code="control-strategy-missing",
+                severity=DesignIssueSeverity.WARN,
+                summary="design does not expose an explicit control-like condition or pooled reference strategy.",
+                conditions=tuple(conditions),
+            )
+        )
+    if not structure_summary.replication.balanced:
+        issues.append(
+            ExperimentDesignValidationIssue(
+                code="replication-strategy-asymmetric",
+                severity=DesignIssueSeverity.WARN,
+                summary="replication counts are asymmetric across conditions and should be justified explicitly.",
+                conditions=tuple(
+                    sorted(structure_summary.replication.replicate_counts)
+                ),
+            )
+        )
+    if structure_summary.fractionated:
+        fractions_by_condition: dict[str, set[int]] = defaultdict(set)
+        for entry in entries:
+            fractions_by_condition[entry.condition].add(entry.fraction)
+        if len({len(fractions) for fractions in fractions_by_condition.values()}) > 1:
+            issues.append(
+                ExperimentDesignValidationIssue(
+                    code="fractionation-strategy-asymmetric",
+                    severity=DesignIssueSeverity.WARN,
+                    summary="fractionation depth differs across conditions and may confound comparisons.",
+                    conditions=tuple(sorted(fractions_by_condition)),
+                )
+            )
+    if structure_summary.multiplexed:
+        channels_by_group: dict[str, set[str]] = defaultdict(set)
+        for entry in entries:
+            if entry.multiplex_group and entry.multiplex_channel:
+                channels_by_group[entry.multiplex_group].add(entry.multiplex_channel)
+        if len({len(channels) for channels in channels_by_group.values()}) > 1:
+            issues.append(
+                ExperimentDesignValidationIssue(
+                    code="multiplex-layout-inconsistent",
+                    severity=DesignIssueSeverity.WARN,
+                    summary="multiplex groups do not expose a consistent channel layout across the design.",
+                    sample_ids=tuple(sorted(channels_by_group)),
+                )
+            )
     valid_contrasts: list[ContrastRecommendation] = []
     rejected_contrasts: list[ContrastRecommendation] = []
     for index, left in enumerate(conditions):
         for right in conditions[index + 1 :]:
             left_entries = grouped[left]
             right_entries = grouped[right]
+            left_replicates = _replicate_counts(tuple(left_entries)).get(left, 0)
+            right_replicates = _replicate_counts(tuple(right_entries)).get(right, 0)
             shared_batches = _shared_batches(left_entries, right_entries)
             reasons: list[ContrastRejectionReason] = []
-            if (
-                len(left_entries) < min_replicates
-                or len(right_entries) < min_replicates
-            ):
+            if left_replicates < min_replicates or right_replicates < min_replicates:
                 reasons.append(ContrastRejectionReason.INSUFFICIENT_REPLICATES)
             left_batches = {entry.batch for entry in left_entries if entry.batch}
             right_batches = {entry.batch for entry in right_entries if entry.batch}
@@ -360,7 +519,7 @@ def validate_experiment_design(
                 condition_a=left,
                 condition_b=right,
                 valid=not reasons,
-                replicate_counts={left: len(left_entries), right: len(right_entries)},
+                replicate_counts={left: left_replicates, right: right_replicates},
                 shared_batches=shared_batches,
                 rejection_reasons=tuple(reasons),
                 rationale=(
@@ -399,12 +558,77 @@ def validate_experiment_design(
         sample_count=len({entry.sample_id for entry in entries}),
         condition_count=len(conditions),
         fraction_count=len({(entry.sample_id, entry.fraction) for entry in entries}),
+        structure_summary=structure_summary,
         valid_contrasts=tuple(valid_contrasts),
         rejected_contrasts=tuple(rejected_contrasts),
         issues=tuple(issues),
         interpretation_summary=(
             f"{len(valid_contrasts)} valid contrasts, {len(rejected_contrasts)} rejected contrasts; "
-            f"replicate counts: {condition_summary}."
+            f"replicate counts: {condition_summary}; "
+            f"multiplexed={structure_summary.multiplexed}, fractionated={structure_summary.fractionated}."
+        ),
+    )
+
+
+def build_sample_tracking_plate_advisory(
+    entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    plate_id: str = "plate-01",
+    row_count: int = 8,
+    column_count: int = 12,
+) -> SampleTrackingPlateAdvisory:
+    """Build a deterministic plate-layout advisory that preserves sample lineage."""
+    capacity = row_count * column_count
+    unique_rows = sorted(
+        {
+            (
+                entry.sample_id,
+                entry.condition,
+                entry.replicate,
+                entry.fraction,
+                entry.batch,
+            )
+            for entry in entries
+        },
+        key=lambda row: (
+            row[4] or "",
+            row[1],
+            row[2],
+            row[0],
+            row[3],
+        ),
+    )
+    if len(unique_rows) > capacity:
+        raise ValueError(
+            f"plate layout capacity exceeded: {len(unique_rows)} rows require {capacity} wells"
+        )
+    assignments: list[SampleTrackingPlateAssignment] = []
+    for index, row in enumerate(unique_rows):
+        sample_id, condition, replicate, fraction, batch = row
+        row_index, column_index = divmod(index, column_count)
+        well_id = f"{chr(ord('A') + row_index)}{column_index + 1:02d}"
+        assignments.append(
+            SampleTrackingPlateAssignment(
+                sample_id=sample_id,
+                condition=condition,
+                replicate=replicate,
+                fraction=fraction,
+                batch=batch,
+                plate_id=plate_id,
+                well_id=well_id,
+                lineage_label=(
+                    f"{sample_id}|{condition}|rep{replicate}|frac{fraction}"
+                ),
+            )
+        )
+    return SampleTrackingPlateAdvisory(
+        plate_id=plate_id,
+        row_count=row_count,
+        column_count=column_count,
+        assignments=tuple(assignments),
+        notes=(
+            "plate layout groups entries deterministically by batch, condition, replicate, and sample id.",
+            "lineage labels preserve sample identity across replicate and fraction handling.",
         ),
     )
 
@@ -539,23 +763,86 @@ def plan_multiplex_labeling(
     reserved_channels = {
         channel for channel in (pooled_reference_channel, qc_bridge_channel) if channel
     }
-    sample_channels = [
-        channel for channel in channels if channel not in reserved_channels
-    ]
     unique_entries: list[ExperimentalDesignEntry] = []
     seen_samples: set[str] = set()
     for entry in sorted(
-        entries, key=lambda item: (item.condition, item.sample_id, item.fraction)
+        entries,
+        key=lambda item: (
+            item.multiplex_group or "",
+            item.condition,
+            item.sample_id,
+            item.fraction,
+        ),
     ):
         if entry.sample_id not in seen_samples:
             unique_entries.append(entry)
             seen_samples.add(entry.sample_id)
-    if len(unique_entries) > len(sample_channels):
+    explicit_entries = [entry for entry in unique_entries if entry.multiplex_channel]
+    explicit_channels = {entry.multiplex_channel for entry in explicit_entries}
+    explicit_pooled_reference = next(
+        (
+            entry.multiplex_channel
+            for entry in explicit_entries
+            if entry.sample_role is ExperimentalDesignSampleRole.POOLED_REFERENCE
+        ),
+        None,
+    )
+    explicit_qc_bridge = next(
+        (
+            entry.multiplex_channel
+            for entry in explicit_entries
+            if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE
+        ),
+        None,
+    )
+    if len(explicit_channels) != len(explicit_entries):
+        raise ValueError("design contains duplicate explicit multiplex_channel values")
+    if not explicit_channels.issubset(set(channels)):
+        raise ValueError("design multiplex_channel values must be present in channels")
+    if (
+        pooled_reference_channel
+        and explicit_pooled_reference
+        and pooled_reference_channel != explicit_pooled_reference
+    ):
+        raise ValueError(
+            "pooled_reference_channel does not match explicit pooled_reference row"
+        )
+    if (
+        qc_bridge_channel
+        and explicit_qc_bridge
+        and qc_bridge_channel != explicit_qc_bridge
+    ):
+        raise ValueError("qc_bridge_channel does not match explicit qc_bridge row")
+    sample_channels = [
+        channel
+        for channel in channels
+        if channel not in reserved_channels and channel not in explicit_channels
+    ]
+    if len(unique_entries) > len(sample_channels) + len(explicit_entries):
         raise ValueError("not enough free multiplex channels for the provided samples")
     per_condition: dict[str, list[ExperimentalDesignEntry]] = defaultdict(list)
     for entry in unique_entries:
+        if entry.multiplex_channel:
+            continue
         per_condition[entry.condition].append(entry)
     assignments: list[MultiplexChannelAssignment] = []
+    role_map = {
+        ExperimentalDesignSampleRole.SAMPLE: MultiplexChannelRole.SAMPLE,
+        ExperimentalDesignSampleRole.POOLED_REFERENCE: (
+            MultiplexChannelRole.POOLED_REFERENCE
+        ),
+        ExperimentalDesignSampleRole.QC_BRIDGE: MultiplexChannelRole.QC_BRIDGE,
+    }
+    for entry in explicit_entries:
+        assignments.append(
+            MultiplexChannelAssignment(
+                channel=entry.multiplex_channel or "",
+                role=role_map[entry.sample_role],
+                sample_id=entry.sample_id,
+                condition=entry.condition,
+                batch=entry.batch,
+            )
+        )
     queue: list[ExperimentalDesignEntry] = []
     while any(per_condition.values()):
         for condition in sorted(
@@ -573,7 +860,8 @@ def plan_multiplex_labeling(
                 batch=entry.batch,
             )
         )
-    if pooled_reference_channel:
+    assigned_channels = {assignment.channel for assignment in assignments}
+    if pooled_reference_channel and pooled_reference_channel not in assigned_channels:
         assignments.append(
             MultiplexChannelAssignment(
                 channel=pooled_reference_channel,
@@ -581,7 +869,7 @@ def plan_multiplex_labeling(
                 sample_id="pooled-reference",
             )
         )
-    if qc_bridge_channel:
+    if qc_bridge_channel and qc_bridge_channel not in assigned_channels:
         assignments.append(
             MultiplexChannelAssignment(
                 channel=qc_bridge_channel,

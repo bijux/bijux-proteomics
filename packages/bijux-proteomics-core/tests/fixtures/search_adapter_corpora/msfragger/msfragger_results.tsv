@@ -1,0 +1,4 @@
+Spectrum	Peptide	Charge	Hyperscore	Protein	IsDecoy
+fragger-corpus-1001	PEPTIDE	2	138.2	P41111	0
+fragger-corpus-1002	PEPTIDER	3	120.5	P42222	0
+fragger-corpus-1003	DECOYPEP	2	72.4	DECOY_P43333	1

@@ -1,0 +1,4 @@
+MS/MS scan number	Modified sequence	Charge	Score	Proteins	Reverse	PEP
+mq-corpus-1001	PEPTIDE	2	112.5	P61111		0.0012
+mq-corpus-1002	PEPTIDER	3	98.4	P62222		0.0048
+mq-corpus-1003	DECOYPEP	2	66.0	REV__P63333	+	0.0420

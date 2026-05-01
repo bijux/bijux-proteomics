@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from enum import StrEnum
+import json
 from math import exp, factorial
 from pathlib import Path
 import re
@@ -95,6 +96,8 @@ class ModificationPosition(StrEnum):
     ANYWHERE = "anywhere"
     PEPTIDE_N_TERM = "peptide_n_term"
     PEPTIDE_C_TERM = "peptide_c_term"
+    PROTEIN_N_TERM = "protein_n_term"
+    PROTEIN_C_TERM = "protein_c_term"
 
 
 class NeutralLoss(JsonModel):
@@ -117,6 +120,7 @@ class _BaseModification(JsonModel):
     mass_delta_average: float
     neutral_losses: tuple[NeutralLoss, ...] = Field(default_factory=tuple)
     controlled_id: str | None = None
+    isotopic_label_family: str | None = None
 
     @field_validator("residues", mode="before")
     @classmethod
@@ -137,6 +141,14 @@ class _BaseModification(JsonModel):
                 f"invalid modification residues: {', '.join(sorted(set(invalid)))}"
             )
         return tuple(sorted(dict.fromkeys(residues)))
+
+    @field_validator("isotopic_label_family")
+    @classmethod
+    def _normalize_isotopic_label_family(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        return normalized or None
 
     @model_validator(mode="after")
     def _validate_site_specificity(self) -> _BaseModification:
@@ -172,6 +184,66 @@ class ModificationRegistryDocument(JsonModel):
     )
 
 
+class ModificationRegistryValidationIssue(JsonModel):
+    """One registry-definition validation issue."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    modification_name: str | None = None
+    controlled_id: str | None = None
+
+
+class ModificationRegistryValidationReport(JsonModel):
+    """Structured validation result for one modification registry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[ModificationRegistryValidationIssue, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class IsotopicLabelingPolicy(JsonModel):
+    """Explicit policy for isotopic labeling and heavy modifications."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    allow_isotopic_labels: bool = False
+    allowed_label_families: tuple[str, ...] = Field(default_factory=tuple)
+
+    @field_validator("allowed_label_families", mode="before")
+    @classmethod
+    def _normalize_allowed_label_families(cls, value: object) -> tuple[str, ...]:
+        if value in (None, ""):
+            return ()
+        families: tuple[str, ...]
+        if isinstance(value, str):
+            families = (value,)
+        else:
+            if not isinstance(value, Iterable):
+                raise ValueError("allowed label families must be iterable")
+            families = tuple(str(token) for token in value)
+        normalized = tuple(
+            family.strip().lower() for family in families if family.strip()
+        )
+        return tuple(dict.fromkeys(normalized))
+
+
+class ModificationProvenance(JsonModel):
+    """Provenance for one applied peptide modification."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source: str = Field(..., min_length=1)
+    assignment_token: str = Field(..., min_length=1)
+    rule_path: tuple[str, ...] = Field(default_factory=tuple)
+    resolved_name: str | None = None
+    controlled_id: str | None = None
+
+
 class AppliedModification(JsonModel):
     """One concrete modification placed onto a peptide site."""
 
@@ -187,6 +259,7 @@ class AppliedModification(JsonModel):
     neutral_losses: tuple[NeutralLoss, ...] = Field(default_factory=tuple)
     controlled_id: str | None = None
     source: str = Field(default="registry", min_length=1)
+    provenance: ModificationProvenance | None = None
 
     @field_validator("residue")
     @classmethod
@@ -206,6 +279,8 @@ class ParsedModifiedPeptide(JsonModel):
 
     sequence: str = Field(..., min_length=1)
     modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
+    at_protein_n_term: bool = False
+    at_protein_c_term: bool = False
     canonical_notation: str = Field(..., min_length=1)
 
     @field_validator("sequence")
@@ -231,6 +306,36 @@ class FragmentIon(JsonModel):
     neutral_mass_average: float = Field(..., gt=0.0)
     mz_monoisotopic: float = Field(..., gt=0.0)
     mz_average: float = Field(..., gt=0.0)
+
+
+class FragmentIonShiftValidationEntry(JsonModel):
+    """One fragment-ion shift audit row for a modified peptide."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    series: FragmentIonSeries
+    ordinal: int = Field(..., ge=1)
+    charge: int = Field(..., ge=1)
+    neutral_loss: str | None = None
+    expected_shift_monoisotopic: float
+    observed_shift_monoisotopic: float
+    expected_shift_average: float
+    observed_shift_average: float
+    shifted: bool
+    valid: bool
+    included_modifications: tuple[AppliedModification, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class FragmentIonShiftValidationReport(JsonModel):
+    """Audit whether modified-peptide fragment ions shift only where expected."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_notation: str = Field(..., min_length=1)
+    valid: bool
+    entries: tuple[FragmentIonShiftValidationEntry, ...] = Field(default_factory=tuple)
 
 
 class ModificationSiteValidationIssue(JsonModel):
@@ -303,6 +408,16 @@ class ModificationLocalizationStatus(StrEnum):
     ADVISORY = "advisory"
 
 
+class ModificationLocalizationState(StrEnum):
+    """Explicit localization state for one modification assignment."""
+
+    LOCALIZED = "localized"
+    AMBIGUOUS = "ambiguous"
+    UNLOCALIZED = "unlocalized"
+    CONFLICTING = "conflicting"
+    UNSUPPORTED = "unsupported"
+
+
 class ModificationLocalizationCandidate(JsonModel):
     """One modification localization advisory item."""
 
@@ -313,6 +428,7 @@ class ModificationLocalizationCandidate(JsonModel):
     assigned_site_index: int | None = Field(default=None, ge=1)
     candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
     residue_scope: tuple[str, ...] = Field(default_factory=tuple)
+    localization_state: ModificationLocalizationState
     ambiguous: bool = False
 
 
@@ -329,6 +445,46 @@ class ModificationLocalizationAdvisory(JsonModel):
     )
 
 
+class VariableModificationEnumerationEntry(JsonModel):
+    """One deterministic modified-peptide variant from bounded enumeration."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_notation: str = Field(..., min_length=1)
+    modification_count: int = Field(..., ge=0)
+    modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
+
+
+class VariableModificationEnumerationReport(JsonModel):
+    """Bounded enumeration result for variable modifications on one peptide."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(..., min_length=1)
+    at_protein_n_term: bool = False
+    at_protein_c_term: bool = False
+    base_modification_count: int = Field(..., ge=0)
+    candidate_site_count: int = Field(..., ge=0)
+    generated_variant_count: int = Field(..., ge=0)
+    max_variants: int = Field(..., ge=1)
+    truncated: bool = False
+    variants: tuple[VariableModificationEnumerationEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class ModifiedPeptideExportRecord(JsonModel):
+    """Stable export record for one canonical modified peptide."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_notation: str = Field(..., min_length=1)
+    sequence: str = Field(..., min_length=1)
+    modification_count: int = Field(..., ge=0)
+    modification_sites: tuple[str, ...] = Field(default_factory=tuple)
+    modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
+
+
 def _format_mass_delta(delta: float) -> str:
     rendered = f"{delta:+.6f}".rstrip("0").rstrip(".")
     return rendered if "." in rendered else f"{rendered}.0"
@@ -341,6 +497,9 @@ def _build_applied_modification(
     site_index: int | None,
     sequence: str,
     registry: ModificationRegistryDocument | None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
 ) -> AppliedModification:
     mapping = _registry_lookup(registry)
     stripped_token = token.strip()
@@ -349,11 +508,14 @@ def _build_applied_modification(
         if _DELTA_TOKEN_RE.fullmatch(stripped_token)
         else mapping.get(stripped_token.lower())
     )
+    _validate_isotopic_label_policy(definition, labeling_policy=labeling_policy)
     residue = _validate_definition_site(
         definition=definition,
         sequence=sequence,
         site=site,
         site_index=site_index,
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
     )
     name, mono, average, losses, controlled_id, source = _resolve_token(
         stripped_token,
@@ -370,6 +532,13 @@ def _build_applied_modification(
         neutral_losses=losses,
         controlled_id=controlled_id,
         source=source,
+        provenance=_build_modification_provenance(
+            token=stripped_token,
+            source=source,
+            resolved_name=name,
+            definition=definition,
+            controlled_id=controlled_id,
+        ),
     )
 
 
@@ -395,6 +564,155 @@ def _candidate_definition_for_delta(
             continue
         return definition
     return None
+
+
+def _build_modification_provenance(
+    *,
+    token: str,
+    source: str,
+    resolved_name: str,
+    definition: StaticModification | VariableModification | None,
+    controlled_id: str | None,
+) -> ModificationProvenance:
+    if definition is not None:
+        return ModificationProvenance(
+            source=source,
+            assignment_token=token,
+            rule_path=(
+                "modification_registry",
+                definition.application,
+                definition.name,
+            ),
+            resolved_name=resolved_name,
+            controlled_id=controlled_id,
+        )
+    return ModificationProvenance(
+        source=source,
+        assignment_token=token,
+        rule_path=("explicit_delta", _format_mass_delta(float(token))),
+        resolved_name=resolved_name,
+        controlled_id=controlled_id,
+    )
+
+
+def _validate_isotopic_label_policy(
+    definition: StaticModification | VariableModification | None,
+    *,
+    labeling_policy: IsotopicLabelingPolicy | None,
+) -> None:
+    if definition is None or definition.isotopic_label_family is None:
+        return
+    if labeling_policy is None or not labeling_policy.allow_isotopic_labels:
+        raise ValueError(
+            f"isotopic label modification {definition.name!r} requires an explicit labeling policy"
+        )
+    if (
+        labeling_policy.allowed_label_families
+        and definition.isotopic_label_family
+        not in labeling_policy.allowed_label_families
+    ):
+        raise ValueError(
+            f"isotopic label family {definition.isotopic_label_family!r} is not allowed by the active labeling policy"
+        )
+
+
+def validate_modification_registry(
+    registry: ModificationRegistryDocument,
+) -> ModificationRegistryValidationReport:
+    """Validate duplicate and conflicting registry definitions."""
+    issues: list[ModificationRegistryValidationIssue] = []
+    by_name: dict[str, _BaseModification] = {}
+    by_controlled_id: dict[str, _BaseModification] = {}
+    for modification in (
+        *registry.static_modifications,
+        *registry.variable_modifications,
+    ):
+        normalized_name = modification.name.strip().lower()
+        previous = by_name.get(normalized_name)
+        if previous is not None:
+            conflict_code = (
+                "duplicate_modification_name"
+                if _registry_validation_signature(previous)
+                == _registry_validation_signature(modification)
+                else "conflicting_modification_name"
+            )
+            issues.append(
+                ModificationRegistryValidationIssue(
+                    code=conflict_code,
+                    message=(
+                        f"modification {modification.name!r} is defined more than once"
+                        if conflict_code == "duplicate_modification_name"
+                        else f"modification {modification.name!r} has conflicting definitions"
+                    ),
+                    modification_name=modification.name,
+                    controlled_id=modification.controlled_id,
+                )
+            )
+        else:
+            by_name[normalized_name] = modification
+
+        if modification.controlled_id is None:
+            continue
+        previous_controlled = by_controlled_id.get(modification.controlled_id)
+        if previous_controlled is not None and (
+            _registry_validation_signature(previous_controlled)
+            != _registry_validation_signature(modification)
+        ):
+            issues.append(
+                ModificationRegistryValidationIssue(
+                    code="conflicting_controlled_id",
+                    message=(
+                        f"controlled modification id {modification.controlled_id!r} maps "
+                        "to conflicting registry definitions"
+                    ),
+                    modification_name=modification.name,
+                    controlled_id=modification.controlled_id,
+                )
+            )
+        else:
+            by_controlled_id[modification.controlled_id] = modification
+
+    return ModificationRegistryValidationReport(
+        valid=not issues,
+        issues=tuple(issues),
+    )
+
+
+def _registry_validation_signature(
+    modification: _BaseModification,
+) -> tuple[object, ...]:
+    application = (
+        "variable" if isinstance(modification, VariableModification) else "static"
+    )
+    return (
+        application,
+        modification.position,
+        modification.residues,
+        modification.mass_delta_monoisotopic,
+        modification.mass_delta_average,
+        tuple(
+            (
+                neutral_loss.name,
+                neutral_loss.monoisotopic_mass,
+                neutral_loss.average_mass,
+            )
+            for neutral_loss in modification.neutral_losses
+        ),
+        modification.isotopic_label_family,
+        modification.max_occurrences
+        if isinstance(modification, VariableModification)
+        else None,
+    )
+
+
+def _raise_on_invalid_modification_registry(
+    registry: ModificationRegistryDocument,
+) -> None:
+    report = validate_modification_registry(registry)
+    if report.valid:
+        return
+    messages = "; ".join(issue.message for issue in report.issues)
+    raise ValueError(f"invalid modification registry: {messages}")
 
 
 def _build_builtin_registry() -> ModificationRegistryDocument:
@@ -456,6 +774,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
             ),
         ),
     )
+    _raise_on_invalid_modification_registry(registry)
     payload = registry.to_dict()
     return registry.model_copy(
         update={"document_schema": registry.document_schema.with_content_hash(payload)}
@@ -482,6 +801,7 @@ def build_modification_registry(
         static_modifications=static_modifications,
         variable_modifications=variable_modifications,
     )
+    _raise_on_invalid_modification_registry(registry)
     payload = registry.to_dict()
     return registry.model_copy(
         update={"document_schema": registry.document_schema.with_content_hash(payload)}
@@ -495,7 +815,9 @@ def modification_registry() -> ModificationRegistryDocument:
 
 def load_modification_registry(path: Path) -> ModificationRegistryDocument:
     """Load and validate a modification registry document from JSON."""
-    return ModificationRegistryDocument.model_validate_json(path.read_text())
+    registry = ModificationRegistryDocument.model_validate_json(path.read_text())
+    _raise_on_invalid_modification_registry(registry)
+    return registry
 
 
 def _registry_lookup(
@@ -548,8 +870,26 @@ def _ensure_parsed_peptide(
     return ParsedModifiedPeptide(
         sequence=normalized,
         modifications=(),
+        at_protein_n_term=False,
+        at_protein_c_term=False,
         canonical_notation=normalized,
     )
+
+
+def _normalize_terminal_token(
+    token: str,
+    *,
+    default_site: ModificationPosition,
+) -> tuple[str, ModificationPosition]:
+    name, separator, site_token = token.partition("@")
+    if not separator:
+        return token, default_site
+    site_label = site_token.strip().lower()
+    if site_label in {"protein-n-term", "protein_n_term", "protein-nterm"}:
+        return name, ModificationPosition.PROTEIN_N_TERM
+    if site_label in {"protein-c-term", "protein_c_term", "protein-cterm"}:
+        return name, ModificationPosition.PROTEIN_C_TERM
+    raise ValueError(f"unsupported terminal modification site {site_token!r}")
 
 
 def _mass_delta_for(
@@ -598,10 +938,15 @@ def _matching_static_mass_delta(
                 if residue in modification.residues:
                     total += delta
         elif (
-            modification.position is ModificationPosition.PEPTIDE_N_TERM
+            (
+                modification.position is ModificationPosition.PEPTIDE_N_TERM
+                or modification.position is ModificationPosition.PROTEIN_N_TERM
+            )
             and include_n_term
-        ) or (
-            modification.position is ModificationPosition.PEPTIDE_C_TERM
+            or (
+                modification.position is ModificationPosition.PEPTIDE_C_TERM
+                or modification.position is ModificationPosition.PROTEIN_C_TERM
+            )
             and include_c_term
         ):
             total += delta
@@ -634,9 +979,16 @@ def _applied_modification_mass_delta(
             if site_index >= start and (finish is None or site_index <= finish):
                 total += delta
         elif (
-            modification.site is ModificationPosition.PEPTIDE_N_TERM and include_n_term
-        ) or (
-            modification.site is ModificationPosition.PEPTIDE_C_TERM and include_c_term
+            (
+                modification.site is ModificationPosition.PEPTIDE_N_TERM
+                or modification.site is ModificationPosition.PROTEIN_N_TERM
+            )
+            and include_n_term
+            or (
+                modification.site is ModificationPosition.PEPTIDE_C_TERM
+                or modification.site is ModificationPosition.PROTEIN_C_TERM
+            )
+            and include_c_term
         ):
             total += delta
     return total
@@ -814,6 +1166,10 @@ def build_modification_localization_advisory(
     """Emit an advisory-only localization summary until scored localization exists."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     mapping = _registry_lookup(registry)
+    try:
+        canonical_notation = canonicalize_modified_peptide(parsed, registry=registry)
+    except ValueError:
+        canonical_notation = parsed.canonical_notation
     candidates: list[ModificationLocalizationCandidate] = []
     for modification in parsed.modifications:
         residue_scope: tuple[str, ...] = ()
@@ -843,13 +1199,160 @@ def build_modification_localization_advisory(
                 assigned_site_index=modification.site_index,
                 candidate_site_indices=candidate_site_indices,
                 residue_scope=residue_scope,
+                localization_state=_classify_modification_localization_state(
+                    modification=modification,
+                    candidate_site_indices=candidate_site_indices,
+                ),
                 ambiguous=len(candidate_site_indices) > 1,
             )
         )
     return ModificationLocalizationAdvisory(
-        canonical_notation=canonicalize_modified_peptide(parsed, registry=registry),
+        canonical_notation=canonical_notation,
         note="localization is advisory only; site scores and probability models are not implemented yet",
         candidates=tuple(candidates),
+    )
+
+
+def _classify_modification_localization_state(
+    *,
+    modification: AppliedModification,
+    candidate_site_indices: tuple[int, ...],
+) -> ModificationLocalizationState:
+    if modification.site is not ModificationPosition.ANYWHERE:
+        return ModificationLocalizationState.LOCALIZED
+    if not candidate_site_indices:
+        return (
+            ModificationLocalizationState.CONFLICTING
+            if modification.site_index is not None
+            else ModificationLocalizationState.UNSUPPORTED
+        )
+    if modification.site_index is None:
+        return ModificationLocalizationState.UNLOCALIZED
+    if modification.site_index not in candidate_site_indices:
+        return ModificationLocalizationState.CONFLICTING
+    if len(candidate_site_indices) > 1:
+        return ModificationLocalizationState.AMBIGUOUS
+    return ModificationLocalizationState.LOCALIZED
+
+
+def enumerate_variable_modifications(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    variable_modifications: tuple[VariableModification, ...] = (),
+    registry: ModificationRegistryDocument | None = None,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
+    max_variants: int = 128,
+) -> VariableModificationEnumerationReport:
+    """Enumerate deterministic modified-peptide variants within a hard bound."""
+    if max_variants < 1:
+        raise ValueError("max_variants must be at least 1")
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    definitions = (
+        variable_modifications
+        if variable_modifications
+        else (registry or modification_registry()).variable_modifications
+    )
+    candidate_groups = [
+        _enumeration_candidates_for_definition(
+            parsed,
+            definition=definition,
+            registry=registry,
+            labeling_policy=labeling_policy,
+        )
+        for definition in definitions
+    ]
+    base_site_keys: set[tuple[str, int | None]] = set()
+    for modification in parsed.modifications:
+        site_key = _physical_site_key(modification)
+        if site_key is not None:
+            base_site_keys.add(site_key)
+    variants: list[VariableModificationEnumerationEntry] = []
+    truncated = False
+
+    def visit(
+        index: int,
+        selected: list[AppliedModification],
+        occupied_site_keys: set[tuple[str, int | None]],
+    ) -> None:
+        nonlocal truncated
+        if truncated:
+            return
+        if index == len(candidate_groups):
+            combined = tuple(
+                sorted(
+                    (*parsed.modifications, *selected),
+                    key=lambda modification: (
+                        0
+                        if modification.site
+                        in {
+                            ModificationPosition.PEPTIDE_N_TERM,
+                            ModificationPosition.PROTEIN_N_TERM,
+                        }
+                        else 1,
+                        modification.site_index or 0,
+                        2
+                        if modification.site
+                        in {
+                            ModificationPosition.PEPTIDE_C_TERM,
+                            ModificationPosition.PROTEIN_C_TERM,
+                        }
+                        else 1,
+                        modification.token,
+                    ),
+                )
+            )
+            variants.append(
+                VariableModificationEnumerationEntry(
+                    canonical_notation=_render_modified_peptide(
+                        parsed.sequence,
+                        combined,
+                    ),
+                    modification_count=len(combined),
+                    modifications=combined,
+                )
+            )
+            if len(variants) >= max_variants:
+                truncated = True
+            return
+
+        definition, candidates = candidate_groups[index]
+        definition_limit = definition.max_occurrences or len(candidates)
+        candidate_choices: list[tuple[AppliedModification, ...]] = [()]
+        for count in range(1, min(definition_limit, len(candidates)) + 1):
+            candidate_choices.extend(combinations(candidates, count))
+
+        for choice in candidate_choices:
+            choice_site_keys = {
+                _physical_site_key(modification) for modification in choice
+            }
+            if None in choice_site_keys:
+                continue
+            typed_choice_site_keys: set[tuple[str, int | None]] = {
+                site_key for site_key in choice_site_keys if site_key is not None
+            }
+            if occupied_site_keys & typed_choice_site_keys:
+                continue
+            visit(
+                index + 1,
+                [*selected, *choice],
+                occupied_site_keys | typed_choice_site_keys,
+            )
+
+    from itertools import combinations
+
+    visit(0, [], set(base_site_keys))
+    return VariableModificationEnumerationReport(
+        sequence=parsed.sequence,
+        at_protein_n_term=parsed.at_protein_n_term,
+        at_protein_c_term=parsed.at_protein_c_term,
+        base_modification_count=len(parsed.modifications),
+        candidate_site_count=sum(
+            len(candidates) for _definition, candidates in candidate_groups
+        ),
+        generated_variant_count=len(variants),
+        max_variants=max_variants,
+        truncated=truncated,
+        variants=tuple(variants),
     )
 
 
@@ -887,10 +1390,17 @@ def _validate_definition_site(
     sequence: str,
     site: ModificationPosition,
     site_index: int | None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
 ) -> str | None:
     if definition is None:
         return sequence[site_index - 1] if site_index is not None else None
-    if definition.position is not site:
+    allowed_sites = {definition.position}
+    if definition.position is ModificationPosition.PEPTIDE_N_TERM:
+        allowed_sites.add(ModificationPosition.PROTEIN_N_TERM)
+    if definition.position is ModificationPosition.PEPTIDE_C_TERM:
+        allowed_sites.add(ModificationPosition.PROTEIN_C_TERM)
+    if site not in allowed_sites:
         raise ValueError(
             f"modification {definition.name!r} requires site {definition.position.value}, got {site.value}"
         )
@@ -906,13 +1416,158 @@ def _validate_definition_site(
                 f"modification {definition.name!r} is not valid on residue {residue} at position {site_index}; expected one of {allowed}"
             )
         return residue
+    if site is ModificationPosition.PROTEIN_N_TERM and not at_protein_n_term:
+        raise ValueError(
+            f"modification {definition.name!r} requires a peptide at the protein N-terminus"
+        )
+    if site is ModificationPosition.PROTEIN_C_TERM and not at_protein_c_term:
+        raise ValueError(
+            f"modification {definition.name!r} requires a peptide at the protein C-terminus"
+        )
     return None
+
+
+def _enumeration_candidates_for_definition(
+    peptide: ParsedModifiedPeptide,
+    *,
+    definition: VariableModification,
+    registry: ModificationRegistryDocument | None,
+    labeling_policy: IsotopicLabelingPolicy | None,
+) -> tuple[VariableModification, tuple[AppliedModification, ...]]:
+    sequence = peptide.sequence
+    candidates: list[AppliedModification] = []
+    if definition.position is ModificationPosition.ANYWHERE:
+        for site_index, residue in enumerate(sequence, start=1):
+            if residue not in definition.residues:
+                continue
+            candidates.append(
+                _build_applied_modification(
+                    token=definition.name,
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=site_index,
+                    sequence=sequence,
+                    registry=registry,
+                    at_protein_n_term=peptide.at_protein_n_term,
+                    at_protein_c_term=peptide.at_protein_c_term,
+                    labeling_policy=labeling_policy,
+                )
+            )
+    elif definition.position is ModificationPosition.PEPTIDE_N_TERM:
+        candidates.append(
+            _build_applied_modification(
+                token=definition.name,
+                site=ModificationPosition.PEPTIDE_N_TERM,
+                site_index=None,
+                sequence=sequence,
+                registry=registry,
+                at_protein_n_term=peptide.at_protein_n_term,
+                at_protein_c_term=peptide.at_protein_c_term,
+                labeling_policy=labeling_policy,
+            )
+        )
+    elif definition.position is ModificationPosition.PEPTIDE_C_TERM:
+        candidates.append(
+            _build_applied_modification(
+                token=definition.name,
+                site=ModificationPosition.PEPTIDE_C_TERM,
+                site_index=None,
+                sequence=sequence,
+                registry=registry,
+                at_protein_n_term=peptide.at_protein_n_term,
+                at_protein_c_term=peptide.at_protein_c_term,
+                labeling_policy=labeling_policy,
+            )
+        )
+    elif definition.position is ModificationPosition.PROTEIN_N_TERM:
+        if peptide.at_protein_n_term:
+            candidates.append(
+                _build_applied_modification(
+                    token=definition.name,
+                    site=ModificationPosition.PROTEIN_N_TERM,
+                    site_index=None,
+                    sequence=sequence,
+                    registry=registry,
+                    at_protein_n_term=peptide.at_protein_n_term,
+                    at_protein_c_term=peptide.at_protein_c_term,
+                    labeling_policy=labeling_policy,
+                )
+            )
+    elif (
+        definition.position is ModificationPosition.PROTEIN_C_TERM
+        and peptide.at_protein_c_term
+    ):
+        candidates.append(
+            _build_applied_modification(
+                token=definition.name,
+                site=ModificationPosition.PROTEIN_C_TERM,
+                site_index=None,
+                sequence=sequence,
+                registry=registry,
+                at_protein_n_term=peptide.at_protein_n_term,
+                at_protein_c_term=peptide.at_protein_c_term,
+                labeling_policy=labeling_policy,
+            )
+        )
+    return definition, tuple(candidates)
+
+
+def _physical_site_key(
+    modification: AppliedModification,
+) -> tuple[str, int | None] | None:
+    if modification.site is ModificationPosition.ANYWHERE:
+        return ("residue", modification.site_index)
+    if modification.site in {
+        ModificationPosition.PEPTIDE_N_TERM,
+        ModificationPosition.PROTEIN_N_TERM,
+    }:
+        return ("n_term", None)
+    if modification.site in {
+        ModificationPosition.PEPTIDE_C_TERM,
+        ModificationPosition.PROTEIN_C_TERM,
+    }:
+        return ("c_term", None)
+    return None
+
+
+def _raise_on_impossible_modification_combination(
+    modifications: tuple[AppliedModification, ...],
+) -> None:
+    by_site: dict[tuple[str, int | None], list[AppliedModification]] = {}
+    for modification in modifications:
+        site_key = _physical_site_key(modification)
+        if site_key is None:
+            continue
+        by_site.setdefault(site_key, []).append(modification)
+
+    conflicting_sites = [
+        (site_key, site_modifications)
+        for site_key, site_modifications in by_site.items()
+        if len(site_modifications) > 1
+    ]
+    if not conflicting_sites:
+        return
+
+    site_key, site_modifications = conflicting_sites[0]
+    site_label = (
+        f"residue {site_key[1]}"
+        if site_key[0] == "residue"
+        else "peptide N-terminus"
+        if site_key[0] == "n_term"
+        else "peptide C-terminus"
+    )
+    tokens = ", ".join(modification.token for modification in site_modifications)
+    raise ValueError(
+        f"chemically incompatible modifications occupy the same physical site ({site_label}): {tokens}"
+    )
 
 
 def parse_modified_peptide(
     notation: str,
     *,
     registry: ModificationRegistryDocument | None = None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
 ) -> ParsedModifiedPeptide:
     """Parse modified peptide bracket notation into a stable contract."""
     text = notation.strip()
@@ -928,13 +1583,20 @@ def parse_modified_peptide(
                 "N-terminal modifications must use [token]-PEPTIDE notation"
             )
         token = text[1:close]
+        token, parsed_site = _normalize_terminal_token(
+            token,
+            default_site=ModificationPosition.PEPTIDE_N_TERM,
+        )
         modifications.append(
             _build_applied_modification(
                 token=token,
-                site=ModificationPosition.PEPTIDE_N_TERM,
+                site=parsed_site,
                 site_index=None,
                 sequence="",
                 registry=registry,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
         index = close + 2
@@ -960,6 +1622,9 @@ def parse_modified_peptide(
                     site_index=len(sequence),
                     sequence=sequence,
                     registry=registry,
+                    at_protein_n_term=at_protein_n_term,
+                    at_protein_c_term=at_protein_c_term,
+                    labeling_policy=labeling_policy,
                 )
             )
             index = close + 1
@@ -974,19 +1639,29 @@ def parse_modified_peptide(
                 "C-terminal modifications must use PEPTIDE-[token] notation"
             )
         token = text[index + 2 : -1]
+        token, parsed_site = _normalize_terminal_token(
+            token,
+            default_site=ModificationPosition.PEPTIDE_C_TERM,
+        )
         modifications.append(
             _build_applied_modification(
                 token=token,
-                site=ModificationPosition.PEPTIDE_C_TERM,
+                site=parsed_site,
                 site_index=None,
                 sequence=sequence,
                 registry=registry,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
 
+    _raise_on_impossible_modification_combination(tuple(modifications))
     return ParsedModifiedPeptide(
         sequence=sequence,
         modifications=tuple(modifications),
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
         canonical_notation=_render_modified_peptide(sequence, tuple(modifications)),
     )
 
@@ -996,6 +1671,9 @@ def build_modified_peptide(
     *,
     assignments: tuple[str, ...] = (),
     registry: ModificationRegistryDocument | None = None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
+    labeling_policy: IsotopicLabelingPolicy | None = None,
 ) -> ParsedModifiedPeptide:
     """Build a modified peptide from site-assignment strings."""
     normalized = _coerce_sequence(sequence)
@@ -1010,8 +1688,14 @@ def build_modified_peptide(
         if site_label in {"n-term", "nterm", "peptide_n_term"}:
             site = ModificationPosition.PEPTIDE_N_TERM
             site_index = None
+        elif site_label in {"protein-n-term", "protein_n_term", "protein-nterm"}:
+            site = ModificationPosition.PROTEIN_N_TERM
+            site_index = None
         elif site_label in {"c-term", "cterm", "peptide_c_term"}:
             site = ModificationPosition.PEPTIDE_C_TERM
+            site_index = None
+        elif site_label in {"protein-c-term", "protein_c_term", "protein-cterm"}:
+            site = ModificationPosition.PROTEIN_C_TERM
             site_index = None
         else:
             try:
@@ -1032,8 +1716,12 @@ def build_modified_peptide(
                 if site is ModificationPosition.ANYWHERE
                 else normalized,
                 registry=registry,
+                at_protein_n_term=at_protein_n_term,
+                at_protein_c_term=at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
         )
+    _raise_on_impossible_modification_combination(tuple(modifications))
     ordered = tuple(
         sorted(
             modifications,
@@ -1048,6 +1736,8 @@ def build_modified_peptide(
     return ParsedModifiedPeptide(
         sequence=normalized,
         modifications=ordered,
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
         canonical_notation=_render_modified_peptide(normalized, ordered),
     )
 
@@ -1106,6 +1796,95 @@ def canonicalize_modified_peptide(
     return _render_modified_peptide(parsed.sequence, ordered)
 
 
+def build_modified_peptide_export_record(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> ModifiedPeptideExportRecord:
+    """Build one stable export record for a canonical modified peptide."""
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    canonical = canonicalize_modified_peptide(parsed, registry=registry)
+    ordered = tuple(
+        sorted(
+            parsed.modifications,
+            key=lambda modification: (
+                0
+                if modification.site
+                in {
+                    ModificationPosition.PEPTIDE_N_TERM,
+                    ModificationPosition.PROTEIN_N_TERM,
+                }
+                else 1,
+                modification.site_index or 0,
+                2
+                if modification.site
+                in {
+                    ModificationPosition.PEPTIDE_C_TERM,
+                    ModificationPosition.PROTEIN_C_TERM,
+                }
+                else 1,
+                modification.token,
+            ),
+        )
+    )
+    return ModifiedPeptideExportRecord(
+        canonical_notation=canonical,
+        sequence=parsed.sequence,
+        modification_count=len(ordered),
+        modification_sites=tuple(
+            _render_modification_site(modification) for modification in ordered
+        ),
+        modifications=ordered,
+    )
+
+
+def export_modified_peptides_jsonl(
+    peptides: tuple[str | ParsedModifiedPeptide, ...],
+    path: Path,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> Path:
+    """Write stable JSONL export rows for canonical modified peptides."""
+    rows = [
+        build_modified_peptide_export_record(peptide, registry=registry).to_dict()
+        for peptide in peptides
+    ]
+    path.write_text("\n".join(json.dumps(row, sort_keys=True) for row in rows) + "\n")
+    return path
+
+
+def export_modified_peptides_tsv(
+    peptides: tuple[str | ParsedModifiedPeptide, ...],
+    path: Path,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> Path:
+    """Write stable TSV export rows for canonical modified peptides."""
+    header = "\t".join(
+        [
+            "canonical_notation",
+            "sequence",
+            "modification_count",
+            "modification_sites",
+        ]
+    )
+    lines = [header]
+    for peptide in peptides:
+        record = build_modified_peptide_export_record(peptide, registry=registry)
+        lines.append(
+            "\t".join(
+                [
+                    record.canonical_notation,
+                    record.sequence,
+                    str(record.modification_count),
+                    ";".join(record.modification_sites),
+                ]
+            )
+        )
+    path.write_text("\n".join(lines) + "\n")
+    return path
+
+
 def validate_modified_peptide_sites(
     peptide: str | ParsedModifiedPeptide,
     *,
@@ -1150,10 +1929,16 @@ def _render_modified_peptide(
     n_term_tokens: list[str] = []
     c_term_tokens: list[str] = []
     for modification in modifications:
-        token = modification.token
-        if modification.site is ModificationPosition.PEPTIDE_N_TERM:
+        token = _render_modification_token(modification)
+        if modification.site in {
+            ModificationPosition.PEPTIDE_N_TERM,
+            ModificationPosition.PROTEIN_N_TERM,
+        }:
             n_term_tokens.append(f"[{token}]")
-        elif modification.site is ModificationPosition.PEPTIDE_C_TERM:
+        elif modification.site in {
+            ModificationPosition.PEPTIDE_C_TERM,
+            ModificationPosition.PROTEIN_C_TERM,
+        }:
             c_term_tokens.append(f"[{token}]")
         else:
             site_index = modification.site_index
@@ -1173,6 +1958,26 @@ def _render_modified_peptide(
     if c_term_tokens:
         rendered += "-" + "".join(c_term_tokens)
     return rendered
+
+
+def _render_modification_token(modification: AppliedModification) -> str:
+    if modification.site is ModificationPosition.PROTEIN_N_TERM:
+        return f"{modification.token}@protein-n-term"
+    if modification.site is ModificationPosition.PROTEIN_C_TERM:
+        return f"{modification.token}@protein-c-term"
+    return modification.token
+
+
+def _render_modification_site(modification: AppliedModification) -> str:
+    if modification.site is ModificationPosition.ANYWHERE:
+        return str(modification.site_index)
+    if modification.site is ModificationPosition.PEPTIDE_N_TERM:
+        return "peptide_n_term"
+    if modification.site is ModificationPosition.PEPTIDE_C_TERM:
+        return "peptide_c_term"
+    if modification.site is ModificationPosition.PROTEIN_N_TERM:
+        return "protein_n_term"
+    return "protein_c_term"
 
 
 def _residue_neutral_losses(fragment_sequence: str) -> tuple[NeutralLoss, ...]:
@@ -1205,10 +2010,16 @@ def _fragment_modifications(
     sequence_length = len(peptide.sequence)
     selected: list[AppliedModification] = []
     for modification in peptide.modifications:
-        if modification.site is ModificationPosition.PEPTIDE_N_TERM:
+        if (
+            modification.site is ModificationPosition.PEPTIDE_N_TERM
+            or modification.site is ModificationPosition.PROTEIN_N_TERM
+        ):
             if series is FragmentIonSeries.B:
                 selected.append(modification)
-        elif modification.site is ModificationPosition.PEPTIDE_C_TERM:
+        elif (
+            modification.site is ModificationPosition.PEPTIDE_C_TERM
+            or modification.site is ModificationPosition.PROTEIN_C_TERM
+        ):
             if series is FragmentIonSeries.Y:
                 selected.append(modification)
         else:
@@ -1370,3 +2181,88 @@ def calculate_fragment_ions(
                 )
 
     return tuple(ions)
+
+
+def validate_modified_peptide_fragment_ions(
+    peptide: str | ParsedModifiedPeptide,
+    *,
+    charges: tuple[int, ...] = (1,),
+    series: tuple[FragmentIonSeries, ...] = (FragmentIonSeries.B, FragmentIonSeries.Y),
+    static_modifications: tuple[StaticModification, ...] = (),
+    include_neutral_losses: bool = False,
+    registry: ModificationRegistryDocument | None = None,
+) -> FragmentIonShiftValidationReport:
+    """Audit whether fragment-ion mass shifts match the modifications carried by each ion."""
+    parsed = _ensure_parsed_peptide(peptide, registry=registry)
+    modified_ions = calculate_fragment_ions(
+        parsed,
+        charges=charges,
+        series=series,
+        static_modifications=static_modifications,
+        include_neutral_losses=include_neutral_losses,
+        registry=registry,
+    )
+    baseline = parsed.model_copy(
+        update={"modifications": (), "canonical_notation": parsed.sequence}
+    )
+    baseline_ions = calculate_fragment_ions(
+        baseline,
+        charges=charges,
+        series=series,
+        static_modifications=static_modifications,
+        include_neutral_losses=include_neutral_losses,
+        registry=registry,
+    )
+    baseline_by_key = {
+        (ion.series, ion.ordinal, ion.charge, ion.neutral_loss): ion
+        for ion in baseline_ions
+    }
+    entries: list[FragmentIonShiftValidationEntry] = []
+    for ion in modified_ions:
+        key = (ion.series, ion.ordinal, ion.charge, ion.neutral_loss)
+        baseline_ion = baseline_by_key[key]
+        included_modifications = _fragment_modifications(
+            parsed,
+            series=ion.series,
+            ordinal=ion.ordinal,
+        )
+        expected_shift_monoisotopic = (
+            _applied_modification_mass_delta(
+                included_modifications,
+                MassType.MONOISOTOPIC,
+            )
+            / ion.charge
+        )
+        expected_shift_average = (
+            _applied_modification_mass_delta(
+                included_modifications,
+                MassType.AVERAGE,
+            )
+            / ion.charge
+        )
+        observed_shift_monoisotopic = ion.mz_monoisotopic - baseline_ion.mz_monoisotopic
+        observed_shift_average = ion.mz_average - baseline_ion.mz_average
+        valid = (
+            abs(observed_shift_monoisotopic - expected_shift_monoisotopic) <= 1e-9
+            and abs(observed_shift_average - expected_shift_average) <= 1e-9
+        )
+        entries.append(
+            FragmentIonShiftValidationEntry(
+                series=ion.series,
+                ordinal=ion.ordinal,
+                charge=ion.charge,
+                neutral_loss=ion.neutral_loss,
+                expected_shift_monoisotopic=expected_shift_monoisotopic,
+                observed_shift_monoisotopic=observed_shift_monoisotopic,
+                expected_shift_average=expected_shift_average,
+                observed_shift_average=observed_shift_average,
+                shifted=abs(observed_shift_monoisotopic) > 1e-12,
+                valid=valid,
+                included_modifications=included_modifications,
+            )
+        )
+    return FragmentIonShiftValidationReport(
+        canonical_notation=canonicalize_modified_peptide(parsed, registry=registry),
+        valid=all(entry.valid for entry in entries),
+        entries=tuple(entries),
+    )

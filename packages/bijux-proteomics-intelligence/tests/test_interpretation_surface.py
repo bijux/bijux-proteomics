@@ -40,8 +40,10 @@ from bijux_proteomics import (
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_intelligence import (
     ContrastRejectionReason,
+    EnrichmentProvenance,
     MissingnessPatternLabel,
     ProteinAnnotationAssignment,
+    QuantQcEvidenceIntegrationReport,
     RankedEntityScore,
     analyze_missingness_patterns,
     build_run_interpretation_summary,
@@ -49,6 +51,7 @@ from bijux_proteomics_intelligence import (
     compute_ranked_enrichment,
     explain_outlier_samples,
     extract_biological_themes,
+    integrate_quant_qc_evidence,
     interpret_contaminant_artifacts,
     interpret_differential_abundance,
     interpret_ptm_sites,
@@ -170,7 +173,19 @@ def test_differential_interpretation_and_theme_extraction_surface_signal() -> No
     assert interpretation.top_upregulated[0].entity_id == "P001"
     assert interpretation.top_downregulated == ()
     assert interpretation.statistical_provenance.significant_entity_count == 1
+    assert (
+        interpretation.statistical_provenance.multiple_testing_method
+        == "benjamini-hochberg"
+    )
     assert interpretation.enriched_terms[0].term_name == "nucleus"
+    assert isinstance(themes.enrichment_provenance, EnrichmentProvenance)
+    assert themes.enrichment_provenance.background_proteins == (
+        "P001",
+        "P002",
+        "P003",
+        "P004",
+    )
+    assert themes.enrichment_provenance.multiple_testing_method == "benjamini-hochberg"
     assert themes.themes[0].term_name == "MAPK signaling"
 
 
@@ -340,6 +355,86 @@ def test_outlier_sample_explainer_uses_batch_and_correlation_signals() -> None:
     assert "T2" in by_sample
     assert "low_identification_rate" in by_sample["T2"].reasons
     assert "low_replicate_correlation" in by_sample["T2"].reasons
+
+
+def test_integrate_quant_qc_evidence_combines_missingness_and_outliers() -> None:
+    feature_report = parse_ms1_feature_table(_core_fixture("quant", "ms1_features.tsv"))
+    design_report = parse_experimental_design_table(
+        _core_fixture("quant", "quant.design.tsv")
+    )
+    table = build_spectral_count_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+    )
+    batch_report = InstrumentBatchQcReport(
+        document_schema=DocumentSchema(
+            created_by="test",
+            document_kind="instrument_batch_qc_report",
+            package_name="test",
+            status="generated",
+        ),
+        batch_id="batch-z",
+        instrument="orbitrap-z",
+        run_count=2,
+        median_spectrum_count=8500.0,
+        median_identification_rate=0.19,
+        median_abs_mass_error_ppm=7.1,
+        median_identified_retention_time_seconds=1740.0,
+        outlier_run_ids=("run-t2",),
+        runs=(
+            InstrumentBatchQcRunEntry(
+                run_id="run-c1",
+                sample_id="C1",
+                batch="batch-z",
+                instrument="orbitrap-z",
+                spectrum_count=9100,
+                identification_rate=0.23,
+                median_abs_mass_error_ppm=5.1,
+                identified_retention_time_span_seconds=1810.0,
+                retention_time_shift_seconds=0.0,
+                outlier_reasons=(),
+            ),
+            InstrumentBatchQcRunEntry(
+                run_id="run-t2",
+                sample_id="T2",
+                batch="batch-z",
+                instrument="orbitrap-z",
+                spectrum_count=6800,
+                identification_rate=0.1,
+                median_abs_mass_error_ppm=12.8,
+                identified_retention_time_span_seconds=1600.0,
+                retention_time_shift_seconds=110.0,
+                outlier_reasons=("low_identification_rate",),
+            ),
+        ),
+    )
+    replicate_report = ReplicateCorrelationReport(
+        entity_level=QuantEntityLevel.PEPTIDE,
+        entries=(
+            ReplicateCorrelationEntry(
+                sample_a="T1",
+                sample_b="T2",
+                condition_a="treatment",
+                condition_b="treatment",
+                correlation=0.61,
+                shared_entity_count=10,
+            ),
+        ),
+        within_condition_mean=0.61,
+        between_condition_mean=None,
+    )
+
+    report = integrate_quant_qc_evidence(
+        table,
+        design_report.accepted_entries,
+        batch_report,
+        replicate_report,
+    )
+
+    assert isinstance(report, QuantQcEvidenceIntegrationReport)
+    assert report.missingness.overall_label is MissingnessPatternLabel.MIXED
+    assert report.outliers[0].sample_id == "T2"
+    assert any("QC-supported outlier behavior" in note for note in report.notes)
 
 
 def test_protein_set_and_ranked_enrichment_reports_are_ordered_and_deterministic() -> (

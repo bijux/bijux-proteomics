@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics import (
     build_ptm_enrichment_input,
+    build_ptm_motif_background_report,
     build_ptm_motif_windows,
     build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
@@ -17,6 +18,11 @@ from bijux_proteomics import (
     parse_fasta_document,
     parse_ms1_feature_table,
     parse_ptm_localization_tsv,
+    validate_ptm_site_coordinates,
+)
+from bijux_proteomics.ptm import (
+    PtmSiteGroupEvidenceEntry,
+    build_ptm_site_group_evidence,
 )
 from bijux_proteomics.sequences import FastaParseMode
 
@@ -95,6 +101,12 @@ def test_ptm_site_mapping_and_table_cover_unique_and_ambiguous_sites() -> None:
     assert p11111_site.spectrum_count == 4
     assert p11111_site.best_q_value == 0.003
 
+    validation = validate_ptm_site_coordinates(
+        mappings,
+        protein_sequences=_protein_sequences(),
+    )
+    assert validation.valid is True
+
 
 def test_ptm_ambiguity_coverage_and_fdr_reports_are_stable() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
@@ -118,6 +130,21 @@ def test_ptm_ambiguity_coverage_and_fdr_reports_are_stable() -> None:
     assert decoy.accepted is False
 
 
+def test_ptm_site_group_evidence_preserves_unresolved_candidate_sets() -> None:
+    evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = build_ptm_site_table(mappings)
+    groups = build_ptm_site_group_evidence(site_table)
+
+    assert any(isinstance(entry, PtmSiteGroupEvidenceEntry) for entry in groups)
+    unresolved = next(entry for entry in groups if entry.unresolved)
+    assert len(unresolved.candidate_positions) > 1
+    assert unresolved.site_keys
+
+
 def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
@@ -136,6 +163,10 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
     enrichment = build_ptm_enrichment_input(
         site_table, protein_sequences=_protein_sequences()
     )
+    background = build_ptm_motif_background_report(
+        site_table,
+        protein_sequences=_protein_sequences(),
+    )
 
     c1 = next(
         entry
@@ -151,6 +182,19 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
 
     assert c1.occupancy_fraction == 0.12
     assert t2.occupancy_fraction == 0.79
+    assert c1.uncertainty.value == "none"
     assert motif.window == "AAASPEP"
     assert "P11111:S5:Phospho" in enrichment.site_ids
     assert "P11111:S5" in enrichment.background_ids
+    assert background.total_foreground_sites >= 1
+    assert (
+        next(
+            entry for entry in background.entries if entry.residue == "S"
+        ).background_site_count
+        >= 1
+    )
+
+    ambiguous = next(
+        entry for entry in occupancy if entry.uncertainty.value == "ambiguous_site"
+    )
+    assert ambiguous.uncertainty.value == "ambiguous_site"

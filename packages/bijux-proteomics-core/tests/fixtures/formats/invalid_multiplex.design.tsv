@@ -1,0 +1,2 @@
+sample_id	condition	replicate	fraction	spectra_file	multiplex_channel
+CTRL-01	control	1	1	ctrl-01.mzml	126

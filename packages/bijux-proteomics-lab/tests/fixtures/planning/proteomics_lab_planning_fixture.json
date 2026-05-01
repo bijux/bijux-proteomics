@@ -1,0 +1,68 @@
+{
+  "program": {
+    "program_id": "prog-phospho",
+    "name": "phosphoproteomics target engagement",
+    "objective": "confirm phosphosite suppression and maintain expression quality",
+    "target_id": "target-akt1",
+    "target_name": "AKT1",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "reduce downstream phosphosite activity while preserving target abundance"
+  },
+  "evidence_needs": ["structure", "assay", "pathway"],
+  "assays": [
+    {
+      "assay_id": "target-engagement-prm",
+      "purpose": "confirm direct target engagement",
+      "readout": "engagement_ratio",
+      "sample_kind": "biophysical",
+      "blocking": true
+    },
+    {
+      "assay_id": "phosphosite-panel",
+      "purpose": "measure pathway phosphosite suppression",
+      "readout": "phosphosite_log2_fc",
+      "sample_kind": "cellular",
+      "blocking": true
+    },
+    {
+      "assay_id": "expression-qc",
+      "purpose": "check target expression robustness",
+      "readout": "yield_mg_per_l",
+      "sample_kind": "expression",
+      "blocking": false
+    }
+  ],
+  "records": [
+    {
+      "evidence_id": "lit-akt1",
+      "kind": "literature",
+      "title": "AKT1 literature",
+      "source": "PMID:42",
+      "claim": "AKT1 is tractable in phosphoproteomics workflows.",
+      "confidence": 0.9,
+      "strength": "supporting"
+    },
+    {
+      "evidence_id": "struct-akt1",
+      "kind": "structure",
+      "title": "AKT1 structure model",
+      "source": "AlphaFold",
+      "claim": "The kinase domain exposes a stable ligandable pocket.",
+      "confidence": 0.82,
+      "strength": "supporting"
+    }
+  ],
+  "candidate_signals": [
+    {
+      "candidate_id": "cand-akt1-01",
+      "score": 0.91,
+      "assay_ids": ["phosphosite-panel", "target-engagement-prm"]
+    },
+    {
+      "candidate_id": "cand-akt1-02",
+      "score": 0.45,
+      "assay_ids": ["expression-qc"]
+    }
+  ]
+}

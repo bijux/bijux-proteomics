@@ -1,0 +1,4 @@
+sample_id	cohort	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine	multiplex_group	multiplex_channel	sample_role
+CTRL-01	discovery	control	1	1	ctrl-01.mzml	ctrl-01.psm.tsv	batch-01	Orbitrap	Sage	plex-a	126	sample
+TRT-01	discovery	treatment	1	1	trt-01.mzml	trt-01.psm.tsv	batch-01	Orbitrap	Sage	plex-a	127N	sample
+POOL-01	discovery	reference	1	1	pool-01.mzml	pool-01.psm.tsv	batch-01	Orbitrap	Sage	plex-a	128N	pooled_reference

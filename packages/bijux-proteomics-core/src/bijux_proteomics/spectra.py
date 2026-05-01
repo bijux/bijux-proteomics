@@ -8,7 +8,9 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 import hashlib
+import json
 from pathlib import Path
+import re
 
 from pydantic import ConfigDict, Field, field_validator
 
@@ -36,6 +38,11 @@ class SpectrumModel(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     spectrum_id: str = Field(..., min_length=1)
+    native_id: str | None = None
+    scan_number: int | None = Field(default=None, ge=1)
+    ms_level: int | None = Field(default=None, ge=1)
+    parent_spectrum_id: str | None = None
+    product_isolation_mz: float | None = Field(default=None, gt=0.0)
     precursor_mz: float = Field(..., gt=0.0)
     precursor_charge: int | None = Field(default=None, ge=1)
     retention_time_seconds: float | None = Field(default=None, ge=0.0)
@@ -98,11 +105,32 @@ class SpectrumCollectionSummary(JsonModel):
     issue_counts: dict[str, int] = Field(default_factory=dict)
 
 
+class SpectrumLookupIndex(JsonModel):
+    """Stable lookup index over parsed spectra."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectra: tuple[SpectrumModel, ...] = Field(default_factory=tuple)
+    native_id_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    title_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    scan_number_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    scan_key_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+
+
 class SpectralSimilarityMethod(StrEnum):
     """Supported basic spectral similarity methods."""
 
     COSINE = "cosine"
     DOT_PRODUCT = "dot_product"
+
+
+class SpectrumSimilarityMode(StrEnum):
+    """Supported deterministic preprocessing modes for spectral comparison."""
+
+    RAW = "raw"
+    NORMALIZED = "normalized"
+    TOP_N = "top_n"
+    TRANSFORMED = "transformed"
 
 
 class SpectralSimilarityScore(JsonModel):
@@ -111,6 +139,7 @@ class SpectralSimilarityScore(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     method: SpectralSimilarityMethod
+    mode: SpectrumSimilarityMode = SpectrumSimilarityMode.RAW
     tolerance_da: float = Field(..., gt=0.0)
     score: float = Field(..., ge=0.0)
     matched_peak_count: int = Field(..., ge=0)
@@ -181,6 +210,30 @@ class PrecursorMassError(JsonModel):
     delta_ppm: float
 
 
+class PrecursorIsotopeOffsetCandidate(JsonModel):
+    """One candidate precursor isotope offset interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    isotope_offset: int = Field(..., ge=0)
+    expected_mz: float = Field(..., gt=0.0)
+    delta_da: float
+    delta_ppm: float
+
+
+class PrecursorIsotopeOffsetAdvisory(JsonModel):
+    """Advisory-only precursor isotope offset assessment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    advisory_only: bool = True
+    recommended_offset: int = Field(..., ge=0)
+    candidates: tuple[PrecursorIsotopeOffsetCandidate, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
+
+
 class SpectrumAnnotationMatch(JsonModel):
     """One theoretical fragment matched to one observed peak."""
 
@@ -192,6 +245,25 @@ class SpectrumAnnotationMatch(JsonModel):
     observed_intensity: float = Field(..., ge=0.0)
     mass_error_da: float
     mass_error_ppm: float
+
+
+class SpectrumAnnotationAmbiguityKind(StrEnum):
+    """Supported ambiguity warnings for spectrum annotation."""
+
+    PEAK_TO_MULTIPLE_FRAGMENTS = "peak_to_multiple_fragments"
+    FRAGMENT_TO_MULTIPLE_PEAKS = "fragment_to_multiple_peaks"
+
+
+class SpectrumAnnotationAmbiguityWarning(JsonModel):
+    """One ambiguity warning caused by a permissive annotation tolerance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: SpectrumAnnotationAmbiguityKind
+    fragment_labels: tuple[str, ...] = Field(default_factory=tuple)
+    peak_mzs: tuple[float, ...] = Field(default_factory=tuple)
+    tolerance_da: float = Field(..., gt=0.0)
+    note: str = Field(..., min_length=1)
 
 
 class SpectrumAnnotation(JsonModel):
@@ -206,6 +278,9 @@ class SpectrumAnnotation(JsonModel):
     precursor_charge: int | None = Field(default=None, ge=1)
     tolerance_da: float = Field(..., gt=0.0)
     matches: tuple[SpectrumAnnotationMatch, ...] = Field(default_factory=tuple)
+    ambiguity_warnings: tuple[SpectrumAnnotationAmbiguityWarning, ...] = Field(
+        default_factory=tuple
+    )
     unmatched_peak_count: int = Field(..., ge=0)
 
 
@@ -231,6 +306,28 @@ class SpectrumPlotPayload(JsonModel):
     peaks: tuple[SpectrumPlotPeak, ...] = Field(default_factory=tuple)
 
 
+class SpectrumAnnotationParameters(JsonModel):
+    """Stable parameter set for one spectrum-annotation bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    peptide: str = Field(..., min_length=1)
+    tolerance_da: float = Field(..., gt=0.0)
+    include_neutral_losses: bool
+
+
+class AnnotatedSpectrumBundle(JsonModel):
+    """Single export bundle with raw peaks, annotation, theoretical ions, and parameters."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    spectrum: SpectrumModel
+    annotation: SpectrumAnnotation
+    theoretical_fragments: tuple[FragmentIon, ...] = Field(default_factory=tuple)
+    parameters: SpectrumAnnotationParameters
+
+
 class _MgfBlock:
     def __init__(self, block_index: int) -> None:
         self.block_index = block_index
@@ -242,6 +339,43 @@ class _MgfBlock:
         self.peaks: list[SpectrumPeak] = []
         self.issues: list[SpectrumValidationIssue] = []
         self.raw_lines: list[str] = []
+
+
+def _scan_number_from_text(value: str | None) -> int | None:
+    if value is None:
+        return None
+    match = re.search(r"scan=(\d+)", value, flags=re.IGNORECASE)
+    if match is not None:
+        return int(match.group(1))
+    if value.isdigit():
+        return int(value)
+    return None
+
+
+def normalize_spectrum_scan_key(
+    spectrum_or_text: SpectrumModel | str | None,
+) -> str | None:
+    """Normalize one scan-like identifier onto a stable key."""
+    if spectrum_or_text is None:
+        return None
+    if isinstance(spectrum_or_text, SpectrumModel):
+        candidates = (
+            spectrum_or_text.native_id,
+            spectrum_or_text.spectrum_id,
+            spectrum_or_text.title,
+        )
+        scan_number = spectrum_or_text.scan_number
+        if scan_number is not None:
+            return f"scan:{scan_number}"
+        for candidate in candidates:
+            parsed = _scan_number_from_text(candidate)
+            if parsed is not None:
+                return f"scan:{parsed}"
+        return None
+    parsed = _scan_number_from_text(spectrum_or_text)
+    if parsed is not None:
+        return f"scan:{parsed}"
+    return None
 
 
 def _issue(
@@ -264,10 +398,22 @@ def _issue(
 
 
 def _parse_charge(token: str) -> int:
-    normalized = token.strip().rstrip("+")
+    normalized = token.strip()
     if not normalized:
         raise ValueError("empty charge token")
-    return int(normalized)
+    matches = re.findall(r"[+-]?\d+\+*", normalized.replace("and", ","))
+    if not matches:
+        raise ValueError("invalid charge token")
+    charges = {
+        int(match.lstrip("+").rstrip("+"))
+        for match in matches
+        if match.lstrip("+").rstrip("+")
+    }
+    if not charges:
+        raise ValueError("invalid charge token")
+    if len(charges) > 1:
+        raise ValueError("ambiguous precursor charge list")
+    return next(iter(charges))
 
 
 def parse_mgf(path: Path) -> MgfParseReport:
@@ -305,6 +451,8 @@ def parse_mgf(path: Path) -> MgfParseReport:
         accepted.append(
             SpectrumModel(
                 spectrum_id=spectrum_id,
+                native_id=block.spectrum_id,
+                scan_number=_scan_number_from_text(block.spectrum_id or block.title),
                 precursor_mz=block.precursor_mz or 1.0,
                 precursor_charge=block.precursor_charge,
                 retention_time_seconds=block.retention_time_seconds,
@@ -315,7 +463,7 @@ def parse_mgf(path: Path) -> MgfParseReport:
 
     for line_number, raw_line in enumerate(lines, start=1):
         line = raw_line.strip()
-        if not line or line.startswith(("#", ";")):
+        if not line or line.startswith(("#", ";", "!", "//")):
             continue
         if line.upper() == "BEGIN IONS":
             if current is not None:
@@ -441,6 +589,73 @@ def build_spectrum_collection_summary(
         counts_by_charge=dict(sorted(counts_by_charge.items())),
         issue_counts=dict(sorted(issue_counts.items())),
     )
+
+
+def build_spectrum_lookup_index(
+    spectra: tuple[SpectrumModel, ...],
+) -> SpectrumLookupIndex:
+    """Build stable lookup maps by native ID, title, scan number, and scan key."""
+    native_id_index: dict[str, list[str]] = {}
+    title_index: dict[str, list[str]] = {}
+    scan_number_index: dict[str, list[str]] = {}
+    scan_key_index: dict[str, list[str]] = {}
+    normalized_spectra = tuple(sorted(spectra, key=lambda item: item.spectrum_id))
+    for spectrum in normalized_spectra:
+        if spectrum.native_id:
+            native_id_index.setdefault(spectrum.native_id, []).append(
+                spectrum.spectrum_id
+            )
+        if spectrum.title:
+            title_index.setdefault(spectrum.title, []).append(spectrum.spectrum_id)
+        if spectrum.scan_number is not None:
+            scan_number_index.setdefault(str(spectrum.scan_number), []).append(
+                spectrum.spectrum_id
+            )
+        scan_key = normalize_spectrum_scan_key(spectrum)
+        if scan_key is not None:
+            scan_key_index.setdefault(scan_key, []).append(spectrum.spectrum_id)
+    return SpectrumLookupIndex(
+        spectra=normalized_spectra,
+        native_id_index={
+            key: tuple(values) for key, values in sorted(native_id_index.items())
+        },
+        title_index={key: tuple(values) for key, values in sorted(title_index.items())},
+        scan_number_index={
+            key: tuple(values) for key, values in sorted(scan_number_index.items())
+        },
+        scan_key_index={
+            key: tuple(values) for key, values in sorted(scan_key_index.items())
+        },
+    )
+
+
+def lookup_spectra(
+    index: SpectrumLookupIndex,
+    *,
+    native_id: str | None = None,
+    title: str | None = None,
+    scan_number: int | None = None,
+    scan_key: str | None = None,
+) -> tuple[SpectrumModel, ...]:
+    """Look up spectra by one stable key family."""
+    if (
+        sum(query is not None for query in (native_id, title, scan_number, scan_key))
+        != 1
+    ):
+        raise ValueError(
+            "exactly one of native_id, title, scan_number, or scan_key must be provided"
+        )
+    if native_id is not None:
+        matched_ids = index.native_id_index.get(native_id, ())
+    elif title is not None:
+        matched_ids = index.title_index.get(title, ())
+    elif scan_number is not None:
+        matched_ids = index.scan_number_index.get(str(scan_number), ())
+    else:
+        normalized_key = normalize_spectrum_scan_key(scan_key)
+        matched_ids = index.scan_key_index.get(normalized_key or "", ())
+    spectra_by_id = {spectrum.spectrum_id: spectrum for spectrum in index.spectra}
+    return tuple(spectra_by_id[spectrum_id] for spectrum_id in matched_ids)
 
 
 def build_spectrum_provenance_manifest(
@@ -637,14 +852,71 @@ def calculate_precursor_mass_error(
     )
 
 
+def detect_precursor_isotope_offset_advisory(
+    *,
+    observed_mz: float,
+    theoretical_mz: float,
+    charge: int,
+    max_offset: int = 3,
+) -> PrecursorIsotopeOffsetAdvisory:
+    """Rank precursor isotope offset candidates without enforcing any correction."""
+    isotope_delta = 1.0033548378 / charge
+    candidates = tuple(
+        PrecursorIsotopeOffsetCandidate(
+            isotope_offset=offset,
+            expected_mz=theoretical_mz + (isotope_delta * offset),
+            delta_da=observed_mz - (theoretical_mz + (isotope_delta * offset)),
+            delta_ppm=(
+                (observed_mz - (theoretical_mz + (isotope_delta * offset)))
+                / (theoretical_mz + (isotope_delta * offset))
+            )
+            * 1_000_000.0,
+        )
+        for offset in range(max_offset + 1)
+    )
+    ranked = tuple(
+        sorted(
+            candidates,
+            key=lambda candidate: (
+                abs(candidate.delta_da),
+                candidate.isotope_offset,
+            ),
+        )
+    )
+    best = ranked[0]
+    note = (
+        "observed precursor is closest to the monoisotopic assignment"
+        if best.isotope_offset == 0
+        else f"observed precursor is closest to isotope offset +{best.isotope_offset}"
+    )
+    return PrecursorIsotopeOffsetAdvisory(
+        advisory_only=True,
+        recommended_offset=best.isotope_offset,
+        candidates=ranked,
+        note=note,
+    )
+
+
 def calculate_spectral_similarity(
     reference_spectrum: SpectrumModel,
     query_spectrum: SpectrumModel,
     *,
     tolerance_da: float = 0.02,
     method: SpectralSimilarityMethod = SpectralSimilarityMethod.COSINE,
+    mode: SpectrumSimilarityMode = SpectrumSimilarityMode.RAW,
+    top_n: int | None = None,
 ) -> SpectralSimilarityScore:
     """Calculate a basic matched-peak spectral similarity score."""
+    reference_spectrum = _prepare_similarity_spectrum(
+        reference_spectrum,
+        mode=mode,
+        top_n=top_n,
+    )
+    query_spectrum = _prepare_similarity_spectrum(
+        query_spectrum,
+        mode=mode,
+        top_n=top_n,
+    )
     matched_reference: list[float] = []
     matched_query: list[float] = []
     used_reference_indices: set[int] = set()
@@ -682,11 +954,67 @@ def calculate_spectral_similarity(
         )
     return SpectralSimilarityScore(
         method=method,
+        mode=mode,
         tolerance_da=tolerance_da,
         score=score,
         matched_peak_count=len(matched_reference),
         reference_peak_count=len(reference_spectrum.peaks),
         query_peak_count=len(query_spectrum.peaks),
+    )
+
+
+def _prepare_similarity_spectrum(
+    spectrum: SpectrumModel,
+    *,
+    mode: SpectrumSimilarityMode,
+    top_n: int | None,
+) -> SpectrumModel:
+    if mode is SpectrumSimilarityMode.RAW:
+        return normalize_spectrum_peaks(
+            spectrum,
+            policy=PeakNormalizationPolicy(
+                merge_tolerance_da=0.0,
+                drop_zero_intensity=False,
+                scale_to_base_peak=False,
+            ),
+        )
+    if mode is SpectrumSimilarityMode.NORMALIZED:
+        return normalize_spectrum_peaks(
+            spectrum,
+            policy=PeakNormalizationPolicy(
+                merge_tolerance_da=0.0,
+                drop_zero_intensity=False,
+                scale_to_base_peak=True,
+            ),
+        )
+    if mode is SpectrumSimilarityMode.TOP_N:
+        normalized = normalize_spectrum_peaks(
+            spectrum,
+            policy=PeakNormalizationPolicy(
+                merge_tolerance_da=0.0,
+                drop_zero_intensity=False,
+                scale_to_base_peak=True,
+            ),
+        )
+        return filter_spectrum_peaks(
+            normalized,
+            top_n=top_n if top_n is not None else 50,
+        ).spectrum
+    normalized = normalize_spectrum_peaks(
+        spectrum,
+        policy=PeakNormalizationPolicy(
+            merge_tolerance_da=0.0,
+            drop_zero_intensity=False,
+            scale_to_base_peak=True,
+        ),
+    )
+    return normalized.model_copy(
+        update={
+            "peaks": tuple(
+                SpectrumPeak(mz=peak.mz, intensity=peak.intensity**0.5)
+                for peak in normalized.peaks
+            )
+        }
     )
 
 
@@ -714,8 +1042,30 @@ def annotate_spectrum_fragments(
         include_neutral_losses=include_neutral_losses,
     )
     matches: list[SpectrumAnnotationMatch] = []
+    ambiguity_warnings: list[SpectrumAnnotationAmbiguityWarning] = []
     matched_peak_keys: set[tuple[float, float]] = set()
+    candidate_fragments_by_peak: dict[tuple[float, float], list[str]] = {}
     for fragment in fragments:
+        candidate_peaks = tuple(
+            peak
+            for peak in spectrum.peaks
+            if abs(peak.mz - fragment.mz_monoisotopic) <= tolerance_da
+        )
+        fragment_label = _fragment_label(fragment)
+        if len(candidate_peaks) > 1:
+            ambiguity_warnings.append(
+                SpectrumAnnotationAmbiguityWarning(
+                    kind=SpectrumAnnotationAmbiguityKind.FRAGMENT_TO_MULTIPLE_PEAKS,
+                    fragment_labels=(fragment_label,),
+                    peak_mzs=tuple(sorted(peak.mz for peak in candidate_peaks)),
+                    tolerance_da=tolerance_da,
+                    note="one fragment is compatible with multiple observed peaks under the requested tolerance",
+                )
+            )
+        for peak in candidate_peaks:
+            candidate_fragments_by_peak.setdefault(
+                (peak.mz, peak.intensity), []
+            ).append(fragment_label)
         best_peak: SpectrumPeak | None = None
         best_error: float | None = None
         for peak in spectrum.peaks:
@@ -739,11 +1089,27 @@ def annotate_spectrum_fragments(
         matches.append(
             SpectrumAnnotationMatch(
                 fragment=fragment,
-                fragment_label=_fragment_label(fragment),
+                fragment_label=fragment_label,
                 observed_mz=best_peak.mz,
                 observed_intensity=best_peak.intensity,
                 mass_error_da=best_error,
                 mass_error_ppm=(best_error / fragment.mz_monoisotopic) * 1_000_000.0,
+            )
+        )
+    for peak_key, fragment_labels in sorted(
+        candidate_fragments_by_peak.items(),
+        key=lambda item: (item[0][0], item[0][1]),
+    ):
+        unique_labels = tuple(sorted(set(fragment_labels)))
+        if len(unique_labels) < 2:
+            continue
+        ambiguity_warnings.append(
+            SpectrumAnnotationAmbiguityWarning(
+                kind=SpectrumAnnotationAmbiguityKind.PEAK_TO_MULTIPLE_FRAGMENTS,
+                fragment_labels=unique_labels,
+                peak_mzs=(peak_key[0],),
+                tolerance_da=tolerance_da,
+                note="one observed peak is compatible with multiple theoretical fragments under the requested tolerance",
             )
         )
     schema = DocumentSchema(
@@ -766,6 +1132,16 @@ def annotate_spectrum_fragments(
                     match.fragment.series.value,
                     match.fragment.ordinal,
                     match.fragment.charge,
+                ),
+            )
+        ),
+        ambiguity_warnings=tuple(
+            sorted(
+                ambiguity_warnings,
+                key=lambda warning: (
+                    warning.kind.value,
+                    warning.fragment_labels,
+                    warning.peak_mzs,
                 ),
             )
         ),
@@ -859,4 +1235,60 @@ def build_spectrum_plot_payload(
                 payload.to_dict()
             )
         }
+    )
+
+
+def build_annotated_spectrum_bundle(
+    spectrum: SpectrumModel,
+    *,
+    peptide: str | ParsedModifiedPeptide,
+    tolerance_da: float = 0.5,
+    include_neutral_losses: bool = True,
+) -> AnnotatedSpectrumBundle:
+    """Build one self-contained annotation bundle with raw and theoretical evidence."""
+    canonical = _canonical_peptide_text(peptide)
+    theoretical_fragments = calculate_fragment_ions(
+        peptide,
+        include_neutral_losses=include_neutral_losses,
+    )
+    annotation = annotate_spectrum_fragments(
+        spectrum,
+        peptide=peptide,
+        tolerance_da=tolerance_da,
+        include_neutral_losses=include_neutral_losses,
+    )
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="annotated_spectrum_bundle",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    bundle = AnnotatedSpectrumBundle(
+        document_schema=schema,
+        spectrum=spectrum,
+        annotation=annotation,
+        theoretical_fragments=theoretical_fragments,
+        parameters=SpectrumAnnotationParameters(
+            peptide=canonical,
+            tolerance_da=tolerance_da,
+            include_neutral_losses=include_neutral_losses,
+        ),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_annotated_spectrum_bundle(
+    bundle: AnnotatedSpectrumBundle,
+    path: Path,
+) -> None:
+    """Write one annotated spectrum bundle as stable JSON."""
+    path.write_text(
+        json.dumps(bundle.to_dict(), sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
     )

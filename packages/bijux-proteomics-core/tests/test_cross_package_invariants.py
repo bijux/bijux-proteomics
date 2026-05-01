@@ -4,10 +4,20 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
+
+_AGENTIC_IMPORT_RE = re.compile(
+    r"^\s*(?:from|import)\s+agentic_proteins(?:\b|\.)",
+    flags=re.MULTILINE,
+)
 
 
 def _read(path: Path) -> str:
     return path.read_text()
+
+
+def _imports_agentic_runtime(content: str) -> bool:
+    return _AGENTIC_IMPORT_RE.search(content) is not None
 
 
 def test_core_only_reaches_agentic_runtime_through_runtime_adapter() -> None:
@@ -15,9 +25,9 @@ def test_core_only_reaches_agentic_runtime_through_runtime_adapter() -> None:
     for path in core_root.rglob("*.py"):
         content = _read(path)
         if path.name == "runtime_adapter.py":
-            assert "agentic_proteins" in content
+            assert _imports_agentic_runtime(content)
             continue
-        assert "agentic_proteins" not in content
+        assert not _imports_agentic_runtime(content)
 
 
 def test_knowledge_does_not_depend_on_intelligence_or_lab() -> None:

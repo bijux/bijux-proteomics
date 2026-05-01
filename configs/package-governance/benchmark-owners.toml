@@ -1,0 +1,47 @@
+[[owner]]
+package_name = "agentic-proteins"
+focus_path = "packages/agentic-proteins/tests/regression/benchmarks/cases.json"
+declaration_path = "docs/02-agentic-proteins/operations/performance-and-scaling.md"
+rationale = "legacy compatibility runtime parity is the main place where benchmark drift should be localized"
+
+[[owner]]
+package_name = "bijux-proteomics-dev"
+focus_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/openapi_drift.py"
+declaration_path = "docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates.md"
+rationale = "maintainer automation performance matters most when large repository checks fan out across many files"
+
+[[owner]]
+package_name = "bijux-proteomics-foundation"
+focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization.py"
+declaration_path = "docs/03-bijux-proteomics-foundation/operations/performance-and-scaling.md"
+rationale = "serialization and hashing are the hot path for durable artifact exchange across packages"
+
+[[owner]]
+package_name = "bijux-proteomics-core"
+focus_path = "packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py"
+declaration_path = "docs/04-bijux-proteomics-core/operations/performance-and-scaling.md"
+rationale = "digestion, parsing, and report assembly dominate most scientific throughput costs in core"
+
+[[owner]]
+package_name = "bijux-proteomics-runtime"
+focus_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/execution.py"
+declaration_path = "docs/09-bijux-proteomics-runtime/index.md"
+rationale = "runtime execution control is the main operational surface when replay and provider orchestration slow down"
+
+[[owner]]
+package_name = "bijux-proteomics-intelligence"
+focus_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py"
+declaration_path = "docs/05-bijux-proteomics-intelligence/operations/performance-and-scaling.md"
+rationale = "candidate evaluation and ranking loops are the main place where intelligence regressions concentrate"
+
+[[owner]]
+package_name = "bijux-proteomics-knowledge"
+focus_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py"
+declaration_path = "docs/06-bijux-proteomics-knowledge/operations/performance-and-scaling.md"
+rationale = "bundle scoring and contradiction analysis are the main knowledge-time aggregation surfaces"
+
+[[owner]]
+package_name = "bijux-proteomics-lab"
+focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py"
+declaration_path = "docs/07-bijux-proteomics-lab/operations/performance-and-scaling.md"
+rationale = "planning and scheduling growth is where lab package performance regressions become operationally visible"

@@ -1,0 +1,3 @@
+spectrum_key	plain_peptide	precursor_charge	hyperscore_value	proteins_joined	decoy_state
+fragger-pipe-1	PEPTIDE	2	132.4	P12345;Q22222	target
+fragger-pipe-2	PEPTIDER	3	88.7	DECOY_P99999	decoy

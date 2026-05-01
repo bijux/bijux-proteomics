@@ -1,0 +1,21 @@
+# collection comment
+BEGIN IONS
+TITLE=orbitrap run=7 sample=Alpha #42
+PEPMASS=500.2000 12345.6
+CHARGE=2++ and 2+
+RTINSECONDS=123.4
+// instrument comment
+100.1 10.0
+200.2 20.0
+END IONS
+
+BEGIN IONS
+; block comment
+TITLE=weird=title=with=equals
+SCANS=scan=9002
+PEPMASS=650.30
+CHARGE=+3
+! analyst note
+150.0 30.0
+250.0 40.0
+END IONS

@@ -3,10 +3,12 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from typing import Any, cast
 
 from bijux_proteomics import create_program_spec
-from bijux_proteomics.programs import AssayRequirement, ReviewGate
+from bijux_proteomics.programs import AssayRequirement, EvidenceNeed, ReviewGate
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceKind,
@@ -14,17 +16,22 @@ from bijux_proteomics_knowledge import (
     EvidenceStrength,
 )
 from bijux_proteomics_lab import (
+    AdvisoryAssayPlan,
     AssayDependency,
     AssayFamily,
     AssayIntent,
     AssayObservation,
     AssayOutcome,
+    AssayPlanKind,
     AssayResultState,
+    CandidatePrioritySignal,
     ConflictAssayPolicy,
+    ExecutableAssayPlan,
     ExperimentBatch,
     ExperimentOutcome,
     ExperimentPlan,
     FamilyCapacity,
+    InstrumentAvailability,
     LabCapacity,
     MaterialInventory,
     MaterialRequirement,
@@ -32,11 +39,17 @@ from bijux_proteomics_lab import (
     PlanningPolicy,
     ProgressDecision,
     RerunPolicy,
+    align_lab_priority_queue,
     assay_family_priority,
     assess_dependency_integrity,
     assess_gate_coverage_gaps,
     assess_material_constraints,
+    build_advisory_assay_plan,
+    build_executable_assay_plan,
+    build_execution_capacity_advisory,
     build_lab_cycle_brief,
+    build_lab_execution_request,
+    build_lab_review_packet_bundle,
     build_review_packet,
     build_review_risk_profile,
     build_workflow_batch_outline,
@@ -58,6 +71,7 @@ from bijux_proteomics_lab import (
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
     recommend_orthogonal_confirmation,
+    report_execution_plan_uncertainty,
     schedule_experiment_plan,
     schedule_with_family_capacity,
     score_assay_gate_impact,
@@ -66,6 +80,17 @@ from bijux_proteomics_lab import (
     summarize_schedule_pressure,
     validate_experiment_plan,
 )
+
+
+def _planning_fixture(name: str) -> dict[str, object]:
+    return cast(
+        dict[str, object],
+        json.loads(
+            (Path(__file__).parent / "fixtures" / "planning" / name).read_text(
+                encoding="utf-8"
+            )
+        ),
+    )
 
 
 def test_plan_experiment_batches_prioritizes_blocking_assays() -> None:
@@ -201,6 +226,385 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
 
     assert packet.ready_for_synthesis is False
     assert "failed assays: primary-binding" in packet.blocking_findings
+    assert packet.advancement_evidence.evidence_ids == [
+        "lit-1",
+        "structure-1",
+        "assay-1",
+    ]
+    assert packet.advancement_evidence.missing_evidence_kinds == []
+
+
+def test_build_lab_review_packet_bundle_carries_rationale_and_open_risks() -> None:
+    program = create_program_spec(
+        program_id="prog-review-bundle",
+        name="review bundle",
+        objective="bundle review rationale and unresolved risks",
+        target_id="target-review",
+        target_name="Target Review",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize a productive conformation",
+    )
+    program.evidence_needs = [EvidenceNeed.LITERATURE, EvidenceNeed.STRUCTURE]
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="gate-binding",
+            purpose="confirm target engagement",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-review",
+        target_id="target-review",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                claim="Literature supports tractability.",
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+
+    packet_bundle = build_lab_review_packet_bundle(program, bundle, [])
+
+    assert packet_bundle.assay_rationale_by_id["gate-binding"][0] == (
+        "confirm target engagement"
+    )
+    assert packet_bundle.target_evidence_ids == ["lit-1"]
+    assert "structure" in packet_bundle.unresolved_risks
+
+
+def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None:
+    program = create_program_spec(
+        program_id="prog-advisory",
+        name="advisory plan",
+        objective="separate scientific advice from execution directives",
+        target_id="target-advisory",
+        target_name="Target Advisory",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize a productive state",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(
+                assay_id="gate-binding",
+                purpose="confirm target engagement",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            ),
+            AssayRequirement(
+                assay_id="support-expression",
+                purpose="check expression robustness",
+                readout="yield_mg_per_l",
+                sample_kind="expression",
+                blocking=False,
+            ),
+        ]
+    )
+    program.evidence_needs = [EvidenceNeed.STRUCTURE, EvidenceNeed.ASSAY]
+
+    plan = build_advisory_assay_plan(program)
+
+    assert isinstance(plan, AdvisoryAssayPlan)
+    assert plan.plan_kind is AssayPlanKind.ADVISORY
+    assert plan.executable is False
+    assert plan.recommendations[0].blocking is True
+    assert [mapping.evidence_need for mapping in plan.evidence_need_actions] == [
+        "structure",
+        "assay",
+    ]
+    assert plan.evidence_need_actions[0].assay_ids == ["gate-binding"]
+    assert plan.evidence_need_actions[0].sample_kinds == ["biophysical"]
+    assert (
+        "prepare biophysical material for gate-binding"
+        in plan.evidence_need_actions[0].wet_lab_actions
+    )
+
+
+def test_build_executable_assay_plan_requires_operational_readiness() -> None:
+    plan = ExperimentPlan(
+        program_id="prog-exec",
+        review_queue=["gate-a"],
+        evidence_gaps=[],
+        batches=[
+            ExperimentBatch(
+                batch_id="batch-exec",
+                objective="execute the gate assay",
+                assay_ids=["gate-binding"],
+                blocking_review_gates=["gate-a"],
+                priority=1,
+                sample_requirements=["protein"],
+                assay_sample_kinds={"gate-binding": "biophysical"},
+            )
+        ],
+    )
+
+    blocked = build_executable_assay_plan(
+        plan,
+        batch_id="batch-exec",
+        available_sample_kinds=[],
+    )
+    ready = build_executable_assay_plan(
+        plan,
+        batch_id="batch-exec",
+        available_sample_kinds=["protein"],
+    )
+
+    assert isinstance(blocked, ExecutableAssayPlan)
+    assert blocked.plan_kind is AssayPlanKind.EXECUTABLE
+    assert blocked.ready_for_execution is False
+    assert "review gate pending: gate-a" in blocked.blocked_by
+    assert "missing sample kind: protein" in blocked.blocked_by
+    assert ready.instructions[0].instruction_id == "batch-exec:gate-binding"
+
+
+def test_build_lab_execution_request_preserves_review_evidence_and_instructions() -> (
+    None
+):
+    program = create_program_spec(
+        program_id="prog-handoff",
+        name="handoff plan",
+        objective="carry computational review into a lab request",
+        target_id="target-handoff",
+        target_name="Target Handoff",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize an active conformation",
+    )
+    program.evidence_needs = [EvidenceNeed.LITERATURE, EvidenceNeed.STRUCTURE]
+    bundle = EvidenceBundle(
+        bundle_id="bundle-handoff",
+        target_id="target-handoff",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:1",
+                claim="Literature supports tractability.",
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="structure-1",
+                kind=EvidenceKind.STRUCTURE,
+                title="Model",
+                source="AlphaFold",
+                claim="Fold is compatible with binding.",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    review_packet = build_review_packet(program, bundle, [])
+    executable_plan = ExecutableAssayPlan(
+        program_id=program.program_id,
+        batch_id="batch-handoff",
+        instructions=[],
+        blocked_by=[],
+        ready_for_execution=True,
+    )
+
+    request = build_lab_execution_request(review_packet, executable_plan)
+
+    assert request.evidence_ids == ["lit-1", "structure-1"]
+    assert request.batch_id == "batch-handoff"
+    assert request.scientific_rationale
+    assert request.unresolved_risks == [
+        "not enough decisive evidence for an irreversible decision"
+    ]
+    assert request.ready_for_lab_review is False
+
+
+def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> None:
+    program = create_program_spec(
+        program_id="prog-align",
+        name="alignment plan",
+        objective="align intelligence scoring with the lab queue",
+        target_id="target-align",
+        target_name="Target Align",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize the active state",
+    )
+    program.assay_panel.extend(
+        [
+            AssayRequirement(
+                assay_id="gate-binding",
+                purpose="confirm target engagement",
+                readout="binding_score",
+                sample_kind="biophysical",
+                blocking=True,
+            ),
+            AssayRequirement(
+                assay_id="support-expression",
+                purpose="check expression robustness",
+                readout="yield_mg_per_l",
+                sample_kind="expression",
+                blocking=False,
+            ),
+        ]
+    )
+    program.evidence_needs = [EvidenceNeed.STRUCTURE]
+    bundle = EvidenceBundle(bundle_id="bundle-align", target_id="target-align")
+    priorities = prioritize_next_assays(program, bundle, [])
+
+    alignment = align_lab_priority_queue(
+        program,
+        priorities,
+        [
+            CandidatePrioritySignal(
+                candidate_id="cand-1",
+                score=0.9,
+                assay_ids=["support-expression", "gate-binding"],
+            ),
+            CandidatePrioritySignal(
+                candidate_id="cand-2",
+                score=0.3,
+                assay_ids=["unknown-assay"],
+            ),
+        ],
+    )
+
+    assert alignment.prioritized_assay_ids[0] == "gate-binding"
+    assert alignment.unaligned_candidate_ids == ["cand-2"]
+
+
+def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressure() -> (
+    None
+):
+    plan = ExperimentPlan(
+        program_id="prog-capacity",
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="binding batch",
+                assay_ids=["a1"],
+                priority=1,
+                sample_requirements=["biophysical"],
+            ),
+            ExperimentBatch(
+                batch_id="b2",
+                objective="cellular batch",
+                assay_ids=["a2"],
+                priority=2,
+                sample_requirements=["cellular"],
+            ),
+        ],
+    )
+
+    advisory = build_execution_capacity_advisory(
+        plan,
+        LabCapacity(cycle_id="cycle-1", max_batches=1, max_assays_per_batch=2),
+        [
+            InstrumentAvailability(
+                instrument_id="orbitrap",
+                available_days=1.0,
+                supported_sample_kinds=["biophysical"],
+            )
+        ],
+        budget_limit=1.5,
+    )
+
+    assert advisory.feasible_batch_ids == ["b1"]
+    assert advisory.deferred_batch_ids == ["b2"]
+    assert advisory.budget_remaining == 0.5
+
+
+def test_report_execution_plan_uncertainty_makes_blockers_explicit() -> None:
+    executable_plan = ExecutableAssayPlan(
+        program_id="prog-uncertainty",
+        batch_id="batch-uncertainty",
+        instructions=[],
+        blocked_by=["review gate pending: gate-a"],
+        ready_for_execution=False,
+    )
+
+    report = report_execution_plan_uncertainty(
+        executable_plan,
+        open_evidence_gaps=["structure"],
+    )
+
+    assert "review gate pending: gate-a" in report.uncertainty_sources
+    assert "open evidence gap: structure" in report.uncertainty_sources
+    assert report.readiness_confidence < 1.0
+
+
+def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces() -> (
+    None
+):
+    fixture = _planning_fixture("proteomics_lab_planning_fixture.json")
+    program_data = fixture["program"]
+    assert isinstance(program_data, dict)
+    program = create_program_spec(
+        program_id=program_data["program_id"],
+        name=program_data["name"],
+        objective=program_data["objective"],
+        target_id=program_data["target_id"],
+        target_name=program_data["target_name"],
+        sequence=program_data["sequence"],
+        organism=program_data["organism"],
+        mechanism=program_data["mechanism"],
+    )
+    evidence_needs = cast(list[str], fixture["evidence_needs"])
+    assays = cast(list[dict[str, Any]], fixture["assays"])
+    records = cast(list[dict[str, Any]], fixture["records"])
+    candidate_signals = cast(list[dict[str, Any]], fixture["candidate_signals"])
+
+    program.evidence_needs = [EvidenceNeed(item) for item in evidence_needs]
+    program.assay_panel.extend(AssayRequirement(**assay) for assay in assays)
+    bundle = EvidenceBundle(
+        bundle_id="bundle-proteomics-lab",
+        target_id=program.target.target_id,
+        records=[EvidenceRecord(**record) for record in records],
+    )
+
+    advisory = build_advisory_assay_plan(program, bundle)
+    priorities = prioritize_next_assays(program, bundle, [])
+    alignment = align_lab_priority_queue(
+        program,
+        priorities,
+        [CandidatePrioritySignal(**row) for row in candidate_signals],
+    )
+    capacity_advisory = build_execution_capacity_advisory(
+        ExperimentPlan(
+            program_id=program.program_id,
+            batches=[
+                ExperimentBatch(
+                    batch_id="b-phospho",
+                    objective="run proteomics confirmation assays",
+                    assay_ids=["target-engagement-prm", "phosphosite-panel"],
+                    priority=1,
+                    sample_requirements=["biophysical", "cellular"],
+                )
+            ],
+        ),
+        LabCapacity(
+            cycle_id="cycle-proteomics",
+            max_batches=1,
+            max_assays_per_batch=2,
+        ),
+        [
+            InstrumentAvailability(
+                instrument_id="orbitrap-exploris",
+                available_days=2.0,
+                supported_sample_kinds=["biophysical", "cellular"],
+            )
+        ],
+        budget_limit=2.0,
+    )
+
+    assert advisory.open_evidence_gaps == ["assay", "pathway"]
+    assert alignment.prioritized_assay_ids[0] == "phosphosite-panel"
+    assert capacity_advisory.feasible_batch_ids == ["b-phospho"]
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:

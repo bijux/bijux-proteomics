@@ -1,0 +1,30 @@
+[
+  {
+    "sequence": "ACD",
+    "monoisotopic_mass": 307.0838,
+    "average_mass": 307.32148,
+    "charge": 2,
+    "mz": 154.549176466812
+  },
+  {
+    "sequence": "PEPTIDE",
+    "monoisotopic_mass": 799.35994,
+    "average_mass": 799.83278,
+    "charge": 2,
+    "mz": 400.687246466812
+  },
+  {
+    "sequence": "MPEPTIDE",
+    "monoisotopic_mass": 930.40043,
+    "average_mass": 931.02538,
+    "charge": 2,
+    "mz": 466.207491466812
+  },
+  {
+    "sequence": "VVVVK",
+    "monoisotopic_mass": 542.37916,
+    "average_mass": 542.71978,
+    "charge": 2,
+    "mz": 272.196856466812
+  }
+]

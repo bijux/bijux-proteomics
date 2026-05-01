@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mzML xmlns="http://psi.hupo.org/ms/mzml" version="1.1.0">
+  <run id="RUN_NUMPRESS" startTimeStamp="2026-04-29T12:00:00Z">
+    <spectrumList count="1">
+      <spectrum id="scan=7101" index="0" defaultArrayLength="2">
+        <precursorList count="1">
+          <precursor spectrumRef="scan=7100">
+            <selectedIonList count="1">
+              <selectedIon>
+                <cvParam accession="MS:1000744" name="selected ion m/z" value="455.2" />
+              </selectedIon>
+            </selectedIonList>
+          </precursor>
+        </precursorList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="4">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1002312" name="MS-Numpress linear prediction compression" />
+            <binary>AAAA</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="4">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAA</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+    </spectrumList>
+  </run>
+</mzML>

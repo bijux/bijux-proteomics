@@ -12,6 +12,7 @@ from bijux_proteomics_intelligence import (
     CandidateLifecycleSummary,
     CandidatePortfolio,
     CandidateProposal,
+    CandidateReviewMovementReport,
     CandidateRiskProfile,
     CandidateScientificProfile,
     CandidateStatus,
@@ -27,6 +28,7 @@ from bijux_proteomics_intelligence import (
     SequenceRiskSignals,
     TransitionAuditIssue,
     build_candidate_assay_agenda,
+    build_candidate_review_movement_report,
     build_candidate_scientific_profile,
     build_mutation_annotations,
     build_risk_profile,
@@ -224,6 +226,32 @@ def test_summarize_candidate_lifecycle_builds_ordered_status_history() -> None:
     assert isinstance(summary, CandidateLifecycleSummary)
     assert summary.transition_count == 2
     assert summary.latest_status is CandidateStatus.PRIORITIZED
+
+
+def test_build_candidate_review_movement_report_explains_review_state_changes() -> None:
+    first = transition_candidate(
+        "candidate-review",
+        CandidateStatus.PROPOSED,
+        CandidateStatus.SCREENED,
+        reason="screen completed",
+        review_gate_id="screen-gate",
+    )
+    second = transition_candidate(
+        "candidate-review",
+        CandidateStatus.SCREENED,
+        CandidateStatus.PRIORITIZED,
+        reason="orthogonal evidence supports prioritization",
+        review_gate_id="priority-gate",
+        evidence_ids=["ev-11", "ev-12"],
+    )
+
+    report = build_candidate_review_movement_report([second, first])
+
+    assert isinstance(report, CandidateReviewMovementReport)
+    assert report.current_status is CandidateStatus.PRIORITIZED
+    assert report.movement_count == 2
+    assert report.movements[1].evidence_ids == ["ev-11", "ev-12"]
+    assert "priority-gate" in report.movements[1].explanation
 
 
 def test_summarize_variant_context_groups_regions_and_conservation_risk() -> None:

@@ -1,0 +1,30 @@
+{
+  "components": [
+    {
+      "component": "storage",
+      "detail": "runtime base directory is present at <workspace>",
+      "remediation_hint": "ensure the runtime base directory stays readable and writable",
+      "state": "healthy"
+    },
+    {
+      "component": "cache",
+      "detail": "runtime cache root is not provisioned at <workspace>/artifacts/cache",
+      "remediation_hint": "create artifacts/cache when cache-backed runtime reuse is required",
+      "state": "degraded"
+    },
+    {
+      "component": "tooling",
+      "detail": "provider metadata resolved for 1 providers",
+      "remediation_hint": "keep provider metadata and requirement probes importable",
+      "state": "healthy"
+    },
+    {
+      "component": "manifest",
+      "detail": "runtime API contract files are present",
+      "remediation_hint": "keep schema, pinned_openapi, and schema.hash synchronized",
+      "state": "healthy"
+    }
+  ],
+  "runtime": "bijux-proteomics-runtime canonical runtime surface",
+  "status": "degraded"
+}

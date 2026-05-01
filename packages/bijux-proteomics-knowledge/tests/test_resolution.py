@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from bijux_proteomics_knowledge import (
     ClaimResolutionRecord,
     ClaimStatus,
+    ContradictoryInterpretationCase,
+    ContradictoryInterpretationComparison,
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -21,12 +23,89 @@ from bijux_proteomics_knowledge import (
     build_claim,
     build_resolution_escalation_queue,
     cluster_conflicts,
+    compare_contradictory_interpretations,
     compare_resolution_policies,
     preview_resolution_impact,
     query_resolution_records,
     resolve_conflicts,
     summarize_resolutions,
 )
+
+
+def _multi_source_disagreement_bundle() -> EvidenceBundle:
+    return EvidenceBundle(
+        bundle_id="bundle-multi-source-disagreement",
+        target_id="target-multi-source-disagreement",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-human-support",
+                kind=EvidenceKind.LITERATURE,
+                title="Human cohort support",
+                source="PMID:100",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="Target engagement supports the progression gate in human disease tissue.",
+                decision_tags=["progression"],
+                species="human",
+                biological_system="disease_tissue",
+                confidence=0.82,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-human-support",
+                kind=EvidenceKind.ASSAY,
+                title="Human assay support",
+                source="lab-human",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://shared-human-run",
+                claim="Target engagement supports the progression gate in the same context.",
+                decision_tags=["progression"],
+                species="human",
+                biological_system="disease_tissue",
+                confidence=0.81,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-human-contradict",
+                kind=EvidenceKind.ASSAY,
+                title="Human assay contradiction",
+                source="lab-human",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://shared-human-run",
+                claim="Target engagement misses the progression gate in the same context.",
+                decision_tags=["progression"],
+                species="human",
+                biological_system="disease_tissue",
+                confidence=0.79,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-mouse-support",
+                kind=EvidenceKind.ASSAY,
+                title="Mouse assay support",
+                source="lab-mouse",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Target engagement supports the progression gate in mouse tissue.",
+                decision_tags=["progression"],
+                species="mouse",
+                biological_system="mouse_tissue",
+                confidence=0.77,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="structure-caution",
+                kind=EvidenceKind.STRUCTURE,
+                title="Structure caution",
+                source="model-1",
+                source_type=EvidenceSourceType.STRUCTURE_MODEL,
+                claim="Structure model misses the progression gate.",
+                decision_tags=["progression"],
+                species="human",
+                biological_system="disease_tissue",
+                confidence=0.74,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
 
 
 def test_resolve_conflicts_prefers_higher_confidence_record() -> None:
@@ -140,6 +219,110 @@ def test_resolve_conflicts_holds_high_severity_conflicts() -> None:
     _, resolutions = resolve_conflicts(bundle)
 
     assert resolutions[0].action is ResolutionAction.HOLD_DECISION
+
+
+def test_resolution_fixture_captures_multi_source_disagreement_patterns() -> None:
+    policy = ResolutionPolicy(policy_id="multi-source-policy")
+    trust, resolutions = resolve_conflicts(
+        _multi_source_disagreement_bundle(),
+        policy=policy,
+    )
+    summary = summarize_resolutions(resolutions, policy=policy)
+
+    assert len(trust.conflicts) >= 3
+    assert {resolution.action for resolution in resolutions} >= {
+        ResolutionAction.HOLD_DECISION,
+        ResolutionAction.SPLIT_BY_CONTEXT,
+        ResolutionAction.SPLIT_BY_MODALITY,
+    }
+    assert summary.hold_required is True
+
+
+def test_compare_contradictory_interpretations_reports_case_level_resolution() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-interpretation-compare",
+        target_id="target-interpretation-compare",
+        records=[
+            EvidenceRecord(
+                evidence_id="dataset-a-support",
+                kind=EvidenceKind.ASSAY,
+                title="dataset a support",
+                source="dataset-a",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="dataset://a",
+                claim="candidate supports progression",
+                decision_tags=["progression"],
+                confidence=0.82,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="dataset-a-contradict",
+                kind=EvidenceKind.ASSAY,
+                title="dataset a contradiction",
+                source="dataset-a",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="dataset://a",
+                claim="candidate misses progression",
+                decision_tags=["progression"],
+                confidence=0.79,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="search-b-support",
+                kind=EvidenceKind.ASSAY,
+                title="search interpretation support",
+                source="search-b",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="search://b",
+                claim="peptide evidence supports progression",
+                decision_tags=["progression"],
+                confidence=0.74,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="search-b-contradict",
+                kind=EvidenceKind.ASSAY,
+                title="search interpretation contradiction",
+                source="search-b",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="search://b",
+                claim="peptide evidence contradicts progression",
+                decision_tags=["progression"],
+                confidence=0.7,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+
+    comparison = compare_contradictory_interpretations(
+        bundle,
+        cases=[
+            ContradictoryInterpretationCase(
+                case_id="dataset-a",
+                dataset_label="cohort-a",
+                interpretation_label="manual-curation",
+                evidence_ids=["dataset-a-support", "dataset-a-contradict"],
+            ),
+            ContradictoryInterpretationCase(
+                case_id="search-b",
+                dataset_label="cohort-a",
+                interpretation_label="search-engine-merge",
+                evidence_ids=["search-b-support", "search-b-contradict"],
+            ),
+        ],
+    )
+
+    assert isinstance(comparison, ContradictoryInterpretationComparison)
+    assert comparison.policy_id == "default-resolution-policy"
+    assert comparison.contradictory_case_pairs == ["dataset-a<>search-b"]
+    assert [outcome.case_id for outcome in comparison.outcomes] == [
+        "dataset-a",
+        "search-b",
+    ]
+    assert all(outcome.conflict_count >= 1 for outcome in comparison.outcomes)
+    assert any(
+        outcome.resolution_summary.hold_required for outcome in comparison.outcomes
+    )
 
 
 def test_resolve_conflicts_can_split_species_context_conflicts() -> None:

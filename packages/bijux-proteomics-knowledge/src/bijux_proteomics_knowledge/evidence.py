@@ -303,13 +303,66 @@ class EvidenceBundle(JsonModel):
     bundle_id: EvidenceId = Field(..., description="Stable bundle identifier.")
     target_id: TargetId = Field(..., description="Target identifier.")
     document_schema: DocumentSchema = Field(
-        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-knowledge"),
+        default_factory=lambda: DocumentSchema(
+            created_by="bijux-proteomics-knowledge",
+            document_kind="evidence_bundle",
+            package_name="bijux-proteomics-knowledge",
+            status="generated",
+        ),
         description="Schema and provenance metadata.",
     )
     records: list[EvidenceRecord] = Field(
         default_factory=list,
         description="Evidence records in the bundle.",
     )
+
+
+class GovernedEvidenceSurface(StrEnum):
+    """High-value artifact surfaces that must stay connected to evidence review."""
+
+    RUNTIME_OUTPUT = "runtime_output"
+    SCIENTIFIC_SUMMARY = "scientific_summary"
+    REVIEW_PACKET = "review_packet"
+
+
+class GovernedArtifactReference(JsonModel):
+    """Stable reference to one governed artifact connected to evidence review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: GovernedEvidenceSurface
+    artifact_id: str = Field(..., min_length=1)
+    document_kind: str = Field(..., min_length=1)
+    schema_version: str = Field(..., min_length=1)
+    sha256: str = Field(..., min_length=64, max_length=64)
+    provenance_scope: str = Field(..., min_length=1)
+
+
+class GovernedEvidenceBundle(JsonModel):
+    """Governed bundle linking evidence, runtime outputs, and review artifacts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: EvidenceId = Field(..., description="Stable governed bundle identifier.")
+    target_id: TargetId = Field(..., description="Target identifier.")
+    decision_tag: str = Field(..., min_length=1)
+    document_schema: DocumentSchema = Field(
+        default_factory=lambda: DocumentSchema(
+            created_by="bijux-proteomics-knowledge",
+            document_kind="governed_evidence_bundle",
+            package_name="bijux-proteomics-knowledge",
+            status="generated",
+        ),
+        description="Schema and provenance metadata.",
+    )
+    evidence_bundle_id: EvidenceId = Field(
+        ..., description="Underlying evidence bundle."
+    )
+    artifact_references: tuple[GovernedArtifactReference, ...] = Field(
+        default_factory=tuple
+    )
+    missing_surfaces: tuple[GovernedEvidenceSurface, ...] = Field(default_factory=tuple)
+    coherence_summary: str = Field(..., min_length=1)
 
 
 class EvidenceCoverage(JsonModel):
@@ -407,6 +460,62 @@ class BundleTrustReport(JsonModel):
         default_factory=list,
         description="Potential duplicate evidence identifiers.",
     )
+    provenance: TrustScoreProvenance = Field(
+        ...,
+        description="Decomposed trust-score provenance over inputs and rules.",
+    )
+
+
+class TrustScoreRule(JsonModel):
+    """One scoring rule or penalty applied to the bundle trust outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rule_id: str = Field(..., min_length=1)
+    contribution: float = Field(..., description="Signed trust contribution.")
+    rationale: str = Field(..., min_length=1)
+
+
+class TrustScoreInput(JsonModel):
+    """One evidence input and its weighted contribution to trust."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    source_type: EvidenceSourceType
+    strength: EvidenceStrength
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    weighted_score: float = Field(..., ge=0.0, le=1.0)
+    stale: bool = False
+
+
+class TrustScoreProvenance(JsonModel):
+    """Decomposed trust inputs and rules for one bundle trust outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1)
+    input_count: int = Field(..., ge=0)
+    base_score: float = Field(..., ge=0.0, le=1.0)
+    final_score: float = Field(..., ge=0.0, le=1.0)
+    inputs: list[TrustScoreInput] = Field(default_factory=list)
+    rules: list[TrustScoreRule] = Field(default_factory=list)
+
+
+class EvidenceTrustBalanceReport(JsonModel):
+    """Separate quantity and quality signals behind one trust outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    target_id: str = Field(..., min_length=1)
+    record_count: int = Field(default=0, ge=0)
+    decisive_record_count: int = Field(default=0, ge=0)
+    modality_diversity: int = Field(default=0, ge=0)
+    quantity_score: float = Field(..., ge=0.0, le=1.0)
+    quality_score: float = Field(..., ge=0.0, le=1.0)
+    integrated_trust_score: float = Field(..., ge=0.0, le=1.0)
+    notes: list[str] = Field(default_factory=list)
 
 
 class TrustPolicy(JsonModel):
@@ -1523,6 +1632,48 @@ def evidence_gaps(bundle: EvidenceBundle, required_kinds: list[str]) -> list[str
     return [kind for kind in required_kinds if kind not in present]
 
 
+def build_governed_evidence_bundle(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str,
+    artifact_references: tuple[GovernedArtifactReference, ...],
+) -> GovernedEvidenceBundle:
+    """Connect evidence with governed runtime, summary, and review artifacts."""
+    expected_surfaces = set(GovernedEvidenceSurface)
+    present_surfaces = {reference.surface for reference in artifact_references}
+    missing_surfaces = tuple(
+        sorted(expected_surfaces - present_surfaces, key=lambda surface: surface.value)
+    )
+    present_summary = (
+        ", ".join(
+            reference.surface.value
+            for reference in sorted(
+                artifact_references, key=lambda reference: reference.surface.value
+            )
+        )
+        or "no governed surfaces"
+    )
+    payload = GovernedEvidenceBundle(
+        bundle_id=f"{bundle.bundle_id}:{decision_tag}:governed",
+        target_id=bundle.target_id,
+        decision_tag=decision_tag,
+        evidence_bundle_id=bundle.bundle_id,
+        artifact_references=artifact_references,
+        missing_surfaces=missing_surfaces,
+        coherence_summary=(
+            f"governed evidence bundle connects {present_summary}; "
+            f"missing surfaces: {', '.join(surface.value for surface in missing_surfaces) or 'none'}."
+        ),
+    )
+    return payload.model_copy(
+        update={
+            "document_schema": payload.document_schema.with_content_hash(
+                payload.to_dict()
+            )
+        }
+    )
+
+
 def coverage_report(
     bundle: EvidenceBundle,
     required_kinds: list[str],
@@ -1621,6 +1772,71 @@ def score_evidence_record(
         * strength_weight
         * stale_penalty,
         4,
+    )
+
+
+def summarize_trust_balance(
+    bundle: EvidenceBundle,
+    *,
+    policy: TrustPolicy | None = None,
+    now: datetime | None = None,
+) -> EvidenceTrustBalanceReport:
+    """Separate trust quantity from trust quality for review workflows."""
+    policy = policy or default_trust_policy()
+    now = now or datetime.now(UTC)
+    trust_report = compute_bundle_trust(bundle, policy=policy)
+    record_count = len(bundle.records)
+    decisive_count = sum(
+        1 for record in bundle.records if record.strength is EvidenceStrength.DECISIVE
+    )
+    modality_diversity = len({record.kind for record in bundle.records})
+    if not bundle.records:
+        return EvidenceTrustBalanceReport(
+            bundle_id=bundle.bundle_id,
+            target_id=bundle.target_id,
+            record_count=0,
+            decisive_record_count=0,
+            modality_diversity=0,
+            quantity_score=0.0,
+            quality_score=0.0,
+            integrated_trust_score=trust_report.trust_score,
+            notes=["bundle is empty so quantity and quality are both absent"],
+        )
+    quantity_score = round(
+        min(
+            1.0,
+            (min(record_count, 8) / 8.0) * 0.45
+            + (decisive_count / record_count) * 0.35
+            + (min(modality_diversity, 4) / 4.0) * 0.2,
+        ),
+        4,
+    )
+    quality_components = [
+        decompose_evidence_quality(record, now=now).derived_confidence
+        for record in bundle.records
+    ]
+    quality_score = round(sum(quality_components) / len(quality_components), 4)
+    notes: list[str] = []
+    if quantity_score > quality_score + 0.1:
+        notes.append("evidence quantity exceeds evidence quality")
+    if quality_score > quantity_score + 0.1:
+        notes.append("evidence quality exceeds evidence quantity")
+    if trust_report.conflicts:
+        notes.append(
+            f"{len(trust_report.conflicts)} detected conflicts reduce integrated trust"
+        )
+    if not notes:
+        notes.append("quantity and quality are balanced for current bundle")
+    return EvidenceTrustBalanceReport(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        record_count=record_count,
+        decisive_record_count=decisive_count,
+        modality_diversity=modality_diversity,
+        quantity_score=quantity_score,
+        quality_score=quality_score,
+        integrated_trust_score=trust_report.trust_score,
+        notes=notes,
     )
 
 
@@ -1935,24 +2151,71 @@ def compute_bundle_trust(
     """Compute overall trust after staleness, conflicts, and deduplication."""
     now = now or datetime.now(UTC)
     policy = policy or default_trust_policy()
+    stale = stale_records(bundle, now=now)
+    stale_ids = {record.evidence_id for record in stale}
     record_scores = [
         score_evidence_record(record, now=now, policy=policy)
         for record in bundle.records
     ]
     base_score = sum(record_scores) / len(record_scores) if record_scores else 0.0
-    stale = stale_records(bundle, now=now)
     conflicts = flag_conflicting_evidence(bundle, policy=conflict_policy)
     duplicate_groups = deduplicate_records(bundle)
-    penalty = (
-        policy.stale_record_penalty * len(stale)
-        + policy.conflict_penalty * len(conflicts)
-        + policy.duplicate_penalty * len(duplicate_groups)
+    stale_penalty = policy.stale_record_penalty * len(stale)
+    conflict_penalty = policy.conflict_penalty * len(conflicts)
+    duplicate_penalty = policy.duplicate_penalty * len(duplicate_groups)
+    penalty = stale_penalty + conflict_penalty + duplicate_penalty
+    final_score = max(0.0, round(base_score - penalty, 4))
+    provenance = TrustScoreProvenance(
+        policy_id=policy.policy_id,
+        input_count=len(bundle.records),
+        base_score=round(base_score, 4),
+        final_score=final_score,
+        inputs=[
+            TrustScoreInput(
+                evidence_id=record.evidence_id,
+                source_type=record.source_type,
+                strength=record.strength,
+                confidence=record.confidence,
+                weighted_score=round(score, 4),
+                stale=record.evidence_id in stale_ids,
+            )
+            for record, score in zip(bundle.records, record_scores, strict=False)
+        ],
+        rules=[
+            TrustScoreRule(
+                rule_id="base-score",
+                contribution=round(base_score, 4),
+                rationale="mean weighted score across all evidence inputs",
+            ),
+            TrustScoreRule(
+                rule_id="stale-record-penalty",
+                contribution=round(-stale_penalty, 4),
+                rationale=(
+                    f"{len(stale)} stale records triggered the bundle stale-record penalty"
+                ),
+            ),
+            TrustScoreRule(
+                rule_id="conflict-penalty",
+                contribution=round(-conflict_penalty, 4),
+                rationale=(
+                    f"{len(conflicts)} detected evidence conflicts reduced trust"
+                ),
+            ),
+            TrustScoreRule(
+                rule_id="duplicate-penalty",
+                contribution=round(-duplicate_penalty, 4),
+                rationale=(
+                    f"{len(duplicate_groups)} duplicate evidence groups reduced trust"
+                ),
+            ),
+        ],
     )
     return BundleTrustReport(
         bundle_id=bundle.bundle_id,
         target_id=bundle.target_id,
-        trust_score=max(0.0, round(base_score - penalty, 4)),
+        trust_score=final_score,
         stale_records=[record.evidence_id for record in stale],
         conflicts=conflicts,
         duplicate_groups=duplicate_groups,
+        provenance=provenance,
     )

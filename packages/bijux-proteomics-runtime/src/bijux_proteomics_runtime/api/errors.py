@@ -90,16 +90,42 @@ def _build_error(
     error_type: ErrorType, status_code: int, detail: str, instance: str
 ) -> dict[str, Any]:
     """_build_error."""
+    failure_class = "unexpected"
+    remediation_hint = "inspect runtime logs and retry with corrected inputs"
+    evidence_pointer: str | None = None
+    if error_type == "invalid_input":
+        failure_class = "input"
+        remediation_hint = "correct the request payload or query parameters"
+    elif error_type == "not_found":
+        failure_class = "storage"
+        remediation_hint = (
+            "verify the requested run id, artifact path, or workspace root"
+        )
+        evidence_pointer = instance
+    elif error_type == "conflict":
+        failure_class = "state_conflict"
+        remediation_hint = "resolve the conflicting runtime state before retrying"
+    elif error_type == "human_review_required":
+        failure_class = "review_gate"
+        remediation_hint = "complete the required review step before continuing"
     return ErrorResponse(
         type=_ERROR_TYPES[error_type],
         title=_ERROR_TITLES[error_type],
         status=status_code,
         detail=detail,
         instance=instance,
+        failure_class=failure_class,
+        remediation_hint=remediation_hint,
+        evidence_pointer=evidence_pointer,
     ).model_dump(mode="json")
 
 
-def raise_http_error(exc: Exception, instance: str) -> NoReturn:
+def raise_http_error(
+    exc: Exception,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> NoReturn:
     """raise_http_error."""
     status_code, error_type = map_exception(exc)
     detail = _build_error(error_type, status_code, str(exc), instance)
@@ -107,12 +133,17 @@ def raise_http_error(exc: Exception, instance: str) -> NoReturn:
         status="error",
         data=None,
         error=ErrorResponse.model_validate(detail),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
     raise ApiError(status_code=status_code, payload=payload) from exc
 
 
-def validation_error(detail: str, instance: str) -> dict[str, Any]:
+def validation_error(
+    detail: str,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """validation_error."""
     error = _build_error(
         "invalid_input", status.HTTP_422_UNPROCESSABLE_CONTENT, detail, instance
@@ -121,11 +152,16 @@ def validation_error(detail: str, instance: str) -> dict[str, Any]:
         status="error",
         data=None,
         error=ErrorResponse.model_validate(error),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
 
 
-def method_not_allowed(detail: str, instance: str) -> dict[str, Any]:
+def method_not_allowed(
+    detail: str,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """method_not_allowed."""
     error = ErrorResponse(
         type=_METHOD_NOT_ALLOWED_TYPE,
@@ -133,16 +169,25 @@ def method_not_allowed(detail: str, instance: str) -> dict[str, Any]:
         status=status.HTTP_405_METHOD_NOT_ALLOWED,
         detail=detail,
         instance=instance,
+        failure_class="method",
+        remediation_hint="use one of the allowed HTTP methods for this route",
+        evidence_pointer=instance,
     ).model_dump(mode="json")
     return ApiEnvelope(
         status="error",
         data=None,
         error=ErrorResponse.model_validate(error),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
 
 
-def http_error(status_code: int, detail: str, instance: str) -> dict[str, Any]:
+def http_error(
+    status_code: int,
+    detail: str,
+    instance: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """http_error."""
     title = "HTTP error"
     error_type = _ERROR_TYPES["unexpected"]
@@ -164,12 +209,15 @@ def http_error(status_code: int, detail: str, instance: str) -> dict[str, Any]:
         status=status_code,
         detail=detail,
         instance=instance,
+        failure_class="http",
+        remediation_hint="inspect the request and retry with a supported API contract",
+        evidence_pointer=instance,
     ).model_dump(mode="json")
     return ApiEnvelope(
         status="error",
         data=None,
         error=ErrorResponse.model_validate(error),
-        meta={},
+        meta=meta or {},
     ).model_dump(mode="json")
 
 

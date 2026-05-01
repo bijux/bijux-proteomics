@@ -1,0 +1,4 @@
+scannr	peptide	charge	discriminant_score	proteins	label	q_value
+sage-corpus-1001	PEPTIDE	2	17.8	P51111	target	0.0015
+sage-corpus-1002	PEPTIDER	3	13.2	P52222	target	0.0040
+sage-corpus-1003	DECOYPEP	2	5.1	DECOY_P53333	decoy	0.0350

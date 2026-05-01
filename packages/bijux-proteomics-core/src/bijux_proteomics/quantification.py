@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from collections.abc import Iterable
 import csv
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import StrEnum
+import hashlib
 import math
 from pathlib import Path
 
@@ -16,8 +19,11 @@ import numpy as np
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
-from bijux_proteomics.formats import ExperimentalDesignEntry
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
+from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
 class QuantEntityLevel(StrEnum):
@@ -65,6 +71,30 @@ class QuantAssessmentDisposition(StrEnum):
 
     ENFORCED = "ENFORCED"
     ADVISORY = "ADVISORY"
+
+
+class MissingValueCorrectionPolicy(StrEnum):
+    """Deterministic remapping policy for missing-value summary categories."""
+
+    PRESERVE = "preserve"
+    TREAT_AS_NOT_OBSERVED = "treat_as_not_observed"
+
+
+class MissingChannelPolicy(StrEnum):
+    """Policy for expected multiplex channels that are absent from a run."""
+
+    PRESERVE = "preserve"
+    TREAT_AS_MISSING = "treat_as_missing"
+    ERROR = "error"
+
+
+class LabelBasedChannelRole(StrEnum):
+    """Stable role classification for multiplex quantification channels."""
+
+    SAMPLE = "sample"
+    CARRIER = "carrier"
+    REFERENCE = "reference"
+    QC_BRIDGE = "qc_bridge"
 
 
 class Ms1FeatureColumnMapping(JsonModel):
@@ -174,6 +204,286 @@ class QuantValue(JsonModel):
     source_feature_count: int = Field(..., ge=0)
 
 
+class LabelBasedChannelPolicyEntry(JsonModel):
+    """One expected multiplex channel role inside a label-based assay policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+
+
+class LabelBasedQuantPolicy(JsonModel):
+    """Explicit channel-role and missing-channel policy for multiplex assays."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    missing_channel_policy: MissingChannelPolicy = MissingChannelPolicy.ERROR
+    channel_entries: tuple[LabelBasedChannelPolicyEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class LabelBasedChannelStateEntry(JsonModel):
+    """One observed or expected multiplex channel inside a label-based workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    condition: str | None = None
+    sample_role: ExperimentalDesignSampleRole | None = None
+    channel_role: LabelBasedChannelRole
+    present_in_design: bool
+    present_in_table: bool
+    note: str = Field(..., min_length=1)
+
+
+class MissingMultiplexChannelEntry(JsonModel):
+    """One missing multiplex channel handled under an explicit policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    expected_role: LabelBasedChannelRole
+    policy: MissingChannelPolicy
+    message: str = Field(..., min_length=1)
+
+
+class LabelBasedQuantBundle(JsonModel):
+    """Reviewable channel-level manifest for one label-based quantification table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    normalization_method: NormalizationMethod
+    policy: LabelBasedQuantPolicy
+    channels: tuple[LabelBasedChannelStateEntry, ...] = Field(default_factory=tuple)
+    missing_channels: tuple[MissingMultiplexChannelEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class MultiplexNormalizationPolicy(JsonModel):
+    """Normalization and balance settings for multiplex quantification groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: NormalizationMethod = NormalizationMethod.MEDIAN
+    balance_ratio_threshold: float = Field(default=1.5, ge=1.0)
+
+
+class MultiplexChannelBalanceEntry(JsonModel):
+    """One multiplex-channel abundance balance row within a single plex group."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+    total_abundance: float = Field(..., ge=0.0)
+    ratio_to_group_median: float = Field(..., ge=0.0)
+    flagged: bool
+
+
+class MultiplexChannelBalanceReport(JsonModel):
+    """Governed channel-balance report across multiplex assay groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: MultiplexNormalizationPolicy
+    entries: tuple[MultiplexChannelBalanceEntry, ...] = Field(default_factory=tuple)
+
+
+class ProteinQuantAssignmentPolicy(StrEnum):
+    """Shared-peptide handling policies for protein-level quant rollups."""
+
+    INFERENCE_INCLUSIVE = "inference_inclusive"
+    QUANT_UNIQUE_ONLY = "quant_unique_only"
+    QUANT_SPLIT_SHARED = "quant_split_shared"
+
+
+class ProteinQuantPolicyValue(JsonModel):
+    """One protein/sample abundance under one explicit assignment policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assignment_policy: ProteinQuantAssignmentPolicy
+    abundance: float | None = Field(default=None, ge=0.0)
+    contributing_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    shared_peptide_count: int = Field(..., ge=0)
+
+
+class ProteinQuantPolicyComparisonEntry(JsonModel):
+    """One explicit policy comparison for a protein/sample quant rollup."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    policy_values: tuple[ProteinQuantPolicyValue, ...] = Field(default_factory=tuple)
+    max_abundance_difference: float = Field(..., ge=0.0)
+
+
+class ProteinQuantPolicyComparisonReport(JsonModel):
+    """Comparison of protein-level quant outcomes across assignment policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policies: tuple[ProteinQuantAssignmentPolicy, ...] = Field(default_factory=tuple)
+    entries: tuple[ProteinQuantPolicyComparisonEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class StudyScaleReplicateSampleEntry(JsonModel):
+    """Per-sample correlation summary for larger replicate studies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    within_condition_pairs: int = Field(..., ge=0)
+    between_condition_pairs: int = Field(..., ge=0)
+    mean_within_condition_correlation: float | None = Field(
+        default=None,
+        ge=-1.0,
+        le=1.0,
+    )
+    mean_between_condition_correlation: float | None = Field(
+        default=None,
+        ge=-1.0,
+        le=1.0,
+    )
+
+
+class StudyScaleReplicateCorrelationReport(JsonModel):
+    """Compact replicate-correlation summary for realistic study sizes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    sample_summaries: tuple[StudyScaleReplicateSampleEntry, ...] = Field(
+        default_factory=tuple
+    )
+    weakest_within_condition_pairs: tuple[ReplicateCorrelationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    strongest_between_condition_pairs: tuple[ReplicateCorrelationEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class StudyScaleBatchEffectEntry(JsonModel):
+    """Batch-level compact summary for larger quantification studies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: str = Field(..., min_length=1)
+    sample_count: int = Field(..., ge=1)
+    flagged: bool
+    median_shift_from_global: float
+
+
+class StudyScaleBatchEffectReport(JsonModel):
+    """Compact batch-effect summary that stays reviewable at study scale."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ADVISORY
+    entries: tuple[StudyScaleBatchEffectEntry, ...] = Field(default_factory=tuple)
+    flagged_batch_count: int = Field(..., ge=0)
+
+
+class QuantReproducibilityManifest(JsonModel):
+    """Stable manifest proving one quant table can be reproduced exactly."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    aggregation_method: QuantRollupMethod
+    normalization_method: NormalizationMethod
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+    value_count: int = Field(..., ge=0)
+    reproducibility_hash: str = Field(..., min_length=64, max_length=64)
+
+
+class NormalizationStrategySummaryEntry(JsonModel):
+    """One normalization method summarized across sample-balance metrics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: NormalizationMethod
+    total_abundance_cv: float = Field(..., ge=0.0)
+    median_abundance_cv: float = Field(..., ge=0.0)
+    interquartile_range_cv: float = Field(..., ge=0.0)
+    balance_score: float = Field(..., ge=0.0)
+
+
+class NormalizationStrategyComparisonReport(JsonModel):
+    """Explicit comparison of normalization methods on one quant table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[NormalizationStrategySummaryEntry, ...] = Field(
+        default_factory=tuple
+    )
+    recommended_method: NormalizationMethod
+
+
+class MissingDataMechanism(StrEnum):
+    """Heuristic distinction between biological sparsity and likely failure."""
+
+    LIKELY_BIOLOGICAL_SPARSE = "likely_biological_sparse"
+    LIKELY_TECHNICAL_FAILURE = "likely_technical_failure"
+    MIXED_OR_UNRESOLVED = "mixed_or_unresolved"
+
+
+class MissingDataMechanismEntry(JsonModel):
+    """One entity classified under an explicit missing-data mechanism heuristic."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    mechanism: MissingDataMechanism
+    observed_conditions: tuple[str, ...] = Field(default_factory=tuple)
+    missing_samples: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class MissingDataMechanismReport(JsonModel):
+    """Mechanism summary over entity-level quant missingness patterns."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[MissingDataMechanismEntry, ...] = Field(default_factory=tuple)
+    summary_counts: dict[MissingDataMechanism, int] = Field(default_factory=dict)
+
+
+class QuantArtifactBundle(JsonModel):
+    """Review-ready quantification artifact bundle independent of runtime logs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    matrix_export: QuantMatrixExport
+    missing_value_summary: MissingValueSummaryReport
+    reproducibility_manifest: QuantReproducibilityManifest
+    normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
+    differential_abundance_report: DifferentialAbundanceReport | None = None
+
+
 class LabelFreeQuantTable(JsonModel):
     """Sample-by-entity quantification matrix with stable cell semantics."""
 
@@ -191,6 +501,95 @@ class LabelFreeQuantTable(JsonModel):
     entity_member_peptides: dict[str, tuple[str, ...]] = Field(default_factory=dict)
 
 
+class QuantSampleMetadataEntry(JsonModel):
+    """Stable sample metadata attached to exported quantification matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str | None = None
+    replicate: int | None = Field(default=None, ge=1)
+    fraction: int | None = Field(default=None, ge=1)
+    batch: str | None = None
+    instrument: str | None = None
+    search_engine: str | None = None
+
+
+class QuantNormalizationProvenance(JsonModel):
+    """Normalization context preserved alongside exported quant matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    normalization_method: NormalizationMethod
+    normalization_factors: dict[str, float] = Field(default_factory=dict)
+    note: str = Field(..., min_length=1)
+
+
+class QuantMatrixExportRow(JsonModel):
+    """One stable export row from a quantification matrix."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_metadata: QuantSampleMetadataEntry
+    entity_id: str = Field(..., min_length=1)
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    aggregation_method: QuantRollupMethod
+    abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+    source_feature_count: int = Field(..., ge=0)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    member_peptides: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class QuantMatrixExport(JsonModel):
+    """Export-ready quantification matrix with metadata and provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    aggregation_method: QuantRollupMethod
+    rows: tuple[QuantMatrixExportRow, ...] = Field(default_factory=tuple)
+    normalization_provenance: QuantNormalizationProvenance
+
+
+class ProteinQuantRollupEvidenceEntry(JsonModel):
+    """One protein/sample rollup with explicit contributing peptide and feature evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    aggregation_method: QuantRollupMethod
+    abundance: float | None = Field(default=None, ge=0.0)
+    contributing_feature_ids: tuple[str, ...] = Field(default_factory=tuple)
+    contributing_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    missing_value_kind: MissingValueKind
+
+
+class NormalizationSampleSnapshot(JsonModel):
+    """Per-sample totals, medians, and spread for a quant table snapshot."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    total_abundance: float = Field(..., ge=0.0)
+    median_abundance: float = Field(..., ge=0.0)
+    interquartile_range: float = Field(..., ge=0.0)
+
+
+class NormalizationComparisonReport(JsonModel):
+    """Before/after report for one normalization operation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: NormalizationMethod
+    normalization_factors: dict[str, float] = Field(default_factory=dict)
+    before: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
+    after: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
+
+
 class MissingValueSummaryEntry(JsonModel):
     """Missing-value counts for one sample within a quant table."""
 
@@ -203,13 +602,28 @@ class MissingValueSummaryEntry(JsonModel):
     filtered_count: int = Field(..., ge=0)
 
 
+class MissingValueSummaryPolicy(JsonModel):
+    """Correction and filtering rules applied before missing-value summarization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    zero_policy: MissingValueCorrectionPolicy = MissingValueCorrectionPolicy.PRESERVE
+    filtered_policy: MissingValueCorrectionPolicy = (
+        MissingValueCorrectionPolicy.PRESERVE
+    )
+    min_observed_samples_per_entity: int = Field(default=0, ge=0)
+
+
 class MissingValueSummaryReport(JsonModel):
     """Stable missing-value summary over a quantification matrix."""
 
     model_config = ConfigDict(extra="forbid")
 
     entity_level: QuantEntityLevel
+    policy: MissingValueSummaryPolicy
     entries: tuple[MissingValueSummaryEntry, ...] = Field(default_factory=tuple)
+    included_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+    excluded_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class BatchEffectBatchEntry(JsonModel):
@@ -260,6 +674,26 @@ class ReplicateCorrelationReport(JsonModel):
     between_condition_mean: float | None = Field(default=None, ge=-1.0, le=1.0)
 
 
+class DifferentialReplicatePolicy(JsonModel):
+    """Minimum replicate policy for differential abundance comparisons."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min_replicates_per_condition: int = Field(default=2, ge=1)
+    disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ENFORCED
+
+
+class DifferentialAbundanceAssumptionReport(JsonModel):
+    """Test and correction assumptions carried by a differential abundance report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    test_type: str = Field(..., min_length=1)
+    variance_assumption: str = Field(..., min_length=1)
+    multiple_testing_scope: str = Field(..., min_length=1)
+    replicate_policy: DifferentialReplicatePolicy
+
+
 class DifferentialAbundanceEntry(JsonModel):
     """One entity-level two-condition differential abundance result."""
 
@@ -275,6 +709,11 @@ class DifferentialAbundanceEntry(JsonModel):
     log2_fold_change: float
     p_value: float = Field(..., ge=0.0, le=1.0)
     adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    standard_error: float | None = Field(default=None, ge=0.0)
+    confidence_interval_low: float | None = None
+    confidence_interval_high: float | None = None
+    effect_size_cohens_d: float | None = None
+    uncertainty_note: str | None = None
 
 
 class DifferentialAbundanceReport(JsonModel):
@@ -286,7 +725,56 @@ class DifferentialAbundanceReport(JsonModel):
     normalization_method: NormalizationMethod
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
+    replicate_policy: DifferentialReplicatePolicy = Field(
+        default_factory=DifferentialReplicatePolicy
+    )
+    assumption_report: DifferentialAbundanceAssumptionReport
     entries: tuple[DifferentialAbundanceEntry, ...] = Field(default_factory=tuple)
+
+
+class LabelFreeFeatureProvenanceEntry(JsonModel):
+    """Feature-level provenance preserved inside an LFQ workflow bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    feature_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    intensity: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+
+
+class LabelFreePeptideProvenanceEntry(JsonModel):
+    """Peptide-level LFQ abundance plus contributing raw features."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+    contributing_feature_ids: tuple[str, ...] = Field(default_factory=tuple)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LabelFreeProvenanceBundle(JsonModel):
+    """Reviewable LFQ provenance across features, peptides, and proteins."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    aggregation_method: QuantRollupMethod
+    normalization_method: NormalizationMethod
+    feature_entries: tuple[LabelFreeFeatureProvenanceEntry, ...] = Field(
+        default_factory=tuple
+    )
+    peptide_entries: tuple[LabelFreePeptideProvenanceEntry, ...] = Field(
+        default_factory=tuple
+    )
+    protein_entries: tuple[ProteinQuantRollupEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 @dataclass(frozen=True)
@@ -294,6 +782,9 @@ class _QuantAccumulator:
     values: tuple[float, ...]
     feature_count: int
     missing_kinds: tuple[MissingValueKind, ...]
+
+
+_STABLE_DOCUMENT_TIME = datetime(1970, 1, 1, tzinfo=UTC)
 
 
 def _detect_delimiter(first_line: str) -> str:
@@ -330,6 +821,48 @@ def _batch_lookup(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, str
         elif entry.instrument:
             mapping[entry.sample_id] = entry.instrument
     return mapping
+
+
+def _sample_metadata_lookup(
+    entries: tuple[ExperimentalDesignEntry, ...],
+) -> dict[str, QuantSampleMetadataEntry]:
+    return {
+        entry.sample_id: QuantSampleMetadataEntry(
+            sample_id=entry.sample_id,
+            condition=entry.condition,
+            replicate=entry.replicate,
+            fraction=entry.fraction,
+            batch=entry.batch,
+            instrument=entry.instrument,
+            search_engine=entry.search_engine,
+        )
+        for entry in entries
+    }
+
+
+def _default_label_channel_role(
+    entry: ExperimentalDesignEntry,
+) -> LabelBasedChannelRole:
+    if entry.sample_role is ExperimentalDesignSampleRole.POOLED_REFERENCE:
+        return LabelBasedChannelRole.REFERENCE
+    if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE:
+        return LabelBasedChannelRole.QC_BRIDGE
+    return LabelBasedChannelRole.SAMPLE
+
+
+def _multiplex_channel_lookup(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> dict[str, tuple[str, str, LabelBasedChannelRole]]:
+    lookup: dict[str, tuple[str, str, LabelBasedChannelRole]] = {}
+    for entry in design_entries:
+        if not entry.multiplex_group or not entry.multiplex_channel:
+            continue
+        lookup[entry.sample_id] = (
+            entry.multiplex_group,
+            entry.multiplex_channel,
+            _default_label_channel_role(entry),
+        )
+    return lookup
 
 
 def _feature_entity_ids(
@@ -508,6 +1041,909 @@ def _rebuild_table_from_matrix(
     )
 
 
+def build_quant_matrix_export(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...] = (),
+) -> QuantMatrixExport:
+    """Build a stable quant matrix export with sample metadata and normalization context."""
+    metadata_lookup = _sample_metadata_lookup(design_entries)
+    rows: list[QuantMatrixExportRow] = []
+    for value in table.values:
+        sample_metadata = metadata_lookup.get(
+            value.sample_id,
+            QuantSampleMetadataEntry(sample_id=value.sample_id),
+        )
+        rows.append(
+            QuantMatrixExportRow(
+                sample_metadata=sample_metadata,
+                entity_id=value.entity_id,
+                entity_level=table.entity_level,
+                measure_kind=table.measure_kind,
+                aggregation_method=table.aggregation_method,
+                abundance=value.abundance,
+                missing_value_kind=value.missing_value_kind,
+                source_feature_count=value.source_feature_count,
+                protein_refs=table.entity_protein_refs.get(value.entity_id, ()),
+                member_peptides=table.entity_member_peptides.get(value.entity_id, ()),
+            )
+        )
+    note = (
+        "table is unnormalized"
+        if table.normalization_method is NormalizationMethod.NONE
+        else "table preserves explicit sample normalization factors"
+    )
+    return QuantMatrixExport(
+        entity_level=table.entity_level,
+        measure_kind=table.measure_kind,
+        aggregation_method=table.aggregation_method,
+        rows=tuple(
+            sorted(
+                rows,
+                key=lambda row: (row.entity_id, row.sample_metadata.sample_id),
+            )
+        ),
+        normalization_provenance=QuantNormalizationProvenance(
+            normalization_method=table.normalization_method,
+            normalization_factors=table.normalization_factors,
+            note=note,
+        ),
+    )
+
+
+def build_label_based_quant_bundle(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: LabelBasedQuantPolicy,
+) -> LabelBasedQuantBundle:
+    """Build a stable multiplex-channel manifest over a label-based quant table."""
+    multiplex_entries = tuple(
+        entry
+        for entry in design_entries
+        if entry.multiplex_group and entry.multiplex_channel
+    )
+    if not multiplex_entries:
+        raise ValueError("label-based quantification requires multiplex design entries")
+    if not policy.channel_entries:
+        raise ValueError(
+            "label-based quantification requires explicit expected channel policy entries"
+        )
+
+    design_lookup = {
+        (entry.multiplex_group or "", entry.multiplex_channel or ""): entry
+        for entry in multiplex_entries
+    }
+    table_sample_ids = set(table.sample_ids)
+    channel_policy_lookup = {
+        (entry.multiplex_group, entry.multiplex_channel): entry.channel_role
+        for entry in policy.channel_entries
+    }
+
+    channels: list[LabelBasedChannelStateEntry] = []
+    missing_channels: list[MissingMultiplexChannelEntry] = []
+
+    seen_keys = sorted(set(design_lookup) | set(channel_policy_lookup))
+    for multiplex_group, multiplex_channel in seen_keys:
+        design_entry = design_lookup.get((multiplex_group, multiplex_channel))
+        channel_role = channel_policy_lookup.get(
+            (multiplex_group, multiplex_channel),
+            _default_label_channel_role(design_entry)
+            if design_entry is not None
+            else LabelBasedChannelRole.SAMPLE,
+        )
+        present_in_design = design_entry is not None
+        present_in_table = (
+            design_entry.sample_id in table_sample_ids
+            if design_entry is not None
+            else False
+        )
+        if not present_in_design or not present_in_table:
+            missing_channels.append(
+                MissingMultiplexChannelEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    expected_role=channel_role,
+                    policy=policy.missing_channel_policy,
+                    message=(
+                        "expected multiplex channel is absent from the design table"
+                        if not present_in_design
+                        else "design channel is present but has no quantification values in the table"
+                    ),
+                )
+            )
+            if policy.missing_channel_policy is MissingChannelPolicy.ERROR:
+                raise ValueError(
+                    "label-based quantification missing expected multiplex channel "
+                    f"{multiplex_group}:{multiplex_channel}"
+                )
+        if (
+            not present_in_design
+            and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE
+        ):
+            channels.append(
+                LabelBasedChannelStateEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    sample_id=None,
+                    condition=None,
+                    sample_role=None,
+                    channel_role=channel_role,
+                    present_in_design=False,
+                    present_in_table=False,
+                    note="expected channel is preserved in the manifest even though it was not observed",
+                )
+            )
+            continue
+        if design_entry is None:
+            continue
+        if (
+            not present_in_table
+            and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE
+        ):
+            note = "design channel is preserved even though no quantification values were observed"
+        elif not present_in_table:
+            note = (
+                "design channel is represented as missing in the quantification table"
+            )
+        elif channel_role is LabelBasedChannelRole.CARRIER:
+            note = "carrier channel remains explicit and is not silently treated as a biological sample"
+        else:
+            note = "observed multiplex channel is represented explicitly in the review manifest"
+        channels.append(
+            LabelBasedChannelStateEntry(
+                multiplex_group=multiplex_group,
+                multiplex_channel=multiplex_channel,
+                sample_id=design_entry.sample_id,
+                condition=design_entry.condition,
+                sample_role=design_entry.sample_role,
+                channel_role=channel_role,
+                present_in_design=True,
+                present_in_table=present_in_table,
+                note=note,
+            )
+        )
+
+    bundle = LabelBasedQuantBundle(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="label_based_quant_bundle",
+            package_name="bijux-proteomics-core",
+            status="generated",
+        ),
+        entity_level=table.entity_level,
+        measure_kind=table.measure_kind,
+        normalization_method=table.normalization_method,
+        policy=policy,
+        channels=tuple(
+            sorted(
+                channels,
+                key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
+            )
+        ),
+        missing_channels=tuple(
+            sorted(
+                missing_channels,
+                key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
+            )
+        ),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def normalize_multiplex_quant_table(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MultiplexNormalizationPolicy | None = None,
+) -> LabelFreeQuantTable:
+    """Normalize a multiplex quant table independently within each plex group."""
+    if table.measure_kind is not QuantMeasureKind.INTENSITY:
+        raise ValueError("multiplex normalization only applies to intensity tables")
+    active_policy = policy or MultiplexNormalizationPolicy()
+    multiplex_lookup = _multiplex_channel_lookup(design_entries)
+    if not multiplex_lookup:
+        raise ValueError("multiplex normalization requires multiplex design metadata")
+    if active_policy.method is NormalizationMethod.NONE:
+        return table.model_copy(
+            update={
+                "normalization_method": NormalizationMethod.NONE,
+                "normalization_factors": dict.fromkeys(table.sample_ids, 1.0),
+            }
+        )
+
+    matrix, _ = _table_matrix(table)
+    sample_index = {
+        sample_id: index for index, sample_id in enumerate(table.sample_ids)
+    }
+    grouped_samples: dict[str, list[str]] = {}
+    for sample_id in table.sample_ids:
+        if sample_id not in multiplex_lookup:
+            continue
+        grouped_samples.setdefault(multiplex_lookup[sample_id][0], []).append(sample_id)
+    if not grouped_samples:
+        raise ValueError(
+            "multiplex normalization requires at least one multiplex sample in the table"
+        )
+
+    normalized = matrix.copy()
+    factors = dict.fromkeys(table.sample_ids, 1.0)
+    for group_sample_ids in grouped_samples.values():
+        if active_policy.method is NormalizationMethod.MEDIAN:
+            sample_medians = {
+                sample_id: float(np.nanmedian(matrix[:, sample_index[sample_id]]))
+                if np.any(~np.isnan(matrix[:, sample_index[sample_id]]))
+                else float("nan")
+                for sample_id in group_sample_ids
+            }
+            finite_medians = [
+                median
+                for median in sample_medians.values()
+                if math.isfinite(median) and median > 0
+            ]
+            group_median = (
+                float(np.median(np.array(finite_medians, dtype=float)))
+                if finite_medians
+                else 1.0
+            )
+            for sample_id in group_sample_ids:
+                sample_median = sample_medians[sample_id]
+                factor = (
+                    group_median / sample_median
+                    if math.isfinite(sample_median) and sample_median > 0
+                    else 1.0
+                )
+                factors[sample_id] = factor
+                normalized[:, sample_index[sample_id]] = (
+                    normalized[:, sample_index[sample_id]] * factor
+                )
+            continue
+        raise ValueError(
+            "multiplex normalization currently supports only explicit none or group-wise median normalization"
+        )
+    return _rebuild_table_from_matrix(
+        table,
+        normalized,
+        normalization_method=active_policy.method,
+        normalization_factors=factors,
+    )
+
+
+def build_multiplex_channel_balance_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MultiplexNormalizationPolicy | None = None,
+) -> MultiplexChannelBalanceReport:
+    """Build a channel-balance report over multiplex groups."""
+    active_policy = policy or MultiplexNormalizationPolicy()
+    multiplex_lookup = _multiplex_channel_lookup(design_entries)
+    grouped_entries: dict[str, list[tuple[str, str, LabelBasedChannelRole, float]]] = {}
+    for sample_id in table.sample_ids:
+        multiplex_entry = multiplex_lookup.get(sample_id)
+        if multiplex_entry is None:
+            continue
+        multiplex_group, multiplex_channel, channel_role = multiplex_entry
+        total_abundance = float(
+            sum(
+                value.abundance or 0.0
+                for value in table.values
+                if value.sample_id == sample_id and value.abundance is not None
+            )
+        )
+        grouped_entries.setdefault(multiplex_group, []).append(
+            (sample_id, multiplex_channel, channel_role, total_abundance)
+        )
+    entries: list[MultiplexChannelBalanceEntry] = []
+    for multiplex_group, bucket in sorted(grouped_entries.items()):
+        totals = np.array([entry[3] for entry in bucket], dtype=float)
+        group_median = float(np.median(totals)) if totals.size else 0.0
+        for sample_id, multiplex_channel, channel_role, total_abundance in sorted(
+            bucket,
+            key=lambda entry: entry[1],
+        ):
+            ratio = (total_abundance / group_median) if group_median > 0 else 0.0
+            entries.append(
+                MultiplexChannelBalanceEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    sample_id=sample_id,
+                    channel_role=channel_role,
+                    total_abundance=total_abundance,
+                    ratio_to_group_median=ratio,
+                    flagged=(
+                        ratio > active_policy.balance_ratio_threshold
+                        or ratio < 1.0 / active_policy.balance_ratio_threshold
+                    ),
+                )
+            )
+    return MultiplexChannelBalanceReport(
+        policy=active_policy,
+        entries=tuple(
+            sorted(
+                entries,
+                key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
+            )
+        ),
+    )
+
+
+def _protein_quant_assignment_targets(
+    record: Ms1FeatureRecord,
+    *,
+    assignment_policy: ProteinQuantAssignmentPolicy,
+) -> tuple[tuple[str, float], ...]:
+    if not record.protein_refs or record.intensity is None:
+        return ()
+    if assignment_policy is ProteinQuantAssignmentPolicy.INFERENCE_INCLUSIVE:
+        return tuple(
+            (protein_ref, float(record.intensity))
+            for protein_ref in record.protein_refs
+        )
+    if assignment_policy is ProteinQuantAssignmentPolicy.QUANT_UNIQUE_ONLY:
+        if len(record.protein_refs) == 1:
+            return ((record.protein_refs[0], float(record.intensity)),)
+        return ()
+    split_intensity = float(record.intensity) / len(record.protein_refs)
+    return tuple((protein_ref, split_intensity) for protein_ref in record.protein_refs)
+
+
+def build_protein_quant_policy_comparison_report(
+    records: tuple[Ms1FeatureRecord, ...],
+    *,
+    policies: tuple[ProteinQuantAssignmentPolicy, ...] = (
+        ProteinQuantAssignmentPolicy.INFERENCE_INCLUSIVE,
+        ProteinQuantAssignmentPolicy.QUANT_UNIQUE_ONLY,
+        ProteinQuantAssignmentPolicy.QUANT_SPLIT_SHARED,
+    ),
+) -> ProteinQuantPolicyComparisonReport:
+    """Compare protein-level quant results under explicit shared-peptide policies."""
+    per_policy: dict[
+        ProteinQuantAssignmentPolicy,
+        dict[tuple[str, str], list[tuple[Ms1FeatureRecord, float]]],
+    ] = {}
+    proteins: set[str] = set()
+    sample_ids: set[str] = set()
+    for policy in policies:
+        grouped: dict[tuple[str, str], list[tuple[Ms1FeatureRecord, float]]] = (
+            defaultdict(list)
+        )
+        for record in records:
+            sample_ids.add(record.sample_id)
+            for protein_ref, intensity in _protein_quant_assignment_targets(
+                record,
+                assignment_policy=policy,
+            ):
+                proteins.add(protein_ref)
+                grouped[(protein_ref, record.sample_id)].append((record, intensity))
+        per_policy[policy] = grouped
+
+    entries: list[ProteinQuantPolicyComparisonEntry] = []
+    for protein_ref in sorted(proteins):
+        for sample_id in sorted(sample_ids):
+            values: list[ProteinQuantPolicyValue] = []
+            abundances: list[float] = []
+            for policy in policies:
+                bucket = sorted(
+                    per_policy[policy].get((protein_ref, sample_id), ()),
+                    key=lambda item: (item[0].canonical_peptide, item[0].feature_id),
+                )
+                abundance = (
+                    float(sum(intensity for _, intensity in bucket)) if bucket else None
+                )
+                if abundance is not None:
+                    abundances.append(abundance)
+                values.append(
+                    ProteinQuantPolicyValue(
+                        assignment_policy=policy,
+                        abundance=abundance,
+                        contributing_peptides=tuple(
+                            dict.fromkeys(
+                                record.canonical_peptide for record, _ in bucket
+                            )
+                        ),
+                        shared_peptide_count=sum(
+                            1 for record, _ in bucket if len(record.protein_refs) > 1
+                        ),
+                    )
+                )
+            entries.append(
+                ProteinQuantPolicyComparisonEntry(
+                    protein_ref=protein_ref,
+                    sample_id=sample_id,
+                    policy_values=tuple(values),
+                    max_abundance_difference=(
+                        max(abundances) - min(abundances) if abundances else 0.0
+                    ),
+                )
+            )
+    return ProteinQuantPolicyComparisonReport(
+        policies=policies,
+        entries=tuple(entries),
+    )
+
+
+def build_protein_quant_rollup_evidence(
+    records: tuple[Ms1FeatureRecord, ...],
+    *,
+    aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
+    top_n: int = 3,
+) -> tuple[ProteinQuantRollupEvidenceEntry, ...]:
+    """Build explicit protein rollup evidence from contributing peptide features."""
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    grouped_features: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
+    for record in records:
+        for protein_ref in record.protein_refs:
+            grouped_features.setdefault((protein_ref, record.sample_id), []).append(
+                record
+            )
+
+    entries: list[ProteinQuantRollupEvidenceEntry] = []
+    value_lookup = _matrix_value_index(table)
+    for protein_ref in table.entity_ids:
+        for sample_id in table.sample_ids:
+            bucket = sorted(
+                grouped_features.get((protein_ref, sample_id), ()),
+                key=lambda record: (
+                    -(record.intensity or 0.0),
+                    record.canonical_peptide,
+                    record.feature_id,
+                ),
+            )
+            entries.append(
+                ProteinQuantRollupEvidenceEntry(
+                    protein_ref=protein_ref,
+                    sample_id=sample_id,
+                    aggregation_method=aggregation_method,
+                    abundance=value_lookup[(protein_ref, sample_id)].abundance,
+                    contributing_feature_ids=tuple(
+                        record.feature_id
+                        for record in (
+                            bucket[:top_n]
+                            if aggregation_method is QuantRollupMethod.TOP_N
+                            else bucket
+                        )
+                    ),
+                    contributing_peptides=tuple(
+                        dict.fromkeys(
+                            record.canonical_peptide
+                            for record in (
+                                bucket[:top_n]
+                                if aggregation_method is QuantRollupMethod.TOP_N
+                                else bucket
+                            )
+                        )
+                    ),
+                    missing_value_kind=value_lookup[
+                        (protein_ref, sample_id)
+                    ].missing_value_kind,
+                )
+            )
+    return tuple(
+        sorted(
+            entries,
+            key=lambda entry: (entry.protein_ref, entry.sample_id),
+        )
+    )
+
+
+def build_label_free_provenance_bundle(
+    records: tuple[Ms1FeatureRecord, ...],
+    *,
+    aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
+    normalization_method: NormalizationMethod = NormalizationMethod.NONE,
+    top_n: int = 3,
+) -> LabelFreeProvenanceBundle:
+    """Build peptide-level and feature-level provenance for an LFQ workflow."""
+    peptide_table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    protein_table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    if normalization_method is not NormalizationMethod.NONE:
+        peptide_table = normalize_label_free_table(
+            peptide_table,
+            method=normalization_method,
+        )
+        protein_table = normalize_label_free_table(
+            protein_table,
+            method=normalization_method,
+        )
+    peptide_value_lookup = _matrix_value_index(peptide_table)
+    protein_value_lookup = _matrix_value_index(protein_table)
+
+    grouped_features: dict[tuple[str, str], list[Ms1FeatureRecord]] = defaultdict(list)
+    for record in records:
+        grouped_features[(record.canonical_peptide, record.sample_id)].append(record)
+
+    peptide_entries: list[LabelFreePeptideProvenanceEntry] = []
+    for canonical_peptide in peptide_table.entity_ids:
+        for sample_id in peptide_table.sample_ids:
+            value = peptide_value_lookup[(canonical_peptide, sample_id)]
+            features = sorted(
+                grouped_features.get((canonical_peptide, sample_id), ()),
+                key=lambda record: record.feature_id,
+            )
+            peptide_entries.append(
+                LabelFreePeptideProvenanceEntry(
+                    sample_id=sample_id,
+                    canonical_peptide=canonical_peptide,
+                    abundance=value.abundance,
+                    missing_value_kind=value.missing_value_kind,
+                    contributing_feature_ids=tuple(
+                        record.feature_id for record in features
+                    ),
+                    protein_refs=tuple(
+                        dict.fromkeys(
+                            protein_ref
+                            for record in features
+                            for protein_ref in record.protein_refs
+                        )
+                    ),
+                )
+            )
+
+    protein_entries = []
+    for entry in build_protein_quant_rollup_evidence(
+        records,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    ):
+        protein_entries.append(
+            entry.model_copy(
+                update={
+                    "abundance": protein_value_lookup[
+                        (entry.protein_ref, entry.sample_id)
+                    ].abundance,
+                    "missing_value_kind": protein_value_lookup[
+                        (entry.protein_ref, entry.sample_id)
+                    ].missing_value_kind,
+                }
+            )
+        )
+
+    bundle = LabelFreeProvenanceBundle(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="label_free_provenance_bundle",
+            package_name="bijux-proteomics-core",
+            status="generated",
+        ),
+        aggregation_method=aggregation_method,
+        normalization_method=normalization_method,
+        feature_entries=tuple(
+            LabelFreeFeatureProvenanceEntry(
+                feature_id=record.feature_id,
+                sample_id=record.sample_id,
+                canonical_peptide=record.canonical_peptide,
+                protein_refs=record.protein_refs,
+                intensity=record.intensity,
+                missing_value_kind=record.missing_value_kind,
+            )
+            for record in sorted(
+                records,
+                key=lambda record: (
+                    record.sample_id,
+                    record.canonical_peptide,
+                    record.feature_id,
+                ),
+            )
+        ),
+        peptide_entries=tuple(
+            sorted(
+                peptide_entries,
+                key=lambda entry: (entry.canonical_peptide, entry.sample_id),
+            )
+        ),
+        protein_entries=tuple(
+            sorted(
+                protein_entries,
+                key=lambda entry: (entry.protein_ref, entry.sample_id),
+            )
+        ),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_label_free_provenance_bundle(
+    bundle: LabelFreeProvenanceBundle,
+    path: Path,
+) -> None:
+    """Write a stable JSON bundle for LFQ provenance review."""
+    path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
+
+
+def export_quant_matrix_tsv(
+    matrix_export: QuantMatrixExport,
+    path: Path,
+) -> None:
+    """Write one stable TSV export for a quantification matrix."""
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow(
+            [
+                "sample_id",
+                "condition",
+                "replicate",
+                "fraction",
+                "batch",
+                "instrument",
+                "search_engine",
+                "entity_id",
+                "entity_level",
+                "measure_kind",
+                "aggregation_method",
+                "abundance",
+                "missing_value_kind",
+                "source_feature_count",
+                "protein_refs",
+                "member_peptides",
+                "normalization_method",
+                "normalization_factor",
+            ]
+        )
+        for row in matrix_export.rows:
+            writer.writerow(
+                [
+                    row.sample_metadata.sample_id,
+                    row.sample_metadata.condition or "",
+                    row.sample_metadata.replicate or "",
+                    row.sample_metadata.fraction or "",
+                    row.sample_metadata.batch or "",
+                    row.sample_metadata.instrument or "",
+                    row.sample_metadata.search_engine or "",
+                    row.entity_id,
+                    row.entity_level.value,
+                    row.measure_kind.value,
+                    row.aggregation_method.value,
+                    "" if row.abundance is None else row.abundance,
+                    row.missing_value_kind.value,
+                    row.source_feature_count,
+                    ";".join(row.protein_refs),
+                    ";".join(row.member_peptides),
+                    matrix_export.normalization_provenance.normalization_method.value,
+                    matrix_export.normalization_provenance.normalization_factors.get(
+                        row.sample_metadata.sample_id,
+                        1.0,
+                    ),
+                ]
+            )
+
+
+def build_quant_reproducibility_manifest(
+    table: LabelFreeQuantTable,
+) -> QuantReproducibilityManifest:
+    """Build a stable reproducibility manifest for one quantification table."""
+    payload = [
+        table.entity_level.value,
+        table.measure_kind.value,
+        table.aggregation_method.value,
+        table.normalization_method.value,
+        tuple(table.sample_ids),
+        tuple(table.entity_ids),
+        tuple(sorted(table.normalization_factors.items())),
+        tuple(
+            (
+                value.entity_id,
+                value.sample_id,
+                value.abundance,
+                value.missing_value_kind.value,
+                value.source_feature_count,
+            )
+            for value in sorted(
+                table.values,
+                key=lambda entry: (entry.entity_id, entry.sample_id),
+            )
+        ),
+    ]
+    reproducibility_hash = hashlib.sha256(repr(payload).encode("utf-8")).hexdigest()
+    manifest = QuantReproducibilityManifest(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="quant_reproducibility_manifest",
+            package_name="bijux-proteomics-core",
+            status="generated",
+            created_at=_STABLE_DOCUMENT_TIME,
+            updated_at=_STABLE_DOCUMENT_TIME,
+        ),
+        entity_level=table.entity_level,
+        measure_kind=table.measure_kind,
+        aggregation_method=table.aggregation_method,
+        normalization_method=table.normalization_method,
+        sample_ids=table.sample_ids,
+        entity_ids=table.entity_ids,
+        value_count=len(table.values),
+        reproducibility_hash=reproducibility_hash,
+    )
+    return manifest.model_copy(
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(
+                manifest.to_dict()
+            )
+        }
+    )
+
+
+def export_quant_reproducibility_manifest(
+    manifest: QuantReproducibilityManifest,
+    path: Path,
+) -> None:
+    """Write a stable JSON reproducibility manifest for quantification outputs."""
+    path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+
+def build_quant_artifact_bundle(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...] = (),
+    missing_value_policy: MissingValueSummaryPolicy | None = None,
+    normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
+    differential_abundance_report: DifferentialAbundanceReport | None = None,
+) -> QuantArtifactBundle:
+    """Bundle quant outputs so review can happen without workflow runtime logs."""
+    bundle = QuantArtifactBundle(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="quant_artifact_bundle",
+            package_name="bijux-proteomics-core",
+            status="generated",
+            created_at=_STABLE_DOCUMENT_TIME,
+            updated_at=_STABLE_DOCUMENT_TIME,
+        ),
+        matrix_export=build_quant_matrix_export(table, design_entries=design_entries),
+        missing_value_summary=summarize_missing_values(
+            table,
+            policy=missing_value_policy,
+        ),
+        reproducibility_manifest=build_quant_reproducibility_manifest(table),
+        normalization_strategy_report=normalization_strategy_report,
+        differential_abundance_report=differential_abundance_report,
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_quant_artifact_bundle(bundle: QuantArtifactBundle, path: Path) -> None:
+    """Write a stable JSON artifact bundle for quant review."""
+    path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
+
+
+def _sample_snapshot(
+    table: LabelFreeQuantTable,
+    sample_id: str,
+) -> NormalizationSampleSnapshot:
+    abundances = np.array(
+        [
+            value.abundance
+            for value in table.values
+            if value.sample_id == sample_id and value.abundance is not None
+        ],
+        dtype=float,
+    )
+    if abundances.size == 0:
+        return NormalizationSampleSnapshot(
+            sample_id=sample_id,
+            total_abundance=0.0,
+            median_abundance=0.0,
+            interquartile_range=0.0,
+        )
+    return NormalizationSampleSnapshot(
+        sample_id=sample_id,
+        total_abundance=float(np.sum(abundances)),
+        median_abundance=float(np.median(abundances)),
+        interquartile_range=float(
+            np.percentile(abundances, 75) - np.percentile(abundances, 25)
+        ),
+    )
+
+
+def build_normalization_comparison_report(
+    before: LabelFreeQuantTable,
+    after: LabelFreeQuantTable,
+) -> NormalizationComparisonReport:
+    """Build a before/after normalization summary over sample totals and spread."""
+    if before.sample_ids != after.sample_ids or before.entity_ids != after.entity_ids:
+        raise ValueError(
+            "before and after tables must cover the same sample/entity grid"
+        )
+    return NormalizationComparisonReport(
+        method=after.normalization_method,
+        normalization_factors=after.normalization_factors,
+        before=tuple(
+            _sample_snapshot(before, sample_id) for sample_id in before.sample_ids
+        ),
+        after=tuple(
+            _sample_snapshot(after, sample_id) for sample_id in after.sample_ids
+        ),
+    )
+
+
+def _coefficient_of_variation(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    mean_value = float(np.mean(np.array(values, dtype=float)))
+    if mean_value == 0.0:
+        return 0.0
+    return float(np.std(np.array(values, dtype=float)) / mean_value)
+
+
+def build_normalization_strategy_comparison_report(
+    table: LabelFreeQuantTable,
+    *,
+    methods: tuple[NormalizationMethod, ...] = (
+        NormalizationMethod.NONE,
+        NormalizationMethod.TIC,
+        NormalizationMethod.MEDIAN,
+        NormalizationMethod.QUANTILE,
+    ),
+) -> NormalizationStrategyComparisonReport:
+    """Compare normalization methods using stable sample-balance summary metrics."""
+    entries: list[NormalizationStrategySummaryEntry] = []
+    for method in methods:
+        candidate = normalize_label_free_table(table, method=method)
+        snapshots = [
+            _sample_snapshot(candidate, sample_id) for sample_id in candidate.sample_ids
+        ]
+        total_cv = _coefficient_of_variation(
+            [snapshot.total_abundance for snapshot in snapshots]
+        )
+        median_cv = _coefficient_of_variation(
+            [snapshot.median_abundance for snapshot in snapshots]
+        )
+        iqr_cv = _coefficient_of_variation(
+            [snapshot.interquartile_range for snapshot in snapshots]
+        )
+        entries.append(
+            NormalizationStrategySummaryEntry(
+                method=method,
+                total_abundance_cv=total_cv,
+                median_abundance_cv=median_cv,
+                interquartile_range_cv=iqr_cv,
+                balance_score=total_cv + median_cv + iqr_cv,
+            )
+        )
+    ordered = tuple(
+        sorted(
+            entries,
+            key=lambda entry: (entry.balance_score, entry.method.value),
+        )
+    )
+    return NormalizationStrategyComparisonReport(
+        entity_level=table.entity_level,
+        entries=ordered,
+        recommended_method=ordered[0].method,
+    )
+
+
 def _log2_values(table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:
     lookup = _matrix_value_index(table)
     values: list[float] = []
@@ -605,6 +2041,43 @@ def _welch_t_test(values_a: np.ndarray, values_b: np.ndarray) -> tuple[float, fl
     degrees_of_freedom = numerator / denominator_df
     return mean_b - mean_a, _student_t_two_sided_p_value(
         abs(t_statistic), degrees_of_freedom
+    )
+
+
+def _effect_size_and_uncertainty(
+    values_a: np.ndarray,
+    values_b: np.ndarray,
+    log2_fold_change: float,
+) -> tuple[float | None, float | None, float | None, float | None, str | None]:
+    if values_a.size < 2 or values_b.size < 2:
+        return (
+            None,
+            None,
+            None,
+            None,
+            "confidence intervals and effect sizes require at least two observations per condition",
+        )
+    variance_a = float(np.var(values_a, ddof=1))
+    variance_b = float(np.var(values_b, ddof=1))
+    standard_error = math.sqrt(
+        variance_a / float(values_a.size) + variance_b / float(values_b.size)
+    )
+    interval_radius = 1.96 * standard_error
+    pooled_variance_numerator = (values_a.size - 1) * variance_a + (
+        values_b.size - 1
+    ) * variance_b
+    pooled_variance_denominator = values_a.size + values_b.size - 2
+    pooled_sd = math.sqrt(pooled_variance_numerator / pooled_variance_denominator)
+    cohens_d = (log2_fold_change / pooled_sd) if pooled_sd > 0 else None
+    note = None
+    if standard_error > 1.0:
+        note = "uncertainty remains wide relative to the estimated fold change"
+    return (
+        standard_error,
+        log2_fold_change - interval_radius,
+        log2_fold_change + interval_radius,
+        cohens_d,
+        note,
     )
 
 
@@ -841,8 +2314,46 @@ def build_spectral_count_table(
     )
 
 
-def summarize_missing_values(table: LabelFreeQuantTable) -> MissingValueSummaryReport:
-    """Summarize missing, zero, filtered, and observed quant cells by sample."""
+def _apply_missing_value_summary_policy(
+    kind: MissingValueKind,
+    *,
+    policy: MissingValueSummaryPolicy,
+) -> MissingValueKind:
+    if (
+        kind is MissingValueKind.ZERO
+        and policy.zero_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
+    ):
+        return MissingValueKind.NOT_OBSERVED
+    if (
+        kind is MissingValueKind.FILTERED
+        and policy.filtered_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
+    ):
+        return MissingValueKind.NOT_OBSERVED
+    return kind
+
+
+def summarize_missing_values(
+    table: LabelFreeQuantTable,
+    *,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingValueSummaryReport:
+    """Summarize missing values with explicit correction and sparse-entity filters."""
+    active_policy = policy or MissingValueSummaryPolicy()
+    lookup = _matrix_value_index(table)
+    included_entity_ids: list[str] = []
+    excluded_entity_ids: list[str] = []
+    for entity_id in table.entity_ids:
+        observed_samples = sum(
+            1
+            for sample_id in table.sample_ids
+            if lookup[(entity_id, sample_id)].missing_value_kind
+            in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+        )
+        if observed_samples < active_policy.min_observed_samples_per_entity:
+            excluded_entity_ids.append(entity_id)
+            continue
+        included_entity_ids.append(entity_id)
+
     entries: list[MissingValueSummaryEntry] = []
     for sample_id in table.sample_ids:
         counts = {
@@ -851,10 +2362,12 @@ def summarize_missing_values(table: LabelFreeQuantTable) -> MissingValueSummaryR
             MissingValueKind.NOT_OBSERVED: 0,
             MissingValueKind.FILTERED: 0,
         }
-        for value in table.values:
-            if value.sample_id != sample_id:
-                continue
-            counts[value.missing_value_kind] += 1
+        for entity_id in included_entity_ids:
+            kind = _apply_missing_value_summary_policy(
+                lookup[(entity_id, sample_id)].missing_value_kind,
+                policy=active_policy,
+            )
+            counts[kind] += 1
         entries.append(
             MissingValueSummaryEntry(
                 sample_id=sample_id,
@@ -865,7 +2378,71 @@ def summarize_missing_values(table: LabelFreeQuantTable) -> MissingValueSummaryR
             )
         )
     return MissingValueSummaryReport(
-        entity_level=table.entity_level, entries=tuple(entries)
+        entity_level=table.entity_level,
+        policy=active_policy,
+        entries=tuple(entries),
+        included_entity_ids=tuple(included_entity_ids),
+        excluded_entity_ids=tuple(excluded_entity_ids),
+    )
+
+
+def build_missing_data_mechanism_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> MissingDataMechanismReport:
+    """Classify missingness patterns as likely biology, likely failure, or unresolved."""
+    lookup = _matrix_value_index(table)
+    condition_by_sample = _condition_lookup(design_entries)
+    conditions = tuple(
+        sorted({condition for condition in condition_by_sample.values() if condition})
+    )
+    entries: list[MissingDataMechanismEntry] = []
+    summary_counts = dict.fromkeys(MissingDataMechanism, 0)
+    for entity_id in table.entity_ids:
+        observed_conditions: set[str] = set()
+        missing_samples: list[str] = []
+        observed_samples: list[str] = []
+        missing_conditions: set[str] = set()
+        for sample_id in table.sample_ids:
+            cell = lookup[(entity_id, sample_id)]
+            condition = condition_by_sample.get(sample_id, "unknown")
+            if cell.missing_value_kind in (
+                MissingValueKind.OBSERVED,
+                MissingValueKind.ZERO,
+            ):
+                observed_conditions.add(condition)
+                observed_samples.append(sample_id)
+                continue
+            missing_samples.append(sample_id)
+            missing_conditions.add(condition)
+
+        mechanism = MissingDataMechanism.MIXED_OR_UNRESOLVED
+        note = "missingness mixes biological and technical explanations or lacks enough support"
+        if (
+            len(observed_conditions) == 1
+            and len(missing_conditions) >= 1
+            and any(condition not in observed_conditions for condition in conditions)
+        ):
+            mechanism = MissingDataMechanism.LIKELY_BIOLOGICAL_SPARSE
+            note = "signal is confined to one condition while another condition remains consistently missing"
+        elif len(missing_samples) == 1 and len(observed_samples) >= 2:
+            mechanism = MissingDataMechanism.LIKELY_TECHNICAL_FAILURE
+            note = "one isolated missing sample breaks an otherwise observed pattern"
+
+        summary_counts[mechanism] += 1
+        entries.append(
+            MissingDataMechanismEntry(
+                entity_id=entity_id,
+                mechanism=mechanism,
+                observed_conditions=tuple(sorted(observed_conditions)),
+                missing_samples=tuple(sorted(missing_samples)),
+                note=note,
+            )
+        )
+    return MissingDataMechanismReport(
+        entity_level=table.entity_level,
+        entries=tuple(entries),
+        summary_counts=summary_counts,
     )
 
 
@@ -1077,14 +2654,112 @@ def build_replicate_correlation_report(
     )
 
 
+def build_study_scale_replicate_correlation_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    top_pair_count: int = 5,
+) -> StudyScaleReplicateCorrelationReport:
+    """Summarize replicate correlations in a compact study-scale report."""
+    pairwise = build_replicate_correlation_report(table, design_entries)
+    per_sample_within: dict[str, list[float]] = defaultdict(list)
+    per_sample_between: dict[str, list[float]] = defaultdict(list)
+    condition_by_sample = _condition_lookup(design_entries)
+    for entry in pairwise.entries:
+        target = (
+            per_sample_within
+            if entry.condition_a == entry.condition_b
+            else per_sample_between
+        )
+        target[entry.sample_a].append(entry.correlation)
+        target[entry.sample_b].append(entry.correlation)
+
+    sample_summaries = tuple(
+        StudyScaleReplicateSampleEntry(
+            sample_id=sample_id,
+            condition=condition_by_sample.get(sample_id, "unknown"),
+            within_condition_pairs=len(per_sample_within.get(sample_id, ())),
+            between_condition_pairs=len(per_sample_between.get(sample_id, ())),
+            mean_within_condition_correlation=(
+                float(np.mean(per_sample_within[sample_id]))
+                if per_sample_within.get(sample_id)
+                else None
+            ),
+            mean_between_condition_correlation=(
+                float(np.mean(per_sample_between[sample_id]))
+                if per_sample_between.get(sample_id)
+                else None
+            ),
+        )
+        for sample_id in table.sample_ids
+    )
+    weakest_within = tuple(
+        sorted(
+            (
+                entry
+                for entry in pairwise.entries
+                if entry.condition_a == entry.condition_b
+            ),
+            key=lambda entry: (entry.correlation, entry.sample_a, entry.sample_b),
+        )[:top_pair_count]
+    )
+    strongest_between = tuple(
+        sorted(
+            (
+                entry
+                for entry in pairwise.entries
+                if entry.condition_a != entry.condition_b
+            ),
+            key=lambda entry: (-entry.correlation, entry.sample_a, entry.sample_b),
+        )[:top_pair_count]
+    )
+    return StudyScaleReplicateCorrelationReport(
+        entity_level=table.entity_level,
+        sample_summaries=sample_summaries,
+        weakest_within_condition_pairs=weakest_within,
+        strongest_between_condition_pairs=strongest_between,
+    )
+
+
+def build_study_scale_batch_effect_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    batch_field: str = "batch",
+    shift_threshold: float = 0.5,
+) -> StudyScaleBatchEffectReport:
+    """Summarize batch effects in a compact report for larger studies."""
+    advisory = build_batch_effect_advisory(
+        table,
+        design_entries,
+        batch_field=batch_field,
+        shift_threshold=shift_threshold,
+    )
+    entries = tuple(
+        StudyScaleBatchEffectEntry(
+            batch_id=entry.batch_id,
+            sample_count=len(entry.sample_ids),
+            flagged=entry.flagged,
+            median_shift_from_global=entry.shift_from_global,
+        )
+        for entry in advisory.batches
+    )
+    return StudyScaleBatchEffectReport(
+        entries=entries,
+        flagged_batch_count=sum(1 for entry in entries if entry.flagged),
+    )
+
+
 def build_differential_abundance_report(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
     condition_a: str | None = None,
     condition_b: str | None = None,
+    replicate_policy: DifferentialReplicatePolicy | None = None,
 ) -> DifferentialAbundanceReport:
     """Run a basic two-condition Welch-style differential abundance test."""
+    active_policy = replicate_policy or DifferentialReplicatePolicy()
     condition_by_sample = _condition_lookup(design_entries)
     conditions = sorted(
         {condition for condition in condition_by_sample.values() if condition}
@@ -1107,6 +2782,13 @@ def build_differential_abundance_report(
     )
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
+    if (
+        len(samples_a) < active_policy.min_replicates_per_condition
+        or len(samples_b) < active_policy.min_replicates_per_condition
+    ) and active_policy.disposition is QuantAssessmentDisposition.ENFORCED:
+        raise ValueError(
+            "minimum replicate policy not satisfied for differential abundance"
+        )
 
     lookup = _matrix_value_index(table)
     entries: list[DifferentialAbundanceEntry] = []
@@ -1132,6 +2814,13 @@ def build_differential_abundance_report(
         mean_a = float(np.mean(values_a)) if values_a.size else 0.0
         mean_b = float(np.mean(values_b)) if values_b.size else 0.0
         log2_fold_change, p_value = _welch_t_test(values_a, values_b)
+        (
+            standard_error,
+            confidence_interval_low,
+            confidence_interval_high,
+            effect_size_cohens_d,
+            uncertainty_note,
+        ) = _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
         entries.append(
             DifferentialAbundanceEntry(
                 entity_id=entity_id,
@@ -1143,6 +2832,11 @@ def build_differential_abundance_report(
                 mean_log2_abundance_b=mean_b,
                 log2_fold_change=log2_fold_change,
                 p_value=p_value,
+                standard_error=standard_error,
+                confidence_interval_low=confidence_interval_low,
+                confidence_interval_high=confidence_interval_high,
+                effect_size_cohens_d=effect_size_cohens_d,
+                uncertainty_note=uncertainty_note,
             )
         )
     entries = sorted(
@@ -1158,6 +2852,13 @@ def build_differential_abundance_report(
         normalization_method=table.normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
+        replicate_policy=active_policy,
+        assumption_report=DifferentialAbundanceAssumptionReport(
+            test_type="welch_t_test",
+            variance_assumption="unequal_variance",
+            multiple_testing_scope="uncorrected_report_wide_entities",
+            replicate_policy=active_policy,
+        ),
         entries=tuple(entries),
     )
 
@@ -1180,4 +2881,13 @@ def apply_benjamini_hochberg(
         entry.model_copy(update={"adjusted_p_value": adjusted[index]})
         for index, entry in enumerate(report.entries)
     )
-    return report.model_copy(update={"entries": entries})
+    return report.model_copy(
+        update={
+            "entries": entries,
+            "assumption_report": report.assumption_report.model_copy(
+                update={
+                    "multiple_testing_scope": "benjamini_hochberg_report_wide_entities"
+                }
+            ),
+        }
+    )

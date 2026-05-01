@@ -9,14 +9,33 @@ import hashlib
 import importlib.metadata
 import json
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import click
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
 from bijux_proteomics_intelligence.domain.candidates import CandidateStore
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_runtime.api.catalog import (
+    build_artifact_lookup_response,
+    build_evidence_lookup_response,
+    build_run_artifacts_response,
+    build_run_evidence_response,
+    build_run_history_response,
+    build_run_review_response,
+    build_runtime_health_response,
+    build_runtime_status_response,
+)
+from bijux_proteomics_runtime.api.correlation import build_correlation_meta
+from bijux_proteomics_runtime.api.v1.schema import (
+    ApiCandidate,
+    ApiEnvelope,
+    CompareResponse,
+    ErrorResponse,
+    InspectResponse,
+    RunResponse,
+)
 from bijux_proteomics_runtime.runtime import RunManager
 from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
 from bijux_proteomics_runtime.runtime.control import compare_runs
@@ -39,6 +58,8 @@ __all__ = [
     "_write_output",
     "cli",
 ]
+
+_CLI_ERROR_TYPE = cast(AnyUrl, "https://bijux.dev/errors/cli")
 
 
 def _package_version() -> str:
@@ -220,6 +241,32 @@ def _emit_json_payload(payload: dict[str, Any] | list[Any] | str, pretty: bool) 
     click.echo(json.dumps(payload, sort_keys=True, default=str))
 
 
+def _emit_api_envelope(
+    data: Any | None,
+    *,
+    pretty: bool,
+    error: ErrorResponse | None = None,
+    meta: dict[str, Any] | None = None,
+    surface: str = "cli",
+    correlation_key: str | None = None,
+) -> None:
+    """Emit a canonical API-style envelope for CLI JSON flows."""
+    base_meta = build_correlation_meta(
+        surface,
+        f"cli:{surface}",
+        correlation_key,
+    )
+    if meta:
+        base_meta.update(meta)
+    payload = ApiEnvelope(
+        status="error" if error is not None else "ok",
+        data=data,
+        error=error,
+        meta=base_meta,
+    ).model_dump(mode="json")
+    _emit_json_payload(payload, pretty=pretty)
+
+
 def _load_run_summary(
     base_dir: Path, run_id: str, artifacts_dir: Path | None
 ) -> dict[str, Any]:
@@ -355,17 +402,31 @@ def run(
         summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(status="error", command="run", error=str(exc)).model_dump(
-                    mode="json"
-                ),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                surface="run",
+                error=ErrorResponse(
+                    type=_CLI_ERROR_TYPE,
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:run",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_json_payload(summary, pretty=pretty)
+        _emit_api_envelope(
+            RunResponse.model_validate(summary),
+            pretty=pretty,
+            surface="run",
+            correlation_key=run_output.run_id,
+        )
         return
     _emit_run_summary_human(summary)
 
@@ -419,17 +480,31 @@ def resume(
         summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(status="error", command="resume", error=str(exc)).model_dump(
-                    mode="json"
-                ),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                surface="resume",
+                error=ErrorResponse(
+                    type=_CLI_ERROR_TYPE,
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:resume",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_json_payload(summary, pretty=pretty)
+        _emit_api_envelope(
+            RunResponse.model_validate(summary),
+            pretty=pretty,
+            surface="resume",
+            correlation_key=run_output.run_id,
+        )
         return
     _emit_run_summary_human(summary)
 
@@ -445,17 +520,31 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
         comparison = _compare_runs_payload(run_a, run_b)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(status="error", command="compare", error=str(exc)).model_dump(
-                    mode="json"
-                ),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                surface="compare",
+                error=ErrorResponse(
+                    type=_CLI_ERROR_TYPE,
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:compare",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
     if json_output:
-        _emit_json_payload(comparison, pretty=pretty)
+        _emit_api_envelope(
+            CompareResponse.model_validate(comparison),
+            pretty=pretty,
+            surface="compare",
+            correlation_key=f"{run_a}:{run_b}",
+        )
         return
     _emit_json_payload(comparison, pretty=True)
 
@@ -470,22 +559,38 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
         candidate = _inspect_candidate(Path.cwd(), candidate_id)
     except Exception as exc:  # noqa: BLE001
         if json_output:
-            _emit_json_payload(
-                CliResult(
-                    status="error",
-                    command="inspect-candidate",
-                    error=str(exc),
-                ).model_dump(mode="json"),
+            _emit_api_envelope(
+                None,
                 pretty=pretty,
+                surface="inspect-candidate",
+                error=ErrorResponse(
+                    type=_CLI_ERROR_TYPE,
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:inspect-candidate",
+                    failure_class="cli",
+                    remediation_hint="inspect the CLI arguments and local runtime state",
+                    evidence_pointer=None,
+                ),
             )
         else:
             click.echo(f"Error: {exc}")
         raise SystemExit(1) from exc
-    payload = candidate.model_dump()
+    payload = InspectResponse(
+        candidate=ApiCandidate.model_validate(candidate.model_dump(mode="json")),
+        qc_status=None,
+        artifacts={},
+    )
     if json_output:
-        _emit_json_payload(payload, pretty=pretty)
+        _emit_api_envelope(
+            payload,
+            pretty=pretty,
+            surface="inspect-candidate",
+            correlation_key=candidate_id,
+        )
         return
-    _emit_json_payload(payload, pretty=True)
+    _emit_json_payload(payload.model_dump(mode="json"), pretty=True)
 
 
 @cli.command("export-report")
@@ -538,6 +643,187 @@ def api_serve(host: str, port: int, reload: bool, no_docs: bool) -> None:
     config = AppConfig(base_dir=Path.cwd(), docs_enabled=not no_docs)
     app = create_app(config)
     uvicorn.run(app, host=host, port=port, reload=reload)
+
+
+@api.command("status")
+@click.argument("run_id", type=str)
+@click.option("--include-documents", is_flag=True, help="Inline small documents.")
+@click.option("--max-inline-bytes", type=int, default=256000, show_default=True)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_status(
+    run_id: str, include_documents: bool, max_inline_bytes: int, pretty: bool
+) -> None:
+    """Emit the canonical runtime-status contract via CLI."""
+    response = build_runtime_status_response(
+        Path.cwd(),
+        run_id,
+        include_documents=include_documents,
+        max_inline_bytes=max_inline_bytes,
+    )
+    _emit_api_envelope(
+        response, pretty=pretty, surface="runtime-status", correlation_key=run_id
+    )
+
+
+@api.command("artifacts")
+@click.argument("run_id", type=str)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_artifacts(run_id: str, pretty: bool) -> None:
+    """Emit the canonical run-artifacts contract via CLI."""
+    response = build_run_artifacts_response(Path.cwd(), run_id)
+    _emit_api_envelope(
+        response, pretty=pretty, surface="run-artifacts", correlation_key=run_id
+    )
+
+
+@api.command("evidence-bundle")
+@click.argument("run_id", type=str)
+@click.option("--include-document", is_flag=True, help="Inline small documents.")
+@click.option("--max-inline-bytes", type=int, default=256000, show_default=True)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_evidence_bundle(
+    run_id: str,
+    include_document: bool,
+    max_inline_bytes: int,
+    pretty: bool,
+) -> None:
+    """Emit the canonical evidence-bundle contract via CLI."""
+    response = build_run_evidence_response(
+        Path.cwd(),
+        run_id,
+        include_document=include_document,
+        max_inline_bytes=max_inline_bytes,
+    )
+    _emit_api_envelope(
+        response,
+        pretty=pretty,
+        surface="run-evidence-bundle",
+        correlation_key=run_id,
+    )
+
+
+@api.command("review-packet")
+@click.argument("run_id", type=str)
+@click.option("--include-document", is_flag=True, help="Inline small documents.")
+@click.option("--max-inline-bytes", type=int, default=256000, show_default=True)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_review_packet(
+    run_id: str,
+    include_document: bool,
+    max_inline_bytes: int,
+    pretty: bool,
+) -> None:
+    """Emit the canonical review-packet contract via CLI."""
+    response = build_run_review_response(
+        Path.cwd(),
+        run_id,
+        include_document=include_document,
+        max_inline_bytes=max_inline_bytes,
+    )
+    _emit_api_envelope(
+        response,
+        pretty=pretty,
+        surface="run-review-packet",
+        correlation_key=run_id,
+    )
+
+
+@api.command("health")
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_health(pretty: bool) -> None:
+    """Emit the canonical runtime health contract via CLI."""
+    response = build_runtime_health_response(Path.cwd())
+    _emit_api_envelope(response, pretty=pretty, surface="runtime-health")
+
+
+@api.command("history")
+@click.option("--provider", type=str, default=None)
+@click.option("--workflow-state", type=str, default=None)
+@click.option("--outcome", type=str, default=None)
+@click.option("--candidate-id", type=str, default=None)
+@click.option("--cursor", type=str, default=None)
+@click.option("--page-size", type=int, default=20, show_default=True)
+@click.option("--max-query-cost", type=int, default=1000, show_default=True)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_history(
+    provider: str | None,
+    workflow_state: str | None,
+    outcome: str | None,
+    candidate_id: str | None,
+    cursor: str | None,
+    page_size: int,
+    max_query_cost: int,
+    pretty: bool,
+) -> None:
+    """Emit the canonical run-history contract via CLI."""
+    response = build_run_history_response(
+        Path.cwd(),
+        provider=provider,
+        workflow_state=workflow_state,
+        outcome=outcome,
+        candidate_id=candidate_id,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
+    )
+    _emit_api_envelope(response, pretty=pretty, surface="run-history")
+
+
+@api.command("lookup-artifacts")
+@click.option("--run-id", type=str, default=None)
+@click.option("--artifact-kind", type=str, default=None)
+@click.option("--cursor", type=str, default=None)
+@click.option("--page-size", type=int, default=20, show_default=True)
+@click.option("--max-query-cost", type=int, default=1000, show_default=True)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_lookup_artifacts(
+    run_id: str | None,
+    artifact_kind: str | None,
+    cursor: str | None,
+    page_size: int,
+    max_query_cost: int,
+    pretty: bool,
+) -> None:
+    """Emit the canonical artifact-lookup contract via CLI."""
+    response = build_artifact_lookup_response(
+        Path.cwd(),
+        run_id=run_id,
+        artifact_kind=artifact_kind,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
+    )
+    _emit_api_envelope(response, pretty=pretty, surface="artifact-lookup")
+
+
+@api.command("lookup-evidence")
+@click.option("--run-id", type=str, default=None)
+@click.option("--document-kind", type=str, default=None)
+@click.option("--availability", type=str, default=None)
+@click.option("--cursor", type=str, default=None)
+@click.option("--page-size", type=int, default=20, show_default=True)
+@click.option("--max-query-cost", type=int, default=1000, show_default=True)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+def api_lookup_evidence(
+    run_id: str | None,
+    document_kind: str | None,
+    availability: str | None,
+    cursor: str | None,
+    page_size: int,
+    max_query_cost: int,
+    pretty: bool,
+) -> None:
+    """Emit the canonical evidence-lookup contract via CLI."""
+    response = build_evidence_lookup_response(
+        Path.cwd(),
+        run_id=run_id,
+        document_kind=document_kind,
+        availability=availability,
+        cursor=cursor,
+        page_size=page_size,
+        max_query_cost=max_query_cost,
+    )
+    _emit_api_envelope(response, pretty=pretty, surface="evidence-lookup")
 
 
 @cli.command("reproduce")

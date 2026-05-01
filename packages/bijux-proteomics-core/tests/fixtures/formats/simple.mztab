@@ -1,0 +1,9 @@
+MTD	mzTab-version	1.0.0
+MTD	mzTab-mode	P
+PSH	sequence	accession	charge	exp_mass_to_charge	search_engine_score[1]	opt_global_confidence
+PSM	PEPTIDEA	P001	2	500.2	45.1	0.98
+PSM	PEPTIDEB	P002	3	600.3	39.7	0.91
+PEH	sequence	accession
+PEP	PEPTIDEA	P001
+PRH	accession
+PRT	P001

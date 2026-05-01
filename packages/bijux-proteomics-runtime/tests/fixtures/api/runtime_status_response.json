@@ -1,0 +1,43 @@
+{
+  "evidence_bundle": {
+    "availability": "available",
+    "content": null,
+    "document_kind": "evidence_bundle",
+    "guard_limit_bytes": 256000,
+    "note": "document is available for review",
+    "path": "<workspace>/artifacts/fixture-a/artifacts/evidence_bundle.json",
+    "run_id": "fixture-a",
+    "sha256": "e759b3d66d857ec7ec1dba77e333dd5aa4ffb05cf69264aefdeadfe2224d7dee",
+    "size_bytes": 37
+  },
+  "review_packet": {
+    "availability": "available",
+    "content": null,
+    "document_kind": "review_packet",
+    "guard_limit_bytes": 256000,
+    "note": "document is available for review",
+    "path": "<workspace>/artifacts/fixture-a/artifacts/review_packet.json",
+    "run_id": "fixture-a",
+    "sha256": "938dc5e29119fffc34e0a3610f485e38efe540533996ab06d47f89c028c254fd",
+    "size_bytes": 37
+  },
+  "summary": {
+    "artifacts_dir": "<workspace>/artifacts/fixture-a",
+    "candidate_id": "fixture-a-c0",
+    "command": "run",
+    "execution_status": "completed",
+    "failure": null,
+    "outcome": "accepted",
+    "provider": "heuristic_proxy",
+    "qc_status": "acceptable",
+    "run_id": "fixture-a",
+    "tool_status": "success",
+    "version": {
+      "app": "0+local",
+      "git_commit": "unknown",
+      "tool_versions": {}
+    },
+    "warnings": [],
+    "workflow_state": "done"
+  }
+}

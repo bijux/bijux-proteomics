@@ -1,0 +1,13 @@
+Name: PEPTIDEA/2
+MW: 998.4
+Comment: Parent=500.2
+Num peaks: 2
+100.0 1500.0
+250.0 800.0
+
+Name: PEPTIDEB/3
+MW: 1200.6
+Comment: Parent=401.2
+Num peaks: 2
+110.0 1200.0
+300.0 640.0

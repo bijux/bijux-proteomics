@@ -1,0 +1,4 @@
+spectrum_key	plain_peptide	precursor_charge	hyperscore_value	proteins_joined	decoy_state
+fragger-pipe-corpus-1001	PEPTIDE	2	142.8	P41111	0
+fragger-pipe-corpus-1002	PEPTIDER	3	121.0	P42222	0
+fragger-pipe-corpus-1003	DECOYPEP	2	68.3	DECOY_P43333	1

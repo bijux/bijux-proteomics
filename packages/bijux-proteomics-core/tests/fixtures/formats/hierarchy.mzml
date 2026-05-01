@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mzML xmlns="http://psi.hupo.org/ms/mzml" version="1.1.0">
+  <run id="RUN_HIERARCHY" startTimeStamp="2026-04-29T13:00:00Z">
+    <spectrumList count="1">
+      <spectrum id="controllerType=0 controllerNumber=1 scan=8101" index="0" defaultArrayLength="2">
+        <cvParam accession="MS:1000511" name="ms level" value="2" />
+        <scanList count="1">
+          <scan>
+            <cvParam accession="MS:1000016" name="scan start time" value="245.0" unitName="second" />
+          </scan>
+        </scanList>
+        <precursorList count="1">
+          <precursor spectrumRef="controllerType=0 controllerNumber=1 scan=8100">
+            <selectedIonList count="1">
+              <selectedIon>
+                <cvParam accession="MS:1000744" name="selected ion m/z" value="645.4" />
+                <cvParam accession="MS:1000041" name="charge state" value="3" />
+              </selectedIon>
+            </selectedIonList>
+          </precursor>
+        </precursorList>
+        <productList count="1">
+          <product>
+            <isolationWindow>
+              <cvParam accession="MS:1000827" name="isolation window target m/z" value="175.1" />
+            </isolationWindow>
+          </product>
+        </productList>
+        <binaryDataArrayList count="2">
+          <binaryDataArray encodedLength="24">
+            <cvParam accession="MS:1000514" name="m/z array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAAAAXkAAAAAAAABpQA==</binary>
+          </binaryDataArray>
+          <binaryDataArray encodedLength="24">
+            <cvParam accession="MS:1000515" name="intensity array" />
+            <cvParam accession="MS:1000523" name="64-bit float" />
+            <cvParam accession="MS:1000576" name="no compression" />
+            <binary>AAAAAAAANEAAAAAAAIBGQA==</binary>
+          </binaryDataArray>
+        </binaryDataArrayList>
+      </spectrum>
+    </spectrumList>
+  </run>
+</mzML>

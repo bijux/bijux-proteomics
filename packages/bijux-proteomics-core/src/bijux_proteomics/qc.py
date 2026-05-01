@@ -21,6 +21,11 @@ from bijux_proteomics.digestion import (
 )
 from bijux_proteomics.formats import ExperimentalDesignEntry
 from bijux_proteomics.identification import PsmRecord
+from bijux_proteomics.quantification import (
+    LabelFreeQuantTable,
+    MissingValueKind,
+    QuantEntityLevel,
+)
 from bijux_proteomics.spectra import SpectrumModel, calculate_precursor_mass_error
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -82,6 +87,51 @@ class QcContaminantSummary(JsonModel):
     contaminant_protein_counts: dict[str, int] = Field(default_factory=dict)
 
 
+class QcInstrumentSummary(JsonModel):
+    """Stable instrument-facing summary for one LC-MS run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instrument: str | None = None
+    spectrum_count: int = Field(..., ge=0)
+    spectra_with_precursor_charge: int = Field(..., ge=0)
+    spectra_with_retention_time: int = Field(..., ge=0)
+    acquisition_span_seconds: float | None = Field(default=None, ge=0.0)
+    dominant_charge_label: str | None = None
+
+
+class QcIdentificationSummary(JsonModel):
+    """Stable identification-facing summary for one LC-MS run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    identified_spectrum_count: int = Field(..., ge=0)
+    psm_count: int = Field(..., ge=0)
+    identification_rate: float = Field(..., ge=0.0, le=1.0)
+    matched_mass_error_psm_count: int = Field(..., ge=0)
+    median_abs_mass_error_ppm: float | None = Field(default=None, ge=0.0)
+    contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
+    missed_cleavage_rate: float = Field(..., ge=0.0, le=1.0)
+
+
+class QcQuantSummary(JsonModel):
+    """Stable quantification-facing summary attached to one run-level QC bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    entity_level: QuantEntityLevel
+    observed_entity_count: int = Field(..., ge=0)
+    zero_entity_count: int = Field(..., ge=0)
+    filtered_entity_count: int = Field(..., ge=0)
+    not_observed_entity_count: int = Field(..., ge=0)
+    total_entity_count: int = Field(..., ge=0)
+    observed_fraction: float = Field(..., ge=0.0, le=1.0)
+    missing_fraction: float = Field(..., ge=0.0, le=1.0)
+    median_observed_abundance: float | None = Field(default=None, ge=0.0)
+    normalization_method: str = Field(..., min_length=1)
+
+
 class QcDigestionSpecificityEntry(JsonModel):
     """One digestion-specificity bucket for identified peptides."""
 
@@ -117,6 +167,24 @@ class QcAssessmentSeverity(StrEnum):
     NOT_ASSESSED = "NOT_ASSESSED"
 
 
+class QcRunAnomalyCategory(StrEnum):
+    """Stable anomaly categories for run-level QC summaries."""
+
+    CHROMATOGRAPHY = "chromatography"
+    IDENTIFICATION = "identification"
+    QUANTIFICATION = "quantification"
+    CONTAMINATION = "contamination"
+
+
+class QcUnknownStateReason(StrEnum):
+    """Stable reasons for QC metrics that cannot be computed."""
+
+    NO_MATCHED_PSMS = "no_matched_psms"
+    NO_BATCH_PEERS = "no_batch_peers"
+    NO_MASS_ERROR_EVIDENCE = "no_mass_error_evidence"
+    NO_RETENTION_TIME_EVIDENCE = "no_retention_time_evidence"
+
+
 class QcThresholdRule(JsonModel):
     """One named threshold rule over a numeric QC metric."""
 
@@ -144,6 +212,17 @@ class QcThresholdPolicy(JsonModel):
     rules: tuple[QcThresholdRule, ...] = Field(default_factory=tuple)
 
 
+class QcThresholdPolicyProfile(JsonModel):
+    """Explicit separation of advisory and enforced QC policy rules."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    advisory_rules: tuple[QcThresholdRule, ...] = Field(default_factory=tuple)
+    enforced_rules: tuple[QcThresholdRule, ...] = Field(default_factory=tuple)
+
+
 class QcMetricAssessment(JsonModel):
     """One measured QC metric evaluated against a threshold rule."""
 
@@ -156,8 +235,37 @@ class QcMetricAssessment(JsonModel):
     severity: QcAssessmentSeverity
     disposition: QcAssessmentDisposition
     threshold_rule: QcThresholdRule | None = None
+    provenance: QcAssessmentProvenance | None = None
+    unknown_state_reason: QcUnknownStateReason | None = None
     message: str = Field(..., min_length=1)
     enforced_violation: bool = False
+
+
+class QcAssessmentProvenance(JsonModel):
+    """Exact threshold provenance for one QC metric decision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    policy_sha256: str = Field(..., min_length=64, max_length=64)
+    rule_sha256: str = Field(..., min_length=64, max_length=64)
+    triggered_threshold: str | None = None
+    lower_warn: float | None = None
+    lower_fail: float | None = None
+    upper_warn: float | None = None
+    upper_fail: float | None = None
+
+
+class QcRunAnomalyEntry(JsonModel):
+    """One categorized run-level anomaly."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    category: QcRunAnomalyCategory
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: QcAssessmentSeverity
 
 
 class QcRunAssessmentReport(JsonModel):
@@ -169,8 +277,12 @@ class QcRunAssessmentReport(JsonModel):
     run_id: str = Field(..., min_length=1)
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
+    policy_sha256: str = Field(..., min_length=64, max_length=64)
+    threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
     blocked: bool = False
+    advisory_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    enforced_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
     metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
 
 
@@ -184,8 +296,12 @@ class QcBatchAssessmentReport(JsonModel):
     instrument: str | None = None
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
+    policy_sha256: str = Field(..., min_length=64, max_length=64)
+    threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
     blocked: bool = False
+    advisory_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    enforced_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
     metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
 
 
@@ -256,6 +372,10 @@ class LcmsRunQcReport(JsonModel):
     fraction: int | None = Field(default=None, ge=1)
     batch: str | None = None
     instrument: str | None = None
+    instrument_summary: QcInstrumentSummary
+    identification_summary: QcIdentificationSummary
+    quant_summary: QcQuantSummary | None = None
+    run_anomalies: tuple[QcRunAnomalyEntry, ...] = Field(default_factory=tuple)
     spectrum_count: int = Field(..., ge=0)
     identified_spectrum_count: int = Field(..., ge=0)
     psm_count: int = Field(..., ge=0)
@@ -308,6 +428,81 @@ class InstrumentBatchQcReport(JsonModel):
     median_identified_retention_time_seconds: float | None = Field(default=None, ge=0.0)
     outlier_run_ids: tuple[str, ...] = Field(default_factory=tuple)
     runs: tuple[InstrumentBatchQcRunEntry, ...] = Field(default_factory=tuple)
+
+
+class StudyQcConditionSummary(JsonModel):
+    """Condition-level QC comparison summary within one study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition: str = Field(..., min_length=1)
+    run_ids: tuple[str, ...] = Field(default_factory=tuple)
+    median_identification_rate: float = Field(..., ge=0.0, le=1.0)
+    median_spectrum_count: float = Field(..., ge=0.0)
+    median_abs_mass_error_ppm: float | None = Field(default=None, ge=0.0)
+
+
+class StudyQcBatchSummary(JsonModel):
+    """Batch-level QC comparison summary within one study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: str = Field(..., min_length=1)
+    run_ids: tuple[str, ...] = Field(default_factory=tuple)
+    median_identification_rate: float = Field(..., ge=0.0, le=1.0)
+    median_spectrum_count: float = Field(..., ge=0.0)
+    outlier_run_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class StudyQcSummaryReport(JsonModel):
+    """Study-level QC summary that compares runs across conditions and batches."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    study_id: str = Field(..., min_length=1)
+    run_count: int = Field(..., ge=0)
+    condition_summaries: tuple[StudyQcConditionSummary, ...] = Field(
+        default_factory=tuple
+    )
+    batch_summaries: tuple[StudyQcBatchSummary, ...] = Field(default_factory=tuple)
+    overall_identification_rate_span: float = Field(..., ge=0.0)
+    overall_spectrum_count_span: float = Field(..., ge=0.0)
+
+
+class QcRunBundleSummary(JsonModel):
+    """Coherent run bundle summary joining QC, assessment, and evidence metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    run_id: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    batch_id: str | None = None
+    policy_name: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    overall_severity: QcAssessmentSeverity
+    blocked: bool = False
+    identification_rate: float = Field(..., ge=0.0, le=1.0)
+    contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
+    quant_observed_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    anomaly_codes: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_file_roles: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_file_paths: tuple[str, ...] = Field(default_factory=tuple)
+    manifest_sha256s: dict[str, str] = Field(default_factory=dict)
+
+
+class QcPublicationDecision(JsonModel):
+    """Explicit publication or promotion gate derived from QC assessments."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    publish_allowed: bool = False
+    promote_allowed: bool = False
+    blocking_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    reason: str = Field(..., min_length=1)
+    advisory_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
 
 
 def _build_document_schema(document_kind: str) -> DocumentSchema:
@@ -368,6 +563,62 @@ def _build_charge_distribution(
     )
 
 
+def _build_quant_summary(
+    table: LabelFreeQuantTable | None,
+    *,
+    sample_id: str | None,
+) -> QcQuantSummary | None:
+    if table is None or sample_id is None or sample_id not in table.sample_ids:
+        return None
+    sample_values = [value for value in table.values if value.sample_id == sample_id]
+    if not sample_values:
+        return None
+    observed_values = [
+        float(value.abundance)
+        for value in sample_values
+        if value.abundance is not None
+        and value.missing_value_kind
+        in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+    ]
+    zero_count = sum(
+        1
+        for value in sample_values
+        if value.missing_value_kind is MissingValueKind.ZERO
+    )
+    filtered_count = sum(
+        1
+        for value in sample_values
+        if value.missing_value_kind is MissingValueKind.FILTERED
+    )
+    not_observed_count = sum(
+        1
+        for value in sample_values
+        if value.missing_value_kind is MissingValueKind.NOT_OBSERVED
+    )
+    observed_count = sum(
+        1
+        for value in sample_values
+        if value.missing_value_kind
+        in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+    )
+    total_count = len(sample_values)
+    return QcQuantSummary(
+        sample_id=sample_id,
+        entity_level=table.entity_level,
+        observed_entity_count=observed_count,
+        zero_entity_count=zero_count,
+        filtered_entity_count=filtered_count,
+        not_observed_entity_count=not_observed_count,
+        total_entity_count=total_count,
+        observed_fraction=_fraction(observed_count, total_count),
+        missing_fraction=_fraction(filtered_count + not_observed_count, total_count),
+        median_observed_abundance=None
+        if not observed_values
+        else median(observed_values),
+        normalization_method=table.normalization_method.value,
+    )
+
+
 def _severity_rank(severity: QcAssessmentSeverity) -> int:
     return {
         QcAssessmentSeverity.PASSED: 0,
@@ -378,9 +629,17 @@ def _severity_rank(severity: QcAssessmentSeverity) -> int:
 
 
 def _assessment_message(
-    rule: QcThresholdRule, severity: QcAssessmentSeverity, observed_value: float | None
+    rule: QcThresholdRule,
+    severity: QcAssessmentSeverity,
+    observed_value: float | None,
+    unknown_state_reason: QcUnknownStateReason | None = None,
 ) -> str:
     if observed_value is None:
+        if unknown_state_reason is not None:
+            return (
+                f"{rule.metric_label} was not assessed because "
+                f"{unknown_state_reason.value.replace('_', ' ')}"
+            )
         return f"{rule.metric_label} was not assessed"
     value_text = f"{observed_value:.4f}".rstrip("0").rstrip(".")
     unit = f" {rule.unit}" if rule.unit else ""
@@ -391,9 +650,79 @@ def _assessment_message(
     return f"{rule.metric_label} breached fail threshold at {value_text}{unit}"
 
 
+def _format_metric_value(value: float | None) -> str:
+    if value is None:
+        return ""
+    return f"{value:.4f}".rstrip("0").rstrip(".")
+
+
+def _build_run_anomalies(
+    *,
+    identification_rate: float,
+    mass_error_summary: QcMassErrorSummary,
+    retention_summary: QcRetentionTimeSummary,
+    quant_summary: QcQuantSummary | None,
+    contaminant_summary: QcContaminantSummary,
+) -> tuple[QcRunAnomalyEntry, ...]:
+    anomalies: list[QcRunAnomalyEntry] = []
+    if (
+        retention_summary.spectra_with_retention_time == 0
+        or retention_summary.identified_span_seconds is not None
+        and retention_summary.identified_span_seconds < 120.0
+    ):
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.CHROMATOGRAPHY,
+                code="limited_retention_coverage",
+                message="retention-time coverage is limited for identified spectra",
+                severity=QcAssessmentSeverity.WARNING,
+            )
+        )
+    if identification_rate < 0.5 or (
+        mass_error_summary.median_abs_ppm is not None
+        and mass_error_summary.median_abs_ppm > 10.0
+    ):
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.IDENTIFICATION,
+                code="weak_identification_signal",
+                message="identification evidence is weak or precursor error is elevated",
+                severity=QcAssessmentSeverity.WARNING
+                if identification_rate >= 0.3
+                else QcAssessmentSeverity.FAILED,
+            )
+        )
+    if quant_summary is None or quant_summary.missing_fraction > 0.4:
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.QUANTIFICATION,
+                code="sparse_quant_signal",
+                message="quantification coverage is sparse or absent for this run",
+                severity=QcAssessmentSeverity.WARNING,
+            )
+        )
+    if contaminant_summary.contaminant_psm_fraction > 0.1:
+        anomalies.append(
+            QcRunAnomalyEntry(
+                category=QcRunAnomalyCategory.CONTAMINATION,
+                code="elevated_contaminant_fraction",
+                message="contaminant peptide burden exceeds the expected background range",
+                severity=QcAssessmentSeverity.WARNING,
+            )
+        )
+    return tuple(anomalies)
+
+
 def _evaluate_rule(
-    rule: QcThresholdRule, observed_value: float | None
+    rule: QcThresholdRule,
+    observed_value: float | None,
+    *,
+    policy_name: str,
+    policy_version: str,
+    policy_sha256: str,
+    unknown_state_reason: QcUnknownStateReason | None = None,
 ) -> QcMetricAssessment:
+    triggered_threshold = None
     if observed_value is None:
         severity = QcAssessmentSeverity.NOT_ASSESSED
     else:
@@ -405,6 +734,11 @@ def _evaluate_rule(
             and observed_value > rule.upper_fail
         ):
             severity = QcAssessmentSeverity.FAILED
+            triggered_threshold = (
+                "lower_fail"
+                if rule.lower_fail is not None and observed_value < rule.lower_fail
+                else "upper_fail"
+            )
         elif (
             rule.lower_warn is not None
             and observed_value < rule.lower_warn
@@ -412,6 +746,11 @@ def _evaluate_rule(
             and observed_value > rule.upper_warn
         ):
             severity = QcAssessmentSeverity.WARNING
+            triggered_threshold = (
+                "lower_warn"
+                if rule.lower_warn is not None and observed_value < rule.lower_warn
+                else "upper_warn"
+            )
     return QcMetricAssessment(
         metric_key=rule.metric_key,
         metric_label=rule.metric_label,
@@ -420,7 +759,24 @@ def _evaluate_rule(
         severity=severity,
         disposition=rule.disposition,
         threshold_rule=rule,
-        message=_assessment_message(rule, severity, observed_value),
+        provenance=QcAssessmentProvenance(
+            policy_name=policy_name,
+            policy_version=policy_version,
+            policy_sha256=policy_sha256,
+            rule_sha256=_stable_sha256(rule),
+            triggered_threshold=triggered_threshold,
+            lower_warn=rule.lower_warn,
+            lower_fail=rule.lower_fail,
+            upper_warn=rule.upper_warn,
+            upper_fail=rule.upper_fail,
+        ),
+        unknown_state_reason=unknown_state_reason,
+        message=_assessment_message(
+            rule,
+            severity,
+            observed_value,
+            unknown_state_reason=unknown_state_reason,
+        ),
         enforced_violation=severity is QcAssessmentSeverity.FAILED
         and rule.disposition is QcAssessmentDisposition.ENFORCED,
     )
@@ -484,6 +840,26 @@ def default_qc_threshold_policy() -> QcThresholdPolicy:
     )
 
 
+def build_qc_threshold_profile(policy: QcThresholdPolicy) -> QcThresholdPolicyProfile:
+    """Build an explicit advisory/enforced rule split from one QC policy."""
+    advisory_rules = tuple(
+        rule
+        for rule in policy.rules
+        if rule.disposition is QcAssessmentDisposition.ADVISORY
+    )
+    enforced_rules = tuple(
+        rule
+        for rule in policy.rules
+        if rule.disposition is QcAssessmentDisposition.ENFORCED
+    )
+    return QcThresholdPolicyProfile(
+        policy_name=policy.policy_name,
+        policy_version=policy.version,
+        advisory_rules=advisory_rules,
+        enforced_rules=enforced_rules,
+    )
+
+
 def load_qc_threshold_policy(path: Path) -> QcThresholdPolicy:
     """Load a QC threshold policy from JSON."""
     return QcThresholdPolicy.model_validate_json(path.read_text(encoding="utf-8"))
@@ -498,6 +874,7 @@ def build_run_qc_assessment(
     specificity_lookup = {
         entry.specificity: entry.fraction for entry in run_report.digestion_specificity
     }
+    policy_sha256 = _stable_sha256(policy)
     observed_metrics = {
         "spectrum_count": float(run_report.spectrum_count),
         "identification_rate": run_report.identification_rate,
@@ -508,9 +885,39 @@ def build_run_qc_assessment(
             QcDigestionSpecificity.NON_SPECIFIC, 0.0
         ),
     }
+    unknown_reasons = {
+        "median_abs_mass_error_ppm": (
+            QcUnknownStateReason.NO_MATCHED_PSMS
+            if run_report.mass_error.matched_psm_count == 0
+            else QcUnknownStateReason.NO_MASS_ERROR_EVIDENCE
+        )
+    }
     assessments = tuple(
-        _evaluate_rule(rule, observed_metrics.get(rule.metric_key))
+        _evaluate_rule(
+            rule,
+            observed_metrics.get(rule.metric_key),
+            policy_name=policy.policy_name,
+            policy_version=policy.version,
+            policy_sha256=policy_sha256,
+            unknown_state_reason=unknown_reasons.get(rule.metric_key)
+            if observed_metrics.get(rule.metric_key) is None
+            else None,
+        )
         for rule in policy.rules
+    )
+    threshold_profile = build_qc_threshold_profile(policy)
+    advisory_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity
+        in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
+        and assessment.disposition is QcAssessmentDisposition.ADVISORY
+    )
+    enforced_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity is QcAssessmentSeverity.FAILED
+        and assessment.disposition is QcAssessmentDisposition.ENFORCED
     )
     overall = max(
         assessments, key=lambda entry: _severity_rank(entry.severity), default=None
@@ -520,10 +927,14 @@ def build_run_qc_assessment(
         run_id=run_report.run_id,
         policy_name=policy.policy_name,
         policy_version=policy.version,
+        policy_sha256=policy_sha256,
+        threshold_profile=threshold_profile,
         overall_severity=QcAssessmentSeverity.PASSED
         if overall is None
         else overall.severity,
         blocked=any(entry.enforced_violation for entry in assessments),
+        advisory_failure_metric_keys=advisory_failure_metric_keys,
+        enforced_failure_metric_keys=enforced_failure_metric_keys,
         metric_assessments=assessments,
     )
 
@@ -539,6 +950,9 @@ def build_batch_qc_assessment(
         "median_identification_rate": batch_report.median_identification_rate,
         "median_abs_mass_error_ppm": batch_report.median_abs_mass_error_ppm,
         "outlier_run_count": float(len(batch_report.outlier_run_ids)),
+    }
+    unknown_reasons = {
+        "median_abs_mass_error_ppm": QcUnknownStateReason.NO_MASS_ERROR_EVIDENCE
     }
     rules = []
     for rule in policy.rules:
@@ -571,8 +985,39 @@ def build_batch_qc_assessment(
             disposition=QcAssessmentDisposition.ADVISORY,
         )
     )
+    batch_policy = QcThresholdPolicy(
+        document_schema=policy.document_schema,
+        policy_name=policy.policy_name,
+        version=policy.version,
+        rules=tuple(rules),
+    )
+    policy_sha256 = _stable_sha256(batch_policy)
     assessments = tuple(
-        _evaluate_rule(rule, metrics.get(rule.metric_key)) for rule in rules
+        _evaluate_rule(
+            rule,
+            metrics.get(rule.metric_key),
+            policy_name=policy.policy_name,
+            policy_version=policy.version,
+            policy_sha256=policy_sha256,
+            unknown_state_reason=unknown_reasons.get(rule.metric_key)
+            if metrics.get(rule.metric_key) is None
+            else None,
+        )
+        for rule in rules
+    )
+    threshold_profile = build_qc_threshold_profile(batch_policy)
+    advisory_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity
+        in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.FAILED)
+        and assessment.disposition is QcAssessmentDisposition.ADVISORY
+    )
+    enforced_failure_metric_keys = tuple(
+        assessment.metric_key
+        for assessment in assessments
+        if assessment.severity is QcAssessmentSeverity.FAILED
+        and assessment.disposition is QcAssessmentDisposition.ENFORCED
     )
     overall = max(
         assessments, key=lambda entry: _severity_rank(entry.severity), default=None
@@ -583,10 +1028,14 @@ def build_batch_qc_assessment(
         instrument=batch_report.instrument,
         policy_name=policy.policy_name,
         policy_version=policy.version,
+        policy_sha256=policy_sha256,
+        threshold_profile=threshold_profile,
         overall_severity=QcAssessmentSeverity.PASSED
         if overall is None
         else overall.severity,
         blocked=any(entry.enforced_violation for entry in assessments),
+        advisory_failure_metric_keys=advisory_failure_metric_keys,
+        enforced_failure_metric_keys=enforced_failure_metric_keys,
         metric_assessments=assessments,
     )
 
@@ -618,6 +1067,83 @@ def build_qc_evidence_manifest(
         if batch_assessment is None
         else _stable_sha256(batch_assessment),
         benchmark_sha256=None if benchmark is None else _stable_sha256(benchmark),
+    )
+
+
+def build_qc_run_bundle_summary(
+    *,
+    run_report: LcmsRunQcReport,
+    run_assessment: QcRunAssessmentReport,
+    evidence_manifest: QcEvidenceManifest,
+) -> QcRunBundleSummary:
+    """Join run QC, assessment, and evidence metadata into one review summary."""
+    manifest_sha256s = {
+        "run_report": evidence_manifest.run_report_sha256,
+        "run_assessment": evidence_manifest.run_assessment_sha256,
+    }
+    if evidence_manifest.batch_report_sha256:
+        manifest_sha256s["batch_report"] = evidence_manifest.batch_report_sha256
+    if evidence_manifest.batch_assessment_sha256:
+        manifest_sha256s["batch_assessment"] = evidence_manifest.batch_assessment_sha256
+    if evidence_manifest.benchmark_sha256:
+        manifest_sha256s["benchmark"] = evidence_manifest.benchmark_sha256
+    return QcRunBundleSummary(
+        document_schema=_build_document_schema("qc_run_bundle_summary"),
+        run_id=run_report.run_id,
+        sample_id=run_report.sample_id,
+        batch_id=evidence_manifest.batch_id or run_report.batch,
+        policy_name=run_assessment.policy_name,
+        policy_version=run_assessment.policy_version,
+        overall_severity=run_assessment.overall_severity,
+        blocked=run_assessment.blocked,
+        identification_rate=run_report.identification_rate,
+        contaminant_psm_fraction=run_report.contaminant_summary.contaminant_psm_fraction,
+        quant_observed_fraction=None
+        if run_report.quant_summary is None
+        else run_report.quant_summary.observed_fraction,
+        anomaly_codes=tuple(sorted(entry.code for entry in run_report.run_anomalies)),
+        evidence_file_roles=tuple(
+            sorted(entry.role for entry in evidence_manifest.input_files)
+        ),
+        evidence_file_paths=tuple(
+            sorted(entry.path for entry in evidence_manifest.input_files)
+        ),
+        manifest_sha256s=manifest_sha256s,
+    )
+
+
+def build_qc_publication_decision(
+    *,
+    run_assessment: QcRunAssessmentReport,
+    batch_assessment: QcBatchAssessmentReport | None = None,
+) -> QcPublicationDecision:
+    """Refuse publication or promotion when mandatory QC gates fail."""
+    blocking_metric_keys = list(run_assessment.enforced_failure_metric_keys)
+    advisory_metric_keys = list(run_assessment.advisory_failure_metric_keys)
+    if batch_assessment is not None:
+        blocking_metric_keys.extend(batch_assessment.enforced_failure_metric_keys)
+        advisory_metric_keys.extend(batch_assessment.advisory_failure_metric_keys)
+    blocking_metric_keys = sorted(set(blocking_metric_keys))
+    advisory_metric_keys = sorted(set(advisory_metric_keys))
+    if blocking_metric_keys:
+        reason = "mandatory qc gates failed for metrics: " + ", ".join(
+            blocking_metric_keys
+        )
+        return QcPublicationDecision(
+            run_id=run_assessment.run_id,
+            publish_allowed=False,
+            promote_allowed=False,
+            blocking_metric_keys=tuple(blocking_metric_keys),
+            reason=reason,
+            advisory_metric_keys=tuple(advisory_metric_keys),
+        )
+    return QcPublicationDecision(
+        run_id=run_assessment.run_id,
+        publish_allowed=True,
+        promote_allowed=True,
+        blocking_metric_keys=(),
+        reason="mandatory qc gates passed",
+        advisory_metric_keys=tuple(advisory_metric_keys),
     )
 
 
@@ -677,9 +1203,7 @@ def render_qc_assessment_tsv(
                 run_assessment.run_id,
                 assessment.metric_key,
                 assessment.metric_label,
-                ""
-                if assessment.observed_value is None
-                else str(assessment.observed_value),
+                _format_metric_value(assessment.observed_value),
                 assessment.unit or "",
                 assessment.severity.value,
                 assessment.disposition.value,
@@ -696,9 +1220,7 @@ def render_qc_assessment_tsv(
                     entity_id,
                     assessment.metric_key,
                     assessment.metric_label,
-                    ""
-                    if assessment.observed_value is None
-                    else str(assessment.observed_value),
+                    _format_metric_value(assessment.observed_value),
                     assessment.unit or "",
                     assessment.severity.value,
                     assessment.disposition.value,
@@ -722,7 +1244,7 @@ def render_qc_assessment_html(
         rows.append(
             "<tr>"
             f"<td>run</td><td>{run_assessment.run_id}</td><td>{assessment.metric_label}</td>"
-            f"<td>{'' if assessment.observed_value is None else assessment.observed_value}</td>"
+            f"<td>{_format_metric_value(assessment.observed_value)}</td>"
             f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
             "</tr>"
         )
@@ -732,7 +1254,7 @@ def render_qc_assessment_html(
             rows.append(
                 "<tr>"
                 f"<td>batch</td><td>{entity_id}</td><td>{assessment.metric_label}</td>"
-                f"<td>{'' if assessment.observed_value is None else assessment.observed_value}</td>"
+                f"<td>{_format_metric_value(assessment.observed_value)}</td>"
                 f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
                 "</tr>"
             )
@@ -874,6 +1396,7 @@ def build_lcms_run_qc_report(
     *,
     design_entry: ExperimentalDesignEntry | None = None,
     protein_sequences: dict[str, str] | None = None,
+    quant_table: LabelFreeQuantTable | None = None,
     protease: ProteaseRule | str = "trypsin",
     run_id: str | None = None,
     contaminant_policy: QcContaminantPolicy | None = None,
@@ -1011,21 +1534,59 @@ def build_lcms_run_qc_report(
     )
 
     resolved_run_id = _resolve_run_id(run_id, design_entry)
+    sample_id = design_entry.sample_id if design_entry else None
+    instrument_summary = QcInstrumentSummary(
+        instrument=design_entry.instrument if design_entry else None,
+        spectrum_count=len(spectra),
+        spectra_with_precursor_charge=sum(
+            1 for spectrum in spectra if spectrum.precursor_charge is not None
+        ),
+        spectra_with_retention_time=len(retention_times),
+        acquisition_span_seconds=retention_summary.span_seconds,
+        dominant_charge_label=(
+            max(
+                spectrum_charge_counts.items(),
+                key=lambda item: (item[1], item[0]),
+            )[0]
+            if spectrum_charge_counts
+            else None
+        ),
+    )
+    identified_spectrum_count = len(identified_spectrum_ids & set(spectra_by_id))
+    identification_rate = _fraction(identified_spectrum_count, len(spectra))
+    identification_summary = QcIdentificationSummary(
+        identified_spectrum_count=identified_spectrum_count,
+        psm_count=len(psm_records),
+        identification_rate=identification_rate,
+        matched_mass_error_psm_count=len(mass_errors_ppm),
+        median_abs_mass_error_ppm=mass_error_summary.median_abs_ppm,
+        contaminant_psm_fraction=contaminant_summary.contaminant_psm_fraction,
+        missed_cleavage_rate=_fraction(missed_cleavage_count, len(psm_records)),
+    )
+    quant_summary = _build_quant_summary(quant_table, sample_id=sample_id)
     return LcmsRunQcReport(
         document_schema=_build_document_schema("lcms_run_qc_report"),
         run_id=resolved_run_id,
-        sample_id=design_entry.sample_id if design_entry else None,
+        sample_id=sample_id,
         condition=design_entry.condition if design_entry else None,
         replicate=design_entry.replicate if design_entry else None,
         fraction=design_entry.fraction if design_entry else None,
         batch=design_entry.batch if design_entry else None,
         instrument=design_entry.instrument if design_entry else None,
-        spectrum_count=len(spectra),
-        identified_spectrum_count=len(identified_spectrum_ids & set(spectra_by_id)),
-        psm_count=len(psm_records),
-        identification_rate=_fraction(
-            len(identified_spectrum_ids & set(spectra_by_id)), len(spectra)
+        instrument_summary=instrument_summary,
+        identification_summary=identification_summary,
+        quant_summary=quant_summary,
+        run_anomalies=_build_run_anomalies(
+            identification_rate=identification_rate,
+            mass_error_summary=mass_error_summary,
+            retention_summary=retention_summary,
+            quant_summary=quant_summary,
+            contaminant_summary=contaminant_summary,
         ),
+        spectrum_count=len(spectra),
+        identified_spectrum_count=identified_spectrum_count,
+        psm_count=len(psm_records),
+        identification_rate=identification_rate,
         spectrum_charge_distribution=_build_charge_distribution(
             spectrum_charge_counts, len(spectra)
         ),
@@ -1146,4 +1707,85 @@ def build_instrument_batch_qc_report(
         median_identified_retention_time_seconds=median_identified_retention_time_seconds,
         outlier_run_ids=tuple(sorted(outlier_run_ids)),
         runs=tuple(run_entries),
+    )
+
+
+def build_study_qc_summary(
+    run_reports: tuple[LcmsRunQcReport, ...],
+    *,
+    study_id: str = "study",
+) -> StudyQcSummaryReport:
+    """Build a study-level QC summary across conditions and batches."""
+    if not run_reports:
+        raise ValueError("study QC summary requires at least one run report")
+
+    condition_groups: dict[str, list[LcmsRunQcReport]] = {}
+    batch_groups: dict[str, list[LcmsRunQcReport]] = {}
+    for report in run_reports:
+        condition_groups.setdefault(report.condition or "unknown", []).append(report)
+        batch_groups.setdefault(report.batch or "unbatched", []).append(report)
+
+    condition_summaries = tuple(
+        StudyQcConditionSummary(
+            condition=condition,
+            run_ids=tuple(sorted(report.run_id for report in reports)),
+            median_identification_rate=float(
+                median([report.identification_rate for report in reports])
+            ),
+            median_spectrum_count=float(
+                median([report.spectrum_count for report in reports])
+            ),
+            median_abs_mass_error_ppm=(
+                None
+                if not [
+                    report.mass_error.median_abs_ppm
+                    for report in reports
+                    if report.mass_error.median_abs_ppm is not None
+                ]
+                else float(
+                    median(
+                        [
+                            report.mass_error.median_abs_ppm
+                            for report in reports
+                            if report.mass_error.median_abs_ppm is not None
+                        ]
+                    )
+                )
+            ),
+        )
+        for condition, reports in sorted(condition_groups.items())
+    )
+
+    batch_summaries = tuple(
+        StudyQcBatchSummary(
+            batch_id=batch_id,
+            run_ids=tuple(sorted(report.run_id for report in reports)),
+            median_identification_rate=float(
+                median([report.identification_rate for report in reports])
+            ),
+            median_spectrum_count=float(
+                median([report.spectrum_count for report in reports])
+            ),
+            outlier_run_ids=tuple(
+                sorted(
+                    build_instrument_batch_qc_report(
+                        tuple(reports), batch_id=batch_id
+                    ).outlier_run_ids
+                )
+            ),
+        )
+        for batch_id, reports in sorted(batch_groups.items())
+    )
+
+    identification_rates = [report.identification_rate for report in run_reports]
+    spectrum_counts = [float(report.spectrum_count) for report in run_reports]
+    return StudyQcSummaryReport(
+        document_schema=_build_document_schema("study_qc_summary_report"),
+        study_id=study_id,
+        run_count=len(run_reports),
+        condition_summaries=condition_summaries,
+        batch_summaries=batch_summaries,
+        overall_identification_rate_span=max(identification_rates)
+        - min(identification_rates),
+        overall_spectrum_count_span=max(spectrum_counts) - min(spectrum_counts),
     )

@@ -1,0 +1,4 @@
+scan	plain_peptide	charge	expect	protein	target_decoy
+comet-corpus-1001	PEPTIDE	2	0.0008	P11111	target
+comet-corpus-1002	PEPTIDER	3	0.0024	P22222	target
+comet-corpus-1003	DECOYPEP	2	0.0430	DECOY_P33333	decoy

@@ -179,6 +179,34 @@ class CandidateRanking(JsonModel):
         default_factory=list,
         description="Tie-break decisions that affected ranking order.",
     )
+    provenance_entries: list[RankingProvenanceEntry] = Field(
+        default_factory=list,
+        description="Per-candidate provenance for ranking and rejection outcomes.",
+    )
+
+
+class RankingProvenanceEntry(JsonModel):
+    """Explainable provenance for one ranking or rejection outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Stable candidate identifier.")
+    accepted: bool
+    final_score: float = Field(..., ge=0.0)
+    normalized_factor_scores: dict[str, float] = Field(default_factory=dict)
+    weighted_contributions: dict[str, float] = Field(default_factory=dict)
+    applied_rules: list[str] = Field(default_factory=list)
+    rationale: list[str] = Field(default_factory=list)
+
+
+class CandidateRankingProvenanceReport(JsonModel):
+    """Provenance report for a candidate ranking run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    policy_id: str = Field(..., min_length=1)
+    entries: list[RankingProvenanceEntry] = Field(default_factory=list)
 
 
 class CandidateExplainabilitySummary(JsonModel):
@@ -304,6 +332,31 @@ class RankingRobustnessReport(JsonModel):
     notes: list[str] = Field(
         default_factory=list, description="Short notes explaining robustness posture."
     )
+
+
+class RankingAssumptionScenario(JsonModel):
+    """One ranking run under a named scoring-assumption policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1)
+    top_candidate_id: str | None = Field(default=None)
+    ranked_candidate_ids: list[str] = Field(default_factory=list)
+    drift_from_baseline: RankingDriftReport = Field(...)
+
+
+class RankingStabilityReport(JsonModel):
+    """Sensitivity report for ranking outcomes under alternative assumptions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    baseline_policy_id: str = Field(..., min_length=1)
+    baseline_top_candidate_id: str | None = Field(default=None)
+    stable_top_candidate: bool = Field(...)
+    top_candidate_frequencies: dict[str, int] = Field(default_factory=dict)
+    scenarios: list[RankingAssumptionScenario] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
 
 
 class MetricCoverageSummary(JsonModel):
@@ -644,29 +697,77 @@ def prioritize_candidates(
                 )
             )
 
+    ranked_candidates = [
+        RankedCandidate(
+            candidate_id=candidate.candidate_id,
+            score=round(score, 4),
+            rank=index,
+            reasons=reasons,
+            explainability={
+                "top_drivers": reasons[:3],
+                "blockers": [flag.summary for flag in candidate.liabilities[:3]],
+                "confidence": round(1.0 - candidate.uncertainty, 4),
+                "factor_scores": factor_scores,
+                "missing_evidence": [],
+            },
+        )
+        for index, (candidate, score, reasons, factor_scores) in enumerate(
+            ranked, start=1
+        )
+    ]
+    provenance_entries = [
+        RankingProvenanceEntry(
+            candidate_id=candidate.candidate_id,
+            accepted=True,
+            final_score=round(score, 4),
+            normalized_factor_scores=factor_scores,
+            weighted_contributions={
+                factor.value: round(
+                    factor_scores[factor.value] * weight,
+                    4,
+                )
+                for factor, weight in policy.factor_weights.items()
+            },
+            applied_rules=[rule.value for rule in policy.tie_break_rules],
+            rationale=reasons,
+        )
+        for candidate, score, reasons, factor_scores in ranked
+    ] + [
+        RankingProvenanceEntry(
+            candidate_id=rejection.candidate_id,
+            accepted=False,
+            final_score=0.0,
+            applied_rules=["screening-filter"],
+            rationale=[
+                *rejection.reasons,
+                *[
+                    f"reason_code={reason_code.value}"
+                    for reason_code in rejection.reason_codes
+                ],
+            ],
+        )
+        for rejection in rejections
+    ]
+
     return CandidateRanking(
         program_id=program.program_id,
-        ranked_candidates=[
-            RankedCandidate(
-                candidate_id=candidate.candidate_id,
-                score=round(score, 4),
-                rank=index,
-                reasons=reasons,
-                explainability={
-                    "top_drivers": reasons[:3],
-                    "blockers": [flag.summary for flag in candidate.liabilities[:3]],
-                    "confidence": round(1.0 - candidate.uncertainty, 4),
-                    "factor_scores": factor_scores,
-                    "missing_evidence": [],
-                },
-            )
-            for index, (candidate, score, reasons, factor_scores) in enumerate(
-                ranked, start=1
-            )
-        ],
+        ranked_candidates=ranked_candidates,
         rejected_candidates=rejected,
         rejections=rejections,
         tie_breaks=tie_breaks,
+        provenance_entries=provenance_entries,
+    )
+
+
+def build_ranking_provenance_report(
+    ranking: CandidateRanking,
+    policy: RankingPolicy,
+) -> CandidateRankingProvenanceReport:
+    """Build a stable provenance report for one ranking result."""
+    return CandidateRankingProvenanceReport(
+        program_id=ranking.program_id,
+        policy_id=policy.policy_id,
+        entries=ranking.provenance_entries,
     )
 
 
@@ -964,6 +1065,74 @@ def summarize_ranking_drift(
         moved_candidates=moved,
         newly_ranked_candidate_ids=newly_ranked,
         dropped_candidate_ids=dropped,
+    )
+
+
+def analyze_ranking_stability(
+    program: ProgramSpec,
+    candidates: list[CandidateAssessment],
+    *,
+    policies: list[RankingPolicy],
+) -> RankingStabilityReport:
+    """Measure how ranking priorities change under scoring assumptions."""
+    if not policies:
+        raise ValueError("at least one ranking policy is required")
+    rankings = [
+        (policy, prioritize_candidates(program, candidates, policy))
+        for policy in policies
+    ]
+    baseline_policy, baseline_ranking = rankings[0]
+    baseline_top = (
+        baseline_ranking.ranked_candidates[0].candidate_id
+        if baseline_ranking.ranked_candidates
+        else None
+    )
+    top_frequencies: dict[str, int] = {}
+    scenarios: list[RankingAssumptionScenario] = []
+    for policy, ranking in rankings:
+        top_candidate_id = (
+            ranking.ranked_candidates[0].candidate_id
+            if ranking.ranked_candidates
+            else None
+        )
+        if top_candidate_id is not None:
+            top_frequencies[top_candidate_id] = (
+                top_frequencies.get(top_candidate_id, 0) + 1
+            )
+        scenarios.append(
+            RankingAssumptionScenario(
+                policy_id=policy.policy_id,
+                top_candidate_id=top_candidate_id,
+                ranked_candidate_ids=[
+                    candidate.candidate_id for candidate in ranking.ranked_candidates
+                ],
+                drift_from_baseline=summarize_ranking_drift(baseline_ranking, ranking),
+            )
+        )
+    stable_top_candidate = len(top_frequencies) <= 1
+    notes: list[str] = []
+    if stable_top_candidate:
+        notes.append("top candidate remains stable across tested scoring assumptions")
+    else:
+        notes.append(
+            "top candidate changes across scoring assumptions: "
+            + ", ".join(sorted(top_frequencies))
+        )
+    if any(
+        scenario.drift_from_baseline.moved_candidates
+        or scenario.drift_from_baseline.newly_ranked_candidate_ids
+        or scenario.drift_from_baseline.dropped_candidate_ids
+        for scenario in scenarios[1:]
+    ):
+        notes.append("rank ordering is sensitive beyond the top candidate")
+    return RankingStabilityReport(
+        program_id=program.program_id,
+        baseline_policy_id=baseline_policy.policy_id,
+        baseline_top_candidate_id=baseline_top,
+        stable_top_candidate=stable_top_candidate,
+        top_candidate_frequencies=top_frequencies,
+        scenarios=scenarios,
+        notes=notes,
     )
 
 

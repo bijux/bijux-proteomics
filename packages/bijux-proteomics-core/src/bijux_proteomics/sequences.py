@@ -10,6 +10,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 import hashlib
+import json
 from pathlib import Path
 import random
 import re
@@ -20,7 +21,8 @@ from pydantic import ConfigDict, Field, field_validator
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, TargetId
 
 _CANONICAL_RESIDUES = frozenset("ACDEFGHIKLMNPQRSTVWY")
-_AMBIGUOUS_RESIDUES = frozenset("BJOUXZ")
+_AMBIGUOUS_RESIDUES = frozenset("BJXZ")
+_UNSUPPORTED_RESIDUES = frozenset("OU")
 _SEQUENCE_RE = re.compile(r"^[A-Z*]+$")
 _UNIPROT_ACCESSION_RE = re.compile(
     r"^(?P<accession>(?:[OPQ][0-9][A-Z0-9]{3}[0-9])|(?:[A-NR-Z][0-9][A-Z][A-Z0-9]{2}[0-9]))(?:-(?P<isoform>[1-9][0-9]*))?$"
@@ -60,6 +62,14 @@ class FastaParseMode(StrEnum):
     PERMISSIVE = "permissive"
 
 
+class ResiduePolicyState(StrEnum):
+    """Support state for an uncommon residue token under one parser policy."""
+
+    ACCEPTED = "accepted"
+    ACCEPTED_WITH_WARNING = "accepted_with_warning"
+    REFUSED = "refused"
+
+
 class DecoyGenerationMode(StrEnum):
     """Supported target/decoy generation modes."""
 
@@ -83,6 +93,25 @@ class SequenceValidationIssue(JsonModel):
     severity: SequenceIssueSeverity
     message: str = Field(..., min_length=1)
     positions: tuple[int, ...] = Field(default_factory=tuple)
+
+
+class ResiduePolicyEntry(JsonModel):
+    """One explicit parser decision for an uncommon residue symbol."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    residue: str = Field(..., min_length=1, max_length=1)
+    state: ResiduePolicyState
+    rationale: str = Field(..., min_length=1)
+
+
+class SequenceResiduePolicy(JsonModel):
+    """Explicit uncommon-residue policy for one FASTA parser mode."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mode: FastaParseMode
+    entries: tuple[ResiduePolicyEntry, ...] = Field(default_factory=tuple)
 
 
 class SequenceValidationResult(JsonModel):
@@ -215,6 +244,23 @@ class FastaProvenanceManifest(JsonModel):
     parameters: dict[str, str | int | bool | None] = Field(default_factory=dict)
 
 
+class DecoyGenerationManifest(JsonModel):
+    """Stable manifest for one deterministic decoy-generation step."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    decoy_mode: DecoyGenerationMode
+    prefix: str = Field(..., min_length=1)
+    seed: int
+    source_path: str | None = None
+    source_sha256: str | None = None
+    input_record_count: int = Field(..., ge=0)
+    output_record_count: int = Field(..., ge=0)
+    reproducibility_hash: str = Field(..., min_length=64, max_length=64)
+    output_sha256: str = Field(..., min_length=64, max_length=64)
+
+
 class TargetDecoyValidationReport(JsonModel):
     """Validation report for a target/decoy FASTA collection."""
 
@@ -254,6 +300,85 @@ class ProteinSequence(JsonModel):
 def sequence_length(sequence: ProteinSequence) -> int:
     """Return the amino-acid length of a canonical sequence."""
     return len(sequence.residues)
+
+
+_SEQUENCE_POLICY_BY_MODE: dict[FastaParseMode, SequenceResiduePolicy] = {
+    FastaParseMode.STRICT: SequenceResiduePolicy(
+        mode=FastaParseMode.STRICT,
+        entries=(
+            ResiduePolicyEntry(
+                residue="B",
+                state=ResiduePolicyState.REFUSED,
+                rationale="B conflates aspartate and asparagine and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="J",
+                state=ResiduePolicyState.REFUSED,
+                rationale="J conflates leucine and isoleucine and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="X",
+                state=ResiduePolicyState.REFUSED,
+                rationale="X does not preserve residue identity and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="Z",
+                state=ResiduePolicyState.REFUSED,
+                rationale="Z conflates glutamate and glutamine and is refused in strict mode.",
+            ),
+            ResiduePolicyEntry(
+                residue="U",
+                state=ResiduePolicyState.REFUSED,
+                rationale="U is currently unsupported by downstream chemistry surfaces.",
+            ),
+            ResiduePolicyEntry(
+                residue="O",
+                state=ResiduePolicyState.REFUSED,
+                rationale="O is currently unsupported by downstream chemistry surfaces.",
+            ),
+        ),
+    ),
+    FastaParseMode.PERMISSIVE: SequenceResiduePolicy(
+        mode=FastaParseMode.PERMISSIVE,
+        entries=(
+            ResiduePolicyEntry(
+                residue="B",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="B is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="J",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="J is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="X",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="X is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="Z",
+                state=ResiduePolicyState.ACCEPTED_WITH_WARNING,
+                rationale="Z is preserved with warning because it is residue-ambiguous.",
+            ),
+            ResiduePolicyEntry(
+                residue="U",
+                state=ResiduePolicyState.REFUSED,
+                rationale="U remains refused until chemistry and mass surfaces support it explicitly.",
+            ),
+            ResiduePolicyEntry(
+                residue="O",
+                state=ResiduePolicyState.REFUSED,
+                rationale="O remains refused until chemistry and mass surfaces support it explicitly.",
+            ),
+        ),
+    ),
+}
+
+
+def build_sequence_residue_policy(mode: FastaParseMode) -> SequenceResiduePolicy:
+    """Return the explicit uncommon-residue policy for one parser mode."""
+    return _SEQUENCE_POLICY_BY_MODE[mode].model_copy(deep=True)
 
 
 def sequence_checksum(residues: str) -> str:
@@ -342,6 +467,8 @@ def validate_protein_sequence(
 ) -> SequenceValidationResult:
     """Validate one protein sequence string under the active parser policy."""
     issues: list[SequenceValidationIssue] = []
+    policy = build_sequence_residue_policy(mode)
+    policy_map = {entry.residue: entry for entry in policy.entries}
     had_lowercase = any(
         character.isalpha() and character.islower() for character in sequence
     )
@@ -403,29 +530,57 @@ def validate_protein_sequence(
                 )
             )
 
-    ambiguous_positions = [
+    warning_positions = [
         index + 1
         for index, residue in enumerate(normalized)
         if residue in _AMBIGUOUS_RESIDUES
+        and policy_map[residue].state is ResiduePolicyState.ACCEPTED_WITH_WARNING
     ]
-    if ambiguous_positions:
+    error_positions = [
+        index + 1
+        for index, residue in enumerate(normalized)
+        if residue in _AMBIGUOUS_RESIDUES
+        and policy_map[residue].state is ResiduePolicyState.REFUSED
+    ]
+    unsupported_positions = [
+        index + 1
+        for index, residue in enumerate(normalized)
+        if residue in _UNSUPPORTED_RESIDUES
+    ]
+    if warning_positions:
         issues.append(
             SequenceValidationIssue(
                 code="ambiguous_residue",
-                severity=(
-                    SequenceIssueSeverity.ERROR
-                    if mode is FastaParseMode.STRICT
-                    else SequenceIssueSeverity.WARNING
-                ),
-                message="sequence contains ambiguous amino-acid symbols",
-                positions=tuple(ambiguous_positions),
+                severity=SequenceIssueSeverity.WARNING,
+                message="sequence contains ambiguous amino-acid symbols that were preserved with warning",
+                positions=tuple(warning_positions),
+            )
+        )
+    if error_positions:
+        issues.append(
+            SequenceValidationIssue(
+                code="ambiguous_residue",
+                severity=SequenceIssueSeverity.ERROR,
+                message="sequence contains ambiguous amino-acid symbols that are refused by policy",
+                positions=tuple(error_positions),
+            )
+        )
+    if unsupported_positions:
+        issues.append(
+            SequenceValidationIssue(
+                code="unsupported_residue",
+                severity=SequenceIssueSeverity.ERROR,
+                message="sequence contains residue symbols that remain unsupported by downstream chemistry surfaces",
+                positions=tuple(unsupported_positions),
             )
         )
 
     invalid_positions = [
         index + 1
         for index, residue in enumerate(normalized)
-        if residue not in _CANONICAL_RESIDUES and residue not in _AMBIGUOUS_RESIDUES
+        if residue not in _CANONICAL_RESIDUES
+        and residue not in _AMBIGUOUS_RESIDUES
+        and residue not in _UNSUPPORTED_RESIDUES
     ]
     if invalid_positions:
         issues.append(
@@ -619,6 +774,80 @@ def build_fasta_provenance_manifest(
         rejected_record_count=rejected_record_count,
         output_record_count=output_record_count,
         parameters=parameters or {},
+    )
+    payload = manifest.to_dict()
+    return manifest.model_copy(
+        update={
+            "document_schema": manifest.document_schema.with_content_hash(payload),
+        }
+    )
+
+
+def compute_decoy_generation_reproducibility_hash(
+    records: tuple[NormalizedProteinRecord, ...],
+    *,
+    mode: DecoyGenerationMode,
+    prefix: str,
+    seed: int,
+) -> str:
+    """Return a stable hash over decoy-generation inputs and policy."""
+    payload = {
+        "mode": mode.value,
+        "prefix": prefix,
+        "seed": seed,
+        "records": [
+            {
+                "canonical_accession": record.canonical_accession,
+                "isoform": record.isoform,
+                "sequence_checksum": record.sequence_checksum,
+                "source_identifier": record.source_identifier,
+            }
+            for record in records
+        ],
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+
+def build_decoy_generation_manifest(
+    *,
+    input_records: tuple[NormalizedProteinRecord, ...],
+    output_records: tuple[NormalizedProteinRecord, ...],
+    mode: DecoyGenerationMode,
+    prefix: str,
+    seed: int,
+    source_path: Path | None,
+) -> DecoyGenerationManifest:
+    """Build a stable manifest for one deterministic decoy-generation output."""
+    source_sha256 = (
+        hashlib.sha256(source_path.read_bytes()).hexdigest()
+        if source_path is not None
+        else None
+    )
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="decoy_generation_manifest",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    rendered_output = render_fasta_records(output_records)
+    manifest = DecoyGenerationManifest(
+        document_schema=schema,
+        decoy_mode=mode,
+        prefix=prefix,
+        seed=seed,
+        source_path=str(source_path) if source_path is not None else None,
+        source_sha256=source_sha256,
+        input_record_count=len(input_records),
+        output_record_count=len(output_records),
+        reproducibility_hash=compute_decoy_generation_reproducibility_hash(
+            input_records,
+            mode=mode,
+            prefix=prefix,
+            seed=seed,
+        ),
+        output_sha256=hashlib.sha256(rendered_output.encode("utf-8")).hexdigest(),
     )
     payload = manifest.to_dict()
     return manifest.model_copy(

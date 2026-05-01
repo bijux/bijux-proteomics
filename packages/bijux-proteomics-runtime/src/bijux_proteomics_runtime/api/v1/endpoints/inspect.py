@@ -10,6 +10,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
+from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
 from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import raise_http_error
 from bijux_proteomics_runtime.api.v1.schema import (
@@ -45,6 +46,7 @@ def inspect_endpoint(
     base_dir: Annotated[Path, Depends(get_base_dir)],
 ) -> ApiEnvelope:
     """inspect_endpoint."""
+    meta = build_request_correlation_meta(request, "inspect", request.url.path)
     try:
         candidate = _inspect_candidate(base_dir, candidate_id)
         api_candidate = ApiCandidate.model_validate(candidate.model_dump(mode="json"))
@@ -64,6 +66,6 @@ def inspect_endpoint(
             qc_status=qc_status,
             artifacts=artifacts,
         )
-        return ApiEnvelope(status="ok", data=response, error=None, meta={})
+        return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)

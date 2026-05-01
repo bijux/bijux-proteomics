@@ -11,6 +11,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 
+from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
 from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import ok_envelope, raise_http_error
 from bijux_proteomics_runtime.api.v1.schema import (
@@ -48,6 +49,7 @@ def run_endpoint(
     base_dir: Annotated[Path, Depends(get_base_dir)],
 ) -> ApiEnvelope | JSONResponse:
     """run_endpoint."""
+    meta = build_request_correlation_meta(request, "run", request.url.path)
     try:
         sequence_path = None
         if payload.sequence_file:
@@ -77,11 +79,11 @@ def run_endpoint(
         summary = _load_run_summary(base_dir, run_id, artifacts_dir)
         response = RunResponse.model_validate(summary)
     except Exception as exc:  # noqa: BLE001
-        raise_http_error(exc, str(request.url))
+        raise_http_error(exc, str(request.url), meta=meta)
 
     if response.workflow_state == WorkflowState.AWAITING_HUMAN_REVIEW:
         return JSONResponse(
-            content=ok_envelope(response.model_dump(mode="json")),
+            content=ok_envelope(response.model_dump(mode="json"), meta=meta),
             status_code=status.HTTP_202_ACCEPTED,
         )
-    return ApiEnvelope(status="ok", data=response, error=None, meta={})
+    return ApiEnvelope(status="ok", data=response, error=None, meta=meta)

@@ -1,10 +1,19 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from bijux_proteomics import (
     PeptideDigestionMode,
+    build_digest_duplicate_accounting,
     digest_sequence,
     filter_digested_peptides,
+    parse_custom_protease_rule,
 )
+
+
+def _digestion_fixture(name: str) -> Path:
+    return Path(__file__).parent / "fixtures" / "digestion" / name
 
 
 def test_digest_sequence_performs_full_tryptic_cleavage() -> None:
@@ -83,6 +92,36 @@ def test_digest_sequence_supports_bounded_non_specific_mode() -> None:
     assert all(peptide.cleavage_type == "non_specific" for peptide in peptides)
 
 
+def test_digest_sequence_matches_curated_protease_reference_cases() -> None:
+    fixture = json.loads(
+        _digestion_fixture("protease_reference_cases.json").read_text()
+    )
+
+    for case in fixture:
+        peptides = digest_sequence(
+            case["sequence"],
+            protease=case["protease"],
+            mode=PeptideDigestionMode(case["digestion_mode"]),
+            min_length=case.get("min_length", 1),
+            max_length=case.get("max_length"),
+        )
+        assert [peptide.sequence for peptide in peptides] == case["expected_peptides"]
+
+
+def test_digest_sequence_preserves_edge_case_regressions() -> None:
+    fixture = json.loads(_digestion_fixture("edge_case_regressions.json").read_text())
+
+    for case in fixture:
+        protease = case.get("protease")
+        if protease is None:
+            protease = parse_custom_protease_rule(
+                case["custom_protease"],
+                name=case["custom_name"],
+            )
+        peptides = digest_sequence(case["sequence"], protease=protease)
+        assert [peptide.sequence for peptide in peptides] == case["expected_peptides"]
+
+
 def test_filter_digested_peptides_supports_length_bounds() -> None:
     peptides = digest_sequence(
         "MKWVTFISLLFLFSSAYSRGVFR", source_accession="filter-test"
@@ -109,3 +148,27 @@ def test_filter_digested_peptides_supports_mass_bounds() -> None:
 
     assert [peptide.sequence for peptide in filtered] == ["AKAAK", "AAKAAK"]
     assert report.excluded_by_mass == len(peptides) - len(filtered)
+
+
+def test_digest_duplicate_accounting_distinguishes_occurrences_from_unique_sequences() -> (
+    None
+):
+    peptides = digest_sequence(
+        "AKAAKAAK",
+        source_accession="duplicate-accounting-test",
+        missed_cleavages=1,
+    )
+
+    accounting = build_digest_duplicate_accounting(peptides)
+
+    assert accounting.total_peptide_occurrences == 5
+    assert accounting.unique_sequence_count == 4
+    assert accounting.duplicate_sequence_count == 1
+    assert accounting.duplicate_occurrence_count == 1
+    assert [entry.model_dump() for entry in accounting.repeated_sequences] == [
+        {
+            "sequence": "AAK",
+            "occurrence_count": 2,
+            "protein_accessions": ("duplicate-accounting-test",),
+        }
+    ]

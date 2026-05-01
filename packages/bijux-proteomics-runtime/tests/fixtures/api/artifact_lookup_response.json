@@ -1,0 +1,38 @@
+{
+  "artifacts": [
+    {
+      "artifact_key": "run_summary",
+      "artifact_kind": "runtime-status",
+      "description": "runtime run summary",
+      "path": "<workspace>/artifacts/fixture-a/run_summary.json",
+      "run_id": "fixture-a",
+      "sha256": "e8f677b6e9d3f8aa3bdbdbf68fb227fcf6f7a116dfc2bb68d4446efe6926f38f",
+      "size_bytes": 445,
+      "tags": [
+        "runtime",
+        "top-level"
+      ]
+    },
+    {
+      "artifact_key": "run_summary",
+      "artifact_kind": "runtime-status",
+      "description": "runtime run summary",
+      "path": "<workspace>/artifacts/fixture-b/run_summary.json",
+      "run_id": "fixture-b",
+      "sha256": "af22b53d845647cd5ceb0fe40d22de0aad94bfdb2df97c34dac673785b6eb0c0",
+      "size_bytes": 445,
+      "tags": [
+        "runtime",
+        "top-level"
+      ]
+    }
+  ],
+  "page": {
+    "cursor": null,
+    "next_cursor": null,
+    "page_size": 20,
+    "query_cost_units": 22,
+    "returned_count": 2,
+    "scanned_count": 2
+  }
+}

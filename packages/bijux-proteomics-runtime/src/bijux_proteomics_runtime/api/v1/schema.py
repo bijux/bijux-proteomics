@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
@@ -28,6 +29,14 @@ class ErrorResponse(BaseModel):
     status: int = Field(..., description="HTTP status code.")
     detail: str = Field(..., description="Human-readable explanation.")
     instance: str = Field(..., description="URI reference for this occurrence.")
+    failure_class: str = Field(..., min_length=1, description="Stable failure class.")
+    remediation_hint: str = Field(
+        ..., min_length=1, description="Operator-facing remediation hint."
+    )
+    evidence_pointer: str | None = Field(
+        default=None,
+        description="Optional path or identifier that points to relevant evidence.",
+    )
 
 
 class VersionInfo(BaseModel):
@@ -212,6 +221,189 @@ class ReadyResponse(BaseModel):
     )
 
 
+class RuntimeHealthComponentState(StrEnum):
+    """Health state for one runtime service component."""
+
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    FAILED = "failed"
+
+
+class RuntimeHealthComponent(BaseModel):
+    """One runtime health component check."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    component: str = Field(..., min_length=1, description="Component identifier.")
+    state: RuntimeHealthComponentState = Field(..., description="Component health.")
+    detail: str = Field(..., min_length=1, description="Human-readable detail.")
+    remediation_hint: str = Field(
+        ..., min_length=1, description="Operator remediation hint."
+    )
+
+
+class RuntimeHealthResponse(BaseModel):
+    """Typed runtime health report across storage, cache, tool, and manifest checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str = Field(..., description="Aggregate health status.")
+    runtime: str = Field(..., description="Canonical runtime identity.")
+    components: list[RuntimeHealthComponent] = Field(
+        default_factory=list,
+        description="Per-component health details.",
+    )
+
+
+class RuntimeDocumentAvailability(StrEnum):
+    """Availability state for one runtime-managed document surface."""
+
+    AVAILABLE = "available"
+    MISSING = "missing"
+    TOO_LARGE = "too_large"
+    UNSUPPORTED = "unsupported"
+
+
+class RuntimeArtifactRecord(BaseModel):
+    """Stable runtime artifact descriptor for lookup and review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    artifact_key: str = Field(..., min_length=1, description="Stable artifact key.")
+    artifact_kind: str = Field(..., min_length=1, description="Artifact kind.")
+    path: str = Field(..., min_length=1, description="Repository-local artifact path.")
+    size_bytes: int = Field(..., ge=0, description="Artifact size in bytes.")
+    sha256: str = Field(..., min_length=64, max_length=64, description="Artifact hash.")
+    tags: list[str] = Field(default_factory=list, description="Artifact tags.")
+    description: str = Field(..., min_length=1, description="Artifact description.")
+
+
+class RuntimeDocumentReference(BaseModel):
+    """Stable reference to a runtime evidence or review document."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    document_kind: str = Field(..., min_length=1, description="Document kind.")
+    availability: RuntimeDocumentAvailability = Field(
+        ..., description="Availability state for this document."
+    )
+    path: str = Field(..., min_length=1, description="Repository-local document path.")
+    size_bytes: int = Field(
+        default=0, ge=0, description="Document size in bytes when known."
+    )
+    guard_limit_bytes: int = Field(
+        default=0,
+        ge=0,
+        description="Inline-ingestion guard applied to this document request.",
+    )
+    sha256: str | None = Field(default=None, description="Document hash when known.")
+    note: str = Field(
+        ..., min_length=1, description="Human-readable availability note."
+    )
+    content: dict[str, Any] | None = Field(
+        default=None,
+        description="Inline document content when small enough and requested.",
+    )
+
+
+class RuntimeStatusResponse(BaseModel):
+    """Stable runtime status response for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary: RunResponse = Field(..., description="Canonical run summary.")
+    evidence_bundle: RuntimeDocumentReference = Field(
+        ..., description="Evidence-bundle availability for the run."
+    )
+    review_packet: RuntimeDocumentReference = Field(
+        ..., description="Review-packet availability for the run."
+    )
+
+
+class RunArtifactsResponse(BaseModel):
+    """Stable artifact listing for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    artifacts: list[RuntimeArtifactRecord] = Field(
+        default_factory=list, description="Artifacts attached to the run."
+    )
+
+
+class RunEvidenceResponse(BaseModel):
+    """Stable evidence-bundle availability response for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    evidence_bundle: RuntimeDocumentReference = Field(
+        ..., description="Evidence-bundle availability."
+    )
+
+
+class RunReviewResponse(BaseModel):
+    """Stable review-packet availability response for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1, description="Run identifier.")
+    review_packet: RuntimeDocumentReference = Field(
+        ..., description="Review-packet availability."
+    )
+
+
+class PaginationMeta(BaseModel):
+    """Stable pagination and query-cost metadata for collection responses."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cursor: str | None = Field(default=None, description="Current cursor.")
+    next_cursor: str | None = Field(default=None, description="Next cursor.")
+    page_size: int = Field(..., ge=1, description="Requested page size.")
+    returned_count: int = Field(..., ge=0, description="Returned item count.")
+    scanned_count: int = Field(..., ge=0, description="Scanned item count.")
+    query_cost_units: int = Field(..., ge=0, description="Estimated query cost.")
+
+
+class RunHistoryResponse(BaseModel):
+    """Stable run-history lookup response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    runs: list[RunResponse] = Field(
+        default_factory=list,
+        description="Runs that match the requested filters.",
+    )
+    page: PaginationMeta = Field(..., description="Pagination and query-cost metadata.")
+
+
+class ArtifactLookupResponse(BaseModel):
+    """Stable cross-run artifact lookup response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifacts: list[RuntimeArtifactRecord] = Field(
+        default_factory=list,
+        description="Artifacts that match the requested filters.",
+    )
+    page: PaginationMeta = Field(..., description="Pagination and query-cost metadata.")
+
+
+class EvidenceLookupResponse(BaseModel):
+    """Stable cross-run evidence and review lookup response."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    documents: list[RuntimeDocumentReference] = Field(
+        default_factory=list,
+        description="Evidence and review documents matching the requested filters.",
+    )
+    page: PaginationMeta = Field(..., description="Pagination and query-cost metadata.")
+
+
 class ApiEnvelope(BaseModel):
     """ApiEnvelope."""
 
@@ -220,10 +412,18 @@ class ApiEnvelope(BaseModel):
     status: Literal["ok", "error"] = Field(..., description="Response status.")
     data: (
         RunResponse
+        | RuntimeStatusResponse
+        | RunArtifactsResponse
+        | RunEvidenceResponse
+        | RunReviewResponse
+        | RunHistoryResponse
+        | ArtifactLookupResponse
+        | EvidenceLookupResponse
         | InspectResponse
         | CompareResponse
         | HealthResponse
         | ReadyResponse
+        | RuntimeHealthResponse
         | None
     ) = Field(default=None, description="Successful response payload.")
     error: ErrorResponse | None = Field(

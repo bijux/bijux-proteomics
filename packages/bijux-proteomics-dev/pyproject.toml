@@ -66,6 +66,7 @@ dev = [
   "mkdocs-git-revision-date-localized-plugin>=1.2.0,<2.0",
   "pymdown-extensions>=10.8,<11.0",
   "types-PyYAML>=6.0.12,<7.0",
+  "types-defusedxml>=0.7.0,<1.0",
   "types-requests>=2.32.0,<3.0",
 ]
 

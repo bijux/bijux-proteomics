@@ -1,0 +1,5 @@
+run_id	scan_time_seconds	tic	bpc
+run_01	0.0	10234.0	812.0
+run_01	5.0	9950.5	780.0
+run_01	10.0		
+run_02	bad_time	7500.0	620.0

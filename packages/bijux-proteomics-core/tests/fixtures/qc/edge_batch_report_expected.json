@@ -1,0 +1,44 @@
+{
+  "batch_id": "edge-batch",
+  "document_schema": {
+    "content_hash": null,
+    "created_at": "2000-01-01T00:00:00Z",
+    "created_by": "bijux-proteomics-core",
+    "derived_from": [],
+    "document_id": null,
+    "document_kind": "instrument_batch_qc_report",
+    "package_name": "bijux-proteomics-core",
+    "package_version": null,
+    "parent_document_id": null,
+    "parent_trace_id": null,
+    "revision": 1,
+    "schema_version": "1.0.0",
+    "source_system": "bijux-proteomics",
+    "status": "generated",
+    "tags": [],
+    "trace_id": null,
+    "updated_at": "2000-01-01T00:00:00Z",
+    "updated_by": null
+  },
+  "instrument": "edge-instrument",
+  "median_abs_mass_error_ppm": null,
+  "median_identification_rate": 0.0,
+  "median_identified_retention_time_seconds": null,
+  "median_spectrum_count": 2.0,
+  "outlier_run_ids": [],
+  "run_count": 1,
+  "runs": [
+    {
+      "batch": null,
+      "identification_rate": 0.0,
+      "identified_retention_time_span_seconds": null,
+      "instrument": null,
+      "median_abs_mass_error_ppm": null,
+      "outlier_reasons": [],
+      "retention_time_shift_seconds": null,
+      "run_id": "edge-run",
+      "sample_id": null,
+      "spectrum_count": 2
+    }
+  ]
+}

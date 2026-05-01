@@ -8,8 +8,12 @@ import pytest
 from bijux_proteomics import (
     DecoyGenerationMode,
     FastaParseMode,
+    ResiduePolicyState,
+    build_decoy_generation_manifest,
     build_fasta_provenance_manifest,
     build_fasta_stats,
+    build_sequence_residue_policy,
+    compute_decoy_generation_reproducibility_hash,
     deduplicate_fasta_records,
     filter_fasta_records,
     generate_decoy_records,
@@ -85,6 +89,33 @@ def test_validate_protein_sequence_flags_invalid_character_and_stop_codon() -> N
     issue_codes = {issue.code for issue in result.issues}
     assert "stop_codon" in issue_codes
     assert "invalid_character" in issue_codes
+    assert result.is_valid is False
+
+
+def test_sequence_residue_policy_explicitly_distinguishes_warnings_from_refusals() -> (
+    None
+):
+    strict_policy = build_sequence_residue_policy(FastaParseMode.STRICT)
+    permissive_policy = build_sequence_residue_policy(FastaParseMode.PERMISSIVE)
+
+    strict_states = {entry.residue: entry.state for entry in strict_policy.entries}
+    permissive_states = {
+        entry.residue: entry.state for entry in permissive_policy.entries
+    }
+
+    assert strict_states["B"] is ResiduePolicyState.REFUSED
+    assert permissive_states["B"] is ResiduePolicyState.ACCEPTED_WITH_WARNING
+    assert permissive_states["U"] is ResiduePolicyState.REFUSED
+    assert permissive_states["O"] is ResiduePolicyState.REFUSED
+
+
+def test_validate_protein_sequence_permissive_mode_still_refuses_unsupported_residues() -> (
+    None
+):
+    result = validate_protein_sequence("ACDUO", mode=FastaParseMode.PERMISSIVE)
+
+    issue_codes = {issue.code for issue in result.issues}
+    assert "unsupported_residue" in issue_codes
     assert result.is_valid is False
 
 
@@ -219,6 +250,40 @@ def test_generate_decoy_records_supports_reverse_and_shuffle_modes(
     assert reverse_decoys[0].canonical_accession.startswith("DECOY_")
     assert reverse_decoys[0].residues == report.accepted_records[0].residues[::-1]
     assert shuffled_decoys[0].residues != report.accepted_records[0].residues
+
+
+def test_decoy_generation_manifest_captures_reproducibility_hash(
+    fasta_fixture_dir: Path,
+) -> None:
+    input_fasta = fasta_fixture_dir / "valid_records.fasta"
+    report = parse_fasta_document(input_fasta.read_text(), mode=FastaParseMode.STRICT)
+    decoys = generate_decoy_records(
+        report.accepted_records,
+        mode=DecoyGenerationMode.SHUFFLE,
+        seed=11,
+    )
+    output_records = (*report.accepted_records, *decoys)
+
+    manifest = build_decoy_generation_manifest(
+        input_records=report.accepted_records,
+        output_records=output_records,
+        mode=DecoyGenerationMode.SHUFFLE,
+        prefix="DECOY_",
+        seed=11,
+        source_path=input_fasta,
+    )
+
+    assert manifest.output_record_count == len(output_records)
+    assert (
+        manifest.reproducibility_hash
+        == compute_decoy_generation_reproducibility_hash(
+            report.accepted_records,
+            mode=DecoyGenerationMode.SHUFFLE,
+            prefix="DECOY_",
+            seed=11,
+        )
+    )
+    assert manifest.document_schema.document_kind == "decoy_generation_manifest"
 
 
 def test_validate_target_decoy_database_detects_complete_pairs(

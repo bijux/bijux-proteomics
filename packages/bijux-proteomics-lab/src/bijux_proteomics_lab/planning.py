@@ -125,6 +125,13 @@ class AssayIntent(JsonModel):
     )
 
 
+class AssayPlanKind(StrEnum):
+    """Distinguish scientific planning advice from executable lab work."""
+
+    ADVISORY = "advisory"
+    EXECUTABLE = "executable"
+
+
 class AssayFamily(StrEnum):
     """Coarse assay families used for planning batches."""
 
@@ -157,6 +164,120 @@ class ExperimentPlan(JsonModel):
         default_factory=list,
         description="Ordered experiment batches.",
     )
+
+
+class AdvisoryAssayRecommendation(JsonModel):
+    """Scientifically motivated assay recommendation that is not execution-ready."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    objective: str = Field(..., min_length=1, description="Scientific purpose.")
+    blocking: bool = Field(..., description="Whether the assay blocks progression.")
+    rationale: list[str] = Field(
+        default_factory=list,
+        description="Reasoning for recommending the assay.",
+    )
+
+
+class EvidenceNeedWetLabAction(JsonModel):
+    """Concrete wet-lab action mapping for one unmet evidence need."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_need: str = Field(..., min_length=1)
+    assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Assays that can reduce this evidence gap.",
+    )
+    blocking_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Mapped assays that also block progression.",
+    )
+    sample_kinds: list[str] = Field(
+        default_factory=list,
+        description="Sample modalities required to execute the mapped work.",
+    )
+    wet_lab_actions: list[str] = Field(
+        default_factory=list,
+        description="Concrete lab-facing actions implied by the evidence gap.",
+    )
+    notes: list[str] = Field(default_factory=list)
+
+
+class AdvisoryAssayPlan(JsonModel):
+    """Advisory assay plan for scientific prioritization before execution prep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    plan_kind: AssayPlanKind = Field(default=AssayPlanKind.ADVISORY)
+    open_evidence_gaps: list[str] = Field(
+        default_factory=list,
+        description="Evidence gaps that still shape scientific assay priority.",
+    )
+    recommendations: list[AdvisoryAssayRecommendation] = Field(
+        default_factory=list,
+        description="Scientifically motivated assay recommendations.",
+    )
+    evidence_need_actions: list[EvidenceNeedWetLabAction] = Field(
+        default_factory=list,
+        description="Open evidence needs translated into wet-lab actions.",
+    )
+    executable: bool = Field(
+        default=False,
+        description="Advisory plans are not direct lab execution instructions.",
+    )
+
+
+class ExecutableAssayInstruction(JsonModel):
+    """Concrete assay instruction ready for laboratory execution review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instruction_id: str = Field(..., min_length=1)
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    sample_kind: str = Field(..., min_length=1)
+    objective: str = Field(..., min_length=1)
+    blocking: bool = Field(..., description="Whether the assay blocks progression.")
+    preflight_checks: list[str] = Field(
+        default_factory=list,
+        description="Checks that must pass before the assay is run.",
+    )
+
+
+class ExecutableAssayPlan(JsonModel):
+    """Operational assay plan ready for lab execution review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    plan_kind: AssayPlanKind = Field(default=AssayPlanKind.EXECUTABLE)
+    instructions: list[ExecutableAssayInstruction] = Field(
+        default_factory=list,
+        description="Executable assay instructions for one batch.",
+    )
+    blocked_by: list[str] = Field(
+        default_factory=list,
+        description="Operational blockers that still prevent execution.",
+    )
+    ready_for_execution: bool = Field(
+        ..., description="Whether the executable plan can proceed as written."
+    )
+
+
+class ExecutionPlanUncertaintyReport(JsonModel):
+    """Uncertainty summary attached to an executable assay plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    uncertain_instruction_ids: list[str] = Field(default_factory=list)
+    uncertainty_sources: list[str] = Field(default_factory=list)
+    readiness_confidence: float = Field(..., ge=0.0, le=1.0)
+    notes: list[str] = Field(default_factory=list)
 
 
 class WorkflowBatchOutline(JsonModel):
@@ -259,6 +380,32 @@ class ReviewPacket(JsonModel):
         default_factory=list,
         description="Actions that should happen before the next decision.",
     )
+    advancement_evidence: AdvancementEvidencePacket
+
+
+class AdvancementEvidenceItem(JsonModel):
+    """One evidence item explicitly carried into an advancement review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    kind: str = Field(..., min_length=1)
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    strength: str = Field(..., min_length=1)
+    claim: str = Field(..., min_length=1)
+
+
+class AdvancementEvidencePacket(JsonModel):
+    """Exact evidence set used to justify or block advancement."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    target_id: str = Field(..., min_length=1)
+    evidence_ids: list[str] = Field(default_factory=list)
+    required_evidence_kinds: list[str] = Field(default_factory=list)
+    missing_evidence_kinds: list[str] = Field(default_factory=list)
+    items: list[AdvancementEvidenceItem] = Field(default_factory=list)
 
 
 class ReviewRiskProfile(JsonModel):
@@ -277,6 +424,26 @@ class ReviewRiskProfile(JsonModel):
     )
     risk_level: str = Field(
         ..., min_length=1, description="Overall risk level: low, medium, or high."
+    )
+
+
+class LabReviewPacketBundle(JsonModel):
+    """Review packet bundle that carries assay rationale and unresolved risks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    review_packet: ReviewPacket
+    assay_rationale_by_id: dict[str, list[str]] = Field(
+        default_factory=dict,
+        description="Assay rationale grouped by assay identifier.",
+    )
+    target_evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence records tied directly to the target review packet.",
+    )
+    unresolved_risks: list[str] = Field(
+        default_factory=list,
+        description="Open blockers and missing evidence that remain unresolved.",
     )
 
 
@@ -333,6 +500,28 @@ class LabCapacity(JsonModel):
         ge=1,
         description="Maximum assays that fit in one batch slot.",
     )
+
+
+class InstrumentAvailability(JsonModel):
+    """Available time budget for one instrument or execution platform."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instrument_id: str = Field(..., min_length=1)
+    available_days: float = Field(..., ge=0.0)
+    supported_sample_kinds: list[str] = Field(default_factory=list)
+
+
+class ExecutionCapacityAdvisory(JsonModel):
+    """Combined advisory for budget, cycle capacity, and instrument availability."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    feasible_batch_ids: list[BatchId] = Field(default_factory=list)
+    deferred_batch_ids: list[BatchId] = Field(default_factory=list)
+    budget_remaining: float = Field(..., ge=0.0)
+    notes: list[str] = Field(default_factory=list)
 
 
 class FamilyCapacity(JsonModel):
@@ -394,6 +583,28 @@ class NextAssayPriority(JsonModel):
     reasons: list[str] = Field(
         default_factory=list, description="Short rationale points."
     )
+
+
+class CandidatePrioritySignal(JsonModel):
+    """External candidate-priority input aligned against lab assays."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    score: float = Field(..., ge=0.0)
+    assay_ids: list[AssayId] = Field(default_factory=list)
+    rationale: list[str] = Field(default_factory=list)
+
+
+class LabPriorityQueueAlignment(JsonModel):
+    """Alignment report between candidate ranking signals and assay priorities."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    prioritized_assay_ids: list[AssayId] = Field(default_factory=list)
+    unaligned_candidate_ids: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
 
 
 class InformationGainBreakdown(JsonModel):
@@ -553,6 +764,38 @@ class LabExecutionDirective(JsonModel):
     )
     immediate_actions: list[str] = Field(
         default_factory=list, description="Immediate execution actions."
+    )
+
+
+class LabExecutionRequest(JsonModel):
+    """Explicit handoff request from computational review into lab execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    batch_id: BatchId = Field(..., description="Requested batch identifier.")
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence records attached to the request.",
+    )
+    requested_instruction_ids: list[str] = Field(
+        default_factory=list,
+        description="Execution instructions requested from the lab.",
+    )
+    requested_assay_ids: list[AssayId] = Field(
+        default_factory=list,
+        description="Assays carried into the lab request.",
+    )
+    scientific_rationale: list[str] = Field(
+        default_factory=list,
+        description="Scientific rationale points carried from review.",
+    )
+    unresolved_risks: list[str] = Field(
+        default_factory=list,
+        description="Open blockers or missing readiness conditions.",
+    )
+    ready_for_lab_review: bool = Field(
+        ..., description="Whether the request is coherent for lab review."
     )
 
 
@@ -1094,6 +1337,159 @@ def plan_experiment_batches(
     )
 
 
+def build_advisory_assay_plan(
+    program: ProgramSpec,
+    bundle: EvidenceBundle | None = None,
+) -> AdvisoryAssayPlan:
+    """Build a scientific assay-priority plan that is not execution-ready."""
+    required_kinds = [need.value for need in program.evidence_needs]
+    open_gaps = evidence_gaps(bundle, required_kinds) if bundle else required_kinds
+    recommendations = [
+        AdvisoryAssayRecommendation(
+            assay_id=assay.assay_id,
+            objective=assay.purpose,
+            blocking=assay.blocking,
+            rationale=[
+                (
+                    "blocking assay for the next review gate"
+                    if assay.blocking
+                    else "support assay for confidence expansion"
+                ),
+                f"sample kind: {assay.sample_kind}",
+                *(
+                    [f"targets evidence gaps: {', '.join(open_gaps[:2])}"]
+                    if open_gaps
+                    else []
+                ),
+            ],
+        )
+        for assay in program.assay_panel
+    ]
+    evidence_need_actions = [
+        _map_evidence_need_to_wet_lab_actions(program=program, evidence_need=gap)
+        for gap in open_gaps
+    ]
+    return AdvisoryAssayPlan(
+        program_id=program.program_id,
+        open_evidence_gaps=open_gaps,
+        recommendations=recommendations,
+        evidence_need_actions=evidence_need_actions,
+    )
+
+
+def build_executable_assay_plan(
+    plan: ExperimentPlan,
+    *,
+    batch_id: BatchId,
+    available_sample_kinds: list[str] | None = None,
+) -> ExecutableAssayPlan:
+    """Convert one planned batch into execution-ready lab instructions."""
+    batch = next(
+        (candidate for candidate in plan.batches if candidate.batch_id == batch_id),
+        None,
+    )
+    if batch is None:
+        raise ValueError(f"unknown batch_id: {batch_id}")
+    available_sample_kind_set = set(available_sample_kinds or [])
+    missing_sample_kinds = [
+        sample_kind
+        for sample_kind in batch.sample_requirements
+        if sample_kind not in available_sample_kind_set
+    ]
+    blocked_by = [
+        *[f"review gate pending: {gate_id}" for gate_id in batch.blocking_review_gates],
+        *[
+            f"missing sample kind: {sample_kind}"
+            for sample_kind in missing_sample_kinds
+        ],
+    ]
+    instructions = [
+        ExecutableAssayInstruction(
+            instruction_id=f"{batch.batch_id}:{assay_id}",
+            assay_id=assay_id,
+            batch_id=batch.batch_id,
+            sample_kind=batch.assay_sample_kinds.get(assay_id, "unspecified"),
+            objective=batch.objective,
+            blocking=bool(batch.blocking_review_gates),
+            preflight_checks=[
+                *[
+                    f"confirm review gate {gate_id} cleared"
+                    for gate_id in batch.blocking_review_gates
+                ],
+                *[
+                    f"confirm sample inventory for {sample_kind}"
+                    for sample_kind in batch.sample_requirements
+                ],
+            ],
+        )
+        for assay_id in batch.assay_ids
+    ]
+    return ExecutableAssayPlan(
+        program_id=plan.program_id,
+        batch_id=batch.batch_id,
+        instructions=instructions,
+        blocked_by=blocked_by,
+        ready_for_execution=not blocked_by,
+    )
+
+
+def report_execution_plan_uncertainty(
+    executable_plan: ExecutableAssayPlan,
+    *,
+    open_evidence_gaps: list[str] | None = None,
+) -> ExecutionPlanUncertaintyReport:
+    """Summarize uncertainty that still affects a lab execution plan."""
+    open_evidence_gaps = open_evidence_gaps or []
+    uncertainty_sources = [
+        *executable_plan.blocked_by,
+        *(f"open evidence gap: {gap}" for gap in open_evidence_gaps),
+    ]
+    confidence = 1.0
+    if executable_plan.blocked_by:
+        confidence -= 0.4
+    if open_evidence_gaps:
+        confidence -= min(0.4, len(open_evidence_gaps) * 0.1)
+    return ExecutionPlanUncertaintyReport(
+        batch_id=executable_plan.batch_id,
+        uncertain_instruction_ids=[
+            instruction.instruction_id for instruction in executable_plan.instructions
+        ],
+        uncertainty_sources=uncertainty_sources,
+        readiness_confidence=round(max(0.0, confidence), 4),
+        notes=(
+            ["execution uncertainty should be resolved before scheduling"]
+            if uncertainty_sources
+            else ["execution plan is fully specified at current scope"]
+        ),
+    )
+
+
+def build_lab_execution_request(
+    review_packet: ReviewPacket,
+    executable_plan: ExecutableAssayPlan,
+) -> LabExecutionRequest:
+    """Package review evidence and executable instructions into one lab request."""
+    return LabExecutionRequest(
+        program_id=review_packet.program_id,
+        batch_id=executable_plan.batch_id,
+        evidence_ids=list(review_packet.advancement_evidence.evidence_ids),
+        requested_instruction_ids=[
+            instruction.instruction_id for instruction in executable_plan.instructions
+        ],
+        requested_assay_ids=[
+            instruction.assay_id for instruction in executable_plan.instructions
+        ],
+        scientific_rationale=list(review_packet.recommended_actions),
+        unresolved_risks=[
+            *review_packet.blocking_findings,
+            *executable_plan.blocked_by,
+        ],
+        ready_for_lab_review=(
+            review_packet.ready_for_synthesis and executable_plan.ready_for_execution
+        ),
+    )
+
+
 def assess_material_constraints(
     plan: ExperimentPlan,
     requirements: list[MaterialRequirement],
@@ -1146,6 +1542,10 @@ def build_review_packet(
         recommendations.append(
             "repeat or redesign around assays: " + ", ".join(failed_assays)
         )
+    advancement_evidence = _build_advancement_evidence_packet(
+        program=program,
+        bundle=bundle,
+    )
     risk_profile = build_review_risk_profile(
         trust_score=trust.trust_score,
         conflict_count=len(conflicts),
@@ -1158,6 +1558,34 @@ def build_review_packet(
         ready_for_synthesis=not blockers,
         blocking_findings=blockers,
         recommended_actions=recommendations,
+        advancement_evidence=advancement_evidence,
+    )
+
+
+def build_lab_review_packet_bundle(
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+    observations: list[AssayObservation],
+) -> LabReviewPacketBundle:
+    """Bundle review findings with assay rationale and unresolved target risks."""
+    review_packet = build_review_packet(program, bundle, observations)
+    assay_rationale_by_id = {
+        assay.assay_id: [
+            assay.purpose,
+            f"readout: {assay.readout}",
+            f"sample kind: {assay.sample_kind}",
+        ]
+        for assay in program.assay_panel
+    }
+    unresolved_risks = [
+        *review_packet.blocking_findings,
+        *review_packet.advancement_evidence.missing_evidence_kinds,
+    ]
+    return LabReviewPacketBundle(
+        review_packet=review_packet,
+        assay_rationale_by_id=assay_rationale_by_id,
+        target_evidence_ids=list(review_packet.advancement_evidence.evidence_ids),
+        unresolved_risks=unresolved_risks,
     )
 
 
@@ -1192,6 +1620,132 @@ def _observation_blocks_progression(observation: AssayObservation) -> bool:
         or observation.qc_state.lower() in {"failed", "warning"}
         or observation.censoring_flag
         or observation.interpretation_confidence < 0.6
+    )
+
+
+def _map_evidence_need_to_wet_lab_actions(
+    *,
+    program: ProgramSpec,
+    evidence_need: str,
+) -> EvidenceNeedWetLabAction:
+    mapped_assays = [
+        assay
+        for assay in program.assay_panel
+        if _assay_supports_evidence_need(assay=assay, evidence_need=evidence_need)
+    ]
+    if not mapped_assays:
+        mapped_assays = [assay for assay in program.assay_panel if assay.blocking]
+    assay_ids = [assay.assay_id for assay in mapped_assays]
+    sample_kinds = sorted({assay.sample_kind for assay in mapped_assays})
+    wet_lab_actions = [
+        f"prepare {assay.sample_kind} material for {assay.assay_id}"
+        for assay in mapped_assays
+    ]
+    wet_lab_actions.extend(
+        f"capture {assay.readout} acceptance criteria for {assay.assay_id}"
+        for assay in mapped_assays
+    )
+    notes = (
+        [
+            "direct assay-to-evidence mapping inferred from assay purpose, readout, and sample modality"
+        ]
+        if mapped_assays
+        else ["no assay is currently mapped to this evidence need"]
+    )
+    return EvidenceNeedWetLabAction(
+        evidence_need=evidence_need,
+        assay_ids=assay_ids,
+        blocking_assay_ids=[
+            assay.assay_id for assay in mapped_assays if assay.blocking
+        ],
+        sample_kinds=sample_kinds,
+        wet_lab_actions=wet_lab_actions,
+        notes=notes,
+    )
+
+
+def _assay_supports_evidence_need(
+    *,
+    assay: AssayRequirement,
+    evidence_need: str,
+) -> bool:
+    normalized_need = evidence_need.strip().lower()
+    haystack = " ".join(
+        (
+            assay.assay_id,
+            assay.purpose,
+            assay.readout,
+            assay.sample_kind,
+        )
+    ).lower()
+    keyword_map = {
+        "literature": (),
+        "structure": ("structure", "binding", "stability", "fold", "thermal"),
+        "assay": ("assay", "binding", "activity", "readout", "engagement"),
+        "pathway": ("pathway", "cell", "cellular", "signaling", "phenotype"),
+        "safety": ("safety", "tox", "viability", "selectivity", "off-target"),
+    }
+    keywords = keyword_map.get(normalized_need, (normalized_need,))
+    return not keywords or any(keyword in haystack for keyword in keywords)
+
+
+def _build_advancement_evidence_packet(
+    *,
+    program: ProgramSpec,
+    bundle: EvidenceBundle,
+) -> AdvancementEvidencePacket:
+    required_kinds = [need.value for need in program.evidence_needs]
+    relevant_records = [
+        record
+        for record in bundle.records
+        if not record.decision_tags or "progression" in record.decision_tags
+    ]
+    selected_records = []
+    seen_kinds: set[str] = set()
+    for required_kind in required_kinds:
+        best_record = next(
+            (
+                record
+                for record in sorted(
+                    relevant_records,
+                    key=lambda candidate: (
+                        candidate.kind.value != required_kind,
+                        -candidate.confidence,
+                        candidate.evidence_id,
+                    ),
+                )
+                if record.kind.value == required_kind
+            ),
+            None,
+        )
+        if best_record is not None:
+            selected_records.append(best_record)
+            seen_kinds.add(required_kind)
+    if not selected_records:
+        selected_records = sorted(
+            relevant_records,
+            key=lambda record: (-record.confidence, record.evidence_id),
+        )
+    return AdvancementEvidencePacket(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        evidence_ids=[record.evidence_id for record in selected_records],
+        required_evidence_kinds=required_kinds,
+        missing_evidence_kinds=[
+            required_kind
+            for required_kind in required_kinds
+            if required_kind not in seen_kinds
+        ],
+        items=[
+            AdvancementEvidenceItem(
+                evidence_id=record.evidence_id,
+                kind=record.kind.value,
+                confidence=round(record.confidence, 4),
+                strength=record.strength.value,
+                claim=record.claim,
+            )
+            for record in selected_records
+        ],
     )
 
 
@@ -1299,6 +1853,56 @@ def schedule_experiment_plan(
     )
 
 
+def build_execution_capacity_advisory(
+    plan: ExperimentPlan,
+    capacity: LabCapacity,
+    instrument_availability: list[InstrumentAvailability],
+    *,
+    budget_limit: float,
+    estimated_batch_cost: float = 1.0,
+) -> ExecutionCapacityAdvisory:
+    """Assess which planned batches fit current budget and instrument capacity."""
+    supported_sample_kinds = {
+        sample_kind
+        for item in instrument_availability
+        for sample_kind in item.supported_sample_kinds
+    }
+    instrument_days = sum(item.available_days for item in instrument_availability)
+    feasible_batch_ids: list[str] = []
+    deferred_batch_ids: list[str] = []
+    budget_remaining = budget_limit
+    notes: list[str] = []
+    for batch in plan.batches:
+        has_supported_sample_kind = any(
+            sample_kind in supported_sample_kinds
+            for sample_kind in batch.sample_requirements
+        )
+        if (
+            len(feasible_batch_ids) >= capacity.max_batches
+            or instrument_days < 1.0
+            or budget_remaining < estimated_batch_cost
+            or (batch.sample_requirements and not has_supported_sample_kind)
+        ):
+            deferred_batch_ids.append(batch.batch_id)
+            continue
+        feasible_batch_ids.append(batch.batch_id)
+        budget_remaining = max(0.0, budget_remaining - estimated_batch_cost)
+        instrument_days = max(0.0, instrument_days - 1.0)
+    if deferred_batch_ids:
+        notes.append(
+            "some batches were deferred by budget, cycle capacity, or instrument support"
+        )
+    if not feasible_batch_ids:
+        notes.append("no planned batches fit current execution constraints")
+    return ExecutionCapacityAdvisory(
+        program_id=plan.program_id,
+        feasible_batch_ids=feasible_batch_ids,
+        deferred_batch_ids=deferred_batch_ids,
+        budget_remaining=round(budget_remaining, 4),
+        notes=notes,
+    )
+
+
 def schedule_with_family_capacity(
     plan: ExperimentPlan,
     capacity: LabCapacity,
@@ -1383,6 +1987,43 @@ def prioritize_next_assays(
             )
         )
     return sorted(ranked, key=lambda item: item.score, reverse=True)
+
+
+def align_lab_priority_queue(
+    program: ProgramSpec,
+    priorities: list[NextAssayPriority],
+    candidate_signals: list[CandidatePrioritySignal],
+) -> LabPriorityQueueAlignment:
+    """Align externally ranked candidates with the lab assay-priority queue."""
+    assay_scores = {priority.assay_id: priority.score for priority in priorities}
+    aligned_rows: list[tuple[float, str]] = []
+    unaligned_candidate_ids: list[str] = []
+    for signal in candidate_signals:
+        matched_assays = [
+            assay_id for assay_id in signal.assay_ids if assay_id in assay_scores
+        ]
+        if not matched_assays:
+            unaligned_candidate_ids.append(signal.candidate_id)
+            continue
+        for assay_id in matched_assays:
+            aligned_rows.append((signal.score + assay_scores[assay_id], assay_id))
+    aligned_rows.sort(key=lambda row: (-row[0], row[1]))
+    prioritized_assay_ids = list(
+        dict.fromkeys(assay_id for _, assay_id in aligned_rows)
+    )
+    notes = (
+        ["candidate-ranking signals reinforce the aligned assay queue"]
+        if prioritized_assay_ids
+        else ["no candidate-ranking signals aligned with the current assay queue"]
+    )
+    if unaligned_candidate_ids:
+        notes.append("some candidate signals were not mapped to lab assays")
+    return LabPriorityQueueAlignment(
+        program_id=program.program_id,
+        prioritized_assay_ids=prioritized_assay_ids,
+        unaligned_candidate_ids=sorted(unaligned_candidate_ids),
+        notes=notes,
+    )
 
 
 def score_assay_information_gain(

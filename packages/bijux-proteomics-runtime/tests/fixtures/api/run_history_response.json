@@ -1,0 +1,50 @@
+{
+  "page": {
+    "cursor": null,
+    "next_cursor": null,
+    "page_size": 20,
+    "query_cost_units": 22,
+    "returned_count": 2,
+    "scanned_count": 2
+  },
+  "runs": [
+    {
+      "artifacts_dir": "<workspace>/artifacts/fixture-a",
+      "candidate_id": "fixture-a-c0",
+      "command": "run",
+      "execution_status": "completed",
+      "failure": null,
+      "outcome": "accepted",
+      "provider": "heuristic_proxy",
+      "qc_status": "acceptable",
+      "run_id": "fixture-a",
+      "tool_status": "success",
+      "version": {
+        "app": "0+local",
+        "git_commit": "unknown",
+        "tool_versions": {}
+      },
+      "warnings": [],
+      "workflow_state": "done"
+    },
+    {
+      "artifacts_dir": "<workspace>/artifacts/fixture-b",
+      "candidate_id": "fixture-b-c0",
+      "command": "run",
+      "execution_status": "completed",
+      "failure": null,
+      "outcome": "accepted",
+      "provider": "heuristic_proxy",
+      "qc_status": "acceptable",
+      "run_id": "fixture-b",
+      "tool_status": "success",
+      "version": {
+        "app": "0+local",
+        "git_commit": "unknown",
+        "tool_versions": {}
+      },
+      "warnings": [],
+      "workflow_state": "done"
+    }
+  ]
+}

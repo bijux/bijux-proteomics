@@ -131,6 +131,7 @@ from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,
     FastaParseReport,
+    build_decoy_generation_manifest,
     build_fasta_provenance_manifest,
     build_fasta_stats,
     deduplicate_fasta_records,
@@ -153,6 +154,7 @@ from bijux_proteomics.spectra import (
 from bijux_proteomics.workflow_runtime import (
     WorkflowSchedulerKind,
     build_proteomics_workflow_runtime_bundle,
+    build_workflow_runtime_validation_report,
 )
 
 
@@ -686,6 +688,12 @@ def fasta_provenance_command(
     default=None,
     help="Optional JSON validation report output path.",
 )
+@click.option(
+    "--manifest-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON manifest output path.",
+)
 def fasta_decoy_command(
     input_fasta: Path,
     mode: str,
@@ -695,6 +703,7 @@ def fasta_decoy_command(
     decoys_only: bool,
     out_fasta: Path,
     report_out: Path | None,
+    manifest_out: Path | None,
 ) -> None:
     """Generate target/decoy FASTA output and validate the result."""
     report = _load_fasta_report(
@@ -710,8 +719,21 @@ def fasta_decoy_command(
     )
     output_records = decoys if decoys_only else (*report.accepted_records, *decoys)
     out_fasta.write_text(render_fasta_records(tuple(output_records)))
+    manifest = build_decoy_generation_manifest(
+        input_records=report.accepted_records,
+        output_records=tuple(output_records),
+        mode=DecoyGenerationMode(decoy_mode),
+        prefix=prefix,
+        seed=seed,
+        source_path=input_fasta,
+    )
+    if manifest_out is not None:
+        manifest_out.write_text(manifest.to_stable_json() + "\n")
     validation = validate_target_decoy_database(tuple(output_records), prefix=prefix)
-    _emit_json(validation, out_path=report_out)
+    payload = validation.to_dict()
+    payload["reproducibility_hash"] = manifest.reproducibility_hash
+    payload["output_sha256"] = manifest.output_sha256
+    _emit_json(payload, out_path=report_out)
 
 
 @cli.command("target-decoy-validate")
@@ -850,6 +872,7 @@ def digest_command(
             "output_peptide_count": len(peptides),
             "protease": protease_rule.name,
             "digestion_mode": digestion_mode,
+            "policy_hash": manifest.policy_hash,
             "export_format": export_format,
             "output_sha256": peptide_export_fingerprint(peptides),
             "output_path": str(out_path),
@@ -1951,6 +1974,97 @@ def workflow_plan_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(bundle, out_path=out_path)
+
+
+@cli.command("workflow-validate")
+@click.option(
+    "--proteins",
+    "proteins_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--spectra",
+    "spectra_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--identifications",
+    "identifications_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--features",
+    "features_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--sample-id", default=None)
+@click.option(
+    "--search-adapter",
+    type=_search_adapter_choice(),
+    default=SearchAdapterKind.GENERIC.value,
+    show_default=True,
+)
+@click.option(
+    "--scheduler",
+    type=_workflow_scheduler_choice(),
+    default=WorkflowSchedulerKind.SLURM.value,
+    show_default=True,
+)
+@click.option(
+    "--container-image",
+    default="ghcr.io/bijux/proteomics-runtime:stable",
+    show_default=True,
+)
+@click.option(
+    "--artifacts-dir", type=click.Path(path_type=Path, file_okay=False), default=None
+)
+@click.option("--completed-step", "completed_steps", multiple=True)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def workflow_validate_command(
+    proteins_path: Path,
+    spectra_path: Path,
+    identifications_path: Path | None,
+    features_path: Path | None,
+    design_path: Path | None,
+    sample_id: str | None,
+    search_adapter: str,
+    scheduler: str,
+    container_image: str,
+    artifacts_dir: Path | None,
+    completed_steps: tuple[str, ...],
+    out_path: Path | None,
+) -> None:
+    """Validate workflow runtime integrity without executing the workflow."""
+    try:
+        bundle = build_proteomics_workflow_runtime_bundle(
+            proteins_path=proteins_path,
+            spectra_path=spectra_path,
+            identifications_path=identifications_path,
+            features_path=features_path,
+            design_path=design_path,
+            sample_id=sample_id,
+            search_adapter_kind=SearchAdapterKind(search_adapter),
+            scheduler=WorkflowSchedulerKind(scheduler),
+            default_container_image=container_image,
+            artifacts_dir=artifacts_dir,
+            completed_step_ids=tuple(completed_steps),
+        )
+        report = build_workflow_runtime_validation_report(bundle)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+    _emit_json(report, out_path=out_path)
 
 
 @cli.group("qc")

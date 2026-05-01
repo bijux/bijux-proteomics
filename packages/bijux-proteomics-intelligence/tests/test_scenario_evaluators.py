@@ -8,18 +8,27 @@ from bijux_proteomics_intelligence import (
     CandidateAssessment,
     CandidateRanking,
     CandidateRiskProfile,
+    ComparativeCandidateReviewPacket,
     EvaluatorPolicyBundle,
     HoldPolicyConfig,
     HypothesisStatus,
+    IntelligenceDecisionSupportEnvelope,
+    IntelligenceOutputMode,
     ProgressionPolicy,
     ProgressionPolicyConfig,
     RankedCandidate,
     RedesignPolicyConfig,
     ScaleUpPolicy,
     ScenarioAction,
+    ScenarioEvaluation,
+    ScenarioSetEvaluation,
+    ScenarioUncertaintyEntry,
     SynthesisPolicy,
+    UncertaintyPreservingInterpretationSummary,
     build_advanced_review_packet,
+    build_comparative_candidate_review_packet,
     build_final_decision_recommendation,
+    build_intelligence_decision_support_envelope,
     build_intelligence_review_packet,
     derive_decision_escalation_flags,
     evaluate_all_scenarios,
@@ -28,10 +37,12 @@ from bijux_proteomics_intelligence import (
     evaluate_for_scale_up,
     evaluate_for_synthesis,
     evaluate_portfolio_balance,
+    promote_intelligence_output_to_policy,
     summarize_assessment_metric_coverage,
     summarize_hold_pressure,
     summarize_scenario_confidence_spread,
     summarize_scenario_consensus,
+    summarize_uncertainty_preserving_interpretation,
     summarize_unresolved_question_ledger,
 )
 from bijux_proteomics_knowledge import (
@@ -121,6 +132,143 @@ def test_evaluate_for_progression_holds_when_top_candidate_has_many_blockers() -
         "off-target risk",
         "yield risk",
     ]
+
+
+def test_uncertainty_preserving_summary_keeps_disagreement_visible() -> None:
+    evaluations = ScenarioSetEvaluation(
+        progression=ScenarioEvaluation(
+            scenario="progression",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.86,
+            unresolved_questions=["collect orthogonal assay"],
+        ),
+        synthesis=ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.HOLD,
+            confidence=0.58,
+            unresolved_questions=["confirm safety margin"],
+        ),
+        scale_up=ScenarioEvaluation(
+            scenario="scale_up",
+            action=ScenarioAction.HOLD,
+            confidence=0.55,
+            unresolved_questions=["confirm safety margin"],
+        ),
+        redesign=ScenarioEvaluation(
+            scenario="redesign",
+            action=ScenarioAction.REDESIGN,
+            confidence=0.62,
+            unresolved_questions=["candidate ranking indicates redesign pressure"],
+        ),
+    )
+
+    summary = summarize_uncertainty_preserving_interpretation(evaluations)
+
+    assert isinstance(summary, UncertaintyPreservingInterpretationSummary)
+    assert summary.conflicting_actions is True
+    assert summary.confidence_spread == 0.31
+    assert summary.unresolved_question_count == 3
+    assert isinstance(summary.scenario_entries[0], ScenarioUncertaintyEntry)
+    assert any("remain visible" in note for note in summary.notes)
+
+
+def test_comparative_candidate_review_packet_justifies_preferred_candidate() -> None:
+    ranking = CandidateRanking(
+        program_id="prog-compare",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-a",
+                score=1.18,
+                rank=1,
+                explainability={
+                    "top_drivers": ["strong evidence", "balanced manufacturability"],
+                    "blockers": ["minor assay follow-up"],
+                },
+            ),
+            RankedCandidate(
+                candidate_id="candidate-b",
+                score=1.04,
+                rank=2,
+                explainability={
+                    "top_drivers": ["high manufacturability"],
+                    "blockers": ["higher residual risk"],
+                },
+            ),
+        ],
+    )
+    assessments = [
+        CandidateAssessment(
+            candidate_id="candidate-a",
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            evidence_support=0.88,
+        ),
+        CandidateAssessment(
+            candidate_id="candidate-b",
+            sequence="ACDEFGHIKLMNPQRSTVWYA",
+            evidence_support=0.61,
+        ),
+    ]
+    risks = [
+        CandidateRiskProfile(candidate_id="candidate-a", residual_risk=0.18),
+        CandidateRiskProfile(candidate_id="candidate-b", residual_risk=0.34),
+    ]
+
+    packet = build_comparative_candidate_review_packet(
+        ranking,
+        assessments,
+        risks,
+        preferred_candidate_id="candidate-a",
+        compared_candidate_id="candidate-b",
+    )
+
+    assert isinstance(packet, ComparativeCandidateReviewPacket)
+    assert packet.preferred_candidate_id == "candidate-a"
+    assert packet.compared_candidate_id == "candidate-b"
+    assert packet.preferred_rank == 1
+    assert packet.evidence_support_delta == 0.27
+    assert packet.residual_risk_delta == 0.16
+    assert any("preferred drivers" in line for line in packet.rationale)
+
+
+def test_intelligence_outputs_remain_advisory_until_explicitly_promoted() -> None:
+    evaluations = ScenarioSetEvaluation(
+        progression=ScenarioEvaluation(
+            scenario="progression",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.82,
+        ),
+        synthesis=ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.8,
+        ),
+        scale_up=ScenarioEvaluation(
+            scenario="scale_up",
+            action=ScenarioAction.SCALE_UP,
+            confidence=0.78,
+        ),
+        redesign=ScenarioEvaluation(
+            scenario="redesign",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.76,
+        ),
+    )
+
+    advisory = build_intelligence_decision_support_envelope(
+        build_final_decision_recommendation(evaluations)
+    )
+    enforced = promote_intelligence_output_to_policy(
+        advisory,
+        policy_id="review-gate-policy",
+        promoted_by="review-board",
+        rationale="progression gate approved after human review",
+    )
+
+    assert isinstance(advisory, IntelligenceDecisionSupportEnvelope)
+    assert advisory.mode is IntelligenceOutputMode.ADVISORY
+    assert enforced.mode is IntelligenceOutputMode.ENFORCED
+    assert enforced.enforced_policy_id == "review-gate-policy"
+    assert enforced.promoted_by == "review-board"
 
 
 def test_evaluate_for_progression_holds_when_top_candidate_confidence_is_low() -> None:

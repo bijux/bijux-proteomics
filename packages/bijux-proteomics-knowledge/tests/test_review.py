@@ -4,6 +4,9 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge import (
+    CandidateDecisionDisposition,
+    CandidateDecisionGraphExplanation,
+    CandidateDecisionGraphQuery,
     ClaimStatus,
     DecisionGateProfile,
     EvidenceBundle,
@@ -11,9 +14,12 @@ from bijux_proteomics_knowledge import (
     EvidenceRecord,
     EvidenceStrength,
     KnowledgeReviewPacket,
+    OperationalDecisionLabel,
+    ScientificConclusion,
     build_claim,
     build_knowledge_review_packet,
     compare_review_packets,
+    explain_candidate_decision_with_graph,
     summarize_multi_decision_readiness,
     summarize_review_trend,
 )
@@ -71,6 +77,10 @@ def test_build_knowledge_review_packet_returns_integrated_sections() -> None:
     }
     assert any("gate recommendation" in line for line in packet.executive_summary)
     assert isinstance(packet.blocker_highlights, list)
+    assert isinstance(packet.scientific_conclusions[0], ScientificConclusion)
+    assert packet.scientific_conclusions[0].statement == "Candidate can progress."
+    assert isinstance(packet.operational_labels[0], OperationalDecisionLabel)
+    assert packet.operational_labels[0].label == packet.gate_recommendation
     assert 0.0 <= packet.decision_intelligence_index <= 1.0
 
 
@@ -201,6 +211,72 @@ def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
     assert (
         packet.gate_recommendation == "advance-with-targeted-gap-closure"
         or packet.gate_recommendation == "advance-with-evidence-hardening"
+    )
+
+
+def test_explain_candidate_decision_with_graph_surfaces_support_and_blockers() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-graph-explain",
+        target_id="target-graph-explain",
+        records=[
+            EvidenceRecord(
+                evidence_id="ev-support",
+                kind=EvidenceKind.ASSAY,
+                title="supportive assay",
+                source="lab",
+                claim="candidate supports progression",
+                decision_tags=["progression"],
+                confidence=0.84,
+                strength=EvidenceStrength.DECISIVE,
+                endpoint="activity_ratio",
+            ),
+            EvidenceRecord(
+                evidence_id="ev-contradict",
+                kind=EvidenceKind.STRUCTURE,
+                title="structure caution",
+                source="model",
+                claim="candidate may miss progression",
+                decision_tags=["progression"],
+                confidence=0.66,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+        ],
+    )
+    claims = [
+        build_claim(
+            claim_id="claim-support",
+            target_id="target-graph-explain",
+            statement="candidate can progress",
+            evidence_ids=["ev-support"],
+            contradicting_evidence_ids=["ev-contradict"],
+            status=ClaimStatus.SUPPORTED,
+            resolution_assays=["orthogonal assay"],
+        )
+    ]
+
+    explanation = explain_candidate_decision_with_graph(
+        bundle,
+        claims,
+        query=CandidateDecisionGraphQuery(
+            candidate_id="candidate-accepted",
+            decision_tag="progression",
+            disposition=CandidateDecisionDisposition.ACCEPTED,
+        ),
+        required_modalities=[EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
+    )
+
+    assert isinstance(explanation, CandidateDecisionGraphExplanation)
+    assert explanation.candidate_id == "candidate-accepted"
+    assert explanation.supporting_evidence_ids == ["ev-support"]
+    assert explanation.contradicting_evidence_ids == ["ev-contradict"]
+    assert explanation.unresolved_question_ids == [
+        "progression:open-claims-require-resolution"
+    ]
+    assert explanation.decision_subgraph.target_id == "target-graph-explain"
+    assert explanation.decision_paths
+    assert any(
+        "candidate-accepted is accepted" in line
+        for line in explanation.explanation_lines
     )
 
 

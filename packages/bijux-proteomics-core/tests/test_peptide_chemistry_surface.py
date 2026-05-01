@@ -10,15 +10,21 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics import (
+    AppliedModification,
     FragmentIonSeries,
+    IsotopicLabelingPolicy,
     MassType,
+    ModificationLocalizationState,
     ModificationPosition,
+    ModificationRegistryDocument,
+    ParsedModifiedPeptide,
     StaticModification,
     VariableModification,
     approximate_peptide_isotope_envelope,
     build_modification_localization_advisory,
     build_modification_registry,
     build_modified_peptide,
+    build_modified_peptide_export_record,
     build_peptide_charge_state,
     calculate_average_peptide_mass,
     calculate_fragment_ions,
@@ -26,10 +32,15 @@ from bijux_proteomics import (
     calculate_monoisotopic_peptide_mass,
     calculate_peptide_mz,
     canonicalize_modified_peptide,
+    enumerate_variable_modifications,
+    export_modified_peptides_jsonl,
+    export_modified_peptides_tsv,
     get_modification,
     load_modification_registry,
     modification_registry,
     parse_modified_peptide,
+    validate_modification_registry,
+    validate_modified_peptide_fragment_ions,
     validate_modified_peptide_sites,
 )
 
@@ -50,6 +61,30 @@ def test_mass_calculators_cover_monoisotopic_average_and_mz() -> None:
     assert isclose(mono_mass, 307.0838, rel_tol=0.0, abs_tol=1e-6)
     assert isclose(average_mass, 307.32148, rel_tol=0.0, abs_tol=1e-6)
     assert isclose(precursor_mz, 154.549176466812, rel_tol=0.0, abs_tol=1e-9)
+
+
+def test_mass_calculators_match_curated_reference_fixture() -> None:
+    fixture = json.loads(_chemistry_fixture("reference_masses.json").read_text())
+
+    for case in fixture:
+        assert isclose(
+            calculate_monoisotopic_peptide_mass(case["sequence"]),
+            case["monoisotopic_mass"],
+            rel_tol=0.0,
+            abs_tol=1e-6,
+        )
+        assert isclose(
+            calculate_average_peptide_mass(case["sequence"]),
+            case["average_mass"],
+            rel_tol=0.0,
+            abs_tol=1e-6,
+        )
+        assert isclose(
+            calculate_peptide_mz(case["sequence"], charge=case["charge"]),
+            case["mz"],
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
 
 
 def test_static_modification_model_applies_residue_delta() -> None:
@@ -189,6 +224,63 @@ def test_fragment_ions_carry_modification_mass_shift_on_correct_side() -> None:
     )
 
 
+def test_fragment_ion_shift_validation_matches_only_impacted_fragments() -> None:
+    registry = modification_registry()
+    peptide = build_modified_peptide(
+        "PEMTIDE",
+        assignments=("Acetyl@n-term", "Oxidation@3"),
+        registry=registry,
+    )
+
+    report = validate_modified_peptide_fragment_ions(
+        peptide,
+        charges=(1,),
+        series=(FragmentIonSeries.B, FragmentIonSeries.Y),
+        registry=registry,
+    )
+
+    b1 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.B and entry.ordinal == 1
+    )
+    b2 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.B and entry.ordinal == 2
+    )
+    y1 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.Y and entry.ordinal == 1
+    )
+
+    assert report.valid is True
+    assert b1.shifted is True
+    assert isclose(b1.expected_shift_monoisotopic, 42.010565, rel_tol=0.0, abs_tol=1e-9)
+    assert b2.shifted is True
+    assert isclose(
+        b2.expected_shift_monoisotopic,
+        42.010565,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    )
+    b3 = next(
+        entry
+        for entry in report.entries
+        if entry.series is FragmentIonSeries.B and entry.ordinal == 3
+    )
+    assert b3.shifted is True
+    assert isclose(
+        b3.expected_shift_monoisotopic,
+        58.00548,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    )
+    assert y1.shifted is False
+    assert isclose(y1.observed_shift_monoisotopic, 0.0, rel_tol=0.0, abs_tol=1e-12)
+
+
 def test_build_modification_registry_creates_stable_document() -> None:
     registry = build_modification_registry(
         static_modifications=(
@@ -212,6 +304,34 @@ def test_build_modification_registry_creates_stable_document() -> None:
 
     assert registry.document_schema.document_kind == "peptide_modification_registry"
     assert registry.document_schema.content_hash is not None
+
+
+def test_modification_registry_validation_catches_duplicate_and_conflicting_definitions() -> (
+    None
+):
+    duplicate_registry = ModificationRegistryDocument.model_validate_json(
+        _modification_fixture("invalid_duplicate_registry.json").read_text()
+    )
+    conflicting_registry = ModificationRegistryDocument.model_validate_json(
+        _modification_fixture("invalid_conflicting_registry.json").read_text()
+    )
+
+    duplicate_report = validate_modification_registry(duplicate_registry)
+    conflicting_report = validate_modification_registry(conflicting_registry)
+
+    assert duplicate_report.valid is False
+    assert duplicate_report.issues[0].code == "duplicate_modification_name"
+    assert conflicting_report.valid is False
+    assert conflicting_report.issues[0].code == "conflicting_controlled_id"
+
+    with pytest.raises(ValueError, match="defined more than once"):
+        load_modification_registry(
+            _modification_fixture("invalid_duplicate_registry.json")
+        )
+    with pytest.raises(ValueError, match="conflicting registry definitions"):
+        load_modification_registry(
+            _modification_fixture("invalid_conflicting_registry.json")
+        )
 
 
 def test_modified_peptide_parser_rejects_invalid_site_assignment() -> None:
@@ -250,6 +370,198 @@ def test_build_modified_peptide_supports_assignment_syntax() -> None:
     )
 
     assert peptide.canonical_notation == "[Acetyl]-PES[Phospho]TIDE"
+    assert peptide.modifications[0].provenance is not None
+    assert peptide.modifications[0].provenance.rule_path == (
+        "modification_registry",
+        "variable",
+        "Acetyl",
+    )
+
+
+def test_named_and_delta_modifications_record_assignment_provenance() -> None:
+    registry = modification_registry()
+    named = parse_modified_peptide("M[Oxidation]PEPTIDE", registry=registry)
+    delta = parse_modified_peptide("M[+15.994915]PEPTIDE", registry=registry)
+
+    assert named.modifications[0].provenance is not None
+    assert named.modifications[0].provenance.assignment_token == "Oxidation"
+    assert named.modifications[0].provenance.rule_path == (
+        "modification_registry",
+        "variable",
+        "Oxidation",
+    )
+    assert delta.modifications[0].provenance is not None
+    assert delta.modifications[0].provenance.assignment_token == "+15.994915"
+    assert delta.modifications[0].provenance.rule_path == (
+        "explicit_delta",
+        "+15.994915",
+    )
+
+
+def test_build_modified_peptide_supports_explicit_protein_terminal_assignments() -> (
+    None
+):
+    peptide = build_modified_peptide(
+        "PEPTIDE",
+        assignments=("Acetyl@protein-n-term", "Amidated@protein-c-term"),
+        registry=modification_registry(),
+        at_protein_n_term=True,
+        at_protein_c_term=True,
+    )
+
+    assert peptide.modifications[0].site is ModificationPosition.PROTEIN_N_TERM
+    assert peptide.modifications[1].site is ModificationPosition.PROTEIN_C_TERM
+    assert (
+        peptide.canonical_notation
+        == "[Acetyl@protein-n-term]-PEPTIDE-[Amidated@protein-c-term]"
+    )
+
+
+def test_parse_modified_peptide_supports_explicit_protein_terminal_notation() -> None:
+    peptide = parse_modified_peptide(
+        "[Acetyl@protein-n-term]-PEPTIDE-[Amidated@protein-c-term]",
+        registry=modification_registry(),
+        at_protein_n_term=True,
+        at_protein_c_term=True,
+    )
+
+    assert peptide.at_protein_n_term is True
+    assert peptide.at_protein_c_term is True
+    assert peptide.canonical_notation == (
+        "[Acetyl@protein-n-term]-PEPTIDE-[Amidated@protein-c-term]"
+    )
+
+
+def test_protein_terminal_modifications_require_explicit_terminal_context() -> None:
+    with pytest.raises(ValueError, match="protein N-terminus"):
+        build_modified_peptide(
+            "PEPTIDE",
+            assignments=("Acetyl@protein-n-term",),
+            registry=modification_registry(),
+        )
+
+
+def test_same_site_modification_stacking_is_refused() -> None:
+    with pytest.raises(ValueError, match="same physical site"):
+        build_modified_peptide(
+            "PESTIDE",
+            assignments=("Phospho@3", "+10.0@3"),
+            registry=modification_registry(),
+        )
+
+
+def test_variable_modification_enumeration_is_bounded_and_reported() -> None:
+    report = enumerate_variable_modifications(
+        "MMMM",
+        variable_modifications=(
+            VariableModification(
+                name="Oxidation",
+                residues=("M",),
+                mass_delta_monoisotopic=15.994915,
+                mass_delta_average=15.9994,
+                max_occurrences=4,
+            ),
+        ),
+        max_variants=5,
+    )
+
+    assert report.candidate_site_count == 4
+    assert report.generated_variant_count == 5
+    assert report.truncated is True
+    assert report.variants[0].canonical_notation == "MMMM"
+
+
+def test_variable_modification_enumeration_respects_max_occurrences() -> None:
+    report = enumerate_variable_modifications(
+        "MMM",
+        variable_modifications=(
+            VariableModification(
+                name="Oxidation",
+                residues=("M",),
+                mass_delta_monoisotopic=15.994915,
+                mass_delta_average=15.9994,
+                max_occurrences=1,
+            ),
+        ),
+        max_variants=10,
+    )
+
+    assert report.truncated is False
+    assert [entry.canonical_notation for entry in report.variants] == [
+        "MMM",
+        "M[Oxidation]MM",
+        "MM[Oxidation]M",
+        "MMM[Oxidation]",
+    ]
+
+
+def test_isotopic_label_modifications_require_explicit_policy() -> None:
+    heavy_registry = build_modification_registry(
+        variable_modifications=(
+            VariableModification(
+                name="HeavyLys8",
+                residues=("K",),
+                position=ModificationPosition.ANYWHERE,
+                mass_delta_monoisotopic=8.014199,
+                mass_delta_average=8.014199,
+                isotopic_label_family="silac_lys",
+            ),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="explicit labeling policy"):
+        build_modified_peptide(
+            "PEPKTIDE",
+            assignments=("HeavyLys8@4",),
+            registry=heavy_registry,
+        )
+
+    peptide = build_modified_peptide(
+        "PEPKTIDE",
+        assignments=("HeavyLys8@4",),
+        registry=heavy_registry,
+        labeling_policy=IsotopicLabelingPolicy(
+            allow_isotopic_labels=True,
+            allowed_label_families=("silac_lys",),
+        ),
+    )
+
+    assert peptide.modifications[0].mass_delta_monoisotopic == 8.014199
+
+
+def test_modified_peptide_export_record_stays_stable_across_jsonl_and_tsv(
+    tmp_path: Path,
+) -> None:
+    peptides = (
+        build_modified_peptide(
+            "PEPTIDE",
+            assignments=("Acetyl@n-term", "Amidated@c-term"),
+            registry=modification_registry(),
+        ),
+        build_modified_peptide(
+            "ASTY",
+            assignments=("Phospho@2",),
+            registry=modification_registry(),
+        ),
+    )
+    jsonl_path = tmp_path / "modified_peptides.jsonl"
+    tsv_path = tmp_path / "modified_peptides.tsv"
+
+    export_modified_peptides_jsonl(
+        peptides, jsonl_path, registry=modification_registry()
+    )
+    export_modified_peptides_tsv(peptides, tsv_path, registry=modification_registry())
+
+    jsonl_rows = [json.loads(line) for line in jsonl_path.read_text().splitlines()]
+    tsv_lines = tsv_path.read_text().splitlines()
+    export_record = build_modified_peptide_export_record(
+        peptides[0], registry=modification_registry()
+    )
+
+    assert jsonl_rows[0]["canonical_notation"] == export_record.canonical_notation
+    assert jsonl_rows[0]["modification_sites"] == list(export_record.modification_sites)
+    assert tsv_lines[1].split("\t")[0] == export_record.canonical_notation
+    assert tsv_lines[1].split("\t")[3] == ";".join(export_record.modification_sites)
 
 
 def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:
@@ -278,6 +590,80 @@ def test_localization_placeholder_is_advisory_and_reports_candidate_sites() -> N
     assert advisory.status.value == "advisory"
     assert advisory.candidates[0].candidate_site_indices == (2, 3, 4)
     assert advisory.candidates[0].ambiguous is True
+    assert (
+        advisory.candidates[0].localization_state
+        is ModificationLocalizationState.AMBIGUOUS
+    )
+
+
+def test_localization_advisory_reports_explicit_assignment_states() -> None:
+    registry = modification_registry()
+    phospho = get_modification("Phospho", registry=registry)
+    acetyl = get_modification("Acetyl", registry=registry)
+    advisory = build_modification_localization_advisory(
+        ParsedModifiedPeptide(
+            sequence="ASTY",
+            modifications=(
+                AppliedModification(
+                    name=acetyl.name,
+                    token=acetyl.name,
+                    site=ModificationPosition.PEPTIDE_N_TERM,
+                    site_index=None,
+                    residue=None,
+                    mass_delta_monoisotopic=acetyl.mass_delta_monoisotopic,
+                    mass_delta_average=acetyl.mass_delta_average,
+                    neutral_losses=acetyl.neutral_losses,
+                    controlled_id=acetyl.controlled_id,
+                    source="registry",
+                ),
+                AppliedModification(
+                    name=phospho.name,
+                    token=phospho.name,
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=None,
+                    residue=None,
+                    mass_delta_monoisotopic=phospho.mass_delta_monoisotopic,
+                    mass_delta_average=phospho.mass_delta_average,
+                    neutral_losses=phospho.neutral_losses,
+                    controlled_id=phospho.controlled_id,
+                    source="registry",
+                ),
+                AppliedModification(
+                    name=phospho.name,
+                    token=phospho.name,
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=1,
+                    residue="A",
+                    mass_delta_monoisotopic=phospho.mass_delta_monoisotopic,
+                    mass_delta_average=phospho.mass_delta_average,
+                    neutral_losses=phospho.neutral_losses,
+                    controlled_id=phospho.controlled_id,
+                    source="registry",
+                ),
+                AppliedModification(
+                    name="delta:+10.0",
+                    token="+10.0",
+                    site=ModificationPosition.ANYWHERE,
+                    site_index=None,
+                    residue=None,
+                    mass_delta_monoisotopic=10.0,
+                    mass_delta_average=10.0,
+                    neutral_losses=(),
+                    controlled_id=None,
+                    source="delta",
+                ),
+            ),
+            canonical_notation="[Acetyl]-ASTY",
+        ),
+        registry=registry,
+    )
+
+    assert [candidate.localization_state for candidate in advisory.candidates] == [
+        ModificationLocalizationState.LOCALIZED,
+        ModificationLocalizationState.UNLOCALIZED,
+        ModificationLocalizationState.CONFLICTING,
+        ModificationLocalizationState.UNSUPPORTED,
+    ]
 
 
 def test_chemistry_regression_fixture_pack_stays_stable() -> None:
@@ -312,6 +698,31 @@ def test_chemistry_regression_fixture_pack_stays_stable() -> None:
             rel_tol=0.0,
             abs_tol=1e-9,
         )
+
+
+def test_modified_peptide_canonicalization_fixture_pack_is_deterministic() -> None:
+    cases = json.loads(_chemistry_fixture("canonicalization_cases.json").read_text())
+    registry = modification_registry()
+
+    for case in cases:
+        for notation in case["inputs"]:
+            assert (
+                canonicalize_modified_peptide(notation, registry=registry)
+                == case["expected"]
+            )
+
+    forward = build_modified_peptide(
+        "PESTIDE",
+        assignments=("Acetyl@n-term", "Phospho@3"),
+        registry=registry,
+    )
+    reversed_assignments = build_modified_peptide(
+        "PESTIDE",
+        assignments=("Phospho@3", "Acetyl@n-term"),
+        registry=registry,
+    )
+
+    assert forward.canonical_notation == reversed_assignments.canonical_notation
 
 
 def test_mz_calculator_rejects_invalid_charge() -> None:

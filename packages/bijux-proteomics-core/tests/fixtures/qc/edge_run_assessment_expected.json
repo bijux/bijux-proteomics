@@ -1,0 +1,308 @@
+{
+  "advisory_failure_metric_keys": [
+    "spectrum_count"
+  ],
+  "blocked": true,
+  "document_schema": {
+    "content_hash": null,
+    "created_at": "2000-01-01T00:00:00Z",
+    "created_by": "bijux-proteomics-core",
+    "derived_from": [],
+    "document_id": null,
+    "document_kind": "qc_run_assessment_report",
+    "package_name": "bijux-proteomics-core",
+    "package_version": null,
+    "parent_document_id": null,
+    "parent_trace_id": null,
+    "revision": 1,
+    "schema_version": "1.0.0",
+    "source_system": "bijux-proteomics",
+    "status": "generated",
+    "tags": [],
+    "trace_id": null,
+    "updated_at": "2000-01-01T00:00:00Z",
+    "updated_by": null
+  },
+  "enforced_failure_metric_keys": [
+    "identification_rate"
+  ],
+  "metric_assessments": [
+    {
+      "disposition": "ADVISORY",
+      "enforced_violation": false,
+      "message": "Spectrum count breached fail threshold at 2",
+      "metric_key": "spectrum_count",
+      "metric_label": "Spectrum count",
+      "observed_value": 2.0,
+      "provenance": {
+        "lower_fail": 500.0,
+        "lower_warn": 1000.0,
+        "policy_name": "default-lcms-qc",
+        "policy_sha256": "<policy_sha256>",
+        "policy_version": "1.0.0",
+        "rule_sha256": "d423a34c0ffb075d9ca5c372fc05ff70da2ac2e631acfdae8c800a8ff16a75ea",
+        "triggered_threshold": "lower_fail",
+        "upper_fail": null,
+        "upper_warn": null
+      },
+      "severity": "FAIL",
+      "threshold_rule": {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": 500.0,
+        "lower_warn": 1000.0,
+        "metric_key": "spectrum_count",
+        "metric_label": "Spectrum count",
+        "unit": null,
+        "upper_fail": null,
+        "upper_warn": null
+      },
+      "unit": null,
+      "unknown_state_reason": null
+    },
+    {
+      "disposition": "ENFORCED",
+      "enforced_violation": true,
+      "message": "Identification rate breached fail threshold at 0 fraction",
+      "metric_key": "identification_rate",
+      "metric_label": "Identification rate",
+      "observed_value": 0.0,
+      "provenance": {
+        "lower_fail": 0.1,
+        "lower_warn": 0.2,
+        "policy_name": "default-lcms-qc",
+        "policy_sha256": "<policy_sha256>",
+        "policy_version": "1.0.0",
+        "rule_sha256": "89497bf22c0dfb693a7ef54fb8d170e74ccbc97d7bffb745988e4dd1caf72a02",
+        "triggered_threshold": "lower_fail",
+        "upper_fail": null,
+        "upper_warn": null
+      },
+      "severity": "FAIL",
+      "threshold_rule": {
+        "description": "",
+        "disposition": "ENFORCED",
+        "lower_fail": 0.1,
+        "lower_warn": 0.2,
+        "metric_key": "identification_rate",
+        "metric_label": "Identification rate",
+        "unit": "fraction",
+        "upper_fail": null,
+        "upper_warn": null
+      },
+      "unit": "fraction",
+      "unknown_state_reason": null
+    },
+    {
+      "disposition": "ENFORCED",
+      "enforced_violation": false,
+      "message": "Median absolute precursor error was not assessed because no matched psms",
+      "metric_key": "median_abs_mass_error_ppm",
+      "metric_label": "Median absolute precursor error",
+      "observed_value": null,
+      "provenance": {
+        "lower_fail": null,
+        "lower_warn": null,
+        "policy_name": "default-lcms-qc",
+        "policy_sha256": "<policy_sha256>",
+        "policy_version": "1.0.0",
+        "rule_sha256": "b875f0cb4b706e371da896566c56ce2be0348f82b5e9733c2ed4b8ba77f3f0a3",
+        "triggered_threshold": null,
+        "upper_fail": 20.0,
+        "upper_warn": 10.0
+      },
+      "severity": "NOT_ASSESSED",
+      "threshold_rule": {
+        "description": "",
+        "disposition": "ENFORCED",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "median_abs_mass_error_ppm",
+        "metric_label": "Median absolute precursor error",
+        "unit": "ppm",
+        "upper_fail": 20.0,
+        "upper_warn": 10.0
+      },
+      "unit": "ppm",
+      "unknown_state_reason": "no_matched_psms"
+    },
+    {
+      "disposition": "ADVISORY",
+      "enforced_violation": false,
+      "message": "Contaminant PSM fraction is within policy at 0 fraction",
+      "metric_key": "contaminant_psm_fraction",
+      "metric_label": "Contaminant PSM fraction",
+      "observed_value": 0.0,
+      "provenance": {
+        "lower_fail": null,
+        "lower_warn": null,
+        "policy_name": "default-lcms-qc",
+        "policy_sha256": "<policy_sha256>",
+        "policy_version": "1.0.0",
+        "rule_sha256": "b8b200d57e2637be09bb76ecc059f2cf11a3661ab008cd450e631de05c26b36e",
+        "triggered_threshold": null,
+        "upper_fail": 0.2,
+        "upper_warn": 0.1
+      },
+      "severity": "PASS",
+      "threshold_rule": {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "contaminant_psm_fraction",
+        "metric_label": "Contaminant PSM fraction",
+        "unit": "fraction",
+        "upper_fail": 0.2,
+        "upper_warn": 0.1
+      },
+      "unit": "fraction",
+      "unknown_state_reason": null
+    },
+    {
+      "disposition": "ADVISORY",
+      "enforced_violation": false,
+      "message": "Missed-cleavage rate is within policy at 0 fraction",
+      "metric_key": "missed_cleavage_rate",
+      "metric_label": "Missed-cleavage rate",
+      "observed_value": 0.0,
+      "provenance": {
+        "lower_fail": null,
+        "lower_warn": null,
+        "policy_name": "default-lcms-qc",
+        "policy_sha256": "<policy_sha256>",
+        "policy_version": "1.0.0",
+        "rule_sha256": "c1a248aa44ec272875ab945fa08ce1e2403d2c8dcee1f9a778b08fc456e7a23f",
+        "triggered_threshold": null,
+        "upper_fail": 0.35,
+        "upper_warn": 0.2
+      },
+      "severity": "PASS",
+      "threshold_rule": {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "missed_cleavage_rate",
+        "metric_label": "Missed-cleavage rate",
+        "unit": "fraction",
+        "upper_fail": 0.35,
+        "upper_warn": 0.2
+      },
+      "unit": "fraction",
+      "unknown_state_reason": null
+    },
+    {
+      "disposition": "ADVISORY",
+      "enforced_violation": false,
+      "message": "Non-specific peptide fraction is within policy at 0 fraction",
+      "metric_key": "non_specific_fraction",
+      "metric_label": "Non-specific peptide fraction",
+      "observed_value": 0.0,
+      "provenance": {
+        "lower_fail": null,
+        "lower_warn": null,
+        "policy_name": "default-lcms-qc",
+        "policy_sha256": "<policy_sha256>",
+        "policy_version": "1.0.0",
+        "rule_sha256": "72fa7be663c6e974e0bbb92cf2b5da1b5c9a22b5d8ff386819bd3832fe4d0cec",
+        "triggered_threshold": null,
+        "upper_fail": 0.3,
+        "upper_warn": 0.15
+      },
+      "severity": "PASS",
+      "threshold_rule": {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "non_specific_fraction",
+        "metric_label": "Non-specific peptide fraction",
+        "unit": "fraction",
+        "upper_fail": 0.3,
+        "upper_warn": 0.15
+      },
+      "unit": "fraction",
+      "unknown_state_reason": null
+    }
+  ],
+  "overall_severity": "FAIL",
+  "policy_name": "default-lcms-qc",
+  "policy_sha256": "<policy_sha256>",
+  "policy_version": "1.0.0",
+  "run_id": "edge-run",
+  "threshold_profile": {
+    "advisory_rules": [
+      {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": 500.0,
+        "lower_warn": 1000.0,
+        "metric_key": "spectrum_count",
+        "metric_label": "Spectrum count",
+        "unit": null,
+        "upper_fail": null,
+        "upper_warn": null
+      },
+      {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "contaminant_psm_fraction",
+        "metric_label": "Contaminant PSM fraction",
+        "unit": "fraction",
+        "upper_fail": 0.2,
+        "upper_warn": 0.1
+      },
+      {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "missed_cleavage_rate",
+        "metric_label": "Missed-cleavage rate",
+        "unit": "fraction",
+        "upper_fail": 0.35,
+        "upper_warn": 0.2
+      },
+      {
+        "description": "",
+        "disposition": "ADVISORY",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "non_specific_fraction",
+        "metric_label": "Non-specific peptide fraction",
+        "unit": "fraction",
+        "upper_fail": 0.3,
+        "upper_warn": 0.15
+      }
+    ],
+    "enforced_rules": [
+      {
+        "description": "",
+        "disposition": "ENFORCED",
+        "lower_fail": 0.1,
+        "lower_warn": 0.2,
+        "metric_key": "identification_rate",
+        "metric_label": "Identification rate",
+        "unit": "fraction",
+        "upper_fail": null,
+        "upper_warn": null
+      },
+      {
+        "description": "",
+        "disposition": "ENFORCED",
+        "lower_fail": null,
+        "lower_warn": null,
+        "metric_key": "median_abs_mass_error_ppm",
+        "metric_label": "Median absolute precursor error",
+        "unit": "ppm",
+        "upper_fail": 20.0,
+        "upper_warn": 10.0
+      }
+    ],
+    "policy_name": "default-lcms-qc",
+    "policy_version": "1.0.0"
+  }
+}

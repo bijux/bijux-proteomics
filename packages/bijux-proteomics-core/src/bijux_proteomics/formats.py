@@ -13,12 +13,13 @@ from enum import StrEnum
 import hashlib
 import json
 from pathlib import Path
+import re
 import struct
 from typing import Any
 import zlib
 
 from defusedxml import ElementTree as ET
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics.chemistry import load_modification_registry
 from bijux_proteomics.identification import (
@@ -48,9 +49,16 @@ _CV_FLOAT32 = "MS:1000521"
 _CV_FLOAT64 = "MS:1000523"
 _CV_ZLIB = "MS:1000574"
 _CV_NO_COMPRESSION = "MS:1000576"
+_CV_INT32 = "MS:1000519"
+_CV_INT64 = "MS:1000522"
+_CV_NUMPRESS_LINEAR = "MS:1002312"
+_CV_NUMPRESS_PIC = "MS:1002313"
+_CV_NUMPRESS_SLOF = "MS:1002314"
+_CV_MS_LEVEL = "MS:1000511"
 _CV_SCAN_START_TIME = "MS:1000016"
 _CV_SELECTED_ION_MZ = "MS:1000744"
 _CV_CHARGE_STATE = "MS:1000041"
+_CV_ISOLATION_WINDOW_TARGET_MZ = "MS:1000827"
 
 
 class ProteomicsFormatKind(StrEnum):
@@ -62,6 +70,14 @@ class ProteomicsFormatKind(StrEnum):
     MZML = "mzml"
     MOD_REGISTRY = "mod-registry"
     DESIGN_TABLE = "design-table"
+
+
+class ExperimentalDesignSampleRole(StrEnum):
+    """Stable sample role carried by a design-table row."""
+
+    SAMPLE = "sample"
+    POOLED_REFERENCE = "pooled_reference"
+    QC_BRIDGE = "qc_bridge"
 
 
 class FormatValidationIssue(JsonModel):
@@ -114,6 +130,7 @@ class ExperimentalDesignEntry(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     sample_id: str = Field(..., min_length=1)
+    cohort: str | None = None
     condition: str = Field(..., min_length=1)
     replicate: int = Field(..., ge=1)
     fraction: int = Field(..., ge=1)
@@ -122,15 +139,21 @@ class ExperimentalDesignEntry(JsonModel):
     batch: str | None = None
     instrument: str | None = None
     search_engine: str | None = None
+    multiplex_group: str | None = None
+    multiplex_channel: str | None = None
+    sample_role: ExperimentalDesignSampleRole = ExperimentalDesignSampleRole.SAMPLE
 
     @field_validator(
         "sample_id",
+        "cohort",
         "condition",
         "spectra_file",
         "identifications_file",
         "batch",
         "instrument",
         "search_engine",
+        "multiplex_group",
+        "multiplex_channel",
         mode="before",
     )
     @classmethod
@@ -139,6 +162,21 @@ class ExperimentalDesignEntry(JsonModel):
             return None
         text = str(value).strip()
         return text or None
+
+    @model_validator(mode="after")
+    def _validate_multiplex_semantics(self) -> ExperimentalDesignEntry:
+        if bool(self.multiplex_group) != bool(self.multiplex_channel):
+            raise ValueError(
+                "multiplex_group and multiplex_channel must both be present when either is provided"
+            )
+        if (
+            self.sample_role is not ExperimentalDesignSampleRole.SAMPLE
+            and not self.multiplex_channel
+        ):
+            raise ValueError(
+                "non-sample multiplex roles require explicit multiplex_group and multiplex_channel"
+            )
+        return self
 
 
 class ExperimentalDesignRejectedRow(JsonModel):
@@ -217,6 +255,17 @@ class FormatValidationReport(JsonModel):
     valid: bool
     issues: tuple[FormatValidationIssue, ...] = Field(default_factory=tuple)
     summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class FormatDetectionDiagnostic(JsonModel):
+    """Stable detection report for supported and unsupported proteomics inputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_path: str = Field(..., min_length=1)
+    detected_format: ProteomicsFormatKind | None = None
+    supported: bool
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class FormatConversionTarget(StrEnum):
@@ -322,6 +371,17 @@ def _build_document_schema(document_kind: str) -> DocumentSchema:
     )
 
 
+def _scan_number_from_text(value: str | None) -> int | None:
+    if value is None:
+        return None
+    match = re.search(r"scan=(\d+)", value, flags=re.IGNORECASE)
+    if match is not None:
+        return int(match.group(1))
+    if value.isdigit():
+        return int(value)
+    return None
+
+
 def _parse_binary_values(
     binary_data_array: Any,
     *,
@@ -333,6 +393,10 @@ def _parse_binary_values(
     float_size = 8
     compressed = False
     binary_text = ""
+    precision_accessions: list[str] = []
+    compression_accessions: list[str] = []
+    supported_precisions = {_CV_FLOAT32, _CV_FLOAT64}
+    supported_compressions = {_CV_ZLIB, _CV_NO_COMPRESSION}
     for element in binary_data_array.iter():
         if _local_name(element.tag) == "cvParam":
             accession = element.attrib.get("accession")
@@ -342,12 +406,24 @@ def _parse_binary_values(
                 kind = "intensity"
             elif accession == _CV_FLOAT32:
                 float_size = 4
+                precision_accessions.append(accession)
             elif accession == _CV_FLOAT64:
                 float_size = 8
+                precision_accessions.append(accession)
+            elif accession in {_CV_INT32, _CV_INT64}:
+                precision_accessions.append(accession)
             elif accession == _CV_ZLIB:
                 compressed = True
+                compression_accessions.append(accession)
             elif accession == _CV_NO_COMPRESSION:
                 compressed = False
+                compression_accessions.append(accession)
+            elif accession in {
+                _CV_NUMPRESS_LINEAR,
+                _CV_NUMPRESS_PIC,
+                _CV_NUMPRESS_SLOF,
+            }:
+                compression_accessions.append(accession)
         elif _local_name(element.tag) == "binary":
             binary_text = (element.text or "").strip()
     if kind is None:
@@ -359,6 +435,60 @@ def _parse_binary_values(
             )
         )
         return None, None, issues
+    if not precision_accessions:
+        issues.append(
+            _issue(
+                "missing_binary_precision",
+                "binaryDataArray is missing a floating-point precision cvParam",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    if len(set(precision_accessions)) > 1:
+        issues.append(
+            _issue(
+                "conflicting_binary_precision",
+                "binaryDataArray declares multiple precision encodings",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    precision_accession = precision_accessions[0]
+    if precision_accession not in supported_precisions:
+        issues.append(
+            _issue(
+                "unsupported_binary_precision",
+                f"binaryDataArray precision {precision_accession} is not supported",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    if len(set(compression_accessions)) > 1:
+        issues.append(
+            _issue(
+                "conflicting_binary_compression",
+                "binaryDataArray declares multiple compression encodings",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
+    if (
+        compression_accessions
+        and compression_accessions[0] not in supported_compressions
+    ):
+        issues.append(
+            _issue(
+                "unsupported_binary_compression",
+                f"binaryDataArray compression {compression_accessions[0]} is not supported",
+                field=kind,
+                record_id=spectrum_id,
+            )
+        )
+        return kind, None, issues
     if not binary_text:
         issues.append(
             _issue(
@@ -423,9 +553,12 @@ def _parse_spectrum_element(
     )
     issues: list[FormatValidationIssue] = []
     expected_length = int(spectrum.attrib.get("defaultArrayLength", "0") or "0")
+    ms_level: int | None = None
     retention_time_seconds: float | None = None
     precursor_mz: float | None = None
     precursor_charge: int | None = None
+    parent_spectrum_id: str | None = None
+    product_isolation_mz: float | None = None
     mz_values: tuple[float, ...] | None = None
     intensity_values: tuple[float, ...] | None = None
 
@@ -433,7 +566,19 @@ def _parse_spectrum_element(
         if _local_name(element.tag) != "cvParam":
             continue
         accession = element.attrib.get("accession")
-        if accession == _CV_SCAN_START_TIME:
+        if accession == _CV_MS_LEVEL:
+            try:
+                ms_level = int(element.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_ms_level",
+                        str(exc),
+                        field="ms_level",
+                        record_id=spectrum_id,
+                    )
+                )
+        elif accession == _CV_SCAN_START_TIME:
             try:
                 retention_time_seconds = _parse_time_seconds(element)
             except ValueError as exc:
@@ -469,6 +614,34 @@ def _parse_spectrum_element(
                         record_id=spectrum_id,
                     )
                 )
+
+    for precursor in spectrum.iter():
+        if _local_name(precursor.tag) != "precursor":
+            continue
+        parent_spectrum_id = _strip_text(precursor.attrib.get("spectrumRef"))
+        break
+
+    for product in spectrum.iter():
+        if _local_name(product.tag) != "product":
+            continue
+        for cv_param in product.iter():
+            if _local_name(cv_param.tag) != "cvParam":
+                continue
+            if cv_param.attrib.get("accession") != _CV_ISOLATION_WINDOW_TARGET_MZ:
+                continue
+            try:
+                product_isolation_mz = float(cv_param.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_product_isolation_mz",
+                        str(exc),
+                        field="product_isolation_mz",
+                        record_id=spectrum_id,
+                    )
+                )
+            break
+        break
 
     for binary_data_array in spectrum.iter():
         if _local_name(binary_data_array.tag) != "binaryDataArray":
@@ -532,6 +705,11 @@ def _parse_spectrum_element(
     return (
         SpectrumModel(
             spectrum_id=spectrum_id,
+            native_id=spectrum_id,
+            scan_number=_scan_number_from_text(spectrum_id),
+            ms_level=ms_level,
+            parent_spectrum_id=parent_spectrum_id,
+            product_isolation_mz=product_isolation_mz,
             precursor_mz=precursor_mz or 1.0,
             precursor_charge=precursor_charge,
             retention_time_seconds=retention_time_seconds,
@@ -664,27 +842,78 @@ def export_spectra_jsonl(spectra: tuple[SpectrumModel, ...], path: Path) -> None
 
 def detect_proteomics_format(path: Path) -> ProteomicsFormatKind:
     """Detect the most likely proteomics format from file name and content."""
+    diagnostic = diagnose_proteomics_format(path)
+    if diagnostic.detected_format is None:
+        raise ValueError(
+            f"unsupported proteomics format for {path.name!r}: {'; '.join(diagnostic.reasons)}"
+        )
+    return diagnostic.detected_format
+
+
+def diagnose_proteomics_format(path: Path) -> FormatDetectionDiagnostic:
+    """Explain what was detected in one input path and why classification succeeded or failed."""
     suffix = path.suffix.lower()
+    reasons: list[str] = []
     if suffix in {".fasta", ".fa", ".faa"}:
-        return ProteomicsFormatKind.FASTA
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.FASTA,
+            supported=True,
+            reasons=(f"matched FASTA suffix {suffix}",),
+        )
     if suffix == ".mgf":
-        return ProteomicsFormatKind.MGF
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MGF,
+            supported=True,
+            reasons=("matched MGF suffix .mgf",),
+        )
     if suffix == ".mzml":
-        return ProteomicsFormatKind.MZML
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MZML,
+            supported=True,
+            reasons=("matched mzML suffix .mzml",),
+        )
     if path.name.endswith(".design.tsv") or path.name.endswith(".design.csv"):
-        return ProteomicsFormatKind.DESIGN_TABLE
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.DESIGN_TABLE,
+            supported=True,
+            reasons=("matched experimental design file name pattern",),
+        )
     text = _first_bytes_text(path)
     stripped = text.lstrip()
     if "<mzML" in text or f"{{{_NS_MZML}}}" in text:
-        return ProteomicsFormatKind.MZML
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MZML,
+            supported=True,
+            reasons=("matched mzML XML root content",),
+        )
     if stripped.startswith("BEGIN IONS"):
-        return ProteomicsFormatKind.MGF
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MGF,
+            supported=True,
+            reasons=("matched MGF block preamble",),
+        )
     if stripped.startswith(">"):
-        return ProteomicsFormatKind.FASTA
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.FASTA,
+            supported=True,
+            reasons=("matched FASTA record prefix",),
+        )
     if suffix == ".json" and (
         '"static_modifications"' in text or '"variable_modifications"' in text
     ):
-        return ProteomicsFormatKind.MOD_REGISTRY
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.MOD_REGISTRY,
+            supported=True,
+            reasons=("matched modification registry JSON fields",),
+        )
     header = stripped.splitlines()[0] if stripped.splitlines() else ""
     header_columns = {
         column.strip()
@@ -694,10 +923,37 @@ def detect_proteomics_format(path: Path) -> ProteomicsFormatKind:
     if {"sample_id", "condition", "replicate", "fraction", "spectra_file"}.issubset(
         header_columns
     ):
-        return ProteomicsFormatKind.DESIGN_TABLE
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.DESIGN_TABLE,
+            supported=True,
+            reasons=("matched experimental design header columns",),
+        )
     if {"spectrum_id", "peptide", "charge", "score"}.issubset(header_columns):
-        return ProteomicsFormatKind.PSM
-    raise ValueError(f"could not detect proteomics format for {path.name!r}")
+        return FormatDetectionDiagnostic(
+            input_path=str(path),
+            detected_format=ProteomicsFormatKind.PSM,
+            supported=True,
+            reasons=("matched PSM header columns",),
+        )
+    if suffix:
+        reasons.append(f"suffix {suffix!r} is not a supported proteomics input")
+    if stripped.startswith("<"):
+        reasons.append("XML content did not match an mzML root")
+    elif header_columns:
+        reasons.append(
+            "tabular header did not match supported PSM or design-table columns"
+        )
+    else:
+        reasons.append(
+            "content did not match supported FASTA, MGF, mzML, JSON, or table signatures"
+        )
+    return FormatDetectionDiagnostic(
+        input_path=str(path),
+        detected_format=None,
+        supported=False,
+        reasons=tuple(reasons),
+    )
 
 
 def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
@@ -755,8 +1011,12 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                     )
                 )
         try:
+            sample_role_value = (
+                values.get("sample_role") or ExperimentalDesignSampleRole.SAMPLE.value
+            )
             entry = ExperimentalDesignEntry(
                 sample_id=values.get("sample_id") or "",
+                cohort=values.get("cohort"),
                 condition=values.get("condition") or "",
                 replicate=int(values.get("replicate") or "0"),
                 fraction=int(values.get("fraction") or "0"),
@@ -765,6 +1025,9 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 batch=values.get("batch"),
                 instrument=values.get("instrument"),
                 search_engine=values.get("search_engine"),
+                multiplex_group=values.get("multiplex_group"),
+                multiplex_channel=values.get("multiplex_channel"),
+                sample_role=ExperimentalDesignSampleRole(sample_role_value),
             )
         except Exception as exc:  # noqa: BLE001
             issues.append(

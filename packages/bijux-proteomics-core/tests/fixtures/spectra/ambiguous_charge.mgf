@@ -1,0 +1,6 @@
+BEGIN IONS
+TITLE=ambiguous charge
+PEPMASS=500.2
+CHARGE=2+ and 3+
+100.0 10.0
+END IONS

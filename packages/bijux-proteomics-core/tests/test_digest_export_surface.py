@@ -11,6 +11,8 @@ from bijux_proteomics import (
     PeptideDigestionMode,
     build_digest_benchmark_report,
     build_digest_manifest,
+    build_digest_policy,
+    compute_digest_policy_hash,
     digest_protein_records,
     export_peptides_jsonl,
     export_peptides_parquet,
@@ -50,8 +52,26 @@ def test_digest_protein_records_and_manifest_are_stable(
     assert manifest.protease == "trypsin"
     assert manifest.input_record_count == 3
     assert manifest.output_peptide_count == len(peptides)
+    assert manifest.digest_policy.protease == "trypsin"
+    assert manifest.policy_hash == compute_digest_policy_hash(manifest.digest_policy)
     assert manifest.output_sha256 == peptide_export_fingerprint(peptides)
     assert manifest.document_schema.document_kind == "peptide_digest_manifest"
+
+
+def test_digest_policy_hash_captures_exact_cleavage_and_filter_assumptions() -> None:
+    policy = build_digest_policy(
+        protease="trypsin",
+        digestion_mode=PeptideDigestionMode.FULL,
+        missed_cleavages=1,
+        min_length=7,
+        max_length=30,
+        min_mass=500.0,
+        max_mass=3000.0,
+    )
+
+    assert policy.cleavage_residues == "KR"
+    assert policy.blocked_by_next == "P"
+    assert compute_digest_policy_hash(policy) == compute_digest_policy_hash(policy)
 
 
 def test_digest_exports_write_stable_tsv_and_jsonl(
@@ -95,6 +115,67 @@ def test_digest_export_fingerprint_is_reproducible(fasta_fixture_dir: Path) -> N
     )
 
     assert peptide_export_fingerprint(left) == peptide_export_fingerprint(right)
+
+
+def test_digest_repeatability_fixture_produces_identical_peptide_and_manifest_outputs() -> (
+    None
+):
+    input_fasta = (
+        Path(__file__).parent / "fixtures" / "digestion" / "repeatability_input.fasta"
+    )
+    report = parse_fasta_document(input_fasta.read_text(), mode=FastaParseMode.STRICT)
+
+    left = digest_protein_records(
+        report.accepted_records,
+        protease="trypsin",
+        missed_cleavages=1,
+        mode=PeptideDigestionMode.FULL,
+        min_length=2,
+        max_length=25,
+    )
+    right = digest_protein_records(
+        report.accepted_records,
+        protease="trypsin",
+        missed_cleavages=1,
+        mode=PeptideDigestionMode.FULL,
+        min_length=2,
+        max_length=25,
+    )
+
+    left_manifest = build_digest_manifest(
+        peptides=left,
+        protease="trypsin",
+        digestion_mode=PeptideDigestionMode.FULL,
+        missed_cleavages=1,
+        min_length=2,
+        max_length=25,
+        min_mass=None,
+        max_mass=None,
+        source_path=input_fasta,
+        input_record_count=report.total_records,
+    )
+    right_manifest = build_digest_manifest(
+        peptides=right,
+        protease="trypsin",
+        digestion_mode=PeptideDigestionMode.FULL,
+        missed_cleavages=1,
+        min_length=2,
+        max_length=25,
+        min_mass=None,
+        max_mass=None,
+        source_path=input_fasta,
+        input_record_count=report.total_records,
+    )
+
+    assert [peptide.to_dict() for peptide in left] == [
+        peptide.to_dict() for peptide in right
+    ]
+    assert peptide_export_fingerprint(left) == peptide_export_fingerprint(right)
+    assert left_manifest.policy_hash == right_manifest.policy_hash
+    assert left_manifest.output_sha256 == right_manifest.output_sha256
+    assert (
+        left_manifest.digest_policy.to_dict() == right_manifest.digest_policy.to_dict()
+    )
 
 
 def test_digest_benchmark_report_exposes_rate_metrics() -> None:

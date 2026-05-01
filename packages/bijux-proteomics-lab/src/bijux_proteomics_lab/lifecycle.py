@@ -1,0 +1,350 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Lifecycle transitions for review and promotion workflows."""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from enum import StrEnum
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics_foundation import (
+    AssayId,
+    BatchId,
+    ClaimId,
+    GateId,
+    JsonModel,
+    ProgramId,
+    PromotionId,
+    ReviewId,
+)
+
+
+class ReviewQueueState(StrEnum):
+    """State of one queued review decision."""
+
+    QUEUED = "queued"
+    IN_REVIEW = "in_review"
+    DEFERRED = "deferred"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
+class ReviewQueueDecision(JsonModel):
+    """Current review state for one program gate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    review_id: ReviewId = Field(..., description="Stable review decision identifier.")
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    gate_id: GateId = Field(..., description="Review gate identifier.")
+    state: ReviewQueueState = Field(..., description="Current review state.")
+    summary: str = Field(..., min_length=1, description="Current review summary.")
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence references used in the review decision.",
+    )
+
+
+class ReviewQueueTransition(JsonModel):
+    """One audited state transition in the review queue."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    review_id: ReviewId = Field(..., description="Review identifier.")
+    from_state: ReviewQueueState = Field(..., description="Previous review state.")
+    to_state: ReviewQueueState = Field(..., description="New review state.")
+    reason: str = Field(..., min_length=1, description="Why the transition occurred.")
+    actor: str = Field(..., min_length=1, description="Actor recording the change.")
+    changed_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the review transition was recorded.",
+    )
+
+
+class ReviewLifecycleAuditIssue(JsonModel):
+    """Issue found while auditing review transition history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    review_id: ReviewId = Field(..., description="Review identifier.")
+    code: str = Field(..., min_length=1, description="Stable audit issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue.")
+
+
+_ALLOWED_REVIEW_TRANSITIONS: dict[ReviewQueueState, set[ReviewQueueState]] = {
+    ReviewQueueState.QUEUED: {
+        ReviewQueueState.IN_REVIEW,
+        ReviewQueueState.DEFERRED,
+        ReviewQueueState.REJECTED,
+    },
+    ReviewQueueState.IN_REVIEW: {
+        ReviewQueueState.APPROVED,
+        ReviewQueueState.REJECTED,
+        ReviewQueueState.DEFERRED,
+    },
+    ReviewQueueState.DEFERRED: {
+        ReviewQueueState.QUEUED,
+        ReviewQueueState.IN_REVIEW,
+        ReviewQueueState.REJECTED,
+    },
+    ReviewQueueState.APPROVED: set(),
+    ReviewQueueState.REJECTED: set(),
+}
+
+
+def transition_review_queue(
+    review_id: ReviewId,
+    from_state: ReviewQueueState,
+    to_state: ReviewQueueState,
+    *,
+    reason: str,
+    actor: str,
+) -> ReviewQueueTransition:
+    """Build one validated review queue transition."""
+    if to_state not in _ALLOWED_REVIEW_TRANSITIONS[from_state]:
+        raise ValueError(f"invalid review transition: {from_state} -> {to_state}")
+    return ReviewQueueTransition(
+        review_id=review_id,
+        from_state=from_state,
+        to_state=to_state,
+        reason=reason,
+        actor=actor,
+    )
+
+
+def validate_review_transition_history(
+    transitions: list[ReviewQueueTransition],
+) -> list[ReviewLifecycleAuditIssue]:
+    """Validate review transition history coherence."""
+    if not transitions:
+        return []
+    ordered = sorted(transitions, key=lambda item: item.changed_at)
+    issues: list[ReviewLifecycleAuditIssue] = []
+    review_id = ordered[0].review_id
+    if any(item.review_id != review_id for item in ordered):
+        issues.append(
+            ReviewLifecycleAuditIssue(
+                review_id=review_id,
+                code="mixed-review-id",
+                message="review transition history should not mix review identifiers",
+            )
+        )
+        return issues
+    for left, right in zip(ordered, ordered[1:], strict=False):
+        if left.to_state is not right.from_state:
+            issues.append(
+                ReviewLifecycleAuditIssue(
+                    review_id=review_id,
+                    code="broken-review-chain",
+                    message="review transitions should chain through consecutive states",
+                )
+            )
+        if right.changed_at < left.changed_at:
+            issues.append(
+                ReviewLifecycleAuditIssue(
+                    review_id=review_id,
+                    code="out-of-order-review-time",
+                    message="review transition timestamps should be non-decreasing",
+                )
+            )
+    return issues
+
+
+class PromotionDecisionState(StrEnum):
+    """State of one lab-to-knowledge promotion decision."""
+
+    PENDING = "pending"
+    READY = "ready"
+    BLOCKED = "blocked"
+    PROMOTED = "promoted"
+    SUPERSEDED = "superseded"
+
+
+class PromotionDecision(JsonModel):
+    """Current promotion state for one assay outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    promotion_id: PromotionId = Field(
+        ..., description="Stable promotion decision identifier."
+    )
+    batch_id: BatchId = Field(..., description="Batch identifier.")
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    state: PromotionDecisionState = Field(..., description="Current promotion state.")
+    linked_claim_ids: list[ClaimId] = Field(
+        default_factory=list,
+        description="Claim identifiers updated by the promotion decision.",
+    )
+    related_evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers emitted by the promotion decision.",
+    )
+
+
+class PromotionTransition(JsonModel):
+    """One audited transition in promotion lifecycle state."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    promotion_id: PromotionId = Field(..., description="Promotion identifier.")
+    from_state: PromotionDecisionState = Field(
+        ..., description="Previous promotion state."
+    )
+    to_state: PromotionDecisionState = Field(..., description="New promotion state.")
+    reason: str = Field(..., min_length=1, description="Why the state changed.")
+    actor: str = Field(..., min_length=1, description="Actor recording the change.")
+    changed_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the transition was recorded.",
+    )
+
+
+class PromotionLifecycleAuditIssue(JsonModel):
+    """Issue found while auditing promotion transition history."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    promotion_id: PromotionId = Field(..., description="Promotion identifier.")
+    code: str = Field(..., min_length=1, description="Stable audit issue code.")
+    message: str = Field(..., min_length=1, description="Human-readable issue.")
+
+
+class CandidateLabAdvancementDisposition(StrEnum):
+    """Promotion or refusal outcome for advancing a candidate into lab work."""
+
+    PROMOTE = "promote"
+    REFUSE = "refuse"
+
+
+class CandidateLabAdvancementDecision(JsonModel):
+    """Auditable advancement decision for candidate entry into lab execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    candidate_id: str = Field(..., min_length=1, description="Candidate identifier.")
+    disposition: CandidateLabAdvancementDisposition = Field(
+        ..., description="Whether the candidate advances into lab work."
+    )
+    evidence_ids: list[str] = Field(
+        default_factory=list,
+        description="Evidence identifiers attached to the decision.",
+    )
+    reasons: list[str] = Field(
+        default_factory=list,
+        description="Primary reasons for promotion or refusal.",
+    )
+    follow_up_actions: list[str] = Field(
+        default_factory=list,
+        description="Actions that must happen next.",
+    )
+
+
+_ALLOWED_PROMOTION_TRANSITIONS: dict[
+    PromotionDecisionState, set[PromotionDecisionState]
+] = {
+    PromotionDecisionState.PENDING: {
+        PromotionDecisionState.READY,
+        PromotionDecisionState.BLOCKED,
+    },
+    PromotionDecisionState.READY: {
+        PromotionDecisionState.PROMOTED,
+        PromotionDecisionState.BLOCKED,
+    },
+    PromotionDecisionState.BLOCKED: {
+        PromotionDecisionState.PENDING,
+        PromotionDecisionState.SUPERSEDED,
+    },
+    PromotionDecisionState.PROMOTED: {PromotionDecisionState.SUPERSEDED},
+    PromotionDecisionState.SUPERSEDED: set(),
+}
+
+
+def transition_promotion_decision(
+    promotion_id: PromotionId,
+    from_state: PromotionDecisionState,
+    to_state: PromotionDecisionState,
+    *,
+    reason: str,
+    actor: str,
+) -> PromotionTransition:
+    """Build one validated promotion lifecycle transition."""
+    if to_state not in _ALLOWED_PROMOTION_TRANSITIONS[from_state]:
+        raise ValueError(f"invalid promotion transition: {from_state} -> {to_state}")
+    return PromotionTransition(
+        promotion_id=promotion_id,
+        from_state=from_state,
+        to_state=to_state,
+        reason=reason,
+        actor=actor,
+    )
+
+
+def validate_promotion_transition_history(
+    transitions: list[PromotionTransition],
+) -> list[PromotionLifecycleAuditIssue]:
+    """Validate promotion transition history coherence."""
+    if not transitions:
+        return []
+    ordered = sorted(transitions, key=lambda item: item.changed_at)
+    issues: list[PromotionLifecycleAuditIssue] = []
+    promotion_id = ordered[0].promotion_id
+    if any(item.promotion_id != promotion_id for item in ordered):
+        issues.append(
+            PromotionLifecycleAuditIssue(
+                promotion_id=promotion_id,
+                code="mixed-promotion-id",
+                message="promotion transition history should not mix promotion identifiers",
+            )
+        )
+        return issues
+    for left, right in zip(ordered, ordered[1:], strict=False):
+        if left.to_state is not right.from_state:
+            issues.append(
+                PromotionLifecycleAuditIssue(
+                    promotion_id=promotion_id,
+                    code="broken-promotion-chain",
+                    message="promotion transitions should chain through consecutive states",
+                )
+            )
+        if right.changed_at < left.changed_at:
+            issues.append(
+                PromotionLifecycleAuditIssue(
+                    promotion_id=promotion_id,
+                    code="out-of-order-promotion-time",
+                    message="promotion transition timestamps should be non-decreasing",
+                )
+            )
+    return issues
+
+
+def decide_candidate_lab_advancement(
+    *,
+    program_id: ProgramId,
+    candidate_id: str,
+    evidence_ids: list[str],
+    blocking_findings: list[str],
+    recommended_actions: list[str],
+    ready_for_synthesis: bool,
+) -> CandidateLabAdvancementDecision:
+    """Decide whether a candidate should advance into lab execution."""
+    if ready_for_synthesis and not blocking_findings:
+        return CandidateLabAdvancementDecision(
+            program_id=program_id,
+            candidate_id=candidate_id,
+            disposition=CandidateLabAdvancementDisposition.PROMOTE,
+            evidence_ids=evidence_ids,
+            reasons=["review packet is ready for lab execution"],
+            follow_up_actions=recommended_actions,
+        )
+    return CandidateLabAdvancementDecision(
+        program_id=program_id,
+        candidate_id=candidate_id,
+        disposition=CandidateLabAdvancementDisposition.REFUSE,
+        evidence_ids=evidence_ids,
+        reasons=blocking_findings or ["review packet is not ready for lab execution"],
+        follow_up_actions=recommended_actions,
+    )

@@ -1,0 +1,3 @@
+scan_number	sequence_with_mods	precursor_charge	score_value	leading_proteins	reverse_flag	pep_value
+mq-pipe-1	PEPTIDE	2	102.3	P12345		0.001
+mq-pipe-2	PEPTIDER	3	77.1	REV__P99999	+	0.020

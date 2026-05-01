@@ -57,6 +57,8 @@ class DigestedPeptide(JsonModel):
 
     source_accession: str = Field(..., min_length=1)
     source_identifier: str = Field(..., min_length=1)
+    source_protein_family: str = Field(..., min_length=1)
+    source_isoform: int | None = Field(default=None, ge=1)
     sequence: str = Field(..., min_length=1)
     start: int = Field(..., ge=1)
     end: int = Field(..., ge=1)
@@ -82,10 +84,35 @@ class PeptideFilterReport(JsonModel):
     excluded_by_mass: int = Field(default=0, ge=0)
 
 
+class DigestDuplicateSequenceEntry(JsonModel):
+    """One repeated peptide sequence with explicit occurrence accounting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(..., min_length=1)
+    occurrence_count: int = Field(..., ge=2)
+    protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DigestDuplicateAccounting(JsonModel):
+    """Honest peptide duplicate accounting for one digestion result."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_peptide_occurrences: int = Field(..., ge=0)
+    unique_sequence_count: int = Field(..., ge=0)
+    duplicate_sequence_count: int = Field(..., ge=0)
+    duplicate_occurrence_count: int = Field(..., ge=0)
+    repeated_sequences: tuple[DigestDuplicateSequenceEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class PeptideUniqueness(StrEnum):
     """Classification of peptide uniqueness across proteins."""
 
     UNIQUE = "unique"
+    SHARED_ISOFORM_FAMILY = "shared_isoform_family"
     SHARED = "shared"
 
 
@@ -96,6 +123,7 @@ class PeptideUniquenessEntry(JsonModel):
 
     sequence: str = Field(..., min_length=1)
     protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    protein_families: tuple[str, ...] = Field(default_factory=tuple)
     uniqueness: PeptideUniqueness
 
 
@@ -106,9 +134,23 @@ class PeptideProteinIndexEntry(JsonModel):
 
     sequence: str = Field(..., min_length=1)
     protein_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    protein_families: tuple[str, ...] = Field(default_factory=tuple)
     source_identifiers: tuple[str, ...] = Field(default_factory=tuple)
-    coordinates: tuple[tuple[str, int, int], ...] = Field(default_factory=tuple)
+    coordinates: tuple[PeptideOriginCoordinate, ...] = Field(default_factory=tuple)
     uniqueness: PeptideUniqueness
+
+
+class PeptideOriginCoordinate(JsonModel):
+    """One peptide origin coordinate with preserved accession family metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_accession: str = Field(..., min_length=1)
+    protein_family: str = Field(..., min_length=1)
+    source_identifier: str = Field(..., min_length=1)
+    start: int = Field(..., ge=1)
+    end: int = Field(..., ge=1)
+    isoform: int | None = Field(default=None, ge=1)
 
 
 class PeptideDigestManifest(JsonModel):
@@ -117,6 +159,8 @@ class PeptideDigestManifest(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     document_schema: DocumentSchema
+    digest_policy: DigestPolicy
+    policy_hash: str = Field(..., min_length=64, max_length=64)
     protease: str = Field(..., min_length=1)
     digestion_mode: PeptideDigestionMode
     missed_cleavages: int = Field(..., ge=0)
@@ -142,6 +186,24 @@ class DigestBenchmarkReport(JsonModel):
     elapsed_seconds: float = Field(..., ge=0.0)
     peak_memory_bytes: int | None = Field(default=None, ge=0)
     peptides_per_second: float = Field(..., ge=0.0)
+
+
+class DigestPolicy(JsonModel):
+    """Stable digestion assumptions that must survive export and rerun."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protease: str = Field(..., min_length=1)
+    cleavage_mode: ProteaseCleavageMode
+    cleavage_residues: str = Field(..., min_length=1)
+    blocked_by_next: str = ""
+    blocked_by_previous: str = ""
+    digestion_mode: PeptideDigestionMode
+    missed_cleavages: int = Field(..., ge=0)
+    min_length: int | None = None
+    max_length: int | None = None
+    min_mass: float | None = None
+    max_mass: float | None = None
 
 
 _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
@@ -283,25 +345,54 @@ def classify_peptide_uniqueness(
     peptides: tuple[DigestedPeptide, ...],
 ) -> tuple[PeptideUniquenessEntry, ...]:
     """Classify peptides as unique or shared across parent proteins."""
-    sequence_to_accessions: dict[str, set[str]] = {}
+    sequence_to_peptides: dict[str, list[DigestedPeptide]] = {}
     for peptide in peptides:
-        sequence_to_accessions.setdefault(peptide.sequence, set()).add(
-            peptide.source_accession
-        )
+        sequence_to_peptides.setdefault(peptide.sequence, []).append(peptide)
 
     entries = [
         PeptideUniquenessEntry(
             sequence=sequence,
-            protein_accessions=tuple(sorted(accessions)),
-            uniqueness=(
-                PeptideUniqueness.UNIQUE
-                if len(accessions) == 1
-                else PeptideUniqueness.SHARED
+            protein_accessions=tuple(
+                sorted({peptide.source_accession for peptide in members})
             ),
+            protein_families=tuple(
+                sorted({peptide.source_protein_family for peptide in members})
+            ),
+            uniqueness=_classify_peptide_uniqueness_members(members),
         )
-        for sequence, accessions in sorted(sequence_to_accessions.items())
+        for sequence, members in sorted(sequence_to_peptides.items())
     ]
     return tuple(entries)
+
+
+def build_digest_duplicate_accounting(
+    peptides: tuple[DigestedPeptide, ...],
+) -> DigestDuplicateAccounting:
+    """Summarize repeated peptide sequences without hiding total occurrences."""
+    grouped: dict[str, list[DigestedPeptide]] = {}
+    for peptide in peptides:
+        grouped.setdefault(peptide.sequence, []).append(peptide)
+
+    repeated_sequences = tuple(
+        DigestDuplicateSequenceEntry(
+            sequence=sequence,
+            occurrence_count=len(members),
+            protein_accessions=tuple(
+                sorted({member.source_accession for member in members})
+            ),
+        )
+        for sequence, members in sorted(grouped.items())
+        if len(members) > 1
+    )
+    return DigestDuplicateAccounting(
+        total_peptide_occurrences=len(peptides),
+        unique_sequence_count=len(grouped),
+        duplicate_sequence_count=len(repeated_sequences),
+        duplicate_occurrence_count=sum(
+            entry.occurrence_count - 1 for entry in repeated_sequences
+        ),
+        repeated_sequences=repeated_sequences,
+    )
 
 
 def build_peptide_protein_index(
@@ -315,26 +406,42 @@ def build_peptide_protein_index(
     entries: list[PeptideProteinIndexEntry] = []
     for sequence, members in sorted(grouped.items()):
         accessions = tuple(sorted({member.source_accession for member in members}))
+        protein_families = tuple(
+            sorted({member.source_protein_family for member in members})
+        )
         identifiers = tuple(sorted({member.source_identifier for member in members}))
+        coordinate_keys = sorted(
+            {
+                (
+                    member.source_accession,
+                    member.source_protein_family,
+                    member.source_identifier,
+                    member.start,
+                    member.end,
+                    member.source_isoform,
+                )
+                for member in members
+            }
+        )
         coordinates = tuple(
-            sorted(
-                {
-                    (member.source_accession, member.start, member.end)
-                    for member in members
-                }
+            PeptideOriginCoordinate(
+                protein_accession=accession,
+                protein_family=protein_family,
+                source_identifier=source_identifier,
+                start=start,
+                end=end,
+                isoform=isoform,
             )
+            for accession, protein_family, source_identifier, start, end, isoform in coordinate_keys
         )
         entries.append(
             PeptideProteinIndexEntry(
                 sequence=sequence,
                 protein_accessions=accessions,
+                protein_families=protein_families,
                 source_identifiers=identifiers,
                 coordinates=coordinates,
-                uniqueness=(
-                    PeptideUniqueness.UNIQUE
-                    if len(accessions) == 1
-                    else PeptideUniqueness.SHARED
-                ),
+                uniqueness=_classify_peptide_uniqueness_members(members),
             )
         )
     return tuple(entries)
@@ -360,17 +467,21 @@ def digest_protein_records(
         identifier = getattr(record, "source_identifier", None) or getattr(
             record, "identifier", None
         )
+        isoform = getattr(record, "isoform", None)
         residues = getattr(record, "residues", None)
         if accession is None or identifier is None or residues is None:
             raise TypeError(
                 "digest_protein_records expects records with accession, identifier, and residues"
             )
+        stable_accession = _stable_protein_accession(str(accession), isoform=isoform)
         peptides.extend(
             digest_sequence(
                 residues,
                 protease=protease,
-                source_accession=str(accession),
+                source_accession=stable_accession,
                 source_identifier=str(identifier),
+                source_protein_family=str(accession),
+                source_isoform=isoform if isinstance(isoform, int) else None,
                 missed_cleavages=missed_cleavages,
                 mode=mode,
                 min_length=min_length,
@@ -393,6 +504,8 @@ def digest_sequence(
     protease: ProteaseRule | str = "trypsin",
     source_accession: str = "sequence",
     source_identifier: str | None = None,
+    source_protein_family: str | None = None,
+    source_isoform: int | None = None,
     missed_cleavages: int = 0,
     mode: PeptideDigestionMode = PeptideDigestionMode.FULL,
     min_length: int = 1,
@@ -404,12 +517,15 @@ def digest_sequence(
     boundaries = _full_digest_boundaries(normalized, rule)
     peptides: list[DigestedPeptide] = []
     identifier = source_identifier or source_accession
+    protein_family = source_protein_family or source_accession
     max_peptide_length = max_length if max_length is not None else len(normalized)
     if mode is PeptideDigestionMode.NON_SPECIFIC:
         return _non_specific_digest(
             normalized,
             source_accession=source_accession,
             source_identifier=identifier,
+            source_protein_family=protein_family,
+            source_isoform=source_isoform,
             protease=rule.name,
             min_length=min_length,
             max_length=max_peptide_length,
@@ -421,6 +537,8 @@ def digest_sequence(
             rule=rule,
             source_accession=source_accession,
             source_identifier=identifier,
+            source_protein_family=protein_family,
+            source_isoform=source_isoform,
             min_length=min_length,
             max_length=max_peptide_length,
         )
@@ -439,6 +557,8 @@ def digest_sequence(
                 DigestedPeptide(
                     source_accession=source_accession,
                     source_identifier=identifier,
+                    source_protein_family=protein_family,
+                    source_isoform=source_isoform,
                     sequence=peptide,
                     start=start + 1,
                     end=end,
@@ -555,6 +675,40 @@ def peptide_export_fingerprint(peptides: tuple[DigestedPeptide, ...]) -> str:
     ).hexdigest()
 
 
+def build_digest_policy(
+    *,
+    protease: ProteaseRule | str,
+    digestion_mode: PeptideDigestionMode,
+    missed_cleavages: int,
+    min_length: int | None,
+    max_length: int | None,
+    min_mass: float | None,
+    max_mass: float | None,
+) -> DigestPolicy:
+    """Build the stable digestion policy contract for one run."""
+    rule = get_protease_rule(protease) if isinstance(protease, str) else protease
+    return DigestPolicy(
+        protease=rule.name,
+        cleavage_mode=rule.cleavage_mode,
+        cleavage_residues=rule.cleavage_residues,
+        blocked_by_next=rule.blocked_by_next,
+        blocked_by_previous=rule.blocked_by_previous,
+        digestion_mode=digestion_mode,
+        missed_cleavages=missed_cleavages,
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+    )
+
+
+def compute_digest_policy_hash(policy: DigestPolicy) -> str:
+    """Return a stable hash over digestion assumptions."""
+    return hashlib.sha256(
+        json.dumps(policy.to_dict(), sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+
 def build_digest_manifest(
     *,
     peptides: tuple[DigestedPeptide, ...],
@@ -569,6 +723,15 @@ def build_digest_manifest(
     input_record_count: int,
 ) -> PeptideDigestManifest:
     """Build a stable digestion manifest."""
+    digest_policy = build_digest_policy(
+        protease=protease,
+        digestion_mode=digestion_mode,
+        missed_cleavages=missed_cleavages,
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+    )
     source_sha256 = (
         hashlib.sha256(source_path.read_bytes()).hexdigest()
         if source_path is not None
@@ -582,6 +745,8 @@ def build_digest_manifest(
     )
     manifest = PeptideDigestManifest(
         document_schema=schema,
+        digest_policy=digest_policy,
+        policy_hash=compute_digest_policy_hash(digest_policy),
         protease=protease,
         digestion_mode=digestion_mode,
         missed_cleavages=missed_cleavages,
@@ -622,6 +787,18 @@ def build_digest_benchmark_report(
     )
 
 
+def _classify_peptide_uniqueness_members(
+    peptides: list[DigestedPeptide] | tuple[DigestedPeptide, ...],
+) -> PeptideUniqueness:
+    accessions = {peptide.source_accession for peptide in peptides}
+    if len(accessions) == 1:
+        return PeptideUniqueness.UNIQUE
+    protein_families = {peptide.source_protein_family for peptide in peptides}
+    if len(protein_families) == 1:
+        return PeptideUniqueness.SHARED_ISOFORM_FAMILY
+    return PeptideUniqueness.SHARED
+
+
 def _full_digest_boundaries(sequence: str, rule: ProteaseRule) -> tuple[int, ...]:
     boundaries = [0]
     if not sequence:
@@ -660,6 +837,8 @@ def _semi_specific_digest(
     rule: ProteaseRule,
     source_accession: str,
     source_identifier: str,
+    source_protein_family: str,
+    source_isoform: int | None,
     min_length: int,
     max_length: int,
 ) -> tuple[DigestedPeptide, ...]:
@@ -685,6 +864,8 @@ def _semi_specific_digest(
                 DigestedPeptide(
                     source_accession=source_accession,
                     source_identifier=source_identifier,
+                    source_protein_family=source_protein_family,
+                    source_isoform=source_isoform,
                     sequence=sequence[start:end],
                     start=start + 1,
                     end=end,
@@ -712,6 +893,8 @@ def _semi_specific_digest(
                 DigestedPeptide(
                     source_accession=source_accession,
                     source_identifier=source_identifier,
+                    source_protein_family=source_protein_family,
+                    source_isoform=source_isoform,
                     sequence=sequence[start:end],
                     start=start + 1,
                     end=end,
@@ -731,6 +914,8 @@ def _non_specific_digest(
     *,
     source_accession: str,
     source_identifier: str,
+    source_protein_family: str,
+    source_isoform: int | None,
     protease: str,
     min_length: int,
     max_length: int,
@@ -745,6 +930,8 @@ def _non_specific_digest(
                 DigestedPeptide(
                     source_accession=source_accession,
                     source_identifier=source_identifier,
+                    source_protein_family=source_protein_family,
+                    source_isoform=source_isoform,
                     sequence=peptide,
                     start=start + 1,
                     end=end,
@@ -759,3 +946,9 @@ def _non_specific_digest(
 
 def _peptide_neutral_mass(sequence: str) -> float:
     return calculate_monoisotopic_peptide_mass(sequence)
+
+
+def _stable_protein_accession(accession: str, *, isoform: int | None) -> str:
+    if isoform is None:
+        return accession
+    return f"{accession}-{isoform}"

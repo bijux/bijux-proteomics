@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from bijux_proteomics import (
+    FastaParseMode,
     PeptideUniqueness,
     build_peptide_protein_index,
     classify_peptide_uniqueness,
+    digest_protein_records,
     digest_sequence,
+    parse_fasta_document,
 )
 
 
@@ -20,8 +23,10 @@ def test_classify_peptide_uniqueness_distinguishes_unique_and_shared_peptides() 
 
     assert by_sequence["AK"].uniqueness is PeptideUniqueness.SHARED
     assert by_sequence["AK"].protein_accessions == ("P11111", "P22222")
+    assert by_sequence["AK"].protein_families == ("P11111", "P22222")
     assert by_sequence["QQQK"].uniqueness is PeptideUniqueness.UNIQUE
     assert by_sequence["QQQK"].protein_accessions == ("P33333",)
+    assert by_sequence["QQQK"].protein_families == ("P33333",)
 
 
 def test_build_peptide_protein_index_tracks_parent_coordinates() -> None:
@@ -38,8 +43,79 @@ def test_build_peptide_protein_index_tracks_parent_coordinates() -> None:
     by_sequence = {entry.sequence: entry for entry in entries}
 
     assert by_sequence["AAK"].protein_accessions == ("P11111", "P22222")
-    assert by_sequence["AAK"].coordinates == (
-        ("P11111", 3, 5),
-        ("P22222", 2, 4),
-    )
+    assert [
+        coordinate.model_dump() for coordinate in by_sequence["AAK"].coordinates
+    ] == [
+        {
+            "protein_accession": "P11111",
+            "protein_family": "P11111",
+            "source_identifier": "protein-1",
+            "start": 3,
+            "end": 5,
+            "isoform": None,
+        },
+        {
+            "protein_accession": "P22222",
+            "protein_family": "P22222",
+            "source_identifier": "protein-2",
+            "start": 2,
+            "end": 4,
+            "isoform": None,
+        },
+    ]
     assert by_sequence["AK"].uniqueness is PeptideUniqueness.UNIQUE
+
+
+def test_digest_protein_records_preserves_isoform_specific_origin_coordinates() -> None:
+    report = parse_fasta_document(
+        (
+            ">sp|P12345|TP53_HUMAN canonical\nAKAK\n"
+            ">sp|P12345-2|TP53_HUMAN isoform 2\nAKAK\n"
+        ),
+        mode=FastaParseMode.STRICT,
+    )
+
+    entries = build_peptide_protein_index(
+        digest_protein_records(report.accepted_records)
+    )
+    by_sequence = {entry.sequence: entry for entry in entries}
+
+    assert by_sequence["AK"].protein_accessions == ("P12345", "P12345-2")
+    assert by_sequence["AK"].protein_families == ("P12345",)
+    assert by_sequence["AK"].uniqueness is PeptideUniqueness.SHARED_ISOFORM_FAMILY
+    assert [
+        coordinate.model_dump() for coordinate in by_sequence["AK"].coordinates
+    ] == [
+        {
+            "protein_accession": "P12345",
+            "protein_family": "P12345",
+            "source_identifier": "sp|P12345|TP53_HUMAN",
+            "start": 1,
+            "end": 2,
+            "isoform": None,
+        },
+        {
+            "protein_accession": "P12345",
+            "protein_family": "P12345",
+            "source_identifier": "sp|P12345|TP53_HUMAN",
+            "start": 3,
+            "end": 4,
+            "isoform": None,
+        },
+        {
+            "protein_accession": "P12345-2",
+            "protein_family": "P12345",
+            "source_identifier": "sp|P12345-2|TP53_HUMAN",
+            "start": 1,
+            "end": 2,
+            "isoform": 2,
+        },
+        {
+            "protein_accession": "P12345-2",
+            "protein_family": "P12345",
+            "source_identifier": "sp|P12345-2|TP53_HUMAN",
+            "start": 3,
+            "end": 4,
+            "isoform": 2,
+        },
+    ]

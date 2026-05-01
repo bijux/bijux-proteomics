@@ -11,6 +11,7 @@ import csv
 from enum import StrEnum
 import hashlib
 import json
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, field_validator
@@ -144,6 +145,26 @@ class PsmParseReport(JsonModel):
     column_mapping: SearchResultColumnMapping
 
 
+class TargetDecoyCollisionEntry(JsonModel):
+    """One target-decoy accession collision after base-accession normalization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    base_accession: str = Field(..., min_length=1)
+    target_refs: tuple[str, ...] = Field(default_factory=tuple)
+    decoy_refs: tuple[str, ...] = Field(default_factory=tuple)
+    spectrum_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class TargetDecoyCollisionReport(JsonModel):
+    """Validation result for target-decoy accession collisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    collisions: tuple[TargetDecoyCollisionEntry, ...] = Field(default_factory=tuple)
+
+
 class PeptideEvidenceEntry(JsonModel):
     """Rolled-up peptide-level evidence across PSMs."""
 
@@ -184,6 +205,9 @@ class FdrPolicy(JsonModel):
     score_orientation: str = Field(
         default="higher_better", pattern="^(higher_better|lower_better)$"
     )
+    tie_handling: str = Field(
+        default="score_group", pattern="^(score_group|stable_record_order)$"
+    )
     threshold: float | None = Field(default=None, ge=0.0)
     decoy_policy: TargetDecoyLabelPolicy = Field(default_factory=TargetDecoyLabelPolicy)
 
@@ -195,6 +219,8 @@ class FdrAnnotatedPsm(JsonModel):
 
     psm: PsmRecord
     rank: int = Field(..., ge=1)
+    tie_group_rank: int = Field(..., ge=1)
+    tie_group_size: int = Field(..., ge=1)
     cumulative_targets: int = Field(..., ge=0)
     cumulative_decoys: int = Field(..., ge=0)
     fdr: float = Field(..., ge=0.0)
@@ -239,12 +265,44 @@ class CalibrationPlotData(JsonModel):
     bins: tuple[CalibrationPlotBin, ...] = Field(default_factory=tuple)
 
 
+class ScoreOrientationAdvisoryCandidate(JsonModel):
+    """One candidate explanation for a score-orientation recommendation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    top_ranked_count: int = Field(..., ge=0)
+    top_target_count: int = Field(..., ge=0)
+    top_decoy_count: int = Field(..., ge=0)
+    top_mean_q_value: float | None = Field(default=None, ge=0.0)
+    support_score: float = Field(..., ge=0.0, le=1.0)
+    note: str = Field(..., min_length=1)
+
+
+class ScoreOrientationAdvisory(JsonModel):
+    """Advisory recommendation over score orientation, never an enforced choice."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    advisory_only: bool = True
+    recommended_orientation: str | None = Field(
+        default=None, pattern="^(higher_better|lower_better)$"
+    )
+    support_gap: float = Field(..., ge=0.0, le=1.0)
+    candidates: tuple[ScoreOrientationAdvisoryCandidate, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
+
+
 class FdrAuditEntry(JsonModel):
     """One sorted FDR-audit row with cumulative derivation state."""
 
     model_config = ConfigDict(extra="forbid")
 
     rank: int = Field(..., ge=1)
+    tie_group_rank: int = Field(..., ge=1)
+    tie_group_size: int = Field(..., ge=1)
     spectrum_id: str = Field(..., min_length=1)
     canonical_peptide: str = Field(..., min_length=1)
     raw_score: float
@@ -304,6 +362,50 @@ class LevelSpecificFdrReport(JsonModel):
     protein_entries: tuple[FdrLevelEntry, ...] = Field(default_factory=tuple)
 
 
+class FdrQValueMonotonicityCheck(JsonModel):
+    """One monotonicity verification result over an ordered FDR surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scope: str = Field(..., min_length=1)
+    entry_count: int = Field(..., ge=0)
+    valid: bool
+    first_break_rank: int | None = Field(default=None, ge=1)
+
+
+class FdrQValueMonotonicityReport(JsonModel):
+    """Verification report for q-value monotonicity across supported FDR surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    checks: tuple[FdrQValueMonotonicityCheck, ...] = Field(default_factory=tuple)
+
+
+class FdrEdgeCaseKind(StrEnum):
+    """Explicit edge-case classification for target-decoy result sets."""
+
+    MIXED = "mixed"
+    ALL_TARGET = "all_target"
+    ALL_DECOY = "all_decoy"
+    NO_DECOY = "no_decoy"
+    EMPTY = "empty"
+
+
+class FdrEdgeCaseReport(JsonModel):
+    """Structured report for notable target-decoy edge cases."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: FdrEdgeCaseKind
+    total_records: int = Field(..., ge=0)
+    target_count: int = Field(..., ge=0)
+    decoy_count: int = Field(..., ge=0)
+    mixed_count: int = Field(..., ge=0)
+    unknown_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
 class GroupedFdrBucket(JsonModel):
     """One grouped-FDR bucket with its own ranked entries."""
 
@@ -324,6 +426,14 @@ class GroupedFdrReport(JsonModel):
     groups: tuple[GroupedFdrBucket, ...] = Field(default_factory=tuple)
 
 
+class SharedPeptideAmbiguityReason(StrEnum):
+    """Reason a protein group remains ambiguous."""
+
+    INDISTINGUISHABLE_MEMBERS = "indistinguishable_members"
+    EXTERNAL_SHARED_PEPTIDES = "external_shared_peptides"
+    MIXED = "mixed"
+
+
 class ProteinGroupEntry(JsonModel):
     """One indistinguishable protein group from shared peptide evidence."""
 
@@ -340,11 +450,42 @@ class ProteinGroupEntry(JsonModel):
     target_decoy_label: TargetDecoyLabel
 
 
+class SharedPeptideAmbiguityEntry(JsonModel):
+    """Explanation for why a protein group remains ambiguous."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    shared_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    unique_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    outside_group_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    reason: SharedPeptideAmbiguityReason
+    explanation: str = Field(..., min_length=1)
+
+
+class SharedPeptideAmbiguityReport(JsonModel):
+    """Ambiguity explanations over the protein groups implied by peptide sharing."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[SharedPeptideAmbiguityEntry, ...] = Field(default_factory=tuple)
+
+
+class ParsimonyVariant(StrEnum):
+    """Named protein-parsimony policies supported by core inference."""
+
+    GREEDY_COVERAGE = "greedy_coverage"
+    UNIQUE_EVIDENCE_PRIORITY = "unique_evidence_priority"
+    BEST_SCORE_PRIORITY = "best_score_priority"
+
+
 class ParsimonyProteinEntry(JsonModel):
     """One protein selected by the greedy parsimony inference policy."""
 
     model_config = ConfigDict(extra="forbid")
 
+    variant: ParsimonyVariant
     selection_rank: int = Field(..., ge=1)
     protein_ref: str = Field(..., min_length=1)
     source_group_id: str = Field(..., min_length=1)
@@ -364,6 +505,148 @@ class RazorPeptideAssignment(JsonModel):
     candidate_proteins: tuple[str, ...] = Field(default_factory=tuple)
     assigned_protein: str = Field(..., min_length=1)
     rationale: str = Field(..., min_length=1)
+
+
+class RazorPeptideProvenanceEntry(JsonModel):
+    """Audit-friendly evidence for one razor peptide assignment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    candidate_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    assigned_protein: str = Field(..., min_length=1)
+    rationale: str = Field(..., min_length=1)
+    candidate_unique_peptide_counts: dict[str, int] = Field(default_factory=dict)
+    candidate_best_scores: dict[str, float] = Field(default_factory=dict)
+
+
+class RazorPeptideProvenanceReport(JsonModel):
+    """Razor assignment policy plus per-peptide audit evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_name: str = Field(..., min_length=1)
+    tie_break_order: tuple[str, ...] = Field(default_factory=tuple)
+    entries: tuple[RazorPeptideProvenanceEntry, ...] = Field(default_factory=tuple)
+
+
+class CombinedEvidenceQuantSupport(JsonModel):
+    """Quant support for one protein/sample slice inside a combined evidence view."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    abundance: float | None = Field(default=None, ge=0.0)
+
+
+class CombinedEvidenceEntry(JsonModel):
+    """Joined PSM, peptide, protein, PTM, and quant evidence for review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    spectrum_ids: tuple[str, ...] = Field(default_factory=tuple)
+    psm_count: int = Field(..., ge=0)
+    best_psm_q_value: float | None = Field(default=None, ge=0.0)
+    peptide_charge_states: tuple[int, ...] = Field(default_factory=tuple)
+    protein_group_id: str | None = None
+    protein_group_members: tuple[str, ...] = Field(default_factory=tuple)
+    parsimony_variants: tuple[ParsimonyVariant, ...] = Field(default_factory=tuple)
+    ptm_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    quant_support: tuple[CombinedEvidenceQuantSupport, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class CombinedEvidenceReport(JsonModel):
+    """Stable combined evidence view across identification-adjacent surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CombinedEvidenceEntry, ...] = Field(default_factory=tuple)
+
+
+class PeptideProteinTraceEntry(JsonModel):
+    """Stable peptide-to-protein trace row for downstream review and export."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    peptide: str = Field(..., min_length=1)
+    spectrum_ids: tuple[str, ...] = Field(default_factory=tuple)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    protein_group_ids: tuple[str, ...] = Field(default_factory=tuple)
+    charge_states: tuple[int, ...] = Field(default_factory=tuple)
+    best_score: float
+    best_q_value: float | None = Field(default=None, ge=0.0)
+
+
+class PeptideProteinTraceReport(JsonModel):
+    """Stable peptide-to-protein trace collection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[PeptideProteinTraceEntry, ...] = Field(default_factory=tuple)
+
+
+class InferenceDisagreementKind(StrEnum):
+    """Kinds of inference disagreements surfaced for review."""
+
+    PEPTIDE_ASSIGNMENT = "peptide_assignment"
+    PROTEIN_SET = "protein_set"
+
+
+class InferenceDisagreementEntry(JsonModel):
+    """One explicit disagreement between inference strategies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    subject_id: str = Field(..., min_length=1)
+    kind: InferenceDisagreementKind
+    strategy_assignments: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    note: str = Field(..., min_length=1)
+
+
+class InferenceDisagreementReport(JsonModel):
+    """Review-oriented report of disagreements between inference strategies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[InferenceDisagreementEntry, ...] = Field(default_factory=tuple)
+
+
+class ParsimonyVariantResult(JsonModel):
+    """Selections produced by one named protein-parsimony policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    variant: ParsimonyVariant
+    selected_proteins: tuple[ParsimonyProteinEntry, ...] = Field(default_factory=tuple)
+
+
+class ParsimonyVariantDifferenceEntry(JsonModel):
+    """Difference summary between two named parsimony policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    left_variant: ParsimonyVariant
+    right_variant: ParsimonyVariant
+    first_difference_rank: int | None = Field(default=None, ge=1)
+    shared_selected_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    left_only_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    right_only_proteins: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ParsimonyVariantComparisonReport(JsonModel):
+    """Comparison across multiple named parsimony policies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    results: tuple[ParsimonyVariantResult, ...] = Field(default_factory=tuple)
+    differences: tuple[ParsimonyVariantDifferenceEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class ProteinCoverageEntry(JsonModel):
@@ -434,6 +717,134 @@ class ConfidenceAssignment(JsonModel):
     explanation: str = Field(..., min_length=1)
 
 
+class ConfidenceCalibrationLevel(StrEnum):
+    """Evidence levels supported by the calibration assessment surface."""
+
+    PSM = "psm"
+    PEPTIDE = "peptide"
+    PROTEIN = "protein"
+
+
+class ConfidenceCalibrationEntry(JsonModel):
+    """Calibration-aware confidence summary beyond raw q-values."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_level: ConfidenceCalibrationLevel
+    entity_id: str = Field(..., min_length=1)
+    q_value: float | None = Field(default=None, ge=0.0)
+    normalized_score: float = Field(..., ge=0.0, le=1.0)
+    calibration_bin_lower: float = Field(..., ge=0.0, le=1.0)
+    calibration_bin_upper: float = Field(..., ge=0.0, le=1.0)
+    empirical_decoy_fraction: float = Field(..., ge=0.0, le=1.0)
+    support_score: float = Field(..., ge=0.0, le=1.0)
+    note: str = Field(..., min_length=1)
+
+
+class ConfidenceCalibrationReport(JsonModel):
+    """Calibration assessment that keeps empirical decoy context beside q-values."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_level: ConfidenceCalibrationLevel
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    entries: tuple[ConfidenceCalibrationEntry, ...] = Field(default_factory=tuple)
+    calibration_plot: CalibrationPlotData
+
+
+class LevelSpecificConfidenceAssignment(JsonModel):
+    """Confidence assignment for one explicit evidence level."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_level: FdrEvidenceLevel
+    entity_id: str = Field(..., min_length=1)
+    q_value: float = Field(..., ge=0.0)
+    label: ConfidenceLabel
+    explanation: str = Field(..., min_length=1)
+
+
+class LevelSpecificConfidenceReport(JsonModel):
+    """Separate confidence assignments for PSM, peptide, and protein levels."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    psm_assignments: tuple[LevelSpecificConfidenceAssignment, ...] = Field(
+        default_factory=tuple
+    )
+    peptide_assignments: tuple[LevelSpecificConfidenceAssignment, ...] = Field(
+        default_factory=tuple
+    )
+    protein_assignments: tuple[LevelSpecificConfidenceAssignment, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class ConfidenceThresholdSensitivityEntry(JsonModel):
+    """Accepted-entity changes at one explicit confidence threshold."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    threshold: float = Field(..., ge=0.0, le=1.0)
+    accepted_psm_count: int = Field(..., ge=0)
+    accepted_peptide_count: int = Field(..., ge=0)
+    accepted_protein_count: int = Field(..., ge=0)
+    accepted_picked_protein_count: int = Field(..., ge=0)
+    newly_accepted_psm_ids: tuple[str, ...] = Field(default_factory=tuple)
+    newly_accepted_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    newly_accepted_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    newly_accepted_picked_proteins: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ConfidenceThresholdSensitivityReport(JsonModel):
+    """Sensitivity report over explicit FDR acceptance thresholds."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    thresholds: tuple[float, ...] = Field(default_factory=tuple)
+    entries: tuple[ConfidenceThresholdSensitivityEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+class AcceptedPsmProvenanceEntry(JsonModel):
+    """Full accepted-PSM provenance row after target-decoy thresholding."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    peptide: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    target_decoy_label: TargetDecoyLabel
+    raw_score: float
+    normalized_score: float = Field(..., ge=0.0, le=1.0)
+    rank: int = Field(..., ge=1)
+    tie_group_rank: int = Field(..., ge=1)
+    tie_group_size: int = Field(..., ge=1)
+    cumulative_targets: int = Field(..., ge=0)
+    cumulative_decoys: int = Field(..., ge=0)
+    fdr: float = Field(..., ge=0.0)
+    q_value: float = Field(..., ge=0.0)
+    threshold: float | None = Field(default=None, ge=0.0)
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    score_transform: str = Field(..., min_length=1)
+
+
+class AcceptedPsmProvenanceReport(JsonModel):
+    """Accepted PSMs plus the exact policy context that retained them."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    threshold: float | None = Field(default=None, ge=0.0)
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    tie_handling: str = Field(..., pattern="^(score_group|stable_record_order)$")
+    score_transform: str = Field(..., min_length=1)
+    entries: tuple[AcceptedPsmProvenanceEntry, ...] = Field(default_factory=tuple)
+
+
 class PsmSummaryReport(JsonModel):
     """Compact search-result summary over normalized PSM records."""
 
@@ -483,6 +894,30 @@ class ProteinSummaryReport(JsonModel):
     protein_groups: tuple[ProteinSummaryEntry, ...] = Field(default_factory=tuple)
 
 
+class GroupedConfidenceEntry(JsonModel):
+    """Confidence summary for one indistinguishable protein group."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_id: str = Field(..., min_length=1)
+    representative_protein: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    peptide_count: int = Field(..., ge=0)
+    unique_peptide_count: int = Field(..., ge=0)
+    shared_peptide_count: int = Field(..., ge=0)
+    best_q_value: float | None = Field(default=None, ge=0.0)
+    confidence_label: ConfidenceLabel
+    explanation: str = Field(..., min_length=1)
+
+
+class GroupedConfidenceReport(JsonModel):
+    """Grouped confidence view over protein families and indistinguishable groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[GroupedConfidenceEntry, ...] = Field(default_factory=tuple)
+
+
 class SearchResultProvenanceManifest(JsonModel):
     """Stable manifest for one search-result parsing and filtering operation."""
 
@@ -497,6 +932,87 @@ class SearchResultProvenanceManifest(JsonModel):
     column_mapping: SearchResultColumnMapping
     decoy_policy: TargetDecoyLabelPolicy
     fdr_policy: FdrPolicy | None = None
+
+
+class DecoyStrategyValidationIssue(JsonModel):
+    """One validation issue for a custom target-decoy strategy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+
+
+class DecoyStrategyValidationReport(JsonModel):
+    """Validation result for a target-decoy labeling strategy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: TargetDecoyLabelPolicy
+    valid: bool
+    issues: tuple[DecoyStrategyValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class ReviewReadyEvidenceBundle(JsonModel):
+    """Production-ready evidence bundle for downstream scientific review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    threshold: float = Field(..., ge=0.0)
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    psm_summary: PsmSummaryReport
+    peptide_summary: PeptideSummaryReport
+    protein_summary: ProteinSummaryReport
+    accepted_psm_provenance: AcceptedPsmProvenanceReport
+    grouped_confidence: GroupedConfidenceReport
+    combined_evidence: CombinedEvidenceReport
+    peptide_traces: PeptideProteinTraceReport
+
+
+class PtmIdentificationObservation(JsonModel):
+    """Minimal PTM localization evidence needed for identification confidence checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    q_value: float = Field(..., ge=0.0, le=1.0)
+    localization_score: float = Field(..., ge=0.0, le=1.0)
+    candidate_site_count: int = Field(..., ge=1)
+    target_decoy_label: TargetDecoyLabel
+
+
+class PtmIdentificationConfidenceIssue(JsonModel):
+    """One validation issue for PTM-specific identification confidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+
+
+class PtmIdentificationConfidenceEntry(JsonModel):
+    """PTM evidence row plus site-confidence validation outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    valid: bool
+    issues: tuple[PtmIdentificationConfidenceIssue, ...] = Field(default_factory=tuple)
+
+
+class PtmIdentificationConfidenceReport(JsonModel):
+    """Validation summary for PTM-specific identification confidence claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    q_value_threshold: float = Field(..., ge=0.0, le=1.0)
+    min_localization_score: float = Field(..., ge=0.0, le=1.0)
+    entries: tuple[PtmIdentificationConfidenceEntry, ...] = Field(default_factory=tuple)
 
 
 def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...]:
@@ -530,6 +1046,166 @@ def _combine_labels(labels: tuple[TargetDecoyLabel, ...]) -> TargetDecoyLabel:
     return TargetDecoyLabel.MIXED
 
 
+def validate_target_decoy_policy(
+    policy: TargetDecoyLabelPolicy,
+    *,
+    sample_protein_refs: tuple[str, ...] = (),
+    sample_explicit_labels: tuple[str, ...] = (),
+) -> DecoyStrategyValidationReport:
+    """Validate a custom target-decoy strategy before downstream inference."""
+    issues: list[DecoyStrategyValidationIssue] = []
+    overlap = set(policy.explicit_decoy_values) & set(policy.explicit_target_values)
+    if overlap:
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="overlapping_explicit_values",
+                message=(
+                    "explicit target and decoy labels overlap: "
+                    + ", ".join(sorted(overlap))
+                ),
+                severity="error",
+            )
+        )
+    if not (
+        policy.protein_prefix
+        or policy.protein_suffix
+        or policy.explicit_decoy_values
+        or policy.explicit_target_values
+    ):
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="missing_decoy_rules",
+                message="target-decoy policy does not define any explicit labels or protein naming rules",
+                severity="error",
+            )
+        )
+    unknown_labels = tuple(
+        sorted(
+            {
+                label.strip().lower()
+                for label in sample_explicit_labels
+                if label.strip()
+                and label.strip().lower() not in policy.explicit_decoy_values
+                and label.strip().lower() not in policy.explicit_target_values
+            }
+        )
+    )
+    if unknown_labels:
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="unmapped_explicit_labels",
+                message=(
+                    "explicit labels are present in sample evidence but absent from the custom policy: "
+                    + ", ".join(unknown_labels)
+                ),
+                severity="warning",
+            )
+        )
+    target_like = {
+        protein_ref
+        for protein_ref in sample_protein_refs
+        if parse_target_decoy_label(protein_refs=(protein_ref,), policy=policy)
+        is TargetDecoyLabel.TARGET
+    }
+    decoy_like = {
+        protein_ref
+        for protein_ref in sample_protein_refs
+        if parse_target_decoy_label(protein_refs=(protein_ref,), policy=policy)
+        is TargetDecoyLabel.DECOY
+    }
+    if sample_protein_refs and not decoy_like:
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="sample_missing_decoy_matches",
+                message="sample protein references do not contain any accessions recognized as decoy by the custom policy",
+                severity="warning",
+            )
+        )
+    if (
+        target_like
+        and decoy_like
+        and any(
+            _base_accession_from_policy(target_ref, policy)
+            == _base_accession_from_policy(decoy_ref, policy)
+            for target_ref in target_like
+            for decoy_ref in decoy_like
+        )
+    ):
+        issues.append(
+            DecoyStrategyValidationIssue(
+                code="shared_base_accession_pairs",
+                message="sample evidence contains target and decoy accessions that collapse to the same base accession under the custom policy",
+                severity="warning",
+            )
+        )
+    return DecoyStrategyValidationReport(
+        policy=policy,
+        valid=not any(issue.severity == "error" for issue in issues),
+        issues=tuple(issues),
+    )
+
+
+def validate_ptm_identification_confidence(
+    observations: tuple[PtmIdentificationObservation, ...],
+    *,
+    q_value_threshold: float = 0.05,
+    min_localization_score: float = 0.75,
+) -> PtmIdentificationConfidenceReport:
+    """Validate whether PTM-specific identifications are strong enough for review."""
+    entries: list[PtmIdentificationConfidenceEntry] = []
+    for observation in observations:
+        issues: list[PtmIdentificationConfidenceIssue] = []
+        if observation.target_decoy_label is TargetDecoyLabel.DECOY:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="decoy_ptm_evidence",
+                    message="decoy PTM evidence cannot support a biological site claim",
+                    severity="error",
+                )
+            )
+        if observation.q_value > q_value_threshold:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="q_value_above_threshold",
+                    message=(
+                        f"q-value {observation.q_value:.4f} exceeds the PTM identification threshold"
+                    ),
+                    severity="error",
+                )
+            )
+        if observation.localization_score < min_localization_score:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="weak_localization_score",
+                    message=(
+                        "PTM localization score is below the minimum site-confidence threshold"
+                    ),
+                    severity="warning",
+                )
+            )
+        if observation.candidate_site_count > 1:
+            issues.append(
+                PtmIdentificationConfidenceIssue(
+                    code="ambiguous_site_localization",
+                    message="multiple candidate PTM sites remain plausible for this identification",
+                    severity="warning",
+                )
+            )
+        entries.append(
+            PtmIdentificationConfidenceEntry(
+                spectrum_id=observation.spectrum_id,
+                canonical_peptide=observation.canonical_peptide,
+                valid=not any(issue.severity == "error" for issue in issues),
+                issues=tuple(issues),
+            )
+        )
+    return PtmIdentificationConfidenceReport(
+        q_value_threshold=q_value_threshold,
+        min_localization_score=min_localization_score,
+        entries=tuple(entries),
+    )
+
+
 def parse_target_decoy_label(
     *,
     protein_refs: tuple[str, ...] = (),
@@ -560,6 +1236,75 @@ def parse_target_decoy_label(
             else TargetDecoyLabel.TARGET
         )
     return _combine_labels(tuple(labels))
+
+
+def _base_accession_from_policy(
+    protein_ref: str,
+    policy: TargetDecoyLabelPolicy,
+) -> str:
+    value = protein_ref
+    if policy.protein_prefix and value.startswith(policy.protein_prefix):
+        value = value[len(policy.protein_prefix) :]
+    if policy.protein_suffix and value.endswith(policy.protein_suffix):
+        value = value[: -len(policy.protein_suffix)]
+    return value
+
+
+def validate_target_decoy_accession_collisions(
+    records: tuple[PsmRecord, ...],
+    *,
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+) -> TargetDecoyCollisionReport:
+    """Detect target-decoy accession collisions before confidence scoring."""
+    active_policy = decoy_policy or TargetDecoyLabelPolicy()
+    collisions: list[TargetDecoyCollisionEntry] = []
+    for record in records:
+        grouped: dict[str, dict[str, set[str]]] = defaultdict(
+            lambda: {"target_refs": set(), "decoy_refs": set()}
+        )
+        for protein_ref in record.protein_refs:
+            bucket = grouped[_base_accession_from_policy(protein_ref, active_policy)]
+            label = parse_target_decoy_label(
+                protein_refs=(protein_ref,),
+                policy=active_policy,
+            )
+            if label is TargetDecoyLabel.DECOY:
+                bucket["decoy_refs"].add(protein_ref)
+            else:
+                bucket["target_refs"].add(protein_ref)
+        for base_accession, bucket in sorted(grouped.items()):
+            if bucket["target_refs"] and bucket["decoy_refs"]:
+                collisions.append(
+                    TargetDecoyCollisionEntry(
+                        base_accession=base_accession,
+                        target_refs=tuple(sorted(bucket["target_refs"])),
+                        decoy_refs=tuple(sorted(bucket["decoy_refs"])),
+                        spectrum_ids=(record.spectrum_id,),
+                    )
+                )
+    return TargetDecoyCollisionReport(
+        valid=not collisions,
+        collisions=tuple(collisions),
+    )
+
+
+def _raise_on_target_decoy_accession_collisions(
+    records: tuple[PsmRecord, ...],
+    *,
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+) -> None:
+    report = validate_target_decoy_accession_collisions(
+        records,
+        decoy_policy=decoy_policy,
+    )
+    if report.valid:
+        return
+    collision = report.collisions[0]
+    raise ValueError(
+        "target-decoy accession collision detected for "
+        f"{collision.base_accession!r}: targets={','.join(collision.target_refs)} "
+        f"decoys={','.join(collision.decoy_refs)}"
+    )
 
 
 def _row_issue(code: str, message: str, row_number: int) -> SearchResultValidationIssue:
@@ -940,10 +1685,15 @@ def calculate_basic_target_decoy_fdr(
     *,
     threshold: float | None = None,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
 ) -> tuple[FdrAnnotatedPsm, ...]:
     """Annotate PSMs with cumulative target-decoy FDR and monotonic q-values."""
     if score_orientation not in {"higher_better", "lower_better"}:
         raise ValueError("score_orientation must be 'higher_better' or 'lower_better'")
+    if tie_handling not in {"score_group", "stable_record_order"}:
+        raise ValueError("tie_handling must be 'score_group' or 'stable_record_order'")
+    _raise_on_target_decoy_accession_collisions(records, decoy_policy=decoy_policy)
 
     sorted_records = tuple(
         sorted(
@@ -970,23 +1720,54 @@ def calculate_basic_target_decoy_fdr(
     annotated: list[FdrAnnotatedPsm] = []
     cumulative_targets = 0
     cumulative_decoys = 0
-    for rank, record in enumerate(sorted_records, start=1):
-        if record.target_decoy_label is TargetDecoyLabel.DECOY:
-            cumulative_decoys += 1
-        else:
-            cumulative_targets += 1
-        fdr = min(cumulative_decoys / max(cumulative_targets, 1), 1.0)
-        annotated.append(
-            FdrAnnotatedPsm(
-                psm=record,
-                rank=rank,
-                cumulative_targets=cumulative_targets,
-                cumulative_decoys=cumulative_decoys,
-                fdr=fdr,
-                q_value=fdr,
-                accepted=threshold is None or fdr <= threshold,
-            )
+    score_groups: list[tuple[int, tuple[PsmRecord, ...]]] = []
+    if tie_handling == "score_group":
+        grouped: list[PsmRecord] = []
+        current_score: float | None = None
+        tie_group_rank = 0
+        for record in sorted_records:
+            if current_score is None or record.score == current_score:
+                grouped.append(record)
+                current_score = record.score
+                continue
+            tie_group_rank += 1
+            score_groups.append((tie_group_rank, tuple(grouped)))
+            grouped = [record]
+            current_score = record.score
+        if grouped:
+            tie_group_rank += 1
+            score_groups.append((tie_group_rank, tuple(grouped)))
+    else:
+        score_groups = [
+            (rank, (record,)) for rank, record in enumerate(sorted_records, start=1)
+        ]
+
+    rank = 1
+    for tie_group_rank, group in score_groups:
+        group_targets = sum(
+            1
+            for record in group
+            if record.target_decoy_label is not TargetDecoyLabel.DECOY
         )
+        group_decoys = len(group) - group_targets
+        cumulative_targets += group_targets
+        cumulative_decoys += group_decoys
+        fdr = min(cumulative_decoys / max(cumulative_targets, 1), 1.0)
+        for record in group:
+            annotated.append(
+                FdrAnnotatedPsm(
+                    psm=record,
+                    rank=rank,
+                    tie_group_rank=tie_group_rank,
+                    tie_group_size=len(group),
+                    cumulative_targets=cumulative_targets,
+                    cumulative_decoys=cumulative_decoys,
+                    fdr=fdr,
+                    q_value=fdr,
+                    accepted=threshold is None or fdr <= threshold,
+                )
+            )
+            rank += 1
 
     running_min = float("inf")
     revised: list[FdrAnnotatedPsm] = []
@@ -1058,6 +1839,211 @@ def normalize_psm_score_orientation(
     return tuple(normalized_entries)
 
 
+def _score_orientation_support_candidate(
+    records: tuple[PsmRecord, ...],
+    *,
+    orientation: str,
+    top_fraction: float,
+) -> ScoreOrientationAdvisoryCandidate:
+    sorted_records = _score_sorted_psm_records(
+        records,
+        score_orientation=orientation,
+    )
+    top_count = (
+        max(1, math.ceil(len(sorted_records) * top_fraction)) if sorted_records else 0
+    )
+    top_records = sorted_records[:top_count]
+    top_target_count = sum(
+        1
+        for record in top_records
+        if record.target_decoy_label is TargetDecoyLabel.TARGET
+    )
+    top_decoy_count = sum(
+        1
+        for record in top_records
+        if record.target_decoy_label is TargetDecoyLabel.DECOY
+    )
+    q_values = [record.q_value for record in top_records if record.q_value is not None]
+    top_mean_q_value = sum(q_values) / len(q_values) if q_values else None
+    labeled_count = top_target_count + top_decoy_count
+    decoy_fraction = top_decoy_count / labeled_count if labeled_count else 0.5
+    q_component = 1.0 - min(
+        top_mean_q_value if top_mean_q_value is not None else 0.5, 1.0
+    )
+    support_score = max(0.0, min(1.0, ((1.0 - decoy_fraction) + q_component) / 2.0))
+    return ScoreOrientationAdvisoryCandidate(
+        orientation=orientation,
+        top_ranked_count=top_count,
+        top_target_count=top_target_count,
+        top_decoy_count=top_decoy_count,
+        top_mean_q_value=top_mean_q_value,
+        support_score=support_score,
+        note=(
+            "candidate support is derived from target-decoy enrichment and q-value concentration near the top ranks"
+        ),
+    )
+
+
+def detect_score_orientation_advisory(
+    records: tuple[PsmRecord, ...],
+    *,
+    top_fraction: float = 0.25,
+) -> ScoreOrientationAdvisory:
+    """Recommend a score orientation as advisory evidence, never as an enforced rule."""
+    if not 0.0 < top_fraction <= 1.0:
+        raise ValueError("top_fraction must be greater than 0 and at most 1")
+
+    higher = _score_orientation_support_candidate(
+        records,
+        orientation="higher_better",
+        top_fraction=top_fraction,
+    )
+    lower = _score_orientation_support_candidate(
+        records,
+        orientation="lower_better",
+        top_fraction=top_fraction,
+    )
+    sorted_candidates = sorted(
+        (higher, lower),
+        key=lambda candidate: (-candidate.support_score, candidate.orientation),
+    )
+    support_gap = (
+        sorted_candidates[0].support_score - sorted_candidates[1].support_score
+    )
+    recommended_orientation = (
+        sorted_candidates[0].orientation if support_gap >= 0.05 else None
+    )
+    note = (
+        f"advisory evidence favors {recommended_orientation}"
+        if recommended_orientation is not None
+        else "advisory evidence is too balanced to recommend one score orientation"
+    )
+    return ScoreOrientationAdvisory(
+        advisory_only=True,
+        recommended_orientation=recommended_orientation,
+        support_gap=support_gap,
+        candidates=tuple(sorted_candidates),
+        note=note,
+    )
+
+
+def _records_for_confidence_calibration(
+    records: tuple[PsmRecord, ...],
+    *,
+    evidence_level: ConfidenceCalibrationLevel,
+) -> tuple[PsmRecord, ...]:
+    if evidence_level is ConfidenceCalibrationLevel.PSM:
+        return records
+    if evidence_level is ConfidenceCalibrationLevel.PEPTIDE:
+        rollups = rollup_peptide_evidence(records)
+        return tuple(
+            PsmRecord(
+                spectrum_id=entry.canonical_peptide,
+                peptide=entry.peptide,
+                canonical_peptide=entry.canonical_peptide,
+                charge=max(entry.charge_states) if entry.charge_states else 1,
+                score=entry.best_score,
+                q_value=entry.best_q_value,
+                protein_refs=entry.protein_refs,
+                target_decoy_label=entry.target_decoy_label,
+            )
+            for entry in rollups
+        )
+    protein_rollups = rollup_protein_evidence(records)
+    return tuple(
+        PsmRecord(
+            spectrum_id=entry.protein_ref,
+            peptide=entry.protein_ref,
+            canonical_peptide=entry.protein_ref,
+            charge=1,
+            score=entry.best_score,
+            q_value=entry.best_q_value,
+            protein_refs=(entry.protein_ref,),
+            target_decoy_label=entry.target_decoy_label,
+        )
+        for entry in protein_rollups
+    )
+
+
+def build_confidence_calibration_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    evidence_level: ConfidenceCalibrationLevel = ConfidenceCalibrationLevel.PSM,
+    score_orientation: str = "higher_better",
+    bin_count: int = 10,
+) -> ConfidenceCalibrationReport:
+    """Assess confidence with empirical calibration context beyond q-values."""
+    calibration_records = _records_for_confidence_calibration(
+        records,
+        evidence_level=evidence_level,
+    )
+    calibration_plot = build_calibration_plot_data(
+        calibration_records,
+        score_orientation=score_orientation,
+        bin_count=bin_count,
+    )
+    normalized_entries = normalize_psm_score_orientation(
+        calibration_records,
+        score_orientation=score_orientation,
+    )
+    entries: list[ConfidenceCalibrationEntry] = []
+    for entry in normalized_entries:
+        bin_match = next(
+            (
+                calibration_bin
+                for calibration_bin in calibration_plot.bins
+                if calibration_bin.bin_lower <= entry.normalized_score
+                and (
+                    entry.normalized_score < calibration_bin.bin_upper
+                    or calibration_bin.bin_upper == 1.0
+                )
+            ),
+            calibration_plot.bins[-1] if calibration_plot.bins else None,
+        )
+        if bin_match is None:
+            continue
+        q_value = next(
+            (
+                record.q_value
+                for record in calibration_records
+                if record.spectrum_id == entry.spectrum_id
+            ),
+            None,
+        )
+        q_component = 1.0 - min(q_value if q_value is not None else 0.5, 1.0)
+        support_score = max(
+            0.0,
+            min(
+                1.0,
+                (
+                    (1.0 - bin_match.decoy_fraction)
+                    + entry.normalized_score
+                    + q_component
+                )
+                / 3.0,
+            ),
+        )
+        entries.append(
+            ConfidenceCalibrationEntry(
+                evidence_level=evidence_level,
+                entity_id=entry.spectrum_id,
+                q_value=q_value,
+                normalized_score=entry.normalized_score,
+                calibration_bin_lower=bin_match.bin_lower,
+                calibration_bin_upper=bin_match.bin_upper,
+                empirical_decoy_fraction=bin_match.decoy_fraction,
+                support_score=support_score,
+                note="support combines normalized rank, q-value, and empirical decoy fraction in the matched calibration bin",
+            )
+        )
+    return ConfidenceCalibrationReport(
+        evidence_level=evidence_level,
+        score_orientation=score_orientation,
+        entries=tuple(entries),
+        calibration_plot=calibration_plot,
+    )
+
+
 def build_calibration_plot_data(
     records: tuple[PsmRecord, ...],
     *,
@@ -1121,24 +2107,114 @@ def build_calibration_plot_data(
     )
 
 
+def build_fdr_edge_case_report(
+    records: tuple[PsmRecord, ...],
+) -> FdrEdgeCaseReport:
+    """Build an explicit report for all-target, all-decoy, and no-decoy cases."""
+    target_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.TARGET
+    )
+    decoy_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.DECOY
+    )
+    mixed_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.MIXED
+    )
+    unknown_count = sum(
+        1 for record in records if record.target_decoy_label is TargetDecoyLabel.UNKNOWN
+    )
+    if not records:
+        kind = FdrEdgeCaseKind.EMPTY
+        note = "no PSM records were provided for FDR evaluation"
+    elif decoy_count == 0 and target_count == len(records):
+        kind = FdrEdgeCaseKind.ALL_TARGET
+        note = "all records are labeled target, so target-decoy separation cannot be checked"
+    elif target_count == 0 and decoy_count == len(records):
+        kind = FdrEdgeCaseKind.ALL_DECOY
+        note = "all records are labeled decoy, so no biological evidence can pass"
+    elif decoy_count == 0:
+        kind = FdrEdgeCaseKind.NO_DECOY
+        note = "no decoy records are present, so FDR behavior is advisory rather than comparative"
+    else:
+        kind = FdrEdgeCaseKind.MIXED
+        note = "target and decoy evidence are both present"
+    return FdrEdgeCaseReport(
+        kind=kind,
+        total_records=len(records),
+        target_count=target_count,
+        decoy_count=decoy_count,
+        mixed_count=mixed_count,
+        unknown_count=unknown_count,
+        note=note,
+    )
+
+
+def build_grouped_confidence_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    high_threshold: float = 0.01,
+    medium_threshold: float = 0.05,
+) -> GroupedConfidenceReport:
+    """Summarize confidence over indistinguishable protein groups."""
+    entries: list[GroupedConfidenceEntry] = []
+    for group in build_protein_groups(records):
+        q_value = group.best_q_value if group.best_q_value is not None else 1.0
+        if group.target_decoy_label is TargetDecoyLabel.DECOY:
+            label = ConfidenceLabel.DECOY
+            explanation = (
+                "decoy protein groups are never promoted to biological confidence"
+            )
+        elif q_value <= high_threshold:
+            label = ConfidenceLabel.HIGH
+            explanation = f"group q-value {q_value:.4f} is at or below the high-confidence threshold"
+        elif q_value <= medium_threshold:
+            label = ConfidenceLabel.MEDIUM
+            explanation = f"group q-value {q_value:.4f} is at or below the medium-confidence threshold"
+        else:
+            label = ConfidenceLabel.LOW
+            explanation = f"group q-value {q_value:.4f} is reviewable but above the medium-confidence threshold"
+        entries.append(
+            GroupedConfidenceEntry(
+                group_id=group.group_id,
+                representative_protein=group.representative_protein,
+                protein_refs=group.protein_refs,
+                peptide_count=len(group.peptides),
+                unique_peptide_count=group.unique_peptide_count,
+                shared_peptide_count=group.shared_peptide_count,
+                best_q_value=group.best_q_value,
+                confidence_label=label,
+                explanation=explanation,
+            )
+        )
+    return GroupedConfidenceReport(
+        entries=tuple(sorted(entries, key=lambda entry: entry.group_id))
+    )
+
+
 def compute_fdr_reproducibility_hash(
     records: tuple[PsmRecord, ...],
     *,
     threshold: float | None = None,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> str:
     """Compute a stable digest over the sorted FDR derivation inputs."""
     annotated = calculate_basic_target_decoy_fdr(
         records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        decoy_policy=None,
     )
     payload = {
         "score_orientation": score_orientation,
+        "tie_handling": tie_handling,
         "threshold": threshold,
         "entries": [
             {
                 "rank": entry.rank,
+                "tie_group_rank": entry.tie_group_rank,
+                "tie_group_size": entry.tie_group_size,
                 "spectrum_id": entry.psm.spectrum_id,
                 "canonical_peptide": entry.psm.canonical_peptide,
                 "charge": entry.psm.charge,
@@ -1163,9 +2239,14 @@ def build_fdr_audit_trail(
     *,
     threshold: float | None = None,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> FdrAuditTrail:
     """Build a stable audit trail for one target-decoy FDR calculation."""
-    policy = FdrPolicy(score_orientation=score_orientation, threshold=threshold)
+    policy = FdrPolicy(
+        score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        threshold=threshold,
+    )
     normalized_entries = normalize_psm_score_orientation(
         records,
         score_orientation=score_orientation,
@@ -1178,6 +2259,8 @@ def build_fdr_audit_trail(
         records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        decoy_policy=None,
     )
     audit_entries: list[FdrAuditEntry] = []
     for entry in annotated:
@@ -1187,6 +2270,8 @@ def build_fdr_audit_trail(
         audit_entries.append(
             FdrAuditEntry(
                 rank=entry.rank,
+                tie_group_rank=entry.tie_group_rank,
+                tie_group_size=entry.tie_group_size,
                 spectrum_id=entry.psm.spectrum_id,
                 canonical_peptide=entry.psm.canonical_peptide,
                 raw_score=entry.psm.score,
@@ -1208,6 +2293,7 @@ def build_fdr_audit_trail(
             records,
             threshold=threshold,
             score_orientation=score_orientation,
+            tie_handling=tie_handling,
         ),
     )
 
@@ -1216,11 +2302,14 @@ def apply_q_values(
     records: tuple[PsmRecord, ...],
     *,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> tuple[PsmRecord, ...]:
     """Return PSM records with q-values filled from target-decoy FDR."""
     annotated = calculate_basic_target_decoy_fdr(
         records,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        decoy_policy=None,
     )
     return tuple(
         entry.psm.model_copy(update={"q_value": entry.q_value}) for entry in annotated
@@ -1232,12 +2321,15 @@ def filter_psms_by_fdr(
     *,
     threshold: float,
     score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
 ) -> tuple[PsmRecord, ...]:
     """Filter PSMs to those that pass the requested q-value threshold."""
     annotated = calculate_basic_target_decoy_fdr(
         records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        decoy_policy=None,
     )
     return tuple(
         entry.psm.model_copy(update={"q_value": entry.q_value})
@@ -1394,6 +2486,129 @@ def _entity_fdr_entries(
     )
 
 
+def _build_q_value_monotonicity_check(
+    *,
+    scope: str,
+    entries: tuple[FdrLevelEntry, ...] | tuple[PickedProteinFdrEntry, ...],
+) -> FdrQValueMonotonicityCheck:
+    previous_q_value = -1.0
+    first_break_rank: int | None = None
+    for entry in entries:
+        q_value = entry.q_value
+        rank = entry.rank
+        if q_value < previous_q_value:
+            first_break_rank = rank
+            break
+        previous_q_value = q_value
+    return FdrQValueMonotonicityCheck(
+        scope=scope,
+        entry_count=len(entries),
+        valid=first_break_rank is None,
+        first_break_rank=first_break_rank,
+    )
+
+
+def _psm_identity_key(record: PsmRecord) -> tuple[object, ...]:
+    return (
+        record.spectrum_id,
+        record.peptide,
+        record.canonical_peptide,
+        record.charge,
+        record.score,
+        record.q_value,
+        record.protein_refs,
+        record.target_decoy_label.value,
+    )
+
+
+def _score_sorted_psm_records(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_orientation: str,
+) -> tuple[PsmRecord, ...]:
+    if score_orientation == "higher_better":
+        key_fn = lambda record: (  # noqa: E731
+            -record.score,
+            record.spectrum_id,
+            record.canonical_peptide,
+            record.charge,
+        )
+    else:
+        key_fn = lambda record: (  # noqa: E731
+            record.score,
+            record.spectrum_id,
+            record.canonical_peptide,
+            record.charge,
+        )
+    return tuple(sorted(records, key=key_fn))
+
+
+def build_accepted_psm_provenance_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float,
+    score_orientation: str = "higher_better",
+    tie_handling: str = "score_group",
+) -> AcceptedPsmProvenanceReport:
+    """Build accepted-PSM provenance with explicit ranked FDR derivation state."""
+    annotated = calculate_basic_target_decoy_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        decoy_policy=None,
+    )
+    normalized_entries = normalize_psm_score_orientation(
+        records,
+        score_orientation=score_orientation,
+    )
+    normalized_by_identity: dict[tuple[object, ...], list[NormalizedScoreEntry]] = (
+        defaultdict(list)
+    )
+    for record, entry in zip(
+        _score_sorted_psm_records(records, score_orientation=score_orientation),
+        normalized_entries,
+        strict=True,
+    ):
+        normalized_by_identity[_psm_identity_key(record)].append(entry)
+
+    accepted_entries: list[AcceptedPsmProvenanceEntry] = []
+    for annotated_entry in annotated:
+        if not annotated_entry.accepted:
+            continue
+        identity = _psm_identity_key(annotated_entry.psm)
+        normalized_entry = normalized_by_identity[identity].pop(0)
+        accepted_entries.append(
+            AcceptedPsmProvenanceEntry(
+                spectrum_id=annotated_entry.psm.spectrum_id,
+                peptide=annotated_entry.psm.peptide,
+                canonical_peptide=annotated_entry.psm.canonical_peptide,
+                charge=annotated_entry.psm.charge,
+                protein_refs=annotated_entry.psm.protein_refs,
+                target_decoy_label=annotated_entry.psm.target_decoy_label,
+                raw_score=annotated_entry.psm.score,
+                normalized_score=normalized_entry.normalized_score,
+                rank=annotated_entry.rank,
+                tie_group_rank=annotated_entry.tie_group_rank,
+                tie_group_size=annotated_entry.tie_group_size,
+                cumulative_targets=annotated_entry.cumulative_targets,
+                cumulative_decoys=annotated_entry.cumulative_decoys,
+                fdr=annotated_entry.fdr,
+                q_value=annotated_entry.q_value,
+                threshold=threshold,
+                score_orientation=score_orientation,
+                score_transform="rank_normalized_psm_score",
+            )
+        )
+    return AcceptedPsmProvenanceReport(
+        threshold=threshold,
+        score_orientation=score_orientation,
+        tie_handling=tie_handling,
+        score_transform="rank_normalized_psm_score",
+        entries=tuple(accepted_entries),
+    )
+
+
 def calculate_level_specific_fdr(
     records: tuple[PsmRecord, ...],
     *,
@@ -1418,6 +2633,8 @@ def calculate_level_specific_fdr(
             records,
             threshold=threshold,
             score_orientation=score_orientation,
+            tie_handling="score_group",
+            decoy_policy=None,
         )
     )
     peptide_rollups = rollup_peptide_evidence(records)
@@ -1499,6 +2716,8 @@ def calculate_grouped_fdr(
                     tuple(group_records),
                     threshold=threshold,
                     score_orientation=score_orientation,
+                    tie_handling="score_group",
+                    decoy_policy=None,
                 )
             ),
         )
@@ -1509,6 +2728,69 @@ def calculate_grouped_fdr(
         score_orientation=score_orientation,
         threshold=threshold,
         groups=tuple(buckets),
+    )
+
+
+def verify_fdr_q_value_monotonicity(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float | None = None,
+    score_orientation: str = "higher_better",
+    decoy_policy: TargetDecoyLabelPolicy | None = None,
+) -> FdrQValueMonotonicityReport:
+    """Verify monotonic q-values across supported FDR calculation surfaces."""
+    level_report = calculate_level_specific_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    grouped_charge = calculate_grouped_fdr(
+        records,
+        group_by="charge_state",
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    grouped_modification = calculate_grouped_fdr(
+        records,
+        group_by="modification_state",
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    picked = calculate_picked_protein_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        decoy_policy=decoy_policy,
+    )
+    checks = [
+        _build_q_value_monotonicity_check(
+            scope="psm",
+            entries=level_report.psm_entries,
+        ),
+        _build_q_value_monotonicity_check(
+            scope="peptide",
+            entries=level_report.peptide_entries,
+        ),
+        _build_q_value_monotonicity_check(
+            scope="protein",
+            entries=level_report.protein_entries,
+        ),
+        *[
+            _build_q_value_monotonicity_check(
+                scope=f"grouped:{bucket.group_key}",
+                entries=bucket.entries,
+            )
+            for report in (grouped_charge, grouped_modification)
+            for bucket in report.groups
+        ],
+        _build_q_value_monotonicity_check(
+            scope="picked_protein",
+            entries=picked,
+        ),
+    ]
+    return FdrQValueMonotonicityReport(
+        valid=all(check.valid for check in checks),
+        checks=tuple(checks),
     )
 
 
@@ -1592,6 +2874,64 @@ def build_protein_groups(
     return tuple(entries)
 
 
+def build_shared_peptide_ambiguity_report(
+    records: tuple[PsmRecord, ...],
+) -> SharedPeptideAmbiguityReport:
+    """Explain why protein groups remain ambiguous under shared peptide evidence."""
+    peptide_rollups = {
+        rollup.canonical_peptide: rollup for rollup in rollup_peptide_evidence(records)
+    }
+    entries: list[SharedPeptideAmbiguityEntry] = []
+    for group in build_protein_groups(records):
+        shared_peptides = tuple(
+            sorted(
+                peptide
+                for peptide in group.peptides
+                if len(peptide_rollups[peptide].protein_refs) > 1
+            )
+        )
+        if not shared_peptides and len(group.protein_refs) == 1:
+            continue
+        unique_peptides = tuple(
+            sorted(
+                peptide
+                for peptide in group.peptides
+                if len(peptide_rollups[peptide].protein_refs) == 1
+            )
+        )
+        outside_group_proteins = tuple(
+            sorted(
+                {
+                    protein_ref
+                    for peptide in shared_peptides
+                    for protein_ref in peptide_rollups[peptide].protein_refs
+                    if protein_ref not in group.protein_refs
+                }
+            )
+        )
+        if len(group.protein_refs) > 1 and outside_group_proteins:
+            reason = SharedPeptideAmbiguityReason.MIXED
+            explanation = f"group {group.group_id} has indistinguishable members and shared peptides that also map outside the group"
+        elif len(group.protein_refs) > 1:
+            reason = SharedPeptideAmbiguityReason.INDISTINGUISHABLE_MEMBERS
+            explanation = f"group {group.group_id} contains proteins with the same observed peptide evidence"
+        else:
+            reason = SharedPeptideAmbiguityReason.EXTERNAL_SHARED_PEPTIDES
+            explanation = f"group {group.group_id} is connected to outside proteins only through shared peptide evidence"
+        entries.append(
+            SharedPeptideAmbiguityEntry(
+                group_id=group.group_id,
+                protein_refs=group.protein_refs,
+                shared_peptides=shared_peptides,
+                unique_peptides=unique_peptides,
+                outside_group_proteins=outside_group_proteins,
+                reason=reason,
+                explanation=explanation,
+            )
+        )
+    return SharedPeptideAmbiguityReport(entries=tuple(entries))
+
+
 def assign_razor_peptides(
     records: tuple[PsmRecord, ...],
 ) -> tuple[RazorPeptideAssignment, ...]:
@@ -1639,8 +2979,335 @@ def assign_razor_peptides(
     return tuple(assignments)
 
 
+def build_razor_peptide_provenance_report(
+    records: tuple[PsmRecord, ...],
+) -> RazorPeptideProvenanceReport:
+    """Build an explicit provenance report for razor peptide assignments."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    unique_counts: dict[str, int] = defaultdict(int)
+    best_scores: dict[str, float] = defaultdict(float)
+    for rollup in peptide_rollups:
+        for protein_ref in rollup.protein_refs:
+            best_scores[protein_ref] = max(best_scores[protein_ref], rollup.best_score)
+        if len(rollup.protein_refs) == 1:
+            unique_counts[rollup.protein_refs[0]] += 1
+
+    assignments = {
+        entry.canonical_peptide: entry for entry in assign_razor_peptides(records)
+    }
+    entries: list[RazorPeptideProvenanceEntry] = []
+    for rollup in sorted(peptide_rollups, key=lambda entry: entry.canonical_peptide):
+        assignment = assignments.get(rollup.canonical_peptide)
+        if assignment is None:
+            continue
+        entries.append(
+            RazorPeptideProvenanceEntry(
+                canonical_peptide=rollup.canonical_peptide,
+                candidate_proteins=assignment.candidate_proteins,
+                assigned_protein=assignment.assigned_protein,
+                rationale=assignment.rationale,
+                candidate_unique_peptide_counts={
+                    protein_ref: unique_counts.get(protein_ref, 0)
+                    for protein_ref in assignment.candidate_proteins
+                },
+                candidate_best_scores={
+                    protein_ref: best_scores.get(protein_ref, 0.0)
+                    for protein_ref in assignment.candidate_proteins
+                },
+            )
+        )
+    return RazorPeptideProvenanceReport(
+        policy_name="unique_peptide_then_best_score_then_lexicographic",
+        tie_break_order=(
+            "unique_peptide_count",
+            "best_score",
+            "protein_accession",
+        ),
+        entries=tuple(entries),
+    )
+
+
+def build_combined_evidence_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    ptm_site_keys_by_peptide: dict[str, tuple[str, ...]] | None = None,
+    quant_support_by_protein: dict[str, dict[str, float | None]] | None = None,
+    parsimony_variants: tuple[ParsimonyVariant, ...] = (
+        ParsimonyVariant.GREEDY_COVERAGE,
+        ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ParsimonyVariant.BEST_SCORE_PRIORITY,
+    ),
+) -> CombinedEvidenceReport:
+    """Join identification evidence with optional PTM and quant support."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    protein_groups = build_protein_groups(records)
+    groups_by_protein = {
+        protein_ref: group
+        for group in protein_groups
+        for protein_ref in group.protein_refs
+    }
+    selected_variants_by_protein: dict[str, set[ParsimonyVariant]] = defaultdict(set)
+    for variant in parsimony_variants:
+        for entry in infer_proteins_by_parsimony(records, variant=variant):
+            selected_variants_by_protein[entry.protein_ref].add(variant)
+
+    entries: list[CombinedEvidenceEntry] = []
+    for rollup in peptide_rollups:
+        ptm_site_keys = tuple(
+            sorted((ptm_site_keys_by_peptide or {}).get(rollup.canonical_peptide, ()))
+        )
+        quant_lookup = quant_support_by_protein or {}
+        for protein_ref in rollup.protein_refs:
+            group = groups_by_protein.get(protein_ref)
+            entries.append(
+                CombinedEvidenceEntry(
+                    canonical_peptide=rollup.canonical_peptide,
+                    protein_ref=protein_ref,
+                    spectrum_ids=tuple(
+                        sorted(
+                            record.spectrum_id
+                            for record in records
+                            if record.canonical_peptide == rollup.canonical_peptide
+                        )
+                    ),
+                    psm_count=rollup.psm_count,
+                    best_psm_q_value=rollup.best_q_value,
+                    peptide_charge_states=rollup.charge_states,
+                    protein_group_id=group.group_id if group is not None else None,
+                    protein_group_members=group.protein_refs
+                    if group is not None
+                    else (),
+                    parsimony_variants=tuple(
+                        sorted(
+                            selected_variants_by_protein.get(protein_ref, set()),
+                            key=lambda item: item.value,
+                        )
+                    ),
+                    ptm_site_keys=ptm_site_keys,
+                    quant_support=tuple(
+                        CombinedEvidenceQuantSupport(
+                            sample_id=sample_id,
+                            abundance=abundance,
+                        )
+                        for sample_id, abundance in sorted(
+                            quant_lookup.get(protein_ref, {}).items()
+                        )
+                    ),
+                )
+            )
+    return CombinedEvidenceReport(
+        entries=tuple(
+            sorted(
+                entries,
+                key=lambda entry: (entry.canonical_peptide, entry.protein_ref),
+            )
+        )
+    )
+
+
+def build_peptide_protein_trace_report(
+    records: tuple[PsmRecord, ...],
+) -> PeptideProteinTraceReport:
+    """Build stable peptide-to-protein traces that survive export."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    protein_groups = build_protein_groups(records)
+    group_ids_by_protein: dict[str, set[str]] = defaultdict(set)
+    for group in protein_groups:
+        for protein_ref in group.protein_refs:
+            group_ids_by_protein[protein_ref].add(group.group_id)
+
+    entries: list[PeptideProteinTraceEntry] = []
+    for rollup in peptide_rollups:
+        spectrum_ids = tuple(
+            sorted(
+                record.spectrum_id
+                for record in records
+                if record.canonical_peptide == rollup.canonical_peptide
+            )
+        )
+        group_ids = tuple(
+            sorted(
+                {
+                    group_id
+                    for protein_ref in rollup.protein_refs
+                    for group_id in group_ids_by_protein.get(protein_ref, set())
+                }
+            )
+        )
+        entries.append(
+            PeptideProteinTraceEntry(
+                canonical_peptide=rollup.canonical_peptide,
+                peptide=rollup.peptide,
+                spectrum_ids=spectrum_ids,
+                protein_refs=rollup.protein_refs,
+                protein_group_ids=group_ids,
+                charge_states=rollup.charge_states,
+                best_score=rollup.best_score,
+                best_q_value=rollup.best_q_value,
+            )
+        )
+    return PeptideProteinTraceReport(
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.canonical_peptide, entry.peptide))
+        )
+    )
+
+
+def export_peptide_protein_trace_jsonl(
+    report: PeptideProteinTraceReport,
+    path: Path,
+) -> None:
+    """Write a stable JSONL export for peptide-to-protein traces."""
+    with path.open("w", encoding="utf-8") as handle:
+        for entry in report.entries:
+            handle.write(
+                json.dumps(entry.to_dict(), sort_keys=True, separators=(",", ":"))
+            )
+            handle.write("\n")
+
+
+def export_peptide_protein_trace_tsv(
+    report: PeptideProteinTraceReport,
+    path: Path,
+) -> None:
+    """Write a stable TSV export for peptide-to-protein traces."""
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle, delimiter="\t")
+        writer.writerow(
+            [
+                "canonical_peptide",
+                "peptide",
+                "spectrum_ids",
+                "protein_refs",
+                "protein_group_ids",
+                "charge_states",
+                "best_score",
+                "best_q_value",
+            ]
+        )
+        for entry in report.entries:
+            writer.writerow(
+                [
+                    entry.canonical_peptide,
+                    entry.peptide,
+                    ";".join(entry.spectrum_ids),
+                    ";".join(entry.protein_refs),
+                    ";".join(entry.protein_group_ids),
+                    ";".join(str(charge) for charge in entry.charge_states),
+                    entry.best_score,
+                    "" if entry.best_q_value is None else entry.best_q_value,
+                ]
+            )
+
+
+def build_inference_disagreement_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    parsimony_variants: tuple[ParsimonyVariant, ...] = (
+        ParsimonyVariant.GREEDY_COVERAGE,
+        ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ParsimonyVariant.BEST_SCORE_PRIORITY,
+    ),
+) -> InferenceDisagreementReport:
+    """Expose disagreements across inference strategies instead of hiding them."""
+    peptide_rollups = rollup_peptide_evidence(records)
+    razor = {entry.canonical_peptide: entry for entry in assign_razor_peptides(records)}
+    parsimony_results = {
+        variant: infer_proteins_by_parsimony(records, variant=variant)
+        for variant in parsimony_variants
+    }
+    entries: list[InferenceDisagreementEntry] = []
+    for rollup in peptide_rollups:
+        if len(rollup.protein_refs) < 2:
+            continue
+        assignments: dict[str, tuple[str, ...]] = {}
+        razor_assignment = razor.get(rollup.canonical_peptide)
+        if razor_assignment is not None:
+            assignments["razor"] = (razor_assignment.assigned_protein,)
+        for variant, selected in parsimony_results.items():
+            assignments[f"parsimony:{variant.value}"] = tuple(
+                entry.protein_ref
+                for entry in selected
+                if rollup.canonical_peptide in entry.covered_peptides
+            )
+        flattened = {
+            protein_ref
+            for protein_refs in assignments.values()
+            for protein_ref in protein_refs
+        }
+        if len(flattened) > 1:
+            entries.append(
+                InferenceDisagreementEntry(
+                    subject_id=rollup.canonical_peptide,
+                    kind=InferenceDisagreementKind.PEPTIDE_ASSIGNMENT,
+                    strategy_assignments=assignments,
+                    note="shared peptide support diverges across razor and parsimony strategies",
+                )
+            )
+
+    comparison = compare_parsimony_variants(records, variants=parsimony_variants)
+    for difference in comparison.differences:
+        if (
+            not difference.left_only_proteins
+            and not difference.right_only_proteins
+            and difference.first_difference_rank is None
+        ):
+            continue
+        entries.append(
+            InferenceDisagreementEntry(
+                subject_id=f"{difference.left_variant.value}__vs__{difference.right_variant.value}",
+                kind=InferenceDisagreementKind.PROTEIN_SET,
+                strategy_assignments={
+                    difference.left_variant.value: tuple(
+                        entry.protein_ref
+                        for entry in parsimony_results[difference.left_variant]
+                    ),
+                    difference.right_variant.value: tuple(
+                        entry.protein_ref
+                        for entry in parsimony_results[difference.right_variant]
+                    ),
+                },
+                note="named parsimony variants diverge in protein-set membership or ranking over the same evidence",
+            )
+        )
+    return InferenceDisagreementReport(
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.kind.value, entry.subject_id))
+        )
+    )
+
+
+def _parsimony_sort_key(
+    group: ProteinGroupEntry,
+    newly_explained: tuple[str, ...],
+    variant: ParsimonyVariant,
+) -> tuple[float | int | str, ...]:
+    if variant is ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY:
+        return (
+            -group.unique_peptide_count,
+            -len(newly_explained),
+            -group.best_score,
+            group.representative_protein,
+        )
+    if variant is ParsimonyVariant.BEST_SCORE_PRIORITY:
+        return (
+            -group.best_score,
+            -len(newly_explained),
+            -group.unique_peptide_count,
+            group.representative_protein,
+        )
+    return (
+        -len(newly_explained),
+        -group.unique_peptide_count,
+        -group.best_score,
+        group.representative_protein,
+    )
+
+
 def infer_proteins_by_parsimony(
     records: tuple[PsmRecord, ...],
+    *,
+    variant: ParsimonyVariant = ParsimonyVariant.GREEDY_COVERAGE,
 ) -> tuple[ParsimonyProteinEntry, ...]:
     """Greedily select a parsimonious protein set that explains observed peptides."""
     protein_groups = build_protein_groups(records)
@@ -1662,16 +3329,12 @@ def infer_proteins_by_parsimony(
         if not scored_candidates:
             break
         scored_candidates.sort(
-            key=lambda item: (
-                -len(item[1]),
-                -item[0].unique_peptide_count,
-                -item[0].best_score,
-                item[0].representative_protein,
-            )
+            key=lambda item: _parsimony_sort_key(item[0], item[1], variant)
         )
         group, newly_explained = scored_candidates[0]
         selected.append(
             ParsimonyProteinEntry(
+                variant=variant,
                 selection_rank=rank,
                 protein_ref=group.representative_protein,
                 source_group_id=group.group_id,
@@ -1686,6 +3349,59 @@ def infer_proteins_by_parsimony(
         available = [entry for entry in available if entry.group_id != group.group_id]
         rank += 1
     return tuple(selected)
+
+
+def compare_parsimony_variants(
+    records: tuple[PsmRecord, ...],
+    *,
+    variants: tuple[ParsimonyVariant, ...] = (
+        ParsimonyVariant.GREEDY_COVERAGE,
+        ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ParsimonyVariant.BEST_SCORE_PRIORITY,
+    ),
+) -> ParsimonyVariantComparisonReport:
+    """Compare multiple named parsimony policies over the same PSM evidence."""
+    results = tuple(
+        ParsimonyVariantResult(
+            variant=variant,
+            selected_proteins=infer_proteins_by_parsimony(records, variant=variant),
+        )
+        for variant in variants
+    )
+    differences: list[ParsimonyVariantDifferenceEntry] = []
+    for left_index, left in enumerate(results):
+        for right in results[left_index + 1 :]:
+            left_order = [entry.protein_ref for entry in left.selected_proteins]
+            right_order = [entry.protein_ref for entry in right.selected_proteins]
+            first_difference_rank = next(
+                (
+                    rank
+                    for rank, (left_ref, right_ref) in enumerate(
+                        zip(left_order, right_order, strict=False),
+                        start=1,
+                    )
+                    if left_ref != right_ref
+                ),
+                None,
+            )
+            if first_difference_rank is None and len(left_order) != len(right_order):
+                first_difference_rank = min(len(left_order), len(right_order)) + 1
+            left_set = set(left_order)
+            right_set = set(right_order)
+            differences.append(
+                ParsimonyVariantDifferenceEntry(
+                    left_variant=left.variant,
+                    right_variant=right.variant,
+                    first_difference_rank=first_difference_rank,
+                    shared_selected_proteins=tuple(sorted(left_set & right_set)),
+                    left_only_proteins=tuple(sorted(left_set - right_set)),
+                    right_only_proteins=tuple(sorted(right_set - left_set)),
+                )
+            )
+    return ParsimonyVariantComparisonReport(
+        results=results,
+        differences=tuple(differences),
+    )
 
 
 def build_protein_coverage_map(
@@ -1836,6 +3552,8 @@ def calculate_picked_protein_fdr(
         pseudo_records,
         threshold=threshold,
         score_orientation=score_orientation,
+        tie_handling="score_group",
+        decoy_policy=active_policy,
     )
     selected_index = {
         protein_ref: (peptides, partner_ref)
@@ -1890,6 +3608,199 @@ def assign_confidence_labels(
             )
         )
     return tuple(assignments)
+
+
+def _assign_level_specific_confidence(
+    entries: tuple[FdrLevelEntry, ...],
+    *,
+    evidence_level: FdrEvidenceLevel,
+    high_threshold: float,
+    medium_threshold: float,
+) -> tuple[LevelSpecificConfidenceAssignment, ...]:
+    assignments: list[LevelSpecificConfidenceAssignment] = []
+    for entry in entries:
+        if entry.target_decoy_label is TargetDecoyLabel.DECOY:
+            label = ConfidenceLabel.DECOY
+            explanation = "decoy evidence is never promoted to biological confidence"
+        elif entry.q_value <= high_threshold:
+            label = ConfidenceLabel.HIGH
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the high-confidence threshold"
+        elif entry.q_value <= medium_threshold:
+            label = ConfidenceLabel.MEDIUM
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the medium-confidence threshold"
+        elif entry.accepted:
+            label = ConfidenceLabel.LOW
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} passes FDR but misses the medium-confidence threshold"
+        else:
+            label = ConfidenceLabel.REJECTED
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} does not pass the requested acceptance threshold"
+        assignments.append(
+            LevelSpecificConfidenceAssignment(
+                evidence_level=evidence_level,
+                entity_id=entry.entity_id,
+                q_value=entry.q_value,
+                label=label,
+                explanation=explanation,
+            )
+        )
+    return tuple(assignments)
+
+
+def assign_level_specific_confidence_labels(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float | None = 0.05,
+    score_orientation: str = "higher_better",
+    high_threshold: float = 0.01,
+    medium_threshold: float = 0.05,
+) -> LevelSpecificConfidenceReport:
+    """Assign separate confidence labels for PSM, peptide, and protein evidence."""
+    level_report = calculate_level_specific_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+    )
+    return LevelSpecificConfidenceReport(
+        psm_assignments=_assign_level_specific_confidence(
+            level_report.psm_entries,
+            evidence_level=FdrEvidenceLevel.PSM,
+            high_threshold=high_threshold,
+            medium_threshold=medium_threshold,
+        ),
+        peptide_assignments=_assign_level_specific_confidence(
+            level_report.peptide_entries,
+            evidence_level=FdrEvidenceLevel.PEPTIDE,
+            high_threshold=high_threshold,
+            medium_threshold=medium_threshold,
+        ),
+        protein_assignments=_assign_level_specific_confidence(
+            level_report.protein_entries,
+            evidence_level=FdrEvidenceLevel.PROTEIN,
+            high_threshold=high_threshold,
+            medium_threshold=medium_threshold,
+        ),
+    )
+
+
+def build_confidence_threshold_sensitivity_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    thresholds: tuple[float, ...] = (0.001, 0.01, 0.05, 0.1),
+    score_orientation: str = "higher_better",
+) -> ConfidenceThresholdSensitivityReport:
+    """Report how accepted evidence changes across explicit FDR cutoffs."""
+    normalized_thresholds = tuple(sorted(dict.fromkeys(thresholds)))
+    if any(threshold < 0.0 or threshold > 1.0 for threshold in normalized_thresholds):
+        raise ValueError("thresholds must be between 0 and 1")
+
+    entries: list[ConfidenceThresholdSensitivityEntry] = []
+    previous_psms: set[str] = set()
+    previous_peptides: set[str] = set()
+    previous_proteins: set[str] = set()
+    previous_picked: set[str] = set()
+
+    for threshold in normalized_thresholds:
+        level_report = calculate_level_specific_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        picked = calculate_picked_protein_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        accepted_psms = {
+            entry.entity_id for entry in level_report.psm_entries if entry.accepted
+        }
+        accepted_peptides = {
+            entry.entity_id for entry in level_report.peptide_entries if entry.accepted
+        }
+        accepted_proteins = {
+            entry.entity_id for entry in level_report.protein_entries if entry.accepted
+        }
+        accepted_picked = {entry.protein_ref for entry in picked if entry.accepted}
+        entries.append(
+            ConfidenceThresholdSensitivityEntry(
+                threshold=threshold,
+                accepted_psm_count=len(accepted_psms),
+                accepted_peptide_count=len(accepted_peptides),
+                accepted_protein_count=len(accepted_proteins),
+                accepted_picked_protein_count=len(accepted_picked),
+                newly_accepted_psm_ids=tuple(sorted(accepted_psms - previous_psms)),
+                newly_accepted_peptides=tuple(
+                    sorted(accepted_peptides - previous_peptides)
+                ),
+                newly_accepted_proteins=tuple(
+                    sorted(accepted_proteins - previous_proteins)
+                ),
+                newly_accepted_picked_proteins=tuple(
+                    sorted(accepted_picked - previous_picked)
+                ),
+            )
+        )
+        previous_psms = accepted_psms
+        previous_peptides = accepted_peptides
+        previous_proteins = accepted_proteins
+        previous_picked = accepted_picked
+
+    return ConfidenceThresholdSensitivityReport(
+        score_orientation=score_orientation,
+        thresholds=normalized_thresholds,
+        entries=tuple(entries),
+    )
+
+
+def build_review_ready_evidence_bundle(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float = 0.05,
+    score_orientation: str = "higher_better",
+    ptm_site_keys_by_peptide: dict[str, tuple[str, ...]] | None = None,
+    quant_support_by_protein: dict[str, dict[str, float | None]] | None = None,
+) -> ReviewReadyEvidenceBundle:
+    """Build a review-ready evidence bundle without requiring raw search output."""
+    schema = DocumentSchema(
+        created_by="bijux-proteomics-core",
+        document_kind="review_ready_evidence_bundle",
+        package_name="bijux-proteomics-core",
+        status="generated",
+    )
+    bundle = ReviewReadyEvidenceBundle(
+        document_schema=schema,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        psm_summary=build_psm_summary_report(records),
+        peptide_summary=build_peptide_summary_report(records),
+        protein_summary=build_protein_summary_report(records),
+        accepted_psm_provenance=build_accepted_psm_provenance_report(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        ),
+        grouped_confidence=build_grouped_confidence_report(records),
+        combined_evidence=build_combined_evidence_report(
+            records,
+            ptm_site_keys_by_peptide=ptm_site_keys_by_peptide,
+            quant_support_by_protein=quant_support_by_protein,
+        ),
+        peptide_traces=build_peptide_protein_trace_report(records),
+    )
+    return bundle.model_copy(
+        update={
+            "document_schema": bundle.document_schema.with_content_hash(
+                bundle.to_dict()
+            )
+        }
+    )
+
+
+def export_review_ready_evidence_bundle(
+    bundle: ReviewReadyEvidenceBundle,
+    path: Path,
+) -> None:
+    """Write a stable JSON evidence bundle for downstream review."""
+    path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
 
 
 def build_search_result_provenance_manifest(

@@ -133,12 +133,24 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
                 "reverse",
                 "--out-fasta",
                 "target_decoy.fasta",
+                "--manifest-out",
+                "target_decoy.manifest.json",
             ],
         )
         assert decoy_result.exit_code == 0
         decoy_payload = json.loads(decoy_result.output)
         assert decoy_payload["valid"] is True
+        assert len(decoy_payload["reproducibility_hash"]) == 64
         assert Path("target_decoy.fasta").read_text().count(">") == 6
+        decoy_manifest = json.loads(Path("target_decoy.manifest.json").read_text())
+        assert (
+            decoy_manifest["document_schema"]["document_kind"]
+            == "decoy_generation_manifest"
+        )
+        assert (
+            decoy_manifest["reproducibility_hash"]
+            == decoy_payload["reproducibility_hash"]
+        )
 
 
 def test_sequence_checksum_and_target_decoy_validate_commands(
@@ -200,9 +212,11 @@ def test_digest_command_writes_export_and_manifest(
         payload = json.loads(result.output)
         assert payload["protease"] == "trypsin"
         assert payload["output_peptide_count"] > 0
+        assert len(payload["policy_hash"]) == 64
         assert Path("peptides.jsonl").exists()
         manifest = json.loads(Path("digest.manifest.json").read_text())
         assert manifest["document_schema"]["document_kind"] == "peptide_digest_manifest"
+        assert manifest["policy_hash"] == payload["policy_hash"]
 
 
 def test_digest_command_reports_invalid_protease_and_invalid_fasta(
@@ -990,3 +1004,43 @@ def test_workflow_plan_command_emits_runtime_bundle_and_sidecar_outputs() -> Non
         assert "#SBATCH --job-name=" in Path("workflow.slurm").read_text()
         checkpoint = json.loads(Path("workflow.checkpoint.json").read_text())
         assert checkpoint["document_schema"]["document_kind"] == "workflow_checkpoint"
+
+
+def test_workflow_validate_command_checks_runtime_integrity() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        for name in (
+            "spectra.mgf",
+            "results.tsv",
+            "proteins.fasta",
+            "design.tsv",
+            "ms1_features.tsv",
+        ):
+            shutil.copy(fixture_dir / name, name)
+
+        result = runner.invoke(
+            cli,
+            [
+                "workflow-validate",
+                "--proteins",
+                "proteins.fasta",
+                "--spectra",
+                "spectra.mgf",
+                "--identifications",
+                "results.tsv",
+                "--features",
+                "ms1_features.tsv",
+                "--design",
+                "design.tsv",
+                "--sample-id",
+                "sample-A",
+                "--search-adapter",
+                "generic",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["valid"] is True
+        assert "cache-manifest" in payload["checked_surfaces"]

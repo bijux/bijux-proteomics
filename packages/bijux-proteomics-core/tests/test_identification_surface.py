@@ -7,31 +7,51 @@ import json
 from pathlib import Path
 
 from bijux_proteomics import (
+    ConfidenceCalibrationLevel,
     FastaParseMode,
     FdrPolicy,
+    ParsimonyVariant,
     PsmRecord,
     PsmSortField,
+    PtmIdentificationObservation,
     SearchResultColumnMapping,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     apply_q_values,
     assign_confidence_labels,
+    assign_level_specific_confidence_labels,
     assign_razor_peptides,
+    build_accepted_psm_provenance_report,
     build_calibration_plot_data,
+    build_combined_evidence_report,
+    build_confidence_calibration_report,
+    build_confidence_threshold_sensitivity_report,
     build_fdr_audit_trail,
+    build_fdr_edge_case_report,
+    build_grouped_confidence_report,
+    build_inference_disagreement_report,
+    build_peptide_protein_trace_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
     build_protein_groups,
     build_protein_summary_report,
     build_psm_summary_report,
+    build_razor_peptide_provenance_report,
+    build_review_ready_evidence_bundle,
     build_search_result_provenance_manifest,
+    build_shared_peptide_ambiguity_report,
     calculate_grouped_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
+    compare_parsimony_variants,
     compute_fdr_reproducibility_hash,
+    detect_score_orientation_advisory,
+    export_peptide_protein_trace_jsonl,
+    export_peptide_protein_trace_tsv,
     export_psm_jsonl,
     export_psm_tsv,
+    export_review_ready_evidence_bundle,
     filter_psms_by_fdr,
     infer_proteins_by_parsimony,
     normalize_psm_records,
@@ -43,6 +63,10 @@ from bijux_proteomics import (
     rollup_protein_evidence,
     select_best_psm_per_spectrum,
     sort_psm_records,
+    validate_ptm_identification_confidence,
+    validate_target_decoy_accession_collisions,
+    validate_target_decoy_policy,
+    verify_fdr_q_value_monotonicity,
 )
 
 
@@ -220,6 +244,48 @@ def test_basic_target_decoy_fdr_and_q_values_are_monotonic() -> None:
     assert annotated[-1].q_value == 2 / 3
 
 
+def test_tied_score_fdr_policy_is_explicit_and_reproducible() -> None:
+    tied_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=50.0,
+            protein_refs=("P1",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-b",
+            peptide="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            charge=2,
+            score=50.0,
+            protein_refs=("DECOY_P2",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+        PsmRecord(
+            spectrum_id="scan-c",
+            peptide="GLYGLYK",
+            canonical_peptide="GLYGLYK",
+            charge=2,
+            score=40.0,
+            protein_refs=("P3",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+    )
+
+    grouped = apply_q_values(tied_records, tie_handling="score_group")
+    ordered = apply_q_values(tied_records, tie_handling="stable_record_order")
+    audit = build_fdr_audit_trail(tied_records, tie_handling="score_group")
+
+    assert grouped[0].q_value == grouped[1].q_value
+    assert ordered[0].q_value != ordered[1].q_value
+    assert audit.policy.tie_handling == "score_group"
+    assert audit.entries[0].tie_group_size == 2
+    assert audit.entries[1].tie_group_rank == audit.entries[0].tie_group_rank
+
+
 def test_fdr_threshold_filter_keeps_requested_cutoff() -> None:
     report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
     accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.5)
@@ -227,6 +293,28 @@ def test_fdr_threshold_filter_keeps_requested_cutoff() -> None:
     assert len(accepted) == 3
     strict = filter_psms_by_fdr(report.accepted_records, threshold=0.34)
     assert len(strict) == 1
+
+
+def test_accepted_psm_provenance_report_tracks_rank_counts_threshold_and_transform() -> (
+    None
+):
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+
+    provenance = build_accepted_psm_provenance_report(
+        report.accepted_records,
+        threshold=0.5,
+        score_orientation="higher_better",
+    )
+
+    assert provenance.threshold == 0.5
+    assert provenance.score_transform == "rank_normalized_psm_score"
+    assert len(provenance.entries) == 3
+    first = provenance.entries[0]
+    assert first.rank == 1
+    assert first.cumulative_targets == 1
+    assert first.cumulative_decoys == 0
+    assert first.score_orientation == "higher_better"
+    assert first.normalized_score == 1.0
 
 
 def test_score_orientation_normalization_supports_higher_and_lower_better() -> None:
@@ -242,6 +330,61 @@ def test_score_orientation_normalization_supports_higher_and_lower_better() -> N
     assert higher[0].normalized_score == 1.0
     assert lower[0].raw_score == 80.0
     assert lower[0].normalized_score == 1.0
+
+
+def test_score_orientation_advisory_detection_stays_explicitly_advisory() -> None:
+    lower_better_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            charge=2,
+            score=0.01,
+            q_value=0.001,
+            protein_refs=("P1",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-b",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            charge=2,
+            score=0.02,
+            q_value=0.002,
+            protein_refs=("P2",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-c",
+            peptide="DECA",
+            canonical_peptide="DECA",
+            charge=2,
+            score=0.50,
+            q_value=0.100,
+            protein_refs=("DECOY_P3",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+        PsmRecord(
+            spectrum_id="scan-d",
+            peptide="DECB",
+            canonical_peptide="DECB",
+            charge=2,
+            score=0.60,
+            q_value=0.200,
+            protein_refs=("DECOY_P4",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+    )
+
+    advisory = detect_score_orientation_advisory(lower_better_records, top_fraction=0.5)
+
+    assert advisory.advisory_only is True
+    assert advisory.recommended_orientation == "lower_better"
+    assert advisory.support_gap > 0.0
+    assert {candidate.orientation for candidate in advisory.candidates} == {
+        "higher_better",
+        "lower_better",
+    }
 
 
 def test_fdr_audit_trail_and_calibration_bins_are_stable() -> None:
@@ -300,10 +443,69 @@ def test_fdr_reproducibility_and_edge_cases_are_explicit() -> None:
     repeated_hash = compute_fdr_reproducibility_hash(no_decoys, threshold=0.01)
     decoy_hash = compute_fdr_reproducibility_hash(all_decoys, threshold=0.01)
     annotated_decoys = apply_q_values(all_decoys)
+    target_report = build_fdr_edge_case_report(no_decoys)
+    decoy_report = build_fdr_edge_case_report(all_decoys)
 
     assert target_hash == repeated_hash
     assert target_hash != decoy_hash
     assert all(record.q_value == 1.0 for record in annotated_decoys)
+    assert target_report.kind.value == "all_target"
+    assert decoy_report.kind.value == "all_decoy"
+
+
+def test_no_decoy_edge_case_report_is_distinct_from_all_target() -> None:
+    no_decoy_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=20.0,
+            protein_refs=("P1",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan-b",
+            peptide="PEPTIDER",
+            canonical_peptide="PEPTIDER",
+            charge=2,
+            score=18.0,
+            protein_refs=(),
+            target_decoy_label=TargetDecoyLabel.UNKNOWN,
+        ),
+    )
+
+    report = build_fdr_edge_case_report(no_decoy_records)
+
+    assert report.kind.value == "no_decoy"
+    assert report.decoy_count == 0
+    assert report.unknown_count == 1
+
+
+def test_target_decoy_accession_collisions_are_reported_and_refused() -> None:
+    colliding_records = (
+        PsmRecord(
+            spectrum_id="scan-a",
+            peptide="PEPTIDE",
+            canonical_peptide="PEPTIDE",
+            charge=2,
+            score=20.0,
+            protein_refs=("P12345", "DECOY_P12345"),
+            target_decoy_label=TargetDecoyLabel.MIXED,
+        ),
+    )
+
+    collision_report = validate_target_decoy_accession_collisions(colliding_records)
+
+    assert collision_report.valid is False
+    assert collision_report.collisions[0].base_accession == "P12345"
+
+    try:
+        apply_q_values(colliding_records)
+    except ValueError as exc:
+        assert "target-decoy accession collision" in str(exc)
+    else:
+        raise AssertionError("expected target-decoy accession collision refusal")
 
 
 def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:
@@ -404,6 +606,54 @@ def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels()
     assert grouped_report.groups[0].group_key == "z2"
 
 
+def test_level_specific_confidence_labels_keep_evidence_levels_separate() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+
+    confidence = assign_level_specific_confidence_labels(
+        report.accepted_records,
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+
+    assert confidence.psm_assignments
+    assert confidence.peptide_assignments
+    assert confidence.protein_assignments
+    assert {entry.evidence_level.value for entry in confidence.psm_assignments} == {
+        "psm"
+    }
+    assert {entry.evidence_level.value for entry in confidence.peptide_assignments} == {
+        "peptide"
+    }
+    assert {entry.evidence_level.value for entry in confidence.protein_assignments} == {
+        "protein"
+    }
+    assert confidence.psm_assignments[0].entity_id.startswith("scan=")
+    assert "GLYGLYK" in {entry.entity_id for entry in confidence.peptide_assignments}
+    assert "P11111" in {entry.entity_id for entry in confidence.protein_assignments}
+
+
+def test_fdr_monotonicity_verification_covers_supported_levels() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    monotonicity = verify_fdr_q_value_monotonicity(
+        report.accepted_records,
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+
+    assert monotonicity.valid is True
+    assert {check.scope for check in monotonicity.checks} >= {
+        "psm",
+        "peptide",
+        "protein",
+        "picked_protein",
+    }
+    assert all(check.first_break_rank is None for check in monotonicity.checks)
+
+
 def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
     report = parse_psm_tsv(
         _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
@@ -425,6 +675,376 @@ def test_protein_groups_parsimony_and_razor_assignments_are_stable() -> None:
     assert {entry.protein_ref for entry in parsimony} == {"P11111", "P22222", "P33333"}
     assert shared_assignment.assigned_protein == "P11111"
     assert shared_assignment.rationale == "unique_evidence_priority"
+
+
+def test_razor_peptide_provenance_report_explains_assignment_policy() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    provenance = build_razor_peptide_provenance_report(accepted)
+
+    shared = next(
+        entry for entry in provenance.entries if entry.canonical_peptide == "SHAREDK"
+    )
+    assert provenance.policy_name == "unique_peptide_then_best_score_then_lexicographic"
+    assert provenance.tie_break_order == (
+        "unique_peptide_count",
+        "best_score",
+        "protein_accession",
+    )
+    assert shared.assigned_protein == "P11111"
+    assert shared.candidate_unique_peptide_counts["P11111"] == 1
+    assert shared.candidate_unique_peptide_counts["P22222"] == 0
+    assert shared.candidate_best_scores["P11111"] == 100.0
+
+
+def test_combined_evidence_report_joins_identification_ptm_and_quant_support() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    combined = build_combined_evidence_report(
+        accepted,
+        ptm_site_keys_by_peptide={
+            "SHAREDK": ("P11111:S5:Phospho",),
+        },
+        quant_support_by_protein={
+            "P11111": {"C1": 2200.0, "T1": 8100.0},
+            "P22222": {"C1": 300.0},
+        },
+    )
+
+    shared = next(
+        entry
+        for entry in combined.entries
+        if entry.canonical_peptide == "SHAREDK" and entry.protein_ref == "P11111"
+    )
+    assert shared.psm_count == 1
+    assert shared.protein_group_id is not None
+    assert shared.ptm_site_keys == ("P11111:S5:Phospho",)
+    assert shared.quant_support[0].sample_id == "C1"
+    assert ParsimonyVariant.GREEDY_COVERAGE in shared.parsimony_variants
+
+
+def test_confidence_calibration_report_adds_empirical_context_beyond_q_values() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+
+    psm_calibration = build_confidence_calibration_report(
+        report.accepted_records,
+        score_orientation="higher_better",
+    )
+    protein_calibration = build_confidence_calibration_report(
+        report.accepted_records,
+        evidence_level=ConfidenceCalibrationLevel.PROTEIN,
+        score_orientation="higher_better",
+    )
+
+    first_psm = psm_calibration.entries[0]
+    assert first_psm.evidence_level.value == "psm"
+    assert 0.0 <= first_psm.empirical_decoy_fraction <= 1.0
+    assert 0.0 <= first_psm.support_score <= 1.0
+    assert protein_calibration.evidence_level.value == "protein"
+    assert any(entry.entity_id == "P11111" for entry in protein_calibration.entries)
+
+
+def test_peptide_to_protein_trace_report_remains_stable_across_exports() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+    trace = build_peptide_protein_trace_report(accepted)
+
+    shared = next(
+        entry for entry in trace.entries if entry.canonical_peptide == "SHAREDK"
+    )
+    assert shared.protein_refs == ("P11111", "P22222", "P44444")
+    assert shared.protein_group_ids
+
+    jsonl_path = _psm_fixture("peptide_protein_trace.jsonl")
+    tsv_path = _psm_fixture("peptide_protein_trace.tsv")
+    try:
+        export_peptide_protein_trace_jsonl(trace, jsonl_path)
+        export_peptide_protein_trace_tsv(trace, tsv_path)
+        assert '"canonical_peptide":"SHAREDK"' in jsonl_path.read_text()
+        assert (
+            tsv_path.read_text()
+            .splitlines()[0]
+            .startswith("canonical_peptide\tpeptide\tspectrum_ids")
+        )
+    finally:
+        jsonl_path.unlink(missing_ok=True)
+        tsv_path.unlink(missing_ok=True)
+
+
+def test_inference_disagreement_report_surfaces_strategy_divergence() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_parsimony_variants.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    disagreement = build_inference_disagreement_report(accepted)
+
+    peptide_entry = next(
+        entry for entry in disagreement.entries if entry.subject_id == "BRAVOK"
+    )
+    protein_set_entry = next(
+        entry for entry in disagreement.entries if entry.kind.value == "protein_set"
+    )
+    assert peptide_entry.kind.value == "peptide_assignment"
+    assert peptide_entry.strategy_assignments["razor"] == ("P20002",)
+    assert (
+        peptide_entry.strategy_assignments["parsimony:greedy_coverage"][0] == "P10001"
+    )
+    assert protein_set_entry.strategy_assignments["greedy_coverage"] == (
+        "P10001",
+        "P20002",
+    )
+
+
+def test_grouped_confidence_report_summarizes_indistinguishable_protein_groups() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    grouped = build_grouped_confidence_report(accepted)
+
+    ambiguous = next(
+        entry for entry in grouped.entries if entry.protein_refs == ("P22222", "P44444")
+    )
+    assert ambiguous.shared_peptide_count == 2
+    assert ambiguous.unique_peptide_count == 0
+    assert ambiguous.confidence_label.value in {"medium", "high"}
+
+
+def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -> None:
+    invalid = validate_target_decoy_policy(
+        TargetDecoyLabelPolicy(
+            explicit_decoy_values=("decoy", "target"),
+            explicit_target_values=("target",),
+        )
+    )
+    valid = validate_target_decoy_policy(
+        TargetDecoyLabelPolicy(
+            protein_suffix="_REV",
+            explicit_decoy_values=("rev",),
+            explicit_target_values=("target",),
+        ),
+        sample_protein_refs=("P11111", "P11111_REV"),
+        sample_explicit_labels=("target", "rev"),
+    )
+
+    assert invalid.valid is False
+    assert invalid.issues[0].code == "overlapping_explicit_values"
+    assert valid.valid is True
+
+
+def test_ptm_specific_identification_confidence_validation_is_explicit() -> None:
+    report = validate_ptm_identification_confidence(
+        (
+            PtmIdentificationObservation(
+                spectrum_id="scan=ptm-001",
+                canonical_peptide="S[Phospho]PEPTIDEK",
+                q_value=0.005,
+                localization_score=0.99,
+                candidate_site_count=1,
+                target_decoy_label=TargetDecoyLabel.TARGET,
+            ),
+            PtmIdentificationObservation(
+                spectrum_id="scan=ptm-005",
+                canonical_peptide="AS[Phospho]TYK",
+                q_value=0.02,
+                localization_score=0.70,
+                candidate_site_count=3,
+                target_decoy_label=TargetDecoyLabel.TARGET,
+            ),
+        )
+    )
+
+    confident = next(
+        entry for entry in report.entries if entry.spectrum_id == "scan=ptm-001"
+    )
+    ambiguous = next(
+        entry for entry in report.entries if entry.spectrum_id == "scan=ptm-005"
+    )
+    assert confident.valid is True
+    assert ambiguous.valid is True
+    assert {issue.code for issue in ambiguous.issues} == {
+        "weak_localization_score",
+        "ambiguous_site_localization",
+    }
+
+
+def test_review_ready_evidence_bundle_supports_downstream_review_exports() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+    bundle = build_review_ready_evidence_bundle(
+        accepted,
+        threshold=0.05,
+        score_orientation="higher_better",
+        ptm_site_keys_by_peptide={"SHAREDK": ("P11111:S5:Phospho",)},
+        quant_support_by_protein={"P11111": {"C1": 2200.0}},
+    )
+
+    assert bundle.document_schema.document_kind == "review_ready_evidence_bundle"
+    assert bundle.psm_summary.total_psms == 4
+    assert bundle.peptide_traces.entries
+    assert bundle.combined_evidence.entries
+
+    output_path = _psm_fixture("review_ready_evidence.json")
+    try:
+        export_review_ready_evidence_bundle(bundle, output_path)
+        assert (
+            json.loads(output_path.read_text())["document_schema"]["document_kind"]
+            == "review_ready_evidence_bundle"
+        )
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
+def test_named_parsimony_variants_are_explicit_and_comparable() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_parsimony_variants.tsv"), mapping=_default_mapping()
+    )
+    accepted = filter_psms_by_fdr(report.accepted_records, threshold=0.05)
+
+    greedy = infer_proteins_by_parsimony(
+        accepted,
+        variant=ParsimonyVariant.GREEDY_COVERAGE,
+    )
+    unique_first = infer_proteins_by_parsimony(
+        accepted,
+        variant=ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+    )
+    comparison = compare_parsimony_variants(
+        accepted,
+        variants=(
+            ParsimonyVariant.GREEDY_COVERAGE,
+            ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY,
+        ),
+    )
+
+    assert greedy[0].variant is ParsimonyVariant.GREEDY_COVERAGE
+    assert greedy[0].protein_ref == "P10001"
+    assert unique_first[0].variant is ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY
+    assert unique_first[0].protein_ref == "P20002"
+    difference = comparison.differences[0]
+    assert difference.first_difference_rank == 1
+    assert difference.shared_selected_proteins == ("P10001", "P20002")
+
+
+def test_shared_peptide_ambiguity_report_explains_group_membership() -> None:
+    report = parse_psm_tsv(
+        _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()
+    )
+
+    ambiguity = build_shared_peptide_ambiguity_report(report.accepted_records)
+
+    mixed_entry = next(
+        entry
+        for entry in ambiguity.entries
+        if entry.protein_refs == ("P22222", "P44444")
+    )
+    assert mixed_entry.reason.value == "mixed"
+    assert mixed_entry.shared_peptides == ("GLYGLYK", "SHAREDK")
+    assert mixed_entry.outside_group_proteins == ("P11111",)
+
+
+def test_grouped_and_picked_fdr_regression_fixture_covers_realistic_edge_cases() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("grouped_picked_fdr_edge_cases.tsv"), mapping=_default_mapping()
+    )
+
+    grouped_charge = calculate_grouped_fdr(
+        report.accepted_records,
+        group_by="charge_state",
+        threshold=0.1,
+        score_orientation="higher_better",
+    )
+    grouped_modification = calculate_grouped_fdr(
+        report.accepted_records,
+        group_by="modification_state",
+        threshold=0.1,
+        score_orientation="higher_better",
+    )
+    picked = calculate_picked_protein_fdr(
+        report.accepted_records,
+        threshold=0.1,
+        score_orientation="higher_better",
+    )
+
+    assert {bucket.group_key for bucket in grouped_charge.groups} == {"z2", "z3", "z4"}
+    assert {bucket.group_key for bucket in grouped_modification.groups} == {
+        "modified",
+        "unmodified",
+    }
+    assert {entry.protein_ref for entry in picked} == {
+        "P11111",
+        "P22222",
+        "P33333",
+        "P44444",
+        "DECOY_P55555",
+    }
+    assert next(
+        entry for entry in picked if entry.protein_ref == "P11111"
+    ).partner_ref == ("DECOY_P11111")
+    assert (
+        next(
+            entry for entry in picked if entry.protein_ref == "DECOY_P55555"
+        ).partner_ref
+        == "P55555"
+    )
+    assert [entry.q_value for entry in picked] == sorted(
+        entry.q_value for entry in picked
+    )
+
+
+def test_confidence_threshold_sensitivity_report_tracks_incremental_acceptance() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("grouped_picked_fdr_edge_cases.tsv"), mapping=_default_mapping()
+    )
+
+    sensitivity = build_confidence_threshold_sensitivity_report(
+        report.accepted_records,
+        thresholds=(0.001, 0.01, 0.05, 0.1),
+        score_orientation="higher_better",
+    )
+
+    assert sensitivity.thresholds == (0.001, 0.01, 0.05, 0.1)
+    assert [entry.accepted_psm_count for entry in sensitivity.entries] == [5, 5, 5, 5]
+    assert [entry.accepted_picked_protein_count for entry in sensitivity.entries] == [
+        4,
+        4,
+        4,
+        4,
+    ]
+    assert sensitivity.entries[0].newly_accepted_psm_ids == (
+        "scan=8001",
+        "scan=8002",
+        "scan=8003",
+        "scan=8004",
+        "scan=8005",
+    )
+    assert sensitivity.entries[0].newly_accepted_picked_proteins == (
+        "P11111",
+        "P22222",
+        "P33333",
+        "P44444",
+    )
+    assert all(not entry.newly_accepted_psm_ids for entry in sensitivity.entries[1:])
 
 
 def test_picked_protein_fdr_confidence_coverage_and_database_uniqueness_work_together() -> (

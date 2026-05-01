@@ -379,6 +379,67 @@ class AdvancedIntelligenceReviewPacket(JsonModel):
     )
 
 
+class ScenarioUncertaintyEntry(JsonModel):
+    """Scenario-specific uncertainty that should remain visible to reviewers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario: str = Field(..., min_length=1)
+    action: ScenarioAction
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    hypothesis_status: HypothesisStatus
+    unresolved_questions: list[str] = Field(default_factory=list)
+
+
+class UncertaintyPreservingInterpretationSummary(JsonModel):
+    """Summary that preserves scenario disagreement and unresolved questions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    consensus_action: ScenarioAction = Field(...)
+    conflicting_actions: bool = Field(...)
+    confidence_spread: float = Field(..., ge=0.0, le=1.0)
+    unresolved_question_count: int = Field(default=0, ge=0)
+    scenario_entries: list[ScenarioUncertaintyEntry] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class ComparativeCandidateReviewPacket(JsonModel):
+    """Evidence-aware comparison between two candidate options."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: str = Field(..., min_length=1)
+    preferred_candidate_id: str = Field(..., min_length=1)
+    compared_candidate_id: str = Field(..., min_length=1)
+    preferred_rank: int | None = Field(default=None, ge=1)
+    compared_rank: int | None = Field(default=None, ge=1)
+    preferred_score: float = Field(...)
+    compared_score: float = Field(...)
+    evidence_support_delta: float = Field(...)
+    residual_risk_delta: float = Field(...)
+    rationale: list[str] = Field(default_factory=list)
+
+
+class IntelligenceOutputMode(StrEnum):
+    """Governance mode for intelligence outputs."""
+
+    ADVISORY = "advisory"
+    ENFORCED = "enforced"
+
+
+class IntelligenceDecisionSupportEnvelope(JsonModel):
+    """Explicit boundary between advisory intelligence and enforced policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    recommendation: FinalDecisionRecommendation = Field(...)
+    mode: IntelligenceOutputMode = Field(default=IntelligenceOutputMode.ADVISORY)
+    enforced_policy_id: str | None = Field(default=None)
+    promoted_by: str | None = Field(default=None)
+    promotion_rationale: str | None = Field(default=None)
+
+
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -850,6 +911,80 @@ def build_intelligence_review_packet(
     )
 
 
+def build_comparative_candidate_review_packet(
+    ranking: CandidateRanking,
+    assessments: list[CandidateAssessment],
+    risks: list[CandidateRiskProfile],
+    *,
+    preferred_candidate_id: str,
+    compared_candidate_id: str,
+) -> ComparativeCandidateReviewPacket:
+    """Explain why one candidate is preferred over another using evidence and risk."""
+    ranked_map = {
+        candidate.candidate_id: candidate for candidate in ranking.ranked_candidates
+    }
+    assessment_map = {assessment.candidate_id: assessment for assessment in assessments}
+    risk_map = {risk.candidate_id: risk for risk in risks}
+    preferred = ranked_map.get(preferred_candidate_id)
+    compared = ranked_map.get(compared_candidate_id)
+    if preferred is None or compared is None:
+        raise ValueError("both candidates must be present in the ranked candidate set")
+    preferred_assessment = assessment_map.get(preferred_candidate_id)
+    compared_assessment = assessment_map.get(compared_candidate_id)
+    if preferred_assessment is None or compared_assessment is None:
+        raise ValueError(
+            "candidate assessments are required for both compared candidates"
+        )
+    preferred_risk = risk_map.get(preferred_candidate_id)
+    compared_risk = risk_map.get(compared_candidate_id)
+    preferred_residual_risk = (
+        preferred_risk.residual_risk if preferred_risk is not None else 0.0
+    )
+    compared_residual_risk = (
+        compared_risk.residual_risk if compared_risk is not None else 0.0
+    )
+    rationale = [
+        f"score delta = {preferred.score - compared.score:.4f}",
+        f"evidence support delta = {preferred_assessment.evidence_support - compared_assessment.evidence_support:.4f}",
+        f"residual risk delta = {compared_residual_risk - preferred_residual_risk:.4f}",
+    ]
+    if preferred.score <= compared.score:
+        rationale.append(
+            "preferred candidate is being justified despite a non-positive score delta"
+        )
+    preferred_drivers = preferred.explainability.get("top_drivers", [])
+    if isinstance(preferred_drivers, list) and preferred_drivers:
+        rationale.append(
+            "preferred drivers: "
+            + ", ".join(str(item) for item in preferred_drivers[:3])
+        )
+    compared_blockers = compared.explainability.get("blockers", [])
+    if isinstance(compared_blockers, list) and compared_blockers:
+        rationale.append(
+            "compared blockers: "
+            + ", ".join(str(item) for item in compared_blockers[:3])
+        )
+    return ComparativeCandidateReviewPacket(
+        program_id=ranking.program_id,
+        preferred_candidate_id=preferred_candidate_id,
+        compared_candidate_id=compared_candidate_id,
+        preferred_rank=preferred.rank,
+        compared_rank=compared.rank,
+        preferred_score=preferred.score,
+        compared_score=compared.score,
+        evidence_support_delta=round(
+            preferred_assessment.evidence_support
+            - compared_assessment.evidence_support,
+            4,
+        ),
+        residual_risk_delta=round(
+            compared_residual_risk - preferred_residual_risk,
+            4,
+        ),
+        rationale=rationale,
+    )
+
+
 def summarize_hold_pressure(
     evaluations: ScenarioSetEvaluation,
     *,
@@ -890,6 +1025,56 @@ def summarize_scenario_confidence_spread(
         maximum_confidence=maximum,
         mean_confidence=mean,
         spread=round(maximum - minimum, 4),
+    )
+
+
+def summarize_uncertainty_preserving_interpretation(
+    evaluations: ScenarioSetEvaluation,
+) -> UncertaintyPreservingInterpretationSummary:
+    """Summarize scenario outputs without flattening disagreement away."""
+    scenarios = [
+        evaluations.progression,
+        evaluations.synthesis,
+        evaluations.scale_up,
+        evaluations.redesign,
+    ]
+    consensus = summarize_scenario_consensus(evaluations)
+    spread = summarize_scenario_confidence_spread(evaluations)
+    entries = [
+        ScenarioUncertaintyEntry(
+            scenario=scenario.scenario,
+            action=scenario.action,
+            confidence=scenario.confidence,
+            hypothesis_status=scenario.hypothesis_status,
+            unresolved_questions=scenario.unresolved_questions,
+        )
+        for scenario in scenarios
+    ]
+    unresolved_questions = {
+        question for scenario in scenarios for question in scenario.unresolved_questions
+    }
+    notes: list[str] = []
+    if consensus.conflicting_actions:
+        notes.append("scenario actions disagree and should remain visible to reviewers")
+    if spread.spread >= 0.2:
+        notes.append(
+            "scenario confidence spread is wide enough to keep uncertainty explicit"
+        )
+    if unresolved_questions:
+        notes.append(
+            f"{len(unresolved_questions)} unresolved questions still influence the decision"
+        )
+    if not notes:
+        notes.append(
+            "scenario uncertainty is narrow enough for a stable advisory interpretation"
+        )
+    return UncertaintyPreservingInterpretationSummary(
+        consensus_action=consensus.recommended_action,
+        conflicting_actions=consensus.conflicting_actions,
+        confidence_spread=spread.spread,
+        unresolved_question_count=len(unresolved_questions),
+        scenario_entries=entries,
+        notes=notes,
     )
 
 
@@ -969,6 +1154,33 @@ def build_final_decision_recommendation(
         action=consensus.recommended_action,
         requires_human_review=escalation.escalate_to_human_review,
         reasons=reasons,
+    )
+
+
+def build_intelligence_decision_support_envelope(
+    recommendation: FinalDecisionRecommendation,
+) -> IntelligenceDecisionSupportEnvelope:
+    """Wrap intelligence output as advisory decision support by default."""
+    return IntelligenceDecisionSupportEnvelope(recommendation=recommendation)
+
+
+def promote_intelligence_output_to_policy(
+    envelope: IntelligenceDecisionSupportEnvelope,
+    *,
+    policy_id: str,
+    promoted_by: str,
+    rationale: str,
+) -> IntelligenceDecisionSupportEnvelope:
+    """Explicitly promote advisory intelligence output into enforced policy."""
+    if envelope.mode is IntelligenceOutputMode.ENFORCED:
+        raise ValueError("intelligence output is already enforced")
+    return envelope.model_copy(
+        update={
+            "mode": IntelligenceOutputMode.ENFORCED,
+            "enforced_policy_id": policy_id,
+            "promoted_by": promoted_by,
+            "promotion_rationale": rationale,
+        }
     )
 
 
