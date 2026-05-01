@@ -477,3 +477,94 @@ def build_candidate_comparison_packet(
         caveat_ids=merged_caveats,
         evidence_pointer_ids=merged_evidence,
     )
+
+
+class ReviewBoardVote(StrEnum):
+    """Review-board vote states for candidate decisions."""
+
+    APPROVE = "approve"
+    DEFER = "defer"
+    REJECT = "reject"
+
+
+class ReviewBoardAgendaEntry(JsonModel):
+    """One agenda item for review-board workflow execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    agenda_reason: str = Field(..., min_length=1)
+
+
+class ReviewBoardVoteEntry(JsonModel):
+    """Reviewer vote captured in review-board workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reviewer_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    vote: ReviewBoardVote
+    rationale: str = Field(..., min_length=1)
+
+
+class ReviewBoardDecisionEntry(JsonModel):
+    """Aggregated decision for one candidate after board vote resolution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    decision: ReviewBoardVote
+    disagreement: bool
+    follow_up_actions: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReviewBoardWorkflowReport(JsonModel):
+    """Review-board workflow covering agenda, votes, decisions, disagreements, and follow-ups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    board_id: str = Field(..., min_length=1)
+    agenda: tuple[ReviewBoardAgendaEntry, ...] = Field(default_factory=tuple)
+    decisions: tuple[ReviewBoardDecisionEntry, ...] = Field(default_factory=tuple)
+
+
+def run_review_board_workflow(
+    *,
+    board_id: str,
+    agenda: tuple[ReviewBoardAgendaEntry, ...],
+    votes: tuple[ReviewBoardVoteEntry, ...],
+) -> ReviewBoardWorkflowReport:
+    """Model review-board decisions with vote disagreements and follow-up actions."""
+
+    votes_by_candidate: dict[str, list[ReviewBoardVoteEntry]] = {}
+    for vote in votes:
+        votes_by_candidate.setdefault(vote.candidate_id, []).append(vote)
+
+    decisions: list[ReviewBoardDecisionEntry] = []
+    for entry in agenda:
+        candidate_votes = votes_by_candidate.get(entry.candidate_id, [])
+        counts = {ReviewBoardVote.APPROVE: 0, ReviewBoardVote.DEFER: 0, ReviewBoardVote.REJECT: 0}
+        for vote in candidate_votes:
+            counts[vote.vote] += 1
+
+        decision = max(counts.items(), key=lambda item: (item[1], item[0].value))[0]
+        disagreement = len({vote.vote for vote in candidate_votes}) > 1
+        follow_ups: list[str] = []
+        if disagreement:
+            follow_ups.append("schedule contradiction-focused evidence review")
+        if decision is ReviewBoardVote.DEFER:
+            follow_ups.append("collect additional evidence before next board cycle")
+        if decision is ReviewBoardVote.REJECT:
+            follow_ups.append("archive candidate with explicit rationale trace")
+
+        decisions.append(
+            ReviewBoardDecisionEntry(
+                candidate_id=entry.candidate_id,
+                decision=decision,
+                disagreement=disagreement,
+                follow_up_actions=tuple(follow_ups),
+            )
+        )
+
+    decisions.sort(key=lambda decision: decision.candidate_id)
+    return ReviewBoardWorkflowReport(board_id=board_id, agenda=agenda, decisions=tuple(decisions))
