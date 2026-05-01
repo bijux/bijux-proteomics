@@ -226,6 +226,37 @@ class LabHandoffWorkflowRunReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class FakeExternalToolKind(StrEnum):
+    """Deterministic fake tool families used for contract testing."""
+
+    SEARCH = "search"
+    QUANT = "quant"
+    QC = "qc"
+
+
+class FakeExternalToolRunEntry(JsonModel):
+    """One deterministic fake-tool execution entry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tool_kind: FakeExternalToolKind
+    command: str = Field(..., min_length=1)
+    exit_code: int
+    artifact_path: str = Field(..., min_length=1)
+    stdout: str = Field(..., min_length=1)
+
+
+class FakeExternalEngineHarnessReport(JsonModel):
+    """Deterministic fake external-engine harness execution report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    deterministic: bool
+    entries: tuple[FakeExternalToolRunEntry, ...] = Field(default_factory=tuple)
+    replay_cache_key: str = Field(..., min_length=64, max_length=64)
+
+
 def _stable_runtime_key(payload: object) -> str:
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -803,4 +834,51 @@ def run_lab_handoff_workflow_end_to_end(
             ),
         ),
         note="workflow completed review-packet ingestion, assay planning, export, and unresolved-risk reporting",
+    )
+
+
+def build_fake_external_engine_harness(
+    *,
+    run_id: str,
+    tool_kinds: tuple[FakeExternalToolKind, ...] = (
+        FakeExternalToolKind.SEARCH,
+        FakeExternalToolKind.QUANT,
+        FakeExternalToolKind.QC,
+    ),
+    seed: int = 17,
+    artifact_root: str = "artifacts/workflows/fake-engine-harness",
+) -> FakeExternalEngineHarnessReport:
+    """Run deterministic fake search/quant/qc tool surfaces for runtime contract testing."""
+    entries: list[FakeExternalToolRunEntry] = []
+    for index, tool_kind in enumerate(tool_kinds):
+        token = _stable_runtime_key(
+            {
+                "run_id": run_id,
+                "tool_kind": tool_kind.value,
+                "seed": seed,
+                "index": index,
+            }
+        )[:16]
+        entries.append(
+            FakeExternalToolRunEntry(
+                tool_kind=tool_kind,
+                command=f"fake-{tool_kind.value}-tool --seed {seed} --token {token}",
+                exit_code=0,
+                artifact_path=f"{artifact_root}/{tool_kind.value}-{token}.json",
+                stdout=f"{tool_kind.value} tool completed deterministically with token {token}",
+            )
+        )
+    key = _stable_runtime_key(
+        {
+            "workflow": "fake-engine-harness",
+            "run_id": run_id,
+            "seed": seed,
+            "entries": [entry.to_dict() for entry in entries],
+        }
+    )
+    return FakeExternalEngineHarnessReport(
+        run_id=run_id,
+        deterministic=True,
+        entries=tuple(entries),
+        replay_cache_key=key,
     )
