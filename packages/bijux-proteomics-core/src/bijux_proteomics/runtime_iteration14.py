@@ -946,3 +946,55 @@ def guard_large_artifact_uploads(
 
     accepted = all(decision.accepted for decision in decisions)
     return LargeArtifactUploadGuardReport(accepted=accepted, decisions=tuple(decisions))
+
+
+class StableRuntimeErrorClass(StrEnum):
+    """Stable error classes for core/runtime/API failure envelopes."""
+
+    CORE = "core"
+    RUNTIME = "runtime"
+    API = "api"
+
+
+class StableRuntimeErrorEnvelope(JsonModel):
+    """Stable runtime error envelope with evidence pointer and remediation guidance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    error_class: StableRuntimeErrorClass
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    evidence_pointer: str = Field(..., min_length=1)
+    remediation: str = Field(..., min_length=1)
+    transient: bool
+    context: tuple[tuple[str, str], ...] = Field(default_factory=tuple)
+
+
+def _normalize_error_code(value: str) -> str:
+    normalized = value.strip().lower().replace("-", "_").replace(" ", "_")
+    normalized = "".join(character for character in normalized if character.isalnum() or character == "_")
+    return normalized or "unknown_error"
+
+
+def build_stable_runtime_error_envelope(
+    *,
+    error_class: StableRuntimeErrorClass,
+    code: str,
+    message: str,
+    evidence_pointer: str,
+    remediation: str,
+    transient: bool,
+    context: dict[str, str] | None = None,
+) -> StableRuntimeErrorEnvelope:
+    """Build stable error envelope across core/runtime/API surfaces."""
+
+    normalized_context = tuple(sorted((context or {}).items()))
+    return StableRuntimeErrorEnvelope(
+        error_class=error_class,
+        code=_normalize_error_code(code),
+        message=message,
+        evidence_pointer=evidence_pointer,
+        remediation=remediation,
+        transient=transient,
+        context=normalized_context,
+    )
