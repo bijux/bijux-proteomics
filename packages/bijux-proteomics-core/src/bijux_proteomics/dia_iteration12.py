@@ -379,3 +379,67 @@ def build_dia_ion_mobility_evidence_report(
         entries=tuple(sorted(entries, key=lambda entry: (entry.run_id, entry.precursor_id))),
         used_count=sum(1 for entry in entries if entry.evidence_used),
     )
+
+
+class TargetedAssayOptimizationCandidate(JsonModel):
+    """Candidate peptide/transition for targeted assay optimization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    uniqueness_score: float = Field(..., ge=0.0, le=1.0)
+    detectability_score: float = Field(..., ge=0.0, le=1.0)
+    ptm_ambiguity_penalty: float = Field(..., ge=0.0, le=1.0)
+    qc_score: float = Field(..., ge=0.0, le=1.0)
+
+
+class TargetedAssayOptimizationEntry(JsonModel):
+    """Ranked optimization entry with rationale."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    rank: int = Field(..., ge=1)
+    optimization_score: float = Field(..., ge=0.0)
+    rationale: str = Field(..., min_length=1)
+
+
+class TargetedAssayOptimizationReport(JsonModel):
+    """Optimization ranking report for targeted peptide/transition candidates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[TargetedAssayOptimizationEntry, ...] = Field(default_factory=tuple)
+
+
+def optimize_targeted_assay_candidates(
+    candidates: tuple[TargetedAssayOptimizationCandidate, ...],
+) -> TargetedAssayOptimizationReport:
+    """Rank targeted candidates by uniqueness, detectability, PTM ambiguity, and QC."""
+
+    scored: list[tuple[str, float]] = []
+    for candidate in candidates:
+        score = (
+            (candidate.uniqueness_score * 0.35)
+            + (candidate.detectability_score * 0.35)
+            + (candidate.qc_score * 0.30)
+            - (candidate.ptm_ambiguity_penalty * 0.40)
+        )
+        scored.append((candidate.candidate_id, score))
+
+    scored.sort(key=lambda item: (-item[1], item[0]))
+    entries = []
+    for rank, (candidate_id, score) in enumerate(scored, start=1):
+        entries.append(
+            TargetedAssayOptimizationEntry(
+                candidate_id=candidate_id,
+                rank=rank,
+                optimization_score=score,
+                rationale=(
+                    "ranking balances uniqueness/detectability/QC while penalizing PTM ambiguity"
+                ),
+            )
+        )
+
+    return TargetedAssayOptimizationReport(entries=tuple(entries))
