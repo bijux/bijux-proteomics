@@ -93,6 +93,33 @@ class ExperimentalDesignValidationReport(JsonModel):
     issues: tuple[ExperimentalDesignValidationIssue, ...] = Field(default_factory=tuple)
 
 
+class FractionationRecord(JsonModel):
+    """One fractionation entry connecting sample metadata and evidence aggregation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    fraction_id: str = Field(..., min_length=1)
+    fraction_number: int = Field(..., ge=1)
+    method: str = Field(..., min_length=1)
+    pooled: bool = False
+    peptide_evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+    protein_evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class FractionationAggregationReport(JsonModel):
+    """Fractionation summary and aggregation links to peptide/protein evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fraction_count: int = Field(..., ge=0)
+    pooled_fraction_count: int = Field(..., ge=0)
+    methods: tuple[str, ...] = Field(default_factory=tuple)
+    peptide_evidence_count: int = Field(..., ge=0)
+    protein_evidence_count: int = Field(..., ge=0)
+    records: tuple[FractionationRecord, ...] = Field(default_factory=tuple)
+
+
 _FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
 _CHANNEL_RE = re.compile(r"^(12[6-9]|13[01])[NC]?$")
 
@@ -239,3 +266,21 @@ def validate_experimental_design_records(
                 )
             )
     return ExperimentalDesignValidationReport(valid=not issues, issues=tuple(issues))
+
+
+def build_fractionation_aggregation_report(
+    records: tuple[FractionationRecord, ...],
+) -> FractionationAggregationReport:
+    """Build deterministic fractionation summary linked to peptide/protein evidence."""
+    return FractionationAggregationReport(
+        fraction_count=len(records),
+        pooled_fraction_count=sum(1 for record in records if record.pooled),
+        methods=tuple(sorted({record.method for record in records})),
+        peptide_evidence_count=len(
+            {token for record in records for token in record.peptide_evidence_ids}
+        ),
+        protein_evidence_count=len(
+            {token for record in records for token in record.protein_evidence_ids}
+        ),
+        records=records,
+    )
