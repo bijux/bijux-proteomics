@@ -18,7 +18,6 @@ from bijux_proteomics.identification import (
     FdrAuditTrail,
     PsmParseReport,
     PsmRecord,
-    SearchResultColumnMapping,
     SearchResultProvenanceManifest,
     SearchResultValidationIssue,
     TargetDecoyLabel,
@@ -29,6 +28,9 @@ from bijux_proteomics.identification import (
     normalize_psm_score_orientation,
     parse_psm_tsv,
     select_best_psm_per_spectrum,
+)
+from bijux_proteomics.identification import (
+    SearchResultColumnMapping as SearchResultColumnMapping,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -142,11 +144,11 @@ class SearchAdapterNormalizationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     adapter_manifest: SearchAdapterManifest
-    family_policy: "SearchResultFamilyPolicy"
+    family_policy: SearchResultFamilyPolicy
     source_columns: tuple[str, ...] = Field(default_factory=tuple)
     parse_report: PsmParseReport
     normalized_records: tuple[PsmRecord, ...] = Field(default_factory=tuple)
-    evidence_rows: tuple["SearchNormalizedEvidenceEntry", ...] = Field(
+    evidence_rows: tuple[SearchNormalizedEvidenceEntry, ...] = Field(
         default_factory=tuple
     )
 
@@ -166,7 +168,7 @@ class SearchAdapterProvenanceManifest(JsonModel):
     config_sha256: str | None = None
     parameter_report: SearchParameterReport | None = None
     result_family: SearchResultFamily
-    family_policy: "SearchResultFamilyPolicy"
+    family_policy: SearchResultFamilyPolicy
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
     score_orientation: ScoreOrientation
     parse_provenance: SearchResultProvenanceManifest
@@ -965,9 +967,7 @@ def search_adapter_dialect_registry() -> dict[
             _SPECTRONAUT_PIPELINE_DIALECT,
         ]
     )
-    return {
-        (dialect.adapter_kind, dialect.dialect_id): dialect for dialect in dialects
-    }
+    return {(dialect.adapter_kind, dialect.dialect_id): dialect for dialect in dialects}
 
 
 def get_search_adapter_manifest(
@@ -1111,11 +1111,7 @@ def _read_search_result_rows(
                     "search result TSV contains rows with inconsistent column counts"
                 )
             rows.append(
-                {
-                    str(key): str(value)
-                    for key, value in row.items()
-                    if key is not None
-                }
+                {str(key): str(value) for key, value in row.items() if key is not None}
             )
     return source_columns, tuple(rows)
 
@@ -1351,7 +1347,10 @@ def assess_search_result_input(
                 remediation_hint="provide a decoy label column or protein references with a decoy naming policy",
             )
         )
-    if family_policy.requires_protein_references and resolved_mapping.protein_refs is None:
+    if (
+        family_policy.requires_protein_references
+        and resolved_mapping.protein_refs is None
+    ):
         refusals.append(
             SearchInputRefusal(
                 kind=SearchInputRefusalKind.SCIENTIFIC_INCOMPATIBILITY,
@@ -1723,11 +1722,11 @@ def _parse_sage_parameters(path: Path) -> SearchParameterReport:
         if missed_cleavages is not None
         else None,
         precursor_tolerance=float(precursor_value)
-        if precursor_unit is not None
+        if precursor_unit is not None and precursor_value is not None
         else None,
         precursor_tolerance_unit=precursor_unit,
         fragment_tolerance=float(fragment_value)
-        if fragment_unit is not None
+        if fragment_unit is not None and fragment_value is not None
         else None,
         fragment_tolerance_unit=fragment_unit,
         database_path=database_path,
@@ -1884,9 +1883,7 @@ def _parse_spectronaut_parameters(path: Path) -> SearchParameterReport:
         variable=True,
         source_key="variable_modifications",
     )
-    database_path = (
-        fields.get("library_file") or fields.get("fasta_file") or None
-    )
+    database_path = fields.get("library_file") or fields.get("fasta_file") or None
     decoy_prefix = fields.get("decoy_prefix")
     return SearchParameterReport(
         adapter_kind=SearchAdapterKind.SPECTRONAUT,
@@ -2024,10 +2021,7 @@ def _render_parameter_value(value: object) -> str | None:
         return None
     if isinstance(value, tuple):
         return json.dumps(
-            [
-                item.to_dict() if hasattr(item, "to_dict") else item
-                for item in value
-            ],
+            [item.to_dict() if hasattr(item, "to_dict") else item for item in value],
             sort_keys=True,
             separators=(",", ":"),
         )
@@ -2179,7 +2173,9 @@ def normalize_search_results_with_adapter(
         additional_dialects=additional_dialects,
     )
     manifest = _manifest_for_dialect(adapter_kind=adapter_kind, dialect=dialect)
-    resolved_mapping = mapping or (None if dialect is None else dialect.mapping) or manifest.mapping
+    resolved_mapping = (
+        mapping or (None if dialect is None else dialect.mapping) or manifest.mapping
+    )
     if resolved_mapping is None:
         raise ValueError(
             "generic adapter normalization requires an explicit column mapping"
@@ -2306,7 +2302,9 @@ def merge_search_result_reports(
     normalized_scores_by_adapter: dict[
         SearchAdapterKind, dict[tuple[str, str], float]
     ] = {}
-    per_report_best: list[tuple[SearchAdapterNormalizationReport, dict[str, PsmRecord]]] = []
+    per_report_best: list[
+        tuple[SearchAdapterNormalizationReport, dict[str, PsmRecord]]
+    ] = []
     for report in reports:
         normalized_scores_by_adapter[report.adapter_manifest.adapter_kind] = {
             (entry.spectrum_id, entry.canonical_peptide): entry.normalized_score
@@ -2322,11 +2320,7 @@ def merge_search_result_reports(
         per_report_best.append((report, best))
 
     all_spectra = sorted(
-        {
-            spectrum_id
-            for _, best in per_report_best
-            for spectrum_id in best
-        }
+        {spectrum_id for _, best in per_report_best for spectrum_id in best}
     )
     merged_entries: list[MergedSearchSpectrumEntry] = []
     for spectrum_id in all_spectra:
@@ -2362,7 +2356,9 @@ def merge_search_result_reports(
             note = "engines agree on the peptide but disagree on precursor charge"
         elif len(label_set) > 1:
             status = SearchMergeAgreementStatus.LABEL_CONFLICT
-            note = "engines disagree on the target-decoy interpretation for this spectrum"
+            note = (
+                "engines disagree on the target-decoy interpretation for this spectrum"
+            )
         else:
             status = SearchMergeAgreementStatus.EXACT_MATCH
             note = "all engines agree on peptide, charge, and target-decoy label"
@@ -2474,13 +2470,18 @@ def assess_search_merge_compatibility(
                 tuple(right_policy.explicit_decoy_values),
                 tuple(right_policy.explicit_target_values),
             )
-            if left_signature != right_signature and all(
-                bool(signature[0] or signature[1] or signature[2] or signature[3])
-                for signature in (left_signature, right_signature)
-            ) and SearchAdapterKind.GENERIC not in {
-                left.adapter_manifest.adapter_kind,
-                right.adapter_manifest.adapter_kind,
-            }:
+            if (
+                left_signature != right_signature
+                and all(
+                    bool(signature[0] or signature[1] or signature[2] or signature[3])
+                    for signature in (left_signature, right_signature)
+                )
+                and SearchAdapterKind.GENERIC
+                not in {
+                    left.adapter_manifest.adapter_kind,
+                    right.adapter_manifest.adapter_kind,
+                }
+            ):
                 issues.append(
                     SearchMergeCompatibilityIssue(
                         code="decoy_policy_mismatch",
@@ -2505,7 +2506,9 @@ def assess_search_merge_compatibility(
                 code="peptide_definition_mismatch",
                 message="engine peptide definitions differ between stripped and modified sequence representations",
                 severity="error",
-                adapter_kinds=tuple(sorted(peptide_styles.keys(), key=lambda kind: kind.value)),
+                adapter_kinds=tuple(
+                    sorted(peptide_styles.keys(), key=lambda kind: kind.value)
+                ),
             )
         )
 
@@ -2543,7 +2546,9 @@ def build_external_engine_disagreement_report(
             entries=(),
             disagreement_counts={},
         )
-    per_report_best: list[tuple[SearchAdapterNormalizationReport, dict[str, PsmRecord]]] = []
+    per_report_best: list[
+        tuple[SearchAdapterNormalizationReport, dict[str, PsmRecord]]
+    ] = []
     normalized_scores: dict[SearchAdapterKind, dict[tuple[str, str], float]] = {}
     for report in reports:
         best = {
@@ -2559,11 +2564,7 @@ def build_external_engine_disagreement_report(
             )
         }
     all_spectrum_ids = sorted(
-        {
-            spectrum_id
-            for _, best in per_report_best
-            for spectrum_id in best
-        }
+        {spectrum_id for _, best in per_report_best for spectrum_id in best}
     )
     entries: list[ExternalEngineDisagreementEntry] = []
     for spectrum_id in all_spectrum_ids:
@@ -2603,7 +2604,12 @@ def build_external_engine_disagreement_report(
                 ExternalEngineDisagreementEntry(
                     spectrum_id=spectrum_id,
                     kind=ExternalEngineDisagreementKind.MISSING_EVIDENCE,
-                    adapter_kinds=tuple(sorted(set(missing_kinds + present_kinds), key=lambda kind: kind.value)),
+                    adapter_kinds=tuple(
+                        sorted(
+                            set(missing_kinds + present_kinds),
+                            key=lambda kind: kind.value,
+                        )
+                    ),
                     message="at least one engine is missing accepted evidence for this spectrum id",
                     normalized_score_delta=None,
                 )
@@ -2738,7 +2744,9 @@ def build_search_adapter_regression_corpus_manifest(
 ) -> SearchRegressionCorpusManifest:
     """Build a stable manifest over a directory of search adapter regression fixtures."""
     entries: list[SearchRegressionCorpusEntry] = []
-    for path in sorted(candidate for candidate in corpus_root.rglob("*") if candidate.is_file()):
+    for path in sorted(
+        candidate for candidate in corpus_root.rglob("*") if candidate.is_file()
+    ):
         fixture_kind, note = _fixture_kind_for_path(path)
         entries.append(
             SearchRegressionCorpusEntry(
@@ -2751,11 +2759,7 @@ def build_search_adapter_regression_corpus_manifest(
         )
     covered_adapter_kinds = tuple(
         sorted(
-            {
-                entry.adapter_kind
-                for entry in entries
-                if entry.adapter_kind is not None
-            },
+            {entry.adapter_kind for entry in entries if entry.adapter_kind is not None},
             key=lambda kind: kind.value,
         )
     )
@@ -3062,8 +3066,10 @@ def build_search_engine_corpus_report(
 
     total_accepted_rows = sum(entry.accepted_rows for entry in entries)
     total_rejected_rows = sum(entry.rejected_rows for entry in entries)
-    passes = not missing_artifacts and bool(entries) and all(
-        entry.conformance_passes for entry in entries
+    passes = (
+        not missing_artifacts
+        and bool(entries)
+        and all(entry.conformance_passes for entry in entries)
     )
     note = (
         "corpus coverage is complete and each normalization entry passed conformance checks"

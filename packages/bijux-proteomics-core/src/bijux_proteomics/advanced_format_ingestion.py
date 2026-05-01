@@ -184,6 +184,8 @@ class FormatCapabilityMatrixReport(JsonModel):
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
     """Parse mzIdentML core identification surfaces or return precise refusal details."""
     root = ET.parse(path).getroot()
+    if root is None:
+        raise ValueError("invalid XML: missing document root")
     tag = _local_name(root.tag)
     if tag != "MzIdentML":
         return MzIdentMlIngestionReport(
@@ -272,14 +274,12 @@ def parse_mztab_or_refuse(path: Path) -> MzTabIngestionReport:
         "search_engine_score[1]",
     }
     observed_headers = {
-        field
-        for fields in headers_by_prefix.values()
-        for field in fields
+        field for fields in headers_by_prefix.values() for field in fields
     }
     unsupported = {
         field
         for field in observed_headers
-        if field.startswith("opt_global_") or field.startswith("opt_assay[")
+        if field.startswith(("opt_global_", "opt_assay["))
     }
     lost = sorted(
         field
@@ -303,6 +303,8 @@ def parse_mztab_or_refuse(path: Path) -> MzTabIngestionReport:
 def evaluate_pepxml_idxml_boundary(path: Path) -> XmlIdentificationBoundaryReport:
     """Detect pepXML/idXML roots and return explicit conversion/support boundaries."""
     root = ET.parse(path).getroot()
+    if root is None:
+        raise ValueError("invalid XML: missing document root")
     tag = _local_name(root.tag)
     if tag == "msms_pipeline_analysis":
         count = len(root.findall(".//{*}spectrum_query"))
@@ -340,6 +342,8 @@ def evaluate_pepxml_idxml_boundary(path: Path) -> XmlIdentificationBoundaryRepor
 def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
     """Inspect mzML binary arrays and summarize decoding support boundaries."""
     root = ET.parse(path).getroot()
+    if root is None:
+        raise ValueError("invalid XML: missing document root")
     compression: set[str] = set()
     precision: set[str] = set()
     for param in root.findall(".//{*}cvParam"):
@@ -371,12 +375,13 @@ def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
     supported = not issue_codes.intersection(
         {"unsupported_binary_compression", "unsupported_binary_precision"}
     )
-    diagnostics = (
+    diagnostics: tuple[str, ...] = (
         "mzML decoding supports zlib/no-compression float arrays",
         "unsupported compression or precision is reported with explicit issue codes",
     )
     if not supported:
-        diagnostics = diagnostics + (
+        diagnostics = (
+            *diagnostics,
             "this file includes unsupported binary decoding settings for current ingestion boundaries",
         )
     return MzmlDecodingSupportReport(
@@ -392,7 +397,9 @@ def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
 
 def parse_chromatogram_qc_table(path: Path) -> ChromatogramQcIngestionReport:
     """Parse TIC/BPC chromatogram QC tables and distinguish unknown from failed metrics."""
-    reader = csv.DictReader(path.read_text(encoding="utf-8").splitlines(), delimiter="\t")
+    reader = csv.DictReader(
+        path.read_text(encoding="utf-8").splitlines(), delimiter="\t"
+    )
     points: list[ChromatogramQcPoint] = []
     unknown_rows = 0
     failed_rows = 0
@@ -499,6 +506,8 @@ def evaluate_spectrum_library_boundary(path: Path) -> SpectrumLibraryBoundaryRep
 def extract_ion_mobility_support(path: Path) -> IonMobilitySupportReport:
     """Extract ion-mobility fields from mzML and report support boundaries."""
     root = ET.parse(path).getroot()
+    if root is None:
+        raise ValueError("invalid XML: missing document root")
     mobility_accessions = {
         "MS:1002476",  # ion mobility drift time
         "MS:1002815",  # inverse reduced ion mobility
@@ -567,7 +576,7 @@ def stream_mgf_spectra(path: Path) -> tuple[SpectrumModel, ...]:
                 SpectrumModel(
                     spectrum_id=spectrum_id,
                     native_id=spectrum_id,
-                    precursor_mz=active_precursor_mz,
+                    precursor_mz=active_precursor_mz or 1.0,
                     precursor_charge=active_charge,
                     ms_level=2,
                     peaks=tuple(peaks),
@@ -616,7 +625,9 @@ def build_streaming_parse_profile(
         raise ValueError("streaming profile currently supports only mgf and mzml")
 
     spectrum_count = len(spectra)
-    chunk_count = (spectrum_count + chunk_size - 1) // chunk_size if spectrum_count else 0
+    chunk_count = (
+        (spectrum_count + chunk_size - 1) // chunk_size if spectrum_count else 0
+    )
     return StreamingParseProfile(
         format_name=format_key,
         chunk_size=chunk_size,

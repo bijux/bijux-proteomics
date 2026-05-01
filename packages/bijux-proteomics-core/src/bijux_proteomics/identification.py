@@ -840,9 +840,7 @@ class AcceptedPsmProvenanceReport(JsonModel):
 
     threshold: float | None = Field(default=None, ge=0.0)
     score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
-    tie_handling: str = Field(
-        ..., pattern="^(score_group|stable_record_order)$"
-    )
+    tie_handling: str = Field(..., pattern="^(score_group|stable_record_order)$")
     score_transform: str = Field(..., min_length=1)
     entries: tuple[AcceptedPsmProvenanceEntry, ...] = Field(default_factory=tuple)
 
@@ -1123,11 +1121,15 @@ def validate_target_decoy_policy(
                 severity="warning",
             )
         )
-    if target_like and decoy_like and any(
-        _base_accession_from_policy(target_ref, policy)
-        == _base_accession_from_policy(decoy_ref, policy)
-        for target_ref in target_like
-        for decoy_ref in decoy_like
+    if (
+        target_like
+        and decoy_like
+        and any(
+            _base_accession_from_policy(target_ref, policy)
+            == _base_accession_from_policy(decoy_ref, policy)
+            for target_ref in target_like
+            for decoy_ref in decoy_like
+        )
     ):
         issues.append(
             DecoyStrategyValidationIssue(
@@ -1690,9 +1692,7 @@ def calculate_basic_target_decoy_fdr(
     if score_orientation not in {"higher_better", "lower_better"}:
         raise ValueError("score_orientation must be 'higher_better' or 'lower_better'")
     if tie_handling not in {"score_group", "stable_record_order"}:
-        raise ValueError(
-            "tie_handling must be 'score_group' or 'stable_record_order'"
-        )
+        raise ValueError("tie_handling must be 'score_group' or 'stable_record_order'")
     _raise_on_target_decoy_accession_collisions(records, decoy_policy=decoy_policy)
 
     sorted_records = tuple(
@@ -1849,19 +1849,27 @@ def _score_orientation_support_candidate(
         records,
         score_orientation=orientation,
     )
-    top_count = max(1, math.ceil(len(sorted_records) * top_fraction)) if sorted_records else 0
+    top_count = (
+        max(1, math.ceil(len(sorted_records) * top_fraction)) if sorted_records else 0
+    )
     top_records = sorted_records[:top_count]
     top_target_count = sum(
-        1 for record in top_records if record.target_decoy_label is TargetDecoyLabel.TARGET
+        1
+        for record in top_records
+        if record.target_decoy_label is TargetDecoyLabel.TARGET
     )
     top_decoy_count = sum(
-        1 for record in top_records if record.target_decoy_label is TargetDecoyLabel.DECOY
+        1
+        for record in top_records
+        if record.target_decoy_label is TargetDecoyLabel.DECOY
     )
     q_values = [record.q_value for record in top_records if record.q_value is not None]
     top_mean_q_value = sum(q_values) / len(q_values) if q_values else None
     labeled_count = top_target_count + top_decoy_count
     decoy_fraction = top_decoy_count / labeled_count if labeled_count else 0.5
-    q_component = 1.0 - min(top_mean_q_value if top_mean_q_value is not None else 0.5, 1.0)
+    q_component = 1.0 - min(
+        top_mean_q_value if top_mean_q_value is not None else 0.5, 1.0
+    )
     support_score = max(0.0, min(1.0, ((1.0 - decoy_fraction) + q_component) / 2.0))
     return ScoreOrientationAdvisoryCandidate(
         orientation=orientation,
@@ -1899,7 +1907,9 @@ def detect_score_orientation_advisory(
         (higher, lower),
         key=lambda candidate: (-candidate.support_score, candidate.orientation),
     )
-    support_gap = sorted_candidates[0].support_score - sorted_candidates[1].support_score
+    support_gap = (
+        sorted_candidates[0].support_score - sorted_candidates[1].support_score
+    )
     recommended_orientation = (
         sorted_candidates[0].orientation if support_gap >= 0.05 else None
     )
@@ -1939,7 +1949,7 @@ def _records_for_confidence_calibration(
             )
             for entry in rollups
         )
-    rollups = rollup_protein_evidence(records)
+    protein_rollups = rollup_protein_evidence(records)
     return tuple(
         PsmRecord(
             spectrum_id=entry.protein_ref,
@@ -1951,7 +1961,7 @@ def _records_for_confidence_calibration(
             protein_refs=(entry.protein_ref,),
             target_decoy_label=entry.target_decoy_label,
         )
-        for entry in rollups
+        for entry in protein_rollups
     )
 
 
@@ -2005,7 +2015,11 @@ def build_confidence_calibration_report(
             0.0,
             min(
                 1.0,
-                ((1.0 - bin_match.decoy_fraction) + entry.normalized_score + q_component)
+                (
+                    (1.0 - bin_match.decoy_fraction)
+                    + entry.normalized_score
+                    + q_component
+                )
                 / 3.0,
             ),
         )
@@ -2147,22 +2161,18 @@ def build_grouped_confidence_report(
         q_value = group.best_q_value if group.best_q_value is not None else 1.0
         if group.target_decoy_label is TargetDecoyLabel.DECOY:
             label = ConfidenceLabel.DECOY
-            explanation = "decoy protein groups are never promoted to biological confidence"
+            explanation = (
+                "decoy protein groups are never promoted to biological confidence"
+            )
         elif q_value <= high_threshold:
             label = ConfidenceLabel.HIGH
-            explanation = (
-                f"group q-value {q_value:.4f} is at or below the high-confidence threshold"
-            )
+            explanation = f"group q-value {q_value:.4f} is at or below the high-confidence threshold"
         elif q_value <= medium_threshold:
             label = ConfidenceLabel.MEDIUM
-            explanation = (
-                f"group q-value {q_value:.4f} is at or below the medium-confidence threshold"
-            )
+            explanation = f"group q-value {q_value:.4f} is at or below the medium-confidence threshold"
         else:
             label = ConfidenceLabel.LOW
-            explanation = (
-                f"group q-value {q_value:.4f} is reviewable but above the medium-confidence threshold"
-            )
+            explanation = f"group q-value {q_value:.4f} is reviewable but above the medium-confidence threshold"
         entries.append(
             GroupedConfidenceEntry(
                 group_id=group.group_id,
@@ -2901,19 +2911,13 @@ def build_shared_peptide_ambiguity_report(
         )
         if len(group.protein_refs) > 1 and outside_group_proteins:
             reason = SharedPeptideAmbiguityReason.MIXED
-            explanation = (
-                f"group {group.group_id} has indistinguishable members and shared peptides that also map outside the group"
-            )
+            explanation = f"group {group.group_id} has indistinguishable members and shared peptides that also map outside the group"
         elif len(group.protein_refs) > 1:
             reason = SharedPeptideAmbiguityReason.INDISTINGUISHABLE_MEMBERS
-            explanation = (
-                f"group {group.group_id} contains proteins with the same observed peptide evidence"
-            )
+            explanation = f"group {group.group_id} contains proteins with the same observed peptide evidence"
         else:
             reason = SharedPeptideAmbiguityReason.EXTERNAL_SHARED_PEPTIDES
-            explanation = (
-                f"group {group.group_id} is connected to outside proteins only through shared peptide evidence"
-            )
+            explanation = f"group {group.group_id} is connected to outside proteins only through shared peptide evidence"
         entries.append(
             SharedPeptideAmbiguityEntry(
                 group_id=group.group_id,
@@ -3070,7 +3074,9 @@ def build_combined_evidence_report(
                     best_psm_q_value=rollup.best_q_value,
                     peptide_charge_states=rollup.charge_states,
                     protein_group_id=group.group_id if group is not None else None,
-                    protein_group_members=group.protein_refs if group is not None else (),
+                    protein_group_members=group.protein_refs
+                    if group is not None
+                    else (),
                     parsimony_variants=tuple(
                         sorted(
                             selected_variants_by_protein.get(protein_ref, set()),
@@ -3205,9 +3211,7 @@ def build_inference_disagreement_report(
 ) -> InferenceDisagreementReport:
     """Expose disagreements across inference strategies instead of hiding them."""
     peptide_rollups = rollup_peptide_evidence(records)
-    razor = {
-        entry.canonical_peptide: entry for entry in assign_razor_peptides(records)
-    }
+    razor = {entry.canonical_peptide: entry for entry in assign_razor_peptides(records)}
     parsimony_results = {
         variant: infer_proteins_by_parsimony(records, variant=variant)
         for variant in parsimony_variants
@@ -3620,24 +3624,16 @@ def _assign_level_specific_confidence(
             explanation = "decoy evidence is never promoted to biological confidence"
         elif entry.q_value <= high_threshold:
             label = ConfidenceLabel.HIGH
-            explanation = (
-                f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the high-confidence threshold"
-            )
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the high-confidence threshold"
         elif entry.q_value <= medium_threshold:
             label = ConfidenceLabel.MEDIUM
-            explanation = (
-                f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the medium-confidence threshold"
-            )
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} is at or below the medium-confidence threshold"
         elif entry.accepted:
             label = ConfidenceLabel.LOW
-            explanation = (
-                f"{evidence_level.value} q-value {entry.q_value:.4f} passes FDR but misses the medium-confidence threshold"
-            )
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} passes FDR but misses the medium-confidence threshold"
         else:
             label = ConfidenceLabel.REJECTED
-            explanation = (
-                f"{evidence_level.value} q-value {entry.q_value:.4f} does not pass the requested acceptance threshold"
-            )
+            explanation = f"{evidence_level.value} q-value {entry.q_value:.4f} does not pass the requested acceptance threshold"
         assignments.append(
             LevelSpecificConfidenceAssignment(
                 evidence_level=evidence_level,
@@ -3723,9 +3719,7 @@ def build_confidence_threshold_sensitivity_report(
         accepted_proteins = {
             entry.entity_id for entry in level_report.protein_entries if entry.accepted
         }
-        accepted_picked = {
-            entry.protein_ref for entry in picked if entry.accepted
-        }
+        accepted_picked = {entry.protein_ref for entry in picked if entry.accepted}
         entries.append(
             ConfidenceThresholdSensitivityEntry(
                 threshold=threshold,

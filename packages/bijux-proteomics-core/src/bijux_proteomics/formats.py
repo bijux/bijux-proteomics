@@ -476,7 +476,10 @@ def _parse_binary_values(
             )
         )
         return kind, None, issues
-    if compression_accessions and compression_accessions[0] not in supported_compressions:
+    if (
+        compression_accessions
+        and compression_accessions[0] not in supported_compressions
+    ):
         issues.append(
             _issue(
                 "unsupported_binary_compression",
@@ -942,7 +945,9 @@ def diagnose_proteomics_format(path: Path) -> FormatDetectionDiagnostic:
             "tabular header did not match supported PSM or design-table columns"
         )
     else:
-        reasons.append("content did not match supported FASTA, MGF, mzML, JSON, or table signatures")
+        reasons.append(
+            "content did not match supported FASTA, MGF, mzML, JSON, or table signatures"
+        )
     return FormatDetectionDiagnostic(
         input_path=str(path),
         detected_format=None,
@@ -1006,6 +1011,9 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                     )
                 )
         try:
+            sample_role_value = (
+                values.get("sample_role") or ExperimentalDesignSampleRole.SAMPLE.value
+            )
             entry = ExperimentalDesignEntry(
                 sample_id=values.get("sample_id") or "",
                 cohort=values.get("cohort"),
@@ -1019,8 +1027,7 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 search_engine=values.get("search_engine"),
                 multiplex_group=values.get("multiplex_group"),
                 multiplex_channel=values.get("multiplex_channel"),
-                sample_role=values.get("sample_role")
-                or ExperimentalDesignSampleRole.SAMPLE,
+                sample_role=ExperimentalDesignSampleRole(sample_role_value),
             )
         except Exception as exc:  # noqa: BLE001
             issues.append(

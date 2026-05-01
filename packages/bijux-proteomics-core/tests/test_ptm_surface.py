@@ -9,7 +9,6 @@ from bijux_proteomics import (
     build_ptm_enrichment_input,
     build_ptm_motif_background_report,
     build_ptm_motif_windows,
-    build_ptm_site_group_evidence,
     build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
     build_ptm_site_fdr,
@@ -19,8 +18,11 @@ from bijux_proteomics import (
     parse_fasta_document,
     parse_ms1_feature_table,
     parse_ptm_localization_tsv,
-    PtmSiteGroupEvidenceEntry,
     validate_ptm_site_coordinates,
+)
+from bijux_proteomics.ptm import (
+    PtmSiteGroupEvidenceEntry,
+    build_ptm_site_group_evidence,
 )
 from bijux_proteomics.sequences import FastaParseMode
 
@@ -185,7 +187,12 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
     assert "P11111:S5:Phospho" in enrichment.site_ids
     assert "P11111:S5" in enrichment.background_ids
     assert background.total_foreground_sites >= 1
-    assert next(entry for entry in background.entries if entry.residue == "S").background_site_count >= 1
+    assert (
+        next(
+            entry for entry in background.entries if entry.residue == "S"
+        ).background_site_count
+        >= 1
+    )
 
     ambiguous = next(
         entry for entry in occupancy if entry.uncertainty.value == "ambiguous_site"

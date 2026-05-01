@@ -355,7 +355,9 @@ class GovernedEvidenceBundle(JsonModel):
         ),
         description="Schema and provenance metadata.",
     )
-    evidence_bundle_id: EvidenceId = Field(..., description="Underlying evidence bundle.")
+    evidence_bundle_id: EvidenceId = Field(
+        ..., description="Underlying evidence bundle."
+    )
     artifact_references: tuple[GovernedArtifactReference, ...] = Field(
         default_factory=tuple
     )
@@ -1637,16 +1639,20 @@ def build_governed_evidence_bundle(
     artifact_references: tuple[GovernedArtifactReference, ...],
 ) -> GovernedEvidenceBundle:
     """Connect evidence with governed runtime, summary, and review artifacts."""
-    expected_surfaces = {surface for surface in GovernedEvidenceSurface}
+    expected_surfaces = set(GovernedEvidenceSurface)
     present_surfaces = {reference.surface for reference in artifact_references}
     missing_surfaces = tuple(
         sorted(expected_surfaces - present_surfaces, key=lambda surface: surface.value)
     )
-    present_summary = ", ".join(
-        reference.surface.value for reference in sorted(
-            artifact_references, key=lambda reference: reference.surface.value
+    present_summary = (
+        ", ".join(
+            reference.surface.value
+            for reference in sorted(
+                artifact_references, key=lambda reference: reference.surface.value
+            )
         )
-    ) or "no governed surfaces"
+        or "no governed surfaces"
+    )
     payload = GovernedEvidenceBundle(
         bundle_id=f"{bundle.bundle_id}:{decision_tag}:governed",
         target_id=bundle.target_id,

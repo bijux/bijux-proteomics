@@ -337,7 +337,9 @@ class ProteinQuantPolicyComparisonReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     policies: tuple[ProteinQuantAssignmentPolicy, ...] = Field(default_factory=tuple)
-    entries: tuple[ProteinQuantPolicyComparisonEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[ProteinQuantPolicyComparisonEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class StudyScaleReplicateSampleEntry(JsonModel):
@@ -433,7 +435,9 @@ class NormalizationStrategyComparisonReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     entity_level: QuantEntityLevel
-    entries: tuple[NormalizationStrategySummaryEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[NormalizationStrategySummaryEntry, ...] = Field(
+        default_factory=tuple
+    )
     recommended_method: NormalizationMethod
 
 
@@ -604,7 +608,9 @@ class MissingValueSummaryPolicy(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     zero_policy: MissingValueCorrectionPolicy = MissingValueCorrectionPolicy.PRESERVE
-    filtered_policy: MissingValueCorrectionPolicy = MissingValueCorrectionPolicy.PRESERVE
+    filtered_policy: MissingValueCorrectionPolicy = (
+        MissingValueCorrectionPolicy.PRESERVE
+    )
     min_observed_samples_per_entity: int = Field(default=0, ge=0)
 
 
@@ -1093,7 +1099,9 @@ def build_label_based_quant_bundle(
 ) -> LabelBasedQuantBundle:
     """Build a stable multiplex-channel manifest over a label-based quant table."""
     multiplex_entries = tuple(
-        entry for entry in design_entries if entry.multiplex_group and entry.multiplex_channel
+        entry
+        for entry in design_entries
+        if entry.multiplex_group and entry.multiplex_channel
     )
     if not multiplex_entries:
         raise ValueError("label-based quantification requires multiplex design entries")
@@ -1126,7 +1134,9 @@ def build_label_based_quant_bundle(
         )
         present_in_design = design_entry is not None
         present_in_table = (
-            design_entry.sample_id in table_sample_ids if design_entry is not None else False
+            design_entry.sample_id in table_sample_ids
+            if design_entry is not None
+            else False
         )
         if not present_in_design or not present_in_table:
             missing_channels.append(
@@ -1147,7 +1157,10 @@ def build_label_based_quant_bundle(
                     "label-based quantification missing expected multiplex channel "
                     f"{multiplex_group}:{multiplex_channel}"
                 )
-        if not present_in_design and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE:
+        if (
+            not present_in_design
+            and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE
+        ):
             channels.append(
                 LabelBasedChannelStateEntry(
                     multiplex_group=multiplex_group,
@@ -1164,10 +1177,15 @@ def build_label_based_quant_bundle(
             continue
         if design_entry is None:
             continue
-        if not present_in_table and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE:
+        if (
+            not present_in_table
+            and policy.missing_channel_policy is MissingChannelPolicy.PRESERVE
+        ):
             note = "design channel is preserved even though no quantification values were observed"
         elif not present_in_table:
-            note = "design channel is represented as missing in the quantification table"
+            note = (
+                "design channel is represented as missing in the quantification table"
+            )
         elif channel_role is LabelBasedChannelRole.CARRIER:
             note = "carrier channel remains explicit and is not silently treated as a biological sample"
         else:
@@ -1250,16 +1268,16 @@ def normalize_multiplex_quant_table(
             continue
         grouped_samples.setdefault(multiplex_lookup[sample_id][0], []).append(sample_id)
     if not grouped_samples:
-        raise ValueError("multiplex normalization requires at least one multiplex sample in the table")
+        raise ValueError(
+            "multiplex normalization requires at least one multiplex sample in the table"
+        )
 
     normalized = matrix.copy()
     factors = dict.fromkeys(table.sample_ids, 1.0)
     for group_sample_ids in grouped_samples.values():
         if active_policy.method is NormalizationMethod.MEDIAN:
             sample_medians = {
-                sample_id: float(
-                    np.nanmedian(matrix[:, sample_index[sample_id]])
-                )
+                sample_id: float(np.nanmedian(matrix[:, sample_index[sample_id]]))
                 if np.any(~np.isnan(matrix[:, sample_index[sample_id]]))
                 else float("nan")
                 for sample_id in group_sample_ids
@@ -1269,7 +1287,11 @@ def normalize_multiplex_quant_table(
                 for median in sample_medians.values()
                 if math.isfinite(median) and median > 0
             ]
-            group_median = float(np.median(np.array(finite_medians, dtype=float))) if finite_medians else 1.0
+            group_median = (
+                float(np.median(np.array(finite_medians, dtype=float)))
+                if finite_medians
+                else 1.0
+            )
             for sample_id in group_sample_ids:
                 sample_median = sample_medians[sample_id]
                 factor = (
@@ -1360,7 +1382,10 @@ def _protein_quant_assignment_targets(
     if not record.protein_refs or record.intensity is None:
         return ()
     if assignment_policy is ProteinQuantAssignmentPolicy.INFERENCE_INCLUSIVE:
-        return tuple((protein_ref, float(record.intensity)) for protein_ref in record.protein_refs)
+        return tuple(
+            (protein_ref, float(record.intensity))
+            for protein_ref in record.protein_refs
+        )
     if assignment_policy is ProteinQuantAssignmentPolicy.QUANT_UNIQUE_ONLY:
         if len(record.protein_refs) == 1:
             return ((record.protein_refs[0], float(record.intensity)),)
@@ -1386,7 +1411,9 @@ def build_protein_quant_policy_comparison_report(
     proteins: set[str] = set()
     sample_ids: set[str] = set()
     for policy in policies:
-        grouped: dict[tuple[str, str], list[tuple[Ms1FeatureRecord, float]]] = defaultdict(list)
+        grouped: dict[tuple[str, str], list[tuple[Ms1FeatureRecord, float]]] = (
+            defaultdict(list)
+        )
         for record in records:
             sample_ids.add(record.sample_id)
             for protein_ref, intensity in _protein_quant_assignment_targets(
@@ -1407,7 +1434,9 @@ def build_protein_quant_policy_comparison_report(
                     per_policy[policy].get((protein_ref, sample_id), ()),
                     key=lambda item: (item[0].canonical_peptide, item[0].feature_id),
                 )
-                abundance = float(sum(intensity for _, intensity in bucket)) if bucket else None
+                abundance = (
+                    float(sum(intensity for _, intensity in bucket)) if bucket else None
+                )
                 if abundance is not None:
                     abundances.append(abundance)
                 values.append(
@@ -1415,12 +1444,12 @@ def build_protein_quant_policy_comparison_report(
                         assignment_policy=policy,
                         abundance=abundance,
                         contributing_peptides=tuple(
-                            dict.fromkeys(record.canonical_peptide for record, _ in bucket)
+                            dict.fromkeys(
+                                record.canonical_peptide for record, _ in bucket
+                            )
                         ),
                         shared_peptide_count=sum(
-                            1
-                            for record, _ in bucket
-                            if len(record.protein_refs) > 1
+                            1 for record, _ in bucket if len(record.protein_refs) > 1
                         ),
                     )
                 )
@@ -1456,7 +1485,9 @@ def build_protein_quant_rollup_evidence(
     grouped_features: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
     for record in records:
         for protein_ref in record.protein_refs:
-            grouped_features.setdefault((protein_ref, record.sample_id), []).append(record)
+            grouped_features.setdefault((protein_ref, record.sample_id), []).append(
+                record
+            )
 
     entries: list[ProteinQuantRollupEvidenceEntry] = []
     value_lookup = _matrix_value_index(table)
@@ -1729,9 +1760,7 @@ def build_quant_reproducibility_manifest(
             )
         ),
     ]
-    reproducibility_hash = hashlib.sha256(
-        repr(payload).encode("utf-8")
-    ).hexdigest()
+    reproducibility_hash = hashlib.sha256(repr(payload).encode("utf-8")).hexdigest()
     manifest = QuantReproducibilityManifest(
         document_schema=DocumentSchema(
             created_by="bijux-proteomics-core",
@@ -1831,7 +1860,9 @@ def _sample_snapshot(
         sample_id=sample_id,
         total_abundance=float(np.sum(abundances)),
         median_abundance=float(np.median(abundances)),
-        interquartile_range=float(np.percentile(abundances, 75) - np.percentile(abundances, 25)),
+        interquartile_range=float(
+            np.percentile(abundances, 75) - np.percentile(abundances, 25)
+        ),
     )
 
 
@@ -1841,12 +1872,18 @@ def build_normalization_comparison_report(
 ) -> NormalizationComparisonReport:
     """Build a before/after normalization summary over sample totals and spread."""
     if before.sample_ids != after.sample_ids or before.entity_ids != after.entity_ids:
-        raise ValueError("before and after tables must cover the same sample/entity grid")
+        raise ValueError(
+            "before and after tables must cover the same sample/entity grid"
+        )
     return NormalizationComparisonReport(
         method=after.normalization_method,
         normalization_factors=after.normalization_factors,
-        before=tuple(_sample_snapshot(before, sample_id) for sample_id in before.sample_ids),
-        after=tuple(_sample_snapshot(after, sample_id) for sample_id in after.sample_ids),
+        before=tuple(
+            _sample_snapshot(before, sample_id) for sample_id in before.sample_ids
+        ),
+        after=tuple(
+            _sample_snapshot(after, sample_id) for sample_id in after.sample_ids
+        ),
     )
 
 
@@ -1873,7 +1910,9 @@ def build_normalization_strategy_comparison_report(
     entries: list[NormalizationStrategySummaryEntry] = []
     for method in methods:
         candidate = normalize_label_free_table(table, method=method)
-        snapshots = [_sample_snapshot(candidate, sample_id) for sample_id in candidate.sample_ids]
+        snapshots = [
+            _sample_snapshot(candidate, sample_id) for sample_id in candidate.sample_ids
+        ]
         total_cv = _coefficient_of_variation(
             [snapshot.total_abundance for snapshot in snapshots]
         )
@@ -2024,9 +2063,9 @@ def _effect_size_and_uncertainty(
         variance_a / float(values_a.size) + variance_b / float(values_b.size)
     )
     interval_radius = 1.96 * standard_error
-    pooled_variance_numerator = (
-        (values_a.size - 1) * variance_a + (values_b.size - 1) * variance_b
-    )
+    pooled_variance_numerator = (values_a.size - 1) * variance_a + (
+        values_b.size - 1
+    ) * variance_b
     pooled_variance_denominator = values_a.size + values_b.size - 2
     pooled_sd = math.sqrt(pooled_variance_numerator / pooled_variance_denominator)
     cohens_d = (log2_fold_change / pooled_sd) if pooled_sd > 0 else None
@@ -2287,8 +2326,7 @@ def _apply_missing_value_summary_policy(
         return MissingValueKind.NOT_OBSERVED
     if (
         kind is MissingValueKind.FILTERED
-        and policy.filtered_policy
-        is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
+        and policy.filtered_policy is MissingValueCorrectionPolicy.TREAT_AS_NOT_OBSERVED
     ):
         return MissingValueKind.NOT_OBSERVED
     return kind
@@ -2359,7 +2397,7 @@ def build_missing_data_mechanism_report(
         sorted({condition for condition in condition_by_sample.values() if condition})
     )
     entries: list[MissingDataMechanismEntry] = []
-    summary_counts = {mechanism: 0 for mechanism in MissingDataMechanism}
+    summary_counts = dict.fromkeys(MissingDataMechanism, 0)
     for entity_id in table.entity_ids:
         observed_conditions: set[str] = set()
         missing_samples: list[str] = []
@@ -2368,7 +2406,10 @@ def build_missing_data_mechanism_report(
         for sample_id in table.sample_ids:
             cell = lookup[(entity_id, sample_id)]
             condition = condition_by_sample.get(sample_id, "unknown")
-            if cell.missing_value_kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO):
+            if cell.missing_value_kind in (
+                MissingValueKind.OBSERVED,
+                MissingValueKind.ZERO,
+            ):
                 observed_conditions.add(condition)
                 observed_samples.append(sample_id)
                 continue
@@ -2626,7 +2667,9 @@ def build_study_scale_replicate_correlation_report(
     condition_by_sample = _condition_lookup(design_entries)
     for entry in pairwise.entries:
         target = (
-            per_sample_within if entry.condition_a == entry.condition_b else per_sample_between
+            per_sample_within
+            if entry.condition_a == entry.condition_b
+            else per_sample_between
         )
         target[entry.sample_a].append(entry.correlation)
         target[entry.sample_b].append(entry.correlation)
@@ -2742,11 +2785,10 @@ def build_differential_abundance_report(
     if (
         len(samples_a) < active_policy.min_replicates_per_condition
         or len(samples_b) < active_policy.min_replicates_per_condition
-    ):
-        if active_policy.disposition is QuantAssessmentDisposition.ENFORCED:
-            raise ValueError(
-                "minimum replicate policy not satisfied for differential abundance"
-            )
+    ) and active_policy.disposition is QuantAssessmentDisposition.ENFORCED:
+        raise ValueError(
+            "minimum replicate policy not satisfied for differential abundance"
+        )
 
     lookup = _matrix_value_index(table)
     entries: list[DifferentialAbundanceEntry] = []

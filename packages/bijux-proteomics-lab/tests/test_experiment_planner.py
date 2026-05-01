@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any, cast
 
 from bijux_proteomics import create_program_spec
 from bijux_proteomics.programs import AssayRequirement, EvidenceNeed, ReviewGate
@@ -21,8 +22,8 @@ from bijux_proteomics_lab import (
     AssayIntent,
     AssayObservation,
     AssayOutcome,
-    AssayResultState,
     AssayPlanKind,
+    AssayResultState,
     CandidatePrioritySignal,
     ConflictAssayPolicy,
     ExecutableAssayPlan,
@@ -38,16 +39,16 @@ from bijux_proteomics_lab import (
     PlanningPolicy,
     ProgressDecision,
     RerunPolicy,
+    align_lab_priority_queue,
     assay_family_priority,
     assess_dependency_integrity,
     assess_gate_coverage_gaps,
     assess_material_constraints,
-    align_lab_priority_queue,
     build_advisory_assay_plan,
-    build_execution_capacity_advisory,
     build_executable_assay_plan,
-    build_lab_execution_request,
+    build_execution_capacity_advisory,
     build_lab_cycle_brief,
+    build_lab_execution_request,
     build_lab_review_packet_bundle,
     build_review_packet,
     build_review_risk_profile,
@@ -66,11 +67,11 @@ from bijux_proteomics_lab import (
     plan_uncertainty_reduction_assays,
     prioritize_batches_by_material_feasibility,
     prioritize_next_assays,
-    report_execution_plan_uncertainty,
     recommend_next_best_experiment,
     recommend_next_cycle,
     recommend_next_cycle_from_outcome,
     recommend_orthogonal_confirmation,
+    report_execution_plan_uncertainty,
     schedule_experiment_plan,
     schedule_with_family_capacity,
     score_assay_gate_impact,
@@ -82,10 +83,13 @@ from bijux_proteomics_lab import (
 
 
 def _planning_fixture(name: str) -> dict[str, object]:
-    return json.loads(
-        (
-            Path(__file__).parent / "fixtures" / "planning" / name
-        ).read_text(encoding="utf-8")
+    return cast(
+        dict[str, object],
+        json.loads(
+            (Path(__file__).parent / "fixtures" / "planning" / name).read_text(
+                encoding="utf-8"
+            )
+        ),
     )
 
 
@@ -362,7 +366,9 @@ def test_build_executable_assay_plan_requires_operational_readiness() -> None:
     assert ready.instructions[0].instruction_id == "batch-exec:gate-binding"
 
 
-def test_build_lab_execution_request_preserves_review_evidence_and_instructions() -> None:
+def test_build_lab_execution_request_preserves_review_evidence_and_instructions() -> (
+    None
+):
     program = create_program_spec(
         program_id="prog-handoff",
         name="handoff plan",
@@ -548,16 +554,17 @@ def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces()
         organism=program_data["organism"],
         mechanism=program_data["mechanism"],
     )
-    program.evidence_needs = [
-        EvidenceNeed(item) for item in fixture["evidence_needs"]
-    ]
-    program.assay_panel.extend(
-        AssayRequirement(**assay) for assay in fixture["assays"]
-    )
+    evidence_needs = cast(list[str], fixture["evidence_needs"])
+    assays = cast(list[dict[str, Any]], fixture["assays"])
+    records = cast(list[dict[str, Any]], fixture["records"])
+    candidate_signals = cast(list[dict[str, Any]], fixture["candidate_signals"])
+
+    program.evidence_needs = [EvidenceNeed(item) for item in evidence_needs]
+    program.assay_panel.extend(AssayRequirement(**assay) for assay in assays)
     bundle = EvidenceBundle(
         bundle_id="bundle-proteomics-lab",
         target_id=program.target.target_id,
-        records=[EvidenceRecord(**record) for record in fixture["records"]],
+        records=[EvidenceRecord(**record) for record in records],
     )
 
     advisory = build_advisory_assay_plan(program, bundle)
@@ -565,7 +572,7 @@ def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces()
     alignment = align_lab_priority_queue(
         program,
         priorities,
-        [CandidatePrioritySignal(**row) for row in fixture["candidate_signals"]],
+        [CandidatePrioritySignal(**row) for row in candidate_signals],
     )
     capacity_advisory = build_execution_capacity_advisory(
         ExperimentPlan(

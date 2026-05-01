@@ -9,20 +9,22 @@ import hashlib
 import importlib.metadata
 import json
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import click
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
+from bijux_proteomics_intelligence.domain.candidates import CandidateStore
+from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.api.catalog import (
     build_artifact_lookup_response,
     build_evidence_lookup_response,
-    build_run_history_response,
-    build_runtime_health_response,
     build_run_artifacts_response,
     build_run_evidence_response,
+    build_run_history_response,
     build_run_review_response,
+    build_runtime_health_response,
     build_runtime_status_response,
 )
 from bijux_proteomics_runtime.api.correlation import build_correlation_meta
@@ -34,8 +36,6 @@ from bijux_proteomics_runtime.api.v1.schema import (
     InspectResponse,
     RunResponse,
 )
-from bijux_proteomics_intelligence.domain.candidates import CandidateStore
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.runtime import RunManager
 from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
 from bijux_proteomics_runtime.runtime.control import compare_runs
@@ -58,6 +58,8 @@ __all__ = [
     "_write_output",
     "cli",
 ]
+
+_CLI_ERROR_TYPE = cast(AnyUrl, "https://bijux.dev/errors/cli")
 
 
 def _package_version() -> str:
@@ -405,7 +407,7 @@ def run(
                 pretty=pretty,
                 surface="run",
                 error=ErrorResponse(
-                    type="about:blank",
+                    type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
                     detail=str(exc),
@@ -483,7 +485,7 @@ def resume(
                 pretty=pretty,
                 surface="resume",
                 error=ErrorResponse(
-                    type="about:blank",
+                    type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
                     detail=str(exc),
@@ -523,7 +525,7 @@ def compare(run_a: Path, run_b: Path, pretty: bool, json_output: bool) -> None:
                 pretty=pretty,
                 surface="compare",
                 error=ErrorResponse(
-                    type="about:blank",
+                    type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
                     detail=str(exc),
@@ -562,7 +564,7 @@ def inspect_candidate(candidate_id: str, pretty: bool, json_output: bool) -> Non
                 pretty=pretty,
                 surface="inspect-candidate",
                 error=ErrorResponse(
-                    type="about:blank",
+                    type=_CLI_ERROR_TYPE,
                     title="CLI error",
                     status=1,
                     detail=str(exc),
@@ -658,7 +660,9 @@ def api_status(
         include_documents=include_documents,
         max_inline_bytes=max_inline_bytes,
     )
-    _emit_api_envelope(response, pretty=pretty, surface="runtime-status", correlation_key=run_id)
+    _emit_api_envelope(
+        response, pretty=pretty, surface="runtime-status", correlation_key=run_id
+    )
 
 
 @api.command("artifacts")
@@ -667,7 +671,9 @@ def api_status(
 def api_artifacts(run_id: str, pretty: bool) -> None:
     """Emit the canonical run-artifacts contract via CLI."""
     response = build_run_artifacts_response(Path.cwd(), run_id)
-    _emit_api_envelope(response, pretty=pretty, surface="run-artifacts", correlation_key=run_id)
+    _emit_api_envelope(
+        response, pretty=pretty, surface="run-artifacts", correlation_key=run_id
+    )
 
 
 @api.command("evidence-bundle")

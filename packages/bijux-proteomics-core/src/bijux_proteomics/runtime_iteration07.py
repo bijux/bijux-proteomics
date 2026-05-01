@@ -11,7 +11,7 @@ import json
 import os
 from pathlib import Path
 import shutil
-import subprocess
+import subprocess  # nosec B404
 import tempfile
 
 from pydantic import ConfigDict, Field
@@ -38,7 +38,7 @@ from bijux_proteomics.sequences import (
     generate_decoy_records,
     parse_fasta_document,
 )
-from bijux_proteomics.spectra import parse_mgf
+from bijux_proteomics.spectra import MgfParseReport, parse_mgf
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -327,7 +327,7 @@ def _stable_runtime_key(payload: object) -> str:
     ).hexdigest()
 
 
-def _parse_mgf_text(mgf_text: str):
+def _parse_mgf_text(mgf_text: str) -> MgfParseReport:
     with tempfile.NamedTemporaryFile("w", suffix=".mgf", delete=False) as handle:
         handle.write(mgf_text)
         temp_path = Path(handle.name)
@@ -335,6 +335,14 @@ def _parse_mgf_text(mgf_text: str):
         return parse_mgf(temp_path)
     finally:
         temp_path.unlink(missing_ok=True)
+
+
+def _normalize_stream(value: str | bytes | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
 
 
 def run_sequence_to_digest_workflow_end_to_end(
@@ -346,7 +354,9 @@ def run_sequence_to_digest_workflow_end_to_end(
     """Execute FASTA -> digest -> decoy -> peptide evidence end to end."""
     parse_report = parse_fasta_document(fasta_text, mode=FastaParseMode.STRICT)
     if not parse_report.accepted_records:
-        key = _stable_runtime_key({"workflow": "sequence-to-digest", "fasta": fasta_text})
+        key = _stable_runtime_key(
+            {"workflow": "sequence-to-digest", "fasta": fasta_text}
+        )
         return SequenceToDigestWorkflowRunReport(
             workflow_id="sequence-to-digest",
             status=RuntimeWorkflowStatus.REFUSED,
@@ -769,12 +779,13 @@ def run_knowledge_review_workflow_end_to_end(
     for item in evidence_items:
         for other_id in item.contradicts:
             if other_id in evidence_map:
-                contradiction_pairs.add(tuple(sorted((item.evidence_id, other_id))))
-    contested = {
-        evidence_id for pair in contradiction_pairs for evidence_id in pair
-    }
+                left_id, right_id = sorted((item.evidence_id, other_id))
+                contradiction_pairs.add((left_id, right_id))
+    contested = {evidence_id for pair in contradiction_pairs for evidence_id in pair}
     accepted = [
-        item for item in ranked if item.evidence_id not in contested and item.trust_score >= 0.5
+        item
+        for item in ranked
+        if item.evidence_id not in contested and item.trust_score >= 0.5
     ]
     key = _stable_runtime_key(
         {
@@ -972,7 +983,7 @@ def run_local_external_tool(
     env = dict(os.environ)
     env.update(env_overrides)
     try:
-        completed = subprocess.run(
+        completed = subprocess.run(  # nosec B603
             command,
             capture_output=True,
             text=True,
@@ -986,8 +997,8 @@ def run_local_external_tool(
             command=command,
             timeout_seconds=timeout_seconds,
             env_overrides=env_overrides,
-            stdout=exc.stdout or "",
-            stderr=exc.stderr or "",
+            stdout=_normalize_stream(exc.stdout),
+            stderr=_normalize_stream(exc.stderr),
             note="command timed out before completion",
         )
     validated = tuple(path for path in expected_artifacts if Path(path).exists())
@@ -1036,7 +1047,11 @@ def build_proteomics_workflow_cache_replay_report(
         if surface in refused_surfaces:
             outcome = WorkflowReplayOutcome.REFUSED
             detail = "surface was refused during replay because execution constraints were not met"
-        elif surface in reused_surfaces and previous_hash == current_hash and current_hash is not None:
+        elif (
+            surface in reused_surfaces
+            and previous_hash == current_hash
+            and current_hash is not None
+        ):
             outcome = WorkflowReplayOutcome.REUSED
             detail = "surface reused cached output with stable content hash"
         elif previous_hash is None and current_hash is not None:
@@ -1044,7 +1059,9 @@ def build_proteomics_workflow_cache_replay_report(
             detail = "surface was produced in current run because no previous output hash existed"
         elif previous_hash is not None and current_hash is None:
             outcome = WorkflowReplayOutcome.REFUSED
-            detail = "surface is missing in current run and is treated as refused output"
+            detail = (
+                "surface is missing in current run and is treated as refused output"
+            )
         elif previous_hash == current_hash:
             outcome = WorkflowReplayOutcome.UNCHANGED
             detail = "surface output remained unchanged across repeated runs"
@@ -1062,11 +1079,19 @@ def build_proteomics_workflow_cache_replay_report(
         )
     return WorkflowCacheReplayReport(
         entries=tuple(entries),
-        reused_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.REUSED),
-        rerun_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.RERUN),
-        changed_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.CHANGED),
+        reused_count=sum(
+            1 for entry in entries if entry.outcome is WorkflowReplayOutcome.REUSED
+        ),
+        rerun_count=sum(
+            1 for entry in entries if entry.outcome is WorkflowReplayOutcome.RERUN
+        ),
+        changed_count=sum(
+            1 for entry in entries if entry.outcome is WorkflowReplayOutcome.CHANGED
+        ),
         unchanged_count=sum(
             1 for entry in entries if entry.outcome is WorkflowReplayOutcome.UNCHANGED
         ),
-        refused_count=sum(1 for entry in entries if entry.outcome is WorkflowReplayOutcome.REFUSED),
+        refused_count=sum(
+            1 for entry in entries if entry.outcome is WorkflowReplayOutcome.REFUSED
+        ),
     )

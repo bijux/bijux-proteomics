@@ -5,11 +5,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any, Protocol, cast
 
 from bijux_proteomics import (
-    build_label_free_intensity_table,
     ExperimentalDesignEntry,
-    normalize_label_free_table,
+    NormalizationMethod,
     PsmRecord,
     QcAssessmentSeverity,
     QcDigestionSpecificity,
@@ -20,6 +20,7 @@ from bijux_proteomics import (
     TargetDecoyLabel,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
+    build_label_free_intensity_table,
     build_lcms_run_qc_report,
     build_performance_snapshot,
     build_qc_evidence_manifest,
@@ -29,12 +30,13 @@ from bijux_proteomics import (
     build_study_qc_summary,
     calculate_peptide_mz,
     default_qc_threshold_policy,
+    normalize_label_free_table,
     parse_experimental_design_table,
     parse_ms1_feature_table,
-    NormalizationMethod,
     render_qc_assessment_html,
     render_qc_assessment_tsv,
 )
+from bijux_proteomics.qc import QcThresholdPolicy
 
 PROTEIN_SEQUENCES = {
     "P11111": "KACDEFGKRAA",
@@ -55,7 +57,7 @@ def _design_entries() -> dict[str, ExperimentalDesignEntry]:
     return {entry.sample_id: entry for entry in report.accepted_entries}
 
 
-def _strict_qc_policy():
+def _strict_qc_policy() -> QcThresholdPolicy:
     return default_qc_threshold_policy().model_copy(
         update={
             "rules": tuple(
@@ -68,14 +70,19 @@ def _strict_qc_policy():
     )
 
 
-def _normalized_document_json(payload) -> str:
+class _JsonPayload(Protocol):
+    def model_dump(self, *, mode: str) -> dict[str, Any]: ...
+
+
+def _normalized_document_json(payload: _JsonPayload) -> str:
     data = payload.model_dump(mode="json")
     if "document_schema" in data:
         data["document_schema"]["created_at"] = "2000-01-01T00:00:00Z"
         data["document_schema"]["updated_at"] = "2000-01-01T00:00:00Z"
-    def _scrub_policy_hashes(value):
+
+    def _scrub_policy_hashes(value: object) -> object:
         if isinstance(value, dict):
-            scrubbed = {}
+            scrubbed: dict[str, object] = {}
             for key, item in value.items():
                 if key == "policy_sha256":
                     scrubbed[key] = "<policy_sha256>"
@@ -85,7 +92,8 @@ def _normalized_document_json(payload) -> str:
         if isinstance(value, list):
             return [_scrub_policy_hashes(item) for item in value]
         return value
-    data = _scrub_policy_hashes(data)
+
+    data = cast(dict[str, Any], _scrub_policy_hashes(data))
     return json.dumps(data, indent=2, sort_keys=True) + "\n"
 
 
@@ -348,7 +356,9 @@ def test_build_lcms_run_qc_report_captures_run_level_metrics() -> None:
             "values": tuple(
                 value.model_copy(
                     update={
-                        "sample_id": "S1" if value.sample_id == "C1" else value.sample_id
+                        "sample_id": "S1"
+                        if value.sample_id == "C1"
+                        else value.sample_id
                     }
                 )
                 for value in source_quant_table.values
@@ -532,7 +542,9 @@ def test_qc_threshold_policy_assesses_run_and_batch_reports() -> None:
     assert run_assessment.policy_sha256
     assert identification_metric.provenance is not None
     assert identification_metric.provenance.triggered_threshold == "lower_fail"
-    assert identification_metric.provenance.policy_sha256 == run_assessment.policy_sha256
+    assert (
+        identification_metric.provenance.policy_sha256 == run_assessment.policy_sha256
+    )
     assert any(
         entry.metric_key == "identification_rate" and entry.enforced_violation
         for entry in run_assessment.metric_assessments
@@ -576,7 +588,9 @@ def test_qc_renderers_match_regression_fixtures() -> None:
     )
 
     assert tsv == _qc_fixture("qc_assessment_expected.tsv").read_text(encoding="utf-8")
-    assert html == _qc_fixture("qc_assessment_expected.html").read_text(encoding="utf-8")
+    assert html == _qc_fixture("qc_assessment_expected.html").read_text(
+        encoding="utf-8"
+    )
 
 
 def test_qc_assessment_marks_unknown_metric_reasons_explicitly() -> None:
@@ -598,6 +612,7 @@ def test_qc_assessment_marks_unknown_metric_reasons_explicitly() -> None:
     )
 
     assert mass_error_metric.severity is QcAssessmentSeverity.NOT_ASSESSED
+    assert mass_error_metric.unknown_state_reason is not None
     assert mass_error_metric.unknown_state_reason.value == "no_matched_psms"
 
 
@@ -615,7 +630,9 @@ def test_qc_edge_case_fixtures_cover_sparse_runs_and_single_run_batches() -> Non
         run_id="edge-run",
         protein_sequences=PROTEIN_SEQUENCES,
     )
-    assessment = build_run_qc_assessment(run_report, policy=default_qc_threshold_policy())
+    assessment = build_run_qc_assessment(
+        run_report, policy=default_qc_threshold_policy()
+    )
     batch_report = build_instrument_batch_qc_report(
         (run_report,),
         batch_id="edge-batch",
@@ -695,7 +712,9 @@ def test_qc_run_bundle_summary_joins_reports_and_evidence_metadata() -> None:
         policy=policy,
         input_files=(
             QcEvidenceInputFile(path="spectra.mgf", sha256="a" * 64, role="spectra"),
-            QcEvidenceInputFile(path="results.tsv", sha256="b" * 64, role="identifications"),
+            QcEvidenceInputFile(
+                path="results.tsv", sha256="b" * 64, role="identifications"
+            ),
         ),
     )
 
@@ -737,7 +756,9 @@ def test_qc_publication_decision_refuses_failed_mandatory_gates() -> None:
         batch_assessment=batch_assessment,
     )
     allowed = build_qc_publication_decision(
-        run_assessment=build_run_qc_assessment(run_a, policy=default_qc_threshold_policy())
+        run_assessment=build_run_qc_assessment(
+            run_a, policy=default_qc_threshold_policy()
+        )
     )
 
     assert refused.publish_allowed is False

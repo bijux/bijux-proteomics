@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from click.testing import CliRunner
+from pytest import MonkeyPatch
 
 from bijux_proteomics_runtime.interfaces.cli import (
     _artifact_hashes,
@@ -50,7 +51,7 @@ def _write_json(path: Path, payload: dict[str, object]) -> None:
 
 
 def test_runtime_api_status_cli_uses_canonical_envelope(
-    monkeypatch, tmp_path: Path
+    monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     run_id = "cli-status-1"
     monkeypatch.chdir(tmp_path)
@@ -89,7 +90,9 @@ def test_runtime_api_status_cli_uses_canonical_envelope(
     assert payload["data"]["evidence_bundle"]["availability"] == "available"
 
 
-def test_runtime_run_json_output_uses_api_envelope(monkeypatch, tmp_path: Path) -> None:
+def test_runtime_run_json_output_uses_api_envelope(
+    monkeypatch: MonkeyPatch, tmp_path: Path
+) -> None:
     run_id = "cli-run-1"
     monkeypatch.chdir(tmp_path)
     run_dir = tmp_path / "artifacts" / run_id
@@ -113,7 +116,9 @@ def test_runtime_run_json_output_uses_api_envelope(monkeypatch, tmp_path: Path) 
         },
     )
 
-    def _fake_run_sequence(base_dir: Path, sequence: str, config: object) -> dict[str, object]:
+    def _fake_run_sequence(
+        base_dir: Path, sequence: str, config: object
+    ) -> dict[str, object]:
         return {
             "run_id": run_id,
             "candidate_id": f"{run_id}-c0",
@@ -127,7 +132,11 @@ def test_runtime_run_json_output_uses_api_envelope(monkeypatch, tmp_path: Path) 
             "coordinator_decision": "TerminateRun",
             "errors": [],
             "warnings": [],
-            "version_info": {"app_version": "0+local", "git_commit": "unknown", "tool_versions": {}},
+            "version_info": {
+                "app_version": "0+local",
+                "git_commit": "unknown",
+                "tool_versions": {},
+            },
         }
 
     runner = CliRunner()
@@ -148,7 +157,7 @@ def test_runtime_run_json_output_uses_api_envelope(monkeypatch, tmp_path: Path) 
 
 
 def test_runtime_api_health_cli_uses_component_report(
-    monkeypatch, tmp_path: Path
+    monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     monkeypatch.chdir(tmp_path)
     (tmp_path / "apis" / "bijux-proteomics-runtime" / "v1").mkdir(parents=True)
@@ -173,27 +182,30 @@ def test_runtime_api_health_cli_uses_component_report(
 
 
 def test_runtime_api_evidence_cli_surfaces_large_document_guard(
-    monkeypatch, tmp_path: Path
+    monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     run_id = "cli-large-1"
     monkeypatch.chdir(tmp_path)
     run_dir = tmp_path / "artifacts" / run_id / "artifacts"
     run_dir.mkdir(parents=True, exist_ok=True)
-    _write_json(tmp_path / "artifacts" / run_id / "run_summary.json", {
-        "run_id": run_id,
-        "candidate_id": f"{run_id}-c0",
-        "command": "run",
-        "execution_status": "completed",
-        "workflow_state": "done",
-        "outcome": "accepted",
-        "provider": "heuristic_proxy",
-        "tool_status": "success",
-        "qc_status": "acceptable",
-        "artifacts_dir": str(tmp_path / "artifacts" / run_id),
-        "warnings": [],
-        "failure": None,
-        "version": {"app": "0+local", "git_commit": "unknown", "tool_versions": {}},
-    })
+    _write_json(
+        tmp_path / "artifacts" / run_id / "run_summary.json",
+        {
+            "run_id": run_id,
+            "candidate_id": f"{run_id}-c0",
+            "command": "run",
+            "execution_status": "completed",
+            "workflow_state": "done",
+            "outcome": "accepted",
+            "provider": "heuristic_proxy",
+            "tool_status": "success",
+            "qc_status": "acceptable",
+            "artifacts_dir": str(tmp_path / "artifacts" / run_id),
+            "warnings": [],
+            "failure": None,
+            "version": {"app": "0+local", "git_commit": "unknown", "tool_versions": {}},
+        },
+    )
     (run_dir / "evidence_bundle.json").write_text(
         json.dumps({"payload": "x" * 2048}),
         encoding="utf-8",
@@ -219,7 +231,9 @@ def test_runtime_api_evidence_cli_surfaces_large_document_guard(
     assert payload["data"]["evidence_bundle"]["guard_limit_bytes"] == 128
 
 
-def test_runtime_api_history_cli_filters_runs(monkeypatch, tmp_path: Path) -> None:
+def test_runtime_api_history_cli_filters_runs(
+    monkeypatch: MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.chdir(tmp_path)
     for run_id in ("history-cli-a", "history-cli-b"):
         run_dir = tmp_path / "artifacts" / run_id
@@ -239,7 +253,11 @@ def test_runtime_api_history_cli_filters_runs(monkeypatch, tmp_path: Path) -> No
                 "artifacts_dir": str(run_dir),
                 "warnings": [],
                 "failure": None,
-                "version": {"app": "0+local", "git_commit": "unknown", "tool_versions": {}},
+                "version": {
+                    "app": "0+local",
+                    "git_commit": "unknown",
+                    "tool_versions": {},
+                },
             },
         )
 
@@ -256,7 +274,9 @@ def test_runtime_api_history_cli_filters_runs(monkeypatch, tmp_path: Path) -> No
     assert payload["data"]["runs"][0]["run_id"] == "history-cli-b"
 
 
-def test_runtime_api_history_cli_reports_pagination(monkeypatch, tmp_path: Path) -> None:
+def test_runtime_api_history_cli_reports_pagination(
+    monkeypatch: MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.chdir(tmp_path)
     for run_id in ("page-cli-a", "page-cli-b", "page-cli-c"):
         run_dir = tmp_path / "artifacts" / run_id
@@ -276,7 +296,11 @@ def test_runtime_api_history_cli_reports_pagination(monkeypatch, tmp_path: Path)
                 "artifacts_dir": str(run_dir),
                 "warnings": [],
                 "failure": None,
-                "version": {"app": "0+local", "git_commit": "unknown", "tool_versions": {}},
+                "version": {
+                    "app": "0+local",
+                    "git_commit": "unknown",
+                    "tool_versions": {},
+                },
             },
         )
 

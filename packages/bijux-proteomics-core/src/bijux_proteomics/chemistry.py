@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from enum import StrEnum
+import json
 from math import exp, factorial
 from pathlib import Path
-import json
 import re
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
@@ -219,6 +219,7 @@ class IsotopicLabelingPolicy(JsonModel):
     def _normalize_allowed_label_families(cls, value: object) -> tuple[str, ...]:
         if value in (None, ""):
             return ()
+        families: tuple[str, ...]
         if isinstance(value, str):
             families = (value,)
         else:
@@ -322,7 +323,9 @@ class FragmentIonShiftValidationEntry(JsonModel):
     observed_shift_average: float
     shifted: bool
     valid: bool
-    included_modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
+    included_modifications: tuple[AppliedModification, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class FragmentIonShiftValidationReport(JsonModel):
@@ -678,8 +681,11 @@ def validate_modification_registry(
 def _registry_validation_signature(
     modification: _BaseModification,
 ) -> tuple[object, ...]:
+    application = (
+        "variable" if isinstance(modification, VariableModification) else "static"
+    )
     return (
-        modification.application,
+        application,
         modification.position,
         modification.residues,
         modification.mass_delta_monoisotopic,
@@ -932,14 +938,17 @@ def _matching_static_mass_delta(
                 if residue in modification.residues:
                     total += delta
         elif (
-            modification.position is ModificationPosition.PEPTIDE_N_TERM
-            or modification.position is ModificationPosition.PROTEIN_N_TERM
-        ) and include_n_term:
-            total += delta
-        elif (
-            modification.position is ModificationPosition.PEPTIDE_C_TERM
-            or modification.position is ModificationPosition.PROTEIN_C_TERM
-        ) and include_c_term:
+            (
+                modification.position is ModificationPosition.PEPTIDE_N_TERM
+                or modification.position is ModificationPosition.PROTEIN_N_TERM
+            )
+            and include_n_term
+            or (
+                modification.position is ModificationPosition.PEPTIDE_C_TERM
+                or modification.position is ModificationPosition.PROTEIN_C_TERM
+            )
+            and include_c_term
+        ):
             total += delta
     return total
 
@@ -970,14 +979,17 @@ def _applied_modification_mass_delta(
             if site_index >= start and (finish is None or site_index <= finish):
                 total += delta
         elif (
-            modification.site is ModificationPosition.PEPTIDE_N_TERM
-            or modification.site is ModificationPosition.PROTEIN_N_TERM
-        ) and include_n_term:
-            total += delta
-        elif (
-            modification.site is ModificationPosition.PEPTIDE_C_TERM
-            or modification.site is ModificationPosition.PROTEIN_C_TERM
-        ) and include_c_term:
+            (
+                modification.site is ModificationPosition.PEPTIDE_N_TERM
+                or modification.site is ModificationPosition.PROTEIN_N_TERM
+            )
+            and include_n_term
+            or (
+                modification.site is ModificationPosition.PEPTIDE_C_TERM
+                or modification.site is ModificationPosition.PROTEIN_C_TERM
+            )
+            and include_c_term
+        ):
             total += delta
     return total
 
@@ -1249,11 +1261,11 @@ def enumerate_variable_modifications(
         )
         for definition in definitions
     ]
-    base_site_keys = {
-        _physical_site_key(modification)
-        for modification in parsed.modifications
-        if _physical_site_key(modification) is not None
-    }
+    base_site_keys: set[tuple[str, int | None]] = set()
+    for modification in parsed.modifications:
+        site_key = _physical_site_key(modification)
+        if site_key is not None:
+            base_site_keys.add(site_key)
     variants: list[VariableModificationEnumerationEntry] = []
     truncated = False
 
@@ -1305,7 +1317,7 @@ def enumerate_variable_modifications(
 
         definition, candidates = candidate_groups[index]
         definition_limit = definition.max_occurrences or len(candidates)
-        candidate_choices = [()]
+        candidate_choices: list[tuple[AppliedModification, ...]] = [()]
         for count in range(1, min(definition_limit, len(candidates)) + 1):
             candidate_choices.extend(combinations(candidates, count))
 
@@ -1315,7 +1327,7 @@ def enumerate_variable_modifications(
             }
             if None in choice_site_keys:
                 continue
-            typed_choice_site_keys = {
+            typed_choice_site_keys: set[tuple[str, int | None]] = {
                 site_key for site_key in choice_site_keys if site_key is not None
             }
             if occupied_site_keys & typed_choice_site_keys:
@@ -1325,8 +1337,6 @@ def enumerate_variable_modifications(
                 [*selected, *choice],
                 occupied_site_keys | typed_choice_site_keys,
             )
-            if truncated:
-                return
 
     from itertools import combinations
 
@@ -1336,7 +1346,9 @@ def enumerate_variable_modifications(
         at_protein_n_term=parsed.at_protein_n_term,
         at_protein_c_term=parsed.at_protein_c_term,
         base_modification_count=len(parsed.modifications),
-        candidate_site_count=sum(len(candidates) for _definition, candidates in candidate_groups),
+        candidate_site_count=sum(
+            len(candidates) for _definition, candidates in candidate_groups
+        ),
         generated_variant_count=len(variants),
         max_variants=max_variants,
         truncated=truncated,
@@ -1480,20 +1492,22 @@ def _enumeration_candidates_for_definition(
                     labeling_policy=labeling_policy,
                 )
             )
-    elif definition.position is ModificationPosition.PROTEIN_C_TERM:
-        if peptide.at_protein_c_term:
-            candidates.append(
-                _build_applied_modification(
-                    token=definition.name,
-                    site=ModificationPosition.PROTEIN_C_TERM,
-                    site_index=None,
-                    sequence=sequence,
-                    registry=registry,
-                    at_protein_n_term=peptide.at_protein_n_term,
-                    at_protein_c_term=peptide.at_protein_c_term,
-                    labeling_policy=labeling_policy,
-                )
+    elif (
+        definition.position is ModificationPosition.PROTEIN_C_TERM
+        and peptide.at_protein_c_term
+    ):
+        candidates.append(
+            _build_applied_modification(
+                token=definition.name,
+                site=ModificationPosition.PROTEIN_C_TERM,
+                site_index=None,
+                sequence=sequence,
+                registry=registry,
+                at_protein_n_term=peptide.at_protein_n_term,
+                at_protein_c_term=peptide.at_protein_c_term,
+                labeling_policy=labeling_policy,
             )
+        )
     return definition, tuple(candidates)
 
 
@@ -1817,7 +1831,9 @@ def build_modified_peptide_export_record(
         canonical_notation=canonical,
         sequence=parsed.sequence,
         modification_count=len(ordered),
-        modification_sites=tuple(_render_modification_site(modification) for modification in ordered),
+        modification_sites=tuple(
+            _render_modification_site(modification) for modification in ordered
+        ),
         modifications=ordered,
     )
 
@@ -1994,16 +2010,16 @@ def _fragment_modifications(
     sequence_length = len(peptide.sequence)
     selected: list[AppliedModification] = []
     for modification in peptide.modifications:
-        if modification.site is ModificationPosition.PEPTIDE_N_TERM:
+        if (
+            modification.site is ModificationPosition.PEPTIDE_N_TERM
+            or modification.site is ModificationPosition.PROTEIN_N_TERM
+        ):
             if series is FragmentIonSeries.B:
                 selected.append(modification)
-        elif modification.site is ModificationPosition.PROTEIN_N_TERM:
-            if series is FragmentIonSeries.B:
-                selected.append(modification)
-        elif modification.site is ModificationPosition.PEPTIDE_C_TERM:
-            if series is FragmentIonSeries.Y:
-                selected.append(modification)
-        elif modification.site is ModificationPosition.PROTEIN_C_TERM:
+        elif (
+            modification.site is ModificationPosition.PEPTIDE_C_TERM
+            or modification.site is ModificationPosition.PROTEIN_C_TERM
+        ):
             if series is FragmentIonSeries.Y:
                 selected.append(modification)
         else:
@@ -2198,7 +2214,8 @@ def validate_modified_peptide_fragment_ions(
         registry=registry,
     )
     baseline_by_key = {
-        (ion.series, ion.ordinal, ion.charge, ion.neutral_loss): ion for ion in baseline_ions
+        (ion.series, ion.ordinal, ion.charge, ion.neutral_loss): ion
+        for ion in baseline_ions
     }
     entries: list[FragmentIonShiftValidationEntry] = []
     for ion in modified_ions:
@@ -2209,17 +2226,21 @@ def validate_modified_peptide_fragment_ions(
             series=ion.series,
             ordinal=ion.ordinal,
         )
-        expected_shift_monoisotopic = _applied_modification_mass_delta(
-            included_modifications,
-            MassType.MONOISOTOPIC,
-        ) / ion.charge
-        expected_shift_average = _applied_modification_mass_delta(
-            included_modifications,
-            MassType.AVERAGE,
-        ) / ion.charge
-        observed_shift_monoisotopic = (
-            ion.mz_monoisotopic - baseline_ion.mz_monoisotopic
+        expected_shift_monoisotopic = (
+            _applied_modification_mass_delta(
+                included_modifications,
+                MassType.MONOISOTOPIC,
+            )
+            / ion.charge
         )
+        expected_shift_average = (
+            _applied_modification_mass_delta(
+                included_modifications,
+                MassType.AVERAGE,
+            )
+            / ion.charge
+        )
+        observed_shift_monoisotopic = ion.mz_monoisotopic - baseline_ion.mz_monoisotopic
         observed_shift_average = ion.mz_average - baseline_ion.mz_average
         valid = (
             abs(observed_shift_monoisotopic - expected_shift_monoisotopic) <= 1e-9

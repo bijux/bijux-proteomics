@@ -47,15 +47,21 @@ class StableIsotopeLabelingModel(JsonModel):
     @model_validator(mode="after")
     def _validate_channels(self) -> StableIsotopeLabelingModel:
         if not self.channels:
-            raise ValueError("stable-isotope labeling model requires at least one channel")
+            raise ValueError(
+                "stable-isotope labeling model requires at least one channel"
+            )
         channel_ids = {channel.channel_id for channel in self.channels}
         if len(channel_ids) != len(self.channels):
-            raise ValueError("stable-isotope labeling channels must use unique channel_id values")
+            raise ValueError(
+                "stable-isotope labeling channels must use unique channel_id values"
+            )
         if self.reference_channel_id and self.reference_channel_id not in channel_ids:
             raise ValueError("reference_channel_id must point to an existing channel")
-        if self.chemistry in {StableIsotopeLabelChemistry.TMT, StableIsotopeLabelChemistry.ITRAQ}:
-            if any(channel.reporter_mz is None for channel in self.channels):
-                raise ValueError("isobaric labeling channels require reporter_mz values")
+        if self.chemistry in {
+            StableIsotopeLabelChemistry.TMT,
+            StableIsotopeLabelChemistry.ITRAQ,
+        } and any(channel.reporter_mz is None for channel in self.channels):
+            raise ValueError("isobaric labeling channels require reporter_mz values")
         return self
 
 

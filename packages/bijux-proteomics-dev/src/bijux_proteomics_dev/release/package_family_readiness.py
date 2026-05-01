@@ -129,11 +129,9 @@ def validate_package_family_readiness(
                         detail=f"release family {entry.family_id} is missing readiness evidence path {path}",
                     )
                 )
-            if path.endswith("/index.md") or path.endswith(".md"):
+            if path.endswith(("/index.md", ".md")):
                 continue
-            if not (
-                path.endswith(".yaml") or path.endswith(".toml") or path.endswith(".py")
-            ):
+            if not path.endswith((".yaml", ".toml", ".py")):
                 issues.append(
                     PackageFamilyReadinessIssue(
                         code="unsupported-evidence-path",

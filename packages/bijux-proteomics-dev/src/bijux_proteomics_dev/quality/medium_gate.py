@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-import subprocess
+import subprocess  # nosec B404
 import sys
 
 from bijux_proteomics_dev.quality.artifact_schemas import (
@@ -118,7 +118,7 @@ def run_medium_gate(repo_root: Path, *, execute: bool = False) -> int:
         return 1
     if not execute:
         return 0
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603
         [sys.executable, "-m", "pytest", *render_medium_gate_pytest_args(repo_root)],
         cwd=repo_root,
         check=False,

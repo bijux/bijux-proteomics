@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from pytest import MonkeyPatch
 
 from bijux_proteomics_runtime.api import AppConfig, create_app
 
 
-def _write_json(path: Path, payload: dict[str, object]) -> None:
+def _write_json(path: Path, payload: Mapping[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
@@ -17,7 +19,7 @@ def _seed_run(base_dir: Path, run_id: str) -> Path:
     run_dir = base_dir / "artifacts" / run_id
     artifacts_dir = run_dir / "artifacts"
     artifacts_dir.mkdir(parents=True, exist_ok=True)
-    summary = {
+    summary: dict[str, object] = {
         "run_id": run_id,
         "candidate_id": f"{run_id}-c0",
         "command": "run",
@@ -54,7 +56,9 @@ def test_runtime_status_contract_reports_evidence_and_review_documents(
     _seed_run(tmp_path, run_id)
     client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
 
-    response = client.get(f"/api/v1/runs/{run_id}/status", params={"include_documents": "true"})
+    response = client.get(
+        f"/api/v1/runs/{run_id}/status", params={"include_documents": "true"}
+    )
 
     assert response.status_code == 200
     payload = response.json()
@@ -82,7 +86,9 @@ def test_runtime_artifact_contract_lists_top_level_and_document_artifacts(
     assert "runtime-artifact-item" in artifact_kinds
 
 
-def test_runtime_document_contracts_report_missing_files_honestly(tmp_path: Path) -> None:
+def test_runtime_document_contracts_report_missing_files_honestly(
+    tmp_path: Path,
+) -> None:
     run_id = "run-missing-1"
     run_dir = _seed_run(tmp_path, run_id)
     (run_dir / "artifacts" / "review_packet.json").unlink()
@@ -96,7 +102,7 @@ def test_runtime_document_contracts_report_missing_files_honestly(tmp_path: Path
 
 
 def test_runtime_health_contract_distinguishes_component_failures(
-    monkeypatch, tmp_path: Path
+    monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     (tmp_path / "apis" / "bijux-proteomics-runtime" / "v1").mkdir(parents=True)
     for name in ("schema.yaml", "pinned_openapi.json", "schema.hash"):

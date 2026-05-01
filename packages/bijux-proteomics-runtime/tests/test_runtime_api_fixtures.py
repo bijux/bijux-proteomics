@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from pytest import MonkeyPatch
+
 from bijux_proteomics_runtime.api.catalog import (
     build_artifact_lookup_response,
     build_evidence_lookup_response,
@@ -44,7 +46,9 @@ def _seed_run(base_dir: Path, run_id: str) -> None:
     _write_json(run_dir / "state.json", {"status": "ready"})
     _write_json(run_dir / "report.json", {"report": "ok"})
     _write_json(run_dir / "telemetry.json", {"events": []})
-    _write_json(artifacts_dir / "evidence_bundle.json", {"bundle_id": f"bundle-{run_id}"})
+    _write_json(
+        artifacts_dir / "evidence_bundle.json", {"bundle_id": f"bundle-{run_id}"}
+    )
     _write_json(artifacts_dir / "review_packet.json", {"packet_id": f"review-{run_id}"})
 
 
@@ -55,10 +59,7 @@ def _fixture_path(name: str) -> Path:
 def _normalize_paths(value: object, base_dir: Path) -> object:
     base_text = str(base_dir)
     if isinstance(value, dict):
-        return {
-            key: _normalize_paths(item, base_dir)
-            for key, item in value.items()
-        }
+        return {key: _normalize_paths(item, base_dir) for key, item in value.items()}
     if isinstance(value, list):
         return [_normalize_paths(item, base_dir) for item in value]
     if isinstance(value, str):
@@ -67,7 +68,7 @@ def _normalize_paths(value: object, base_dir: Path) -> object:
 
 
 def test_runtime_api_reference_fixtures_remain_deterministic(
-    monkeypatch, tmp_path: Path
+    monkeypatch: MonkeyPatch, tmp_path: Path
 ) -> None:
     for run_id in ("fixture-a", "fixture-b"):
         _seed_run(tmp_path, run_id)
