@@ -1,0 +1,4 @@
+Precursor.Id	Stripped.Sequence	Precursor.Charge	Q.Value	Protein.Ids	Decoy
+diann-corpus-1001	PEPTIDE	2	0.0018	P71111	0
+diann-corpus-1002	PEPTIDER	3	0.0060	P72222	0
+diann-corpus-1003	DECOYPEP	2	0.0380	DECOY_P73333	1

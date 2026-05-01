@@ -2637,3 +2637,23 @@ def build_maxquant_output_corpus_report(
             ),
         ),
     )
+
+
+def build_diann_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusReport:
+    """Build corpus coverage over DIA-NN report and pipeline-like exports."""
+    return build_search_engine_corpus_report(
+        corpus_root=corpus_root,
+        adapter_kind=SearchAdapterKind.DIANN,
+        input_specs=(
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.DIANN,
+                dialect_id="default",
+                result_file="diann_report.tsv",
+            ),
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.DIANN,
+                dialect_id="pipeline-export",
+                result_file="diann_pipeline_export.tsv",
+            ),
+        ),
+    )
