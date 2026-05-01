@@ -378,3 +378,60 @@ def build_benchmark_output_bundle(
         artifact_paths=tuple(sorted(set(artifact_paths))),
         caveats=tuple(sorted(set(caveats))),
     )
+
+
+class ReproducibilityReleaseRun(JsonModel):
+    """One release-tagged run snapshot used for long-horizon drift analysis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    release_tag: str = Field(..., min_length=1)
+    workflow_id: str = Field(..., min_length=1)
+    output_fingerprint: str = Field(..., min_length=8)
+
+
+class ReproducibilityDriftEntry(JsonModel):
+    """Drift comparison between two release-tagged runs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    from_release: str = Field(..., min_length=1)
+    to_release: str = Field(..., min_length=1)
+    changed: bool
+
+
+class LongHorizonReproducibilityReport(JsonModel):
+    """Report describing workflow drift across repeated releases."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    drift_entries: tuple[ReproducibilityDriftEntry, ...] = Field(default_factory=tuple)
+    drift_count: int = Field(..., ge=0)
+
+
+def build_long_horizon_reproducibility_report(
+    runs: tuple[ReproducibilityReleaseRun, ...],
+) -> LongHorizonReproducibilityReport:
+    """Rerun workflow snapshots across releases and report reproducibility drift."""
+
+    if not runs:
+        raise ValueError("long-horizon reproducibility report requires at least one run")
+
+    sorted_runs = sorted(runs, key=lambda run: run.release_tag)
+    entries = []
+    for previous, current in zip(sorted_runs, sorted_runs[1:], strict=False):
+        entries.append(
+            ReproducibilityDriftEntry(
+                from_release=previous.release_tag,
+                to_release=current.release_tag,
+                changed=previous.output_fingerprint != current.output_fingerprint,
+            )
+        )
+
+    drift_count = sum(1 for entry in entries if entry.changed)
+    return LongHorizonReproducibilityReport(
+        workflow_id=sorted_runs[0].workflow_id,
+        drift_entries=tuple(entries),
+        drift_count=drift_count,
+    )
