@@ -89,3 +89,39 @@ def build_dia_native_data_model(
         fragment_count=len(fragments),
         protein_group_count=len(protein_groups),
     )
+
+
+class SpectralLibraryIdentityEntry(JsonModel):
+    """Identity record for one spectral-library entry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    library_source: str = Field(..., min_length=1)
+    library_version: str = Field(..., min_length=1)
+    spectrum_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    modifications: tuple[str, ...] = Field(default_factory=tuple)
+    decoy: bool = False
+
+
+class SpectralLibraryIdentityLedger(JsonModel):
+    """Ledger of spectral-library identity records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[SpectralLibraryIdentityEntry, ...] = Field(default_factory=tuple)
+    library_source_count: int = Field(..., ge=0)
+
+
+def build_spectral_library_identity_ledger(
+    entries: tuple[SpectralLibraryIdentityEntry, ...],
+) -> SpectralLibraryIdentityLedger:
+    """Track spectral-library source/version/spectrum/peptide/charge/mod/decoy identity."""
+
+    return SpectralLibraryIdentityLedger(
+        entries=tuple(
+            sorted(entries, key=lambda entry: (entry.library_source, entry.spectrum_id))
+        ),
+        library_source_count=len({entry.library_source for entry in entries}),
+    )
