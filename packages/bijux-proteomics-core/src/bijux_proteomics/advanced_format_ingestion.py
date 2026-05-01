@@ -7,15 +7,17 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
+import re
 
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.formats import parse_mzml
+from bijux_proteomics.formats import parse_mzml, stream_mzml_spectra
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     parse_ms1_feature_table,
 )
+from bijux_proteomics.spectra import SpectrumModel, SpectrumPeak
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -142,6 +144,20 @@ class IonMobilitySupportReport(JsonModel):
     total_spectra: int = Field(..., ge=0)
     observed_count: int = Field(..., ge=0)
     observations: tuple[IonMobilityObservation, ...] = Field(default_factory=tuple)
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class StreamingParseProfile(JsonModel):
+    """Streaming parse profile over large MGF/mzML inputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    format_name: str
+    chunk_size: int = Field(..., ge=1)
+    spectrum_count: int = Field(..., ge=0)
+    chunk_count: int = Field(..., ge=0)
+    first_spectrum_id: str | None = None
+    last_spectrum_id: str | None = None
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -499,6 +515,99 @@ def extract_ion_mobility_support(path: Path) -> IonMobilitySupportReport:
         observed_count=len(observations),
         observations=tuple(observations),
         diagnostics=(diagnostics,),
+    )
+
+
+def stream_mgf_spectra(path: Path) -> tuple[SpectrumModel, ...]:
+    """Stream-parse MGF spectra without retaining full-file parse state."""
+    spectra: list[SpectrumModel] = []
+    active_id: str | None = None
+    active_title: str | None = None
+    active_precursor_mz: float | None = None
+    active_charge: int | None = None
+    peaks: list[SpectrumPeak] = []
+    fallback_index = 1
+
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        upper = line.upper()
+        if upper == "BEGIN IONS":
+            active_id = None
+            active_title = None
+            active_precursor_mz = None
+            active_charge = None
+            peaks = []
+            continue
+        if upper == "END IONS":
+            spectrum_id = active_id or f"mgf_scan_{fallback_index}"
+            fallback_index += 1
+            spectra.append(
+                SpectrumModel(
+                    spectrum_id=spectrum_id,
+                    native_id=spectrum_id,
+                    precursor_mz=active_precursor_mz,
+                    precursor_charge=active_charge,
+                    ms_level=2,
+                    peaks=tuple(peaks),
+                    title=active_title,
+                )
+            )
+            continue
+        if "=" in line:
+            key, _, value = line.partition("=")
+            key_upper = key.strip().upper()
+            token = value.strip()
+            if key_upper == "TITLE":
+                active_title = token
+                active_id = token
+            elif key_upper == "PEPMASS":
+                active_precursor_mz = _parse_float(token.split()[0])
+            elif key_upper == "CHARGE":
+                charge_token = re.sub(r"[+-]", "", token)
+                try:
+                    active_charge = int(charge_token)
+                except ValueError:
+                    active_charge = None
+            continue
+        parts = line.split()
+        if len(parts) >= 2:
+            mz = _parse_float(parts[0])
+            intensity = _parse_float(parts[1])
+            if mz is not None and intensity is not None:
+                peaks.append(SpectrumPeak(mz=mz, intensity=intensity))
+    return tuple(spectra)
+
+
+def build_streaming_parse_profile(
+    path: Path,
+    *,
+    format_name: str,
+    chunk_size: int = 500,
+) -> StreamingParseProfile:
+    """Build a chunk-aware profile for large MGF/mzML streaming parses."""
+    format_key = format_name.strip().lower()
+    if format_key == "mzml":
+        spectra = tuple(stream_mzml_spectra(path))
+    elif format_key == "mgf":
+        spectra = stream_mgf_spectra(path)
+    else:
+        raise ValueError("streaming profile currently supports only mgf and mzml")
+
+    spectrum_count = len(spectra)
+    chunk_count = (spectrum_count + chunk_size - 1) // chunk_size if spectrum_count else 0
+    return StreamingParseProfile(
+        format_name=format_key,
+        chunk_size=chunk_size,
+        spectrum_count=spectrum_count,
+        chunk_count=chunk_count,
+        first_spectrum_id=spectra[0].spectrum_id if spectra else None,
+        last_spectrum_id=spectra[-1].spectrum_id if spectra else None,
+        diagnostics=(
+            "streaming profile computed without relying on full-run normalization side effects",
+            "chunk_count expresses bounded processing batches for larger files",
+        ),
     )
 
 
