@@ -172,8 +172,41 @@ class SampleLineageReport(JsonModel):
     missing_lineage_sample_count: int = Field(..., ge=0)
 
 
+class PlateLayoutEntry(JsonModel):
+    """One sample/control occupancy row in a plate layout."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    replicate_id: str = Field(..., min_length=1)
+    well_position: str = Field(..., min_length=2)
+    control: bool = False
+    randomized: bool = False
+
+
+class PlateLayoutValidationIssue(JsonModel):
+    """One issue found while validating a plate layout."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    well_position: str | None = None
+
+
+class PlateLayoutValidationReport(JsonModel):
+    """Validation report for plate layouts used by lab handoff."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[PlateLayoutValidationIssue, ...] = Field(default_factory=tuple)
+
+
 _FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
 _CHANNEL_RE = re.compile(r"^(12[6-9]|13[01])[NC]?$")
+_WELL_RE = re.compile(r"^[A-H](?:[1-9]|1[0-2])$")
 
 
 def build_study_metadata_model(
@@ -407,3 +440,73 @@ def build_sample_lineage_report(
         fully_traced_sample_count=sum(1 for entry in entries if not entry.missing_surfaces),
         missing_lineage_sample_count=sum(1 for entry in entries if entry.missing_surfaces),
     )
+
+
+def validate_plate_layout(
+    entries: tuple[PlateLayoutEntry, ...],
+    *,
+    capacity: int = 96,
+) -> PlateLayoutValidationReport:
+    """Validate plate layout positions, controls, randomization, replicates, and capacity."""
+    issues: list[PlateLayoutValidationIssue] = []
+    if len(entries) > capacity:
+        issues.append(
+            PlateLayoutValidationIssue(
+                code="capacity_exceeded",
+                message="plate layout exceeds configured plate capacity",
+            )
+        )
+    seen_wells: set[str] = set()
+    replicate_counts: dict[str, int] = {}
+    randomized_count = 0
+    control_count = 0
+    for entry in entries:
+        if not _WELL_RE.match(entry.well_position):
+            issues.append(
+                PlateLayoutValidationIssue(
+                    code="invalid_well_position",
+                    message="well_position must match A1..H12",
+                    sample_id=entry.sample_id,
+                    well_position=entry.well_position,
+                )
+            )
+        if entry.well_position in seen_wells:
+            issues.append(
+                PlateLayoutValidationIssue(
+                    code="duplicate_well_position",
+                    message="well_position is occupied by multiple entries",
+                    sample_id=entry.sample_id,
+                    well_position=entry.well_position,
+                )
+            )
+        else:
+            seen_wells.add(entry.well_position)
+        replicate_counts[entry.sample_id] = replicate_counts.get(entry.sample_id, 0) + 1
+        if entry.randomized:
+            randomized_count += 1
+        if entry.control:
+            control_count += 1
+    if control_count == 0:
+        issues.append(
+            PlateLayoutValidationIssue(
+                code="missing_controls",
+                message="plate layout must include at least one control entry",
+            )
+        )
+    if randomized_count == 0:
+        issues.append(
+            PlateLayoutValidationIssue(
+                code="missing_randomization",
+                message="plate layout must include randomized positions",
+            )
+        )
+    for sample_id, count in sorted(replicate_counts.items()):
+        if count < 2:
+            issues.append(
+                PlateLayoutValidationIssue(
+                    code="missing_replicate_layout",
+                    message="sample appears fewer than two times in the plate layout",
+                    sample_id=sample_id,
+                )
+            )
+    return PlateLayoutValidationReport(valid=not issues, issues=tuple(issues))
