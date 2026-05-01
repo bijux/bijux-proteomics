@@ -307,6 +307,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "evaluate_workflow_api_cli_parity" in bijux_proteomics.__all__
     assert "guard_large_artifact_uploads" in bijux_proteomics.__all__
     assert "build_stable_runtime_error_envelope" in bijux_proteomics.__all__
+    assert "build_enrichment_background_provenance" in bijux_proteomics.__all__
+    assert "build_pathway_network_caution_report" in bijux_proteomics.__all__
+    assert "build_outlier_qc_integrated_report" in bijux_proteomics.__all__
+    assert "prioritize_candidates_from_evidence_graph" in bijux_proteomics.__all__
+    assert "build_multi_objective_ranking_report" in bijux_proteomics.__all__
+    assert "build_ranking_policy_language_document" in bijux_proteomics.__all__
+    assert "build_candidate_comparison_packet" in bijux_proteomics.__all__
+    assert "run_review_board_workflow" in bijux_proteomics.__all__
+    assert "build_evidence_freshness_report" in bijux_proteomics.__all__
+    assert "build_contradiction_aware_lab_recommendation_report" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -388,6 +398,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "WorkflowApiCliParityReport" in bijux_proteomics.__all__
     assert "LargeArtifactUploadGuardReport" in bijux_proteomics.__all__
     assert "StableRuntimeErrorEnvelope" in bijux_proteomics.__all__
+    assert "EnrichmentBackgroundProvenance" in bijux_proteomics.__all__
+    assert "PathwayCautionReport" in bijux_proteomics.__all__
+    assert "OutlierQcIntegratedReport" in bijux_proteomics.__all__
+    assert "CandidatePriorityReport" in bijux_proteomics.__all__
+    assert "MultiObjectiveRankingReport" in bijux_proteomics.__all__
+    assert "RankingPolicyLanguageDocument" in bijux_proteomics.__all__
+    assert "CandidateComparisonPacket" in bijux_proteomics.__all__
+    assert "ReviewBoardWorkflowReport" in bijux_proteomics.__all__
+    assert "EvidenceFreshnessReport" in bijux_proteomics.__all__
+    assert "ContradictionAwareLabRecommendationReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
