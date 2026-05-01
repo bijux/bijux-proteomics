@@ -337,6 +337,17 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_benchmark_output_bundle" in bijux_proteomics.__all__
     assert "build_long_horizon_reproducibility_report" in bijux_proteomics.__all__
     assert "build_dependency_update_replay_report" in bijux_proteomics.__all__
+    assert "build_external_reviewer_bundle" in bijux_proteomics.__all__
+    assert "build_redacted_collaboration_bundle" in bijux_proteomics.__all__
+    assert "generate_methods_section_from_workflow_evidence" in bijux_proteomics.__all__
+    assert "build_citation_registry_document" in bijux_proteomics.__all__
+    assert "run_standalone_bundle_verifier" in bijux_proteomics.__all__
+    assert "build_archive_retention_package" in bijux_proteomics.__all__
+    assert "run_collaborator_challenge_workflow" in bijux_proteomics.__all__
+    assert "build_signed_reviewer_bundle" in bijux_proteomics.__all__
+    assert "verify_signed_reviewer_bundle" in bijux_proteomics.__all__
+    assert "redact_collaboration_surfaces" in bijux_proteomics.__all__
+    assert "run_hostile_input_protection" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -448,6 +459,29 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "BenchmarkOutputBundle" in bijux_proteomics.__all__
     assert "LongHorizonReproducibilityReport" in bijux_proteomics.__all__
     assert "DependencyUpdateReplayReport" in bijux_proteomics.__all__
+    assert "ExternalReviewerBundleInput" in bijux_proteomics.__all__
+    assert "ExternalReviewerBundle" in bijux_proteomics.__all__
+    assert "RedactedCollaborationBundleInput" in bijux_proteomics.__all__
+    assert "RedactedCollaborationBundle" in bijux_proteomics.__all__
+    assert "MethodsSectionInput" in bijux_proteomics.__all__
+    assert "MethodsSectionDocument" in bijux_proteomics.__all__
+    assert "CitationRegistryEntry" in bijux_proteomics.__all__
+    assert "CitationRegistryDocument" in bijux_proteomics.__all__
+    assert "StandaloneVerifierInput" in bijux_proteomics.__all__
+    assert "StandaloneVerifierIssue" in bijux_proteomics.__all__
+    assert "StandaloneVerifierReport" in bijux_proteomics.__all__
+    assert "ArchiveRetentionPackageInput" in bijux_proteomics.__all__
+    assert "ArchiveRetentionPackage" in bijux_proteomics.__all__
+    assert "CollaboratorChallengeInput" in bijux_proteomics.__all__
+    assert "CollaboratorChallengeEntry" in bijux_proteomics.__all__
+    assert "CollaboratorChallengeWorkflowReport" in bijux_proteomics.__all__
+    assert "SignedReviewerBundleInput" in bijux_proteomics.__all__
+    assert "SignedReviewerBundle" in bijux_proteomics.__all__
+    assert "CollaborationSurfaceRedactionInput" in bijux_proteomics.__all__
+    assert "CollaborationSurfaceRedactionReport" in bijux_proteomics.__all__
+    assert "HostileInputProtectionInput" in bijux_proteomics.__all__
+    assert "HostileInputProtectionIssue" in bijux_proteomics.__all__
+    assert "HostileInputProtectionReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
