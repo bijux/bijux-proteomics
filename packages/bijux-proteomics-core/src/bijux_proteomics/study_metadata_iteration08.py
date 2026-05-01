@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 import re
 
@@ -243,6 +244,17 @@ class LabRequestValidationReport(JsonModel):
 
     valid: bool
     issues: tuple[LabRequestValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class LabHandoffExportBundle(JsonModel):
+    """Lab handoff export payloads in JSON and TSV forms."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    request_json: str = Field(..., min_length=1)
+    plate_layout_tsv: str = Field(..., min_length=1)
+    advisory_label: str = Field(..., min_length=1)
+    executable_label: str = Field(..., min_length=1)
 
 
 _FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
@@ -593,3 +605,39 @@ def validate_lab_request_schema(request: LabRequestSchema) -> LabRequestValidati
                 )
             )
     return LabRequestValidationReport(valid=not issues, issues=tuple(issues))
+
+
+def build_lab_handoff_export_bundle(
+    request: LabRequestSchema,
+    plate_entries: tuple[PlateLayoutEntry, ...],
+) -> LabHandoffExportBundle:
+    """Export lab handoff request sheets and plate layouts in JSON and TSV formats."""
+    request_payload = {
+        "request_id": request.request_id,
+        "method": request.method,
+        "targets": [target.to_dict() for target in request.target_entries],
+        "sample_ids": list(request.sample_ids),
+        "control_ids": list(request.control_ids),
+        "constraints": list(request.constraints),
+        "label": "advisory",
+    }
+    header = "sample_id\treplicate_id\twell_position\tcontrol\trandomized\tlabel"
+    rows = [
+        "\t".join(
+            (
+                entry.sample_id,
+                entry.replicate_id,
+                entry.well_position,
+                "1" if entry.control else "0",
+                "1" if entry.randomized else "0",
+                "executable",
+            )
+        )
+        for entry in plate_entries
+    ]
+    return LabHandoffExportBundle(
+        request_json=json.dumps(request_payload, sort_keys=True, separators=(",", ":")),
+        plate_layout_tsv="\n".join([header, *rows]) + ("\n" if rows else ""),
+        advisory_label="advisory",
+        executable_label="executable",
+    )
