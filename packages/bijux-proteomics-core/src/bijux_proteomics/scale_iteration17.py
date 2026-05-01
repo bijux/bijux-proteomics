@@ -243,3 +243,41 @@ def build_review_packet_scale_benchmark_report(
         candidates_per_second=payload.candidate_count / total,
         bottleneck_stage=max(durations.items(), key=lambda row: row[1])[0],
     )
+
+
+class WorkflowStartupBenchmarkInput(JsonModel):
+    """Startup timing observations for local workflow initialization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    setup_seconds: float = Field(..., gt=0.0)
+    artifact_initialization_seconds: float = Field(..., gt=0.0)
+    bundle_initialization_seconds: float = Field(..., gt=0.0)
+
+
+class WorkflowStartupBenchmarkReport(JsonModel):
+    """Benchmark report for local workflow setup and initial artifact/bundle prep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    total_startup_seconds: float = Field(..., gt=0.0)
+    bottleneck_stage: str = Field(..., min_length=1)
+
+
+def build_workflow_startup_benchmark_report(
+    payload: WorkflowStartupBenchmarkInput,
+) -> WorkflowStartupBenchmarkReport:
+    """Measure local workflow startup bottlenecks before scientific execution."""
+
+    durations = {
+        "setup": payload.setup_seconds,
+        "artifact_initialization": payload.artifact_initialization_seconds,
+        "bundle_initialization": payload.bundle_initialization_seconds,
+    }
+    return WorkflowStartupBenchmarkReport(
+        workflow_id=payload.workflow_id,
+        total_startup_seconds=sum(durations.values()),
+        bottleneck_stage=max(durations.items(), key=lambda row: row[1])[0],
+    )
