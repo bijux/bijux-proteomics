@@ -206,3 +206,49 @@ def evaluate_apptainer_hpc_boundary(
         supported=True,
         reason="HPC container execution supported with explicit runtime semantics",
     )
+
+
+class SlurmJobScriptInput(JsonModel):
+    """Structured inputs for Slurm job script generation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    job_name: str = Field(..., min_length=1)
+    time_limit: str = Field(..., min_length=1)
+    cpus: int = Field(..., ge=1)
+    memory_gb: int = Field(..., ge=1)
+    scratch_dir: str = Field(..., min_length=1)
+    log_path: str = Field(..., min_length=1)
+    environment_exports: dict[str, str] = Field(default_factory=dict)
+    artifact_dir: str = Field(..., min_length=1)
+    command: str = Field(..., min_length=1)
+
+
+class SlurmJobScriptExport(JsonModel):
+    """Generated Slurm script payload with resource and artifact wiring."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    script_text: str = Field(..., min_length=1)
+
+
+def export_slurm_job_script(payload: SlurmJobScriptInput) -> SlurmJobScriptExport:
+    """Generate Slurm script with resources, logs, scratch, env, and artifact paths."""
+
+    env_lines = "\n".join(
+        f"export {key}={value}" for key, value in sorted(payload.environment_exports.items())
+    )
+    script = (
+        "#!/bin/bash\n"
+        f"#SBATCH --job-name={payload.job_name}\n"
+        f"#SBATCH --time={payload.time_limit}\n"
+        f"#SBATCH --cpus-per-task={payload.cpus}\n"
+        f"#SBATCH --mem={payload.memory_gb}G\n"
+        f"#SBATCH --output={payload.log_path}\n"
+        f"SCRATCH_DIR={payload.scratch_dir}\n"
+        "mkdir -p \"$SCRATCH_DIR\"\n"
+        f"mkdir -p {payload.artifact_dir}\n"
+        f"{env_lines}\n"
+        f"{payload.command}\n"
+    )
+    return SlurmJobScriptExport(script_text=script)
