@@ -2657,3 +2657,25 @@ def build_diann_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusRep
             ),
         ),
     )
+
+
+def build_spectronaut_output_corpus_report(
+    corpus_root: Path,
+) -> SearchEngineCorpusReport:
+    """Build corpus coverage over Spectronaut-like native and pipeline exports."""
+    return build_search_engine_corpus_report(
+        corpus_root=corpus_root,
+        adapter_kind=SearchAdapterKind.SPECTRONAUT,
+        input_specs=(
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.SPECTRONAUT,
+                dialect_id="default",
+                result_file="spectronaut_report.tsv",
+            ),
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.SPECTRONAUT,
+                dialect_id="pipeline-export",
+                result_file="spectronaut_pipeline_export.tsv",
+            ),
+        ),
+    )

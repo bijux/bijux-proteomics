@@ -1,0 +1,4 @@
+precursor_key	stripped_sequence	charge	cscore_value	protein_accessions	decoy_flag
+sn-pipe-corpus-1001	PEPTIDE	2	0.987	P81111;Q81112	false
+sn-pipe-corpus-1002	PEPTIDER	3	0.944	P82222	false
+sn-pipe-corpus-1003	DECOYPEP	2	0.505	DECOY_P83333	true
