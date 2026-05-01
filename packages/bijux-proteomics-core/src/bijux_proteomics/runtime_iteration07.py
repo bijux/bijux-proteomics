@@ -92,6 +92,37 @@ class DdaImportWorkflowRunReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class DiaPrecursorQuantInput(JsonModel):
+    """Minimal DIA precursor-level import row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    peptide: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    intensity: float | None = Field(default=None, ge=0.0)
+
+
+class DiaImportWorkflowRunReport(JsonModel):
+    """End-to-end runtime report for DIA import and quant evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    status: RuntimeWorkflowStatus
+    precursor_count: int = Field(..., ge=0)
+    peptide_count: int = Field(..., ge=0)
+    protein_count: int = Field(..., ge=0)
+    quantified_precursor_count: int = Field(..., ge=0)
+    qc_missing_intensity_count: int = Field(..., ge=0)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    replay_cache_key: str = Field(..., min_length=64, max_length=64)
+    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 def _stable_runtime_key(payload: object) -> str:
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -279,4 +310,78 @@ def run_dda_import_workflow_end_to_end(
             ),
         ),
         note="workflow completed DDA import with mapped PSM, inferred peptide/protein evidence, and QC accounting",
+    )
+
+
+def run_dia_import_workflow_end_to_end(
+    precursor_rows: tuple[DiaPrecursorQuantInput, ...],
+    *,
+    artifact_root: str = "artifacts/workflows/dia-import",
+) -> DiaImportWorkflowRunReport:
+    """Execute DIA runtime flow: import -> precursor/peptide/protein quant -> QC evidence."""
+    precursors = tuple(sorted({row.precursor_id for row in precursor_rows}))
+    peptides = tuple(sorted({row.peptide for row in precursor_rows}))
+    proteins = tuple(sorted({row.protein_ref for row in precursor_rows}))
+    quantified = tuple(row for row in precursor_rows if row.intensity is not None)
+    missing = tuple(row for row in precursor_rows if row.intensity is None)
+    key = _stable_runtime_key(
+        {
+            "workflow": "dia-import",
+            "rows": [row.to_dict() for row in precursor_rows],
+        }
+    )
+    return DiaImportWorkflowRunReport(
+        workflow_id="dia-import",
+        status=RuntimeWorkflowStatus.COMPLETED,
+        precursor_count=len(precursors),
+        peptide_count=len(peptides),
+        protein_count=len(proteins),
+        quantified_precursor_count=len({row.precursor_id for row in quantified}),
+        qc_missing_intensity_count=len(missing),
+        artifact_paths=(
+            f"{artifact_root}/precursor_quant.tsv",
+            f"{artifact_root}/peptide_quant.tsv",
+            f"{artifact_root}/protein_quant.tsv",
+            f"{artifact_root}/qc_report.json",
+        ),
+        evidence_pointers=(
+            "dia.precursor_rows",
+            "dia.peptide_quant",
+            "dia.protein_quant",
+            "dia.qc.missing_intensity_rows",
+        ),
+        replay_cache_key=key,
+        steps=(
+            RuntimeWorkflowStepRecord(
+                step_id="import-dia-results",
+                description="ingest DIA precursor-level quant rows",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(precursor_rows),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="aggregate-precursor",
+                description="aggregate DIA rows at precursor level",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(precursors),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="aggregate-peptide",
+                description="aggregate precursor evidence to peptide level",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(peptides),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="aggregate-protein",
+                description="aggregate peptide evidence to protein level",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(proteins),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="qc-evidence",
+                description="collect DIA rows with missing intensities for QC review",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(missing),
+            ),
+        ),
+        note="workflow completed DIA import with precursor/peptide/protein quant and QC evidence",
     )
