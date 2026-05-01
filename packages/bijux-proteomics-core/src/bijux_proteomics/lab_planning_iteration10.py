@@ -100,3 +100,69 @@ def transition_assay_progression(
             "transitions": tuple(transitions),
         }
     )
+
+
+class AssayDesignProfile(JsonModel):
+    """One assay design option for comparison."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    design_id: str = Field(..., min_length=1)
+    multiplex_channels: int = Field(..., ge=1)
+    fraction_count: int = Field(..., ge=1)
+    control_count: int = Field(..., ge=0)
+    replicate_count: int = Field(..., ge=1)
+    capacity_demand: float = Field(..., ge=0.0)
+    expected_evidence_gain: float = Field(..., ge=0.0, le=1.0)
+
+
+class AssayDesignComparisonEntry(JsonModel):
+    """One scored assay design comparison entry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    design_id: str = Field(..., min_length=1)
+    score: float
+    rationale: str = Field(..., min_length=1)
+
+
+class AssayDesignComparisonReport(JsonModel):
+    """Comparison report across assay design options."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[AssayDesignComparisonEntry, ...] = Field(default_factory=tuple)
+    preferred_design_id: str | None = None
+
+
+def compare_assay_designs(
+    profiles: tuple[AssayDesignProfile, ...],
+) -> AssayDesignComparisonReport:
+    """Compare multiplex/fractionation/controls/replication/capacity/evidence gain."""
+
+    scored: list[AssayDesignComparisonEntry] = []
+    for profile in profiles:
+        score = (
+            (profile.expected_evidence_gain * 100.0)
+            + (profile.control_count * 2.0)
+            + (profile.replicate_count * 1.5)
+            + min(6.0, float(profile.multiplex_channels) / 2.0)
+            + min(8.0, float(profile.fraction_count))
+            - (profile.capacity_demand * 4.0)
+        )
+        scored.append(
+            AssayDesignComparisonEntry(
+                design_id=profile.design_id,
+                score=score,
+                rationale=(
+                    "score balances expected evidence gain, controls, replication, "
+                    "multiplex/fraction coverage, and capacity pressure"
+                ),
+            )
+        )
+
+    ranked = tuple(sorted(scored, key=lambda entry: (-entry.score, entry.design_id)))
+    return AssayDesignComparisonReport(
+        entries=ranked,
+        preferred_design_id=ranked[0].design_id if ranked else None,
+    )
