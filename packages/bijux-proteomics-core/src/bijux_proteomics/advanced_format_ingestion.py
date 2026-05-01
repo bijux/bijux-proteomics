@@ -12,6 +12,10 @@ from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.formats import parse_mzml
+from bijux_proteomics.quantification import (
+    Ms1FeatureColumnMapping,
+    parse_ms1_feature_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -87,6 +91,21 @@ class ChromatogramQcIngestionReport(JsonModel):
     accepted_points: tuple[ChromatogramQcPoint, ...] = Field(default_factory=tuple)
     unknown_metric_rows: int = Field(..., ge=0)
     failed_metric_rows: int = Field(..., ge=0)
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class Ms1FeatureTableIngestionReport(JsonModel):
+    """MS1 feature ingestion report with units and provenance field coverage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_rows: int = Field(..., ge=0)
+    accepted_rows: int = Field(..., ge=0)
+    rejected_rows: int = Field(..., ge=0)
+    observed_charge_rows: int = Field(..., ge=0)
+    observed_mz_rows: int = Field(..., ge=0)
+    observed_retention_time_rows: int = Field(..., ge=0)
+    units: dict[str, str] = Field(default_factory=dict)
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -333,6 +352,35 @@ def parse_chromatogram_qc_table(path: Path) -> ChromatogramQcIngestionReport:
         diagnostics=(
             "chromatogram QC ingestion preserves TIC/BPC values when present",
             "rows missing both TIC and BPC are tracked as unknown metrics rather than hard parse failures",
+        ),
+    )
+
+
+def parse_ms1_feature_table_with_provenance(
+    path: Path,
+    *,
+    mapping: Ms1FeatureColumnMapping | None = None,
+) -> Ms1FeatureTableIngestionReport:
+    """Parse MS1 feature tables and report units/provenance field coverage."""
+    report = parse_ms1_feature_table(path, mapping=mapping)
+    accepted = report.accepted_records
+    return Ms1FeatureTableIngestionReport(
+        total_rows=report.total_rows,
+        accepted_rows=len(accepted),
+        rejected_rows=len(report.rejected_rows),
+        observed_charge_rows=sum(1 for row in accepted if row.charge is not None),
+        observed_mz_rows=sum(1 for row in accepted if row.mz is not None),
+        observed_retention_time_rows=sum(
+            1 for row in accepted if row.retention_time_seconds is not None
+        ),
+        units={
+            "retention_time_seconds": "seconds",
+            "mz": "mz",
+            "intensity": "instrument_intensity_units",
+        },
+        diagnostics=(
+            "MS1 feature ingestion preserves sample/peptide/intensity required fields",
+            "optional charge, m/z, and retention-time provenance are counted explicitly",
         ),
     )
 
