@@ -14,6 +14,7 @@ from bijux_proteomics.ptm import (
     PtmOccupancyUncertainty,
     PtmProteinSiteMapping,
     PtmSiteEntry,
+    build_ptm_motif_windows,
     estimate_ptm_site_occupancy,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
@@ -138,6 +139,19 @@ class PtmMotifEnrichmentBackgroundProvenanceReport(JsonModel):
     foreground_site_count: int = Field(..., ge=0)
     background_site_count: int = Field(..., ge=0)
     terms: tuple[PtmMotifEnrichmentTermEntry, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class PtmPhosphoReviewFixtureReport(JsonModel):
+    """Phospho-focused review fixture summary with quant and ambiguity context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    phospho_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    ambiguous_site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    occupancy_sample_count: int = Field(..., ge=0)
+    motif_window_count: int = Field(..., ge=0)
+    quantified_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     caveats: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -379,5 +393,43 @@ def build_ptm_motif_enrichment_background_provenance_report(
         foreground_site_count=foreground_total,
         background_site_count=background_total,
         terms=tuple(term_entries),
+        caveats=tuple(caveats),
+    )
+
+
+def build_phospho_specific_review_fixture_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    protein_sequences: dict[str, str],
+) -> PtmPhosphoReviewFixtureReport:
+    """Build a phospho-specific review fixture report for localization and quant context."""
+    phospho_entries = tuple(
+        entry for entry in site_entries if entry.modification_name == "Phospho"
+    )
+    occupancy_report = build_ptm_occupancy_counterpart_report(
+        phospho_entries,
+        feature_records=feature_records,
+    )
+    motif_windows = build_ptm_motif_windows(
+        phospho_entries,
+        protein_sequences=protein_sequences,
+        flank_size=7,
+    )
+    caveats: list[str] = []
+    if any(entry.ambiguous for entry in phospho_entries):
+        caveats.append("phospho fixture includes ambiguous localization examples")
+    if occupancy_report.missing_counterpart_count > 0:
+        caveats.append("phospho fixture includes missing counterpart occupancy examples")
+    return PtmPhosphoReviewFixtureReport(
+        phospho_site_keys=tuple(sorted(entry.site_key for entry in phospho_entries)),
+        ambiguous_site_keys=tuple(
+            sorted(entry.site_key for entry in phospho_entries if entry.ambiguous)
+        ),
+        occupancy_sample_count=len(occupancy_report.entries),
+        motif_window_count=len(motif_windows),
+        quantified_sample_ids=tuple(
+            sorted({entry.sample_id for entry in occupancy_report.entries})
+        ),
         caveats=tuple(caveats),
     )
