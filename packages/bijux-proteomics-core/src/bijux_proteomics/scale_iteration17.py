@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
@@ -280,4 +282,55 @@ def build_workflow_startup_benchmark_report(
         workflow_id=payload.workflow_id,
         total_startup_seconds=sum(durations.values()),
         bottleneck_stage=max(durations.items(), key=lambda row: row[1])[0],
+    )
+
+
+class BenchmarkCorpusClass(StrEnum):
+    """Corpus classes for separating benchmark intent and expectations."""
+
+    SMOKE = "smoke"
+    REGRESSION = "regression"
+    SCALE = "scale"
+    SCIENTIFIC_COMPARISON = "scientific_comparison"
+    PUBLICATION_DEMO = "publication_demo"
+
+
+class BenchmarkCorpusDescriptor(JsonModel):
+    """Descriptor for one benchmark corpus and its intended class."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    corpus_id: str = Field(..., min_length=1)
+    spectrum_count: int = Field(..., ge=0)
+    has_scientific_ground_truth: bool
+    intended_publication_demo: bool
+    class_label: BenchmarkCorpusClass
+
+
+def classify_benchmark_corpus(
+    *,
+    corpus_id: str,
+    spectrum_count: int,
+    has_scientific_ground_truth: bool,
+    intended_publication_demo: bool,
+) -> BenchmarkCorpusDescriptor:
+    """Classify corpus into smoke/regression/scale/scientific-comparison/publication-demo."""
+
+    if intended_publication_demo:
+        class_label = BenchmarkCorpusClass.PUBLICATION_DEMO
+    elif has_scientific_ground_truth:
+        class_label = BenchmarkCorpusClass.SCIENTIFIC_COMPARISON
+    elif spectrum_count >= 1_000_000:
+        class_label = BenchmarkCorpusClass.SCALE
+    elif spectrum_count >= 10_000:
+        class_label = BenchmarkCorpusClass.REGRESSION
+    else:
+        class_label = BenchmarkCorpusClass.SMOKE
+
+    return BenchmarkCorpusDescriptor(
+        corpus_id=corpus_id,
+        spectrum_count=spectrum_count,
+        has_scientific_ground_truth=has_scientific_ground_truth,
+        intended_publication_demo=intended_publication_demo,
+        class_label=class_label,
     )
