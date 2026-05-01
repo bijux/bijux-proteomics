@@ -147,6 +147,31 @@ class InstrumentRunSummaryReport(JsonModel):
     records: tuple[InstrumentRunRecord, ...] = Field(default_factory=tuple)
 
 
+class SampleLineageCoverageEntry(JsonModel):
+    """Lineage coverage for one sample across analysis surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    in_identification: bool
+    in_quant: bool
+    in_ptm: bool
+    in_qc: bool
+    in_evidence: bool
+    in_lab: bool
+    missing_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class SampleLineageReport(JsonModel):
+    """Sample-lineage report connecting metadata to analysis outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[SampleLineageCoverageEntry, ...] = Field(default_factory=tuple)
+    fully_traced_sample_count: int = Field(..., ge=0)
+    missing_lineage_sample_count: int = Field(..., ge=0)
+
+
 _FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
 _CHANNEL_RE = re.compile(r"^(12[6-9]|13[01])[NC]?$")
 
@@ -324,4 +349,61 @@ def build_instrument_run_summary_report(
         qc_sample_count=sum(1 for record in records if record.qc_sample),
         methods=tuple(sorted({record.acquisition_method for record in records})),
         records=tuple(sorted(records, key=lambda record: (record.batch_id, record.run_order))),
+    )
+
+
+def build_sample_lineage_report(
+    metadata_records: tuple[StudyMetadataRecord, ...],
+    *,
+    identification_samples: tuple[str, ...],
+    quant_samples: tuple[str, ...],
+    ptm_samples: tuple[str, ...],
+    qc_samples: tuple[str, ...],
+    evidence_samples: tuple[str, ...],
+    lab_samples: tuple[str, ...],
+) -> SampleLineageReport:
+    """Build lineage report connecting analysis surfaces back to study metadata samples."""
+    identification = set(identification_samples)
+    quant = set(quant_samples)
+    ptm = set(ptm_samples)
+    qc = set(qc_samples)
+    evidence = set(evidence_samples)
+    lab = set(lab_samples)
+    entries: list[SampleLineageCoverageEntry] = []
+    for sample_id in sorted({record.sample_id for record in metadata_records}):
+        missing = []
+        in_identification = sample_id in identification
+        in_quant = sample_id in quant
+        in_ptm = sample_id in ptm
+        in_qc = sample_id in qc
+        in_evidence = sample_id in evidence
+        in_lab = sample_id in lab
+        if not in_identification:
+            missing.append("identification")
+        if not in_quant:
+            missing.append("quant")
+        if not in_ptm:
+            missing.append("ptm")
+        if not in_qc:
+            missing.append("qc")
+        if not in_evidence:
+            missing.append("evidence")
+        if not in_lab:
+            missing.append("lab")
+        entries.append(
+            SampleLineageCoverageEntry(
+                sample_id=sample_id,
+                in_identification=in_identification,
+                in_quant=in_quant,
+                in_ptm=in_ptm,
+                in_qc=in_qc,
+                in_evidence=in_evidence,
+                in_lab=in_lab,
+                missing_surfaces=tuple(missing),
+            )
+        )
+    return SampleLineageReport(
+        entries=tuple(entries),
+        fully_traced_sample_count=sum(1 for entry in entries if not entry.missing_surfaces),
+        missing_lineage_sample_count=sum(1 for entry in entries if entry.missing_surfaces),
     )
