@@ -152,3 +152,50 @@ def build_large_spectra_streaming_benchmark_report(
         throughput_mb_per_second=payload.input_size_mb / payload.parse_seconds,
         peak_memory_mb=payload.peak_memory_mb,
     )
+
+
+class EvidenceGraphScaleBenchmarkInput(JsonModel):
+    """Stage timings for evidence-graph build/query/packet/export at scale."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_count: int = Field(..., ge=1)
+    edge_count: int = Field(..., ge=0)
+    build_seconds: float = Field(..., gt=0.0)
+    query_seconds: float = Field(..., gt=0.0)
+    packet_seconds: float = Field(..., gt=0.0)
+    export_seconds: float = Field(..., gt=0.0)
+
+
+class EvidenceGraphScaleBenchmarkReport(JsonModel):
+    """Scale benchmark report for evidence-graph processing surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_count: int = Field(..., ge=1)
+    edge_count: int = Field(..., ge=0)
+    total_seconds: float = Field(..., gt=0.0)
+    edges_processed_per_second: float = Field(..., gt=0.0)
+    bottleneck_stage: str = Field(..., min_length=1)
+
+
+def build_evidence_graph_scale_benchmark_report(
+    payload: EvidenceGraphScaleBenchmarkInput,
+) -> EvidenceGraphScaleBenchmarkReport:
+    """Measure evidence-graph build/query/review-packet/export bottlenecks."""
+
+    durations = {
+        "build": payload.build_seconds,
+        "query": payload.query_seconds,
+        "packet": payload.packet_seconds,
+        "export": payload.export_seconds,
+    }
+    total = sum(durations.values())
+    edges_processed = max(1, payload.edge_count)
+    return EvidenceGraphScaleBenchmarkReport(
+        node_count=payload.node_count,
+        edge_count=payload.edge_count,
+        total_seconds=total,
+        edges_processed_per_second=edges_processed / total,
+        bottleneck_stage=max(durations.items(), key=lambda row: row[1])[0],
+    )
