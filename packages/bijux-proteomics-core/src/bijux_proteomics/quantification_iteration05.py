@@ -13,6 +13,7 @@ from bijux_proteomics.quantification import (
     LabelBasedQuantPolicy,
     LabelFreeProvenanceBundle,
     LabelFreeQuantTable,
+    MultiplexNormalizationPolicy,
     MissingChannelPolicy,
     MissingValueSummaryReport,
     Ms1FeatureRecord,
@@ -22,6 +23,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
     build_label_based_quant_bundle,
+    build_multiplex_channel_balance_report,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -181,4 +183,81 @@ def build_label_based_quant_channel_ledger(
         missing_channel_policy=policy.missing_channel_policy,
         entries=ordered,
         missing_channel_count=sum(1 for entry in ordered if entry.missing_channel),
+    )
+
+
+class MultiplexChannelBalanceDiagnosticsReport(JsonModel):
+    """Expanded multiplex balance diagnostics with carrier and batch caveats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: MultiplexNormalizationPolicy
+    total_channel_count: int = Field(..., ge=0)
+    flagged_imbalance_count: int = Field(..., ge=0)
+    carrier_effect_channel_count: int = Field(..., ge=0)
+    missing_channel_count: int = Field(..., ge=0)
+    batch_caveat_count: int = Field(..., ge=0)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_multiplex_channel_balance_diagnostics_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    quant_policy: LabelBasedQuantPolicy,
+    normalization_policy: MultiplexNormalizationPolicy | None = None,
+) -> MultiplexChannelBalanceDiagnosticsReport:
+    """Build multiplex balance diagnostics with role-aware and batch-aware caveats."""
+    active_norm_policy = normalization_policy or MultiplexNormalizationPolicy()
+    balance = build_multiplex_channel_balance_report(
+        table,
+        design_entries=design_entries,
+        policy=active_norm_policy,
+    )
+    ledger = build_label_based_quant_channel_ledger(
+        table,
+        design_entries=design_entries,
+        policy=quant_policy,
+    )
+    flagged = tuple(entry for entry in balance.entries if entry.flagged)
+    carrier_effect = tuple(
+        entry
+        for entry in flagged
+        if entry.channel_role in {LabelBasedChannelRole.CARRIER, LabelBasedChannelRole.REFERENCE}
+    )
+    batch_by_sample = {
+        entry.sample_id: entry.batch
+        for entry in design_entries
+        if entry.sample_id and entry.batch
+    }
+    batch_caveat_count = sum(
+        1
+        for entry in flagged
+        if batch_by_sample.get(entry.sample_id) is not None
+    )
+    caveats: list[str] = []
+    if flagged:
+        caveats.append("one or more multiplex channels exceed configured balance ratio thresholds")
+    if carrier_effect:
+        caveats.append(
+            "carrier/reference channels are among flagged channels and may distort ratio interpretation"
+        )
+    if ledger.missing_channel_count > 0:
+        caveats.append(
+            "missing multiplex channels were detected and should be reviewed alongside balance metrics"
+        )
+    if batch_caveat_count > 0:
+        caveats.append(
+            "some flagged channels map to batched samples; inspect potential batch-driven multiplex imbalance"
+        )
+    if not caveats:
+        caveats.append("no multiplex balance caveats detected under the current policy")
+    return MultiplexChannelBalanceDiagnosticsReport(
+        policy=active_norm_policy,
+        total_channel_count=len(balance.entries),
+        flagged_imbalance_count=len(flagged),
+        carrier_effect_channel_count=len(carrier_effect),
+        missing_channel_count=ledger.missing_channel_count,
+        batch_caveat_count=batch_caveat_count,
+        caveats=tuple(caveats),
     )
