@@ -1,0 +1,4 @@
+scan_id	stripped_peptide	precursor_charge	score_discriminant	protein_group	decoy_flag	qvalue
+sage-pipe-corpus-1001	PEPTIDE	2	18.1	P51111	target	0.0014
+sage-pipe-corpus-1002	PEPTIDER	3	13.4	P52222	target	0.0038
+sage-pipe-corpus-1003	DECOYPEP	2	4.9	DECOY_P53333	decoy	0.0320

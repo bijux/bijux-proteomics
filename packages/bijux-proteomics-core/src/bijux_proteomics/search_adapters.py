@@ -2593,3 +2593,25 @@ def build_msfragger_output_corpus_report(
             ),
         ),
     )
+
+
+def build_sage_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusReport:
+    """Build corpus coverage over Sage native and pipeline-like outputs."""
+    return build_search_engine_corpus_report(
+        corpus_root=corpus_root,
+        adapter_kind=SearchAdapterKind.SAGE,
+        input_specs=(
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.SAGE,
+                dialect_id="default",
+                result_file="sage_results.tsv",
+                config_file="sage_search.json",
+            ),
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.SAGE,
+                dialect_id="pipeline-export",
+                result_file="sage_pipeline_export.tsv",
+                config_file="sage_search.json",
+            ),
+        ),
+    )
