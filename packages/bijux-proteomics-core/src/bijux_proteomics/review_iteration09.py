@@ -748,3 +748,88 @@ def generate_review_narrative_from_structured_facts(
         )
 
     return ReviewNarrativeReport(lines=tuple(lines), claim_count=len(lines))
+
+
+class ReviewPacketDiffEntry(JsonModel):
+    """One review-packet difference entry across runs or evidence updates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: str = Field(..., min_length=1)
+    key: str = Field(..., min_length=1)
+    change_type: str = Field(..., min_length=1)
+    before: str | None = None
+    after: str | None = None
+
+
+class ReviewPacketDiffReport(JsonModel):
+    """Diff report between two review packets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[ReviewPacketDiffEntry, ...] = Field(default_factory=tuple)
+    added_count: int = Field(..., ge=0)
+    removed_count: int = Field(..., ge=0)
+    changed_count: int = Field(..., ge=0)
+
+
+def diff_review_packets(
+    before: ReviewPacketSchema,
+    after: ReviewPacketSchema,
+) -> ReviewPacketDiffReport:
+    """Compare review packets across runs, releases, or evidence updates."""
+
+    entries: list[ReviewPacketDiffEntry] = []
+
+    before_evidence = {entry.evidence_id: entry.claim for entry in before.evidence}
+    after_evidence = {entry.evidence_id: entry.claim for entry in after.evidence}
+    for evidence_id in sorted(before_evidence.keys() | after_evidence.keys()):
+        if evidence_id not in before_evidence:
+            entries.append(
+                ReviewPacketDiffEntry(
+                    surface="evidence",
+                    key=evidence_id,
+                    change_type="added",
+                    after=after_evidence[evidence_id],
+                )
+            )
+        elif evidence_id not in after_evidence:
+            entries.append(
+                ReviewPacketDiffEntry(
+                    surface="evidence",
+                    key=evidence_id,
+                    change_type="removed",
+                    before=before_evidence[evidence_id],
+                )
+            )
+        elif before_evidence[evidence_id] != after_evidence[evidence_id]:
+            entries.append(
+                ReviewPacketDiffEntry(
+                    surface="evidence",
+                    key=evidence_id,
+                    change_type="changed",
+                    before=before_evidence[evidence_id],
+                    after=after_evidence[evidence_id],
+                )
+            )
+
+    before_decisions = {entry.decision_id: entry.decision_state for entry in before.decisions}
+    after_decisions = {entry.decision_id: entry.decision_state for entry in after.decisions}
+    for decision_id in sorted(before_decisions.keys() & after_decisions.keys()):
+        if before_decisions[decision_id] != after_decisions[decision_id]:
+            entries.append(
+                ReviewPacketDiffEntry(
+                    surface="decision",
+                    key=decision_id,
+                    change_type="changed",
+                    before=before_decisions[decision_id],
+                    after=after_decisions[decision_id],
+                )
+            )
+
+    return ReviewPacketDiffReport(
+        entries=tuple(entries),
+        added_count=sum(1 for entry in entries if entry.change_type == "added"),
+        removed_count=sum(1 for entry in entries if entry.change_type == "removed"),
+        changed_count=sum(1 for entry in entries if entry.change_type == "changed"),
+    )
