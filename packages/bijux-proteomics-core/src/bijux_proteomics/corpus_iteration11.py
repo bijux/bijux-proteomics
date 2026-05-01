@@ -397,3 +397,34 @@ def build_external_engine_corpus_licensing_plan(
     return ExternalEngineCorpusLicensingPlan(
         entries=tuple(sorted(entries, key=lambda entry: entry.artifact_class))
     )
+
+
+class ScientificQuestionExampleIndexEntry(JsonModel):
+    """Index entry mapping one scientific question to example corpus artifacts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    question: str = Field(..., min_length=1)
+    input_type: str = Field(..., min_length=1)
+    workflow: str = Field(..., min_length=1)
+    output_artifact: str = Field(..., min_length=1)
+    evidence_grade: str = Field(..., min_length=1)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ScientificQuestionExampleIndex(JsonModel):
+    """Example index grouped by scientific question and output behavior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[ScientificQuestionExampleIndexEntry, ...] = Field(default_factory=tuple)
+
+
+def build_example_index_by_scientific_question(
+    entries: tuple[ScientificQuestionExampleIndexEntry, ...],
+) -> ScientificQuestionExampleIndex:
+    """Index examples by input type, workflow, output, evidence grade, and caveats."""
+
+    return ScientificQuestionExampleIndex(
+        entries=tuple(sorted(entries, key=lambda entry: (entry.question, entry.workflow)))
+    )
