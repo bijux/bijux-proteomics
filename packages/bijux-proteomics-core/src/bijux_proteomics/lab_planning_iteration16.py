@@ -478,3 +478,60 @@ def build_lims_oriented_export_bundle(
     ]
     payload = "\n".join([header, *lines]) if lines else header
     return LimsOrientedExportBundle(rows=rendered_rows, tsv_payload=payload)
+
+
+class AssayExpectedEvidenceGainInput(JsonModel):
+    """Input factors for expected evidence gain estimation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    action_id: str = Field(..., min_length=1)
+    contradiction_resolution_potential: float = Field(..., ge=0.0, le=1.0)
+    validation_coverage_gain: float = Field(..., ge=0.0, le=1.0)
+    execution_feasibility: float = Field(..., ge=0.0, le=1.0)
+    uncertainty_fraction: float = Field(..., ge=0.0, le=1.0)
+
+
+class AssayExpectedEvidenceGainEntry(JsonModel):
+    """Expected decision value entry with uncertainty interval."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    action_id: str = Field(..., min_length=1)
+    expected_decision_value: float = Field(..., ge=0.0, le=1.0)
+    low_value: float = Field(..., ge=0.0, le=1.0)
+    high_value: float = Field(..., ge=0.0, le=1.0)
+
+
+class AssayExpectedEvidenceGainReport(JsonModel):
+    """Expected evidence gain report for candidate assay actions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[AssayExpectedEvidenceGainEntry, ...] = Field(default_factory=tuple)
+
+
+def build_assay_expected_evidence_gain_report(
+    items: tuple[AssayExpectedEvidenceGainInput, ...],
+) -> AssayExpectedEvidenceGainReport:
+    """Estimate decision-value gain for assay actions with bounded uncertainty."""
+
+    entries = []
+    for item in items:
+        expected = (
+            0.45 * item.contradiction_resolution_potential
+            + 0.35 * item.validation_coverage_gain
+            + 0.2 * item.execution_feasibility
+        )
+        uncertainty = expected * item.uncertainty_fraction
+        entries.append(
+            AssayExpectedEvidenceGainEntry(
+                action_id=item.action_id,
+                expected_decision_value=expected,
+                low_value=max(0.0, expected - uncertainty),
+                high_value=min(1.0, expected + uncertainty),
+            )
+        )
+
+    entries.sort(key=lambda entry: (-entry.expected_decision_value, entry.action_id))
+    return AssayExpectedEvidenceGainReport(entries=tuple(entries))
