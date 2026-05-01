@@ -256,6 +256,17 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "run_reviewer_challenge_workflow" in bijux_proteomics.__all__
     assert "generate_review_narrative_from_structured_facts" in bijux_proteomics.__all__
     assert "diff_review_packets" in bijux_proteomics.__all__
+    assert "transition_assay_progression" in bijux_proteomics.__all__
+    assert "compare_assay_designs" in bijux_proteomics.__all__
+    assert "build_default_lab_risk_library" in bijux_proteomics.__all__
+    assert "evaluate_lab_risks" in bijux_proteomics.__all__
+    assert "build_capacity_model_with_uncertainty" in bijux_proteomics.__all__
+    assert "validate_targeted_transition_list" in bijux_proteomics.__all__
+    assert "evaluate_targeted_workflow_boundary" in bijux_proteomics.__all__
+    assert "build_lims_handoff_profile" in bijux_proteomics.__all__
+    assert "apply_planned_observed_learning_loop" in bijux_proteomics.__all__
+    assert "render_lab_review_packet" in bijux_proteomics.__all__
+    assert "enforce_wet_lab_automation_boundary" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -287,6 +298,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ReviewerChallengeWorkflowReport" in bijux_proteomics.__all__
     assert "ReviewNarrativeReport" in bijux_proteomics.__all__
     assert "ReviewPacketDiffReport" in bijux_proteomics.__all__
+    assert "AssayProgressionModel" in bijux_proteomics.__all__
+    assert "AssayDesignComparisonReport" in bijux_proteomics.__all__
+    assert "LabRiskAssessmentReport" in bijux_proteomics.__all__
+    assert "LabCapacityModelWithUncertainty" in bijux_proteomics.__all__
+    assert "TargetedTransitionListValidationReport" in bijux_proteomics.__all__
+    assert "TargetedWorkflowBoundaryReport" in bijux_proteomics.__all__
+    assert "LimsHandoffProfile" in bijux_proteomics.__all__
+    assert "PlannedObservedLearningLoopReport" in bijux_proteomics.__all__
+    assert "LabReviewPacketRendered" in bijux_proteomics.__all__
+    assert "WetLabAutomationBoundaryReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
