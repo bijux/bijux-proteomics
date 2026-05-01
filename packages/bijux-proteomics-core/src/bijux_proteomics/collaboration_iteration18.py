@@ -59,3 +59,40 @@ def build_external_reviewer_bundle(
         reviewer_instructions=payload.reviewer_instructions,
         completeness_notes=tuple(notes),
     )
+
+
+class RedactedCollaborationBundleInput(JsonModel):
+    """Raw collaboration bundle input that may contain sensitive path/sample text."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    file_paths: tuple[str, ...] = Field(default_factory=tuple)
+    provenance_links: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class RedactedCollaborationBundle(JsonModel):
+    """Redacted collaboration bundle preserving reviewable provenance references."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    redacted_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    redacted_file_paths: tuple[str, ...] = Field(default_factory=tuple)
+    provenance_links: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_redacted_collaboration_bundle(
+    payload: RedactedCollaborationBundleInput,
+) -> RedactedCollaborationBundle:
+    """Redact sensitive sample/path fields while preserving provenance link structure."""
+
+    redacted_samples = tuple(f"SAMPLE_{index + 1:03d}" for index, _ in enumerate(payload.sample_ids))
+    redacted_paths = tuple(f"<redacted-path-{index + 1:03d}>" for index, _ in enumerate(payload.file_paths))
+    return RedactedCollaborationBundle(
+        bundle_id=payload.bundle_id,
+        redacted_sample_ids=redacted_samples,
+        redacted_file_paths=redacted_paths,
+        provenance_links=tuple(payload.provenance_links),
+    )
