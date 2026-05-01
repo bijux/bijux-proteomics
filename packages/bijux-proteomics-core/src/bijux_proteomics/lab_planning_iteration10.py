@@ -641,3 +641,56 @@ def apply_planned_observed_learning_loop(
             sorted(updates, key=lambda entry: (entry.candidate_id, entry.decision_id))
         )
     )
+
+
+class LabReviewPacketInput(JsonModel):
+    """Structured input required to render a lab review packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    packet_id: str = Field(..., min_length=1)
+    assay_rationale: str = Field(..., min_length=1)
+    target_evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+    control_ids: tuple[str, ...] = Field(default_factory=tuple)
+    risk_ids: tuple[str, ...] = Field(default_factory=tuple)
+    capacity_summary: str = Field(..., min_length=1)
+    handoff_files: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LabReviewPacketRendered(JsonModel):
+    """Rendered lab review packet bundle for planning and board review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    packet_id: str = Field(..., min_length=1)
+    packet_json: str = Field(..., min_length=1)
+    packet_markdown: str = Field(..., min_length=1)
+
+
+def render_lab_review_packet(payload: LabReviewPacketInput) -> LabReviewPacketRendered:
+    """Render assay rationale/evidence/controls/risk/capacity/handoff packet views."""
+
+    packet = {
+        "packet_id": payload.packet_id,
+        "assay_rationale": payload.assay_rationale,
+        "target_evidence_ids": list(payload.target_evidence_ids),
+        "control_ids": list(payload.control_ids),
+        "risk_ids": list(payload.risk_ids),
+        "capacity_summary": payload.capacity_summary,
+        "handoff_files": list(payload.handoff_files),
+    }
+    markdown_lines = [
+        f"# Lab Review Packet {payload.packet_id}",
+        "",
+        f"- Assay rationale: {payload.assay_rationale}",
+        f"- Target evidence: {', '.join(payload.target_evidence_ids) if payload.target_evidence_ids else 'none'}",
+        f"- Controls: {', '.join(payload.control_ids) if payload.control_ids else 'none'}",
+        f"- Risks: {', '.join(payload.risk_ids) if payload.risk_ids else 'none'}",
+        f"- Capacity: {payload.capacity_summary}",
+        f"- Handoff files: {', '.join(payload.handoff_files) if payload.handoff_files else 'none'}",
+    ]
+    return LabReviewPacketRendered(
+        packet_id=payload.packet_id,
+        packet_json=json.dumps(packet, sort_keys=True, separators=(",", ":")),
+        packet_markdown="\n".join(markdown_lines) + "\n",
+    )
