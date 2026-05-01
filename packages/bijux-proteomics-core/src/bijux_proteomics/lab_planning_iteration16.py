@@ -318,3 +318,61 @@ def ingest_lab_outcomes_with_versioned_policy(
         policy_version=policy.policy_version,
         updates=tuple(updates),
     )
+
+
+class LabRiskDashboardInput(JsonModel):
+    """Aggregated risk inputs for one candidate in dashboard summaries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    evidence_gap_count: int = Field(..., ge=0)
+    target_risk_score: float = Field(..., ge=0.0, le=1.0)
+    sample_constraint_score: float = Field(..., ge=0.0, le=1.0)
+    capacity_pressure_score: float = Field(..., ge=0.0, le=1.0)
+    mitigation_actions: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LabRiskDashboardEntry(JsonModel):
+    """Dashboard row summarizing lab planning risks and mitigations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    composite_risk_score: float = Field(..., ge=0.0)
+    evidence_gap_count: int = Field(..., ge=0)
+    mitigation_actions: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class LabRiskDashboardReport(JsonModel):
+    """Risk dashboard data for evidence gaps, constraints, capacity, and mitigations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[LabRiskDashboardEntry, ...] = Field(default_factory=tuple)
+
+
+def build_lab_risk_dashboard_report(
+    items: tuple[LabRiskDashboardInput, ...],
+) -> LabRiskDashboardReport:
+    """Summarize evidence gaps, target/sample/capacity risks, and mitigations."""
+
+    entries = []
+    for item in items:
+        composite = (
+            (0.3 * item.target_risk_score)
+            + (0.25 * item.sample_constraint_score)
+            + (0.25 * item.capacity_pressure_score)
+            + (0.2 * min(1.0, item.evidence_gap_count / 5.0))
+        )
+        entries.append(
+            LabRiskDashboardEntry(
+                candidate_id=item.candidate_id,
+                composite_risk_score=composite,
+                evidence_gap_count=item.evidence_gap_count,
+                mitigation_actions=tuple(sorted(set(item.mitigation_actions))),
+            )
+        )
+
+    entries.sort(key=lambda entry: (-entry.composite_risk_score, entry.candidate_id))
+    return LabRiskDashboardReport(entries=tuple(entries))
