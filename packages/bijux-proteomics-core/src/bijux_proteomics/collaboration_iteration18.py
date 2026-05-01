@@ -268,3 +268,53 @@ def build_archive_retention_package(
         compatibility_metadata=tuple(sorted(set(payload.compatibility_metadata))),
         caveats=tuple(sorted(set(payload.caveats))),
     )
+
+
+class CollaboratorChallengeInput(JsonModel):
+    """External collaborator challenge attached to evidence claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: str = Field(..., min_length=1)
+    reviewer_id: str = Field(..., min_length=1)
+    evidence_claim_id: str = Field(..., min_length=1)
+    question: str = Field(..., min_length=1)
+    comment: str = Field(..., min_length=1)
+
+
+class CollaboratorChallengeEntry(JsonModel):
+    """Stored collaborator challenge with linkability to evidence claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: str = Field(..., min_length=1)
+    reviewer_id: str = Field(..., min_length=1)
+    evidence_claim_id: str = Field(..., min_length=1)
+    prompt: str = Field(..., min_length=1)
+    status: str = Field(..., min_length=1)
+
+
+class CollaboratorChallengeWorkflowReport(JsonModel):
+    """Workflow report for collaborator challenges on evidence claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CollaboratorChallengeEntry, ...] = Field(default_factory=tuple)
+
+
+def run_collaborator_challenge_workflow(
+    items: tuple[CollaboratorChallengeInput, ...],
+) -> CollaboratorChallengeWorkflowReport:
+    """Attach external collaborator comments/questions to evidence claims."""
+
+    entries = tuple(
+        CollaboratorChallengeEntry(
+            challenge_id=item.challenge_id,
+            reviewer_id=item.reviewer_id,
+            evidence_claim_id=item.evidence_claim_id,
+            prompt=f"Q: {item.question} | Comment: {item.comment}",
+            status="open",
+        )
+        for item in items
+    )
+    return CollaboratorChallengeWorkflowReport(entries=entries)
