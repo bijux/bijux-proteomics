@@ -2615,3 +2615,25 @@ def build_sage_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusRepo
             ),
         ),
     )
+
+
+def build_maxquant_output_corpus_report(
+    corpus_root: Path,
+) -> SearchEngineCorpusReport:
+    """Build corpus coverage over MaxQuant evidence native and pipeline-like outputs."""
+    return build_search_engine_corpus_report(
+        corpus_root=corpus_root,
+        adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
+        input_specs=(
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
+                dialect_id="default",
+                result_file="maxquant_evidence.tsv",
+            ),
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
+                dialect_id="pipeline-export",
+                result_file="maxquant_pipeline_export.tsv",
+            ),
+        ),
+    )
