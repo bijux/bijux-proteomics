@@ -383,3 +383,107 @@ def plan_partial_workflow_rerun(
         reused_step_ids=reused_step_ids,
         preserved_evidence_pointers=tuple(preserved_evidence),
     )
+
+
+class ArtifactInventoryRecord(JsonModel):
+    """One produced workflow artifact with schema and lineage metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    path: str = Field(..., min_length=1)
+    role: str = Field(..., min_length=1)
+    producing_step_id: str = Field(..., min_length=1)
+    schema_ref: str = Field(..., min_length=1)
+    content_sha256: str = Field(..., min_length=64, max_length=64)
+    lineage_parent_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ArtifactInventoryVerificationIssue(JsonModel):
+    """One verification issue found in artifact inventory validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern=r"^(error|warning)$")
+    artifact_id: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class ArtifactInventoryVerificationReport(JsonModel):
+    """Verification result for role/hash/schema/lineage artifact inventory checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    verified: bool
+    issues: tuple[ArtifactInventoryVerificationIssue, ...] = Field(default_factory=tuple)
+
+
+def verify_workflow_artifact_inventory(
+    *,
+    records: tuple[ArtifactInventoryRecord, ...],
+    observed_hashes_by_path: dict[str, str],
+    allowed_schema_refs: tuple[str, ...],
+) -> ArtifactInventoryVerificationReport:
+    """Verify produced artifacts by role, hash, producing step, schema, and lineage."""
+
+    issues: list[ArtifactInventoryVerificationIssue] = []
+    seen_artifact_ids: set[str] = set()
+    all_ids = {record.artifact_id for record in records}
+    allowed_schemas = set(allowed_schema_refs)
+
+    for record in records:
+        if record.artifact_id in seen_artifact_ids:
+            issues.append(
+                ArtifactInventoryVerificationIssue(
+                    code="duplicate_artifact_id",
+                    severity="error",
+                    artifact_id=record.artifact_id,
+                    message="artifact identifier appears more than once in inventory",
+                )
+            )
+        seen_artifact_ids.add(record.artifact_id)
+
+        observed_hash = observed_hashes_by_path.get(record.path)
+        if observed_hash is None:
+            issues.append(
+                ArtifactInventoryVerificationIssue(
+                    code="missing_observed_hash",
+                    severity="error",
+                    artifact_id=record.artifact_id,
+                    message="artifact path is absent from observed hash map",
+                )
+            )
+        elif observed_hash != record.content_sha256:
+            issues.append(
+                ArtifactInventoryVerificationIssue(
+                    code="hash_mismatch",
+                    severity="error",
+                    artifact_id=record.artifact_id,
+                    message="inventory hash does not match observed artifact hash",
+                )
+            )
+
+        if record.schema_ref not in allowed_schemas:
+            issues.append(
+                ArtifactInventoryVerificationIssue(
+                    code="unsupported_schema_ref",
+                    severity="error",
+                    artifact_id=record.artifact_id,
+                    message=f"schema reference is not allowed: {record.schema_ref}",
+                )
+            )
+
+        for parent_id in record.lineage_parent_ids:
+            if parent_id not in all_ids:
+                issues.append(
+                    ArtifactInventoryVerificationIssue(
+                        code="missing_lineage_parent",
+                        severity="warning",
+                        artifact_id=record.artifact_id,
+                        message=f"lineage parent artifact is not present: {parent_id}",
+                    )
+                )
+
+    issues.sort(key=lambda issue: (issue.severity, issue.code, issue.artifact_id))
+    return ArtifactInventoryVerificationReport(verified=not issues, issues=tuple(issues))
