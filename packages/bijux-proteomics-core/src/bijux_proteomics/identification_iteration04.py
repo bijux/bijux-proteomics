@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 from enum import StrEnum
+from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
@@ -16,6 +17,7 @@ from bijux_proteomics.identification import (
     PsmRecord,
     TargetDecoyLabel,
     assign_razor_peptides,
+    build_peptide_protein_trace_report,
     build_protein_groups,
     calculate_picked_protein_fdr,
     infer_proteins_by_parsimony,
@@ -426,3 +428,54 @@ def compare_protein_inference_strategies(
         selections=selections,
         comparisons=tuple(comparisons),
     )
+
+
+class PsmPeptideProteinTraceBundle(JsonModel):
+    """Trace bundle that keeps protein decisions explainable from PSM evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    trace_entry_count: int = Field(..., ge=0)
+    distinct_psm_count: int = Field(..., ge=0)
+    distinct_peptide_count: int = Field(..., ge=0)
+    distinct_protein_count: int = Field(..., ge=0)
+    trace_hash: str = Field(..., min_length=64, max_length=64)
+    trace_rows: tuple[dict[str, object], ...] = Field(default_factory=tuple)
+
+
+def build_psm_peptide_protein_trace_bundle(
+    records: tuple[PsmRecord, ...],
+) -> PsmPeptideProteinTraceBundle:
+    """Build a stable PSM-to-peptide-to-protein decision trace bundle."""
+    trace_report = build_peptide_protein_trace_report(records)
+    trace_rows = tuple(entry.to_dict() for entry in trace_report.entries)
+    payload = json.dumps(trace_rows, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
+    psm_ids = {
+        str(spectrum_id)
+        for row in trace_rows
+        for spectrum_id in row.get("spectrum_ids", [])
+    }
+    peptides = {row["canonical_peptide"] for row in trace_rows}
+    proteins = {
+        protein
+        for row in trace_rows
+        for protein in row.get("protein_refs", ())
+    }
+    return PsmPeptideProteinTraceBundle(
+        trace_entry_count=len(trace_rows),
+        distinct_psm_count=len(psm_ids),
+        distinct_peptide_count=len(peptides),
+        distinct_protein_count=len(proteins),
+        trace_hash=hashlib.sha256(payload).hexdigest(),
+        trace_rows=trace_rows,
+    )
+
+
+def export_psm_peptide_protein_trace_bundle(
+    bundle: PsmPeptideProteinTraceBundle,
+    destination: Path,
+) -> None:
+    """Write a JSON export of the trace bundle for scientific review."""
+    destination.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
