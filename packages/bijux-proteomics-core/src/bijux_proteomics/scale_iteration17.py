@@ -114,3 +114,41 @@ def build_dense_quant_matrix_benchmark_report(
         output_size_mb=payload.output_size_mb,
         bottleneck_stage=bottleneck_stage,
     )
+
+
+class LargeSpectraStreamingBenchmarkInput(JsonModel):
+    """Observed metrics for large MGF/mzML streaming parse workloads."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    format_name: str = Field(..., min_length=1)
+    spectrum_count: int = Field(..., ge=1)
+    input_size_mb: float = Field(..., gt=0.0)
+    parse_seconds: float = Field(..., gt=0.0)
+    peak_memory_mb: float = Field(..., gt=0.0)
+
+
+class LargeSpectraStreamingBenchmarkReport(JsonModel):
+    """Benchmark report for large spectra streaming throughput and memory behavior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    format_name: str = Field(..., min_length=1)
+    spectrum_count: int = Field(..., ge=1)
+    throughput_spectra_per_second: float = Field(..., gt=0.0)
+    throughput_mb_per_second: float = Field(..., gt=0.0)
+    peak_memory_mb: float = Field(..., gt=0.0)
+
+
+def build_large_spectra_streaming_benchmark_report(
+    payload: LargeSpectraStreamingBenchmarkInput,
+) -> LargeSpectraStreamingBenchmarkReport:
+    """Measure large MGF/mzML streaming throughput and memory footprint."""
+
+    return LargeSpectraStreamingBenchmarkReport(
+        format_name=payload.format_name,
+        spectrum_count=payload.spectrum_count,
+        throughput_spectra_per_second=payload.spectrum_count / payload.parse_seconds,
+        throughput_mb_per_second=payload.input_size_mb / payload.parse_seconds,
+        peak_memory_mb=payload.peak_memory_mb,
+    )
