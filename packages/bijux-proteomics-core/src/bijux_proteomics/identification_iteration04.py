@@ -719,3 +719,112 @@ def validate_custom_decoy_strategy(
         collision_accessions=collision_accessions,
         risk_summary=risk_summary,
     )
+
+
+class ConfidenceResultFamily(StrEnum):
+    """Result-family boundary classes for confidence interpretation."""
+
+    DATABASE_DDA = "database_dda"
+    OPEN_SEARCH = "open_search"
+    SPECTRAL_LIBRARY = "spectral_library"
+    DIA_LIBRARY = "dia_library"
+
+
+class LibrarySearchConfidenceBoundaryInput(JsonModel):
+    """One result-set descriptor for confidence boundary classification."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    family_hint: str = Field(..., min_length=1)
+    has_target_decoy: bool
+    has_library_scores: bool
+    is_dia: bool = False
+
+
+class LibrarySearchConfidenceBoundaryIssue(JsonModel):
+    """One issue raised while evaluating confidence-family boundaries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class LibrarySearchConfidenceBoundaryReport(JsonModel):
+    """Boundary report over heterogeneous identification result families."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    classified_families: dict[str, ConfidenceResultFamily] = Field(default_factory=dict)
+    compatible: bool
+    issues: tuple[LibrarySearchConfidenceBoundaryIssue, ...] = Field(default_factory=tuple)
+
+
+def _classify_confidence_result_family(
+    descriptor: LibrarySearchConfidenceBoundaryInput,
+) -> ConfidenceResultFamily:
+    hint = descriptor.family_hint.strip().lower()
+    if descriptor.is_dia:
+        return ConfidenceResultFamily.DIA_LIBRARY
+    if "open" in hint:
+        return ConfidenceResultFamily.OPEN_SEARCH
+    if descriptor.has_library_scores or "library" in hint:
+        return ConfidenceResultFamily.SPECTRAL_LIBRARY
+    return ConfidenceResultFamily.DATABASE_DDA
+
+
+def evaluate_library_search_confidence_boundary(
+    descriptors: tuple[LibrarySearchConfidenceBoundaryInput, ...],
+) -> LibrarySearchConfidenceBoundaryReport:
+    """Classify and validate confidence boundaries across result families."""
+    classified = {
+        descriptor.run_id: _classify_confidence_result_family(descriptor)
+        for descriptor in descriptors
+    }
+    family_set = set(classified.values())
+    issues: list[LibrarySearchConfidenceBoundaryIssue] = []
+    if (
+        ConfidenceResultFamily.OPEN_SEARCH in family_set
+        and ConfidenceResultFamily.SPECTRAL_LIBRARY in family_set
+    ):
+        issues.append(
+            LibrarySearchConfidenceBoundaryIssue(
+                code="open_vs_library_mixture",
+                message="open-search and spectral-library confidence families must not be merged under one threshold policy",
+            )
+        )
+    if (
+        ConfidenceResultFamily.DIA_LIBRARY in family_set
+        and ConfidenceResultFamily.DATABASE_DDA in family_set
+    ):
+        issues.append(
+            LibrarySearchConfidenceBoundaryIssue(
+                code="dia_vs_dda_mixture",
+                message="DIA-library and database-DDA confidence families require separate calibration and FDR interpretation",
+            )
+        )
+    for descriptor in descriptors:
+        family = classified[descriptor.run_id]
+        if family is ConfidenceResultFamily.DATABASE_DDA and not descriptor.has_target_decoy:
+            issues.append(
+                LibrarySearchConfidenceBoundaryIssue(
+                    code="dda_missing_target_decoy",
+                    message=f"run {descriptor.run_id} is classified as database DDA but lacks target-decoy evidence",
+                )
+            )
+        if family in {
+            ConfidenceResultFamily.SPECTRAL_LIBRARY,
+            ConfidenceResultFamily.DIA_LIBRARY,
+        } and not descriptor.has_library_scores:
+            issues.append(
+                LibrarySearchConfidenceBoundaryIssue(
+                    code="library_missing_library_scores",
+                    message=f"run {descriptor.run_id} is library-classified but lacks explicit library confidence scores",
+                )
+            )
+    return LibrarySearchConfidenceBoundaryReport(
+        classified_families=classified,
+        compatible=not issues,
+        issues=tuple(issues),
+    )
