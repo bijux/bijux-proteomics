@@ -376,3 +376,48 @@ def build_agentic_proteins_migration_report(
         blocking_gaps=tuple(sorted(set(blocking_gaps))),
         migration_ready=bool(ordered_mappings) and not blocking_gaps,
     )
+
+
+class FlagshipDemoInput(JsonModel):
+    """Input describing one full flagship proteomics demonstration run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    demo_id: str = Field(..., min_length=1)
+    input_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    completed_stages: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_graph_ref: str = Field(..., min_length=1)
+    review_packet_ref: str = Field(..., min_length=1)
+    lab_handoff_ref: str = Field(..., min_length=1)
+
+
+class FlagshipDemoReport(JsonModel):
+    """Report for one complete inputs-to-lab-handoff flagship workflow demo."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    demo_id: str = Field(..., min_length=1)
+    input_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    completed_stages: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_graph_ref: str = Field(..., min_length=1)
+    review_packet_ref: str = Field(..., min_length=1)
+    lab_handoff_ref: str = Field(..., min_length=1)
+    complete_demo: bool
+
+
+def build_final_flagship_proteomics_demo_report(
+    payload: FlagshipDemoInput,
+) -> FlagshipDemoReport:
+    """Build complete flagship demo report from inputs to lab handoff."""
+
+    required_stages = {"input-ingest", "evidence-graph", "review-packet", "lab-handoff"}
+    complete = required_stages.issubset(set(payload.completed_stages))
+    return FlagshipDemoReport(
+        demo_id=payload.demo_id,
+        input_artifacts=tuple(sorted(set(payload.input_artifacts))),
+        completed_stages=tuple(payload.completed_stages),
+        evidence_graph_ref=payload.evidence_graph_ref,
+        review_packet_ref=payload.review_packet_ref,
+        lab_handoff_ref=payload.lab_handoff_ref,
+        complete_demo=complete,
+    )
