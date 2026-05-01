@@ -694,3 +694,59 @@ def render_lab_review_packet(payload: LabReviewPacketInput) -> LabReviewPacketRe
         packet_json=json.dumps(packet, sort_keys=True, separators=(",", ":")),
         packet_markdown="\n".join(markdown_lines) + "\n",
     )
+
+
+class WetLabAutomationBoundaryInput(JsonModel):
+    """Input payload used to enforce wet-lab automation boundaries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    planning_payload_id: str = Field(..., min_length=1)
+    requested_execution: bool
+    adapter_proof_id: str | None = None
+
+
+class WetLabAutomationBoundaryReport(JsonModel):
+    """Boundary decision separating advisory planning from executable automation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    planning_payload_id: str = Field(..., min_length=1)
+    allowed_execution: bool
+    planning_label: str = Field(..., min_length=1)
+    execution_label: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=1)
+
+
+def enforce_wet_lab_automation_boundary(
+    payload: WetLabAutomationBoundaryInput,
+) -> WetLabAutomationBoundaryReport:
+    """Prevent instrument-ready automation when adapter proof is not present."""
+
+    if payload.requested_execution and not payload.adapter_proof_id:
+        return WetLabAutomationBoundaryReport(
+            planning_payload_id=payload.planning_payload_id,
+            allowed_execution=False,
+            planning_label="advisory",
+            execution_label="refused",
+            reason=(
+                "execution is refused because no adapter proof exists; planning output remains advisory"
+            ),
+        )
+
+    if payload.requested_execution and payload.adapter_proof_id:
+        return WetLabAutomationBoundaryReport(
+            planning_payload_id=payload.planning_payload_id,
+            allowed_execution=True,
+            planning_label="advisory",
+            execution_label="executable",
+            reason="execution allowed because adapter proof is present",
+        )
+
+    return WetLabAutomationBoundaryReport(
+        planning_payload_id=payload.planning_payload_id,
+        allowed_execution=False,
+        planning_label="advisory",
+        execution_label="not_requested",
+        reason="execution was not requested",
+    )
