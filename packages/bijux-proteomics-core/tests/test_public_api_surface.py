@@ -236,6 +236,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_fake_external_engine_harness" in bijux_proteomics.__all__
     assert "run_local_external_tool" in bijux_proteomics.__all__
     assert "build_proteomics_workflow_cache_replay_report" in bijux_proteomics.__all__
+    assert "build_study_metadata_model" in bijux_proteomics.__all__
+    assert "parse_study_design_table" in bijux_proteomics.__all__
+    assert "validate_experimental_design_records" in bijux_proteomics.__all__
+    assert "build_fractionation_aggregation_report" in bijux_proteomics.__all__
+    assert "build_instrument_run_summary_report" in bijux_proteomics.__all__
+    assert "build_sample_lineage_report" in bijux_proteomics.__all__
+    assert "validate_plate_layout" in bijux_proteomics.__all__
+    assert "validate_lab_request_schema" in bijux_proteomics.__all__
+    assert "build_lab_handoff_export_bundle" in bijux_proteomics.__all__
+    assert "reconcile_planned_and_observed_lab_outcomes" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -246,6 +256,17 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "FakeExternalEngineHarnessReport" in bijux_proteomics.__all__
     assert "LocalExternalToolRunReport" in bijux_proteomics.__all__
     assert "WorkflowCacheReplayReport" in bijux_proteomics.__all__
+    assert "StudyMetadataModel" in bijux_proteomics.__all__
+    assert "DesignTableParseReport" in bijux_proteomics.__all__
+    assert "ExperimentalDesignValidationReport" in bijux_proteomics.__all__
+    assert "FractionationAggregationReport" in bijux_proteomics.__all__
+    assert "InstrumentRunSummaryReport" in bijux_proteomics.__all__
+    assert "SampleLineageReport" in bijux_proteomics.__all__
+    assert "PlateLayoutValidationReport" in bijux_proteomics.__all__
+    assert "LabRequestSchema" in bijux_proteomics.__all__
+    assert "LabRequestValidationReport" in bijux_proteomics.__all__
+    assert "LabHandoffExportBundle" in bijux_proteomics.__all__
+    assert "LabOutcomeReconciliationReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
