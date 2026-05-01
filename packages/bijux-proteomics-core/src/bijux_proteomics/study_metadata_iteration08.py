@@ -120,6 +120,33 @@ class FractionationAggregationReport(JsonModel):
     records: tuple[FractionationRecord, ...] = Field(default_factory=tuple)
 
 
+class InstrumentRunRecord(JsonModel):
+    """One instrument run metadata row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    instrument_id: str = Field(..., min_length=1)
+    acquisition_method: str = Field(..., min_length=1)
+    acquisition_date: str = Field(..., min_length=1)
+    batch_id: str = Field(..., min_length=1)
+    run_order: int = Field(..., ge=1)
+    qc_sample: bool = False
+
+
+class InstrumentRunSummaryReport(JsonModel):
+    """Summary report over instrument runs and QC sampling context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_count: int = Field(..., ge=0)
+    instrument_count: int = Field(..., ge=0)
+    batch_count: int = Field(..., ge=0)
+    qc_sample_count: int = Field(..., ge=0)
+    methods: tuple[str, ...] = Field(default_factory=tuple)
+    records: tuple[InstrumentRunRecord, ...] = Field(default_factory=tuple)
+
+
 _FRACTION_RE = re.compile(r"^F[1-9][0-9]*$")
 _CHANNEL_RE = re.compile(r"^(12[6-9]|13[01])[NC]?$")
 
@@ -283,4 +310,18 @@ def build_fractionation_aggregation_report(
             {token for record in records for token in record.protein_evidence_ids}
         ),
         records=records,
+    )
+
+
+def build_instrument_run_summary_report(
+    records: tuple[InstrumentRunRecord, ...],
+) -> InstrumentRunSummaryReport:
+    """Build deterministic instrument-run summary including QC run tracking."""
+    return InstrumentRunSummaryReport(
+        run_count=len(records),
+        instrument_count=len({record.instrument_id for record in records}),
+        batch_count=len({record.batch_id for record in records}),
+        qc_sample_count=sum(1 for record in records if record.qc_sample),
+        methods=tuple(sorted({record.acquisition_method for record in records})),
+        records=tuple(sorted(records, key=lambda record: (record.batch_id, record.run_order))),
     )
