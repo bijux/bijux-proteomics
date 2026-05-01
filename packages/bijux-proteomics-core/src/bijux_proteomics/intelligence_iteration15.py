@@ -223,3 +223,62 @@ def build_outlier_qc_integrated_report(
 
     entries.sort(key=lambda entry: (entry.triage_priority, entry.outlier_id))
     return OutlierQcIntegratedReport(entries=tuple(entries))
+
+
+class EvidenceGraphCandidate(JsonModel):
+    """Candidate projection from the evidence graph for prioritization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    evidence_strength: float = Field(..., ge=0.0, le=1.0)
+    novelty_score: float = Field(..., ge=0.0, le=1.0)
+    lab_feasibility: float = Field(..., ge=0.0, le=1.0)
+    risk_score: float = Field(..., ge=0.0, le=1.0)
+    missing_evidence_penalty: float = Field(..., ge=0.0, le=1.0)
+
+
+class CandidatePriorityEntry(JsonModel):
+    """Prioritization entry for one evidence-graph candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    priority_score: float = Field(..., ge=0.0)
+    rank: int = Field(..., ge=1)
+
+
+class CandidatePriorityReport(JsonModel):
+    """Candidate ranking by evidence strength, novelty, feasibility, and risk."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CandidatePriorityEntry, ...] = Field(default_factory=tuple)
+
+
+def prioritize_candidates_from_evidence_graph(
+    candidates: tuple[EvidenceGraphCandidate, ...],
+) -> CandidatePriorityReport:
+    """Rank candidates from evidence graph features without hiding risk penalties."""
+
+    if not candidates:
+        return CandidatePriorityReport(entries=())
+
+    scored = [
+        (
+            candidate.candidate_id,
+            0.35 * candidate.evidence_strength
+            + 0.2 * candidate.novelty_score
+            + 0.25 * candidate.lab_feasibility
+            + 0.1 * (1.0 - candidate.risk_score)
+            + 0.1 * (1.0 - candidate.missing_evidence_penalty),
+        )
+        for candidate in candidates
+    ]
+    scored.sort(key=lambda item: (-item[1], item[0]))
+
+    entries = tuple(
+        CandidatePriorityEntry(candidate_id=candidate_id, priority_score=score, rank=index + 1)
+        for index, (candidate_id, score) in enumerate(scored)
+    )
+    return CandidatePriorityReport(entries=entries)
