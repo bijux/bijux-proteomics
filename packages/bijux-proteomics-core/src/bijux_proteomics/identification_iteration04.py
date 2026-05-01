@@ -15,9 +15,11 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.identification import (
     ParsimonyVariant,
     PsmRecord,
+    ConfidenceLabel,
     TargetDecoyLabel,
     assign_razor_peptides,
     build_confidence_threshold_sensitivity_report,
+    build_grouped_confidence_report,
     build_peptide_protein_trace_report,
     build_protein_groups,
     calculate_level_specific_fdr,
@@ -569,4 +571,73 @@ def build_confidence_threshold_sensitivity_bundle(
         source_reproducibility_hash=hashlib.sha256(
             json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
         ).hexdigest(),
+    )
+
+
+class GroupedConfidenceCategory(StrEnum):
+    """Category used to separate grouped confidence by protein evidence topology."""
+
+    SINGLE_PROTEIN = "single_protein"
+    PROTEIN_GROUP = "protein_group"
+    PROTEIN_FAMILY = "protein_family"
+
+
+class GroupedConfidenceSummaryEntry(JsonModel):
+    """Summary metrics for one grouped-confidence category."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    category: GroupedConfidenceCategory
+    group_count: int = Field(..., ge=0)
+    high_confidence_count: int = Field(..., ge=0)
+    medium_confidence_count: int = Field(..., ge=0)
+    low_confidence_count: int = Field(..., ge=0)
+    decoy_count: int = Field(..., ge=0)
+
+
+class GroupedConfidenceSummaryReport(JsonModel):
+    """Grouped-confidence summary with explicit separation by evidence category."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[GroupedConfidenceSummaryEntry, ...] = Field(default_factory=tuple)
+
+
+def build_grouped_confidence_summary_report(
+    records: tuple[PsmRecord, ...],
+) -> GroupedConfidenceSummaryReport:
+    """Summarize grouped confidence by single proteins vs grouped/family evidence."""
+    grouped = build_grouped_confidence_report(records)
+    counters: dict[GroupedConfidenceCategory, dict[str, int]] = {
+        category: {"group_count": 0, "high": 0, "medium": 0, "low": 0, "decoy": 0}
+        for category in GroupedConfidenceCategory
+    }
+    for entry in grouped.entries:
+        if len(entry.protein_refs) == 1 and entry.shared_peptide_count == 0:
+            category = GroupedConfidenceCategory.SINGLE_PROTEIN
+        elif entry.unique_peptide_count == 0:
+            category = GroupedConfidenceCategory.PROTEIN_FAMILY
+        else:
+            category = GroupedConfidenceCategory.PROTEIN_GROUP
+        counters[category]["group_count"] += 1
+        if entry.confidence_label is ConfidenceLabel.HIGH:
+            counters[category]["high"] += 1
+        elif entry.confidence_label is ConfidenceLabel.MEDIUM:
+            counters[category]["medium"] += 1
+        elif entry.confidence_label is ConfidenceLabel.LOW:
+            counters[category]["low"] += 1
+        else:
+            counters[category]["decoy"] += 1
+    return GroupedConfidenceSummaryReport(
+        entries=tuple(
+            GroupedConfidenceSummaryEntry(
+                category=category,
+                group_count=data["group_count"],
+                high_confidence_count=data["high"],
+                medium_confidence_count=data["medium"],
+                low_confidence_count=data["low"],
+                decoy_count=data["decoy"],
+            )
+            for category, data in counters.items()
+        )
     )
