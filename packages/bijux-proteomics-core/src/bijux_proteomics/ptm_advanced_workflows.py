@@ -168,6 +168,32 @@ class PtmAcetylReviewFixtureReport(JsonModel):
     caveats: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class UbiquitinRemnantSiteWorkflowEntry(JsonModel):
+    """One ubiquitin-remnant site entry with assumptions and caveats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    residue: str = Field(..., min_length=1, max_length=1)
+    position: int = Field(..., ge=1)
+    modification_name: str = Field(..., min_length=1)
+    lysine_consistent: bool
+    ambiguous: bool
+    quantified_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class UbiquitinRemnantWorkflowReport(JsonModel):
+    """Workflow report for ubiquitin-remnant PTM evidence interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[UbiquitinRemnantSiteWorkflowEntry, ...] = Field(default_factory=tuple)
+    ambiguous_entry_count: int = Field(..., ge=0)
+    non_lysine_entry_count: int = Field(..., ge=0)
+
+
 def _to_probability(score: float) -> float:
     """Map non-negative localization score to a bounded probability-like signal."""
     if score <= 0.0:
@@ -489,4 +515,55 @@ def build_acetyl_specific_review_fixture_report(
             sorted({entry.sample_id for entry in occupancy_report.entries})
         ),
         caveats=tuple(caveats),
+    )
+
+
+def build_ubiquitin_remnant_workflow_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+) -> UbiquitinRemnantWorkflowReport:
+    """Build workflow report for K-GG style ubiquitin-remnant evidence."""
+    supported_mod_names = {"GlyGly", "K-GG", "DiGly", "UbiquitinRemnant"}
+    remnant_entries = tuple(
+        entry
+        for entry in site_entries
+        if entry.modification_name in supported_mod_names
+    )
+    rows: list[UbiquitinRemnantSiteWorkflowEntry] = []
+    for entry in remnant_entries:
+        quantified_samples = tuple(
+            sorted(
+                {
+                    record.sample_id
+                    for record in feature_records
+                    if entry.protein_ref in record.protein_refs and record.intensity is not None
+                }
+            )
+        )
+        caveats: list[str] = []
+        lysine_consistent = entry.residue == "K"
+        if not lysine_consistent:
+            caveats.append("site residue is not lysine for a ubiquitin-remnant assumption")
+        if entry.ambiguous:
+            caveats.append("site localization remains ambiguous")
+        if not quantified_samples:
+            caveats.append("no quant-linked samples found for this site")
+        rows.append(
+            UbiquitinRemnantSiteWorkflowEntry(
+                site_key=entry.site_key,
+                protein_ref=entry.protein_ref,
+                residue=entry.residue,
+                position=entry.position,
+                modification_name=entry.modification_name,
+                lysine_consistent=lysine_consistent,
+                ambiguous=entry.ambiguous,
+                quantified_sample_ids=quantified_samples,
+                caveats=tuple(caveats),
+            )
+        )
+    return UbiquitinRemnantWorkflowReport(
+        entries=tuple(rows),
+        ambiguous_entry_count=sum(1 for row in rows if row.ambiguous),
+        non_lysine_entry_count=sum(1 for row in rows if not row.lysine_consistent),
     )
