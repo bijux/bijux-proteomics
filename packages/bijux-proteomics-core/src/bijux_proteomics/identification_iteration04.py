@@ -17,6 +17,7 @@ from bijux_proteomics.identification import (
     PsmRecord,
     ConfidenceLabel,
     TargetDecoyLabel,
+    TargetDecoyLabelPolicy,
     assign_razor_peptides,
     build_confidence_threshold_sensitivity_report,
     build_grouped_confidence_report,
@@ -26,6 +27,8 @@ from bijux_proteomics.identification import (
     calculate_picked_protein_fdr,
     infer_proteins_by_parsimony,
     normalize_psm_score_orientation,
+    validate_target_decoy_accession_collisions,
+    validate_target_decoy_policy,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -640,4 +643,79 @@ def build_grouped_confidence_summary_report(
             )
             for category, data in counters.items()
         )
+    )
+
+
+class CustomDecoyValidationReport(JsonModel):
+    """Combined policy and collision validation for custom decoy construction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    policy_issue_codes: tuple[str, ...] = Field(default_factory=tuple)
+    collision_count: int = Field(..., ge=0)
+    collision_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    risk_summary: str = Field(..., min_length=1)
+
+
+def validate_custom_decoy_strategy(
+    records: tuple[PsmRecord, ...],
+    *,
+    policy: TargetDecoyLabelPolicy,
+) -> CustomDecoyValidationReport:
+    """Validate custom decoy strategy and collision risks prior to FDR use."""
+    sample_refs = tuple(
+        sorted(
+            {
+                protein_ref
+                for record in records
+                for protein_ref in record.protein_refs
+            }
+        )
+    )
+    sample_labels = tuple(
+        sorted(
+            {
+                record.target_decoy_label.value
+                for record in records
+                if record.target_decoy_label is not TargetDecoyLabel.UNKNOWN
+            }
+        )
+    )
+    policy_report = validate_target_decoy_policy(
+        policy,
+        sample_protein_refs=sample_refs,
+        sample_explicit_labels=sample_labels,
+    )
+    collisions = validate_target_decoy_accession_collisions(
+        records,
+        decoy_policy=policy,
+    )
+    issue_codes = tuple(sorted(issue.code for issue in policy_report.issues))
+    fatal_policy_issue = any(
+        issue.severity == "error" or issue.code == "shared_base_accession_pairs"
+        for issue in policy_report.issues
+    )
+    collision_accessions = tuple(
+        sorted(collision.base_accession for collision in collisions.collisions)
+    )
+    valid = (not fatal_policy_issue) and collisions.valid
+    if valid:
+        risk_summary = (
+            "custom decoy policy is internally consistent and no accession collisions were detected"
+        )
+    elif collision_accessions or "shared_base_accession_pairs" in issue_codes:
+        risk_summary = (
+            "custom decoy construction yields target-decoy accession collisions that must be resolved before FDR"
+        )
+    else:
+        risk_summary = (
+            "custom decoy policy has validation issues that should be resolved before confidence thresholds are applied"
+        )
+    return CustomDecoyValidationReport(
+        valid=valid,
+        policy_issue_codes=issue_codes,
+        collision_count=len(collision_accessions),
+        collision_accessions=collision_accessions,
+        risk_summary=risk_summary,
     )
