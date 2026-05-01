@@ -277,6 +277,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_negative_science_corpus_report" in bijux_proteomics.__all__
     assert "build_external_engine_corpus_licensing_plan" in bijux_proteomics.__all__
     assert "build_example_index_by_scientific_question" in bijux_proteomics.__all__
+    assert "build_dia_native_data_model" in bijux_proteomics.__all__
+    assert "build_spectral_library_identity_ledger" in bijux_proteomics.__all__
+    assert "validate_spectral_library_identity_entries" in bijux_proteomics.__all__
+    assert "import_dia_nn_rows" in bijux_proteomics.__all__
+    assert "compare_library_and_database_search_evidence" in bijux_proteomics.__all__
+    assert "build_dia_quant_missingness_report" in bijux_proteomics.__all__
+    assert "build_dia_ion_mobility_evidence_report" in bijux_proteomics.__all__
+    assert "optimize_targeted_assay_candidates" in bijux_proteomics.__all__
+    assert "export_transition_list_candidates" in bijux_proteomics.__all__
+    assert "build_dia_capability_matrix" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -328,6 +338,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "NegativeScienceCorpusReport" in bijux_proteomics.__all__
     assert "ExternalEngineCorpusLicensingPlan" in bijux_proteomics.__all__
     assert "ScientificQuestionExampleIndex" in bijux_proteomics.__all__
+    assert "DiaNativeDataModel" in bijux_proteomics.__all__
+    assert "SpectralLibraryIdentityLedger" in bijux_proteomics.__all__
+    assert "SpectralLibraryValidationReport" in bijux_proteomics.__all__
+    assert "DiaNnImportReport" in bijux_proteomics.__all__
+    assert "LibrarySearchComparisonReport" in bijux_proteomics.__all__
+    assert "DiaQuantMissingnessReport" in bijux_proteomics.__all__
+    assert "DiaIonMobilityEvidenceReport" in bijux_proteomics.__all__
+    assert "TargetedAssayOptimizationReport" in bijux_proteomics.__all__
+    assert "TransitionListExportBundle" in bijux_proteomics.__all__
+    assert "DiaCapabilityMatrixReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
