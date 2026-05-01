@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from pydantic import ConfigDict, Field
+from enum import StrEnum
 
 from bijux_proteomics.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
@@ -24,6 +25,7 @@ from bijux_proteomics.quantification import (
     build_label_free_provenance_bundle,
     build_label_based_quant_bundle,
     build_multiplex_channel_balance_report,
+    build_normalization_strategy_comparison_report,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -260,4 +262,108 @@ def build_multiplex_channel_balance_diagnostics_report(
         missing_channel_count=ledger.missing_channel_count,
         batch_caveat_count=batch_caveat_count,
         caveats=tuple(caveats),
+    )
+
+
+class QuantNormalizationPolicyKind(StrEnum):
+    """Normalization policy families tracked by the iteration-05 comparison matrix."""
+
+    NONE = "none"
+    TOTAL = "total"
+    MEDIAN = "median"
+    QUANTILE = "quantile"
+    VSN_LIKE = "vsn_like"
+    REFERENCE_CHANNEL = "reference_channel"
+
+
+class NormalizationPolicyComparisonEntry(JsonModel):
+    """One normalization policy row with support status and balance metrics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy: QuantNormalizationPolicyKind
+    supported: bool
+    mapped_method: NormalizationMethod | None = None
+    balance_score: float | None = Field(default=None, ge=0.0)
+    note: str = Field(..., min_length=1)
+
+
+class NormalizationPolicyComparisonMatrixReport(JsonModel):
+    """Explicit comparison matrix across normalization policy families."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[NormalizationPolicyComparisonEntry, ...] = Field(default_factory=tuple)
+    recommended_supported_policy: QuantNormalizationPolicyKind | None = None
+
+
+def build_normalization_policy_comparison_matrix_report(
+    table: LabelFreeQuantTable,
+) -> NormalizationPolicyComparisonMatrixReport:
+    """Compare normalization policies and preserve unsupported states explicitly."""
+    strategy = build_normalization_strategy_comparison_report(
+        table,
+        methods=(
+            NormalizationMethod.NONE,
+            NormalizationMethod.TIC,
+            NormalizationMethod.MEDIAN,
+            NormalizationMethod.QUANTILE,
+        ),
+    )
+    score_by_method = {entry.method: entry.balance_score for entry in strategy.entries}
+    entries = (
+        NormalizationPolicyComparisonEntry(
+            policy=QuantNormalizationPolicyKind.NONE,
+            supported=True,
+            mapped_method=NormalizationMethod.NONE,
+            balance_score=score_by_method.get(NormalizationMethod.NONE),
+            note="no-normalization policy is directly supported",
+        ),
+        NormalizationPolicyComparisonEntry(
+            policy=QuantNormalizationPolicyKind.TOTAL,
+            supported=True,
+            mapped_method=NormalizationMethod.TIC,
+            balance_score=score_by_method.get(NormalizationMethod.TIC),
+            note="total-intensity normalization is mapped to TIC support",
+        ),
+        NormalizationPolicyComparisonEntry(
+            policy=QuantNormalizationPolicyKind.MEDIAN,
+            supported=True,
+            mapped_method=NormalizationMethod.MEDIAN,
+            balance_score=score_by_method.get(NormalizationMethod.MEDIAN),
+            note="median normalization is supported natively",
+        ),
+        NormalizationPolicyComparisonEntry(
+            policy=QuantNormalizationPolicyKind.QUANTILE,
+            supported=True,
+            mapped_method=NormalizationMethod.QUANTILE,
+            balance_score=score_by_method.get(NormalizationMethod.QUANTILE),
+            note="quantile normalization is supported natively",
+        ),
+        NormalizationPolicyComparisonEntry(
+            policy=QuantNormalizationPolicyKind.VSN_LIKE,
+            supported=False,
+            mapped_method=None,
+            balance_score=None,
+            note="vsn-like normalization is not currently supported and remains an explicit gap",
+        ),
+        NormalizationPolicyComparisonEntry(
+            policy=QuantNormalizationPolicyKind.REFERENCE_CHANNEL,
+            supported=False,
+            mapped_method=None,
+            balance_score=None,
+            note="reference-channel normalization requires dedicated channel-aware transforms and is not currently supported",
+        ),
+    )
+    recommended_supported = next(
+        (
+            entry.policy
+            for entry in entries
+            if entry.supported and entry.mapped_method is strategy.recommended_method
+        ),
+        None,
+    )
+    return NormalizationPolicyComparisonMatrixReport(
+        entries=entries,
+        recommended_supported_policy=recommended_supported,
     )
