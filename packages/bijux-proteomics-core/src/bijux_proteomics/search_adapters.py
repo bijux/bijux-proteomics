@@ -2569,3 +2569,27 @@ def build_comet_output_corpus_report(corpus_root: Path) -> SearchEngineCorpusRep
             ),
         ),
     )
+
+
+def build_msfragger_output_corpus_report(
+    corpus_root: Path,
+) -> SearchEngineCorpusReport:
+    """Build corpus coverage over MSFragger native and pipeline-like outputs."""
+    return build_search_engine_corpus_report(
+        corpus_root=corpus_root,
+        adapter_kind=SearchAdapterKind.MSFRAGGER,
+        input_specs=(
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.MSFRAGGER,
+                dialect_id="default",
+                result_file="msfragger_results.tsv",
+                config_file="msfragger.params",
+            ),
+            SearchCorpusInputSpecification(
+                adapter_kind=SearchAdapterKind.MSFRAGGER,
+                dialect_id="pipeline-export",
+                result_file="msfragger_pipeline_export.tsv",
+                config_file="msfragger.params",
+            ),
+        ),
+    )
