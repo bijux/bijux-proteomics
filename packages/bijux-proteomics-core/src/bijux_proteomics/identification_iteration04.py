@@ -23,6 +23,7 @@ from bijux_proteomics.identification import (
     build_grouped_confidence_report,
     build_peptide_protein_trace_report,
     build_protein_groups,
+    calculate_basic_target_decoy_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
     infer_proteins_by_parsimony,
@@ -827,4 +828,111 @@ def evaluate_library_search_confidence_boundary(
         classified_families=classified,
         compatible=not issues,
         issues=tuple(issues),
+    )
+
+
+class DiaFdrRefusalIssue(JsonModel):
+    """Explicit refusal issue for DIA-native FDR modeling."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class DiaFdrThresholdSnapshot(JsonModel):
+    """Accepted-entity snapshot at one threshold across DIA evidence levels."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    threshold: float = Field(..., ge=0.0, le=1.0)
+    accepted_precursor_count: int = Field(..., ge=0)
+    accepted_peptide_count: int = Field(..., ge=0)
+    accepted_protein_count: int = Field(..., ge=0)
+    accepted_library_entry_count: int = Field(..., ge=0)
+
+
+class DiaNativeFdrModelReport(JsonModel):
+    """DIA-native FDR comparison report across evidence levels."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    compatible: bool
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    thresholds: tuple[float, ...] = Field(default_factory=tuple)
+    snapshots: tuple[DiaFdrThresholdSnapshot, ...] = Field(default_factory=tuple)
+    refusal_issues: tuple[DiaFdrRefusalIssue, ...] = Field(default_factory=tuple)
+
+
+def build_dia_native_fdr_model_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    is_dia_context: bool,
+    score_orientation: str = "lower_better",
+    thresholds: tuple[float, ...] = (0.01, 0.05, 0.1),
+) -> DiaNativeFdrModelReport:
+    """Compare DIA-native FDR behavior across precursor, peptide, protein, and library levels."""
+    if not is_dia_context:
+        return DiaNativeFdrModelReport(
+            compatible=False,
+            score_orientation=score_orientation,
+            thresholds=thresholds,
+            snapshots=(),
+            refusal_issues=(
+                DiaFdrRefusalIssue(
+                    code="non_dia_context",
+                    message="dia-native fdr modeling is refused because the input context is not declared as DIA",
+                ),
+            ),
+        )
+
+    normalized_thresholds = tuple(sorted(dict.fromkeys(thresholds)))
+    snapshots: list[DiaFdrThresholdSnapshot] = []
+    for threshold in normalized_thresholds:
+        precursor = calculate_basic_target_decoy_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        accepted_precursors = {
+            entry.psm.spectrum_id
+            for entry in precursor
+            if entry.accepted and entry.psm.target_decoy_label is not TargetDecoyLabel.DECOY
+        }
+        level = calculate_level_specific_fdr(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        accepted_peptides = {
+            entry.entity_id
+            for entry in level.peptide_entries
+            if entry.accepted and entry.target_decoy_label is not TargetDecoyLabel.DECOY
+        }
+        accepted_proteins = {
+            entry.entity_id
+            for entry in level.protein_entries
+            if entry.accepted and entry.target_decoy_label is not TargetDecoyLabel.DECOY
+        }
+        library_entries = {
+            "|".join(record.protein_refs) if record.protein_refs else record.canonical_peptide
+            for record in records
+            if record.target_decoy_label is not TargetDecoyLabel.DECOY
+            and (record.q_value is None or record.q_value <= threshold)
+        }
+        snapshots.append(
+            DiaFdrThresholdSnapshot(
+                threshold=threshold,
+                accepted_precursor_count=len(accepted_precursors),
+                accepted_peptide_count=len(accepted_peptides),
+                accepted_protein_count=len(accepted_proteins),
+                accepted_library_entry_count=len(library_entries),
+            )
+        )
+    return DiaNativeFdrModelReport(
+        compatible=True,
+        score_orientation=score_orientation,
+        thresholds=normalized_thresholds,
+        snapshots=tuple(snapshots),
+        refusal_issues=(),
     )
