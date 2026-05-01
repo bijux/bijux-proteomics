@@ -348,6 +348,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "verify_signed_reviewer_bundle" in bijux_proteomics.__all__
     assert "redact_collaboration_surfaces" in bijux_proteomics.__all__
     assert "run_hostile_input_protection" in bijux_proteomics.__all__
+    assert "build_package_level_example_workflow_catalog" in bijux_proteomics.__all__
+    assert "build_unified_cli_workflow_story" in bijux_proteomics.__all__
+    assert "route_review_packet_api" in bijux_proteomics.__all__
+    assert "route_lab_handoff_api" in bijux_proteomics.__all__
+    assert "route_evidence_graph_query_api" in bijux_proteomics.__all__
+    assert "route_runtime_execution_api" in bijux_proteomics.__all__
+    assert "route_quant_report_api" in bijux_proteomics.__all__
+    assert "route_ptm_report_api" in bijux_proteomics.__all__
+    assert "route_adapter_conformance_api" in bijux_proteomics.__all__
+    assert "build_script_safe_command_output" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -482,6 +492,27 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "HostileInputProtectionInput" in bijux_proteomics.__all__
     assert "HostileInputProtectionIssue" in bijux_proteomics.__all__
     assert "HostileInputProtectionReport" in bijux_proteomics.__all__
+    assert "ExampleWorkflowPackageEntry" in bijux_proteomics.__all__
+    assert "PackageLevelExampleWorkflowCatalog" in bijux_proteomics.__all__
+    assert "CliWorkflowCommandEntry" in bijux_proteomics.__all__
+    assert "UnifiedCliWorkflowStoryReport" in bijux_proteomics.__all__
+    assert "ReviewPacketRouteRequest" in bijux_proteomics.__all__
+    assert "ReviewPacketRouteIssue" in bijux_proteomics.__all__
+    assert "ReviewPacketRouteResponse" in bijux_proteomics.__all__
+    assert "LabHandoffRouteRequest" in bijux_proteomics.__all__
+    assert "LabHandoffRouteResponse" in bijux_proteomics.__all__
+    assert "EvidenceGraphQueryRouteRequest" in bijux_proteomics.__all__
+    assert "EvidenceGraphQueryRouteResponse" in bijux_proteomics.__all__
+    assert "RuntimeExecutionRouteRequest" in bijux_proteomics.__all__
+    assert "RuntimeExecutionRouteResponse" in bijux_proteomics.__all__
+    assert "QuantReportRouteRequest" in bijux_proteomics.__all__
+    assert "QuantReportRouteResponse" in bijux_proteomics.__all__
+    assert "PtmReportRouteRequest" in bijux_proteomics.__all__
+    assert "PtmReportRouteResponse" in bijux_proteomics.__all__
+    assert "AdapterConformanceRouteRequest" in bijux_proteomics.__all__
+    assert "AdapterConformanceRouteResponse" in bijux_proteomics.__all__
+    assert "ScriptSafeOutputField" in bijux_proteomics.__all__
+    assert "ScriptSafeCommandOutput" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
