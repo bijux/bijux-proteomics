@@ -72,3 +72,45 @@ def build_complete_dda_mini_study_bundle(
         expected_outputs=tuple(sorted(expected_outputs)),
         evidence_pointers=tuple(sorted(evidence_pointers)),
     )
+
+
+class DiaMiniStudyBundle(JsonModel):
+    """Complete DIA mini-study fixture package with quant/evidence outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    study_id: str = Field(..., min_length=1)
+    asset_entries: tuple[CorpusAssetEntry, ...] = Field(default_factory=tuple)
+    precursor_quantity_rows: int = Field(..., ge=0)
+    protein_quantity_rows: int = Field(..., ge=0)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_complete_dia_mini_study_bundle(
+    *,
+    study_id: str,
+    asset_entries: tuple[CorpusAssetEntry, ...],
+    precursor_quantity_rows: int,
+    protein_quantity_rows: int,
+    evidence_pointers: tuple[str, ...],
+) -> DiaMiniStudyBundle:
+    """Curate DIA mini-study inputs, quant outputs, and evidence pointers."""
+
+    required_roles = {
+        "library",
+        "result_matrix",
+        "design_metadata",
+        "qc",
+        "evidence",
+    }
+    roles = {entry.role for entry in asset_entries}
+    missing = sorted(required_roles - roles)
+    if missing:
+        raise ValueError(f"DIA mini-study is missing required asset roles: {', '.join(missing)}")
+    return DiaMiniStudyBundle(
+        study_id=study_id,
+        asset_entries=tuple(sorted(asset_entries, key=lambda entry: (entry.role, entry.path))),
+        precursor_quantity_rows=precursor_quantity_rows,
+        protein_quantity_rows=protein_quantity_rows,
+        evidence_pointers=tuple(sorted(evidence_pointers)),
+    )
