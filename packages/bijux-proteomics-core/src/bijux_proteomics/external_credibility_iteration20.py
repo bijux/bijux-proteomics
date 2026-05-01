@@ -254,3 +254,45 @@ def build_external_strong_user_lab_trial_report(
         precise_issue_count=len(precise_issues),
         trial_completed=completed,
     )
+
+
+class EcosystemComparisonEntry(JsonModel):
+    """One ecosystem comparison row against a mature proteomics toolchain."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ecosystem_name: str = Field(..., min_length=1)
+    scope_match_score: float = Field(..., ge=0.0, le=1.0)
+    evidence_traceability_score: float = Field(..., ge=0.0, le=1.0)
+    known_gap_summary: str = Field(..., min_length=1)
+
+
+class MatureEcosystemComparisonReport(JsonModel):
+    """Honest scope/evidence comparison report against mature ecosystems."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[EcosystemComparisonEntry, ...] = Field(default_factory=tuple)
+    average_scope_match_score: float = Field(..., ge=0.0, le=1.0)
+    average_evidence_traceability_score: float = Field(..., ge=0.0, le=1.0)
+
+
+def build_mature_ecosystem_comparison_report(
+    entries: tuple[EcosystemComparisonEntry, ...],
+) -> MatureEcosystemComparisonReport:
+    """Compare scope and evidence posture with transparent gap accounting."""
+
+    ordered = tuple(sorted(entries, key=lambda entry: entry.ecosystem_name.lower()))
+    if not ordered:
+        return MatureEcosystemComparisonReport(
+            entries=(),
+            average_scope_match_score=0.0,
+            average_evidence_traceability_score=0.0,
+        )
+    scope_avg = sum(item.scope_match_score for item in ordered) / len(ordered)
+    evidence_avg = sum(item.evidence_traceability_score for item in ordered) / len(ordered)
+    return MatureEcosystemComparisonReport(
+        entries=ordered,
+        average_scope_match_score=scope_avg,
+        average_evidence_traceability_score=evidence_avg,
+    )
