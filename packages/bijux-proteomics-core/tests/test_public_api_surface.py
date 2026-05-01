@@ -226,6 +226,26 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_workflow_runtime_state_manifest" in bijux_proteomics.__all__
     assert "build_workflow_checkpoint" in bijux_proteomics.__all__
     assert "build_proteomics_workflow_runtime_bundle" in bijux_proteomics.__all__
+    assert "run_sequence_to_digest_workflow_end_to_end" in bijux_proteomics.__all__
+    assert "run_dda_import_workflow_end_to_end" in bijux_proteomics.__all__
+    assert "run_dia_import_workflow_end_to_end" in bijux_proteomics.__all__
+    assert "run_quant_workflow_end_to_end" in bijux_proteomics.__all__
+    assert "run_ptm_workflow_end_to_end" in bijux_proteomics.__all__
+    assert "run_knowledge_review_workflow_end_to_end" in bijux_proteomics.__all__
+    assert "run_lab_handoff_workflow_end_to_end" in bijux_proteomics.__all__
+    assert "build_fake_external_engine_harness" in bijux_proteomics.__all__
+    assert "run_local_external_tool" in bijux_proteomics.__all__
+    assert "build_proteomics_workflow_cache_replay_report" in bijux_proteomics.__all__
+    assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
+    assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
+    assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
+    assert "QuantRuntimeWorkflowRunReport" in bijux_proteomics.__all__
+    assert "PtmRuntimeWorkflowRunReport" in bijux_proteomics.__all__
+    assert "KnowledgeReviewWorkflowRunReport" in bijux_proteomics.__all__
+    assert "LabHandoffWorkflowRunReport" in bijux_proteomics.__all__
+    assert "FakeExternalEngineHarnessReport" in bijux_proteomics.__all__
+    assert "LocalExternalToolRunReport" in bijux_proteomics.__all__
+    assert "WorkflowCacheReplayReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
