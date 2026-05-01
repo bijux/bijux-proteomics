@@ -71,3 +71,47 @@ def build_docker_image_descriptor(
         memory_gb_limit=memory_gb_limit,
         tool_inventory=tuple(sorted(tool_inventory)),
     )
+
+
+class ContainerBuildDefinition(JsonModel):
+    """Container build definition for package/runtime images."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    image_tag: str = Field(..., min_length=1)
+    base_image: str = Field(..., min_length=1)
+    packages: tuple[str, ...] = Field(default_factory=tuple)
+    copied_paths: tuple[str, ...] = Field(default_factory=tuple)
+    entrypoint: tuple[str, ...] = Field(default_factory=tuple)
+    dockerfile_text: str = Field(..., min_length=1)
+
+
+def build_container_build_definition(
+    *,
+    image_tag: str,
+    base_image: str,
+    packages: tuple[str, ...],
+    copied_paths: tuple[str, ...],
+    entrypoint: tuple[str, ...],
+) -> ContainerBuildDefinition:
+    """Build concrete Dockerfile-style definition for proteomics runtime images."""
+
+    package_install = " \\\n    ".join(sorted(packages))
+    copy_lines = "\n".join(f"COPY {path} {path}" for path in sorted(copied_paths))
+    entrypoint_json = ", ".join(f'"{token}"' for token in entrypoint)
+    dockerfile = (
+        f"FROM {base_image}\n"
+        "RUN apt-get update && apt-get install -y \\\n"
+        f"    {package_install}\n"
+        "WORKDIR /workspace\n"
+        f"{copy_lines}\n"
+        f"ENTRYPOINT [{entrypoint_json}]\n"
+    )
+    return ContainerBuildDefinition(
+        image_tag=image_tag,
+        base_image=base_image,
+        packages=tuple(sorted(packages)),
+        copied_paths=tuple(sorted(copied_paths)),
+        entrypoint=entrypoint,
+        dockerfile_text=dockerfile,
+    )
