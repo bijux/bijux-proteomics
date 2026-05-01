@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 from enum import StrEnum
+import hashlib
+import json
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
@@ -343,4 +345,74 @@ def build_multi_objective_ranking_report(
             )
             for index, (candidate_id, score) in enumerate(scored)
         )
+    )
+
+
+class RankingPolicyRule(JsonModel):
+    """One ranking policy rule for inspectable scoring behavior."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric: str = Field(..., min_length=1)
+    weight: float = Field(..., ge=0.0)
+    transform: str = Field(default="identity", min_length=1)
+    direction: str = Field(default="maximize", pattern=r"^(maximize|minimize)$")
+
+
+class RankingPolicyLanguageDocument(JsonModel):
+    """Versioned and inspectable ranking policy language document."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1)
+    policy_version: str = Field(..., min_length=1)
+    rules: tuple[RankingPolicyRule, ...] = Field(default_factory=tuple)
+    policy_digest: str = Field(..., min_length=64, max_length=64)
+
+
+def build_ranking_policy_language_document(
+    *,
+    policy_id: str,
+    policy_version: str,
+    rules: tuple[RankingPolicyRule, ...],
+) -> RankingPolicyLanguageDocument:
+    """Build canonical versioned ranking policy with reproducible digest."""
+
+    if not rules:
+        raise ValueError("ranking policy requires at least one rule")
+    total_weight = sum(rule.weight for rule in rules)
+    if total_weight <= 0.0:
+        raise ValueError("ranking policy total weight must be positive")
+
+    normalized_rules = tuple(
+        sorted(
+            (
+                RankingPolicyRule(
+                    metric=rule.metric,
+                    weight=rule.weight / total_weight,
+                    transform=rule.transform,
+                    direction=rule.direction,
+                )
+                for rule in rules
+            ),
+            key=lambda rule: (rule.metric, rule.direction, rule.transform),
+        )
+    )
+    digest = hashlib.sha256(
+        json.dumps(
+            {
+                "policy_id": policy_id,
+                "policy_version": policy_version,
+                "rules": [rule.model_dump(mode="json") for rule in normalized_rules],
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+
+    return RankingPolicyLanguageDocument(
+        policy_id=policy_id,
+        policy_version=policy_version,
+        rules=normalized_rules,
+        policy_digest=digest,
     )
