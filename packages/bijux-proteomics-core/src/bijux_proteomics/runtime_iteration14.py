@@ -115,3 +115,145 @@ def build_runtime_workflow_blueprint(
         steps=normalized_steps,
         workflow_digest=digest,
     )
+
+
+class WorkflowRunDiffCategory(StrEnum):
+    """Diff categories for replayable workflow run comparisons."""
+
+    INPUT = "input"
+    ENGINE = "engine"
+    PARAMETER = "parameter"
+    CONFIDENCE = "confidence"
+    QUANT = "quant"
+    QC = "qc"
+    EVIDENCE = "evidence"
+    LAB_CONSEQUENCE = "lab_consequence"
+
+
+class WorkflowRunSnapshot(JsonModel):
+    """Normalized run snapshot used by runtime diffing."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    study_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    input_fingerprint: str = Field(..., min_length=8)
+    engine_fingerprint: str = Field(..., min_length=8)
+    parameter_fingerprint: str = Field(..., min_length=8)
+    confidence_fingerprint: str = Field(..., min_length=8)
+    quant_fingerprint: str = Field(..., min_length=8)
+    qc_fingerprint: str = Field(..., min_length=8)
+    evidence_fingerprint: str = Field(..., min_length=8)
+    lab_handoff_fingerprint: str = Field(..., min_length=8)
+
+
+class WorkflowRunDiffEntry(JsonModel):
+    """One changed runtime surface between two runs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    category: WorkflowRunDiffCategory
+    field_name: str = Field(..., min_length=1)
+    baseline_value: str = Field(..., min_length=1)
+    candidate_value: str = Field(..., min_length=1)
+    consequence: str = Field(..., min_length=1)
+
+
+class WorkflowRunDiffReport(JsonModel):
+    """Comparison report across workflow inputs, engines, evidence, and lab impact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    baseline_run_id: str = Field(..., min_length=1)
+    candidate_run_id: str = Field(..., min_length=1)
+    same_study: bool
+    same_sample: bool
+    entries: tuple[WorkflowRunDiffEntry, ...] = Field(default_factory=tuple)
+
+
+def build_workflow_run_diff_report(
+    baseline: WorkflowRunSnapshot,
+    candidate: WorkflowRunSnapshot,
+) -> WorkflowRunDiffReport:
+    """Compare runtime runs across input, parameter, confidence, quant, and lab surfaces."""
+
+    mappings: tuple[tuple[WorkflowRunDiffCategory, str, str, str, str], ...] = (
+        (
+            WorkflowRunDiffCategory.INPUT,
+            "input_fingerprint",
+            baseline.input_fingerprint,
+            candidate.input_fingerprint,
+            "input asset set changed",
+        ),
+        (
+            WorkflowRunDiffCategory.ENGINE,
+            "engine_fingerprint",
+            baseline.engine_fingerprint,
+            candidate.engine_fingerprint,
+            "engine/runtime implementation changed",
+        ),
+        (
+            WorkflowRunDiffCategory.PARAMETER,
+            "parameter_fingerprint",
+            baseline.parameter_fingerprint,
+            candidate.parameter_fingerprint,
+            "workflow parameterization changed",
+        ),
+        (
+            WorkflowRunDiffCategory.CONFIDENCE,
+            "confidence_fingerprint",
+            baseline.confidence_fingerprint,
+            candidate.confidence_fingerprint,
+            "confidence assignment changed",
+        ),
+        (
+            WorkflowRunDiffCategory.QUANT,
+            "quant_fingerprint",
+            baseline.quant_fingerprint,
+            candidate.quant_fingerprint,
+            "quantification result surface changed",
+        ),
+        (
+            WorkflowRunDiffCategory.QC,
+            "qc_fingerprint",
+            baseline.qc_fingerprint,
+            candidate.qc_fingerprint,
+            "qc decision surface changed",
+        ),
+        (
+            WorkflowRunDiffCategory.EVIDENCE,
+            "evidence_fingerprint",
+            baseline.evidence_fingerprint,
+            candidate.evidence_fingerprint,
+            "evidence graph changed",
+        ),
+        (
+            WorkflowRunDiffCategory.LAB_CONSEQUENCE,
+            "lab_handoff_fingerprint",
+            baseline.lab_handoff_fingerprint,
+            candidate.lab_handoff_fingerprint,
+            "lab handoff consequence changed",
+        ),
+    )
+
+    entries = [
+        WorkflowRunDiffEntry(
+            category=category,
+            field_name=field_name,
+            baseline_value=baseline_value,
+            candidate_value=candidate_value,
+            consequence=consequence,
+        )
+        for category, field_name, baseline_value, candidate_value, consequence in mappings
+        if baseline_value != candidate_value
+    ]
+    entries.sort(key=lambda entry: (entry.category.value, entry.field_name))
+
+    return WorkflowRunDiffReport(
+        baseline_run_id=baseline.run_id,
+        candidate_run_id=candidate.run_id,
+        same_study=baseline.study_id == candidate.study_id,
+        same_sample=baseline.sample_id == candidate.sample_id,
+        entries=tuple(entries),
+    )
