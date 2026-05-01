@@ -568,3 +568,72 @@ def run_review_board_workflow(
 
     decisions.sort(key=lambda decision: decision.candidate_id)
     return ReviewBoardWorkflowReport(board_id=board_id, agenda=agenda, decisions=tuple(decisions))
+
+
+class EvidenceFreshnessState(StrEnum):
+    """Evidence freshness states used to detect stale or superseded inputs."""
+
+    FRESH = "fresh"
+    STALE = "stale"
+    SUPERSEDED = "superseded"
+
+
+class EvidenceFreshnessEntry(JsonModel):
+    """Freshness status for one evidence item."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    freshness_state: EvidenceFreshnessState
+    age_days: int = Field(..., ge=0)
+    superseded_by: str | None = None
+    requires_review: bool
+    reason: str = Field(..., min_length=1)
+
+
+class EvidenceFreshnessReport(JsonModel):
+    """Freshness report requiring review on stale or superseded evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[EvidenceFreshnessEntry, ...] = Field(default_factory=tuple)
+
+
+def build_evidence_freshness_report(
+    *,
+    evidence_age_days: dict[str, int],
+    superseded_edges: dict[str, str],
+    stale_after_days: int = 30,
+) -> EvidenceFreshnessReport:
+    """Track stale/superseded evidence and require explicit review when needed."""
+
+    entries: list[EvidenceFreshnessEntry] = []
+    for evidence_id in sorted(set(evidence_age_days) | set(superseded_edges)):
+        age_days = evidence_age_days.get(evidence_id, 0)
+        superseded_by = superseded_edges.get(evidence_id)
+
+        if superseded_by:
+            state = EvidenceFreshnessState.SUPERSEDED
+            requires_review = True
+            reason = f"evidence superseded by {superseded_by}"
+        elif age_days >= stale_after_days:
+            state = EvidenceFreshnessState.STALE
+            requires_review = True
+            reason = f"evidence age {age_days}d exceeds stale threshold {stale_after_days}d"
+        else:
+            state = EvidenceFreshnessState.FRESH
+            requires_review = False
+            reason = "evidence freshness is within policy threshold"
+
+        entries.append(
+            EvidenceFreshnessEntry(
+                evidence_id=evidence_id,
+                freshness_state=state,
+                age_days=age_days,
+                superseded_by=superseded_by,
+                requires_review=requires_review,
+                reason=reason,
+            )
+        )
+
+    return EvidenceFreshnessReport(entries=tuple(entries))
