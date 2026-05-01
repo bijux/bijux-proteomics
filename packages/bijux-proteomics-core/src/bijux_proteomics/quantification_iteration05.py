@@ -7,8 +7,13 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    LabelBasedChannelRole,
+    LabelBasedQuantPolicy,
     LabelFreeProvenanceBundle,
+    LabelFreeQuantTable,
+    MissingChannelPolicy,
     MissingValueSummaryReport,
     Ms1FeatureRecord,
     NormalizationMethod,
@@ -16,6 +21,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
+    build_label_based_quant_bundle,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -80,4 +86,99 @@ def build_lfq_feature_peptide_protein_provenance_report(
         note=(
             "lfq provenance preserves feature-to-peptide-to-protein evidence while retaining missingness and normalization context"
         ),
+    )
+
+
+class LabelBasedQuantChannelLedgerEntry(JsonModel):
+    """Ledger row for one multiplex channel and its review-critical context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    normalization_group: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+    sample_id: str | None = None
+    condition: str | None = None
+    missing_channel: bool
+    present_in_table: bool
+    reagent_lot: str | None = None
+    note: str = Field(..., min_length=1)
+
+
+class LabelBasedQuantChannelLedgerReport(JsonModel):
+    """Channel ledger for multiplex quantification review and handoff."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    missing_channel_policy: MissingChannelPolicy
+    entries: tuple[LabelBasedQuantChannelLedgerEntry, ...] = Field(default_factory=tuple)
+    missing_channel_count: int = Field(..., ge=0)
+
+
+def build_label_based_quant_channel_ledger(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: LabelBasedQuantPolicy,
+    reagent_lot_by_channel: dict[tuple[str, str], str] | None = None,
+) -> LabelBasedQuantChannelLedgerReport:
+    """Build a channel-level ledger with role, missingness, and lot provenance."""
+    lots = reagent_lot_by_channel or {}
+    bundle = build_label_based_quant_bundle(
+        table,
+        design_entries=design_entries,
+        policy=policy,
+    )
+    entries: list[LabelBasedQuantChannelLedgerEntry] = []
+    for channel in bundle.channels:
+        key = (channel.multiplex_group, channel.multiplex_channel)
+        entries.append(
+            LabelBasedQuantChannelLedgerEntry(
+                multiplex_group=channel.multiplex_group,
+                multiplex_channel=channel.multiplex_channel,
+                normalization_group=channel.multiplex_group,
+                channel_role=channel.channel_role,
+                sample_id=channel.sample_id,
+                condition=channel.condition,
+                missing_channel=not channel.present_in_table,
+                present_in_table=channel.present_in_table,
+                reagent_lot=lots.get(key),
+                note=channel.note,
+            )
+        )
+    for missing in bundle.missing_channels:
+        key = (missing.multiplex_group, missing.multiplex_channel)
+        entries.append(
+            LabelBasedQuantChannelLedgerEntry(
+                multiplex_group=missing.multiplex_group,
+                multiplex_channel=missing.multiplex_channel,
+                normalization_group=missing.multiplex_group,
+                channel_role=missing.expected_role,
+                sample_id=None,
+                condition=None,
+                missing_channel=True,
+                present_in_table=False,
+                reagent_lot=lots.get(key),
+                note=missing.message,
+            )
+        )
+    deduped = {
+        (entry.multiplex_group, entry.multiplex_channel, entry.sample_id): entry
+        for entry in entries
+    }
+    ordered = tuple(
+        sorted(
+            deduped.values(),
+            key=lambda entry: (
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id or "",
+            ),
+        )
+    )
+    return LabelBasedQuantChannelLedgerReport(
+        missing_channel_policy=policy.missing_channel_policy,
+        entries=ordered,
+        missing_channel_count=sum(1 for entry in ordered if entry.missing_channel),
     )
