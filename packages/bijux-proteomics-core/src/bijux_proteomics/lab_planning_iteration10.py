@@ -286,3 +286,57 @@ def evaluate_lab_risks(
             triggered.append(rule)
 
     return LabRiskAssessmentReport(triggered_risks=tuple(triggered))
+
+
+class LabCapacityModelWithUncertainty(JsonModel):
+    """Capacity model over hours/samples/fractions/queue/budget with uncertainty."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instrument_hours_available: float = Field(..., ge=0.0)
+    instrument_hours_required: float = Field(..., ge=0.0)
+    sample_count: int = Field(..., ge=0)
+    fraction_count: int = Field(..., ge=0)
+    queue_depth: int = Field(..., ge=0)
+    budget_available: float = Field(..., ge=0.0)
+    budget_required: float = Field(..., ge=0.0)
+    schedule_uncertainty: float = Field(..., ge=0.0, le=1.0)
+    budget_uncertainty: float = Field(..., ge=0.0, le=1.0)
+    time_utilization_ratio: float = Field(..., ge=0.0)
+    budget_utilization_ratio: float = Field(..., ge=0.0)
+    constrained: bool
+
+
+def build_capacity_model_with_uncertainty(
+    *,
+    instrument_hours_available: float,
+    instrument_hours_required: float,
+    sample_count: int,
+    fraction_count: int,
+    queue_depth: int,
+    budget_available: float,
+    budget_required: float,
+    schedule_uncertainty: float,
+    budget_uncertainty: float,
+) -> LabCapacityModelWithUncertainty:
+    """Build deterministic capacity model including uncertainty-adjusted utilization."""
+
+    available_time = max(0.1, instrument_hours_available * (1.0 - schedule_uncertainty))
+    available_budget = max(0.1, budget_available * (1.0 - budget_uncertainty))
+    time_utilization_ratio = instrument_hours_required / available_time
+    budget_utilization_ratio = budget_required / available_budget
+
+    return LabCapacityModelWithUncertainty(
+        instrument_hours_available=instrument_hours_available,
+        instrument_hours_required=instrument_hours_required,
+        sample_count=sample_count,
+        fraction_count=fraction_count,
+        queue_depth=queue_depth,
+        budget_available=budget_available,
+        budget_required=budget_required,
+        schedule_uncertainty=schedule_uncertainty,
+        budget_uncertainty=budget_uncertainty,
+        time_utilization_ratio=time_utilization_ratio,
+        budget_utilization_ratio=budget_utilization_ratio,
+        constrained=(time_utilization_ratio > 1.0 or budget_utilization_ratio > 1.0),
+    )
