@@ -431,3 +431,69 @@ def replay_candidate_lifecycle(
         entries=tuple(entries),
         candidate_count=len(entries),
     )
+
+
+class EvidenceGapItem(JsonModel):
+    """One missing-evidence item relevant to candidate and lab decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    gap_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    description: str = Field(..., min_length=1)
+    decision_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    decision_impact: float = Field(..., ge=0.0, le=1.0)
+    uncertainty: float = Field(..., ge=0.0, le=1.0)
+    collection_effort: float = Field(..., ge=0.0)
+
+
+class EvidenceGapPriorityEntry(JsonModel):
+    """Prioritized evidence gap with impact-oriented rationale."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    gap_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    priority_rank: int = Field(..., ge=1)
+    priority_score: float = Field(..., ge=0.0)
+    rationale: str = Field(..., min_length=1)
+
+
+class EvidenceGapPrioritizationReport(JsonModel):
+    """Deterministic ranking of evidence gaps by decision impact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[EvidenceGapPriorityEntry, ...] = Field(default_factory=tuple)
+
+
+def prioritize_evidence_gaps(
+    gaps: tuple[EvidenceGapItem, ...],
+) -> EvidenceGapPrioritizationReport:
+    """Rank missing evidence by expected impact on candidate/lab decisions."""
+
+    scored: list[tuple[EvidenceGapItem, float]] = []
+    for gap in gaps:
+        surface_weight = 1.0 + (0.1 * len(set(gap.decision_surfaces)))
+        uncertainty_weight = 1.0 + (0.5 * gap.uncertainty)
+        effort_divisor = 1.0 + gap.collection_effort
+        score = (gap.decision_impact * surface_weight * uncertainty_weight) / effort_divisor
+        scored.append((gap, score))
+
+    scored.sort(key=lambda item: (-item[1], item[0].gap_id))
+
+    entries = []
+    for rank, (gap, score) in enumerate(scored, start=1):
+        entries.append(
+            EvidenceGapPriorityEntry(
+                gap_id=gap.gap_id,
+                candidate_id=gap.candidate_id,
+                priority_rank=rank,
+                priority_score=score,
+                rationale=(
+                    "prioritized by decision impact, surface coverage, uncertainty, and effort"
+                ),
+            )
+        )
+
+    return EvidenceGapPrioritizationReport(entries=tuple(entries))
