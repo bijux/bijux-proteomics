@@ -435,3 +435,66 @@ def build_long_horizon_reproducibility_report(
         drift_entries=tuple(entries),
         drift_count=drift_count,
     )
+
+
+class DependencyUpdateRecord(JsonModel):
+    """One dependency/tool/container/model update record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    dependency_id: str = Field(..., min_length=1)
+    surface: str = Field(..., min_length=1)
+    previous_version: str = Field(..., min_length=1)
+    updated_version: str = Field(..., min_length=1)
+
+
+class WorkflowDependencyMapping(JsonModel):
+    """Declared dependency surfaces for one workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    dependency_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DependencyUpdateReplayAction(JsonModel):
+    """Replay action required for one workflow after dependency updates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    replay_required: bool
+    triggered_by: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DependencyUpdateReplayReport(JsonModel):
+    """Report of workflows requiring replay after dependency updates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    actions: tuple[DependencyUpdateReplayAction, ...] = Field(default_factory=tuple)
+
+
+def build_dependency_update_replay_report(
+    *,
+    updates: tuple[DependencyUpdateRecord, ...],
+    mappings: tuple[WorkflowDependencyMapping, ...],
+) -> DependencyUpdateReplayReport:
+    """Replay affected workflows after dependency/tool/container/model updates."""
+
+    updated_surfaces = {update.surface for update in updates}
+    actions = []
+    for mapping in mappings:
+        triggered = tuple(
+            sorted(surface for surface in mapping.dependency_surfaces if surface in updated_surfaces)
+        )
+        actions.append(
+            DependencyUpdateReplayAction(
+                workflow_id=mapping.workflow_id,
+                replay_required=bool(triggered),
+                triggered_by=triggered,
+            )
+        )
+
+    actions.sort(key=lambda action: action.workflow_id)
+    return DependencyUpdateReplayReport(actions=tuple(actions))
