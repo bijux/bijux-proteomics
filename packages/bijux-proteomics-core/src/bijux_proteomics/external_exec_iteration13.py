@@ -439,3 +439,90 @@ def build_provider_capability_registry(
     return ProviderCapabilityRegistry(
         entries=tuple(sorted(entries, key=lambda entry: (entry.provider_type, entry.provider_id)))
     )
+
+
+class EnvironmentQaSnapshot(JsonModel):
+    """Environment snapshot inputs for proteomics workflow QA checks."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    python_version: str = Field(..., min_length=1)
+    os_name: str = Field(..., min_length=1)
+    cpu_count: int = Field(..., ge=1)
+    free_disk_gb: float = Field(..., ge=0.0)
+    available_tools: tuple[str, ...] = Field(default_factory=tuple)
+    container_runtime_available: bool
+    provider_ids: tuple[str, ...] = Field(default_factory=tuple)
+    writable_paths: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class EnvironmentQaIssue(JsonModel):
+    """One environment QA issue for runtime readiness."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class EnvironmentQaReport(JsonModel):
+    """Environment QA report for proteomics workflow execution readiness."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ready: bool
+    issues: tuple[EnvironmentQaIssue, ...] = Field(default_factory=tuple)
+
+
+def run_environment_qa_for_proteomics_workflows(
+    snapshot: EnvironmentQaSnapshot,
+) -> EnvironmentQaReport:
+    """Check Python/OS/CPU/disk/tools/container/provider/permissions readiness."""
+
+    issues: list[EnvironmentQaIssue] = []
+    if snapshot.cpu_count < 4:
+        issues.append(
+            EnvironmentQaIssue(
+                code="insufficient_cpu",
+                message="at least 4 CPU cores are recommended for workflow execution",
+            )
+        )
+    if snapshot.free_disk_gb < 20.0:
+        issues.append(
+            EnvironmentQaIssue(
+                code="insufficient_disk",
+                message="at least 20GB free disk is required for run artifacts",
+            )
+        )
+    required_tools = {"python3", "uv"}
+    missing_tools = sorted(required_tools - set(snapshot.available_tools))
+    if missing_tools:
+        issues.append(
+            EnvironmentQaIssue(
+                code="missing_tools",
+                message="missing required tools: " + ", ".join(missing_tools),
+            )
+        )
+    if not snapshot.container_runtime_available:
+        issues.append(
+            EnvironmentQaIssue(
+                code="container_runtime_unavailable",
+                message="container runtime is unavailable for external execution workflows",
+            )
+        )
+    if not snapshot.provider_ids:
+        issues.append(
+            EnvironmentQaIssue(
+                code="missing_providers",
+                message="no providers are registered for execution and model surfaces",
+            )
+        )
+    if "artifacts" not in {path.split("/")[0] for path in snapshot.writable_paths}:
+        issues.append(
+            EnvironmentQaIssue(
+                code="artifacts_not_writable",
+                message="artifacts directory is not writable in the current environment",
+            )
+        )
+
+    return EnvironmentQaReport(ready=not issues, issues=tuple(issues))
