@@ -11,6 +11,11 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.identification import (
+    PsmRecord,
+    TargetDecoyLabel,
+    normalize_psm_score_orientation,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -156,4 +161,106 @@ def build_target_decoy_strategy_registry(
     return TargetDecoyStrategyRegistry(
         entries=entries,
         reproducibility_hash=reproducibility_hash,
+    )
+
+
+class EmpiricalScoreCalibrationBin(JsonModel):
+    """One empirical score bin over normalized target-decoy evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bin_index: int = Field(..., ge=1)
+    lower_bound: float = Field(..., ge=0.0, le=1.0)
+    upper_bound: float = Field(..., ge=0.0, le=1.0)
+    total_count: int = Field(..., ge=0)
+    target_count: int = Field(..., ge=0)
+    decoy_count: int = Field(..., ge=0)
+    mixed_count: int = Field(..., ge=0)
+    unknown_count: int = Field(..., ge=0)
+    decoy_fraction: float = Field(..., ge=0.0)
+
+
+class EmpiricalScoreCalibrationReport(JsonModel):
+    """Empirical score calibration summary across normalized ranking bins."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    score_orientation: str = Field(..., pattern="^(higher_better|lower_better)$")
+    total_records: int = Field(..., ge=0)
+    bin_count: int = Field(..., ge=1)
+    bins: tuple[EmpiricalScoreCalibrationBin, ...] = Field(default_factory=tuple)
+    top_fraction: float = Field(..., ge=0.01, le=1.0)
+    top_fraction_target_share: float = Field(..., ge=0.0, le=1.0)
+    top_fraction_decoy_share: float = Field(..., ge=0.0, le=1.0)
+    advisory: str = Field(..., min_length=1)
+
+
+def build_empirical_score_calibration_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    score_orientation: str = "higher_better",
+    bin_count: int = 10,
+    top_fraction: float = 0.1,
+) -> EmpiricalScoreCalibrationReport:
+    """Build empirical score calibration distributions and advisory context."""
+    if bin_count < 1:
+        raise ValueError("bin_count must be at least 1")
+    if top_fraction < 0.01 or top_fraction > 1.0:
+        raise ValueError("top_fraction must be between 0.01 and 1.0")
+    normalized = normalize_psm_score_orientation(
+        records,
+        score_orientation=score_orientation,
+    )
+    total = len(normalized)
+    buckets: list[list[tuple[TargetDecoyLabel, float]]] = [[] for _ in range(bin_count)]
+    for entry in normalized:
+        index = min(int(entry.normalized_score * bin_count), bin_count - 1)
+        buckets[index].append((entry.target_decoy_label, entry.normalized_score))
+    bins: list[EmpiricalScoreCalibrationBin] = []
+    for index, bucket in enumerate(buckets, start=1):
+        target_count = sum(label is TargetDecoyLabel.TARGET for label, _ in bucket)
+        decoy_count = sum(label is TargetDecoyLabel.DECOY for label, _ in bucket)
+        mixed_count = sum(label is TargetDecoyLabel.MIXED for label, _ in bucket)
+        unknown_count = sum(label is TargetDecoyLabel.UNKNOWN for label, _ in bucket)
+        total_count = len(bucket)
+        bins.append(
+            EmpiricalScoreCalibrationBin(
+                bin_index=index,
+                lower_bound=(index - 1) / bin_count,
+                upper_bound=index / bin_count,
+                total_count=total_count,
+                target_count=target_count,
+                decoy_count=decoy_count,
+                mixed_count=mixed_count,
+                unknown_count=unknown_count,
+                decoy_fraction=decoy_count / total_count if total_count else 0.0,
+            )
+        )
+    top_count = max(1, int(total * top_fraction)) if total else 0
+    top_ranked = normalized[:top_count]
+    top_targets = sum(
+        entry.target_decoy_label is TargetDecoyLabel.TARGET for entry in top_ranked
+    )
+    top_decoys = sum(
+        entry.target_decoy_label is TargetDecoyLabel.DECOY for entry in top_ranked
+    )
+    if not top_ranked:
+        advisory = "no records are available for empirical calibration"
+    elif top_decoys == 0:
+        advisory = (
+            "top-ranked evidence is target-dominant; retain calibration snapshots to verify stability across runs"
+        )
+    else:
+        advisory = (
+            "top-ranked evidence includes decoys; confidence cutoffs should be reviewed before biological promotion"
+        )
+    return EmpiricalScoreCalibrationReport(
+        score_orientation=score_orientation,
+        total_records=total,
+        bin_count=bin_count,
+        bins=tuple(bins),
+        top_fraction=top_fraction,
+        top_fraction_target_share=top_targets / len(top_ranked) if top_ranked else 0.0,
+        top_fraction_decoy_share=top_decoys / len(top_ranked) if top_ranked else 0.0,
+        advisory=advisory,
     )
