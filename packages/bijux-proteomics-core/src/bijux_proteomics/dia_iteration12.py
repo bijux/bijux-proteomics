@@ -346,3 +346,36 @@ def build_dia_quant_missingness_report(
         ),
         reason_counts=dict(sorted(counts.items())),
     )
+
+
+class DiaIonMobilityEvidenceEntry(JsonModel):
+    """Ion mobility / CCS evidence retained in DIA-native reports."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    ion_mobility_ms_per_cm2: float = Field(..., gt=0.0)
+    ccs_angstrom2: float = Field(..., gt=0.0)
+    evidence_used: bool
+    note: str = Field(..., min_length=1)
+
+
+class DiaIonMobilityEvidenceReport(JsonModel):
+    """Report preserving mobility/CCS evidence usage in DIA workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[DiaIonMobilityEvidenceEntry, ...] = Field(default_factory=tuple)
+    used_count: int = Field(..., ge=0)
+
+
+def build_dia_ion_mobility_evidence_report(
+    entries: tuple[DiaIonMobilityEvidenceEntry, ...],
+) -> DiaIonMobilityEvidenceReport:
+    """Preserve ion mobility/CCS fields and whether they were used in evidence."""
+
+    return DiaIonMobilityEvidenceReport(
+        entries=tuple(sorted(entries, key=lambda entry: (entry.run_id, entry.precursor_id))),
+        used_count=sum(1 for entry in entries if entry.evidence_used),
+    )
