@@ -8,7 +8,10 @@ from __future__ import annotations
 from enum import StrEnum
 import hashlib
 import json
+import os
 from pathlib import Path
+import shutil
+import subprocess
 import tempfile
 
 from pydantic import ConfigDict, Field
@@ -255,6 +258,32 @@ class FakeExternalEngineHarnessReport(JsonModel):
     deterministic: bool
     entries: tuple[FakeExternalToolRunEntry, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
+
+
+class LocalExternalToolRunDisposition(StrEnum):
+    """Disposition of one local external-tool run."""
+
+    COMPLETED = "completed"
+    REFUSED = "refused"
+    FAILED = "failed"
+    TIMED_OUT = "timed_out"
+
+
+class LocalExternalToolRunReport(JsonModel):
+    """Execution report for one configured local external-tool command."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    disposition: LocalExternalToolRunDisposition
+    command: tuple[str, ...] = Field(default_factory=tuple)
+    timeout_seconds: float = Field(..., ge=0.1)
+    env_overrides: dict[str, str] = Field(default_factory=dict)
+    exit_code: int | None = None
+    stdout: str = ""
+    stderr: str = ""
+    validated_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    missing_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
 
 
 def _stable_runtime_key(payload: object) -> str:
@@ -881,4 +910,71 @@ def build_fake_external_engine_harness(
         deterministic=True,
         entries=tuple(entries),
         replay_cache_key=key,
+    )
+
+
+def run_local_external_tool(
+    *,
+    command: tuple[str, ...],
+    timeout_seconds: float = 30.0,
+    env_overrides: dict[str, str] | None = None,
+    expected_artifacts: tuple[str, ...] = (),
+) -> LocalExternalToolRunReport:
+    """Execute a configured local command with timeout, logs, and artifact validation."""
+    if not command:
+        raise ValueError("command must not be empty")
+    env_overrides = env_overrides or {}
+    binary = command[0]
+    resolved = shutil.which(binary)
+    if resolved is None:
+        return LocalExternalToolRunReport(
+            disposition=LocalExternalToolRunDisposition.REFUSED,
+            command=command,
+            timeout_seconds=timeout_seconds,
+            env_overrides=env_overrides,
+            note=f"refused to run because binary {binary!r} is not available on PATH",
+        )
+    env = dict(os.environ)
+    env.update(env_overrides)
+    try:
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+            env=env,
+            check=False,
+        )
+    except subprocess.TimeoutExpired as exc:
+        return LocalExternalToolRunReport(
+            disposition=LocalExternalToolRunDisposition.TIMED_OUT,
+            command=command,
+            timeout_seconds=timeout_seconds,
+            env_overrides=env_overrides,
+            stdout=exc.stdout or "",
+            stderr=exc.stderr or "",
+            note="command timed out before completion",
+        )
+    validated = tuple(path for path in expected_artifacts if Path(path).exists())
+    missing = tuple(path for path in expected_artifacts if not Path(path).exists())
+    if completed.returncode == 0 and not missing:
+        disposition = LocalExternalToolRunDisposition.COMPLETED
+        note = "command completed and all expected artifacts were validated"
+    elif completed.returncode == 0 and missing:
+        disposition = LocalExternalToolRunDisposition.FAILED
+        note = "command succeeded but one or more expected artifacts are missing"
+    else:
+        disposition = LocalExternalToolRunDisposition.FAILED
+        note = "command failed with non-zero exit code"
+    return LocalExternalToolRunReport(
+        disposition=disposition,
+        command=command,
+        timeout_seconds=timeout_seconds,
+        env_overrides=env_overrides,
+        exit_code=completed.returncode,
+        stdout=completed.stdout,
+        stderr=completed.stderr,
+        validated_artifacts=validated,
+        missing_artifacts=missing,
+        note=note,
     )
