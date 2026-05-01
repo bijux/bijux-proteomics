@@ -249,3 +249,54 @@ def import_dia_nn_rows(
         imported_protein_groups=tuple(proteins),
         imported_count=len(rows),
     )
+
+
+class LibrarySearchComparisonEntry(JsonModel):
+    """Comparison entry for shared peptides across library vs database search evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    peptide_sequence: str = Field(..., min_length=1)
+    library_q_value: float = Field(..., ge=0.0, le=1.0)
+    database_q_value: float = Field(..., ge=0.0, le=1.0)
+    preferred_source: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
+
+
+class LibrarySearchComparisonReport(JsonModel):
+    """Comparison report between library-search and database-search evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[LibrarySearchComparisonEntry, ...] = Field(default_factory=tuple)
+    shared_peptide_count: int = Field(..., ge=0)
+
+
+def compare_library_and_database_search_evidence(
+    *,
+    library_q_values: dict[str, float],
+    database_q_values: dict[str, float],
+) -> LibrarySearchComparisonReport:
+    """Compare shared-peptide evidence between library-search and database-search outputs."""
+
+    shared = sorted(set(library_q_values) & set(database_q_values))
+    entries: list[LibrarySearchComparisonEntry] = []
+    for peptide in shared:
+        library_q = library_q_values[peptide]
+        database_q = database_q_values[peptide]
+        preferred = "library" if library_q <= database_q else "database"
+        note = "library evidence is stronger" if preferred == "library" else "database evidence is stronger"
+        entries.append(
+            LibrarySearchComparisonEntry(
+                peptide_sequence=peptide,
+                library_q_value=library_q,
+                database_q_value=database_q,
+                preferred_source=preferred,
+                note=note,
+            )
+        )
+
+    return LibrarySearchComparisonReport(
+        entries=tuple(entries),
+        shared_peptide_count=len(shared),
+    )
