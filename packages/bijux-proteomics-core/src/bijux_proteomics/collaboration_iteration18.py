@@ -131,3 +131,32 @@ def generate_methods_section_from_workflow_evidence(
         f"Evidence linkage references: [{refs}]."
     )
     return MethodsSectionDocument(title=payload.title, body=body)
+
+
+class CitationRegistryEntry(JsonModel):
+    """Citation attachment for tool/algorithm/reference/method evidence usage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    citation_id: str = Field(..., min_length=1)
+    citation_kind: str = Field(..., min_length=1)
+    label: str = Field(..., min_length=1)
+    source_url: str = Field(..., min_length=1)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class CitationRegistryDocument(JsonModel):
+    """Registry of citations linked to workflow evidence outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CitationRegistryEntry, ...] = Field(default_factory=tuple)
+
+
+def build_citation_registry_document(
+    entries: tuple[CitationRegistryEntry, ...],
+) -> CitationRegistryDocument:
+    """Attach tool/algorithm/reference/method citations to evidence pointers."""
+
+    normalized = tuple(sorted(entries, key=lambda entry: (entry.citation_kind, entry.citation_id)))
+    return CitationRegistryDocument(entries=normalized)
