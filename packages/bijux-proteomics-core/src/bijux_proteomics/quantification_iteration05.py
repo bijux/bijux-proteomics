@@ -29,6 +29,8 @@ from bijux_proteomics.quantification import (
     build_differential_abundance_report,
     build_replicate_correlation_report,
     build_batch_effect_advisory,
+    build_quant_artifact_bundle,
+    build_normalization_comparison_report,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -929,4 +931,94 @@ def build_replicate_and_batch_qc_report(
         flagged_batch_count=sum(1 for entry in batch.batches if entry.flagged),
         outlier_samples=outliers,
         note=note,
+    )
+
+
+class QuantReviewBundle(JsonModel):
+    """Integrated quant review bundle with evidence and caveat context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_bundle_hash: str = Field(..., min_length=64, max_length=64)
+    lfq_provenance: LfqFeaturePeptideProteinProvenanceReport
+    normalization_matrix: NormalizationPolicyComparisonMatrixReport
+    rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
+    effect_size_da_report: EffectSizeFirstDaReport | None = None
+    missingness_profile: MissingnessMechanismProfileReport
+    qc_report: ReplicateAndBatchQcReport
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_quant_review_bundle(
+    records: tuple[Ms1FeatureRecord, ...],
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
+) -> QuantReviewBundle:
+    """Build a full quant review bundle from feature-level quant records."""
+    peptide_table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=aggregation_method,
+    )
+    normalized_table = (
+        normalize_label_free_table(peptide_table, method=normalization_method)
+        if normalization_method is not NormalizationMethod.NONE
+        else peptide_table
+    )
+    artifact_bundle = build_quant_artifact_bundle(
+        normalized_table,
+        design_entries=design_entries,
+        normalization_strategy_report=build_normalization_strategy_comparison_report(
+            peptide_table
+        ),
+    )
+    lfq_provenance = build_lfq_feature_peptide_protein_provenance_report(
+        records,
+        aggregation_method=aggregation_method,
+        normalization_method=normalization_method,
+    )
+    normalization_matrix = build_normalization_policy_comparison_matrix_report(peptide_table)
+    rollup_strategy = build_protein_rollup_strategy_comparison_report(records)
+    missingness = build_missingness_mechanism_profile_report(
+        normalized_table,
+        design_entries=design_entries,
+    )
+    qc_report = build_replicate_and_batch_qc_report(
+        normalized_table,
+        design_entries=design_entries,
+    )
+    conditions = tuple(sorted({entry.condition for entry in design_entries}))
+    da_report = None
+    if len(conditions) >= 2:
+        da_report = build_effect_size_first_differential_abundance_report(
+            normalized_table,
+            design_entries=design_entries,
+            condition_a=conditions[0],
+            condition_b=conditions[1],
+        )
+    caveats: list[str] = []
+    if da_report is None:
+        caveats.append("differential abundance report is unavailable because fewer than two conditions were provided")
+    if qc_report.outlier_samples:
+        caveats.append("qc outlier samples were detected and should be reviewed before publication decisions")
+    evidence_pointers = (
+        "quant_artifact_bundle.matrix_export",
+        "lfq_provenance.feature_entries",
+        "rollup_strategy_comparison.entries",
+        "missingness_profile.entries",
+        "replicate_batch_qc.outlier_samples",
+    )
+    return QuantReviewBundle(
+        artifact_bundle_hash=artifact_bundle.document_schema.content_hash or "",
+        lfq_provenance=lfq_provenance,
+        normalization_matrix=normalization_matrix,
+        rollup_strategy_comparison=rollup_strategy,
+        effect_size_da_report=da_report,
+        missingness_profile=missingness,
+        qc_report=qc_report,
+        evidence_pointers=evidence_pointers,
+        caveats=tuple(caveats),
     )
