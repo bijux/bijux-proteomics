@@ -227,3 +227,44 @@ def run_standalone_bundle_verifier(
         verified=not issues,
         issues=tuple(issues),
     )
+
+
+class ArchiveRetentionPackageInput(JsonModel):
+    """Input for long-term archive packaging."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    schema_refs: tuple[str, ...] = Field(default_factory=tuple)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+    compatibility_metadata: tuple[str, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ArchiveRetentionPackage(JsonModel):
+    """Archive package containing long-term preservation metadata and references."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    schema_refs: tuple[str, ...] = Field(default_factory=tuple)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointer_ids: tuple[str, ...] = Field(default_factory=tuple)
+    compatibility_metadata: tuple[str, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_archive_retention_package(
+    payload: ArchiveRetentionPackageInput,
+) -> ArchiveRetentionPackage:
+    """Build archive package with compatibility metadata and caveat traceability."""
+
+    return ArchiveRetentionPackage(
+        package_id=payload.package_id,
+        schema_refs=tuple(sorted(set(payload.schema_refs))),
+        artifact_paths=tuple(sorted(set(payload.artifact_paths))),
+        evidence_pointer_ids=tuple(sorted(set(payload.evidence_pointer_ids))),
+        compatibility_metadata=tuple(sorted(set(payload.compatibility_metadata))),
+        caveats=tuple(sorted(set(payload.caveats))),
+    )
