@@ -321,3 +321,43 @@ def run_mocked_slurm_lifecycle(
         final_state=outcome,
         collected_logs=tuple(sorted(collected_logs)),
     )
+
+
+class ExternalSearchExecutionContract(JsonModel):
+    """Execution contract for external search engines."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    command: tuple[str, ...] = Field(default_factory=tuple)
+    input_paths: tuple[str, ...] = Field(default_factory=tuple)
+    output_paths: tuple[str, ...] = Field(default_factory=tuple)
+    params: dict[str, str] = Field(default_factory=dict)
+    env: dict[str, str] = Field(default_factory=dict)
+    container_image: str = Field(..., min_length=1)
+    tool_version: str = Field(..., min_length=1)
+    failure_modes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_external_search_execution_contract(
+    *,
+    command: tuple[str, ...],
+    input_paths: tuple[str, ...],
+    output_paths: tuple[str, ...],
+    params: dict[str, str],
+    env: dict[str, str],
+    container_image: str,
+    tool_version: str,
+    failure_modes: tuple[str, ...],
+) -> ExternalSearchExecutionContract:
+    """Represent command/inputs/outputs/params/env/container/version/failure semantics."""
+
+    return ExternalSearchExecutionContract(
+        command=command,
+        input_paths=tuple(sorted(input_paths)),
+        output_paths=tuple(sorted(output_paths)),
+        params=dict(sorted(params.items())),
+        env=dict(sorted(env.items())),
+        container_image=container_image,
+        tool_version=tool_version,
+        failure_modes=tuple(sorted(failure_modes)),
+    )
