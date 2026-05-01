@@ -199,3 +199,42 @@ def build_complete_tmt_mini_study_bundle(
         normalization_report_path=normalization_report_path,
         differential_abundance_report_path=differential_abundance_report_path,
     )
+
+
+class PtmMiniStudyBundle(JsonModel):
+    """Complete PTM mini-study fixture package with downstream lab suggestions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    study_id: str = Field(..., min_length=1)
+    localization_report_path: str = Field(..., min_length=1)
+    motif_report_path: str = Field(..., min_length=1)
+    occupancy_report_path: str = Field(..., min_length=1)
+    quant_report_path: str = Field(..., min_length=1)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+    lab_target_suggestions: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_complete_ptm_mini_study_bundle(
+    *,
+    study_id: str,
+    localization_report_path: str,
+    motif_report_path: str,
+    occupancy_report_path: str,
+    quant_report_path: str,
+    caveats: tuple[str, ...],
+    lab_target_suggestions: tuple[str, ...],
+) -> PtmMiniStudyBundle:
+    """Curate PTM localization/motif/occupancy/quant outputs and lab suggestions."""
+
+    if not lab_target_suggestions:
+        raise ValueError("PTM mini-study should include at least one lab target suggestion")
+    return PtmMiniStudyBundle(
+        study_id=study_id,
+        localization_report_path=localization_report_path,
+        motif_report_path=motif_report_path,
+        occupancy_report_path=occupancy_report_path,
+        quant_report_path=quant_report_path,
+        caveats=tuple(sorted(caveats)),
+        lab_target_suggestions=tuple(sorted(lab_target_suggestions)),
+    )
