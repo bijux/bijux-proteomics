@@ -358,6 +358,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "route_ptm_report_api" in bijux_proteomics.__all__
     assert "route_adapter_conformance_api" in bijux_proteomics.__all__
     assert "build_script_safe_command_output" in bijux_proteomics.__all__
+    assert "build_external_strong_user_dda_trial_report" in bijux_proteomics.__all__
+    assert "build_external_strong_user_dia_trial_report" in bijux_proteomics.__all__
+    assert "build_external_strong_user_quant_trial_report" in bijux_proteomics.__all__
+    assert "build_external_strong_user_ptm_trial_report" in bijux_proteomics.__all__
+    assert "build_external_strong_user_lab_trial_report" in bijux_proteomics.__all__
+    assert "build_mature_ecosystem_comparison_report" in bijux_proteomics.__all__
+    assert "build_bijux_core_integration_contract_report" in bijux_proteomics.__all__
+    assert "build_agentic_proteins_migration_report" in bijux_proteomics.__all__
+    assert "build_final_flagship_proteomics_demo_report" in bijux_proteomics.__all__
+    assert "build_product_simplification_by_real_usage_report" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -513,6 +523,27 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "AdapterConformanceRouteResponse" in bijux_proteomics.__all__
     assert "ScriptSafeOutputField" in bijux_proteomics.__all__
     assert "ScriptSafeCommandOutput" in bijux_proteomics.__all__
+    assert "TrialIssueEntry" in bijux_proteomics.__all__
+    assert "ExternalDdaTrialInput" in bijux_proteomics.__all__
+    assert "ExternalDdaTrialReport" in bijux_proteomics.__all__
+    assert "ExternalDiaTrialInput" in bijux_proteomics.__all__
+    assert "ExternalDiaTrialReport" in bijux_proteomics.__all__
+    assert "ExternalQuantTrialInput" in bijux_proteomics.__all__
+    assert "ExternalQuantTrialReport" in bijux_proteomics.__all__
+    assert "ExternalPtmTrialInput" in bijux_proteomics.__all__
+    assert "ExternalPtmTrialReport" in bijux_proteomics.__all__
+    assert "ExternalLabTrialInput" in bijux_proteomics.__all__
+    assert "ExternalLabTrialReport" in bijux_proteomics.__all__
+    assert "EcosystemComparisonEntry" in bijux_proteomics.__all__
+    assert "MatureEcosystemComparisonReport" in bijux_proteomics.__all__
+    assert "BijuxCoreIntegrationContractInput" in bijux_proteomics.__all__
+    assert "BijuxCoreIntegrationContractReport" in bijux_proteomics.__all__
+    assert "AgenticProteinsMigrationItem" in bijux_proteomics.__all__
+    assert "AgenticProteinsMigrationReport" in bijux_proteomics.__all__
+    assert "FlagshipDemoInput" in bijux_proteomics.__all__
+    assert "FlagshipDemoReport" in bijux_proteomics.__all__
+    assert "UsageSimplificationCandidate" in bijux_proteomics.__all__
+    assert "ProductSimplificationByUsageReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
