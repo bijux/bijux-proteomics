@@ -203,3 +203,75 @@ def classify_contradictions(
         entries=tuple(sorted(entries, key=lambda entry: entry.contradiction_id)),
         category_counts=dict(sorted(counts.items())),
     )
+
+
+class TrustScoreInput(JsonModel):
+    """Structured trust-score inputs for one candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    evidence_inputs: dict[str, float] = Field(default_factory=dict)
+    weights: dict[str, float] = Field(default_factory=dict)
+    penalties: dict[str, float] = Field(default_factory=dict)
+    contradiction_penalty: float = Field(0.0, ge=0.0, le=1.0)
+    uncertainty: float = Field(0.0, ge=0.0, le=1.0)
+
+
+class TrustScoreComponent(JsonModel):
+    """One decomposed component of a trust score."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1)
+    raw_value: float = Field(..., ge=0.0, le=1.0)
+    weight: float = Field(..., ge=0.0)
+    contribution: float = Field(..., ge=0.0)
+
+
+class TrustScoreDecomposition(JsonModel):
+    """Trust-score decomposition preserving evidence and penalty contributions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    components: tuple[TrustScoreComponent, ...] = Field(default_factory=tuple)
+    weighted_evidence_total: float = Field(..., ge=0.0)
+    penalty_total: float = Field(..., ge=0.0)
+    contradiction_penalty: float = Field(..., ge=0.0, le=1.0)
+    uncertainty: float = Field(..., ge=0.0, le=1.0)
+    final_score: float = Field(..., ge=0.0, le=1.0)
+
+
+def decompose_trust_score(payload: TrustScoreInput) -> TrustScoreDecomposition:
+    """Expose weighted evidence, penalties, contradictions, and uncertainty."""
+
+    components: list[TrustScoreComponent] = []
+    weighted_total = 0.0
+    for name, raw_value in sorted(payload.evidence_inputs.items()):
+        weight = payload.weights.get(name, 1.0)
+        contribution = raw_value * weight
+        weighted_total += contribution
+        components.append(
+            TrustScoreComponent(
+                name=name,
+                raw_value=raw_value,
+                weight=weight,
+                contribution=contribution,
+            )
+        )
+
+    penalty_total = sum(max(0.0, value) for value in payload.penalties.values())
+    raw_final = weighted_total - penalty_total - payload.contradiction_penalty
+    uncertainty_discount = max(0.0, 1.0 - payload.uncertainty)
+    final_score = min(1.0, max(0.0, raw_final * uncertainty_discount))
+
+    return TrustScoreDecomposition(
+        candidate_id=payload.candidate_id,
+        components=tuple(components),
+        weighted_evidence_total=weighted_total,
+        penalty_total=penalty_total,
+        contradiction_penalty=payload.contradiction_penalty,
+        uncertainty=payload.uncertainty,
+        final_score=final_score,
+    )
