@@ -356,3 +356,44 @@ def build_negative_science_corpus_report(
             1 for case in cases if case.expected_outcome is NegativeScienceCaseOutcome.CAVEATED
         ),
     )
+
+
+class ExternalEngineCorpusPolicy(StrEnum):
+    """Allowed distribution mode for external-engine corpus artifacts."""
+
+    BUNDLE = "bundle"
+    GENERATE = "generate"
+    REFERENCE = "reference"
+    USER_SUPPLIED = "user_supplied"
+
+
+class ExternalEngineCorpusLicensingEntry(JsonModel):
+    """One licensing-plan decision for an external-engine artifact class."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_class: str = Field(..., min_length=1)
+    policy: ExternalEngineCorpusPolicy
+    rationale: str = Field(..., min_length=1)
+    follow_up_action: str = Field(..., min_length=1)
+
+
+class ExternalEngineCorpusLicensingPlan(JsonModel):
+    """Licensing and distribution plan for external-engine corpus assets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[ExternalEngineCorpusLicensingEntry, ...] = Field(default_factory=tuple)
+
+
+def build_external_engine_corpus_licensing_plan(
+    entries: tuple[ExternalEngineCorpusLicensingEntry, ...],
+) -> ExternalEngineCorpusLicensingPlan:
+    """Build licensing plan for real-engine outputs and corpus distribution strategy."""
+
+    classes = [entry.artifact_class for entry in entries]
+    if len(classes) != len(set(classes)):
+        raise ValueError("external-engine corpus licensing plan requires unique artifact classes")
+    return ExternalEngineCorpusLicensingPlan(
+        entries=tuple(sorted(entries, key=lambda entry: entry.artifact_class))
+    )
