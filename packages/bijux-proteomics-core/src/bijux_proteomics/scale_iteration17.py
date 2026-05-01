@@ -334,3 +334,47 @@ def classify_benchmark_corpus(
         intended_publication_demo=intended_publication_demo,
         class_label=class_label,
     )
+
+
+class BenchmarkMetricEntry(JsonModel):
+    """One metric item attached to a benchmark output bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(..., min_length=1)
+    value: float
+    unit: str = Field(..., min_length=1)
+
+
+class BenchmarkOutputBundle(JsonModel):
+    """Bundle containing corpus, environment, metrics, artifacts, and caveats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    corpus_id: str = Field(..., min_length=1)
+    environment_fingerprint: str = Field(..., min_length=8)
+    metrics: tuple[BenchmarkMetricEntry, ...] = Field(default_factory=tuple)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def build_benchmark_output_bundle(
+    *,
+    bundle_id: str,
+    corpus_id: str,
+    environment_fingerprint: str,
+    metrics: tuple[BenchmarkMetricEntry, ...],
+    artifact_paths: tuple[str, ...],
+    caveats: tuple[str, ...],
+) -> BenchmarkOutputBundle:
+    """Bundle benchmark corpus, environment, metrics, artifacts, and caveat metadata."""
+
+    return BenchmarkOutputBundle(
+        bundle_id=bundle_id,
+        corpus_id=corpus_id,
+        environment_fingerprint=environment_fingerprint,
+        metrics=tuple(sorted(metrics, key=lambda metric: metric.name)),
+        artifact_paths=tuple(sorted(set(artifact_paths))),
+        caveats=tuple(sorted(set(caveats))),
+    )
