@@ -12,8 +12,13 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import (
+    ParsimonyVariant,
     PsmRecord,
     TargetDecoyLabel,
+    assign_razor_peptides,
+    build_protein_groups,
+    calculate_picked_protein_fdr,
+    infer_proteins_by_parsimony,
     normalize_psm_score_orientation,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -263,4 +268,161 @@ def build_empirical_score_calibration_report(
         top_fraction_target_share=top_targets / len(top_ranked) if top_ranked else 0.0,
         top_fraction_decoy_share=top_decoys / len(top_ranked) if top_ranked else 0.0,
         advisory=advisory,
+    )
+
+
+class ProteinInferenceStrategyKind(StrEnum):
+    """Named strategy families for protein inference comparison."""
+
+    PARSIMONY = "parsimony"
+    RAZOR = "razor"
+    PICKED = "picked"
+    GROUPED = "grouped"
+    CONSERVATIVE = "conservative"
+
+
+class ProteinInferenceStrategySelection(JsonModel):
+    """Selected proteins and rationale for one inference strategy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    strategy_kind: ProteinInferenceStrategyKind
+    strategy_label: str = Field(..., min_length=1)
+    selected_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    selected_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
+class ProteinInferenceStrategyComparisonEntry(JsonModel):
+    """Pairwise overlap comparison between two inference strategies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    left_strategy: str = Field(..., min_length=1)
+    right_strategy: str = Field(..., min_length=1)
+    shared_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    left_only_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    right_only_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    jaccard_similarity: float = Field(..., ge=0.0, le=1.0)
+
+
+class ProteinInferenceStrategyComparisonReport(JsonModel):
+    """Stable comparison report across multiple inference strategies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    selections: tuple[ProteinInferenceStrategySelection, ...] = Field(
+        default_factory=tuple
+    )
+    comparisons: tuple[ProteinInferenceStrategyComparisonEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
+def compare_protein_inference_strategies(
+    records: tuple[PsmRecord, ...],
+    *,
+    picked_threshold: float = 0.05,
+) -> ProteinInferenceStrategyComparisonReport:
+    """Compare named protein inference strategies on one evidence fixture."""
+    parsimony = tuple(
+        sorted(
+            {
+                entry.protein_ref
+                for entry in infer_proteins_by_parsimony(
+                    records,
+                    variant=ParsimonyVariant.GREEDY_COVERAGE,
+                )
+            }
+        )
+    )
+    razor = tuple(
+        sorted(
+            {
+                entry.assigned_protein
+                for entry in assign_razor_peptides(records)
+            }
+        )
+    )
+    picked = tuple(
+        sorted(
+            {
+                entry.protein_ref
+                for entry in calculate_picked_protein_fdr(
+                    records,
+                    threshold=picked_threshold,
+                )
+                if entry.accepted and entry.target_decoy_label is not TargetDecoyLabel.DECOY
+            }
+        )
+    )
+    grouped = tuple(
+        sorted({group.representative_protein for group in build_protein_groups(records)})
+    )
+    conservative = tuple(
+        sorted(
+            {
+                group.representative_protein
+                for group in build_protein_groups(records)
+                if group.unique_peptide_count > 0
+            }
+        )
+    )
+    selections = (
+        ProteinInferenceStrategySelection(
+            strategy_kind=ProteinInferenceStrategyKind.PARSIMONY,
+            strategy_label="parsimony:greedy_coverage",
+            selected_proteins=parsimony,
+            selected_count=len(parsimony),
+            note="greedy parsimony selects a minimal explaining set from grouped evidence",
+        ),
+        ProteinInferenceStrategySelection(
+            strategy_kind=ProteinInferenceStrategyKind.RAZOR,
+            strategy_label="razor",
+            selected_proteins=razor,
+            selected_count=len(razor),
+            note="razor assigns shared peptides to one dominant protein candidate",
+        ),
+        ProteinInferenceStrategySelection(
+            strategy_kind=ProteinInferenceStrategyKind.PICKED,
+            strategy_label="picked",
+            selected_proteins=picked,
+            selected_count=len(picked),
+            note="picked competition keeps only target winners against decoy partners",
+        ),
+        ProteinInferenceStrategySelection(
+            strategy_kind=ProteinInferenceStrategyKind.GROUPED,
+            strategy_label="grouped",
+            selected_proteins=grouped,
+            selected_count=len(grouped),
+            note="grouped strategy reports all representative proteins from indistinguishable groups",
+        ),
+        ProteinInferenceStrategySelection(
+            strategy_kind=ProteinInferenceStrategyKind.CONSERVATIVE,
+            strategy_label="conservative_unique_only",
+            selected_proteins=conservative,
+            selected_count=len(conservative),
+            note="conservative strategy retains only groups with unique peptide evidence",
+        ),
+    )
+    comparisons: list[ProteinInferenceStrategyComparisonEntry] = []
+    for left_index, left in enumerate(selections):
+        for right in selections[left_index + 1 :]:
+            left_set = set(left.selected_proteins)
+            right_set = set(right.selected_proteins)
+            intersection = left_set & right_set
+            union = left_set | right_set
+            comparisons.append(
+                ProteinInferenceStrategyComparisonEntry(
+                    left_strategy=left.strategy_label,
+                    right_strategy=right.strategy_label,
+                    shared_proteins=tuple(sorted(intersection)),
+                    left_only_proteins=tuple(sorted(left_set - right_set)),
+                    right_only_proteins=tuple(sorted(right_set - left_set)),
+                    jaccard_similarity=(len(intersection) / len(union)) if union else 1.0,
+                )
+            )
+    return ProteinInferenceStrategyComparisonReport(
+        selections=selections,
+        comparisons=tuple(comparisons),
     )
