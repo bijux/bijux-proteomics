@@ -113,3 +113,50 @@ def build_external_strong_user_dia_trial_report(
         precise_issue_count=len(precise_issues),
         trial_completed=completed,
     )
+
+
+class ExternalQuantTrialInput(JsonModel):
+    """Input payload for external strong-user quant trial reporting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    trial_id: str = Field(..., min_length=1)
+    external_user_id: str = Field(..., min_length=1)
+    mini_study_id: str = Field(..., min_length=1)
+    executed_steps: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[TrialIssueEntry, ...] = Field(default_factory=tuple)
+
+
+class ExternalQuantTrialReport(JsonModel):
+    """Report for external strong-user quant trial execution and issue quality."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    trial_id: str = Field(..., min_length=1)
+    external_user_id: str = Field(..., min_length=1)
+    mini_study_id: str = Field(..., min_length=1)
+    executed_steps: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[TrialIssueEntry, ...] = Field(default_factory=tuple)
+    precise_issue_count: int = Field(..., ge=0)
+    trial_completed: bool
+
+
+def build_external_strong_user_quant_trial_report(
+    payload: ExternalQuantTrialInput,
+) -> ExternalQuantTrialReport:
+    """Build quant external trial report for normalization/DA/review coverage."""
+
+    precise_issues = tuple(
+        issue for issue in payload.issues if issue.evidence_pointer.strip()
+    )
+    required_steps = {"normalization", "differential-abundance", "review"}
+    completed = required_steps.issubset(set(payload.executed_steps))
+    return ExternalQuantTrialReport(
+        trial_id=payload.trial_id,
+        external_user_id=payload.external_user_id,
+        mini_study_id=payload.mini_study_id,
+        executed_steps=tuple(payload.executed_steps),
+        issues=tuple(payload.issues),
+        precise_issue_count=len(precise_issues),
+        trial_completed=completed,
+    )
