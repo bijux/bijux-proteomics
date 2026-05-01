@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+import json
 
 from pydantic import ConfigDict, Field
 
@@ -488,4 +489,62 @@ def evaluate_targeted_workflow_boundary(
         supported=True,
         assumptions=tuple(assumptions),
         refusal_reason=None,
+    )
+
+
+class LimsHandoffEntry(JsonModel):
+    """One versioned LIMS-import handoff row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    target_id: str = Field(..., min_length=1)
+    method: str = Field(..., min_length=1)
+    plate_well: str = Field(..., min_length=2)
+    replicate_id: str = Field(..., min_length=1)
+
+
+class LimsHandoffProfile(JsonModel):
+    """Versioned LIMS handoff export profile with JSON and TSV payloads."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_version: str = Field(..., min_length=1)
+    handoff_id: str = Field(..., min_length=1)
+    json_payload: str = Field(..., min_length=1)
+    tsv_payload: str = Field(..., min_length=1)
+
+
+def build_lims_handoff_profile(
+    *,
+    profile_version: str,
+    handoff_id: str,
+    entries: tuple[LimsHandoffEntry, ...],
+) -> LimsHandoffProfile:
+    """Export versioned handoff data suitable for LIMS-style imports."""
+
+    rows = tuple(sorted(entries, key=lambda entry: (entry.sample_id, entry.target_id)))
+    payload = {
+        "profile_version": profile_version,
+        "handoff_id": handoff_id,
+        "entries": [entry.to_dict() for entry in rows],
+    }
+    tsv_header = "sample_id\ttarget_id\tmethod\tplate_well\treplicate_id"
+    tsv_rows = [
+        "\t".join(
+            (
+                entry.sample_id,
+                entry.target_id,
+                entry.method,
+                entry.plate_well,
+                entry.replicate_id,
+            )
+        )
+        for entry in rows
+    ]
+    return LimsHandoffProfile(
+        profile_version=profile_version,
+        handoff_id=handoff_id,
+        json_payload=json.dumps(payload, sort_keys=True, separators=(",", ":")),
+        tsv_payload="\n".join([tsv_header, *tsv_rows]) + ("\n" if tsv_rows else ""),
     )
