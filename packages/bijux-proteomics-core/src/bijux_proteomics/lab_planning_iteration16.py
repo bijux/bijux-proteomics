@@ -171,3 +171,73 @@ def build_plate_randomization_plan(
         assignment_order=tuple(ordered),
         issues=(),
     )
+
+
+class ValidationStageProgressionInput(JsonModel):
+    """Evidence summary used for discovery-to-validation progression decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    evidence_strength: float = Field(..., ge=0.0, le=1.0)
+    replication_count: int = Field(..., ge=0)
+    qc_pass_rate: float = Field(..., ge=0.0, le=1.0)
+    contradiction_count: int = Field(..., ge=0)
+
+
+class ValidationStageProgressionPolicy(JsonModel):
+    """Threshold policy for progression into validation and targeted follow-up."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    min_evidence_strength: float = Field(default=0.7, ge=0.0, le=1.0)
+    min_replication_count: int = Field(default=2, ge=0)
+    min_qc_pass_rate: float = Field(default=0.8, ge=0.0, le=1.0)
+    max_contradiction_count: int = Field(default=1, ge=0)
+
+
+class ValidationStageProgressionDecision(JsonModel):
+    """Decision for whether candidate can progress to validation/follow-up stages."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    eligible_for_validation: bool
+    eligible_for_targeted_follow_up: bool
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def evaluate_validation_stage_progression_policy(
+    *,
+    payload: ValidationStageProgressionInput,
+    policy: ValidationStageProgressionPolicy | None = None,
+) -> ValidationStageProgressionDecision:
+    """Evaluate evidence thresholds for progression into validation and follow-up stages."""
+
+    active = policy if policy is not None else ValidationStageProgressionPolicy()
+    reasons: list[str] = []
+
+    if payload.evidence_strength < active.min_evidence_strength:
+        reasons.append("evidence_strength below validation threshold")
+    if payload.replication_count < active.min_replication_count:
+        reasons.append("replication_count below validation threshold")
+    if payload.qc_pass_rate < active.min_qc_pass_rate:
+        reasons.append("qc_pass_rate below validation threshold")
+    if payload.contradiction_count > active.max_contradiction_count:
+        reasons.append("contradiction_count above allowed threshold")
+
+    validation = not reasons
+    follow_up = validation or (
+        payload.evidence_strength >= 0.5
+        and payload.replication_count >= 1
+        and payload.qc_pass_rate >= 0.6
+    )
+    if not follow_up and not reasons:
+        reasons.append("insufficient evidence for targeted follow-up")
+
+    return ValidationStageProgressionDecision(
+        candidate_id=payload.candidate_id,
+        eligible_for_validation=validation,
+        eligible_for_targeted_follow_up=follow_up,
+        reasons=tuple(reasons),
+    )
