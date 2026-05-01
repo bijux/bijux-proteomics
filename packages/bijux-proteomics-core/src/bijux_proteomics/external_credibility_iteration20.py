@@ -207,3 +207,50 @@ def build_external_strong_user_ptm_trial_report(
         precise_issue_count=len(precise_issues),
         trial_completed=completed,
     )
+
+
+class ExternalLabTrialInput(JsonModel):
+    """Input payload for external strong-user lab trial reporting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    trial_id: str = Field(..., min_length=1)
+    external_user_id: str = Field(..., min_length=1)
+    lab_program_id: str = Field(..., min_length=1)
+    executed_steps: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[TrialIssueEntry, ...] = Field(default_factory=tuple)
+
+
+class ExternalLabTrialReport(JsonModel):
+    """Report for external strong-user lab trial execution and issue quality."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    trial_id: str = Field(..., min_length=1)
+    external_user_id: str = Field(..., min_length=1)
+    lab_program_id: str = Field(..., min_length=1)
+    executed_steps: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[TrialIssueEntry, ...] = Field(default_factory=tuple)
+    precise_issue_count: int = Field(..., ge=0)
+    trial_completed: bool
+
+
+def build_external_strong_user_lab_trial_report(
+    payload: ExternalLabTrialInput,
+) -> ExternalLabTrialReport:
+    """Build lab external trial report for plans, risks, and handoff exports."""
+
+    precise_issues = tuple(
+        issue for issue in payload.issues if issue.evidence_pointer.strip()
+    )
+    required_steps = {"assay-plan", "risk-review", "handoff-export"}
+    completed = required_steps.issubset(set(payload.executed_steps))
+    return ExternalLabTrialReport(
+        trial_id=payload.trial_id,
+        external_user_id=payload.external_user_id,
+        lab_program_id=payload.lab_program_id,
+        executed_steps=tuple(payload.executed_steps),
+        issues=tuple(payload.issues),
+        precise_issue_count=len(precise_issues),
+        trial_completed=completed,
+    )
