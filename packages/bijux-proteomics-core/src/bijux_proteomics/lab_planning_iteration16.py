@@ -376,3 +376,47 @@ def build_lab_risk_dashboard_report(
 
     entries.sort(key=lambda entry: (-entry.composite_risk_score, entry.candidate_id))
     return LabRiskDashboardReport(entries=tuple(entries))
+
+
+class ProtocolAttachmentInput(JsonModel):
+    """Attachment request for protocol identifiers and versions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protocol_id: str = Field(..., min_length=1)
+    protocol_version: str = Field(..., min_length=1)
+    claims_protocol_truth: bool = False
+    has_protocol_registry_reference: bool = False
+
+
+class ProtocolAttachmentBoundaryReport(JsonModel):
+    """Boundary report for protocol attachment without claiming internal protocol truth."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    attached: bool
+    protocol_ref: str | None = None
+    reason: str = Field(..., min_length=1)
+
+
+def evaluate_protocol_attachment_boundary(
+    payload: ProtocolAttachmentInput,
+) -> ProtocolAttachmentBoundaryReport:
+    """Attach protocol references while refusing unsupported protocol-truth claims."""
+
+    if payload.claims_protocol_truth:
+        return ProtocolAttachmentBoundaryReport(
+            attached=False,
+            reason="protocol truth claims are refused; only external protocol references are allowed",
+        )
+    if not payload.has_protocol_registry_reference:
+        return ProtocolAttachmentBoundaryReport(
+            attached=False,
+            reason="protocol attachment requires registry-backed protocol reference",
+        )
+
+    return ProtocolAttachmentBoundaryReport(
+        attached=True,
+        protocol_ref=f"{payload.protocol_id}@{payload.protocol_version}",
+        reason="protocol reference attached as external metadata only",
+    )
