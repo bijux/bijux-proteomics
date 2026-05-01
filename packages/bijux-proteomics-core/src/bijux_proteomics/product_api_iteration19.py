@@ -55,3 +55,41 @@ def build_package_level_example_workflow_catalog(
         missing_packages=missing,
         compliant=not missing,
     )
+
+
+class CliWorkflowCommandEntry(JsonModel):
+    """One CLI command mapped to a workflow-oriented surface.""" 
+
+    model_config = ConfigDict(extra="forbid")
+
+    command: str = Field(..., min_length=1)
+    workflow_id: str = Field(..., min_length=1)
+    scientific_question: str = Field(..., min_length=1)
+
+
+class UnifiedCliWorkflowStoryReport(JsonModel):
+    """Coverage report for workflow-oriented CLI command narratives."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[CliWorkflowCommandEntry, ...] = Field(default_factory=tuple)
+    internal_surface_commands: tuple[str, ...] = Field(default_factory=tuple)
+    coherent_story: bool
+
+
+def build_unified_cli_workflow_story(
+    entries: tuple[CliWorkflowCommandEntry, ...],
+) -> UnifiedCliWorkflowStoryReport:
+    """Validate CLI commands describe workflow stories rather than package internals."""
+
+    normalized = tuple(sorted(entries, key=lambda entry: entry.command))
+    internal_surface_commands = tuple(
+        entry.command
+        for entry in normalized
+        if any(token in entry.command for token in ("internal", "module", "package"))
+    )
+    return UnifiedCliWorkflowStoryReport(
+        entries=normalized,
+        internal_surface_commands=internal_surface_commands,
+        coherent_story=not internal_surface_commands and bool(normalized),
+    )
