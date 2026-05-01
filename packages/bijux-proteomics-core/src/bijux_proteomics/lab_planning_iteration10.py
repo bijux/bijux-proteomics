@@ -340,3 +340,82 @@ def build_capacity_model_with_uncertainty(
         budget_utilization_ratio=budget_utilization_ratio,
         constrained=(time_utilization_ratio > 1.0 or budget_utilization_ratio > 1.0),
     )
+
+
+class TargetedTransitionFragment(JsonModel):
+    """One fragment transition for targeted proteomics assays."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ion_label: str = Field(..., min_length=1)
+    fragment_mz: float = Field(..., gt=0.0)
+    relative_intensity: float = Field(..., ge=0.0)
+
+
+class TargetedTransitionEntry(JsonModel):
+    """One targeted transition entry with peptide and retention context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    transition_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    charge_state: int = Field(..., ge=1)
+    precursor_mz: float = Field(..., gt=0.0)
+    retention_window_start_min: float = Field(..., ge=0.0)
+    retention_window_end_min: float = Field(..., ge=0.0)
+    fragments: tuple[TargetedTransitionFragment, ...] = Field(default_factory=tuple)
+    instrument_caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class TargetedTransitionListModel(JsonModel):
+    """Targeted transition list with method and instrument caveat metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: str = Field(..., min_length=1)
+    entries: tuple[TargetedTransitionEntry, ...] = Field(default_factory=tuple)
+
+
+class TargetedTransitionListValidationIssue(JsonModel):
+    """Validation issue for targeted transition list contracts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    transition_id: str | None = None
+
+
+class TargetedTransitionListValidationReport(JsonModel):
+    """Validation report for targeted transition list model."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    valid: bool
+    issues: tuple[TargetedTransitionListValidationIssue, ...] = Field(default_factory=tuple)
+
+
+def validate_targeted_transition_list(
+    model: TargetedTransitionListModel,
+) -> TargetedTransitionListValidationReport:
+    """Validate peptide/charge/fragment/RT-window transitions and caveat coverage."""
+
+    issues: list[TargetedTransitionListValidationIssue] = []
+    for entry in model.entries:
+        if entry.retention_window_end_min <= entry.retention_window_start_min:
+            issues.append(
+                TargetedTransitionListValidationIssue(
+                    code="invalid_retention_window",
+                    message="retention window end must be greater than start",
+                    transition_id=entry.transition_id,
+                )
+            )
+        if not entry.fragments:
+            issues.append(
+                TargetedTransitionListValidationIssue(
+                    code="missing_fragments",
+                    message="transition must include at least one fragment ion",
+                    transition_id=entry.transition_id,
+                )
+            )
+    return TargetedTransitionListValidationReport(valid=not issues, issues=tuple(issues))
