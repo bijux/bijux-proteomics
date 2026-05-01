@@ -330,6 +330,27 @@ class SearchResultMergeReport(JsonModel):
     partial_coverage_count: int = Field(..., ge=0)
 
 
+class SearchMergeCompatibilityIssue(JsonModel):
+    """One compatibility issue surfaced before multi-engine merge."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    severity: str = Field(..., pattern="^(error|warning)$")
+    adapter_kinds: tuple[SearchAdapterKind, ...] = Field(default_factory=tuple)
+
+
+class SearchMergeCompatibilityReport(JsonModel):
+    """Compatibility gate for multi-engine merge workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_kinds: tuple[SearchAdapterKind, ...] = Field(default_factory=tuple)
+    compatible: bool
+    issues: tuple[SearchMergeCompatibilityIssue, ...] = Field(default_factory=tuple)
+
+
 class SearchRegressionFixtureKind(StrEnum):
     """Fixture categories within the search adapter regression corpus."""
 
@@ -2350,6 +2371,132 @@ def merge_search_result_reports(
             for entry in merged_entries
         ),
     )
+
+
+def _peptide_definition_style(
+    records: tuple[PsmRecord, ...],
+) -> str:
+    if any(
+        any(marker in record.canonical_peptide for marker in ("[", "]", "(", ")", "."))
+        for record in records
+    ):
+        return "modified_or_annotated"
+    return "stripped_sequence"
+
+
+def assess_search_merge_compatibility(
+    reports: tuple[SearchAdapterNormalizationReport, ...],
+) -> SearchMergeCompatibilityReport:
+    """Assess whether reports are compatible for mixed-engine evidence merging."""
+    adapter_kinds = tuple(report.adapter_manifest.adapter_kind for report in reports)
+    issues: list[SearchMergeCompatibilityIssue] = []
+    if len(set(adapter_kinds)) != len(adapter_kinds):
+        issues.append(
+            SearchMergeCompatibilityIssue(
+                code="duplicate_adapter_kind",
+                message="mixed-engine merge requires distinct adapter kinds",
+                severity="error",
+                adapter_kinds=adapter_kinds,
+            )
+        )
+    result_families = {report.adapter_manifest.result_family for report in reports}
+    if len(result_families) > 1:
+        issues.append(
+            SearchMergeCompatibilityIssue(
+                code="result_family_mismatch",
+                message="mixed-engine merge requires a single compatible result family",
+                severity="error",
+                adapter_kinds=adapter_kinds,
+            )
+        )
+
+    for left_index, left in enumerate(reports):
+        for right in reports[left_index + 1 :]:
+            compatible, note = _score_families_compatible(
+                left.adapter_manifest.score_family,
+                right.adapter_manifest.score_family,
+            )
+            if not compatible:
+                issues.append(
+                    SearchMergeCompatibilityIssue(
+                        code="score_family_mismatch",
+                        message=note,
+                        severity="error",
+                        adapter_kinds=(
+                            left.adapter_manifest.adapter_kind,
+                            right.adapter_manifest.adapter_kind,
+                        ),
+                    )
+                )
+            left_policy = left.adapter_manifest.default_decoy_policy
+            right_policy = right.adapter_manifest.default_decoy_policy
+            left_signature = (
+                left_policy.protein_prefix,
+                left_policy.protein_suffix,
+                tuple(left_policy.explicit_decoy_values),
+                tuple(left_policy.explicit_target_values),
+            )
+            right_signature = (
+                right_policy.protein_prefix,
+                right_policy.protein_suffix,
+                tuple(right_policy.explicit_decoy_values),
+                tuple(right_policy.explicit_target_values),
+            )
+            if left_signature != right_signature and all(
+                bool(signature[0] or signature[1] or signature[2] or signature[3])
+                for signature in (left_signature, right_signature)
+            ) and SearchAdapterKind.GENERIC not in {
+                left.adapter_manifest.adapter_kind,
+                right.adapter_manifest.adapter_kind,
+            }:
+                issues.append(
+                    SearchMergeCompatibilityIssue(
+                        code="decoy_policy_mismatch",
+                        message="engine decoy policies differ and may produce non-comparable target-decoy interpretation",
+                        severity="error",
+                        adapter_kinds=(
+                            left.adapter_manifest.adapter_kind,
+                            right.adapter_manifest.adapter_kind,
+                        ),
+                    )
+                )
+
+    peptide_styles = {
+        report.adapter_manifest.adapter_kind: _peptide_definition_style(
+            report.normalized_records
+        )
+        for report in reports
+    }
+    if len(set(peptide_styles.values())) > 1:
+        issues.append(
+            SearchMergeCompatibilityIssue(
+                code="peptide_definition_mismatch",
+                message="engine peptide definitions differ between stripped and modified sequence representations",
+                severity="error",
+                adapter_kinds=tuple(sorted(peptide_styles.keys(), key=lambda kind: kind.value)),
+            )
+        )
+
+    return SearchMergeCompatibilityReport(
+        adapter_kinds=tuple(sorted(adapter_kinds, key=lambda kind: kind.value)),
+        compatible=not any(issue.severity == "error" for issue in issues),
+        issues=tuple(issues),
+    )
+
+
+def merge_search_result_reports_with_compatibility(
+    reports: tuple[SearchAdapterNormalizationReport, ...],
+) -> SearchResultMergeReport:
+    """Merge reports only when compatibility checks succeed."""
+    compatibility = assess_search_merge_compatibility(reports)
+    if not compatibility.compatible:
+        rendered = "; ".join(
+            f"{issue.code}: {issue.message}" for issue in compatibility.issues
+        )
+        raise ValueError(
+            f"multi-engine merge refused due to compatibility errors: {rendered}"
+        )
+    return merge_search_result_reports(reports)
 
 
 def _fixture_adapter_kind(path: Path) -> SearchAdapterKind | None:
