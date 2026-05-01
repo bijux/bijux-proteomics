@@ -780,3 +780,69 @@ def query_workflow_run_history(
     filtered.sort(key=lambda entry: entry.started_at_utc, reverse=True)
     limited = tuple(filtered[: query.limit])
     return WorkflowRunHistoryQueryReport(total_matches=len(filtered), runs=limited)
+
+
+class WorkflowApiCliParityIssue(JsonModel):
+    """One API/CLI parity mismatch for workflow runtime actions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    action: str = Field(..., min_length=1)
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+
+
+class WorkflowApiCliParityReport(JsonModel):
+    """Parity report for API and CLI workflow runtime surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    parity: bool
+    actions_checked: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[WorkflowApiCliParityIssue, ...] = Field(default_factory=tuple)
+
+
+def evaluate_workflow_api_cli_parity(
+    *,
+    api_json_by_action: dict[str, object],
+    cli_json_by_action: dict[str, object],
+) -> WorkflowApiCliParityReport:
+    """Evaluate JSON parity across plan/run/inspect/verify/replay/review actions."""
+
+    required_actions = ("plan", "run", "inspect", "verify", "replay", "review")
+    issues: list[WorkflowApiCliParityIssue] = []
+
+    for action in required_actions:
+        api_payload = api_json_by_action.get(action)
+        cli_payload = cli_json_by_action.get(action)
+        if api_payload is None or cli_payload is None:
+            missing_surfaces = []
+            if api_payload is None:
+                missing_surfaces.append("api")
+            if cli_payload is None:
+                missing_surfaces.append("cli")
+            issues.append(
+                WorkflowApiCliParityIssue(
+                    action=action,
+                    code="missing_action_surface",
+                    message="action missing on " + ", ".join(missing_surfaces),
+                )
+            )
+            continue
+
+        api_text = json.dumps(api_payload, sort_keys=True, separators=(",", ":"))
+        cli_text = json.dumps(cli_payload, sort_keys=True, separators=(",", ":"))
+        if api_text != cli_text:
+            issues.append(
+                WorkflowApiCliParityIssue(
+                    action=action,
+                    code="payload_mismatch",
+                    message="api and cli JSON payloads differ after canonicalization",
+                )
+            )
+
+    return WorkflowApiCliParityReport(
+        parity=not issues,
+        actions_checked=required_actions,
+        issues=tuple(issues),
+    )
