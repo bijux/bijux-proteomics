@@ -156,3 +156,46 @@ def build_complete_lfq_mini_study_bundle(
         differential_abundance_report_path=differential_abundance_report_path,
         review_packet_path=review_packet_path,
     )
+
+
+class TmtMiniStudyBundle(JsonModel):
+    """Complete TMT mini-study bundle with channel and normalization diagnostics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    study_id: str = Field(..., min_length=1)
+    channel_ids: tuple[str, ...] = Field(default_factory=tuple)
+    carrier_channel_id: str | None = None
+    reference_channel_id: str | None = None
+    balance_diagnostics_path: str = Field(..., min_length=1)
+    normalization_report_path: str = Field(..., min_length=1)
+    differential_abundance_report_path: str = Field(..., min_length=1)
+
+
+def build_complete_tmt_mini_study_bundle(
+    *,
+    study_id: str,
+    channel_ids: tuple[str, ...],
+    carrier_channel_id: str | None,
+    reference_channel_id: str | None,
+    balance_diagnostics_path: str,
+    normalization_report_path: str,
+    differential_abundance_report_path: str,
+) -> TmtMiniStudyBundle:
+    """Curate TMT channel/normalization outputs for complete mini-study fixtures."""
+
+    if len(set(channel_ids)) != len(channel_ids):
+        raise ValueError("TMT mini-study channel ids must be unique")
+    if carrier_channel_id and carrier_channel_id not in channel_ids:
+        raise ValueError("carrier channel id must be part of channel ids")
+    if reference_channel_id and reference_channel_id not in channel_ids:
+        raise ValueError("reference channel id must be part of channel ids")
+    return TmtMiniStudyBundle(
+        study_id=study_id,
+        channel_ids=channel_ids,
+        carrier_channel_id=carrier_channel_id,
+        reference_channel_id=reference_channel_id,
+        balance_diagnostics_path=balance_diagnostics_path,
+        normalization_report_path=normalization_report_path,
+        differential_abundance_report_path=differential_abundance_report_path,
+    )
