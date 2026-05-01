@@ -151,3 +151,58 @@ def run_container_smoke_execution(
         artifact_paths=tuple(sorted(expected_artifact_paths)),
         passed=simulated_exit_code == 0,
     )
+
+
+class HpcContainerRuntime(StrEnum):
+    """HPC container runtime classes."""
+
+    APPTAINER = "apptainer"
+    SINGULARITY = "singularity"
+
+
+class HpcContainerBoundaryInput(JsonModel):
+    """Input for Apptainer/Singularity boundary decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    runtime: HpcContainerRuntime
+    has_sif_image: bool
+    has_bind_mount_plan: bool
+    has_scheduler_integration: bool
+
+
+class HpcContainerBoundaryReport(JsonModel):
+    """Support/refusal report for HPC container runtime usage."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    runtime: HpcContainerRuntime
+    supported: bool
+    reason: str = Field(..., min_length=1)
+
+
+def evaluate_apptainer_hpc_boundary(
+    payload: HpcContainerBoundaryInput,
+) -> HpcContainerBoundaryReport:
+    """Support or refuse Apptainer/Singularity usage with explicit HPC semantics."""
+
+    missing: list[str] = []
+    if not payload.has_sif_image:
+        missing.append("sif_image")
+    if not payload.has_bind_mount_plan:
+        missing.append("bind_mount_plan")
+    if not payload.has_scheduler_integration:
+        missing.append("scheduler_integration")
+
+    if missing:
+        return HpcContainerBoundaryReport(
+            runtime=payload.runtime,
+            supported=False,
+            reason="HPC container execution refused; missing: " + ", ".join(missing),
+        )
+
+    return HpcContainerBoundaryReport(
+        runtime=payload.runtime,
+        supported=True,
+        reason="HPC container execution supported with explicit runtime semantics",
+    )
