@@ -238,3 +238,43 @@ def build_complete_ptm_mini_study_bundle(
         caveats=tuple(sorted(caveats)),
         lab_target_suggestions=tuple(sorted(lab_target_suggestions)),
     )
+
+
+class KnownMixtureTruthBoundary(JsonModel):
+    """Bounded truth-like reference statement for known-mixture studies."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim: str = Field(..., min_length=1)
+    supported: bool
+    caveat: str = Field(..., min_length=1)
+
+
+class KnownMixtureMiniStudyBundle(JsonModel):
+    """Known-mixture mini-study with bounded truth-like claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    study_id: str = Field(..., min_length=1)
+    mixture_asset_path: str = Field(..., min_length=1)
+    truth_reference_path: str = Field(..., min_length=1)
+    boundaries: tuple[KnownMixtureTruthBoundary, ...] = Field(default_factory=tuple)
+
+
+def build_known_mixture_mini_study_bundle(
+    *,
+    study_id: str,
+    mixture_asset_path: str,
+    truth_reference_path: str,
+    boundaries: tuple[KnownMixtureTruthBoundary, ...],
+) -> KnownMixtureMiniStudyBundle:
+    """Build known-mixture bundle with explicit accuracy-claim boundaries."""
+
+    if not boundaries:
+        raise ValueError("known-mixture mini-study must include at least one truth boundary")
+    return KnownMixtureMiniStudyBundle(
+        study_id=study_id,
+        mixture_asset_path=mixture_asset_path,
+        truth_reference_path=truth_reference_path,
+        boundaries=tuple(boundaries),
+    )
