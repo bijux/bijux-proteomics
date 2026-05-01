@@ -609,3 +609,82 @@ def build_review_packet_schema(
         risks=tuple(sorted(risks, key=lambda entry: entry.risk_id)),
         decisions=tuple(sorted(decisions, key=lambda entry: entry.decision_id)),
     )
+
+
+class ReviewerChallengeEntry(JsonModel):
+    """One reviewer challenge against trust, ranking, or claim interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: str = Field(..., min_length=1)
+    reviewer_id: str = Field(..., min_length=1)
+    candidate_id: str = Field(..., min_length=1)
+    challenge_surface: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=1)
+    evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReviewerChallengeResolutionEntry(JsonModel):
+    """Resolution outcome for one reviewer challenge."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: str = Field(..., min_length=1)
+    status: str = Field(..., min_length=1)
+    rationale: str = Field(..., min_length=1)
+    impacted_decision_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReviewerChallengeWorkflowReport(JsonModel):
+    """Challenge workflow summary preserving challengeability with evidence pointers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    resolutions: tuple[ReviewerChallengeResolutionEntry, ...] = Field(default_factory=tuple)
+    open_count: int = Field(..., ge=0)
+    resolved_count: int = Field(..., ge=0)
+
+
+def run_reviewer_challenge_workflow(
+    packet: ReviewPacketSchema,
+    challenges: tuple[ReviewerChallengeEntry, ...],
+) -> ReviewerChallengeWorkflowReport:
+    """Resolve reviewer challenges using packet evidence and decision references."""
+
+    packet_evidence_ids = {entry.evidence_id for entry in packet.evidence}
+    decisions_by_candidate: dict[str, list[str]] = {}
+    for decision in packet.decisions:
+        decisions_by_candidate.setdefault(decision.candidate_id, []).append(decision.decision_id)
+
+    resolutions: list[ReviewerChallengeResolutionEntry] = []
+    for challenge in sorted(challenges, key=lambda entry: entry.challenge_id):
+        missing_evidence = [
+            evidence_id for evidence_id in challenge.evidence_ids if evidence_id not in packet_evidence_ids
+        ]
+        if missing_evidence:
+            resolutions.append(
+                ReviewerChallengeResolutionEntry(
+                    challenge_id=challenge.challenge_id,
+                    status="needs_follow_up",
+                    rationale="challenge references evidence ids not present in packet",
+                    impacted_decision_ids=tuple(
+                        decisions_by_candidate.get(challenge.candidate_id, [])
+                    ),
+                )
+            )
+            continue
+
+        resolutions.append(
+            ReviewerChallengeResolutionEntry(
+                challenge_id=challenge.challenge_id,
+                status="resolved",
+                rationale="challenge evidence was found and linked for board review",
+                impacted_decision_ids=tuple(decisions_by_candidate.get(challenge.candidate_id, [])),
+            )
+        )
+
+    return ReviewerChallengeWorkflowReport(
+        resolutions=tuple(resolutions),
+        open_count=sum(1 for entry in resolutions if entry.status != "resolved"),
+        resolved_count=sum(1 for entry in resolutions if entry.status == "resolved"),
+    )
