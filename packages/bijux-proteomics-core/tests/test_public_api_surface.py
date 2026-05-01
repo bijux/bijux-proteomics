@@ -317,6 +317,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "run_review_board_workflow" in bijux_proteomics.__all__
     assert "build_evidence_freshness_report" in bijux_proteomics.__all__
     assert "build_contradiction_aware_lab_recommendation_report" in bijux_proteomics.__all__
+    assert "build_lab_cost_model_report" in bijux_proteomics.__all__
+    assert "build_plate_randomization_plan" in bijux_proteomics.__all__
+    assert "evaluate_validation_stage_progression_policy" in bijux_proteomics.__all__
+    assert "ingest_lab_outcomes_with_versioned_policy" in bijux_proteomics.__all__
+    assert "build_lab_risk_dashboard_report" in bijux_proteomics.__all__
+    assert "evaluate_protocol_attachment_boundary" in bijux_proteomics.__all__
+    assert "build_lims_oriented_export_bundle" in bijux_proteomics.__all__
+    assert "build_assay_expected_evidence_gain_report" in bijux_proteomics.__all__
+    assert "build_lab_queue_prioritization_report" in bijux_proteomics.__all__
+    assert "apply_lab_feedback_to_intelligence_prioritization" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -408,6 +418,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "ReviewBoardWorkflowReport" in bijux_proteomics.__all__
     assert "EvidenceFreshnessReport" in bijux_proteomics.__all__
     assert "ContradictionAwareLabRecommendationReport" in bijux_proteomics.__all__
+    assert "LabCostModelReport" in bijux_proteomics.__all__
+    assert "PlateRandomizationPlan" in bijux_proteomics.__all__
+    assert "ValidationStageProgressionDecision" in bijux_proteomics.__all__
+    assert "LabOutcomeIngestionReport" in bijux_proteomics.__all__
+    assert "LabRiskDashboardReport" in bijux_proteomics.__all__
+    assert "ProtocolAttachmentBoundaryReport" in bijux_proteomics.__all__
+    assert "LimsOrientedExportBundle" in bijux_proteomics.__all__
+    assert "AssayExpectedEvidenceGainReport" in bijux_proteomics.__all__
+    assert "LabQueuePrioritizationReport" in bijux_proteomics.__all__
+    assert "IntelligenceFeedbackReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
