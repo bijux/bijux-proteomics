@@ -688,3 +688,63 @@ def run_reviewer_challenge_workflow(
         open_count=sum(1 for entry in resolutions if entry.status != "resolved"),
         resolved_count=sum(1 for entry in resolutions if entry.status == "resolved"),
     )
+
+
+class ReviewNarrativeLine(JsonModel):
+    """One narrative sentence grounded in structured evidence facts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    section: str = Field(..., min_length=1)
+    text: str = Field(..., min_length=1)
+    evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReviewNarrativeReport(JsonModel):
+    """Generated narrative constrained to evidence graph facts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    lines: tuple[ReviewNarrativeLine, ...] = Field(default_factory=tuple)
+    claim_count: int = Field(..., ge=0)
+
+
+def generate_review_narrative_from_structured_facts(
+    packet: ReviewPacketSchema,
+) -> ReviewNarrativeReport:
+    """Generate narrative summaries from packet facts with claim-to-evidence links."""
+
+    evidence_index = {entry.evidence_id: entry for entry in packet.evidence}
+    lines: list[ReviewNarrativeLine] = []
+
+    for decision in packet.decisions:
+        linked_evidence = tuple(
+            evidence_id
+            for evidence_id in decision.evidence_ids
+            if evidence_id in evidence_index
+        )
+        claims = []
+        for evidence_id in linked_evidence:
+            evidence = evidence_index[evidence_id]
+            claims.append(f"{evidence.claim} ({evidence.source})")
+
+        if claims:
+            text = (
+                f"candidate {decision.candidate_id} is {decision.decision_state} because "
+                + "; ".join(claims)
+            )
+        else:
+            text = (
+                f"candidate {decision.candidate_id} is {decision.decision_state} with "
+                "no linked evidence in this packet"
+            )
+
+        lines.append(
+            ReviewNarrativeLine(
+                section="decision",
+                text=text,
+                evidence_ids=linked_evidence,
+            )
+        )
+
+    return ReviewNarrativeReport(lines=tuple(lines), claim_count=len(lines))
