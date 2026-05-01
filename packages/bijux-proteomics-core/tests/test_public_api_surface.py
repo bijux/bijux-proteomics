@@ -287,6 +287,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "optimize_targeted_assay_candidates" in bijux_proteomics.__all__
     assert "export_transition_list_candidates" in bijux_proteomics.__all__
     assert "build_dia_capability_matrix" in bijux_proteomics.__all__
+    assert "build_docker_image_descriptor" in bijux_proteomics.__all__
+    assert "build_container_build_definition" in bijux_proteomics.__all__
+    assert "run_container_smoke_execution" in bijux_proteomics.__all__
+    assert "evaluate_apptainer_hpc_boundary" in bijux_proteomics.__all__
+    assert "export_slurm_job_script" in bijux_proteomics.__all__
+    assert "run_mocked_slurm_lifecycle" in bijux_proteomics.__all__
+    assert "build_external_search_execution_contract" in bijux_proteomics.__all__
+    assert "build_external_quant_execution_contract" in bijux_proteomics.__all__
+    assert "build_provider_capability_registry" in bijux_proteomics.__all__
+    assert "run_environment_qa_for_proteomics_workflows" in bijux_proteomics.__all__
     assert "SequenceToDigestWorkflowRunReport" in bijux_proteomics.__all__
     assert "DdaImportWorkflowRunReport" in bijux_proteomics.__all__
     assert "DiaImportWorkflowRunReport" in bijux_proteomics.__all__
@@ -348,6 +358,16 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "TargetedAssayOptimizationReport" in bijux_proteomics.__all__
     assert "TransitionListExportBundle" in bijux_proteomics.__all__
     assert "DiaCapabilityMatrixReport" in bijux_proteomics.__all__
+    assert "DockerImageDescriptor" in bijux_proteomics.__all__
+    assert "ContainerBuildDefinition" in bijux_proteomics.__all__
+    assert "ContainerSmokeExecutionReport" in bijux_proteomics.__all__
+    assert "HpcContainerBoundaryReport" in bijux_proteomics.__all__
+    assert "SlurmJobScriptExport" in bijux_proteomics.__all__
+    assert "SlurmLifecycleReport" in bijux_proteomics.__all__
+    assert "ExternalSearchExecutionContract" in bijux_proteomics.__all__
+    assert "ExternalQuantExecutionContract" in bijux_proteomics.__all__
+    assert "ProviderCapabilityRegistry" in bijux_proteomics.__all__
+    assert "EnvironmentQaReport" in bijux_proteomics.__all__
     assert "LcmsRunQcReport" in bijux_proteomics.__all__
     assert "InstrumentBatchQcReport" in bijux_proteomics.__all__
     assert "QcInstrumentSummary" in bijux_proteomics.__all__
