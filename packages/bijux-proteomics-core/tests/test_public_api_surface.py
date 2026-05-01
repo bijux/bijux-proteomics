@@ -85,10 +85,21 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_normalized_run_bundle" in bijux_proteomics.__all__
     assert "normalize_search_results_with_adapter" in bijux_proteomics.__all__
     assert "build_search_adapter_capability_matrix" in bijux_proteomics.__all__
+    assert "build_search_engine_corpus_report" in bijux_proteomics.__all__
+    assert "build_comet_output_corpus_report" in bijux_proteomics.__all__
+    assert "build_msfragger_output_corpus_report" in bijux_proteomics.__all__
+    assert "build_sage_output_corpus_report" in bijux_proteomics.__all__
+    assert "build_maxquant_output_corpus_report" in bijux_proteomics.__all__
+    assert "build_diann_output_corpus_report" in bijux_proteomics.__all__
+    assert "build_spectronaut_output_corpus_report" in bijux_proteomics.__all__
     assert "parse_search_parameter_file" in bijux_proteomics.__all__
     assert "validate_search_parameters" in bijux_proteomics.__all__
     assert "compare_search_result_reports" in bijux_proteomics.__all__
+    assert "assess_search_merge_compatibility" in bijux_proteomics.__all__
+    assert "merge_search_result_reports_with_compatibility" in bijux_proteomics.__all__
     assert "build_search_adapter_conformance_report" in bijux_proteomics.__all__
+    assert "build_search_adapter_corpus_conformance_matrix" in bijux_proteomics.__all__
+    assert "build_external_engine_disagreement_report" in bijux_proteomics.__all__
     assert "SearchAdapterKind" in bijux_proteomics.__all__
     assert "Ms1FeatureRecord" in bijux_proteomics.__all__
     assert "parse_ms1_feature_table" in bijux_proteomics.__all__
