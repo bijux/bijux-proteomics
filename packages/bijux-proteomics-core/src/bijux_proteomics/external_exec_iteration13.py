@@ -361,3 +361,43 @@ def build_external_search_execution_contract(
         tool_version=tool_version,
         failure_modes=tuple(sorted(failure_modes)),
     )
+
+
+class ExternalQuantExecutionContract(JsonModel):
+    """Execution contract for external quantification engines."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    command: tuple[str, ...] = Field(default_factory=tuple)
+    input_paths: tuple[str, ...] = Field(default_factory=tuple)
+    output_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+    params: dict[str, str] = Field(default_factory=dict)
+    env: dict[str, str] = Field(default_factory=dict)
+    container_image: str = Field(..., min_length=1)
+    tool_version: str = Field(..., min_length=1)
+    execution_mode: str = Field(..., min_length=1)
+
+
+def build_external_quant_execution_contract(
+    *,
+    command: tuple[str, ...],
+    input_paths: tuple[str, ...],
+    output_artifacts: tuple[str, ...],
+    params: dict[str, str],
+    env: dict[str, str],
+    container_image: str,
+    tool_version: str,
+    execution_mode: str,
+) -> ExternalQuantExecutionContract:
+    """Represent external quant command/artifacts distinct from import-only workflows."""
+
+    return ExternalQuantExecutionContract(
+        command=command,
+        input_paths=tuple(sorted(input_paths)),
+        output_artifacts=tuple(sorted(output_artifacts)),
+        params=dict(sorted(params.items())),
+        env=dict(sorted(env.items())),
+        container_image=container_image,
+        tool_version=tool_version,
+        execution_mode=execution_mode,
+    )
