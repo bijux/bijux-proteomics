@@ -57,3 +57,60 @@ def build_million_psm_ingestion_benchmark_report(
         peak_memory_mb=payload.peak_memory_mb,
         bottleneck_stage=bottleneck_stage,
     )
+
+
+class DenseQuantMatrixBenchmarkInput(JsonModel):
+    """Timing and memory observations for dense quantification-matrix workloads."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    matrix_rows: int = Field(..., ge=1)
+    matrix_columns: int = Field(..., ge=1)
+    normalization_seconds: float = Field(..., gt=0.0)
+    rollup_seconds: float = Field(..., gt=0.0)
+    missingness_seconds: float = Field(..., gt=0.0)
+    da_prep_seconds: float = Field(..., gt=0.0)
+    peak_memory_mb: float = Field(..., gt=0.0)
+    output_size_mb: float = Field(..., gt=0.0)
+
+
+class DenseQuantMatrixBenchmarkReport(JsonModel):
+    """Benchmark report for dense quant normalization/rollup/missingness/DA prep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    matrix_rows: int = Field(..., ge=1)
+    matrix_columns: int = Field(..., ge=1)
+    matrix_cells: int = Field(..., ge=1)
+    total_seconds: float = Field(..., gt=0.0)
+    cells_per_second: float = Field(..., gt=0.0)
+    peak_memory_mb: float = Field(..., gt=0.0)
+    output_size_mb: float = Field(..., gt=0.0)
+    bottleneck_stage: str = Field(..., min_length=1)
+
+
+def build_dense_quant_matrix_benchmark_report(
+    payload: DenseQuantMatrixBenchmarkInput,
+) -> DenseQuantMatrixBenchmarkReport:
+    """Measure dense quant matrix normalization/rollup/missingness/DA-prep performance."""
+
+    stage_durations = {
+        "normalization": payload.normalization_seconds,
+        "rollup": payload.rollup_seconds,
+        "missingness": payload.missingness_seconds,
+        "da_prep": payload.da_prep_seconds,
+    }
+    total_seconds = sum(stage_durations.values())
+    matrix_cells = payload.matrix_rows * payload.matrix_columns
+    cells_per_second = matrix_cells / total_seconds
+    bottleneck_stage = max(stage_durations.items(), key=lambda row: row[1])[0]
+    return DenseQuantMatrixBenchmarkReport(
+        matrix_rows=payload.matrix_rows,
+        matrix_columns=payload.matrix_columns,
+        matrix_cells=matrix_cells,
+        total_seconds=total_seconds,
+        cells_per_second=cells_per_second,
+        peak_memory_mb=payload.peak_memory_mb,
+        output_size_mb=payload.output_size_mb,
+        bottleneck_stage=bottleneck_stage,
+    )
