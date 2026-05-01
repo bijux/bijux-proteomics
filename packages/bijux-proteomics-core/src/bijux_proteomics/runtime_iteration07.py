@@ -175,6 +175,37 @@ class PtmRuntimeWorkflowRunReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class KnowledgeEvidenceInput(JsonModel):
+    """One evidence item for knowledge-review workflow execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    claim: str = Field(..., min_length=1)
+    source: str = Field(..., min_length=1)
+    trust_score: float = Field(..., ge=0.0, le=1.0)
+    contradicts: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class KnowledgeReviewWorkflowRunReport(JsonModel):
+    """End-to-end runtime report for evidence-graph knowledge review workflows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    status: RuntimeWorkflowStatus
+    evidence_node_count: int = Field(..., ge=0)
+    ranked_evidence_count: int = Field(..., ge=0)
+    contradiction_count: int = Field(..., ge=0)
+    accepted_claim_count: int = Field(..., ge=0)
+    contested_claim_count: int = Field(..., ge=0)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    replay_cache_key: str = Field(..., min_length=64, max_length=64)
+    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 def _stable_runtime_key(payload: object) -> str:
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -603,4 +634,85 @@ def run_ptm_workflow_end_to_end(
             ),
         ),
         note="workflow completed PTM localization, occupancy, motif, and lab validation packet surfaces",
+    )
+
+
+def run_knowledge_review_workflow_end_to_end(
+    evidence_items: tuple[KnowledgeEvidenceInput, ...],
+    *,
+    artifact_root: str = "artifacts/workflows/knowledge-review",
+) -> KnowledgeReviewWorkflowRunReport:
+    """Execute evidence-graph -> trust -> ranking -> contradiction review workflow."""
+    ranked = tuple(
+        sorted(
+            evidence_items,
+            key=lambda item: (-item.trust_score, item.evidence_id),
+        )
+    )
+    contradiction_pairs: set[tuple[str, str]] = set()
+    evidence_map = {item.evidence_id: item for item in evidence_items}
+    for item in evidence_items:
+        for other_id in item.contradicts:
+            if other_id in evidence_map:
+                contradiction_pairs.add(tuple(sorted((item.evidence_id, other_id))))
+    contested = {
+        evidence_id for pair in contradiction_pairs for evidence_id in pair
+    }
+    accepted = [
+        item for item in ranked if item.evidence_id not in contested and item.trust_score >= 0.5
+    ]
+    key = _stable_runtime_key(
+        {
+            "workflow": "knowledge-review",
+            "evidence": [item.to_dict() for item in evidence_items],
+        }
+    )
+    return KnowledgeReviewWorkflowRunReport(
+        workflow_id="knowledge-review",
+        status=RuntimeWorkflowStatus.COMPLETED,
+        evidence_node_count=len(evidence_items),
+        ranked_evidence_count=len(ranked),
+        contradiction_count=len(contradiction_pairs),
+        accepted_claim_count=len(accepted),
+        contested_claim_count=len(contested),
+        artifact_paths=(
+            f"{artifact_root}/evidence_graph.json",
+            f"{artifact_root}/trust_ranking.tsv",
+            f"{artifact_root}/contradiction_report.json",
+            f"{artifact_root}/review_packet.json",
+        ),
+        evidence_pointers=(
+            "knowledge.evidence_graph",
+            "knowledge.trust_ranking",
+            "knowledge.contradictions",
+            "knowledge.review_packet",
+        ),
+        replay_cache_key=key,
+        steps=(
+            RuntimeWorkflowStepRecord(
+                step_id="build-evidence-graph",
+                description="build evidence graph from normalized evidence inputs",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(evidence_items),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="rank-trust",
+                description="rank evidence entries by trust score",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(ranked),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="resolve-contradictions",
+                description="flag contradictory evidence pairs for review",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(contradiction_pairs),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="assemble-review-packet",
+                description="assemble knowledge review packet from ranked and contested claims",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(accepted) + len(contested),
+            ),
+        ),
+        note="workflow completed evidence ranking and contradiction-aware knowledge review packet generation",
     )
