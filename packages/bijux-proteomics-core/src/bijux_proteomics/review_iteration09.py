@@ -275,3 +275,91 @@ def decompose_trust_score(payload: TrustScoreInput) -> TrustScoreDecomposition:
         uncertainty=payload.uncertainty,
         final_score=final_score,
     )
+
+
+class RankingPerturbationScenario(JsonModel):
+    """One scoring perturbation scenario for ranking sensitivity analysis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str = Field(..., min_length=1)
+    weight_multiplier: float = Field(..., ge=0.0)
+    extra_penalty: float = Field(0.0, ge=0.0, le=1.0)
+    candidate_score_offsets: dict[str, float] = Field(default_factory=dict)
+
+
+class RankingSensitivityEntry(JsonModel):
+    """Sensitivity envelope for one candidate ranking."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    base_rank: int = Field(..., ge=1)
+    min_rank: int = Field(..., ge=1)
+    max_rank: int = Field(..., ge=1)
+    stable: bool
+
+
+class RankingSensitivityReport(JsonModel):
+    """Report over ranking stability under perturbed scoring assumptions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[RankingSensitivityEntry, ...] = Field(default_factory=tuple)
+    scenario_count: int = Field(..., ge=0)
+    stable_candidate_count: int = Field(..., ge=0)
+    unstable_candidate_count: int = Field(..., ge=0)
+
+
+def build_ranking_sensitivity_report(
+    decompositions: tuple[TrustScoreDecomposition, ...],
+    scenarios: tuple[RankingPerturbationScenario, ...],
+) -> RankingSensitivityReport:
+    """Perturb scoring assumptions and classify stable vs unstable candidate ranks."""
+
+    base_sorted = sorted(
+        decompositions,
+        key=lambda entry: (-entry.final_score, entry.candidate_id),
+    )
+    base_ranks = {entry.candidate_id: rank for rank, entry in enumerate(base_sorted, start=1)}
+
+    rank_history: dict[str, list[int]] = {
+        entry.candidate_id: [base_ranks[entry.candidate_id]] for entry in decompositions
+    }
+
+    for scenario in scenarios:
+        scenario_scores = []
+        for entry in decompositions:
+            perturbed = (
+                entry.weighted_evidence_total * scenario.weight_multiplier
+                - entry.penalty_total
+                - entry.contradiction_penalty
+                - scenario.extra_penalty
+                + scenario.candidate_score_offsets.get(entry.candidate_id, 0.0)
+            )
+            score = min(1.0, max(0.0, perturbed * (1.0 - entry.uncertainty)))
+            scenario_scores.append((entry.candidate_id, score))
+        scenario_sorted = sorted(scenario_scores, key=lambda item: (-item[1], item[0]))
+        for rank, (candidate_id, _) in enumerate(scenario_sorted, start=1):
+            rank_history[candidate_id].append(rank)
+
+    entries = []
+    for candidate_id, ranks in sorted(rank_history.items()):
+        min_rank = min(ranks)
+        max_rank = max(ranks)
+        entries.append(
+            RankingSensitivityEntry(
+                candidate_id=candidate_id,
+                base_rank=base_ranks[candidate_id],
+                min_rank=min_rank,
+                max_rank=max_rank,
+                stable=min_rank == max_rank,
+            )
+        )
+
+    return RankingSensitivityReport(
+        entries=tuple(entries),
+        scenario_count=len(scenarios),
+        stable_candidate_count=sum(1 for entry in entries if entry.stable),
+        unstable_candidate_count=sum(1 for entry in entries if not entry.stable),
+    )
