@@ -490,3 +490,45 @@ def export_transition_list_candidates(
     ]
     payload = "\n".join([header, *rows]) + ("\n" if rows else "")
     return TransitionListExportBundle(tsv_payload=payload, row_count=len(entries))
+
+
+class DiaCapabilityStatus(StrEnum):
+    """Capability status levels for DIA support surfaces."""
+
+    SUPPORTED = "supported"
+    PARTIAL = "partial"
+    UNSUPPORTED = "unsupported"
+
+
+class DiaCapabilityMatrixEntry(JsonModel):
+    """One DIA capability entry for a named workflow surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: str = Field(..., min_length=1)
+    status: DiaCapabilityStatus
+    note: str = Field(..., min_length=1)
+
+
+class DiaCapabilityMatrixReport(JsonModel):
+    """Capability matrix for DIA import/library/quant/QC/FDR and unsupported surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[DiaCapabilityMatrixEntry, ...] = Field(default_factory=tuple)
+    supported_count: int = Field(..., ge=0)
+    partial_count: int = Field(..., ge=0)
+    unsupported_count: int = Field(..., ge=0)
+
+
+def build_dia_capability_matrix(
+    entries: tuple[DiaCapabilityMatrixEntry, ...],
+) -> DiaCapabilityMatrixReport:
+    """Expose exact DIA support states with explicit surface notes."""
+
+    return DiaCapabilityMatrixReport(
+        entries=tuple(sorted(entries, key=lambda entry: entry.surface)),
+        supported_count=sum(1 for entry in entries if entry.status is DiaCapabilityStatus.SUPPORTED),
+        partial_count=sum(1 for entry in entries if entry.status is DiaCapabilityStatus.PARTIAL),
+        unsupported_count=sum(1 for entry in entries if entry.status is DiaCapabilityStatus.UNSUPPORTED),
+    )
