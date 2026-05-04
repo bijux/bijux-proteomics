@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.dia_iteration12 import (
+from bijux_proteomics.dia import (
     DiaCapabilityMatrixEntry,
     DiaCapabilityStatus,
     build_dia_capability_matrix,

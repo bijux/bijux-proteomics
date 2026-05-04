@@ -168,7 +168,7 @@ from bijux_proteomics.criteria import (
     SuccessCriterion,
     criterion_passes,
 )
-from bijux_proteomics.dia_iteration12 import (
+from bijux_proteomics.dia import (
     DiaCapabilityMatrixEntry,
     DiaCapabilityMatrixReport,
     DiaCapabilityStatus,
@@ -1328,7 +1328,7 @@ from bijux_proteomics.stable_isotope_labeling import (
     StableIsotopeLabelingModel,
     build_stable_isotope_labeling_model,
 )
-from bijux_proteomics.study_metadata_iteration08 import (
+from bijux_proteomics.study import (
     DesignTableParseIssue,
     DesignTableParseReport,
     ExperimentalDesignValidationIssue,

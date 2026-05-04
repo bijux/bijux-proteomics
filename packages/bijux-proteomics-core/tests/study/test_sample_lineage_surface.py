@@ -3,14 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.study_metadata_iteration08 import (
+from bijux_proteomics.study import (
     StudyMetadataRecord,
-    build_study_metadata_model,
+    build_sample_lineage_report,
 )
 
 
-def test_build_study_metadata_model_counts_studies_samples_and_runs() -> None:
-    records = (
+def test_build_sample_lineage_report_marks_missing_surface_links() -> None:
+    metadata = (
         StudyMetadataRecord(
             study_id="S-001",
             cohort_id="C-1",
@@ -34,9 +34,18 @@ def test_build_study_metadata_model_counts_studies_samples_and_runs() -> None:
             batch_id="B1",
         ),
     )
+    report = build_sample_lineage_report(
+        metadata,
+        identification_samples=("sample-01", "sample-02"),
+        quant_samples=("sample-01", "sample-02"),
+        ptm_samples=("sample-01",),
+        qc_samples=("sample-01", "sample-02"),
+        evidence_samples=("sample-01", "sample-02"),
+        lab_samples=("sample-01",),
+    )
 
-    model = build_study_metadata_model(records)
-
-    assert model.study_count == 1
-    assert model.sample_count == 2
-    assert model.run_count == 2
+    assert report.fully_traced_sample_count == 1
+    assert report.missing_lineage_sample_count == 1
+    missing = next(entry for entry in report.entries if entry.sample_id == "sample-02")
+    assert "ptm" in missing.missing_surfaces
+    assert "lab" in missing.missing_surfaces

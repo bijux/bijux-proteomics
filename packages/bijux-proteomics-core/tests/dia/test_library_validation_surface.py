@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.dia_iteration12 import (
+from bijux_proteomics.dia import (
     SpectralLibraryIdentityEntry,
     validate_spectral_library_identity_entries,
 )

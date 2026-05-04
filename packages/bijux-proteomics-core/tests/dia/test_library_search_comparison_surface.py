@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.dia_iteration12 import (
+from bijux_proteomics.dia import (
     compare_library_and_database_search_evidence,
 )
 

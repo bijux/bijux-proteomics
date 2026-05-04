@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.dia_iteration12 import (
+from bijux_proteomics.dia import (
     SpectralLibraryIdentityEntry,
     build_spectral_library_identity_ledger,
 )

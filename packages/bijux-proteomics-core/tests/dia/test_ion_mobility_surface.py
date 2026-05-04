@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.dia_iteration12 import (
+from bijux_proteomics.dia import (
     DiaIonMobilityEvidenceEntry,
     build_dia_ion_mobility_evidence_report,
 )

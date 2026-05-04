@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.study_metadata_iteration08 import (
+from bijux_proteomics.study import (
     LabRequestSchema,
     LabRequestTarget,
     validate_lab_request_schema,

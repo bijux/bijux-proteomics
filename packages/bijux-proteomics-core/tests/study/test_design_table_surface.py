@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.study_metadata_iteration08 import parse_study_design_table
+from bijux_proteomics.study import parse_study_design_table
 
 
 def test_parse_study_design_table_accepts_valid_rows_and_rejects_invalid(

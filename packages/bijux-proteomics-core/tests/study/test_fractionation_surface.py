@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.study_metadata_iteration08 import (
+from bijux_proteomics.study import (
     FractionationRecord,
     build_fractionation_aggregation_report,
 )
