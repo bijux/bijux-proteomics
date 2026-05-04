@@ -121,7 +121,10 @@ def test_digest_repeatability_fixture_produces_identical_peptide_and_manifest_ou
     None
 ):
     input_fasta = (
-        Path(__file__).parent / "fixtures" / "digestion" / "repeatability_input.fasta"
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "digestion"
+        / "repeatability_input.fasta"
     )
     report = parse_fasta_document(input_fasta.read_text(), mode=FastaParseMode.STRICT)
 

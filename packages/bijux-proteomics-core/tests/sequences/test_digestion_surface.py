@@ -13,7 +13,7 @@ from bijux_proteomics import (
 
 
 def _digestion_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "digestion" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "digestion" / name
 
 
 def test_digest_sequence_performs_full_tryptic_cleavage() -> None:
