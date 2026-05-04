@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.quantification import MissingValueKind, Ms1FeatureRecord
-from bijux_proteomics.quantification_iteration05 import (
+from bijux_proteomics.quantification.review import (
     ProteinRollupStrategyKind,
     build_protein_rollup_strategy_comparison_report,
 )

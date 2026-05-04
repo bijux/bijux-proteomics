@@ -946,7 +946,7 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
     summarize_missing_values,
 )
-from bijux_proteomics.quantification_iteration05 import (
+from bijux_proteomics.quantification.review import (
     DifferentialAbundanceDesignIssue,
     DifferentialAbundanceDesignValidationReport,
     EffectSizeFirstDaEntry,

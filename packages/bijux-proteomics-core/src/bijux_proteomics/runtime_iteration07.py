@@ -31,7 +31,7 @@ from bijux_proteomics.ptm_advanced_workflows import (
     build_ptm_occupancy_counterpart_report,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
-from bijux_proteomics.quantification_iteration05 import build_quant_review_bundle
+from bijux_proteomics.quantification.review import build_quant_review_bundle
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,

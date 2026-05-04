@@ -9,7 +9,7 @@ from bijux_proteomics.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )
-from bijux_proteomics.quantification_iteration05 import (
+from bijux_proteomics.quantification.review import (
     build_lfq_feature_peptide_protein_provenance_report,
 )
 

@@ -10,7 +10,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
-from bijux_proteomics.quantification_iteration05 import (
+from bijux_proteomics.quantification.review import (
     QuantNormalizationPolicyKind,
     build_normalization_policy_comparison_matrix_report,
 )

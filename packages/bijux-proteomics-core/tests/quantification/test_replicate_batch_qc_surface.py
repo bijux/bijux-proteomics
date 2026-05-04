@@ -12,9 +12,8 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
-from bijux_proteomics.quantification_iteration05 import (
-    MissingnessMechanismKind,
-    build_missingness_mechanism_profile_report,
+from bijux_proteomics.quantification.review import (
+    build_replicate_and_batch_qc_report,
 )
 
 
@@ -23,110 +22,114 @@ def _table_and_design() -> tuple[
 ]:
     records = (
         Ms1FeatureRecord(
-            feature_id="m-001",
-            sample_id="a1",
+            feature_id="q-001",
+            sample_id="s1",
             peptide="PEPA",
             canonical_peptide="PEPA",
-            intensity=500.0,
+            intensity=1000.0,
             protein_refs=("P1",),
             missing_value_kind=MissingValueKind.OBSERVED,
         ),
         Ms1FeatureRecord(
-            feature_id="m-002",
-            sample_id="a2",
+            feature_id="q-002",
+            sample_id="s2",
             peptide="PEPA",
             canonical_peptide="PEPA",
-            intensity=520.0,
+            intensity=100.0,
             protein_refs=("P1",),
             missing_value_kind=MissingValueKind.OBSERVED,
         ),
         Ms1FeatureRecord(
-            feature_id="m-003",
-            sample_id="b1",
+            feature_id="q-003",
+            sample_id="s3",
             peptide="PEPA",
             canonical_peptide="PEPA",
-            intensity=None,
+            intensity=950.0,
             protein_refs=("P1",),
-            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+            missing_value_kind=MissingValueKind.OBSERVED,
         ),
         Ms1FeatureRecord(
-            feature_id="m-004",
-            sample_id="b2",
+            feature_id="q-004",
+            sample_id="s4",
             peptide="PEPA",
             canonical_peptide="PEPA",
-            intensity=None,
+            intensity=90.0,
             protein_refs=("P1",),
-            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+            missing_value_kind=MissingValueKind.OBSERVED,
         ),
         Ms1FeatureRecord(
-            feature_id="m-005",
-            sample_id="a1",
+            feature_id="q-005",
+            sample_id="s1",
             peptide="PEPB",
             canonical_peptide="PEPB",
-            intensity=300.0,
+            intensity=800.0,
             protein_refs=("P2",),
             missing_value_kind=MissingValueKind.OBSERVED,
         ),
         Ms1FeatureRecord(
-            feature_id="m-006",
-            sample_id="a2",
+            feature_id="q-006",
+            sample_id="s2",
             peptide="PEPB",
             canonical_peptide="PEPB",
-            intensity=320.0,
+            intensity=120.0,
             protein_refs=("P2",),
             missing_value_kind=MissingValueKind.OBSERVED,
         ),
         Ms1FeatureRecord(
-            feature_id="m-007",
-            sample_id="b1",
+            feature_id="q-007",
+            sample_id="s3",
             peptide="PEPB",
             canonical_peptide="PEPB",
-            intensity=310.0,
+            intensity=760.0,
             protein_refs=("P2",),
             missing_value_kind=MissingValueKind.OBSERVED,
         ),
         Ms1FeatureRecord(
-            feature_id="m-008",
-            sample_id="b2",
+            feature_id="q-008",
+            sample_id="s4",
             peptide="PEPB",
             canonical_peptide="PEPB",
-            intensity=None,
+            intensity=130.0,
             protein_refs=("P2",),
-            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+            missing_value_kind=MissingValueKind.OBSERVED,
         ),
     )
     design = (
         ExperimentalDesignEntry(
-            sample_id="a1",
+            sample_id="s1",
             condition="case",
             replicate=1,
             fraction=1,
-            spectra_file="a1.mzml",
+            spectra_file="s1.mzml",
             batch="b1",
+            instrument="inst-a",
         ),
         ExperimentalDesignEntry(
-            sample_id="a2",
+            sample_id="s2",
             condition="case",
             replicate=2,
             fraction=1,
-            spectra_file="a2.mzml",
+            spectra_file="s2.mzml",
             batch="b1",
+            instrument="inst-a",
         ),
         ExperimentalDesignEntry(
-            sample_id="b1",
+            sample_id="s3",
             condition="ctrl",
             replicate=1,
             fraction=1,
-            spectra_file="b1.mzml",
+            spectra_file="s3.mzml",
             batch="b2",
+            instrument="inst-b",
         ),
         ExperimentalDesignEntry(
-            sample_id="b2",
+            sample_id="s4",
             condition="ctrl",
             replicate=2,
             fraction=1,
-            spectra_file="b2.mzml",
+            spectra_file="s4.mzml",
             batch="b2",
+            instrument="inst-b",
         ),
     )
     table = build_label_free_intensity_table(
@@ -137,15 +140,16 @@ def _table_and_design() -> tuple[
     return table, design
 
 
-def test_missingness_mechanism_profile_report_classifies_sparse_and_technical_patterns() -> (
-    None
-):
+def test_replicate_and_batch_qc_report_surfaces_outlier_sample_context() -> None:
     table, design = _table_and_design()
-    report = build_missingness_mechanism_profile_report(table, design_entries=design)
-
-    by_entity = {entry.entity_id: entry for entry in report.entries}
-    assert (
-        by_entity["PEPA"].mechanism is MissingnessMechanismKind.SPARSE_BIOLOGY_CANDIDATE
+    report = build_replicate_and_batch_qc_report(
+        table,
+        design_entries=design,
+        within_condition_warning_threshold=0.95,
+        batch_shift_threshold=0.2,
     )
-    assert by_entity["PEPB"].mechanism is MissingnessMechanismKind.TECHNICAL_FAILURE
-    assert report.summary_counts[MissingnessMechanismKind.SPARSE_BIOLOGY_CANDIDATE] >= 1
+
+    assert report.replicate_correlation_count >= 1
+    assert report.flagged_batch_count >= 0
+    assert len(report.outlier_samples) >= 1
+    assert report.outlier_samples[0].spectra_file.endswith(".mzml")

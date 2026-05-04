@@ -65,7 +65,7 @@ from bijux_proteomics import (
 
 
 def _quant_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "quant" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "quant" / name
 
 
 def test_ms1_feature_parser_accepts_quant_fixture_and_preserves_missing_states() -> (

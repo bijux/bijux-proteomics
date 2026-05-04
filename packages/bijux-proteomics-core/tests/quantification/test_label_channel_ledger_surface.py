@@ -18,7 +18,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
 )
-from bijux_proteomics.quantification_iteration05 import (
+from bijux_proteomics.quantification.review import (
     build_label_based_quant_channel_ledger,
 )
 

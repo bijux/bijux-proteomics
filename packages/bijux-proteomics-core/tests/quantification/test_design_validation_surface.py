@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification_iteration05 import (
+from bijux_proteomics.quantification.review import (
     validate_differential_abundance_design_context,
 )
 
