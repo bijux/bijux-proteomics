@@ -13,7 +13,7 @@ from bijux_proteomics.theoretical_fragment_reference import (
 
 
 def _chemistry_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "chemistry" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "chemistry" / name
 
 
 def test_validate_theoretical_fragment_reference_cases_matches_curated_fixture() -> (

@@ -46,11 +46,11 @@ from bijux_proteomics import (
 
 
 def _modification_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "modifications" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "modifications" / name
 
 
 def _chemistry_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "chemistry" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "chemistry" / name
 
 
 def test_mass_calculators_cover_monoisotopic_average_and_mz() -> None:
