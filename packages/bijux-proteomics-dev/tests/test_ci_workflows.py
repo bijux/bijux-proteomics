@@ -18,6 +18,7 @@ EXPECTED_WORKFLOWS = {
     "ci.yml",
     "deploy-docs.yml",
     "github-policy.yml",
+    "pr-approval-policy.yml",
     "release-artifacts.yml",
     "release-ghcr.yml",
     "release-github.yml",
