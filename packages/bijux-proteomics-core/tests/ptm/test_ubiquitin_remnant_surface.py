@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.ptm import PtmSiteEntry
-from bijux_proteomics.ptm_advanced_workflows import (
+from bijux_proteomics.ptm.review import (
     build_ubiquitin_remnant_workflow_report,
 )
 from bijux_proteomics.quantification import MissingValueKind, Ms1FeatureRecord

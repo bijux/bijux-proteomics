@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.ptm_advanced_workflows import (
+from bijux_proteomics.ptm.review import (
     evaluate_glycopeptide_support_boundary,
 )
 

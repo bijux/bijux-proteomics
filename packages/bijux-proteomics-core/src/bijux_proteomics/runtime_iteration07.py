@@ -24,7 +24,7 @@ from bijux_proteomics.ptm import (
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.ptm_advanced_workflows import (
+from bijux_proteomics.ptm.review import (
     PtmLabAssayRisk,
     PtmLabValidationPacket,
     build_ptm_lab_validation_packet,

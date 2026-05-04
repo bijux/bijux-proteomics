@@ -9,18 +9,18 @@ from bijux_proteomics.ptm import (
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.ptm_advanced_workflows import (
+from bijux_proteomics.ptm.review import (
     build_ptm_site_localization_evidence_graph,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
 def _fixture_path(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "ptm" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "ptm" / name
 
 
 def _protein_sequences() -> dict[str, str]:
-    fasta = Path(__file__).parent / "fixtures" / "fasta" / "ptm_sites.fasta"
+    fasta = Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / "ptm_sites.fasta"
     report = parse_fasta_document(fasta.read_text(), mode=FastaParseMode.STRICT)
     return {
         record.canonical_accession: record.residues

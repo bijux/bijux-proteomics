@@ -774,7 +774,7 @@ from bijux_proteomics.ptm import (
     parse_ptm_localization_tsv,
     validate_ptm_site_coordinates,
 )
-from bijux_proteomics.ptm_advanced_workflows import (
+from bijux_proteomics.ptm.review import (
     GlycopeptideBoundaryDisposition,
     GlycopeptideSupportBoundaryReport,
     PtmAcetylReviewFixtureReport,

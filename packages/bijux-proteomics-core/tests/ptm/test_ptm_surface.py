@@ -28,11 +28,11 @@ from bijux_proteomics.sequences import FastaParseMode
 
 
 def _ptm_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "ptm" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "ptm" / name
 
 
 def _fasta_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "fasta" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / name
 
 
 def _protein_sequences() -> dict[str, str]:
