@@ -85,7 +85,7 @@ from bijux_proteomics.chemistry import (
     validate_modified_peptide_fragment_ions,
     validate_modified_peptide_sites,
 )
-from bijux_proteomics.collaboration_iteration18 import (
+from bijux_proteomics.collaboration import (
     ArchiveRetentionPackage,
     ArchiveRetentionPackageInput,
     CitationRegistryDocument,
@@ -131,7 +131,7 @@ from bijux_proteomics.context import (
     ProgramDeliveryContext,
     ProgramPortfolioContext,
 )
-from bijux_proteomics.corpus_iteration11 import (
+from bijux_proteomics.corpus import (
     ContradictionMiniStudyBundle,
     ContradictionMiniStudyEntry,
     CorpusAssetEntry,
@@ -518,7 +518,7 @@ from bijux_proteomics.identification.confidence import (
     export_psm_peptide_protein_trace_bundle,
     validate_custom_decoy_strategy,
 )
-from bijux_proteomics.intelligence_iteration15 import (
+from bijux_proteomics.intelligence import (
     CandidateComparisonInput,
     CandidateComparisonPacket,
     CandidatePriorityEntry,
@@ -565,7 +565,7 @@ from bijux_proteomics.isotope_adduct_annotation import (
     IsotopeAdductAnnotationReport,
     annotate_isotope_and_adduct_hypotheses,
 )
-from bijux_proteomics.lab_planning_iteration10 import (
+from bijux_proteomics.lab.planning import (
     AssayDesignComparisonEntry,
     AssayDesignComparisonReport,
     AssayDesignProfile,
@@ -607,7 +607,7 @@ from bijux_proteomics.lab_planning_iteration10 import (
     transition_assay_progression,
     validate_targeted_transition_list,
 )
-from bijux_proteomics.lab_planning_iteration16 import (
+from bijux_proteomics.lab.operations import (
     AssayExpectedEvidenceGainEntry,
     AssayExpectedEvidenceGainInput,
     AssayExpectedEvidenceGainReport,
@@ -1003,7 +1003,7 @@ from bijux_proteomics.repositories import (
     require_program,
     validate_review_decision,
 )
-from bijux_proteomics.review_iteration09 import (
+from bijux_proteomics.review import (
     CandidateLifecycleEvent,
     CandidateLifecycleReplayEntry,
     CandidateLifecycleReplayReport,
