@@ -11,6 +11,8 @@ from click.testing import CliRunner
 
 from bijux_proteomics.interfaces.cli import cli
 
+FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
+
 
 def test_program_template_writes_manifest() -> None:
     runner = CliRunner()
@@ -324,7 +326,7 @@ def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
 def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        source = Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv"
+        source = FIXTURE_ROOT / "psm" / "minimal_results.tsv"
         shutil.copy(source, "results.tsv")
 
         result = runner.invoke(
@@ -357,7 +359,7 @@ def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
 def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        source = Path(__file__).parent / "fixtures" / "psm" / "fdr_results.tsv"
+        source = FIXTURE_ROOT / "psm" / "fdr_results.tsv"
         shutil.copy(source, "fdr.tsv")
 
         result = runner.invoke(
@@ -386,7 +388,7 @@ def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        source = Path(__file__).parent / "fixtures" / "spectra" / "multi.mgf"
+        source = FIXTURE_ROOT / "spectra" / "multi.mgf"
         shutil.copy(source, "multi.mgf")
 
         result = runner.invoke(
@@ -413,7 +415,7 @@ def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> N
 def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        source = Path(__file__).parent / "fixtures" / "spectra" / "simple.mgf"
+        source = FIXTURE_ROOT / "spectra" / "simple.mgf"
         shutil.copy(source, "simple.mgf")
 
         result = runner.invoke(
@@ -448,17 +450,14 @@ def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
     with runner.isolated_filesystem():
         shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv",
+            FIXTURE_ROOT / "psm" / "minimal_results.tsv",
             "results.tsv",
         )
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "spectra" / "simple.mgf", "simple.mgf"
+            FIXTURE_ROOT / "spectra" / "simple.mgf", "simple.mgf"
         )
         shutil.copy(
-            Path(__file__).parent
-            / "fixtures"
-            / "modifications"
-            / "valid_registry.json",
+            FIXTURE_ROOT / "modifications" / "valid_registry.json",
             "registry.json",
         )
 
@@ -488,11 +487,11 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
     with runner.isolated_filesystem():
         shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "psm" / "minimal_results.tsv",
+            FIXTURE_ROOT / "psm" / "minimal_results.tsv",
             "results.tsv",
         )
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "spectra" / "multi.mgf", "multi.mgf"
+            FIXTURE_ROOT / "spectra" / "multi.mgf", "multi.mgf"
         )
 
         fasta_result = runner.invoke(
@@ -513,11 +512,11 @@ def test_validate_and_summarize_commands_support_mzml_and_design_tables() -> Non
     runner = CliRunner()
     with runner.isolated_filesystem():
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "formats" / "simple.mzml",
+            FIXTURE_ROOT / "formats" / "simple.mzml",
             "simple.mzml",
         )
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "formats" / "valid.design.tsv",
+            FIXTURE_ROOT / "formats" / "valid.design.tsv",
             "design.tsv",
         )
 
@@ -550,15 +549,15 @@ def test_format_convert_and_bundle_run_commands_materialize_normalized_outputs()
     runner = CliRunner()
     with runner.isolated_filesystem():
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "formats" / "simple.mzml",
+            FIXTURE_ROOT / "formats" / "simple.mzml",
             "simple.mzml",
         )
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "formats" / "valid.design.tsv",
+            FIXTURE_ROOT / "formats" / "valid.design.tsv",
             "design.tsv",
         )
         shutil.copy(
-            Path(__file__).parent / "fixtures" / "first_useful_run" / "results.tsv",
+            FIXTURE_ROOT / "first_useful_run" / "results.tsv",
             "results.tsv",
         )
 
@@ -604,7 +603,7 @@ def test_format_convert_and_bundle_run_commands_materialize_normalized_outputs()
 def test_search_adapter_inspect_and_normalize_commands_work() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "search_adapters"
+        fixture_dir = FIXTURE_ROOT / "search_adapters"
         shutil.copy(fixture_dir / "sage_results.tsv", "sage_results.tsv")
         shutil.copy(fixture_dir / "sage_config.json", "sage_config.json")
         shutil.copy(fixture_dir / "generic_results.tsv", "generic_results.tsv")
@@ -662,7 +661,7 @@ def test_search_adapter_inspect_and_normalize_commands_work() -> None:
 def test_search_adapter_params_compare_and_conformance_commands_work() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "search_adapters"
+        fixture_dir = FIXTURE_ROOT / "search_adapters"
         shutil.copy(fixture_dir / "comet.params", "comet.params")
         shutil.copy(fixture_dir / "comet_invalid.params", "comet_invalid.params")
         shutil.copy(fixture_dir / "sage_results.tsv", "sage_results.tsv")
@@ -721,7 +720,7 @@ def test_search_adapter_params_compare_and_conformance_commands_work() -> None:
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "psm"
+        fixture_dir = FIXTURE_ROOT / "psm"
         shutil.copy(fixture_dir / "fdr_results.tsv", "fdr_results.tsv")
 
         result = runner.invoke(
@@ -751,8 +750,8 @@ def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
 def test_infer_proteins_command_emits_grouping_and_coverage_artifacts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        psm_fixture_dir = Path(__file__).parent / "fixtures" / "psm"
-        fasta_fixture_dir = Path(__file__).parent / "fixtures" / "fasta"
+        psm_fixture_dir = FIXTURE_ROOT / "psm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
         shutil.copy(
             psm_fixture_dir / "protein_inference_results.tsv",
             "protein_inference_results.tsv",
@@ -794,7 +793,7 @@ def test_infer_proteins_command_emits_grouping_and_coverage_artifacts() -> None:
 def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "quant"
+        fixture_dir = FIXTURE_ROOT / "quant"
         shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
         shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
 
@@ -839,8 +838,8 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
 def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        ptm_fixture_dir = Path(__file__).parent / "fixtures" / "ptm"
-        fasta_fixture_dir = Path(__file__).parent / "fixtures" / "fasta"
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
         shutil.copy(
             ptm_fixture_dir / "localization_results.tsv", "localization_results.tsv"
         )
@@ -880,7 +879,7 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        fixture_dir = FIXTURE_ROOT / "production_run"
         for name in (
             "spectra.mgf",
             "results.tsv",
@@ -931,7 +930,7 @@ def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
 def test_qc_report_command_reports_structured_policy_errors() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        fixture_dir = FIXTURE_ROOT / "production_run"
         for name in ("spectra.mgf", "results.tsv", "proteins.fasta"):
             shutil.copy(fixture_dir / name, name)
         Path("bad-policy.json").write_text("{not valid json}\n")
@@ -956,7 +955,7 @@ def test_qc_report_command_reports_structured_policy_errors() -> None:
 def test_workflow_plan_command_emits_runtime_bundle_and_sidecar_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        fixture_dir = FIXTURE_ROOT / "production_run"
         for name in (
             "spectra.mgf",
             "results.tsv",
@@ -1009,7 +1008,7 @@ def test_workflow_plan_command_emits_runtime_bundle_and_sidecar_outputs() -> Non
 def test_workflow_validate_command_checks_runtime_integrity() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        fixture_dir = Path(__file__).parent / "fixtures" / "production_run"
+        fixture_dir = FIXTURE_ROOT / "production_run"
         for name in (
             "spectra.mgf",
             "results.tsv",
