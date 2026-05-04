@@ -17,7 +17,7 @@ from bijux_proteomics.search_adapters import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "search_adapters" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "search_adapters" / name
 
 
 def test_merge_compatibility_flags_incompatible_score_families() -> None:

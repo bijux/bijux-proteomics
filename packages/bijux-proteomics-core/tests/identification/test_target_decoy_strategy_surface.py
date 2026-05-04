@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.identification_iteration04 import (
+from bijux_proteomics.identification.confidence import (
     TargetDecoyStrategyDefinition,
     TargetDecoyStrategyKind,
     build_target_decoy_strategy_registry,

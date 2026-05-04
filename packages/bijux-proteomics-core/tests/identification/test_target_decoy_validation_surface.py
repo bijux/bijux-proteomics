@@ -8,7 +8,7 @@ from bijux_proteomics.identification import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
 )
-from bijux_proteomics.identification_iteration04 import validate_custom_decoy_strategy
+from bijux_proteomics.identification.confidence import validate_custom_decoy_strategy
 
 
 def _records_with_collision() -> tuple[PsmRecord, ...]:

@@ -71,11 +71,11 @@ from bijux_proteomics import (
 
 
 def _psm_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "psm" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "psm" / name
 
 
 def _fasta_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "fasta" / name
+    return Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / name
 
 
 def _default_mapping() -> SearchResultColumnMapping:

@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
-from bijux_proteomics.identification_iteration04 import (
+from bijux_proteomics.identification.confidence import (
     build_psm_peptide_protein_trace_bundle,
     export_psm_peptide_protein_trace_bundle,
 )

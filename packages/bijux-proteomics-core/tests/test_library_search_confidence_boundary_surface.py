@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.identification_iteration04 import (
+from bijux_proteomics.identification.confidence import (
     ConfidenceResultFamily,
     LibrarySearchConfidenceBoundaryInput,
     evaluate_library_search_confidence_boundary,

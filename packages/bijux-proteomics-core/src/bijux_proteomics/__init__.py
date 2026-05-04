@@ -479,7 +479,7 @@ from bijux_proteomics.identification import (
     validate_target_decoy_policy,
     verify_fdr_q_value_monotonicity,
 )
-from bijux_proteomics.identification_iteration04 import (
+from bijux_proteomics.identification.confidence import (
     ConfidenceResultFamily,
     ConfidenceThresholdBundleEntry,
     ConfidenceThresholdSensitivityBundle,

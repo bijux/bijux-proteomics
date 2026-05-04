@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
-from bijux_proteomics.identification_iteration04 import (
+from bijux_proteomics.identification.confidence import (
     build_empirical_score_calibration_report,
 )
 
