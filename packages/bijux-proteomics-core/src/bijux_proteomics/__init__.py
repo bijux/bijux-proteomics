@@ -253,7 +253,7 @@ from bijux_proteomics.exceptions import (
     ReviewGateBlockedError,
 )
 from bijux_proteomics.execution_backend import ExecutionBackend, ExecutionRequest
-from bijux_proteomics.external_credibility_iteration20 import (
+from bijux_proteomics.adoption import (
     AgenticProteinsMigrationItem,
     AgenticProteinsMigrationReport,
     BijuxCoreIntegrationContractInput,
@@ -286,7 +286,7 @@ from bijux_proteomics.external_credibility_iteration20 import (
     build_mature_ecosystem_comparison_report,
     build_product_simplification_by_real_usage_report,
 )
-from bijux_proteomics.external_exec_iteration13 import (
+from bijux_proteomics.execution.providers import (
     ContainerBuildDefinition,
     ContainerNetworkMode,
     ContainerSmokeExecutionReport,
@@ -679,7 +679,7 @@ from bijux_proteomics.peptide_uniqueness_audit import (
     PeptideUniquenessAuditReport,
     build_peptide_uniqueness_audit_report,
 )
-from bijux_proteomics.product_api_iteration19 import (
+from bijux_proteomics.interfaces.api import (
     AdapterConformanceRouteRequest,
     AdapterConformanceRouteResponse,
     CliWorkflowCommandEntry,
@@ -1054,7 +1054,7 @@ from bijux_proteomics.runtime_adapter import (
     AgenticProteinsBackend,
     MissingExecutionBackendError,
 )
-from bijux_proteomics.runtime_iteration07 import (
+from bijux_proteomics.workflow.runs import (
     DdaImportWorkflowRunReport,
     DdaSearchHitInput,
     DiaImportWorkflowRunReport,
@@ -1086,7 +1086,7 @@ from bijux_proteomics.runtime_iteration07 import (
     run_quant_workflow_end_to_end,
     run_sequence_to_digest_workflow_end_to_end,
 )
-from bijux_proteomics.runtime_iteration14 import (
+from bijux_proteomics.workflow.reproducibility import (
     ArtifactInventoryRecord,
     ArtifactInventoryVerificationIssue,
     ArtifactInventoryVerificationReport,
@@ -1134,7 +1134,7 @@ from bijux_proteomics.runtime_iteration14 import (
     query_workflow_run_history,
     verify_workflow_artifact_inventory,
 )
-from bijux_proteomics.scale_iteration17 import (
+from bijux_proteomics.benchmarks import (
     BenchmarkCorpusClass,
     BenchmarkCorpusDescriptor,
     BenchmarkMetricEntry,
