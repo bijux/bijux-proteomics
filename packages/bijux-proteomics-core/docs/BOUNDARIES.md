@@ -10,7 +10,9 @@
 - program, target, assay, and review entities
 - lifecycle transitions and stage eligibility logic
 - domain invariants and identifier validations
-- runtime adapter interfaces and package CLI entrypoints
+- runtime-agnostic execution contracts
+- normalized workflow-planning and proteomics I/O seams
+- package CLI entrypoints
 
 ## This package does not own
 

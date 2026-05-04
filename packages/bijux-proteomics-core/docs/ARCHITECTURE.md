@@ -18,9 +18,13 @@ assays, review gates, lifecycle transitions, and execution adapter protocols.
 
 ## Module topology
 
-- `program_spec.py` owns primary lifecycle entities and stage semantics
-- `validation.py` owns invariant checks and issue reporting
-- `repositories.py` owns storage-agnostic repository protocols
+- `domain/` owns canonical program semantics: targets, constraints, context,
+  criteria, liabilities, lifecycle, review gates, and validation
+- `io/` owns normalized format, spectrum, and serialization boundaries
+- `workflow/` owns scientific workflow blueprints and runtime manifests
+- `execution/` owns runtime-agnostic execution contracts and adapter seams
+- root-level modules remain as compatibility import shims while the package
+  surface is normalized around intent-based subpackages
 - `interfaces/` owns operator-facing package CLI boundaries
 
 ## Dependency direction

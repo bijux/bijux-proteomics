@@ -1,10 +1,5 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
-
-"""Compatibility re-export for shared serialization helpers."""
+"""Compatibility wrapper for :mod:`bijux_proteomics.io.serialization`."""
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import JsonModel
-
-__all__ = ["JsonModel"]
+from bijux_proteomics.io.serialization import *  # noqa: F401,F403
