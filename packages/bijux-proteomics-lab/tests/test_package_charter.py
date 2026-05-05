@@ -61,8 +61,11 @@ def test_only_package_root_remains_thin_abstraction() -> None:
     assert thin_paths == {
         "__init__.py",
         "design/__init__.py",
+        "lifecycle/__init__.py",
+        "outcomes/__init__.py",
         "planning/__init__.py",
         "protocols.py",
         "readiness/__init__.py",
+        "reconciliation/__init__.py",
         "workflow_readiness.py",
     }

@@ -78,7 +78,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         capability=LabCharterCapability.PROGRESSION,
         owned_surface="Operational progression and review transitions grounded in lab-ready state rather than recommendation-only ranking.",
         required_modules=(
-            "lifecycle.py",
+            "lifecycle/progression.py",
             "planning/assays.py",
             "readiness/operations.py",
         ),
@@ -101,11 +101,11 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         capability=LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         owned_surface="Observed-outcome interpretation that feeds back into reruns, evidence promotion, and future cycles.",
         required_modules=(
-            "outcomes.py",
+            "outcomes/observations.py",
             "repositories.py",
             "readiness/operations.py",
             "risk.py",
-            "reconciliation.py",
+            "reconciliation/follow_up.py",
         ),
         release_blocker="Lab cannot ship if observed outcomes cannot reconcile back into operational follow-up and feedback loops.",
     ),
@@ -163,13 +163,23 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Targeted transition review and handoff-specific decision surfaces keep lab exports grounded in operational responsibility.",
     ),
     LabModuleAuditEntry(
-        module_path="lifecycle.py",
+        module_path="lifecycle/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The lifecycle band re-exports operational progression under the durable lifecycle namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="lifecycle/progression.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.PROGRESSION,),
         reason="Lifecycle transitions govern operational progression and review state in the lab layer.",
     ),
     LabModuleAuditEntry(
-        module_path="outcomes.py",
+        module_path="outcomes/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The outcomes band re-exports observed execution logic under the durable outcomes namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="outcomes/observations.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,),
         reason="Outcome interpretation and rerun behavior are core lab feedback-loop ownership.",
@@ -215,12 +225,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Operational readiness turns cost, staffing, backlog, and reagent pressure into explicit execution state.",
     ),
     LabModuleAuditEntry(
-        module_path="reconciliation.py",
-        classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,),
-        reason="Planned-versus-observed reconciliation converts assay outcomes into honest downstream feedback instead of implicit optimism.",
-    ),
-    LabModuleAuditEntry(
         module_path="risk.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(
@@ -228,6 +232,17 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         ),
         reason="Assay-risk models stop weak uniqueness, localization, reproducibility, and failure-prone follow-up from hardening into operational certainty.",
+    ),
+    LabModuleAuditEntry(
+        module_path="reconciliation/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The reconciliation band re-exports follow-up owners under the durable reconciliation namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="reconciliation/follow_up.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,),
+        reason="Planned-versus-observed reconciliation converts assay outcomes into honest downstream feedback instead of implicit optimism.",
     ),
     LabModuleAuditEntry(
         module_path="repositories.py",
