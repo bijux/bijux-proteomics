@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from bijux_proteomics_lab.design.protocols import (
     InstrumentMethodMetadata,
     ProtocolControlRequirement,
@@ -19,6 +22,14 @@ from bijux_proteomics_lab.handoffs import (
     compare_alternative_assay_plans,
 )
 from bijux_proteomics_lab.planning import LabExecutionRequest
+
+
+def _handoff_fixture(name: str) -> dict[str, object]:
+    return json.loads(
+        (Path(__file__).parent / "fixtures" / "handoffs" / name).read_text(
+            encoding="utf-8"
+        )
+    )
 
 
 def _protocol_attachment():
@@ -129,3 +140,45 @@ def test_compare_alternative_assay_plans_balances_evidence_cost_and_turnaround()
 
     assert comparison.recommended_plan_id == "orthogonal-first"
     assert comparison.scores[0][0] == "orthogonal-first"
+
+
+def test_lims_loss_fixture_keeps_flattened_operator_notes_explicit() -> None:
+    fixture = _handoff_fixture("lossy_lims_follow_up.json")
+    protocol_attachment = build_protocol_attachment(
+        sample_preparation=SamplePreparationMetadata.model_validate(
+            fixture["sample_preparation"]
+        ),
+        instrument_method=InstrumentMethodMetadata.model_validate(
+            fixture["instrument_method"]
+        ),
+        protocol_version="3.1",
+        required_controls=tuple(
+            ProtocolControlRequirement.model_validate(item)
+            for item in fixture["required_controls"]
+        ),
+        failure_caveats=tuple(
+            ProtocolFailureCaveat.model_validate(item)
+            for item in fixture["failure_caveats"]
+        ),
+    )
+
+    bundle = build_lims_export_bundle(
+        bundle_id=str(fixture["bundle_id"]),
+        system_name=str(fixture["system_name"]),
+        candidate_id=str(fixture["candidate_id"]),
+        execution_request=LabExecutionRequest.model_validate(
+            fixture["execution_request"]
+        ),
+        protocol_attachment=protocol_attachment,
+        explanation=HandoffExplanation.model_validate(fixture["explanation"]),
+    )
+
+    assert bundle.lossy_fields == ("scientific_rationale",)
+    assert bundle.records[0].scientific_rationale == (
+        "preserve the orthogonal explanation because a single targeted signal is not enough",
+        "record the assay caveat so LIMS operators do not treat the handoff as execution-ready",
+    )
+    assert any(
+        "flattened into one operator-facing note channel" in note
+        for note in bundle.notes
+    )

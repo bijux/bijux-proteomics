@@ -353,6 +353,27 @@ def test_build_sample_tracking_plate_advisory_tracks_controls_and_multiplex_watc
     )
 
 
+def test_build_sample_tracking_plate_advisory_rejects_oversubscribed_plate_layout() -> (
+    None
+):
+    entries = parse_experimental_design_table(
+        _local_fixture("oversubscribed_plate.design.tsv")
+    ).accepted_entries
+
+    try:
+        build_sample_tracking_plate_advisory(
+            entries,
+            plate_id="plate-oversubscribed",
+            row_count=2,
+            column_count=2,
+            seed=5,
+        )
+    except ValueError as exc:
+        assert "plate layout capacity exceeded" in str(exc)
+    else:
+        raise AssertionError("expected oversubscribed plate layout to fail")
+
+
 def test_assess_carryover_risk_flags_high_to_sensitive_transitions() -> None:
     advisory = assess_carryover_risk(
         ("blank-1", "mix-high", "sample-low", "blank-2"),

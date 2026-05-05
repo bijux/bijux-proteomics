@@ -1,0 +1,75 @@
+{
+  "bundle_id": "lims-export-lossy-1",
+  "system_name": "benchling-lims",
+  "candidate_id": "cand-lims-lossy",
+  "execution_request": {
+    "program_id": "prog-lims-lossy",
+    "batch_id": "batch-lims-lossy-1",
+    "evidence_ids": ["ev-lims-1", "ev-lims-2"],
+    "requested_instruction_ids": [
+      "batch-lims-lossy-1:targeted-assay",
+      "batch-lims-lossy-1:orthogonal-assay"
+    ],
+    "requested_assay_ids": ["targeted-assay", "orthogonal-assay"],
+    "scientific_rationale": [
+      "preserve the orthogonal explanation because a single targeted signal is not enough",
+      "record the assay caveat so LIMS operators do not treat the handoff as execution-ready"
+    ],
+    "unresolved_risks": [
+      "review packet remains blocked by contradictory follow-up evidence",
+      "transition controls are still incomplete"
+    ],
+    "ready_for_lab_review": false
+  },
+  "sample_preparation": {
+    "protocol_id": "prep-lossy-targeted",
+    "digestion_protocol": "trypsin overnight",
+    "cleanup_method": "solid-phase extraction",
+    "notes": [
+      "the batch is still review-only and should not be treated as an executable operator instruction"
+    ]
+  },
+  "instrument_method": {
+    "method_id": "prm-lossy-method",
+    "instrument": "orbitrap",
+    "acquisition_mode": "PRM",
+    "gradient_minutes": 75.0,
+    "ms1_resolution": 60000,
+    "ms2_resolution": 30000,
+    "collision_energy": 28.0
+  },
+  "required_controls": [
+    {
+      "control_id": "pooled-reference",
+      "summary": "shared pooled reference",
+      "failure_if_missing": "transition timing cannot be normalized safely"
+    }
+  ],
+  "failure_caveats": [
+    {
+      "caveat_id": "orthogonal-gap",
+      "triggering_condition": "orthogonal assay still disagrees with the targeted direction",
+      "operational_effect": "operators could over-read a single transition cluster if the caveat is lost",
+      "mitigation": "keep review-only status and preserve the contradiction note in the export"
+    }
+  ],
+  "explanation": {
+    "candidate_id": "cand-lims-lossy",
+    "supported": [],
+    "exploratory": [
+      {
+        "level": "exploratory",
+        "summary": "orthogonal support remains incomplete even though the packet can be exported for review",
+        "evidence_refs": ["ev-lims-2"]
+      }
+    ],
+    "blocked": [
+      {
+        "level": "blocked",
+        "summary": "handoff remains blocked until contradictory follow-up evidence is resolved",
+        "evidence_refs": ["targeted-assay"]
+      }
+    ],
+    "summary": "handoff remains blocked until contradictory follow-up evidence is resolved"
+  }
+}
