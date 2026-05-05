@@ -5,7 +5,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics import parse_experimental_design_table
+from bijux_proteomics import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+    parse_experimental_design_table,
+)
 from bijux_proteomics_lab import (
     CarryoverRiskLevel,
     ContrastRejectionReason,
@@ -271,16 +275,80 @@ def test_build_sample_tracking_plate_advisory_preserves_sample_lineage() -> None
         plate_id="plate-fractionation",
         row_count=2,
         column_count=2,
+        seed=7,
     )
 
-    assert [assignment.well_id for assignment in advisory.assignments] == [
-        "A01",
-        "A02",
-        "B01",
-        "B02",
-    ]
+    assert advisory.randomization_seed == 7
+    assert advisory.blocked_layout_labels == (
+        "batch=batch-a|fraction=1|plex=none",
+        "batch=batch-a|fraction=2|plex=none",
+    )
     assert advisory.assignments[0].lineage_label == "C1|control|rep1|frac1"
-    assert advisory.assignments[-1].lineage_label == "T1|treatment|rep1|frac2"
+    assert all(assignment.randomization_block for assignment in advisory.assignments)
+    assert advisory.layout_summary
+
+
+def test_build_sample_tracking_plate_advisory_tracks_controls_and_multiplex_watch() -> (
+    None
+):
+    advisory = build_sample_tracking_plate_advisory(
+        (
+            ExperimentalDesignEntry(
+                sample_id="REF",
+                condition="reference",
+                replicate=1,
+                fraction=1,
+                spectra_file="ref.mzML",
+                batch="batch-a",
+                multiplex_group="plex-a",
+                multiplex_channel="126",
+                sample_role=ExperimentalDesignSampleRole.POOLED_REFERENCE,
+            ),
+            ExperimentalDesignEntry(
+                sample_id="QC",
+                condition="qc",
+                replicate=1,
+                fraction=1,
+                spectra_file="qc.mzML",
+                batch="batch-a",
+                multiplex_group="plex-a",
+                multiplex_channel="127N",
+                sample_role=ExperimentalDesignSampleRole.QC_BRIDGE,
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="treated",
+                replicate=1,
+                fraction=1,
+                spectra_file="s1.mzML",
+                batch="batch-a",
+                multiplex_group="plex-a",
+                multiplex_channel="127C",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S2",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="s2.mzML",
+                batch="batch-a",
+                multiplex_group="plex-a",
+                multiplex_channel="128N",
+            ),
+        ),
+        plate_id="plate-multiplex",
+        row_count=2,
+        column_count=2,
+        seed=3,
+    )
+
+    assert advisory.control_well_ids
+    assert advisory.multiplex_group_count == 1
+    assert advisory.contamination_watch_well_ids
+    assert any(
+        assignment.sample_role is ExperimentalDesignSampleRole.POOLED_REFERENCE
+        for assignment in advisory.assignments
+    )
 
 
 def test_assess_carryover_risk_flags_high_to_sensitive_transitions() -> None:

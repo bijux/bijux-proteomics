@@ -267,6 +267,10 @@ class SampleTrackingPlateAssignment(JsonModel):
     plate_id: str = Field(..., min_length=1)
     well_id: str = Field(..., min_length=1)
     lineage_label: str = Field(..., min_length=1)
+    sample_role: ExperimentalDesignSampleRole = ExperimentalDesignSampleRole.SAMPLE
+    randomization_block: str = Field(..., min_length=1)
+    multiplex_group: str | None = None
+    contamination_watch: bool = False
 
 
 class SampleTrackingPlateAdvisory(JsonModel):
@@ -277,10 +281,36 @@ class SampleTrackingPlateAdvisory(JsonModel):
     plate_id: str = Field(..., min_length=1)
     row_count: int = Field(..., ge=1)
     column_count: int = Field(..., ge=1)
+    randomization_seed: int = Field(..., ge=0)
     assignments: tuple[SampleTrackingPlateAssignment, ...] = Field(
         default_factory=tuple
     )
+    control_well_ids: tuple[str, ...] = Field(default_factory=tuple)
+    blocked_layout_labels: tuple[str, ...] = Field(default_factory=tuple)
+    multiplex_group_count: int = Field(default=0, ge=0)
+    contamination_watch_well_ids: tuple[str, ...] = Field(default_factory=tuple)
+    layout_summary: str = Field(..., min_length=1)
     notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def _entry_block_label(entry: ExperimentalDesignEntry) -> str:
+    return (
+        f"batch={entry.batch or 'unassigned'}"
+        f"|fraction={entry.fraction}"
+        f"|plex={entry.multiplex_group or 'none'}"
+    )
+
+
+def _is_layout_control(entry: ExperimentalDesignEntry) -> bool:
+    if entry.sample_role is not ExperimentalDesignSampleRole.SAMPLE:
+        return True
+    normalized = entry.condition.lower()
+    return any(token in normalized for token in ("qc", "reference", "blank", "pool"))
+
+
+def _well_id_for_index(index: int, *, column_count: int) -> str:
+    row_index, column_index = divmod(index, column_count)
+    return f"{chr(ord('A') + row_index)}{column_index + 1:02d}"
 
 
 def _replicate_counts(entries: tuple[ExperimentalDesignEntry, ...]) -> dict[str, int]:
@@ -523,58 +553,142 @@ def build_sample_tracking_plate_advisory(
     plate_id: str = "plate-01",
     row_count: int = 8,
     column_count: int = 12,
+    seed: int = 0,
 ) -> SampleTrackingPlateAdvisory:
-    """Build a deterministic plate-layout advisory that preserves sample lineage."""
+    """Build a deterministic plate-layout advisory with controls, blocks, and multiplex context."""
     capacity = row_count * column_count
-    unique_rows = sorted(
-        {
-            (
-                entry.sample_id,
-                entry.condition,
-                entry.replicate,
-                entry.fraction,
-                entry.batch,
-            )
-            for entry in entries
-        },
-        key=lambda row: (
-            row[4] or "",
-            row[1],
-            row[2],
-            row[0],
-            row[3],
+    unique_entries: list[ExperimentalDesignEntry] = []
+    seen_rows: set[tuple[str, str, int, int, str | None, str | None, str | None]] = set()
+    for entry in sorted(
+        entries,
+        key=lambda item: (
+            item.batch or "",
+            item.fraction,
+            item.multiplex_group or "",
+            item.condition,
+            item.sample_id,
+            item.replicate,
         ),
-    )
-    if len(unique_rows) > capacity:
-        raise ValueError(
-            f"plate layout capacity exceeded: {len(unique_rows)} rows require {capacity} wells"
+    ):
+        row_key = (
+            entry.sample_id,
+            entry.condition,
+            entry.replicate,
+            entry.fraction,
+            entry.batch,
+            entry.multiplex_group,
+            entry.sample_role.value,
         )
+        if row_key in seen_rows:
+            continue
+        seen_rows.add(row_key)
+        unique_entries.append(entry)
+
+    if len(unique_entries) > capacity:
+        raise ValueError(
+            f"plate layout capacity exceeded: {len(unique_entries)} rows require {capacity} wells"
+        )
+    rng = Random(seed)
+    grouped_entries: dict[str, list[ExperimentalDesignEntry]] = defaultdict(list)
+    for entry in unique_entries:
+        grouped_entries[_entry_block_label(entry)].append(entry)
+
+    ordered_controls: list[ExperimentalDesignEntry] = []
+    ordered_samples: list[ExperimentalDesignEntry] = []
+    blocked_layout_labels = tuple(sorted(grouped_entries))
+    for block_label in blocked_layout_labels:
+        block_entries = list(grouped_entries[block_label])
+        rng.shuffle(block_entries)
+        controls = [entry for entry in block_entries if _is_layout_control(entry)]
+        samples = [entry for entry in block_entries if not _is_layout_control(entry)]
+        controls.sort(
+            key=lambda item: (
+                item.sample_role.value,
+                item.condition,
+                item.sample_id,
+                item.replicate,
+            )
+        )
+        samples.sort(
+            key=lambda item: (
+                item.condition,
+                item.sample_id,
+                item.replicate,
+                item.fraction,
+            )
+        )
+        ordered_controls.extend(controls)
+        ordered_samples.extend(samples)
+
+    preferred_control_slots: list[int] = []
+    if capacity:
+        preferred_control_slots.extend([0, capacity - 1])
+    if column_count > 1:
+        preferred_control_slots.extend([column_count - 1, max(0, capacity - column_count)])
+    available_slots = list(dict.fromkeys(index for index in preferred_control_slots if 0 <= index < capacity))
+    if len(ordered_controls) > len(available_slots):
+        available_slots.extend(
+            index for index in range(capacity) if index not in set(available_slots)
+        )
+
+    entry_by_slot: dict[int, ExperimentalDesignEntry] = {}
+    for index, entry in zip(available_slots, ordered_controls, strict=False):
+        entry_by_slot[index] = entry
+
+    remaining_slots = [index for index in range(capacity) if index not in entry_by_slot]
+    for index, entry in zip(remaining_slots, ordered_samples, strict=False):
+        entry_by_slot[index] = entry
+
     assignments: list[SampleTrackingPlateAssignment] = []
-    for index, row in enumerate(unique_rows):
-        sample_id, condition, replicate, fraction, batch = row
-        row_index, column_index = divmod(index, column_count)
-        well_id = f"{chr(ord('A') + row_index)}{column_index + 1:02d}"
+    contamination_watch_well_ids: set[str] = set()
+    control_well_ids: list[str] = []
+    multiplex_groups = {
+        entry.multiplex_group for entry in unique_entries if entry.multiplex_group
+    }
+    for index in sorted(entry_by_slot):
+        entry = entry_by_slot[index]
+        well_id = _well_id_for_index(index, column_count=column_count)
+        contamination_watch = _is_layout_control(entry) or bool(entry.multiplex_group)
+        if contamination_watch:
+            contamination_watch_well_ids.add(well_id)
+        if _is_layout_control(entry):
+            control_well_ids.append(well_id)
         assignments.append(
             SampleTrackingPlateAssignment(
-                sample_id=sample_id,
-                condition=condition,
-                replicate=replicate,
-                fraction=fraction,
-                batch=batch,
+                sample_id=entry.sample_id,
+                condition=entry.condition,
+                replicate=entry.replicate,
+                fraction=entry.fraction,
+                batch=entry.batch,
                 plate_id=plate_id,
                 well_id=well_id,
                 lineage_label=(
-                    f"{sample_id}|{condition}|rep{replicate}|frac{fraction}"
+                    f"{entry.sample_id}|{entry.condition}|rep{entry.replicate}|frac{entry.fraction}"
                 ),
+                sample_role=entry.sample_role,
+                randomization_block=_entry_block_label(entry),
+                multiplex_group=entry.multiplex_group,
+                contamination_watch=contamination_watch,
             )
         )
     return SampleTrackingPlateAdvisory(
         plate_id=plate_id,
         row_count=row_count,
         column_count=column_count,
+        randomization_seed=seed,
         assignments=tuple(assignments),
+        control_well_ids=tuple(control_well_ids),
+        blocked_layout_labels=blocked_layout_labels,
+        multiplex_group_count=len(multiplex_groups),
+        contamination_watch_well_ids=tuple(sorted(contamination_watch_well_ids)),
+        layout_summary=(
+            f"{len(assignments)} samples were assigned across {len(blocked_layout_labels)} layout block(s) "
+            f"with {len(control_well_ids)} explicit control or QC placements."
+        ),
         notes=(
-            "plate layout groups entries deterministically by batch, condition, replicate, and sample id.",
+            "plate layout preserves batch, fraction, and multiplex grouping through explicit randomization blocks.",
+            "control and QC-like samples are distributed across anchor wells when possible.",
+            "multiplexed or control wells are flagged for contamination watch during execution review.",
             "lineage labels preserve sample identity across replicate and fraction handling.",
         ),
     )
