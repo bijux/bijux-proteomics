@@ -25,10 +25,11 @@ class IntelligenceCharterCapability(StrEnum):
 class IntelligenceAnalyticalBand(StrEnum):
     """Stable analytical bands that organize intelligence owner modules."""
 
+    CANDIDATES = "candidates"
     JUDGMENT = "judgment"
-    EVIDENCE_POSTURE = "evidence_posture"
+    POSTURE = "posture"
     INTERPRETATION = "interpretation"
-    REVIEW = "review"
+    REVIEWS = "reviews"
     LEARNING = "learning"
 
 
@@ -120,14 +121,34 @@ DEFAULT_INTELLIGENCE_CHARTER = IntelligenceProductCharter(
 
 DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] = (
     IntelligenceCapabilityMapEntry(
-        band=IntelligenceAnalyticalBand.JUDGMENT,
+        band=IntelligenceAnalyticalBand.CANDIDATES,
         owned_surface=(
-            "ranking policy, candidate framing, rejection semantics, and scenario "
-            "evaluation that turn typed evidence into explicit analytical judgment"
+            "candidate framing, ranking, lifecycle, and candidate-specific "
+            "quality semantics that make later judgment analyzable instead of ad hoc"
         ),
         required_modules=(
             "candidates/ranking.py",
             "candidates/lifecycle.py",
+            "candidates/quality.py",
+            "candidates/validation.py",
+        ),
+        decision_scope=(
+            "rank candidates against explicit policy factors",
+            "publish machine-readable rejection and tie-break reasoning",
+            "keep candidate lifecycle and quality posture explicit before review synthesis",
+        ),
+        refusal_scope=(
+            "refuse opaque score-only ordering",
+            "refuse package-root convenience exports as a substitute for candidate ownership",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.JUDGMENT,
+        owned_surface=(
+            "scenario evaluation, decision paths, and recommendation semantics that "
+            "turn typed evidence into explicit analytical judgment"
+        ),
+        required_modules=(
             "judgment/policies.py",
             "judgment/scenarios.py",
             "judgment/recommendations.py",
@@ -144,7 +165,7 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
     ),
     IntelligenceCapabilityMapEntry(
-        band=IntelligenceAnalyticalBand.EVIDENCE_POSTURE,
+        band=IntelligenceAnalyticalBand.POSTURE,
         owned_surface=(
             "contradiction pressure, freshness pressure, and readiness gating over "
             "knowledge-owned evidence bundles"
@@ -165,7 +186,15 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
             "typed biological interpretation and caution-aware analytical summaries "
             "over already-normalized proteomics evidence"
         ),
-        required_modules=("interpretation/summaries.py",),
+        required_modules=(
+            "interpretation/runs.py",
+            "interpretation/quantitative.py",
+            "interpretation/ptm.py",
+            "interpretation/contaminants.py",
+            "interpretation/contrasts.py",
+            "interpretation/pathways.py",
+            "interpretation/structures.py",
+        ),
         decision_scope=(
             "summarize run-level interpretation posture",
             "recommend contrasts and enrichment summaries with explicit caveats",
@@ -176,13 +205,15 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
     ),
     IntelligenceCapabilityMapEntry(
-        band=IntelligenceAnalyticalBand.REVIEW,
+        band=IntelligenceAnalyticalBand.REVIEWS,
         owned_surface=(
             "review packets, skeptical challenge reports, benchmark-backed review, "
             "and end-to-end decision paths"
         ),
         required_modules=(
-            "reviews/analysis.py",
+            "reviews/boards.py",
+            "reviews/candidates.py",
+            "reviews/pathways.py",
             "reviews/packets.py",
             "reviews/benchmarks.py",
         ),
@@ -201,7 +232,7 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
             "outcome-informed prioritization updates and design-loop feedback that "
             "adjust future analytical posture without rewriting history"
         ),
-        required_modules=("learning/adaptation.py", "learning/iterative_design/"),
+        required_modules=("learning/adaptation.py", "learning/refinement/"),
         decision_scope=(
             "adjust future prioritization from observed outcomes",
             "track convergence and stagnation in iterative design analysis",
@@ -250,7 +281,11 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
     IntelligenceCharterEntry(
         capability=IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
         owned_surface="Typed interpretation contracts that separate technical anomalies, biological signal, and pathway-overclaim risks.",
-        required_modules=("interpretation/summaries.py", "reviews/analysis.py"),
+        required_modules=(
+            "interpretation/runs.py",
+            "interpretation/quantitative.py",
+            "reviews/pathways.py",
+        ),
         release_blocker="Intelligence cannot ship if interpretation helpers blur cautionary caveats into confident scientific claims.",
     ),
     IntelligenceCharterEntry(
@@ -347,13 +382,25 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         reason="Skeptical review pressure proves recommendation quality against software and scientific objections.",
     ),
     IntelligenceModuleAuditEntry(
-        module_path="reviews/analysis.py",
+        module_path="reviews/boards.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.REVIEW_REASONING,),
+        reason="Board-facing review synthesis keeps escalation, unresolved questions, and review posture separate from candidate and pathway projections.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="reviews/candidates.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.REVIEW_REASONING,),
+        reason="Candidate-facing review projections keep ranked evidence and candidate narratives out of generic review buckets.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="reviews/pathways.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(
             IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
             IntelligenceCharterCapability.REVIEW_REASONING,
         ),
-        reason="Caution-aware analytical review turns typed proteomics evidence into explicit interpretation posture instead of unbounded scientific narrative.",
+        reason="Pathway-facing review synthesis keeps cautious interpretation visible when review consumers need analytical summaries instead of raw signal tables.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="reviews/packets.py",
@@ -368,10 +415,46 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         reason="Benchmark-backed review outputs keep release-facing workflow claims tied to checked-in datasets, owner surfaces, and explicit scientific limits.",
     ),
     IntelligenceModuleAuditEntry(
-        module_path="interpretation/summaries.py",
+        module_path="interpretation/runs.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
-        reason="Typed interpretation discipline keeps technical artifacts and biological claims distinct.",
+        reason="Run interpretation keeps QC posture and biological-readiness summaries typed instead of leaking into runtime or review transport layers.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="interpretation/quantitative.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
+        reason="Quantitative interpretation keeps differential abundance and missingness caveats explicit instead of burying them in presentation helpers.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="interpretation/ptm.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
+        reason="PTM interpretation keeps site-level caveats and motif context separate from broad analytical summaries.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="interpretation/contaminants.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
+        reason="Contaminant interpretation keeps technical artifact semantics explicit instead of blending them into biological narrative.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="interpretation/contrasts.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
+        reason="Contrast recommendation logic keeps study-design caveats explicit before downstream consumers build review or operational guidance.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="interpretation/pathways.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
+        reason="Pathway and enrichment interpretation keep overclaim limits explicit instead of flattening them into generic report prose.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="interpretation/structures.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
+        reason="Structure-oriented interpretation keeps low-confidence segment and protein-structure framing as a typed analytical surface.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="learning/adaptation.py",
@@ -380,19 +463,19 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         reason="Outcome-aware follow-up pressure keeps later analytical posture explicit instead of turning learning into informal downstream lore.",
     ),
     IntelligenceModuleAuditEntry(
-        module_path="learning/iterative_design/convergence.py",
+        module_path="learning/refinement/convergence.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.RECOMMENDATION,),
         reason="Convergence logic keeps iterative design learning explicit instead of hiding it inside informal orchestration heuristics.",
     ),
     IntelligenceModuleAuditEntry(
-        module_path="learning/iterative_design/runner.py",
+        module_path="learning/refinement/runner.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.RECOMMENDATION,),
         reason="Iterative design runner keeps future-oriented analytical loop behavior explicit under the learning band.",
     ),
     IntelligenceModuleAuditEntry(
-        module_path="learning/iterative_design/stagnation.py",
+        module_path="learning/refinement/stagnation.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.RECOMMENDATION,),
         reason="Stagnation detection keeps iterative-design learning pressure explicit instead of flattening weak loops into progress theater.",

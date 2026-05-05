@@ -6,10 +6,8 @@
 - Import root: `bijux_proteomics_intelligence`
 - Canonical owner families: `candidates/`, `judgment/`, `posture/`,
   `reviews/`, `interpretation/`, `learning/`, and `governance/`
-- Curated root compatibility namespaces: `benchmark_reviews`, `briefs`,
-  `charter`, `decision_paths`, `evidence_posture`, `evaluators`,
-  `follow_up_learning`, `interpretation`, `policies`, and
-  `skeptical_review`
+- Curated root owner families: `candidates`, `judgment`, `posture`,
+  `reviews`, `interpretation`, `learning`, and `governance`
 
 ## Stable contracts
 

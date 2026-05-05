@@ -240,5 +240,5 @@ def test_intelligence_readme_advertises_live_judgment_entrypoints() -> None:
     readme_path = Path(__file__).resolve().parents[2] / "README.md"
     readme_text = readme_path.read_text()
 
-    assert "skeptical_review" in readme_text
+    assert "posture/skeptical.py" in readme_text
     assert "grounding.py" not in readme_text

@@ -10,16 +10,21 @@
 `bijux-proteomics-intelligence` transforms core workflow state and
 knowledge-owned evidence posture into explicit analytical judgment.
 
-Its architecture is organized around five durable analytical bands:
+Its architecture is organized around six durable analytical families plus an
+explicit governance family:
 
-- `candidates`: `candidates/ranking.py`, `candidates/lifecycle.py`
+- `candidates`: `candidates/ranking.py`, `candidates/lifecycle.py`,
+  `candidates/quality.py`, `candidates/validation.py`
 - `judgment`: `judgment/policies.py`, `judgment/scenarios.py`,
   `judgment/recommendations.py`, `judgment/paths.py`
 - `posture`: `posture/evidence.py`, `posture/skeptical.py`
-- `interpretation`: `interpretation/summaries.py`
-- `reviews`: `reviews/analysis.py`, `reviews/packets.py`,
-  `reviews/benchmarks.py`
-- `learning`: `learning/adaptation.py`, `learning/iterative_design/`
+- `interpretation`: `interpretation/runs.py`,
+  `interpretation/quantitative.py`, `interpretation/ptm.py`,
+  `interpretation/contaminants.py`, `interpretation/contrasts.py`,
+  `interpretation/pathways.py`, `interpretation/structures.py`
+- `reviews`: `reviews/boards.py`, `reviews/candidates.py`,
+  `reviews/pathways.py`, `reviews/packets.py`, `reviews/benchmarks.py`
+- `learning`: `learning/adaptation.py`, `learning/refinement/`
 - `governance`: `governance/charter.py`
 
 ## Design constraints
@@ -39,11 +44,16 @@ Its architecture is organized around five durable analytical bands:
 - `judgment/paths.py` owns end-to-end analytical decision paths
 - `posture/evidence.py` owns contradiction, freshness, downgrade, and refusal posture
 - `posture/skeptical.py` owns explicit challenge pressure over recommendations
+- `reviews/boards.py` owns board-facing review synthesis
+- `reviews/candidates.py` owns candidate-facing review projections
+- `reviews/pathways.py` owns pathway-facing review projections
 - `reviews/packets.py` owns review packet assembly and ranked-evidence presentation
-- `reviews/analysis.py` owns downstream analytical review projections
 - `reviews/benchmarks.py` owns benchmark-backed release review claims
-- `interpretation/summaries.py` owns typed cautious interpretation contracts
-- `learning/adaptation.py` and `learning/iterative_design/` own future-oriented learning pressure
+- `interpretation/runs.py`, `interpretation/quantitative.py`,
+  `interpretation/ptm.py`, `interpretation/contaminants.py`,
+  `interpretation/contrasts.py`, `interpretation/pathways.py`, and
+  `interpretation/structures.py` own typed cautious interpretation contracts
+- `learning/adaptation.py` and `learning/refinement/` own future-oriented learning pressure
 - `governance/charter.py` owns the machine-readable capability map and charter
 
 ## Dependency direction

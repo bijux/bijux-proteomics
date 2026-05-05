@@ -37,7 +37,7 @@ rationale = "Learning and refinement logic stays grouped instead of leaking thro
 [[symbol]]
 name = "posture"
 owner_module = "bijux_proteomics_intelligence.posture"
-classification = "evidence_posture_band"
+classification = "posture_band"
 rationale = "Evidence posture and skeptical challenge stay grouped under one refusal-aware owner family."
 
 [[symbol]]

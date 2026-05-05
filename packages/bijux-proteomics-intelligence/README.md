@@ -40,18 +40,19 @@ orchestration, or lab execution authority.
 
 The package root is curated on purpose. Import exact owner modules such as
 `candidates.ranking`, `judgment.paths`, `posture.evidence`,
-`interpretation.summaries`, and `reviews.benchmarks` instead of treating the
+`interpretation.runs`, and `reviews.benchmarks` instead of treating the
 package root like a broad symbol menu. The machine-readable charter in
-`governance/charter.py` and the governed capability map define five stable
-analytical bands:
+`governance/charter.py` and the governed capability map define six stable
+analytical families:
 
+- candidates
 - judgment
-- evidence posture
+- posture
 - interpretation
-- review
+- reviews
 - learning
 
-Those bands are the durable answer to what intelligence can decide and what it
+Those families are the durable answer to what intelligence can decide and what it
 must refuse or downgrade.
 
 This package also provides benchmark-backed review outputs for `dda`, `dia`,
@@ -88,8 +89,10 @@ pip install bijux-proteomics-intelligence
 
 ```python
 from bijux_proteomics_intelligence.candidates.ranking import prioritize_candidates
-from bijux_proteomics_intelligence.interpretation.summaries import (
+from bijux_proteomics_intelligence.interpretation.runs import (
     build_run_interpretation_summary,
+)
+from bijux_proteomics_intelligence.interpretation.quantitative import (
     interpret_differential_abundance,
 )
 from bijux_proteomics_intelligence.judgment.paths import (
@@ -130,10 +133,8 @@ report = interpret_differential_abundance(...)
 - Import root: `bijux_proteomics_intelligence`
 - Canonical owner families: `candidates/`, `judgment/`, `posture/`,
   `reviews/`, `interpretation/`, `learning/`, and `governance/`
-- Curated root compatibility namespaces: `benchmark_reviews`, `briefs`,
-  `charter`, `decision_paths`, `evidence_posture`, `evaluators`,
-  `follow_up_learning`, `interpretation`, `policies`, and
-  `skeptical_review`
+- Curated root owner families: `candidates`, `judgment`, `posture`,
+  `reviews`, `interpretation`, `learning`, and `governance`
 
 ## Package boundaries
 
@@ -146,7 +147,10 @@ It can decide:
 - scenario recommendations, uncertainty, and review-decision paths through `judgment/`
 - evidence-readiness downgrade, refusal, and skeptical pressure through `posture/`
 - benchmark-backed reviewer outputs and downstream analytical presentation through `reviews/`
-- cautious interpretation summaries through `interpretation/summaries.py`
+- cautious interpretation summaries through `interpretation/runs.py`,
+  `interpretation/quantitative.py`, `interpretation/pathways.py`,
+  `interpretation/ptm.py`, `interpretation/contaminants.py`, and
+  `interpretation/contrasts.py`
 - learning pressure on future prioritization through `learning/`
 
 It does not own scientific truth, evidence curation, workflow stage law,
@@ -197,7 +201,7 @@ runtime transport, or lab scheduling.
 - route the change outward when the behavior mostly shapes scientific truth,
   evidence curation, lab operations, or delivery transport
 - stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when a
-  proposal starts looking broader than the five analytical bands
+  proposal starts looking broader than the six analytical families
 - escalate before release when downstream consumers would need local exceptions
   to interpret recommendation readiness or refusal
 
@@ -229,9 +233,12 @@ runtime transport, or lab scheduling.
 - [`src/bijux_proteomics_intelligence/posture/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/evidence.py) for contradiction, freshness, downgrade, and refusal posture
 - [`src/bijux_proteomics_intelligence/posture/skeptical.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/skeptical.py) for scientific and software challenge pressure
 - [`src/bijux_proteomics_intelligence/reviews/packets.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/packets.py) for review packet assembly and ranked evidence presentation
-- [`src/bijux_proteomics_intelligence/reviews/analysis.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/analysis.py) for downstream analytical review projections
+- [`src/bijux_proteomics_intelligence/reviews/boards.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/boards.py) for board-facing analytical review projections
+- [`src/bijux_proteomics_intelligence/reviews/candidates.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/candidates.py) for candidate-facing review projections
+- [`src/bijux_proteomics_intelligence/reviews/pathways.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/pathways.py) for pathway-facing review projections
 - [`src/bijux_proteomics_intelligence/reviews/benchmarks.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py) for benchmark-backed release review
-- [`src/bijux_proteomics_intelligence/interpretation/summaries.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/summaries.py) for cautious interpretation contracts
+- [`src/bijux_proteomics_intelligence/interpretation/runs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/runs.py) for run-level interpretation posture
+- [`src/bijux_proteomics_intelligence/interpretation/quantitative.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/quantitative.py) for quantitative interpretation and missingness caveats
 - [`src/bijux_proteomics_intelligence/learning/adaptation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/adaptation.py) for follow-up learning pressure
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
 

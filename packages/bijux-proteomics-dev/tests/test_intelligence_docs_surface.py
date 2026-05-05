@@ -49,7 +49,7 @@ def test_intelligence_docs_teach_curated_namespaces_instead_of_symbol_menu_impor
         in readme
     )
     assert (
-        "from bijux_proteomics_intelligence.interpretation.summaries import ("
+        "from bijux_proteomics_intelligence.interpretation.runs import ("
         in interpretation
     )
     assert "from bijux_proteomics_intelligence import prioritize_candidates" not in combined

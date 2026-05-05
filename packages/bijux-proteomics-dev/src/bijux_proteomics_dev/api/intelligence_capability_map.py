@@ -108,10 +108,11 @@ def validate_intelligence_capability_map() -> tuple[str, ...]:
     seen_modules: set[str] = set()
 
     if tuple(list_intelligence_analytical_bands()) != (
+        IntelligenceAnalyticalBand.CANDIDATES,
         IntelligenceAnalyticalBand.JUDGMENT,
-        IntelligenceAnalyticalBand.EVIDENCE_POSTURE,
+        IntelligenceAnalyticalBand.POSTURE,
         IntelligenceAnalyticalBand.INTERPRETATION,
-        IntelligenceAnalyticalBand.REVIEW,
+        IntelligenceAnalyticalBand.REVIEWS,
         IntelligenceAnalyticalBand.LEARNING,
     ):
         failures.append("intelligence analytical bands drifted from the governed order")
