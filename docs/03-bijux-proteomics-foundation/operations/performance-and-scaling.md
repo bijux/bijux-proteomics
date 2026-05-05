@@ -20,5 +20,6 @@ Performance advice is only useful when it points to the real owner of the bottle
 ## First Proof Check
 
 - `src/bijux_proteomics_foundation/documents.py` and `compatibility.py`
-- `src/bijux_proteomics_foundation/canonicalization.py` and `hashing.py`
-- `packages/bijux-proteomics-foundation/tests`
+- `src/bijux_proteomics_foundation/serialization/`
+- `packages/bijux-proteomics-foundation/tests/performance/test_hashing_and_serialization_benchmark_surface.py`
+- `configs/package-governance/foundation-benchmark-surfaces.toml`

@@ -40,3 +40,14 @@ def test_lab_benchmark_owner_points_to_targeted_rehearsal_surface() -> None:
         lab_owner.focus_path
         == "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"
     )
+
+
+def test_foundation_benchmark_owner_points_to_canonical_serialization_family() -> None:
+    owners = {entry.package_name: entry for entry in load_benchmark_owners(REPO_ROOT)}
+
+    foundation_owner = owners["bijux-proteomics-foundation"]
+
+    assert (
+        foundation_owner.focus_path
+        == "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization"
+    )

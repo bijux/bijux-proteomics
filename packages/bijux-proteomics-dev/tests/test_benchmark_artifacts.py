@@ -15,7 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 def test_benchmark_artifact_manifest_covers_each_workspace_package() -> None:
     definitions = load_benchmark_artifact_definitions(REPO_ROOT)
 
-    assert len(definitions) == 8
+    assert len(definitions) == 9
     assert {definition.package_name for definition in definitions} == {
         "agentic-proteins",
         "bijux-proteomics-dev",
@@ -25,6 +25,15 @@ def test_benchmark_artifact_manifest_covers_each_workspace_package() -> None:
         "bijux-proteomics-intelligence",
         "bijux-proteomics-knowledge",
         "bijux-proteomics-lab",
+    }
+    foundation_ids = {
+        definition.benchmark_id
+        for definition in definitions
+        if definition.package_name == "bijux-proteomics-foundation"
+    }
+    assert foundation_ids == {
+        "foundation-canonicalization-throughput",
+        "foundation-hashing-throughput",
     }
 
 

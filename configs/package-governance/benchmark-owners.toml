@@ -12,7 +12,7 @@ rationale = "maintainer automation performance matters most when large repositor
 
 [[owner]]
 package_name = "bijux-proteomics-foundation"
-focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/canonicalization.py"
+focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization"
 declaration_path = "docs/03-bijux-proteomics-foundation/operations/performance-and-scaling.md"
 rationale = "serialization and hashing are the hot path for durable artifact exchange across packages"
 
