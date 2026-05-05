@@ -1,0 +1,68 @@
+# Generated knowledge under-curated workflow report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge_reference_quality
+
+[[workflow]]
+family = "dda"
+benchmark_count = 1
+narrative_count = 2
+scientific_context_count = 2
+literature_group_count = 2
+known_problem_count = 1
+scientific_rule_count = 2
+scope_limit_note_count = 10
+under_curated_reasons = []
+
+[[workflow]]
+family = "dia"
+benchmark_count = 1
+narrative_count = 2
+scientific_context_count = 2
+literature_group_count = 2
+known_problem_count = 2
+scientific_rule_count = 1
+scope_limit_note_count = 10
+under_curated_reasons = ["fewer than two scientific rules"]
+
+[[workflow]]
+family = "ptm"
+benchmark_count = 1
+narrative_count = 2
+scientific_context_count = 2
+literature_group_count = 1
+known_problem_count = 0
+scientific_rule_count = 1
+scope_limit_note_count = 10
+under_curated_reasons = ["fewer than two literature groups", "no known problem entry", "fewer than two scientific rules"]
+
+[[workflow]]
+family = "lfq"
+benchmark_count = 1
+narrative_count = 2
+scientific_context_count = 2
+literature_group_count = 3
+known_problem_count = 1
+scientific_rule_count = 2
+scope_limit_note_count = 10
+under_curated_reasons = []
+
+[[workflow]]
+family = "multiplex"
+benchmark_count = 1
+narrative_count = 2
+scientific_context_count = 2
+literature_group_count = 3
+known_problem_count = 1
+scientific_rule_count = 2
+scope_limit_note_count = 10
+under_curated_reasons = []
+
+[[workflow]]
+family = "targeted"
+benchmark_count = 1
+narrative_count = 2
+scientific_context_count = 1
+literature_group_count = 3
+known_problem_count = 1
+scientific_rule_count = 1
+scope_limit_note_count = 10
+under_curated_reasons = ["fewer than two scientific context entries", "fewer than two scientific rules"]

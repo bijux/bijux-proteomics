@@ -1,0 +1,65 @@
+# Generated knowledge provenance completeness report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge_reference_quality
+
+[[surface]]
+name = "citations"
+entry_count = 8
+complete_entry_count = 8
+required_fields = ["title", "source_kind", "venue", "publication_year", "source_version", "license_note", "summary"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "benchmarks"
+entry_count = 6
+complete_entry_count = 6
+required_fields = ["dataset_id", "dataset_locator", "primary_citation_ids", "corpus_ids", "benchmark_rationale", "reproduction_requirements", "comparison_notes", "exclusion_notes", "weakness_notes", "failure_mode_notes"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "corpora"
+entry_count = 10
+complete_entry_count = 10
+required_fields = ["format_family", "scientific_scope", "benchmark_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "contexts"
+entry_count = 8
+complete_entry_count = 8
+required_fields = ["scientific_assertion", "interpretation_caveat", "citation_ids", "benchmark_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "literature_groups"
+entry_count = 6
+complete_entry_count = 6
+required_fields = ["curation_note", "citation_ids", "benchmark_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "narratives"
+entry_count = 12
+complete_entry_count = 12
+required_fields = ["narrative_text", "benchmark_ids", "citation_ids", "scope_limit_notes"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "ontology_mappings"
+entry_count = 8
+complete_entry_count = 8
+required_fields = ["preferred_label", "normalized_key", "source_name", "citation_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "known_problems"
+entry_count = 3
+complete_entry_count = 3
+required_fields = ["problem_summary", "mitigation_guidance", "affected_workflow_families", "affected_benchmark_ids", "citation_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "scientific_rules"
+entry_count = 5
+complete_entry_count = 5
+required_fields = ["rule_statement", "citation_ids", "benchmark_ids", "benchmark_rationale"]
+incomplete_entry_ids = []
