@@ -950,3 +950,58 @@ def test_build_advanced_review_packet_includes_escalation_and_ledger() -> None:
     assert packet.base_packet.notes
     assert isinstance(packet.escalation.escalate_to_human_review, bool)
     assert isinstance(packet.unresolved_questions.question_counts, dict)
+
+
+def test_decision_support_outputs_keep_reasons_and_questions_separate() -> None:
+    grouped = ScenarioSetEvaluation(
+        progression=ScenarioEvaluation(
+            scenario="progression",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.81,
+            unresolved_questions=["collect orthogonal assay"],
+        ),
+        synthesis=ScenarioEvaluation(
+            scenario="synthesis",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.76,
+            unresolved_questions=["confirm safety margin"],
+        ),
+        scale_up=ScenarioEvaluation(
+            scenario="scale_up",
+            action=ScenarioAction.HOLD,
+            confidence=0.59,
+            unresolved_questions=["confirm safety margin"],
+        ),
+        redesign=ScenarioEvaluation(
+            scenario="redesign",
+            action=ScenarioAction.ADVANCE,
+            confidence=0.63,
+            unresolved_questions=["check manufacturability drift"],
+        ),
+    )
+    ranking = CandidateRanking(
+        program_id="prog-output-boundaries",
+        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+    )
+    risks = [
+        CandidateRiskProfile(
+            candidate_id="candidate-1",
+            residual_risk=0.58,
+            safety_risk=0.44,
+        )
+    ]
+
+    recommendation = build_final_decision_recommendation(grouped)
+    envelope = build_intelligence_decision_support_envelope(recommendation)
+    packet = build_advanced_review_packet(grouped, ranking, risks)
+
+    assert envelope.mode is IntelligenceOutputMode.ADVISORY
+    assert envelope.recommendation.reasons
+    assert packet.base_packet.notes
+    assert packet.unresolved_questions.prioritized_questions
+    assert set(envelope.recommendation.reasons).isdisjoint(
+        set(packet.unresolved_questions.prioritized_questions)
+    )
+    assert set(packet.base_packet.notes).isdisjoint(
+        set(packet.unresolved_questions.prioritized_questions)
+    )

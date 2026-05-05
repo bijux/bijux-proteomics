@@ -101,6 +101,28 @@ def _bundle() -> EvidenceBundle:
     )
 
 
+def _sparse_bundle() -> EvidenceBundle:
+    now = datetime.now(UTC)
+    return EvidenceBundle(
+        bundle_id="bundle-follow-up-sparse",
+        target_id="target-follow-up",
+        records=[
+            EvidenceRecord(
+                evidence_id="evidence-literature-sparse",
+                kind=EvidenceKind.LITERATURE,
+                title="Literature-only support",
+                source="PMID:follow-up-sparse",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="supports disease relevance but leaves assay readiness unresolved",
+                confidence=0.73,
+                strength=EvidenceStrength.SUPPORTING,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=45),
+            ),
+        ],
+    )
+
+
 def test_follow_up_candidate_path_builds_readable_ranked_recommendations() -> None:
     path = build_follow_up_candidate_path(
         _program(),
@@ -147,6 +169,39 @@ def test_follow_up_candidate_path_builds_readable_ranked_recommendations() -> No
     assert "scientific_value" in " ".join(top.explanation)
 
 
+def test_follow_up_candidate_path_keeps_public_channels_separate() -> None:
+    path = build_follow_up_candidate_path(
+        _program(),
+        [
+            CandidateAssessment(
+                candidate_id="candidate-sparse",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.79},
+                manufacturability_score=0.62,
+                uncertainty=0.24,
+                evidence_support=0.41,
+                reproducibility_score=0.38,
+                effect_size_score=0.55,
+                assay_feasibility_score=0.43,
+                novelty_score=0.57,
+                lab_cost_risk=0.36,
+                operational_risk=0.34,
+            ),
+        ],
+        _sparse_bundle(),
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    top = path.recommendations[0]
+
+    assert top.recommendation.endswith("explicit blocker review")
+    assert top.explanation
+    assert top.unresolved_questions
+    assert path.unresolved_questions
+    assert set(top.explanation).isdisjoint(set(top.unresolved_questions))
+    assert all(question not in top.recommendation for question in top.unresolved_questions)
+
+
 def test_review_board_decision_path_builds_packet_from_evidence_and_candidates() -> (
     None
 ):
@@ -191,6 +246,37 @@ def test_review_board_decision_path_builds_packet_from_evidence_and_candidates()
     assert path.packet.recommendation.reasons
     assert path.recommendation.endswith("review-board review")
     assert path.explanation
+
+
+def test_review_board_decision_path_keeps_public_channels_separate() -> None:
+    path = build_review_board_decision_path(
+        _program(),
+        [
+            CandidateAssessment(
+                candidate_id="candidate-sparse",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.79},
+                manufacturability_score=0.62,
+                uncertainty=0.24,
+                evidence_support=0.41,
+                reproducibility_score=0.38,
+                effect_size_score=0.55,
+                assay_feasibility_score=0.43,
+                novelty_score=0.57,
+                lab_cost_risk=0.36,
+                operational_risk=0.34,
+            ),
+        ],
+        _sparse_bundle(),
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    assert path.recommendation.endswith("review-board review")
+    assert path.explanation
+    assert path.unresolved_questions
+    assert path.packet.recommendation.reasons
+    assert set(path.explanation).isdisjoint(set(path.unresolved_questions))
+    assert all(question not in path.recommendation for question in path.unresolved_questions)
 
 
 def test_cautious_anomaly_interpretation_path_keeps_contract_fields_separate() -> None:
@@ -280,3 +366,14 @@ def test_cautious_anomaly_interpretation_path_keeps_contract_fields_separate() -
     assert path.interpretations[0].recommendation
     assert path.interpretations[0].explanation
     assert path.interpretations[0].unresolved_questions
+    assert set(path.interpretations[0].explanation).isdisjoint(
+        set(path.interpretations[0].unresolved_questions)
+    )
+    assert all(
+        question not in path.interpretations[0].recommendation
+        for question in path.interpretations[0].unresolved_questions
+    )
+    assert all(
+        question not in path.overall_recommendation
+        for question in path.unresolved_questions
+    )
