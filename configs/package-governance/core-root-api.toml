@@ -1,0 +1,35 @@
+# Curated core root API policy.
+
+[budget]
+max_public_symbols = 5
+max_init_lines = 20
+
+[[symbol]]
+name = "DigestPolicy"
+owner_module = "bijux_proteomics.digestion"
+classification = "essential_scientific_contract"
+rationale = "stable digestion policy entrypoint for public callers"
+
+[[symbol]]
+name = "parse_fasta_document"
+owner_module = "bijux_proteomics.sequences"
+classification = "essential_scientific_contract"
+rationale = "stable FASTA parsing entrypoint for public callers"
+
+[[symbol]]
+name = "parse_experimental_design_table"
+owner_module = "bijux_proteomics.io.formats"
+classification = "essential_scientific_contract"
+rationale = "stable design-table parsing entrypoint for public callers"
+
+[[symbol]]
+name = "build_normalized_run_bundle"
+owner_module = "bijux_proteomics.io.formats"
+classification = "essential_scientific_contract"
+rationale = "stable normalized run-bundle entrypoint for public callers"
+
+[[symbol]]
+name = "build_fdr_audit_trail"
+owner_module = "bijux_proteomics.identification"
+classification = "essential_scientific_contract"
+rationale = "stable FDR audit entrypoint for public callers"
