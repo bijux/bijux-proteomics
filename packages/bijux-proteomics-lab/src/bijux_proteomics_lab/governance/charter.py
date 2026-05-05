@@ -59,6 +59,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         owned_surface="Executable assay planning that turns scientific requirements into concrete batchable work.",
         required_modules=(
             "planning/assays.py",
+            "planning/priorities.py",
             "design/experiments.py",
             "design/protocols.py",
         ),
@@ -68,7 +69,8 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         capability=LabCharterCapability.QUEUEING,
         owned_surface="Queue-aware execution planning that respects capacity, backlog, and review-gate pressure.",
         required_modules=(
-            "planning/assays.py",
+            "planning/scheduling.py",
+            "planning/priorities.py",
             "readiness/operations.py",
             "planning/queue.py",
         ),
@@ -79,7 +81,8 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         owned_surface="Operational progression and review transitions grounded in lab-ready state rather than recommendation-only ranking.",
         required_modules=(
             "lifecycle/progression.py",
-            "planning/assays.py",
+            "planning/next_cycle.py",
+            "planning/priorities.py",
             "readiness/operations.py",
         ),
         release_blocker="Lab cannot ship if progression decisions ignore operational readiness or unresolved execution blockers.",
@@ -91,6 +94,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "design/protocols.py",
             "handoffs/artifacts.py",
             "planning/assays.py",
+            "planning/priorities.py",
             "handoffs/transitions.py",
             "handoffs/explanations.py",
             "handoffs/exports.py",
@@ -262,18 +266,36 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
     LabModuleAuditEntry(
         module_path="planning/assays.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.ASSAY_PLANNING,),
+        reason="Planning assay construction owns batch formation, review packets, dependency integrity, and executable request assembly.",
+    ),
+    LabModuleAuditEntry(
+        module_path="planning/next_cycle.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.PROGRESSION,),
+        reason="Next-cycle planning owns contradiction resolution, orthogonal confirmation, and recommendation of the next responsible lab cycle.",
+    ),
+    LabModuleAuditEntry(
+        module_path="planning/priorities.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(
             LabCharterCapability.ASSAY_PLANNING,
             LabCharterCapability.QUEUEING,
             LabCharterCapability.PROGRESSION,
         ),
-        reason="Planning owns batching, scheduling, and assay-level operational tradeoffs.",
+        reason="Priority scoring owns information-gain ranking, practicality screening, and cycle-brief assembly under live operational pressure.",
     ),
     LabModuleAuditEntry(
         module_path="planning/queue.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.QUEUEING,),
         reason="Queue contracts and queue-pressure summaries belong to planning because they decide when lab work is batchable or stale.",
+    ),
+    LabModuleAuditEntry(
+        module_path="planning/scheduling.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.QUEUEING,),
+        reason="Scheduling owns capacity fitting, scenario comparison, and material-feasibility ordering instead of leaving them buried in assay construction.",
     ),
     LabModuleAuditEntry(
         module_path="readiness/__init__.py",
