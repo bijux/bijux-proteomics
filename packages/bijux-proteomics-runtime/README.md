@@ -92,6 +92,7 @@ from bijux_proteomics_runtime import AppConfig, RunManager, create_app
 - Import root: `bijux_proteomics_runtime`
 - Canonical CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
+- Execution charter: `src/bijux_proteomics_runtime/charter.py`
 - Runtime control surfaces: `runtime.control.operations`, `runtime.control.workflow_paths`, `runtime.control.reruns`, `runtime.control.cache`, `runtime.control.cleanup`, `runtime.control.recovery`, `runtime.control.preflight`, `runtime.control.integrity`, and `runtime.control.failure_reports`
 
 ## Package boundaries
@@ -100,6 +101,12 @@ This package owns runtime execution behavior and orchestration interfaces.
 
 Domain meaning, evidence semantics, scoring policy, and lab planning semantics
 remain in their dedicated lower-layer packages.
+
+## Execution charter
+
+- `charter.py` defines the exact runtime-owned capability boundary and classifies every source module against it
+- runtime only owns canonical entrypoints, provider binding, workflow execution, replay and recovery, and reviewable run outputs
+- modules that cannot be defended against that charter should move out of runtime or be deleted rather than hardening into generic infrastructure
 
 ## Execution surfaces
 
@@ -196,6 +203,7 @@ remain in their dedicated lower-layer packages.
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
 - [`src/bijux_proteomics_runtime/runtime/context`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/context) for typed run-context and artifact-policy contracts
+- [`src/bijux_proteomics_runtime/charter.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/charter.py) for the machine-readable execution charter and module audit
 - [`src/bijux_proteomics_runtime/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces) for CLI contracts
 - [`src/bijux_proteomics_runtime/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api) for HTTP entrypoints
 - [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider binding

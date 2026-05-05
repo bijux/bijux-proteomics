@@ -25,6 +25,14 @@ Runtime-owned capabilities:
 - replay and determinism enforcement
 - orchestration across foundation/core/knowledge/intelligence/lab
 
+## Execution charter
+
+- canonical entrypoints: `interfaces/`, `api/`, and `runtime/control/operations.py`
+- provider binding: `providers/` and `runtime/control/provider_capabilities.py`
+- workflow execution: `agents/`, `execution/`, `tools/`, and `runtime/control/execution.py`
+- replay and recovery: `runtime/context/`, `runtime/control/`, `memory/`, `state/`, and `runtime/workspace.py`
+- reviewable outputs: `api/catalog.py`, `runtime/control/execution_surfaces.py`, `runtime/control/failure_reports.py`, and `runtime/control/workflow_paths.py`
+
 ## Execution model
 
 The runtime layer composes lower-layer package capabilities and exposes
@@ -51,12 +59,14 @@ flowchart TD
 
 ## Module topology
 
+- `charter.py` owns the machine-readable execution charter and release-blocking module audit
 - `interfaces/` owns CLI-facing runtime contracts
-- `api/` owns HTTP entrypoints and transport wiring
-- `runtime/control/` owns orchestration, replay, and execution coordination
-- `runtime/adapters/` owns lower-layer to runtime payload mapping
+- `api/` owns HTTP entrypoints, request logging, and request-scoped base-dir wiring
+- `runtime/context/` owns run identity, run config, correlation, and typed execution context
+- `runtime/control/` owns orchestration, provider capability gates, replay, reruns, integrity, cleanup, recovery, and reviewable workflow paths
 - `providers/` owns provider binding and provider-specific execution surfaces
-- `registry/`, `validation/`, and `execution/` own runtime support contracts
+- `agents/`, `execution/`, and `tools/` own runtime-local execution planning and coordination support
+- `memory/` and `state/` own replayable state, history, and review-safe persistence contracts
 
 ## Dependency direction
 
@@ -66,16 +76,11 @@ order to orchestrate canonical workflow execution.
 Lower-layer packages must not depend on runtime, and runtime should not take
 ownership of their scientific meaning.
 
-## Adapter topology
+## Interop topology
 
-Runtime adapter modules are the only place where lower-layer domain objects are
-translated into runtime interface payloads.
-
-- `runtime/adapters/candidates.py`: candidate model mapping and selection wiring
-- `runtime/adapters/quality.py`: quality and reliability mapping
-- `runtime/adapters/memory.py`: memory record mapping
-- `runtime/adapters/design_loop.py`: design-loop orchestration contracts
-- `runtime/adapters/lab.py`: lab planning and evidence-promotion entrypoints
+Runtime consumes lower-layer public contracts directly and keeps compatibility
+forwarding in `agentic-proteins` instead of mirroring runtime-local ownership
+inside the canonical package.
 
 This keeps lower packages runtime-agnostic and prevents upward leakage of
 runtime-specific schemas.
@@ -90,7 +95,7 @@ land here before compat forwarding in `agentic-proteins` grows.
 
 - add code here when a new concern changes canonical operator entrypoints,
   provider binding, replay safety, or orchestration coordination
-- extend `interfaces/`, `api/`, `runtime/control/`, `runtime/adapters/`, or
+- extend `interfaces/`, `api/`, `runtime/context/`, `runtime/control/`, or
   `providers/` before compat or lower packages invent runtime-local entrypoints
 - keep new transport and orchestration behavior here when it changes how
   canonical execution runs rather than what lower-layer domain truth means

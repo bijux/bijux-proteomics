@@ -1,7 +1,7 @@
 # Contracts
 
 This document captures the public runtime contracts that downstream users and
-integrators can rely on while migration proceeds.
+integrators can rely on at the canonical execution boundary.
 
 ## Public package identity
 
@@ -15,14 +15,15 @@ integrators can rely on while migration proceeds.
 - `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical CLI entrypoint.
 - `bijux_proteomics_runtime.api.app:app` exposes the canonical FastAPI app.
 - `bijux_proteomics_runtime.RunManager` remains the canonical orchestration root.
-- runtime adapters keep lower-layer contracts importable without forcing runtime
-  types into lower packages.
+- runtime exports typed run context, reviewable outputs, failure reports, and
+  replay artifacts without forcing downstream users to parse private workspaces.
 
 ## Change requirements
 
 - Runtime entrypoints remain available and importable through this package.
 - Runtime package documentation reflects ownership and dependency law.
 - Runtime does not silently absorb lower-layer domain ownership.
+- Runtime charter entries stay backed by live modules and a current source audit.
 
 Any contract change should update runtime surface tests and the boundary
 validation suite that pins compat forwarding, canonical roots, and migration
@@ -50,6 +51,8 @@ ownership.
 
 - runtime surface tests should pin canonical CLI, API, orchestration, and
   provider entrypoints for the changed contract surface
+- package-charter and boundary tests should stay green whenever module topology
+  or canonical ownership changes
 - boundary and migration validation should stay green whenever runtime widens a
   canonical surface that compat will mirror
 - replay and adapter tests should preserve lower-layer runtime-agnostic
