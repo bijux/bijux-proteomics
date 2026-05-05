@@ -24,6 +24,16 @@ from bijux_proteomics_runtime.runtime.control.imports import (
     load_import_run_bundle,
     load_import_trace,
 )
+from bijux_proteomics_runtime.runtime.control.integrity import (
+    ArtifactIntegrityReport,
+    LargeArtifactGuardDecision,
+    load_artifact_integrity_report,
+    verify_runtime_artifact_integrity,
+)
+from bijux_proteomics_runtime.runtime.control.checkpoints import (
+    ResumeCheckpoint,
+    load_resume_checkpoint,
+)
 from bijux_proteomics_runtime.runtime.control.ledger import (
     ArtifactLedgerEntry,
     RuntimeArtifactLedger,
@@ -51,14 +61,17 @@ from bijux_proteomics_runtime.runtime.control.state_machine import (
 
 __all__ = [
     "ArtifactLedgerEntry",
+    "ArtifactIntegrityReport",
     "ContainerRunBundle",
     "ExecutionSnapshots",
     "ImportRunBundle",
+    "LargeArtifactGuardDecision",
     "LocalRunBundle",
     "PreflightCheck",
     "PreflightCheckState",
     "ReplayContract",
     "ReplayEligibility",
+    "ResumeCheckpoint",
     "RunStateMachine",
     "RuntimeImportTrace",
     "RuntimeArtifactLedger",
@@ -74,12 +87,15 @@ __all__ = [
     "build_replay_contract",
     "compare_runs",
     "evaluate_replay_eligibility",
+    "load_artifact_integrity_report",
     "load_container_run_bundle",
     "load_artifact_ledger",
     "load_import_run_bundle",
     "load_import_trace",
     "load_local_run_bundle",
+    "load_resume_checkpoint",
     "load_scheduler_job_bundle",
     "require_human_decision",
     "run_flow",
+    "verify_runtime_artifact_integrity",
 ]

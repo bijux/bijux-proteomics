@@ -112,6 +112,15 @@ from bijux_proteomics_runtime.runtime.control.imports import (
     write_import_run_bundle,
     write_import_trace,
 )
+from bijux_proteomics_runtime.runtime.control.integrity import (
+    guard_path_size,
+    guard_payload_size,
+    verify_runtime_artifact_integrity,
+)
+from bijux_proteomics_runtime.runtime.control.checkpoints import (
+    build_resume_checkpoint,
+    write_resume_checkpoint,
+)
 from bijux_proteomics_runtime.runtime.control.failure_reports import (
     build_runtime_failure_report,
     write_runtime_failure_report,
@@ -891,7 +900,32 @@ class RunManager:
             return self._fail_fast(
                 context,
                 preflight_messages,
-                FailureType.IMPORT_INVALID.value,
+                FailureType.INVALID_OUTPUT.value,
+                None,
+            )
+        max_bundle_artifact_bytes = int(
+            context.config.get("max_bundle_artifact_bytes") or 1_000_000
+        )
+        source_guard = guard_path_size(
+            source_path, max_size_bytes=max_bundle_artifact_bytes
+        )
+        if not source_guard.allowed:
+            return self._fail_fast(
+                context,
+                [f"source_artifact_too_large:{source_guard.actual_size_bytes}"],
+                FailureType.INVALID_OUTPUT.value,
+                None,
+            )
+        payload_guard = guard_payload_size(
+            imported_payload,
+            artifact_label="imported_payload",
+            max_size_bytes=max_bundle_artifact_bytes,
+        )
+        if not payload_guard.allowed:
+            return self._fail_fast(
+                context,
+                [f"import_payload_too_large:{payload_guard.actual_size_bytes}"],
+                FailureType.INVALID_OUTPUT.value,
                 None,
             )
         imported_path, evidence_bundle_path, review_packet_path = write_import_documents(
@@ -980,6 +1014,17 @@ class RunManager:
             run_summary=summary,
         )
         write_import_run_bundle(context.workspace, import_run_bundle)
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
+        )
+        verify_runtime_artifact_integrity(
+            context.workspace,
+            run_id=context.run_id,
+            max_artifact_bytes=max_bundle_artifact_bytes,
+        )
         refresh_runtime_artifact_ledger(
             context.workspace,
             run_id=context.run_id,
@@ -1160,6 +1205,27 @@ class RunManager:
                     config=context.config,
                 ),
             )
+        checkpoint = build_resume_checkpoint(
+            run_context=run_context_contract,
+            status=status,
+            lifecycle_state=output.lifecycle_state,
+            command=command,
+        )
+        if checkpoint is not None:
+            write_resume_checkpoint(context.workspace, checkpoint)
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
+        )
+        verify_runtime_artifact_integrity(
+            context.workspace,
+            run_id=context.run_id,
+            max_artifact_bytes=int(
+                context.config.get("max_bundle_artifact_bytes") or 1_000_000
+            ),
+        )
         refresh_runtime_artifact_ledger(
             context.workspace,
             run_id=context.run_id,

@@ -11,6 +11,9 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel, hash_payload
 from bijux_proteomics_runtime.runtime.context import RunContextContract
+from bijux_proteomics_runtime.runtime.control.integrity import (
+    require_reusable_artifact_bundle,
+)
 from bijux_proteomics_runtime.runtime.control.ledger import RuntimeArtifactLedger
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
 
@@ -147,6 +150,12 @@ def write_local_run_bundle(workspace: RunWorkspace, bundle: LocalRunBundle) -> N
 
 def load_local_run_bundle(workspace: RunWorkspace) -> LocalRunBundle:
     """Load the local run bundle from disk."""
+    require_reusable_artifact_bundle(
+        workspace,
+        run_id=workspace.run_id,
+        max_artifact_bytes=1_000_000,
+        required_artifact_kinds=("runtime-local-run-bundle", "runtime-replay-contract"),
+    )
     return LocalRunBundle.load_json(workspace.local_run_bundle_path)
 
 

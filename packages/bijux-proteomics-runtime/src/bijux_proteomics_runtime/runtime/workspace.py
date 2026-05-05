@@ -171,6 +171,16 @@ class RunWorkspace:
         return self.run_dir / "import_run_bundle.json"
 
     @property
+    def resume_checkpoint_path(self) -> Path:
+        """resume_checkpoint_path."""
+        return self.run_dir / "resume_checkpoint.json"
+
+    @property
+    def integrity_report_path(self) -> Path:
+        """integrity_report_path."""
+        return self.run_dir / "integrity_report.json"
+
+    @property
     def preflight_report_path(self) -> Path:
         """preflight_report_path."""
         return self.run_dir / "preflight_report.json"

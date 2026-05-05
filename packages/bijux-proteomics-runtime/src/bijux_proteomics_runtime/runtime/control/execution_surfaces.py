@@ -14,6 +14,9 @@ from bijux_proteomics_runtime.runtime.context import (
     RunContextContract,
     RuntimeArtifactRetentionClass,
 )
+from bijux_proteomics_runtime.runtime.control.integrity import (
+    require_reusable_artifact_bundle,
+)
 from bijux_proteomics_runtime.runtime.control.replay import ReplayContract
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
 
@@ -223,11 +226,29 @@ def write_scheduler_job_bundle(
 
 def load_container_run_bundle(workspace: RunWorkspace) -> ContainerRunBundle:
     """Load one persisted container run bundle."""
+    require_reusable_artifact_bundle(
+        workspace,
+        run_id=workspace.run_id,
+        max_artifact_bytes=1_000_000,
+        required_artifact_kinds=(
+            "runtime-container-run-bundle",
+            "runtime-replay-contract",
+        ),
+    )
     return ContainerRunBundle.load_json(workspace.container_run_bundle_path)
 
 
 def load_scheduler_job_bundle(workspace: RunWorkspace) -> SchedulerJobBundle:
     """Load one persisted scheduler job bundle."""
+    require_reusable_artifact_bundle(
+        workspace,
+        run_id=workspace.run_id,
+        max_artifact_bytes=1_000_000,
+        required_artifact_kinds=(
+            "runtime-scheduler-job-bundle",
+            "runtime-replay-contract",
+        ),
+    )
     return SchedulerJobBundle.load_json(workspace.scheduler_job_bundle_path)
 
 

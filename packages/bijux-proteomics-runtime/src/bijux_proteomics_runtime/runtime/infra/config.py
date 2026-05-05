@@ -101,6 +101,10 @@ class RunConfig(BaseModel):
         default=None,
         description="Scheduler submission identifier when already known.",
     )
+    max_bundle_artifact_bytes: int | None = Field(
+        default=None,
+        description="Maximum artifact size that runtime will capture inside reuse-sensitive bundles.",
+    )
 
     def with_defaults(self) -> tuple[RunConfig, list[str]]:
         """with_defaults."""
@@ -151,4 +155,6 @@ class RunConfig(BaseModel):
             data["execution_mode"] = "auto"
         if data["launch_surface"] is None:
             data["launch_surface"] = "local"
+        if data["max_bundle_artifact_bytes"] is None:
+            data["max_bundle_artifact_bytes"] = 1_000_000
         return RunConfig(**data), warnings

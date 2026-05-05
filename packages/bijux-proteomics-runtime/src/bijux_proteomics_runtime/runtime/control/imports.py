@@ -13,6 +13,9 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_runtime.runtime.context import RunContextContract
+from bijux_proteomics_runtime.runtime.control.integrity import (
+    require_reusable_artifact_bundle,
+)
 from bijux_proteomics_runtime.runtime.control.ledger import RuntimeArtifactLedger
 from bijux_proteomics_runtime.runtime.control.replay import ReplayContract
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
@@ -185,6 +188,16 @@ def load_import_trace(workspace: RunWorkspace) -> RuntimeImportTrace:
 
 def load_import_run_bundle(workspace: RunWorkspace) -> ImportRunBundle:
     """Load one persisted import-only run bundle."""
+    require_reusable_artifact_bundle(
+        workspace,
+        run_id=workspace.run_id,
+        max_artifact_bytes=1_000_000,
+        required_artifact_kinds=(
+            "runtime-import-run-bundle",
+            "runtime-import-trace",
+            "runtime-replay-contract",
+        ),
+    )
     return ImportRunBundle.load_json(workspace.import_run_bundle_path)
 
 

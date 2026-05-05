@@ -78,6 +78,8 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("scheduler_job_bundle_path", "scheduler_job_bundle", "runtime-scheduler-job-bundle"),
     ("import_trace_path", "import_trace", "runtime-import-trace"),
     ("import_run_bundle_path", "import_run_bundle", "runtime-import-run-bundle"),
+    ("resume_checkpoint_path", "resume_checkpoint", "runtime-resume-checkpoint"),
+    ("integrity_report_path", "integrity_report", "runtime-integrity-report"),
     ("preflight_report_path", "preflight_report", "runtime-preflight-report"),
 )
 
