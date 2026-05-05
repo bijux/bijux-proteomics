@@ -7,11 +7,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import (
-    DocumentSchema as SchemaMetadata,
-    JsonModel,
-    hash_payload,
-)
+from bijux_proteomics_foundation import DocumentSchema as SchemaMetadata, JsonModel
 
 
 class LabArtifactProfile(JsonModel):
@@ -241,67 +237,6 @@ def lint_lab_artifact_contract_registry(
     return issues
 
 
-def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str]]:
-    """Compute a deterministic field-level diff between two model payloads."""
-    ignored_fields = {"document_schema"}
-    left_payload = {k: v for k, v in left.to_dict().items() if k not in ignored_fields}
-    right_payload = {
-        k: v for k, v in right.to_dict().items() if k not in ignored_fields
-    }
-    left_keys = set(left_payload.keys())
-    right_keys = set(right_payload.keys())
-    changed = sorted(
-        key
-        for key in sorted(left_keys & right_keys)
-        if left_payload[key] != right_payload[key]
-    )
-    return {
-        "added_fields": sorted(right_keys - left_keys),
-        "removed_fields": sorted(left_keys - right_keys),
-        "changed_fields": changed,
-    }
-
-
-def build_canonical_artifact_envelope(
-    model: JsonModel,
-    *,
-    artifact_kind: str,
-    schema: SchemaMetadata,
-) -> dict[str, object]:
-    """Build canonical envelope for lab artifact transport and auditing."""
-    payload = model.to_dict()
-    fingerprint = hash_payload(payload)
-    return {
-        "artifact_kind": artifact_kind,
-        "schema": schema.to_dict(),
-        "fingerprint": fingerprint,
-        "payload": payload,
-    }
-
-
-def verify_canonical_artifact_envelope(envelope: dict[str, object]) -> bool:
-    """Verify canonical envelope fingerprint integrity."""
-    payload = envelope.get("payload")
-    fingerprint = envelope.get("fingerprint")
-    if not isinstance(payload, dict) or not isinstance(fingerprint, str):
-        return False
-    expected = hash_payload(payload)
-    return expected == fingerprint
-
-
-LabSchemaProfile = LabArtifactProfile
-LabSchemaCompatibilityReport = LabArtifactCompatibilityReport
-LabSchemaUpgradeAdvisory = LabArtifactUpgradeAdvisory
-LabSchemaContractRegistry = LabArtifactContractRegistry
-LabSchemaContractIssue = LabArtifactContractIssue
-
-default_lab_schema_profile = default_lab_artifact_profile
-evaluate_lab_schema_compatibility = evaluate_lab_artifact_compatibility
-build_lab_schema_upgrade_advisory = build_lab_artifact_upgrade_advisory
-default_lab_schema_contract_registry = default_lab_artifact_contract_registry
-lint_lab_schema_contract_registry = lint_lab_artifact_contract_registry
-
-
 __all__ = [
     "LabArtifactCompatibilityReport",
     "LabArtifactContractIssue",
@@ -309,24 +244,11 @@ __all__ = [
     "LabArtifactProfile",
     "LabArtifactSchemaContract",
     "LabArtifactUpgradeAdvisory",
-    "build_canonical_artifact_envelope",
     "build_lab_artifact_upgrade_advisory",
-    "build_lab_schema_upgrade_advisory",
     "default_lab_artifact_contract_registry",
     "default_lab_artifact_profile",
-    "default_lab_schema_contract_registry",
-    "default_lab_schema_profile",
-    "diff_model_payloads",
     "evaluate_lab_artifact_compatibility",
     "evaluate_lab_artifact_schema_contract",
     "evaluate_lab_artifact_with_registry",
-    "evaluate_lab_schema_compatibility",
-    "LabSchemaCompatibilityReport",
-    "LabSchemaContractIssue",
-    "LabSchemaContractRegistry",
-    "LabSchemaProfile",
-    "LabSchemaUpgradeAdvisory",
     "lint_lab_artifact_contract_registry",
-    "lint_lab_schema_contract_registry",
-    "verify_canonical_artifact_envelope",
 ]

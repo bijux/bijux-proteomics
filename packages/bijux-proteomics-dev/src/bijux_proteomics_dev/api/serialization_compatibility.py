@@ -17,9 +17,11 @@ from bijux_proteomics_foundation.compatibility import (
 from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.contracts.schema import evaluate_schema_compatibility
 from bijux_proteomics_lab.handoffs.artifacts import (
-    build_canonical_artifact_envelope,
-    build_lab_schema_upgrade_advisory,
+    build_lab_artifact_upgrade_advisory,
     evaluate_lab_artifact_with_registry,
+)
+from bijux_proteomics_lab.handoffs.serialization import (
+    build_canonical_artifact_envelope,
     verify_canonical_artifact_envelope,
 )
 from bijux_proteomics_lab.planning.assays import ExperimentPlan
@@ -119,7 +121,7 @@ def _lab_result(schema_version: str) -> PackageSerializationCompatibilityResult:
     compatibility = evaluate_lab_artifact_with_registry(
         plan.document_schema, artifact_kind="plan"
     )
-    advisory = build_lab_schema_upgrade_advisory(plan.document_schema)
+    advisory = build_lab_artifact_upgrade_advisory(plan.document_schema)
     notes = [*compatibility.notes, *advisory.notes]
     return PackageSerializationCompatibilityResult(
         case_id=f"lab-experiment-plan-{schema_version}",

@@ -196,7 +196,7 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         module_path="handoffs/artifacts.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
-        reason="Artifact envelopes and contracts keep lab handoffs reviewable and integrity-checked.",
+        reason="Artifact compatibility and contract policy keep lab handoffs reviewable and integrity-checked.",
     ),
     LabModuleAuditEntry(
         module_path="handoffs/ptm.py",
@@ -235,6 +235,12 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         ),
         reason="Assay-risk models stop weak uniqueness, localization, reproducibility, and failure-prone follow-up from hardening into operational certainty.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs/serialization.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
+        reason="Canonical artifact envelopes and payload diffs belong to handoff serialization ownership instead of artifact policy ownership.",
     ),
     LabModuleAuditEntry(
         module_path="lifecycle/__init__.py",

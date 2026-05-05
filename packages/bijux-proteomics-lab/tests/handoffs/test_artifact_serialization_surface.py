@@ -8,7 +8,7 @@ from bijux_proteomics_foundation import (
     fingerprint_model as foundation_fingerprint_model,
     to_canonical_json as foundation_to_canonical_json,
 )
-from bijux_proteomics_lab.handoffs.artifacts import (
+from bijux_proteomics_lab.handoffs.serialization import (
     build_canonical_artifact_envelope,
     diff_model_payloads,
     verify_canonical_artifact_envelope,
