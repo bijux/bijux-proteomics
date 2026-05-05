@@ -36,7 +36,7 @@ from bijux_proteomics_intelligence.policies import (
     classify_metric_name,
     ranking_policy_lineage,
 )
-from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
+from bijux_proteomics_knowledge.evidence import EvidenceBundle, evidence_gaps
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
 

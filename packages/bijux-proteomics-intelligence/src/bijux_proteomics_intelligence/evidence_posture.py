@@ -13,7 +13,7 @@ from bijux_proteomics_foundation.json_models import JsonModel
 from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
 from bijux_proteomics_foundation.results import OperationResult
 from bijux_proteomics_foundation.states import SupportState
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.evidence import (
     EvidenceBundle,
     compute_bundle_trust,
     flag_conflicting_evidence,

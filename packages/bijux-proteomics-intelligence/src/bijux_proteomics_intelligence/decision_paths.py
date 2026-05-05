@@ -35,7 +35,7 @@ from bijux_proteomics_intelligence.interpretation import (
     OutlierInterpretationClass,
     explain_outlier_samples,
 )
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.evidence import (
     DecisionReadiness,
     EvidenceBundle,
     assess_decision_readiness,

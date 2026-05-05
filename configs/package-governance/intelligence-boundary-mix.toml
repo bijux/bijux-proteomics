@@ -1,0 +1,147 @@
+# Generated intelligence boundary-mix report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence_boundary_mix
+
+[metrics]
+scanned_module_count = 15
+hotspot_count = 1
+max_touched_band_count = 3
+
+[guard]
+baseline_hotspot_count = 1
+baseline_max_touched_band_count = 3
+baseline_hotspot_modules = ["decision_paths.py"]
+
+[[module]]
+module_path = "analytical_review.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "benchmark_reviews.py"
+band = "review"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["review"]
+hotspot = false
+
+[[module]]
+module_path = "briefs.py"
+band = "judgment"
+touched_band_count = 2
+cross_band_import_count = 1
+internal_import_count = 3
+touched_bands = ["evidence_posture", "judgment"]
+hotspot = false
+
+[[module]]
+module_path = "candidates.py"
+band = "judgment"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 1
+touched_bands = ["judgment"]
+hotspot = false
+
+[[module]]
+module_path = "decision_paths.py"
+band = "review"
+touched_band_count = 3
+cross_band_import_count = 4
+internal_import_count = 4
+touched_bands = ["interpretation", "judgment", "review"]
+hotspot = true
+
+[[module]]
+module_path = "design_loop/convergence.py"
+band = "learning"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["learning"]
+hotspot = false
+
+[[module]]
+module_path = "design_loop/loop.py"
+band = "learning"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 2
+touched_bands = ["learning"]
+hotspot = false
+
+[[module]]
+module_path = "design_loop/stagnation.py"
+band = "learning"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["learning"]
+hotspot = false
+
+[[module]]
+module_path = "evaluators.py"
+band = "judgment"
+touched_band_count = 2
+cross_band_import_count = 1
+internal_import_count = 3
+touched_bands = ["evidence_posture", "judgment"]
+hotspot = false
+
+[[module]]
+module_path = "evidence_posture.py"
+band = "evidence_posture"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["evidence_posture"]
+hotspot = false
+
+[[module]]
+module_path = "follow_up_learning.py"
+band = "learning"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["learning"]
+hotspot = false
+
+[[module]]
+module_path = "interpretation.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "outcomes.py"
+band = "judgment"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["judgment"]
+hotspot = false
+
+[[module]]
+module_path = "policies.py"
+band = "judgment"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["judgment"]
+hotspot = false
+
+[[module]]
+module_path = "skeptical_review.py"
+band = "review"
+touched_band_count = 2
+cross_band_import_count = 1
+internal_import_count = 2
+touched_bands = ["judgment", "review"]
+hotspot = false

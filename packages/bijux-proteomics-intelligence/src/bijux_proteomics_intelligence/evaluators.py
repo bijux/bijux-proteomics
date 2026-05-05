@@ -19,7 +19,7 @@ from bijux_proteomics_intelligence.evidence_posture import (
     assess_recommendation_readiness,
     summarize_evidence_contradictions,
 )
-from bijux_proteomics_knowledge import DecisionReadiness, EvidenceBundle
+from bijux_proteomics_knowledge.evidence import DecisionReadiness, EvidenceBundle
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
 
