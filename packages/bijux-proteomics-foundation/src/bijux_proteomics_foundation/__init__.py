@@ -23,6 +23,7 @@ from bijux_proteomics_foundation.hashing import (
 from bijux_proteomics_foundation.ids import (
     AssayId,
     BatchId,
+    build_identifier,
     CandidateId,
     ClaimId,
     CycleId,
@@ -40,6 +41,7 @@ from bijux_proteomics_foundation.json_models import JsonModel, fingerprint_model
 __all__ = [
     "AssayId",
     "BatchId",
+    "build_identifier",
     "CandidateId",
     "ClaimId",
     "ContractConflictError",
