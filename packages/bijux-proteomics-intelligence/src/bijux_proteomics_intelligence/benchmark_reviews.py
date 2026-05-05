@@ -56,7 +56,7 @@ from bijux_proteomics_knowledge.references.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_knowledge.references.queries import (
+from bijux_proteomics_knowledge.references.workflow_queries import (
     get_benchmark_manifest,
 )
 

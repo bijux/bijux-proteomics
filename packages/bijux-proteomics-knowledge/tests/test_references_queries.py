@@ -7,17 +7,19 @@ from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFa
 from bijux_proteomics_knowledge.references.citations import CitationSourceKind
 from bijux_proteomics_knowledge.references.corpora import KnowledgeCorpusSourceKind
 from bijux_proteomics_knowledge.references.ontologies import KnowledgeOntologyDomain
-from bijux_proteomics_knowledge.references.queries import (
-    get_benchmark_manifest,
+from bijux_proteomics_knowledge.references.registry_queries import (
     get_citation,
     get_corpus_manifest,
     get_ontology_mapping,
     get_scientific_rule,
-    list_benchmark_manifests,
     list_citations,
     list_corpus_manifests,
     list_ontology_mappings,
     list_scientific_rules,
+)
+from bijux_proteomics_knowledge.references.workflow_queries import (
+    get_benchmark_manifest,
+    list_benchmark_manifests,
 )
 from bijux_proteomics_knowledge.references.rules import KnowledgeRuleDomain
 

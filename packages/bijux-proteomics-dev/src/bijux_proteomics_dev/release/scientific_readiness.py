@@ -7,7 +7,9 @@ import tomllib
 from typing import Any
 
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
-from bijux_proteomics_knowledge.references.queries import get_benchmark_manifest
+from bijux_proteomics_knowledge.references.workflow_queries import (
+    get_benchmark_manifest,
+)
 from bijux_proteomics_dev.quality.package_graph import load_workspace_packages
 from bijux_proteomics_dev.release.ssot_readiness import validate_ssot_readiness
 

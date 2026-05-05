@@ -72,7 +72,7 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
         owned_surface="Ontology mappings that normalize shared scientific language across workflows.",
         required_modules=(
             "references/ontologies.py",
-            "references/queries.py",
+            "references/registry_queries.py",
         ),
         release_blocker="Knowledge cannot ship if controlled scientific terms resolve through ad hoc local aliases.",
     ),
@@ -83,6 +83,7 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
             "references/benchmarks.py",
             "references/briefings.py",
             "references/narratives.py",
+            "references/workflow_queries.py",
         ),
         release_blocker="Knowledge cannot ship if benchmark-backed workflow claims lose their manifest or citation grounding.",
     ),
@@ -267,16 +268,25 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Known-problem registries keep workflow caveats grounded and auditable.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/queries.py",
+        module_path="references/registry_queries.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
             KnowledgeCharterCapability.ONTOLOGIES,
-            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
             KnowledgeCharterCapability.CURATED_CORPORA,
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
-        reason="Reference queries provide the read-only lookup layer over the grounded registries.",
+        reason="Registry queries provide the read-only lookup layer over citations, corpora, context, and ontology surfaces.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflow_queries.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Workflow queries provide read-only access to benchmark manifests and scoped workflow narratives.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="references/rules.py",

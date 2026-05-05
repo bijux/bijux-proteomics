@@ -1,39 +1,29 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Read-only query helpers over curated scientific reference registries."""
+"""Read-only query helpers over citation, ontology, and registry surfaces."""
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references.benchmarks import (
-    BenchmarkManifest,
-    DEFAULT_BENCHMARK_MANIFESTS,
-    KnowledgeWorkflowFamily,
-)
 from bijux_proteomics_knowledge.references.citations import (
     CitationRecord,
     CitationSourceKind,
     DEFAULT_CITATION_REGISTRY,
-)
-from bijux_proteomics_knowledge.references.corpora import (
-    CorpusManifest,
-    DEFAULT_CORPUS_MANIFESTS,
-    KnowledgeCorpusSourceKind,
 )
 from bijux_proteomics_knowledge.references.contexts import (
     DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
     KnowledgeContextDomain,
     ScientificContextEntry,
 )
+from bijux_proteomics_knowledge.references.corpora import (
+    CorpusManifest,
+    DEFAULT_CORPUS_MANIFESTS,
+    KnowledgeCorpusSourceKind,
+)
 from bijux_proteomics_knowledge.references.literature import (
     DEFAULT_LITERATURE_GROUPS,
     LiteratureFocusArea,
     LiteratureGroup,
-)
-from bijux_proteomics_knowledge.references.narratives import (
-    DEFAULT_WORKFLOW_NARRATIVES,
-    WorkflowNarrative,
-    WorkflowNarrativeKind,
 )
 from bijux_proteomics_knowledge.references.ontologies import (
     DEFAULT_ONTOLOGY_MAPPINGS,
@@ -56,6 +46,7 @@ def list_citations(
     *, source_kind: CitationSourceKind | None = None
 ) -> tuple[CitationRecord, ...]:
     """Return curated citations, optionally filtered by source kind."""
+
     if source_kind is None:
         return DEFAULT_CITATION_REGISTRY
     return tuple(
@@ -67,6 +58,7 @@ def list_citations(
 
 def get_citation(citation_id: str) -> CitationRecord | None:
     """Return one citation by stable identifier."""
+
     return next(
         (
             citation
@@ -81,6 +73,7 @@ def list_ontology_mappings(
     *, domain: KnowledgeOntologyDomain | None = None
 ) -> tuple[KnowledgeOntologyMapping, ...]:
     """Return curated ontology mappings, optionally filtered by domain."""
+
     if domain is None:
         return DEFAULT_ONTOLOGY_MAPPINGS
     return tuple(
@@ -90,6 +83,7 @@ def list_ontology_mappings(
 
 def get_ontology_mapping(term_id: str) -> KnowledgeOntologyMapping | None:
     """Return one ontology mapping by stable term identifier."""
+
     return next(
         (
             mapping
@@ -104,6 +98,7 @@ def list_scientific_context(
     *, domain: KnowledgeContextDomain | None = None
 ) -> tuple[ScientificContextEntry, ...]:
     """Return curated scientific context entries, optionally filtered by domain."""
+
     if domain is None:
         return DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES
     return tuple(
@@ -113,6 +108,7 @@ def list_scientific_context(
 
 def get_scientific_context(context_id: str) -> ScientificContextEntry | None:
     """Return one scientific context entry by stable identifier."""
+
     return next(
         (
             entry
@@ -123,35 +119,11 @@ def get_scientific_context(context_id: str) -> ScientificContextEntry | None:
     )
 
 
-def list_benchmark_manifests(
-    *, workflow_family: KnowledgeWorkflowFamily | None = None
-) -> tuple[BenchmarkManifest, ...]:
-    """Return curated benchmark manifests, optionally filtered by workflow family."""
-    if workflow_family is None:
-        return DEFAULT_BENCHMARK_MANIFESTS
-    return tuple(
-        manifest
-        for manifest in DEFAULT_BENCHMARK_MANIFESTS
-        if manifest.workflow_family is workflow_family
-    )
-
-
-def get_benchmark_manifest(benchmark_id: str) -> BenchmarkManifest | None:
-    """Return one benchmark manifest by stable identifier."""
-    return next(
-        (
-            manifest
-            for manifest in DEFAULT_BENCHMARK_MANIFESTS
-            if manifest.benchmark_id == benchmark_id
-        ),
-        None,
-    )
-
-
 def list_corpus_manifests(
     *, source_kind: KnowledgeCorpusSourceKind | None = None
 ) -> tuple[CorpusManifest, ...]:
     """Return curated corpora, optionally filtered by source kind."""
+
     if source_kind is None:
         return DEFAULT_CORPUS_MANIFESTS
     return tuple(
@@ -163,6 +135,7 @@ def list_corpus_manifests(
 
 def get_corpus_manifest(corpus_id: str) -> CorpusManifest | None:
     """Return one corpus manifest by stable identifier."""
+
     return next(
         (
             corpus
@@ -177,6 +150,7 @@ def list_known_problems(
     *, problem_kind: KnowledgeProblemKind | None = None
 ) -> tuple[KnownProblemRegistryEntry, ...]:
     """Return curated known-problem entries, optionally filtered by problem kind."""
+
     if problem_kind is None:
         return DEFAULT_KNOWN_PROBLEM_REGISTRY
     return tuple(
@@ -188,6 +162,7 @@ def list_known_problems(
 
 def get_known_problem(problem_id: str) -> KnownProblemRegistryEntry | None:
     """Return one known-problem entry by stable identifier."""
+
     return next(
         (
             entry
@@ -202,6 +177,7 @@ def list_literature_groups(
     *, focus_area: LiteratureFocusArea | None = None
 ) -> tuple[LiteratureGroup, ...]:
     """Return curated literature groups, optionally filtered by focus area."""
+
     if focus_area is None:
         return DEFAULT_LITERATURE_GROUPS
     return tuple(
@@ -211,6 +187,7 @@ def list_literature_groups(
 
 def get_literature_group(group_id: str) -> LiteratureGroup | None:
     """Return one literature group by stable identifier."""
+
     return next(
         (group for group in DEFAULT_LITERATURE_GROUPS if group.group_id == group_id),
         None,
@@ -221,6 +198,7 @@ def list_scientific_rules(
     *, domain: KnowledgeRuleDomain | None = None
 ) -> tuple[ScientificRuleReference, ...]:
     """Return curated scientific rule mappings, optionally filtered by domain."""
+
     if domain is None:
         return DEFAULT_SCIENTIFIC_RULE_REFERENCES
     return tuple(
@@ -230,6 +208,7 @@ def list_scientific_rules(
 
 def get_scientific_rule(rule_id: str) -> ScientificRuleReference | None:
     """Return one scientific rule mapping by stable identifier."""
+
     return next(
         (
             rule
@@ -240,34 +219,7 @@ def get_scientific_rule(rule_id: str) -> ScientificRuleReference | None:
     )
 
 
-def list_workflow_narratives(
-    *,
-    workflow_family: KnowledgeWorkflowFamily | None = None,
-    narrative_kind: WorkflowNarrativeKind | None = None,
-) -> tuple[WorkflowNarrative, ...]:
-    """Return curated workflow narratives with optional workflow and kind filters."""
-    return tuple(
-        narrative
-        for narrative in DEFAULT_WORKFLOW_NARRATIVES
-        if (workflow_family is None or narrative.workflow_family is workflow_family)
-        and (narrative_kind is None or narrative.narrative_kind is narrative_kind)
-    )
-
-
-def get_workflow_narrative(narrative_id: str) -> WorkflowNarrative | None:
-    """Return one workflow narrative by stable identifier."""
-    return next(
-        (
-            narrative
-            for narrative in DEFAULT_WORKFLOW_NARRATIVES
-            if narrative.narrative_id == narrative_id
-        ),
-        None,
-    )
-
-
 __all__ = [
-    "get_benchmark_manifest",
     "get_citation",
     "get_corpus_manifest",
     "get_known_problem",
@@ -275,8 +227,6 @@ __all__ = [
     "get_ontology_mapping",
     "get_scientific_context",
     "get_scientific_rule",
-    "get_workflow_narrative",
-    "list_benchmark_manifests",
     "list_citations",
     "list_corpus_manifests",
     "list_known_problems",
@@ -284,5 +234,4 @@ __all__ = [
     "list_ontology_mappings",
     "list_scientific_context",
     "list_scientific_rules",
-    "list_workflow_narratives",
 ]

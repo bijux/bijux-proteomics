@@ -15,7 +15,9 @@ from bijux_proteomics_intelligence.briefs import CandidateAssessment
 from bijux_proteomics_intelligence.decision_paths import build_follow_up_candidate_path
 from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
-from bijux_proteomics_knowledge.references.queries import get_benchmark_manifest
+from bijux_proteomics_knowledge.references.workflow_queries import (
+    get_benchmark_manifest,
+)
 from bijux_proteomics_lab import (
     AssayOutcome,
     AssayResultState,
