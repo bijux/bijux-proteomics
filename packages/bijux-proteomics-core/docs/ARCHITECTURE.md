@@ -45,7 +45,7 @@ recreating lifecycle logic in runtime, intelligence, or lab-specific helpers.
 
 - add code here when a new concern changes canonical lifecycle meaning, review
   gate behavior, or runtime-agnostic execution protocols
-- extend `program_spec.py`, `validation.py`, or `repositories.py` before higher
+- extend `domain/program_spec.py`, `domain/validation.py`, or `domain/repositories.py` before higher
   packages recreate lifecycle rules locally
 - keep new domain invariants here when they define program truth rather than a
   package-specific execution policy

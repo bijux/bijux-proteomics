@@ -19,6 +19,6 @@ Examples should route readers into the real surface quickly and avoid making sid
 
 ## First Proof Check
 
-- `src/bijux_proteomics/program_spec.py`, `programs.py`, and `targets.py`
-- `src/bijux_proteomics/cli.py` and `interfaces/cli.py`
+- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py`
+- `src/bijux_proteomics/cli.py` and `interfaces/cli/app.py`
 - `packages/bijux-proteomics-core/tests`

@@ -14,7 +14,7 @@ Dependency direction in `bijux-proteomics-core` should make ownership more obvio
 ## Direction Rules
 
 - pull shared meaning from foundation, but do not import intelligence or lab policy into the core contract layer
-- keep runtime interaction behind explicit seams such as `runtime_adapter.py` and execution contracts
+- keep runtime interaction behind explicit seams such as `execution/backend.py` and `workflow/runtime.py`
 - treat biology and lifecycle helpers as contract logic, not as a dumping ground for orchestration convenience
 
 ## First Proof Check

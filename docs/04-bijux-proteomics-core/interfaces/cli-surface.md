@@ -13,12 +13,12 @@ CLI documentation should describe the commands the package truly owns, not the c
 
 ## Package Surface
 
-- `src/bijux_proteomics/cli.py` and `interfaces/cli.py` are the command-line surfaces for core contract workflows
+- `src/bijux_proteomics/cli.py` and `interfaces/cli/app.py` are the command-line surfaces for core contract workflows
 - CLI behavior should reveal contract meaning and validation state rather than runtime orchestration detail
 - new CLI promises must stay aligned with the stable contract model
 
 ## First Proof Check
 
-- `src/bijux_proteomics/program_spec.py`, `programs.py`, and `targets.py`
-- `src/bijux_proteomics/cli.py` and `interfaces/cli.py`
+- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py`
+- `src/bijux_proteomics/cli.py` and `interfaces/cli/app.py`
 - `packages/bijux-proteomics-core/tests`

@@ -43,8 +43,8 @@ This is a contract page, not a merge checklist. The point is to show that lifecy
 ## First Proof Check
 
 - `packages/bijux-proteomics-core/tests`
-- `src/bijux_proteomics/program_spec.py` and `targets.py`
-- `src/bijux_proteomics/lifecycle.py` and `validation.py`
+- `src/bijux_proteomics/domain/program_spec.py` and `domain/targets.py`
+- `src/bijux_proteomics/domain/lifecycle.py` and `domain/validation.py`
 
 ## Design Pressure
 
