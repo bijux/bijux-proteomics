@@ -38,7 +38,7 @@ def test_lab_benchmark_owner_points_to_targeted_rehearsal_surface() -> None:
 
     assert (
         lab_owner.focus_path
-        == "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"
+        == "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/rehearsals.py"
     )
 
 

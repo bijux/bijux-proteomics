@@ -36,12 +36,12 @@ rationale = "candidate evaluation and ranking loops are the main place where int
 
 [[owner]]
 package_name = "bijux-proteomics-knowledge"
-focus_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py"
+focus_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py"
 declaration_path = "docs/06-bijux-proteomics-knowledge/operations/performance-and-scaling.md"
 rationale = "bundle scoring and contradiction analysis are the main knowledge-time aggregation surfaces"
 
 [[owner]]
 package_name = "bijux-proteomics-lab"
-focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"
+focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/rehearsals.py"
 declaration_path = "docs/07-bijux-proteomics-lab/operations/performance-and-scaling.md"
 rationale = "targeted benchmark rehearsals are where discovery evidence, lab handoff artifacts, and operator-facing diagnostics now concentrate"

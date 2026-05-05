@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 166
+max_total_thin_module_count = 154
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -1069,55 +1069,6 @@ public_function_count = 1
 public_class_count = 0
 
 [[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/graph.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/ingestion.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/review.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/artifacts.py"
-nonempty_line_count = 4
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
 distribution_name = "bijux-proteomics-lab"
 module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/targeted.py"
 nonempty_line_count = 5
@@ -1128,40 +1079,5 @@ public_class_count = 0
 distribution_name = "bijux-proteomics-lab"
 module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/packets.py"
 nonempty_line_count = 6
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/protocols.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/ptm_follow_up.py"
-nonempty_line_count = 4
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/risk.py"
-nonempty_line_count = 4
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"
-nonempty_line_count = 4
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/workflow_readiness.py"
-nonempty_line_count = 5
 public_function_count = 0
 public_class_count = 0

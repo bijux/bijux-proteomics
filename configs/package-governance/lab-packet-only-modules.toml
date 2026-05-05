@@ -3,12 +3,12 @@
 
 [metrics]
 packet_only_module_count = 1
-reshaping_only_module_count = 17
+reshaping_only_module_count = 11
 
 [guard]
 max_packet_only_module_count = 1
-max_reshaping_only_module_count = 17
-max_total_reported_modules = 18
+max_reshaping_only_module_count = 11
+max_total_reported_modules = 12
 
 [[module]]
 module_path = "charter.py"
@@ -18,12 +18,6 @@ public_function_count = 0
 
 [[module]]
 module_path = "__init__.py"
-shape = "reshaping_only"
-public_class_count = 0
-public_function_count = 0
-
-[[module]]
-module_path = "artifacts.py"
 shape = "reshaping_only"
 public_class_count = 0
 public_function_count = 0
@@ -77,18 +71,6 @@ public_class_count = 0
 public_function_count = 0
 
 [[module]]
-module_path = "protocols.py"
-shape = "reshaping_only"
-public_class_count = 0
-public_function_count = 0
-
-[[module]]
-module_path = "ptm_follow_up.py"
-shape = "reshaping_only"
-public_class_count = 0
-public_function_count = 0
-
-[[module]]
 module_path = "readiness/__init__.py"
 shape = "reshaping_only"
 public_class_count = 0
@@ -96,24 +78,6 @@ public_function_count = 0
 
 [[module]]
 module_path = "reconciliation/__init__.py"
-shape = "reshaping_only"
-public_class_count = 0
-public_function_count = 0
-
-[[module]]
-module_path = "risk.py"
-shape = "reshaping_only"
-public_class_count = 0
-public_function_count = 0
-
-[[module]]
-module_path = "targeted_benchmarking.py"
-shape = "reshaping_only"
-public_class_count = 0
-public_function_count = 0
-
-[[module]]
-module_path = "workflow_readiness.py"
 shape = "reshaping_only"
 public_class_count = 0
 public_function_count = 0

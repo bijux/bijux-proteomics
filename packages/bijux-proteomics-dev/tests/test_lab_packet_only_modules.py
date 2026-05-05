@@ -21,16 +21,22 @@ def test_lab_module_shape_report_tracks_reshaping_only_facades() -> None:
     assert LAB_PACKET_ONLY_MODULES_PATH.exists()
     assert report.metrics.packet_only_module_count == 1
     assert report.guard.max_packet_only_module_count == 1
-    assert report.metrics.reshaping_only_module_count == 17
+    assert report.metrics.reshaping_only_module_count == 11
     assert report.metrics.reshaping_only_module_count == report.guard.max_reshaping_only_module_count
     assert packet_only == {"charter.py"}
-    assert {
+    assert reshaping_only == {
         "__init__.py",
-        "artifacts.py",
+        "benchmarks/__init__.py",
+        "benchmarks/targeted.py",
+        "design/__init__.py",
+        "handoffs/__init__.py",
         "handoffs/packets.py",
-        "targeted_benchmarking.py",
-        "workflow_readiness.py",
-    }.issubset(reshaping_only)
+        "lifecycle/__init__.py",
+        "outcomes/__init__.py",
+        "planning/__init__.py",
+        "readiness/__init__.py",
+        "reconciliation/__init__.py",
+    }
 
 
 def test_lab_module_shape_release_guard_has_no_failures() -> None:
