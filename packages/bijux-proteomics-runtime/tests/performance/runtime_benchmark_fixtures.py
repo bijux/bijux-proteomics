@@ -6,16 +6,27 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from bijux_proteomics.search_adapters import SearchAdapterKind
 from bijux_proteomics_runtime.runs import (
     RuntimeArtifactRetentionClass,
     RunConfig,
     build_run_context_contract,
     create_run_context,
 )
+from bijux_proteomics_runtime.runs.ledger import refresh_runtime_artifact_ledger
+from bijux_proteomics_runtime.runs.replay import build_local_run_bundle
 from bijux_proteomics_runtime.runs.ledger import ArtifactLedgerEntry
 from bijux_proteomics_runtime.runs.ledger import RuntimeArtifactLedger
 from bijux_proteomics_runtime.runs.replay import build_replay_contract
+from bijux_proteomics_runtime.runs.replay import write_local_run_bundle
+from bijux_proteomics_runtime.runs.replay import write_replay_contract
 from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.workflows.plans import (
+    WorkflowArchiveMedium,
+    build_proteomics_workflow_runtime_bundle,
+    build_workflow_runtime_archive_bundle,
+    build_workflow_runtime_export_bundle,
+)
 
 
 def build_medium_startup_config() -> RunConfig:
@@ -218,4 +229,123 @@ def write_medium_import_source(path: Path) -> None:
     path.write_text(
         json.dumps(medium_import_payload(), indent=2, sort_keys=True),
         encoding="utf-8",
+    )
+
+
+def build_medium_local_bundle_workspace(base_dir: Path):
+    context, _ = create_run_context(
+        base_dir,
+        build_medium_startup_config(),
+        run_id="bundle-benchmark-medium-1",
+    )
+    run_context = build_run_context_contract(
+        run_id=context.run_id,
+        started_at=context.start_time.isoformat(),
+        base_dir=base_dir,
+        config=context.config,
+        provider_name="local_esmfold",
+        artifact_policy=context.artifact_policy,
+        sequence="MPEPTIDE" * 12,
+        command="run",
+        workflow_family="sequence_to_digest",
+        candidate_id="bundle-benchmark-medium-1-c0",
+    )
+    summary = {
+        "run_id": context.run_id,
+        "candidate_id": "bundle-benchmark-medium-1-c0",
+        "command": "run",
+        "execution_status": "completed",
+        "workflow_state": "done",
+        "outcome": "accepted",
+        "provider": "local_esmfold",
+        "tool_status": "success",
+        "qc_status": "acceptable",
+        "artifacts_dir": str(context.workspace.run_dir),
+        "warnings": [],
+        "failure": None,
+        "version": {
+            "app": "0+local",
+            "git_commit": "unknown",
+            "tool_versions": {"local_esmfold": "2.0"},
+        },
+        "report": {
+            "protein_groups": [
+                {
+                    "group_id": f"PG{index:03d}",
+                    "peptides": [f"PEPTIDE{index:03d}", f"ALT{index:03d}"],
+                    "intensities": [
+                        round(100_000 + index * 21 + channel * 9.5, 4)
+                        for channel in range(10)
+                    ],
+                }
+                for index in range(72)
+            ]
+        },
+    }
+    write_json_atomic(context.workspace.run_context_path, run_context.to_dict())
+    write_json_atomic(context.workspace.run_summary_path, summary)
+    replay_contract = build_replay_contract(
+        run_context,
+        app_version="1.2.3",
+        git_commit="abc123",
+        tool_versions={"local_esmfold": "2.0", "diann": "1.9.2"},
+    )
+    write_replay_contract(context.workspace, replay_contract)
+    ledger = refresh_runtime_artifact_ledger(
+        context.workspace,
+        run_id=context.run_id,
+        artifact_policy=context.artifact_policy,
+        producer="benchmark",
+    )
+    bundle = build_local_run_bundle(
+        run_context=run_context,
+        replay_contract=replay_contract,
+        artifact_ledger=ledger,
+        run_summary=summary,
+    )
+    write_local_run_bundle(context.workspace, bundle)
+    refresh_runtime_artifact_ledger(
+        context.workspace,
+        run_id=context.run_id,
+        artifact_policy=context.artifact_policy,
+        producer="benchmark",
+    )
+    return context.workspace
+
+
+def build_medium_workflow_runtime_bundle_fixture():
+    return build_proteomics_workflow_runtime_bundle(
+        proteins_path=_workflow_fixture("proteins.fasta"),
+        spectra_path=_workflow_fixture("spectra.mgf"),
+        identifications_path=_workflow_fixture("results.tsv"),
+        features_path=_workflow_fixture("ms1_features.tsv"),
+        design_path=_workflow_fixture("design.tsv"),
+        sample_id="sample-benchmark",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        completed_step_ids=(
+            "sample-benchmark-generic-workflow-validate-inputs",
+            "sample-benchmark-generic-workflow-digest-database",
+            "sample-benchmark-generic-workflow-normalize-identifications",
+        ),
+    )
+
+
+def build_medium_workflow_archive_payload() -> dict[str, object]:
+    runtime_bundle = build_medium_workflow_runtime_bundle_fixture()
+    export_bundle = build_workflow_runtime_export_bundle(runtime_bundle)
+    archive_bundle = build_workflow_runtime_archive_bundle(
+        export_bundle,
+        archive_medium=WorkflowArchiveMedium.PORTABLE_JSON,
+    )
+    return archive_bundle.to_dict()
+
+
+def _workflow_fixture(name: str) -> Path:
+    return (
+        Path(__file__).resolve().parents[3]
+        / "bijux-proteomics-core"
+        / "tests"
+        / "fixtures"
+        / "production_run"
+        / name
     )
