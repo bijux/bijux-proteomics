@@ -304,6 +304,8 @@ result = OperationResult.success(
 
 - [Public surfaces dossier](docs/PUBLIC-SURFACES.md)
 - [Route ownership dossier](docs/ROUTE-OWNERSHIP.md)
+- [Provider ownership dossier](docs/PROVIDER-OWNERSHIP.md)
+- [Artifact lineage dossier](docs/ARTIFACT-LINEAGE.md)
 - [Package guide](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/architecture/)
