@@ -15,9 +15,11 @@ from bijux_proteomics_knowledge.memory.evidence import (
     QuantitativeSupport,
 )
 from bijux_proteomics_knowledge.memory.resolution import (
+    ClaimResolutionRecord,
     ContradictoryInterpretationCase,
     ContradictoryInterpretationComparison,
     ResolutionAction,
+    ResolutionRecordQuery,
     ResolutionPolicy,
     apply_resolution_updates,
     build_resolution_escalation_queue,
@@ -25,13 +27,9 @@ from bijux_proteomics_knowledge.memory.resolution import (
     compare_contradictory_interpretations,
     compare_resolution_policies,
     preview_resolution_impact,
+    query_resolution_records,
     resolve_conflicts,
     summarize_resolutions,
-)
-from bijux_proteomics_knowledge.reviews.queries import (
-    ClaimResolutionRecord,
-    ResolutionRecordQuery,
-    query_resolution_records,
 )
 
 

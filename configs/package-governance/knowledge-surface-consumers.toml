@@ -37,13 +37,6 @@ consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/
 imported_symbols = ["DEFAULT_ONTOLOGY_MAPPINGS"]
 
 [[surface]]
-name = "bijux_proteomics_knowledge.references.registry_queries"
-consumer_count = 0
-consumer_distributions = []
-consumer_modules = []
-imported_symbols = []
-
-[[surface]]
 name = "bijux_proteomics_knowledge.references.rules"
 consumer_count = 2
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence"]
@@ -94,13 +87,6 @@ imported_symbols = []
 
 [[surface]]
 name = "bijux_proteomics_knowledge.reviews.packets"
-consumer_count = 0
-consumer_distributions = []
-consumer_modules = []
-imported_symbols = []
-
-[[surface]]
-name = "bijux_proteomics_knowledge.reviews.queries"
 consumer_count = 0
 consumer_distributions = []
 consumer_modules = []

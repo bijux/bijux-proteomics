@@ -40,15 +40,17 @@ def test_knowledge_surface_consumer_matrix_records_current_owner_usage() -> None
         "bijux-proteomics-intelligence",
     }
     assert set(
+        entry_by_module["bijux_proteomics_knowledge.references.workflow_queries"].imported_symbols
+    ) >= {
+        "get_benchmark_manifest",
+    }
+    assert set(
         entry_by_module["bijux_proteomics_knowledge.references.rules"].consumer_distributions
     ) == {
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
     }
-    assert (
-        entry_by_module["bijux_proteomics_knowledge.references.registry_queries"].consumer_modules
-        == ()
-    )
+    assert "bijux_proteomics_knowledge.references.registry_queries" not in entry_by_module
     assert set(
         entry_by_module["bijux_proteomics_knowledge.references.briefings"].consumer_distributions
     ) == {"bijux-proteomics-dev"}

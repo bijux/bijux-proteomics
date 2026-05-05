@@ -54,7 +54,7 @@ rationale = "Briefing construction stays public so downstream consumers can ask 
 
 [[symbol]]
 name = "get_benchmark_manifest"
-owner_module = "bijux_proteomics_knowledge.references.queries"
+owner_module = "bijux_proteomics_knowledge.references.workflow_queries"
 classification = "curated_lookup"
 rationale = "Benchmark manifest lookup is the narrowest shared query surface used across packages."
 

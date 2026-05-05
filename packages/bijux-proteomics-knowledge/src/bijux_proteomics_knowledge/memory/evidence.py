@@ -176,6 +176,34 @@ class ProteomicsArtifactFlags(JsonModel):
     )
 
 
+class EvidenceRecordQuery(JsonModel):
+    """Structured query for filtering evidence records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decision_tag: str | None = Field(
+        default=None, description="Optional decision-tag filter."
+    )
+    kind: EvidenceKind | None = Field(
+        default=None, description="Optional evidence kind filter."
+    )
+    source_type: EvidenceSourceType | None = Field(
+        default=None, description="Optional source type filter."
+    )
+    minimum_confidence: float | None = Field(
+        default=None, ge=0.0, le=1.0, description="Optional confidence floor."
+    )
+    observed_after: datetime | None = Field(
+        default=None, description="Optional inclusive lower bound for observed_at."
+    )
+    sort_by: str | None = Field(
+        default=None, description="Optional sort key: confidence or observed_at."
+    )
+    descending: bool = Field(
+        default=True, description="Whether sorting should be descending."
+    )
+
+
 class EvidenceRecord(JsonModel):
     """Single evidence statement."""
 
@@ -2219,3 +2247,45 @@ def compute_bundle_trust(
         duplicate_groups=duplicate_groups,
         provenance=provenance,
     )
+
+
+def query_evidence_records(
+    records: list[EvidenceRecord],
+    query: EvidenceRecordQuery,
+) -> list[EvidenceRecord]:
+    """Filter evidence records using structured query fields."""
+
+    filtered = list(records)
+    if query.decision_tag is not None:
+        filtered = [
+            record for record in filtered if query.decision_tag in record.decision_tags
+        ]
+    if query.kind is not None:
+        filtered = [record for record in filtered if record.kind is query.kind]
+    if query.source_type is not None:
+        filtered = [
+            record for record in filtered if record.source_type is query.source_type
+        ]
+    if query.minimum_confidence is not None:
+        filtered = [
+            record
+            for record in filtered
+            if record.confidence >= query.minimum_confidence
+        ]
+    if query.observed_after is not None:
+        filtered = [
+            record for record in filtered if record.observed_at >= query.observed_after
+        ]
+    if query.sort_by == "confidence":
+        filtered = sorted(
+            filtered,
+            key=lambda record: record.confidence,
+            reverse=query.descending,
+        )
+    elif query.sort_by == "observed_at":
+        filtered = sorted(
+            filtered,
+            key=lambda record: record.observed_at,
+            reverse=query.descending,
+        )
+    return filtered

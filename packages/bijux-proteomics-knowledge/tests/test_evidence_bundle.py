@@ -12,6 +12,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
     ContextScoringProfile,
     EvidenceBundle,
     EvidenceConflict,
+    EvidenceRecordQuery,
     EvidenceExtractionMethod,
     EvidenceKind,
     EvidenceOrigin,
@@ -49,6 +50,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
     normalize_bundle_decision_tags,
     plan_evidence_collection,
     plan_evidence_refresh,
+    query_evidence_records,
     rank_evidence_for_decision,
     score_evidence_record,
     stale_records,
@@ -63,10 +65,6 @@ from bijux_proteomics_knowledge.memory.evidence import (
 from bijux_proteomics_knowledge.memory.ingestion import (
     ManualEvidenceNote,
     attach_manual_notes,
-)
-from bijux_proteomics_knowledge.reviews.queries import (
-    EvidenceRecordQuery,
-    query_evidence_records,
 )
 
 

@@ -254,6 +254,35 @@ class ClaimTrustGapReport(JsonModel):
     recommendations: list[str] = Field(default_factory=list)
 
 
+class ClaimQuery(JsonModel):
+    """Structured query for filtering target claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    status: ClaimStatus | None = Field(
+        default=None, description="Optional status filter."
+    )
+    claim_type: ClaimType | None = Field(
+        default=None, description="Optional claim-type filter."
+    )
+    polarity: ClaimPolarity | None = Field(
+        default=None, description="Optional polarity filter."
+    )
+    resolution_state: ClaimResolutionState | None = Field(
+        default=None, description="Optional resolution-state filter."
+    )
+    minimum_confidence: float | None = Field(
+        default=None, ge=0.0, le=1.0, description="Optional confidence floor."
+    )
+    decision_impact: str | None = Field(
+        default=None, description="Optional decision-impact filter."
+    )
+    contradiction_group: str | None = Field(
+        default=None, description="Optional contradiction-group filter."
+    )
+
+
 class ClaimConsistencyReport(JsonModel):
     """Consistency diagnostics for a claim set under one decision scope."""
 
@@ -1022,6 +1051,41 @@ def build_contradiction_matrix(
         rows=rows,
         relations=relations,
     )
+
+
+def query_claims(claims: list[EvidenceClaim], query: ClaimQuery) -> list[EvidenceClaim]:
+    """Filter claims for one target using structured query fields."""
+
+    filtered = [claim for claim in claims if claim.target_id == query.target_id]
+    if query.status is not None:
+        filtered = [claim for claim in filtered if claim.status is query.status]
+    if query.claim_type is not None:
+        filtered = [claim for claim in filtered if claim.claim_type is query.claim_type]
+    if query.polarity is not None:
+        filtered = [claim for claim in filtered if claim.polarity is query.polarity]
+    if query.resolution_state is not None:
+        filtered = [
+            claim
+            for claim in filtered
+            if claim.resolution_state is query.resolution_state
+        ]
+    if query.minimum_confidence is not None:
+        filtered = [
+            claim for claim in filtered if claim.confidence >= query.minimum_confidence
+        ]
+    if query.decision_impact is not None:
+        filtered = [
+            claim
+            for claim in filtered
+            if claim.decision_impact == query.decision_impact
+        ]
+    if query.contradiction_group is not None:
+        filtered = [
+            claim
+            for claim in filtered
+            if claim.contradiction_group == query.contradiction_group
+        ]
+    return filtered
 
 
 def audit_claim_evidence_links(

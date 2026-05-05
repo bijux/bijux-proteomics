@@ -68,7 +68,6 @@ def test_knowledge_thin_modules_are_only_roots_and_compatibility_wrappers() -> N
         "graph.py",
         "ingestion.py",
         "memory/__init__.py",
-        "queries.py",
         "references/__init__.py",
         "resolution.py",
         "review.py",

@@ -70,10 +70,7 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.ONTOLOGIES,
         owned_surface="Ontology mappings that normalize shared scientific language across workflows.",
-        required_modules=(
-            "references/ontologies.py",
-            "references/registry_queries.py",
-        ),
+        required_modules=("references/ontologies.py",),
         release_blocker="Knowledge cannot ship if controlled scientific terms resolve through ad hoc local aliases.",
     ),
     KnowledgeCharterEntry(
@@ -103,7 +100,6 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
             "references/contexts.py",
             "references/briefings.py",
             "reviews/packets.py",
-            "reviews/queries.py",
         ),
         release_blocker="Knowledge cannot ship if downstream packages would need to recreate caveats or scope context locally.",
     ),
@@ -268,17 +264,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Known-problem registries keep workflow caveats grounded and auditable.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/registry_queries.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(
-            KnowledgeCharterCapability.REFERENCES,
-            KnowledgeCharterCapability.ONTOLOGIES,
-            KnowledgeCharterCapability.CURATED_CORPORA,
-            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        ),
-        reason="Registry queries provide the read-only lookup layer over citations, corpora, context, and ontology surfaces.",
-    ),
-    KnowledgeModuleAuditEntry(
         module_path="references/workflow_queries.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
@@ -297,11 +282,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Scientific rules and grounded judgment ledgers translate reference provenance into reusable interpretation boundaries.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="queries.py",
-        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
-        reason="The flat review-query path is kept only as a compatibility shim over reviewer-facing owners.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="resolution.py",
@@ -335,12 +315,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Review packets are the package's downstream scientific-memory handoff surface.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="reviews/queries.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
-        reason="Structured review queries expose scientific memory retrieval without curation-storage leakage.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="schema.py",

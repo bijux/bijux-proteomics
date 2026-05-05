@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge.memory.claims import (
+    ClaimQuery,
     ClaimEvidenceState,
     ClaimPolarity,
     ClaimResolutionState,
@@ -24,6 +25,7 @@ from bijux_proteomics_knowledge.memory.claims import (
     evaluate_mechanistic_completeness,
     identify_knowledge_gaps,
     link_evidence_to_claim,
+    query_claims,
     strengthen_claim,
     validate_claims,
     weaken_claim,
@@ -35,7 +37,6 @@ from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.reviews.queries import ClaimQuery, query_claims
 
 
 def test_build_decision_lineage_links_supported_claims_to_evidence() -> None:

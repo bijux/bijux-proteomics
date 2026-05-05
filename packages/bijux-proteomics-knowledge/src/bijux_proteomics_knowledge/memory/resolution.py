@@ -143,6 +143,46 @@ class ConflictCluster(JsonModel):
     )
 
 
+class ClaimResolutionRecord(JsonModel):
+    """Conflict-resolution outcome captured for later scientific review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    record_id: str = Field(
+        ..., min_length=1, description="Stable resolution record id."
+    )
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    decision_tag: str = Field(
+        ..., min_length=1, description="Decision dimension affected."
+    )
+    resolution: ConflictResolution = Field(
+        ...,
+        description="Resolution applied for a conflicting evidence pair.",
+    )
+    recorded_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When the resolution was recorded.",
+    )
+    recorded_by: str = Field(
+        ..., min_length=1, description="Actor recording the resolution."
+    )
+
+
+class ResolutionRecordQuery(JsonModel):
+    """Structured query for filtering resolution history records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1, description="Target identifier.")
+    decision_tag: str | None = Field(
+        default=None, description="Optional decision-tag filter."
+    )
+    recorded_by: str | None = Field(default=None, description="Optional actor filter.")
+    recorded_after: datetime | None = Field(
+        default=None, description="Optional inclusive lower bound for record time."
+    )
+
+
 class ResolutionImpactPreview(JsonModel):
     """Estimated confidence impact of applying a set of conflict resolutions."""
 
@@ -677,3 +717,25 @@ def build_resolution_escalation_queue(
             ),
         ),
     )
+
+
+def query_resolution_records(
+    records: list[ClaimResolutionRecord],
+    query: ResolutionRecordQuery,
+) -> list[ClaimResolutionRecord]:
+    """Filter resolution records using structured query fields."""
+
+    filtered = [record for record in records if record.target_id == query.target_id]
+    if query.decision_tag is not None:
+        filtered = [
+            record for record in filtered if record.decision_tag == query.decision_tag
+        ]
+    if query.recorded_by is not None:
+        filtered = [
+            record for record in filtered if record.recorded_by == query.recorded_by
+        ]
+    if query.recorded_after is not None:
+        filtered = [
+            record for record in filtered if record.recorded_at >= query.recorded_after
+        ]
+    return filtered

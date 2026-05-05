@@ -51,7 +51,6 @@ def knowledge_surfaces() -> tuple[PublicKnowledgeSurface, ...]:
         PublicKnowledgeSurface("bijux_proteomics_knowledge.references.benchmarks"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.references.briefings"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.references.ontologies"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.references.registry_queries"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.references.rules"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.references.workflow_queries"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.claims"),
@@ -60,7 +59,6 @@ def knowledge_surfaces() -> tuple[PublicKnowledgeSurface, ...]:
         PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.ingestion"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.resolution"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.reviews.packets"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.reviews.queries"),
     )
 
 
