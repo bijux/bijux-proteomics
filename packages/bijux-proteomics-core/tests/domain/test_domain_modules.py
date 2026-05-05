@@ -12,12 +12,22 @@ from bijux_proteomics.domain.constraints import (
     assess_constraint_risk,
     build_protein_native_constraints,
 )
-from bijux_proteomics.context import (
+from bijux_proteomics.domain.context import (
     ProgramContext,
     ProgramDeliveryContext,
     ProgramPortfolioContext,
 )
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.domain.lifecycle import (
+    ProgramLifecycle,
+    advance_stage,
+    allowed_next_stages,
+)
+from bijux_proteomics.domain.operating_model import (
+    DecisionOwnerRole,
+    OperatingModel,
+    ReviewCadence,
+)
 from bijux_proteomics.domain.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics.domain.reviews import ReviewGate
 from bijux_proteomics.domain.targets import (
@@ -36,16 +46,6 @@ from bijux_proteomics.domain.targets import (
 )
 from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
 from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
-from bijux_proteomics.lifecycle import (
-    ProgramLifecycle,
-    advance_stage,
-    allowed_next_stages,
-)
-from bijux_proteomics.operating_model import (
-    DecisionOwnerRole,
-    OperatingModel,
-    ReviewCadence,
-)
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
 
 
