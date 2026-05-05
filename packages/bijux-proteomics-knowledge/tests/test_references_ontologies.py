@@ -49,3 +49,10 @@ def test_ontology_mappings_return_none_for_unknown_terms() -> None:
         resolve_ontology_mapping(KnowledgeOntologyDomain.ACQUISITION_MODE, "nanopore")
         is None
     )
+
+
+def test_ontology_mappings_carry_traceable_curation_metadata() -> None:
+    for mapping in DEFAULT_ONTOLOGY_MAPPINGS:
+        assert mapping.version_trace
+        assert mapping.retrieval_trace
+        assert mapping.source_name

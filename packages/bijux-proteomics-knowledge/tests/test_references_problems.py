@@ -20,6 +20,8 @@ def test_known_problem_registry_tracks_toy_corpora_and_shortcuts() -> None:
 
 def test_known_problem_entries_link_workflows_and_mitigations() -> None:
     for entry in DEFAULT_KNOWN_PROBLEM_REGISTRY:
+        assert entry.version_trace
+        assert entry.retrieval_trace
         assert entry.affected_workflow_families
         assert entry.affected_benchmark_ids
         assert entry.problem_summary

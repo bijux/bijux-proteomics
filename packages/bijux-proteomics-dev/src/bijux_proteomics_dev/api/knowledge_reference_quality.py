@@ -171,6 +171,8 @@ def build_knowledge_provenance_completeness_report() -> tuple[KnowledgeProvenanc
             (
                 "scientific_assertion",
                 "interpretation_caveat",
+                "version_trace",
+                "retrieval_trace",
                 "citation_ids",
                 "benchmark_ids",
             ),
@@ -178,17 +180,37 @@ def build_knowledge_provenance_completeness_report() -> tuple[KnowledgeProvenanc
         (
             "literature_groups",
             DEFAULT_LITERATURE_GROUPS,
-            ("curation_note", "citation_ids", "benchmark_ids"),
+            (
+                "curation_note",
+                "version_trace",
+                "retrieval_trace",
+                "citation_ids",
+                "benchmark_ids",
+            ),
         ),
         (
             "narratives",
             DEFAULT_WORKFLOW_NARRATIVES,
-            ("narrative_text", "benchmark_ids", "citation_ids", "scope_limit_notes"),
+            (
+                "narrative_text",
+                "version_trace",
+                "retrieval_trace",
+                "benchmark_ids",
+                "citation_ids",
+                "scope_limit_notes",
+            ),
         ),
         (
             "ontology_mappings",
             DEFAULT_ONTOLOGY_MAPPINGS,
-            ("preferred_label", "normalized_key", "source_name", "citation_ids"),
+            (
+                "preferred_label",
+                "normalized_key",
+                "source_name",
+                "version_trace",
+                "retrieval_trace",
+                "citation_ids",
+            ),
         ),
         (
             "known_problems",
@@ -196,6 +218,8 @@ def build_knowledge_provenance_completeness_report() -> tuple[KnowledgeProvenanc
             (
                 "problem_summary",
                 "mitigation_guidance",
+                "version_trace",
+                "retrieval_trace",
                 "affected_workflow_families",
                 "affected_benchmark_ids",
                 "citation_ids",
@@ -204,7 +228,14 @@ def build_knowledge_provenance_completeness_report() -> tuple[KnowledgeProvenanc
         (
             "scientific_rules",
             DEFAULT_SCIENTIFIC_RULE_REFERENCES,
-            ("rule_statement", "citation_ids", "benchmark_ids", "benchmark_rationale"),
+            (
+                "rule_statement",
+                "version_trace",
+                "retrieval_trace",
+                "citation_ids",
+                "benchmark_ids",
+                "benchmark_rationale",
+            ),
         ),
     )
 

@@ -31,6 +31,8 @@ class WorkflowNarrative(JsonModel):
     narrative_kind: WorkflowNarrativeKind
     title: str = Field(..., min_length=1)
     narrative_text: str = Field(..., min_length=1)
+    version_trace: tuple[str, ...] = Field(..., min_length=1)
+    retrieval_trace: tuple[str, ...] = Field(..., min_length=1)
     benchmark_ids: tuple[str, ...] = Field(..., min_length=1)
     citation_ids: tuple[str, ...] = Field(..., min_length=1)
     context_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -40,6 +42,8 @@ class WorkflowNarrative(JsonModel):
     @field_validator(
         "benchmark_ids",
         "citation_ids",
+        "version_trace",
+        "retrieval_trace",
         "context_ids",
         "problem_ids",
         "scope_limit_notes",
@@ -59,6 +63,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.EVIDENCE_CLAIM,
         title="What the suite can claim from DDA adapter benchmarks",
         narrative_text="The suite can claim that adapter-normalized DDA search outputs preserve peptide-spectrum match confidence framing, reviewed-proteome grounding, and cleavage-aware interpretation across the supported fixture corpus.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
         citation_ids=("citation:target_decoy_2007", "citation:uniprot_2025"),
         context_ids=(
@@ -77,6 +83,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.LIMITATION,
         title="What the suite cannot honestly claim from DDA adapter benchmarks",
         narrative_text="The suite cannot claim that clean fixture-level DDA normalization proves production-scale search exports are equally complete, equally comparable across proteases, or equally safe to roll up into protein certainty without additional review.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
         citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
         context_ids=("context:digestion_protease_comparability",),
@@ -92,6 +100,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.EVIDENCE_CLAIM,
         title="What the suite can claim from DIA extraction benchmarks",
         narrative_text="The suite can claim that supported DIA adapter outputs preserve acquisition semantics, library-conditioned transition evidence, and peptide-centric extraction framing across the shared benchmark corpus.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:dia_library_extraction_consistency",),
         citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012"),
         context_ids=(
@@ -113,6 +123,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.LIMITATION,
         title="What the suite cannot honestly claim from DIA extraction benchmarks",
         narrative_text="The suite cannot claim that DIA transition evidence is direct protein confirmation, nor that absence from a library-conditioned extraction surface proves biological absence beyond the scope of the benchmarked library context.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:dia_library_extraction_consistency",),
         citation_ids=("citation:swath_2012", "citation:protein_inference_2012"),
         context_ids=(
@@ -131,6 +143,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.EVIDENCE_CLAIM,
         title="What the suite can claim from PTM localization benchmarks",
         narrative_text="The suite can claim that supported PTM outputs preserve phosphorylation concept grounding and site-localization confidence semantics strongly enough to distinguish localized evidence from merely modified peptide evidence.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
         context_ids=(
@@ -149,6 +163,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.LIMITATION,
         title="What the suite cannot honestly claim from PTM localization benchmarks",
         narrative_text="The suite cannot claim stoichiometric PTM occupancy, broad condition-specific regulation, or fully resolved site certainty when the benchmark only establishes localization confidence over a bundled fixture surface.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
         context_ids=("context:ptm_occupancy_scope",),
@@ -164,6 +180,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.EVIDENCE_CLAIM,
         title="What the suite can claim from LFQ repeatability benchmarks",
         narrative_text="The suite can claim that supported LFQ workflows preserve study-design semantics and repeatable protein-quantity summaries across the bundled quantification corpus when missingness and rollup level remain explicit.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:lfq_quantification_repeatability",),
         citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012"),
         context_ids=(
@@ -182,6 +200,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.LIMITATION,
         title="What the suite cannot honestly claim from LFQ repeatability benchmarks",
         narrative_text="The suite cannot claim that repeatable LFQ fixture behavior removes missingness, interference, or peptide-to-protein rollup ambiguity in broader experimental cohorts.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:lfq_quantification_repeatability",),
         citation_ids=("citation:protein_inference_2012",),
         context_ids=("context:quant_missingness_is_informative",),
@@ -197,6 +217,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.EVIDENCE_CLAIM,
         title="What the suite can claim from multiplex quantification benchmarks",
         narrative_text="The suite can claim that supported multiplex outputs preserve reporter-channel semantics and explicit TMTpro label-chemistry assumptions across the bundled benchmark fixtures.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:multiplex_tmtpro_quantification",),
         citation_ids=("citation:tmtpro_2020",),
         context_ids=(
@@ -215,6 +237,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.LIMITATION,
         title="What the suite cannot honestly claim from multiplex quantification benchmarks",
         narrative_text="The suite cannot claim that reporter-channel summaries are interchangeable with label-free abundance evidence, nor that fixture-level multiplex stability erases interference and rollup caveats.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:multiplex_tmtpro_quantification",),
         citation_ids=("citation:tmtpro_2020", "citation:protein_inference_2012"),
         context_ids=("context:quant_rollup_changes_claim_scope",),
@@ -230,6 +254,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.EVIDENCE_CLAIM,
         title="What the suite can claim from targeted transition benchmarks",
         narrative_text="The suite can claim that supported targeted-style summaries preserve transition-level evidence and keep protein-level rollup caution visible during QC-oriented operational interpretation.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:targeted_transition_quality_control",),
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
         context_ids=("context:quant_rollup_changes_claim_scope",),
@@ -245,6 +271,8 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         narrative_kind=WorkflowNarrativeKind.LIMITATION,
         title="What the suite cannot honestly claim from targeted transition benchmarks",
         narrative_text="The suite cannot claim that transition-level targeted evidence alone resolves shared-peptide ambiguity or justifies unqualified protein certainty without explicit inference caution.",
+        version_trace=("Narrative wording was reviewed against the linked benchmark and reference surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:targeted_transition_quality_control",),
         citation_ids=("citation:protein_inference_2012",),
         context_ids=("context:quant_rollup_changes_claim_scope",),

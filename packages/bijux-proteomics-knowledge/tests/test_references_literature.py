@@ -24,6 +24,8 @@ def test_literature_groups_cover_required_focus_areas() -> None:
 
 def test_literature_groups_carry_citations_and_context_links() -> None:
     for group in DEFAULT_LITERATURE_GROUPS:
+        assert group.version_trace
+        assert group.retrieval_trace
         assert group.citation_ids
         assert group.benchmark_ids
         assert group.curation_note

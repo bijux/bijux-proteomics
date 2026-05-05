@@ -22,6 +22,8 @@ def test_scientific_context_registry_covers_required_domains() -> None:
 
 def test_scientific_context_entries_carry_provenance_and_caveats() -> None:
     for entry in DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES:
+        assert entry.version_trace
+        assert entry.retrieval_trace
         assert entry.citation_ids
         assert entry.benchmark_ids
         assert entry.scientific_assertion

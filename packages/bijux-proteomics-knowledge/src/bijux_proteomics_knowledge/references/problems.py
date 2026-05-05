@@ -31,6 +31,8 @@ class KnownProblemRegistryEntry(JsonModel):
     title: str = Field(..., min_length=1)
     problem_summary: str = Field(..., min_length=1)
     mitigation_guidance: str = Field(..., min_length=1)
+    version_trace: tuple[str, ...] = Field(..., min_length=1)
+    retrieval_trace: tuple[str, ...] = Field(..., min_length=1)
     affected_workflow_families: tuple[KnowledgeWorkflowFamily, ...] = Field(
         ..., min_length=1
     )
@@ -38,7 +40,13 @@ class KnownProblemRegistryEntry(JsonModel):
     affected_benchmark_ids: tuple[str, ...] = Field(default_factory=tuple)
     citation_ids: tuple[str, ...] = Field(default_factory=tuple)
 
-    @field_validator("affected_corpus_ids", "affected_benchmark_ids", "citation_ids")
+    @field_validator(
+        "affected_corpus_ids",
+        "affected_benchmark_ids",
+        "citation_ids",
+        "version_trace",
+        "retrieval_trace",
+    )
     @classmethod
     def _strip_blank_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         cleaned = tuple(item.strip() for item in value if item.strip())
@@ -54,6 +62,8 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
         title="Search-adapter fixtures can look cleaner than production exports",
         problem_summary="Bundled adapter fixtures are intentionally reviewable and can under-represent messy missing metadata, inconsistent scoring, and mixed search-space assumptions found in production DDA or DIA exports.",
         mitigation_guidance="Treat the fixture suite as a normalization proof, not as evidence that production-scale adapter inputs are equally complete or equally well-behaved.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
         affected_workflow_families=(
             KnowledgeWorkflowFamily.DDA,
             KnowledgeWorkflowFamily.DIA,
@@ -71,6 +81,8 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
         title="Quantification fixtures can hide missingness pain",
         problem_summary="Study-scale LFQ and multiplex fixtures are useful for repeatability checks, but they can make quantitative missingness and interference look easier to manage than in broader experimental cohorts.",
         mitigation_guidance="Keep missingness, interference, and rollup caveats attached to any benchmark-backed quantification claim rather than treating repeatable fixture behavior as universal.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
         affected_workflow_families=(
             KnowledgeWorkflowFamily.LFQ,
             KnowledgeWorkflowFamily.MULTIPLEX,
@@ -88,6 +100,8 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
         title="Transition-level evidence can be over-rolled into protein certainty",
         problem_summary="Targeted and DIA-style evidence often encourages fast protein-level summaries even when the underlying support remains transition-level, peptide-level, or library-conditioned.",
         mitigation_guidance="Require explicit protein-inference caution whenever transition-level or peptide-centric evidence is rolled up into protein-facing operational recommendations.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
         affected_workflow_families=(
             KnowledgeWorkflowFamily.DIA,
             KnowledgeWorkflowFamily.TARGETED,

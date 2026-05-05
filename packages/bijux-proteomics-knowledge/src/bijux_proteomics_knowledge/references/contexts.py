@@ -31,6 +31,8 @@ class ScientificContextEntry(JsonModel):
     title: str = Field(..., min_length=1)
     scientific_assertion: str = Field(..., min_length=1)
     interpretation_caveat: str = Field(..., min_length=1)
+    version_trace: tuple[str, ...] = Field(..., min_length=1)
+    retrieval_trace: tuple[str, ...] = Field(..., min_length=1)
     citation_ids: tuple[str, ...] = Field(..., min_length=1)
     benchmark_ids: tuple[str, ...] = Field(..., min_length=1)
     related_rule_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -39,6 +41,8 @@ class ScientificContextEntry(JsonModel):
     @field_validator(
         "citation_ids",
         "benchmark_ids",
+        "version_trace",
+        "retrieval_trace",
         "related_rule_ids",
         "related_term_ids",
     )
@@ -57,6 +61,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="Tryptic specificity expectation",
         scientific_assertion="Search, peptide rollup, and benchmark claims that assume tryptic digestion should preserve the expected lysine and arginine cleavage frame rather than treating all peptide evidence as digestion-agnostic.",
         interpretation_caveat="Missed cleavages, semi-tryptic evidence, and alternative proteases can be real, but they must remain explicit because they change how confidently peptide-level evidence maps back to the benchmark contract.",
+        version_trace=("Context wording was reviewed against linked digestion references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:uniprot_2025",),
         benchmark_ids=(
             "benchmark:dda_search_reproducibility",
@@ -71,6 +77,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="Protease comparability caveat",
         scientific_assertion="Benchmark comparisons across proteases remain interpretable only when cleavage expectations and peptide detectability differences are kept visible instead of being collapsed into one merged identification claim.",
         interpretation_caveat="A LysC-supported peptide panel is not automatically interchangeable with a tryptic panel, so workflow summaries should avoid claiming cross-protease equivalence without explicit comparability evidence.",
+        version_trace=("Context wording was reviewed against linked digestion references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:uniprot_2025",),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
         related_rule_ids=("rule:trypsin_specificity",),
@@ -82,6 +90,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="PTM localization confidence must stay explicit",
         scientific_assertion="Phosphorylation evidence should carry localization-confidence semantics alongside the PTM concept so that the suite can distinguish confidently localized sites from merely modified peptides.",
         interpretation_caveat="A peptide can support the presence of phosphorylation while still failing to support one exact residue assignment, and benchmark-backed outputs should preserve that distinction.",
+        version_trace=("Context wording was reviewed against linked PTM references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         related_rule_ids=("rule:phosphorylation_localization",),
@@ -93,6 +103,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="PTM occupancy is not implied by localization alone",
         scientific_assertion="Site localization evidence and occupancy-style abundance interpretation are related but not interchangeable, so PTM outputs should not imply stoichiometric occupancy when the benchmark only establishes localization confidence.",
         interpretation_caveat="A localized phosphosite can still have weak quantitative support for occupancy or condition-specific change, and that uncertainty should survive downstream interpretation.",
+        version_trace=("Context wording was reviewed against linked PTM references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         related_rule_ids=("rule:phosphorylation_localization",),
@@ -104,6 +116,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="DIA transition evidence stays peptide-centric",
         scientific_assertion="DIA and SWATH-style extraction claims are most defensible when transition-level and peptide-centric evidence remain visible instead of being treated as direct protein confirmation.",
         interpretation_caveat="Transition alignment and extracted-ion consistency are useful, but they are not a substitute for making the peptide-to-protein inference step explicit.",
+        version_trace=("Context wording was reviewed against linked DIA references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012"),
         benchmark_ids=("benchmark:dia_library_extraction_consistency",),
         related_rule_ids=("rule:protein_inference_rollup",),
@@ -115,6 +129,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="Spectral-library scope constrains DIA claims",
         scientific_assertion="DIA benchmark outputs should keep library scope explicit because identifications and quantities are conditioned on the peptides and transitions represented in the library-backed extraction surface.",
         interpretation_caveat="A narrow or mismatched library can make a workflow look cleaner than it really is, so absence of evidence in DIA should not be treated as broad biological absence without scope context.",
+        version_trace=("Context wording was reviewed against linked DIA references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012"),
         benchmark_ids=("benchmark:dia_library_extraction_consistency",),
         related_rule_ids=("rule:protein_inference_rollup",),
@@ -126,6 +142,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="Quantitative missingness is informative",
         scientific_assertion="Missing values in LFQ and multiplex-style quantification are not just formatting gaps; they often reflect sampling, detection, or interference constraints that matter to the benchmark claim.",
         interpretation_caveat="Naive imputation or silent dropping of missing values can overstate stability, so workflow summaries should keep the missingness story attached to the quantitative result.",
+        version_trace=("Context wording was reviewed against linked quantification references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:uniprot_2025", "citation:tmtpro_2020"),
         benchmark_ids=(
             "benchmark:lfq_quantification_repeatability",
@@ -140,6 +158,8 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         title="Quantitative rollup changes the claim scope",
         scientific_assertion="Peptide-level, precursor-level, and protein-level quantitative summaries do not carry identical meaning, so the suite should preserve which rollup level each benchmark-backed claim actually supports.",
         interpretation_caveat="Protein-level summaries can hide conflicting peptide behavior or missingness patterns, and that tradeoff should remain explicit when other packages consume the result.",
+        version_trace=("Context wording was reviewed against linked quantification references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
         citation_ids=("citation:protein_inference_2012", "citation:tmtpro_2020"),
         benchmark_ids=(
             "benchmark:lfq_quantification_repeatability",

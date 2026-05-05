@@ -32,11 +32,19 @@ class LiteratureGroup(JsonModel):
     focus_area: LiteratureFocusArea
     title: str = Field(..., min_length=1)
     curation_note: str = Field(..., min_length=1)
+    version_trace: tuple[str, ...] = Field(..., min_length=1)
+    retrieval_trace: tuple[str, ...] = Field(..., min_length=1)
     citation_ids: tuple[str, ...] = Field(..., min_length=1)
     benchmark_ids: tuple[str, ...] = Field(..., min_length=1)
     context_ids: tuple[str, ...] = Field(default_factory=tuple)
 
-    @field_validator("citation_ids", "benchmark_ids", "context_ids")
+    @field_validator(
+        "citation_ids",
+        "benchmark_ids",
+        "context_ids",
+        "version_trace",
+        "retrieval_trace",
+    )
     @classmethod
     def _strip_blank_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         cleaned = tuple(item.strip() for item in value if item.strip())
@@ -51,6 +59,8 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         focus_area=LiteratureFocusArea.QC,
         title="Signal quality and workflow confidence",
         curation_note="Quality-control interpretation in this suite is grounded in references that explain why apparently clean quantitative or identification outputs can still hide scope problems.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
         citation_ids=(
             "citation:target_decoy_2007",
             "citation:protein_inference_2012",
@@ -71,6 +81,8 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         focus_area=LiteratureFocusArea.FDR,
         title="FDR scope and identification confidence",
         curation_note="This literature group keeps target-decoy framing and protein-level inference caveats attached to any confidence claim that moves across evidence levels.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
         citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
         context_ids=("context:digestion_tryptic_specificity",),
@@ -80,6 +92,8 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         focus_area=LiteratureFocusArea.QUANTIFICATION,
         title="Quantification missingness and rollup interpretation",
         curation_note="Quantitative summaries need literature support for missingness, reporter-channel semantics, and the difference between peptide-level and protein-level claims.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
         citation_ids=(
             "citation:tmtpro_2020",
             "citation:protein_inference_2012",
@@ -99,6 +113,8 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         focus_area=LiteratureFocusArea.PTM,
         title="PTM localization and occupancy caution",
         curation_note="The PTM group keeps modification ontology grounding separate from site-localization confidence and occupancy-style quantitative interpretation.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         context_ids=(
@@ -111,6 +127,8 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         focus_area=LiteratureFocusArea.DIA,
         title="DIA extraction and spectral-library scope",
         curation_note="This group captures the peptide-centric and library-scoped character of DIA claims so downstream packages do not overstate protein certainty.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
         citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012"),
         benchmark_ids=("benchmark:dia_library_extraction_consistency",),
         context_ids=(
@@ -123,6 +141,8 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         focus_area=LiteratureFocusArea.TARGETED,
         title="Targeted evidence and protein rollup caution",
         curation_note="Targeted summaries remain grounded when transition-level evidence and protein-level inference are kept explicitly connected instead of being conflated.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
         benchmark_ids=("benchmark:targeted_transition_quality_control",),
         context_ids=("context:quant_rollup_changes_claim_scope",),

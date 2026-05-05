@@ -34,6 +34,8 @@ def test_workflow_narratives_cover_each_family_and_kind() -> None:
 
 def test_workflow_narratives_carry_benchmark_and_provenance_links() -> None:
     for narrative in DEFAULT_WORKFLOW_NARRATIVES:
+        assert narrative.version_trace
+        assert narrative.retrieval_trace
         assert narrative.benchmark_ids
         assert narrative.citation_ids
         assert narrative.narrative_text
