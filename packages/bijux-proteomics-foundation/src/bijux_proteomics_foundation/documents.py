@@ -11,8 +11,8 @@ from typing import Any
 
 from pydantic import AliasChoices, ConfigDict, Field, field_validator, model_validator
 
-from bijux_proteomics_foundation.hashing import hash_payload
 from bijux_proteomics_foundation.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.hashing import hash_payload
 from bijux_proteomics_foundation.versions import normalize_schema_version
 
 

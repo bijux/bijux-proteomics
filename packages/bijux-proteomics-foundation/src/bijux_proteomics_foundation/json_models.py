@@ -11,7 +11,7 @@ from typing import Any, Self, cast
 
 from pydantic import BaseModel
 
-from bijux_proteomics_foundation.canonicalization import (
+from bijux_proteomics_foundation.serialization.canonicalization import (
     flatten_tsv_mapping,
     normalize_json_value,
 )
@@ -58,7 +58,7 @@ class JsonModel(BaseModel):
 
     def content_fingerprint(self) -> str:
         """Return a deterministic SHA-256 fingerprint for model content."""
-        from bijux_proteomics_foundation.hashing import hash_model
+        from bijux_proteomics_foundation.serialization.hashing import hash_model
 
         return hash_model(self)
 
@@ -101,7 +101,7 @@ class JsonModel(BaseModel):
 
 def fingerprint_model(model: JsonModel) -> str:
     """Return the stable fingerprint for one model."""
-    from bijux_proteomics_foundation.hashing import hash_model
+    from bijux_proteomics_foundation.serialization.hashing import hash_model
 
     return hash_model(model)
 

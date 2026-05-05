@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.hashing import (
+from bijux_proteomics_foundation.serialization.hashing import (
     StableHashPolicy,
     default_hash_policy,
     hash_payload,

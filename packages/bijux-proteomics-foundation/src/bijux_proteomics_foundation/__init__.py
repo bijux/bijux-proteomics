@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation.canonicalization import to_canonical_json
 from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
@@ -15,11 +14,12 @@ from bijux_proteomics_foundation.errors import (
     ContractConflictError,
     ContractNotFoundError,
 )
-from bijux_proteomics_foundation.hashing import (
+from bijux_proteomics_foundation.serialization.hashing import (
     hash_model,
     hash_payload,
     hash_text,
 )
+from bijux_proteomics_foundation.serialization.canonicalization import to_canonical_json
 from bijux_proteomics_foundation.ids import (
     AssayId,
     BatchId,

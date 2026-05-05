@@ -75,11 +75,13 @@ def test_foundation_module_audit_rejects_wrong_owner_and_dead_entries() -> None:
     assert invalid_entries == {}
 
 
-def test_foundation_thin_abstractions_are_only_root_exports() -> None:
+def test_foundation_thin_abstractions_stay_limited_to_curated_compatibility_paths() -> (
+    None
+):
     thin_paths = {
         entry.module_path
         for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
         if entry.classification is FoundationModuleClassification.THIN_ABSTRACTION
     }
 
-    assert thin_paths == {"__init__.py"}
+    assert thin_paths == {"__init__.py", "canonicalization.py", "hashing.py"}

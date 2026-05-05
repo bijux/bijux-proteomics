@@ -106,9 +106,9 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         capability=FoundationCharterCapability.HASHING_AND_ORDERING,
         owned_surface="Canonical hashing, fingerprint, and ordering mechanics used to produce stable cross-package artifacts and comparisons.",
         required_modules=(
-            "canonicalization.py",
+            "serialization/canonicalization.py",
             "fingerprints.py",
-            "hashing.py",
+            "serialization/hashing.py",
             "ordering.py",
         ),
         release_blocker="Foundation cannot ship if canonical hashing or ordering is reimplemented differently in downstream packages.",
@@ -159,6 +159,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             reason="The package root is a constrained export surface over the shared primitive modules.",
         )
 
+    if module_path in {"canonicalization.py", "hashing.py"}:
+        return FoundationModuleAuditEntry(
+            module_path=module_path,
+            classification=FoundationModuleClassification.THIN_ABSTRACTION,
+            reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
+        )
+
     if module_path == "charter.py":
         return _shared_contract_entry(
             module_path,
@@ -180,10 +187,11 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
-        "canonicalization.py",
         "fingerprints.py",
-        "hashing.py",
         "ordering.py",
+        "serialization/__init__.py",
+        "serialization/canonicalization.py",
+        "serialization/hashing.py",
     }:
         return _shared_contract_entry(
             module_path,
@@ -221,7 +229,7 @@ DEFAULT_FOUNDATION_MODULE_AUDIT: tuple[FoundationModuleAuditEntry, ...] = tuple(
             _classify_foundation_module(
                 path.relative_to(_foundation_source_root()).as_posix()
             )
-            for path in _foundation_source_root().glob("*.py")
+            for path in _foundation_source_root().rglob("*.py")
         ),
         key=lambda entry: entry.module_path,
     )
