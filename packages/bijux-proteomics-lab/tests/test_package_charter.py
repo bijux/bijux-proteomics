@@ -58,4 +58,11 @@ def test_only_package_root_remains_thin_abstraction() -> None:
         if entry.classification is LabModuleClassification.THIN_ABSTRACTION
     }
 
-    assert thin_paths == {"__init__.py"}
+    assert thin_paths == {
+        "__init__.py",
+        "design/__init__.py",
+        "planning/__init__.py",
+        "protocols.py",
+        "readiness/__init__.py",
+        "workflow_readiness.py",
+    }

@@ -57,19 +57,31 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
     LabCharterEntry(
         capability=LabCharterCapability.ASSAY_PLANNING,
         owned_surface="Executable assay planning that turns scientific requirements into concrete batchable work.",
-        required_modules=("planning.py", "design.py", "protocols.py"),
+        required_modules=(
+            "planning/assays.py",
+            "design/experiments.py",
+            "design/protocols.py",
+        ),
         release_blocker="Lab cannot ship if assay work remains a packet shell without concrete planning behavior.",
     ),
     LabCharterEntry(
         capability=LabCharterCapability.QUEUEING,
         owned_surface="Queue-aware execution planning that respects capacity, backlog, and review-gate pressure.",
-        required_modules=("planning.py", "readiness.py", "repositories.py"),
+        required_modules=(
+            "planning/assays.py",
+            "readiness/operations.py",
+            "repositories.py",
+        ),
         release_blocker="Lab cannot ship if queue and capacity handling disappear into downstream ad hoc logic.",
     ),
     LabCharterEntry(
         capability=LabCharterCapability.PROGRESSION,
         owned_surface="Operational progression and review transitions grounded in lab-ready state rather than recommendation-only ranking.",
-        required_modules=("lifecycle.py", "planning.py", "readiness.py"),
+        required_modules=(
+            "lifecycle.py",
+            "planning/assays.py",
+            "readiness/operations.py",
+        ),
         release_blocker="Lab cannot ship if progression decisions ignore operational readiness or unresolved execution blockers.",
     ),
     LabCharterEntry(
@@ -78,7 +90,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         required_modules=(
             "protocols.py",
             "artifacts.py",
-            "planning.py",
+            "planning/assays.py",
             "handoffs.py",
             "ptm_follow_up.py",
             "targeted_benchmarking.py",
@@ -91,7 +103,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         required_modules=(
             "outcomes.py",
             "repositories.py",
-            "readiness.py",
+            "readiness/operations.py",
             "risk.py",
             "reconciliation.py",
         ),
@@ -107,6 +119,29 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="The package root is an export surface and intentionally aggregates stable operational entrypoints.",
     ),
     LabModuleAuditEntry(
+        module_path="design/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The design band re-exports the experiment-design owner surface under the durable design namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="design/experiments.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.ASSAY_PLANNING,
+            LabCharterCapability.HANDOFF_PACKETS,
+        ),
+        reason="Experiment-design validation and layout planning are executable lab-operations behavior.",
+    ),
+    LabModuleAuditEntry(
+        module_path="design/protocols.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.ASSAY_PLANNING,
+            LabCharterCapability.HANDOFF_PACKETS,
+        ),
+        reason="Protocol attachments keep controls, versions, and caveats attached to lab handoffs.",
+    ),
+    LabModuleAuditEntry(
         module_path="artifacts.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
@@ -120,15 +155,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.HANDOFF_PACKETS,
         ),
         reason="The machine-readable charter keeps the lab package boundary explicit and reviewable.",
-    ),
-    LabModuleAuditEntry(
-        module_path="design.py",
-        classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(
-            LabCharterCapability.ASSAY_PLANNING,
-            LabCharterCapability.HANDOFF_PACKETS,
-        ),
-        reason="Experiment-design validation and layout planning are executable lab-operations behavior.",
     ),
     LabModuleAuditEntry(
         module_path="handoffs.py",
@@ -149,7 +175,12 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Outcome interpretation and rerun behavior are core lab feedback-loop ownership.",
     ),
     LabModuleAuditEntry(
-        module_path="planning.py",
+        module_path="planning/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The planning band re-exports executable assay planning under the durable planning namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="planning/assays.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(
             LabCharterCapability.ASSAY_PLANNING,
@@ -166,15 +197,16 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
     ),
     LabModuleAuditEntry(
         module_path="protocols.py",
-        classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(
-            LabCharterCapability.ASSAY_PLANNING,
-            LabCharterCapability.HANDOFF_PACKETS,
-        ),
-        reason="Protocol attachments keep controls, versions, and caveats attached to lab handoffs.",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The flat protocols import path is kept only as a compatibility facade over design-owned protocol helpers.",
     ),
     LabModuleAuditEntry(
-        module_path="readiness.py",
+        module_path="readiness/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The readiness band re-exports operational readiness under the durable readiness namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="readiness/operations.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(
             LabCharterCapability.QUEUEING,
@@ -217,6 +249,11 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
     ),
     LabModuleAuditEntry(
         module_path="workflow_readiness.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The flat workflow-readiness import path is kept only as a compatibility facade over readiness-owned workflow checks.",
+    ),
+    LabModuleAuditEntry(
+        module_path="readiness/workflow.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(
             LabCharterCapability.QUEUEING,
