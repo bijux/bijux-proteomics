@@ -54,6 +54,10 @@ It also now provides typed proteomics interpretation helpers that sit on top of
 for QC posture, differential abundance, PTM interpretation, enrichment, and
 operator-facing review notes.
 
+It now also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
+`lfq`, and `multiplex` workflows so release-facing claims stay tied to checked-in
+datasets, owner surfaces, and explicit scientific limits.
+
 ## Why teams pick this package
 
 - policy-first ranking and recommendation outputs with traceable decision rationale
@@ -94,6 +98,18 @@ from bijux_proteomics_intelligence import (
 )
 ```
 
+For benchmark-backed workflow review:
+
+```python
+from bijux_proteomics_intelligence import (
+    build_dda_benchmark_review,
+    build_dia_benchmark_review,
+    build_ptm_benchmark_review,
+    build_lfq_benchmark_review,
+    build_multiplex_benchmark_review,
+)
+```
+
 For proteomics evidence interpretation:
 
 ```python
@@ -110,7 +126,7 @@ from bijux_proteomics_intelligence import (
 - Import root: `bijux_proteomics_intelligence`
 - Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`,
   `outcomes`, `interpretation`, `charter`, `decision_paths`,
-  `skeptical_review`, and `evidence_posture`
+  `skeptical_review`, `benchmark_reviews`, and `evidence_posture`
 
 ## Package boundaries
 
@@ -151,6 +167,8 @@ parallel workflow story of its own.
 - the change affects decision meaning rather than the way results are delivered
 - policy and rationale should stay explicit and reproducible
 - you need skeptical analytical review over whether a recommendation is truly defensible
+- you need benchmark-backed release review outputs for `dda`, `dia`, `ptm`,
+  `lfq`, or `multiplex`
 
 ## Route elsewhere when
 
@@ -214,6 +232,7 @@ parallel workflow story of its own.
 - [`src/bijux_proteomics_intelligence/evaluators.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py) for scenario and portfolio evaluators
 - [`src/bijux_proteomics_intelligence/decision_paths.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py) for readable end-to-end follow-up and review-board decision paths
 - [`src/bijux_proteomics_intelligence/skeptical_review.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/skeptical_review.py) for software and scientific challenge reports over intelligence recommendations
+- [`src/bijux_proteomics_intelligence/benchmark_reviews.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py) for benchmark-backed `dda`, `dia`, `ptm`, `lfq`, and `multiplex` release review outputs
 - [`src/bijux_proteomics_intelligence/interpretation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation.py) for run summaries, proteomics interpretation, and enrichment contracts
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
 

@@ -18,6 +18,8 @@ standards; it is intentionally separate from product runtime behavior.
 
 - run and extend root quality and security gates used by all packages
 - validate release readiness and metadata consistency before tagging
+- build the scientific release dossier that links each workflow family to its
+  benchmark, owner, tests, and explicit scientific limits
 - detect OpenAPI and schema drift before publication
 - automate maintainership checks for docs and repository health
 
@@ -122,6 +124,8 @@ It does not define runtime product APIs or proteomics domain behavior.
 - [`src/bijux_proteomics_dev/security`](src/bijux_proteomics_dev/security) for security gates
 - [`src/bijux_proteomics_dev/api`](src/bijux_proteomics_dev/api) for OpenAPI and schema checks
 - [`src/bijux_proteomics_dev/release`](src/bijux_proteomics_dev/release) for release support
+  including `build_scientific_release_dossier()` and the checked-in
+  `configs/package-governance/scientific-release-workflows.toml` manifest
 - [`src/bijux_proteomics_dev/docs`](src/bijux_proteomics_dev/docs) for documentation checks
 - [`src/bijux_proteomics_dev/tools`](src/bijux_proteomics_dev/tools) for maintainer utility tools
 
