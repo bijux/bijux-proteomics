@@ -75,7 +75,13 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
     LabCharterEntry(
         capability=LabCharterCapability.HANDOFF_PACKETS,
         owned_surface="Reviewable handoff packets that preserve protocol controls, caveats, and artifact integrity.",
-        required_modules=("protocols.py", "artifacts.py", "planning.py", "handoffs.py"),
+        required_modules=(
+            "protocols.py",
+            "artifacts.py",
+            "planning.py",
+            "handoffs.py",
+            "targeted_benchmarking.py",
+        ),
         release_blocker="Lab cannot ship if handoff packets lose protocol controls, caveats, or artifact integrity.",
     ),
     LabCharterEntry(
@@ -192,6 +198,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         ),
         reason="Feedback and review-queue records are the typed persistence boundary for lab operations.",
+    ),
+    LabModuleAuditEntry(
+        module_path="targeted_benchmarking.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Targeted benchmark reports prove that discovery evidence can become reviewable operator handoff outputs without hiding support limits.",
     ),
     LabModuleAuditEntry(
         module_path="workflow_readiness.py",

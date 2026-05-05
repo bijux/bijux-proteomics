@@ -323,6 +323,14 @@ from bijux_proteomics_lab.reconciliation import (
     build_operational_follow_up_path,
     reconcile_planned_and_observed_outcome,
 )
+from bijux_proteomics_lab.targeted_benchmarking import (
+    TargetedBenchmarkClaimSupport,
+    TargetedBenchmarkClaimSummary,
+    TargetedBenchmarkReport,
+    TargetedOperatorRunReport,
+    build_targeted_benchmark_report,
+    build_targeted_operator_run_report,
+)
 
 __all__ = [
     "AcceptanceOperator",
@@ -569,6 +577,12 @@ __all__ = [
     "OperationalFollowUpPath",
     "OutcomeReconciliationReport",
     "PlannedObservedAssayDelta",
+    "TargetedBenchmarkClaimSupport",
+    "TargetedBenchmarkClaimSummary",
+    "TargetedBenchmarkReport",
+    "TargetedOperatorRunReport",
+    "build_targeted_benchmark_report",
+    "build_targeted_operator_run_report",
     "build_operational_follow_up_path",
     "reconcile_planned_and_observed_outcome",
     "HandoffExplanation",
