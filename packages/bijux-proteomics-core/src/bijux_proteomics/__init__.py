@@ -31,7 +31,7 @@ from bijux_proteomics.io.ingestion import (
     parse_mztab_or_refuse,
     stream_mgf_spectra,
 )
-from bijux_proteomics.assays import AssayRequirement
+from bijux_proteomics.domain.assays import AssayRequirement
 from bijux_proteomics.chemistry import (
     AppliedModification,
     FragmentIon,
@@ -121,7 +121,7 @@ from bijux_proteomics.collaboration import (
     run_standalone_bundle_verifier,
     verify_signed_reviewer_bundle,
 )
-from bijux_proteomics.constraints import (
+from bijux_proteomics.domain.constraints import (
     ConstraintCategory,
     ScientificConstraint,
     build_protein_native_constraints,
@@ -1360,7 +1360,7 @@ from bijux_proteomics.theoretical_fragment_reference import (
     TheoreticalFragmentValidationReport,
     validate_theoretical_fragment_reference_cases,
 )
-from bijux_proteomics.validation import (
+from bijux_proteomics.domain.validation import (
     ProgramValidationIssue,
     validate_assay_dependencies,
     validate_program,

@@ -47,7 +47,7 @@ from bijux_proteomics import (
     validate_program_readiness,
     validate_review_decision,
 )
-from bijux_proteomics.constraints import ConstraintCategory
+from bijux_proteomics.domain.constraints import ConstraintCategory
 from bijux_proteomics.programs import (
     AssayRequirement,
     LiabilityCategory,

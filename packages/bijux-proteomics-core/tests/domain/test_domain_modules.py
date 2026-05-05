@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics.assays import AssayRequirement
-from bijux_proteomics.constraints import (
+from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.constraints import (
     ConstraintCategory,
     ScientificConstraint,
     assess_constraint_risk,

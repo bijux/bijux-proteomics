@@ -22,9 +22,12 @@ REMOVED_COMPATIBILITY_PATHS = {
     "execution_backend.py",
     "execution_contracts.py",
     "runner.py",
+    "assays.py",
+    "constraints.py",
     "runtime_adapter.py",
     "schema.py",
     "serialization.py",
+    "validation.py",
     "workflow_runtime.py",
 }
 

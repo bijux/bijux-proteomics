@@ -9,7 +9,7 @@ from bijux_proteomics import (
     SuccessCriterion,
     create_program_spec,
 )
-from bijux_proteomics.constraints import ConstraintCategory
+from bijux_proteomics.domain.constraints import ConstraintCategory
 from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
