@@ -97,10 +97,16 @@ def build_artifact_integrity_report(
     run_id: str,
     artifact_ledger: RuntimeArtifactLedger,
     max_artifact_bytes: int,
+    include_transient_artifacts: bool = True,
 ) -> ArtifactIntegrityReport:
     """Build an integrity report from the current artifact ledger."""
     issues: list[ArtifactIntegrityIssue] = []
     for entry in artifact_ledger.entries:
+        if (
+            not include_transient_artifacts
+            and entry.retention_class.value == "transient"
+        ):
+            continue
         path = Path(entry.path)
         if not path.exists():
             issues.append(
@@ -182,6 +188,7 @@ def require_reusable_artifact_bundle(
         run_id=run_id,
         artifact_ledger=load_artifact_ledger(workspace, run_id),
         max_artifact_bytes=max_artifact_bytes,
+        include_transient_artifacts=False,
     )
     missing_required = {
         kind
