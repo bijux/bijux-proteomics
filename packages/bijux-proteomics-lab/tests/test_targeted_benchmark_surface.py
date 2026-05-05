@@ -13,11 +13,9 @@ from bijux_proteomics.domain.program_spec import create_program_spec
 from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
 from bijux_proteomics_intelligence.briefs import CandidateAssessment
 from bijux_proteomics_intelligence.decision_paths import build_follow_up_candidate_path
-from bijux_proteomics_knowledge import EvidenceBundle, EvidenceRecord
-from bijux_proteomics_knowledge.references import (
-    KnowledgeWorkflowFamily,
-    get_benchmark_manifest,
-)
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, EvidenceRecord
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.queries import get_benchmark_manifest
 from bijux_proteomics_lab import (
     AssayOutcome,
     AssayResultState,

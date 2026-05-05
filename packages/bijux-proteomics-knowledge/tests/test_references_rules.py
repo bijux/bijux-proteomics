@@ -3,13 +3,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references import (
-    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.decision_rules import (
     GroundedDecisionRule,
-    KnowledgeRuleDomain,
-    KnowledgeWorkflowFamily,
     RankingRuleGroundingLedger,
     build_ranking_rule_grounding_ledger,
+)
+from bijux_proteomics_knowledge.references.rules import (
+    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+    KnowledgeRuleDomain,
 )
 
 

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.references.citations import (
     DEFAULT_CITATION_REGISTRY,
     CitationSourceKind,
 )

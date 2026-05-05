@@ -3,12 +3,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references import (
-    CitationSourceKind,
-    KnowledgeCorpusSourceKind,
-    KnowledgeOntologyDomain,
-    KnowledgeRuleDomain,
-    KnowledgeWorkflowFamily,
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.citations import CitationSourceKind
+from bijux_proteomics_knowledge.references.corpora import KnowledgeCorpusSourceKind
+from bijux_proteomics_knowledge.references.ontologies import KnowledgeOntologyDomain
+from bijux_proteomics_knowledge.references.queries import (
     get_benchmark_manifest,
     get_citation,
     get_corpus_manifest,
@@ -20,6 +19,7 @@ from bijux_proteomics_knowledge.references import (
     list_ontology_mappings,
     list_scientific_rules,
 )
+from bijux_proteomics_knowledge.references.rules import KnowledgeRuleDomain
 
 
 def test_reference_queries_return_known_registry_entries() -> None:

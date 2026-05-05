@@ -2,33 +2,26 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from bijux_proteomics_foundation import DocumentSchema, hash_model
+from bijux_proteomics_foundation import (
+    DocumentSchema,
+    fingerprint_model as fingerprint_knowledge_model,
+    hash_model,
+    fingerprint_model as fingerprint_lab_model,
+    to_canonical_json as knowledge_to_canonical_json,
+    to_canonical_json as lab_to_canonical_json,
+)
 from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
 )
-from bijux_proteomics_knowledge import (
-    EvidenceBundle,
-    evaluate_schema_compatibility,
-)
-from bijux_proteomics_knowledge import (
-    fingerprint_model as fingerprint_knowledge_model,
-)
-from bijux_proteomics_knowledge import (
-    to_canonical_json as knowledge_to_canonical_json,
-)
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.schema import evaluate_schema_compatibility
 from bijux_proteomics_lab import (
     ExperimentPlan,
     build_canonical_artifact_envelope,
     build_lab_schema_upgrade_advisory,
     evaluate_lab_artifact_with_registry,
     verify_canonical_artifact_envelope,
-)
-from bijux_proteomics_lab import (
-    fingerprint_model as fingerprint_lab_model,
-)
-from bijux_proteomics_lab import (
-    to_canonical_json as lab_to_canonical_json,
 )
 
 __all__ = [

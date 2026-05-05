@@ -20,7 +20,7 @@ from bijux_proteomics_foundation import (
     ProgramId,
 )
 from bijux_proteomics_foundation.ids import CycleId
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     assess_decision_readiness,
     compute_bundle_trust,

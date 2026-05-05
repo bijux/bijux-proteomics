@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references import (
-    KnowledgeWorkflowFamily,
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.briefings import (
     build_workflow_reference_briefing,
 )
 

@@ -3,18 +3,12 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.memory.claims import (
     ClaimEvidenceState,
     ClaimPolarity,
-    ClaimQuery,
     ClaimResolutionState,
     ClaimStatus,
     ClaimType,
-    EvidenceBundle,
-    EvidenceKind,
-    EvidenceRecord,
-    EvidenceSourceType,
-    EvidenceStrength,
     ResolutionAssayOutcome,
     apply_resolution_assay_outcome,
     audit_claim_evidence_links,
@@ -30,11 +24,18 @@ from bijux_proteomics_knowledge import (
     evaluate_mechanistic_completeness,
     identify_knowledge_gaps,
     link_evidence_to_claim,
-    query_claims,
     strengthen_claim,
     validate_claims,
     weaken_claim,
 )
+from bijux_proteomics_knowledge.memory.evidence import (
+    EvidenceBundle,
+    EvidenceKind,
+    EvidenceRecord,
+    EvidenceSourceType,
+    EvidenceStrength,
+)
+from bijux_proteomics_knowledge.reviews.queries import ClaimQuery, query_claims
 
 
 def test_build_decision_lineage_links_supported_claims_to_evidence() -> None:

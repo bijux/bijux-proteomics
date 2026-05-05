@@ -5,30 +5,34 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from bijux_proteomics_knowledge import (
-    ClaimResolutionRecord,
-    ClaimStatus,
-    ContradictoryInterpretationCase,
-    ContradictoryInterpretationComparison,
+from bijux_proteomics_knowledge.memory.claims import ClaimStatus, build_claim
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
     QuantitativeSupport,
+)
+from bijux_proteomics_knowledge.memory.resolution import (
+    ClaimStatus,
+    ContradictoryInterpretationCase,
+    ContradictoryInterpretationComparison,
     ResolutionAction,
     ResolutionPolicy,
-    ResolutionRecordQuery,
     apply_resolution_updates,
-    build_claim,
     build_resolution_escalation_queue,
     cluster_conflicts,
     compare_contradictory_interpretations,
     compare_resolution_policies,
     preview_resolution_impact,
-    query_resolution_records,
     resolve_conflicts,
     summarize_resolutions,
+)
+from bijux_proteomics_knowledge.reviews.queries import (
+    ClaimResolutionRecord,
+    ResolutionRecordQuery,
+    query_resolution_records,
 )
 
 

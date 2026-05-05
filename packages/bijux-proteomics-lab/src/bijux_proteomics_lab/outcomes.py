@@ -11,10 +11,12 @@ from statistics import mean, median
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import AssayId, BatchId, ClaimId, JsonModel
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceKind,
     EvidenceSourceType,
     EvidenceStrength,
+)
+from bijux_proteomics_knowledge.memory.ingestion import (
     NormalizedEvidenceInput,
 )
 from bijux_proteomics_lab.repositories import LabFeedbackRecord

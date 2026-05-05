@@ -13,7 +13,7 @@ from bijux_proteomics.workflow.blueprint import (
     workflow_blueprint_for_program,
 )
 from bijux_proteomics_foundation import JsonModel, ProgramId
-from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, evidence_gaps
 
 
 class WorkflowReadinessStep(JsonModel):

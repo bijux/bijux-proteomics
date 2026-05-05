@@ -3,20 +3,21 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge import (
-    CandidateDecisionDisposition,
-    CandidateDecisionGraphExplanation,
-    CandidateDecisionGraphQuery,
-    ClaimStatus,
-    DecisionGateProfile,
+from bijux_proteomics_knowledge.memory.claims import ClaimStatus, build_claim
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceStrength,
+)
+from bijux_proteomics_knowledge.reviews.packets import (
+    CandidateDecisionDisposition,
+    CandidateDecisionGraphExplanation,
+    CandidateDecisionGraphQuery,
+    DecisionGateProfile,
     KnowledgeReviewPacket,
     OperationalDecisionLabel,
     ScientificConclusion,
-    build_claim,
     build_knowledge_review_packet,
     compare_review_packets,
     explain_candidate_decision_with_graph,

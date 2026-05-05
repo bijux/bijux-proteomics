@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
 
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.memory.evidence import (
     BundleFreshnessReport,
     ContextScoringProfile,
     EvidenceBundle,
@@ -16,7 +16,6 @@ from bijux_proteomics_knowledge import (
     EvidenceKind,
     EvidenceOrigin,
     EvidenceRecord,
-    EvidenceRecordQuery,
     EvidenceRefreshNeed,
     EvidenceRefreshPriority,
     EvidenceSourceType,
@@ -25,7 +24,6 @@ from bijux_proteomics_knowledge import (
     GovernedArtifactReference,
     GovernedEvidenceBundle,
     GovernedEvidenceSurface,
-    ManualEvidenceNote,
     ProteomicsArtifactFlags,
     QuantitativeSupport,
     TrustPolicy,
@@ -36,7 +34,6 @@ from bijux_proteomics_knowledge import (
     assess_context_completeness,
     assess_decision_readiness,
     assess_scientific_context_completeness,
-    attach_manual_notes,
     audit_knowledge_quality,
     build_governed_evidence_bundle,
     compute_bundle_trust,
@@ -52,7 +49,6 @@ from bijux_proteomics_knowledge import (
     normalize_bundle_decision_tags,
     plan_evidence_collection,
     plan_evidence_refresh,
-    query_evidence_records,
     rank_evidence_for_decision,
     score_evidence_record,
     stale_records,
@@ -63,6 +59,14 @@ from bijux_proteomics_knowledge import (
     triangulate_evidence,
     validate_bundle_integrity,
     validate_quantitative_support_payload,
+)
+from bijux_proteomics_knowledge.memory.ingestion import (
+    ManualEvidenceNote,
+    attach_manual_notes,
+)
+from bijux_proteomics_knowledge.reviews.queries import (
+    EvidenceRecordQuery,
+    query_evidence_records,
 )
 
 

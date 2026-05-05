@@ -11,17 +11,33 @@ from bijux_proteomics_knowledge.charter import (
     DEFAULT_KNOWLEDGE_MODULE_AUDIT,
     KnowledgeModuleClassification,
 )
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.references.benchmarks import (
     DEFAULT_BENCHMARK_MANIFESTS,
-    DEFAULT_CITATION_REGISTRY,
-    DEFAULT_CORPUS_MANIFESTS,
-    DEFAULT_KNOWN_PROBLEM_REGISTRY,
-    DEFAULT_LITERATURE_GROUPS,
-    DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
-    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
-    DEFAULT_WORKFLOW_NARRATIVES,
     KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.briefings import (
     build_workflow_reference_briefing,
+)
+from bijux_proteomics_knowledge.references.citations import (
+    DEFAULT_CITATION_REGISTRY,
+)
+from bijux_proteomics_knowledge.references.contexts import (
+    DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
+)
+from bijux_proteomics_knowledge.references.corpora import (
+    DEFAULT_CORPUS_MANIFESTS,
+)
+from bijux_proteomics_knowledge.references.literature import (
+    DEFAULT_LITERATURE_GROUPS,
+)
+from bijux_proteomics_knowledge.references.narratives import (
+    DEFAULT_WORKFLOW_NARRATIVES,
+)
+from bijux_proteomics_knowledge.references.problems import (
+    DEFAULT_KNOWN_PROBLEM_REGISTRY,
+)
+from bijux_proteomics_knowledge.references.rules import (
+    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
 )
 
 

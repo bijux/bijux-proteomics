@@ -3,24 +3,27 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge import (
-    ClaimStatus,
+from bijux_proteomics_knowledge.memory.claims import ClaimStatus, EvidenceClaim
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
-    EvidenceClaim,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
-    LiabilityNodeInput,
-    NormalizedEvidenceInput,
     QuantitativeSupport,
+)
+from bijux_proteomics_knowledge.memory.graph import (
+    LiabilityNodeInput,
     UnresolvedQuestion,
-    attach_evidence_inputs,
     build_evidence_graph,
     extract_decision_subgraph,
-    ingest_inputs_with_report,
     trace_decision_paths,
     validate_evidence_graph,
+)
+from bijux_proteomics_knowledge.memory.ingestion import (
+    NormalizedEvidenceInput,
+    attach_evidence_inputs,
+    ingest_inputs_with_report,
 )
 
 

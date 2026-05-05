@@ -8,17 +8,23 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.references.benchmarks import (
     BenchmarkManifest,
-    CitationSourceKind,
-    CorpusManifest,
     DEFAULT_BENCHMARK_MANIFESTS,
-    DEFAULT_CITATION_REGISTRY,
-    DEFAULT_CORPUS_MANIFESTS,
-    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
-    KnowledgeCorpusSourceKind,
-    KnowledgeRuleDomain,
     KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.citations import (
+    CitationSourceKind,
+    DEFAULT_CITATION_REGISTRY,
+)
+from bijux_proteomics_knowledge.references.corpora import (
+    CorpusManifest,
+    DEFAULT_CORPUS_MANIFESTS,
+    KnowledgeCorpusSourceKind,
+)
+from bijux_proteomics_knowledge.references.rules import (
+    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+    KnowledgeRuleDomain,
     ScientificRuleReference,
 )
 
