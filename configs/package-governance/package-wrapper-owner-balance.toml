@@ -1,0 +1,62 @@
+# Generated package wrapper-owner balance report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_wrapper_owner_balance
+
+[guard]
+max_total_wrapper_outpaces_owner_count = 0
+max_average_wrapper_to_owner_ratio = 0.1401
+
+[[package]]
+distribution_name = "agentic-proteins"
+owner_logic_module_count = 0
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
+wrapper_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+owner_logic_module_count = 67
+wrapper_module_count = 4
+wrapper_to_owner_ratio = 0.0597
+wrapper_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+owner_logic_module_count = 111
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
+wrapper_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+owner_logic_module_count = 17
+wrapper_module_count = 7
+wrapper_to_owner_ratio = 0.4118
+wrapper_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+owner_logic_module_count = 30
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
+wrapper_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+owner_logic_module_count = 19
+wrapper_module_count = 6
+wrapper_to_owner_ratio = 0.3158
+wrapper_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+owner_logic_module_count = 18
+wrapper_module_count = 6
+wrapper_to_owner_ratio = 0.3333
+wrapper_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+owner_logic_module_count = 120
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
+wrapper_outpaces_owner_logic = false
