@@ -19,13 +19,15 @@ flowchart TB
     change["runtime migration change"]
     boundary["runtime boundary contracts"]
     ledger["migration ledger freshness and coverage"]
+    inventory["compatibility inventory and bridge posture"]
     release["release matrix and artifact coverage"]
     parity["compatibility parity checks"]
     verdict["migration is releasable or blocked"]
 
     change --> boundary
     boundary --> ledger
-    ledger --> release
+    ledger --> inventory
+    inventory --> release
     release --> parity
     parity --> verdict
 ```
@@ -44,6 +46,8 @@ make quality-runtime-migration-validation
 
 - lower-layer packages do not import runtime by accident
 - the migration ledger is fresh and covers the full legacy module set
+- the compatibility bridge stays wrapper-only and does not regain original
+  product logic
 - tracked API artifacts under `apis/*/v1` still match runtime expectations
 - release matrices still include both canonical runtime and compatibility
   surfaces where required

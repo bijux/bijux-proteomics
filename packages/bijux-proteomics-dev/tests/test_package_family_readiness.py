@@ -13,8 +13,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 def test_package_family_readiness_reports_cover_declared_families() -> None:
     reports = build_package_family_readiness_reports(REPO_ROOT)
 
-    assert len(reports) == 2
+    assert len(reports) == 3
     assert {report.family_id for report in reports} == {
+        "compatibility-bridge",
         "scientific-platform",
         "runtime-service",
     }

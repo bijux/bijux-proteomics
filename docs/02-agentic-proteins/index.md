@@ -15,6 +15,11 @@ enough for callers to migrate to `bijux-proteomics-runtime`. Its value is not
 new capability. Its value is controlled continuity while the old surface is
 retired without breaking downstream users in the dark.
 
+It is now tracked as an explicit compatibility bridge beneath the six real
+product packages. That means its release case depends on a checked migration
+path and a wrapper-only inventory, not on growing new product value inside the
+bridge itself.
+
 ```mermaid
 flowchart LR
     callers["legacy callers<br/>imports, CLI paths, API usage"]
@@ -40,6 +45,8 @@ flowchart LR
 - compatibility forwarding for legacy runtime imports
 - preserved legacy CLI and API entrypoints while migration is still justified
 - the proof bar for keeping or retiring those preserved surfaces
+- the checked migration guide and compatibility inventory that explain how old
+  imports collapse back to canonical package ownership
 
 ## Start With
 
@@ -62,6 +69,8 @@ flowchart LR
 - `packages/agentic-proteins`
 - `packages/agentic-proteins/src/agentic_proteins`
 - `packages/agentic-proteins/tests`
+- `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md`
+- `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md`
 
 ## Boundary
 
