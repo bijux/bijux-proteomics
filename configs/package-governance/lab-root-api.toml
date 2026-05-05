@@ -1,0 +1,29 @@
+# Curated public root API for bijux_proteomics_lab.
+
+[budget]
+max_public_symbols = 4
+max_init_lines = 16
+
+[[symbol]]
+name = "plan_experiment_batches"
+owner_module = "bijux_proteomics_lab.planning.assays"
+classification = "operational_planning_entrypoint"
+rationale = "Batch planning is the main package-level entrypoint that turns scientific requirements into executable lab work."
+
+[[symbol]]
+name = "build_review_packet"
+owner_module = "bijux_proteomics_lab.planning.assays"
+classification = "operational_review_entrypoint"
+rationale = "Review packets are the smallest shared operator-facing handoff artifact that multiple higher layers consume."
+
+[[symbol]]
+name = "build_advisory_assay_plan"
+owner_module = "bijux_proteomics_lab.planning.assays"
+classification = "advisory_planning_entrypoint"
+rationale = "Advisory assay planning remains public so downstream packages can preview follow-up shape before scheduling a concrete batch."
+
+[[symbol]]
+name = "build_executable_assay_plan"
+owner_module = "bijux_proteomics_lab.planning.assays"
+classification = "execution_planning_entrypoint"
+rationale = "Executable assay planning is the concrete package-level contract for lab-ready batch instructions."
