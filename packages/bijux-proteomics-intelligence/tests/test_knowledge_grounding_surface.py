@@ -8,7 +8,7 @@ from bijux_proteomics_knowledge.references import (
     WorkflowNarrativeKind,
     build_workflow_reference_briefing,
 )
-from bijux_proteomics_intelligence import build_ranking_rule_grounding_ledger
+from bijux_proteomics_knowledge.references import build_ranking_rule_grounding_ledger
 
 
 def test_intelligence_can_consume_knowledge_briefing_with_limitations() -> None:

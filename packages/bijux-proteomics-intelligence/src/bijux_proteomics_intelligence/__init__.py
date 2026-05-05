@@ -151,7 +151,7 @@ from bijux_proteomics_intelligence.evaluators import (
     summarize_uncertainty_preserving_interpretation,
     summarize_unresolved_question_ledger,
 )
-from bijux_proteomics_intelligence.grounding import (
+from bijux_proteomics_knowledge.references import (
     GroundedDecisionRule,
     RankingRuleGroundingLedger,
     build_ranking_rule_grounding_ledger,
@@ -231,11 +231,6 @@ from bijux_proteomics_intelligence.policies import (
     validate_metric_catalog,
 )
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_intelligence.workflow import (
-    WorkflowReadinessStep,
-    WorkflowReadinessSummary,
-    summarize_workflow_readiness,
-)
 
 __all__ = [
     "CandidateAssessment",
@@ -367,9 +362,6 @@ __all__ = [
     "summarize_unresolved_question_ledger",
     "build_advanced_review_packet",
     "build_comparative_candidate_review_packet",
-    "WorkflowReadinessStep",
-    "WorkflowReadinessSummary",
-    "summarize_workflow_readiness",
     "analyze_missingness_patterns",
     "AnnotationCategory",
     "BiologicalTheme",

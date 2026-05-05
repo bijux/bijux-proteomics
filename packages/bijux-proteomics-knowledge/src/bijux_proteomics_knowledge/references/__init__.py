@@ -15,6 +15,12 @@ from bijux_proteomics_knowledge.references.benchmarks import (
     DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
+from bijux_proteomics_knowledge.references.decision_rules import (
+    GroundedDecisionRule,
+    RankingRuleGroundingLedger,
+    build_ranking_rule_grounding_ledger,
+    rule_grounding_map,
+)
 from bijux_proteomics_knowledge.references.briefings import (
     WorkflowReferenceBriefing,
     build_workflow_reference_briefing,
@@ -91,6 +97,7 @@ __all__ = [
     "DEFAULT_WORKFLOW_NARRATIVES",
     "DEFAULT_SCIENTIFIC_RULE_REFERENCES",
     "DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES",
+    "GroundedDecisionRule",
     "KnowledgeContextDomain",
     "KnowledgeCorpusSourceKind",
     "KnowledgeOntologyDomain",
@@ -101,11 +108,13 @@ __all__ = [
     "KnownProblemRegistryEntry",
     "LiteratureFocusArea",
     "LiteratureGroup",
+    "RankingRuleGroundingLedger",
     "ScientificContextEntry",
     "ScientificRuleReference",
     "WorkflowReferenceBriefing",
     "WorkflowNarrative",
     "WorkflowNarrativeKind",
+    "build_ranking_rule_grounding_ledger",
     "build_workflow_reference_briefing",
     "get_benchmark_manifest",
     "get_citation",
@@ -126,5 +135,6 @@ __all__ = [
     "list_scientific_rules",
     "list_workflow_narratives",
     "list_workflow_reference_briefings",
+    "rule_grounding_map",
     "resolve_ontology_mapping",
 ]

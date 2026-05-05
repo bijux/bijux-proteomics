@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Knowledge-backed grounding for non-obvious intelligence decision rules."""
+"""Curated intelligence decision rules grounded in knowledge-owned references."""
 
 from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_knowledge.references import (
-    KnowledgeWorkflowFamily,
+from bijux_proteomics_knowledge.references.briefings import (
     build_workflow_reference_briefing,
 )
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 
 class GroundedDecisionRule(JsonModel):
@@ -32,7 +32,7 @@ class GroundedDecisionRule(JsonModel):
 
 
 class RankingRuleGroundingLedger(JsonModel):
-    """Grounding ledger for the ranking and recommendation rules in one workflow."""
+    """Grounding ledger for ranking and recommendation rules in one workflow."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -62,7 +62,7 @@ def build_ranking_rule_grounding_ledger(
                 rationale=(
                     "Strong recommendation pressure is only defensible when the "
                     "workflow-specific evidence claim remains within the benchmarked "
-                    "scope and the package keeps the limitation narrative attached."
+                    "scope and the limitation narrative remains attached."
                 ),
                 citation_ids=citation_ids,
                 benchmark_ids=benchmark_ids,
@@ -78,7 +78,7 @@ def build_ranking_rule_grounding_ledger(
                 rationale=(
                     "The benchmark manifest and linked literature groups justify "
                     "rewarding repeatable evidence before novelty-heavy signals that "
-                    "might look cleaner than production-scale data."
+                    "can look cleaner than production-scale data."
                 ),
                 citation_ids=citation_ids,
                 benchmark_ids=benchmark_ids,
@@ -92,9 +92,9 @@ def build_ranking_rule_grounding_ledger(
                 workflow_family=workflow_family,
                 title="Stale evidence should suppress recommendation confidence",
                 rationale=(
-                    "Knowledge-owned benchmark and problem registries make it unsafe to "
-                    "treat aging or stale evidence as equally decision-ready, especially "
-                    "when the fixture corpus can hide production drift."
+                    "Benchmark and known-problem registries make it unsafe to treat "
+                    "aging evidence as equally decision-ready, especially when fixture "
+                    "corpora can hide production drift."
                 ),
                 citation_ids=citation_ids,
                 benchmark_ids=benchmark_ids,
@@ -124,8 +124,8 @@ def build_ranking_rule_grounding_ledger(
                 workflow_family=workflow_family,
                 title="Assay feasibility and operational risk must remain visible",
                 rationale=(
-                    "Knowledge-owned workflow limits and known problems justify keeping "
-                    "assay feasibility, cost, and operational pressure explicit so the "
+                    "Workflow limits and known problems justify keeping assay "
+                    "feasibility, cost, and operational pressure explicit so the "
                     "package does not over-promote scientifically interesting but "
                     "operationally fragile follow-up work."
                 ),

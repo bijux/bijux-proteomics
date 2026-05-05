@@ -5,7 +5,11 @@ from __future__ import annotations
 
 from bijux_proteomics_knowledge.references import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+    GroundedDecisionRule,
     KnowledgeRuleDomain,
+    KnowledgeWorkflowFamily,
+    RankingRuleGroundingLedger,
+    build_ranking_rule_grounding_ledger,
 )
 
 
@@ -27,3 +31,18 @@ def test_scientific_rules_carry_references_and_benchmark_context() -> None:
         assert rule.benchmark_ids
         assert rule.benchmark_rationale
         assert rule.rule_statement
+
+
+def test_grounded_decision_rules_are_owned_by_knowledge_references() -> None:
+    ledger = build_ranking_rule_grounding_ledger(KnowledgeWorkflowFamily.DIA)
+
+    assert isinstance(ledger, RankingRuleGroundingLedger)
+    assert ledger.rules
+    assert all(isinstance(rule, GroundedDecisionRule) for rule in ledger.rules)
+    assert {rule.rule_id for rule in ledger.rules} == {
+        "rule:evidence_strength_priority",
+        "rule:reproducibility_priority",
+        "rule:freshness_penalty",
+        "rule:contradiction_penalty",
+        "rule:assay_feasibility_and_operational_risk_balance",
+    }

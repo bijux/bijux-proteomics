@@ -15,7 +15,7 @@ from bijux_proteomics_intelligence.evidence_posture import (
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
 )
-from bijux_proteomics_intelligence.grounding import (
+from bijux_proteomics_knowledge.references import (
     build_ranking_rule_grounding_ledger,
 )
 from bijux_proteomics_intelligence.outcomes import (
