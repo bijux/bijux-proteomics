@@ -3,5 +3,5 @@
 
 """Owner band for benchmark-backed lab rehearsal surfaces."""
 
-from bijux_proteomics_lab.benchmarks.targeted import *
-
+from bijux_proteomics_lab.benchmarks.claims import *
+from bijux_proteomics_lab.benchmarks.rehearsals import *

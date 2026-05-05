@@ -96,7 +96,8 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "handoffs/exports.py",
             "handoffs/ptm.py",
             "handoffs/risk.py",
-            "benchmarks/targeted.py",
+            "benchmarks/claims.py",
+            "benchmarks/rehearsals.py",
         ),
         release_blocker="Lab cannot ship if handoff packets lose protocol controls, caveats, or artifact integrity.",
     ),
@@ -155,13 +156,27 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="The benchmarks band re-exports benchmark rehearsal owners under the durable benchmarks namespace.",
     ),
     LabModuleAuditEntry(
-        module_path="benchmarks/targeted.py",
+        module_path="benchmarks/claims.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(
             LabCharterCapability.HANDOFF_PACKETS,
             LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         ),
-        reason="Targeted benchmark reports prove that discovery evidence can become reviewable operator handoff outputs without hiding support limits.",
+        reason="Targeted benchmark claims keep benchmark support posture tied to exact discovery, handoff, cache, and observed-feedback evidence.",
+    ),
+    LabModuleAuditEntry(
+        module_path="benchmarks/rehearsals.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Targeted benchmark rehearsals keep operator, failure, and external-review delivery separate from claim construction.",
+    ),
+    LabModuleAuditEntry(
+        module_path="benchmarks/targeted.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The historical targeted benchmark module now remains only as a compatibility facade over narrower benchmark owners.",
     ),
     LabModuleAuditEntry(
         module_path="charter.py",
