@@ -24,7 +24,7 @@ from bijux_proteomics_lab.planning import (
     ExecutableAssayPlan,
     ReviewPacket,
 )
-from bijux_proteomics_lab.readiness.workflow import WorkflowReadinessSummary
+from bijux_proteomics_lab.readiness.stages import WorkflowReadinessSummary
 from bijux_proteomics_lab.reconciliation import (
     OperationalFollowUpPath,
     build_operational_follow_up_path,

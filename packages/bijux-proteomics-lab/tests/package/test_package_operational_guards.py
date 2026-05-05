@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import bijux_proteomics_lab as lab
-from bijux_proteomics_lab.charter import (
+from bijux_proteomics_lab.governance.charter import (
     DEFAULT_LAB_MODULE_AUDIT,
     LabModuleClassification,
 )

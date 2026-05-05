@@ -4,7 +4,7 @@ import argparse
 from dataclasses import dataclass
 
 from bijux_proteomics_dev.api.runtime_topology import REPO_ROOT
-from bijux_proteomics_lab.charter import (
+from bijux_proteomics_lab.governance.charter import (
     DEFAULT_LAB_MODULE_AUDIT,
     LabModuleClassification,
 )

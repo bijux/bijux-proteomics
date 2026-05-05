@@ -18,7 +18,7 @@ from bijux_proteomics_knowledge.charter import (
     DEFAULT_KNOWLEDGE_MODULE_AUDIT,
     KnowledgeModuleClassification,
 )
-from bijux_proteomics_lab.charter import (
+from bijux_proteomics_lab.governance.charter import (
     DEFAULT_LAB_MODULE_AUDIT,
     LabModuleClassification,
 )
@@ -159,7 +159,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         minimum_owned_logic_count=10,
         maximum_thin_module_count=2,
         evidence_locator=(
-            "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/charter.py"
+            "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/governance/charter.py"
         ),
     ),
     "agentic-proteins": _PackageSubstanceExpectation(

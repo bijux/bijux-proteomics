@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_lab.charter import (
+from bijux_proteomics_lab.governance.charter import (
     DEFAULT_LAB_CHARTER,
     DEFAULT_LAB_MODULE_AUDIT,
     LabCharterCapability,
@@ -63,6 +63,7 @@ def test_only_curated_compatibility_paths_remain_thin_abstraction() -> None:
         "benchmarks/__init__.py",
         "benchmarks/targeted.py",
         "design/__init__.py",
+        "governance/__init__.py",
         "handoffs/__init__.py",
         "handoffs/packets.py",
         "lifecycle/__init__.py",
