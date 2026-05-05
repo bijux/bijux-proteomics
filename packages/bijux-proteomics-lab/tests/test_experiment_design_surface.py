@@ -12,7 +12,7 @@ from bijux_proteomics import (
 )
 from bijux_proteomics_lab import (
     CarryoverRiskLevel,
-    ContrastRejectionReason,
+    DesignContrastRejectionReason,
     InstrumentMethodMetadata,
     ProtocolControlRequirement,
     ProtocolFailureCaveat,
@@ -68,7 +68,7 @@ def test_validate_experiment_design_distinguishes_valid_and_confounded_contrasts
     assert valid_report.valid_contrasts[0].condition_b == "treatment"
     assert len(confounded_report.rejected_contrasts) == 1
     assert (
-        ContrastRejectionReason.BATCH_CONFOUNDED
+        DesignContrastRejectionReason.BATCH_CONFOUNDED
         in confounded_report.rejected_contrasts[0].rejection_reasons
     )
     assert any(

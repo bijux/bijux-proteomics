@@ -17,14 +17,17 @@ def test_interpretation_public_api_contains_expected_exports() -> None:
     assert "extract_biological_themes" in bijux_proteomics_intelligence.__all__
     assert "compute_protein_set_enrichment" in bijux_proteomics_intelligence.__all__
     assert "compute_ranked_enrichment" in bijux_proteomics_intelligence.__all__
-    assert "ContrastRejectionReason" in bijux_proteomics_intelligence.__all__
+    assert "AnalyticalContrastRejectionReason" in bijux_proteomics_intelligence.__all__
     assert "RunInterpretationSummary" in bijux_proteomics_intelligence.__all__
     assert (
         "DifferentialAbundanceInterpretation" in bijux_proteomics_intelligence.__all__
     )
     assert "PtmInterpretationReport" in bijux_proteomics_intelligence.__all__
     assert "ContaminantArtifactIntelligence" in bijux_proteomics_intelligence.__all__
-    assert "ContrastRecommendationReport" in bijux_proteomics_intelligence.__all__
+    assert (
+        "AnalyticalContrastRecommendationReport"
+        in bijux_proteomics_intelligence.__all__
+    )
     assert "MissingnessPatternAnalysis" in bijux_proteomics_intelligence.__all__
     assert "PathwayInterpretationCautionReport" in bijux_proteomics_intelligence.__all__
     assert "PathwayInterpretationCautionCode" in bijux_proteomics_intelligence.__all__

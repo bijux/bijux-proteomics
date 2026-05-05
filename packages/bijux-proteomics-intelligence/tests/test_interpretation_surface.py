@@ -39,7 +39,7 @@ from bijux_proteomics import (
 )
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_intelligence import (
-    ContrastRejectionReason,
+    AnalyticalContrastRejectionReason,
     EnrichmentProvenance,
     MissingnessPatternLabel,
     OutlierInterpretationClass,
@@ -251,7 +251,7 @@ def test_experimental_contrast_recommender_distinguishes_valid_and_confounded_pa
     assert valid.valid_contrasts[0].condition_a == "control"
     assert len(rejected.rejected_contrasts) == 1
     assert (
-        ContrastRejectionReason.BATCH_CONFOUNDED
+        AnalyticalContrastRejectionReason.BATCH_CONFOUNDED
         in rejected.rejected_contrasts[0].rejection_reasons
     )
 

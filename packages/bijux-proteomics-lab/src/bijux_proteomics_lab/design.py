@@ -24,8 +24,8 @@ class DesignIssueSeverity(StrEnum):
     FAIL = "fail"
 
 
-class ContrastRejectionReason(StrEnum):
-    """Reason a proposed contrast is not valid yet."""
+class DesignContrastRejectionReason(StrEnum):
+    """Reason a proposed design contrast is not valid yet."""
 
     INSUFFICIENT_REPLICATES = "insufficient_replicates"
     BATCH_CONFOUNDED = "batch_confounded"
@@ -60,8 +60,8 @@ class ExperimentDesignValidationIssue(JsonModel):
     conditions: tuple[str, ...] = Field(default_factory=tuple)
 
 
-class ContrastRecommendation(JsonModel):
-    """One proposed pairwise contrast and its validity state."""
+class DesignContrastRecommendation(JsonModel):
+    """One proposed pairwise design contrast and its validity state."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -70,7 +70,7 @@ class ContrastRecommendation(JsonModel):
     valid: bool
     replicate_counts: dict[str, int] = Field(default_factory=dict)
     shared_batches: tuple[str, ...] = Field(default_factory=tuple)
-    rejection_reasons: tuple[ContrastRejectionReason, ...] = Field(
+    rejection_reasons: tuple[DesignContrastRejectionReason, ...] = Field(
         default_factory=tuple
     )
     rationale: str = Field(..., min_length=1)
@@ -115,8 +115,8 @@ class ExperimentDesignValidationReport(JsonModel):
     condition_count: int = Field(..., ge=0)
     fraction_count: int = Field(..., ge=0)
     structure_summary: ExperimentDesignStructureSummary
-    valid_contrasts: tuple[ContrastRecommendation, ...] = Field(default_factory=tuple)
-    rejected_contrasts: tuple[ContrastRecommendation, ...] = Field(
+    valid_contrasts: tuple[DesignContrastRecommendation, ...] = Field(default_factory=tuple)
+    rejected_contrasts: tuple[DesignContrastRecommendation, ...] = Field(
         default_factory=tuple
     )
     issues: tuple[ExperimentDesignValidationIssue, ...] = Field(default_factory=tuple)
@@ -476,8 +476,8 @@ def validate_experiment_design(
                     sample_ids=tuple(sorted(channels_by_group)),
                 )
             )
-    valid_contrasts: list[ContrastRecommendation] = []
-    rejected_contrasts: list[ContrastRecommendation] = []
+    valid_contrasts: list[DesignContrastRecommendation] = []
+    rejected_contrasts: list[DesignContrastRecommendation] = []
     for index, left in enumerate(conditions):
         for right in conditions[index + 1 :]:
             left_entries = grouped[left]
@@ -485,14 +485,16 @@ def validate_experiment_design(
             left_replicates = _replicate_counts(tuple(left_entries)).get(left, 0)
             right_replicates = _replicate_counts(tuple(right_entries)).get(right, 0)
             shared_batches = _shared_batches(left_entries, right_entries)
-            reasons: list[ContrastRejectionReason] = []
+            reasons: list[DesignContrastRejectionReason] = []
             if left_replicates < min_replicates or right_replicates < min_replicates:
-                reasons.append(ContrastRejectionReason.INSUFFICIENT_REPLICATES)
+                reasons.append(
+                    DesignContrastRejectionReason.INSUFFICIENT_REPLICATES
+                )
             left_batches = {entry.batch for entry in left_entries if entry.batch}
             right_batches = {entry.batch for entry in right_entries if entry.batch}
             if left_batches and right_batches and not shared_batches:
-                reasons.append(ContrastRejectionReason.BATCH_CONFOUNDED)
-            recommendation = ContrastRecommendation(
+                reasons.append(DesignContrastRejectionReason.BATCH_CONFOUNDED)
+            recommendation = DesignContrastRecommendation(
                 condition_a=left,
                 condition_b=right,
                 valid=not reasons,
@@ -515,7 +517,8 @@ def validate_experiment_design(
                             code=f"contrast-{reason.value}",
                             severity=(
                                 DesignIssueSeverity.FAIL
-                                if reason is ContrastRejectionReason.BATCH_CONFOUNDED
+                                if reason
+                                is DesignContrastRejectionReason.BATCH_CONFOUNDED
                                 else DesignIssueSeverity.WARN
                             ),
                             summary=(
