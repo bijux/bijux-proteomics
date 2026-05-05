@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     ProteaseCleavageMode,
     get_protease_rule,
     parse_custom_protease_rule,

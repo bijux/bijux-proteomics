@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     PeptideUniqueness,
     build_peptide_protein_index,
     classify_peptide_uniqueness,

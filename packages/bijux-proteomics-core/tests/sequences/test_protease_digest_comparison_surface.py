@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.protease_digest_comparison import (
+from bijux_proteomics.sequences.protease_digest_comparison import (
     build_protease_digest_comparison_report,
 )
 

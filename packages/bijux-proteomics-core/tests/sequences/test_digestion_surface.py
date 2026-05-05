@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     build_digest_duplicate_accounting,
     digest_sequence,

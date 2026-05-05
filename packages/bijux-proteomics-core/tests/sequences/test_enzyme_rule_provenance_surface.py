@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.digestion import PeptideDigestionMode, get_protease_rule
-from bijux_proteomics.enzyme_rule_provenance import (
+from bijux_proteomics.sequences.digestion import PeptideDigestionMode, get_protease_rule
+from bijux_proteomics.sequences.enzyme_rule_provenance import (
     EnzymeRuleSupportState,
     build_enzyme_rule_provenance,
 )

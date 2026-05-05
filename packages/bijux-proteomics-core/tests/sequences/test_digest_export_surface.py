@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     build_digest_benchmark_report,
     build_digest_manifest,

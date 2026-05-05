@@ -139,7 +139,7 @@ from bijux_proteomics.sequences import (
 Peptide generation and indexing surfaces are available from the same package:
 
 ```python
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     build_digest_duplicate_accounting,
     build_digest_policy,

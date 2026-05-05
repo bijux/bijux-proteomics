@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.digestion import DigestPolicy
+from bijux_proteomics.sequences.digestion import DigestPolicy
 from bijux_proteomics.identification import build_fdr_audit_trail
 from bijux_proteomics.io.formats import build_normalized_run_bundle, parse_experimental_design_table
 from bijux_proteomics.sequences import parse_fasta_document

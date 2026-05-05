@@ -14,7 +14,7 @@ from statistics import median
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import calculate_peptide_mz
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     ProteaseCleavageMode,
     ProteaseRule,
     get_protease_rule,

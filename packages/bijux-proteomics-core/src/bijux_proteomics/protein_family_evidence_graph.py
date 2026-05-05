@@ -10,7 +10,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.digestion import PeptideProteinIndexEntry
+from bijux_proteomics.sequences.digestion import PeptideProteinIndexEntry
 from bijux_proteomics_foundation import JsonModel
 
 

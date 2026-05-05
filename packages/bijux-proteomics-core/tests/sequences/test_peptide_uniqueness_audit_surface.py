@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     PeptideProteinIndexEntry,
     PeptideUniqueness,
 )
-from bijux_proteomics.peptide_uniqueness_audit import (
+from bijux_proteomics.sequences.peptide_uniqueness_audit import (
     PeptideUniquenessAuditClass,
     build_peptide_uniqueness_audit_report,
 )

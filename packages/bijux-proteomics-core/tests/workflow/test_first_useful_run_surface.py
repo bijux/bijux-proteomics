@@ -7,7 +7,10 @@ import hashlib
 import json
 from pathlib import Path
 
-from bijux_proteomics.digestion import digest_protein_records, get_protease_rule
+from bijux_proteomics.sequences.digestion import (
+    digest_protein_records,
+    get_protease_rule,
+)
 from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     apply_q_values,

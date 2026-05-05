@@ -17,7 +17,7 @@ from typing import Any, Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.digestion import digest_protein_records
+from bijux_proteomics.sequences.digestion import digest_protein_records
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import (
     build_ptm_motif_windows,
@@ -31,7 +31,7 @@ from bijux_proteomics.ptm.review import (
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics.quantification.review import build_quant_review_bundle
-from bijux_proteomics.sequences import (
+from bijux_proteomics.sequences.core import (
     DecoyGenerationMode,
     FastaParseMode,
     generate_decoy_records,

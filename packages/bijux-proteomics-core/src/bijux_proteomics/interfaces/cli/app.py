@@ -23,7 +23,7 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     load_modification_registry,
 )
-from bijux_proteomics.digestion import (
+from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     build_digest_manifest,
     digest_protein_records,
@@ -119,7 +119,7 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
     summarize_missing_values,
 )
-from bijux_proteomics.search_adapters import (
+from bijux_proteomics.identification.search_adapters import (
     ScoreOrientation,
     SearchAdapterKind,
     build_search_adapter_capability_matrix,
