@@ -18,11 +18,25 @@ and interprets execution outcomes back into decision-support artifacts.
 
 ## Module topology
 
-- `planning.py` owns dependency-aware planning, scheduling, and next-cycle logic
-- `outcomes.py` owns execution outcome interpretation and rerun policy support
+- `planning/assays.py` owns dependency-aware planning, scheduling, review
+  packets, and next-cycle logic
+- `design/experiments.py` and `design/protocols.py` own experiment-design and
+  protocol-preparation semantics needed before execution can be scheduled
+- `readiness/operations.py` and `readiness/workflow.py` own readiness and
+  blocker summaries before spend is committed
+- `lifecycle/progression.py` owns progression and skeptical handoff validation
+- `handoffs/packets.py`, `handoffs/artifacts.py`, `handoffs/risk.py`, and
+  `handoffs/ptm.py` own reviewable packet, artifact, and risk semantics for
+  lab-facing handoffs
+- `outcomes/observations.py` owns execution outcome interpretation and rerun
+  policy support
+- `reconciliation/follow_up.py` owns feedback loops from observed outcomes back
+  into future operational follow-up
+- `benchmarks/targeted.py` owns targeted benchmark rehearsals that prove lab
+  claims without widening the package root
 - `repositories.py` owns queue, feedback, and forecast repository contracts
-- `schema.py` owns lab artifact schema contracts and upgrade advice
-- `serialization.py` owns canonical artifact envelopes and payload comparison
+- the package root only exposes four durable entrypoints for batch planning and
+  review-packet construction
 
 ## Dependency direction
 
@@ -42,8 +56,8 @@ instead of encoding assay scheduling or rerun semantics inside runtime flows.
 
 - add code here when a new concern changes planning, batching, outcome
   interpretation, or repository contracts for laboratory work
-- extend `planning.py`, `outcomes.py`, or `repositories.py` before runtime or
-  intelligence code invents local scheduling helpers
+- extend the owner bands above before runtime or intelligence code invents
+  local scheduling helpers
 - keep new operational decision rules here when they define lab behavior rather
   than only the way results are exposed to operators
 

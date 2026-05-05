@@ -11,6 +11,8 @@
 - schedule and capacity-aware next-cycle recommendation logic
 - outcome interpretation and rerun policy modeling
 - repository contracts for plans, queues, and feedback records
+- reviewable handoff packets, artifact integrity checks, and benchmark
+  rehearsals that keep operational support limits explicit
 
 ## This package does not own
 
@@ -32,6 +34,11 @@ evidence truth semantics.
 Downstream packages should use this package as the canonical home for
 dependency-aware planning and outcome promotion behavior instead of scattering
 schedule logic across runtime or domain helpers.
+
+The package root is intentionally narrow. Callers that need deeper lab behavior
+should import the owner bands such as `design`, `readiness`, `handoffs`,
+`outcomes`, `reconciliation`, or `benchmarks` instead of treating
+`bijux_proteomics_lab` as a catch-all catalog.
 
 ## Escalation signals
 

@@ -4,13 +4,16 @@
 
 - Distribution name: `bijux-proteomics-lab`
 - Import root: `bijux_proteomics_lab`
-- Stable entrypoints: `planning`, `outcomes`, `repositories`, `schema`, and `serialization`
+- Stable entrypoints: `plan_experiment_batches`, `build_review_packet`,
+  `build_advisory_assay_plan`, and `build_executable_assay_plan`
 
 ## Stable contracts
 
 - planning outputs include explicit dependency and gating context
 - outcome summaries expose failure class and rerun guidance fields
 - repository abstractions remain storage-agnostic and typed
+- deeper design, readiness, handoff, and benchmark surfaces remain stable under
+  their owner bands rather than being widened through the package root
 
 ## Change requirements
 
@@ -33,6 +36,8 @@ outcome interpretation, schema compatibility, or serialization behavior.
 
 - planning contracts, outcome summaries, and lab repository abstractions belong
   here first
+- package-root changes must stay narrow and justified by cross-package operator
+  entrypoint needs
 - lifecycle gate law, evidence truth, and ranking policy should be routed back
   to their owning packages instead of being folded into lab orchestration
 - if runtime or compat surfaces need richer operator workflows, the durable
