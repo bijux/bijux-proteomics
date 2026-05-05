@@ -17,8 +17,9 @@ def test_package_wrapper_owner_balance_report_tracks_wrapper_pressure_against_ow
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_WRAPPER_OWNER_BALANCE_PATH.exists()
-    assert by_package["bijux-proteomics-foundation"].wrapper_module_count == 7
-    assert by_package["bijux-proteomics-foundation"].wrapper_to_owner_ratio > 0.4
+    assert by_package["bijux-proteomics-foundation"].wrapper_module_count == 0
+    assert by_package["bijux-proteomics-foundation"].wrapper_to_owner_ratio == 0.0
+    assert by_package["bijux-proteomics-core"].wrapper_module_count == 4
     assert by_package["bijux-proteomics-runtime"].owner_logic_module_count > 10
     assert any(entry.wrapper_module_count for entry in report.entries)
 

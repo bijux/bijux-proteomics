@@ -66,7 +66,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.intelligence_boundary_mix"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.intelligence_broad_root_imports"
@@ -76,7 +76,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.intelligence_capability_map"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.intelligence_owner_import_boundaries"
@@ -326,7 +326,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.runtime_breadth"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.charter", "bijux_proteomics_runtime.core.surface_area"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.surface_area", "bijux_proteomics_runtime.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.runtime_import_graph"
@@ -341,7 +341,7 @@ outgoing_workspace_modules = ["bijux_proteomics_runtime.api"]
 [[module]]
 module_name = "bijux_proteomics_dev.api.runtime_thin_modules"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.runtime_topology"
@@ -441,7 +441,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.package_substance"
 outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.package_graph"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.charter", "bijux_proteomics_intelligence.charter", "bijux_proteomics_knowledge.charter", "bijux_proteomics_lab.governance.charter", "bijux_proteomics_runtime.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.support.charter", "bijux_proteomics_intelligence.governance.charter", "bijux_proteomics_knowledge.charter", "bijux_proteomics_lab.governance.charter", "bijux_proteomics_runtime.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.runtime_boundaries"

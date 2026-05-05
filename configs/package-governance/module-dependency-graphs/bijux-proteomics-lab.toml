@@ -16,7 +16,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_lab.benchmarks.claims"
 outgoing_internal_modules = ["bijux_proteomics_lab.handoffs.exports", "bijux_proteomics_lab.handoffs.transitions", "bijux_proteomics_lab.reconciliation.follow_up"]
-outgoing_workspace_modules = ["bijux_proteomics.dia", "bijux_proteomics.io.ingestion", "bijux_proteomics_foundation", "bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.decision_paths", "bijux_proteomics_knowledge.references.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics.dia", "bijux_proteomics.io.ingestion", "bijux_proteomics_foundation", "bijux_proteomics_intelligence.candidates.ranking", "bijux_proteomics_intelligence.judgment.paths", "bijux_proteomics_knowledge.references.benchmarks"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.benchmarks.rehearsals"
@@ -61,7 +61,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics_lab.handoffs.explanations"
 outgoing_internal_modules = ["bijux_proteomics_lab.handoffs.transitions", "bijux_proteomics_lab.lifecycle", "bijux_proteomics_lab.planning"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.refusals", "bijux_proteomics_foundation.results"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.outcomes.refusals", "bijux_proteomics_foundation.outcomes.results"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.handoffs.exports"
@@ -96,7 +96,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_lab.lifecycle.progression"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.ids"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.identity.identifiers"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.outcomes"
@@ -121,7 +121,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_lab.planning.assays"
 outgoing_internal_modules = ["bijux_proteomics_lab.outcomes"]
-outgoing_workspace_modules = ["bijux_proteomics.domain.assays", "bijux_proteomics.domain.program_spec", "bijux_proteomics.workflow.blueprint", "bijux_proteomics_foundation", "bijux_proteomics_foundation.ids", "bijux_proteomics_knowledge.memory.evidence"]
+outgoing_workspace_modules = ["bijux_proteomics.domain.assays", "bijux_proteomics.domain.program_spec", "bijux_proteomics.workflow.blueprint", "bijux_proteomics_foundation", "bijux_proteomics_foundation.identity.identifiers", "bijux_proteomics_knowledge.memory.evidence"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.planning.next_cycle"
@@ -141,7 +141,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics_lab.planning.scheduling"
 outgoing_internal_modules = ["bijux_proteomics_lab.planning.assays"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.ids"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.identity.identifiers"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.readiness"

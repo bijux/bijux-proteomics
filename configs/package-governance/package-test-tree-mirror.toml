@@ -2,9 +2,9 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_test_tree_mirror
 
 [guard]
-min_total_mirrored_owner_family_count = 47
-max_total_missing_test_family_count = 34
-max_total_flat_test_module_count = 165
+min_total_mirrored_owner_family_count = 51
+max_total_missing_test_family_count = 31
+max_total_flat_test_module_count = 158
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -26,12 +26,12 @@ flat_test_module_count = 148
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-source_owner_families = ["identity", "outcomes", "serialization", "support"]
-test_families = ["performance"]
-mirrored_owner_families = []
-missing_test_families = ["identity", "outcomes", "serialization", "support"]
-extra_test_families = ["performance"]
-flat_test_module_count = 7
+source_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
+test_families = ["compatibility", "identity", "outcomes", "package", "performance", "serialization"]
+mirrored_owner_families = ["compatibility", "identity", "outcomes", "serialization"]
+missing_test_families = ["support"]
+extra_test_families = ["package", "performance"]
+flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-core"

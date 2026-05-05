@@ -82,20 +82,18 @@ def test_foundation_publishable_docs_reference_current_contract_entrypoints() ->
     for stale_module in (
         "schema.py",
         "serialization.py",
-        "evolution.py",
         "src/bijux_proteomics_foundation/ids.py",
+        "src/bijux_proteomics_foundation/documents.py",
+        "src/bijux_proteomics_foundation/errors.py",
+        "src/bijux_proteomics_foundation/migrations.py",
     ):
         assert stale_module not in combined
     for current_entrypoint in (
-        "charter",
         "identity",
-        "documents",
         "compatibility",
         "outcomes",
         "serialization",
         "support",
-        "json_models",
-        "migrations",
     ):
         assert f"`{current_entrypoint}`" in combined
 
@@ -134,8 +132,8 @@ def test_foundation_publishability_keeps_surface_narrow_and_reused() -> None:
     assert report.supported_attribute_count == 4
     assert report.root_public_symbol_count == 15
     assert report.downstream_distribution_count == 6
-    assert report.supported_multi_distribution_count == 3
-    assert report.supported_single_distribution_count == 1
+    assert report.supported_multi_distribution_count == 4
+    assert report.supported_single_distribution_count == 0
     assert report.unsupported_reuse_gaps == ()
     assert report.kernel_boundaries_ready is True
     assert report.size_reuse_ready is True

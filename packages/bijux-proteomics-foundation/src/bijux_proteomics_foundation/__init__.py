@@ -2,7 +2,6 @@
 # Copyright © 2025 Bijan Mousavi
 
 """Curated public import surface for shared Bijux foundation primitives."""
-
 from __future__ import annotations
 
 from bijux_proteomics_foundation.serialization.documents import DocumentSchema

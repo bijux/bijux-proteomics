@@ -18,11 +18,11 @@ def test_package_root_line_count_report_tracks_current_root_shape() -> None:
 
     assert PACKAGE_ROOT_LINE_COUNTS_PATH.exists()
     assert len(report.entries) == 8
-    assert report.guard.max_total_init_line_count == 170
-    assert report.guard.max_total_top_level_python_module_count == 67
-    assert entries["bijux-proteomics-foundation"].init_line_count == 43
+    assert report.guard.max_total_init_line_count == 172
+    assert report.guard.max_total_top_level_python_module_count == 19
+    assert entries["bijux-proteomics-foundation"].init_line_count == 45
     assert entries["bijux-proteomics-lab"].init_line_count == 11
-    assert entries["bijux-proteomics-runtime"].top_level_python_module_count == 3
+    assert entries["bijux-proteomics-runtime"].top_level_python_module_count == 1
 
 
 def test_package_root_line_count_release_guard_has_no_failures() -> None:

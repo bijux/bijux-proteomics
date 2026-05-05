@@ -71,8 +71,8 @@ from bijux_proteomics_foundation import DocumentSchema, hash_payload, to_canonic
 - Distribution name: `bijux-proteomics-foundation`
 - Import root: `bijux_proteomics_foundation`
 - Stable entrypoints:
-  `bijux_proteomics_foundation`, `charter`, `documents`, `compatibility`,
-  `hashing`, `ids`, `json_models`, and `migrations`
+  `bijux_proteomics_foundation`, `compatibility`, `identity`, `outcomes`,
+  `serialization`, and `support`
 
 ## Package boundaries
 
@@ -81,7 +81,7 @@ migration compatibility helpers as a shared kernel rather than a user-facing
 workflow package.
 
 It does not own product decision logic, lab logic, or runtime orchestration.
-The exact allowed primitive surface is audited in `charter.py`.
+The exact allowed primitive surface is audited in `support/charter.py`.
 
 ## Contract checkpoints
 
@@ -111,7 +111,10 @@ schema = DocumentSchema(
 Identifiers:
 
 ```python
-from bijux_proteomics_foundation.identity.ids import IdentifierKind, build_identifier
+from bijux_proteomics_foundation.identity.identifiers import (
+    IdentifierKind,
+    build_identifier,
+)
 
 run_id = build_identifier(IdentifierKind.RUN, "Orbitrap Batch 7")
 ```
@@ -144,7 +147,7 @@ refusal = OperationRefusal(
 Error envelopes:
 
 ```python
-from bijux_proteomics_foundation.support.error_models import (
+from bijux_proteomics_foundation.outcomes.error_envelopes import (
     ErrorCategory,
     ErrorEnvelope,
 )
@@ -189,7 +192,7 @@ result = OperationResult.success(
   foundation change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or stability claims are part of the change
-- review `charter.py` when the question is whether a new primitive belongs in
+- review `support/charter.py` when the question is whether a new primitive belongs in
   foundation at all
 - use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
   affects package publication, metadata, or release-readiness expectations
@@ -232,14 +235,14 @@ result = OperationResult.success(
 
 ## Source guide
 
-- [`src/bijux_proteomics_foundation/documents.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/documents.py) for document metadata and shared value wrappers
-- [`src/bijux_proteomics_foundation/compatibility.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility.py) for compatibility and schema-evolution assessments
+- [`src/bijux_proteomics_foundation/serialization/documents.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/documents.py) for document metadata and shared value wrappers
+- [`src/bijux_proteomics_foundation/compatibility/evolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/evolution.py) for compatibility and schema-evolution assessments
 - [`src/bijux_proteomics_foundation/serialization/canonicalization.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonicalization.py) for canonical serialization
 - [`src/bijux_proteomics_foundation/serialization/hashing.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/hashing.py) for deterministic hashing policies
 - [`src/bijux_proteomics_foundation/identity/identifiers.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py) for shared identifier contracts
 - [`src/bijux_proteomics_foundation/support/provenance.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/provenance.py) for provenance pointers and adjacent support-state contracts
 - [`src/bijux_proteomics_foundation/outcomes/results.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/results.py) for shared refusal and operation-result contracts
-- [`src/bijux_proteomics_foundation/migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/migrations.py) for migration behavior
+- [`src/bijux_proteomics_foundation/compatibility/migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/migrations.py) for migration behavior
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation/tests) for executable behavior expectations
 
 ## Documentation

@@ -3,7 +3,7 @@
 
 [guard]
 max_total_wrapper_outpaces_owner_count = 0
-max_average_wrapper_to_owner_ratio = 0.1401
+max_average_wrapper_to_owner_ratio = 0.0075
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -29,8 +29,8 @@ wrapper_outpaces_owner_logic = false
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 owner_logic_module_count = 17
-wrapper_module_count = 7
-wrapper_to_owner_ratio = 0.4118
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
@@ -42,16 +42,16 @@ wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-owner_logic_module_count = 19
-wrapper_module_count = 6
-wrapper_to_owner_ratio = 0.3158
+owner_logic_module_count = 21
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-owner_logic_module_count = 18
-wrapper_module_count = 6
-wrapper_to_owner_ratio = 0.3333
+owner_logic_module_count = 23
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]

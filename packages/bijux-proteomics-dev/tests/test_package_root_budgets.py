@@ -21,7 +21,7 @@ def test_package_root_budget_report_keeps_roots_within_governed_budgets() -> Non
         serialized_report = tomllib.load(handle)
 
     assert PACKAGE_ROOT_BUDGETS_PATH.exists()
-    assert report.total_init_line_count == 170
+    assert report.total_init_line_count == 172
     assert report.over_budget_packages == ()
     assert entries["bijux-proteomics-foundation"].max_init_lines == 45
     assert entries["bijux-proteomics-foundation"].within_budget is True

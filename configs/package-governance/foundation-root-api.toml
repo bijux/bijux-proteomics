@@ -26,7 +26,7 @@ rationale = "knowledge and lab packages both consume claim identifiers from the 
 
 [[symbol]]
 name = "DocumentSchema"
-owner_module = "bijux_proteomics_foundation.documents"
+owner_module = "bijux_proteomics_foundation.serialization.documents"
 rationale = "document metadata is the most reused foundation contract across the full package suite."
 
 [[symbol]]
@@ -36,7 +36,7 @@ rationale = "core and knowledge share evidence identifiers in public contracts."
 
 [[symbol]]
 name = "fingerprint_model"
-owner_module = "bijux_proteomics_foundation.json_models"
+owner_module = "bijux_proteomics_foundation.serialization.json_models"
 rationale = "multiple downstream packages fingerprint model instances directly without rebuilding helper logic."
 
 [[symbol]]
@@ -61,7 +61,7 @@ rationale = "runtime and intelligence use stable text hashing directly from the 
 
 [[symbol]]
 name = "JsonModel"
-owner_module = "bijux_proteomics_foundation.json_models"
+owner_module = "bijux_proteomics_foundation.serialization.json_models"
 rationale = "JsonModel remains the central shared base class consumed by every real product package."
 
 [[symbol]]

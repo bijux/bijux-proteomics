@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 81
-max_total_compatibility_surface_count = 11
+min_total_owner_domain_count = 82
+max_total_compatibility_surface_count = 4
 min_total_excluded_responsibility_count = 29
 
 [[package]]
@@ -25,9 +25,9 @@ excluded_responsibilities = ["runtime product APIs", "canonical proteomics domai
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 import_root = "bijux_proteomics_foundation"
-owner_domains = ["identity", "outcomes", "serialization", "support"]
-public_modules = ["canonicalization", "charter", "compatibility", "documents", "error_models", "errors", "fingerprints", "hashing", "ids", "json_models", "migrations", "ordering", "provenance", "refusals", "results", "states", "versions"]
-compatibility_surfaces = ["canonicalization", "hashing", "ids", "provenance", "refusals", "results", "states"]
+owner_domains = ["compatibility", "identity", "outcomes", "serialization", "support"]
+public_modules = []
+compatibility_surfaces = []
 excluded_responsibilities = ["program lifecycle and gate logic", "candidate ranking and decision policies", "evidence conflict semantics or lab planning behavior"]
 
 [[package]]

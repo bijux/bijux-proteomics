@@ -2,10 +2,10 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_topology_drift
 
 [guard]
-max_total_top_level_root_file_count = 53
-max_total_undocumented_owner_family_count = 45
+max_total_top_level_root_file_count = 9
+max_total_undocumented_owner_family_count = 57
 max_total_stale_documented_path_count = 0
-max_total_historical_shape_count = 2
+max_total_historical_shape_count = 0
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -29,13 +29,13 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-top_level_root_file_count = 16
+top_level_root_file_count = 0
 documented_owner_families = []
-undocumented_owner_families = ["identity", "outcomes", "serialization", "support"]
+undocumented_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
 stale_documented_paths = []
-historical_topology_mentions = ["canonicalization.py", "compatibility.py", "documents.py", "error_models.py", "errors.py", "hashing.py", "ids.py", "migrations.py", "refusals.py", "results.py"]
+historical_topology_mentions = []
 docs_tree_contradiction = true
-historical_shape_dominates_design = true
+historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
@@ -49,9 +49,9 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-top_level_root_file_count = 1
-documented_owner_families = ["agents", "api", "api/routes", "api/v1/endpoints", "execution", "interfaces", "memory", "providers", "runs", "runtime", "state", "tools", "workflows"]
-undocumented_owner_families = ["core", "sandbox"]
+top_level_root_file_count = 0
+documented_owner_families = ["agents", "api", "api/routes", "api/v1/endpoints", "execution", "providers", "runs", "runtime", "state", "support", "workflows"]
+undocumented_owner_families = ["core", "governance", "sandbox"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true
@@ -59,19 +59,19 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-top_level_root_file_count = 13
-documented_owner_families = ["design_loop"]
-undocumented_owner_families = ["domain"]
+top_level_root_file_count = 0
+documented_owner_families = ["learning/iterative_design"]
+undocumented_owner_families = ["candidates", "design_loop", "domain", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
 stale_documented_paths = []
-historical_topology_mentions = ["analytical_review.py", "benchmark_reviews.py", "briefs.py", "decision_paths.py", "evaluators.py", "evidence_posture.py", "follow_up_learning.py", "interpretation.py", "policies.py", "recommendations.py", "review_packets.py", "skeptical_review.py"]
+historical_topology_mentions = []
 docs_tree_contradiction = true
-historical_shape_dominates_design = true
+historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-top_level_root_file_count = 7
+top_level_root_file_count = 0
 documented_owner_families = ["references"]
-undocumented_owner_families = ["memory", "reviews"]
+undocumented_owner_families = ["contracts", "memory", "reviews"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true
@@ -79,9 +79,9 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-top_level_root_file_count = 7
+top_level_root_file_count = 0
 documented_owner_families = []
-undocumented_owner_families = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+undocumented_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true

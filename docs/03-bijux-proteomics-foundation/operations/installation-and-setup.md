@@ -19,6 +19,6 @@ Setup should get a reader to the package proof surface quickly instead of reprod
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/documents.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization/documents.py` and `migrations.py`
 - `src/bijux_proteomics_foundation/serialization/`
 - `packages/bijux-proteomics-foundation/tests`

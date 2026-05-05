@@ -19,13 +19,19 @@ with the same rules.
 
 ## Module topology
 
-- `documents.py` owns document metadata and shared value wrappers
-- `compatibility.py` owns schema compatibility and schema-evolution assessment
-- `canonicalization.py` owns canonical JSON behavior
-- `hashing.py` owns deterministic hashing policies and payload hashing
-- `migrations.py` owns declarative version-to-version upgrade flow
-- `ids.py` owns stable identifier kinds and construction helpers
-- `errors.py`, `refusals.py`, `error_models.py`, and `results.py` own shared
+- `serialization/documents.py` owns document metadata and shared value wrappers
+- `compatibility/evolution.py`, `compatibility/migrations.py`, and
+  `compatibility/versions.py` own schema compatibility and version-to-version
+  upgrade flow
+- `serialization/canonicalization.py`, `serialization/hashing.py`,
+  `serialization/fingerprints.py`, `serialization/json_models.py`, and
+  `serialization/ordering.py` own deterministic rendering, hashing, and
+  fingerprint behavior
+- `identity/identifiers.py` owns stable identifier kinds and construction helpers
+- `support/provenance.py`, `support/states.py`, and `support/charter.py` own
+  shared provenance, support-state, and package-charter contracts
+- `outcomes/exceptions.py`, `outcomes/error_envelopes.py`,
+  `outcomes/refusals.py`, and `outcomes/results.py` own shared
   machine-readable contract outcomes
 
 ## Dependency direction
@@ -46,8 +52,9 @@ serialization rules, compatibility logic, or migration path behavior locally.
 
 - add code here when a new concern changes canonical document primitives shared
   by multiple packages
-- extend `documents.py`, `compatibility.py`, `canonicalization.py`, `hashing.py`,
-  `ids.py`, or `migrations.py` before
+- extend `serialization/documents.py`, `compatibility/evolution.py`,
+  `serialization/canonicalization.py`, `serialization/hashing.py`,
+  `identity/identifiers.py`, or `compatibility/migrations.py` before
   higher packages invent local copies of the same rules
 - prefer adding stable low-volatility helpers here when the change would
   otherwise fragment serialization or compatibility behavior across packages

@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_root_line_counts
 
 [guard]
-max_total_init_line_count = 170
-max_total_top_level_python_module_count = 67
+max_total_init_line_count = 172
+max_total_top_level_python_module_count = 19
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -22,8 +22,8 @@ public_symbol_count = 0
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 import_root = "bijux_proteomics_foundation"
-init_line_count = 43
-top_level_python_module_count = 18
+init_line_count = 45
+top_level_python_module_count = 1
 public_symbol_count = 15
 
 [[package]]
@@ -37,26 +37,26 @@ public_symbol_count = 5
 distribution_name = "bijux-proteomics-runtime"
 import_root = "bijux_proteomics_runtime"
 init_line_count = 26
-top_level_python_module_count = 3
+top_level_python_module_count = 1
 public_symbol_count = 4
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 import_root = "bijux_proteomics_intelligence"
 init_line_count = 32
-top_level_python_module_count = 15
+top_level_python_module_count = 1
 public_symbol_count = 10
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 import_root = "bijux_proteomics_knowledge"
 init_line_count = 19
-top_level_python_module_count = 9
+top_level_python_module_count = 2
 public_symbol_count = 5
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 import_root = "bijux_proteomics_lab"
 init_line_count = 11
-top_level_python_module_count = 9
+top_level_python_module_count = 1
 public_symbol_count = 4

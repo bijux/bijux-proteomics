@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_top_level_files
 
 [guard]
-max_total_top_level_file_count = 36
+max_total_top_level_file_count = 19
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -14,7 +14,7 @@ top_level_files = ["__init__.py", "trusted_process.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-top_level_files = ["__init__.py", "canonicalization.py", "charter.py", "compatibility.py", "documents.py", "error_models.py", "errors.py", "fingerprints.py", "hashing.py", "ids.py", "json_models.py", "migrations.py", "ordering.py", "provenance.py", "refusals.py", "results.py", "states.py", "versions.py"]
+top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-core"

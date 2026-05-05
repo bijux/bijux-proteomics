@@ -156,7 +156,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics.domain.repositories"
 outgoing_internal_modules = ["bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.reviews"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.errors"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.outcomes.exceptions"]
 
 [[module]]
 module_name = "bijux_proteomics.domain.reviews"
@@ -201,7 +201,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics.domain.validation"
 outgoing_internal_modules = ["bijux_proteomics.domain.program_spec"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.ids"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.identity.identifiers"]
 
 [[module]]
 module_name = "bijux_proteomics.exceptions"
@@ -251,7 +251,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics.intelligence"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.analytical_review"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.analysis"]
 
 [[module]]
 module_name = "bijux_proteomics.interfaces"

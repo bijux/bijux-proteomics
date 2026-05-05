@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 152
+max_total_thin_module_count = 146
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -769,48 +769,6 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/canonicalization.py"
-nonempty_line_count = 11
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/hashing.py"
-nonempty_line_count = 20
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/provenance.py"
-nonempty_line_count = 9
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/refusals.py"
-nonempty_line_count = 9
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/results.py"
-nonempty_line_count = 9
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/states.py"
-nonempty_line_count = 6
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/states.py"
 nonempty_line_count = 14
 public_function_count = 0
@@ -958,17 +916,31 @@ public_class_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/validation.py"
-nonempty_line_count = 11
-public_function_count = 1
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/tools/base.py"
+nonempty_line_count = 31
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/tools/catalog.py"
+nonempty_line_count = 32
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/tools/schemas.py"
+nonempty_line_count = 28
+public_function_count = 0
 public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/memory/store.py"
-nonempty_line_count = 17
-public_function_count = 0
-public_class_count = 1
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/validation.py"
+nonempty_line_count = 11
+public_function_count = 1
+public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -1000,38 +972,10 @@ public_class_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/tools/base.py"
-nonempty_line_count = 31
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/state/memory_store.py"
+nonempty_line_count = 17
 public_function_count = 0
 public_class_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/tools/catalog.py"
-nonempty_line_count = 32
-public_function_count = 0
-public_class_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/tools/schemas.py"
-nonempty_line_count = 28
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/design_loop/convergence.py"
-nonempty_line_count = 7
-public_function_count = 1
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/design_loop/stagnation.py"
-nonempty_line_count = 11
-public_function_count = 1
-public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -1065,5 +1009,19 @@ public_class_count = 0
 distribution_name = "bijux-proteomics-intelligence"
 module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/structure/confidence.py"
 nonempty_line_count = 19
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/iterative_design/convergence.py"
+nonempty_line_count = 7
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/iterative_design/stagnation.py"
+nonempty_line_count = 11
 public_function_count = 1
 public_class_count = 0

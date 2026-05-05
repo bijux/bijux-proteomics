@@ -3,7 +3,7 @@
 
 [guard]
 min_total_owned_value_bullet_count = 41
-min_total_owner_depth_count = 382
+min_total_owner_depth_count = 389
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -26,8 +26,8 @@ distribution_name = "bijux-proteomics-foundation"
 owned_value_bullets = ["schema profile models", "canonical JSON, hashing, and fingerprint helpers under `serialization`", "shared identifiers under `identity`", "shared provenance and support-state contracts under `support`", "shared refusal and operation-result contracts under `outcomes`", "migration and compatibility utility behavior"]
 owned_value_summary = "schema profile models; canonical JSON, hashing, and fingerprint helpers under `serialization`; shared identifiers under `identity`; shared provenance and support-state contracts under `support`; shared refusal and operation-result contracts under `outcomes`; migration and compatibility utility behavior"
 owner_depth_count = 17
-public_breadth_count = 32
-readme_sentence_count = 192
+public_breadth_count = 15
+readme_sentence_count = 195
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
@@ -42,7 +42,7 @@ distribution_name = "bijux-proteomics-runtime"
 owned_value_bullets = ["interfaces (CLI and HTTP API)", "execution control and orchestration coordination", "provider binding and provider invocation", "runtime state transitions", "workspace state and run artifacts", "replay and determinism enforcement"]
 owned_value_summary = "interfaces (CLI and HTTP API); execution control and orchestration coordination; provider binding and provider invocation; runtime state transitions; workspace state and run artifacts; replay and determinism enforcement"
 owner_depth_count = 120
-public_breadth_count = 6
+public_breadth_count = 4
 readme_sentence_count = 245
 
 [[package]]
@@ -50,21 +50,21 @@ distribution_name = "bijux-proteomics-intelligence"
 owned_value_bullets = ["candidate ranking, rejection semantics, and policy-governed explainability", "downgrade and refusal posture when evidence is stale, thin, or contradictory", "review packets, skeptical challenge pressure, and benchmark-backed review claims", "cautious interpretation summaries over already-typed proteomics evidence", "learning pressure that changes future prioritization without rewriting past decisions"]
 owned_value_summary = "candidate ranking, rejection semantics, and policy-governed explainability; downgrade and refusal posture when evidence is stale, thin, or contradictory; review packets, skeptical challenge pressure, and benchmark-backed review claims; cautious interpretation summaries over already-typed proteomics evidence; learning pressure that changes future prioritization without rewriting past decisions"
 owner_depth_count = 30
-public_breadth_count = 24
-readme_sentence_count = 181
+public_breadth_count = 10
+readme_sentence_count = 194
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 owned_value_bullets = ["scientific memory with provenance", "evidence and claim data models", "trust, freshness, and contradiction modeling for stored evidence", "resolution history, evidence graph consistency, and lineage construction", "curated workflow references, ontology mappings, and scientific briefings"]
 owned_value_summary = "scientific memory with provenance; evidence and claim data models; trust, freshness, and contradiction modeling for stored evidence; resolution history, evidence graph consistency, and lineage construction; curated workflow references, ontology mappings, and scientific briefings"
-owner_depth_count = 19
-public_breadth_count = 13
-readme_sentence_count = 149
+owner_depth_count = 21
+public_breadth_count = 6
+readme_sentence_count = 152
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 owned_value_bullets = ["dependency-aware planning that exposes queue pressure, family capacity, and", "readiness checks that keep controls, provenance, staffing, backlog, and", "handoff honesty, including refusal behavior, blocked explanations, and lossy", "observed-outcome reconciliation that compares requested work with observed", "targeted operational benchmark rehearsals that prove whether a claimed lab"]
 owned_value_summary = "dependency-aware planning that exposes queue pressure, family capacity, and; readiness checks that keep controls, provenance, staffing, backlog, and; handoff honesty, including refusal behavior, blocked explanations, and lossy; observed-outcome reconciliation that compares requested work with observed; targeted operational benchmark rehearsals that prove whether a claimed lab"
-owner_depth_count = 18
-public_breadth_count = 12
-readme_sentence_count = 171
+owner_depth_count = 23
+public_breadth_count = 4
+readme_sentence_count = 172

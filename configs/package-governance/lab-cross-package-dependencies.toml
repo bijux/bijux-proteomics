@@ -30,13 +30,13 @@ imported_symbols = ["JsonModel"]
 [[dependency]]
 importer_module_path = "benchmarks/claims.py"
 owner_distribution = "bijux-proteomics-intelligence"
-imported_module_name = "bijux_proteomics_intelligence.briefs"
+imported_module_name = "bijux_proteomics_intelligence.candidates.ranking"
 imported_symbols = ["CandidateAssessment"]
 
 [[dependency]]
 importer_module_path = "benchmarks/claims.py"
 owner_distribution = "bijux-proteomics-intelligence"
-imported_module_name = "bijux_proteomics_intelligence.decision_paths"
+imported_module_name = "bijux_proteomics_intelligence.judgment.paths"
 imported_symbols = ["FollowUpCandidatePath"]
 
 [[dependency]]
@@ -90,13 +90,13 @@ imported_symbols = ["AssayId", "JsonModel"]
 [[dependency]]
 importer_module_path = "handoffs/explanations.py"
 owner_distribution = "bijux-proteomics-foundation"
-imported_module_name = "bijux_proteomics_foundation.refusals"
+imported_module_name = "bijux_proteomics_foundation.outcomes.refusals"
 imported_symbols = ["OperationRefusal", "RefusalKind"]
 
 [[dependency]]
 importer_module_path = "handoffs/explanations.py"
 owner_distribution = "bijux-proteomics-foundation"
-imported_module_name = "bijux_proteomics_foundation.results"
+imported_module_name = "bijux_proteomics_foundation.outcomes.results"
 imported_symbols = ["OperationResult"]
 
 [[dependency]]
@@ -156,7 +156,7 @@ imported_symbols = ["AssayId", "BatchId", "ClaimId", "GateId", "JsonModel", "Pro
 [[dependency]]
 importer_module_path = "lifecycle/progression.py"
 owner_distribution = "bijux-proteomics-foundation"
-imported_module_name = "bijux_proteomics_foundation.ids"
+imported_module_name = "bijux_proteomics_foundation.identity.identifiers"
 imported_symbols = ["PromotionId", "ReviewId"]
 
 [[dependency]]
@@ -210,7 +210,7 @@ imported_symbols = ["AssayId", "BatchId", "DocumentSchema", "JsonModel", "Progra
 [[dependency]]
 importer_module_path = "planning/assays.py"
 owner_distribution = "bijux-proteomics-foundation"
-imported_module_name = "bijux_proteomics_foundation.ids"
+imported_module_name = "bijux_proteomics_foundation.identity.identifiers"
 imported_symbols = ["CycleId"]
 
 [[dependency]]
@@ -270,7 +270,7 @@ imported_symbols = ["BatchId", "JsonModel", "ProgramId"]
 [[dependency]]
 importer_module_path = "planning/scheduling.py"
 owner_distribution = "bijux-proteomics-foundation"
-imported_module_name = "bijux_proteomics_foundation.ids"
+imported_module_name = "bijux_proteomics_foundation.identity.identifiers"
 imported_symbols = ["CycleId"]
 
 [[dependency]]

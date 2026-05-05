@@ -43,7 +43,7 @@ This page should let a reviewer trace the move from edited shared meaning to mig
 ## First Proof Check
 
 - `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/documents.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization/documents.py` and `migrations.py`
 - `src/bijux_proteomics_foundation/serialization/`
 
 ## Design Pressure
