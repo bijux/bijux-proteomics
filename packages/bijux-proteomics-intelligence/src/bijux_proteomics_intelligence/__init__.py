@@ -89,6 +89,8 @@ from bijux_proteomics_intelligence.benchmark_reviews import (
     WorkflowBenchmarkReview,
     build_dda_benchmark_review,
     build_dia_benchmark_review,
+    build_lfq_benchmark_review,
+    build_ptm_benchmark_review,
 )
 from bijux_proteomics_intelligence.candidates import (
     CandidateAssayAgendaItem,
@@ -387,7 +389,9 @@ __all__ = [
     "build_design_brief",
     "build_dda_benchmark_review",
     "build_dia_benchmark_review",
+    "build_lfq_benchmark_review",
     "build_follow_up_candidate_path",
+    "build_ptm_benchmark_review",
     "build_review_board_decision_path",
     "build_skeptical_review_report",
     "list_intelligence_capabilities",

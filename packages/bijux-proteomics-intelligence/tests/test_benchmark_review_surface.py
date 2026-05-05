@@ -10,6 +10,8 @@ from bijux_proteomics_intelligence import (
     WorkflowBenchmarkReview,
     build_dda_benchmark_review,
     build_dia_benchmark_review,
+    build_lfq_benchmark_review,
+    build_ptm_benchmark_review,
 )
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
@@ -70,3 +72,52 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     assert capability_claim.support_state is SupportState.ADVISORY
     assert "vendor-library parity" in capability_claim.scientific_limits[0]
     assert "checked-in Spectronaut-style export" in review.reviewer_summary
+
+
+def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
+    review = build_ptm_benchmark_review(
+        localization_path=(
+            _repo_root()
+            / "packages"
+            / "bijux-proteomics-core"
+            / "tests"
+            / "fixtures"
+            / "ptm"
+            / "localization_results.tsv"
+        )
+    )
+
+    assert isinstance(review, WorkflowBenchmarkReview)
+    assert review.workflow_family is KnowledgeWorkflowFamily.PTM
+    ambiguity_claim = next(
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "site_ambiguity_visibility"
+    )
+    assert ambiguity_claim.support_state is SupportState.ADVISORY
+    assert "ambiguous site groups" in ambiguity_claim.scientific_limits[0]
+    assert "ambiguity" in review.reviewer_summary
+
+
+def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() -> None:
+    review = build_lfq_benchmark_review(
+        feature_path=(
+            _repo_root()
+            / "packages"
+            / "bijux-proteomics-core"
+            / "tests"
+            / "fixtures"
+            / "quant"
+            / "study_scale_ms1_features.tsv"
+        )
+    )
+
+    assert isinstance(review, WorkflowBenchmarkReview)
+    assert review.workflow_family is KnowledgeWorkflowFamily.LFQ
+    assert review.ready_for_release_review is True
+    lfq_limit_claim = next(
+        claim for claim in review.claim_summaries if claim.claim_id == "qc_and_missingness_limits"
+    )
+    assert lfq_limit_claim.support_state is SupportState.ADVISORY
+    assert review.external_reviewer_bundle.evidence_pointer_ids
+    assert "missingness" in review.reviewer_summary
