@@ -7,8 +7,9 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics import InstrumentBatchQcReport, ReplicateCorrelationReport
-from bijux_proteomics.programs import ProgramSpec
+from bijux_proteomics.domain.program_spec import ProgramSpec
+from bijux_proteomics.qc import InstrumentBatchQcReport
+from bijux_proteomics.quantification import ReplicateCorrelationReport
 from bijux_proteomics_foundation import JsonModel, ProgramId
 from bijux_proteomics_intelligence.briefs import (
     CandidateAssessment,

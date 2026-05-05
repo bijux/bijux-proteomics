@@ -6,37 +6,39 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics import (
-    FastaParseMode,
+from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.spectra import parse_mgf
+from bijux_proteomics.ptm import (
+    build_ptm_motif_windows,
+    build_ptm_site_fdr,
+    build_ptm_site_table,
+    estimate_ptm_site_occupancy,
+    map_ptm_evidence_to_protein_sites,
+    parse_ptm_localization_tsv,
+)
+from bijux_proteomics.qc import (
     InstrumentBatchQcReport,
     InstrumentBatchQcRunEntry,
+    build_lcms_run_qc_report,
+    build_run_qc_assessment,
+    default_qc_threshold_policy,
+)
+from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
     ReplicateCorrelationEntry,
     ReplicateCorrelationReport,
-    SearchResultColumnMapping,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_label_free_intensity_table,
-    build_lcms_run_qc_report,
-    build_ptm_motif_windows,
-    build_ptm_site_fdr,
-    build_ptm_site_table,
-    build_run_qc_assessment,
     build_spectral_count_table,
-    default_qc_threshold_policy,
-    estimate_ptm_site_occupancy,
-    map_ptm_evidence_to_protein_sites,
     normalize_label_free_table,
-    parse_experimental_design_table,
-    parse_fasta_document,
-    parse_mgf,
     parse_ms1_feature_table,
-    parse_psm_tsv,
-    parse_ptm_localization_tsv,
 )
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_intelligence import (
     AnalyticalContrastRejectionReason,

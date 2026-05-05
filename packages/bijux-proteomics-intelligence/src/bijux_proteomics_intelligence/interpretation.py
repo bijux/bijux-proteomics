@@ -11,21 +11,25 @@ import math
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics import (
-    BatchEffectAdvisoryReport,
-    DifferentialAbundanceEntry,
-    DifferentialAbundanceReport,
-    ExperimentalDesignEntry,
-    InstrumentBatchQcReport,
-    LabelFreeQuantTable,
-    LcmsRunQcReport,
-    MissingValueKind,
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.ptm import (
     PtmMotifWindow,
     PtmOccupancyEntry,
     PtmSiteEntry,
     PtmSiteFdrReport,
+)
+from bijux_proteomics.qc import (
+    InstrumentBatchQcReport,
+    LcmsRunQcReport,
     QcAssessmentSeverity,
     QcRunAssessmentReport,
+)
+from bijux_proteomics.quantification import (
+    BatchEffectAdvisoryReport,
+    DifferentialAbundanceEntry,
+    DifferentialAbundanceReport,
+    LabelFreeQuantTable,
+    MissingValueKind,
     ReplicateCorrelationReport,
 )
 from bijux_proteomics_foundation import JsonModel

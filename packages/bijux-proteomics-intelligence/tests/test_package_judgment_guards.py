@@ -6,8 +6,8 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from bijux_proteomics import SuccessCriterion, create_program_spec
-from bijux_proteomics.programs import MeasurementDirection
+from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.domain.program_spec import create_program_spec
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     DEFAULT_INTELLIGENCE_CHARTER,

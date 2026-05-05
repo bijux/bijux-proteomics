@@ -3,14 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics import (
-    ReviewGate,
+from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.constraints import (
+    ConstraintCategory,
     ScientificConstraint,
-    SuccessCriterion,
-    create_program_spec,
 )
-from bijux_proteomics.domain.constraints import ConstraintCategory
-from bijux_proteomics.programs import AssayRequirement, MeasurementDirection
+from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.reviews import ReviewGate
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     CandidateExplainabilitySummary,

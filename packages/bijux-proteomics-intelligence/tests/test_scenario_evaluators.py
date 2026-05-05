@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics import create_program_spec
+from bijux_proteomics.domain.program_spec import create_program_spec
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     CandidateRanking,
