@@ -1,0 +1,367 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Machine-readable charter for the core scientific package boundary."""
+
+from __future__ import annotations
+
+from enum import StrEnum
+from pathlib import Path
+import re
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics_foundation import JsonModel
+
+
+class CoreScientificDomainFamily(StrEnum):
+    """Durable domain families that core is allowed to own."""
+
+    PROGRAM_GOVERNANCE = "program_governance"
+    SEQUENCE_AND_CHEMISTRY = "sequence_and_chemistry"
+    INGESTION_AND_IDENTIFICATION = "ingestion_and_identification"
+    QUANTIFICATION_AND_STUDY = "quantification_and_study"
+    PTM_AND_DIA = "ptm_and_dia"
+    REVIEW_AND_HANDOFF = "review_and_handoff"
+    WORKFLOW_CONTRACTS = "workflow_contracts"
+    PACKAGE_SURFACE = "package_surface"
+
+
+class CoreModuleClassification(StrEnum):
+    """Allowed audit outcomes for core source modules."""
+
+    SUBSTANTIVE_SCIENTIFIC_SURFACE = "substantive_scientific_surface"
+    THIN_ABSTRACTION = "thin_abstraction"
+    COMPATIBILITY_EXPORT = "compatibility_export"
+    BOUNDARY_GOVERNANCE = "boundary_governance"
+    WRONG_PACKAGE_LOGIC = "wrong_package_logic"
+
+
+class CoreProductCharter(JsonModel):
+    """Durable scientific charter for core ownership."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_name: str = Field(..., min_length=1)
+    value_statement: str = Field(..., min_length=1)
+    domain_families: tuple[CoreScientificDomainFamily, ...] = Field(
+        default_factory=tuple
+    )
+    required_inputs: tuple[str, ...] = Field(default_factory=tuple)
+    excluded_ownership: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class CoreDomainFamilyEntry(JsonModel):
+    """One durable family of scientific ownership inside core."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    family: CoreScientificDomainFamily
+    owned_surface: str = Field(..., min_length=1)
+    required_modules: tuple[str, ...] = Field(..., min_length=1)
+    release_blocker: str = Field(..., min_length=1)
+
+
+class CoreModuleAuditEntry(JsonModel):
+    """Audit record for one core source module."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    module_path: str = Field(..., min_length=1)
+    family: CoreScientificDomainFamily
+    classification: CoreModuleClassification
+    reason: str = Field(..., min_length=1)
+
+
+DEFAULT_CORE_CHARTER = CoreProductCharter(
+    package_name="bijux-proteomics-core",
+    value_statement=(
+        "provide the scientific heart of the suite through proteomics domain models, "
+        "evidence normalization, uncertainty-aware review artifacts, and workflow "
+        "contracts without taking over runtime execution, reference curation, "
+        "analytical judgment, or lab operations"
+    ),
+    domain_families=(
+        CoreScientificDomainFamily.PROGRAM_GOVERNANCE,
+        CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY,
+        CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION,
+        CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY,
+        CoreScientificDomainFamily.PTM_AND_DIA,
+        CoreScientificDomainFamily.REVIEW_AND_HANDOFF,
+        CoreScientificDomainFamily.WORKFLOW_CONTRACTS,
+        CoreScientificDomainFamily.PACKAGE_SURFACE,
+    ),
+    required_inputs=(
+        "foundation-owned document, hashing, refusal, and provenance primitives",
+        "runtime-owned execution backends only through explicit adapters",
+    ),
+    excluded_ownership=(
+        "runtime provider binding and run orchestration",
+        "knowledge reference curation and ontology registries",
+        "intelligence ranking and recommendation judgment",
+        "lab scheduling, protocol control, and operational readiness authority",
+    ),
+)
+
+
+DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.PROGRAM_GOVERNANCE,
+        owned_surface="Program, target, review-gate, and validation semantics that define durable scientific state and progression meaning.",
+        required_modules=(
+            "domain/program_spec.py",
+            "domain/programs.py",
+            "domain/targets.py",
+            "domain/validation.py",
+        ),
+        release_blocker="Core cannot ship if lifecycle and program-state semantics fragment into wrapper-only convenience surfaces or downstream reinterpretation.",
+    ),
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY,
+        owned_surface="Sequence parsing, digestion, peptide chemistry, isotope labeling, and modification semantics for proteomics evidence preparation.",
+        required_modules=(
+            "sequences/core.py",
+            "sequences/digestion.py",
+            "chemistry/__init__.py",
+        ),
+        release_blocker="Core cannot ship if sequence and peptide semantics collapse into format glue or tool-specific heuristics.",
+    ),
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION,
+        owned_surface="Format ingestion, spectrum parsing, search normalization, target-decoy handling, and protein-inference-ready evidence contracts.",
+        required_modules=(
+            "io/formats.py",
+            "io/ingestion.py",
+            "io/spectra.py",
+            "identification/__init__.py",
+            "identification/search_adapters.py",
+        ),
+        release_blocker="Core cannot ship if external-engine normalization loses explicit support, loss, and refusal boundaries.",
+    ),
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY,
+        owned_surface="Study design, MS1 feature parsing, quantification rollup, normalization, and QC semantics for reproducible quantitative analysis.",
+        required_modules=(
+            "study/__init__.py",
+            "quantification/__init__.py",
+            "qc.py",
+        ),
+        release_blocker="Core cannot ship if quantitative outputs stop carrying design and QC meaning that downstream packages depend on.",
+    ),
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.PTM_AND_DIA,
+        owned_surface="PTM localization and DIA-native evidence semantics that preserve uncertainty, library identity, and targeted follow-up meaning.",
+        required_modules=(
+            "ptm/__init__.py",
+            "ptm/review.py",
+            "dia/__init__.py",
+        ),
+        release_blocker="Core cannot ship if PTM or DIA workflows flatten ambiguity into generic evidence records.",
+    ),
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.REVIEW_AND_HANDOFF,
+        owned_surface="Review packets, contradiction-aware evidence summaries, collaboration bundles, and core-owned handoff-ready scientific artifacts.",
+        required_modules=(
+            "review/__init__.py",
+            "collaboration/__init__.py",
+            "structure_report/render.py",
+            "protein_family_evidence_graph.py",
+        ),
+        release_blocker="Core cannot ship if review-facing scientific artifacts become presentation-only shells without underlying evidence structure.",
+    ),
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.WORKFLOW_CONTRACTS,
+        owned_surface="Runtime-agnostic workflow blueprints, execution requests, and replayable scientific workflow contracts.",
+        required_modules=(
+            "workflow/blueprint.py",
+            "workflow/runtime.py",
+            "workflow/runs.py",
+            "execution/backend.py",
+            "execution/runner.py",
+        ),
+        release_blocker="Core cannot ship if workflow contracts require runtime internals instead of scientific inputs and explicit adapters.",
+    ),
+    CoreDomainFamilyEntry(
+        family=CoreScientificDomainFamily.PACKAGE_SURFACE,
+        owned_surface="Package-level CLI, example surfaces, and adoption contracts that explain and expose core ownership without becoming a shadow runtime.",
+        required_modules=(
+            "__init__.py",
+            "cli.py",
+            "interfaces/api.py",
+            "adoption/__init__.py",
+            "charter.py",
+        ),
+        release_blocker="Core cannot ship if its public package surface describes the wrong owner story or hides the scientific boundary behind stale compatibility language.",
+    ),
+)
+
+
+_COMPATIBILITY_IMPORT_RE = re.compile(
+    r"^from\s+(bijux_proteomics(?:\.[a-z0-9_]+)+)\s+import\s+\*(?:\s+#.*)?$",
+    flags=re.MULTILINE,
+)
+
+
+def _core_source_root() -> Path:
+    return Path(__file__).resolve().parent
+
+
+def _resolve_module_path(module_name: str) -> str:
+    relative = module_name.removeprefix("bijux_proteomics.").replace(".", "/")
+    source_root = _core_source_root()
+    candidate = source_root / f"{relative}.py"
+    if candidate.exists():
+        return f"{relative}.py"
+    package_init = source_root / relative / "__init__.py"
+    if package_init.exists():
+        return f"{relative}/__init__.py"
+    raise ValueError(f"unable to resolve compatibility target for {module_name}")
+
+
+def _compatibility_target(module_path: str) -> str | None:
+    content = (_core_source_root() / module_path).read_text(encoding="utf-8")
+    match = _COMPATIBILITY_IMPORT_RE.search(content)
+    if match is None:
+        return None
+    return _resolve_module_path(match.group(1))
+
+
+def _module_family(module_path: str) -> CoreScientificDomainFamily:
+    compatibility_target = _compatibility_target(module_path)
+    if compatibility_target is not None:
+        return _module_family(compatibility_target)
+
+    if module_path in {"__init__.py", "cli.py", "charter.py"} or module_path.startswith(
+        ("interfaces/", "adoption/", "benchmarks/")
+    ):
+        return CoreScientificDomainFamily.PACKAGE_SURFACE
+    if module_path.startswith("domain/") or module_path == "exceptions.py":
+        return CoreScientificDomainFamily.PROGRAM_GOVERNANCE
+    if module_path.startswith(("sequences/", "chemistry/")) or module_path in {
+        "peptide_uniqueness_audit.py",
+        "protease_digest_comparison.py",
+    }:
+        return CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY
+    if module_path.startswith(("io/", "identification/")):
+        return CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION
+    if module_path.startswith(("quantification/", "study/")) or module_path == "qc.py":
+        return CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY
+    if module_path.startswith(("ptm/", "dia/")):
+        return CoreScientificDomainFamily.PTM_AND_DIA
+    if module_path.startswith(("workflow/", "execution/")):
+        return CoreScientificDomainFamily.WORKFLOW_CONTRACTS
+    if module_path.startswith(
+        ("review/", "collaboration/", "corpus/", "biology/", "lab/", "intelligence/", "structure_report/")
+    ) or module_path in {
+        "protein_family_evidence_graph.py",
+        "proteoform_identity.py",
+    }:
+        return CoreScientificDomainFamily.REVIEW_AND_HANDOFF
+    raise ValueError(f"unclassified core module path: {module_path}")
+
+
+def _module_classification(module_path: str) -> CoreModuleClassification:
+    if module_path == "charter.py":
+        return CoreModuleClassification.BOUNDARY_GOVERNANCE
+    if module_path == "__init__.py" or module_path.endswith("/__init__.py"):
+        return CoreModuleClassification.THIN_ABSTRACTION
+    if _compatibility_target(module_path) is not None:
+        return CoreModuleClassification.COMPATIBILITY_EXPORT
+    return CoreModuleClassification.SUBSTANTIVE_SCIENTIFIC_SURFACE
+
+
+def _module_reason(
+    module_path: str,
+    family: CoreScientificDomainFamily,
+    classification: CoreModuleClassification,
+) -> str:
+    if classification is CoreModuleClassification.BOUNDARY_GOVERNANCE:
+        return (
+            "The machine-readable charter keeps core scientific ownership explicit, "
+            "auditable, and release-blocking."
+        )
+    if classification is CoreModuleClassification.THIN_ABSTRACTION:
+        return (
+            "Namespace initializers and the package root aggregate stable exports "
+            "without becoming separate scientific owners."
+        )
+    if classification is CoreModuleClassification.COMPATIBILITY_EXPORT:
+        target = _compatibility_target(module_path)
+        assert target is not None
+        return (
+            f"This module is a compatibility export over {target} and must stay a thin "
+            "alias rather than growing new scientific logic."
+        )
+    return {
+        CoreScientificDomainFamily.PROGRAM_GOVERNANCE: (
+            "This module owns scientific program-state semantics that downstream packages consume."
+        ),
+        CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY: (
+            "This module owns sequence and peptide semantics that must stay scientifically precise."
+        ),
+        CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION: (
+            "This module owns evidence ingestion, support boundaries, or identification semantics."
+        ),
+        CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY: (
+            "This module owns quantitative analysis or study-design meaning instead of workflow transport."
+        ),
+        CoreScientificDomainFamily.PTM_AND_DIA: (
+            "This module owns uncertainty-aware PTM or DIA evidence semantics."
+        ),
+        CoreScientificDomainFamily.REVIEW_AND_HANDOFF: (
+            "This module owns reviewable scientific artifacts and evidence-aware handoff context."
+        ),
+        CoreScientificDomainFamily.WORKFLOW_CONTRACTS: (
+            "This module owns runtime-agnostic scientific workflow contracts or explicit execution adapters."
+        ),
+        CoreScientificDomainFamily.PACKAGE_SURFACE: (
+            "This module owns a package-facing surface that explains or exposes core without taking over runtime authority."
+        ),
+    }[family]
+
+
+def _build_module_audit() -> tuple[CoreModuleAuditEntry, ...]:
+    source_root = _core_source_root()
+    entries: list[CoreModuleAuditEntry] = []
+    for path in sorted(source_root.rglob("*.py")):
+        module_path = path.relative_to(source_root).as_posix()
+        family = _module_family(module_path)
+        classification = _module_classification(module_path)
+        entries.append(
+            CoreModuleAuditEntry(
+                module_path=module_path,
+                family=family,
+                classification=classification,
+                reason=_module_reason(module_path, family, classification),
+            )
+        )
+    return tuple(entries)
+
+
+DEFAULT_CORE_MODULE_AUDIT = _build_module_audit()
+
+
+def list_core_domain_families() -> tuple[CoreScientificDomainFamily, ...]:
+    """Return the exact scientific domain families core is allowed to own."""
+
+    return DEFAULT_CORE_CHARTER.domain_families
+
+
+def list_core_domain_entries() -> tuple[CoreDomainFamilyEntry, ...]:
+    """Return the exact domain-family entries core must satisfy."""
+
+    return DEFAULT_CORE_DOMAIN_ENTRIES
+
+
+__all__ = [
+    "CoreDomainFamilyEntry",
+    "CoreModuleAuditEntry",
+    "CoreModuleClassification",
+    "CoreProductCharter",
+    "CoreScientificDomainFamily",
+    "DEFAULT_CORE_CHARTER",
+    "DEFAULT_CORE_DOMAIN_ENTRIES",
+    "DEFAULT_CORE_MODULE_AUDIT",
+    "list_core_domain_entries",
+    "list_core_domain_families",
+]
