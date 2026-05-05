@@ -21,24 +21,24 @@ orphan_ids = []
 
 [[surface]]
 name = "scientific_context"
-entry_count = 13
+entry_count = 15
 orphan_count = 0
 orphan_ids = []
 
 [[surface]]
 name = "known_problems"
-entry_count = 8
+entry_count = 10
 orphan_count = 0
 orphan_ids = []
 
 [[surface]]
 name = "literature_groups"
-entry_count = 9
+entry_count = 11
 orphan_count = 0
 orphan_ids = []
 
 [[surface]]
 name = "scientific_rules"
-entry_count = 8
+entry_count = 10
 orphan_count = 0
 orphan_ids = []

@@ -190,6 +190,41 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
         affected_benchmark_ids=("benchmark:dia_library_extraction_consistency",),
         citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012", "citation:protein_inference_2012"),
     ),
+    KnownProblemRegistryEntry(
+        problem_id="problem:design_contrast_overclaim",
+        problem_kind=KnowledgeProblemKind.WEAK_BENCHMARK_SHORTCUT,
+        title="One benchmarked design contrast can be over-generalized",
+        problem_summary="Repeatable quantitative behavior in one study design can be mistaken for broad cohort readiness even when the benchmark only represents one contrast structure and one balance pattern.",
+        mitigation_guidance="Keep study-design scope and contrast structure explicit before carrying LFQ or multiplex summaries into broader cohort-facing claims.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
+        affected_workflow_families=(
+            KnowledgeWorkflowFamily.LFQ,
+            KnowledgeWorkflowFamily.MULTIPLEX,
+        ),
+        affected_corpus_ids=("corpus:quant_fixture_suite",),
+        affected_benchmark_ids=(
+            "benchmark:lfq_quantification_repeatability",
+            "benchmark:multiplex_tmtpro_quantification",
+        ),
+        citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012", "citation:tmtpro_2020"),
+    ),
+    KnownProblemRegistryEntry(
+        problem_id="problem:targeted_assay_transfer_shortcut",
+        problem_kind=KnowledgeProblemKind.WEAK_BENCHMARK_SHORTCUT,
+        title="One stable targeted panel can be mistaken for broad assay portability",
+        problem_summary="A clean targeted QC panel can look universally trustworthy even when the benchmark only demonstrates one transition set, one assay design, and one matrix-facing behavior.",
+        mitigation_guidance="Keep assay-panel scope, transition coverage, and protein-rollup caution explicit before carrying targeted QC stability into broader assay-readiness claims.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
+        affected_workflow_families=(KnowledgeWorkflowFamily.TARGETED,),
+        affected_corpus_ids=(
+            "corpus:chromatogram_qc_fixture",
+            "corpus:protein_inference_review_reference",
+        ),
+        affected_benchmark_ids=("benchmark:targeted_transition_quality_control",),
+        citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
+    ),
 )
 
 

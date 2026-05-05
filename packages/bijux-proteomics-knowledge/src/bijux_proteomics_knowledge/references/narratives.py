@@ -212,10 +212,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "context:quant_missingness_is_informative",
             "context:quant_rollup_changes_claim_scope",
             "context:multiplex_reporter_interference",
+            "context:study_design_contrast_scope",
         ),
         problem_ids=(
             "problem:quant_fixture_missingness_shortcut",
             "problem:multiplex_interference_shortcut",
+            "problem:design_contrast_overclaim",
         ),
         scope_limit_notes=(
             "Applies to repeatable LFQ behavior in the bundled study-scale fixtures, not every broader cohort shape.",
@@ -232,8 +234,14 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:lfq_quantification_repeatability",),
         citation_ids=("citation:protein_inference_2012",),
-        context_ids=("context:quant_missingness_is_informative",),
-        problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        context_ids=(
+            "context:quant_missingness_is_informative",
+            "context:study_design_contrast_scope",
+        ),
+        problem_ids=(
+            "problem:quant_fixture_missingness_shortcut",
+            "problem:design_contrast_overclaim",
+        ),
         scope_limit_notes=(
             "Does not claim that repeatable fixture behavior removes missingness, interference, or peptide-to-protein ambiguity.",
             "Does not widen study-scale fixture stability into universal cohort readiness.",
@@ -252,8 +260,14 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:quant_missingness_is_informative",
             "context:quant_rollup_changes_claim_scope",
+            "context:multiplex_reporter_interference",
+            "context:study_design_contrast_scope",
         ),
-        problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        problem_ids=(
+            "problem:quant_fixture_missingness_shortcut",
+            "problem:multiplex_interference_shortcut",
+            "problem:design_contrast_overclaim",
+        ),
         scope_limit_notes=(
             "Applies to bundled multiplex fixtures with explicit TMTpro channel semantics, not label-free abundance interpretation.",
             "Keeps reporter-channel meaning in scope without widening the claim to every multiplex interference pattern.",
@@ -272,10 +286,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:quant_rollup_changes_claim_scope",
             "context:multiplex_reporter_interference",
+            "context:study_design_contrast_scope",
         ),
         problem_ids=(
             "problem:quant_fixture_missingness_shortcut",
             "problem:multiplex_interference_shortcut",
+            "problem:design_contrast_overclaim",
         ),
         scope_limit_notes=(
             "Does not claim that reporter summaries are interchangeable with label-free abundance evidence.",
@@ -292,8 +308,14 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:targeted_transition_quality_control",),
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
-        context_ids=("context:quant_rollup_changes_claim_scope",),
-        problem_ids=("problem:targeted_rollup_shortcut",),
+        context_ids=(
+            "context:quant_rollup_changes_claim_scope",
+            "context:targeted_assay_transfer_scope",
+        ),
+        problem_ids=(
+            "problem:targeted_rollup_shortcut",
+            "problem:targeted_assay_transfer_shortcut",
+        ),
         scope_limit_notes=(
             "Applies to targeted-style QC interpretation of bundled chromatogram fixtures, not unrestricted protein confirmation.",
             "Keeps transition-level evidence visible before any cautious protein rollup happens downstream.",
@@ -309,8 +331,14 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:targeted_transition_quality_control",),
         citation_ids=("citation:protein_inference_2012",),
-        context_ids=("context:quant_rollup_changes_claim_scope",),
-        problem_ids=("problem:targeted_rollup_shortcut",),
+        context_ids=(
+            "context:quant_rollup_changes_claim_scope",
+            "context:targeted_assay_transfer_scope",
+        ),
+        problem_ids=(
+            "problem:targeted_rollup_shortcut",
+            "problem:targeted_assay_transfer_shortcut",
+        ),
         scope_limit_notes=(
             "Does not claim that transition-level targeted evidence alone resolves shared-peptide ambiguity.",
             "Does not justify unqualified protein certainty without explicit inference caution.",

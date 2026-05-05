@@ -183,6 +183,33 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         benchmark_rationale="Targeted and DIA evidence both encourage early rollup, so the benchmark layer needs an explicit caution mapping for shared-peptide and transition-derived ambiguity.",
         related_term_ids=("acquisition_mode:dia",),
     ),
+    ScientificRuleReference(
+        rule_id="rule:study_design_contrast_scope",
+        domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
+        title="Quantification claims need explicit design scope",
+        rule_statement="LFQ and multiplex narratives must keep the benchmarked study design, contrast structure, and cohort balance explicit instead of treating one repeatable fixture contrast as universal quantitative readiness.",
+        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012", "citation:tmtpro_2020"),
+        benchmark_ids=(
+            "benchmark:lfq_quantification_repeatability",
+            "benchmark:multiplex_tmtpro_quantification",
+        ),
+        benchmark_rationale="Repeatable fixture summaries can still hide how strongly quantitative interpretation depends on the exact study design and contrast structure represented in the benchmark.",
+        related_term_ids=(),
+    ),
+    ScientificRuleReference(
+        rule_id="rule:targeted_assay_transfer_scope",
+        domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
+        title="Targeted assay transfer needs explicit scope",
+        rule_statement="Targeted narratives must keep assay-panel coverage, transition selection limits, and transition-to-protein rollup boundaries explicit instead of treating one stable QC panel as proof of broader assay portability.",
+        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
+        benchmark_ids=("benchmark:targeted_transition_quality_control",),
+        benchmark_rationale="A targeted QC fixture can show panel stability while still overstating how safely the same transition set transfers to new matrices, assays, or protein-facing summaries.",
+        related_term_ids=(),
+    ),
 )
 
 

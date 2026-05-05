@@ -128,6 +128,23 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         ),
     ),
     LiteratureGroup(
+        group_id="literature:study_design_contrast_limits",
+        focus_area=LiteratureFocusArea.QUANTIFICATION,
+        title="Study design and contrast limits for quantitative claims",
+        curation_note="Quantitative interpretation needs literature support for the boundary between one benchmarked design contrast and broader cohort-facing abundance claims.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012", "citation:tmtpro_2020"),
+        benchmark_ids=(
+            "benchmark:lfq_quantification_repeatability",
+            "benchmark:multiplex_tmtpro_quantification",
+        ),
+        context_ids=(
+            "context:study_design_contrast_scope",
+            "context:quant_rollup_changes_claim_scope",
+        ),
+    ),
+    LiteratureGroup(
         group_id="literature:multiplex_interference_limits",
         focus_area=LiteratureFocusArea.MULTIPLEX,
         title="Multiplex interference and reporter-scope limits",
@@ -193,6 +210,20 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
         benchmark_ids=("benchmark:targeted_transition_quality_control",),
         context_ids=("context:quant_rollup_changes_claim_scope",),
+    ),
+    LiteratureGroup(
+        group_id="literature:targeted_assay_transfer_limits",
+        focus_area=LiteratureFocusArea.TARGETED,
+        title="Targeted assay transfer and panel-scope limits",
+        curation_note="Targeted interpretation stays grounded when assay-panel coverage, transition selection, and transfer limits remain explicit instead of being flattened into one protein-facing readiness claim.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
+        benchmark_ids=("benchmark:targeted_transition_quality_control",),
+        context_ids=(
+            "context:targeted_assay_transfer_scope",
+            "context:quant_rollup_changes_claim_scope",
+        ),
     ),
 )
 

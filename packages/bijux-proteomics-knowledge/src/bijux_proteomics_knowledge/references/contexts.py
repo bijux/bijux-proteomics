@@ -235,6 +235,35 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         related_rule_ids=("rule:tmtpro_channel_interpretation",),
         related_term_ids=(),
     ),
+    ScientificContextEntry(
+        context_id="context:study_design_contrast_scope",
+        domain=KnowledgeContextDomain.QUANTIFICATION_INTERPRETATION,
+        title="Study-design contrasts limit quantification claims",
+        scientific_assertion="Quantitative repeatability is only meaningful within the design contrast that the fixture and analysis actually represent, rather than as a blanket statement about all cohort structures.",
+        interpretation_caveat="Stable abundance summaries can still be over-generalized when sample balance, contrast structure, or cohort heterogeneity changes beyond the benchmarked design surface.",
+        version_trace=("Context wording was reviewed against linked quantification references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
+        citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012", "citation:tmtpro_2020"),
+        benchmark_ids=(
+            "benchmark:lfq_quantification_repeatability",
+            "benchmark:multiplex_tmtpro_quantification",
+        ),
+        related_rule_ids=("rule:study_design_contrast_scope",),
+        related_term_ids=(),
+    ),
+    ScientificContextEntry(
+        context_id="context:targeted_assay_transfer_scope",
+        domain=KnowledgeContextDomain.QUANTIFICATION_INTERPRETATION,
+        title="Targeted assay panels do not automatically transfer",
+        scientific_assertion="A targeted transition panel that behaves cleanly in one QC fixture still reflects assay-design choices, peptide selection limits, and panel coverage boundaries that should remain explicit in downstream claims.",
+        interpretation_caveat="A stable chromatogram surface is not evidence that the same transition panel generalizes to new matrices, broader peptide sets, or protein-level conclusions without assay-specific review.",
+        version_trace=("Context wording was reviewed against linked targeted references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
+        citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
+        benchmark_ids=("benchmark:targeted_transition_quality_control",),
+        related_rule_ids=("rule:targeted_assay_transfer_scope",),
+        related_term_ids=(),
+    ),
 )
 
 

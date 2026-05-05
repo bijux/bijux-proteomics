@@ -45,12 +45,7 @@ def test_knowledge_under_curated_workflow_report_captures_current_shallow_famili
     }
 
     assert KNOWLEDGE_UNDER_CURATED_WORKFLOWS_PATH.exists()
-    assert reasons_by_family == {
-        "targeted": {
-            "fewer than two scientific context entries",
-            "fewer than two scientific rules",
-        },
-    }
+    assert reasons_by_family == {}
 
 
 def test_knowledge_orphan_reference_report_records_current_usage_gaps() -> None:
