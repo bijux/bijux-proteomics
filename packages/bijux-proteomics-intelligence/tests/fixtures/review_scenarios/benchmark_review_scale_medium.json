@@ -1,0 +1,111 @@
+{
+  "workflow_family": "dda",
+  "program": {
+    "program_id": "prog-benchmark-review-scale-medium",
+    "name": "benchmark review scale medium",
+    "objective": "keep medium review-packet grounding visible for benchmark-backed analytical review",
+    "target_id": "target-benchmark-review-scale-medium",
+    "target_name": "Target Benchmark Review Scale Medium",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "balance benchmark-backed review confidence against operationally reviewable follow-up"
+  },
+  "criterion": {
+    "criterion_id": "benchmark-review-scale-medium",
+    "metric": "dda_follow_up_score",
+    "threshold": 0.78
+  },
+  "qc_caveats": [
+    "benchmark-backed ranking should stay reviewable under a medium candidate set",
+    "operator review must keep the weaker benchmark caveats visible even when the lead candidate is clear"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "benchmark-grounded-lead",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dda_follow_up_score": 0.89
+      },
+      "manufacturability_score": 0.83,
+      "uncertainty": 0.08,
+      "evidence_support": 0.88,
+      "reproducibility_score": 0.9,
+      "effect_size_score": 0.82,
+      "assay_feasibility_score": 0.86,
+      "novelty_score": 0.44,
+      "lab_cost_risk": 0.13,
+      "operational_risk": 0.12
+    },
+    {
+      "candidate_id": "benchmark-uncertain-runner-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "dda_follow_up_score": 0.84
+      },
+      "manufacturability_score": 0.77,
+      "uncertainty": 0.17,
+      "evidence_support": 0.74,
+      "reproducibility_score": 0.71,
+      "effect_size_score": 0.73,
+      "assay_feasibility_score": 0.72,
+      "novelty_score": 0.52,
+      "lab_cost_risk": 0.18,
+      "operational_risk": 0.2
+    },
+    {
+      "candidate_id": "benchmark-polish-trap",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYAA",
+      "metric_scores": {
+        "dda_follow_up_score": 0.82
+      },
+      "manufacturability_score": 0.8,
+      "uncertainty": 0.22,
+      "evidence_support": 0.66,
+      "reproducibility_score": 0.62,
+      "effect_size_score": 0.69,
+      "assay_feasibility_score": 0.63,
+      "novelty_score": 0.68,
+      "lab_cost_risk": 0.27,
+      "operational_risk": 0.28
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "benchmark-support-1",
+      "kind": "assay",
+      "title": "benchmark-backed assay signal",
+      "source": "dda-benchmark-run-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible target-decoy-stable assay evidence",
+      "confidence": 0.91,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 12
+    },
+    {
+      "evidence_id": "benchmark-support-2",
+      "kind": "literature",
+      "title": "benchmark-aligned literature",
+      "source": "PMID:benchmark-review-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the benchmark-backed lead candidate",
+      "confidence": 0.84,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 44
+    },
+    {
+      "evidence_id": "benchmark-support-3",
+      "kind": "structure",
+      "title": "orthogonal structure check",
+      "source": "model-benchmark-1",
+      "source_type": "structure_model",
+      "claim": "supports a folded state compatible with follow-up review under medium review load",
+      "confidence": 0.8,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 27
+    }
+  ],
+  "expected_top_candidate_id": "benchmark-grounded-lead"
+}

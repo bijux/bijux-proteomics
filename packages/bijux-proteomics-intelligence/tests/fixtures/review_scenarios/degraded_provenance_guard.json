@@ -1,0 +1,63 @@
+{
+  "workflow_family": "dia",
+  "program": {
+    "program_id": "prog-degraded-provenance-guard",
+    "name": "degraded provenance guard",
+    "objective": "degrade polished recommendations when evidence freshness and lineage confidence have clearly decayed",
+    "target_id": "target-degraded-provenance-guard",
+    "target_name": "Target Degraded Provenance Guard",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "keep aged evidence lineage explicit in analytical recommendation posture"
+  },
+  "criterion": {
+    "criterion_id": "degraded-provenance-guard",
+    "metric": "dia_follow_up_score",
+    "threshold": 0.75
+  },
+  "candidates": [
+    {
+      "candidate_id": "degraded-provenance-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dia_follow_up_score": 0.88
+      },
+      "manufacturability_score": 0.82,
+      "uncertainty": 0.09,
+      "evidence_support": 0.85,
+      "reproducibility_score": 0.79,
+      "effect_size_score": 0.76,
+      "assay_feasibility_score": 0.8,
+      "novelty_score": 0.39,
+      "lab_cost_risk": 0.12,
+      "operational_risk": 0.11
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "degraded-provenance-assay",
+      "kind": "assay",
+      "title": "aging assay lineage",
+      "source": "lab-aged-lineage-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with a previously strong assay response whose operational lineage has not been refreshed",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 214
+    },
+    {
+      "evidence_id": "degraded-provenance-literature",
+      "kind": "literature",
+      "title": "aging literature lineage",
+      "source": "PMID:degraded-provenance-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance but the provenance chain is too old to present as current analytical grounding",
+      "confidence": 0.81,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 392
+    }
+  ],
+  "expected_top_candidate_id": "degraded-provenance-candidate"
+}

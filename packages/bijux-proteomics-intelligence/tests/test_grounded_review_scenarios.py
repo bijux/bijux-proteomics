@@ -122,6 +122,7 @@ def _grouped_review_state() -> ScenarioSetEvaluation:
         ("lfq_follow_up", KnowledgeWorkflowFamily.LFQ),
         ("dia_follow_up", KnowledgeWorkflowFamily.DIA),
         ("targeted_assay_review", KnowledgeWorkflowFamily.TARGETED),
+        ("benchmark_review_scale_medium", KnowledgeWorkflowFamily.DDA),
     ],
 )
 def test_realistic_review_scenarios_rank_grounded_follow_up_candidates(
@@ -209,6 +210,31 @@ def test_novelty_pressure_fixture_keeps_grounded_follow_up_on_top() -> None:
     )
 
 
+def test_ambiguity_fixture_keeps_grounded_follow_up_ahead_of_polished_ambiguity() -> None:
+    payload = _load_scenario_fixture("ambiguity_follow_up_guard")
+    program = _program_from_fixture(payload)
+    assessments = _assessments_from_fixture(payload)
+    bundle = _bundle_from_fixture(payload)
+
+    ranking = prioritize_candidates(
+        program,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.PTM,
+    )
+
+    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert ranking.ranked_candidates[1].candidate_id == "ambiguity-polish-candidate"
+    assert (
+        ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
+        > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    )
+    assert (
+        ranking.ranked_candidates[1].explainability["priority_inputs"]["reproducibility"]
+        < ranking.ranked_candidates[0].explainability["priority_inputs"]["reproducibility"]
+    )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "workflow_family", "seductive_candidate_id"),
     [
@@ -286,6 +312,26 @@ def test_stale_polish_fixture_degrades_polished_recommendation_readiness() -> No
     )
     assert any(
         "stale and should be refreshed" in reason for reason in result.degradation_reasons
+    )
+
+
+def test_degraded_provenance_fixture_degrades_polished_recommendation_readiness() -> (
+    None
+):
+    payload = _load_scenario_fixture("degraded_provenance_guard")
+    bundle = _bundle_from_fixture(payload)
+
+    result = assess_recommendation_readiness(bundle)
+
+    assert result.disposition.value == "degraded_success"
+    assert any(
+        reason.startswith("degraded-provenance-assay:")
+        for reason in result.degradation_reasons
+    )
+    assert any(
+        "stale and should be refreshed" in reason
+        or "evidence records are stale" in reason
+        for reason in result.degradation_reasons
     )
 
 
