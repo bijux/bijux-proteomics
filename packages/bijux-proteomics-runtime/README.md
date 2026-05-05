@@ -302,6 +302,8 @@ result = OperationResult.success(
 
 ## Documentation
 
+- [Public surfaces dossier](docs/PUBLIC-SURFACES.md)
+- [Route ownership dossier](docs/ROUTE-OWNERSHIP.md)
 - [Package guide](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/architecture/)
