@@ -88,9 +88,9 @@ def _default_mapping() -> SearchResultColumnMapping:
     )
 
 
-def test_psm_model_and_tsv_parser_accept_minimal_fixture() -> None:
+def test_psm_model_and_tsv_parser_accept_representative_fixture() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
 
     assert report.total_rows == 3
@@ -140,7 +140,7 @@ def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
 
 def test_normalization_exports_stable_jsonl() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
     normalized = normalize_psm_records(report.accepted_records)
     output_path = _psm_fixture("normalized.jsonl")
@@ -214,7 +214,7 @@ def test_peptide_level_rollup_combines_multiple_psms() -> None:
 
 def test_protein_level_evidence_rollup_counts_unique_and_shared_peptides() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
     rollups = rollup_protein_evidence(report.accepted_records)
 
@@ -509,7 +509,7 @@ def test_target_decoy_accession_collisions_are_reported_and_refused() -> None:
 
 def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
     summary = build_psm_summary_report(report.accepted_records)
 
@@ -521,7 +521,7 @@ def test_psm_summary_report_counts_labels_charges_and_score_bins() -> None:
 
 def test_peptide_summary_report_counts_modified_and_shared_peptides() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
     summary = build_peptide_summary_report(report.accepted_records)
 
@@ -532,7 +532,7 @@ def test_peptide_summary_report_counts_modified_and_shared_peptides() -> None:
 
 def test_protein_summary_report_supports_optional_coverage() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
     summary = build_protein_summary_report(
         report.accepted_records,
@@ -549,10 +549,10 @@ def test_protein_summary_report_supports_optional_coverage() -> None:
 
 def test_search_result_provenance_manifest_records_input_mapping_and_policy() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
     manifest = build_search_result_provenance_manifest(
-        source_path=_psm_fixture("minimal_results.tsv"),
+        source_path=_psm_fixture("representative_results.tsv"),
         parse_report=report,
         decoy_policy=TargetDecoyLabelPolicy(),
         fdr_policy=FdrPolicy(threshold=0.01),
@@ -566,7 +566,7 @@ def test_search_result_provenance_manifest_records_input_mapping_and_policy() ->
 
 def test_psm_export_tsv_and_jsonl_are_stable() -> None:
     report = parse_psm_tsv(
-        _psm_fixture("minimal_results.tsv"), mapping=_default_mapping()
+        _psm_fixture("representative_results.tsv"), mapping=_default_mapping()
     )
     jsonl_path = _psm_fixture("normalized_again.jsonl")
     tsv_path = _psm_fixture("normalized_again.tsv")

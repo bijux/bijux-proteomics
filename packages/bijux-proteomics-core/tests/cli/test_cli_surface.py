@@ -326,7 +326,7 @@ def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
 def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        source = FIXTURE_ROOT / "psm" / "minimal_results.tsv"
+        source = FIXTURE_ROOT / "psm" / "representative_results.tsv"
         shutil.copy(source, "results.tsv")
 
         result = runner.invoke(
@@ -450,7 +450,7 @@ def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
     with runner.isolated_filesystem():
         shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
         shutil.copy(
-            FIXTURE_ROOT / "psm" / "minimal_results.tsv",
+            FIXTURE_ROOT / "psm" / "representative_results.tsv",
             "results.tsv",
         )
         shutil.copy(FIXTURE_ROOT / "spectra" / "simple.mgf", "simple.mgf")
@@ -485,7 +485,7 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
     with runner.isolated_filesystem():
         shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
         shutil.copy(
-            FIXTURE_ROOT / "psm" / "minimal_results.tsv",
+            FIXTURE_ROOT / "psm" / "representative_results.tsv",
             "results.tsv",
         )
         shutil.copy(FIXTURE_ROOT / "spectra" / "multi.mgf", "multi.mgf")

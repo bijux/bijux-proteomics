@@ -1,0 +1,16 @@
+{
+  "sequence": " acdmek ",
+  "protein_origin": "P12345-2",
+  "evidence_level": "probable",
+  "ptm_assignments": [
+    {
+      "name": "Acetyl",
+      "site": "n_term"
+    },
+    {
+      "name": "Oxidation",
+      "site": "M4"
+    }
+  ],
+  "ambiguity_summary": "M4 oxidation could map to an isobaric site in low-resolution spectra, and a low-intensity phospho signal remains consistent with two neighboring sequence contexts when fragment coverage collapses across the C-terminal region. The identity should stay reviewable as one proteoform interpretation rather than a final localization claim."
+}
