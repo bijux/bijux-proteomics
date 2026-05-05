@@ -32,7 +32,7 @@ _CONTROL_EXPORT_GROUPS = {
         "resume_candidate_operation",
         "run_sequence_operation",
     ],
-    "bijux_proteomics_runtime.runtime.control.execution_surfaces": [
+    "bijux_proteomics_runtime.runs.launch_bundles": [
         "ContainerRunBundle",
         "SchedulerJobBundle",
         "build_container_run_bundle",
@@ -40,7 +40,7 @@ _CONTROL_EXPORT_GROUPS = {
         "load_container_run_bundle",
         "load_scheduler_job_bundle",
     ],
-    "bijux_proteomics_runtime.runtime.control.imports": [
+    "bijux_proteomics_runtime.runs.import_lineage": [
         "ImportRunBundle",
         "RuntimeImportTrace",
         "build_import_run_bundle",

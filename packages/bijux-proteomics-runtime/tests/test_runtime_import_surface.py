@@ -3,12 +3,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_runtime.runs import RunManager
-from bijux_proteomics_runtime.runtime.control import (
-    ImportRunBundle,
-    RuntimeImportTrace,
-    load_import_run_bundle,
-    load_import_trace,
-)
+from bijux_proteomics_runtime.runs.import_lineage import ImportRunBundle
+from bijux_proteomics_runtime.runs.import_lineage import RuntimeImportTrace
+from bijux_proteomics_runtime.runs.import_lineage import load_import_run_bundle
+from bijux_proteomics_runtime.runs.import_lineage import load_import_trace
 
 
 def test_runtime_import_result_persists_trace_and_reviewable_outputs(

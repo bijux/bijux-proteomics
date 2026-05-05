@@ -7,7 +7,7 @@ from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
-from bijux_proteomics_runtime.runtime.control.execution_surfaces import (
+from bijux_proteomics_runtime.runs.launch_bundles import (
     ContainerRunBundle,
     SchedulerJobBundle,
     build_container_run_bundle,
