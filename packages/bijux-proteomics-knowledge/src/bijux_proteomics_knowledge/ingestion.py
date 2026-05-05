@@ -1,14 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Adapter contracts for external evidence ingestion."""
+"""Curated evidence-ingestion models and normalization helpers."""
 
 from __future__ import annotations
 
-from typing import Protocol
-
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation import JsonModel, fingerprint_model
 from bijux_proteomics_knowledge.evidence import (
     EvidenceBundle,
     EvidenceExtractionMethod,
@@ -19,11 +18,10 @@ from bijux_proteomics_knowledge.evidence import (
     EvidenceStrength,
     QuantitativeSupport,
 )
-from bijux_proteomics_foundation import JsonModel, fingerprint_model
 
 
 class NormalizedEvidenceInput(JsonModel):
-    """Normalized evidence payload produced by an ingestion adapter."""
+    """Normalized evidence payload prepared for bundle attachment."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -150,39 +148,8 @@ class ManualEvidenceNote(JsonModel):
     )
 
 
-class LiteratureIngestionAdapter(Protocol):
-    """Adapter contract for literature-derived evidence."""
-
-    def ingest_literature(self, target_id: str) -> list[NormalizedEvidenceInput]:
-        """Return normalized evidence payloads for a target."""
-
-
-class AssayResultIngestionAdapter(Protocol):
-    """Adapter contract for assay-derived evidence."""
-
-    def ingest_assay_results(self, target_id: str) -> list[NormalizedEvidenceInput]:
-        """Return normalized assay payloads for a target."""
-
-
-class StructureAnnotationIngestionAdapter(Protocol):
-    """Adapter contract for structure-derived evidence."""
-
-    def ingest_structure_annotations(
-        self,
-        target_id: str,
-    ) -> list[NormalizedEvidenceInput]:
-        """Return normalized structural payloads for a target."""
-
-
-class ManualEvidenceNoteAdapter(Protocol):
-    """Adapter contract for curated manual notes."""
-
-    def ingest_manual_notes(self, target_id: str) -> list[ManualEvidenceNote]:
-        """Return curated notes for a target."""
-
-
 class IngestionReport(JsonModel):
-    """Summary of one ingestion run into an evidence bundle."""
+    """Summary of one evidence-ingestion pass into a bundle."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -217,6 +184,8 @@ def validate_normalized_input(
 ) -> list[str]:
     """Return validation issues for a normalized evidence input."""
     issues: list[str] = []
+    if item.source_type is EvidenceSourceType.CURATED_NOTE and item.curator is None:
+        issues.append(f"{item.evidence_id}: curated notes must record a curator")
     if (
         item.kind in {EvidenceKind.ASSAY, EvidenceKind.CELLULAR, EvidenceKind.PHENOTYPE}
         and not item.endpoint
@@ -242,7 +211,7 @@ def attach_evidence_inputs(
     bundle: EvidenceBundle,
     inputs: list[NormalizedEvidenceInput],
 ) -> EvidenceBundle:
-    """Attach normalized adapter outputs to an existing bundle."""
+    """Attach normalized evidence payloads to an existing bundle."""
     records = [
         *bundle.records,
         *[
@@ -353,3 +322,14 @@ def ingest_inputs_with_report(
         accepted_fingerprints=accepted_fingerprints,
     )
     return updated, report
+
+
+__all__ = [
+    "IngestionReport",
+    "ManualEvidenceNote",
+    "NormalizedEvidenceInput",
+    "attach_evidence_inputs",
+    "attach_manual_notes",
+    "ingest_inputs_with_report",
+    "validate_normalized_input",
+]

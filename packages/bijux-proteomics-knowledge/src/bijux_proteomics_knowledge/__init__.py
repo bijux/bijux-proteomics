@@ -11,14 +11,10 @@ from bijux_proteomics_foundation import (
     fingerprint_model,
     to_canonical_json,
 )
-from bijux_proteomics_knowledge.adapters import (
-    AssayResultIngestionAdapter,
+from bijux_proteomics_knowledge.ingestion import (
     IngestionReport,
-    LiteratureIngestionAdapter,
     ManualEvidenceNote,
-    ManualEvidenceNoteAdapter,
     NormalizedEvidenceInput,
-    StructureAnnotationIngestionAdapter,
     attach_evidence_inputs,
     attach_manual_notes,
     ingest_inputs_with_report,
@@ -150,14 +146,10 @@ from bijux_proteomics_knowledge.graph import (
     trace_decision_paths,
     validate_evidence_graph,
 )
-from bijux_proteomics_knowledge.repositories import (
+from bijux_proteomics_knowledge.queries import (
     ClaimQuery,
     ClaimResolutionRecord,
-    ClaimResolutionRepository,
-    EvidenceBundleRepository,
-    EvidenceClaimRepository,
     EvidenceRecordQuery,
-    EvidenceRecordRepository,
     ResolutionRecordQuery,
     query_claims,
     query_evidence_records,
@@ -211,7 +203,6 @@ from bijux_proteomics_knowledge.schema import (
     evaluate_schema_compatibility,
 )
 __all__ = [
-    "AssayResultIngestionAdapter",
     "BundleTrustReport",
     "ClaimEvidenceState",
     "ClaimPolarity",
@@ -367,20 +358,14 @@ __all__ = [
     "weight_source_type",
     "JsonModel",
     "IngestionReport",
-    "LiteratureIngestionAdapter",
     "ManualEvidenceNote",
-    "ManualEvidenceNoteAdapter",
     "NormalizedEvidenceInput",
     "validate_normalized_input",
     "DocumentSchema",
-    "EvidenceBundleRepository",
-    "EvidenceClaimRepository",
     "ClaimResolutionRecord",
     "ResolutionRecordQuery",
     "EvidenceRecordQuery",
     "ClaimQuery",
-    "ClaimResolutionRepository",
-    "EvidenceRecordRepository",
     "query_claims",
     "query_resolution_records",
     "query_evidence_records",
@@ -395,7 +380,6 @@ __all__ = [
     "compare_resolution_policies",
     "build_resolution_escalation_queue",
     "summarize_resolutions",
-    "StructureAnnotationIngestionAdapter",
     "attach_manual_notes",
     "ingest_inputs_with_report",
 ]
