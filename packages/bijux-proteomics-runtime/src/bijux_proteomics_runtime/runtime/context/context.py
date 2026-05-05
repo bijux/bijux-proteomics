@@ -17,12 +17,12 @@ from bijux_proteomics_runtime.runtime.context.contracts import (
     build_runtime_environment,
     default_runtime_artifact_policy,
 )
-from bijux_proteomics_runtime.runtime.infra import RunConfig
-from bijux_proteomics_runtime.runtime.infra.observability import (
+from bijux_proteomics_runtime.runtime.context.logging import (
     NoopStructuredLogger,
     StructuredLogger,
 )
-from bijux_proteomics_runtime.runtime.infra.telemetry import TelemetryClient
+from bijux_proteomics_runtime.runtime.context.run_config import RunConfig
+from bijux_proteomics_runtime.runtime.context.telemetry import TelemetryClient
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 

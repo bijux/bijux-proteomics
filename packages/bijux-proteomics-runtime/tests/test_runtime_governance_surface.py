@@ -46,11 +46,11 @@ def test_runtime_stability_marks_runtime_owned_zones() -> None:
 
 def test_runtime_api_lock_freezes_canonical_runtime_symbols() -> None:
     assert "bijux_proteomics_runtime.runtime.RunManager" in CORE_API_FROZEN
-    assert "bijux_proteomics_runtime.runtime.infra.RunConfig" in CORE_API_FROZEN
+    assert "bijux_proteomics_runtime.runtime.context.RunConfig" in CORE_API_FROZEN
     assert "bijux_proteomics_runtime.interfaces.cli.cli" in CORE_API_FROZEN
 
 
 def test_runtime_api_lock_declares_runtime_owned_extension_boundaries() -> None:
     assert "bijux_proteomics_runtime.providers.experimental" in DEPRECATED_EXTENSIONS
     assert "bijux_proteomics_runtime.runtime.control" in DO_NOT_EXTEND_ZONES
-    assert "bijux_proteomics_runtime.runtime.infra" in DO_NOT_EXTEND_ZONES
+    assert "bijux_proteomics_runtime.runtime.context" in DO_NOT_EXTEND_ZONES

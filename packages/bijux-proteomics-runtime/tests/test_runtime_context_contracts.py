@@ -9,7 +9,7 @@ from bijux_proteomics_runtime.runtime.context import (
     build_run_context_contract,
     create_run_context,
 )
-from bijux_proteomics_runtime.runtime.infra import RunConfig
+from bijux_proteomics_runtime.runtime.context import RunConfig
 
 
 def test_runtime_context_contract_captures_dataset_workflow_environment_and_policy(

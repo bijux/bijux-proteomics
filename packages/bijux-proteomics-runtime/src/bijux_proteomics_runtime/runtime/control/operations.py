@@ -12,9 +12,9 @@ from typing import Any
 from bijux_proteomics_intelligence.domain.candidates import CandidateStore
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 
+from bijux_proteomics_runtime.runtime.context import RunConfig
 from bijux_proteomics_runtime.runtime.control.artifacts import compare_runs
 from bijux_proteomics_runtime.runtime.control.execution import RunManager
-from bijux_proteomics_runtime.runtime.infra import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 

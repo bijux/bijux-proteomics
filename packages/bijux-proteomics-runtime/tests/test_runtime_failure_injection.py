@@ -17,7 +17,7 @@ from bijux_proteomics_runtime.runtime.control.replay import (
     build_replay_contract,
     evaluate_replay_eligibility,
 )
-from bijux_proteomics_runtime.runtime.infra import RunConfig
+from bijux_proteomics_runtime.runtime.context import RunConfig
 
 
 def test_runtime_failure_injection_reports_broken_container_requirements(

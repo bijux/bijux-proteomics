@@ -15,7 +15,7 @@ from bijux_proteomics_runtime.runtime.control import (
     load_local_run_bundle,
     load_scheduler_job_bundle,
 )
-from bijux_proteomics_runtime.runtime.infra import RunConfig
+from bijux_proteomics_runtime.runtime.context import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 

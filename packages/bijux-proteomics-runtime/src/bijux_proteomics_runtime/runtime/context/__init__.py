@@ -19,6 +19,7 @@ from bijux_proteomics_runtime.runtime.context.context import (
     RunContext,
     create_run_context,
 )
+from bijux_proteomics_runtime.runtime.context.run_config import RunConfig
 from bijux_proteomics_runtime.runtime.context.lifecycle import RunLifecycleState
 from bijux_proteomics_runtime.runtime.context.output import (
     ErrorDetail,
@@ -33,6 +34,7 @@ __all__ = [
     "ErrorDetail",
     "RunContext",
     "RunContextContract",
+    "RunConfig",
     "RunLifecycleState",
     "RunLineage",
     "RunOutput",

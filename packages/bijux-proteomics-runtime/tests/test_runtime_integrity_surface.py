@@ -11,7 +11,7 @@ from bijux_proteomics_runtime.runtime.control import (
     load_resume_checkpoint,
     verify_runtime_artifact_integrity,
 )
-from bijux_proteomics_runtime.runtime.infra import RunConfig
+from bijux_proteomics_runtime.runtime.context import RunConfig
 
 
 def test_runtime_partial_human_review_writes_resume_checkpoint(

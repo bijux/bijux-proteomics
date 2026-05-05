@@ -14,7 +14,7 @@ from bijux_proteomics_runtime.runtime.control.execution_surfaces import (
     build_scheduler_job_bundle,
 )
 from bijux_proteomics_runtime.runtime.control.replay import build_replay_contract
-from bijux_proteomics_runtime.runtime.infra import RunConfig
+from bijux_proteomics_runtime.runtime.context import RunConfig
 
 
 def _contract(tmp_path: Path, *, run_id: str, config: RunConfig | None = None):
