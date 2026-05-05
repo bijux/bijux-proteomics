@@ -12,7 +12,7 @@ knowledge-owned evidence posture into explicit analytical judgment.
 
 Its architecture is organized around five durable analytical bands:
 
-- `judgment`: `briefs.py`, `policies.py`, `evaluators.py`, `candidates.py`, `outcomes.py`
+- `judgment`: `briefs.py`, `policies.py`, `evaluators.py`, `candidates.py`
 - `evidence_posture`: `evidence_posture.py`
 - `interpretation`: `interpretation.py`, `analytical_review.py`
 - `review`: `decision_paths.py`, `skeptical_review.py`, `benchmark_reviews.py`

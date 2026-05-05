@@ -130,7 +130,6 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
             "policies.py",
             "evaluators.py",
             "candidates.py",
-            "outcomes.py",
         ),
         decision_scope=(
             "rank candidates against explicit policy factors",
@@ -336,15 +335,6 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
         reason="Typed interpretation discipline keeps technical artifacts and biological claims distinct.",
-    ),
-    IntelligenceModuleAuditEntry(
-        module_path="outcomes.py",
-        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
-        anchor_capabilities=(
-            IntelligenceCharterCapability.PRIORITIZATION,
-            IntelligenceCharterCapability.RECOMMENDATION,
-        ),
-        reason="Structured rejection and follow-through planning keep scoring outcomes reviewable instead of implicit.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="policies.py",

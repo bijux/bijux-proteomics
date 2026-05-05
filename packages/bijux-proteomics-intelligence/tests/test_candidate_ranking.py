@@ -13,6 +13,7 @@ from bijux_proteomics.domain.program_spec import create_program_spec
 from bijux_proteomics.domain.reviews import ReviewGate
 from bijux_proteomics_intelligence.briefs import (
     CandidateAssessment,
+    CandidateRejection,
     CandidateExplainabilitySummary,
     CandidateRanking,
     CandidateRankingProvenanceReport,
@@ -20,11 +21,13 @@ from bijux_proteomics_intelligence.briefs import (
     LiabilityFlag,
     LiabilityFocusSummary,
     OptimizationAxis,
+    RejectionReasonCode,
     RankedCandidate,
     RankingAssumptionScenario,
     RankingStabilityReport,
     analyze_ranking_stability,
     build_design_brief,
+    build_rejection_action_plan,
     build_ranking_diagnostics,
     build_ranking_provenance_report,
     build_ranking_robustness_report,
@@ -35,6 +38,7 @@ from bijux_proteomics_intelligence.briefs import (
     summarize_liability_focus,
     summarize_metric_coverage,
     summarize_novelty_diversity,
+    summarize_rejections,
     summarize_ranking_drift,
     summarize_uncertainty_pressure,
 )
@@ -42,12 +46,6 @@ from bijux_proteomics_intelligence.candidates import (
     PortfolioSelectionPolicy,
     build_risk_profile,
     select_portfolio_shortlist,
-)
-from bijux_proteomics_intelligence.outcomes import (
-    CandidateRejection,
-    RejectionReasonCode,
-    build_rejection_action_plan,
-    summarize_rejections,
 )
 from bijux_proteomics_intelligence.policies import (
     MetricDefinition,
