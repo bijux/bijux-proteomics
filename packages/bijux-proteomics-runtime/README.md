@@ -50,6 +50,9 @@ needs.
 - one canonical runtime surface for CLI, API, orchestration, and providers
 - deterministic replay and artifact shaping for repeatable execution outcomes
 - typed run context, artifact ledger, replay contract, and local/container/scheduler/import run bundle outputs
+- runtime-owned CLI and API operations that avoid private helper glue
+- reviewable run and import paths that publish canonical downstream-facing manifests
+- partial rerun planning, cache claims, cleanup plans, and failure-recovery audits for operational safety
 - preflight and failure reports that fail early on missing execution requirements
 - import traces, human-review resume checkpoints, and artifact-integrity reports for safe reuse
 - adapter-based composition that keeps lower layers runtime-agnostic
@@ -61,6 +64,8 @@ needs.
 - bind local or API-backed structure providers behind one orchestration layer
 - enforce replay-safe runtime execution without moving domain semantics upward
 - ingest third-party engine outputs while preserving external provenance honestly
+- publish one useful run path from clean install to reviewable output
+- publish one useful import-only path from third-party result to reviewable output
 - integrate canonical runtime surfaces while legacy imports remain compat-only
 
 ## Installation
@@ -87,6 +92,7 @@ from bijux_proteomics_runtime import AppConfig, RunManager, create_app
 - Import root: `bijux_proteomics_runtime`
 - Canonical CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
+- Runtime control surfaces: `runtime.control.operations`, `runtime.control.workflow_paths`, `runtime.control.reruns`, `runtime.control.cache`, `runtime.control.cleanup`, and `runtime.control.recovery`
 
 ## Package boundaries
 
@@ -103,6 +109,16 @@ remain in their dedicated lower-layer packages.
 - import-only runs persist imported evidence, runtime-derived review documents, and an explicit import trace
 - partial runs only publish resume checkpoints when runtime is waiting at a human-review boundary
 - bundle reuse is guarded by artifact-integrity reports and artifact-size limits before runtime reloads state
+- cache reuse is guarded by runtime cache claims so shared reads remain explicit and unsafe sharing is refused
+- cleanup plans only delete transient outputs and preserve replay, review, and forensic artifacts by retention class
+- failure audits identify which good artifacts remain reusable after a failed phase
+
+## Operational review paths
+
+- `run_reviewable_sequence_path` publishes a runtime-owned manifest from canonical execution to reviewable output
+- `run_reviewable_import_path` publishes a runtime-owned manifest from third-party evidence import to reviewable output
+- `build_runtime_smoke_workflows` declares the supported smoke paths for sequence-to-digest, DDA import, DIA import, quant review, PTM review, analytical review, and lab handoff
+- `build_runtime_partial_rerun_plan` exposes dependency-graph rerun boundaries instead of leaving replay reuse implicit
 
 ## Contract checkpoints
 
