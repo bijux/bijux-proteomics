@@ -88,12 +88,13 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         capability=LabCharterCapability.HANDOFF_PACKETS,
         owned_surface="Reviewable handoff packets that preserve protocol controls, caveats, and artifact integrity.",
         required_modules=(
-            "protocols.py",
-            "artifacts.py",
+            "design/protocols.py",
+            "handoffs/artifacts.py",
             "planning/assays.py",
-            "handoffs.py",
-            "ptm_follow_up.py",
-            "targeted_benchmarking.py",
+            "handoffs/packets.py",
+            "handoffs/ptm.py",
+            "handoffs/risk.py",
+            "benchmarks/targeted.py",
         ),
         release_blocker="Lab cannot ship if handoff packets lose protocol controls, caveats, or artifact integrity.",
     ),
@@ -104,7 +105,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "outcomes/observations.py",
             "repositories.py",
             "readiness/operations.py",
-            "risk.py",
+            "handoffs/risk.py",
             "reconciliation/follow_up.py",
         ),
         release_blocker="Lab cannot ship if observed outcomes cannot reconcile back into operational follow-up and feedback loops.",
@@ -143,9 +144,22 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
     ),
     LabModuleAuditEntry(
         module_path="artifacts.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The flat artifacts import path is kept only as a compatibility facade over handoff-owned artifact contracts.",
+    ),
+    LabModuleAuditEntry(
+        module_path="benchmarks/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The benchmarks band re-exports benchmark rehearsal owners under the durable benchmarks namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="benchmarks/targeted.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
-        reason="Artifact envelopes and contracts keep lab handoffs reviewable and integrity-checked.",
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Targeted benchmark reports prove that discovery evidence can become reviewable operator handoff outputs without hiding support limits.",
     ),
     LabModuleAuditEntry(
         module_path="charter.py",
@@ -157,10 +171,36 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="The machine-readable charter keeps the lab package boundary explicit and reviewable.",
     ),
     LabModuleAuditEntry(
-        module_path="handoffs.py",
+        module_path="handoffs/__init__.py",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The handoffs band re-exports packet, risk, artifact, and PTM owners under one durable namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs/artifacts.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
+        reason="Artifact envelopes and contracts keep lab handoffs reviewable and integrity-checked.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs/packets.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
         reason="Targeted transition review and handoff-specific decision surfaces keep lab exports grounded in operational responsibility.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs/ptm.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
+        reason="PTM-specific validation packets keep phospho follow-up risks and controls inside the lab owner package.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs/risk.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Assay-risk models stop weak uniqueness, localization, reproducibility, and failure-prone follow-up from hardening into operational certainty.",
     ),
     LabModuleAuditEntry(
         module_path="lifecycle/__init__.py",
@@ -201,9 +241,8 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
     ),
     LabModuleAuditEntry(
         module_path="ptm_follow_up.py",
-        classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
-        reason="PTM-specific validation packets keep phospho follow-up risks and controls inside the lab owner package.",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The flat PTM follow-up import path is kept only as a compatibility facade over the handoff-owned PTM packet builder.",
     ),
     LabModuleAuditEntry(
         module_path="protocols.py",
@@ -226,12 +265,8 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
     ),
     LabModuleAuditEntry(
         module_path="risk.py",
-        classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(
-            LabCharterCapability.HANDOFF_PACKETS,
-            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
-        ),
-        reason="Assay-risk models stop weak uniqueness, localization, reproducibility, and failure-prone follow-up from hardening into operational certainty.",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The flat risk import path is kept only as a compatibility facade over handoff-owned assay-risk scoring.",
     ),
     LabModuleAuditEntry(
         module_path="reconciliation/__init__.py",
@@ -255,12 +290,8 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
     ),
     LabModuleAuditEntry(
         module_path="targeted_benchmarking.py",
-        classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(
-            LabCharterCapability.HANDOFF_PACKETS,
-            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
-        ),
-        reason="Targeted benchmark reports prove that discovery evidence can become reviewable operator handoff outputs without hiding support limits.",
+        classification=LabModuleClassification.THIN_ABSTRACTION,
+        reason="The flat targeted-benchmarking import path is kept only as a compatibility facade over the benchmark rehearsal owner module.",
     ),
     LabModuleAuditEntry(
         module_path="workflow_readiness.py",

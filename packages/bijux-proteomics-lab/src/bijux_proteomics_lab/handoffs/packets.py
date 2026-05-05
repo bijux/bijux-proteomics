@@ -18,8 +18,8 @@ from bijux_proteomics_lab.planning import (
     LabExecutionRequest,
     ReviewPacket,
 )
-from bijux_proteomics_lab.protocols import LabProtocolAttachment
-from bijux_proteomics_lab.risk import (
+from bijux_proteomics_lab.design.protocols import LabProtocolAttachment
+from bijux_proteomics_lab.handoffs.risk import (
     AssayRiskAssessment,
     assess_assay_risk,
 )

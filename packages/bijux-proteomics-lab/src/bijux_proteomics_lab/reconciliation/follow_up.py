@@ -8,7 +8,7 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import BatchId, JsonModel, ProgramId
-from bijux_proteomics_lab.handoffs import (
+from bijux_proteomics_lab.handoffs.packets import (
     HandoffExplanation,
     LabExecutionRefusal,
     TargetedTransitionReview,

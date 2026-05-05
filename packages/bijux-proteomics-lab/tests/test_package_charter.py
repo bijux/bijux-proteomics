@@ -51,7 +51,7 @@ def test_lab_module_audit_rejects_duplicate_and_wrong_owner_entries() -> None:
     assert duplicate_or_wrong == {}
 
 
-def test_only_package_root_remains_thin_abstraction() -> None:
+def test_only_curated_compatibility_paths_remain_thin_abstraction() -> None:
     thin_paths = {
         entry.module_path
         for entry in DEFAULT_LAB_MODULE_AUDIT
@@ -60,12 +60,18 @@ def test_only_package_root_remains_thin_abstraction() -> None:
 
     assert thin_paths == {
         "__init__.py",
+        "artifacts.py",
+        "benchmarks/__init__.py",
         "design/__init__.py",
+        "handoffs/__init__.py",
         "lifecycle/__init__.py",
         "outcomes/__init__.py",
         "planning/__init__.py",
+        "ptm_follow_up.py",
         "protocols.py",
         "readiness/__init__.py",
         "reconciliation/__init__.py",
+        "risk.py",
+        "targeted_benchmarking.py",
         "workflow_readiness.py",
     }
