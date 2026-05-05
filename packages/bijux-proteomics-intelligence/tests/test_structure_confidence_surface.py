@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.domain import low_confidence_segments
+from bijux_proteomics_intelligence.domain.structure.confidence import (
+    low_confidence_segments,
+)
 
 
 def test_low_confidence_segments_stay_intelligence_owned() -> None:

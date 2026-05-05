@@ -8,7 +8,9 @@ from __future__ import annotations
 from importlib import metadata
 
 from bijux_proteomics.structure_report import Metrics, Report
-from bijux_proteomics_intelligence.domain import low_confidence_segments
+from bijux_proteomics_intelligence.domain.structure.confidence import (
+    low_confidence_segments,
+)
 
 __all__ = [
     "Report",

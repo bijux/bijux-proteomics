@@ -7,7 +7,9 @@ import agentic_proteins as pkg
 import agentic_proteins.core as compat_core
 import bijux_proteomics.structure_report as structure_report
 import bijux_proteomics_runtime.core as runtime_core
-from bijux_proteomics_intelligence.domain import low_confidence_segments
+from bijux_proteomics_intelligence.domain.structure.confidence import (
+    low_confidence_segments,
+)
 
 
 def test_package_exports() -> None:
