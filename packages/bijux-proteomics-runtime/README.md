@@ -49,8 +49,9 @@ needs.
 
 - one canonical runtime surface for CLI, API, orchestration, and providers
 - deterministic replay and artifact shaping for repeatable execution outcomes
-- typed run context, artifact ledger, replay contract, and local run bundle outputs
+- typed run context, artifact ledger, replay contract, and local/container/scheduler/import run bundle outputs
 - preflight and failure reports that fail early on missing execution requirements
+- import traces, human-review resume checkpoints, and artifact-integrity reports for safe reuse
 - adapter-based composition that keeps lower layers runtime-agnostic
 - explicit migration target for `agentic-proteins` compatibility forwarding
 
@@ -59,6 +60,7 @@ needs.
 - run the canonical proteomics workflow through CLI or HTTP entrypoints
 - bind local or API-backed structure providers behind one orchestration layer
 - enforce replay-safe runtime execution without moving domain semantics upward
+- ingest third-party engine outputs while preserving external provenance honestly
 - integrate canonical runtime surfaces while legacy imports remain compat-only
 
 ## Installation
@@ -93,13 +95,21 @@ This package owns runtime execution behavior and orchestration interfaces.
 Domain meaning, evidence semantics, scoring policy, and lab planning semantics
 remain in their dedicated lower-layer packages.
 
+## Execution surfaces
+
+- local runs persist machine-readable run context, replay, ledger, and local reuse bundles
+- container runs persist image digests, mount maps, environment capture, and expected artifacts
+- scheduler runs persist launch metadata, replay boundaries, and review-safe job bundles
+- import-only runs persist imported evidence, runtime-derived review documents, and an explicit import trace
+- partial runs only publish resume checkpoints when runtime is waiting at a human-review boundary
+- bundle reuse is guarded by artifact-integrity reports and artifact-size limits before runtime reloads state
+
 ## Contract checkpoints
 
 - runtime entrypoints must remain canonical while compat imports forward to them
 - lower-layer meaning must stay below runtime adapters rather than being redefined here
 - replay, artifact, and provider contracts must remain explicit and testable
-- run context, artifact ledger, replay bundle, and preflight outputs must remain
-  machine-readable and reviewable
+- run context, artifact ledger, replay/import bundles, checkpoint artifacts, and preflight outputs must remain machine-readable and reviewable
 - changes to canonical ownership should land in runtime before compat forwarding expands
 
 ## Choose this package when
@@ -171,6 +181,7 @@ remain in their dedicated lower-layer packages.
 - [`src/bijux_proteomics_runtime/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces) for CLI contracts
 - [`src/bijux_proteomics_runtime/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api) for HTTP entrypoints
 - [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider binding
+- [`artifacts/<run-id>`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime) for persisted runtime bundle, checkpoint, and integrity outputs at execution time
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/tests) for executable surface and migration expectations
 
 ## Documentation
