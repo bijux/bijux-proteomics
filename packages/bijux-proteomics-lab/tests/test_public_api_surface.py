@@ -17,6 +17,7 @@ def test_design_public_api_contains_expected_exports() -> None:
     assert "LabPriorityQueueAlignment" in bijux_proteomics_lab.__all__
     assert "InstrumentAvailability" in bijux_proteomics_lab.__all__
     assert "LabReviewPacketBundle" in bijux_proteomics_lab.__all__
+    assert "OperationalReadinessReport" in bijux_proteomics_lab.__all__
     assert "SamplePreparationMetadata" in bijux_proteomics_lab.__all__
     assert "SampleTrackingPlateAdvisory" in bijux_proteomics_lab.__all__
     assert "InstrumentMethodMetadata" in bijux_proteomics_lab.__all__
@@ -29,3 +30,5 @@ def test_design_public_api_contains_expected_exports() -> None:
     assert "plan_spike_in_qc_samples" in bijux_proteomics_lab.__all__
     assert "assess_carryover_risk" in bijux_proteomics_lab.__all__
     assert "build_lab_protocol_evidence_bundle" in bijux_proteomics_lab.__all__
+    assert "build_operational_readiness_report" in bijux_proteomics_lab.__all__
+    assert "build_protocol_attachment" in bijux_proteomics_lab.__all__
