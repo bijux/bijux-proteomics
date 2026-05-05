@@ -13,7 +13,10 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, cast
 
-from bijux_proteomics_intelligence.design_loop.loop import LoopContext, LoopRunner
+from bijux_proteomics_intelligence.learning.iterative_design.runner import (
+    LoopContext,
+    LoopRunner,
+)
 from bijux_proteomics_intelligence.domain.candidates import (
     CandidateStore,
     update_candidate_from_result,

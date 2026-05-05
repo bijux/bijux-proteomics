@@ -4,7 +4,7 @@ import argparse
 from dataclasses import dataclass
 
 from bijux_proteomics_dev.api.runtime_topology import REPO_ROOT
-from bijux_proteomics_intelligence.charter import (
+from bijux_proteomics_intelligence.governance.charter import (
     DEFAULT_INTELLIGENCE_CAPABILITY_MAP,
     IntelligenceAnalyticalBand,
     list_intelligence_analytical_bands,

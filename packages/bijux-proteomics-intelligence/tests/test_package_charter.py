@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.charter import (
+from bijux_proteomics_intelligence.governance.charter import (
     DEFAULT_INTELLIGENCE_CHARTER,
     DEFAULT_INTELLIGENCE_CAPABILITY_MAP,
     DEFAULT_INTELLIGENCE_CHARTER_ENTRIES,

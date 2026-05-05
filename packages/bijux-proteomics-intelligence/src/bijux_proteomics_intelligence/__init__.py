@@ -20,7 +20,18 @@ __all__ = [
     "policies",
     "skeptical_review",
 ]
-_INTELLIGENCE_ROOT_MODULES = {name: f"{__name__}.{name}" for name in __all__}
+_INTELLIGENCE_ROOT_MODULES = {
+    "benchmark_reviews": f"{__name__}.benchmark_reviews",
+    "briefs": f"{__name__}.briefs",
+    "charter": f"{__name__}.governance.charter",
+    "decision_paths": f"{__name__}.decision_paths",
+    "evidence_posture": f"{__name__}.evidence_posture",
+    "evaluators": f"{__name__}.evaluators",
+    "follow_up_learning": f"{__name__}.learning.adaptation",
+    "interpretation": f"{__name__}.interpretation",
+    "policies": f"{__name__}.policies",
+    "skeptical_review": f"{__name__}.skeptical_review",
+}
 
 
 def __getattr__(name: str) -> ModuleType:

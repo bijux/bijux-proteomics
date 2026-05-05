@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics_dev.api.runtime_topology import REPO_ROOT
-from bijux_proteomics_intelligence.charter import list_intelligence_capability_map
+from bijux_proteomics_intelligence.governance.charter import (
+    list_intelligence_capability_map,
+)
 
 __all__ = [
     "INTELLIGENCE_BOUNDARY_MIX_PATH",

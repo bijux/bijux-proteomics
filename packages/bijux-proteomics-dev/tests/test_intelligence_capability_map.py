@@ -6,7 +6,7 @@ from bijux_proteomics_dev.api.intelligence_capability_map import (
     run,
     validate_intelligence_capability_map,
 )
-from bijux_proteomics_intelligence.charter import (
+from bijux_proteomics_intelligence.governance.charter import (
     IntelligenceAnalyticalBand,
     list_intelligence_analytical_bands,
     list_intelligence_capability_map,

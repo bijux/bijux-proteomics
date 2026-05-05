@@ -10,7 +10,7 @@ from bijux_proteomics_foundation.charter import (
     DEFAULT_FOUNDATION_MODULE_AUDIT,
     FoundationModuleClassification,
 )
-from bijux_proteomics_intelligence.charter import (
+from bijux_proteomics_intelligence.governance.charter import (
     DEFAULT_INTELLIGENCE_MODULE_AUDIT,
     IntelligenceModuleClassification,
 )

@@ -13,7 +13,7 @@ from bijux_proteomics_intelligence.briefs import (
     build_ranking_sensitivity_report,
     prioritize_candidates,
 )
-from bijux_proteomics_intelligence.charter import (
+from bijux_proteomics_intelligence.governance.charter import (
     DEFAULT_INTELLIGENCE_CHARTER,
     DEFAULT_INTELLIGENCE_MODULE_AUDIT,
     IntelligenceModuleClassification,
