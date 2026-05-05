@@ -19,7 +19,7 @@ from bijux_proteomics_runtime.api.v1.schema import (
     CompareResponse,
     ErrorResponse,
 )
-from bijux_proteomics_runtime.interfaces.cli import _compare_runs_payload
+from bijux_proteomics_runtime.runtime.control import compare_run_operation
 
 router = APIRouter()
 
@@ -47,7 +47,7 @@ def compare_endpoint(
             run_a = base_dir / run_a
         if not run_b.is_absolute():
             run_b = base_dir / run_b
-        comparison = _compare_runs_payload(run_a, run_b)
+        comparison = compare_run_operation(run_a, run_b)
         response = CompareResponse.model_validate(comparison)
         return ApiEnvelope(status="ok", data=response, error=None, meta=meta)
     except Exception as exc:  # noqa: BLE001

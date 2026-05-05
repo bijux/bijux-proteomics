@@ -22,11 +22,13 @@ from bijux_proteomics_runtime.api.v1.schema import (
 )
 from bijux_proteomics_runtime.core.status import WorkflowState
 from bijux_proteomics_runtime.interfaces.cli import (
-    _build_run_config,
-    _load_run_summary,
     _read_sequence,
-    _run_sequence,
     _validate_sequence,
+)
+from bijux_proteomics_runtime.runtime.control import (
+    build_runtime_run_config,
+    load_run_summary_operation,
+    run_sequence_operation,
 )
 
 router = APIRouter()
@@ -63,20 +65,20 @@ def run_endpoint(
             artifacts_dir = Path(payload.artifacts_dir)
             if not artifacts_dir.is_absolute():
                 artifacts_dir = base_dir / artifacts_dir
-        config = _build_run_config(
-            payload.rounds,
-            payload.dry_run,
-            False,
-            payload.provider,
-            artifacts_dir,
-            payload.execution_mode,
+        config = build_runtime_run_config(
+            rounds=payload.rounds,
+            dry_run=payload.dry_run,
+            logging_enabled=True,
+            provider=payload.provider,
+            artifacts_dir=artifacts_dir,
+            execution_mode=payload.execution_mode,
         )
-        result = _run_sequence(base_dir, seq, config)
+        result = run_sequence_operation(base_dir, seq, config)
         run_id_obj = result.get("run_id")
         if not isinstance(run_id_obj, str) or not run_id_obj:
             raise ValueError("run output missing run_id")
         run_id = run_id_obj
-        summary = _load_run_summary(base_dir, run_id, artifacts_dir)
+        summary = load_run_summary_operation(base_dir, run_id, artifacts_dir)
         response = RunResponse.model_validate(summary)
     except Exception as exc:  # noqa: BLE001
         raise_http_error(exc, str(request.url), meta=meta)

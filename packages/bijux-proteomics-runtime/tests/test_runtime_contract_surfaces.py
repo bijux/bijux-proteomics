@@ -260,3 +260,28 @@ def test_runtime_history_contract_orders_resumed_and_partial_runs_stably(
     assert [item["run_id"] for item in review_response.json()["data"]["runs"]] == [
         "history-review"
     ]
+
+
+def test_runtime_import_endpoint_uses_runtime_owned_import_surface(
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "external" / "import-result.json"
+    source_path.parent.mkdir(parents=True, exist_ok=True)
+    source_path.write_text(json.dumps({"proteins": ["P12345"]}), encoding="utf-8")
+    client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
+
+    response = client.post(
+        "/api/v1/import",
+        json={
+            "sequence": "MPEPTIDE",
+            "source_path": str(source_path),
+            "engine_name": "maxquant",
+            "engine_version": "2.1.0",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["data"]["command"] == "import"
+    assert payload["data"]["provider"] == "maxquant"

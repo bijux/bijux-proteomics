@@ -13,6 +13,7 @@ from bijux_proteomics_runtime.interfaces.cli import (
     _emit_json_payload,
     _emit_run_summary_human,
     _export_report_payload,
+    _import_result,
     _load_run_config,
     _load_run_summary,
     _read_sequence,
@@ -32,6 +33,7 @@ def test_runtime_cli_exports_input_and_config_helpers() -> None:
     assert _read_sequence is not None
     assert _build_run_config is not None
     assert _resume_candidate is not None
+    assert _import_result is not None
 
 
 def test_runtime_cli_exports_artifact_and_report_helpers() -> None:
@@ -315,3 +317,89 @@ def test_runtime_api_history_cli_reports_pagination(
     payload = json.loads(result.output)
     assert len(payload["data"]["runs"]) == 2
     assert payload["data"]["page"]["returned_count"] == 2
+
+
+def test_runtime_import_result_cli_uses_runtime_import_operation(
+    monkeypatch: MonkeyPatch, tmp_path: Path
+) -> None:
+    source_path = tmp_path / "external.json"
+    source_path.write_text(json.dumps({"evidence": "ok"}), encoding="utf-8")
+    run_id = "cli-import-1"
+    monkeypatch.chdir(tmp_path)
+    run_dir = tmp_path / "artifacts" / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    _write_json(
+        run_dir / "run_summary.json",
+        {
+            "run_id": run_id,
+            "candidate_id": f"{run_id}-c0",
+            "command": "import",
+            "execution_status": "completed",
+            "workflow_state": "done",
+            "outcome": "accepted",
+            "provider": "spectronaut",
+            "tool_status": "success",
+            "qc_status": "acceptable",
+            "artifacts_dir": str(run_dir),
+            "warnings": [],
+            "failure": None,
+            "version": {"app": "0+local", "git_commit": "unknown", "tool_versions": {}},
+        },
+    )
+
+    def _fake_import_result(
+        base_dir: Path,
+        *,
+        sequence: str,
+        source_path: Path,
+        engine_name: str,
+        engine_version: str,
+        artifacts_dir: Path | None,
+    ) -> dict[str, object]:
+        return {
+            "run_id": run_id,
+            "candidate_id": f"{run_id}-c0",
+            "lifecycle_state": "archived",
+            "status": "success",
+            "failure_type": "none",
+            "plan_fingerprint": "import-only",
+            "tool_status": "imported",
+            "report": {},
+            "qc_status": "acceptable",
+            "coordinator_decision": "TerminateRun",
+            "errors": [],
+            "warnings": [],
+            "version_info": {
+                "app_version": "0+local",
+                "git_commit": "unknown",
+                "tool_versions": {},
+            },
+        }
+
+    monkeypatch.setattr(
+        "bijux_proteomics_runtime.interfaces.cli._import_result",
+        _fake_import_result,
+    )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "import-result",
+            "--sequence",
+            "MPEPTIDE",
+            "--source",
+            str(source_path),
+            "--engine-name",
+            "spectronaut",
+            "--engine-version",
+            "19.0",
+            "--json",
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["status"] == "ok"
+    assert payload["data"]["run_id"] == run_id

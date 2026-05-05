@@ -19,9 +19,9 @@ from bijux_proteomics_runtime.api.v1.schema import (
     ErrorResponse,
     InspectResponse,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
-    _inspect_candidate,
-    _load_run_summary,
+from bijux_proteomics_runtime.runtime.control import (
+    inspect_candidate_operation,
+    load_run_summary_operation,
 )
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
@@ -48,7 +48,7 @@ def inspect_endpoint(
     """inspect_endpoint."""
     meta = build_request_correlation_meta(request, "inspect", request.url.path)
     try:
-        candidate = _inspect_candidate(base_dir, candidate_id)
+        candidate = inspect_candidate_operation(base_dir, candidate_id)
         api_candidate = ApiCandidate.model_validate(candidate.model_dump(mode="json"))
         run_id = _run_id_from_candidate(candidate_id)
         workspace = RunWorkspace.for_run(base_dir, run_id)
@@ -59,7 +59,7 @@ def inspect_endpoint(
         }
         qc_status = None
         if workspace.run_summary_path.exists():
-            summary = _load_run_summary(base_dir, run_id, None)
+            summary = load_run_summary_operation(base_dir, run_id, None)
             qc_status = summary.get("qc_status")
         response = InspectResponse(
             candidate=api_candidate,

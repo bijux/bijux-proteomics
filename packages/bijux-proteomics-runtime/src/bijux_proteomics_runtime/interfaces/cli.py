@@ -16,7 +16,6 @@ from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
 from bijux_proteomics_intelligence.domain.candidates import CandidateStore
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.api.catalog import (
     build_artifact_lookup_response,
     build_evidence_lookup_response,
@@ -38,7 +37,17 @@ from bijux_proteomics_runtime.api.v1.schema import (
 )
 from bijux_proteomics_runtime.runtime import RunManager
 from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
-from bijux_proteomics_runtime.runtime.control import compare_runs
+from bijux_proteomics_runtime.runtime.control import (
+    build_runtime_run_config,
+    compare_run_operation,
+    export_report_operation,
+    import_external_result_operation,
+    inspect_candidate_operation,
+    load_run_config_operation,
+    load_run_summary_operation,
+    resume_candidate_operation,
+    run_sequence_operation,
+)
 from bijux_proteomics_runtime.runtime.infra import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 from bijux_proteomics_runtime.runtime_identity import runtime_banner
@@ -53,6 +62,7 @@ __all__ = [
     "_export_report_payload",
     "_load_run_config",
     "_load_run_summary",
+    "_import_result",
     "_read_sequence",
     "_resume_candidate",
     "_write_output",
@@ -121,30 +131,12 @@ def _build_run_config(
     execution_mode: str,
 ) -> RunConfig:
     """_build_run_config."""
-    if rounds < 1:
-        raise ValueError("--rounds must be >= 1")
-    providers = {
-        None: ["heuristic_proxy"],
-        "esmfold": ["local_esmfold"],
-        "local_esmfold": ["local_esmfold"],
-        "rosettafold": ["local_rosettafold"],
-        "local_rosettafold": ["local_rosettafold"],
-        "openprotein": ["api_openprotein_esmfold"],
-    }
-    if provider not in providers:
-        raise ValueError(
-            "--provider must be one of: esmfold, local_esmfold, rosettafold, local_rosettafold, openprotein"
-        )
-    resource_limits = {"cpu_seconds": 0.0, "gpu_seconds": 0.0}
-    if provider in {"esmfold", "rosettafold"}:
-        resource_limits["gpu_seconds"] = 1.0
-    return RunConfig(
+    return build_runtime_run_config(
+        rounds=rounds,
         dry_run=dry_run,
         logging_enabled=not no_logs,
-        loop_max_iterations=rounds,
-        predictors_enabled=providers[provider],
-        resource_limits=resource_limits,
-        artifacts_dir=str(artifacts_dir) if artifacts_dir else None,
+        provider=provider,
+        artifacts_dir=artifacts_dir,
         execution_mode=execution_mode,
     )
 
@@ -156,8 +148,7 @@ def _validate_sequence(sequence: str) -> None:
 
 def _run_sequence(base_dir: Path, sequence: str, config: RunConfig) -> dict[str, Any]:
     """_run_sequence."""
-    manager = RunManager(base_dir, config)
-    return manager.run(sequence)
+    return run_sequence_operation(base_dir, sequence, config)
 
 
 def _resume_candidate(
@@ -169,39 +160,49 @@ def _resume_candidate(
     execution_mode: str,
 ) -> dict[str, Any]:
     """_resume_candidate."""
-    if rounds < 1:
-        raise ValueError("--rounds must be >= 1")
-    store = CandidateStore(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
-    candidate = store.get_candidate(candidate_id)
-    config = _build_run_config(
-        rounds,
-        dry_run=False,
-        no_logs=False,
+    return resume_candidate_operation(
+        base_dir,
+        candidate_id=candidate_id,
+        rounds=rounds,
         provider=provider,
         artifacts_dir=artifacts_dir,
         execution_mode=execution_mode,
     )
-    manager = RunManager(base_dir, config)
-    return manager.run_candidate(candidate)
+
+
+def _import_result(
+    base_dir: Path,
+    *,
+    sequence: str,
+    source_path: Path,
+    engine_name: str,
+    engine_version: str,
+    artifacts_dir: Path | None,
+) -> dict[str, Any]:
+    """_import_result."""
+    return import_external_result_operation(
+        base_dir,
+        sequence=sequence,
+        source_path=source_path,
+        engine_name=engine_name,
+        engine_version=engine_version,
+        artifacts_dir=artifacts_dir,
+    )
 
 
 def _compare_runs_payload(run_a: Path, run_b: Path) -> dict[str, Any]:
     """_compare_runs_payload."""
-    return compare_runs(run_a, run_b)
+    return compare_run_operation(run_a, run_b)
 
 
-def _inspect_candidate(base_dir: Path, candidate_id: str) -> Candidate:
+def _inspect_candidate(base_dir: Path, candidate_id: str):
     """_inspect_candidate."""
-    store = CandidateStore(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
-    return store.get_candidate(candidate_id)
+    return inspect_candidate_operation(base_dir, candidate_id)
 
 
 def _export_report_payload(base_dir: Path, run_id: str) -> str:
     """_export_report_payload."""
-    report_path = RunWorkspace.for_run(base_dir, run_id).report_path
-    if not report_path.exists():
-        raise FileNotFoundError(f"Report not found at {report_path}")
-    return report_path.read_text()
+    return export_report_operation(base_dir, run_id)
 
 
 def _write_output(path: Path, payload: str) -> None:
@@ -271,21 +272,12 @@ def _load_run_summary(
     base_dir: Path, run_id: str, artifacts_dir: Path | None
 ) -> dict[str, Any]:
     """_load_run_summary."""
-    workspace = RunWorkspace.for_run(
-        base_dir,
-        run_id,
-        artifacts_root_override=artifacts_dir,
-    )
-    payload = json.loads(workspace.run_summary_path.read_text())
-    return payload if isinstance(payload, dict) else {}
+    return load_run_summary_operation(base_dir, run_id, artifacts_dir)
 
 
 def _load_run_config(run_dir: Path) -> RunConfig:
     """_load_run_config."""
-    config_path = run_dir / "config.json"
-    if not config_path.exists():
-        raise FileNotFoundError(f"Config not found at {config_path}")
-    return RunConfig.model_validate(json.loads(config_path.read_text()))
+    return load_run_config_operation(run_dir)
 
 
 def _emit_run_summary_human(summary: dict[str, Any]) -> None:
@@ -503,6 +495,79 @@ def resume(
             RunResponse.model_validate(summary),
             pretty=pretty,
             surface="resume",
+            correlation_key=run_output.run_id,
+        )
+        return
+    _emit_run_summary_human(summary)
+
+
+@cli.command("import-result")
+@click.option("--sequence", type=str, required=True, help="Amino acid sequence.")
+@click.option(
+    "--source",
+    type=click.Path(path_type=Path),
+    required=True,
+    help="External engine result file path.",
+)
+@click.option("--engine-name", type=str, required=True, help="External engine name.")
+@click.option(
+    "--engine-version", type=str, required=True, help="External engine version."
+)
+@click.option(
+    "--artifacts-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Write artifacts under this directory.",
+)
+@click.option("--pretty", is_flag=True, help="Pretty-print JSON output.")
+@click.option("--json", "json_output", is_flag=True, help="Emit JSON output.")
+def import_result(
+    sequence: str,
+    source: Path,
+    engine_name: str,
+    engine_version: str,
+    artifacts_dir: Path | None,
+    pretty: bool,
+    json_output: bool,
+) -> None:
+    """import_result."""
+    try:
+        _validate_sequence(sequence)
+        result = _import_result(
+            Path.cwd(),
+            sequence=sequence,
+            source_path=source,
+            engine_name=engine_name,
+            engine_version=engine_version,
+            artifacts_dir=artifacts_dir,
+        )
+        run_output = RunOutput.model_validate(result)
+        summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
+    except Exception as exc:  # noqa: BLE001
+        if json_output:
+            _emit_api_envelope(
+                None,
+                pretty=pretty,
+                surface="import",
+                error=ErrorResponse(
+                    type=_CLI_ERROR_TYPE,
+                    title="CLI error",
+                    status=1,
+                    detail=str(exc),
+                    instance="cli:import",
+                    failure_class="cli",
+                    remediation_hint="inspect the import source and runtime state",
+                    evidence_pointer=None,
+                ),
+            )
+        else:
+            click.echo(f"Error: {exc}")
+        raise SystemExit(1) from exc
+    if json_output:
+        _emit_api_envelope(
+            RunResponse.model_validate(summary),
+            pretty=pretty,
+            surface="import",
             correlation_key=run_output.run_id,
         )
         return

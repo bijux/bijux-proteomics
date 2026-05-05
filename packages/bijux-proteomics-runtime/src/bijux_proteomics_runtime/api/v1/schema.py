@@ -125,6 +125,18 @@ class ResumeRequest(BaseModel):
         return self
 
 
+class ImportRequest(BaseModel):
+    """ImportRequest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(..., min_length=1, description="Sequence linked to the imported evidence.")
+    source_path: str = Field(..., min_length=1, description="External engine result path on server.")
+    engine_name: str = Field(..., min_length=1, description="External engine name.")
+    engine_version: str = Field(..., min_length=1, description="External engine version.")
+    artifacts_dir: str | None = Field(default=None, description="Artifacts root.")
+
+
 class CompareRequest(BaseModel):
     """CompareRequest."""
 
