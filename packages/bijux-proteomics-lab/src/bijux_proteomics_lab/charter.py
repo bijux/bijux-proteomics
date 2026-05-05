@@ -81,7 +81,13 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
     LabCharterEntry(
         capability=LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         owned_surface="Observed-outcome interpretation that feeds back into reruns, evidence promotion, and future cycles.",
-        required_modules=("outcomes.py", "repositories.py", "readiness.py", "risk.py"),
+        required_modules=(
+            "outcomes.py",
+            "repositories.py",
+            "readiness.py",
+            "risk.py",
+            "reconciliation.py",
+        ),
         release_blocker="Lab cannot ship if observed outcomes cannot reconcile back into operational follow-up and feedback loops.",
     ),
 )
@@ -162,6 +168,12 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.PROGRESSION,
         ),
         reason="Operational readiness turns cost, staffing, backlog, and reagent pressure into explicit execution state.",
+    ),
+    LabModuleAuditEntry(
+        module_path="reconciliation.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,),
+        reason="Planned-versus-observed reconciliation converts assay outcomes into honest downstream feedback instead of implicit optimism.",
     ),
     LabModuleAuditEntry(
         module_path="risk.py",
