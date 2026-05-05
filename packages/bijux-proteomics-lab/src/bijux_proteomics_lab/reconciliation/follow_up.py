@@ -61,6 +61,8 @@ class IntelligenceFeedbackSignal(JsonModel):
     blocked_assay_ids: tuple[str, ...] = Field(default_factory=tuple)
     promoted_evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
     recommended_action: str = Field(..., min_length=1)
+    belief_update_summary: tuple[str, ...] = Field(default_factory=tuple)
+    operational_follow_through: tuple[str, ...] = Field(default_factory=tuple)
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -118,6 +120,9 @@ class OutcomeReconciliationReport(JsonModel):
     promotion_report: BatchEvidencePromotionReport
     claim_belief_update: BatchClaimBeliefUpdate
     rerun_plan: BatchRerunPlan
+    belief_posture: str = Field(..., min_length=1)
+    belief_update_summary: tuple[str, ...] = Field(default_factory=tuple)
+    operational_follow_through: tuple[str, ...] = Field(default_factory=tuple)
     ready_for_feedback: bool = Field(
         ...,
         description="Whether the reconciliation is specific enough for downstream feedback.",
@@ -140,6 +145,67 @@ class OperationalFollowUpPath(JsonModel):
     refusal: LabExecutionRefusal | None = None
     reconciliation: OutcomeReconciliationReport
     notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+def _belief_posture(
+    *,
+    claim_belief_update: BatchClaimBeliefUpdate,
+    blocked_assay_ids: list[str],
+) -> tuple[str, tuple[str, ...]]:
+    reinforcing_claim_ids = sorted(
+        update.claim_id for update in claim_belief_update.updates if update.delta > 0
+    )
+    weakening_claim_ids = sorted(
+        update.claim_id for update in claim_belief_update.updates if update.delta < 0
+    )
+    if blocked_assay_ids:
+        posture = "blocked"
+    elif reinforcing_claim_ids and weakening_claim_ids:
+        posture = "mixed"
+    elif weakening_claim_ids:
+        posture = "weakening"
+    elif reinforcing_claim_ids:
+        posture = "reinforcing"
+    else:
+        posture = "neutral"
+
+    summary: list[str] = []
+    if reinforcing_claim_ids:
+        summary.append("reinforcing claims: " + ", ".join(reinforcing_claim_ids))
+    if weakening_claim_ids:
+        summary.append("weakening claims: " + ", ".join(weakening_claim_ids))
+    if not summary:
+        summary.append("no claim-linked belief deltas were emitted")
+    return posture, tuple(summary)
+
+
+def _operational_follow_through(
+    *,
+    promotion_report: BatchEvidencePromotionReport,
+    rerun_plan: BatchRerunPlan,
+    blocked_assay_ids: list[str],
+    weakened_assay_ids: list[str],
+) -> tuple[str, ...]:
+    actions: list[str] = []
+    if promotion_report.promoted_assay_ids:
+        actions.append(
+            "promote evidence for assays: "
+            + ", ".join(sorted(promotion_report.promoted_assay_ids))
+        )
+    if blocked_assay_ids:
+        actions.append(
+            "resolve blocked assays before downstream confidence: "
+            + ", ".join(sorted(blocked_assay_ids))
+        )
+    if weakened_assay_ids:
+        actions.append(
+            "route weakened assays back into candidate review: "
+            + ", ".join(sorted(weakened_assay_ids))
+        )
+    actions.extend(action.action for action in rerun_plan.actions)
+    if not actions:
+        actions.append("carry supporting outcomes into downstream review")
+    return tuple(dict.fromkeys(actions))
 
 
 def reconcile_planned_and_observed_outcome(
@@ -215,6 +281,16 @@ def reconcile_planned_and_observed_outcome(
         claim_links=claim_links,
     )
     rerun_plan = build_batch_rerun_plan(outcome)
+    belief_posture, belief_update_summary = _belief_posture(
+        claim_belief_update=claim_belief_update,
+        blocked_assay_ids=blocked_assay_ids,
+    )
+    operational_follow_through = _operational_follow_through(
+        promotion_report=promotion_report,
+        rerun_plan=rerun_plan,
+        blocked_assay_ids=blocked_assay_ids,
+        weakened_assay_ids=weakened_assay_ids,
+    )
     promoted_evidence_ids = tuple(payload.evidence_id for payload in promoted_payloads)
     ready_for_feedback = bool(deltas) and not any(
         delta.execution_gap == "unexpected assay is absent from the execution request"
@@ -240,12 +316,18 @@ def reconcile_planned_and_observed_outcome(
         blocked_assay_ids=tuple(sorted(blocked_assay_ids)),
         promoted_evidence_ids=promoted_evidence_ids,
         recommended_action=recommended_action,
+        belief_update_summary=belief_update_summary,
+        operational_follow_through=operational_follow_through,
         notes=tuple(sorted(set(execution_request.unresolved_risks))),
     )
     notes = (
-        ("reconciliation is ready for downstream analytical feedback",)
+        (
+            f"reconciliation is ready for downstream analytical feedback with {belief_posture} belief posture",
+        )
         if ready_for_feedback
-        else ("reconciliation still needs lineage cleanup before downstream use",)
+        else (
+            f"reconciliation still needs lineage cleanup before downstream use and remains {belief_posture}",
+        )
     )
 
     return OutcomeReconciliationReport(
@@ -256,6 +338,9 @@ def reconcile_planned_and_observed_outcome(
         promotion_report=promotion_report,
         claim_belief_update=claim_belief_update,
         rerun_plan=rerun_plan,
+        belief_posture=belief_posture,
+        belief_update_summary=belief_update_summary,
+        operational_follow_through=operational_follow_through,
         ready_for_feedback=ready_for_feedback,
         intelligence_feedback=intelligence_feedback,
         notes=notes,

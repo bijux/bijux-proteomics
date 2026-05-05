@@ -55,9 +55,18 @@ def test_reconcile_planned_and_observed_outcome_emits_feedback_signal() -> None:
     )
 
     assert report.ready_for_feedback is True
+    assert report.belief_posture == "mixed"
     assert report.intelligence_feedback.supported_assay_ids == ("assay-a",)
     assert report.intelligence_feedback.weakened_assay_ids == ("assay-b",)
+    assert report.intelligence_feedback.belief_update_summary == (
+        "reinforcing claims: claim-1",
+        "weakening claims: claim-2",
+    )
     assert report.intelligence_feedback.recommended_action.startswith("send")
+    assert (
+        "route weakened assays back into candidate review: assay-b"
+        in report.operational_follow_through
+    )
     assert report.claim_belief_update.contributing_assay_count == 2
 
 
@@ -97,5 +106,10 @@ def test_reconcile_planned_and_observed_outcome_flags_missing_requested_assays()
     assert any(
         delta.execution_gap == "requested assay did not produce an observed outcome"
         for delta in report.assay_deltas
+    )
+    assert report.belief_posture == "blocked"
+    assert any(
+        action.startswith("resolve blocked assays before downstream confidence")
+        for action in report.operational_follow_through
     )
     assert "assay-b" in report.intelligence_feedback.blocked_assay_ids
