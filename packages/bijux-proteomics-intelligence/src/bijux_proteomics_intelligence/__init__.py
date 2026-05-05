@@ -52,6 +52,11 @@ from bijux_proteomics_intelligence.charter import (
     IntelligenceProductCharter,
     list_intelligence_capabilities,
 )
+from bijux_proteomics_intelligence.decision_paths import (
+    FollowUpCandidatePath,
+    FollowUpCandidateRecommendation,
+    build_follow_up_candidate_path,
+)
 from bijux_proteomics_intelligence.evidence_posture import (
     EvidenceContradictionSummary,
     EvidenceFreshnessSummary,
@@ -254,6 +259,8 @@ __all__ = [
     "RankingSensitivityReport",
     "CandidateDecision",
     "CandidateRanking",
+    "FollowUpCandidatePath",
+    "FollowUpCandidateRecommendation",
     "CandidatePortfolio",
     "CandidateProposal",
     "CandidateRejection",
@@ -335,6 +342,7 @@ __all__ = [
     "HoldPolicyConfig",
     "HypothesisStatus",
     "build_design_brief",
+    "build_follow_up_candidate_path",
     "list_intelligence_capabilities",
     "summarize_evidence_contradictions",
     "summarize_evidence_freshness",
