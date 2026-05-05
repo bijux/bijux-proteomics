@@ -1,8 +1,7 @@
-"""Format, spectrum, and serialization boundaries."""
+"""Format, ingestion, and spectrum boundaries."""
 
 from __future__ import annotations
 
 from bijux_proteomics.io.formats import *  # noqa: F401,F403
 from bijux_proteomics.io.ingestion import *  # noqa: F401,F403
-from bijux_proteomics.io.serialization import *  # noqa: F401,F403
 from bijux_proteomics.io.spectra import *  # noqa: F401,F403

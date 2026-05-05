@@ -13,8 +13,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics.domain.reviews import ReviewGate
-from bijux_proteomics.io.serialization import JsonModel
-from bijux_proteomics_foundation import ContractConflictError, ContractNotFoundError
+from bijux_proteomics_foundation import (
+    ContractConflictError,
+    ContractNotFoundError,
+    JsonModel,
+)
 
 
 class ReviewOutcome(StrEnum):
