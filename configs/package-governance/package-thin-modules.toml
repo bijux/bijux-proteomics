@@ -1,0 +1,1167 @@
+# Generated package thin-module report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_thin_modules
+
+[guard]
+max_total_thin_module_count = 166
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/analysis/failure_analysis.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/analysis/sequence_analysis.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/analysis/structure.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/base/base.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/execution/coordinator.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/planning/compiler.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/planning/generation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/planning/planner.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/planning/schemas.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/planning/validation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/reporting/reporting.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/schemas.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/verification/critic.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/verification/input_validation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/verification/quality_control.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/app.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/deps.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/errors.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/middleware.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/compare.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/inspect.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/resume.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/run.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/router.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/schema.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/biology/pathway.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/biology/regulator.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/biology/signals.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/biology/validation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/api_lock.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/contracts.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/costs.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/decisions.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/determinism.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/execution.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/failures.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/fingerprints.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/hashing.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/identifiers.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/observations.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/stability.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/status.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/surface_area.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/core/tooling.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/design_loop/convergence.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/design_loop/loop.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/design_loop/stagnation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/filters.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/model.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/schema.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/selection.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/store.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/transform.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/updates.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/confidence/segments.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/metrics/compute.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/metrics/quality.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/metrics/validation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/sequence/summary.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/sequence/validation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/domain/structure/structure.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/compiler/boundary.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/evaluation/evaluation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/evaluation/observations.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/evaluation/schemas.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/runtime/executor.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/runtime/integration.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/schemas.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/validation.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/cli.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/memory/schemas.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/memory/store.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/base.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/errors.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/experimental/_async_utils.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/experimental/colabfold.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/experimental/openprotein.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/factory.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/heuristic.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/local/esmfold.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/local/rosettafold.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/registry/agents.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/registry/tools.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/report/compute.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/report/model.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/report/render.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/context.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/lifecycle.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/output.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/request.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/control/artifacts.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/control/execution.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/control/state_machine.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/analysis.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/capabilities.py"
+nonempty_line_count = 17
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/config.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/observability.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/reliability.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/telemetry.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/workspace.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/state/schemas.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/state/snapshot.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/tools/base.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/tools/heuristic.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/tools/schemas.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/validation/agents.py"
+nonempty_line_count = 19
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/validation/state.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/validation/tools.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/canonicalization.py"
+nonempty_line_count = 11
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/hashing.py"
+nonempty_line_count = 20
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/provenance.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/refusals.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/results.py"
+nonempty_line_count = 9
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/states.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/states.py"
+nonempty_line_count = 14
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/biology/validation.py"
+nonempty_line_count = 18
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/cli.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/assays.py"
+nonempty_line_count = 20
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/reviews.py"
+nonempty_line_count = 23
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/sequence/validation.py"
+nonempty_line_count = 13
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/liabilities.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/search_adapters.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/structure_report/model.py"
+nonempty_line_count = 19
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_blueprint.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/catalog.py"
+nonempty_line_count = 32
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/request_context.py"
+nonempty_line_count = 10
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/v1/router.py"
+nonempty_line_count = 22
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/api_lock.py"
+nonempty_line_count = 17
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/contracts.py"
+nonempty_line_count = 12
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/costs.py"
+nonempty_line_count = 15
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/hashing.py"
+nonempty_line_count = 8
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/identifiers.py"
+nonempty_line_count = 9
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/surface_area.py"
+nonempty_line_count = 40
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/evaluation/observations.py"
+nonempty_line_count = 22
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/schemas.py"
+nonempty_line_count = 30
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/validation.py"
+nonempty_line_count = 11
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/memory/store.py"
+nonempty_line_count = 17
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/errors.py"
+nonempty_line_count = 17
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/heuristic.py"
+nonempty_line_count = 36
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/lifecycle.py"
+nonempty_line_count = 13
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/request.py"
+nonempty_line_count = 10
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/tools/base.py"
+nonempty_line_count = 31
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/tools/catalog.py"
+nonempty_line_count = 32
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/tools/schemas.py"
+nonempty_line_count = 28
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/design_loop/convergence.py"
+nonempty_line_count = 7
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/design_loop/stagnation.py"
+nonempty_line_count = 11
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/_fingerprints.py"
+nonempty_line_count = 7
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/_hashing.py"
+nonempty_line_count = 6
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/candidates/filters.py"
+nonempty_line_count = 21
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/candidates/transform.py"
+nonempty_line_count = 18
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/structure/confidence.py"
+nonempty_line_count = 19
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/graph.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/ingestion.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/review.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/artifacts.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/targeted.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/packets.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/protocols.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/ptm_follow_up.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/risk.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/workflow_readiness.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
