@@ -26,6 +26,7 @@ re-curating locally.
 - `memory/resolution.py` owns explicit conflict-resolution policies and resolution history
 - `memory/graph.py` owns evidence-graph structure and validation
 - `memory/ingestion.py` owns normalization of external evidence into knowledge-owned memory records
+- `contracts/schema.py` owns schema compatibility and document contract profiles
 - `reviews/packets.py` owns reviewer-facing packets derived from existing scientific memory
 - `references/` owns selective curated references, workflow briefings, and the narrow workflow lookup surface
 

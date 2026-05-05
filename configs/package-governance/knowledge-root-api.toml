@@ -30,6 +30,6 @@ rationale = "Knowledge review packets are the main reviewer-facing handoff surfa
 
 [[symbol]]
 name = "evaluate_schema_compatibility"
-owner_module = "bijux_proteomics_knowledge.schema"
+owner_module = "bijux_proteomics_knowledge.contracts.schema"
 classification = "schema_contract"
 rationale = "Schema compatibility checks stay public so downstream packages can validate persisted knowledge artifacts."

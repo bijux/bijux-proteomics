@@ -76,7 +76,7 @@ from bijux_proteomics_knowledge.references.briefings import (
 
 - Distribution name: `bijux-proteomics-knowledge`
 - Import root: `bijux_proteomics_knowledge`
-- Stable entrypoints: `memory.evidence`, `memory.claims`, `memory.resolution`, `reviews.packets`, `schema`, and `references`
+- Stable entrypoints: `memory.evidence`, `memory.claims`, `memory.resolution`, `reviews.packets`, `contracts.schema`, and `references`
 
 ## Package boundaries
 
@@ -103,6 +103,7 @@ The package boundary is justified by five grounded capabilities:
 Everything else in the package exists to turn those capabilities into auditable
 scientific memory with provenance:
 - `memory/` owns evidence, claims, graph integrity, ingestion, and resolution history
+- `contracts/` owns knowledge document and schema compatibility contracts
 - `reviews/` owns reviewer-facing packets built from existing memory
 - `references/` owns selective curation surfaces and the narrow workflow lookup surface
 

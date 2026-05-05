@@ -64,6 +64,7 @@ def test_knowledge_thin_modules_are_only_roots_and_compatibility_wrappers() -> N
     assert thin_placeholders == {
         "__init__.py",
         "claims.py",
+        "contracts/__init__.py",
         "evidence.py",
         "graph.py",
         "ingestion.py",

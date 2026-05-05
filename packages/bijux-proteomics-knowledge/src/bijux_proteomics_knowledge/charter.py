@@ -127,6 +127,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="The machine-readable charter keeps package ownership explicit and reviewable.",
     ),
     KnowledgeModuleAuditEntry(
+        module_path="contracts/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The contracts package root groups durable schema-owner modules without adding separate logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="contracts/schema.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
+        reason="Schema profiles preserve stable reviewable knowledge documents over time.",
+    ),
+    KnowledgeModuleAuditEntry(
         module_path="evidence.py",
         classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
         reason="The flat evidence path is kept only as a compatibility shim over knowledge memory owners.",
@@ -315,12 +326,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Review packets are the package's downstream scientific-memory handoff surface.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="schema.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
-        reason="Schema profiles preserve stable reviewable knowledge documents over time.",
     ),
 )
 

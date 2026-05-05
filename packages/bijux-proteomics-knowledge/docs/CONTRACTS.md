@@ -4,7 +4,7 @@
 
 - Distribution name: `bijux-proteomics-knowledge`
 - Import root: `bijux_proteomics_knowledge`
-- Stable entrypoints: `memory.evidence`, `memory.claims`, `memory.resolution`, `reviews.packets`, `schema`, and `references`
+- Stable entrypoints: `memory.evidence`, `memory.claims`, `memory.resolution`, `reviews.packets`, `contracts.schema`, and `references`
 
 ## Stable contracts
 
