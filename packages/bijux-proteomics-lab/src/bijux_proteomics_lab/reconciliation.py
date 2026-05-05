@@ -64,6 +64,48 @@ class IntelligenceFeedbackSignal(JsonModel):
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class IntelligenceFeedbackBaseline(JsonModel):
+    """Baseline prioritization state preserved from historical decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    baseline_score: float = Field(..., ge=0.0, le=1.0)
+    historical_snapshot_id: str = Field(..., min_length=1)
+
+
+class LabObservedOutcomeSignal(JsonModel):
+    """Observed lab outcome signal used to adjust future prioritization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    outcome_strength: float = Field(..., ge=-1.0, le=1.0)
+    evidence_quality: float = Field(..., ge=0.0, le=1.0)
+
+
+class IntelligenceFeedbackAdjustment(JsonModel):
+    """Adjusted score for future prioritization while retaining historical snapshots."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    historical_snapshot_id: str = Field(..., min_length=1)
+    baseline_score: float = Field(..., ge=0.0, le=1.0)
+    adjusted_score: float = Field(..., ge=0.0, le=1.0)
+    preserves_history: bool
+
+
+class IntelligenceFeedbackReport(JsonModel):
+    """Feedback report from lab outcomes into future prioritization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adjustments: tuple[IntelligenceFeedbackAdjustment, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class OutcomeReconciliationReport(JsonModel):
     """Reconciliation of execution intent, observed outcomes, and feedback posture."""
 
@@ -220,6 +262,37 @@ def reconcile_planned_and_observed_outcome(
     )
 
 
+def apply_lab_feedback_to_intelligence_prioritization(
+    *,
+    baselines: tuple[IntelligenceFeedbackBaseline, ...],
+    outcomes: tuple[LabObservedOutcomeSignal, ...],
+) -> IntelligenceFeedbackReport:
+    """Apply lab outcomes to future prioritization without rewriting historical snapshots."""
+
+    outcomes_by_candidate = {outcome.candidate_id: outcome for outcome in outcomes}
+    adjustments: list[IntelligenceFeedbackAdjustment] = []
+    for baseline in baselines:
+        outcome = outcomes_by_candidate.get(baseline.candidate_id)
+        if outcome is None:
+            adjusted = baseline.baseline_score
+        else:
+            delta = 0.2 * outcome.outcome_strength * outcome.evidence_quality
+            adjusted = max(0.0, min(1.0, baseline.baseline_score + delta))
+
+        adjustments.append(
+            IntelligenceFeedbackAdjustment(
+                candidate_id=baseline.candidate_id,
+                historical_snapshot_id=baseline.historical_snapshot_id,
+                baseline_score=baseline.baseline_score,
+                adjusted_score=adjusted,
+                preserves_history=True,
+            )
+        )
+
+    adjustments.sort(key=lambda item: item.candidate_id)
+    return IntelligenceFeedbackReport(adjustments=tuple(adjustments))
+
+
 def build_operational_follow_up_path(
     *,
     candidate_id: str,
@@ -277,10 +350,15 @@ def build_operational_follow_up_path(
 
 
 __all__ = [
+    "IntelligenceFeedbackAdjustment",
+    "IntelligenceFeedbackBaseline",
+    "IntelligenceFeedbackReport",
     "IntelligenceFeedbackSignal",
+    "LabObservedOutcomeSignal",
     "OperationalFollowUpPath",
     "OutcomeReconciliationReport",
     "PlannedObservedAssayDelta",
+    "apply_lab_feedback_to_intelligence_prioritization",
     "build_operational_follow_up_path",
     "reconcile_planned_and_observed_outcome",
 ]

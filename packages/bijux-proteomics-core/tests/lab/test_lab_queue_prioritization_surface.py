@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.operations import (
+from bijux_proteomics_lab.planning import (
     LabQueuePrioritizationInput,
     build_lab_queue_prioritization_report,
 )

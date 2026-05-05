@@ -22,10 +22,10 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
         "bijux_proteomics_intelligence.analytical_review",
     },
     "lab/operations.py": {
-        "bijux_proteomics_intelligence.follow_up_learning",
+        "bijux_proteomics_lab.reconciliation",
     },
     "lab/planning.py": {
-        "bijux_proteomics_intelligence.follow_up_learning",
+        "bijux_proteomics_lab.planning",
     },
     "ptm/review.py": {
         "bijux_proteomics_lab.ptm_follow_up",

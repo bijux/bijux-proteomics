@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.operations import (
+from bijux_proteomics_lab.reconciliation import (
     IntelligenceFeedbackBaseline,
     LabObservedOutcomeSignal,
     apply_lab_feedback_to_intelligence_prioritization,

@@ -268,6 +268,66 @@ class ExecutableAssayPlan(JsonModel):
     )
 
 
+class LabQueuePrioritizationInput(JsonModel):
+    """Inputs used to prioritize candidate placement in a follow-up queue."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    candidate_score: float = Field(..., ge=0.0, le=1.0)
+    evidence_gap_count: int = Field(..., ge=0)
+    cost_score: float = Field(..., ge=0.0, le=1.0)
+    capacity_pressure_score: float = Field(..., ge=0.0, le=1.0)
+    assay_constraint_penalty: float = Field(..., ge=0.0, le=1.0)
+
+
+class LabQueuePrioritizationEntry(JsonModel):
+    """Prioritized follow-up queue entry with rationale score."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    queue_priority_score: float
+    queue_rank: int = Field(..., ge=1)
+
+
+class LabQueuePrioritizationReport(JsonModel):
+    """Queue prioritization report for candidate follow-up actions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[LabQueuePrioritizationEntry, ...] = Field(default_factory=tuple)
+
+
+def build_lab_queue_prioritization_report(
+    items: tuple[LabQueuePrioritizationInput, ...],
+) -> LabQueuePrioritizationReport:
+    """Prioritize follow-up queue placement with explicit evidence and burden tradeoffs."""
+
+    scored: list[tuple[str, float]] = []
+    for item in items:
+        gap_bonus = min(1.0, item.evidence_gap_count / 5.0)
+        score = (
+            (0.4 * item.candidate_score)
+            + (0.2 * gap_bonus)
+            + (0.15 * (1.0 - item.cost_score))
+            + (0.15 * (1.0 - item.capacity_pressure_score))
+            + (0.1 * (1.0 - item.assay_constraint_penalty))
+        )
+        scored.append((item.candidate_id, score))
+
+    scored.sort(key=lambda row: (-row[1], row[0]))
+    entries = tuple(
+        LabQueuePrioritizationEntry(
+            candidate_id=candidate_id,
+            queue_priority_score=score,
+            queue_rank=index + 1,
+        )
+        for index, (candidate_id, score) in enumerate(scored)
+    )
+    return LabQueuePrioritizationReport(entries=entries)
+
+
 class ExecutionPlanUncertaintyReport(JsonModel):
     """Uncertainty summary attached to an executable assay plan."""
 
