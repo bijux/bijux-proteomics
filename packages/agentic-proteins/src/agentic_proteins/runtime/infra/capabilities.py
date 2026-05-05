@@ -5,7 +5,7 @@ from bijux_proteomics_runtime.providers.factory import (
     cuda_available,
     provider_requirements,
 )
-from bijux_proteomics_runtime.runtime.control.provider_capabilities import (
+from bijux_proteomics_runtime.providers.capabilities import (
     KNOWN_PROVIDERS,
     validate_runtime_capabilities,
 )
