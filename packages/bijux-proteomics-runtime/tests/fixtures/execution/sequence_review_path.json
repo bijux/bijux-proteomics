@@ -1,0 +1,35 @@
+{
+  "sequence": "MKWVTFISLLLLFSSAYSRGVFRRDTHKSEIAHRFKDLGE",
+  "provider": "local_esmfold",
+  "execution_mode": "cpu",
+  "expected_workflow_family": "structure_prediction",
+  "expected_outcome": "inconclusive",
+  "expected_artifact_kinds": [
+    "runtime-status",
+    "runtime-report",
+    "runtime-replay-contract",
+    "runtime-integrity-report"
+  ],
+  "fake_run_flow_result": {
+    "plan_fingerprint": "plan-sequence-review-path",
+    "tool_status": "success",
+    "report": {
+      "status": "ok",
+      "workflow_family": "sequence_to_digest",
+      "steps": [
+        "digest_sequence",
+        "score_candidate",
+        "publish_review_packet"
+      ],
+      "metrics": {
+        "peptide_count": 12,
+        "missed_cleavages": 1,
+        "coverage_fraction": 0.82
+      }
+    },
+    "qc_status": "acceptable",
+    "coordinator_decision": "TerminateRun",
+    "failure_type": "none",
+    "lifecycle_state": "done"
+  }
+}
