@@ -1,0 +1,144 @@
+# Generated repository tree-quality report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.repository_tree_quality
+
+[guard]
+max_total_root_python_module_count = 53
+max_total_wrapper_module_count = 23
+max_total_broad_root_import_count = 0
+min_average_test_tree_mirroring_score = 37.09
+
+[[package]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+root_python_module_count = 0
+public_symbol_count = 3
+compatibility_wrapper_count = 0
+broad_root_import_count = 0
+source_owner_family_count = 16
+test_family_count = 8
+mirrored_owner_family_count = 1
+flatness_score = 100.0
+root_bloat_score = 100.0
+wrapper_density_score = 100.0
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 6.25
+overall_tree_quality_score = 81.25
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+import_root = "bijux_proteomics_dev"
+root_python_module_count = 1
+public_symbol_count = 0
+compatibility_wrapper_count = 0
+broad_root_import_count = 0
+source_owner_family_count = 6
+test_family_count = 0
+mirrored_owner_family_count = 0
+flatness_score = 90.0
+root_bloat_score = 100.0
+wrapper_density_score = 100.0
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 0.0
+overall_tree_quality_score = 78.0
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+root_python_module_count = 16
+public_symbol_count = 15
+compatibility_wrapper_count = 7
+broad_root_import_count = 0
+source_owner_family_count = 4
+test_family_count = 1
+mirrored_owner_family_count = 0
+flatness_score = 0.0
+root_bloat_score = 12.0
+wrapper_density_score = 56.25
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 0.0
+overall_tree_quality_score = 33.65
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+root_python_module_count = 8
+public_symbol_count = 5
+compatibility_wrapper_count = 4
+broad_root_import_count = 0
+source_owner_family_count = 21
+test_family_count = 22
+mirrored_owner_family_count = 19
+flatness_score = 20.0
+root_bloat_score = 92.0
+wrapper_density_score = 50.0
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 90.48
+overall_tree_quality_score = 70.5
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+root_python_module_count = 1
+public_symbol_count = 4
+compatibility_wrapper_count = 0
+broad_root_import_count = 0
+source_owner_family_count = 13
+test_family_count = 1
+mirrored_owner_family_count = 0
+flatness_score = 90.0
+root_bloat_score = 100.0
+wrapper_density_score = 100.0
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 0.0
+overall_tree_quality_score = 78.0
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+root_python_module_count = 13
+public_symbol_count = 10
+compatibility_wrapper_count = 0
+broad_root_import_count = 0
+source_owner_family_count = 2
+test_family_count = 0
+mirrored_owner_family_count = 0
+flatness_score = 0.0
+root_bloat_score = 52.0
+wrapper_density_score = 100.0
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 0.0
+overall_tree_quality_score = 50.4
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+root_python_module_count = 7
+public_symbol_count = 5
+compatibility_wrapper_count = 6
+broad_root_import_count = 0
+source_owner_family_count = 3
+test_family_count = 4
+mirrored_owner_family_count = 3
+flatness_score = 30.0
+root_bloat_score = 92.0
+wrapper_density_score = 14.29
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 100.0
+overall_tree_quality_score = 67.26
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+root_python_module_count = 7
+public_symbol_count = 4
+compatibility_wrapper_count = 6
+broad_root_import_count = 0
+source_owner_family_count = 8
+test_family_count = 10
+mirrored_owner_family_count = 8
+flatness_score = 30.0
+root_bloat_score = 100.0
+wrapper_density_score = 14.29
+broad_root_import_score = 100.0
+test_tree_mirroring_score = 100.0
+overall_tree_quality_score = 68.86
