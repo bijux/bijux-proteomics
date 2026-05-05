@@ -17,9 +17,9 @@ imported_symbols = []
 
 [[surface]]
 name = "bijux_proteomics_knowledge.references.benchmarks"
-consumer_count = 8
+consumer_count = 9
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/review_packets.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_breadth.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/review_packets.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"]
 imported_symbols = ["BenchmarkManifest", "DEFAULT_BENCHMARK_MANIFESTS", "KnowledgeWorkflowFamily"]
 
 [[surface]]
@@ -31,16 +31,16 @@ imported_symbols = ["build_workflow_reference_briefing", "list_workflow_referenc
 
 [[surface]]
 name = "bijux_proteomics_knowledge.references.ontologies"
-consumer_count = 1
+consumer_count = 2
 consumer_distributions = ["bijux-proteomics-dev"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_breadth.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py"]
 imported_symbols = ["DEFAULT_ONTOLOGY_MAPPINGS"]
 
 [[surface]]
 name = "bijux_proteomics_knowledge.references.rules"
-consumer_count = 2
+consumer_count = 3
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_breadth.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py"]
 imported_symbols = ["DEFAULT_SCIENTIFIC_RULE_REFERENCES", "build_ranking_rule_grounding_ledger"]
 
 [[surface]]
