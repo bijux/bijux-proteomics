@@ -70,7 +70,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         required_modules=(
             "planning/assays.py",
             "readiness/operations.py",
-            "repositories.py",
+            "planning/queue.py",
         ),
         release_blocker="Lab cannot ship if queue and capacity handling disappear into downstream ad hoc logic.",
     ),
@@ -267,6 +267,12 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.PROGRESSION,
         ),
         reason="Planning owns batching, scheduling, and assay-level operational tradeoffs.",
+    ),
+    LabModuleAuditEntry(
+        module_path="planning/queue.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.QUEUEING,),
+        reason="Queue contracts and queue-pressure summaries belong to planning because they decide when lab work is batchable or stale.",
     ),
     LabModuleAuditEntry(
         module_path="readiness/__init__.py",
