@@ -20,7 +20,9 @@ from bijux_proteomics_runtime.runtime.adapters import (
     candidate_to_domain,
     select_candidates,
 )
+from bijux_proteomics_runtime.runtime.context import RuntimeArtifactRetentionClass
 from bijux_proteomics_runtime.runtime.context import RunContext
+from bijux_proteomics_runtime.runtime.control.ledger import record_artifact_entry
 from bijux_proteomics_runtime.runtime.workspace import (
     RunWorkspace,
     write_json_atomic,
@@ -68,6 +70,15 @@ def write_failure_artifacts(
         "next_action": suggest_next_action(failure_type),
     }
     write_json_atomic(run_context.workspace.error_path, payload)
+    record_artifact_entry(
+        run_context.workspace,
+        run_id=run_context.run_id,
+        artifact_role="run_error",
+        artifact_kind="runtime-error",
+        path=run_context.workspace.error_path,
+        producer="bijux_proteomics_runtime.runtime.control.artifacts",
+        retention_class=RuntimeArtifactRetentionClass.FAILURE_FORENSICS,
+    )
 
 
 def write_artifact(
@@ -85,6 +96,15 @@ def write_artifact(
     artifact_id = sha256_hex(f"{kind}:{normalized}")
     path = workspace.artifact_items_dir / f"{artifact_id}.json"
     write_json_atomic(path, payload)
+    record_artifact_entry(
+        workspace,
+        run_id=workspace.run_id,
+        artifact_role="artifact_item",
+        artifact_kind="runtime-artifact-item",
+        path=path,
+        producer="bijux_proteomics_runtime.runtime.control.artifacts",
+        retention_class=RuntimeArtifactRetentionClass.REVIEW_REQUIRED,
+    )
     return ArtifactMetadata(
         artifact_id=artifact_id,
         kind=kind,

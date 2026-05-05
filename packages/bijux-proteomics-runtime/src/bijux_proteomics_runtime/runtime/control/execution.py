@@ -92,6 +92,9 @@ from bijux_proteomics_runtime.runtime.control.artifacts import (
     write_artifact,
     write_failure_artifacts,
 )
+from bijux_proteomics_runtime.runtime.control.ledger import (
+    refresh_runtime_artifact_ledger,
+)
 from bijux_proteomics_runtime.runtime.control.state_machine import RunStateMachine
 from bijux_proteomics_runtime.runtime.infra import (
     RunAnalysis,
@@ -931,6 +934,12 @@ class RunManager:
         write_json_atomic(
             context.workspace.run_output_path, output.model_dump(mode="json")
         )
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
+        )
         return output.model_dump(mode="json")
 
     def _run_with_candidate(
@@ -1050,6 +1059,12 @@ class RunManager:
         write_json_atomic(context.workspace.run_summary_path, summary)
         write_json_atomic(
             context.workspace.run_output_path, output.model_dump(mode="json")
+        )
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
         )
         return output.model_dump(mode="json")
 
