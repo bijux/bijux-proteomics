@@ -1,0 +1,109 @@
+{
+  "sequence": "MPEPTIDERKAAALSYIFCLVFADYKDDDDAQQQQRR",
+  "source_filename": "medium-import-benchmark.json",
+  "engine_name": "spectronaut",
+  "engine_version": "19.0",
+  "source_payload": {
+    "run_label": "dia-medium-benchmark-batch",
+    "instrument": "Exploris 480",
+    "provenance_status": "reviewable",
+    "peptides": [
+      {
+        "sequence": "MPEPTIDER",
+        "charge": 2,
+        "q_value": 0.004,
+        "protein_group": "P02768",
+        "sample_id": "medium-01",
+        "area": 128934.2
+      },
+      {
+        "sequence": "AAALSYIFCLVFADYK",
+        "charge": 3,
+        "q_value": 0.008,
+        "protein_group": "P02769",
+        "sample_id": "medium-02",
+        "area": 161104.8
+      },
+      {
+        "sequence": "DDDDAQQLK",
+        "charge": 2,
+        "q_value": 0.007,
+        "protein_group": "Q9Y6K9",
+        "sample_id": "medium-03",
+        "area": 99124.7
+      },
+      {
+        "sequence": "PEPTIDEQQR",
+        "charge": 3,
+        "q_value": 0.006,
+        "protein_group": "P31946",
+        "sample_id": "medium-04",
+        "area": 117442.9
+      },
+      {
+        "sequence": "VVVGGGAAAK",
+        "charge": 2,
+        "q_value": 0.005,
+        "protein_group": "P62258",
+        "sample_id": "medium-05",
+        "area": 133551.2
+      },
+      {
+        "sequence": "LSDLHAHK",
+        "charge": 2,
+        "q_value": 0.009,
+        "protein_group": "P06733",
+        "sample_id": "medium-06",
+        "area": 84211.6
+      },
+      {
+        "sequence": "ELGQSGVDTYLQTK",
+        "charge": 3,
+        "q_value": 0.008,
+        "protein_group": "P62993",
+        "sample_id": "medium-07",
+        "area": 104322.4
+      },
+      {
+        "sequence": "DLGEEHFK",
+        "charge": 2,
+        "q_value": 0.005,
+        "protein_group": "P63104",
+        "sample_id": "medium-08",
+        "area": 142882.3
+      },
+      {
+        "sequence": "VVAGVANALAHK",
+        "charge": 2,
+        "q_value": 0.007,
+        "protein_group": "P08670",
+        "sample_id": "medium-09",
+        "area": 125993.1
+      },
+      {
+        "sequence": "AQGQVTYFK",
+        "charge": 2,
+        "q_value": 0.006,
+        "protein_group": "P02787",
+        "sample_id": "medium-10",
+        "area": 118745.0
+      }
+    ],
+    "quant_channels": {
+      "control": 128934.2,
+      "treated": 161104.8,
+      "bridge": 139820.5
+    },
+    "qc": {
+      "ms1_ppm_median": 1.9,
+      "ms2_ppm_median": 3.4,
+      "interference_fraction": 0.06,
+      "peak_count": 8241,
+      "matched_transition_count": 1884
+    },
+    "operator_notes": [
+      "medium benchmark payload mirrors one reviewable external import with multiple quantified peptides",
+      "artifact count and payload breadth are large enough to make serialization and layout cost visible in benchmarks"
+    ]
+  }
+}

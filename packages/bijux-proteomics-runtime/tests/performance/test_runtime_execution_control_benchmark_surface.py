@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
+import json
+from itertools import count
 from pathlib import Path
 
 from bijux_proteomics_runtime.api.catalog import build_artifact_lookup_response
+from bijux_proteomics_runtime.runs import RunManager
 from bijux_proteomics_runtime.runs import create_run_context
 from bijux_proteomics_runtime.runs.reruns import build_partial_rerun_plan
 from bijux_proteomics_runtime.workflows.paths import run_reviewable_sequence_path
@@ -15,6 +18,17 @@ from .runtime_benchmark_fixtures import (
     build_medium_startup_config,
     seed_medium_artifact_runs,
 )
+
+
+def _load_execution_fixture(name: str) -> dict[str, object]:
+    return json.loads(
+        (
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "execution"
+            / name
+        ).read_text(encoding="utf-8")
+    )
 
 
 def _fake_success(candidate, context, tool):  # type: ignore[no-untyped-def]
@@ -108,3 +122,33 @@ def test_runtime_medium_execution_benchmark_publishes_reviewable_path(
 
     assert Path(manifest.summary_path).exists()
     assert manifest.command == "run"
+
+
+def test_runtime_import_benchmark_processes_medium_fixture_payload(
+    benchmark,
+    tmp_path: Path,
+) -> None:
+    fixture = _load_execution_fixture("medium_import_benchmark.json")
+    source_path = tmp_path / "external" / str(fixture["source_filename"])
+    source_path.parent.mkdir(parents=True, exist_ok=True)
+    source_path.write_text(
+        json.dumps(fixture["source_payload"], indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    run_ids = count()
+
+    def _import_medium_fixture() -> dict[str, object]:
+        run_id = f"runtime-import-medium-{next(run_ids)}"
+        return RunManager(tmp_path).import_result(
+            sequence=str(fixture["sequence"]),
+            source_path=source_path,
+            imported_payload=dict(fixture["source_payload"]),
+            engine_name=str(fixture["engine_name"]),
+            engine_version=str(fixture["engine_version"]),
+            run_id=run_id,
+        )
+
+    result = benchmark.pedantic(_import_medium_fixture, rounds=3, iterations=1)
+
+    assert result["status"] == "success"
+    assert result["report"]["engine_name"] == fixture["engine_name"]
