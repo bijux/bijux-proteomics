@@ -1,0 +1,35 @@
+# Curated public root API for bijux_proteomics_knowledge.
+
+[budget]
+max_public_symbols = 5
+max_init_lines = 19
+
+[[symbol]]
+name = "EvidenceBundle"
+owner_module = "bijux_proteomics_knowledge.memory.evidence"
+classification = "shared_memory_anchor"
+rationale = "Evidence bundles are the smallest shared knowledge artifact that multiple packages exchange."
+
+[[symbol]]
+name = "EvidenceClaim"
+owner_module = "bijux_proteomics_knowledge.memory.claims"
+classification = "shared_memory_anchor"
+rationale = "Evidence claims are the canonical reviewable claim model for downstream decision layers."
+
+[[symbol]]
+name = "EvidenceRecord"
+owner_module = "bijux_proteomics_knowledge.memory.evidence"
+classification = "shared_memory_anchor"
+rationale = "Evidence records are the reusable atomic memory payload across package boundaries."
+
+[[symbol]]
+name = "KnowledgeReviewPacket"
+owner_module = "bijux_proteomics_knowledge.reviews.packets"
+classification = "review_handoff"
+rationale = "Knowledge review packets are the main reviewer-facing handoff surface built from curated memory."
+
+[[symbol]]
+name = "evaluate_schema_compatibility"
+owner_module = "bijux_proteomics_knowledge.schema"
+classification = "schema_contract"
+rationale = "Schema compatibility checks stay public so downstream packages can validate persisted knowledge artifacts."
