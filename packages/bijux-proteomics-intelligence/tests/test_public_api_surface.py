@@ -49,11 +49,15 @@ def test_judgment_public_api_contains_expected_exports() -> None:
     assert "RankingPolicyLineage" in bijux_proteomics_intelligence.__all__
     assert "ReviewBoardPacket" in bijux_proteomics_intelligence.__all__
     assert "SkepticalReviewReport" in bijux_proteomics_intelligence.__all__
+    assert "WorkflowBenchmarkReview" in bijux_proteomics_intelligence.__all__
     assert "ReviewChallenge" in bijux_proteomics_intelligence.__all__
+    assert "BenchmarkReviewClaim" in bijux_proteomics_intelligence.__all__
     assert "build_ranking_sensitivity_report" in bijux_proteomics_intelligence.__all__
     assert "build_ranking_rule_grounding_ledger" in bijux_proteomics_intelligence.__all__
     assert "build_review_board_packet" in bijux_proteomics_intelligence.__all__
     assert "build_skeptical_review_report" in bijux_proteomics_intelligence.__all__
+    assert "build_dda_benchmark_review" in bijux_proteomics_intelligence.__all__
+    assert "build_dia_benchmark_review" in bijux_proteomics_intelligence.__all__
     assert "ranking_policy_lineage" in bijux_proteomics_intelligence.__all__
     assert "rule_grounding_map" in bijux_proteomics_intelligence.__all__
     assert "assess_recommendation_readiness" in bijux_proteomics_intelligence.__all__

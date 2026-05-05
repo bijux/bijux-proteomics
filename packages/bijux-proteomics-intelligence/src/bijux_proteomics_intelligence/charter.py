@@ -113,7 +113,12 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
     IntelligenceCharterEntry(
         capability=IntelligenceCharterCapability.REVIEW_REASONING,
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
-        required_modules=("evaluators.py", "decision_paths.py", "skeptical_review.py"),
+        required_modules=(
+            "evaluators.py",
+            "decision_paths.py",
+            "skeptical_review.py",
+            "benchmark_reviews.py",
+        ),
         release_blocker="Intelligence cannot ship if review consumers cannot see why a recommendation should be trusted or challenged.",
     ),
     IntelligenceCharterEntry(
@@ -136,6 +141,12 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         module_path="__init__.py",
         classification=IntelligenceModuleClassification.THIN_ABSTRACTION,
         reason="The package root is an export surface that aggregates stable analytical entrypoints.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="benchmark_reviews.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.REVIEW_REASONING,),
+        reason="Benchmark-backed review outputs keep release-facing workflow claims tied to checked-in datasets, owner surfaces, and explicit scientific limits.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="briefs.py",

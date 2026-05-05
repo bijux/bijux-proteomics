@@ -1,0 +1,391 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Benchmark-backed review outputs for release-facing workflow scrutiny."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics import (
+    ExternalReviewerBundle,
+    ExternalReviewerBundleInput,
+    SearchAdapterKind,
+    build_dia_capability_matrix,
+    build_external_reviewer_bundle,
+    build_review_ready_evidence_bundle,
+    build_search_adapter_conformance_report,
+    normalize_search_results_with_adapter,
+)
+from bijux_proteomics.dia import DiaCapabilityMatrixEntry, DiaCapabilityStatus
+from bijux_proteomics_foundation import JsonModel, fingerprint_model
+from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_knowledge.references import (
+    BenchmarkManifest,
+    KnowledgeWorkflowFamily,
+    get_benchmark_manifest,
+)
+
+
+class BenchmarkReviewClaim(JsonModel):
+    """One benchmark-backed claim with explicit support posture and review notes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_id: str = Field(..., min_length=1)
+    support_state: SupportState
+    summary: str = Field(..., min_length=1)
+    evidence_refs: tuple[str, ...] = Field(default_factory=tuple)
+    scientific_limits: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BenchmarkReviewArtifact(JsonModel):
+    """One reviewable artifact that anchors a benchmark-backed workflow claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    owner_package: str = Field(..., min_length=1)
+    surface_name: str = Field(..., min_length=1)
+    artifact_kind: str = Field(..., min_length=1)
+    artifact_id: str = Field(..., min_length=1)
+
+
+class WorkflowBenchmarkReview(JsonModel):
+    """Release-facing review output for one benchmark-backed workflow path."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    benchmark_id: str = Field(..., min_length=1)
+    dataset_id: str = Field(..., min_length=1)
+    workflow_family: KnowledgeWorkflowFamily
+    title: str = Field(..., min_length=1)
+    reviewer_summary: str = Field(..., min_length=1)
+    owner_surfaces: tuple[str, ...] = Field(default_factory=tuple)
+    review_artifacts: tuple[BenchmarkReviewArtifact, ...] = Field(default_factory=tuple)
+    claim_summaries: tuple[BenchmarkReviewClaim, ...] = Field(default_factory=tuple)
+    scientific_limits: tuple[str, ...] = Field(default_factory=tuple)
+    comparison_notes: tuple[str, ...] = Field(default_factory=tuple)
+    external_reviewer_bundle: ExternalReviewerBundle
+    ready_for_release_review: bool
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[4]
+
+
+def _require_manifest(benchmark_id: str) -> BenchmarkManifest:
+    manifest = get_benchmark_manifest(benchmark_id)
+    if manifest is None:
+        raise ValueError(f"unknown benchmark manifest: {benchmark_id}")
+    return manifest
+
+
+def _build_external_bundle(
+    *,
+    bundle_id: str,
+    workflow_family: KnowledgeWorkflowFamily,
+    artifact_ids: tuple[str, ...],
+    summary_lines: tuple[str, ...],
+    scientific_limits: tuple[str, ...],
+    hash_entries: tuple[str, ...],
+) -> ExternalReviewerBundle:
+    return build_external_reviewer_bundle(
+        ExternalReviewerBundleInput(
+            bundle_id=bundle_id,
+            schema_refs=(
+                "schema.benchmark_manifest.v1",
+                f"schema.{workflow_family.value}.review.v1",
+            ),
+            evidence_pointer_ids=artifact_ids,
+            summary_lines=summary_lines,
+            hash_ledger_entries=hash_entries,
+            reviewer_instructions=(
+                "Review owner surfaces, benchmark evidence pointers, and explicit "
+                "scientific limits before treating this workflow as release-ready."
+            ),
+        )
+    )
+
+
+def build_dda_benchmark_review(
+    *,
+    benchmark_manifest: BenchmarkManifest | None = None,
+    source_path: Path | None = None,
+) -> WorkflowBenchmarkReview:
+    """Build a DDA benchmark review from a checked-in external-engine result."""
+
+    manifest = benchmark_manifest or _require_manifest(
+        "benchmark:dda_search_reproducibility"
+    )
+    if manifest.workflow_family is not KnowledgeWorkflowFamily.DDA:
+        raise ValueError("DDA benchmark review requires a DDA workflow manifest")
+    result_path = source_path or (_repo_root() / manifest.dataset_locator)
+    normalization = normalize_search_results_with_adapter(
+        source_path=result_path,
+        adapter_kind=SearchAdapterKind.MSFRAGGER,
+    )
+    conformance = build_search_adapter_conformance_report(normalization)
+    review_bundle = build_review_ready_evidence_bundle(
+        normalization.normalized_records,
+        score_orientation=normalization.adapter_manifest.score_orientation.value,
+    )
+
+    field_loss = tuple(
+        sorted(
+            {
+                *conformance.field_accounting.preserved_native_only_columns,
+                *conformance.field_accounting.unsupported_columns,
+                *conformance.field_accounting.lost_columns,
+            }
+        )
+    )
+    claim_summaries = (
+        BenchmarkReviewClaim(
+            claim_id="adapter_normalization",
+            support_state=SupportState.SUPPORTED,
+            summary="adapter-normalized DDA evidence stays reviewable after external-engine import",
+            evidence_refs=(
+                manifest.dataset_id,
+                review_bundle.document_schema.content_hash or manifest.benchmark_id,
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="target_decoy_semantics",
+            support_state=(
+                SupportState.SUPPORTED
+                if review_bundle.psm_summary.decoy_psms > 0
+                else SupportState.AMBIGUOUS
+            ),
+            summary="review bundle keeps target-decoy evidence visible instead of flattening confidence posture",
+            evidence_refs=(f"decoy_psms={review_bundle.psm_summary.decoy_psms}",),
+            scientific_limits=(
+                "review support weakens if decoy evidence disappears from the normalized result set",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="field_loss_accounting",
+            support_state=(
+                SupportState.ADVISORY if field_loss else SupportState.SUPPORTED
+            ),
+            summary="adapter review keeps any preserved-native or unsupported search columns explicit",
+            evidence_refs=field_loss or ("no_extra_field_loss",),
+            scientific_limits=(
+                "native engine-specific columns remain comparison scope notes, not portable scientific claims",
+            ),
+        ),
+    )
+    artifact_id = review_bundle.document_schema.content_hash or fingerprint_model(
+        review_bundle
+    )
+    scientific_limits = (*manifest.comparison_notes,)
+    external_bundle = _build_external_bundle(
+        bundle_id=f"{manifest.benchmark_id}:external_review",
+        workflow_family=manifest.workflow_family,
+        artifact_ids=(manifest.dataset_id, artifact_id),
+        summary_lines=(
+            "Core owns DDA parsing and adapter normalization.",
+            "Intelligence owns the release-facing benchmark review summary.",
+            "This benchmark is limited to the checked-in MSFragger fixture and explicit comparison notes.",
+        ),
+        scientific_limits=scientific_limits,
+        hash_entries=(
+            artifact_id,
+            fingerprint_model(normalization),
+        ),
+    )
+    return WorkflowBenchmarkReview(
+        benchmark_id=manifest.benchmark_id,
+        dataset_id=manifest.dataset_id,
+        workflow_family=manifest.workflow_family,
+        title=manifest.title,
+        reviewer_summary=(
+            "DDA benchmark review preserves external-engine normalization, target-decoy posture, "
+            "and protein-level reviewability for the checked-in MSFragger fixture without pretending it is a full engine rerun."
+        ),
+        owner_surfaces=(
+            "bijux-proteomics-core: identification.search_adapters",
+            "bijux-proteomics-core: identification.review_ready_evidence_bundle",
+            "bijux-proteomics-intelligence: benchmark_reviews",
+        ),
+        review_artifacts=(
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="normalize_search_results_with_adapter",
+                artifact_kind="search_adapter_normalization_report",
+                artifact_id=fingerprint_model(normalization),
+            ),
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="build_review_ready_evidence_bundle",
+                artifact_kind="review_ready_evidence_bundle",
+                artifact_id=artifact_id,
+            ),
+        ),
+        claim_summaries=claim_summaries,
+        scientific_limits=scientific_limits,
+        comparison_notes=manifest.comparison_notes,
+        external_reviewer_bundle=external_bundle,
+        ready_for_release_review=all(
+            claim.support_state is not SupportState.REFUSED for claim in claim_summaries
+        ),
+    )
+
+
+def build_dia_benchmark_review(
+    *,
+    benchmark_manifest: BenchmarkManifest | None = None,
+    source_path: Path | None = None,
+) -> WorkflowBenchmarkReview:
+    """Build a DIA benchmark review from a checked-in external-engine result."""
+
+    manifest = benchmark_manifest or _require_manifest(
+        "benchmark:dia_library_extraction_consistency"
+    )
+    if manifest.workflow_family is not KnowledgeWorkflowFamily.DIA:
+        raise ValueError("DIA benchmark review requires a DIA workflow manifest")
+    result_path = source_path or (_repo_root() / manifest.dataset_locator)
+    normalization = normalize_search_results_with_adapter(
+        source_path=result_path,
+        adapter_kind=SearchAdapterKind.SPECTRONAUT,
+    )
+    review_bundle = build_review_ready_evidence_bundle(
+        normalization.normalized_records,
+        score_orientation=normalization.adapter_manifest.score_orientation.value,
+    )
+    capability_matrix = build_dia_capability_matrix(
+        (
+            DiaCapabilityMatrixEntry(
+                surface="adapter_import",
+                status=DiaCapabilityStatus.SUPPORTED,
+                note="checked-in Spectronaut-style exports normalize into reviewable peptide evidence",
+            ),
+            DiaCapabilityMatrixEntry(
+                surface="transition_alignment",
+                status=(
+                    DiaCapabilityStatus.SUPPORTED
+                    if len(normalization.normalized_records) == review_bundle.psm_summary.total_psms
+                    else DiaCapabilityStatus.PARTIAL
+                ),
+                note="transition-shaped evidence remains reviewable through normalized precursor identifiers",
+            ),
+            DiaCapabilityMatrixEntry(
+                surface="vendor_library_parity",
+                status=DiaCapabilityStatus.PARTIAL,
+                note="comparison scope is limited to checked-in external-engine exports rather than in-repo vendor execution",
+            ),
+        )
+    )
+    claim_summaries = (
+        BenchmarkReviewClaim(
+            claim_id="adapter_normalization",
+            support_state=SupportState.SUPPORTED,
+            summary="DIA external-engine exports normalize into stable reviewable evidence records",
+            evidence_refs=(
+                manifest.dataset_id,
+                review_bundle.document_schema.content_hash or manifest.benchmark_id,
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="dia_capability_scope",
+            support_state=(
+                SupportState.ADVISORY
+                if capability_matrix.partial_count > 0
+                else SupportState.SUPPORTED
+            ),
+            summary="DIA review output keeps explicit support, partial support, and scope boundaries visible",
+            evidence_refs=(
+                f"supported={capability_matrix.supported_count}",
+                f"partial={capability_matrix.partial_count}",
+            ),
+            scientific_limits=(
+                "direct vendor-library parity is outside the checked-in benchmark scope",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="protein_group_reviewability",
+            support_state=(
+                SupportState.SUPPORTED
+                if review_bundle.protein_summary.total_proteins > 0
+                else SupportState.INCOMPLETE
+            ),
+            summary="review-ready DIA output preserves protein-group context instead of stopping at raw precursor rows",
+            evidence_refs=(
+                f"protein_groups={review_bundle.protein_summary.total_proteins}",
+            ),
+        ),
+    )
+    artifact_id = review_bundle.document_schema.content_hash or fingerprint_model(
+        review_bundle
+    )
+    scientific_limits = (
+        *manifest.comparison_notes,
+        "DIA review claims stop at checked-in external-engine exports and explicit capability notes.",
+    )
+    external_bundle = _build_external_bundle(
+        bundle_id=f"{manifest.benchmark_id}:external_review",
+        workflow_family=manifest.workflow_family,
+        artifact_ids=(manifest.dataset_id, artifact_id),
+        summary_lines=(
+            "Core owns DIA-shaped adapter normalization and review-ready evidence assembly.",
+            "Intelligence owns the release-facing benchmark review and scope discipline.",
+            "This benchmark preserves explicit DIA capability limits instead of implying full vendor parity.",
+        ),
+        scientific_limits=scientific_limits,
+        hash_entries=(
+            artifact_id,
+            fingerprint_model(capability_matrix),
+        ),
+    )
+    return WorkflowBenchmarkReview(
+        benchmark_id=manifest.benchmark_id,
+        dataset_id=manifest.dataset_id,
+        workflow_family=manifest.workflow_family,
+        title=manifest.title,
+        reviewer_summary=(
+            "DIA benchmark review turns a checked-in Spectronaut-style export into a reviewable "
+            "bundle with explicit capability limits, rather than presenting adapter coverage as full pipeline parity."
+        ),
+        owner_surfaces=(
+            "bijux-proteomics-core: identification.search_adapters",
+            "bijux-proteomics-core: dia.capability_matrix",
+            "bijux-proteomics-intelligence: benchmark_reviews",
+        ),
+        review_artifacts=(
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="normalize_search_results_with_adapter",
+                artifact_kind="search_adapter_normalization_report",
+                artifact_id=fingerprint_model(normalization),
+            ),
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="build_dia_capability_matrix",
+                artifact_kind="dia_capability_matrix",
+                artifact_id=fingerprint_model(capability_matrix),
+            ),
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="build_review_ready_evidence_bundle",
+                artifact_kind="review_ready_evidence_bundle",
+                artifact_id=artifact_id,
+            ),
+        ),
+        claim_summaries=claim_summaries,
+        scientific_limits=scientific_limits,
+        comparison_notes=manifest.comparison_notes,
+        external_reviewer_bundle=external_bundle,
+        ready_for_release_review=all(
+            claim.support_state is not SupportState.REFUSED for claim in claim_summaries
+        ),
+    )
+
+
+__all__ = [
+    "BenchmarkReviewArtifact",
+    "BenchmarkReviewClaim",
+    "WorkflowBenchmarkReview",
+    "build_dda_benchmark_review",
+    "build_dia_benchmark_review",
+]

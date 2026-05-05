@@ -83,6 +83,13 @@ from bijux_proteomics_intelligence.skeptical_review import (
     SkepticalReviewReport,
     build_skeptical_review_report,
 )
+from bijux_proteomics_intelligence.benchmark_reviews import (
+    BenchmarkReviewArtifact,
+    BenchmarkReviewClaim,
+    WorkflowBenchmarkReview,
+    build_dda_benchmark_review,
+    build_dia_benchmark_review,
+)
 from bijux_proteomics_intelligence.candidates import (
     CandidateAssayAgendaItem,
     CandidateDecision,
@@ -311,6 +318,8 @@ __all__ = [
     "DEFAULT_INTELLIGENCE_CHARTER_ENTRIES",
     "DEFAULT_INTELLIGENCE_MODULE_AUDIT",
     "AnalyticalValueSignal",
+    "BenchmarkReviewArtifact",
+    "BenchmarkReviewClaim",
     "IntelligenceCharterCapability",
     "IntelligenceCharterEntry",
     "IntelligenceModuleAuditEntry",
@@ -368,6 +377,7 @@ __all__ = [
     "ReviewChallengeDomain",
     "ReviewChallengeSeverity",
     "SkepticalReviewReport",
+    "WorkflowBenchmarkReview",
     "build_rejection_action_plan",
     "summarize_rejections",
     "TieBreakRule",
@@ -375,6 +385,8 @@ __all__ = [
     "HypothesisStatus",
     "build_cautious_anomaly_interpretation_path",
     "build_design_brief",
+    "build_dda_benchmark_review",
+    "build_dia_benchmark_review",
     "build_follow_up_candidate_path",
     "build_review_board_decision_path",
     "build_skeptical_review_report",
