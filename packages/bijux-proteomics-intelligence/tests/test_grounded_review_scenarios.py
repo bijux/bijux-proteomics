@@ -306,6 +306,69 @@ def test_thin_grounding_fixture_refuses_polished_candidate_without_decisive_supp
     )
 
 
+def test_contradiction_pressure_fixture_refuses_polished_recommendation() -> None:
+    payload = _load_scenario_fixture("contradiction_pressure_trap")
+    program = _program_from_fixture(payload)
+    assessments = _assessments_from_fixture(payload)
+    bundle = _bundle_from_fixture(payload)
+
+    ranking = prioritize_candidates(
+        program,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+    packet = build_review_board_packet(
+        _grouped_review_state(),
+        ranking,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+    recommendation = build_final_decision_recommendation(
+        _grouped_review_state(),
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert recommendation.action is ScenarioAction.HOLD
+    assert recommendation.gate_result is not None
+    assert recommendation.gate_result.disposition.value == "refused"
+    assert packet.contradiction_summary is not None
+    assert packet.contradiction_summary.conflict_count >= 2
+
+
+def test_operational_fragility_fixture_prefers_executable_follow_up() -> None:
+    payload = _load_scenario_fixture("operational_fragility_trap")
+    program = _program_from_fixture(payload)
+    assessments = _assessments_from_fixture(payload)
+    bundle = _bundle_from_fixture(payload)
+
+    ranking = prioritize_candidates(
+        program,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.MULTIPLEX,
+    )
+
+    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    fragile_candidate = next(
+        candidate
+        for candidate in ranking.ranked_candidates
+        if candidate.candidate_id == "operational-fragility-candidate"
+    )
+    assert (
+        fragile_candidate.explainability["priority_inputs"]["novelty"]
+        > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    )
+    assert (
+        fragile_candidate.explainability["priority_inputs"]["assay_feasibility"]
+        < ranking.ranked_candidates[0].explainability["priority_inputs"]["assay_feasibility"]
+    )
+    assert fragile_candidate.score < ranking.ranked_candidates[0].score
+
+
 def test_contradiction_fixture_refuses_recommendation_and_keeps_conflicts_explicit() -> (
     None
 ):

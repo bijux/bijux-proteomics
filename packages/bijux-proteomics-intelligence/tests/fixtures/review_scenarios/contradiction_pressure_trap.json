@@ -1,0 +1,75 @@
+{
+  "workflow_family": "dia",
+  "program": {
+    "program_id": "prog-contradiction-pressure-trap",
+    "name": "contradiction pressure trap",
+    "objective": "refuse polished recommendations when contradiction pressure remains unresolved",
+    "target_id": "target-contradiction-pressure-trap",
+    "target_name": "Target Contradiction Pressure Trap",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "keep contradiction pressure explicit even when the candidate surface looks polished"
+  },
+  "criterion": {
+    "criterion_id": "contradiction-pressure",
+    "metric": "dia_follow_up_score",
+    "threshold": 0.73
+  },
+  "candidates": [
+    {
+      "candidate_id": "contradiction-polished-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dia_follow_up_score": 0.88
+      },
+      "manufacturability_score": 0.83,
+      "uncertainty": 0.08,
+      "evidence_support": 0.86,
+      "reproducibility_score": 0.85,
+      "effect_size_score": 0.78,
+      "assay_feasibility_score": 0.8,
+      "novelty_score": 0.35,
+      "lab_cost_risk": 0.12,
+      "operational_risk": 0.11
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "contradiction-support",
+      "kind": "assay",
+      "title": "supportive assay",
+      "source": "dia-contradiction-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible DIA rescue",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 15
+    },
+    {
+      "evidence_id": "contradiction-fails",
+      "kind": "assay",
+      "title": "contradictory assay",
+      "source": "dia-contradiction-2",
+      "source_type": "lab_assay",
+      "claim": "fails progression because the assay response worsens",
+      "confidence": 0.87,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 13
+    },
+    {
+      "evidence_id": "contradiction-context",
+      "kind": "literature",
+      "title": "context literature",
+      "source": "PMID:contradiction-pressure-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the follow-up context",
+      "confidence": 0.81,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 39
+    }
+  ],
+  "expected_top_candidate_id": "contradiction-polished-candidate"
+}
