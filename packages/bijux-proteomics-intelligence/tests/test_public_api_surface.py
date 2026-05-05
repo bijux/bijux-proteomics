@@ -30,3 +30,19 @@ def test_interpretation_public_api_contains_expected_exports() -> None:
     assert "BiologicalThemeExtraction" in bijux_proteomics_intelligence.__all__
     assert "ProteinSetEnrichmentReport" in bijux_proteomics_intelligence.__all__
     assert "RankedEnrichmentReport" in bijux_proteomics_intelligence.__all__
+
+
+def test_judgment_public_api_contains_expected_exports() -> None:
+    assert "DEFAULT_INTELLIGENCE_CHARTER" in bijux_proteomics_intelligence.__all__
+    assert "IntelligenceCharterCapability" in bijux_proteomics_intelligence.__all__
+    assert "GroundedDecisionRule" in bijux_proteomics_intelligence.__all__
+    assert "RankingRuleGroundingLedger" in bijux_proteomics_intelligence.__all__
+    assert "EvidenceContradictionSummary" in bijux_proteomics_intelligence.__all__
+    assert "EvidenceFreshnessSummary" in bijux_proteomics_intelligence.__all__
+    assert "RankingSensitivityReport" in bijux_proteomics_intelligence.__all__
+    assert "build_ranking_sensitivity_report" in bijux_proteomics_intelligence.__all__
+    assert "build_ranking_rule_grounding_ledger" in bijux_proteomics_intelligence.__all__
+    assert "rule_grounding_map" in bijux_proteomics_intelligence.__all__
+    assert "assess_recommendation_readiness" in bijux_proteomics_intelligence.__all__
+    assert "summarize_evidence_contradictions" in bijux_proteomics_intelligence.__all__
+    assert "summarize_evidence_freshness" in bijux_proteomics_intelligence.__all__
