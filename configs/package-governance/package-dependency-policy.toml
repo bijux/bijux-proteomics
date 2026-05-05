@@ -1,0 +1,42 @@
+# Generated package dependency policy.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_dependency_policy
+
+[[package]]
+distribution_name = "agentic-proteins"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
+rationale = "agentic-proteins stays as a narrow product-layer consumer of canonical core, intelligence, and runtime owners."
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+rationale = "maintainer governance may inspect publishable packages directly, but it must stay a consumer rather than a product owner."
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+allowed_outbound_edges = []
+rationale = "foundation remains the primitive base and does not import product packages."
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+rationale = "core currently exposes narrow scientific seams into runtime, intelligence, and lab while remaining grounded on foundation primitives."
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
+rationale = "runtime depends on core scientific seams, foundation contracts, and a narrow intelligence review path that remains explicitly governed."
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
+rationale = "intelligence consumes core scientific semantics, foundation contracts, and knowledge evidence/reference owners."
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+allowed_outbound_edges = ["bijux-proteomics-foundation"]
+rationale = "knowledge stays as cited memory over foundation primitives and does not lean on product-package owners."
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge"]
+rationale = "lab consumes core science, intelligence judgment, knowledge evidence, and foundation contracts without owning runtime orchestration."
