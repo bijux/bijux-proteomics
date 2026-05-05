@@ -15,7 +15,9 @@ def test_lab_root_exposes_operational_behavior_beyond_packet_models() -> None:
         "build_executable_assay_plan",
         "schedule_experiment_plan",
         "build_operational_readiness_report",
+        "build_follow_up_practicality_report",
         "build_lab_protocol_evidence_bundle",
+        "validate_candidate_follow_up_handoff",
         "promote_outcome_to_evidence",
         "recommend_rerun_policy",
     )
@@ -53,3 +55,5 @@ def test_lab_root_is_not_dominated_by_packet_and_report_exports() -> None:
 def test_lab_root_keeps_new_operational_surfaces_public() -> None:
     assert "build_protocol_attachment" in lab.__all__
     assert "build_operational_readiness_report" in lab.__all__
+    assert "build_follow_up_practicality_report" in lab.__all__
+    assert "validate_candidate_follow_up_handoff" in lab.__all__

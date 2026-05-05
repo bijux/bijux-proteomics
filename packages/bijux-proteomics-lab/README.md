@@ -80,8 +80,10 @@ For design and protocol planning:
 
 ```python
 from bijux_proteomics_lab import (
+    build_follow_up_practicality_report,
     plan_batch_randomization,
     plan_multiplex_labeling,
+    validate_candidate_follow_up_handoff,
     validate_experiment_design,
 )
 ```
@@ -90,8 +92,8 @@ from bijux_proteomics_lab import (
 
 - Distribution name: `bijux-proteomics-lab`
 - Import root: `bijux_proteomics_lab`
-- Stable entrypoints: `planning`, `design`, `protocols`, `readiness`,
-  `outcomes`, `repositories`, and `artifacts`
+- Stable entrypoints: `planning`, `design`, `lifecycle`, `protocols`,
+  `readiness`, `outcomes`, `repositories`, and `artifacts`
 
 ## Operational charter
 
@@ -124,6 +126,7 @@ next cycle.
 ## Contract checkpoints
 
 - planning outputs must preserve gate, dependency, and material context
+- follow-up queueing must challenge stale, contradictory, or non-ready intelligence signals before spend is committed
 - outcome summaries must retain explicit failure, rerun, and promotion signals
 - repository contracts must stay storage-agnostic and typed for feedback loops
 - downstream packages should ask this layer for execution planning instead of embedding schedule logic locally
@@ -135,6 +138,7 @@ next cycle.
 - you need canonical assay planning, batching, or outcome interpretation logic
 - the change affects laboratory behavior rather than only how operators see it
 - queues, feedback loops, and rerun guidance should stay typed and reusable
+- follow-up practicality and handoff skepticism should stay with the package that owns operational spend decisions
 
 ## Route elsewhere when
 
@@ -194,6 +198,7 @@ next cycle.
 
 - [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
 - [`src/bijux_proteomics_lab/design.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design.py) for experiment-design validation, protocol metadata, and run-setup planning
+- [`src/bijux_proteomics_lab/lifecycle.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/lifecycle.py) for assay lifecycle advancement and skeptical follow-up handoff validation
 - [`src/bijux_proteomics_lab/protocols.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/protocols.py) for versioned protocol attachments, required controls, failure caveats, and reviewable protocol bundles
 - [`src/bijux_proteomics_lab/readiness.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/readiness.py) for operational readiness reports spanning budget, instruments, staffing, backlog, and reagent constraints
 - [`src/bijux_proteomics_lab/outcomes.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py) for outcome interpretation and rerun decisions
