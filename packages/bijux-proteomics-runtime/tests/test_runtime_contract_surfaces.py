@@ -15,7 +15,14 @@ def _write_json(path: Path, payload: Mapping[str, object]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
 
-def _seed_run(base_dir: Path, run_id: str) -> Path:
+def _seed_run(
+    base_dir: Path,
+    run_id: str,
+    *,
+    workflow_state: str = "done",
+    outcome: str = "accepted",
+    started_at: str = "2026-05-05T10:00:00+00:00",
+) -> Path:
     run_dir = base_dir / "artifacts" / run_id
     artifacts_dir = run_dir / "artifacts"
     artifacts_dir.mkdir(parents=True, exist_ok=True)
@@ -24,8 +31,8 @@ def _seed_run(base_dir: Path, run_id: str) -> Path:
         "candidate_id": f"{run_id}-c0",
         "command": "run",
         "execution_status": "completed",
-        "workflow_state": "done",
-        "outcome": "accepted",
+        "workflow_state": workflow_state,
+        "outcome": outcome,
         "provider": "heuristic_proxy",
         "tool_status": "success",
         "qc_status": "acceptable",
@@ -44,6 +51,13 @@ def _seed_run(base_dir: Path, run_id: str) -> Path:
     _write_json(run_dir / "state.json", {"status": "ready"})
     _write_json(run_dir / "report.json", {"report": "ok"})
     _write_json(run_dir / "telemetry.json", {"events": []})
+    _write_json(
+        run_dir / "run_context.json",
+        {
+            "run_id": run_id,
+            "started_at": started_at,
+        },
+    )
     _write_json(artifacts_dir / "evidence_bundle.json", {"bundle_id": "bundle-1"})
     _write_json(artifacts_dir / "review_packet.json", {"packet_id": "review-1"})
     return run_dir
@@ -205,3 +219,44 @@ def test_runtime_lookup_contracts_apply_pagination_and_query_cost(
     assert error_payload["failure_class"] == "input"
     assert error_payload["remediation_hint"]
     assert error_payload["evidence_pointer"] is None
+
+
+def test_runtime_history_contract_orders_resumed_and_partial_runs_stably(
+    tmp_path: Path,
+) -> None:
+    _seed_run(
+        tmp_path,
+        "history-complete",
+        workflow_state="done",
+        outcome="accepted",
+        started_at="2026-05-05T10:00:00+00:00",
+    )
+    _seed_run(
+        tmp_path,
+        "history-paused",
+        workflow_state="paused",
+        outcome="inconclusive",
+        started_at="2026-05-05T11:00:00+00:00",
+    )
+    _seed_run(
+        tmp_path,
+        "history-review",
+        workflow_state="awaiting_human_review",
+        outcome="needs_review",
+        started_at="2026-05-05T12:00:00+00:00",
+    )
+    client = TestClient(create_app(AppConfig(base_dir=tmp_path, docs_enabled=False)))
+
+    history_response = client.get("/api/v1/runs/history")
+    review_response = client.get(
+        "/api/v1/runs/history",
+        params={"workflow_state": "awaiting_human_review"},
+    )
+
+    assert history_response.status_code == 200
+    run_ids = [item["run_id"] for item in history_response.json()["data"]["runs"]]
+    assert run_ids[:3] == ["history-review", "history-paused", "history-complete"]
+    assert review_response.status_code == 200
+    assert [item["run_id"] for item in review_response.json()["data"]["runs"]] == [
+        "history-review"
+    ]
