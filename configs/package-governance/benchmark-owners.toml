@@ -30,7 +30,7 @@ rationale = "runtime execution control is the main operational surface when repl
 
 [[owner]]
 package_name = "bijux-proteomics-intelligence"
-focus_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py"
+focus_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py"
 declaration_path = "docs/05-bijux-proteomics-intelligence/operations/performance-and-scaling.md"
 rationale = "candidate evaluation and ranking loops are the main place where intelligence regressions concentrate"
 

@@ -45,18 +45,18 @@ benchmark_id = "intelligence-ranking-throughput"
 package_name = "bijux-proteomics-intelligence"
 metric_name = "candidates_per_second"
 unit = "candidates_per_second"
-owner_focus_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py"
+owner_focus_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py"
 
 [[benchmark_artifact]]
 benchmark_id = "knowledge-bundle-scoring-throughput"
 package_name = "bijux-proteomics-knowledge"
 metric_name = "bundles_per_second"
 unit = "bundles_per_second"
-owner_focus_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py"
+owner_focus_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py"
 
 [[benchmark_artifact]]
 benchmark_id = "lab-planning-throughput"
 package_name = "bijux-proteomics-lab"
 metric_name = "plans_per_second"
 unit = "plans_per_second"
-owner_focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"
+owner_focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/rehearsals.py"
