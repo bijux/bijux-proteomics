@@ -10,12 +10,15 @@ from bijux_proteomics_lab import (
     CarryoverRiskLevel,
     ContrastRejectionReason,
     InstrumentMethodMetadata,
+    ProtocolControlRequirement,
+    ProtocolFailureCaveat,
     MultiplexChannelRole,
     SamplePreparationMetadata,
     assess_carryover_risk,
     build_fractionation_plan,
     build_lab_protocol_evidence_bundle,
     build_power_analysis_advisory,
+    build_protocol_attachment,
     build_sample_tracking_plate_advisory,
     plan_batch_randomization,
     plan_multiplex_labeling,
@@ -313,25 +316,50 @@ def test_build_lab_protocol_evidence_bundle_collects_protocol_context() -> None:
         abundance_tiers=dict.fromkeys(qc_plan.expanded_run_order, "medium"),
     )
 
+    sample_preparation = SamplePreparationMetadata(
+        protocol_id="prep-1",
+        digestion_protocol="trypsin overnight",
+        cleanup_method="stage-tip desalting",
+        fractionation_strategy="high-pH reversed phase",
+        labeling_strategy="label free",
+        operator="lab-a",
+    )
+    instrument_method = InstrumentMethodMetadata(
+        method_id="orbitrap-dda-01",
+        instrument="orbitrap",
+        acquisition_mode="DDA",
+        gradient_minutes=120.0,
+        ms1_resolution=60000,
+        ms2_resolution=15000,
+        collision_energy=28.0,
+    )
+    protocol_attachment = build_protocol_attachment(
+        sample_preparation=sample_preparation,
+        instrument_method=instrument_method,
+        protocol_version="3.2",
+        required_controls=(
+            ProtocolControlRequirement(
+                control_id="control:pooled_reference",
+                summary="Carry a pooled reference through the fractionated workflow.",
+                required_sample_kind="protein",
+                failure_if_missing="Cross-run drift cannot be normalized responsibly.",
+            ),
+        ),
+        failure_caveats=(
+            ProtocolFailureCaveat(
+                caveat_id="caveat:fractionation_balance",
+                triggering_condition="Fraction counts diverge across conditions.",
+                operational_effect="Comparisons will be confounded by uneven depth.",
+                mitigation="Rebuild the design or hold execution until fractions align.",
+            ),
+        ),
+    )
+
     bundle = build_lab_protocol_evidence_bundle(
         bundle_id="protocol-bundle-1",
-        sample_preparation=SamplePreparationMetadata(
-            protocol_id="prep-1",
-            digestion_protocol="trypsin overnight",
-            cleanup_method="stage-tip desalting",
-            fractionation_strategy="high-pH reversed phase",
-            labeling_strategy="label free",
-            operator="lab-a",
-        ),
-        instrument_method=InstrumentMethodMetadata(
-            method_id="orbitrap-dda-01",
-            instrument="orbitrap",
-            acquisition_mode="DDA",
-            gradient_minutes=120.0,
-            ms1_resolution=60000,
-            ms2_resolution=15000,
-            collision_energy=28.0,
-        ),
+        protocol_attachment=protocol_attachment,
+        sample_preparation=sample_preparation,
+        instrument_method=instrument_method,
         design_validation=validation,
         randomization_plan=randomization,
         fractionation_plan=fractionation,
@@ -341,6 +369,39 @@ def test_build_lab_protocol_evidence_bundle_collects_protocol_context() -> None:
 
     assert bundle.bundle_id == "protocol-bundle-1"
     assert bundle.document_schema.created_by == "bijux-proteomics-lab"
+    assert bundle.protocol_attachment.protocol_version == "3.2"
+    assert bundle.protocol_attachment.required_controls[0].control_id == (
+        "control:pooled_reference"
+    )
     assert bundle.sample_preparation.fractionation_strategy == "high-pH reversed phase"
     assert bundle.instrument_method.acquisition_mode == "DDA"
     assert bundle.qc_plan is not None
+
+
+def test_build_protocol_attachment_requires_controls_and_failure_caveats() -> None:
+    sample_preparation = SamplePreparationMetadata(
+        protocol_id="prep-2",
+        digestion_protocol="lysc overnight",
+        cleanup_method="stage-tip desalting",
+    )
+    instrument_method = InstrumentMethodMetadata(
+        method_id="method-2",
+        instrument="exploris",
+        acquisition_mode="DDA",
+        gradient_minutes=90.0,
+        ms1_resolution=60000,
+        collision_energy=28.0,
+    )
+
+    try:
+        build_protocol_attachment(
+            sample_preparation=sample_preparation,
+            instrument_method=instrument_method,
+            protocol_version="1.0",
+            required_controls=(),
+            failure_caveats=(),
+        )
+    except ValueError as exc:
+        assert "at least one control" in str(exc)
+    else:
+        raise AssertionError("expected empty protocol attachment to fail")

@@ -48,40 +48,6 @@ class CarryoverRiskLevel(StrEnum):
     HIGH = "high"
 
 
-class SamplePreparationMetadata(JsonModel):
-    """Sample-preparation context that should travel with lab planning."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    protocol_id: str = Field(..., min_length=1)
-    digestion_protocol: str = Field(..., min_length=1)
-    cleanup_method: str = Field(..., min_length=1)
-    fractionation_strategy: str | None = None
-    labeling_strategy: str | None = None
-    enrichment_strategy: str | None = None
-    spike_in_strategy: str | None = None
-    operator: str | None = None
-    notes: tuple[str, ...] = Field(default_factory=tuple)
-
-
-class InstrumentMethodMetadata(JsonModel):
-    """Instrument-method context required for reviewable execution plans."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    method_id: str = Field(..., min_length=1)
-    instrument: str = Field(..., min_length=1)
-    acquisition_mode: str = Field(..., min_length=1)
-    gradient_minutes: float = Field(..., gt=0.0)
-    ms1_resolution: int = Field(..., ge=1)
-    ms2_resolution: int | None = Field(default=None, ge=1)
-    collision_energy: float = Field(..., gt=0.0)
-    fragmentation_method: str = Field(default="HCD", min_length=1)
-    isolation_window_mz: float | None = Field(default=None, gt=0.0)
-    ion_mobility_enabled: bool = False
-    notes: tuple[str, ...] = Field(default_factory=tuple)
-
-
 class ExperimentDesignValidationIssue(JsonModel):
     """One actionable design-validation issue."""
 
@@ -286,25 +252,6 @@ class CarryoverRiskAdvisory(JsonModel):
     total_transitions: int = Field(..., ge=0)
     flagged_transitions: tuple[CarryoverRiskFlag, ...] = Field(default_factory=tuple)
     interpretation_summary: str = Field(..., min_length=1)
-
-
-class LabProtocolEvidenceBundle(JsonModel):
-    """Reviewable evidence bundle for lab protocol intent and planning."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    document_schema: DocumentSchema = Field(
-        default_factory=lambda: DocumentSchema(created_by="bijux-proteomics-lab")
-    )
-    bundle_id: str = Field(..., min_length=1)
-    sample_preparation: SamplePreparationMetadata
-    instrument_method: InstrumentMethodMetadata
-    design_validation: ExperimentDesignValidationReport
-    randomization_plan: BatchRandomizationPlan
-    fractionation_plan: FractionationPlan
-    multiplex_plan: MultiplexLabelingPlan | None = None
-    qc_plan: SpikeInQcSamplePlan | None = None
-    carryover_advisory: CarryoverRiskAdvisory | None = None
 
 
 class SampleTrackingPlateAssignment(JsonModel):
@@ -976,30 +923,4 @@ def assess_carryover_risk(
         interpretation_summary=(
             f"{len(flags)} of {max(len(run_order) - 1, 0)} run-order transitions show carryover risk."
         ),
-    )
-
-
-def build_lab_protocol_evidence_bundle(
-    *,
-    bundle_id: str,
-    sample_preparation: SamplePreparationMetadata,
-    instrument_method: InstrumentMethodMetadata,
-    design_validation: ExperimentDesignValidationReport,
-    randomization_plan: BatchRandomizationPlan,
-    fractionation_plan: FractionationPlan,
-    multiplex_plan: MultiplexLabelingPlan | None = None,
-    qc_plan: SpikeInQcSamplePlan | None = None,
-    carryover_advisory: CarryoverRiskAdvisory | None = None,
-) -> LabProtocolEvidenceBundle:
-    """Bundle protocol-planning evidence into one reviewable payload."""
-    return LabProtocolEvidenceBundle(
-        bundle_id=bundle_id,
-        sample_preparation=sample_preparation,
-        instrument_method=instrument_method,
-        design_validation=design_validation,
-        randomization_plan=randomization_plan,
-        fractionation_plan=fractionation_plan,
-        multiplex_plan=multiplex_plan,
-        qc_plan=qc_plan,
-        carryover_advisory=carryover_advisory,
     )
