@@ -42,6 +42,6 @@ rationale = "bundle scoring and contradiction analysis are the main knowledge-ti
 
 [[owner]]
 package_name = "bijux-proteomics-lab"
-focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py"
+focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"
 declaration_path = "docs/07-bijux-proteomics-lab/operations/performance-and-scaling.md"
-rationale = "planning and scheduling growth is where lab package performance regressions become operationally visible"
+rationale = "targeted benchmark rehearsals are where discovery evidence, lab handoff artifacts, and operator-facing diagnostics now concentrate"
