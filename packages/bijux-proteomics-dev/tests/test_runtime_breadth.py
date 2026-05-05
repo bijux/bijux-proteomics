@@ -19,10 +19,10 @@ def test_runtime_breadth_report_pairs_surface_growth_with_owned_logic() -> None:
 
     assert RUNTIME_BREADTH_PATH.exists()
     assert metrics.total_breadth_count == guard.baseline_total_breadth_count
-    assert metrics.first_level_subtree_count == 13
-    assert metrics.total_breadth_count == 32
+    assert metrics.first_level_subtree_count == 12
+    assert metrics.total_breadth_count == 31
     assert metrics.owner_execution_module_count == 121
-    assert metrics.owner_execution_modules_per_surface >= 3.78
+    assert metrics.owner_execution_modules_per_surface >= 3.9
     assert metrics.thin_module_count == 28
 
 

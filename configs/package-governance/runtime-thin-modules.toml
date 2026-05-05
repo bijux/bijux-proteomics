@@ -98,13 +98,13 @@ line_count = 15
 namespace_initializer = true
 
 [[thin_module]]
-module_path = "interfaces/__init__.py"
-line_count = 12
+module_path = "execution/tools/__init__.py"
+line_count = 14
 namespace_initializer = true
 
 [[thin_module]]
-module_path = "memory/__init__.py"
-line_count = 11
+module_path = "governance/__init__.py"
+line_count = 8
 namespace_initializer = true
 
 [[thin_module]]
@@ -139,12 +139,12 @@ namespace_initializer = true
 
 [[thin_module]]
 module_path = "state/__init__.py"
-line_count = 11
+line_count = 19
 namespace_initializer = true
 
 [[thin_module]]
-module_path = "tools/__init__.py"
-line_count = 14
+module_path = "support/__init__.py"
+line_count = 8
 namespace_initializer = true
 
 [[thin_module]]
