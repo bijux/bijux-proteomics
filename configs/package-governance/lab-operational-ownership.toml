@@ -1,0 +1,20 @@
+# Generated lab operational ownership report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab_operational_ownership
+
+[metrics]
+source_owner_families = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+test_families = ["benchmarks", "boundaries", "design", "handoffs", "lifecycle", "outcomes", "package", "planning", "readiness", "reconciliation"]
+flat_test_module_count = 0
+mirrored_owner_family_count = 8
+operational_value_module_count = 18
+thin_abstraction_module_count = 17
+ownership_ready = true
+unresolved_reasons = []
+
+[guard]
+required_source_owner_family_count = 8
+required_test_family_count = 10
+required_mirrored_owner_family_count = 8
+max_flat_test_module_count = 0
+min_operational_value_module_count = 18
+max_thin_abstraction_module_count = 17
