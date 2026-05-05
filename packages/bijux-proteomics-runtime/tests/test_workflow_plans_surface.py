@@ -1,0 +1,211 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from bijux_proteomics.search_adapters import SearchAdapterKind
+from bijux_proteomics_runtime.runtime.control.workflow_plans import (
+    ExternalToolCapabilityReport,
+    WorkflowExecutionMode,
+    WorkflowInputRole,
+    WorkflowManifestExplanationReport,
+    WorkflowScientificSurface,
+    WorkflowStepKind,
+    WorkflowStepProvenanceReport,
+    WorkflowStepReplayDisposition,
+    build_external_tool_capability_report,
+    build_proteomics_workflow_manifest,
+    build_proteomics_workflow_runtime_bundle,
+    build_reproducible_workflow_blueprint,
+    build_workflow_manifest_explanation_report,
+    build_workflow_replay_proof_report,
+    build_workflow_runtime_export_bundle,
+    build_workflow_step_provenance_report,
+)
+
+
+def _fixture(name: str) -> Path:
+    return (
+        Path(__file__).resolve().parents[2]
+        / "bijux-proteomics-core"
+        / "tests"
+        / "fixtures"
+        / "production_run"
+        / name
+    )
+
+
+def test_workflow_manifest_projects_imported_results_into_dag_ready_steps() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    assert manifest.execution_mode is WorkflowExecutionMode.IMPORT_RESULTS
+    assert manifest.sample_id == "sample-A"
+    assert manifest.search_adapter_kind is SearchAdapterKind.GENERIC
+    assert [step.kind for step in manifest.steps] == [
+        WorkflowStepKind.VALIDATE_INPUTS,
+        WorkflowStepKind.DIGEST_DATABASE,
+        WorkflowStepKind.NORMALIZE_IDENTIFICATIONS,
+        WorkflowStepKind.CALCULATE_FDR,
+        WorkflowStepKind.QUANTIFY_FEATURES,
+        WorkflowStepKind.RUN_QC,
+        WorkflowStepKind.BUILD_RUN_BUNDLE,
+    ]
+    assert {asset.role for asset in manifest.input_assets} == {
+        WorkflowInputRole.PROTEINS,
+        WorkflowInputRole.SPECTRA,
+        WorkflowInputRole.IDENTIFICATIONS,
+        WorkflowInputRole.FEATURES,
+        WorkflowInputRole.DESIGN,
+    }
+
+
+def test_reproducible_workflow_blueprint_connects_sequence_search_fdr_quant_qc_and_evidence() -> (
+    None
+):
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    blueprint = build_reproducible_workflow_blueprint(manifest)
+
+    assert blueprint.workflow_id == manifest.workflow_id
+    surfaces = {entry.scientific_surface for entry in blueprint.steps}
+    assert WorkflowScientificSurface.SEQUENCE_INTAKE in surfaces
+    assert WorkflowScientificSurface.SEARCH_INGESTION in surfaces
+    assert WorkflowScientificSurface.CONFIDENCE_SCORING in surfaces
+    assert WorkflowScientificSurface.QUANTIFICATION in surfaces
+    assert WorkflowScientificSurface.QUALITY_CONTROL in surfaces
+    assert WorkflowScientificSurface.EVIDENCE_SYNTHESIS in surfaces
+
+
+def test_workflow_manifest_explanation_report_makes_configuration_choices_explicit() -> (
+    None
+):
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = build_workflow_manifest_explanation_report(manifest)
+
+    assert isinstance(report, WorkflowManifestExplanationReport)
+    assert report.workflow_id == manifest.workflow_id
+    categories = {entry.category for entry in report.entries}
+    assert {
+        "execution_mode",
+        "search_adapter",
+        "scheduler",
+        "inputs",
+        "quantification",
+    } <= categories
+
+
+def test_workflow_step_provenance_report_survives_resume_and_replay() -> None:
+    bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+        completed_step_ids=(
+            "sample-a-generic-workflow-validate-inputs",
+            "sample-a-generic-workflow-digest-database",
+        ),
+    )
+
+    report = build_workflow_step_provenance_report(
+        bundle.manifest,
+        checkpoint=bundle.checkpoint,
+        replayed_step_ids=("sample-a-generic-workflow-digest-database",),
+    )
+
+    assert isinstance(report, WorkflowStepProvenanceReport)
+    replayed = next(
+        entry
+        for entry in report.entries
+        if entry.step_id == "sample-a-generic-workflow-digest-database"
+    )
+    reused = next(
+        entry
+        for entry in report.entries
+        if entry.step_id == "sample-a-generic-workflow-validate-inputs"
+    )
+    assert replayed.replay_disposition is WorkflowStepReplayDisposition.REPLAYED
+    assert reused.replay_disposition is WorkflowStepReplayDisposition.REUSED
+
+
+def test_workflow_replay_proof_report_explains_when_reruns_change_outputs() -> None:
+    runtime_bundle = build_proteomics_workflow_runtime_bundle(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        identifications_path=_fixture("results.tsv"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        sample_id="sample-A",
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+    previous_export = build_workflow_runtime_export_bundle(runtime_bundle)
+    current_export = build_workflow_runtime_export_bundle(
+        runtime_bundle.model_copy(
+            update={
+                "artifact_inventory": runtime_bundle.artifact_inventory.model_copy(
+                    update={
+                        "artifacts": (
+                            runtime_bundle.artifact_inventory.artifacts[0].model_copy(
+                                update={"absolute_path": str(_fixture("design.tsv"))}
+                            ),
+                            *runtime_bundle.artifact_inventory.artifacts[1:],
+                        )
+                    }
+                )
+            }
+        )
+    )
+
+    report = build_workflow_replay_proof_report(previous_export, current_export)
+
+    assert report.workflow_id == previous_export.workflow_id
+    assert report.equivalent is False
+    changed_surface = next(
+        entry for entry in report.entries if entry.surface == "artifact_inventory"
+    )
+    assert changed_surface.changed is True
+
+
+def test_external_tool_capability_report_blocks_nonlaunchable_adapters() -> None:
+    manifest = build_proteomics_workflow_manifest(
+        proteins_path=_fixture("proteins.fasta"),
+        spectra_path=_fixture("spectra.mgf"),
+        features_path=_fixture("ms1_features.tsv"),
+        design_path=_fixture("design.tsv"),
+        search_adapter_kind=SearchAdapterKind.GENERIC,
+    )
+
+    report = build_external_tool_capability_report(manifest)
+
+    assert isinstance(report, ExternalToolCapabilityReport)
+    assert report.executable is False
+    assert any(issue.code == "adapter_not_launchable" for issue in report.issues)

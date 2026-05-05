@@ -2,190 +2,138 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.runtime.control.artifacts import (
-    ExecutionSnapshots,
-    compare_runs,
-    require_human_decision,
-)
-from bijux_proteomics_runtime.runtime.control.cache import (
-    RuntimeCacheClaim,
-    RuntimeCacheDecision,
-    claim_runtime_cache,
-    release_runtime_cache_claim,
-)
-from bijux_proteomics_runtime.runtime.control.execution import run_flow
-from bijux_proteomics_runtime.runtime.control.operations import (
-    build_runtime_run_config,
-    compare_run_operation,
-    export_report_operation,
-    import_external_result_operation,
-    inspect_candidate_operation,
-    load_run_config_operation,
-    load_run_summary_operation,
-    resume_candidate_operation,
-    run_sequence_operation,
-)
-from bijux_proteomics_runtime.runtime.control.execution_surfaces import (
-    ContainerRunBundle,
-    SchedulerJobBundle,
-    build_container_run_bundle,
-    build_scheduler_job_bundle,
-    load_container_run_bundle,
-    load_scheduler_job_bundle,
-)
-from bijux_proteomics_runtime.runtime.control.imports import (
-    ImportRunBundle,
-    RuntimeImportTrace,
-    build_import_run_bundle,
-    build_import_trace,
-    load_import_run_bundle,
-    load_import_trace,
-)
-from bijux_proteomics_runtime.runtime.control.integrity import (
-    ArtifactIntegrityReport,
-    LargeArtifactGuardDecision,
-    load_artifact_integrity_report,
-    verify_runtime_artifact_integrity,
-)
-from bijux_proteomics_runtime.runtime.control.checkpoints import (
-    ResumeCheckpoint,
-    load_resume_checkpoint,
-)
-from bijux_proteomics_runtime.runtime.control.cleanup import (
-    RuntimeCleanupArtifact,
-    RuntimeCleanupPlan,
-    apply_runtime_cleanup_plan,
-    build_runtime_cleanup_plan,
-)
-from bijux_proteomics_runtime.runtime.control.failure_reports import (
-    RuntimeFailureCategory,
-    RuntimeFailureReport,
-    build_runtime_failure_report,
-    classify_runtime_failure,
-    write_runtime_failure_report,
-)
-from bijux_proteomics_runtime.runtime.control.ledger import (
-    ArtifactLedgerEntry,
-    RuntimeArtifactLedger,
-    load_artifact_ledger,
-    refresh_runtime_artifact_ledger,
-)
-from bijux_proteomics_runtime.runtime.control.preflight import (
-    PreflightCheck,
-    PreflightCheckState,
-    RuntimePreflightReport,
-    build_runtime_preflight_report,
-)
-from bijux_proteomics_runtime.runtime.control.recovery import (
-    FailureRecoveryArtifact,
-    RuntimeFailureRecoveryAudit,
-    build_runtime_failure_recovery_audit,
-)
-from bijux_proteomics_runtime.runtime.control.replay import (
-    LocalRunBundle,
-    ReplayContract,
-    ReplayEligibility,
-    build_local_run_bundle,
-    build_replay_contract,
-    evaluate_replay_eligibility,
-    load_local_run_bundle,
-)
-from bijux_proteomics_runtime.runtime.control.reruns import (
-    PartialRerunPlan,
-    PartialRerunStep,
-    RuntimeDependencyNode,
-    build_partial_rerun_plan,
-    build_runtime_dependency_graph,
-    build_runtime_partial_rerun_plan,
-)
-from bijux_proteomics_runtime.runtime.control.state_machine import (
-    RunStateMachine,
-    apply_transition,
-)
-from bijux_proteomics_runtime.runtime.control.workflow_paths import (
-    RuntimeReviewableOutputPath,
-    RuntimeSmokeWorkflow,
-    RuntimeWorkflowStep,
-    build_runtime_smoke_workflows,
-    run_reviewable_import_path,
-    run_reviewable_sequence_path,
-)
+from importlib import import_module
+from typing import Any
 
-__all__ = [
-    "ArtifactLedgerEntry",
-    "ArtifactIntegrityReport",
-    "ContainerRunBundle",
-    "ExecutionSnapshots",
-    "RuntimeFailureCategory",
-    "RuntimeFailureReport",
-    "FailureRecoveryArtifact",
-    "ImportRunBundle",
-    "LargeArtifactGuardDecision",
-    "LocalRunBundle",
-    "PreflightCheck",
-    "PreflightCheckState",
-    "PartialRerunPlan",
-    "PartialRerunStep",
-    "ReplayContract",
-    "ReplayEligibility",
-    "ResumeCheckpoint",
-    "RunStateMachine",
-    "RuntimeCacheClaim",
-    "RuntimeCacheDecision",
-    "RuntimeCleanupArtifact",
-    "RuntimeCleanupPlan",
-    "RuntimeFailureRecoveryAudit",
-    "RuntimeImportTrace",
-    "RuntimeReviewableOutputPath",
-    "RuntimeArtifactLedger",
-    "RuntimeDependencyNode",
-    "RuntimePreflightReport",
-    "RuntimeSmokeWorkflow",
-    "RuntimeWorkflowStep",
-    "SchedulerJobBundle",
-    "apply_transition",
-    "apply_runtime_cleanup_plan",
-    "build_container_run_bundle",
-    "build_import_run_bundle",
-    "build_import_trace",
-    "build_runtime_failure_report",
-    "build_scheduler_job_bundle",
-    "build_runtime_cleanup_plan",
-    "build_runtime_failure_recovery_audit",
-    "build_runtime_preflight_report",
-    "build_runtime_run_config",
-    "build_runtime_dependency_graph",
-    "build_runtime_smoke_workflows",
-    "build_runtime_partial_rerun_plan",
-    "build_local_run_bundle",
-    "build_partial_rerun_plan",
-    "build_replay_contract",
-    "claim_runtime_cache",
-    "compare_runs",
-    "compare_run_operation",
-    "classify_runtime_failure",
-    "evaluate_replay_eligibility",
-    "export_report_operation",
-    "import_external_result_operation",
-    "inspect_candidate_operation",
-    "load_artifact_integrity_report",
-    "load_container_run_bundle",
-    "load_artifact_ledger",
-    "load_run_config_operation",
-    "load_run_summary_operation",
-    "load_import_run_bundle",
-    "load_import_trace",
-    "load_local_run_bundle",
-    "load_resume_checkpoint",
-    "load_scheduler_job_bundle",
-    "refresh_runtime_artifact_ledger",
-    "release_runtime_cache_claim",
-    "require_human_decision",
-    "resume_candidate_operation",
-    "run_flow",
-    "run_reviewable_import_path",
-    "run_reviewable_sequence_path",
-    "run_sequence_operation",
-    "verify_runtime_artifact_integrity",
-    "write_runtime_failure_report",
-]
+_CONTROL_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.runtime.control.artifacts": [
+        "ExecutionSnapshots",
+        "compare_runs",
+        "require_human_decision",
+    ],
+    "bijux_proteomics_runtime.runtime.control.cache": [
+        "RuntimeCacheClaim",
+        "RuntimeCacheDecision",
+        "claim_runtime_cache",
+        "release_runtime_cache_claim",
+    ],
+    "bijux_proteomics_runtime.runtime.control.execution": [
+        "RunManager",
+        "run_flow",
+    ],
+    "bijux_proteomics_runtime.runtime.control.operations": [
+        "build_runtime_run_config",
+        "compare_run_operation",
+        "export_report_operation",
+        "import_external_result_operation",
+        "inspect_candidate_operation",
+        "load_run_config_operation",
+        "load_run_summary_operation",
+        "resume_candidate_operation",
+        "run_sequence_operation",
+    ],
+    "bijux_proteomics_runtime.runtime.control.execution_surfaces": [
+        "ContainerRunBundle",
+        "SchedulerJobBundle",
+        "build_container_run_bundle",
+        "build_scheduler_job_bundle",
+        "load_container_run_bundle",
+        "load_scheduler_job_bundle",
+    ],
+    "bijux_proteomics_runtime.runtime.control.imports": [
+        "ImportRunBundle",
+        "RuntimeImportTrace",
+        "build_import_run_bundle",
+        "build_import_trace",
+        "load_import_run_bundle",
+        "load_import_trace",
+    ],
+    "bijux_proteomics_runtime.runtime.control.integrity": [
+        "ArtifactIntegrityReport",
+        "LargeArtifactGuardDecision",
+        "load_artifact_integrity_report",
+        "verify_runtime_artifact_integrity",
+    ],
+    "bijux_proteomics_runtime.runtime.control.checkpoints": [
+        "ResumeCheckpoint",
+        "load_resume_checkpoint",
+    ],
+    "bijux_proteomics_runtime.runtime.control.cleanup": [
+        "RuntimeCleanupArtifact",
+        "RuntimeCleanupPlan",
+        "apply_runtime_cleanup_plan",
+        "build_runtime_cleanup_plan",
+    ],
+    "bijux_proteomics_runtime.runtime.control.failure_reports": [
+        "RuntimeFailureCategory",
+        "RuntimeFailureReport",
+        "build_runtime_failure_report",
+        "classify_runtime_failure",
+        "write_runtime_failure_report",
+    ],
+    "bijux_proteomics_runtime.runtime.control.ledger": [
+        "ArtifactLedgerEntry",
+        "RuntimeArtifactLedger",
+        "load_artifact_ledger",
+        "refresh_runtime_artifact_ledger",
+    ],
+    "bijux_proteomics_runtime.runtime.control.preflight": [
+        "PreflightCheck",
+        "PreflightCheckState",
+        "RuntimePreflightReport",
+        "build_runtime_preflight_report",
+    ],
+    "bijux_proteomics_runtime.runtime.control.recovery": [
+        "FailureRecoveryArtifact",
+        "RuntimeFailureRecoveryAudit",
+        "build_runtime_failure_recovery_audit",
+    ],
+    "bijux_proteomics_runtime.runtime.control.replay": [
+        "LocalRunBundle",
+        "ReplayContract",
+        "ReplayEligibility",
+        "build_local_run_bundle",
+        "build_replay_contract",
+        "evaluate_replay_eligibility",
+        "load_local_run_bundle",
+    ],
+    "bijux_proteomics_runtime.runtime.control.reruns": [
+        "PartialRerunPlan",
+        "PartialRerunStep",
+        "RuntimeDependencyNode",
+        "build_partial_rerun_plan",
+        "build_runtime_dependency_graph",
+        "build_runtime_partial_rerun_plan",
+    ],
+    "bijux_proteomics_runtime.runtime.control.state_machine": [
+        "RunStateMachine",
+        "apply_transition",
+    ],
+    "bijux_proteomics_runtime.runtime.control.workflow_paths": [
+        "RuntimeReviewableOutputPath",
+        "RuntimeSmokeWorkflow",
+        "RuntimeWorkflowStep",
+        "build_runtime_smoke_workflows",
+        "run_reviewable_import_path",
+        "run_reviewable_sequence_path",
+    ],
+}
+
+_CONTROL_EXPORTS = {
+    name: (module_name, name)
+    for module_name, names in _CONTROL_EXPORT_GROUPS.items()
+    for name in names
+}
+
+__all__ = sorted(_CONTROL_EXPORTS)
+
+
+def __getattr__(name: str) -> Any:
+    """Load runtime control exports lazily to avoid import-time package cycles."""
+
+    target = _CONTROL_EXPORTS.get(name)
+    if target is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module_name, attribute_name = target
+    module = import_module(module_name)
+    return getattr(module, attribute_name)
