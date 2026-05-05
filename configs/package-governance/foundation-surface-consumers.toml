@@ -4,6 +4,7 @@
 [[surface]]
 module_name = "bijux_proteomics_foundation"
 consumer_count = 111
+exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "fingerprint_model", "GateId", "hash_model", "hash_payload", "hash_text", "JsonModel", "ProgramId", "TargetId", "to_canonical_json"]
 consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/adoption/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/charter.py", "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/isotope_adduct_annotation.py", "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/modified_peptide_conflicts.py", "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/open_search_unknown_mod.py", "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/stable_isotope_labeling.py", "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/theoretical_fragment_reference.py", "packages/bijux-proteomics-core/src/bijux_proteomics/collaboration/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/corpus/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/dia/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/assays.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/constraints.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/criteria.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/liabilities.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/lifecycle.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/program_spec.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/repositories.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/reviews.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/targets.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/validation.py", "packages/bijux-proteomics-core/src/bijux_proteomics/execution/backend.py", "packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/identification/confidence.py", "packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters.py", "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/examples.py", "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py", "packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py", "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py", "packages/bijux-proteomics-core/src/bijux_proteomics/lab/operations.py", "packages/bijux-proteomics-core/src/bijux_proteomics/lab/planning.py", "packages/bijux-proteomics-core/src/bijux_proteomics/protein_family_evidence_graph.py", "packages/bijux-proteomics-core/src/bijux_proteomics/proteoform_identity.py", "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/review.py", "packages/bijux-proteomics-core/src/bijux_proteomics/qc.py", "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/review.py", "packages/bijux-proteomics-core/src/bijux_proteomics/review/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/review/inference_packets.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/enzyme_rule_provenance.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/peptide_uniqueness_audit.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/protease_digest_comparison.py", "packages/bijux-proteomics-core/src/bijux_proteomics/study/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/blueprint.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/analytical_review.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/charter.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/_fingerprints.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/_hashing.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/follow_up_learning.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/outcomes.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/skeptical_review.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/charter.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/graph.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/ingestion.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/queries.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/decision_rules.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/review.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/schema.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/artifacts.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/charter.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/lifecycle.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/protocols.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/ptm_follow_up.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/readiness.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/repositories.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/risk.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/workflow_readiness.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/product_routes.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/charter.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/fingerprints.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/hashing.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/identifiers.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/context/contracts.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/cache.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/checkpoints.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/cleanup.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/execution_surfaces.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/failure_reports.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/imports.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/integrity.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/ledger.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/preflight.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/provider_support.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/recovery.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/replay.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/reruns.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/workflow_paths.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/workflow_plans.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/workflow_reproducibility.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/workflow_runs.py"]
 imported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "GateId", "JsonModel", "ProgramId", "TargetId", "fingerprint_model", "hash_model", "hash_payload", "hash_text", "to_canonical_json"]
@@ -11,6 +12,7 @@ imported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSch
 [[surface]]
 module_name = "bijux_proteomics_foundation.documents"
 consumer_count = 0
+exported_symbols = ["DocumentSchema", "DurationValue", "NullabilityState", "NullableValue", "SequenceCoordinateRange", "SequenceCoordinateSystem", "UtcTimestamp", "absent_value", "present_value"]
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -18,6 +20,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.compatibility"
 consumer_count = 1
+exported_symbols = ["SchemaCompatibility", "SchemaEvolutionAssessment", "assess_schema_compatibility", "assess_schema_evolution"]
 consumer_distributions = ["bijux-proteomics-dev"]
 consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/serialization_compatibility.py"]
 imported_symbols = ["SchemaCompatibility", "assess_schema_compatibility"]
@@ -25,6 +28,7 @@ imported_symbols = ["SchemaCompatibility", "assess_schema_compatibility"]
 [[surface]]
 module_name = "bijux_proteomics_foundation.serialization"
 consumer_count = 0
+exported_symbols = ["StableHashAlgorithm", "StableHashPolicy", "default_hash_policy", "flatten_tsv_mapping", "hash_model", "hash_payload", "hash_text", "normalize_json_value", "to_canonical_json"]
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -32,6 +36,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.identity"
 consumer_count = 0
+exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "CycleId", "EvidenceId", "GateId", "IdentifierKind", "LabActionId", "PtmId", "ProgramId", "PromotionId", "ReviewId", "ReviewPacketId", "StudyId", "TargetId", "build_identifier", "classify_identifier", "ensure_identifier_kind"]
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -39,6 +44,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.support"
 consumer_count = 0
+exported_symbols = ["ProvenancePointer", "ProvenancePointerKind", "SupportState"]
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -46,6 +52,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.outcomes"
 consumer_count = 0
+exported_symbols = ["OperationDisposition", "OperationRefusal", "OperationResult", "RefusalKind"]
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -53,6 +60,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.json_models"
 consumer_count = 12
+exported_symbols = ["JsonModel", "fingerprint_model"]
 consumer_distributions = ["bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-runtime"]
 consumer_modules = ["packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/benchmarks.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/briefings.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/citations.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/contexts.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/corpora.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/literature.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/narratives.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/ontologies.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/problems.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/rules.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/contracts.py"]
 imported_symbols = ["JsonModel"]
@@ -60,6 +68,7 @@ imported_symbols = ["JsonModel"]
 [[surface]]
 module_name = "bijux_proteomics_foundation.migrations"
 consumer_count = 0
+exported_symbols = []
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -67,6 +76,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.canonicalization"
 consumer_count = 0
+exported_symbols = ["flatten_tsv_mapping", "normalize_json_value", "to_canonical_json"]
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -74,6 +84,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.hashing"
 consumer_count = 1
+exported_symbols = ["StableHashAlgorithm", "StableHashPolicy", "default_hash_policy", "hash_model", "hash_payload", "hash_text"]
 consumer_distributions = ["bijux-proteomics-runtime"]
 consumer_modules = ["packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/contracts.py"]
 imported_symbols = ["StableHashPolicy", "default_hash_policy"]
@@ -81,6 +92,7 @@ imported_symbols = ["StableHashPolicy", "default_hash_policy"]
 [[surface]]
 module_name = "bijux_proteomics_foundation.ids"
 consumer_count = 3
+exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "CycleId", "EvidenceId", "ExperimentId", "GateId", "IdentifierKind", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "PromotionId", "ProteinId", "PtmId", "ReviewId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier", "ensure_identifier_kind"]
 consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-lab"]
 consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/domain/validation.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/lifecycle.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py"]
 imported_symbols = ["CycleId", "IdentifierKind", "PromotionId", "ReviewId", "ensure_identifier_kind"]
@@ -88,6 +100,7 @@ imported_symbols = ["CycleId", "IdentifierKind", "PromotionId", "ReviewId", "ens
 [[surface]]
 module_name = "bijux_proteomics_foundation.provenance"
 consumer_count = 0
+exported_symbols = ["ProvenancePointer", "ProvenancePointerKind"]
 consumer_distributions = []
 consumer_modules = []
 imported_symbols = []
@@ -95,6 +108,7 @@ imported_symbols = []
 [[surface]]
 module_name = "bijux_proteomics_foundation.refusals"
 consumer_count = 2
+exported_symbols = ["OperationRefusal", "RefusalKind"]
 consumer_distributions = ["bijux-proteomics-intelligence", "bijux-proteomics-lab"]
 consumer_modules = ["packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs.py"]
 imported_symbols = ["OperationRefusal", "RefusalKind"]
@@ -102,6 +116,7 @@ imported_symbols = ["OperationRefusal", "RefusalKind"]
 [[surface]]
 module_name = "bijux_proteomics_foundation.results"
 consumer_count = 3
+exported_symbols = ["OperationDisposition", "OperationResult"]
 consumer_distributions = ["bijux-proteomics-intelligence", "bijux-proteomics-lab"]
 consumer_modules = ["packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs.py"]
 imported_symbols = ["OperationResult"]
@@ -109,6 +124,7 @@ imported_symbols = ["OperationResult"]
 [[surface]]
 module_name = "bijux_proteomics_foundation.states"
 consumer_count = 2
+exported_symbols = ["SupportState"]
 consumer_distributions = ["bijux-proteomics-intelligence"]
 consumer_modules = ["packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py"]
 imported_symbols = ["SupportState"]

@@ -1,0 +1,72 @@
+# Generated foundation compatibility alias report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation_surface_usage
+
+[[alias]]
+module_name = "bijux_proteomics_foundation.canonicalization"
+canonical_module_name = "bijux_proteomics_foundation.serialization.canonicalization"
+requires_alias_test = false
+exported_symbols = ["flatten_tsv_mapping", "normalize_json_value", "to_canonical_json"]
+live_symbols = []
+dead_symbols = ["flatten_tsv_mapping", "normalize_json_value", "to_canonical_json"]
+consumer_distributions = []
+consumer_modules = []
+
+[[alias]]
+module_name = "bijux_proteomics_foundation.hashing"
+canonical_module_name = "bijux_proteomics_foundation.serialization.hashing"
+requires_alias_test = true
+exported_symbols = ["StableHashAlgorithm", "StableHashPolicy", "default_hash_policy", "hash_model", "hash_payload", "hash_text"]
+live_symbols = ["StableHashPolicy", "default_hash_policy"]
+dead_symbols = ["StableHashAlgorithm", "hash_model", "hash_payload", "hash_text"]
+consumer_distributions = ["bijux-proteomics-runtime"]
+consumer_modules = ["packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/contracts.py"]
+
+[[alias]]
+module_name = "bijux_proteomics_foundation.ids"
+canonical_module_name = "bijux_proteomics_foundation.identity.identifiers"
+requires_alias_test = true
+exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "CycleId", "EvidenceId", "ExperimentId", "GateId", "IdentifierKind", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "PromotionId", "ProteinId", "PtmId", "ReviewId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier", "ensure_identifier_kind"]
+live_symbols = ["CycleId", "IdentifierKind", "PromotionId", "ReviewId", "ensure_identifier_kind"]
+dead_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "EvidenceId", "ExperimentId", "GateId", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "ProteinId", "PtmId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier"]
+consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-lab"]
+consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/domain/validation.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/lifecycle.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py"]
+
+[[alias]]
+module_name = "bijux_proteomics_foundation.provenance"
+canonical_module_name = "bijux_proteomics_foundation.support.provenance"
+requires_alias_test = false
+exported_symbols = ["ProvenancePointer", "ProvenancePointerKind"]
+live_symbols = []
+dead_symbols = ["ProvenancePointer", "ProvenancePointerKind"]
+consumer_distributions = []
+consumer_modules = []
+
+[[alias]]
+module_name = "bijux_proteomics_foundation.refusals"
+canonical_module_name = "bijux_proteomics_foundation.outcomes.refusals"
+requires_alias_test = true
+exported_symbols = ["OperationRefusal", "RefusalKind"]
+live_symbols = ["OperationRefusal", "RefusalKind"]
+dead_symbols = []
+consumer_distributions = ["bijux-proteomics-intelligence", "bijux-proteomics-lab"]
+consumer_modules = ["packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs.py"]
+
+[[alias]]
+module_name = "bijux_proteomics_foundation.results"
+canonical_module_name = "bijux_proteomics_foundation.outcomes.results"
+requires_alias_test = true
+exported_symbols = ["OperationDisposition", "OperationResult"]
+live_symbols = ["OperationResult"]
+dead_symbols = ["OperationDisposition"]
+consumer_distributions = ["bijux-proteomics-intelligence", "bijux-proteomics-lab"]
+consumer_modules = ["packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs.py"]
+
+[[alias]]
+module_name = "bijux_proteomics_foundation.states"
+canonical_module_name = "bijux_proteomics_foundation.support.states"
+requires_alias_test = true
+exported_symbols = ["SupportState"]
+live_symbols = ["SupportState"]
+dead_symbols = []
+consumer_distributions = ["bijux-proteomics-intelligence"]
+consumer_modules = ["packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py"]
