@@ -5,12 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import (
-    DocumentSchema,
-    JsonModel,
-    fingerprint_model,
-    to_canonical_json,
-)
 from bijux_proteomics_knowledge.ingestion import (
     IngestionReport,
     ManualEvidenceNote,
@@ -307,8 +301,6 @@ __all__ = [
     "summarize_multi_decision_readiness",
     "extract_blocker_highlights",
     "summarize_review_trend",
-    "to_canonical_json",
-    "fingerprint_model",
     "build_claim",
     "build_claim_trust_gap_report",
     "close_claim",
@@ -356,12 +348,10 @@ __all__ = [
     "summarize_bundle",
     "summarize_trust_balance",
     "weight_source_type",
-    "JsonModel",
     "IngestionReport",
     "ManualEvidenceNote",
     "NormalizedEvidenceInput",
     "validate_normalized_input",
-    "DocumentSchema",
     "ClaimResolutionRecord",
     "ResolutionRecordQuery",
     "EvidenceRecordQuery",

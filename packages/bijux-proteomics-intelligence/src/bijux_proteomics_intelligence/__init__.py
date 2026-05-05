@@ -264,8 +264,6 @@ from bijux_proteomics_intelligence.policies import (
     validate_factor_weights,
     validate_metric_catalog,
 )
-from bijux_proteomics_foundation import JsonModel
-
 __all__ = [
     "CandidateAssessment",
     "CandidateExplainabilitySummary",
@@ -333,7 +331,6 @@ __all__ = [
     "EvidenceContradictionSummary",
     "EvidenceFreshnessSummary",
     "EvaluatorPolicyBundle",
-    "JsonModel",
     "LiabilityFlag",
     "MetricCatalogAuditReport",
     "FactorWeightValidationReport",

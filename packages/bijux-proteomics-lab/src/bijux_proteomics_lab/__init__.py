@@ -5,19 +5,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import (
-    DocumentSchema,
-    JsonModel,
-    fingerprint_model,
-    to_canonical_json,
-)
 from bijux_proteomics_lab.design import (
     BatchRandomizationPlan,
     CarryoverRiskAdvisory,
     CarryoverRiskFlag,
     CarryoverRiskLevel,
-    ContrastRecommendation,
-    ContrastRejectionReason,
     DesignIssueSeverity,
     ExperimentDesignStructureSummary,
     ExperimentDesignValidationIssue,
@@ -372,8 +364,6 @@ __all__ = [
     "CarryoverRiskAdvisory",
     "CarryoverRiskFlag",
     "CarryoverRiskLevel",
-    "ContrastRecommendation",
-    "ContrastRejectionReason",
     "DesignIssueSeverity",
     "ExperimentDesignStructureSummary",
     "ReviewQueueDecision",
@@ -466,7 +456,6 @@ __all__ = [
     "FamilyCapacity",
     "FollowUpPracticalityReport",
     "FailureClass",
-    "JsonModel",
     "LabFeedbackRecord",
     "LabFeedbackQuery",
     "LabFeedbackTrendReport",
@@ -537,8 +526,6 @@ __all__ = [
     "evaluate_lab_artifact_with_registry",
     "evaluate_lab_schema_compatibility",
     "lint_lab_schema_contract_registry",
-    "to_canonical_json",
-    "fingerprint_model",
     "diff_model_payloads",
     "build_canonical_artifact_envelope",
     "verify_canonical_artifact_envelope",
@@ -547,7 +534,6 @@ __all__ = [
     "ReviewRiskProfile",
     "ScheduledBatch",
     "ScheduledPlan",
-    "DocumentSchema",
     "assess_material_constraints",
     "build_review_packet",
     "build_review_risk_profile",

@@ -5,23 +5,21 @@ from __future__ import annotations
 
 from bijux_proteomics_foundation import fingerprint_model as foundation_fingerprint_model
 from bijux_proteomics_foundation import to_canonical_json as foundation_to_canonical_json
-from bijux_proteomics_knowledge import (
-    EvidenceBundle,
-    fingerprint_model,
-    to_canonical_json,
-)
+from bijux_proteomics_knowledge import EvidenceBundle
 
 
 def test_canonical_serialization_and_fingerprint_are_stable() -> None:
     bundle = EvidenceBundle(bundle_id="bundle-s1", target_id="target-s1")
-    serialized = to_canonical_json(bundle)
-    digest_a = fingerprint_model(bundle)
-    digest_b = fingerprint_model(bundle)
+    serialized = foundation_to_canonical_json(bundle)
+    digest_a = foundation_fingerprint_model(bundle)
+    digest_b = foundation_fingerprint_model(bundle)
 
     assert serialized.startswith("{")
     assert digest_a == digest_b
 
 
-def test_knowledge_serialization_reuses_foundation_helpers() -> None:
-    assert to_canonical_json is foundation_to_canonical_json
-    assert fingerprint_model is foundation_fingerprint_model
+def test_knowledge_root_does_not_reexport_foundation_helpers() -> None:
+    import bijux_proteomics_knowledge
+
+    assert "to_canonical_json" not in bijux_proteomics_knowledge.__all__
+    assert "fingerprint_model" not in bijux_proteomics_knowledge.__all__

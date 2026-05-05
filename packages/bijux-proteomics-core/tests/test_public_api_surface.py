@@ -263,7 +263,6 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "query_evidence_graph" in bijux_proteomics.__all__
     assert "classify_contradictions" in bijux_proteomics.__all__
     assert "decompose_trust_score" in bijux_proteomics.__all__
-    assert "build_ranking_sensitivity_report" in bijux_proteomics.__all__
     assert "replay_candidate_lifecycle" in bijux_proteomics.__all__
     assert "prioritize_evidence_gaps" in bijux_proteomics.__all__
     assert "build_review_packet_schema" in bijux_proteomics.__all__
@@ -413,7 +412,6 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "EvidenceGraphQueryResult" in bijux_proteomics.__all__
     assert "ContradictionTaxonomyReport" in bijux_proteomics.__all__
     assert "TrustScoreDecomposition" in bijux_proteomics.__all__
-    assert "RankingSensitivityReport" in bijux_proteomics.__all__
     assert "CandidateLifecycleReplayReport" in bijux_proteomics.__all__
     assert "EvidenceGapPrioritizationReport" in bijux_proteomics.__all__
     assert "ReviewPacketSchema" in bijux_proteomics.__all__

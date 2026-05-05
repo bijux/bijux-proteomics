@@ -12,25 +12,25 @@ from bijux_proteomics_lab import (
     ExperimentPlan,
     build_canonical_artifact_envelope,
     diff_model_payloads,
-    fingerprint_model,
-    to_canonical_json,
     verify_canonical_artifact_envelope,
 )
 
 
 def test_lab_canonical_serialization_and_fingerprint_are_stable() -> None:
     plan = ExperimentPlan(program_id="prog-ser")
-    canonical = to_canonical_json(plan)
-    digest_a = fingerprint_model(plan)
-    digest_b = fingerprint_model(plan)
+    canonical = foundation_to_canonical_json(plan)
+    digest_a = foundation_fingerprint_model(plan)
+    digest_b = foundation_fingerprint_model(plan)
 
     assert canonical.startswith("{")
     assert digest_a == digest_b
 
 
-def test_lab_serialization_reuses_foundation_helpers() -> None:
-    assert to_canonical_json is foundation_to_canonical_json
-    assert fingerprint_model is foundation_fingerprint_model
+def test_lab_root_does_not_reexport_foundation_helpers() -> None:
+    import bijux_proteomics_lab
+
+    assert "to_canonical_json" not in bijux_proteomics_lab.__all__
+    assert "fingerprint_model" not in bijux_proteomics_lab.__all__
 
 
 def test_diff_model_payloads_reports_changed_fields() -> None:
