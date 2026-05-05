@@ -5,12 +5,25 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from bijux_proteomics import SuccessCriterion, create_program_spec
+from bijux_proteomics import (
+    DocumentSchema,
+    InstrumentBatchQcReport,
+    InstrumentBatchQcRunEntry,
+    QuantEntityLevel,
+    ReplicateCorrelationEntry,
+    ReplicateCorrelationReport,
+    SuccessCriterion,
+    create_program_spec,
+)
 from bijux_proteomics.programs import MeasurementDirection
 from bijux_proteomics_intelligence import (
+    CautiousAnomalyInterpretationPath,
     CandidateAssessment,
     FollowUpCandidatePath,
+    ReviewBoardDecisionPath,
+    build_cautious_anomaly_interpretation_path,
     build_follow_up_candidate_path,
+    build_review_board_decision_path,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
@@ -134,3 +147,140 @@ def test_follow_up_candidate_path_builds_readable_ranked_recommendations() -> No
     assert top.recommendation.startswith("prioritize candidate-a")
     assert top.explanation
     assert "scientific_value" in " ".join(top.explanation)
+
+
+def test_review_board_decision_path_builds_packet_from_evidence_and_candidates() -> (
+    None
+):
+    path = build_review_board_decision_path(
+        _program(),
+        [
+            CandidateAssessment(
+                candidate_id="candidate-a",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.88},
+                manufacturability_score=0.86,
+                uncertainty=0.08,
+                evidence_support=0.89,
+                reproducibility_score=0.91,
+                effect_size_score=0.8,
+                assay_feasibility_score=0.87,
+                novelty_score=0.58,
+                lab_cost_risk=0.14,
+                operational_risk=0.11,
+            ),
+            CandidateAssessment(
+                candidate_id="candidate-b",
+                sequence="ACDEFGHIKLMNPQRSTVWYA",
+                metric_scores={"binding_score": 0.82},
+                manufacturability_score=0.72,
+                uncertainty=0.16,
+                evidence_support=0.74,
+                reproducibility_score=0.67,
+                effect_size_score=0.69,
+                assay_feasibility_score=0.64,
+                novelty_score=0.71,
+                lab_cost_risk=0.24,
+                operational_risk=0.27,
+            ),
+        ],
+        _bundle(),
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    assert isinstance(path, ReviewBoardDecisionPath)
+    assert path.packet.ranked_evidence
+    assert path.packet.recommendation.reasons
+    assert path.recommendation.endswith("review-board review")
+    assert path.explanation
+
+
+def test_cautious_anomaly_interpretation_path_keeps_contract_fields_separate() -> (
+    None
+):
+    batch_report = InstrumentBatchQcReport(
+        document_schema=DocumentSchema(
+            created_by="test",
+            document_kind="instrument_batch_qc_report",
+            package_name="test",
+            status="generated",
+        ),
+        batch_id="batch-z",
+        instrument="orbitrap-z",
+        run_count=3,
+        median_spectrum_count=9500.0,
+        median_identification_rate=0.21,
+        median_abs_mass_error_ppm=6.5,
+        median_identified_retention_time_seconds=1800.0,
+        outlier_run_ids=("run-t2",),
+        runs=(
+            InstrumentBatchQcRunEntry(
+                run_id="run-c1",
+                sample_id="C1",
+                batch="batch-z",
+                instrument="orbitrap-z",
+                spectrum_count=10000,
+                identification_rate=0.24,
+                median_abs_mass_error_ppm=5.4,
+                identified_retention_time_span_seconds=1820.0,
+                retention_time_shift_seconds=0.0,
+                outlier_reasons=(),
+            ),
+            InstrumentBatchQcRunEntry(
+                run_id="run-t1",
+                sample_id="T1",
+                batch="batch-z",
+                instrument="orbitrap-z",
+                spectrum_count=9800,
+                identification_rate=0.22,
+                median_abs_mass_error_ppm=5.9,
+                identified_retention_time_span_seconds=1790.0,
+                retention_time_shift_seconds=12.0,
+                outlier_reasons=(),
+            ),
+            InstrumentBatchQcRunEntry(
+                run_id="run-t2",
+                sample_id="T2",
+                batch="batch-z",
+                instrument="orbitrap-z",
+                spectrum_count=7200,
+                identification_rate=0.11,
+                median_abs_mass_error_ppm=12.2,
+                identified_retention_time_span_seconds=1650.0,
+                retention_time_shift_seconds=95.0,
+                outlier_reasons=("low_identification_rate", "high_mass_error"),
+            ),
+        ),
+    )
+    replicate_report = ReplicateCorrelationReport(
+        entity_level=QuantEntityLevel.PROTEIN,
+        entries=(
+            ReplicateCorrelationEntry(
+                sample_a="C1",
+                sample_b="T2",
+                condition_a="control",
+                condition_b="treatment",
+                correlation=0.62,
+                shared_entity_count=12,
+            ),
+            ReplicateCorrelationEntry(
+                sample_a="T1",
+                sample_b="T2",
+                condition_a="treatment",
+                condition_b="treatment",
+                correlation=0.62,
+                shared_entity_count=12,
+            ),
+        ),
+        within_condition_mean=None,
+        between_condition_mean=0.62,
+    )
+
+    path = build_cautious_anomaly_interpretation_path(batch_report, replicate_report)
+
+    assert isinstance(path, CautiousAnomalyInterpretationPath)
+    assert path.interpretations
+    assert "technical anomalies" in path.overall_recommendation
+    assert path.interpretations[0].recommendation
+    assert path.interpretations[0].explanation
+    assert path.interpretations[0].unresolved_questions

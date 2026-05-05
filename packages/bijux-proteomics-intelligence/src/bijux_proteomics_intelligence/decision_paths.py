@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics import InstrumentBatchQcReport, ReplicateCorrelationReport
 from bijux_proteomics.programs import ProgramSpec
 from bijux_proteomics_foundation import JsonModel, ProgramId
 from bijux_proteomics_intelligence.briefs import (
@@ -16,6 +17,22 @@ from bijux_proteomics_intelligence.briefs import (
     build_design_brief,
     prioritize_candidates,
     summarize_candidate_explainability,
+)
+from bijux_proteomics_intelligence.candidates import (
+    CandidateRiskProfile,
+    build_risk_profile,
+)
+from bijux_proteomics_intelligence.evaluators import (
+    EvaluatorPolicyBundle,
+    ReviewBoardPacket,
+    ScenarioSetEvaluation,
+    build_review_board_packet,
+    evaluate_all_scenarios,
+    summarize_unresolved_question_ledger,
+)
+from bijux_proteomics_intelligence.interpretation import (
+    OutlierInterpretationClass,
+    explain_outlier_samples,
 )
 from bijux_proteomics_knowledge import (
     DecisionReadiness,
@@ -56,6 +73,53 @@ class FollowUpCandidatePath(JsonModel):
         ..., description="Transparent ranking produced from the evidence bundle."
     )
     recommendations: list[FollowUpCandidateRecommendation] = Field(default_factory=list)
+    unresolved_questions: list[str] = Field(default_factory=list)
+
+
+class ReviewBoardDecisionPath(JsonModel):
+    """End-to-end path from normalized evidence to a review-board packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    workflow_family: KnowledgeWorkflowFamily | None = Field(default=None)
+    follow_up_path: FollowUpCandidatePath = Field(
+        ..., description="Readable follow-up candidate path."
+    )
+    risks: list[CandidateRiskProfile] = Field(default_factory=list)
+    evaluations: ScenarioSetEvaluation = Field(
+        ..., description="Scenario evaluations over the same evidence state."
+    )
+    packet: ReviewBoardPacket = Field(
+        ..., description="Review-board packet aligned with ranking and evidence."
+    )
+    recommendation: str = Field(..., min_length=1)
+    explanation: list[str] = Field(default_factory=list)
+    unresolved_questions: list[str] = Field(default_factory=list)
+
+
+class AnomalyInterpretationRecommendation(JsonModel):
+    """Cautious interpretation output for one observed anomaly."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    classification: OutlierInterpretationClass
+    recommendation: str = Field(..., min_length=1)
+    explanation: list[str] = Field(default_factory=list)
+    unresolved_questions: list[str] = Field(default_factory=list)
+
+
+class CautiousAnomalyInterpretationPath(JsonModel):
+    """End-to-end path from observed anomalies to cautious interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    interpretation_count: int = Field(..., ge=0)
+    overall_recommendation: str = Field(..., min_length=1)
+    interpretations: list[AnomalyInterpretationRecommendation] = Field(
+        default_factory=list
+    )
     unresolved_questions: list[str] = Field(default_factory=list)
 
 
@@ -152,8 +216,130 @@ def build_follow_up_candidate_path(
     )
 
 
+def build_review_board_decision_path(
+    program: ProgramSpec,
+    assessments: list[CandidateAssessment],
+    evidence_bundle: EvidenceBundle,
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+    ranking_policy: RankingPolicy | None = None,
+    evaluator_policies: EvaluatorPolicyBundle | None = None,
+) -> ReviewBoardDecisionPath:
+    """Build a review-board packet from normalized evidence and candidate inputs."""
+    follow_up_path = build_follow_up_candidate_path(
+        program,
+        assessments,
+        evidence_bundle,
+        workflow_family=workflow_family,
+        ranking_policy=ranking_policy,
+    )
+    risks = [build_risk_profile(assessment) for assessment in assessments]
+    evaluations = evaluate_all_scenarios(
+        program,
+        follow_up_path.ranking,
+        follow_up_path.readiness,
+        risks,
+        policies=evaluator_policies,
+    )
+    packet = build_review_board_packet(
+        evaluations,
+        follow_up_path.ranking,
+        assessments,
+        evidence_bundle=evidence_bundle,
+        qc_caveats=follow_up_path.readiness.blockers,
+        workflow_family=workflow_family,
+    )
+    unresolved = _dedupe_nonblank(
+        follow_up_path.unresolved_questions
+        + summarize_unresolved_question_ledger(evaluations).prioritized_questions
+    )
+    return ReviewBoardDecisionPath(
+        program_id=program.program_id,
+        workflow_family=workflow_family,
+        follow_up_path=follow_up_path,
+        risks=risks,
+        evaluations=evaluations,
+        packet=packet,
+        recommendation=(
+            f"{packet.recommendation.action.value.replace('_', ' ')} via review-board review"
+        ),
+        explanation=_dedupe_nonblank(
+            packet.recommendation.reasons[:4] + packet.next_step_proposals[:3]
+        ),
+        unresolved_questions=unresolved,
+    )
+
+
+def build_cautious_anomaly_interpretation_path(
+    batch_report: InstrumentBatchQcReport,
+    replicate_report: ReplicateCorrelationReport,
+    *,
+    low_correlation_threshold: float = 0.85,
+) -> CautiousAnomalyInterpretationPath:
+    """Build cautious interpretation outputs from observed anomaly signals."""
+    explanations = explain_outlier_samples(
+        batch_report,
+        replicate_report,
+        low_correlation_threshold=low_correlation_threshold,
+    )
+    interpretations: list[AnomalyInterpretationRecommendation] = []
+    unresolved_questions: list[str] = []
+
+    for explanation in explanations:
+        if explanation.classification is OutlierInterpretationClass.TECHNICAL_ANOMALY:
+            recommendation = "hold biological interpretation until the technical anomaly is resolved"
+            questions = ["root cause of the technical anomaly remains unresolved"]
+        elif explanation.classification is OutlierInterpretationClass.MIXED_SIGNAL:
+            recommendation = "treat the anomaly as unresolved until orthogonal evidence separates technical and biological signal"
+            questions = [
+                "orthogonal evidence must separate technical artifact from biological effect"
+            ]
+        else:
+            recommendation = "preserve the anomaly for biological follow-up with orthogonal confirmation"
+            questions = ["orthogonal evidence should confirm the biological separation"]
+        unresolved_questions.extend(questions)
+        interpretations.append(
+            AnomalyInterpretationRecommendation(
+                sample_id=explanation.sample_id,
+                classification=explanation.classification,
+                recommendation=recommendation,
+                explanation=_dedupe_nonblank(
+                    list(explanation.reasons)
+                    + list(explanation.technical_reasons)
+                    + list(explanation.biological_reasons)
+                ),
+                unresolved_questions=questions,
+            )
+        )
+
+    if any(
+        entry.classification is OutlierInterpretationClass.TECHNICAL_ANOMALY
+        for entry in interpretations
+    ):
+        overall = "hold mechanistic interpretation until technical anomalies are resolved"
+    elif any(
+        entry.classification is OutlierInterpretationClass.MIXED_SIGNAL
+        for entry in interpretations
+    ):
+        overall = "treat observed anomalies as unresolved until orthogonal evidence reduces ambiguity"
+    else:
+        overall = "preserve observed anomalies for biological follow-up with explicit caution"
+
+    return CautiousAnomalyInterpretationPath(
+        interpretation_count=len(interpretations),
+        overall_recommendation=overall,
+        interpretations=interpretations,
+        unresolved_questions=_dedupe_nonblank(unresolved_questions),
+    )
+
+
 __all__ = [
+    "AnomalyInterpretationRecommendation",
+    "CautiousAnomalyInterpretationPath",
     "FollowUpCandidatePath",
     "FollowUpCandidateRecommendation",
+    "ReviewBoardDecisionPath",
+    "build_cautious_anomaly_interpretation_path",
     "build_follow_up_candidate_path",
+    "build_review_board_decision_path",
 ]
