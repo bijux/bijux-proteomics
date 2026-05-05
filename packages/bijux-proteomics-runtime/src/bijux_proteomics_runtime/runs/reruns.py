@@ -9,7 +9,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_runtime.runs.contracts import RunContextContract
-from bijux_proteomics_runtime.runtime.control.ledger import RuntimeArtifactLedger
+from bijux_proteomics_runtime.runs.ledger import RuntimeArtifactLedger
 from bijux_proteomics_runtime.runs.replay import (
     ReplayContract,
     ReplayEligibility,

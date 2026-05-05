@@ -14,7 +14,7 @@ from bijux_proteomics_runtime.runs.contracts import (
     RunContextContract,
     RuntimeArtifactRetentionClass,
 )
-from bijux_proteomics_runtime.runtime.control.integrity import (
+from bijux_proteomics_runtime.runs.integrity import (
     require_reusable_artifact_bundle,
 )
 from bijux_proteomics_runtime.runs.replay import ReplayContract

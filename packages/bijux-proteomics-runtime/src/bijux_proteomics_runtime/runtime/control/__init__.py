@@ -6,7 +6,7 @@ from importlib import import_module
 from typing import Any
 
 _CONTROL_EXPORT_GROUPS = {
-    "bijux_proteomics_runtime.runtime.control.artifacts": [
+    "bijux_proteomics_runtime.runs.artifacts": [
         "ExecutionSnapshots",
         "compare_runs",
         "require_human_decision",
@@ -48,7 +48,7 @@ _CONTROL_EXPORT_GROUPS = {
         "load_import_run_bundle",
         "load_import_trace",
     ],
-    "bijux_proteomics_runtime.runtime.control.integrity": [
+    "bijux_proteomics_runtime.runs.integrity": [
         "ArtifactIntegrityReport",
         "LargeArtifactGuardDecision",
         "load_artifact_integrity_report",
@@ -71,7 +71,7 @@ _CONTROL_EXPORT_GROUPS = {
         "classify_runtime_failure",
         "write_runtime_failure_report",
     ],
-    "bijux_proteomics_runtime.runtime.control.ledger": [
+    "bijux_proteomics_runtime.runs.ledger": [
         "ArtifactLedgerEntry",
         "RuntimeArtifactLedger",
         "load_artifact_ledger",

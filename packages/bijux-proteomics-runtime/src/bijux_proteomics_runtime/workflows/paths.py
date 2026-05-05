@@ -13,7 +13,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_runtime.runs.contracts import RunContextContract
 from bijux_proteomics_runtime.runs.manager import RunManager
-from bijux_proteomics_runtime.runtime.control.ledger import (
+from bijux_proteomics_runtime.runs.ledger import (
     refresh_runtime_artifact_ledger,
 )
 from bijux_proteomics_runtime.runs.operations import build_runtime_run_config

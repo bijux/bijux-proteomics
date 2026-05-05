@@ -11,10 +11,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel, hash_payload
 from bijux_proteomics_runtime.runs.contracts import RunContextContract
-from bijux_proteomics_runtime.runtime.control.integrity import (
+from bijux_proteomics_runtime.runs.integrity import (
     require_reusable_artifact_bundle,
 )
-from bijux_proteomics_runtime.runtime.control.ledger import RuntimeArtifactLedger
+from bijux_proteomics_runtime.runs.ledger import RuntimeArtifactLedger
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
 
 

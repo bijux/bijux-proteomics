@@ -11,7 +11,7 @@ from bijux_proteomics_runtime.runs.replay import (
     build_replay_contract,
 )
 from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
-from bijux_proteomics_runtime.runtime.control.ledger import (
+from bijux_proteomics_runtime.runs.ledger import (
     refresh_runtime_artifact_ledger,
 )
 from bijux_proteomics_runtime.runs.replay import write_local_run_bundle

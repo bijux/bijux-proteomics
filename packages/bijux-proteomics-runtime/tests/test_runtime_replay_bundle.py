@@ -6,7 +6,7 @@ from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
-from bijux_proteomics_runtime.runtime.control.ledger import (
+from bijux_proteomics_runtime.runs.ledger import (
     RuntimeArtifactLedger,
     refresh_runtime_artifact_ledger,
 )

@@ -13,7 +13,7 @@ from bijux_proteomics_intelligence.domain.candidates import CandidateStore
 from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 
 from bijux_proteomics_runtime.runs.run_config import RunConfig
-from bijux_proteomics_runtime.runtime.control.artifacts import compare_runs
+from bijux_proteomics_runtime.runs.artifacts import compare_runs
 from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
