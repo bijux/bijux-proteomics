@@ -54,7 +54,10 @@ from bijux_proteomics_foundation.ids import (
     classify_identifier,
     ensure_identifier_kind,
 )
-from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
+from bijux_proteomics_foundation.compatibility.migrations import (
+    MigrationRegistry,
+    SchemaMigration,
+)
 
 
 class DemoDocument(JsonModel):

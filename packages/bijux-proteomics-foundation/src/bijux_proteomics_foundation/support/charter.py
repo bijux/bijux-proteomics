@@ -145,7 +145,7 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
 
 
 def _foundation_source_root() -> Path:
-    return Path(__file__).resolve().parent
+    return Path(__file__).resolve().parents[1]
 
 
 def _shared_contract_entry(
@@ -190,7 +190,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
         )
 
-    if module_path == "charter.py":
+    if module_path == "support/charter.py":
         return _shared_contract_entry(
             module_path,
             (
@@ -207,6 +207,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "identity/__init__.py",
         "identity/identifiers.py",
         "support/__init__.py",
+        "support/charter.py",
         "support/provenance.py",
         "support/states.py",
         "versions.py",
@@ -250,7 +251,11 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             "Shared refusal, error, and result contracts belong in foundation so failure semantics stay reusable instead of package-local.",
         )
 
-    if module_path in {"compatibility.py", "migrations.py"}:
+    if module_path in {
+        "compatibility/__init__.py",
+        "compatibility/evolution.py",
+        "compatibility/migrations.py",
+    }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.COMPATIBILITY_AND_MIGRATIONS,),

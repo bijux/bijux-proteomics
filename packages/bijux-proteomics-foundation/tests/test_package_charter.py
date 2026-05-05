@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_foundation.charter import (
+from bijux_proteomics_foundation.support.charter import (
     DEFAULT_FOUNDATION_CHARTER,
     DEFAULT_FOUNDATION_CHARTER_ENTRIES,
     DEFAULT_FOUNDATION_MODULE_AUDIT,

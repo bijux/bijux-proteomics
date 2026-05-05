@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
-from bijux_proteomics_foundation.charter import (
+from bijux_proteomics_foundation.support.charter import (
     DEFAULT_FOUNDATION_MODULE_AUDIT,
     FoundationModuleClassification,
 )
@@ -125,7 +125,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         maximum_thin_module_count=2,
         evidence_locator=(
             "packages/bijux-proteomics-foundation/src/"
-            "bijux_proteomics_foundation/charter.py"
+            "bijux_proteomics_foundation/support/charter.py"
         ),
     ),
     "bijux-proteomics-runtime": _PackageSubstanceExpectation(

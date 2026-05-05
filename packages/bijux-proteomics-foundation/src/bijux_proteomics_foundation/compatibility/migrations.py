@@ -116,3 +116,6 @@ class MigrationRegistry:
                     f"expected {step.to_version}, got {current}"
                 )
         return result
+
+
+__all__ = ["MigrationFn", "MigrationRegistry", "SchemaMigration"]
