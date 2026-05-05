@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.ptm.review import (
+from bijux_proteomics_lab.ptm_follow_up import (
     PtmLabAssayRisk,
     PtmLabValidationPacket,
     PtmLabValidationTargetEntry,

@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import subprocess  # nosec B404
 import tempfile
+from typing import Any, Protocol
 
 from pydantic import ConfigDict, Field
 
@@ -25,8 +26,6 @@ from bijux_proteomics.ptm import (
     parse_ptm_localization_tsv,
 )
 from bijux_proteomics.ptm.review import (
-    PtmLabAssayRisk,
-    PtmLabValidationPacket,
     build_ptm_lab_validation_packet,
     build_ptm_occupancy_counterpart_report,
 )
@@ -40,6 +39,20 @@ from bijux_proteomics.sequences import (
 )
 from bijux_proteomics.spectra import MgfParseReport, parse_mgf
 from bijux_proteomics_foundation import JsonModel
+
+
+class _PtmLabValidationEntryLike(Protocol):
+    """Shape runtime needs from one PTM lab validation entry."""
+
+    target_peptides: tuple[str, ...]
+    assay_risk: Any
+
+
+class _PtmLabValidationPacketLike(Protocol):
+    """Shape runtime needs from one PTM lab validation packet."""
+
+    entries: tuple[_PtmLabValidationEntryLike, ...]
+    unresolved_risk_count: int
 
 
 class RuntimeWorkflowStatus(StrEnum):
@@ -845,7 +858,7 @@ def run_knowledge_review_workflow_end_to_end(
 
 
 def run_lab_handoff_workflow_end_to_end(
-    packet: PtmLabValidationPacket,
+    packet: _PtmLabValidationPacketLike,
     *,
     artifact_root: str = "artifacts/workflows/lab-handoff",
 ) -> LabHandoffWorkflowRunReport:
@@ -854,7 +867,7 @@ def run_lab_handoff_workflow_end_to_end(
     unresolved = sum(
         1
         for entry in packet.entries
-        if entry.assay_risk in {PtmLabAssayRisk.MEDIUM, PtmLabAssayRisk.HIGH}
+        if getattr(entry.assay_risk, "value", entry.assay_risk) in {"medium", "high"}
     )
     key = _stable_runtime_key(
         {

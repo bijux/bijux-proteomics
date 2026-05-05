@@ -244,36 +244,6 @@ class PtmCooccurrenceCautionReport(JsonModel):
     true_colocalization_pair_count: int = Field(..., ge=0)
 
 
-class PtmLabAssayRisk(StrEnum):
-    """Compatibility enum for PTM lab-validation risk classes."""
-
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-
-
-class PtmLabValidationTargetEntry(JsonModel):
-    """Compatibility packet entry for PTM lab-validation handoffs."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    site_key: str = Field(..., min_length=1)
-    target_peptides: tuple[str, ...] = Field(default_factory=tuple)
-    ambiguous_site: bool
-    assay_risk: PtmLabAssayRisk
-    recommended_controls: tuple[str, ...] = Field(default_factory=tuple)
-    evidence_needs: tuple[str, ...] = Field(default_factory=tuple)
-
-
-class PtmLabValidationPacket(JsonModel):
-    """Compatibility packet model for PTM lab-validation handoffs."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entries: tuple[PtmLabValidationTargetEntry, ...] = Field(default_factory=tuple)
-    unresolved_risk_count: int = Field(..., ge=0)
-
-
 def _to_probability(score: float) -> float:
     """Map non-negative localization score to a bounded probability-like signal."""
     if score <= 0.0:
