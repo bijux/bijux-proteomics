@@ -59,3 +59,35 @@ def test_inference_disagreement_review_packet_surfaces_review_severity() -> None
         for entry in packet.entries
     )
     assert len(packet.recommendation) > 10
+
+
+def test_inference_disagreement_review_packet_requires_adjudication_for_protein_sets() -> (
+    None
+):
+    packet = build_inference_disagreement_review_packet(
+        (
+            PsmRecord(
+                spectrum_id="shared-001",
+                peptide="PEPTIDE",
+                canonical_peptide="PEPTIDE",
+                charge=2,
+                score=100.0,
+                q_value=0.002,
+                protein_refs=("P11111", "P22222"),
+                target_decoy_label=TargetDecoyLabel.TARGET,
+            ),
+            PsmRecord(
+                spectrum_id="shared-002",
+                peptide="PEPTIDE",
+                canonical_peptide="PEPTIDE",
+                charge=2,
+                score=99.5,
+                q_value=0.002,
+                protein_refs=("P11111", "P22222"),
+                target_decoy_label=TargetDecoyLabel.TARGET,
+            ),
+        )
+    )
+
+    assert packet.strategy_overlap_alert_count >= 1
+    assert "disagreement rationale" in packet.recommendation
