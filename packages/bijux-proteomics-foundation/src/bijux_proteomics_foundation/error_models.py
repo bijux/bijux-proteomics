@@ -10,10 +10,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field, field_validator
 
-from bijux_proteomics_foundation.ordering import (
-    stable_order_pairs,
-    stable_order_strings,
-)
+from bijux_proteomics_foundation.ordering import stable_order_pairs
 from bijux_proteomics_foundation.provenance import ProvenancePointer
 from bijux_proteomics_foundation.serialization import JsonModel
 from bijux_proteomics_foundation.states import SupportState
@@ -59,4 +56,40 @@ class ErrorEnvelope(JsonModel):
     @field_validator("cause_chain")
     @classmethod
     def _order_causes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
-        return stable_order_strings(value)
+        return tuple(entry.strip() for entry in value if entry.strip())
+
+
+def summarize_exception_chain(error: BaseException) -> tuple[str, ...]:
+    """Return one deterministic exception chain from outermost to deepest cause."""
+    chain: list[str] = []
+    current: BaseException | None = error
+    while current is not None:
+        label = type(current).__name__
+        detail = str(current).strip()
+        chain.append(f"{label}: {detail}" if detail else label)
+        current = current.__cause__ or current.__context__
+    return tuple(chain)
+
+
+def build_error_envelope_from_exception(
+    *,
+    category: ErrorCategory,
+    code: str,
+    error: BaseException,
+    context: tuple[tuple[str, Any], ...] | dict[str, Any] = (),
+    message: str | None = None,
+    provenance: tuple[ProvenancePointer, ...] = (),
+    retryable: bool = False,
+    state: SupportState = SupportState.INCOMPLETE,
+) -> ErrorEnvelope:
+    """Build one error envelope while preserving exception nesting order."""
+    return ErrorEnvelope(
+        category=category,
+        code=code,
+        message=message or str(error) or type(error).__name__,
+        state=state,
+        retryable=retryable,
+        context=context,
+        cause_chain=summarize_exception_chain(error),
+        provenance=provenance,
+    )

@@ -117,7 +117,7 @@ def test_support_state_refusal_and_error_models_serialize_deterministically() ->
     assert refusal.state is SupportState.INCOMPLETE
     assert envelope.code == "engine_timeout"
     assert envelope.context[0] == ("run_id", "run-77")
-    assert envelope.cause_chain == ("adapter", "timeout")
+    assert envelope.cause_chain == ("timeout", "adapter")
     assert to_canonical_json(envelope).count("engine_timeout") == 1
 
 

@@ -6,6 +6,10 @@
 from __future__ import annotations
 
 from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
+from bijux_proteomics_foundation.error_models import (
+    build_error_envelope_from_exception,
+    summarize_exception_chain,
+)
 from bijux_proteomics_foundation.errors import (
     ContractConflictError,
     ContractNotFoundError,
@@ -94,6 +98,10 @@ from bijux_proteomics_foundation.provenance import (
     ProvenancePointerKind,
 )
 from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
+from bijux_proteomics_foundation.results import (
+    OperationDisposition,
+    OperationResult,
+)
 from bijux_proteomics_foundation.schema import (
     DocumentSchema,
     SchemaCompatibility,
@@ -149,6 +157,8 @@ __all__ = [
     "NullabilityState",
     "NullableValue",
     "OperationRefusal",
+    "OperationDisposition",
+    "OperationResult",
     "PeptideId",
     "ProgramId",
     "PromotionId",
@@ -181,6 +191,7 @@ __all__ = [
     "build_artifact_bundle_fingerprint",
     "build_benchmark_manifest_fingerprint",
     "build_dataset_fingerprint",
+    "build_error_envelope_from_exception",
     "build_fingerprint_record",
     "build_identifier",
     "build_parameter_set_fingerprint",
@@ -201,5 +212,6 @@ __all__ = [
     "stable_order_pairs",
     "stable_order_strings",
     "stable_order_value",
+    "summarize_exception_chain",
     "to_canonical_json",
 ]
