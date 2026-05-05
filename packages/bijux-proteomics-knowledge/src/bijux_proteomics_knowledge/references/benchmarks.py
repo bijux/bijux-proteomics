@@ -40,6 +40,9 @@ class BenchmarkManifest(JsonModel):
     primary_citation_ids: tuple[str, ...] = Field(..., min_length=1)
     corpus_ids: tuple[str, ...] = Field(..., min_length=1)
     benchmark_rationale: str = Field(..., min_length=1)
+    version_trace: tuple[str, ...] = Field(..., min_length=1)
+    retrieval_trace: tuple[str, ...] = Field(..., min_length=1)
+    dataset_license_and_reuse_note: str = Field(..., min_length=1)
     instrument_profiles: tuple[str, ...] = Field(..., min_length=1)
     reproduction_requirements: tuple[str, ...] = Field(..., min_length=1)
     comparison_notes: tuple[str, ...] = Field(..., min_length=1)
@@ -50,6 +53,8 @@ class BenchmarkManifest(JsonModel):
     @field_validator(
         "primary_citation_ids",
         "corpus_ids",
+        "version_trace",
+        "retrieval_trace",
         "instrument_profiles",
         "reproduction_requirements",
         "comparison_notes",
@@ -85,6 +90,13 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "corpus:target_decoy_method_reference",
         ),
         benchmark_rationale="The suite compares multiple DDA search outputs, so the manifest must preserve both identification confidence framing and reference-proteome mapping.",
+        version_trace=(
+            "The benchmark is pinned to the checked-in MSFragger export and the current reference-corpus links reviewed on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "Dataset paths and linked reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+        ),
+        dataset_license_and_reuse_note="The checked-in adapter fixture is reused as internal benchmark evidence inside this repository and does not imply redistribution rights for external search-engine outputs beyond the test fixture snapshot.",
         instrument_profiles=("Orbitrap", "Q Exactive-class DDA"),
         reproduction_requirements=(
             "Normalize search-engine exports through the core adapter fixture corpus.",
@@ -127,6 +139,13 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "corpus:swath_method_reference",
         ),
         benchmark_rationale="The knowledge layer needs a curated record of the DIA assumptions that justify spectral-library and transition-based claims downstream.",
+        version_trace=(
+            "The benchmark is pinned to the checked-in Spectronaut-style export and the current DIA reference corpus links reviewed on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "Dataset paths and linked DIA reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+        ),
+        dataset_license_and_reuse_note="The checked-in DIA fixture is reused as internal benchmark evidence and does not widen redistribution rights for vendor DIA outputs beyond the repository snapshot.",
         instrument_profiles=("Orbitrap", "timsTOF"),
         reproduction_requirements=(
             "Replay DIA-shaped adapter exports from the shared search-adapter fixture suite.",
@@ -169,6 +188,13 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "corpus:ptm_localization_method_reference",
         ),
         benchmark_rationale="PTM features need both ontology grounding and a localization-confidence method reference to keep downstream rule interpretation defensible.",
+        version_trace=(
+            "The benchmark is pinned to the checked-in PTM localization fixture and linked PTM reference corpora reviewed on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "Dataset paths and linked PTM reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+        ),
+        dataset_license_and_reuse_note="The checked-in PTM fixture is reused as internal benchmark evidence and does not imply redistribution rights beyond the repository’s reviewed test data.",
         instrument_profiles=("Orbitrap",),
         reproduction_requirements=(
             "Use the bundled PTM localization fixture corpus.",
@@ -208,6 +234,13 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "corpus:uniprot_reference_proteome",
         ),
         benchmark_rationale="The suite uses bundled LFQ fixtures to prove repeatability, but interpretation remains tied to stable reference-proteome identifiers.",
+        version_trace=(
+            "The benchmark is pinned to the checked-in study-scale quantification fixture and current proteome reference links reviewed on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "Dataset paths and linked quantification reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+        ),
+        dataset_license_and_reuse_note="The checked-in LFQ fixture is reused as internal benchmark evidence and does not widen redistribution rights for any external quantification pipelines beyond the repository snapshot.",
         instrument_profiles=("Orbitrap",),
         reproduction_requirements=(
             "Use the bundled quantification fixture corpus and study-scale design inputs.",
@@ -247,6 +280,13 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "corpus:tmtpro_labeling_reference",
         ),
         benchmark_rationale="Multiplex quantification depends on durable label-chemistry assumptions that need a curated reference surface instead of ad hoc comments.",
+        version_trace=(
+            "The benchmark is pinned to the checked-in multiplex quantification fixture and current chemistry reference links reviewed on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "Dataset paths and linked multiplex reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+        ),
+        dataset_license_and_reuse_note="The checked-in multiplex fixture is reused as internal benchmark evidence and does not imply redistribution rights for any vendor multiplex outputs beyond the repository snapshot.",
         instrument_profiles=("Orbitrap",),
         reproduction_requirements=(
             "Use multiplex design and feature fixtures from the bundled quantification corpus.",
@@ -286,6 +326,13 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "corpus:protein_inference_review_reference",
         ),
         benchmark_rationale="Targeted outputs often collapse transition evidence quickly, so the benchmark captures how much interpretation can safely happen before protein-level rollup.",
+        version_trace=(
+            "The benchmark is pinned to the checked-in chromatogram QC fixture and current protein-inference reference links reviewed on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "Dataset paths and linked targeted reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+        ),
+        dataset_license_and_reuse_note="The checked-in chromatogram fixture is reused as internal benchmark evidence and does not widen redistribution rights for vendor targeted outputs beyond the repository snapshot.",
         instrument_profiles=("Triple quadrupole", "Orbitrap"),
         reproduction_requirements=(
             "Use the bundled chromatogram QC fixture as the targeted evidence source.",

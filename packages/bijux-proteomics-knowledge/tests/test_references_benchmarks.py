@@ -34,6 +34,9 @@ def test_benchmark_manifests_carry_reproducibility_inputs() -> None:
         assert manifest.dataset_locator
         assert manifest.primary_citation_ids
         assert manifest.corpus_ids
+        assert manifest.version_trace
+        assert manifest.retrieval_trace
+        assert manifest.dataset_license_and_reuse_note
         assert manifest.instrument_profiles
         assert len(manifest.reproduction_requirements) >= 3
         assert manifest.comparison_notes

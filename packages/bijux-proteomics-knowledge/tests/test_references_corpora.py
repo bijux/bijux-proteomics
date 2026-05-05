@@ -46,6 +46,10 @@ def test_bundled_corpora_point_to_real_fixture_paths() -> None:
     for manifest in DEFAULT_CORPUS_MANIFESTS:
         if manifest.source_kind is not KnowledgeCorpusSourceKind.BUNDLED_FIXTURE:
             continue
+        assert manifest.source_version
+        assert manifest.version_trace
+        assert manifest.retrieval_trace
+        assert manifest.license_and_reuse_note
         assert manifest.repo_relative_path is not None
         assert (REPO_ROOT / manifest.repo_relative_path).exists()
 
@@ -54,6 +58,10 @@ def test_external_corpora_carry_reference_locators() -> None:
     for manifest in DEFAULT_CORPUS_MANIFESTS:
         if manifest.source_kind is not KnowledgeCorpusSourceKind.EXTERNAL_REFERENCE:
             continue
+        assert manifest.source_version
+        assert manifest.version_trace
+        assert manifest.retrieval_trace
+        assert manifest.license_and_reuse_note
         assert manifest.reference_locator is not None
         assert manifest.reference_accession is not None
         assert manifest.citation_ids

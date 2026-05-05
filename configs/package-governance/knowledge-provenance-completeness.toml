@@ -12,14 +12,14 @@ incomplete_entry_ids = []
 name = "benchmarks"
 entry_count = 6
 complete_entry_count = 6
-required_fields = ["dataset_id", "dataset_locator", "primary_citation_ids", "corpus_ids", "benchmark_rationale", "reproduction_requirements", "comparison_notes", "exclusion_notes", "weakness_notes", "failure_mode_notes"]
+required_fields = ["dataset_id", "dataset_locator", "primary_citation_ids", "corpus_ids", "benchmark_rationale", "version_trace", "retrieval_trace", "dataset_license_and_reuse_note", "reproduction_requirements", "comparison_notes", "exclusion_notes", "weakness_notes", "failure_mode_notes"]
 incomplete_entry_ids = []
 
 [[surface]]
 name = "corpora"
 entry_count = 10
 complete_entry_count = 10
-required_fields = ["format_family", "scientific_scope", "benchmark_ids"]
+required_fields = ["format_family", "scientific_scope", "source_version", "version_trace", "retrieval_trace", "license_and_reuse_note", "benchmark_ids"]
 incomplete_entry_ids = []
 
 [[surface]]

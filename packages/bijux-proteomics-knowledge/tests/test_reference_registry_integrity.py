@@ -80,6 +80,9 @@ def test_benchmark_manifests_require_reproduction_metadata() -> None:
             primary_citation_ids=("citation:swath_2012",),
             corpus_ids=("corpus:search_adapter_fixture_suite",),
             benchmark_rationale="A rationale exists, but reproduction requirements are missing.",
+            version_trace=("This benchmark still needs a version trace.",),
+            retrieval_trace=("This benchmark still needs a retrieval trace.",),
+            dataset_license_and_reuse_note="This benchmark still needs dataset reuse clarity.",
             instrument_profiles=("Orbitrap",),
             reproduction_requirements=(),
             comparison_notes=("This benchmark still needs comparison notes.",),
@@ -96,6 +99,9 @@ def test_benchmark_registry_carries_reproducible_claim_context() -> None:
     for manifest in DEFAULT_BENCHMARK_MANIFESTS:
         assert set(manifest.corpus_ids).issubset(corpus_ids)
         assert set(manifest.primary_citation_ids).issubset(citation_ids)
+        assert manifest.version_trace
+        assert manifest.retrieval_trace
+        assert manifest.dataset_license_and_reuse_note
         assert len(manifest.reproduction_requirements) >= 3
         assert manifest.success_metric
         assert manifest.result_claim
@@ -124,11 +130,19 @@ def test_corpus_manifests_distinguish_bundled_fixtures_from_external_references(
 
     for corpus in DEFAULT_CORPUS_MANIFESTS:
         if corpus.source_kind is KnowledgeCorpusSourceKind.BUNDLED_FIXTURE:
+            assert corpus.source_version
+            assert corpus.version_trace
+            assert corpus.retrieval_trace
+            assert corpus.license_and_reuse_note
             assert corpus.repo_relative_path is not None
             assert corpus.reference_locator is None
             assert corpus.reference_accession is None
             assert (REPO_ROOT / corpus.repo_relative_path).exists()
         else:
+            assert corpus.source_version
+            assert corpus.version_trace
+            assert corpus.retrieval_trace
+            assert corpus.license_and_reuse_note
             assert corpus.repo_relative_path is None
             assert corpus.reference_locator is not None
             assert corpus.reference_accession is not None
