@@ -14,7 +14,6 @@ from bijux_proteomics_foundation import (
     ContractConflictError,
     ContractNotFoundError,
     ContractValidationError,
-    ControlledVocabularyDomain,
     DocumentSchema,
     DurationValue,
     ExperimentId,
@@ -53,7 +52,6 @@ from bijux_proteomics_foundation import (
     evaluate_schema_format_contract,
     hash_model,
     hash_payload,
-    normalize_controlled_term,
     present_value,
 )
 
@@ -238,27 +236,6 @@ def test_sequence_coordinate_range_uses_inclusive_one_based_coordinates() -> Non
 def test_sequence_coordinate_range_rejects_inverted_intervals() -> None:
     with pytest.raises(ValidationError, match="end coordinate must be greater"):
         SequenceCoordinateRange(start=9, end=4)
-
-
-def test_controlled_vocabulary_normalizes_known_aliases() -> None:
-    enzyme = normalize_controlled_term(ControlledVocabularyDomain.ENZYME, "lys-c")
-    assay = normalize_controlled_term(
-        ControlledVocabularyDomain.ASSAY_TYPE, "engagement"
-    )
-
-    assert enzyme is not None
-    assert enzyme.term_id == "enzyme:lysc"
-    assert assay is not None
-    assert assay.term_id == "assay:target_engagement"
-
-
-def test_controlled_vocabulary_returns_none_for_unknown_term() -> None:
-    assert (
-        normalize_controlled_term(
-            ControlledVocabularyDomain.INSTRUMENT, "homebrew-quadrupole"
-        )
-        is None
-    )
 
 
 def test_nullable_value_tracks_present_payloads_explicitly() -> None:

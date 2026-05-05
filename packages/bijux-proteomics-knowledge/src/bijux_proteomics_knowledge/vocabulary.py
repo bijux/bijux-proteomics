@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Controlled vocabulary normalization for shared scientific terms."""
+"""Knowledge-owned controlled vocabulary normalization for proteomics terms."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from bijux_proteomics_foundation.serialization import JsonModel
 
 
 class ControlledVocabularyDomain(StrEnum):
-    """Supported controlled-vocabulary domains."""
+    """Supported curated vocabulary domains."""
 
     MODIFICATION = "modification"
     ENZYME = "enzyme"
@@ -22,7 +22,7 @@ class ControlledVocabularyDomain(StrEnum):
 
 
 class ControlledVocabularyTerm(JsonModel):
-    """Canonical controlled-vocabulary term with aliases."""
+    """Canonical curated term with normalized lookup aliases."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -112,7 +112,7 @@ def normalize_controlled_term(
     domain: ControlledVocabularyDomain,
     value: str,
 ) -> ControlledVocabularyTerm | None:
-    """Resolve one raw term against the canonical registry."""
+    """Resolve one raw proteomics term against the curated registry."""
     normalized = _normalize_key(value)
     for term in DEFAULT_CONTROLLED_VOCABULARY:
         if term.domain is not domain:
@@ -121,3 +121,11 @@ def normalize_controlled_term(
         if normalized == term.normalized_key or normalized in aliases:
             return term
     return None
+
+
+__all__ = [
+    "DEFAULT_CONTROLLED_VOCABULARY",
+    "ControlledVocabularyDomain",
+    "ControlledVocabularyTerm",
+    "normalize_controlled_term",
+]

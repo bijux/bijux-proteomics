@@ -20,6 +20,13 @@ FORBIDDEN_ORCHESTRATION_TOKENS = {
     "scheduler",
     "container",
 }
+FORBIDDEN_SCIENTIFIC_TOKENS = {
+    "modification",
+    "enzyme",
+    "instrument",
+    "assay_type",
+    "controlledvocabulary",
+}
 FORBIDDEN_HIGHER_LAYER_IMPORTS = (
     "agentic_proteins",
     "bijux_proteomics.",
@@ -84,6 +91,23 @@ def test_foundation_excludes_workflow_orchestration_surfaces() -> None:
             continue
         if any(
             any(token in name for token in FORBIDDEN_ORCHESTRATION_TOKENS)
+            for name in defined_names
+        ):
+            violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
+    assert violations == []
+
+
+def test_foundation_excludes_scientific_vocabulary_surfaces() -> None:
+    violations: list[str] = []
+    for path in _python_files(FOUNDATION_SRC_ROOT):
+        tree = _load_tree(path)
+        stem = path.stem.lower()
+        defined_names = _defined_names(tree)
+        if stem == "vocabulary":
+            violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
+            continue
+        if any(
+            any(token in name for token in FORBIDDEN_SCIENTIFIC_TOKENS)
             for name in defined_names
         ):
             violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))

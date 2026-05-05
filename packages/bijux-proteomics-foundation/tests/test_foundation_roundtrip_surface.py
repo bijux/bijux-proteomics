@@ -9,7 +9,6 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import (
-    ControlledVocabularyDomain,
     DocumentSchema,
     DurationValue,
     JsonModel,
@@ -17,7 +16,6 @@ from bijux_proteomics_foundation import (
     NullableValue,
     SequenceCoordinateRange,
     UtcTimestamp,
-    normalize_controlled_term,
 )
 
 
@@ -37,15 +35,11 @@ class FoundationSurfaceDocument(JsonModel):
 def test_foundation_surface_round_trips_across_json_jsonl_and_tsv(
     tmp_path: Path,
 ) -> None:
-    phospho = normalize_controlled_term(
-        ControlledVocabularyDomain.MODIFICATION, "phosphorylation"
-    )
-    assert phospho is not None
     document = FoundationSurfaceDocument(
         observed_at=UtcTimestamp(value=datetime(2026, 4, 29, 10, 30, tzinfo=UTC)),
         retention_window=DurationValue(seconds=37.5),
         peptide_span=SequenceCoordinateRange(start=14, end=22),
-        phosphorylation=phospho.term_id,
+        phosphorylation="mod:phospho",
         occupancy=NullableValue(
             state=NullabilityState.NOT_MEASURED,
             reason="site occupancy standard was not run",

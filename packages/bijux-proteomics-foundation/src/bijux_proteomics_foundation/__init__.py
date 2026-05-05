@@ -117,12 +117,6 @@ from bijux_proteomics_foundation.versions import (
     SchemaVersion,
     normalize_schema_version,
 )
-from bijux_proteomics_foundation.vocabulary import (
-    DEFAULT_CONTROLLED_VOCABULARY,
-    ControlledVocabularyDomain,
-    ControlledVocabularyTerm,
-    normalize_controlled_term,
-)
 
 __all__ = [
     "ArtifactFormat",
@@ -133,10 +127,7 @@ __all__ = [
     "ContractConflictError",
     "ContractNotFoundError",
     "ContractValidationError",
-    "ControlledVocabularyDomain",
-    "ControlledVocabularyTerm",
     "CycleId",
-    "DEFAULT_CONTROLLED_VOCABULARY",
     "DocumentSchema",
     "DurationValue",
     "ErrorCategory",
@@ -206,7 +197,6 @@ __all__ = [
     "hash_model",
     "hash_payload",
     "hash_text",
-    "normalize_controlled_term",
     "normalize_schema_version",
     "present_value",
     "stable_order_pairs",
