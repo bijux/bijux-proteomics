@@ -51,16 +51,28 @@ from bijux_proteomics_runtime.runtime.control.checkpoints import (
     ResumeCheckpoint,
     load_resume_checkpoint,
 )
+from bijux_proteomics_runtime.runtime.control.cleanup import (
+    RuntimeCleanupArtifact,
+    RuntimeCleanupPlan,
+    apply_runtime_cleanup_plan,
+    build_runtime_cleanup_plan,
+)
 from bijux_proteomics_runtime.runtime.control.ledger import (
     ArtifactLedgerEntry,
     RuntimeArtifactLedger,
     load_artifact_ledger,
+    refresh_runtime_artifact_ledger,
 )
 from bijux_proteomics_runtime.runtime.control.preflight import (
     PreflightCheck,
     PreflightCheckState,
     RuntimePreflightReport,
     build_runtime_preflight_report,
+)
+from bijux_proteomics_runtime.runtime.control.recovery import (
+    FailureRecoveryArtifact,
+    RuntimeFailureRecoveryAudit,
+    build_runtime_failure_recovery_audit,
 )
 from bijux_proteomics_runtime.runtime.control.replay import (
     LocalRunBundle,
@@ -97,6 +109,7 @@ __all__ = [
     "ArtifactIntegrityReport",
     "ContainerRunBundle",
     "ExecutionSnapshots",
+    "FailureRecoveryArtifact",
     "ImportRunBundle",
     "LargeArtifactGuardDecision",
     "LocalRunBundle",
@@ -110,6 +123,9 @@ __all__ = [
     "RunStateMachine",
     "RuntimeCacheClaim",
     "RuntimeCacheDecision",
+    "RuntimeCleanupArtifact",
+    "RuntimeCleanupPlan",
+    "RuntimeFailureRecoveryAudit",
     "RuntimeImportTrace",
     "RuntimeReviewableOutputPath",
     "RuntimeArtifactLedger",
@@ -119,10 +135,13 @@ __all__ = [
     "RuntimeWorkflowStep",
     "SchedulerJobBundle",
     "apply_transition",
+    "apply_runtime_cleanup_plan",
     "build_container_run_bundle",
     "build_import_run_bundle",
     "build_import_trace",
     "build_scheduler_job_bundle",
+    "build_runtime_cleanup_plan",
+    "build_runtime_failure_recovery_audit",
     "build_runtime_preflight_report",
     "build_runtime_run_config",
     "build_runtime_dependency_graph",
@@ -148,6 +167,7 @@ __all__ = [
     "load_local_run_bundle",
     "load_resume_checkpoint",
     "load_scheduler_job_bundle",
+    "refresh_runtime_artifact_ledger",
     "release_runtime_cache_claim",
     "require_human_decision",
     "resume_candidate_operation",
