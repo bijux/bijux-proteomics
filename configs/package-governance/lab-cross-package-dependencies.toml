@@ -2,12 +2,12 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab_cross_package_dependencies
 
 [guard]
-max_core_edges = 11
-max_foundation_edges = 22
+max_core_edges = 13
+max_foundation_edges = 28
 max_intelligence_edges = 2
-max_knowledge_edges = 5
+max_knowledge_edges = 7
 max_runtime_edges = 0
-max_total_edges = 40
+max_total_edges = 50
 
 [[dependency]]
 importer_module_path = "benchmarks/claims.py"
@@ -52,12 +52,6 @@ imported_module_name = "bijux_proteomics_foundation"
 imported_symbols = ["JsonModel"]
 
 [[dependency]]
-importer_module_path = "charter.py"
-owner_distribution = "bijux-proteomics-foundation"
-imported_module_name = "bijux_proteomics_foundation"
-imported_symbols = ["JsonModel"]
-
-[[dependency]]
 importer_module_path = "design/experiments.py"
 owner_distribution = "bijux-proteomics-core"
 imported_module_name = "bijux_proteomics.io.formats"
@@ -76,10 +70,16 @@ imported_module_name = "bijux_proteomics_foundation"
 imported_symbols = ["DocumentSchema", "JsonModel"]
 
 [[dependency]]
+importer_module_path = "governance/charter.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["JsonModel"]
+
+[[dependency]]
 importer_module_path = "handoffs/artifacts.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
-imported_symbols = ["DocumentSchema", "JsonModel", "hash_payload"]
+imported_symbols = ["DocumentSchema", "JsonModel"]
 
 [[dependency]]
 importer_module_path = "handoffs/explanations.py"
@@ -136,6 +136,12 @@ imported_module_name = "bijux_proteomics_foundation"
 imported_symbols = ["AssayId", "JsonModel"]
 
 [[dependency]]
+importer_module_path = "handoffs/serialization.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["DocumentSchema", "JsonModel", "hash_payload"]
+
+[[dependency]]
 importer_module_path = "handoffs/transitions.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
@@ -152,6 +158,12 @@ importer_module_path = "lifecycle/progression.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation.ids"
 imported_symbols = ["PromotionId", "ReviewId"]
+
+[[dependency]]
+importer_module_path = "outcomes/feedback.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["JsonModel", "ProgramId"]
 
 [[dependency]]
 importer_module_path = "outcomes/observations.py"
@@ -208,31 +220,85 @@ imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
 imported_symbols = ["EvidenceBundle", "assess_decision_readiness", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "triangulate_evidence"]
 
 [[dependency]]
+importer_module_path = "planning/next_cycle.py"
+owner_distribution = "bijux-proteomics-core"
+imported_module_name = "bijux_proteomics.domain.program_spec"
+imported_symbols = ["ProgramSpec"]
+
+[[dependency]]
+importer_module_path = "planning/next_cycle.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["AssayId", "JsonModel", "ProgramId"]
+
+[[dependency]]
+importer_module_path = "planning/next_cycle.py"
+owner_distribution = "bijux-proteomics-knowledge"
+imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
+imported_symbols = ["EvidenceBundle", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "triangulate_evidence"]
+
+[[dependency]]
+importer_module_path = "planning/priorities.py"
+owner_distribution = "bijux-proteomics-core"
+imported_module_name = "bijux_proteomics.domain.program_spec"
+imported_symbols = ["ProgramSpec"]
+
+[[dependency]]
+importer_module_path = "planning/priorities.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["AssayId", "BatchId", "JsonModel", "ProgramId"]
+
+[[dependency]]
+importer_module_path = "planning/priorities.py"
+owner_distribution = "bijux-proteomics-knowledge"
+imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
+imported_symbols = ["EvidenceBundle", "assess_decision_readiness", "compute_bundle_trust", "flag_conflicting_evidence"]
+
+[[dependency]]
+importer_module_path = "planning/queue.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["GateId", "JsonModel", "ProgramId"]
+
+[[dependency]]
+importer_module_path = "planning/scheduling.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["BatchId", "JsonModel", "ProgramId"]
+
+[[dependency]]
+importer_module_path = "planning/scheduling.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation.ids"
+imported_symbols = ["CycleId"]
+
+[[dependency]]
 importer_module_path = "readiness/operations.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
 imported_symbols = ["JsonModel", "ProgramId"]
 
 [[dependency]]
-importer_module_path = "readiness/workflow.py"
+importer_module_path = "readiness/stages.py"
 owner_distribution = "bijux-proteomics-core"
 imported_module_name = "bijux_proteomics.domain.program_spec"
 imported_symbols = ["ProgramSpec"]
 
 [[dependency]]
-importer_module_path = "readiness/workflow.py"
+importer_module_path = "readiness/stages.py"
 owner_distribution = "bijux-proteomics-core"
 imported_module_name = "bijux_proteomics.workflow.blueprint"
 imported_symbols = ["WorkflowStageKind", "workflow_blueprint_for_program"]
 
 [[dependency]]
-importer_module_path = "readiness/workflow.py"
+importer_module_path = "readiness/stages.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
 imported_symbols = ["JsonModel", "ProgramId"]
 
 [[dependency]]
-importer_module_path = "readiness/workflow.py"
+importer_module_path = "readiness/stages.py"
 owner_distribution = "bijux-proteomics-knowledge"
 imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
 imported_symbols = ["EvidenceBundle", "evidence_gaps"]
@@ -242,9 +308,3 @@ importer_module_path = "reconciliation/follow_up.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
 imported_symbols = ["BatchId", "JsonModel", "ProgramId"]
-
-[[dependency]]
-importer_module_path = "repositories.py"
-owner_distribution = "bijux-proteomics-foundation"
-imported_module_name = "bijux_proteomics_foundation"
-imported_symbols = ["GateId", "JsonModel", "ProgramId"]

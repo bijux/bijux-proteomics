@@ -131,12 +131,12 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.lab_operational_ownership"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
-outgoing_workspace_modules = ["bijux_proteomics_lab.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_lab.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.lab_packet_only_modules"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
-outgoing_workspace_modules = ["bijux_proteomics_lab.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_lab.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.lab_publishability"
@@ -189,6 +189,11 @@ outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.api.package_document_contracts"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.api.package_fixture_realism"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
 outgoing_workspace_modules = []
@@ -199,8 +204,18 @@ outgoing_internal_modules = ["bijux_proteomics_dev.api.package_fixture_realism",
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.api.package_module_ledger"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.api.package_oversized_mixed_modules"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.api.package_owned_value_audit"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_document_contracts", "bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.package_surface_pressure", "bijux_proteomics_dev.api.runtime_topology"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -209,8 +224,18 @@ outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.api.package_readme_maturity"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_document_contracts", "bijux_proteomics_dev.api.package_owned_value_audit", "bijux_proteomics_dev.api.package_release_dossiers", "bijux_proteomics_dev.api.package_scorecard", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.api.package_release_dossiers"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.api.package_reopened_completion_claims"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_readme_maturity", "bijux_proteomics_dev.api.package_root_surface_illusions", "bijux_proteomics_dev.api.package_topology_drift", "bijux_proteomics_dev.api.package_wrapper_owner_balance", "bijux_proteomics_dev.api.runtime_topology"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -221,6 +246,21 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.package_root_line_counts"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.api.package_root_surface_illusions"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_surface_pressure", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.api.package_scorecard"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.api.package_surface_pressure"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_module_ledger", "bijux_proteomics_dev.api.public_symbol_ledger", "bijux_proteomics_dev.api.runtime_topology"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -239,6 +279,11 @@ outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.api.package_topology_drift"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_document_contracts", "bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.api.package_tree_dossiers"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
 outgoing_workspace_modules = []
@@ -249,8 +294,18 @@ outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.api.package_wrapper_owner_balance"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_module_ledger", "bijux_proteomics_dev.api.runtime_topology"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.api.public_surfaces"
 outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_dev.api.public_symbol_ledger"
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_quality_inventory", "bijux_proteomics_dev.api.runtime_topology"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -296,7 +351,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.serialization_compatibility"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.compatibility", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.schema", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.planning.assays"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.compatibility", "bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_lab.planning.assays"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.source_delivery_history"
@@ -386,7 +441,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.package_substance"
 outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.package_graph"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.charter", "bijux_proteomics_intelligence.charter", "bijux_proteomics_knowledge.charter", "bijux_proteomics_lab.charter", "bijux_proteomics_runtime.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.charter", "bijux_proteomics_intelligence.charter", "bijux_proteomics_knowledge.charter", "bijux_proteomics_lab.governance.charter", "bijux_proteomics_runtime.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.runtime_boundaries"
@@ -470,7 +525,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.package_family_readiness"
-outgoing_internal_modules = ["bijux_proteomics_dev.quality.package_graph"]
+outgoing_internal_modules = ["bijux_proteomics_dev.api.package_scorecard", "bijux_proteomics_dev.quality.package_graph"]
 outgoing_workspace_modules = []
 
 [[module]]

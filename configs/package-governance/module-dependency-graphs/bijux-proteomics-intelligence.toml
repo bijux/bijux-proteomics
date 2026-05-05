@@ -21,7 +21,7 @@ outgoing_workspace_modules = ["bijux_proteomics.collaboration", "bijux_proteomic
 [[module]]
 module_name = "bijux_proteomics_intelligence.briefs"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.evidence_posture", "bijux_proteomics_intelligence.policies"]
-outgoing_workspace_modules = ["bijux_proteomics.domain.criteria", "bijux_proteomics.domain.program_spec", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.evidence", "bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.rules"]
+outgoing_workspace_modules = ["bijux_proteomics.domain.criteria", "bijux_proteomics.domain.program_spec", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.rules"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.candidates"
@@ -36,7 +36,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics_intelligence.decision_paths"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.candidates", "bijux_proteomics_intelligence.evaluators", "bijux_proteomics_intelligence.interpretation", "bijux_proteomics_intelligence.recommendations", "bijux_proteomics_intelligence.review_packets"]
-outgoing_workspace_modules = ["bijux_proteomics.domain.program_spec", "bijux_proteomics.qc", "bijux_proteomics.quantification", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.evidence", "bijux_proteomics_knowledge.references.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics.domain.program_spec", "bijux_proteomics.qc", "bijux_proteomics.quantification", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.references.benchmarks"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.design_loop"
@@ -136,12 +136,12 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_intelligence.evaluators"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.candidates"]
-outgoing_workspace_modules = ["bijux_proteomics.domain.program_spec", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.evidence"]
+outgoing_workspace_modules = ["bijux_proteomics.domain.program_spec", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.evidence"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.evidence_posture"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.json_models", "bijux_proteomics_foundation.refusals", "bijux_proteomics_foundation.results", "bijux_proteomics_foundation.states", "bijux_proteomics_knowledge.evidence"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.json_models", "bijux_proteomics_foundation.refusals", "bijux_proteomics_foundation.results", "bijux_proteomics_foundation.states", "bijux_proteomics_knowledge.memory.evidence"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.follow_up_learning"
@@ -161,12 +161,12 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics_intelligence.recommendations"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.evaluators", "bijux_proteomics_intelligence.evidence_posture"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.results", "bijux_proteomics_knowledge.evidence", "bijux_proteomics_knowledge.references.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.results", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.references.benchmarks"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.review_packets"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.candidates", "bijux_proteomics_intelligence.evaluators", "bijux_proteomics_intelligence.evidence_posture", "bijux_proteomics_intelligence.recommendations"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.evidence", "bijux_proteomics_knowledge.references.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.references.benchmarks"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.skeptical_review"

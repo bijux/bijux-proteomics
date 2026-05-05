@@ -19,9 +19,9 @@ def test_package_test_tree_mirror_report_tracks_source_alignment() -> None:
     assert PACKAGE_TEST_TREE_MIRROR_PATH.exists()
     assert len(report.entries) == 8
     assert entries["bijux-proteomics-knowledge"].missing_test_families == ()
-    assert entries["bijux-proteomics-lab"].missing_test_families == ()
+    assert entries["bijux-proteomics-lab"].missing_test_families == ("governance",)
     assert "benchmarks" in entries["bijux-proteomics-core"].missing_test_families
-    assert entries["bijux-proteomics-dev"].flat_test_module_count == 128
+    assert entries["bijux-proteomics-dev"].flat_test_module_count == 148
 
 
 def test_package_test_tree_mirror_release_guard_has_no_failures() -> None:

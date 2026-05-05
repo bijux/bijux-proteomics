@@ -26,6 +26,9 @@ def test_lab_docs_publish_execution_reality_and_owner_families() -> None:
     assert "material limits" in lowered
     assert "handoff honesty" in lowered
     assert "planning/assays.py" in text
+    assert "planning/scheduling.py" in text
+    assert "planning/priorities.py" in text
+    assert "planning/next_cycle.py" in text
     assert "handoffs/transitions.py" in text
     assert "handoffs/explanations.py" in text
     assert "handoffs/exports.py" in text
@@ -43,3 +46,4 @@ def test_lab_docs_keep_non_goals_and_refusal_behavior_explicit() -> None:
     assert "lossy export notes" in text
     assert "handoffs/packets.py" not in text
     assert "benchmarks/targeted.py" not in text
+    assert "readiness/workflow.py" not in text

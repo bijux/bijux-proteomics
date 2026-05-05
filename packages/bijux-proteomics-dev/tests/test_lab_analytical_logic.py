@@ -27,7 +27,13 @@ def test_lab_analytical_logic_stays_in_governed_operational_hotspots() -> None:
     assert any(
         identifier == "contradiction_pressure"
         for module in report
-        if module.module_path == "planning/assays.py"
+        if module.module_path == "planning/next_cycle.py"
+        for identifier in module.matched_identifiers
+    )
+    assert any(
+        identifier == "skeptical_candidate_ids"
+        for module in report
+        if module.module_path == "planning/priorities.py"
         for identifier in module.matched_identifiers
     )
 

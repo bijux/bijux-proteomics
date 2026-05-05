@@ -189,10 +189,11 @@ execution orchestration or runtime policy.
 
 ## Source guide
 
-- `planning/assays.py` for executable planning, queue pressure, family
-  capacity, and review-packet construction
-- `readiness/operations.py` and `readiness/workflow.py` for material,
-  provenance, controls, staffing, instrument, and workflow readiness
+- `planning/assays.py`, `planning/scheduling.py`, `planning/priorities.py`,
+  and `planning/next_cycle.py` for executable planning, capacity fitting,
+  practical prioritization, and next-cycle recommendation
+- `readiness/operations.py` and `readiness/stages.py` for material,
+  provenance, controls, staffing, instrument, and stage readiness
 - `handoffs/transitions.py`, `handoffs/explanations.py`, and
   `handoffs/exports.py` for transition review, refusal behavior, explanation
   packets, and lossy export notes

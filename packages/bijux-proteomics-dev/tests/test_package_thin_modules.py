@@ -18,8 +18,9 @@ def test_package_thin_module_report_tracks_current_merge_or_delete_follow_up() -
 
     assert PACKAGE_THIN_MODULES_PATH.exists()
     assert len(report.entries) >= 10
-    assert any(path.endswith("benchmarks/targeted.py") for path in module_paths)
-    assert any(path.endswith("handoffs/packets.py") for path in module_paths)
+    assert not any(path.endswith("benchmarks/targeted.py") for path in module_paths)
+    assert not any(path.endswith("handoffs/packets.py") for path in module_paths)
+    assert any(path.endswith("agents/analysis/failure_analysis.py") for path in module_paths)
     assert not any(path.endswith("ptm_follow_up.py") for path in module_paths)
     assert not any(path.endswith("workflow_readiness.py") for path in module_paths)
     assert not any(path.endswith("targeted_benchmarking.py") for path in module_paths)

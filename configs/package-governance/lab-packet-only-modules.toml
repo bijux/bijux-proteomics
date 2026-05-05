@@ -3,15 +3,15 @@
 
 [metrics]
 packet_only_module_count = 1
-reshaping_only_module_count = 11
+reshaping_only_module_count = 10
 
 [guard]
 max_packet_only_module_count = 1
-max_reshaping_only_module_count = 11
-max_total_reported_modules = 12
+max_reshaping_only_module_count = 10
+max_total_reported_modules = 11
 
 [[module]]
-module_path = "charter.py"
+module_path = "governance/charter.py"
 shape = "packet_only"
 public_class_count = 4
 public_function_count = 0
@@ -29,25 +29,19 @@ public_class_count = 0
 public_function_count = 0
 
 [[module]]
-module_path = "benchmarks/targeted.py"
-shape = "reshaping_only"
-public_class_count = 0
-public_function_count = 0
-
-[[module]]
 module_path = "design/__init__.py"
 shape = "reshaping_only"
 public_class_count = 0
 public_function_count = 0
 
 [[module]]
-module_path = "handoffs/__init__.py"
+module_path = "governance/__init__.py"
 shape = "reshaping_only"
 public_class_count = 0
 public_function_count = 0
 
 [[module]]
-module_path = "handoffs/packets.py"
+module_path = "handoffs/__init__.py"
 shape = "reshaping_only"
 public_class_count = 0
 public_function_count = 0

@@ -32,7 +32,7 @@ def test_lab_cross_package_dependency_report_tracks_live_edges() -> None:
 
     assert LAB_CROSS_PACKAGE_DEPENDENCIES_PATH.exists()
     assert "planning/assays.py" in importers
-    assert "readiness/workflow.py" in importers
+    assert "readiness/stages.py" in importers
     assert "outcomes/observations.py" in importers
     assert "benchmarks/claims.py" in importers
     assert owner_counts["bijux-proteomics-core"] == report.guard.max_core_edges

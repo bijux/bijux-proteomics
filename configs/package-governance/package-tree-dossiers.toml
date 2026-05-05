@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 73
-max_total_compatibility_surface_count = 23
+min_total_owner_domain_count = 75
+max_total_compatibility_surface_count = 11
 min_total_excluded_responsibility_count = 29
 
 [[package]]
@@ -57,15 +57,15 @@ excluded_responsibilities = ["canonical scientific entity definitions or parsing
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 import_root = "bijux_proteomics_knowledge"
-owner_domains = ["memory", "references", "reviews"]
-public_modules = ["charter", "claims", "evidence", "graph", "ingestion", "resolution", "review", "schema"]
-compatibility_surfaces = ["claims", "evidence", "graph", "ingestion", "resolution", "review"]
+owner_domains = ["contracts", "memory", "references", "reviews"]
+public_modules = ["charter"]
+compatibility_surfaces = []
 excluded_responsibilities = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 import_root = "bijux_proteomics_lab"
-owner_domains = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
-public_modules = ["artifacts", "charter", "protocols", "ptm_follow_up", "repositories", "risk", "targeted_benchmarking", "workflow_readiness"]
-compatibility_surfaces = ["artifacts", "protocols", "ptm_follow_up", "risk", "targeted_benchmarking", "workflow_readiness"]
+owner_domains = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+public_modules = []
+compatibility_surfaces = []
 excluded_responsibilities = ["analytical recommendation logic", "core scientific semantics", "execution orchestration or runtime policy"]

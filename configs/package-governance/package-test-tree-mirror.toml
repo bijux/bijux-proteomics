@@ -2,9 +2,9 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_test_tree_mirror
 
 [guard]
-min_total_mirrored_owner_family_count = 31
-max_total_missing_test_family_count = 42
-max_total_flat_test_module_count = 233
+min_total_mirrored_owner_family_count = 32
+max_total_missing_test_family_count = 43
+max_total_flat_test_module_count = 253
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -22,7 +22,7 @@ test_families = []
 mirrored_owner_families = []
 missing_test_families = ["api", "docs", "quality", "release", "security", "tools"]
 extra_test_families = []
-flat_test_module_count = 128
+flat_test_module_count = 148
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
@@ -62,18 +62,18 @@ flat_test_module_count = 26
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-source_owner_families = ["memory", "references", "reviews"]
-test_families = ["memory", "package", "references", "reviews"]
-mirrored_owner_families = ["memory", "references", "reviews"]
+source_owner_families = ["contracts", "memory", "references", "reviews"]
+test_families = ["contracts", "memory", "package", "references", "reviews"]
+mirrored_owner_families = ["contracts", "memory", "references", "reviews"]
 missing_test_families = []
 extra_test_families = ["package"]
 flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-source_owner_families = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
-test_families = ["benchmarks", "boundaries", "design", "handoffs", "lifecycle", "outcomes", "package", "planning", "readiness", "reconciliation"]
+source_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+test_families = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "package", "planning", "readiness", "reconciliation"]
 mirrored_owner_families = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
-missing_test_families = []
-extra_test_families = ["boundaries", "package"]
+missing_test_families = ["governance"]
+extra_test_families = ["package"]
 flat_test_module_count = 0

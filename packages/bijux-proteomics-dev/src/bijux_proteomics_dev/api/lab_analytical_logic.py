@@ -34,7 +34,8 @@ ALLOWED_ANALYTICAL_MODULES = (
     "benchmarks/claims.py",
     "handoffs/explanations.py",
     "lifecycle/progression.py",
-    "planning/assays.py",
+    "planning/next_cycle.py",
+    "planning/priorities.py",
 )
 
 

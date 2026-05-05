@@ -14,5 +14,9 @@ path = "lifecycle/progression.py"
 matched_identifiers = ["contradiction_pressure", "skepticism_notes"]
 
 [[module]]
-path = "planning/assays.py"
-matched_identifiers = ["contradiction_pressure", "map_assay_contradiction_pressure", "skeptical_candidate_ids", "skepticism_penalty"]
+path = "planning/next_cycle.py"
+matched_identifiers = ["contradiction_pressure", "map_assay_contradiction_pressure"]
+
+[[module]]
+path = "planning/priorities.py"
+matched_identifiers = ["contradiction_pressure", "skeptical_candidate_ids", "skepticism_penalty"]

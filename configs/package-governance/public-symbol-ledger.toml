@@ -373,7 +373,7 @@ symbol_kind = "class"
 owner_distribution_name = "bijux-proteomics-knowledge"
 owner_module_name = "bijux_proteomics_knowledge.reviews.packets"
 owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/packets.py"
-owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/reviews/test_review.py"]
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/reviews/test_trends.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-knowledge"
@@ -381,9 +381,9 @@ import_root = "bijux_proteomics_knowledge"
 name = "evaluate_schema_compatibility"
 symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-knowledge"
-owner_module_name = "bijux_proteomics_knowledge.schema"
-owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/schema.py"
-owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/package/test_public_api_surface.py", "packages/bijux-proteomics-knowledge/tests/package/test_schema.py"]
+owner_module_name = "bijux_proteomics_knowledge.contracts.schema"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/contracts/schema.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/contracts/test_schema.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-lab"
@@ -393,7 +393,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_experiment_planner.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-lab"
@@ -403,7 +403,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_experiment_planner.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-lab"
@@ -413,7 +413,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_experiment_planner.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-lab"
@@ -423,7 +423,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_experiment_planner.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-runtime"

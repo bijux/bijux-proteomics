@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 154
+max_total_thin_module_count = 152
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -1066,18 +1066,4 @@ distribution_name = "bijux-proteomics-intelligence"
 module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/structure/confidence.py"
 nonempty_line_count = 19
 public_function_count = 1
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/targeted.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-lab"
-module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/packets.py"
-nonempty_line_count = 6
-public_function_count = 0
 public_class_count = 0

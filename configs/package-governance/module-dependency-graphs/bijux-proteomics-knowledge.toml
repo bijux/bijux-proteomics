@@ -5,7 +5,7 @@ distribution_name = "bijux-proteomics-knowledge"
 
 [[module]]
 module_name = "bijux_proteomics_knowledge"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.claims", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.reviews.packets", "bijux_proteomics_knowledge.schema"]
+outgoing_internal_modules = ["bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.memory.claims", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.reviews.packets"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -14,24 +14,14 @@ outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics_knowledge.claims"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.claims"]
+module_name = "bijux_proteomics_knowledge.contracts"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.contracts.schema"]
 outgoing_workspace_modules = []
 
 [[module]]
-module_name = "bijux_proteomics_knowledge.evidence"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.evidence"]
-outgoing_workspace_modules = []
-
-[[module]]
-module_name = "bijux_proteomics_knowledge.graph"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.graph"]
-outgoing_workspace_modules = []
-
-[[module]]
-module_name = "bijux_proteomics_knowledge.ingestion"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.ingestion"]
-outgoing_workspace_modules = []
+module_name = "bijux_proteomics_knowledge.contracts.schema"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.memory"
@@ -124,26 +114,21 @@ outgoing_internal_modules = ["bijux_proteomics_knowledge.references.benchmarks",
 outgoing_workspace_modules = []
 
 [[module]]
-module_name = "bijux_proteomics_knowledge.resolution"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.resolution"]
-outgoing_workspace_modules = []
-
-[[module]]
-module_name = "bijux_proteomics_knowledge.review"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.reviews.packets"]
-outgoing_workspace_modules = []
-
-[[module]]
 module_name = "bijux_proteomics_knowledge.reviews"
 outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]
-module_name = "bijux_proteomics_knowledge.reviews.packets"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.claims", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.memory.graph", "bijux_proteomics_knowledge.memory.resolution"]
+module_name = "bijux_proteomics_knowledge.reviews.explanations"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.claims", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.memory.graph", "bijux_proteomics_knowledge.memory.resolution", "bijux_proteomics_knowledge.reviews.packets"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics_knowledge.schema"
-outgoing_internal_modules = []
+module_name = "bijux_proteomics_knowledge.reviews.packets"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.claims", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.memory.resolution"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_knowledge.reviews.trends"
+outgoing_internal_modules = ["bijux_proteomics_knowledge.reviews.packets"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]

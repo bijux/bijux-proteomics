@@ -22,13 +22,19 @@ constraints.
 
 ## Module topology
 
-- `planning/assays.py` owns executable planning, dependency order, family
-  capacity, and queue pressure
+- `planning/assays.py` owns batch construction, dependency order, review
+  packets, and executable request assembly
+- `planning/scheduling.py` owns capacity fitting, scenario comparison, and
+  material-feasibility ordering
+- `planning/priorities.py` owns information-gain scoring, practicality
+  screening, and cycle briefs
+- `planning/next_cycle.py` owns contradiction resolution, orthogonal
+  confirmation, and next-cycle recommendation
 - `design/experiments.py` and `design/protocols.py` own design validation,
   sample layout, protocol versions, controls, and failure caveats that make
   later handoffs credible
-- `readiness/operations.py` and `readiness/workflow.py` own material,
-  controls, provenance, backlog, staffing, instrument, and workflow readiness
+- `readiness/operations.py` and `readiness/stages.py` own material, controls,
+  provenance, backlog, staffing, instrument, and stage readiness
 - `lifecycle/progression.py` owns operational progression and follow-up
   validation after planning and readiness are known
 - `handoffs/transitions.py` owns transition-level readiness and approval
