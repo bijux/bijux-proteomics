@@ -69,6 +69,14 @@ from bijux_proteomics_runtime.runtime.control.state_machine import (
     RunStateMachine,
     apply_transition,
 )
+from bijux_proteomics_runtime.runtime.control.workflow_paths import (
+    RuntimeReviewableOutputPath,
+    RuntimeSmokeWorkflow,
+    RuntimeWorkflowStep,
+    build_runtime_smoke_workflows,
+    run_reviewable_import_path,
+    run_reviewable_sequence_path,
+)
 
 __all__ = [
     "ArtifactLedgerEntry",
@@ -85,8 +93,11 @@ __all__ = [
     "ResumeCheckpoint",
     "RunStateMachine",
     "RuntimeImportTrace",
+    "RuntimeReviewableOutputPath",
     "RuntimeArtifactLedger",
     "RuntimePreflightReport",
+    "RuntimeSmokeWorkflow",
+    "RuntimeWorkflowStep",
     "SchedulerJobBundle",
     "apply_transition",
     "build_container_run_bundle",
@@ -95,6 +106,7 @@ __all__ = [
     "build_scheduler_job_bundle",
     "build_runtime_preflight_report",
     "build_runtime_run_config",
+    "build_runtime_smoke_workflows",
     "build_local_run_bundle",
     "build_replay_contract",
     "compare_runs",
@@ -116,6 +128,8 @@ __all__ = [
     "require_human_decision",
     "resume_candidate_operation",
     "run_flow",
+    "run_reviewable_import_path",
+    "run_reviewable_sequence_path",
     "run_sequence_operation",
     "verify_runtime_artifact_integrity",
 ]
