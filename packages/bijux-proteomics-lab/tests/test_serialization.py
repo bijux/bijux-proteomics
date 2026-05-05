@@ -4,6 +4,10 @@
 from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema
+from bijux_proteomics_foundation import (
+    fingerprint_model as foundation_fingerprint_model,
+    to_canonical_json as foundation_to_canonical_json,
+)
 from bijux_proteomics_lab import (
     ExperimentPlan,
     build_canonical_artifact_envelope,
@@ -22,6 +26,11 @@ def test_lab_canonical_serialization_and_fingerprint_are_stable() -> None:
 
     assert canonical.startswith("{")
     assert digest_a == digest_b
+
+
+def test_lab_serialization_reuses_foundation_helpers() -> None:
+    assert to_canonical_json is foundation_to_canonical_json
+    assert fingerprint_model is foundation_fingerprint_model
 
 
 def test_diff_model_payloads_reports_changed_fields() -> None:

@@ -5,17 +5,17 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from typing import Any
+
+from bijux_proteomics_foundation import hash_payload as foundation_hash_payload
+from bijux_proteomics_foundation import to_canonical_json
 
 
 def stable_json(payload: dict[str, Any]) -> str:
     """stable_json."""
-    return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+    return to_canonical_json(payload)
 
 
 def hash_payload(payload: dict[str, Any]) -> str:
     """hash_payload."""
-    data = stable_json(payload)
-    return hashlib.sha256(data.encode()).hexdigest()
+    return foundation_hash_payload(payload)

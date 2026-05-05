@@ -4,6 +4,7 @@ import importlib.metadata
 
 import pytest
 
+from bijux_proteomics_foundation import hash_text
 from bijux_proteomics_runtime.core.hashing import sha256_hex
 from bijux_proteomics_runtime.runtime.control.artifacts import _sign_payload
 from bijux_proteomics_runtime.runtime.control.execution import (
@@ -17,6 +18,7 @@ from bijux_proteomics_runtime.runtime.control.state_machine import RunStateMachi
 
 def test_runtime_replay_hash_contract() -> None:
     assert len(sha256_hex("runtime")) == 64
+    assert sha256_hex("runtime") == hash_text("runtime")
 
 
 def test_runtime_state_machine_constructs() -> None:

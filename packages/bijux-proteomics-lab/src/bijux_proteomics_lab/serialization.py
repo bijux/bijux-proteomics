@@ -5,20 +5,13 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
-
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
-
-
-def to_canonical_json(model: JsonModel) -> str:
-    """Serialize a model with deterministic key ordering."""
-    return json.dumps(model.to_dict(), sort_keys=True, separators=(",", ":"))
-
-
-def fingerprint_model(model: JsonModel) -> str:
-    """Generate a stable SHA-256 fingerprint for a lab model payload."""
-    return hashlib.sha256(to_canonical_json(model).encode("utf-8")).hexdigest()
+from bijux_proteomics_foundation import (
+    DocumentSchema,
+    JsonModel,
+    fingerprint_model,
+    hash_payload,
+    to_canonical_json,
+)
 
 
 def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str]]:
@@ -52,9 +45,7 @@ def build_canonical_artifact_envelope(
 ) -> dict[str, object]:
     """Build canonical envelope for lab artifact transport and auditing."""
     payload = model.to_dict()
-    fingerprint = hashlib.sha256(
-        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
+    fingerprint = hash_payload(payload)
     return {
         "artifact_kind": artifact_kind,
         "schema": schema.to_dict(),
@@ -69,9 +60,7 @@ def verify_canonical_artifact_envelope(envelope: dict[str, object]) -> bool:
     fingerprint = envelope.get("fingerprint")
     if not isinstance(payload, dict) or not isinstance(fingerprint, str):
         return False
-    expected = hashlib.sha256(
-        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
+    expected = hash_payload(payload)
     return expected == fingerprint
 
 

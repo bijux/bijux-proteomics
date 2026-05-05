@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_foundation import (
+    fingerprint_model as foundation_fingerprint_model,
+    to_canonical_json as foundation_to_canonical_json,
+)
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     fingerprint_model,
@@ -18,3 +22,8 @@ def test_canonical_serialization_and_fingerprint_are_stable() -> None:
 
     assert serialized.startswith("{")
     assert digest_a == digest_b
+
+
+def test_knowledge_serialization_reuses_foundation_helpers() -> None:
+    assert to_canonical_json is foundation_to_canonical_json
+    assert fingerprint_model is foundation_fingerprint_model

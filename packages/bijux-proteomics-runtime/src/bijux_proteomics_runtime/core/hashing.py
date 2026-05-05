@@ -5,9 +5,9 @@
 
 from __future__ import annotations
 
-import hashlib
+from bijux_proteomics_foundation import hash_text
 
 
 def sha256_hex(payload: str) -> str:
     """Return a hex SHA256 digest for the payload."""
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+    return hash_text(payload)

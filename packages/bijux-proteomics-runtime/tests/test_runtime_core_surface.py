@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from bijux_proteomics_foundation import (
+    hash_payload as foundation_hash_payload,
+    hash_text as foundation_hash_text,
+    to_canonical_json,
+)
 from bijux_proteomics_runtime.core import (
     CostSummary,
     ExecutionStatus,
@@ -8,6 +13,8 @@ from bijux_proteomics_runtime.core import (
     ToolStatus,
     WorkflowState,
     deterministic_id,
+    hash_payload,
+    stable_json,
     suggest_next_action,
 )
 from bijux_proteomics_runtime.core.execution import ExecutionContext
@@ -28,6 +35,18 @@ def test_runtime_core_exports_failure_helpers() -> None:
 
 def test_runtime_core_exports_deterministic_id() -> None:
     assert deterministic_id("runtime", {"id": 1}).startswith("runtime_")
+
+
+def test_runtime_core_reuses_foundation_hashing_and_serialization() -> None:
+    payload = {"nested": {"b": 2, "a": 1}, "id": 1}
+
+    assert stable_json(payload) == to_canonical_json(payload)
+    assert hash_payload(payload) == foundation_hash_payload(payload)
+    assert (
+        deterministic_id("runtime", payload)
+        == f"runtime_{foundation_hash_payload(payload)}"
+    )
+    assert foundation_hash_text("runtime")
 
 
 def test_runtime_core_exports_status_enums() -> None:

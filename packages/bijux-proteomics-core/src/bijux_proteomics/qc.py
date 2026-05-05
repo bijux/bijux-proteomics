@@ -27,7 +27,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
 )
 from bijux_proteomics.spectra import SpectrumModel, calculate_precursor_mass_error
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel, hash_model
 
 
 class QcDigestionSpecificity(StrEnum):
@@ -515,7 +515,7 @@ def _build_document_schema(document_kind: str) -> DocumentSchema:
 
 
 def _stable_sha256(payload: JsonModel) -> str:
-    return hashlib.sha256(payload.to_stable_json().encode("utf-8")).hexdigest()
+    return hash_model(payload)
 
 
 def _hash_file(path: Path) -> str:

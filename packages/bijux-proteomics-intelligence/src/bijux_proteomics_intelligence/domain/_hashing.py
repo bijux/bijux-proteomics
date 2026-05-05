@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from hashlib import sha256
+from bijux_proteomics_foundation import hash_text
 
 
 def sha256_hex(text: str) -> str:
     """Return SHA-256 hex digest for utf-8 text."""
-    return sha256(text.encode("utf-8")).hexdigest()
+    return hash_text(text)
