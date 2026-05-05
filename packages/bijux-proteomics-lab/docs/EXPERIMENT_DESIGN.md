@@ -111,7 +111,7 @@ review queues.
 ## Typical flow
 
 ```python
-from bijux_proteomics import parse_experimental_design_table
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics_lab import (
     build_fractionation_plan,
     plan_batch_randomization,

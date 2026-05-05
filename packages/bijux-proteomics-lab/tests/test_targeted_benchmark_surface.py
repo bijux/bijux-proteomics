@@ -8,12 +8,9 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-from bijux_proteomics import (
-    SuccessCriterion,
-    create_program_spec,
-    parse_chromatogram_qc_table,
-)
-from bijux_proteomics.programs import MeasurementDirection
+from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     build_follow_up_candidate_path,

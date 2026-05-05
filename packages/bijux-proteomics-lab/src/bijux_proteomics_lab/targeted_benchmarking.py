@@ -9,12 +9,12 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics import (
-    ChromatogramQcIngestionReport,
+from bijux_proteomics.dia import (
     TargetedAssayOptimizationCandidate,
     TargetedAssayOptimizationReport,
     optimize_targeted_assay_candidates,
 )
+from bijux_proteomics.io.ingestion import ChromatogramQcIngestionReport
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence import CandidateAssessment, FollowUpCandidatePath
 from bijux_proteomics_knowledge.references import (

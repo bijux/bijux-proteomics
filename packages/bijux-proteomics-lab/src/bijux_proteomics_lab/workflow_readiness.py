@@ -7,8 +7,11 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics import ProgramSpec, workflow_blueprint_for_program
-from bijux_proteomics.workflow_blueprint import WorkflowStageKind
+from bijux_proteomics.domain.program_spec import ProgramSpec
+from bijux_proteomics.workflow.blueprint import (
+    WorkflowStageKind,
+    workflow_blueprint_for_program,
+)
 from bijux_proteomics_foundation import JsonModel, ProgramId
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 

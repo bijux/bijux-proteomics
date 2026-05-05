@@ -7,8 +7,9 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-from bijux_proteomics import create_program_spec
-from bijux_proteomics.programs import AssayRequirement, EvidenceNeed, ReviewGate
+from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.program_spec import EvidenceNeed, create_program_spec
+from bijux_proteomics.domain.reviews import ReviewGate
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceKind,

@@ -13,7 +13,10 @@ from statistics import NormalDist
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics import ExperimentalDesignEntry, ExperimentalDesignSampleRole
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
