@@ -146,11 +146,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Protocol attachments keep controls, versions, and caveats attached to lab handoffs.",
     ),
     LabModuleAuditEntry(
-        module_path="artifacts.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The flat artifacts import path is kept only as a compatibility facade over handoff-owned artifact contracts.",
-    ),
-    LabModuleAuditEntry(
         module_path="benchmarks/__init__.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The benchmarks band re-exports benchmark rehearsal owners under the durable benchmarks namespace.",
@@ -306,11 +301,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         ),
         reason="Feedback and review-queue records are the typed persistence boundary for lab operations.",
-    ),
-    LabModuleAuditEntry(
-        module_path="targeted_benchmarking.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The flat targeted-benchmarking import path is kept only as a compatibility facade over the benchmark rehearsal owner module.",
     ),
     LabModuleAuditEntry(
         module_path="readiness/workflow.py",

@@ -1,6 +1,0 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright © 2026 Bijan Mousavi
-
-"""Compatibility facade for targeted benchmark rehearsal surfaces."""
-
-from bijux_proteomics_lab.benchmarks.targeted import *
