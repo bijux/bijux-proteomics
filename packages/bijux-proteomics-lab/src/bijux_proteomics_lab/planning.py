@@ -11,7 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.assays import AssayRequirement
 from bijux_proteomics.domain.program_spec import ProgramSpec
-from bijux_proteomics.workflow_blueprint import workflow_blueprint_for_program
+from bijux_proteomics.workflow.blueprint import workflow_blueprint_for_program
 from bijux_proteomics_foundation import (
     AssayId,
     BatchId,

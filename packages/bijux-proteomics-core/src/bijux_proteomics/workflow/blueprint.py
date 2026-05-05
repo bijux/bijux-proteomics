@@ -9,8 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.program_spec import EvidenceNeed, ProgramStage
-from bijux_proteomics.domain.programs import ProgramSpec
+from bijux_proteomics.domain.program_spec import EvidenceNeed, ProgramSpec, ProgramStage
 from bijux_proteomics_foundation import AssayId, JsonModel, ProgramId
 
 
