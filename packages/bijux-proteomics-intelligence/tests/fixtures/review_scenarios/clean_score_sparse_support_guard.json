@@ -1,0 +1,79 @@
+{
+  "workflow_family": "dda",
+  "program": {
+    "program_id": "prog-clean-score-guard",
+    "name": "clean score guard",
+    "objective": "prevent clean-looking DDA scores from outranking grounded evidence",
+    "target_id": "target-clean-score-guard",
+    "target_name": "Target Clean Score Guard",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "prefer reproducible DDA follow-up over polished but weak signals"
+  },
+  "criterion": {
+    "criterion_id": "dda-guard",
+    "metric": "dda_follow_up_score",
+    "threshold": 0.73
+  },
+  "candidates": [
+    {
+      "candidate_id": "grounded-dda-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dda_follow_up_score": 0.82
+      },
+      "manufacturability_score": 0.79,
+      "uncertainty": 0.09,
+      "evidence_support": 0.88,
+      "reproducibility_score": 0.86,
+      "effect_size_score": 0.78,
+      "assay_feasibility_score": 0.77,
+      "novelty_score": 0.34,
+      "lab_cost_risk": 0.14,
+      "operational_risk": 0.12
+    },
+    {
+      "candidate_id": "clean-score-trap",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "dda_follow_up_score": 0.91
+      },
+      "manufacturability_score": 0.9,
+      "uncertainty": 0.23,
+      "evidence_support": 0.36,
+      "reproducibility_score": 0.31,
+      "effect_size_score": 0.59,
+      "assay_feasibility_score": 0.69,
+      "novelty_score": 0.82,
+      "lab_cost_risk": 0.26,
+      "operational_risk": 0.24
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "dda-support-1",
+      "kind": "differential_proteomics",
+      "title": "grounded DDA support",
+      "source": "dda-grounded-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible DDA peptide rescue across independent repeats",
+      "confidence": 0.91,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 18
+    },
+    {
+      "evidence_id": "dda-support-2",
+      "kind": "literature",
+      "title": "grounded DDA disease context",
+      "source": "PMID:dda-guard-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the grounded DDA follow-up hypothesis",
+      "confidence": 0.8,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 42
+    }
+  ],
+  "expected_top_candidate_id": "grounded-dda-follow-up"
+}

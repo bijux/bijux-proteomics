@@ -169,6 +169,57 @@ def test_novelty_trap_fixture_does_not_outrank_grounded_follow_up() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    ("fixture_name", "workflow_family", "seductive_candidate_id"),
+    [
+        (
+            "clean_score_sparse_support_guard",
+            KnowledgeWorkflowFamily.DDA,
+            "clean-score-trap",
+        ),
+        (
+            "multiplex_channel_overclaim_guard",
+            KnowledgeWorkflowFamily.MULTIPLEX,
+            "multiplex-polish-trap",
+        ),
+    ],
+)
+def test_seductive_weak_candidate_fixtures_do_not_outrank_grounded_follow_up(
+    fixture_name: str,
+    workflow_family: KnowledgeWorkflowFamily,
+    seductive_candidate_id: str,
+) -> None:
+    payload = _load_scenario_fixture(fixture_name)
+    program = _program_from_fixture(payload)
+    assessments = _assessments_from_fixture(payload)
+    bundle = _bundle_from_fixture(payload)
+
+    ranking = prioritize_candidates(
+        program,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=workflow_family,
+    )
+
+    seductive_candidate = next(
+        candidate
+        for candidate in ranking.ranked_candidates
+        if candidate.candidate_id == seductive_candidate_id
+    )
+    grounded_candidate = ranking.ranked_candidates[0]
+
+    assert grounded_candidate.candidate_id == payload["expected_top_candidate_id"]
+    assert seductive_candidate.explainability["priority_inputs"]["criteria_strength"] > (
+        grounded_candidate.explainability["priority_inputs"]["criteria_strength"]
+    )
+    assert seductive_candidate.explainability["priority_inputs"]["evidence_strength"] < (
+        grounded_candidate.explainability["priority_inputs"]["evidence_strength"]
+    )
+    assert seductive_candidate.explainability["priority_inputs"]["reproducibility"] < (
+        grounded_candidate.explainability["priority_inputs"]["reproducibility"]
+    )
+
+
 def test_aging_evidence_fixture_downgrades_recommendation_readiness() -> None:
     payload = _load_scenario_fixture("aging_evidence_guard")
     bundle = _bundle_from_fixture(payload)
