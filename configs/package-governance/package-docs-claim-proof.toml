@@ -1,0 +1,88 @@
+# Generated package docs claim-versus-proof report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_docs_claim_proof
+
+[guard]
+max_total_unproven_claim_kind_count = 3
+min_total_benchmark_proof_artifact_count = 20
+min_total_replay_proof_artifact_count = 6
+min_total_integrity_proof_artifact_count = 3
+
+[[package]]
+distribution_name = "agentic-proteins"
+benchmark_claim_count = 0
+benchmark_proof_artifact_count = 1
+replay_claim_count = 0
+replay_proof_artifact_count = 0
+integrity_claim_count = 0
+integrity_proof_artifact_count = 0
+unproven_claim_kinds = []
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+benchmark_claim_count = 1
+benchmark_proof_artifact_count = 3
+replay_claim_count = 0
+replay_proof_artifact_count = 0
+integrity_claim_count = 12
+integrity_proof_artifact_count = 0
+unproven_claim_kinds = ["integrity"]
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+benchmark_claim_count = 0
+benchmark_proof_artifact_count = 1
+replay_claim_count = 0
+replay_proof_artifact_count = 0
+integrity_claim_count = 0
+integrity_proof_artifact_count = 0
+unproven_claim_kinds = []
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+benchmark_claim_count = 7
+benchmark_proof_artifact_count = 10
+replay_claim_count = 5
+replay_proof_artifact_count = 3
+integrity_claim_count = 0
+integrity_proof_artifact_count = 0
+unproven_claim_kinds = []
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+benchmark_claim_count = 0
+benchmark_proof_artifact_count = 2
+replay_claim_count = 47
+replay_proof_artifact_count = 3
+integrity_claim_count = 7
+integrity_proof_artifact_count = 2
+unproven_claim_kinds = []
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+benchmark_claim_count = 23
+benchmark_proof_artifact_count = 1
+replay_claim_count = 0
+replay_proof_artifact_count = 0
+integrity_claim_count = 0
+integrity_proof_artifact_count = 0
+unproven_claim_kinds = []
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+benchmark_claim_count = 6
+benchmark_proof_artifact_count = 1
+replay_claim_count = 3
+replay_proof_artifact_count = 0
+integrity_claim_count = 2
+integrity_proof_artifact_count = 1
+unproven_claim_kinds = ["replay"]
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+benchmark_claim_count = 17
+benchmark_proof_artifact_count = 1
+replay_claim_count = 0
+replay_proof_artifact_count = 0
+integrity_claim_count = 1
+integrity_proof_artifact_count = 0
+unproven_claim_kinds = ["integrity"]
