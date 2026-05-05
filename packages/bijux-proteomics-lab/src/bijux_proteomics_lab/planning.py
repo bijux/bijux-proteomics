@@ -520,7 +520,10 @@ class ExecutionCapacityAdvisory(JsonModel):
     program_id: ProgramId = Field(..., description="Program identifier.")
     feasible_batch_ids: list[BatchId] = Field(default_factory=list)
     deferred_batch_ids: list[BatchId] = Field(default_factory=list)
+    deferred_reasons: dict[BatchId, str] = Field(default_factory=dict)
+    estimated_total_cost: float = Field(default=0.0, ge=0.0)
     budget_remaining: float = Field(..., ge=0.0)
+    practicality_score: float = Field(default=0.0, ge=0.0, le=1.0)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -593,6 +596,12 @@ class CandidatePrioritySignal(JsonModel):
     candidate_id: str = Field(..., min_length=1)
     score: float = Field(..., ge=0.0)
     assay_ids: list[AssayId] = Field(default_factory=list)
+    decision_ready: bool = True
+    contradiction_pressure: float = Field(default=0.0, ge=0.0, le=1.0)
+    freshness_pressure: float = Field(default=0.0, ge=0.0, le=1.0)
+    unresolved_questions: list[str] = Field(default_factory=list)
+    recommended_action: str | None = Field(default=None, min_length=1)
+    policy_lineage_id: str | None = Field(default=None, min_length=1)
     rationale: list[str] = Field(default_factory=list)
 
 
@@ -604,6 +613,25 @@ class LabPriorityQueueAlignment(JsonModel):
     program_id: ProgramId = Field(..., description="Program identifier.")
     prioritized_assay_ids: list[AssayId] = Field(default_factory=list)
     unaligned_candidate_ids: list[str] = Field(default_factory=list)
+    skeptical_candidate_ids: list[str] = Field(default_factory=list)
+    held_candidate_ids: list[str] = Field(default_factory=list)
+    candidate_assay_scores: dict[str, float] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+class FollowUpPracticalityReport(JsonModel):
+    """Practicality report for candidate follow-up under real lab constraints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    practical_candidate_ids: list[str] = Field(default_factory=list)
+    impractical_candidate_ids: list[str] = Field(default_factory=list)
+    executable_batch_ids: list[BatchId] = Field(default_factory=list)
+    blocked_batch_ids: list[BatchId] = Field(default_factory=list)
+    estimated_total_cost: float = Field(default=0.0, ge=0.0)
+    practicality_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    blockers: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -1870,23 +1898,41 @@ def build_execution_capacity_advisory(
     instrument_days = sum(item.available_days for item in instrument_availability)
     feasible_batch_ids: list[str] = []
     deferred_batch_ids: list[str] = []
+    deferred_reasons: dict[str, str] = {}
     budget_remaining = budget_limit
+    estimated_total_cost = 0.0
     notes: list[str] = []
     for batch in plan.batches:
         has_supported_sample_kind = any(
             sample_kind in supported_sample_kinds
             for sample_kind in batch.sample_requirements
         )
+        batch_cost = estimated_batch_cost * (
+            1.0
+            + (max(len(set(batch.sample_requirements)) - 1, 0) * 0.25)
+            + (0.15 if batch.priority == 1 else 0.0)
+        )
         if (
             len(feasible_batch_ids) >= capacity.max_batches
             or instrument_days < 1.0
-            or budget_remaining < estimated_batch_cost
+            or budget_remaining < batch_cost
             or (batch.sample_requirements and not has_supported_sample_kind)
         ):
             deferred_batch_ids.append(batch.batch_id)
+            if len(feasible_batch_ids) >= capacity.max_batches:
+                deferred_reasons[batch.batch_id] = "cycle batch capacity exhausted"
+            elif instrument_days < 1.0:
+                deferred_reasons[batch.batch_id] = "instrument time is exhausted"
+            elif budget_remaining < batch_cost:
+                deferred_reasons[batch.batch_id] = "budget cannot absorb the batch cost"
+            else:
+                deferred_reasons[batch.batch_id] = (
+                    "instrument support does not cover the batch sample requirements"
+                )
             continue
         feasible_batch_ids.append(batch.batch_id)
-        budget_remaining = max(0.0, budget_remaining - estimated_batch_cost)
+        budget_remaining = max(0.0, budget_remaining - batch_cost)
+        estimated_total_cost += batch_cost
         instrument_days = max(0.0, instrument_days - 1.0)
     if deferred_batch_ids:
         notes.append(
@@ -1894,11 +1940,31 @@ def build_execution_capacity_advisory(
         )
     if not feasible_batch_ids:
         notes.append("no planned batches fit current execution constraints")
+    practicality_score = (
+        round(
+            max(
+                0.0,
+                min(
+                    (
+                        (len(feasible_batch_ids) / max(len(plan.batches), 1)) * 0.7
+                        + (budget_remaining / max(budget_limit, 1.0)) * 0.3
+                    ),
+                    1.0,
+                ),
+            ),
+            4,
+        )
+        if plan.batches
+        else 1.0
+    )
     return ExecutionCapacityAdvisory(
         program_id=plan.program_id,
         feasible_batch_ids=feasible_batch_ids,
         deferred_batch_ids=deferred_batch_ids,
+        deferred_reasons=deferred_reasons,
+        estimated_total_cost=round(estimated_total_cost, 4),
         budget_remaining=round(budget_remaining, 4),
+        practicality_score=practicality_score,
         notes=notes,
     )
 
@@ -1998,15 +2064,36 @@ def align_lab_priority_queue(
     assay_scores = {priority.assay_id: priority.score for priority in priorities}
     aligned_rows: list[tuple[float, str]] = []
     unaligned_candidate_ids: list[str] = []
+    skeptical_candidate_ids: list[str] = []
+    held_candidate_ids: list[str] = []
+    candidate_assay_scores: dict[str, float] = {}
     for signal in candidate_signals:
+        if signal.recommended_action and "hold" in signal.recommended_action.lower():
+            held_candidate_ids.append(signal.candidate_id)
+            continue
         matched_assays = [
             assay_id for assay_id in signal.assay_ids if assay_id in assay_scores
         ]
         if not matched_assays:
             unaligned_candidate_ids.append(signal.candidate_id)
             continue
+        skepticism_penalty = 0.0
+        if not signal.decision_ready:
+            skepticism_penalty += 0.5
+        skepticism_penalty += signal.contradiction_pressure * 0.75
+        skepticism_penalty += signal.freshness_pressure * 0.35
+        skepticism_penalty += min(len(signal.unresolved_questions) * 0.08, 0.24)
+        if signal.policy_lineage_id is None:
+            skepticism_penalty += 0.15
+        if skepticism_penalty >= 0.45:
+            skeptical_candidate_ids.append(signal.candidate_id)
         for assay_id in matched_assays:
-            aligned_rows.append((signal.score + assay_scores[assay_id], assay_id))
+            combined_score = round(
+                max(0.0, signal.score + assay_scores[assay_id] - skepticism_penalty),
+                4,
+            )
+            candidate_assay_scores[f"{signal.candidate_id}:{assay_id}"] = combined_score
+            aligned_rows.append((combined_score, assay_id))
     aligned_rows.sort(key=lambda row: (-row[0], row[1]))
     prioritized_assay_ids = list(
         dict.fromkeys(assay_id for _, assay_id in aligned_rows)
@@ -2018,10 +2105,91 @@ def align_lab_priority_queue(
     )
     if unaligned_candidate_ids:
         notes.append("some candidate signals were not mapped to lab assays")
+    if skeptical_candidate_ids:
+        notes.append("skeptical penalties downgraded some candidate-driven assay requests")
+    if held_candidate_ids:
+        notes.append("hold recommendations were excluded from the executable assay queue")
     return LabPriorityQueueAlignment(
         program_id=program.program_id,
         prioritized_assay_ids=prioritized_assay_ids,
         unaligned_candidate_ids=sorted(unaligned_candidate_ids),
+        skeptical_candidate_ids=sorted(skeptical_candidate_ids),
+        held_candidate_ids=sorted(held_candidate_ids),
+        candidate_assay_scores=candidate_assay_scores,
+        notes=notes,
+    )
+
+
+def build_follow_up_practicality_report(
+    plan: ExperimentPlan,
+    capacity: LabCapacity,
+    instrument_availability: list[InstrumentAvailability],
+    candidate_signals: list[CandidatePrioritySignal],
+    *,
+    budget_limit: float,
+    estimated_batch_cost: float = 1.0,
+) -> FollowUpPracticalityReport:
+    """Assess whether candidate follow-up requests are practical under live constraints."""
+    capacity_advisory = build_execution_capacity_advisory(
+        plan,
+        capacity,
+        instrument_availability,
+        budget_limit=budget_limit,
+        estimated_batch_cost=estimated_batch_cost,
+    )
+    feasible_batches = set(capacity_advisory.feasible_batch_ids)
+    assay_to_batch = {
+        assay_id: batch.batch_id
+        for batch in plan.batches
+        for assay_id in batch.assay_ids
+    }
+    practical_candidate_ids: list[str] = []
+    impractical_candidate_ids: list[str] = []
+    blockers: list[str] = []
+
+    for signal in candidate_signals:
+        if signal.recommended_action and "hold" in signal.recommended_action.lower():
+            impractical_candidate_ids.append(signal.candidate_id)
+            blockers.append(f"{signal.candidate_id} remains on hold upstream")
+            continue
+        matched_batch_ids = {
+            assay_to_batch[assay_id]
+            for assay_id in signal.assay_ids
+            if assay_id in assay_to_batch
+        }
+        if not matched_batch_ids:
+            impractical_candidate_ids.append(signal.candidate_id)
+            blockers.append(
+                f"{signal.candidate_id} is not mapped to any planned executable batch"
+            )
+            continue
+        if not signal.decision_ready or signal.contradiction_pressure >= 0.45:
+            impractical_candidate_ids.append(signal.candidate_id)
+            blockers.append(
+                f"{signal.candidate_id} is not analytically ready for operational spend"
+            )
+            continue
+        if matched_batch_ids.isdisjoint(feasible_batches):
+            impractical_candidate_ids.append(signal.candidate_id)
+            blockers.append(
+                f"{signal.candidate_id} only maps to deferred batch work"
+            )
+            continue
+        practical_candidate_ids.append(signal.candidate_id)
+
+    notes = list(capacity_advisory.notes)
+    if blockers:
+        notes.append("candidate practicality is constrained by both analytical skepticism and lab capacity")
+
+    return FollowUpPracticalityReport(
+        program_id=plan.program_id,
+        practical_candidate_ids=sorted(practical_candidate_ids),
+        impractical_candidate_ids=sorted(impractical_candidate_ids),
+        executable_batch_ids=capacity_advisory.feasible_batch_ids,
+        blocked_batch_ids=capacity_advisory.deferred_batch_ids,
+        estimated_total_cost=capacity_advisory.estimated_total_cost,
+        practicality_score=capacity_advisory.practicality_score,
+        blockers=sorted(set(blockers)),
         notes=notes,
     )
 

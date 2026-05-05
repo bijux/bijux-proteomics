@@ -51,6 +51,7 @@ from bijux_proteomics_lab import (
     build_advisory_assay_plan,
     build_executable_assay_plan,
     build_execution_capacity_advisory,
+    build_follow_up_practicality_report,
     build_lab_cycle_brief,
     build_lab_execution_request,
     build_lab_review_packet_bundle,
@@ -470,17 +471,31 @@ def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> N
                 candidate_id="cand-1",
                 score=0.9,
                 assay_ids=["support-expression", "gate-binding"],
+                decision_ready=True,
+                contradiction_pressure=0.08,
+                freshness_pressure=0.04,
+                policy_lineage_id="policy-balanced",
             ),
             CandidatePrioritySignal(
                 candidate_id="cand-2",
                 score=0.3,
                 assay_ids=["unknown-assay"],
             ),
+            CandidatePrioritySignal(
+                candidate_id="cand-3",
+                score=0.95,
+                assay_ids=["gate-binding"],
+                decision_ready=False,
+                contradiction_pressure=0.52,
+                unresolved_questions=["orthogonal assay remains unresolved"],
+                recommended_action="hold candidate until contradictions are resolved",
+            ),
         ],
     )
 
     assert alignment.prioritized_assay_ids[0] == "gate-binding"
     assert alignment.unaligned_candidate_ids == ["cand-2"]
+    assert alignment.held_candidate_ids == ["cand-3"]
 
 
 def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressure() -> (
@@ -521,7 +536,74 @@ def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressu
 
     assert advisory.feasible_batch_ids == ["b1"]
     assert advisory.deferred_batch_ids == ["b2"]
-    assert advisory.budget_remaining == 0.5
+    assert advisory.deferred_reasons == {
+        "b2": "cycle batch capacity exhausted",
+    }
+    assert advisory.estimated_total_cost == 1.15
+    assert advisory.budget_remaining == 0.35
+    assert advisory.practicality_score == 0.42
+
+
+def test_build_follow_up_practicality_report_blocks_candidates_without_practical_path() -> (
+    None
+):
+    plan = ExperimentPlan(
+        program_id="prog-practicality",
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="binding batch",
+                assay_ids=["gate-binding"],
+                priority=1,
+                sample_requirements=["biophysical"],
+            ),
+            ExperimentBatch(
+                batch_id="b2",
+                objective="cellular batch",
+                assay_ids=["cell-response"],
+                priority=2,
+                sample_requirements=["cellular"],
+            ),
+        ],
+    )
+
+    report = build_follow_up_practicality_report(
+        plan,
+        LabCapacity(cycle_id="cycle-1", max_batches=1, max_assays_per_batch=2),
+        [
+            InstrumentAvailability(
+                instrument_id="orbitrap",
+                available_days=1.0,
+                supported_sample_kinds=["biophysical"],
+            )
+        ],
+        [
+            CandidatePrioritySignal(
+                candidate_id="cand-practical",
+                score=0.9,
+                assay_ids=["gate-binding"],
+                decision_ready=True,
+                contradiction_pressure=0.1,
+                freshness_pressure=0.05,
+                policy_lineage_id="policy-balanced",
+            ),
+            CandidatePrioritySignal(
+                candidate_id="cand-impractical",
+                score=0.95,
+                assay_ids=["cell-response"],
+                decision_ready=False,
+                contradiction_pressure=0.52,
+                recommended_action="hold candidate until contradictions are resolved",
+            ),
+        ],
+        budget_limit=1.5,
+    )
+
+    assert report.practical_candidate_ids == ["cand-practical"]
+    assert report.impractical_candidate_ids == ["cand-impractical"]
+    assert report.executable_batch_ids == ["b1"]
+    assert report.blocked_batch_ids == ["b2"]
+    assert report.practicality_score == 0.42
 
 
 def test_build_operational_readiness_report_combines_budget_staffing_and_backlog() -> (
