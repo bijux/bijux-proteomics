@@ -9,6 +9,11 @@ from click.testing import CliRunner
 from agentic_proteins.api import AppConfig as CompatAppConfig
 from agentic_proteins.api import create_app as compat_create_app
 from agentic_proteins.api.errors import _ERROR_TYPES as COMPAT_ERROR_TYPES
+from agentic_proteins.report import Report as CompatReport
+from agentic_proteins.report import nl_summary as compat_nl_summary
+from agentic_proteins.report.render import confidence_summary as compat_confidence_summary
+from agentic_proteins.report.render import format_pct as compat_format_pct
+from agentic_proteins.report.render import to_text as compat_to_text
 from agentic_proteins.execution.evaluation.observations import (
     EvaluationInput as CompatEvaluationInput,
 )
@@ -50,6 +55,8 @@ from agentic_proteins.interfaces.cli import (
 )
 from agentic_proteins.providers.base import _time_left as compat_time_left
 from agentic_proteins.providers.factory import _require_module as compat_require_module
+from agentic_proteins.registry import AgentRegistry as CompatAgentRegistry
+from agentic_proteins.registry import ToolRegistry as CompatToolRegistry
 from agentic_proteins.runtime.control.artifacts import (
     _sign_payload as compat_sign_payload,
 )
@@ -65,6 +72,11 @@ from agentic_proteins.runtime.control.execution import (
 from agentic_proteins.runtime.control.execution import (
     _version_info as compat_version_info,
 )
+from agentic_proteins.runtime.infra import KNOWN_PROVIDERS as COMPAT_KNOWN_PROVIDERS
+from agentic_proteins.runtime.infra import capabilities as compat_capabilities
+from agentic_proteins.runtime.infra import (
+    validate_runtime_capabilities as compat_validate_runtime_capabilities,
+)
 from agentic_proteins.validation.agents import (
     _minimal_payload as compat_minimal_payload,
 )
@@ -74,6 +86,13 @@ from agentic_proteins.validation.agents import (
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
+from bijux_proteomics.structure_report import Report as RuntimeReport
+from bijux_proteomics.structure_report.render import (
+    confidence_summary as runtime_confidence_summary,
+)
+from bijux_proteomics.structure_report.render import format_pct as runtime_format_pct
+from bijux_proteomics.structure_report.render import nl_summary as runtime_nl_summary
+from bijux_proteomics.structure_report.render import to_text as runtime_to_text
 from bijux_proteomics_runtime.execution.evaluation.observations import (
     EvaluationInput as RuntimeEvaluationInput,
 )
@@ -117,6 +136,8 @@ from bijux_proteomics_runtime.providers.base import _time_left as runtime_time_l
 from bijux_proteomics_runtime.providers.factory import (
     _require_module as runtime_require_module,
 )
+from bijux_proteomics_runtime.agents.catalog import AgentCatalog as RuntimeAgentCatalog
+from bijux_proteomics_runtime.tools.catalog import ToolCatalog as RuntimeToolCatalog
 from bijux_proteomics_runtime.runtime.control.artifacts import (
     _sign_payload as runtime_sign_payload,
 )
@@ -131,6 +152,15 @@ from bijux_proteomics_runtime.runtime.control.execution import (
 )
 from bijux_proteomics_runtime.runtime.control.execution import (
     _version_info as runtime_version_info,
+)
+from bijux_proteomics_runtime.runtime.control import (
+    provider_capabilities as runtime_capabilities,
+)
+from bijux_proteomics_runtime.runtime.control.provider_capabilities import (
+    KNOWN_PROVIDERS as RUNTIME_KNOWN_PROVIDERS,
+)
+from bijux_proteomics_runtime.runtime.control.provider_capabilities import (
+    validate_runtime_capabilities as runtime_validate_runtime_capabilities,
 )
 from bijux_proteomics_runtime.agents.contracts import (
     _minimal_payload as runtime_minimal_payload,
@@ -184,6 +214,14 @@ def test_compat_api_error_contracts_forward_to_runtime_symbols() -> None:
     assert COMPAT_ERROR_TYPES is RUNTIME_ERROR_TYPES
 
 
+def test_compat_report_surface_forwards_to_core_symbols() -> None:
+    assert CompatReport is RuntimeReport
+    assert compat_nl_summary is runtime_nl_summary
+    assert compat_confidence_summary is runtime_confidence_summary
+    assert compat_format_pct is runtime_format_pct
+    assert compat_to_text is runtime_to_text
+
+
 def test_compat_cli_input_helpers_forward_to_runtime_symbols() -> None:
     assert compat_read_sequence is runtime_read_sequence
     assert compat_build_run_config is runtime_build_run_config
@@ -209,6 +247,11 @@ def test_compat_provider_dependency_helper_forwards_to_runtime_symbol() -> None:
     assert compat_require_module is runtime_require_module
 
 
+def test_compat_registry_surface_forwards_to_runtime_symbols() -> None:
+    assert CompatAgentRegistry is RuntimeAgentCatalog
+    assert CompatToolRegistry is RuntimeToolCatalog
+
+
 def test_compat_artifact_signature_helper_forwards_to_runtime_symbol() -> None:
     assert compat_sign_payload is runtime_sign_payload
 
@@ -226,3 +269,9 @@ def test_compat_execution_runtime_helpers_forward_to_runtime_symbols() -> None:
 def test_compat_validation_payload_helpers_forward_to_runtime_symbols() -> None:
     assert compat_minimal_payload is runtime_minimal_payload
     assert compat_placeholder_for_type is runtime_placeholder_for_type
+
+
+def test_compat_runtime_capability_surface_forwards_to_runtime_symbols() -> None:
+    assert compat_capabilities is runtime_capabilities
+    assert COMPAT_KNOWN_PROVIDERS is RUNTIME_KNOWN_PROVIDERS
+    assert compat_validate_runtime_capabilities is runtime_validate_runtime_capabilities
