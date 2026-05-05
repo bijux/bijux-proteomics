@@ -1,0 +1,739 @@
+# Generated module dependency graph.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.module_dependency_graphs
+
+distribution_name = "agentic-proteins"
+
+[[module]]
+module_name = "agentic_proteins"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.structure_report", "bijux_proteomics_intelligence.domain.structure.confidence"]
+
+[[module]]
+module_name = "agentic_proteins.agents"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents"]
+
+[[module]]
+module_name = "agentic_proteins.agents.analysis"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.analysis"]
+
+[[module]]
+module_name = "agentic_proteins.agents.analysis.failure_analysis"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.analysis.failure_analysis"]
+
+[[module]]
+module_name = "agentic_proteins.agents.analysis.sequence_analysis"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.analysis.sequence_analysis"]
+
+[[module]]
+module_name = "agentic_proteins.agents.analysis.structure"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.analysis.structure"]
+
+[[module]]
+module_name = "agentic_proteins.agents.base"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.base"]
+
+[[module]]
+module_name = "agentic_proteins.agents.base.base"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.base.base"]
+
+[[module]]
+module_name = "agentic_proteins.agents.execution"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.execution"]
+
+[[module]]
+module_name = "agentic_proteins.agents.execution.coordinator"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.execution.coordinator"]
+
+[[module]]
+module_name = "agentic_proteins.agents.planning"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.planning"]
+
+[[module]]
+module_name = "agentic_proteins.agents.planning.compiler"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.planning.compiler"]
+
+[[module]]
+module_name = "agentic_proteins.agents.planning.generation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.planning.generation"]
+
+[[module]]
+module_name = "agentic_proteins.agents.planning.planner"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.planning.planner"]
+
+[[module]]
+module_name = "agentic_proteins.agents.planning.schemas"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.planning.schemas"]
+
+[[module]]
+module_name = "agentic_proteins.agents.planning.validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.planning.validation"]
+
+[[module]]
+module_name = "agentic_proteins.agents.reporting"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.reporting"]
+
+[[module]]
+module_name = "agentic_proteins.agents.reporting.reporting"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.reporting.reporting"]
+
+[[module]]
+module_name = "agentic_proteins.agents.schemas"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.schemas"]
+
+[[module]]
+module_name = "agentic_proteins.agents.verification"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.verification"]
+
+[[module]]
+module_name = "agentic_proteins.agents.verification.critic"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.verification.critic"]
+
+[[module]]
+module_name = "agentic_proteins.agents.verification.input_validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.verification.input_validation"]
+
+[[module]]
+module_name = "agentic_proteins.agents.verification.quality_control"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.verification.quality_control"]
+
+[[module]]
+module_name = "agentic_proteins.api"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api"]
+
+[[module]]
+module_name = "agentic_proteins.api.app"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.app"]
+
+[[module]]
+module_name = "agentic_proteins.api.deps"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.deps"]
+
+[[module]]
+module_name = "agentic_proteins.api.errors"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.errors"]
+
+[[module]]
+module_name = "agentic_proteins.api.middleware"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.middleware"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1.endpoints"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.endpoints"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1.endpoints.compare"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.endpoints.compare"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1.endpoints.inspect"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.endpoints.inspect"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1.endpoints.resume"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.endpoints.resume"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1.endpoints.run"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.endpoints.run"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1.router"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.router"]
+
+[[module]]
+module_name = "agentic_proteins.api.v1.schema"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.schema"]
+
+[[module]]
+module_name = "agentic_proteins.biology"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.biology"]
+
+[[module]]
+module_name = "agentic_proteins.biology.pathway"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.biology.pathway"]
+
+[[module]]
+module_name = "agentic_proteins.biology.protein_agent"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.biology.protein_agent"]
+
+[[module]]
+module_name = "agentic_proteins.biology.regulator"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.biology.regulator"]
+
+[[module]]
+module_name = "agentic_proteins.biology.signals"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.biology.signals"]
+
+[[module]]
+module_name = "agentic_proteins.biology.validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.biology.validation"]
+
+[[module]]
+module_name = "agentic_proteins.core"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core"]
+
+[[module]]
+module_name = "agentic_proteins.core.api_lock"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.api_lock"]
+
+[[module]]
+module_name = "agentic_proteins.core.contracts"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.contracts"]
+
+[[module]]
+module_name = "agentic_proteins.core.costs"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.costs"]
+
+[[module]]
+module_name = "agentic_proteins.core.decisions"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.decisions"]
+
+[[module]]
+module_name = "agentic_proteins.core.determinism"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.determinism"]
+
+[[module]]
+module_name = "agentic_proteins.core.execution"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.execution"]
+
+[[module]]
+module_name = "agentic_proteins.core.failures"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.failures"]
+
+[[module]]
+module_name = "agentic_proteins.core.fingerprints"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.fingerprints"]
+
+[[module]]
+module_name = "agentic_proteins.core.hashing"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.hashing"]
+
+[[module]]
+module_name = "agentic_proteins.core.identifiers"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.identifiers"]
+
+[[module]]
+module_name = "agentic_proteins.core.observations"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.observations"]
+
+[[module]]
+module_name = "agentic_proteins.core.stability"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.stability"]
+
+[[module]]
+module_name = "agentic_proteins.core.status"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.status"]
+
+[[module]]
+module_name = "agentic_proteins.core.surface_area"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.surface_area"]
+
+[[module]]
+module_name = "agentic_proteins.core.tooling"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.core.tooling"]
+
+[[module]]
+module_name = "agentic_proteins.design_loop"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.design_loop"]
+
+[[module]]
+module_name = "agentic_proteins.design_loop.convergence"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.design_loop.convergence"]
+
+[[module]]
+module_name = "agentic_proteins.design_loop.loop"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.design_loop.loop"]
+
+[[module]]
+module_name = "agentic_proteins.design_loop.stagnation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.design_loop.stagnation"]
+
+[[module]]
+module_name = "agentic_proteins.domain"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.domain.sequence", "bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure", "bijux_proteomics_intelligence.domain.metrics.compute", "bijux_proteomics_intelligence.domain.structure.confidence"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates.filters"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.filters"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates.model"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.model"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates.schema"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.schema"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates.selection"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.selection"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates.store"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.store"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates.transform"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.transform"]
+
+[[module]]
+module_name = "agentic_proteins.domain.candidates.updates"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.updates"]
+
+[[module]]
+module_name = "agentic_proteins.domain.confidence"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.structure.confidence"]
+
+[[module]]
+module_name = "agentic_proteins.domain.confidence.segments"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.structure.confidence"]
+
+[[module]]
+module_name = "agentic_proteins.domain.metrics"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics"]
+
+[[module]]
+module_name = "agentic_proteins.domain.metrics.compute"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics.compute"]
+
+[[module]]
+module_name = "agentic_proteins.domain.metrics.quality"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics.quality"]
+
+[[module]]
+module_name = "agentic_proteins.domain.metrics.validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics.validation"]
+
+[[module]]
+module_name = "agentic_proteins.domain.sequence"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.domain.sequence"]
+
+[[module]]
+module_name = "agentic_proteins.domain.sequence.summary"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.domain.sequence.summary"]
+
+[[module]]
+module_name = "agentic_proteins.domain.sequence.validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.domain.sequence.validation"]
+
+[[module]]
+module_name = "agentic_proteins.domain.structure"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.domain.structure"]
+
+[[module]]
+module_name = "agentic_proteins.domain.structure.structure"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.domain.structure.structure"]
+
+[[module]]
+module_name = "agentic_proteins.execution"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution"]
+
+[[module]]
+module_name = "agentic_proteins.execution.compiler"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.compiler"]
+
+[[module]]
+module_name = "agentic_proteins.execution.compiler.boundary"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.compiler.boundary"]
+
+[[module]]
+module_name = "agentic_proteins.execution.evaluation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.evaluation"]
+
+[[module]]
+module_name = "agentic_proteins.execution.evaluation.evaluation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.evaluation.evaluation"]
+
+[[module]]
+module_name = "agentic_proteins.execution.evaluation.observations"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.evaluation.observations"]
+
+[[module]]
+module_name = "agentic_proteins.execution.evaluation.schemas"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.evaluation.schemas"]
+
+[[module]]
+module_name = "agentic_proteins.execution.runtime"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.runtime"]
+
+[[module]]
+module_name = "agentic_proteins.execution.runtime.executor"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.runtime.executor"]
+
+[[module]]
+module_name = "agentic_proteins.execution.runtime.integration"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.runtime.integration"]
+
+[[module]]
+module_name = "agentic_proteins.execution.schemas"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.schemas"]
+
+[[module]]
+module_name = "agentic_proteins.execution.validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.validation"]
+
+[[module]]
+module_name = "agentic_proteins.interfaces"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.interfaces"]
+
+[[module]]
+module_name = "agentic_proteins.interfaces.cli"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.interfaces.cli"]
+
+[[module]]
+module_name = "agentic_proteins.memory"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.memory"]
+
+[[module]]
+module_name = "agentic_proteins.memory.schemas"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.memory.schemas"]
+
+[[module]]
+module_name = "agentic_proteins.memory.store"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.memory.store"]
+
+[[module]]
+module_name = "agentic_proteins.providers"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers"]
+
+[[module]]
+module_name = "agentic_proteins.providers.base"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.base"]
+
+[[module]]
+module_name = "agentic_proteins.providers.errors"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.errors"]
+
+[[module]]
+module_name = "agentic_proteins.providers.experimental"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.experimental"]
+
+[[module]]
+module_name = "agentic_proteins.providers.experimental._async_utils"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.experimental._async_utils"]
+
+[[module]]
+module_name = "agentic_proteins.providers.experimental.colabfold"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.experimental.colabfold"]
+
+[[module]]
+module_name = "agentic_proteins.providers.experimental.openprotein"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.experimental.openprotein"]
+
+[[module]]
+module_name = "agentic_proteins.providers.factory"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.factory"]
+
+[[module]]
+module_name = "agentic_proteins.providers.heuristic"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.heuristic"]
+
+[[module]]
+module_name = "agentic_proteins.providers.local"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.local"]
+
+[[module]]
+module_name = "agentic_proteins.providers.local.esmfold"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.local.esmfold"]
+
+[[module]]
+module_name = "agentic_proteins.providers.local.rosettafold"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.local.rosettafold"]
+
+[[module]]
+module_name = "agentic_proteins.registry"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.catalog", "bijux_proteomics_runtime.tools.catalog"]
+
+[[module]]
+module_name = "agentic_proteins.registry.agents"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.catalog"]
+
+[[module]]
+module_name = "agentic_proteins.registry.tools"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.tools.catalog"]
+
+[[module]]
+module_name = "agentic_proteins.report"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.structure_report", "bijux_proteomics.structure_report.render"]
+
+[[module]]
+module_name = "agentic_proteins.report.compute"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.structure_report.compute"]
+
+[[module]]
+module_name = "agentic_proteins.report.model"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.structure_report.model"]
+
+[[module]]
+module_name = "agentic_proteins.report.render"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.structure_report.render"]
+
+[[module]]
+module_name = "agentic_proteins.runtime"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runtime"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.context"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.context.context"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.context"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.context.lifecycle"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.lifecycle"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.context.output"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.output"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.context.request"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.request"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.control"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "agentic_proteins.runtime.control.artifacts"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.artifacts"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.control.execution"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.manager"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.control.state_machine"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.state_machine"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.infra"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers", "bijux_proteomics_runtime.providers.capabilities", "bijux_proteomics_runtime.runs.run_config"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.infra.analysis"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.analysis"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.infra.capabilities"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.capabilities", "bijux_proteomics_runtime.providers.factory"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.infra.config"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.run_config"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.infra.observability"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.logging"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.infra.reliability"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.tool_reliability"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.infra.telemetry"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.telemetry"]
+
+[[module]]
+module_name = "agentic_proteins.runtime.workspace"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runtime.workspace"]
+
+[[module]]
+module_name = "agentic_proteins.state"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.state"]
+
+[[module]]
+module_name = "agentic_proteins.state.schemas"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.state.schemas"]
+
+[[module]]
+module_name = "agentic_proteins.state.snapshot"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.state.snapshot"]
+
+[[module]]
+module_name = "agentic_proteins.tools"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.tools"]
+
+[[module]]
+module_name = "agentic_proteins.tools.base"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.tools.base"]
+
+[[module]]
+module_name = "agentic_proteins.tools.heuristic"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.tools.heuristic"]
+
+[[module]]
+module_name = "agentic_proteins.tools.schemas"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.tools.schemas"]
+
+[[module]]
+module_name = "agentic_proteins.validation"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents", "bijux_proteomics_runtime.execution", "bijux_proteomics_runtime.tools"]
+
+[[module]]
+module_name = "agentic_proteins.validation.agents"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.agents.contracts"]
+
+[[module]]
+module_name = "agentic_proteins.validation.state"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.graph_validation"]
+
+[[module]]
+module_name = "agentic_proteins.validation.tools"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.tools.contracts"]
