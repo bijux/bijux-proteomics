@@ -1,0 +1,80 @@
+# Generated foundation root API policy.
+
+[budget]
+max_public_symbols = 15
+max_init_lines = 45
+
+[[symbol]]
+name = "AssayId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "lab and core packages share assay identifiers directly from the foundation root."
+
+[[symbol]]
+name = "BatchId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "lab workflow ownership reuses batch identifiers across multiple public modules."
+
+[[symbol]]
+name = "CandidateId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "intelligence contracts use candidate identifiers as a shared stable type."
+
+[[symbol]]
+name = "ClaimId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "knowledge and lab packages both consume claim identifiers from the canonical shared layer."
+
+[[symbol]]
+name = "DocumentSchema"
+owner_module = "bijux_proteomics_foundation.documents"
+rationale = "document metadata is the most reused foundation contract across the full package suite."
+
+[[symbol]]
+name = "EvidenceId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "core and knowledge share evidence identifiers in public contracts."
+
+[[symbol]]
+name = "fingerprint_model"
+owner_module = "bijux_proteomics_foundation.json_models"
+rationale = "multiple downstream packages fingerprint model instances directly without rebuilding helper logic."
+
+[[symbol]]
+name = "GateId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "review-gate identifiers stay shared across core and lab packages."
+
+[[symbol]]
+name = "hash_model"
+owner_module = "bijux_proteomics_foundation.serialization.hashing"
+rationale = "foundation exposes one model-hash helper for downstream artifacts that already carry JsonModel contracts."
+
+[[symbol]]
+name = "hash_payload"
+owner_module = "bijux_proteomics_foundation.serialization.hashing"
+rationale = "runtime, intelligence, and lab surfaces reuse payload hashing as a shared primitive."
+
+[[symbol]]
+name = "hash_text"
+owner_module = "bijux_proteomics_foundation.serialization.hashing"
+rationale = "runtime and intelligence use stable text hashing directly from the foundation root."
+
+[[symbol]]
+name = "JsonModel"
+owner_module = "bijux_proteomics_foundation.json_models"
+rationale = "JsonModel remains the central shared base class consumed by every real product package."
+
+[[symbol]]
+name = "ProgramId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "program identifiers are shared across core, intelligence, and lab package boundaries."
+
+[[symbol]]
+name = "TargetId"
+owner_module = "bijux_proteomics_foundation.identity.identifiers"
+rationale = "target identifiers appear across core, intelligence, and knowledge surfaces."
+
+[[symbol]]
+name = "to_canonical_json"
+owner_module = "bijux_proteomics_foundation.serialization.canonicalization"
+rationale = "stable canonical serialization remains a shared downstream-facing primitive."

@@ -47,8 +47,8 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
             supported_attributes=(
                 "DocumentSchema",
                 "JsonModel",
-                "build_identifier",
-                "hash_model",
+                "hash_payload",
+                "to_canonical_json",
             ),
         ),
         PackagePublicSurfaceContract(

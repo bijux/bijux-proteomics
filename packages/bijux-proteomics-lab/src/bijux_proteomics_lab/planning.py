@@ -15,11 +15,11 @@ from bijux_proteomics.workflow_blueprint import workflow_blueprint_for_program
 from bijux_proteomics_foundation import (
     AssayId,
     BatchId,
-    CycleId,
     DocumentSchema,
     JsonModel,
     ProgramId,
 )
+from bijux_proteomics_foundation.ids import CycleId
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     assess_decision_readiness,

@@ -6,12 +6,10 @@ from __future__ import annotations
 from pydantic import BaseModel, ValidationError
 import pytest
 
-from bijux_proteomics_foundation import (
-    DocumentSchema,
-    IdentifierKind,
+from bijux_proteomics_foundation import DocumentSchema, to_canonical_json
+from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
-    to_canonical_json,
 )
 from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
 from bijux_proteomics_foundation.fingerprints import (
@@ -23,6 +21,7 @@ from bijux_proteomics_foundation.fingerprints import (
     build_run_context_fingerprint,
 )
 from bijux_proteomics_foundation.ids import (
+    IdentifierKind,
     LabActionId,
     PtmId,
     ReviewPacketId,

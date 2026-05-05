@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from bijux_proteomics_foundation import (
-    DocumentSchema,
+from bijux_proteomics_foundation import DocumentSchema, hash_model
+from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
-    hash_model,
 )
 from bijux_proteomics_knowledge import (
     EvidenceBundle,

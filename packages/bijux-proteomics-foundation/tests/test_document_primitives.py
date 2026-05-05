@@ -10,28 +10,25 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 import pytest
 
 from bijux_proteomics_foundation import (
-    ContractConflictError,
-    ContractNotFoundError,
     DocumentSchema,
-    IdentifierKind,
     JsonModel,
     ProgramId,
-    PromotionId,
-    ReviewId,
-    SchemaCompatibility,
-    assess_schema_compatibility,
     hash_model,
     hash_payload,
 )
+from bijux_proteomics_foundation.compatibility import (
+    SchemaCompatibility,
+    SchemaEvolutionAssessment,
+    assess_schema_compatibility,
+    assess_schema_evolution,
+)
 from bijux_proteomics_foundation.errors import (
+    ContractConflictError,
+    ContractNotFoundError,
     ContractValidationError,
     FoundationContractError,
     MigrationExecutionError,
     MigrationPathError,
-)
-from bijux_proteomics_foundation.compatibility import (
-    SchemaEvolutionAssessment,
-    assess_schema_evolution,
 )
 from bijux_proteomics_foundation.documents import (
     DurationValue,
@@ -46,8 +43,11 @@ from bijux_proteomics_foundation.documents import (
 from bijux_proteomics_foundation.hashing import StableHashPolicy, default_hash_policy
 from bijux_proteomics_foundation.ids import (
     ExperimentId,
+    IdentifierKind,
     PeptideId,
     ProteinId,
+    PromotionId,
+    ReviewId,
     RunId,
     SpectrumId,
     build_identifier,
