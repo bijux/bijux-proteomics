@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Versioned transport-format contracts for durable artifacts."""
+"""Runtime-owned transport contracts for durable execution artifacts."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from bijux_proteomics_foundation.serialization import JsonModel
 
 
 class ArtifactFormat(StrEnum):
-    """Supported durable artifact encodings."""
+    """Supported durable runtime artifact encodings."""
 
     JSON = "json"
     JSONL = "jsonl"
@@ -23,7 +23,7 @@ class ArtifactFormat(StrEnum):
 
 
 class SchemaFormatContract(JsonModel):
-    """Format-specific transport contract for one document kind."""
+    """Transport contract for one runtime-managed document artifact."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -43,7 +43,7 @@ class SchemaFormatContract(JsonModel):
 
 
 class SchemaFormatCompatibilityReport(JsonModel):
-    """Compatibility report for one format contract."""
+    """Compatibility report for one runtime transport contract."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -60,7 +60,7 @@ def build_schema_format_contract(
     schema_version: str,
     hash_policy: StableHashPolicy | None = None,
 ) -> SchemaFormatContract:
-    """Build one explicit format contract."""
+    """Build one explicit runtime transport contract."""
     hash_policy = hash_policy or default_hash_policy()
     return SchemaFormatContract(
         document_kind=document_kind,
@@ -75,7 +75,7 @@ def default_schema_format_contracts(
     document_kind: str,
     schema_version: str,
 ) -> tuple[SchemaFormatContract, ...]:
-    """Return the default supported transport contracts for one document kind."""
+    """Return the default runtime transport contracts for one document kind."""
     return tuple(
         build_schema_format_contract(
             document_kind=document_kind,
@@ -92,7 +92,7 @@ def evaluate_schema_format_contract(
     expected_schema_version: str,
     expected_hash_policy_id: str | None = None,
 ) -> SchemaFormatCompatibilityReport:
-    """Evaluate whether one contract matches current expectations."""
+    """Evaluate whether one transport contract matches current runtime rules."""
     notes: list[str] = []
     compatible = True
     if contract.schema_version != expected_schema_version:
@@ -112,3 +112,13 @@ def evaluate_schema_format_contract(
         compatible=compatible,
         notes=notes,
     )
+
+
+__all__ = [
+    "ArtifactFormat",
+    "SchemaFormatCompatibilityReport",
+    "SchemaFormatContract",
+    "build_schema_format_contract",
+    "default_schema_format_contracts",
+    "evaluate_schema_format_contract",
+]

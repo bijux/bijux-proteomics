@@ -27,6 +27,20 @@ FORBIDDEN_SCIENTIFIC_TOKENS = {
     "assay_type",
     "controlledvocabulary",
 }
+FORBIDDEN_PRESENTATION_TOKENS = {
+    "apirouter",
+    "apiresponse",
+    "cli",
+    "console",
+    "formatter",
+    "render",
+    "response",
+}
+FORBIDDEN_RUNTIME_TRANSPORT_TOKENS = {
+    "artifactformat",
+    "schemaformatcompatibilityreport",
+    "schemaformatcontract",
+}
 FORBIDDEN_HIGHER_LAYER_IMPORTS = (
     "agentic_proteins",
     "bijux_proteomics.",
@@ -108,6 +122,40 @@ def test_foundation_excludes_scientific_vocabulary_surfaces() -> None:
             continue
         if any(
             any(token in name for token in FORBIDDEN_SCIENTIFIC_TOKENS)
+            for name in defined_names
+        ):
+            violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
+    assert violations == []
+
+
+def test_foundation_excludes_api_and_cli_formatting_surfaces() -> None:
+    violations: list[str] = []
+    for path in _python_files(FOUNDATION_SRC_ROOT):
+        tree = _load_tree(path)
+        stem = path.stem.lower()
+        defined_names = _defined_names(tree)
+        if stem in {"api", "cli", "render"}:
+            violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
+            continue
+        if any(
+            any(token in name for token in FORBIDDEN_PRESENTATION_TOKENS)
+            for name in defined_names
+        ):
+            violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
+    assert violations == []
+
+
+def test_foundation_excludes_runtime_transport_contract_surfaces() -> None:
+    violations: list[str] = []
+    for path in _python_files(FOUNDATION_SRC_ROOT):
+        tree = _load_tree(path)
+        stem = path.stem.lower()
+        defined_names = _defined_names(tree)
+        if stem == "formats":
+            violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
+            continue
+        if any(
+            any(token in name for token in FORBIDDEN_RUNTIME_TRANSPORT_TOKENS)
             for name in defined_names
         ):
             violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
