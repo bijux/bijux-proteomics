@@ -12,7 +12,7 @@ from bijux_proteomics_foundation.compatibility import (
     assess_schema_compatibility,
 )
 from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
-from bijux_proteomics_foundation.fingerprints import (
+from bijux_proteomics_foundation.serialization.fingerprints import (
     FingerprintScope,
     build_artifact_bundle_fingerprint,
     build_benchmark_manifest_fingerprint,

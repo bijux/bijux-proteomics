@@ -12,8 +12,8 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.json_models import JsonModel
-from bijux_proteomics_foundation.ordering import stable_order_value
+from bijux_proteomics_foundation.serialization.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.ordering import stable_order_value
 
 
 class StableHashAlgorithm(StrEnum):

@@ -30,7 +30,7 @@ from bijux_proteomics_foundation.errors import (
     MigrationExecutionError,
     MigrationPathError,
 )
-from bijux_proteomics_foundation.documents import (
+from bijux_proteomics_foundation.serialization.documents import (
     DurationValue,
     NullabilityState,
     NullableValue,
@@ -40,7 +40,10 @@ from bijux_proteomics_foundation.documents import (
     absent_value,
     present_value,
 )
-from bijux_proteomics_foundation.hashing import StableHashPolicy, default_hash_policy
+from bijux_proteomics_foundation.serialization.hashing import (
+    StableHashPolicy,
+    default_hash_policy,
+)
 from bijux_proteomics_foundation.ids import (
     ExperimentId,
     IdentifierKind,

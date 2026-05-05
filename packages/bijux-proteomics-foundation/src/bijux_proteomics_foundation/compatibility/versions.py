@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.json_models import JsonModel
 
 
 class SchemaVersion(JsonModel):

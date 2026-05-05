@@ -10,8 +10,8 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.compatibility.migrations import MigrationRegistry
-from bijux_proteomics_foundation.json_models import JsonModel
-from bijux_proteomics_foundation.versions import SchemaVersion
+from bijux_proteomics_foundation.compatibility.versions import SchemaVersion
+from bijux_proteomics_foundation.serialization.json_models import JsonModel
 
 
 class SchemaCompatibility(StrEnum):

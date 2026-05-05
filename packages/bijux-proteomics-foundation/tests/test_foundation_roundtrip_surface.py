@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
-from bijux_proteomics_foundation.documents import (
+from bijux_proteomics_foundation.serialization.documents import (
     DurationValue,
     NullabilityState,
     NullableValue,

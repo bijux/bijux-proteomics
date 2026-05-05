@@ -30,7 +30,7 @@ from bijux_proteomics_foundation.ids import (
     classify_identifier,
     ensure_identifier_kind,
 )
-from bijux_proteomics_foundation.ordering import stable_order_value
+from bijux_proteomics_foundation.serialization.ordering import stable_order_value
 from bijux_proteomics_foundation.serialization.canonicalization import normalize_json_value
 from bijux_proteomics_foundation.provenance import (
     ProvenancePointer,

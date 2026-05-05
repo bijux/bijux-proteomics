@@ -15,8 +15,8 @@ from bijux_proteomics_foundation.serialization.hashing import (
     default_hash_policy,
     hash_payload,
 )
-from bijux_proteomics_foundation.ordering import stable_order_strings
-from bijux_proteomics_foundation.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.ordering import stable_order_strings
 
 
 class FingerprintScope(StrEnum):

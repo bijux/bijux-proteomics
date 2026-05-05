@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation.documents import DocumentSchema
+from bijux_proteomics_foundation.serialization.documents import DocumentSchema
 from bijux_proteomics_foundation.identity.identifiers import (
     AssayId,
     BatchId,
@@ -16,7 +16,10 @@ from bijux_proteomics_foundation.identity.identifiers import (
     ProgramId,
     TargetId,
 )
-from bijux_proteomics_foundation.json_models import JsonModel, fingerprint_model
+from bijux_proteomics_foundation.serialization.json_models import (
+    JsonModel,
+    fingerprint_model,
+)
 from bijux_proteomics_foundation.serialization.canonicalization import to_canonical_json
 from bijux_proteomics_foundation.serialization.hashing import (
     hash_model,

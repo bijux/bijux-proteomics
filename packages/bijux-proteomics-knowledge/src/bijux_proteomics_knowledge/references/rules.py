@@ -9,7 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field, field_validator
 
-from bijux_proteomics_foundation.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.json_models import JsonModel
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 

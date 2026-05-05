@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.json_models import JsonModel
 
 
 class FoundationCharterCapability(StrEnum):
@@ -103,7 +103,7 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
             "identity/identifiers.py",
             "support/provenance.py",
             "support/states.py",
-            "versions.py",
+            "compatibility/versions.py",
         ),
         release_blocker="Foundation cannot ship if shared identifiers, states, or provenance drift into per-package variants.",
     ),
@@ -112,16 +112,19 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         owned_surface="Canonical hashing, fingerprint, and ordering mechanics used to produce stable cross-package artifacts and comparisons.",
         required_modules=(
             "serialization/canonicalization.py",
-            "fingerprints.py",
+            "serialization/fingerprints.py",
             "serialization/hashing.py",
-            "ordering.py",
+            "serialization/ordering.py",
         ),
         release_blocker="Foundation cannot ship if canonical hashing or ordering is reimplemented differently in downstream packages.",
     ),
     FoundationCharterEntry(
         capability=FoundationCharterCapability.DOCUMENT_CONTRACTS,
         owned_surface="Shared JSON-backed document and model contracts for stable persisted payloads.",
-        required_modules=("documents.py", "json_models.py"),
+        required_modules=(
+            "serialization/documents.py",
+            "serialization/json_models.py",
+        ),
         release_blocker="Foundation cannot ship if shared document contracts or JSON model behavior move into package-local semantics.",
     ),
     FoundationCharterEntry(
@@ -210,7 +213,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/charter.py",
         "support/provenance.py",
         "support/states.py",
-        "versions.py",
+        "compatibility/versions.py",
     }:
         return _shared_contract_entry(
             module_path,
@@ -219,11 +222,11 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
-        "fingerprints.py",
-        "ordering.py",
+        "serialization/fingerprints.py",
         "serialization/__init__.py",
         "serialization/canonicalization.py",
         "serialization/hashing.py",
+        "serialization/ordering.py",
     }:
         return _shared_contract_entry(
             module_path,
@@ -231,7 +234,10 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             "Canonical hashing and ordering mechanics belong in foundation so reproducibility stays exact across packages.",
         )
 
-    if module_path in {"documents.py", "json_models.py"}:
+    if module_path in {
+        "serialization/documents.py",
+        "serialization/json_models.py",
+    }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.DOCUMENT_CONTRACTS,),

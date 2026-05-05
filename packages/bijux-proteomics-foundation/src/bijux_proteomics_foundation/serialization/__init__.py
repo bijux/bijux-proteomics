@@ -1,41 +1,60 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Owner paths for deterministic serialization and hashing primitives."""
+"""Owner paths for deterministic serialization and document primitives."""
 
 from __future__ import annotations
 
-from importlib import import_module
+from bijux_proteomics_foundation.serialization.canonicalization import (
+    flatten_tsv_mapping,
+    normalize_json_value,
+    to_canonical_json,
+)
+from bijux_proteomics_foundation.serialization.documents import DocumentSchema
+from bijux_proteomics_foundation.serialization.fingerprints import (
+    FingerprintRecord,
+    FingerprintScope,
+    build_artifact_bundle_fingerprint,
+    build_benchmark_manifest_fingerprint,
+    build_dataset_fingerprint,
+    build_fingerprint_record,
+    build_parameter_set_fingerprint,
+    build_run_context_fingerprint,
+)
+from bijux_proteomics_foundation.serialization.hashing import (
+    StableHashAlgorithm,
+    StableHashPolicy,
+    default_hash_policy,
+    hash_model,
+    hash_payload,
+    hash_text,
+)
+from bijux_proteomics_foundation.serialization.json_models import (
+    JsonModel,
+    fingerprint_model,
+)
+from bijux_proteomics_foundation.serialization.ordering import stable_order_value
 
 __all__ = [
+    "DocumentSchema",
+    "FingerprintRecord",
+    "FingerprintScope",
+    "JsonModel",
     "StableHashAlgorithm",
     "StableHashPolicy",
+    "build_artifact_bundle_fingerprint",
+    "build_benchmark_manifest_fingerprint",
+    "build_dataset_fingerprint",
+    "build_fingerprint_record",
+    "build_parameter_set_fingerprint",
+    "build_run_context_fingerprint",
     "default_hash_policy",
+    "fingerprint_model",
     "flatten_tsv_mapping",
     "hash_model",
     "hash_payload",
     "hash_text",
     "normalize_json_value",
+    "stable_order_value",
     "to_canonical_json",
 ]
-
-_OWNER_MODULES = {
-    "StableHashAlgorithm": "bijux_proteomics_foundation.serialization.hashing",
-    "StableHashPolicy": "bijux_proteomics_foundation.serialization.hashing",
-    "default_hash_policy": "bijux_proteomics_foundation.serialization.hashing",
-    "flatten_tsv_mapping": "bijux_proteomics_foundation.serialization.canonicalization",
-    "hash_model": "bijux_proteomics_foundation.serialization.hashing",
-    "hash_payload": "bijux_proteomics_foundation.serialization.hashing",
-    "hash_text": "bijux_proteomics_foundation.serialization.hashing",
-    "normalize_json_value": "bijux_proteomics_foundation.serialization.canonicalization",
-    "to_canonical_json": "bijux_proteomics_foundation.serialization.canonicalization",
-}
-
-
-def __getattr__(name: str) -> object:
-    """Resolve serialization owner exports lazily to avoid import cycles."""
-    module_name = _OWNER_MODULES.get(name)
-    if module_name is None:
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    module = import_module(module_name)
-    return getattr(module, name)
