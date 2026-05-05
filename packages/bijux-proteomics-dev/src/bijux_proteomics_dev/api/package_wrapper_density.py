@@ -34,6 +34,7 @@ class PackageWrapperDensityEntry:
     total_source_module_count: int
     wrapper_module_count: int
     wrapper_density: float
+    max_wrapper_module_count: int
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,7 @@ def build_package_wrapper_density_report() -> PackageWrapperDensityReport:
                 total_source_module_count=total_source_module_count,
                 wrapper_module_count=wrapper_module_count,
                 wrapper_density=wrapper_density,
+                max_wrapper_module_count=wrapper_module_count,
             )
         )
     average_wrapper_density = round(
@@ -103,6 +105,11 @@ def validate_package_wrapper_density(
         failures.append("package wrapper-module count grew beyond the governed baseline")
     if average_wrapper_density > report.guard.max_average_wrapper_density:
         failures.append("package average wrapper density grew beyond the governed baseline")
+    for entry in report.entries:
+        if entry.wrapper_module_count > entry.max_wrapper_module_count:
+            failures.append(
+                f"{entry.distribution_name} wrapper-module count grew beyond its governed package ceiling"
+            )
     return tuple(failures)
 
 
@@ -124,6 +131,7 @@ def _toml_text(report: PackageWrapperDensityReport) -> str:
                 f"total_source_module_count = {entry.total_source_module_count}",
                 f"wrapper_module_count = {entry.wrapper_module_count}",
                 f"wrapper_density = {entry.wrapper_density}",
+                f"max_wrapper_module_count = {entry.max_wrapper_module_count}",
                 "",
             ]
         )

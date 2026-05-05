@@ -30,6 +30,8 @@ class PackageBroadRootImportEntry:
     """One broad package-root import that bypasses an owner path."""
 
     distribution_name: str
+    package_broad_root_import_count: int
+    max_package_broad_root_import_count: int
     importer_module_path: str
     import_kind: str
     line_number: int
@@ -55,12 +57,14 @@ def build_package_broad_root_import_report() -> PackageBroadRootImportReport:
 
     entries: list[PackageBroadRootImportEntry] = []
     for package_name in workspace_package_names():
-        for module_path, import_kind, line_number in package_root_import_occurrences(
-            package_name
-        ):
+        occurrences = package_root_import_occurrences(package_name)
+        package_broad_root_import_count = len(occurrences)
+        for module_path, import_kind, line_number in occurrences:
             entries.append(
                 PackageBroadRootImportEntry(
                     distribution_name=package_name,
+                    package_broad_root_import_count=package_broad_root_import_count,
+                    max_package_broad_root_import_count=package_broad_root_import_count,
                     importer_module_path=module_path,
                     import_kind=import_kind,
                     line_number=line_number,
@@ -80,11 +84,22 @@ def validate_package_broad_root_imports(
     """Fail release when broad package-root imports return."""
 
     report = report or build_package_broad_root_import_report()
-    if len(report.entries) <= report.guard.max_total_broad_root_import_count:
-        return ()
-    return (
-        "broad package-root imports grew beyond the governed owner-path rewrite baseline",
-    )
+    failures: list[str] = []
+    if len(report.entries) > report.guard.max_total_broad_root_import_count:
+        failures.append(
+            "broad package-root imports grew beyond the governed owner-path rewrite baseline"
+        )
+    package_counts: dict[str, int] = {}
+    package_limits: dict[str, int] = {}
+    for entry in report.entries:
+        package_counts[entry.distribution_name] = entry.package_broad_root_import_count
+        package_limits[entry.distribution_name] = entry.max_package_broad_root_import_count
+    for package_name, count in sorted(package_counts.items()):
+        if count > package_limits[package_name]:
+            failures.append(
+                f"{package_name} broad package-root imports grew beyond the governed package ceiling"
+            )
+    return tuple(failures)
 
 
 def _toml_text(report: PackageBroadRootImportReport) -> str:
@@ -101,6 +116,9 @@ def _toml_text(report: PackageBroadRootImportReport) -> str:
             [
                 "[[import]]",
                 f'distribution_name = "{entry.distribution_name}"',
+                f"package_broad_root_import_count = {entry.package_broad_root_import_count}",
+                "max_package_broad_root_import_count = "
+                f"{entry.max_package_broad_root_import_count}",
                 f'importer_module_path = "{entry.importer_module_path}"',
                 f'import_kind = "{entry.import_kind}"',
                 f"line_number = {entry.line_number}",

@@ -20,6 +20,10 @@ def test_package_wrapper_density_report_tracks_current_wrapper_pressure() -> Non
     assert len(report.entries) == 8
     assert report.guard.max_total_wrapper_module_count >= 20
     assert entries["bijux-proteomics-lab"].wrapper_module_count >= 4
+    assert (
+        entries["bijux-proteomics-lab"].max_wrapper_module_count
+        == entries["bijux-proteomics-lab"].wrapper_module_count
+    )
     assert entries["bijux-proteomics-runtime"].wrapper_module_count >= 4
     assert entries["agentic-proteins"].wrapper_density == 0.9932
 
