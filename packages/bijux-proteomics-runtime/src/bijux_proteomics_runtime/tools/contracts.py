@@ -30,7 +30,7 @@ def validate_tool_contract(contract: ToolContract) -> None:
 
 def validate_tools_for_agents(agent_names: dict[str, set[str]]) -> None:
     """Validate that each agent references known runtime tools."""
-    tools = {name for name, _version in ToolCatalog._entries}
+    tools = {name for name, _version in ToolCatalog._registry}
     for agent_name, required_tools in agent_names.items():
         missing = required_tools - tools
         if missing:

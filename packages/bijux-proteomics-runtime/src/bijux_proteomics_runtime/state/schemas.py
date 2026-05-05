@@ -9,8 +9,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
+from bijux_proteomics_intelligence.domain.metrics.quality import MetricValue
+
 from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.runtime.adapters import MetricValue
 
 
 class ArtifactMetadata(BaseModel):

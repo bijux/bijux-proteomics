@@ -48,7 +48,7 @@ from bijux_proteomics_runtime.runtime.control import (
     resume_candidate_operation,
     run_sequence_operation,
 )
-from bijux_proteomics_runtime.runtime.infra import RunConfig
+from bijux_proteomics_runtime.runtime.context import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 from bijux_proteomics_runtime.runtime_identity import runtime_banner
 

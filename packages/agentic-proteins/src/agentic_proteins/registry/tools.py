@@ -1,3 +1,5 @@
 """Compatibility forwarding module for canonical runtime registry ownership."""
 
-from bijux_proteomics_runtime.registry.tools import *  # noqa: F401,F403
+from bijux_proteomics_runtime.tools.catalog import ToolCatalog as ToolRegistry
+
+__all__ = ["ToolRegistry"]

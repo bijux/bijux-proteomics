@@ -1,3 +1,8 @@
 """Compatibility forwarding module for canonical runtime ownership."""
 
-from bijux_proteomics_runtime.runtime.infra.analysis import *  # noqa: F401,F403
+from bijux_proteomics_runtime.runtime.control.run_analysis import (
+    RunAnalysis,
+    ToolStats,
+)
+
+__all__ = ["RunAnalysis", "ToolStats"]

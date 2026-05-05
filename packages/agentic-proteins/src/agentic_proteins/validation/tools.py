@@ -1,3 +1,8 @@
 """Compatibility forwarding module for canonical runtime validation ownership."""
 
-from bijux_proteomics_runtime.validation.tools import *  # noqa: F401,F403
+from bijux_proteomics_runtime.tools.contracts import (
+    validate_tool_contract,
+    validate_tools_for_agents,
+)
+
+__all__ = ["validate_tool_contract", "validate_tools_for_agents"]

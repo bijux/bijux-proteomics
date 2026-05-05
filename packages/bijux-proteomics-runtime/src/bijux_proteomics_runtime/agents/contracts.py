@@ -22,6 +22,7 @@ __all__ = [
     "validate_agents_and_tools",
     "validate_agent_catalog",
     "validate_critic_input",
+    "validate_registry_entries",
 ]
 
 ALLOWED_TOOL_NAMESPACE: set[str] = {
@@ -62,7 +63,7 @@ def validate_agent(agent: type[Any]) -> None:
     if not role.allowed_tools.issubset(ALLOWED_TOOL_NAMESPACE):
         invalid = role.allowed_tools - ALLOWED_TOOL_NAMESPACE
         raise ValueError(
-            f"Agent uses tools outside runtime namespace: {sorted(invalid)}"
+            f"Agent uses tools outside registry namespace: {sorted(invalid)}"
         )
     if role.cost_budget <= 0:
         raise ValueError("Agent cost budget must be > 0.")
@@ -133,3 +134,8 @@ def validate_agent_catalog() -> None:
     """Validate every entry currently registered in the runtime agent catalog."""
     for agent in AgentCatalog.list():
         validate_agent(agent)
+
+
+def validate_registry_entries() -> None:
+    """Compatibility alias for validating current runtime agent registrations."""
+    validate_agent_catalog()

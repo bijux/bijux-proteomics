@@ -13,6 +13,14 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, cast
 
+from bijux_proteomics_intelligence.design_loop.loop import LoopContext, LoopRunner
+from bijux_proteomics_intelligence.domain.candidates import (
+    CandidateStore,
+    update_candidate_from_result,
+)
+from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
+
 from bijux_proteomics_runtime.agents.analysis.failure_analysis import (
     FailureAnalysisAgent,
 )
@@ -66,14 +74,6 @@ from bijux_proteomics_runtime.execution.runtime.executor import (
 )
 from bijux_proteomics_runtime.execution.validation import validate_outputs
 from bijux_proteomics_runtime.agents.catalog import AgentCatalog
-from bijux_proteomics_runtime.runtime.adapters import (
-    Candidate,
-    CandidateStore,
-    LoopContext,
-    LoopRunner,
-    QCStatus,
-    update_candidate_from_result,
-)
 from bijux_proteomics_runtime.runtime.context import (
     ErrorDetail,
     RunContext,

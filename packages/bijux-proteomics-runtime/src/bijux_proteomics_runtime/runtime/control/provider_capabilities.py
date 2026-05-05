@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Runtime capability gates for providers and resources."""
+"""Provider capability gates for runtime execution."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ KNOWN_PROVIDERS = {
 def validate_runtime_capabilities(
     config: dict[str, object], allow_unknown: bool = False
 ) -> tuple[list[str], list[str]]:
-    """Return (errors, warnings) for capability checks."""
+    """Return runtime capability errors and warnings for one config."""
     errors: list[str] = []
     warnings: list[str] = []
     enabled_obj = config.get("predictors_enabled", []) or []
@@ -64,11 +64,12 @@ def validate_runtime_capabilities(
                 else:
                     if gpu_seconds <= 0.0 and capabilities.supports_gpu:
                         errors.append("gpu_required")
-                    elif (
-                        capabilities.supports_cpu and capabilities.cpu_fallback_allowed
-                    ):
+                    elif capabilities.supports_cpu and capabilities.cpu_fallback_allowed:
                         warnings.append(f"cpu_fallback:{provider_name}")
                     else:
                         errors.append("gpu_required")
         errors.extend(provider_requirements(provider_name))
     return errors, warnings
+
+
+__all__ = ["KNOWN_PROVIDERS", "validate_runtime_capabilities"]

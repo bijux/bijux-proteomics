@@ -11,7 +11,7 @@ from typing import Protocol
 
 from bijux_proteomics_runtime.core.decisions import Decision
 from bijux_proteomics_runtime.core.hashing import sha256_hex
-from bijux_proteomics_runtime.runtime.adapters import MemoryRecord
+from bijux_proteomics_runtime.memory.schemas import MemoryRecord
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
 
 

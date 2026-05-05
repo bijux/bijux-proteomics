@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Tool reliability tracking."""
+"""Tool reliability tracking for runtime review outputs."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 import statistics
 
-from bijux_proteomics_runtime.runtime.adapters import ToolReliability
+from bijux_proteomics_intelligence.domain.metrics.quality import ToolReliability
 
 
 @dataclass
 class ToolReliabilityTracker:
-    """ToolReliabilityTracker."""
+    """Track success and latency distributions for one tool."""
 
     tool_name: str
     latencies_ms: list[float] = field(default_factory=list)
@@ -21,7 +21,6 @@ class ToolReliabilityTracker:
     failures: int = 0
 
     def record(self, status: str, latency_ms: float) -> None:
-        """record."""
         self.latencies_ms.append(float(latency_ms))
         if status == "success":
             self.successes += 1
@@ -29,7 +28,6 @@ class ToolReliabilityTracker:
             self.failures += 1
 
     def summary(self) -> ToolReliability:
-        """summary."""
         total = self.successes + self.failures
         success_rate = self.successes / total if total else 0.0
         p50 = _percentile(self.latencies_ms, 50.0)
@@ -50,15 +48,17 @@ class ToolReliabilityTracker:
 
 
 def _percentile(values: list[float], pct: float) -> float:
-    """_percentile."""
     if not values:
         return 0.0
     ordered = sorted(values)
     if len(ordered) == 1:
         return ordered[0]
-    k = (len(ordered) - 1) * (pct / 100.0)
-    f = int(k)
-    c = min(f + 1, len(ordered) - 1)
-    if f == c:
-        return ordered[f]
-    return ordered[f] + (ordered[c] - ordered[f]) * (k - f)
+    index = (len(ordered) - 1) * (pct / 100.0)
+    floor = int(index)
+    ceiling = min(floor + 1, len(ordered) - 1)
+    if floor == ceiling:
+        return ordered[floor]
+    return ordered[floor] + (ordered[ceiling] - ordered[floor]) * (index - floor)
+
+
+__all__ = ["ToolReliabilityTracker"]

@@ -1,3 +1,5 @@
 """Compatibility forwarding module for canonical runtime validation ownership."""
 
-from bijux_proteomics_runtime.validation import *  # noqa: F401,F403
+from agentic_proteins.validation import agents, state, tools
+
+__all__ = ["agents", "state", "tools"]

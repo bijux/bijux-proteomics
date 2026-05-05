@@ -132,10 +132,10 @@ from bijux_proteomics_runtime.runtime.control.execution import (
 from bijux_proteomics_runtime.runtime.control.execution import (
     _version_info as runtime_version_info,
 )
-from bijux_proteomics_runtime.validation.agents import (
+from bijux_proteomics_runtime.agents.contracts import (
     _minimal_payload as runtime_minimal_payload,
 )
-from bijux_proteomics_runtime.validation.agents import (
+from bijux_proteomics_runtime.agents.contracts import (
     _placeholder_for_type as runtime_placeholder_for_type,
 )
 
