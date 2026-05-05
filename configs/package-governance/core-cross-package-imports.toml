@@ -10,13 +10,13 @@ max_total_edges = 7
 [[import]]
 importer_module_path = "execution/runtime_adapter.py"
 owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.runtime"
+imported_module_name = "bijux_proteomics_runtime.runs"
 imported_symbols = ["RunManager"]
 
 [[import]]
 importer_module_path = "execution/runtime_adapter.py"
 owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.runtime.context"
+imported_module_name = "bijux_proteomics_runtime.runs"
 imported_symbols = ["RunConfig"]
 
 [[import]]
@@ -28,7 +28,7 @@ imported_symbols = ["*"]
 [[import]]
 importer_module_path = "interfaces/cli/app.py"
 owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.runtime.control.workflow_plans"
+imported_module_name = "bijux_proteomics_runtime.workflows.plans"
 imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_bundle", "build_workflow_runtime_validation_report"]
 
 [[import]]

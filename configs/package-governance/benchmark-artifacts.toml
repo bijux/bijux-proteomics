@@ -31,14 +31,14 @@ benchmark_id = "core-digestion-throughput"
 package_name = "bijux-proteomics-core"
 metric_name = "proteins_per_second"
 unit = "proteins_per_second"
-owner_focus_path = "packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py"
+owner_focus_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
 
 [[benchmark_artifact]]
 benchmark_id = "runtime-execution-control-latency"
 package_name = "bijux-proteomics-runtime"
 metric_name = "wall_time_seconds"
 unit = "seconds"
-owner_focus_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/execution.py"
+owner_focus_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/manager.py"
 
 [[benchmark_artifact]]
 benchmark_id = "intelligence-ranking-throughput"

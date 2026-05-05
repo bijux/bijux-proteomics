@@ -18,13 +18,13 @@ rationale = "serialization and hashing are the hot path for durable artifact exc
 
 [[owner]]
 package_name = "bijux-proteomics-core"
-focus_path = "packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py"
+focus_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
 declaration_path = "docs/04-bijux-proteomics-core/operations/performance-and-scaling.md"
 rationale = "digestion, parsing, and report assembly dominate most scientific throughput costs in core"
 
 [[owner]]
 package_name = "bijux-proteomics-runtime"
-focus_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/execution.py"
+focus_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/manager.py"
 declaration_path = "docs/09-bijux-proteomics-runtime/index.md"
 rationale = "runtime execution control is the main operational surface when replay and provider orchestration slow down"
 
