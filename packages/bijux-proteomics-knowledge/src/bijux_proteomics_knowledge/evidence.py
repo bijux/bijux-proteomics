@@ -476,7 +476,7 @@ class TrustScoreRule(JsonModel):
     rationale: str = Field(..., min_length=1)
 
 
-class TrustScoreInput(JsonModel):
+class EvidenceTrustScoreInput(JsonModel):
     """One evidence input and its weighted contribution to trust."""
 
     model_config = ConfigDict(extra="forbid")
@@ -498,7 +498,7 @@ class TrustScoreProvenance(JsonModel):
     input_count: int = Field(..., ge=0)
     base_score: float = Field(..., ge=0.0, le=1.0)
     final_score: float = Field(..., ge=0.0, le=1.0)
-    inputs: list[TrustScoreInput] = Field(default_factory=list)
+    inputs: list[EvidenceTrustScoreInput] = Field(default_factory=list)
     rules: list[TrustScoreRule] = Field(default_factory=list)
 
 
@@ -2171,7 +2171,7 @@ def compute_bundle_trust(
         base_score=round(base_score, 4),
         final_score=final_score,
         inputs=[
-            TrustScoreInput(
+            EvidenceTrustScoreInput(
                 evidence_id=record.evidence_id,
                 source_type=record.source_type,
                 strength=record.strength,

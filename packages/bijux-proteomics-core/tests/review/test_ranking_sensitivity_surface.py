@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics.review import (
     RankingPerturbationScenario,
-    TrustScoreInput,
+    ReviewTrustScoreInput,
     build_ranking_sensitivity_report,
     decompose_trust_score,
 )
@@ -14,7 +14,7 @@ from bijux_proteomics.review import (
 def test_build_ranking_sensitivity_report_detects_unstable_priority() -> None:
     decompositions = (
         decompose_trust_score(
-            TrustScoreInput(
+            ReviewTrustScoreInput(
                 candidate_id="cand-a",
                 evidence_inputs={"id": 0.8},
                 weights={"id": 1.0},
@@ -22,7 +22,7 @@ def test_build_ranking_sensitivity_report_detects_unstable_priority() -> None:
             )
         ),
         decompose_trust_score(
-            TrustScoreInput(
+            ReviewTrustScoreInput(
                 candidate_id="cand-b",
                 evidence_inputs={"id": 0.79},
                 weights={"id": 1.0},

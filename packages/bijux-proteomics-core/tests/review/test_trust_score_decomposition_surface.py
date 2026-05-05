@@ -5,12 +5,12 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics.review import TrustScoreInput, decompose_trust_score
+from bijux_proteomics.review import ReviewTrustScoreInput, decompose_trust_score
 
 
 def test_decompose_trust_score_reports_components_penalties_and_final_score() -> None:
     decomposition = decompose_trust_score(
-        TrustScoreInput(
+        ReviewTrustScoreInput(
             candidate_id="cand-1",
             evidence_inputs={"identification": 0.9, "quant": 0.7},
             weights={"identification": 0.6, "quant": 0.4},

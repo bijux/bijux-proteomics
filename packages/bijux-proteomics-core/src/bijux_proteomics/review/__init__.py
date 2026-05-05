@@ -209,8 +209,8 @@ def classify_contradictions(
     )
 
 
-class TrustScoreInput(JsonModel):
-    """Structured trust-score inputs for one candidate."""
+class ReviewTrustScoreInput(JsonModel):
+    """Structured review trust-score inputs for one candidate."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -247,7 +247,7 @@ class TrustScoreDecomposition(JsonModel):
     final_score: float = Field(..., ge=0.0, le=1.0)
 
 
-def decompose_trust_score(payload: TrustScoreInput) -> TrustScoreDecomposition:
+def decompose_trust_score(payload: ReviewTrustScoreInput) -> TrustScoreDecomposition:
     """Expose weighted evidence, penalties, contradictions, and uncertainty."""
 
     components: list[TrustScoreComponent] = []
@@ -304,8 +304,8 @@ class RankingSensitivityEntry(JsonModel):
     stable: bool
 
 
-class RankingSensitivityReport(JsonModel):
-    """Report over ranking stability under perturbed scoring assumptions."""
+class ReviewRankingSensitivityReport(JsonModel):
+    """Report over review-ranking stability under perturbed scoring assumptions."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -318,7 +318,7 @@ class RankingSensitivityReport(JsonModel):
 def build_ranking_sensitivity_report(
     decompositions: tuple[TrustScoreDecomposition, ...],
     scenarios: tuple[RankingPerturbationScenario, ...],
-) -> RankingSensitivityReport:
+) -> ReviewRankingSensitivityReport:
     """Perturb scoring assumptions and classify stable vs unstable candidate ranks."""
 
     base_sorted = sorted(
@@ -363,7 +363,7 @@ def build_ranking_sensitivity_report(
             )
         )
 
-    return RankingSensitivityReport(
+    return ReviewRankingSensitivityReport(
         entries=tuple(entries),
         scenario_count=len(scenarios),
         stable_candidate_count=sum(1 for entry in entries if entry.stable),

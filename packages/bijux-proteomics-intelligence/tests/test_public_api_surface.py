@@ -48,7 +48,7 @@ def test_judgment_public_api_contains_expected_exports() -> None:
     assert "RankingRuleGroundingLedger" in bijux_proteomics_intelligence.__all__
     assert "EvidenceContradictionSummary" in bijux_proteomics_intelligence.__all__
     assert "EvidenceFreshnessSummary" in bijux_proteomics_intelligence.__all__
-    assert "RankingSensitivityReport" in bijux_proteomics_intelligence.__all__
+    assert "CandidateRankingSensitivityReport" in bijux_proteomics_intelligence.__all__
     assert "RankingPolicyLineage" in bijux_proteomics_intelligence.__all__
     assert "ReviewBoardPacket" in bijux_proteomics_intelligence.__all__
     assert "SkepticalReviewReport" in bijux_proteomics_intelligence.__all__

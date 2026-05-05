@@ -524,7 +524,7 @@ class RankingSensitivityInput(JsonModel):
     summary: str = Field(..., min_length=1)
 
 
-class RankingSensitivityReport(JsonModel):
+class CandidateRankingSensitivityReport(JsonModel):
     """Decision-facing report showing which inputs dominate one ranking outcome."""
 
     model_config = ConfigDict(extra="forbid")
@@ -1420,7 +1420,7 @@ def build_ranking_diagnostics(
 
 def build_ranking_sensitivity_report(
     ranked_candidate: RankedCandidate,
-) -> RankingSensitivityReport:
+) -> CandidateRankingSensitivityReport:
     """Expose which weighted inputs dominate a ranked candidate outcome."""
     raw_contributions = ranked_candidate.explainability.get("input_contributions", {})
     parsed_contributions: dict[str, float] = {}
@@ -1456,7 +1456,7 @@ def build_ranking_sensitivity_report(
         )
     if not notes:
         notes.append("no fragile dominance signal was detected in the ranking inputs")
-    return RankingSensitivityReport(
+    return CandidateRankingSensitivityReport(
         candidate_id=ranked_candidate.candidate_id,
         dominant_inputs=dominant_inputs,
         fragile_inputs=fragile_inputs,
