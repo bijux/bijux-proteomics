@@ -70,6 +70,16 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("artifact_ledger", "runtime-artifact-ledger", "runtime artifact ledger"),
     ("replay_contract", "runtime-replay-contract", "runtime replay contract"),
     ("local_run_bundle", "runtime-local-run-bundle", "runtime local run bundle"),
+    (
+        "container_run_bundle",
+        "runtime-container-run-bundle",
+        "runtime container run bundle",
+    ),
+    (
+        "scheduler_job_bundle",
+        "runtime-scheduler-job-bundle",
+        "runtime scheduler job bundle",
+    ),
     ("preflight_report", "runtime-preflight-report", "runtime preflight report"),
 )
 

@@ -74,6 +74,8 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ),
     ("replay_contract_path", "replay_contract", "runtime-replay-contract"),
     ("local_run_bundle_path", "local_run_bundle", "runtime-local-run-bundle"),
+    ("container_run_bundle_path", "container_run_bundle", "runtime-container-run-bundle"),
+    ("scheduler_job_bundle_path", "scheduler_job_bundle", "runtime-scheduler-job-bundle"),
     ("preflight_report_path", "preflight_report", "runtime-preflight-report"),
 )
 

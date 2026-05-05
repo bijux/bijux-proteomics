@@ -99,6 +99,12 @@ from bijux_proteomics_runtime.runtime.control.ledger import (
     load_artifact_ledger,
     refresh_runtime_artifact_ledger,
 )
+from bijux_proteomics_runtime.runtime.control.execution_surfaces import (
+    build_container_run_bundle,
+    build_scheduler_job_bundle,
+    write_container_run_bundle,
+    write_scheduler_job_bundle,
+)
 from bijux_proteomics_runtime.runtime.control.failure_reports import (
     build_runtime_failure_report,
     write_runtime_failure_report,
@@ -977,6 +983,26 @@ class RunManager:
             run_summary=summary,
         )
         write_local_run_bundle(context.workspace, local_run_bundle)
+        launch_surface = str(context.config.get("launch_surface") or "local")
+        if launch_surface == "container":
+            write_container_run_bundle(
+                context.workspace,
+                build_container_run_bundle(
+                    workspace=context.workspace,
+                    run_context=run_context_contract,
+                    replay_contract=replay_contract,
+                    config=context.config,
+                ),
+            )
+        elif launch_surface == "scheduler":
+            write_scheduler_job_bundle(
+                context.workspace,
+                build_scheduler_job_bundle(
+                    run_context=run_context_contract,
+                    replay_contract=replay_contract,
+                    config=context.config,
+                ),
+            )
         refresh_runtime_artifact_ledger(
             context.workspace,
             run_id=context.run_id,

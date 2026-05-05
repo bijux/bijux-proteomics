@@ -73,6 +73,34 @@ class RunConfig(BaseModel):
         default=None,
         description="Execution mode for providers: auto, gpu, or cpu.",
     )
+    launch_surface: str | None = Field(
+        default=None,
+        description="Runtime launch surface: local, container, scheduler, or import.",
+    )
+    container_image: str | None = Field(
+        default=None,
+        description="Container image reference for container launches.",
+    )
+    container_image_digest: str | None = Field(
+        default=None,
+        description="Container image digest for replay-safe container launches.",
+    )
+    scheduler_system: str | None = Field(
+        default=None,
+        description="Scheduler system name for queued launches.",
+    )
+    scheduler_queue: str | None = Field(
+        default=None,
+        description="Scheduler queue name for queued launches.",
+    )
+    scheduler_job_name: str | None = Field(
+        default=None,
+        description="Scheduler job name for queued launches.",
+    )
+    scheduler_submission_id: str | None = Field(
+        default=None,
+        description="Scheduler submission identifier when already known.",
+    )
 
     def with_defaults(self) -> tuple[RunConfig, list[str]]:
         """with_defaults."""
@@ -121,4 +149,6 @@ class RunConfig(BaseModel):
             data["artifacts_dir"] = None
         if data["execution_mode"] is None:
             data["execution_mode"] = "auto"
+        if data["launch_surface"] is None:
+            data["launch_surface"] = "local"
         return RunConfig(**data), warnings
