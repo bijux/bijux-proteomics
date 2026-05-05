@@ -48,6 +48,15 @@ class SignalDirection(StrEnum):
     MIXED = "mixed"
 
 
+class PathwayInterpretationCautionCode(StrEnum):
+    """Caution codes that block pathway-level overclaiming."""
+
+    LOW_SIGNIFICANT_ENTITY_COUNT = "low_significant_entity_count"
+    THEME_ONLY_SUPPORT = "theme_only_support"
+    MIXED_SIGNAL_DIRECTION = "mixed_signal_direction"
+    NO_ENRICHMENT_SUPPORT = "no_enrichment_support"
+
+
 class ContrastRejectionReason(StrEnum):
     """Reasons a contrast recommendation is not valid yet."""
 
@@ -65,6 +74,14 @@ class MissingnessPatternLabel(StrEnum):
     FILTER_DOMINATED = "filter_dominated"
     MAR_LIKE = "mar_like_random"
     MIXED = "mixed"
+
+
+class OutlierInterpretationClass(StrEnum):
+    """Classification of whether an outlier looks technical or biological."""
+
+    TECHNICAL_ANOMALY = "technical_anomaly"
+    PLAUSIBLE_BIOLOGICAL_EFFECT = "plausible_biological_effect"
+    MIXED_SIGNAL = "mixed_signal"
 
 
 class ProteinAnnotationAssignment(JsonModel):
@@ -202,6 +219,30 @@ class BiologicalThemeExtraction(JsonModel):
     themes: tuple[BiologicalTheme, ...] = Field(default_factory=tuple)
 
 
+class PathwayInterpretationCaution(JsonModel):
+    """One caution that keeps enrichment summaries from becoming overclaims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: PathwayInterpretationCautionCode
+    blocked_claim: bool
+    summary: str = Field(..., min_length=1)
+    evidence_refs: tuple[str, ...] = Field(default_factory=tuple)
+    recommended_next_step: str = Field(..., min_length=1)
+
+
+class PathwayInterpretationCautionReport(JsonModel):
+    """Caution report for pathway and thematic interpretation claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    blocked: bool
+    caution_items: tuple[PathwayInterpretationCaution, ...] = Field(
+        default_factory=tuple
+    )
+    safe_summary: str = Field(..., min_length=1)
+
+
 class DifferentialAbundanceInterpretation(JsonModel):
     """Differential-abundance interpretation with enrichment and provenance."""
 
@@ -217,6 +258,7 @@ class DifferentialAbundanceInterpretation(JsonModel):
     )
     enriched_terms: tuple[ProteinSetEnrichmentEntry, ...] = Field(default_factory=tuple)
     theme_summary: tuple[BiologicalTheme, ...] = Field(default_factory=tuple)
+    caution_report: PathwayInterpretationCautionReport
     statistical_provenance: DifferentialStatisticalProvenance
     interpretation_summary: str = Field(..., min_length=1)
 
@@ -326,8 +368,12 @@ class OutlierSampleExplanation(JsonModel):
 
     sample_id: str = Field(..., min_length=1)
     batch_id: str | None = None
+    classification: OutlierInterpretationClass
     reasons: tuple[str, ...] = Field(default_factory=tuple)
+    technical_reasons: tuple[str, ...] = Field(default_factory=tuple)
+    biological_reasons: tuple[str, ...] = Field(default_factory=tuple)
     supporting_metrics: dict[str, float] = Field(default_factory=dict)
+    recommended_follow_up: str = Field(..., min_length=1)
     interpretation_summary: str = Field(..., min_length=1)
 
 
@@ -634,6 +680,92 @@ def extract_biological_themes(
     )
 
 
+def _build_pathway_interpretation_caution_report(
+    significant_entries: list[DifferentialAbundanceEntry],
+    enriched_terms: tuple[ProteinSetEnrichmentEntry, ...],
+    themes: tuple[BiologicalTheme, ...],
+) -> PathwayInterpretationCautionReport:
+    cautions: list[PathwayInterpretationCaution] = []
+    directions = {
+        SignalDirection.UP if entry.log2_fold_change > 0 else SignalDirection.DOWN
+        for entry in significant_entries
+        if entry.log2_fold_change != 0
+    }
+    if len(significant_entries) < 3:
+        cautions.append(
+            PathwayInterpretationCaution(
+                code=PathwayInterpretationCautionCode.LOW_SIGNIFICANT_ENTITY_COUNT,
+                blocked_claim=True,
+                summary=(
+                    "Too few significant entities support a durable pathway-level claim."
+                ),
+                evidence_refs=("differential_abundance_report.entries",),
+                recommended_next_step=(
+                    "collect more decisive differential evidence before elevating pathway claims"
+                ),
+            )
+        )
+    if not enriched_terms:
+        cautions.append(
+            PathwayInterpretationCaution(
+                code=PathwayInterpretationCautionCode.NO_ENRICHMENT_SUPPORT,
+                blocked_claim=True,
+                summary="No enriched terms remain after significance filtering.",
+                evidence_refs=("protein_set_enrichment_report.entries",),
+                recommended_next_step=(
+                    "avoid pathway language until term-level enrichment is reproducible"
+                ),
+            )
+        )
+    elif themes and all(
+        theme.category in {AnnotationCategory.THEME, AnnotationCategory.COMPARTMENT}
+        for theme in themes
+    ):
+        cautions.append(
+            PathwayInterpretationCaution(
+                code=PathwayInterpretationCautionCode.THEME_ONLY_SUPPORT,
+                blocked_claim=True,
+                summary=(
+                    "Thematic or compartment summaries alone do not justify a pathway mechanism claim."
+                ),
+                evidence_refs=("biological_theme_extraction.themes",),
+                recommended_next_step=(
+                    "require pathway- or kinase-level support before making a mechanism claim"
+                ),
+            )
+        )
+    if len(directions) > 1:
+        cautions.append(
+            PathwayInterpretationCaution(
+                code=PathwayInterpretationCautionCode.MIXED_SIGNAL_DIRECTION,
+                blocked_claim=False,
+                summary=(
+                    "Up- and down-regulated signals both remain, so direction-specific pathway claims need caution."
+                ),
+                evidence_refs=("differential_abundance_report.entries",),
+                recommended_next_step=(
+                    "separate pathway language by direction or condition-specific subgroup"
+                ),
+            )
+        )
+    blocked = any(caution.blocked_claim for caution in cautions)
+    if blocked:
+        safe_summary = (
+            "Pathway-level claims remain blocked; only constrained thematic summaries are safe."
+        )
+    elif cautions:
+        safe_summary = (
+            "Pathway summaries are usable only with the listed caution notes kept visible."
+        )
+    else:
+        safe_summary = "Pathway interpretation has enough support for cautious use."
+    return PathwayInterpretationCautionReport(
+        blocked=blocked,
+        caution_items=tuple(cautions),
+        safe_summary=safe_summary,
+    )
+
+
 def interpret_differential_abundance(
     report: DifferentialAbundanceReport,
     annotations: tuple[ProteinAnnotationAssignment, ...],
@@ -692,10 +824,17 @@ def interpret_differential_abundance(
         annotations,
         max_terms=max_terms,
     )
+    caution_report = _build_pathway_interpretation_caution_report(
+        significant,
+        enrichment.entries[:max_terms],
+        themes.themes,
+    )
     summary = (
         f"{len(significant)} entities pass the significance threshold between "
         f"{report.condition_a} and {report.condition_b}."
     )
+    if caution_report.blocked:
+        summary += f" {caution_report.safe_summary}"
     return DifferentialAbundanceInterpretation(
         condition_a=report.condition_a,
         condition_b=report.condition_b,
@@ -703,6 +842,7 @@ def interpret_differential_abundance(
         top_downregulated=tuple(_signal(entry) for entry in ordered_down),
         enriched_terms=enrichment.entries[:max_terms],
         theme_summary=themes.themes,
+        caution_report=caution_report,
         statistical_provenance=DifferentialStatisticalProvenance(
             entity_level=report.entity_level.value,
             normalization_method=report.normalization_method.value,
@@ -1033,13 +1173,23 @@ def explain_outlier_samples(
     low_correlation_threshold: float = 0.85,
 ) -> tuple[OutlierSampleExplanation, ...]:
     """Explain outlier samples from batch QC and replicate-correlation signals."""
-    correlation_map: dict[str, list[float]] = defaultdict(list)
+    within_condition_correlations: dict[str, list[float]] = defaultdict(list)
+    between_condition_correlations: dict[str, list[float]] = defaultdict(list)
     for entry in replicate_report.entries:
-        if entry.condition_a != entry.condition_b:
-            continue
-        correlation_map[entry.sample_a].append(entry.correlation)
-        correlation_map[entry.sample_b].append(entry.correlation)
+        target_map = (
+            within_condition_correlations
+            if entry.condition_a == entry.condition_b
+            else between_condition_correlations
+        )
+        target_map[entry.sample_a].append(entry.correlation)
+        target_map[entry.sample_b].append(entry.correlation)
     explanations: list[OutlierSampleExplanation] = []
+    technical_reason_codes = {
+        "low_identification_rate",
+        "high_mass_error",
+        "retention_time_shift",
+        "low_replicate_correlation",
+    }
     for run in batch_report.runs:
         reasons = list(run.outlier_reasons)
         supporting_metrics = {
@@ -1050,19 +1200,81 @@ def explain_outlier_samples(
             supporting_metrics["median_abs_mass_error_ppm"] = (
                 run.median_abs_mass_error_ppm
             )
-        sample_correlations = correlation_map.get(run.sample_id or run.run_id, [])
-        if sample_correlations and min(sample_correlations) < low_correlation_threshold:
+        sample_id = run.sample_id or run.run_id
+        within_condition = within_condition_correlations.get(sample_id, [])
+        between_condition = between_condition_correlations.get(sample_id, [])
+        if within_condition and min(within_condition) < low_correlation_threshold:
             reasons.append("low_replicate_correlation")
-            supporting_metrics["min_replicate_correlation"] = min(sample_correlations)
+            supporting_metrics["min_replicate_correlation"] = min(within_condition)
+        technical_reasons = {
+            reason for reason in reasons if reason in technical_reason_codes
+        }
+        biological_reasons: set[str] = set()
+        if (
+            not technical_reasons
+            and between_condition
+            and min(between_condition) < low_correlation_threshold
+            and run.run_id in batch_report.outlier_run_ids
+            and run.identification_rate >= batch_report.median_identification_rate
+            and (
+                run.median_abs_mass_error_ppm is None
+                or run.median_abs_mass_error_ppm <= batch_report.median_abs_mass_error_ppm
+            )
+        ):
+            biological_reasons.add("condition_separation_without_qc_failure")
+            supporting_metrics["min_between_condition_correlation"] = min(
+                between_condition
+            )
         if reasons:
+            if technical_reasons and biological_reasons:
+                classification = OutlierInterpretationClass.MIXED_SIGNAL
+                follow_up = (
+                    "repeat QC checks and verify whether the condition shift persists in orthogonal assays"
+                )
+            elif technical_reasons:
+                classification = OutlierInterpretationClass.TECHNICAL_ANOMALY
+                follow_up = (
+                    "treat the sample as a technical anomaly until acquisition or preparation issues are resolved"
+                )
+            else:
+                classification = (
+                    OutlierInterpretationClass.PLAUSIBLE_BIOLOGICAL_EFFECT
+                )
+                follow_up = (
+                    "preserve the sample for biological follow-up and confirm the shift with orthogonal evidence"
+                )
             explanations.append(
                 OutlierSampleExplanation(
-                    sample_id=run.sample_id or run.run_id,
+                    sample_id=sample_id,
                     batch_id=run.batch,
+                    classification=classification,
                     reasons=tuple(dict.fromkeys(reasons)),
+                    technical_reasons=tuple(sorted(technical_reasons)),
+                    biological_reasons=tuple(sorted(biological_reasons)),
                     supporting_metrics=supporting_metrics,
-                    interpretation_summary=f"{run.sample_id or run.run_id} is outlying because "
-                    + ", ".join(dict.fromkeys(reasons)),
+                    recommended_follow_up=follow_up,
+                    interpretation_summary=(
+                        f"{sample_id} is classified as {classification.value} because "
+                        + ", ".join(dict.fromkeys(reasons or biological_reasons))
+                    ),
+                )
+            )
+        elif biological_reasons:
+            explanations.append(
+                OutlierSampleExplanation(
+                    sample_id=sample_id,
+                    batch_id=run.batch,
+                    classification=OutlierInterpretationClass.PLAUSIBLE_BIOLOGICAL_EFFECT,
+                    reasons=tuple(sorted(biological_reasons)),
+                    technical_reasons=(),
+                    biological_reasons=tuple(sorted(biological_reasons)),
+                    supporting_metrics=supporting_metrics,
+                    recommended_follow_up=(
+                        "preserve the sample for biological follow-up and confirm the shift with orthogonal evidence"
+                    ),
+                    interpretation_summary=(
+                        f"{sample_id} separates by condition without a matching QC failure."
+                    ),
                 )
             )
     return tuple(explanations)
@@ -1086,7 +1298,22 @@ def integrate_quant_qc_evidence(
     )
     notes: list[str] = []
     if outliers:
+        technical_count = sum(
+            1
+            for outlier in outliers
+            if outlier.classification is OutlierInterpretationClass.TECHNICAL_ANOMALY
+        )
+        biological_count = sum(
+            1
+            for outlier in outliers
+            if outlier.classification
+            is OutlierInterpretationClass.PLAUSIBLE_BIOLOGICAL_EFFECT
+        )
         notes.append(f"{len(outliers)} samples show QC-supported outlier behavior")
+        if technical_count:
+            notes.append(f"{technical_count} outliers look technical")
+        if biological_count:
+            notes.append(f"{biological_count} outliers may reflect biology")
     if missingness.overall_label is not MissingnessPatternLabel.MOSTLY_OBSERVED:
         notes.append(
             f"missingness remains {missingness.overall_label.value} at the {table.entity_level.value} level"

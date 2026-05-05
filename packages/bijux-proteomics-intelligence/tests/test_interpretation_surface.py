@@ -42,6 +42,8 @@ from bijux_proteomics_intelligence import (
     ContrastRejectionReason,
     EnrichmentProvenance,
     MissingnessPatternLabel,
+    OutlierInterpretationClass,
+    PathwayInterpretationCautionCode,
     ProteinAnnotationAssignment,
     QuantQcEvidenceIntegrationReport,
     RankedEntityScore,
@@ -176,6 +178,10 @@ def test_differential_interpretation_and_theme_extraction_surface_signal() -> No
     assert (
         interpretation.statistical_provenance.multiple_testing_method
         == "benjamini-hochberg"
+    )
+    assert interpretation.caution_report.blocked is True
+    assert interpretation.caution_report.caution_items[0].code is (
+        PathwayInterpretationCautionCode.LOW_SIGNIFICANT_ENTITY_COUNT
     )
     assert interpretation.enriched_terms[0].term_name == "nucleus"
     assert isinstance(themes.enrichment_provenance, EnrichmentProvenance)
@@ -353,8 +359,81 @@ def test_outlier_sample_explainer_uses_batch_and_correlation_signals() -> None:
 
     assert "C1" not in by_sample
     assert "T2" in by_sample
+    assert (
+        by_sample["T2"].classification
+        is OutlierInterpretationClass.TECHNICAL_ANOMALY
+    )
     assert "low_identification_rate" in by_sample["T2"].reasons
     assert "low_replicate_correlation" in by_sample["T2"].reasons
+    assert by_sample["T2"].technical_reasons
+
+
+def test_outlier_sample_explainer_preserves_plausible_biological_separation() -> None:
+    batch_report = InstrumentBatchQcReport(
+        document_schema=DocumentSchema(
+            created_by="test",
+            document_kind="instrument_batch_qc_report",
+            package_name="test",
+            status="generated",
+        ),
+        batch_id="batch-bio",
+        instrument="orbitrap-bio",
+        run_count=2,
+        median_spectrum_count=9900.0,
+        median_identification_rate=0.24,
+        median_abs_mass_error_ppm=5.4,
+        median_identified_retention_time_seconds=1800.0,
+        outlier_run_ids=("run-t1",),
+        runs=(
+            InstrumentBatchQcRunEntry(
+                run_id="run-c1",
+                sample_id="C1",
+                batch="batch-bio",
+                instrument="orbitrap-bio",
+                spectrum_count=10000,
+                identification_rate=0.24,
+                median_abs_mass_error_ppm=5.4,
+                identified_retention_time_span_seconds=1800.0,
+                retention_time_shift_seconds=0.0,
+                outlier_reasons=(),
+            ),
+            InstrumentBatchQcRunEntry(
+                run_id="run-t1",
+                sample_id="T1",
+                batch="batch-bio",
+                instrument="orbitrap-bio",
+                spectrum_count=10100,
+                identification_rate=0.26,
+                median_abs_mass_error_ppm=5.0,
+                identified_retention_time_span_seconds=1810.0,
+                retention_time_shift_seconds=2.0,
+                outlier_reasons=(),
+            ),
+        ),
+    )
+    replicate_report = ReplicateCorrelationReport(
+        entity_level=QuantEntityLevel.PROTEIN,
+        entries=(
+            ReplicateCorrelationEntry(
+                sample_a="C1",
+                sample_b="T1",
+                condition_a="control",
+                condition_b="treatment",
+                correlation=0.51,
+                shared_entity_count=18,
+            ),
+        ),
+        within_condition_mean=None,
+        between_condition_mean=0.51,
+    )
+
+    explanations = explain_outlier_samples(batch_report, replicate_report)
+    by_sample = {entry.sample_id: entry for entry in explanations}
+
+    assert by_sample["T1"].classification is (
+        OutlierInterpretationClass.PLAUSIBLE_BIOLOGICAL_EFFECT
+    )
+    assert "condition_separation_without_qc_failure" in by_sample["T1"].biological_reasons
 
 
 def test_integrate_quant_qc_evidence_combines_missingness_and_outliers() -> None:
@@ -435,6 +514,7 @@ def test_integrate_quant_qc_evidence_combines_missingness_and_outliers() -> None
     assert report.missingness.overall_label is MissingnessPatternLabel.MIXED
     assert report.outliers[0].sample_id == "T2"
     assert any("QC-supported outlier behavior" in note for note in report.notes)
+    assert any("outliers look technical" in note for note in report.notes)
 
 
 def test_protein_set_and_ranked_enrichment_reports_are_ordered_and_deterministic() -> (

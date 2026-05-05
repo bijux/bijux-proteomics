@@ -26,6 +26,9 @@ def test_interpretation_public_api_contains_expected_exports() -> None:
     assert "ContaminantArtifactIntelligence" in bijux_proteomics_intelligence.__all__
     assert "ContrastRecommendationReport" in bijux_proteomics_intelligence.__all__
     assert "MissingnessPatternAnalysis" in bijux_proteomics_intelligence.__all__
+    assert "PathwayInterpretationCautionReport" in bijux_proteomics_intelligence.__all__
+    assert "PathwayInterpretationCautionCode" in bijux_proteomics_intelligence.__all__
+    assert "OutlierInterpretationClass" in bijux_proteomics_intelligence.__all__
     assert "OutlierSampleExplanation" in bijux_proteomics_intelligence.__all__
     assert "BiologicalThemeExtraction" in bijux_proteomics_intelligence.__all__
     assert "ProteinSetEnrichmentReport" in bijux_proteomics_intelligence.__all__
