@@ -16,6 +16,8 @@ from bijux_proteomics_intelligence import (
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
+    assess_recommendation_readiness,
+    build_final_decision_recommendation,
     build_review_board_packet,
     prioritize_candidates,
 )
@@ -145,3 +147,69 @@ def test_realistic_review_scenarios_rank_grounded_follow_up_candidates(
     assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
     assert packet.ranked_evidence[0].candidate_id == payload["expected_top_candidate_id"]
     assert packet.qc_caveats == [str(item) for item in qc_caveats]
+
+
+def test_novelty_trap_fixture_does_not_outrank_grounded_follow_up() -> None:
+    payload = _load_scenario_fixture("novelty_overclaim_guard")
+    program = _program_from_fixture(payload)
+    assessments = _assessments_from_fixture(payload)
+    bundle = _bundle_from_fixture(payload)
+
+    ranking = prioritize_candidates(
+        program,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert ranking.ranked_candidates[1].candidate_id == "novelty-trap"
+    assert ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"] > (
+        ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    )
+
+
+def test_aging_evidence_fixture_downgrades_recommendation_readiness() -> None:
+    payload = _load_scenario_fixture("aging_evidence_guard")
+    bundle = _bundle_from_fixture(payload)
+
+    result = assess_recommendation_readiness(bundle)
+
+    assert result.disposition.value == "degraded_success"
+    assert "aging evidence should be refreshed soon" in result.summary
+
+
+def test_contradiction_fixture_refuses_recommendation_and_keeps_conflicts_explicit() -> (
+    None
+):
+    payload = _load_scenario_fixture("contradiction_refusal_guard")
+    program = _program_from_fixture(payload)
+    assessments = _assessments_from_fixture(payload)
+    bundle = _bundle_from_fixture(payload)
+
+    ranking = prioritize_candidates(
+        program,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+    packet = build_review_board_packet(
+        _grouped_review_state(),
+        ranking,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+    recommendation = build_final_decision_recommendation(
+        _grouped_review_state(),
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    assert recommendation.action is ScenarioAction.HOLD
+    assert recommendation.gate_result is not None
+    assert recommendation.gate_result.disposition.value == "refused"
+    assert packet.contradiction_summary is not None
+    assert packet.contradiction_summary.conflict_count >= 1
+    assert packet.ranked_evidence[0].contradiction_pressure > 0.0
+    assert packet.ranked_evidence[0].freshness_pressure >= 0.0
