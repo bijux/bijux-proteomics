@@ -26,9 +26,9 @@ from bijux_proteomics_lab.planning import LabExecutionRequest
 
 def _handoff_fixture(name: str) -> dict[str, object]:
     return json.loads(
-        (Path(__file__).parent / "fixtures" / "handoffs" / name).read_text(
-            encoding="utf-8"
-        )
+        (
+            Path(__file__).resolve().parents[1] / "fixtures" / "handoffs" / name
+        ).read_text(encoding="utf-8")
     )
 
 

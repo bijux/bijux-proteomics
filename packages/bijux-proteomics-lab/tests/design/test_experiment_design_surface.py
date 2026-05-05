@@ -34,7 +34,7 @@ from bijux_proteomics_lab.design.protocols import (
 
 
 def _repo_packages_dir() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[3]
 
 
 def _core_fixture(package: str, name: str) -> Path:
@@ -49,7 +49,7 @@ def _core_fixture(package: str, name: str) -> Path:
 
 
 def _local_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "design" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "design" / name
 
 
 def test_validate_experiment_design_distinguishes_valid_and_confounded_contrasts() -> (

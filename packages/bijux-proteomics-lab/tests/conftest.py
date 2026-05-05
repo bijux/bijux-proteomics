@@ -20,10 +20,10 @@ def _remove_lab_bytecode_artifacts() -> None:
     for root in LAB_CLEAN_ROOTS:
         for path in root.rglob("*"):
             if path.is_dir() and path.name == "__pycache__":
-                shutil.rmtree(path)
+                shutil.rmtree(path, ignore_errors=True)
                 continue
             if path.suffix in {".pyc", ".pyo"}:
-                path.unlink()
+                path.unlink(missing_ok=True)
 
 
 def pytest_sessionstart(session: pytest.Session) -> None:

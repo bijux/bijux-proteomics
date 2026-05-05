@@ -100,9 +100,12 @@ def _planning_fixture(name: str) -> dict[str, object]:
     return cast(
         dict[str, object],
         json.loads(
-            (Path(__file__).parent / "fixtures" / "planning" / name).read_text(
-                encoding="utf-8"
-            )
+            (
+                Path(__file__).resolve().parents[1]
+                / "fixtures"
+                / "planning"
+                / name
+            ).read_text(encoding="utf-8")
         ),
     )
 

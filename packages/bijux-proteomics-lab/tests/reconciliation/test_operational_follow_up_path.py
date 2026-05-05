@@ -35,9 +35,12 @@ def _handoff_fixture(name: str) -> dict[str, Any]:
     return cast(
         dict[str, Any],
         json.loads(
-            (Path(__file__).parent / "fixtures" / "handoffs" / name).read_text(
-                encoding="utf-8"
-            )
+            (
+                Path(__file__).resolve().parents[1]
+                / "fixtures"
+                / "handoffs"
+                / name
+            ).read_text(encoding="utf-8")
         ),
     )
 

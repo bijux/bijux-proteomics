@@ -21,7 +21,7 @@ from bijux_proteomics_lab.handoffs.ptm import build_ptm_lab_validation_packet
 
 def _fixture_path(name: str) -> Path:
     return (
-        Path(__file__).resolve().parents[2]
+        Path(__file__).resolve().parents[3]
         / "bijux-proteomics-core"
         / "tests"
         / "fixtures"
@@ -32,7 +32,7 @@ def _fixture_path(name: str) -> Path:
 
 def _protein_sequences() -> dict[str, str]:
     fasta = (
-        Path(__file__).resolve().parents[2]
+        Path(__file__).resolve().parents[3]
         / "bijux-proteomics-core"
         / "tests"
         / "fixtures"

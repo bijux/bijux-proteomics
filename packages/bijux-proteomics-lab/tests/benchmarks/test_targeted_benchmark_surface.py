@@ -55,12 +55,12 @@ from bijux_proteomics_lab.reconciliation import (
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    return Path(__file__).resolve().parents[4]
 
 
 def _review_scenario_fixture(name: str) -> dict[str, Any]:
     path = (
-        Path(__file__).resolve().parents[2]
+        Path(__file__).resolve().parents[3]
         / "bijux-proteomics-intelligence"
         / "tests"
         / "fixtures"
@@ -71,7 +71,7 @@ def _review_scenario_fixture(name: str) -> dict[str, Any]:
 
 
 def _handoff_fixture(name: str) -> dict[str, Any]:
-    path = Path(__file__).parent / "fixtures" / "handoffs" / name
+    path = Path(__file__).resolve().parents[1] / "fixtures" / "handoffs" / name
     return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
 
 
