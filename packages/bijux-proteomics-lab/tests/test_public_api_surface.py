@@ -23,6 +23,9 @@ def test_design_public_api_contains_expected_exports() -> None:
     assert "LabReviewPacketBundle" in bijux_proteomics_lab.__all__
     assert "OperationalReadinessReport" in bijux_proteomics_lab.__all__
     assert "OperationalFollowUpPath" in bijux_proteomics_lab.__all__
+    assert "TargetedBenchmarkReport" in bijux_proteomics_lab.__all__
+    assert "TargetedFailureRehearsalReport" in bijux_proteomics_lab.__all__
+    assert "TargetedExternalReviewReport" in bijux_proteomics_lab.__all__
     assert "SamplePreparationMetadata" in bijux_proteomics_lab.__all__
     assert "SampleTrackingPlateAdvisory" in bijux_proteomics_lab.__all__
     assert "TargetedTransitionReview" in bijux_proteomics_lab.__all__
@@ -38,6 +41,10 @@ def test_design_public_api_contains_expected_exports() -> None:
     assert "build_fractionation_plan" in bijux_proteomics_lab.__all__
     assert "build_follow_up_practicality_report" in bijux_proteomics_lab.__all__
     assert "build_lims_export_bundle" in bijux_proteomics_lab.__all__
+    assert "build_targeted_benchmark_report" in bijux_proteomics_lab.__all__
+    assert "build_targeted_failure_rehearsal" in bijux_proteomics_lab.__all__
+    assert "build_targeted_external_review_report" in bijux_proteomics_lab.__all__
+    assert "build_targeted_operator_run_report" in bijux_proteomics_lab.__all__
     assert "build_operational_follow_up_path" in bijux_proteomics_lab.__all__
     assert "plan_multiplex_labeling" in bijux_proteomics_lab.__all__
     assert "plan_spike_in_qc_samples" in bijux_proteomics_lab.__all__

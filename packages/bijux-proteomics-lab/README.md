@@ -50,6 +50,9 @@ planning, QC insertion, carryover review, and bundled lab evidence payloads.
 The package also owns reviewable handoff risk, LIMS-oriented export bundles,
 and planned-versus-observed reconciliation so execution feedback stays in the
 same operational boundary as the spend decision.
+It now also ships targeted benchmark rehearsals that connect discovery evidence,
+transition-level QC, lab-facing exports, downgrade diagnostics, and external
+review answers through one operator-readable path.
 
 ## Why teams pick this package
 
@@ -57,6 +60,8 @@ same operational boundary as the spend decision.
 - structured assay plans and review packets ready for scientific operations
 - outcome interpretation flows that support rerun and escalation decisions
 - reviewable handoff bundles with explicit risk, refusal, and field-loss posture
+- benchmark-backed targeted rehearsal reports that separate strong support,
+  partial support, and unsupported claims before operational signoff
 - repository contracts for integrating plan queues and feedback loops
 - deterministic experiment-design validation and protocol planning artifacts
 
@@ -189,6 +194,9 @@ next cycle.
 - treat changes that alter lab handoff refusal, LIMS export loss reporting, or
   observed-outcome reconciliation as high-impact because they shape operational
   spend and downstream analytical feedback
+- treat changes that alter targeted benchmark support summaries or external
+  review answers as high-impact because they change what the package can defend
+  to operators and skeptical reviewers
 - expect a narrower release burden when the change only improves internal
   implementation without changing lab execution semantics
 
@@ -212,6 +220,7 @@ next cycle.
 - [`src/bijux_proteomics_lab/handoffs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs.py) for targeted transition review, explicit handoff refusal, LIMS export bundles, and alternative assay-plan comparisons
 - [`src/bijux_proteomics_lab/risk.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/risk.py) for assay-risk scoring over peptide uniqueness, localization, quant reproducibility, and likely assay failure
 - [`src/bijux_proteomics_lab/reconciliation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation.py) for planned-versus-observed reconciliation and full operational follow-up paths back into analytical review
+- [`src/bijux_proteomics_lab/targeted_benchmarking.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py) for benchmark-backed targeted rehearsals, operator useful-run summaries, failure-path diagnostics, and external-review answers
 - [`src/bijux_proteomics_lab/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/repositories.py) for repository contracts and trend summaries
 - [`src/bijux_proteomics_lab/artifacts.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/artifacts.py) for lab artifact contracts, schema compatibility checks, and canonical artifact envelopes
 - [`src/bijux_proteomics_lab/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/charter.py) for the machine-readable operational charter and module audit

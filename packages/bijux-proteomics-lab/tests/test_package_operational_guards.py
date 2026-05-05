@@ -18,6 +18,10 @@ def test_lab_root_exposes_operational_behavior_beyond_packet_models() -> None:
         "build_follow_up_practicality_report",
         "build_lab_protocol_evidence_bundle",
         "build_lims_export_bundle",
+        "build_targeted_benchmark_report",
+        "build_targeted_failure_rehearsal",
+        "build_targeted_external_review_report",
+        "build_targeted_operator_run_report",
         "build_operational_follow_up_path",
         "review_targeted_transition_candidates",
         "validate_candidate_follow_up_handoff",
@@ -60,6 +64,10 @@ def test_lab_root_keeps_new_operational_surfaces_public() -> None:
     assert "build_operational_readiness_report" in lab.__all__
     assert "build_follow_up_practicality_report" in lab.__all__
     assert "build_lims_export_bundle" in lab.__all__
+    assert "build_targeted_benchmark_report" in lab.__all__
+    assert "build_targeted_failure_rehearsal" in lab.__all__
+    assert "build_targeted_external_review_report" in lab.__all__
+    assert "build_targeted_operator_run_report" in lab.__all__
     assert "build_operational_follow_up_path" in lab.__all__
     assert "review_targeted_transition_candidates" in lab.__all__
     assert "validate_candidate_follow_up_handoff" in lab.__all__
