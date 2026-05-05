@@ -15,9 +15,9 @@ LAB_ROOT_INIT = LAB_ROOT / "__init__.py"
 LAB_ROOT_API_POLICY = REPO_ROOT / "configs" / "package-governance" / "lab-root-api.toml"
 PUBLIC_SURFACE_TESTS = {
     "packages/bijux-proteomics-dev/tests/test_lab_root_api_policy.py",
-    "packages/bijux-proteomics-lab/tests/test_package_operational_guards.py",
-    "packages/bijux-proteomics-lab/tests/test_public_api_surface.py",
-    "packages/bijux-proteomics-lab/tests/test_serialization.py",
+    "packages/bijux-proteomics-lab/tests/package/test_package_operational_guards.py",
+    "packages/bijux-proteomics-lab/tests/package/test_public_api_surface.py",
+    "packages/bijux-proteomics-lab/tests/package/test_serialization.py",
 }
 
 

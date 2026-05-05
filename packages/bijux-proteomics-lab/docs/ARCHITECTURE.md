@@ -7,74 +7,80 @@
 
 ## Architectural role
 
-`bijux-proteomics-lab` turns planning constraints into concrete assay batches
-and interprets execution outcomes back into decision-support artifacts.
+`bijux-proteomics-lab` is the operational product for wet-lab follow-up. It
+receives scientific intent from lower packages, then decides whether that work
+is executable under real queue pressure, material limits, controls, and handoff
+constraints.
 
 ## Design constraints
 
-- planning uses explicit dependencies and capacity constraints
-- review and progression outputs are structured and auditable
-- outcome triage and rerun guidance are explicit policy outputs
+- execution reality beats analytical enthusiasm
+- queue pressure, material scarcity, blocked controls, and provenance gaps stay
+  first-class data instead of narrative footnotes
+- refusals stay explicit and machine-readable
+- observed outcomes must trace back to requested work
 
 ## Module topology
 
-- `planning/assays.py` owns dependency-aware planning, scheduling, review
-  packets, and next-cycle logic
-- `design/experiments.py` and `design/protocols.py` own experiment-design and
-  protocol-preparation semantics needed before execution can be scheduled
-- `readiness/operations.py` and `readiness/workflow.py` own readiness and
-  blocker summaries before spend is committed
-- `lifecycle/progression.py` owns progression and skeptical handoff validation
-- `handoffs/packets.py`, `handoffs/artifacts.py`, `handoffs/risk.py`, and
-  `handoffs/ptm.py` own reviewable packet, artifact, and risk semantics for
-  lab-facing handoffs
-- `outcomes/observations.py` owns execution outcome interpretation and rerun
-  policy support
-- `reconciliation/follow_up.py` owns feedback loops from observed outcomes back
-  into future operational follow-up
-- `benchmarks/targeted.py` owns targeted benchmark rehearsals that prove lab
-  claims without widening the package root
-- `repositories.py` owns queue, feedback, and forecast repository contracts
-- the package root only exposes four durable entrypoints for batch planning and
-  review-packet construction
+- `planning/assays.py` owns executable planning, dependency order, family
+  capacity, and queue pressure
+- `design/experiments.py` and `design/protocols.py` own design validation,
+  sample layout, protocol versions, controls, and failure caveats that make
+  later handoffs credible
+- `readiness/operations.py` and `readiness/workflow.py` own material,
+  controls, provenance, backlog, staffing, instrument, and workflow readiness
+- `lifecycle/progression.py` owns operational progression and follow-up
+  validation after planning and readiness are known
+- `handoffs/transitions.py` owns transition-level readiness and approval
+- `handoffs/explanations.py` owns refusal behavior and operator-facing handoff
+  honesty
+- `handoffs/exports.py` owns lossy exports and alternative-plan comparisons
+- `handoffs/risk.py` and `handoffs/ptm.py` own assay-risk and PTM-specific
+  follow-up controls
+- `outcomes/observations.py` owns observed assay results and rerun posture
+- `reconciliation/follow_up.py` owns requested-versus-observed traceability and
+  downstream feedback posture
+- `benchmarks/claims.py` and `benchmarks/rehearsals.py` own targeted
+  operational claim support and rehearsal delivery
 
 ## Dependency direction
 
-The package acts as the operational bridge between decision intent and wet-lab
-execution planning.
+The package may depend on core, knowledge, and intelligence inputs to
+understand what operators are being asked to do.
 
-It may depend on core state, knowledge evidence, and intelligence outputs, but
-it should not take ownership of lifecycle authority, ranking policy, or
-evidence truth semantics.
+It must not become the owner of analytical recommendation logic, core
+scientific semantics, or runtime execution orchestration or policy.
 
 ## Downstream expectations
 
-Downstream packages should rely on this layer for planning and outcome logic
-instead of encoding assay scheduling or rerun semantics inside runtime flows.
+Downstream packages should use this layer when they need a credible answer to
+whether work can run, should be refused, or changed belief posture after it
+ran. They should not duplicate queue-pressure logic, handoff refusal logic, or
+requested-versus-observed reconciliation elsewhere.
 
 ## Extension signals
 
-- add code here when a new concern changes planning, batching, outcome
-  interpretation, or repository contracts for laboratory work
-- extend the owner bands above before runtime or intelligence code invents
-  local scheduling helpers
-- keep new operational decision rules here when they define lab behavior rather
-  than only the way results are exposed to operators
+- add code here when a change alters operational feasibility, handoff honesty,
+  or observed follow-through
+- extend the existing owner families before adding new flat compatibility
+  surfaces
+- keep new operational policies close to the owner that can refuse or downgrade
+  the work
 
 ## Misplacement signals
 
-- if the change needs lifecycle authority, evidence truth, ranking policy, or
-  transport-bound interface logic, it belongs in another package
-- if a helper mainly reformats planning or outcome data for CLI or API surfaces,
-  it belongs in runtime adapters instead of lab modules
-- if a rule only exists for one recommendation or evidence flow, keep it with
-  that owner instead of widening lab semantics
+- if the change mostly ranks candidates, justifies a recommendation, or
+  interprets scientific truth, it does not belong here
+- if the change mostly dispatches runs, binds providers, or shapes route
+  transport, it belongs in runtime
+- if the change mainly preserves compatibility wrappers, it should not widen
+  durable lab ownership
 
 ## Review questions
 
-- does the change alter canonical planning, batching, outcome interpretation,
-  or lab repository behavior rather than just exposing those results
-- would runtime or intelligence code start carrying local scheduling or rerun
-  truth if this behavior stayed out of lab
-- can the architecture still be explained without claiming lifecycle, evidence,
-  ranking, or transport-bound interface ownership
+- does the architecture still optimize for operational honesty, feasibility,
+  and traceability
+- would operators lose queue-pressure, material-limit, or refusal context if
+  this behavior moved elsewhere
+- can the package still be explained without claiming analytical recommendation
+  logic, core scientific semantics, or runtime policy ownership
