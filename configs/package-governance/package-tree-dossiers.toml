@@ -1,0 +1,71 @@
+# Generated package-tree dossier report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_tree_dossiers
+
+[guard]
+min_total_owner_domain_count = 73
+max_total_compatibility_surface_count = 23
+min_total_excluded_responsibility_count = 29
+
+[[package]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+owner_domains = ["agents", "api", "biology", "core", "design_loop", "domain", "execution", "interfaces", "memory", "providers", "registry", "report", "runtime", "state", "tools", "validation"]
+public_modules = []
+compatibility_surfaces = []
+excluded_responsibilities = ["core program and review-gate domain contracts", "candidate-ranking and scenario decision policy logic", "evidence trust and contradiction-resolution semantics", "lab planning and execution-outcome scheduling behavior"]
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+import_root = "bijux_proteomics_dev"
+owner_domains = ["api", "docs", "quality", "release", "security", "tools"]
+public_modules = ["trusted_process"]
+compatibility_surfaces = []
+excluded_responsibilities = ["runtime product APIs", "canonical proteomics domain models", "package-specific scientific semantics"]
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+owner_domains = ["identity", "outcomes", "serialization", "support"]
+public_modules = ["canonicalization", "charter", "compatibility", "documents", "error_models", "errors", "fingerprints", "hashing", "ids", "json_models", "migrations", "ordering", "provenance", "refusals", "results", "states", "versions"]
+compatibility_surfaces = ["canonicalization", "hashing", "ids", "provenance", "refusals", "results", "states"]
+excluded_responsibilities = ["program lifecycle and gate logic", "candidate ranking and decision policies", "evidence conflict semantics or lab planning behavior"]
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+owner_domains = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "domain", "execution", "identification", "intelligence", "interfaces", "io", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study", "workflow"]
+public_modules = ["charter", "cli", "exceptions", "liabilities", "protein_family_evidence_graph", "proteoform_identity", "qc", "search_adapters", "workflow_blueprint"]
+compatibility_surfaces = ["cli", "liabilities", "search_adapters", "workflow_blueprint"]
+excluded_responsibilities = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+owner_domains = ["agents", "api", "core", "execution", "interfaces", "memory", "providers", "runs", "runtime", "sandbox", "state", "tools", "workflows"]
+public_modules = ["charter", "runtime_identity"]
+compatibility_surfaces = []
+excluded_responsibilities = ["canonical domain definitions", "evidence semantics and contradiction semantics", "scoring policy semantics and recommendation semantics", "lab planning semantics and experiment promotion semantics"]
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+owner_domains = ["design_loop", "domain"]
+public_modules = ["analytical_review", "benchmark_reviews", "briefs", "candidates", "charter", "decision_paths", "evaluators", "evidence_posture", "follow_up_learning", "interpretation", "policies", "recommendations", "review_packets", "skeptical_review"]
+compatibility_surfaces = []
+excluded_responsibilities = ["canonical scientific entity definitions or parsing", "evidence storage, curation, and truth maintenance", "runtime orchestration, transport, or provider selection", "assay scheduling, execution authority, or operational queue ownership"]
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+owner_domains = ["memory", "references", "reviews"]
+public_modules = ["charter", "claims", "evidence", "graph", "ingestion", "resolution", "review", "schema"]
+compatibility_surfaces = ["claims", "evidence", "graph", "ingestion", "resolution", "review"]
+excluded_responsibilities = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+owner_domains = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+public_modules = ["artifacts", "charter", "protocols", "ptm_follow_up", "repositories", "risk", "targeted_benchmarking", "workflow_readiness"]
+compatibility_surfaces = ["artifacts", "protocols", "ptm_follow_up", "risk", "targeted_benchmarking", "workflow_readiness"]
+excluded_responsibilities = ["analytical recommendation logic", "core scientific semantics", "execution orchestration or runtime policy"]
