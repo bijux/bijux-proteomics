@@ -15,7 +15,9 @@ from bijux_proteomics_foundation.results import OperationResult
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
 from bijux_proteomics_intelligence.evidence_posture import (
+    EvidenceContradictionSummary,
     assess_recommendation_readiness,
+    summarize_evidence_contradictions,
 )
 from bijux_proteomics_knowledge import DecisionReadiness, EvidenceBundle
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
@@ -253,6 +255,35 @@ class IntelligenceReviewPacket(JsonModel):
         description="Whether intelligence outputs are coherent enough for a progression review.",
     )
     notes: list[str] = Field(default_factory=list, description="Review-facing notes.")
+
+
+class ReviewBoardEvidenceLine(JsonModel):
+    """One ranked evidence line for a scientific review board packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    rank: int | None = Field(default=None, ge=1)
+    score: float = Field(...)
+    evidence_support: float = Field(..., ge=0.0, le=1.0)
+    contradiction_pressure: float = Field(..., ge=0.0, le=1.0)
+    freshness_pressure: float = Field(..., ge=0.0, le=1.0)
+    reasons: list[str] = Field(default_factory=list)
+    qc_caveats: list[str] = Field(default_factory=list)
+    next_step_proposals: list[str] = Field(default_factory=list)
+
+
+class ReviewBoardPacket(JsonModel):
+    """Review-board packet that keeps ranking, contradictions, and QC caveats aligned."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    consensus: ScenarioDecisionConsensus = Field(...)
+    recommendation: FinalDecisionRecommendation = Field(...)
+    contradiction_summary: EvidenceContradictionSummary | None = Field(default=None)
+    ranked_evidence: list[ReviewBoardEvidenceLine] = Field(default_factory=list)
+    qc_caveats: list[str] = Field(default_factory=list)
+    next_step_proposals: list[str] = Field(default_factory=list)
 
 
 class HoldPressureSummary(JsonModel):
@@ -940,6 +971,100 @@ def build_intelligence_review_packet(
         portfolio=portfolio,
         review_ready=review_ready,
         notes=notes,
+    )
+
+
+def _candidate_next_step_proposals(
+    candidate: CandidateAssessment | None,
+    ranked_candidate_reasons: list[str],
+    qc_caveats: list[str],
+    unresolved_questions: list[str],
+    contradiction_pressure: float,
+) -> list[str]:
+    proposals: list[str] = []
+    if candidate is not None and candidate.evidence_support < 0.6:
+        proposals.append("collect stronger orthogonal evidence before advancement")
+    if contradiction_pressure > 0.0:
+        proposals.append("resolve conflicting evidence before making a strong claim")
+    if qc_caveats:
+        proposals.append("clear QC caveats before treating the ranking as decisive")
+    if unresolved_questions:
+        proposals.append("address the highest-frequency unresolved review questions")
+    if not proposals and ranked_candidate_reasons:
+        proposals.append("advance the top-ranked follow-up while keeping rationale visible")
+    return sorted(dict.fromkeys(proposals))
+
+
+def build_review_board_packet(
+    evaluations: ScenarioSetEvaluation,
+    ranking: CandidateRanking,
+    assessments: list[CandidateAssessment],
+    *,
+    evidence_bundle: EvidenceBundle | None = None,
+    qc_caveats: list[str] | tuple[str, ...] = (),
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> ReviewBoardPacket:
+    """Build a review-board packet with ranked evidence, contradictions, and QC caveats."""
+    consensus = summarize_scenario_consensus(evaluations)
+    recommendation = build_final_decision_recommendation(
+        evaluations,
+        evidence_bundle=evidence_bundle,
+        workflow_family=workflow_family,
+    )
+    contradiction_summary = (
+        summarize_evidence_contradictions(evidence_bundle)
+        if evidence_bundle is not None
+        else None
+    )
+    assessment_map = {assessment.candidate_id: assessment for assessment in assessments}
+    qc_caveat_list = sorted({str(item).strip() for item in qc_caveats if str(item).strip()})
+    unresolved_ledger = summarize_unresolved_question_ledger(evaluations)
+    ranked_evidence: list[ReviewBoardEvidenceLine] = []
+    for ranked_candidate in ranking.ranked_candidates[:5]:
+        assessment = assessment_map.get(ranked_candidate.candidate_id)
+        explainability = ranked_candidate.explainability
+        contradiction_pressure = float(
+            explainability.get("contradiction_pressure", 0.0)
+        )
+        freshness_pressure = float(explainability.get("freshness_pressure", 0.0))
+        ranked_reasons = [str(reason) for reason in ranked_candidate.reasons[:4]]
+        ranked_evidence.append(
+            ReviewBoardEvidenceLine(
+                candidate_id=ranked_candidate.candidate_id,
+                rank=ranked_candidate.rank,
+                score=ranked_candidate.score,
+                evidence_support=(
+                    assessment.evidence_support if assessment is not None else 0.0
+                ),
+                contradiction_pressure=contradiction_pressure,
+                freshness_pressure=freshness_pressure,
+                reasons=ranked_reasons,
+                qc_caveats=qc_caveat_list,
+                next_step_proposals=_candidate_next_step_proposals(
+                    assessment,
+                    ranked_reasons,
+                    qc_caveat_list,
+                    unresolved_ledger.prioritized_questions,
+                    contradiction_pressure,
+                ),
+            )
+        )
+    next_step_proposals = sorted(
+        dict.fromkeys(
+            proposal
+            for line in ranked_evidence
+            for proposal in line.next_step_proposals
+        )
+    )
+    if recommendation.gate_result is not None and recommendation.gate_result.refusal:
+        next_step_proposals.append(recommendation.gate_result.refusal.reason)
+    return ReviewBoardPacket(
+        consensus=consensus,
+        recommendation=recommendation,
+        contradiction_summary=contradiction_summary,
+        ranked_evidence=ranked_evidence,
+        qc_caveats=qc_caveat_list,
+        next_step_proposals=sorted(dict.fromkeys(next_step_proposals)),
     )
 
 

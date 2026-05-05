@@ -18,6 +18,7 @@ from bijux_proteomics_intelligence import (
     ProgressionPolicyConfig,
     RankedCandidate,
     RedesignPolicyConfig,
+    ReviewBoardPacket,
     ScaleUpPolicy,
     ScenarioAction,
     ScenarioEvaluation,
@@ -30,6 +31,7 @@ from bijux_proteomics_intelligence import (
     build_final_decision_recommendation,
     build_intelligence_decision_support_envelope,
     build_intelligence_review_packet,
+    build_review_board_packet,
     derive_decision_escalation_flags,
     evaluate_all_scenarios,
     evaluate_for_progression,
@@ -48,7 +50,13 @@ from bijux_proteomics_intelligence import (
 from bijux_proteomics_knowledge import (
     DecisionReadiness,
     EvidenceCoverage,
+    EvidenceBundle,
+    EvidenceKind,
+    EvidenceRecord,
+    EvidenceSourceType,
+    EvidenceStrength,
 )
+from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
 
 def _ready_state() -> DecisionReadiness:
@@ -639,6 +647,92 @@ def test_build_intelligence_review_packet_combines_consensus_and_portfolio() -> 
     assert packet.consensus.action_counts
     assert packet.portfolio.candidate_count == 1
     assert packet.review_ready is False
+
+
+def test_build_review_board_packet_keeps_ranked_evidence_and_qc_caveats_visible() -> (
+    None
+):
+    program = create_program_spec(
+        program_id="prog-review-board",
+        name="review board",
+        objective="prepare a review board packet with explicit caveats",
+        target_id="target-review-board",
+        target_name="Target Review Board",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="hold evidence caveats and ranked evidence together",
+    )
+    ranking = CandidateRanking(
+        program_id="prog-review-board",
+        ranked_candidates=[
+            RankedCandidate(
+                candidate_id="candidate-1",
+                score=1.08,
+                rank=1,
+                reasons=["scientific_value=0.88", "reproducibility=0.84"],
+                explainability={
+                    "contradiction_pressure": 0.2,
+                    "freshness_pressure": 0.1,
+                },
+            )
+        ],
+    )
+    grouped = evaluate_all_scenarios(
+        program,
+        ranking,
+        _ready_state(),
+        [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.2)],
+        policies=EvaluatorPolicyBundle(),
+    )
+    packet = build_review_board_packet(
+        grouped,
+        ranking,
+        [
+            CandidateAssessment(
+                candidate_id="candidate-1",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                evidence_support=0.58,
+            )
+        ],
+        evidence_bundle=EvidenceBundle(
+            bundle_id="bundle-review-board",
+            target_id="target-review-board",
+            records=[
+                EvidenceRecord(
+                    evidence_id="assay-support",
+                    kind=EvidenceKind.ASSAY,
+                    title="Assay support",
+                    source="lab-1",
+                    source_type=EvidenceSourceType.LAB_ASSAY,
+                    claim="supports progression with reproducible assay signal",
+                    confidence=0.88,
+                    strength=EvidenceStrength.DECISIVE,
+                    decision_tags=["progression"],
+                ),
+                EvidenceRecord(
+                    evidence_id="assay-conflict",
+                    kind=EvidenceKind.ASSAY,
+                    title="Assay conflict",
+                    source="lab-2",
+                    source_type=EvidenceSourceType.LAB_ASSAY,
+                    claim="fails progression because the assay response worsens",
+                    confidence=0.84,
+                    strength=EvidenceStrength.DECISIVE,
+                    decision_tags=["progression"],
+                ),
+            ],
+        ),
+        qc_caveats=["batch shift remains unresolved"],
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    assert isinstance(packet, ReviewBoardPacket)
+    assert packet.contradiction_summary is not None
+    assert packet.ranked_evidence[0].candidate_id == "candidate-1"
+    assert packet.ranked_evidence[0].qc_caveats == [
+        "batch shift remains unresolved"
+    ]
+    assert packet.next_step_proposals
 
 
 def test_summarize_hold_pressure_counts_hold_actions() -> None:
