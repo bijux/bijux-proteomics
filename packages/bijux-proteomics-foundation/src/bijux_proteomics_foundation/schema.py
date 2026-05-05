@@ -8,10 +8,11 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.hashing import hash_payload
 from bijux_proteomics_foundation.serialization import JsonModel
+from bijux_proteomics_foundation.versions import SchemaVersion, normalize_schema_version
 
 
 class DocumentSchema(JsonModel):
@@ -97,6 +98,11 @@ class DocumentSchema(JsonModel):
         description="Optional stable hash for document content.",
     )
 
+    @field_validator("schema_version")
+    @classmethod
+    def _normalize_schema_version(cls, value: str) -> str:
+        return normalize_schema_version(value)
+
     def touch(self, actor: str, *, tag: str | None = None) -> DocumentSchema:
         """Return a copy with updated audit metadata."""
         tags = list(self.tags)
@@ -129,10 +135,10 @@ def assess_schema_compatibility(
     expected: str,
 ) -> SchemaCompatibility:
     """Assess compatibility using major/minor version semantics."""
-    observed_major, observed_minor, *_ = [int(part) for part in observed.split(".")]
-    expected_major, expected_minor, *_ = [int(part) for part in expected.split(".")]
-    if observed_major != expected_major:
+    observed_version = SchemaVersion.parse(observed)
+    expected_version = SchemaVersion.parse(expected)
+    if observed_version.major != expected_version.major:
         return SchemaCompatibility.BACKWARD_INCOMPATIBLE
-    if observed_minor < expected_minor:
+    if not observed_version.is_additive_compatible_with(expected_version):
         return SchemaCompatibility.FORWARD_INCOMPATIBLE
     return SchemaCompatibility.COMPATIBLE

@@ -12,6 +12,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation.ordering import stable_order_value
 from bijux_proteomics_foundation.serialization import JsonModel
 
 
@@ -48,6 +49,15 @@ def _hash_bytes(payload: bytes, algorithm: StableHashAlgorithm) -> str:
     raise ValueError(f"unsupported stable hash algorithm: {algorithm}")
 
 
+def hash_text(
+    payload: str,
+    *,
+    algorithm: StableHashAlgorithm = StableHashAlgorithm.SHA256,
+) -> str:
+    """Hash one utf-8 text payload with a stable algorithm."""
+    return _hash_bytes(payload.encode("utf-8"), algorithm)
+
+
 def hash_payload(
     payload: dict[str, Any],
     *,
@@ -56,9 +66,10 @@ def hash_payload(
     """Hash one canonical JSON payload under a named policy."""
     policy = policy or default_hash_policy()
     encoded = json.dumps(
-        payload,
+        stable_order_value(payload),
         sort_keys=True,
         default=str,
+        ensure_ascii=True,
         separators=policy.separators,
     ).encode("utf-8")
     return _hash_bytes(encoded, policy.algorithm)

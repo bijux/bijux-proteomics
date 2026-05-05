@@ -12,20 +12,13 @@ from typing import Any, Self, cast
 
 from pydantic import BaseModel
 
+from bijux_proteomics_foundation.ordering import stable_order_value
+
 
 def _normalize_for_json(value: Any) -> Any:
-    if isinstance(value, dict):
-        return {
-            str(key): _normalize_for_json(inner)
-            for key, inner in sorted(value.items(), key=lambda item: str(item[0]))
-        }
-    if isinstance(value, list):
-        return [_normalize_for_json(item) for item in value]
-    if isinstance(value, tuple):
-        return [_normalize_for_json(item) for item in value]
     if isinstance(value, datetime):
         return value.isoformat().replace("+00:00", "Z")
-    return value
+    return stable_order_value(value)
 
 
 def _flatten_for_tsv(value: Any, *, prefix: str = "") -> dict[str, str]:
@@ -51,15 +44,20 @@ class JsonModel(BaseModel):
 
     def to_json(self) -> str:
         """Return a formatted JSON string."""
-        return json.dumps(self.to_dict(), indent=2)
+        return json.dumps(self.to_dict(), indent=2, ensure_ascii=True)
 
     def to_stable_json(self) -> str:
         """Return deterministically ordered JSON for reproducible diffs."""
-        return json.dumps(self.to_dict(), indent=2, sort_keys=True)
+        return json.dumps(self.to_dict(), indent=2, sort_keys=True, ensure_ascii=True)
 
     def to_jsonl_line(self) -> str:
         """Return one deterministic JSON Lines record."""
-        return json.dumps(self.to_dict(), sort_keys=True, separators=(",", ":"))
+        return json.dumps(
+            self.to_dict(),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        )
 
     def to_flat_dict(self) -> dict[str, str]:
         """Return a flattened scalar map suitable for TSV output."""
@@ -114,3 +112,18 @@ class JsonModel(BaseModel):
     def load_json(cls, path: Path) -> Self:
         """Load the model from a JSON file."""
         return cls.from_json(path.read_text())
+
+
+def to_canonical_json(model: JsonModel | dict[str, Any]) -> str:
+    """Serialize one model or payload with deterministic key ordering."""
+    payload = (
+        model.to_dict() if isinstance(model, JsonModel) else _normalize_for_json(model)
+    )
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+
+def fingerprint_model(model: JsonModel) -> str:
+    """Return the stable fingerprint for one model."""
+    from bijux_proteomics_foundation.hashing import hash_model
+
+    return hash_model(model)

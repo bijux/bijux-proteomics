@@ -30,10 +30,14 @@ AssayId = Annotated[str, Identifier]
 EvidenceId = Annotated[str, Identifier]
 ClaimId = Annotated[str, Identifier]
 ReviewId = Annotated[str, Identifier]
+ReviewPacketId = Annotated[str, Identifier]
 PromotionId = Annotated[str, Identifier]
 BatchId = Annotated[str, Identifier]
 GateId = Annotated[str, Identifier]
 CycleId = Annotated[str, Identifier]
+StudyId = Annotated[str, Identifier]
+PtmId = Annotated[str, Identifier]
+LabActionId = Annotated[str, Identifier]
 
 
 class IdentifierKind(StrEnum):
@@ -51,11 +55,15 @@ class IdentifierKind(StrEnum):
     EVIDENCE = "evid"
     CLAIM = "claim"
     REVIEW = "review"
+    REVIEW_PACKET = "reviewpkt"
     PROMOTION = "promotion"
     ASSAY = "assay"
     BATCH = "batch"
     GATE = "gate"
     CYCLE = "cycle"
+    STUDY = "study"
+    PTM = "ptm"
+    LAB_ACTION = "labact"
 
 
 def classify_identifier(identifier: str) -> IdentifierKind | None:
