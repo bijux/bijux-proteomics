@@ -13,9 +13,19 @@ from bijux_proteomics import (
     ExternalReviewerBundle,
     ExternalReviewerBundleInput,
     FastaParseMode,
+    LabelBasedChannelPolicyEntry,
+    LabelBasedChannelRole,
+    LabelBasedQuantPolicy,
+    MissingChannelPolicy,
+    MultiplexNormalizationPolicy,
+    QuantEntityLevel,
+    QuantRollupMethod,
     SearchAdapterKind,
+    build_label_based_quant_bundle,
+    build_label_free_intensity_table,
     build_dia_capability_matrix,
     build_external_reviewer_bundle,
+    build_multiplex_channel_balance_diagnostics_report,
     build_ptm_site_ambiguity_report,
     build_ptm_site_table,
     build_review_ready_evidence_bundle,
@@ -665,6 +675,198 @@ def build_lfq_benchmark_review(
     )
 
 
+def _default_multiplex_policy() -> LabelBasedQuantPolicy:
+    return LabelBasedQuantPolicy(
+        missing_channel_policy=MissingChannelPolicy.PRESERVE,
+        channel_entries=(
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="126",
+                channel_role=LabelBasedChannelRole.SAMPLE,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="127N",
+                channel_role=LabelBasedChannelRole.SAMPLE,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="128N",
+                channel_role=LabelBasedChannelRole.CARRIER,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="129N",
+                channel_role=LabelBasedChannelRole.REFERENCE,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-b",
+                multiplex_channel="126",
+                channel_role=LabelBasedChannelRole.SAMPLE,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-b",
+                multiplex_channel="127N",
+                channel_role=LabelBasedChannelRole.SAMPLE,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-b",
+                multiplex_channel="128N",
+                channel_role=LabelBasedChannelRole.CARRIER,
+            ),
+        ),
+    )
+
+
+def build_multiplex_benchmark_review(
+    *,
+    benchmark_manifest: BenchmarkManifest | None = None,
+    feature_path: Path | None = None,
+    design_path: Path | None = None,
+) -> WorkflowBenchmarkReview:
+    """Build a multiplex benchmark review with explicit reporter-channel caveats."""
+
+    manifest = benchmark_manifest or _require_manifest(
+        "benchmark:multiplex_tmtpro_quantification"
+    )
+    if manifest.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX:
+        raise ValueError(
+            "multiplex benchmark review requires a multiplex workflow manifest"
+        )
+    active_feature_path = feature_path or (_repo_root() / manifest.dataset_locator)
+    active_design_path = design_path or (
+        _repo_root()
+        / "packages"
+        / "bijux-proteomics-core"
+        / "tests"
+        / "fixtures"
+        / "quant"
+        / "multiplex.design.tsv"
+    )
+
+    feature_report = parse_ms1_feature_table(active_feature_path)
+    design_report = parse_experimental_design_table(active_design_path)
+    table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    policy = _default_multiplex_policy()
+    quant_bundle = build_label_based_quant_bundle(
+        table,
+        design_entries=design_report.accepted_entries,
+        policy=policy,
+    )
+    diagnostics = build_multiplex_channel_balance_diagnostics_report(
+        table,
+        design_entries=design_report.accepted_entries,
+        quant_policy=policy,
+        normalization_policy=MultiplexNormalizationPolicy(balance_ratio_threshold=1.2),
+    )
+
+    claim_summaries = (
+        BenchmarkReviewClaim(
+            claim_id="feature_ingestion",
+            support_state=(
+                SupportState.SUPPORTED
+                if feature_report.accepted_records and not feature_report.rejected_rows
+                else SupportState.INCOMPLETE
+            ),
+            summary="multiplex benchmark review ingests checked-in reporter evidence into a stable channel-aware table",
+            evidence_refs=(
+                manifest.dataset_id,
+                f"accepted_records={len(feature_report.accepted_records)}",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="channel_manifest",
+            support_state=(
+                SupportState.ADVISORY
+                if quant_bundle.missing_channels
+                else SupportState.SUPPORTED
+            ),
+            summary="multiplex review keeps missing or preserved reporter channels explicit instead of treating the plex as complete by default",
+            evidence_refs=(
+                f"channels={len(quant_bundle.channels)}",
+                f"missing_channels={len(quant_bundle.missing_channels)}",
+            ),
+            scientific_limits=(
+                "missing channels remain explicit review caveats even when preserved in the manifest",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="channel_balance_caveats",
+            support_state=SupportState.ADVISORY,
+            summary="multiplex review surfaces channel imbalance and label-chemistry caveats before stronger biological claims are published",
+            evidence_refs=(
+                f"flagged_imbalance_count={diagnostics.flagged_imbalance_count}",
+                f"missing_channel_count={diagnostics.missing_channel_count}",
+            ),
+            scientific_limits=(
+                "TMTpro-style support claims stop at explicit channel semantics, balance diagnostics, and checked-in chemistry caveats",
+            ),
+        ),
+    )
+    bundle_artifact_id = (
+        quant_bundle.document_schema.content_hash or fingerprint_model(quant_bundle)
+    )
+    scientific_limits = (
+        *manifest.comparison_notes,
+        *diagnostics.caveats,
+    )
+    external_bundle = _build_external_bundle(
+        bundle_id=f"{manifest.benchmark_id}:external_review",
+        workflow_family=manifest.workflow_family,
+        artifact_ids=(manifest.dataset_id, bundle_artifact_id),
+        summary_lines=(
+            "Core owns multiplex feature ingestion, channel manifests, and balance diagnostics.",
+            "Intelligence owns the release-facing benchmark review summary.",
+            "This benchmark limits multiplex release claims to checked-in TMTpro-style channel semantics and explicit caveats.",
+        ),
+        scientific_limits=scientific_limits,
+        hash_entries=(
+            bundle_artifact_id,
+            fingerprint_model(diagnostics),
+        ),
+    )
+    return WorkflowBenchmarkReview(
+        benchmark_id=manifest.benchmark_id,
+        dataset_id=manifest.dataset_id,
+        workflow_family=manifest.workflow_family,
+        title=manifest.title,
+        reviewer_summary=(
+            "Multiplex benchmark review turns checked-in reporter evidence into a reviewable "
+            "channel manifest with explicit missing-channel, imbalance, and chemistry caveats."
+        ),
+        owner_surfaces=(
+            "bijux-proteomics-core: quantification.label_based_quant_bundle",
+            "bijux-proteomics-core: quantification.multiplex_balance",
+            "bijux-proteomics-intelligence: benchmark_reviews",
+        ),
+        review_artifacts=(
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="build_label_based_quant_bundle",
+                artifact_kind="label_based_quant_bundle",
+                artifact_id=bundle_artifact_id,
+            ),
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="build_multiplex_channel_balance_diagnostics_report",
+                artifact_kind="multiplex_channel_balance_diagnostics",
+                artifact_id=fingerprint_model(diagnostics),
+            ),
+        ),
+        claim_summaries=claim_summaries,
+        scientific_limits=scientific_limits,
+        comparison_notes=manifest.comparison_notes,
+        external_reviewer_bundle=external_bundle,
+        ready_for_release_review=all(
+            claim.support_state is not SupportState.REFUSED for claim in claim_summaries
+        ),
+    )
+
+
 __all__ = [
     "BenchmarkReviewArtifact",
     "BenchmarkReviewClaim",
@@ -672,5 +874,6 @@ __all__ = [
     "build_dda_benchmark_review",
     "build_dia_benchmark_review",
     "build_lfq_benchmark_review",
+    "build_multiplex_benchmark_review",
     "build_ptm_benchmark_review",
 ]

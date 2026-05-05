@@ -90,6 +90,7 @@ from bijux_proteomics_intelligence.benchmark_reviews import (
     build_dda_benchmark_review,
     build_dia_benchmark_review,
     build_lfq_benchmark_review,
+    build_multiplex_benchmark_review,
     build_ptm_benchmark_review,
 )
 from bijux_proteomics_intelligence.candidates import (
@@ -391,6 +392,7 @@ __all__ = [
     "build_dia_benchmark_review",
     "build_lfq_benchmark_review",
     "build_follow_up_candidate_path",
+    "build_multiplex_benchmark_review",
     "build_ptm_benchmark_review",
     "build_review_board_decision_path",
     "build_skeptical_review_report",

@@ -11,6 +11,7 @@ from bijux_proteomics_intelligence import (
     build_dda_benchmark_review,
     build_dia_benchmark_review,
     build_lfq_benchmark_review,
+    build_multiplex_benchmark_review,
     build_ptm_benchmark_review,
 )
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
@@ -121,3 +122,27 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert lfq_limit_claim.support_state is SupportState.ADVISORY
     assert review.external_reviewer_bundle.evidence_pointer_ids
     assert "missingness" in review.reviewer_summary
+
+
+def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> None:
+    review = build_multiplex_benchmark_review(
+        feature_path=(
+            _repo_root()
+            / "packages"
+            / "bijux-proteomics-core"
+            / "tests"
+            / "fixtures"
+            / "quant"
+            / "multiplex_ms1_features.tsv"
+        )
+    )
+
+    assert isinstance(review, WorkflowBenchmarkReview)
+    assert review.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
+    assert review.ready_for_release_review is True
+    channel_claim = next(
+        claim for claim in review.claim_summaries if claim.claim_id == "channel_balance_caveats"
+    )
+    assert channel_claim.support_state is SupportState.ADVISORY
+    assert "chemistry caveats" in channel_claim.scientific_limits[0]
+    assert "missing-channel" in review.reviewer_summary
