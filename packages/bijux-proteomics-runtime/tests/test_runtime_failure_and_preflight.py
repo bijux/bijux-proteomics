@@ -55,7 +55,9 @@ def test_runtime_preflight_report_flags_missing_workspace_files(tmp_path: Path) 
     )
 
     assert report.passed is False
-    layout_check = next(check for check in report.checks if check.check_id == "workspace_layout")
+    layout_check = next(
+        check for check in report.checks if check.check_id == "workspace_layout"
+    )
     assert layout_check.state is PreflightCheckState.FAIL
 
 

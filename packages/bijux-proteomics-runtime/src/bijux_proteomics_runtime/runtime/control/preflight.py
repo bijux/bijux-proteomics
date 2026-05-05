@@ -57,7 +57,9 @@ def build_runtime_preflight_report(
         PreflightCheck(
             check_id="workspace_layout",
             state=(
-                PreflightCheckState.FAIL if workspace_errors else PreflightCheckState.PASS
+                PreflightCheckState.FAIL
+                if workspace_errors
+                else PreflightCheckState.PASS
             ),
             message=(
                 "workspace layout is ready"
@@ -72,7 +74,9 @@ def build_runtime_preflight_report(
         PreflightCheck(
             check_id="provider_requirements",
             state=(
-                PreflightCheckState.FAIL if provider_errors else PreflightCheckState.PASS
+                PreflightCheckState.FAIL
+                if provider_errors
+                else PreflightCheckState.PASS
             ),
             message=(
                 "provider requirements are available"

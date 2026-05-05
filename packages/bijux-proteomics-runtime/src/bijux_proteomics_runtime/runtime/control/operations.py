@@ -60,7 +60,9 @@ def build_runtime_run_config(
     )
 
 
-def run_sequence_operation(base_dir: Path, sequence: str, config: RunConfig) -> dict[str, Any]:
+def run_sequence_operation(
+    base_dir: Path, sequence: str, config: RunConfig
+) -> dict[str, Any]:
     """Run one sequence through the canonical runtime manager."""
     return RunManager(base_dir, config).run(sequence)
 

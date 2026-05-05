@@ -186,7 +186,11 @@ def require_reusable_artifact_bundle(
     missing_required = {
         kind
         for kind in required_artifact_kinds
-        if kind not in {entry.artifact_kind for entry in load_artifact_ledger(workspace, run_id).entries}
+        if kind
+        not in {
+            entry.artifact_kind
+            for entry in load_artifact_ledger(workspace, run_id).entries
+        }
     }
     if report.verified and not missing_required:
         return

@@ -30,9 +30,9 @@ def test_runtime_cache_claim_allows_matching_shared_reads(tmp_path: Path) -> Non
     assert first.allowed is True
     assert second.allowed is True
     assert second.holder_run_id == "run-a"
-    assert RuntimeCacheClaim.load_json(cache_root / "claims" / "dia-library.json").run_id == (
-        "run-a"
-    )
+    assert RuntimeCacheClaim.load_json(
+        cache_root / "claims" / "dia-library.json"
+    ).run_id == ("run-a")
 
 
 def test_runtime_cache_claim_refuses_unsafe_sharing(tmp_path: Path) -> None:

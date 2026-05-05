@@ -8,11 +8,7 @@ from bijux_proteomics_runtime.runtime.control import __all__ as runtime_control_
 
 
 def _runtime_source_root() -> Path:
-    return (
-        Path(__file__).resolve().parents[1]
-        / "src"
-        / "bijux_proteomics_runtime"
-    )
+    return Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_runtime"
 
 
 def test_runtime_source_tree_excludes_removed_legacy_buckets() -> None:
@@ -38,8 +34,7 @@ def test_runtime_source_tree_excludes_removed_generic_http_helper_names() -> Non
 def test_runtime_source_tree_avoids_wrong_owner_symbols() -> None:
     runtime_root = _runtime_source_root()
     source_text = "\n".join(
-        path.read_text(encoding="utf-8")
-        for path in sorted(runtime_root.rglob("*.py"))
+        path.read_text(encoding="utf-8") for path in sorted(runtime_root.rglob("*.py"))
     )
 
     assert "bijux_proteomics.biology" not in source_text

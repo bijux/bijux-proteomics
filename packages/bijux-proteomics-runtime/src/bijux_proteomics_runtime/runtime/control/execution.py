@@ -887,7 +887,9 @@ class RunManager:
             source_path=source_path,
             import_only=True,
         )
-        write_json_atomic(context.workspace.run_context_path, run_context_contract.to_dict())
+        write_json_atomic(
+            context.workspace.run_context_path, run_context_contract.to_dict()
+        )
         preflight_report = build_runtime_preflight_report(
             context.workspace,
             run_id=context.run_id,
@@ -931,12 +933,14 @@ class RunManager:
                 FailureType.INVALID_OUTPUT.value,
                 None,
             )
-        imported_path, evidence_bundle_path, review_packet_path = write_import_documents(
-            context.workspace,
-            engine_name=engine_name,
-            engine_version=engine_version,
-            source_path=source_path,
-            imported_payload=imported_payload,
+        imported_path, evidence_bundle_path, review_packet_path = (
+            write_import_documents(
+                context.workspace,
+                engine_name=engine_name,
+                engine_version=engine_version,
+                source_path=source_path,
+                imported_payload=imported_payload,
+            )
         )
         version_info = _version_info(None)
         version_info.tool_versions = {engine_name: engine_version}
@@ -973,7 +977,9 @@ class RunManager:
             warnings=sorted(warnings),
             version_info=version_info,
         )
-        write_json_atomic(context.workspace.run_output_path, output.model_dump(mode="json"))
+        write_json_atomic(
+            context.workspace.run_output_path, output.model_dump(mode="json")
+        )
         replay_contract = build_replay_contract(
             run_context_contract,
             app_version=version_info.app_version,

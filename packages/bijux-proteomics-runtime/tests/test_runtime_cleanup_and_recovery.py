@@ -44,7 +44,9 @@ def _seed_runtime_outputs(
     )
     write_json_atomic(context.workspace.run_context_path, run_context.to_dict())
     write_json_atomic(context.workspace.replay_contract_path, replay_contract.to_dict())
-    write_json_atomic(context.workspace.report_path, {"status": "ok", "steps": ["digest"]})
+    write_json_atomic(
+        context.workspace.report_path, {"status": "ok", "steps": ["digest"]}
+    )
     write_json_atomic(
         context.workspace.run_summary_path,
         {

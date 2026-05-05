@@ -6,7 +6,9 @@ from __future__ import annotations
 import pytest
 
 from bijux_proteomics_runtime.providers import factory
-from bijux_proteomics_runtime.runtime.control import provider_capabilities as capabilities
+from bijux_proteomics_runtime.runtime.control import (
+    provider_capabilities as capabilities,
+)
 from bijux_proteomics_runtime.runtime.control.provider_capabilities import (
     validate_runtime_capabilities,
 )

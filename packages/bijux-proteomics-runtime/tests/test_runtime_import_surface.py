@@ -34,10 +34,10 @@ def test_runtime_import_result_persists_trace_and_reviewable_outputs(
 
     assert result["status"] == "success"
     assert import_trace.external_engine_name == "spectronaut"
-    assert import_trace.imported_artifacts[0].artifact_kind == "runtime-imported-evidence"
-    assert {
-        artifact.artifact_kind for artifact in import_trace.derived_artifacts
-    } >= {
+    assert (
+        import_trace.imported_artifacts[0].artifact_kind == "runtime-imported-evidence"
+    )
+    assert {artifact.artifact_kind for artifact in import_trace.derived_artifacts} >= {
         "runtime-evidence-bundle",
         "runtime-review-packet",
         "runtime-run-context",

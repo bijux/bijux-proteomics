@@ -33,7 +33,9 @@ def _fake_success(candidate, context, tool):  # type: ignore[no-untyped-def]
     }
 
 
-def test_runtime_local_execution_surface_is_reusable(tmp_path: Path, monkeypatch) -> None:
+def test_runtime_local_execution_surface_is_reusable(
+    tmp_path: Path, monkeypatch
+) -> None:
     monkeypatch.setattr(
         "bijux_proteomics_runtime.runtime.control.execution.run_flow",
         _fake_success,

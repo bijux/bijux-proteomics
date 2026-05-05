@@ -13,7 +13,9 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_runtime.runtime.context import RunContextContract
 from bijux_proteomics_runtime.runtime.control.execution import RunManager
-from bijux_proteomics_runtime.runtime.control.ledger import refresh_runtime_artifact_ledger
+from bijux_proteomics_runtime.runtime.control.ledger import (
+    refresh_runtime_artifact_ledger,
+)
 from bijux_proteomics_runtime.runtime.control.operations import build_runtime_run_config
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
 

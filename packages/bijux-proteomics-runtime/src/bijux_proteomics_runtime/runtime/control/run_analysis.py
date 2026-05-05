@@ -41,7 +41,9 @@ class RunAnalysis:
             entry.update(payload)
         self.candidate_timeline.setdefault(candidate_id, []).append(entry)
 
-    def record_tool_result(self, tool_name: str, status: str, latency_ms: float) -> None:
+    def record_tool_result(
+        self, tool_name: str, status: str, latency_ms: float
+    ) -> None:
         stats = self.tool_stats.setdefault(tool_name, ToolStats())
         if status == "success":
             stats.success += 1

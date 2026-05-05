@@ -130,10 +130,16 @@ class ImportRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    sequence: str = Field(..., min_length=1, description="Sequence linked to the imported evidence.")
-    source_path: str = Field(..., min_length=1, description="External engine result path on server.")
+    sequence: str = Field(
+        ..., min_length=1, description="Sequence linked to the imported evidence."
+    )
+    source_path: str = Field(
+        ..., min_length=1, description="External engine result path on server."
+    )
     engine_name: str = Field(..., min_length=1, description="External engine name.")
-    engine_version: str = Field(..., min_length=1, description="External engine version.")
+    engine_version: str = Field(
+        ..., min_length=1, description="External engine version."
+    )
     artifacts_dir: str | None = Field(default=None, description="Artifacts root.")
 
 

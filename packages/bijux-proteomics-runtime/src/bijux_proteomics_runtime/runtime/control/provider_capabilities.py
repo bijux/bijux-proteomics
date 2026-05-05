@@ -16,12 +16,12 @@ from bijux_proteomics_runtime.providers.factory import (
 
 KNOWN_PROVIDERS = frozenset(
     {
-    "heuristic_proxy",
-    "local_esmfold",
-    "local_rosettafold",
-    "api_colabfold",
-    "api_openprotein_esmfold",
-    "api_openprotein_alphafold",
+        "heuristic_proxy",
+        "local_esmfold",
+        "local_rosettafold",
+        "api_colabfold",
+        "api_openprotein_esmfold",
+        "api_openprotein_alphafold",
     }
 )
 
@@ -75,7 +75,9 @@ def evaluate_runtime_capabilities(
                 else:
                     if gpu_seconds <= 0.0 and capabilities.supports_gpu:
                         errors.append("gpu_required")
-                    elif capabilities.supports_cpu and capabilities.cpu_fallback_allowed:
+                    elif (
+                        capabilities.supports_cpu and capabilities.cpu_fallback_allowed
+                    ):
                         warnings.append(f"cpu_fallback:{provider_name}")
                     else:
                         errors.append("gpu_required")

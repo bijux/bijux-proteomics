@@ -149,14 +149,8 @@ def test_runtime_run_manager_persists_non_local_execution_bundles(
     assert container_result["status"] == "success"
     assert scheduler_result["status"] == "success"
     assert (
-        tmp_path
-        / "artifacts"
-        / "runtime-container-1"
-        / "container_run_bundle.json"
+        tmp_path / "artifacts" / "runtime-container-1" / "container_run_bundle.json"
     ).exists()
     assert (
-        tmp_path
-        / "artifacts"
-        / "runtime-scheduler-1"
-        / "scheduler_job_bundle.json"
+        tmp_path / "artifacts" / "runtime-scheduler-1" / "scheduler_job_bundle.json"
     ).exists()

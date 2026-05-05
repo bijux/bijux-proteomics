@@ -52,7 +52,9 @@ class RuntimeImportTrace(JsonModel):
     external_engine_name: str = Field(..., min_length=1)
     external_engine_version: str = Field(..., min_length=1)
     source_path: str = Field(..., min_length=1)
-    imported_artifacts: tuple[ImportedArtifactRecord, ...] = Field(default_factory=tuple)
+    imported_artifacts: tuple[ImportedArtifactRecord, ...] = Field(
+        default_factory=tuple
+    )
     derived_artifacts: tuple[DerivedArtifactRecord, ...] = Field(default_factory=tuple)
 
 

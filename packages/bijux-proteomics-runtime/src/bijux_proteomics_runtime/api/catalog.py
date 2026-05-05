@@ -83,7 +83,11 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("import_trace", "runtime-import-trace", "runtime import provenance trace"),
     ("import_run_bundle", "runtime-import-run-bundle", "runtime import run bundle"),
     ("resume_checkpoint", "runtime-resume-checkpoint", "runtime resume checkpoint"),
-    ("integrity_report", "runtime-integrity-report", "runtime artifact integrity report"),
+    (
+        "integrity_report",
+        "runtime-integrity-report",
+        "runtime artifact integrity report",
+    ),
     ("preflight_report", "runtime-preflight-report", "runtime preflight report"),
 )
 

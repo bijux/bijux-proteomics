@@ -140,19 +140,18 @@ def build_partial_rerun_plan(
         replay_eligibility.invalidation_reasons,
         import_only=previous_run_context.workflow.import_only,
     )
-    available_artifact_kinds = {entry.artifact_kind for entry in artifact_ledger.entries}
+    available_artifact_kinds = {
+        entry.artifact_kind for entry in artifact_ledger.entries
+    }
     reuse_steps: list[PartialRerunStep] = []
     rerun_steps: list[PartialRerunStep] = []
     boundary_reached = False
     for node in graph:
         if node.node_id == boundary_node:
             boundary_reached = True
-        can_reuse = (
-            replay_eligibility.eligible
-            or (
-                not boundary_reached
-                and set(node.produced_artifact_kinds).issubset(available_artifact_kinds)
-            )
+        can_reuse = replay_eligibility.eligible or (
+            not boundary_reached
+            and set(node.produced_artifact_kinds).issubset(available_artifact_kinds)
         )
         if can_reuse:
             reuse_steps.append(
@@ -231,7 +230,9 @@ def _plan_notes(
     boundary_node: str,
 ) -> tuple[str, ...]:
     if replay_eligibility.eligible:
-        return ("runtime rerun is safe because replay fingerprints still match exactly",)
+        return (
+            "runtime rerun is safe because replay fingerprints still match exactly",
+        )
     return (
         "runtime rerun is not fully replay-safe because one or more dependency fingerprints changed",
         f"earliest invalidation boundary: {boundary_node}",

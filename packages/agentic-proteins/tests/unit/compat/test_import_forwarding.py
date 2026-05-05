@@ -11,7 +11,9 @@ from agentic_proteins.api import create_app as compat_create_app
 from agentic_proteins.api.errors import _ERROR_TYPES as COMPAT_ERROR_TYPES
 from agentic_proteins.report import Report as CompatReport
 from agentic_proteins.report import nl_summary as compat_nl_summary
-from agentic_proteins.report.render import confidence_summary as compat_confidence_summary
+from agentic_proteins.report.render import (
+    confidence_summary as compat_confidence_summary,
+)
 from agentic_proteins.report.render import format_pct as compat_format_pct
 from agentic_proteins.report.render import to_text as compat_to_text
 from agentic_proteins.execution.evaluation.observations import (

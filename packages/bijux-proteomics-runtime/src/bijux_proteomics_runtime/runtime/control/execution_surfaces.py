@@ -64,7 +64,9 @@ class ContainerRunBundle(JsonModel):
     image_digest: str = Field(..., min_length=1)
     mount_maps: tuple[ContainerMount, ...] = Field(default_factory=tuple)
     environment_capture: ContainerEnvironmentCapture
-    artifact_expectations: tuple[ArtifactExpectation, ...] = Field(default_factory=tuple)
+    artifact_expectations: tuple[ArtifactExpectation, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class SchedulerLaunchMetadata(JsonModel):
@@ -99,7 +101,9 @@ class SchedulerJobBundle(JsonModel):
     replay_contract: ReplayContract
     launch_metadata: SchedulerLaunchMetadata
     replay_boundary: SchedulerReplayBoundary
-    artifact_expectations: tuple[ArtifactExpectation, ...] = Field(default_factory=tuple)
+    artifact_expectations: tuple[ArtifactExpectation, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def default_artifact_expectations() -> tuple[ArtifactExpectation, ...]:
@@ -189,7 +193,8 @@ def build_scheduler_job_bundle(
     queue_name = str(config.get("scheduler_queue") or "default")
     job_name = str(config.get("scheduler_job_name") or f"bijux-{run_context.run_id}")
     submission_id = str(
-        config.get("scheduler_submission_id") or f"{scheduler_system}:{run_context.run_id}"
+        config.get("scheduler_submission_id")
+        or f"{scheduler_system}:{run_context.run_id}"
     )
     return SchedulerJobBundle(
         run_context=run_context,

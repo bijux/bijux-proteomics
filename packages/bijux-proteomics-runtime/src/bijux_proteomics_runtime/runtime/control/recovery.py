@@ -39,8 +39,12 @@ class RuntimeFailureRecoveryAudit(JsonModel):
     run_id: str = Field(..., min_length=1)
     failure_type: str = Field(..., min_length=1)
     partial_failure: bool
-    preserved_artifacts: tuple[FailureRecoveryArtifact, ...] = Field(default_factory=tuple)
-    blocked_artifacts: tuple[FailureRecoveryArtifact, ...] = Field(default_factory=tuple)
+    preserved_artifacts: tuple[FailureRecoveryArtifact, ...] = Field(
+        default_factory=tuple
+    )
+    blocked_artifacts: tuple[FailureRecoveryArtifact, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def build_runtime_failure_recovery_audit(
@@ -57,7 +61,9 @@ def build_runtime_failure_recovery_audit(
         artifact_ledger=ledger,
         max_artifact_bytes=max_artifact_bytes,
     )
-    issue_by_path = {issue.artifact_path: issue.issue_code for issue in integrity_report.issues}
+    issue_by_path = {
+        issue.artifact_path: issue.issue_code for issue in integrity_report.issues
+    }
     summary = _load_summary_payload(workspace.run_summary_path)
     failure_type = str(summary.get("failure") or "none")
     preserved_artifacts: list[FailureRecoveryArtifact] = []

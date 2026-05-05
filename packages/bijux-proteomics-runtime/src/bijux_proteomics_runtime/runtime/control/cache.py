@@ -91,7 +91,9 @@ def claim_runtime_cache(
     )
 
 
-def release_runtime_cache_claim(cache_root: Path, *, cache_key: str, run_id: str) -> None:
+def release_runtime_cache_claim(
+    cache_root: Path, *, cache_key: str, run_id: str
+) -> None:
     """Release one runtime cache claim when the holder finishes."""
     claim_path = cache_root / "claims" / f"{cache_key}.json"
     if not claim_path.exists():

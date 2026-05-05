@@ -33,11 +33,17 @@ class RuntimeCleanupPlan(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     run_id: str = Field(..., min_length=1)
-    removable_artifacts: tuple[RuntimeCleanupArtifact, ...] = Field(default_factory=tuple)
-    preserved_artifacts: tuple[RuntimeCleanupArtifact, ...] = Field(default_factory=tuple)
+    removable_artifacts: tuple[RuntimeCleanupArtifact, ...] = Field(
+        default_factory=tuple
+    )
+    preserved_artifacts: tuple[RuntimeCleanupArtifact, ...] = Field(
+        default_factory=tuple
+    )
 
 
-def build_runtime_cleanup_plan(workspace: RunWorkspace, *, run_id: str) -> RuntimeCleanupPlan:
+def build_runtime_cleanup_plan(
+    workspace: RunWorkspace, *, run_id: str
+) -> RuntimeCleanupPlan:
     """Build one cleanup plan from the current runtime artifact ledger."""
     removable_artifacts: list[RuntimeCleanupArtifact] = []
     preserved_artifacts: list[RuntimeCleanupArtifact] = []

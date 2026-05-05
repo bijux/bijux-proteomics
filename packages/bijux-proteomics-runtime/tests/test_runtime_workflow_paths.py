@@ -28,8 +28,7 @@ def _fake_success(candidate, context, tool):  # type: ignore[no-untyped-def]
 
 def test_runtime_smoke_workflows_cover_review_and_handoff_paths() -> None:
     workflows = {
-        workflow.workflow_key: workflow
-        for workflow in build_runtime_smoke_workflows()
+        workflow.workflow_key: workflow for workflow in build_runtime_smoke_workflows()
     }
 
     assert tuple(workflows) == (

@@ -190,7 +190,10 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             reason="Namespace package initializers only aggregate stable runtime-owned sub-surfaces.",
         )
 
-    if module_path.startswith(("api/", "interfaces/")) or module_path == "runtime_identity.py":
+    if (
+        module_path.startswith(("api/", "interfaces/"))
+        or module_path == "runtime_identity.py"
+    ):
         return _execution_value_entry(
             module_path,
             (

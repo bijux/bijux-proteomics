@@ -158,7 +158,9 @@ def _rerun_plan_fixture(tmp_path: Path):
     return run_context, expected, current, ledger
 
 
-def test_runtime_startup_benchmark_creates_context_layout(benchmark, tmp_path: Path) -> None:
+def test_runtime_startup_benchmark_creates_context_layout(
+    benchmark, tmp_path: Path
+) -> None:
     startup_root = tmp_path / "startup"
     startup_root.mkdir(parents=True, exist_ok=True)
 

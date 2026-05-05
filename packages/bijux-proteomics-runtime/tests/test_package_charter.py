@@ -16,7 +16,9 @@ from bijux_proteomics_runtime.charter import (
 )
 
 
-RUNTIME_SRC_ROOT = Path("packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime")
+RUNTIME_SRC_ROOT = Path(
+    "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime"
+)
 
 
 def test_runtime_charter_exposes_exact_execution_capabilities() -> None:

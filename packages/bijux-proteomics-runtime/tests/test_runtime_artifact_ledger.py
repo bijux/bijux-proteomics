@@ -54,7 +54,9 @@ def test_runtime_artifact_ledger_entries_keep_hash_path_producer_and_retention(
         artifact_policy=context.artifact_policy,
         producer="test",
     )
-    entry = next(item for item in ledger.entries if item.artifact_kind == "runtime-state")
+    entry = next(
+        item for item in ledger.entries if item.artifact_kind == "runtime-state"
+    )
 
     assert entry.path.endswith("state.json")
     assert entry.producer == "test"
