@@ -288,6 +288,20 @@ from bijux_proteomics_lab.artifacts import (
     diff_model_payloads,
     verify_canonical_artifact_envelope,
 )
+from bijux_proteomics_lab.handoffs import (
+    TargetedTransitionCandidate,
+    TargetedTransitionReview,
+    TargetedTransitionReviewEntry,
+    TransitionReviewDisposition,
+    review_targeted_transition_candidates,
+)
+from bijux_proteomics_lab.risk import (
+    AssayRiskAssessment,
+    AssayRiskCode,
+    AssayRiskFinding,
+    AssayRiskSeverity,
+    assess_assay_risk,
+)
 
 __all__ = [
     "AcceptanceOperator",
@@ -525,6 +539,16 @@ __all__ = [
     "promote_batch_outcome_to_evidence",
     "triage_assay_failure",
     "triage_batch_failures",
+    "AssayRiskAssessment",
+    "AssayRiskCode",
+    "AssayRiskFinding",
+    "AssayRiskSeverity",
+    "assess_assay_risk",
+    "TargetedTransitionCandidate",
+    "TargetedTransitionReview",
+    "TargetedTransitionReviewEntry",
+    "TransitionReviewDisposition",
+    "review_targeted_transition_candidates",
     "consolidate_claim_belief_updates",
     "assess_observation_quality",
     "assess_outcome_reliability",

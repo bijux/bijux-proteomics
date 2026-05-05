@@ -75,13 +75,13 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
     LabCharterEntry(
         capability=LabCharterCapability.HANDOFF_PACKETS,
         owned_surface="Reviewable handoff packets that preserve protocol controls, caveats, and artifact integrity.",
-        required_modules=("protocols.py", "artifacts.py", "planning.py"),
+        required_modules=("protocols.py", "artifacts.py", "planning.py", "handoffs.py"),
         release_blocker="Lab cannot ship if handoff packets lose protocol controls, caveats, or artifact integrity.",
     ),
     LabCharterEntry(
         capability=LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         owned_surface="Observed-outcome interpretation that feeds back into reruns, evidence promotion, and future cycles.",
-        required_modules=("outcomes.py", "repositories.py", "readiness.py"),
+        required_modules=("outcomes.py", "repositories.py", "readiness.py", "risk.py"),
         release_blocker="Lab cannot ship if observed outcomes cannot reconcile back into operational follow-up and feedback loops.",
     ),
 )
@@ -116,6 +116,12 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.HANDOFF_PACKETS,
         ),
         reason="Experiment-design validation and layout planning are executable lab-operations behavior.",
+    ),
+    LabModuleAuditEntry(
+        module_path="handoffs.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
+        reason="Targeted transition review and handoff-specific decision surfaces keep lab exports grounded in operational responsibility.",
     ),
     LabModuleAuditEntry(
         module_path="lifecycle.py",
@@ -158,6 +164,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Operational readiness turns cost, staffing, backlog, and reagent pressure into explicit execution state.",
     ),
     LabModuleAuditEntry(
+        module_path="risk.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Assay-risk models stop weak uniqueness, localization, reproducibility, and failure-prone follow-up from hardening into operational certainty.",
+    ),
+    LabModuleAuditEntry(
         module_path="repositories.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(
@@ -165,6 +180,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         ),
         reason="Feedback and review-queue records are the typed persistence boundary for lab operations.",
+    ),
+    LabModuleAuditEntry(
+        module_path="workflow_readiness.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.QUEUEING,
+            LabCharterCapability.PROGRESSION,
+        ),
+        reason="Workflow readiness summaries keep missing assays, review gates, and execution blockers visible before scheduling.",
     ),
 )
 
