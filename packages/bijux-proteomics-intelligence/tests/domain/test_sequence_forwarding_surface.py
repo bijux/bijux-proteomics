@@ -3,7 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 
-INTELLIGENCE_DOMAIN_ROOT = Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_intelligence" / "domain"
+INTELLIGENCE_DOMAIN_ROOT = (
+    Path(__file__).resolve().parents[2]
+    / "src"
+    / "bijux_proteomics_intelligence"
+    / "domain"
+)
 
 
 def test_removed_intelligence_domain_forwarder_files_stay_absent() -> None:

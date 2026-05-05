@@ -191,7 +191,7 @@ def test_intelligence_package_does_not_restore_wrapper_only_serialization_surfac
     None
 ):
     package_dir = (
-        Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_intelligence"
+        Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics_intelligence"
     )
     assert not (package_dir / "serialization.py").exists()
 
@@ -237,7 +237,7 @@ def test_skeptical_review_guard_proves_value_beyond_core_and_runtime() -> None:
 
 
 def test_intelligence_readme_advertises_live_judgment_entrypoints() -> None:
-    readme_path = Path(__file__).resolve().parents[1] / "README.md"
+    readme_path = Path(__file__).resolve().parents[2] / "README.md"
     readme_text = readme_path.read_text()
 
     assert "skeptical_review" in readme_text
