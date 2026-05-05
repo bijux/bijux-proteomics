@@ -18,5 +18,13 @@ path = "references/rules.py"
 matched_identifiers = ["RankingRuleGroundingLedger", "build_ranking_rule_grounding_ledger"]
 
 [[module]]
+path = "reviews/explanations.py"
+matched_identifiers = ["CandidateDecisionDisposition", "decision_intelligence_index", "disposition", "gate_recommendation", "triangulation_score", "trust_score"]
+
+[[module]]
 path = "reviews/packets.py"
-matched_identifiers = ["CandidateDecisionDisposition", "EvidenceRelevanceScore", "compute_decision_intelligence_index", "decision_intelligence_index", "decision_scores", "disposition", "evidence_ranking", "gate_recommendation", "intelligence_index", "intelligence_index_delta", "minimum_triangulation_score", "minimum_trust_score", "portfolio_score", "ranking", "recommendation", "recommendation_change_count", "recommendation_changed", "recommendations", "score", "scores", "triangulation_score", "trust_score"]
+matched_identifiers = ["EvidenceRelevanceScore", "compute_decision_intelligence_index", "decision_intelligence_index", "decision_scores", "evidence_ranking", "gate_recommendation", "intelligence_index", "minimum_triangulation_score", "minimum_trust_score", "portfolio_score", "ranking", "recommendation", "recommendations", "score", "scores", "triangulation_score", "trust_score"]
+
+[[module]]
+path = "reviews/trends.py"
+matched_identifiers = ["decision_intelligence_index", "gate_recommendation", "intelligence_index_delta", "recommendation_change_count", "recommendation_changed", "triangulation_score", "trust_score"]

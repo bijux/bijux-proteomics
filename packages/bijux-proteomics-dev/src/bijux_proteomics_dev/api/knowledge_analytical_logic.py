@@ -35,7 +35,9 @@ ALLOWED_ANALYTICAL_MODULES = (
     "memory/evidence.py",
     "memory/resolution.py",
     "references/rules.py",
+    "reviews/explanations.py",
     "reviews/packets.py",
+    "reviews/trends.py",
 )
 
 

@@ -10,18 +10,22 @@ from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceRecord,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.reviews.packets import (
+from bijux_proteomics_knowledge.reviews.explanations import (
     CandidateDecisionDisposition,
     CandidateDecisionGraphExplanation,
     CandidateDecisionGraphQuery,
+    explain_candidate_decision_with_graph,
+)
+from bijux_proteomics_knowledge.reviews.packets import (
     DecisionGateProfile,
     KnowledgeReviewPacket,
     OperationalDecisionLabel,
     ScientificConclusion,
     build_knowledge_review_packet,
-    compare_review_packets,
-    explain_candidate_decision_with_graph,
     summarize_multi_decision_readiness,
+)
+from bijux_proteomics_knowledge.reviews.trends import (
+    compare_review_packets,
     summarize_review_trend,
 )
 

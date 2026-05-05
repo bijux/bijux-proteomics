@@ -100,6 +100,7 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
             "references/contexts.py",
             "references/briefings.py",
             "reviews/packets.py",
+            "reviews/explanations.py",
         ),
         release_blocker="Knowledge cannot ship if downstream packages would need to recreate caveats or scope context locally.",
     ),
@@ -278,6 +279,18 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         module_path="reviews/__init__.py",
         classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
         reason="The reviews package root groups reviewer-facing owner modules without adding separate curation logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="reviews/explanations.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Decision-scoped review explanations turn existing knowledge packets into auditable graph-backed reviewer narratives.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="reviews/trends.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Review packet comparisons and trend summaries keep reviewer-facing knowledge changes explicit over time.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="memory/resolution.py",

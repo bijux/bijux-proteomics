@@ -27,7 +27,9 @@ re-curating locally.
 - `memory/graph.py` owns evidence-graph structure and validation
 - `memory/ingestion.py` owns normalization of external evidence into knowledge-owned memory records
 - `contracts/schema.py` owns schema compatibility and document contract profiles
-- `reviews/packets.py` owns reviewer-facing packets derived from existing scientific memory
+- `reviews/packets.py` owns reviewer-facing packets and multi-decision readiness summaries derived from existing scientific memory
+- `reviews/explanations.py` owns decision-scoped graph explanations built from existing review packets
+- `reviews/trends.py` owns packet comparisons and trend summaries for reviewer-facing change over time
 - `references/` owns selective curated references, workflow briefings, and the narrow workflow lookup surface
 
 ## Dependency direction
