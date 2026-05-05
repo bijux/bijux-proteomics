@@ -37,3 +37,11 @@ def test_workflow_narratives_carry_benchmark_and_provenance_links() -> None:
         assert narrative.benchmark_ids
         assert narrative.citation_ids
         assert narrative.narrative_text
+        assert len(narrative.scope_limit_notes) >= 2
+        assert all(
+            any(
+                token in note.lower()
+                for token in ("claim", "does not", "applies", "scope", "keeps")
+            )
+            for note in narrative.scope_limit_notes
+        )

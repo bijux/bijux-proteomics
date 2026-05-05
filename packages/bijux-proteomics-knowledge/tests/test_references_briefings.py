@@ -30,3 +30,10 @@ def test_workflow_reference_briefing_keeps_provenance_visible() -> None:
     assert briefing.scientific_context
     assert briefing.literature_groups
     assert briefing.scientific_rules
+    assert briefing.scope_limit_notes
+    assert set(briefing.evidence_claim.scope_limit_notes).issubset(
+        briefing.scope_limit_notes
+    )
+    assert set(briefing.limitation.scope_limit_notes).issubset(
+        briefing.scope_limit_notes
+    )

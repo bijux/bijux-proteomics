@@ -52,6 +52,7 @@ class WorkflowReferenceBriefing(JsonModel):
     literature_groups: tuple[LiteratureGroup, ...] = Field(default_factory=tuple)
     known_problems: tuple[KnownProblemRegistryEntry, ...] = Field(default_factory=tuple)
     scientific_rules: tuple[ScientificRuleReference, ...] = Field(default_factory=tuple)
+    scope_limit_notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
 def _benchmark_by_family(workflow_family: KnowledgeWorkflowFamily) -> BenchmarkManifest:
@@ -120,6 +121,14 @@ def build_workflow_reference_briefing(
         if rule.rule_id in related_rule_ids
         or benchmark_manifest.benchmark_id in rule.benchmark_ids
     )
+    scope_limit_notes = tuple(
+        dict.fromkeys(
+            (
+                *evidence_claim.scope_limit_notes,
+                *limitation.scope_limit_notes,
+            )
+        )
+    )
     return WorkflowReferenceBriefing(
         workflow_family=workflow_family,
         benchmark_manifest=benchmark_manifest,
@@ -129,6 +138,7 @@ def build_workflow_reference_briefing(
         literature_groups=literature_groups,
         known_problems=known_problems,
         scientific_rules=scientific_rules,
+        scope_limit_notes=scope_limit_notes,
     )
 
 

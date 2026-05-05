@@ -35,8 +35,15 @@ class WorkflowNarrative(JsonModel):
     citation_ids: tuple[str, ...] = Field(..., min_length=1)
     context_ids: tuple[str, ...] = Field(default_factory=tuple)
     problem_ids: tuple[str, ...] = Field(default_factory=tuple)
+    scope_limit_notes: tuple[str, ...] = Field(..., min_length=1)
 
-    @field_validator("benchmark_ids", "citation_ids", "context_ids", "problem_ids")
+    @field_validator(
+        "benchmark_ids",
+        "citation_ids",
+        "context_ids",
+        "problem_ids",
+        "scope_limit_notes",
+    )
     @classmethod
     def _strip_blank_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         cleaned = tuple(item.strip() for item in value if item.strip())
@@ -59,6 +66,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "context:digestion_protease_comparability",
         ),
         problem_ids=("problem:search_adapter_fixture_overconfidence",),
+        scope_limit_notes=(
+            "Applies to adapter-normalized DDA search outputs in the bundled fixture corpus, not arbitrary production exports.",
+            "Preserves peptide-spectrum confidence framing and reviewed-proteome grounding, but does not widen the claim to protein certainty by itself.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:dda_limitation",
@@ -70,6 +81,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
         context_ids=("context:digestion_protease_comparability",),
         problem_ids=("problem:search_adapter_fixture_overconfidence",),
+        scope_limit_notes=(
+            "Does not cover protease-mixed production cohorts beyond the curated fixture suite.",
+            "Does not justify unqualified protein certainty when peptide evidence remains shared or sparse.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:dia_evidence_claim",
@@ -87,6 +102,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "problem:search_adapter_fixture_overconfidence",
             "problem:targeted_rollup_shortcut",
         ),
+        scope_limit_notes=(
+            "Applies to library-conditioned extraction semantics in the benchmarked fixture corpus, not open-ended biological absence claims.",
+            "Keeps transition-aligned peptide evidence in scope without promoting it to direct protein confirmation.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:dia_limitation",
@@ -101,6 +120,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "context:dia_library_scope",
         ),
         problem_ids=("problem:targeted_rollup_shortcut",),
+        scope_limit_notes=(
+            "Does not claim that missing extraction proves biological absence outside the benchmarked library context.",
+            "Does not widen transition evidence into unqualified protein-level certainty.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:ptm_evidence_claim",
@@ -115,6 +138,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "context:ptm_occupancy_scope",
         ),
         problem_ids=(),
+        scope_limit_notes=(
+            "Applies to phosphorylation concept grounding and localization confidence in the curated PTM fixtures.",
+            "Distinguishes localized evidence from merely modified peptide evidence without claiming occupancy or regulation breadth.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:ptm_limitation",
@@ -126,6 +153,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
         context_ids=("context:ptm_occupancy_scope",),
         problem_ids=(),
+        scope_limit_notes=(
+            "Does not claim stoichiometric occupancy or broad condition-specific regulation from localization fixtures alone.",
+            "Does not erase ambiguous-site handling when the benchmark only establishes localization confidence.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:lfq_evidence_claim",
@@ -140,6 +171,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "context:quant_rollup_changes_claim_scope",
         ),
         problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        scope_limit_notes=(
+            "Applies to repeatable LFQ behavior in the bundled study-scale fixtures, not every broader cohort shape.",
+            "Keeps missingness and rollup level explicit instead of treating protein summaries as scope-free abundance truth.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:lfq_limitation",
@@ -151,6 +186,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         citation_ids=("citation:protein_inference_2012",),
         context_ids=("context:quant_missingness_is_informative",),
         problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        scope_limit_notes=(
+            "Does not claim that repeatable fixture behavior removes missingness, interference, or peptide-to-protein ambiguity.",
+            "Does not widen study-scale fixture stability into universal cohort readiness.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:multiplex_evidence_claim",
@@ -165,6 +204,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "context:quant_rollup_changes_claim_scope",
         ),
         problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        scope_limit_notes=(
+            "Applies to bundled multiplex fixtures with explicit TMTpro channel semantics, not label-free abundance interpretation.",
+            "Keeps reporter-channel meaning in scope without widening the claim to every multiplex interference pattern.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:multiplex_limitation",
@@ -176,6 +219,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         citation_ids=("citation:tmtpro_2020", "citation:protein_inference_2012"),
         context_ids=("context:quant_rollup_changes_claim_scope",),
         problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        scope_limit_notes=(
+            "Does not claim that reporter summaries are interchangeable with label-free abundance evidence.",
+            "Does not erase interference and rollup caveats just because the fixture outputs stay stable.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:targeted_evidence_claim",
@@ -187,6 +234,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
         context_ids=("context:quant_rollup_changes_claim_scope",),
         problem_ids=("problem:targeted_rollup_shortcut",),
+        scope_limit_notes=(
+            "Applies to targeted-style QC interpretation of bundled chromatogram fixtures, not unrestricted protein confirmation.",
+            "Keeps transition-level evidence visible before any cautious protein rollup happens downstream.",
+        ),
     ),
     WorkflowNarrative(
         narrative_id="narrative:targeted_limitation",
@@ -198,6 +249,10 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         citation_ids=("citation:protein_inference_2012",),
         context_ids=("context:quant_rollup_changes_claim_scope",),
         problem_ids=("problem:targeted_rollup_shortcut",),
+        scope_limit_notes=(
+            "Does not claim that transition-level targeted evidence alone resolves shared-peptide ambiguity.",
+            "Does not justify unqualified protein certainty without explicit inference caution.",
+        ),
     ),
 )
 
