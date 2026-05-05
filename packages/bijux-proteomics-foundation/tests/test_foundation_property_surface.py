@@ -26,9 +26,11 @@ from bijux_proteomics_foundation.error_models import (
 from bijux_proteomics_foundation.ids import (
     IdentifierKind,
     build_identifier,
+    classify_identifier,
     ensure_identifier_kind,
 )
 from bijux_proteomics_foundation.ordering import stable_order_value
+from bijux_proteomics_foundation.serialization.canonicalization import normalize_json_value
 from bijux_proteomics_foundation.provenance import (
     ProvenancePointer,
     ProvenancePointerKind,
@@ -69,6 +71,11 @@ IDENTIFIER_SUFFIX_STRATEGY = st.lists(
     min_size=1,
     max_size=4,
 )
+IDENTIFIER_RAW_SUFFIX_STRATEGY = st.text(
+    alphabet=string.ascii_letters + string.digits + " -_",
+    min_size=1,
+    max_size=24,
+).filter(lambda value: bool(value.strip()))
 
 
 class SerializationSurfaceJsonModel(JsonModel):
@@ -85,6 +92,17 @@ class SerializationSurfaceJsonModel(JsonModel):
     attributes: dict[str, str]
 
 
+def _structurally_equivalent_value(value: object) -> object:
+    if isinstance(value, dict):
+        return {
+            key: _structurally_equivalent_value(inner)
+            for key, inner in reversed(tuple(value.items()))
+        }
+    if isinstance(value, list):
+        return tuple(_structurally_equivalent_value(item) for item in value)
+    return value
+
+
 @given(kind=st.sampled_from(tuple(IdentifierKind)), parts=IDENTIFIER_SUFFIX_STRATEGY)
 def test_identifier_building_normalizes_suffixes_and_preserves_kind(
     kind: IdentifierKind, parts: list[str]
@@ -94,6 +112,38 @@ def test_identifier_building_normalizes_suffixes_and_preserves_kind(
     ensure_identifier_kind(identifier, kind)
     assert identifier == identifier.lower()
     assert " " not in identifier
+
+
+@given(data=st.data(), raw_suffix=IDENTIFIER_RAW_SUFFIX_STRATEGY)
+def test_identifier_classification_round_trips_and_rejects_wrong_kind(
+    data: st.DataObject,
+    raw_suffix: str,
+) -> None:
+    kind = data.draw(st.sampled_from(tuple(IdentifierKind)))
+    wrong_kind = data.draw(
+        st.sampled_from(tuple(candidate for candidate in IdentifierKind if candidate is not kind))
+    )
+
+    identifier = build_identifier(kind, raw_suffix)
+
+    assert classify_identifier(identifier) is kind
+    assert identifier == f"{kind.value}-{raw_suffix.strip().lower().replace(' ', '-')}"
+
+    ensure_identifier_kind(identifier, kind)
+    with pytest.raises(ValueError, match=wrong_kind.value):
+        ensure_identifier_kind(identifier, wrong_kind)
+
+
+@given(
+    kind=st.sampled_from(tuple(IdentifierKind)),
+    blank_suffix=st.text(alphabet=" \t", min_size=0, max_size=8),
+)
+def test_identifier_building_rejects_blank_suffixes(
+    kind: IdentifierKind,
+    blank_suffix: str,
+) -> None:
+    with pytest.raises(ValueError, match="must be non-empty"):
+        build_identifier(kind, blank_suffix)
 
 
 @given(payload=JSON_OBJECT_STRATEGY)
@@ -107,6 +157,25 @@ def test_hashing_and_ordering_are_deterministic_for_equivalent_payloads(
 
     assert stable_order_value(payload) == stable_order_value(reordered)
     assert hash_payload(payload) == hash_payload(reordered)
+
+
+@given(payload=JSON_OBJECT_STRATEGY)
+def test_hashing_is_stable_under_recursive_ordering_noise(
+    payload: dict[str, object],
+) -> None:
+    equivalent = _structurally_equivalent_value(payload)
+
+    assert hash_payload(payload) == hash_payload(equivalent)
+
+
+@given(payload=JSON_OBJECT_STRATEGY)
+def test_canonical_json_is_stable_for_structurally_equivalent_payloads(
+    payload: dict[str, object],
+) -> None:
+    equivalent = _structurally_equivalent_value(payload)
+
+    assert normalize_json_value(payload) == normalize_json_value(equivalent)
+    assert to_canonical_json(payload) == to_canonical_json(equivalent)
 
 
 def test_shared_operation_result_distinguishes_success_refusal_and_degraded_success() -> (
