@@ -2,35 +2,107 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence_boundary_mix
 
 [metrics]
-scanned_module_count = 16
-hotspot_count = 1
-max_touched_band_count = 3
+scanned_module_count = 26
+hotspot_count = 3
+max_touched_band_count = 4
 
 [guard]
-baseline_hotspot_count = 1
-baseline_max_touched_band_count = 3
-baseline_hotspot_modules = ["reviews/packets.py"]
+baseline_hotspot_count = 3
+baseline_max_touched_band_count = 4
+baseline_hotspot_modules = ["candidates/ranking.py", "judgment/paths.py", "reviews/packets.py"]
 
 [[module]]
 module_path = "candidates/lifecycle.py"
-band = "judgment"
+band = "candidates"
 touched_band_count = 1
 cross_band_import_count = 0
 internal_import_count = 1
-touched_bands = ["judgment"]
+touched_bands = ["candidates"]
+hotspot = false
+
+[[module]]
+module_path = "candidates/quality.py"
+band = "candidates"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["candidates"]
 hotspot = false
 
 [[module]]
 module_path = "candidates/ranking.py"
-band = "judgment"
-touched_band_count = 2
-cross_band_import_count = 1
+band = "candidates"
+touched_band_count = 3
+cross_band_import_count = 2
 internal_import_count = 2
-touched_bands = ["evidence_posture", "judgment"]
+touched_bands = ["candidates", "judgment", "posture"]
+hotspot = true
+
+[[module]]
+module_path = "candidates/validation.py"
+band = "candidates"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["candidates"]
 hotspot = false
 
 [[module]]
-module_path = "interpretation/summaries.py"
+module_path = "interpretation/contaminants.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "interpretation/contrasts.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "interpretation/pathways.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "interpretation/ptm.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 1
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "interpretation/quantitative.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "interpretation/runs.py"
+band = "interpretation"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["interpretation"]
+hotspot = false
+
+[[module]]
+module_path = "interpretation/structures.py"
 band = "interpretation"
 touched_band_count = 1
 cross_band_import_count = 0
@@ -41,11 +113,11 @@ hotspot = false
 [[module]]
 module_path = "judgment/paths.py"
 band = "judgment"
-touched_band_count = 2
-cross_band_import_count = 1
+touched_band_count = 3
+cross_band_import_count = 3
 internal_import_count = 5
-touched_bands = ["judgment", "review"]
-hotspot = false
+touched_bands = ["candidates", "judgment", "reviews"]
+hotspot = true
 
 [[module]]
 module_path = "judgment/policies.py"
@@ -62,16 +134,16 @@ band = "judgment"
 touched_band_count = 2
 cross_band_import_count = 1
 internal_import_count = 2
-touched_bands = ["evidence_posture", "judgment"]
+touched_bands = ["judgment", "posture"]
 hotspot = false
 
 [[module]]
 module_path = "judgment/scenarios.py"
 band = "judgment"
-touched_band_count = 1
-cross_band_import_count = 0
+touched_band_count = 2
+cross_band_import_count = 2
 internal_import_count = 2
-touched_bands = ["judgment"]
+touched_bands = ["candidates", "judgment"]
 hotspot = false
 
 [[module]]
@@ -84,7 +156,7 @@ touched_bands = ["learning"]
 hotspot = false
 
 [[module]]
-module_path = "learning/iterative_design/convergence.py"
+module_path = "learning/refinement/convergence.py"
 band = "learning"
 touched_band_count = 1
 cross_band_import_count = 0
@@ -93,16 +165,16 @@ touched_bands = ["learning"]
 hotspot = false
 
 [[module]]
-module_path = "learning/iterative_design/runner.py"
+module_path = "learning/refinement/runner.py"
 band = "learning"
-touched_band_count = 1
-cross_band_import_count = 0
-internal_import_count = 2
-touched_bands = ["learning"]
+touched_band_count = 2
+cross_band_import_count = 1
+internal_import_count = 3
+touched_bands = ["candidates", "learning"]
 hotspot = false
 
 [[module]]
-module_path = "learning/iterative_design/stagnation.py"
+module_path = "learning/refinement/stagnation.py"
 band = "learning"
 touched_band_count = 1
 cross_band_import_count = 0
@@ -112,45 +184,63 @@ hotspot = false
 
 [[module]]
 module_path = "posture/evidence.py"
-band = "evidence_posture"
+band = "posture"
 touched_band_count = 1
 cross_band_import_count = 0
 internal_import_count = 0
-touched_bands = ["evidence_posture"]
+touched_bands = ["posture"]
 hotspot = false
 
 [[module]]
 module_path = "posture/skeptical.py"
-band = "evidence_posture"
+band = "posture"
 touched_band_count = 2
 cross_band_import_count = 2
 internal_import_count = 2
-touched_bands = ["evidence_posture", "judgment"]
-hotspot = false
-
-[[module]]
-module_path = "reviews/analysis.py"
-band = "review"
-touched_band_count = 1
-cross_band_import_count = 0
-internal_import_count = 0
-touched_bands = ["review"]
+touched_bands = ["judgment", "posture"]
 hotspot = false
 
 [[module]]
 module_path = "reviews/benchmarks.py"
-band = "review"
+band = "reviews"
 touched_band_count = 1
 cross_band_import_count = 0
 internal_import_count = 0
-touched_bands = ["review"]
+touched_bands = ["reviews"]
+hotspot = false
+
+[[module]]
+module_path = "reviews/boards.py"
+band = "reviews"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["reviews"]
+hotspot = false
+
+[[module]]
+module_path = "reviews/candidates.py"
+band = "reviews"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["reviews"]
 hotspot = false
 
 [[module]]
 module_path = "reviews/packets.py"
-band = "review"
-touched_band_count = 3
+band = "reviews"
+touched_band_count = 4
 cross_band_import_count = 5
 internal_import_count = 5
-touched_bands = ["evidence_posture", "judgment", "review"]
+touched_bands = ["candidates", "judgment", "posture", "reviews"]
 hotspot = true
+
+[[module]]
+module_path = "reviews/pathways.py"
+band = "reviews"
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 0
+touched_bands = ["reviews"]
+hotspot = false

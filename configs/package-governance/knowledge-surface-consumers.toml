@@ -19,7 +19,7 @@ imported_symbols = []
 name = "bijux_proteomics_knowledge.references.benchmarks"
 consumer_count = 9
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_breadth.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/review_packets.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/claims.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_breadth.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/packets.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/claims.py"]
 imported_symbols = ["BenchmarkManifest", "DEFAULT_BENCHMARK_MANIFESTS", "KnowledgeWorkflowFamily"]
 
 [[surface]]
@@ -40,14 +40,14 @@ imported_symbols = ["DEFAULT_ONTOLOGY_MAPPINGS"]
 name = "bijux_proteomics_knowledge.references.rules"
 consumer_count = 3
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_breadth.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_breadth.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py"]
 imported_symbols = ["DEFAULT_SCIENTIFIC_RULE_REFERENCES", "build_ranking_rule_grounding_ledger"]
 
 [[surface]]
 name = "bijux_proteomics_knowledge.references.workflow_queries"
 consumer_count = 2
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py"]
 imported_symbols = ["get_benchmark_manifest"]
 
 [[surface]]
@@ -59,9 +59,9 @@ imported_symbols = []
 
 [[surface]]
 name = "bijux_proteomics_knowledge.memory.evidence"
-consumer_count = 10
+consumer_count = 12
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/review_packets.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes/observations.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/readiness/workflow.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/scenarios.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/evidence.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/packets.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes/observations.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/next_cycle.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/priorities.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/readiness/stages.py"]
 imported_symbols = ["DecisionReadiness", "EvidenceBundle", "EvidenceKind", "EvidenceSourceType", "EvidenceStrength", "assess_decision_readiness", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "plan_evidence_refresh", "triangulate_evidence"]
 
 [[surface]]

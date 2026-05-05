@@ -6,7 +6,7 @@ distribution_name = "agentic-proteins"
 [[module]]
 module_name = "agentic_proteins"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.structure_report", "bijux_proteomics_intelligence.domain.structure.confidence"]
+outgoing_workspace_modules = ["bijux_proteomics.structure_report", "bijux_proteomics_intelligence.interpretation.structures"]
 
 [[module]]
 module_name = "agentic_proteins.agents"
@@ -296,97 +296,97 @@ outgoing_workspace_modules = ["bijux_proteomics_runtime.core.tooling"]
 [[module]]
 module_name = "agentic_proteins.design_loop"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.iterative_design"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.refinement"]
 
 [[module]]
 module_name = "agentic_proteins.design_loop.convergence"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.iterative_design.convergence"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.refinement.convergence"]
 
 [[module]]
 module_name = "agentic_proteins.design_loop.loop"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.iterative_design.runner"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.refinement.runner"]
 
 [[module]]
 module_name = "agentic_proteins.design_loop.stagnation"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.iterative_design.stagnation"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.learning.refinement.stagnation"]
 
 [[module]]
 module_name = "agentic_proteins.domain"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.domain.sequence", "bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure", "bijux_proteomics_intelligence.domain.metrics.compute", "bijux_proteomics_intelligence.domain.structure.confidence"]
+outgoing_workspace_modules = ["bijux_proteomics.domain.sequence", "bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure", "bijux_proteomics_intelligence.interpretation.structures"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates.filters"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.filters"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.filters"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates.model"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.model"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.records"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates.schema"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.schema"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.schema"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates.selection"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.selection"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.selection"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates.store"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.store"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.store"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates.transform"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.transform"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.transform"]
 
 [[module]]
 module_name = "agentic_proteins.domain.candidates.updates"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.candidates.updates"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.updates"]
 
 [[module]]
 module_name = "agentic_proteins.domain.confidence"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.structure.confidence"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.interpretation.structures"]
 
 [[module]]
 module_name = "agentic_proteins.domain.confidence.segments"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.structure.confidence"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.interpretation.structures"]
 
 [[module]]
 module_name = "agentic_proteins.domain.metrics"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.quality"]
 
 [[module]]
 module_name = "agentic_proteins.domain.metrics.compute"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics.compute"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.interpretation.structures"]
 
 [[module]]
 module_name = "agentic_proteins.domain.metrics.quality"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics.quality"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.quality"]
 
 [[module]]
 module_name = "agentic_proteins.domain.metrics.validation"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.domain.metrics.validation"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates.validation"]
 
 [[module]]
 module_name = "agentic_proteins.domain.sequence"

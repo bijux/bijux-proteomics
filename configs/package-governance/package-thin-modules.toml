@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 146
+max_total_thin_module_count = 143
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -979,49 +979,28 @@ public_class_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/_fingerprints.py"
-nonempty_line_count = 7
-public_function_count = 1
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/_hashing.py"
-nonempty_line_count = 6
-public_function_count = 1
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/candidates/filters.py"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/filters.py"
 nonempty_line_count = 21
 public_function_count = 1
 public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/candidates/transform.py"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/transform.py"
 nonempty_line_count = 18
 public_function_count = 1
 public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/structure/confidence.py"
-nonempty_line_count = 19
-public_function_count = 1
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/iterative_design/convergence.py"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/refinement/convergence.py"
 nonempty_line_count = 7
 public_function_count = 1
 public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/iterative_design/stagnation.py"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/refinement/stagnation.py"
 nonempty_line_count = 11
 public_function_count = 1
 public_class_count = 0

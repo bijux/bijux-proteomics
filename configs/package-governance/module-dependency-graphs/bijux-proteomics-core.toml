@@ -251,7 +251,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics.intelligence"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.analysis"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.reviews.boards", "bijux_proteomics_intelligence.reviews.candidates", "bijux_proteomics_intelligence.reviews.pathways"]
 
 [[module]]
 module_name = "bijux_proteomics.interfaces"

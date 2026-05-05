@@ -4,25 +4,37 @@
 [guard]
 max_runtime_edges = 3
 max_intelligence_edges = 3
-max_lab_edges = 1
-max_total_edges = 7
+max_lab_edges = 3
+max_total_edges = 9
 
 [[import]]
 importer_module_path = "execution/runtime_adapter.py"
 owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.runs"
+imported_module_name = "bijux_proteomics_runtime.runs.manager"
 imported_symbols = ["RunManager"]
 
 [[import]]
 importer_module_path = "execution/runtime_adapter.py"
 owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.runs"
+imported_module_name = "bijux_proteomics_runtime.runs.run_config"
 imported_symbols = ["RunConfig"]
 
 [[import]]
 importer_module_path = "intelligence/__init__.py"
 owner_distribution = "bijux-proteomics-intelligence"
-imported_module_name = "bijux_proteomics_intelligence.analytical_review"
+imported_module_name = "bijux_proteomics_intelligence.reviews.boards"
+imported_symbols = ["*"]
+
+[[import]]
+importer_module_path = "intelligence/__init__.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.reviews.candidates"
+imported_symbols = ["*"]
+
+[[import]]
+importer_module_path = "intelligence/__init__.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.reviews.pathways"
 imported_symbols = ["*"]
 
 [[import]]
@@ -33,18 +45,18 @@ imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_
 
 [[import]]
 importer_module_path = "lab/operations.py"
-owner_distribution = "bijux-proteomics-intelligence"
-imported_module_name = "bijux_proteomics_intelligence.follow_up_learning"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.reconciliation"
 imported_symbols = ["*"]
 
 [[import]]
 importer_module_path = "lab/planning.py"
-owner_distribution = "bijux-proteomics-intelligence"
-imported_module_name = "bijux_proteomics_intelligence.follow_up_learning"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.planning"
 imported_symbols = ["*"]
 
 [[import]]
 importer_module_path = "ptm/review.py"
 owner_distribution = "bijux-proteomics-lab"
-imported_module_name = "bijux_proteomics_lab.ptm_follow_up"
+imported_module_name = "bijux_proteomics_lab.handoffs.ptm"
 imported_symbols = ["build_ptm_lab_validation_packet"]

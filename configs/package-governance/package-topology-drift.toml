@@ -3,7 +3,7 @@
 
 [guard]
 max_total_top_level_root_file_count = 9
-max_total_undocumented_owner_family_count = 57
+max_total_undocumented_owner_family_count = 55
 max_total_stale_documented_path_count = 0
 max_total_historical_shape_count = 0
 
@@ -60,8 +60,8 @@ historical_shape_dominates_design = false
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 top_level_root_file_count = 0
-documented_owner_families = ["learning/iterative_design"]
-undocumented_owner_families = ["candidates", "design_loop", "domain", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+documented_owner_families = ["learning/refinement"]
+undocumented_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true
