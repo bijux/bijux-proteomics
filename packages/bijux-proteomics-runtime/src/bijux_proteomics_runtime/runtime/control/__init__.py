@@ -57,6 +57,13 @@ from bijux_proteomics_runtime.runtime.control.cleanup import (
     apply_runtime_cleanup_plan,
     build_runtime_cleanup_plan,
 )
+from bijux_proteomics_runtime.runtime.control.failure_reports import (
+    RuntimeFailureCategory,
+    RuntimeFailureReport,
+    build_runtime_failure_report,
+    classify_runtime_failure,
+    write_runtime_failure_report,
+)
 from bijux_proteomics_runtime.runtime.control.ledger import (
     ArtifactLedgerEntry,
     RuntimeArtifactLedger,
@@ -109,6 +116,8 @@ __all__ = [
     "ArtifactIntegrityReport",
     "ContainerRunBundle",
     "ExecutionSnapshots",
+    "RuntimeFailureCategory",
+    "RuntimeFailureReport",
     "FailureRecoveryArtifact",
     "ImportRunBundle",
     "LargeArtifactGuardDecision",
@@ -139,6 +148,7 @@ __all__ = [
     "build_container_run_bundle",
     "build_import_run_bundle",
     "build_import_trace",
+    "build_runtime_failure_report",
     "build_scheduler_job_bundle",
     "build_runtime_cleanup_plan",
     "build_runtime_failure_recovery_audit",
@@ -153,6 +163,7 @@ __all__ = [
     "claim_runtime_cache",
     "compare_runs",
     "compare_run_operation",
+    "classify_runtime_failure",
     "evaluate_replay_eligibility",
     "export_report_operation",
     "import_external_result_operation",
@@ -176,4 +187,5 @@ __all__ = [
     "run_reviewable_sequence_path",
     "run_sequence_operation",
     "verify_runtime_artifact_integrity",
+    "write_runtime_failure_report",
 ]
