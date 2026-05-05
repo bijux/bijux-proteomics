@@ -26,7 +26,7 @@
       "CUDA_VISIBLE_DEVICES": "0"
     },
     "artifact_dir": "artifacts/runtime-scheduler-review-1",
-    "command": "python -m bijux_proteomics_runtime.interfaces.cli run --provider local_esmfold"
+    "command": "python -m bijux_proteomics_runtime.api.cli run --provider local_esmfold"
   },
   "collected_logs": [
     "artifacts/slurm/runtime-review-1.out",

@@ -21,7 +21,7 @@ from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
-from .runtime_fixture_data import load_fixture
+from ..support.fixture_data import load_fixture
 
 
 def _fake_run_flow_from_fixture(fixture: dict[str, object]):

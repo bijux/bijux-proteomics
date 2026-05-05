@@ -8,7 +8,7 @@ from typing import Any
 def fixture_path(*parts: str) -> Path:
     """Return one runtime test fixture path."""
 
-    return Path(__file__).resolve().parent / "fixtures" / Path(*parts)
+    return Path(__file__).resolve().parents[1] / "fixtures" / Path(*parts)
 
 
 def load_fixture(*parts: str) -> dict[str, Any]:

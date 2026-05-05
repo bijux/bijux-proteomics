@@ -7,7 +7,7 @@
     "container_image_digest": "sha256:gpu-review-digest",
     "execution_mode": "cpu",
     "tool_versions": {
-      "heuristic_proxy": "0.1"
+      "heuristic_proxy": "v1"
     }
   },
   "expected_enabled_predictors": [
@@ -22,7 +22,7 @@
   "smoke_command": [
     "python3",
     "-m",
-    "bijux_proteomics_runtime.interfaces.cli",
+    "bijux_proteomics_runtime.api.cli",
     "--help"
   ],
   "expected_smoke_artifacts": [
