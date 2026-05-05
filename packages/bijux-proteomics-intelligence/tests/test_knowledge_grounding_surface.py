@@ -9,7 +9,7 @@ from bijux_proteomics_knowledge.references.benchmarks import (
 from bijux_proteomics_knowledge.references.briefings import (
     build_workflow_reference_briefing,
 )
-from bijux_proteomics_knowledge.references.decision_rules import (
+from bijux_proteomics_knowledge.references.rules import (
     build_ranking_rule_grounding_ledger,
 )
 from bijux_proteomics_knowledge.references.narratives import (

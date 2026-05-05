@@ -4,15 +4,13 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
-from bijux_proteomics_knowledge.references.decision_rules import (
-    GroundedDecisionRule,
-    RankingRuleGroundingLedger,
-    build_ranking_rule_grounding_ledger,
-)
 from bijux_proteomics_knowledge.references.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
-    KnowledgeRuleDomain,
+    GroundedDecisionRule,
+    build_ranking_rule_grounding_ledger,
+    RankingRuleGroundingLedger,
 )
+from bijux_proteomics_knowledge.references.rules import KnowledgeRuleDomain
 
 
 def test_scientific_rule_registry_covers_needed_domains() -> None:

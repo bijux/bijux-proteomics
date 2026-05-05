@@ -229,16 +229,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Corpus manifests distinguish bundled fixtures from external scientific sources.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/decision_rules.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(
-            KnowledgeCharterCapability.REFERENCES,
-            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
-            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        ),
-        reason="Decision-rule grounding ties benchmark-backed ranking logic to explicit scientific references.",
-    ),
-    KnowledgeModuleAuditEntry(
         module_path="references/literature.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
@@ -296,7 +286,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
             KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
-        reason="Scientific rules translate reference and benchmark grounding into reusable interpretation boundaries.",
+        reason="Scientific rules and grounded judgment ledgers translate reference provenance into reusable interpretation boundaries.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="queries.py",

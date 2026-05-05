@@ -37,7 +37,7 @@ from bijux_proteomics_knowledge.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references.decision_rules import (
+from bijux_proteomics_knowledge.references.rules import (
     build_ranking_rule_grounding_ledger,
 )
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily

@@ -32,7 +32,7 @@ from bijux_proteomics_intelligence.review_packets import (
     ComparativeCandidateReviewPacket,
     build_comparative_candidate_review_packet,
 )
-from bijux_proteomics_knowledge.references.decision_rules import (
+from bijux_proteomics_knowledge.references.rules import (
     build_ranking_rule_grounding_ledger,
 )
 from bijux_proteomics_knowledge.evidence import (
