@@ -10,24 +10,26 @@ from bijux_proteomics.io.formats import (
     ExperimentalDesignSampleRole,
     parse_experimental_design_table,
 )
-from bijux_proteomics_lab import (
+from bijux_proteomics_lab.design import (
     CarryoverRiskLevel,
     DesignContrastRejectionReason,
-    InstrumentMethodMetadata,
-    ProtocolControlRequirement,
-    ProtocolFailureCaveat,
     MultiplexChannelRole,
-    SamplePreparationMetadata,
     assess_carryover_risk,
     build_fractionation_plan,
-    build_lab_protocol_evidence_bundle,
     build_power_analysis_advisory,
-    build_protocol_attachment,
     build_sample_tracking_plate_advisory,
     plan_batch_randomization,
     plan_multiplex_labeling,
     plan_spike_in_qc_samples,
     validate_experiment_design,
+)
+from bijux_proteomics_lab.design.protocols import (
+    InstrumentMethodMetadata,
+    ProtocolControlRequirement,
+    ProtocolFailureCaveat,
+    SamplePreparationMetadata,
+    build_lab_protocol_evidence_bundle,
+    build_protocol_attachment,
 )
 
 

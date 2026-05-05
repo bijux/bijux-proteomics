@@ -3,20 +3,22 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_lab import (
+from bijux_proteomics_lab.design.protocols import (
+    InstrumentMethodMetadata,
+    ProtocolControlRequirement,
+    ProtocolFailureCaveat,
+    SamplePreparationMetadata,
+    build_protocol_attachment,
+)
+from bijux_proteomics_lab.handoffs import (
     AlternativeAssayPlanOption,
     HandoffExplanation,
     HandoffSupportLevel,
     HandoffSupportStatement,
-    LabExecutionRequest,
-    ProtocolControlRequirement,
-    ProtocolFailureCaveat,
-    SamplePreparationMetadata,
-    InstrumentMethodMetadata,
     build_lims_export_bundle,
-    build_protocol_attachment,
     compare_alternative_assay_plans,
 )
+from bijux_proteomics_lab.planning import LabExecutionRequest
 
 
 def _protocol_attachment():

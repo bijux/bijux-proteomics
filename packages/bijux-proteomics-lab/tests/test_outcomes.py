@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from bijux_proteomics_lab import (
+from bijux_proteomics_lab.outcomes import (
     AcceptanceOperator,
     AssayAcceptanceRule,
     AssayCategory,
@@ -16,15 +16,11 @@ from bijux_proteomics_lab import (
     BatchPromotionPolicy,
     ExperimentOutcome,
     FailureClass,
-    LabFeedbackQuery,
-    LabFeedbackRecord,
     ObservationQualityProfile,
     OutcomePromotionPolicy,
     OutcomeReliabilityTier,
     QcState,
     RerunPolicy,
-    ReviewQueueEntry,
-    ReviewQueueQuery,
     assess_batch_outcome,
     assess_evidence_promotion_readiness,
     assess_observation_quality,
@@ -32,27 +28,33 @@ from bijux_proteomics_lab import (
     build_batch_readiness_matrix,
     build_batch_rerun_plan,
     consolidate_claim_belief_updates,
-    detect_feedback_anomalies,
     evaluate_assay_acceptance,
-    forecast_cycle_workload,
     generate_feedback_records_from_outcome,
     promote_batch_outcome_to_evidence,
     promote_outcome_to_evidence,
-    query_feedback_records,
-    query_review_queue,
     recommend_claim_belief_deltas,
     recommend_rerun_policy,
     summarize_experiment_outcome,
-    summarize_feedback_cycle_latency,
-    summarize_feedback_lineage_coverage,
-    summarize_feedback_trend,
     summarize_observation,
-    summarize_review_queue,
-    summarize_review_queue_sla,
-    summarize_review_queue_workload,
     triage_assay_failure,
     triage_batch_failures,
     validate_assay_observation_record,
+)
+from bijux_proteomics_lab.repositories import (
+    LabFeedbackQuery,
+    LabFeedbackRecord,
+    ReviewQueueEntry,
+    ReviewQueueQuery,
+    detect_feedback_anomalies,
+    forecast_cycle_workload,
+    query_feedback_records,
+    query_review_queue,
+    summarize_feedback_cycle_latency,
+    summarize_feedback_lineage_coverage,
+    summarize_feedback_trend,
+    summarize_review_queue,
+    summarize_review_queue_sla,
+    summarize_review_queue_workload,
 )
 
 

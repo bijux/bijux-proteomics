@@ -12,7 +12,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceRecord,
     EvidenceStrength,
 )
-from bijux_proteomics_lab import summarize_workflow_readiness
+from bijux_proteomics_lab.readiness import summarize_workflow_readiness
 
 
 def test_summarize_workflow_readiness_surfaces_missing_assay_and_reviews() -> None:

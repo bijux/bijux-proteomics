@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics_lab import (
+from bijux_proteomics_lab.lifecycle import (
     AssayLifecycleStage,
     AssayLifecycleState,
     CandidateLabAdvancementDisposition,

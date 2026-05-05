@@ -7,21 +7,27 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-from bijux_proteomics_lab import (
+from bijux_proteomics_lab.design import SampleTrackingPlateAdvisory
+from bijux_proteomics_lab.handoffs import (
     AlternativeAssayPlanOption,
-    CandidateHandoffValidation,
-    ExecutableAssayPlan,
-    ExperimentOutcome,
-    OperationalFollowUpPath,
-    ReviewPacket,
-    ReviewQueueDecision,
-    SampleTrackingPlateAdvisory,
     TargetedTransitionReview,
-    WorkflowReadinessSummary,
-    build_operational_follow_up_path,
-    compare_alternative_assay_plans,
     build_handoff_explanation,
+    compare_alternative_assay_plans,
     refuse_irresponsible_assay_handoff,
+)
+from bijux_proteomics_lab.lifecycle import (
+    CandidateHandoffValidation,
+    ReviewQueueDecision,
+)
+from bijux_proteomics_lab.outcomes import ExperimentOutcome
+from bijux_proteomics_lab.planning import (
+    ExecutableAssayPlan,
+    ReviewPacket,
+)
+from bijux_proteomics_lab.readiness.workflow import WorkflowReadinessSummary
+from bijux_proteomics_lab.reconciliation import (
+    OperationalFollowUpPath,
+    build_operational_follow_up_path,
 )
 
 

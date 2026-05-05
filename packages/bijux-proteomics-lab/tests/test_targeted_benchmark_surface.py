@@ -18,33 +18,40 @@ from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFa
 from bijux_proteomics_knowledge.references.workflow_queries import (
     get_benchmark_manifest,
 )
-from bijux_proteomics_lab import (
-    AssayOutcome,
-    AssayResultState,
-    ExecutableAssayPlan,
-    ExperimentOutcome,
-    InstrumentMethodMetadata,
-    OperationalFollowUpPath,
-    ProtocolControlRequirement,
-    ProtocolFailureCaveat,
-    ReviewPacket,
-    SamplePreparationMetadata,
+from bijux_proteomics_lab.benchmarks import (
     TargetedBenchmarkClaimSupport,
     TargetedExternalReviewReport,
     TargetedFailureRehearsalReport,
     TargetedBenchmarkReport,
     TargetedOperatorRunReport,
-    TargetedTransitionReview,
     build_targeted_external_review_report,
     build_targeted_failure_rehearsal,
-    build_handoff_explanation,
-    build_lims_export_bundle,
-    build_operational_follow_up_path,
-    build_protocol_attachment,
     build_targeted_benchmark_report,
     build_targeted_operator_run_report,
 )
+from bijux_proteomics_lab.design.protocols import (
+    InstrumentMethodMetadata,
+    ProtocolControlRequirement,
+    ProtocolFailureCaveat,
+    SamplePreparationMetadata,
+    build_protocol_attachment,
+)
+from bijux_proteomics_lab.handoffs import (
+    TargetedTransitionReview,
+    build_handoff_explanation,
+    build_lims_export_bundle,
+)
 from bijux_proteomics_lab.lifecycle import CandidateHandoffValidation
+from bijux_proteomics_lab.outcomes import (
+    AssayOutcome,
+    AssayResultState,
+    ExperimentOutcome,
+)
+from bijux_proteomics_lab.planning import ExecutableAssayPlan, ReviewPacket
+from bijux_proteomics_lab.reconciliation import (
+    OperationalFollowUpPath,
+    build_operational_follow_up_path,
+)
 
 
 def _repo_root() -> Path:

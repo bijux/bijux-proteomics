@@ -6,4 +6,4 @@
 from __future__ import annotations
 
 from bijux_proteomics_lab.design.experiments import *  # noqa: F401,F403
-
+from bijux_proteomics_lab.design.protocols import *  # noqa: F401,F403

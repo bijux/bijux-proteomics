@@ -16,13 +16,13 @@ from bijux_proteomics_foundation.compatibility import (
 )
 from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.schema import evaluate_schema_compatibility
-from bijux_proteomics_lab import (
-    ExperimentPlan,
+from bijux_proteomics_lab.handoffs.artifacts import (
     build_canonical_artifact_envelope,
     build_lab_schema_upgrade_advisory,
     evaluate_lab_artifact_with_registry,
     verify_canonical_artifact_envelope,
 )
+from bijux_proteomics_lab.planning.assays import ExperimentPlan
 
 __all__ = [
     "PackageSerializationCompatibilityResult",

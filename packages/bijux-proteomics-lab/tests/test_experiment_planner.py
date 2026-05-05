@@ -16,34 +16,32 @@ from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceRecord,
     EvidenceStrength,
 )
-from bijux_proteomics_lab import (
+from bijux_proteomics_lab.outcomes import (
+    AssayOutcome,
+    AssayResultState,
+    ExperimentOutcome,
+    RerunPolicy,
+)
+from bijux_proteomics_lab.planning import (
     AdvisoryAssayPlan,
     AssayDependency,
     AssayFamily,
     AssayIntent,
     AssayObservation,
-    AssayOutcome,
     AssayPlanKind,
-    AssayResultState,
     CandidatePrioritySignal,
     ConflictAssayPolicy,
     ExecutableAssayPlan,
     ExperimentBatch,
-    ExperimentOutcome,
     ExperimentPlan,
     FamilyCapacity,
     InstrumentAvailability,
     LabCapacity,
-    OperationalReadinessReport,
     MaterialInventory,
     MaterialRequirement,
     OrthogonalPolicy,
     PlanningPolicy,
     ProgressDecision,
-    ReagentAvailability,
-    ReviewBacklogSnapshot,
-    RerunPolicy,
-    StaffingAvailability,
     align_lab_priority_queue,
     assay_family_priority,
     assess_dependency_integrity,
@@ -56,7 +54,6 @@ from bijux_proteomics_lab import (
     build_lab_cycle_brief,
     build_lab_execution_request,
     build_lab_review_packet_bundle,
-    build_operational_readiness_report,
     build_review_packet,
     build_review_risk_profile,
     build_workflow_batch_outline,
@@ -86,6 +83,13 @@ from bijux_proteomics_lab import (
     summarize_assay_portfolio_balance,
     summarize_schedule_pressure,
     validate_experiment_plan,
+)
+from bijux_proteomics_lab.readiness import (
+    OperationalReadinessReport,
+    ReagentAvailability,
+    ReviewBacklogSnapshot,
+    StaffingAvailability,
+    build_operational_readiness_report,
 )
 
 

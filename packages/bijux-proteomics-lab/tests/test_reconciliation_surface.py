@@ -3,15 +3,15 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_lab import (
+from bijux_proteomics_lab.outcomes import (
     AssayOutcome,
     AssayResultState,
     ExperimentOutcome,
     FailureClass,
-    LabExecutionRequest,
     RerunPolicy,
-    reconcile_planned_and_observed_outcome,
 )
+from bijux_proteomics_lab.planning import LabExecutionRequest
+from bijux_proteomics_lab.reconciliation import reconcile_planned_and_observed_outcome
 
 
 def test_reconcile_planned_and_observed_outcome_emits_feedback_signal() -> None:

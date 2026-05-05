@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_lab import (
-    AssayRiskCode,
-    TransitionReviewDisposition,
+from bijux_proteomics_lab.handoffs.packets import (
     TargetedTransitionCandidate,
-    assess_assay_risk,
+    TransitionReviewDisposition,
     review_targeted_transition_candidates,
+)
+from bijux_proteomics_lab.handoffs.risk import (
+    AssayRiskCode,
+    assess_assay_risk,
 )
 
 

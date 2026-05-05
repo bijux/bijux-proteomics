@@ -6,4 +6,4 @@
 from __future__ import annotations
 
 from bijux_proteomics_lab.readiness.operations import *  # noqa: F401,F403
-
+from bijux_proteomics_lab.readiness.workflow import *  # noqa: F401,F403

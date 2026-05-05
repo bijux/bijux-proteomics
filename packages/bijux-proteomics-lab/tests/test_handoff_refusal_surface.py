@@ -3,20 +3,22 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_lab import (
-    AdvancementEvidencePacket,
-    CandidateHandoffValidation,
-    ExecutableAssayInstruction,
-    ExecutableAssayPlan,
+from bijux_proteomics_lab.handoffs import (
     HandoffSupportLevel,
-    ReviewPacket,
     TargetedTransitionReview,
     TargetedTransitionReviewEntry,
     TransitionReviewDisposition,
     build_handoff_explanation,
     refuse_irresponsible_assay_handoff,
 )
-from bijux_proteomics_lab.risk import AssayRiskAssessment
+from bijux_proteomics_lab.handoffs.risk import AssayRiskAssessment
+from bijux_proteomics_lab.lifecycle import CandidateHandoffValidation
+from bijux_proteomics_lab.planning import (
+    AdvancementEvidencePacket,
+    ExecutableAssayInstruction,
+    ExecutableAssayPlan,
+    ReviewPacket,
+)
 
 
 def _review_packet() -> ReviewPacket:
