@@ -11,6 +11,12 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from bijux_proteomics_runtime.runtime.context.contracts import (
+    RuntimeArtifactPolicy,
+    RuntimeEnvironmentIdentity,
+    build_runtime_environment,
+    default_runtime_artifact_policy,
+)
 from bijux_proteomics_runtime.runtime.infra import RunConfig
 from bijux_proteomics_runtime.runtime.infra.observability import (
     NoopStructuredLogger,
@@ -31,6 +37,8 @@ class RunContext:
     logger: StructuredLogger
     telemetry: TelemetryClient
     workspace: RunWorkspace
+    environment: RuntimeEnvironmentIdentity
+    artifact_policy: RuntimeArtifactPolicy
 
 
 def create_run_context(
@@ -54,6 +62,8 @@ def create_run_context(
         else NoopStructuredLogger()
     )
     telemetry = TelemetryClient(run_id=run_id, metrics_path=workspace.telemetry_path)
+    environment = build_runtime_environment(base_dir)
+    artifact_policy = default_runtime_artifact_policy(workspace.artifacts_root)
     return RunContext(
         run_id=run_id,
         start_time=start_time,
@@ -62,4 +72,6 @@ def create_run_context(
         logger=logger,
         telemetry=telemetry,
         workspace=workspace,
+        environment=environment,
+        artifact_policy=artifact_policy,
     ), warnings

@@ -121,9 +121,39 @@ class RunWorkspace:
         return self.run_dir / "run_output.json"
 
     @property
+    def run_context_path(self) -> Path:
+        """run_context_path."""
+        return self.run_dir / "run_context.json"
+
+    @property
     def error_path(self) -> Path:
         """error_path."""
         return self.run_dir / "error.json"
+
+    @property
+    def failure_report_path(self) -> Path:
+        """failure_report_path."""
+        return self.run_dir / "failure_report.json"
+
+    @property
+    def artifact_ledger_path(self) -> Path:
+        """artifact_ledger_path."""
+        return self.run_dir / "artifact_ledger.json"
+
+    @property
+    def replay_contract_path(self) -> Path:
+        """replay_contract_path."""
+        return self.run_dir / "replay_contract.json"
+
+    @property
+    def local_run_bundle_path(self) -> Path:
+        """local_run_bundle_path."""
+        return self.run_dir / "local_run_bundle.json"
+
+    @property
+    def preflight_report_path(self) -> Path:
+        """preflight_report_path."""
+        return self.run_dir / "preflight_report.json"
 
     @property
     def lifecycle_path(self) -> Path:
