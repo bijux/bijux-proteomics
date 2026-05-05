@@ -63,12 +63,11 @@ pip install bijux-proteomics-knowledge
 ## Quick start
 
 ```python
-from bijux_proteomics_knowledge import evidence, claims, resolution, graph
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, evidence_gaps
+from bijux_proteomics_knowledge.memory.claims import build_claim
+from bijux_proteomics_knowledge.reviews.packets import build_knowledge_review_packet
+from bijux_proteomics_knowledge.references.briefings import (
     build_workflow_reference_briefing,
-    get_benchmark_manifest,
-    list_scientific_rules,
-    resolve_ontology_mapping,
 )
 ```
 
@@ -76,7 +75,7 @@ from bijux_proteomics_knowledge.references import (
 
 - Distribution name: `bijux-proteomics-knowledge`
 - Import root: `bijux_proteomics_knowledge`
-- Stable entrypoints: `evidence`, `claims`, `resolution`, `graph`, `review`, and `references`
+- Stable entrypoints: `memory.evidence`, `memory.claims`, `memory.resolution`, `reviews.packets`, `schema`, and `references`
 
 ## Package boundaries
 
@@ -97,7 +96,7 @@ The package boundary is justified by five grounded capabilities:
 - scientific context
 
 Everything else in the package exists to turn those capabilities into auditable scientific memory:
-evidence bundles, claim state, review packets, conflict resolution, and reference-backed query surfaces.
+`memory/` owns evidence and claim semantics, `reviews/` owns reviewer-facing read paths, and `references/` owns grounded curation surfaces.
 
 ## Contract checkpoints
 
@@ -110,7 +109,7 @@ evidence bundles, claim state, review packets, conflict resolution, and referenc
 
 ## Curated scientific reference surfaces
 
-- `references` exposes citation registries, ontology mappings, benchmark manifests, corpus manifests, scientific rule mappings, and read-only lookup helpers
+- `references` exposes a curated public slice for benchmark manifests, workflow briefings, ontology resolution, scientific rule references, and context entries
 - `references` also exposes scientific context entries, known-problem registries, literature groups, workflow claim and limitation narratives, and workflow briefing packets for downstream consumers
 - bundled fixture corpora stay distinct from external scientific references so reproducibility claims remain auditable
 - scientific rules carry explicit citation and benchmark context instead of relying on package-local assumptions
@@ -176,12 +175,13 @@ evidence bundles, claim state, review packets, conflict resolution, and referenc
 
 ## Source guide
 
-- [`src/bijux_proteomics_knowledge/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py) for evidence models, scoring, and contradiction detection
-- [`src/bijux_proteomics_knowledge/resolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py) for conflict-resolution policies
-- [`src/bijux_proteomics_knowledge/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/graph.py) for evidence-graph validation rules
-- [`src/bijux_proteomics_knowledge/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py) for claim modeling and knowledge-gap audits
-- [`src/bijux_proteomics_knowledge/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/ingestion.py) for normalization of external evidence into knowledge-owned bundle records
-- [`src/bijux_proteomics_knowledge/queries.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/queries.py) for read-only scientific memory filtering over claims, evidence records, and resolution history
+- [`src/bijux_proteomics_knowledge/memory/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py) for evidence models, scoring, contradiction detection, and memory quality audits
+- [`src/bijux_proteomics_knowledge/memory/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/claims.py) for claim modeling, lineage, and knowledge-gap audits
+- [`src/bijux_proteomics_knowledge/memory/resolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/resolution.py) for conflict-resolution policies over shared scientific memory
+- [`src/bijux_proteomics_knowledge/memory/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/graph.py) for evidence-graph validation rules and decision tracing
+- [`src/bijux_proteomics_knowledge/memory/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/ingestion.py) for normalization of external evidence into knowledge-owned memory records
+- [`src/bijux_proteomics_knowledge/reviews/queries.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/queries.py) for read-only scientific memory filtering over claims, evidence records, and resolution history
+- [`src/bijux_proteomics_knowledge/reviews/packets.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/packets.py) for reviewer-facing packets, graph explanations, and multi-decision summaries
 - [`src/bijux_proteomics_knowledge/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/charter.py) for the machine-readable package charter and module audit
 - [`src/bijux_proteomics_knowledge/references/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references) for curated citations, ontology mappings, benchmark manifests, corpus manifests, scientific rules, and read-only query helpers
 - [`src/bijux_proteomics_knowledge/references/briefings.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/briefings.py) for workflow-level claim, limitation, context, literature, problem, and rule packets that preserve provenance for downstream consumers

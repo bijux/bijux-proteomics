@@ -101,7 +101,8 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
         required_modules=(
             "references/contexts.py",
             "references/briefings.py",
-            "review.py",
+            "reviews/packets.py",
+            "reviews/queries.py",
         ),
         release_blocker="Knowledge cannot ship if downstream packages would need to recreate caveats or scope context locally.",
     ),
@@ -115,6 +116,11 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="The package root is an export surface and deliberately forwards stable scientific memory entrypoints.",
     ),
     KnowledgeModuleAuditEntry(
+        module_path="claims.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The flat claim path is kept only as a compatibility shim over knowledge memory owners.",
+    ),
+    KnowledgeModuleAuditEntry(
         module_path="charter.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
@@ -124,7 +130,27 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="The machine-readable charter keeps package ownership explicit and reviewable.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="claims.py",
+        module_path="evidence.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The flat evidence path is kept only as a compatibility shim over knowledge memory owners.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="graph.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The flat evidence-graph path is kept only as a compatibility shim over knowledge memory owners.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="ingestion.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The flat ingestion path is kept only as a compatibility shim over knowledge memory owners.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="memory/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The memory package root groups durable owner modules without adding separate curation logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="memory/claims.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -133,7 +159,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Claim semantics are the reviewable memory layer built on curated references and caveats.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="evidence.py",
+        module_path="memory/evidence.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -143,25 +169,19 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Evidence memory keeps benchmark and context provenance attached to scientific records.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="graph.py",
+        module_path="memory/graph.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
         reason="Graph explanations turn curated evidence memory into reviewable decision traces.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="ingestion.py",
+        module_path="memory/ingestion.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Ingestion normalizes external evidence into knowledge-owned memory records without runtime adapter ownership.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="queries.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
-        reason="Structured queries expose scientific memory retrieval without persistence ownership leakage.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="references/__init__.py",
@@ -207,6 +227,16 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.CURATED_CORPORA,),
         reason="Corpus manifests distinguish bundled fixtures from external scientific sources.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/decision_rules.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Decision-rule grounding ties benchmark-backed ranking logic to explicit scientific references.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="references/literature.py",
@@ -269,7 +299,27 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Scientific rules translate reference and benchmark grounding into reusable interpretation boundaries.",
     ),
     KnowledgeModuleAuditEntry(
+        module_path="queries.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The flat review-query path is kept only as a compatibility shim over reviewer-facing owners.",
+    ),
+    KnowledgeModuleAuditEntry(
         module_path="resolution.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The flat resolution path is kept only as a compatibility shim over knowledge memory owners.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="review.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The flat review-packet path is kept only as a compatibility shim over reviewer-facing owners.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="reviews/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The reviews package root groups reviewer-facing owner modules without adding separate curation logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="memory/resolution.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -278,13 +328,19 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Resolution logic preserves how conflicting scientific memory gets reviewed instead of silently overwritten.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="review.py",
+        module_path="reviews/packets.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Review packets are the package's downstream scientific-memory handoff surface.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="reviews/queries.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
+        reason="Structured review queries expose scientific memory retrieval without curation-storage leakage.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="schema.py",

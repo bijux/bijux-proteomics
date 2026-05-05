@@ -54,11 +54,23 @@ def test_knowledge_module_audit_rejects_duplicate_and_wrong_owner_entries() -> N
     assert duplicate_or_wrong == {}
 
 
-def test_only_package_aggregators_remain_thin_placeholders() -> None:
+def test_knowledge_thin_modules_are_only_roots_and_compatibility_wrappers() -> None:
     thin_placeholders = {
         entry.module_path
         for entry in DEFAULT_KNOWLEDGE_MODULE_AUDIT
         if entry.classification is KnowledgeModuleClassification.THIN_PLACEHOLDER
     }
 
-    assert thin_placeholders == {"__init__.py", "references/__init__.py"}
+    assert thin_placeholders == {
+        "__init__.py",
+        "claims.py",
+        "evidence.py",
+        "graph.py",
+        "ingestion.py",
+        "memory/__init__.py",
+        "queries.py",
+        "references/__init__.py",
+        "resolution.py",
+        "review.py",
+        "reviews/__init__.py",
+    }

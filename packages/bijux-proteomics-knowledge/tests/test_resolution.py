@@ -15,7 +15,6 @@ from bijux_proteomics_knowledge.memory.evidence import (
     QuantitativeSupport,
 )
 from bijux_proteomics_knowledge.memory.resolution import (
-    ClaimStatus,
     ContradictoryInterpretationCase,
     ContradictoryInterpretationComparison,
     ResolutionAction,
