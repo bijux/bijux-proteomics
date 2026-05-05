@@ -896,7 +896,11 @@ class RunManager:
         )
         write_runtime_preflight_report(context.workspace, preflight_report)
         if not preflight_report.passed:
-            preflight_messages = [check.message for check in preflight_report.checks]
+            preflight_messages = [
+                detail_code
+                for check in preflight_report.checks
+                for detail_code in check.detail_codes
+            ] or [check.message for check in preflight_report.checks]
             return self._fail_fast(
                 context,
                 preflight_messages,
@@ -1300,7 +1304,11 @@ class RunManager:
         )
         write_runtime_preflight_report(context.workspace, preflight_report)
         if not preflight_report.passed:
-            preflight_messages = [check.message for check in preflight_report.checks]
+            preflight_messages = [
+                detail_code
+                for check in preflight_report.checks
+                for detail_code in check.detail_codes
+            ] or [check.message for check in preflight_report.checks]
             return self._fail_fast(
                 context,
                 preflight_messages,
