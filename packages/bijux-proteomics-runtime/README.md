@@ -102,9 +102,9 @@ instead of widening `bijux_proteomics_runtime` into a convenience bucket.
 - Distribution name: `bijux-proteomics-runtime`
 - Import root: `bijux_proteomics_runtime`
 - Canonical workflow CLI command: `bijux-proteomics-runtime`
-- Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
-- Execution charter: `src/bijux_proteomics_runtime/charter.py`
-- First-level owner families: `runs/`, `workflows/`, `providers/`, `api/`, `interfaces/`, `agents/`, `execution/`, `tools/`, `memory/`, `state/`, and `runtime/`
+- Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `api.cli:cli`
+- Execution charter: `src/bijux_proteomics_runtime/governance/charter.py`
+- First-level owner families: `api/`, `providers/`, `runs/`, `workflows/`, `state/`, `support/`, `execution/`, `agents/`, `runtime/`, `core/`, `sandbox/`, and `governance/`
 - Compatibility forwarding lives in `agentic-proteins`; the canonical runtime package keeps only owner paths
 
 ## Package boundaries
@@ -116,7 +116,7 @@ remain in their dedicated lower-layer packages.
 
 ## Execution charter
 
-- `charter.py` defines the exact runtime-owned capability boundary and classifies every source module against it
+- `governance/charter.py` defines the exact runtime-owned capability boundary and classifies every source module against it
 - runtime only owns canonical entrypoints, provider binding, workflow execution, replay and recovery, and reviewable run outputs
 - modules that cannot be defended against that charter should move out of runtime or be deleted rather than hardening into generic infrastructure
 
@@ -143,7 +143,7 @@ Non-goals for these surfaces:
 
 ## Canonical owner imports
 
-- `bijux_proteomics_runtime.interfaces.cli` for CLI contracts and operator-safe command output
+- `bijux_proteomics_runtime.api.cli` for CLI contracts and operator-safe command output
 - `bijux_proteomics_runtime.api.app` for `AppConfig`, FastAPI construction, and request-scoped runtime wiring
 - `bijux_proteomics_runtime.api.routes.runtime_execution` for runtime execution HTTP routes
 - `bijux_proteomics_runtime.runs.manager` for canonical execution coordination
@@ -295,8 +295,8 @@ result = OperationResult.success(
 
 - [`src/bijux_proteomics_runtime/runs`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs) for typed run contracts, canonical run operations, and execution ownership
 - [`src/bijux_proteomics_runtime/workflows`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows) for workflow planning, reproducibility, and reviewable path manifests
-- [`src/bijux_proteomics_runtime/charter.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/charter.py) for the machine-readable execution charter and module audit
-- [`src/bijux_proteomics_runtime/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces) for CLI contracts
+- [`src/bijux_proteomics_runtime/governance/charter.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/charter.py) for the machine-readable execution charter and module audit
+- [`src/bijux_proteomics_runtime/api/cli.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py) for CLI contracts
 - [`src/bijux_proteomics_runtime/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api) for HTTP entrypoints
 - [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider binding, capability gates, and provider execution support
 - [`src/bijux_proteomics_runtime/runtime`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime) for internal workspace and transport contracts only

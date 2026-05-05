@@ -27,10 +27,10 @@ Runtime-owned capabilities:
 
 ## Execution charter
 
-- canonical entrypoints: `interfaces/cli.py`, `api/app.py`, `api/v1/endpoints/`, and `runs/operations.py`
+- canonical entrypoints: `api/cli.py`, `api/app.py`, `api/v1/endpoints/`, and `runs/manager.py`
 - provider binding: `providers/base.py`, `providers/factory.py`, `providers/capabilities.py`, and `providers/support.py`
-- workflow execution: `runs/manager.py`, `workflows/paths.py`, `workflows/plans.py`, `agents/`, `execution/`, and `tools/`
-- replay and recovery: `runs/replay.py`, `runs/reruns.py`, `runs/recovery.py`, `runs/preflight.py`, `memory/`, `state/`, and `runtime/workspace.py`
+- workflow execution: `runs/manager.py`, `workflows/paths.py`, `workflows/plans.py`, `agents/`, `execution/`, and `execution/tools/`
+- replay and recovery: `runs/replay.py`, `runs/reruns.py`, `runs/recovery.py`, `runs/preflight.py`, `state/`, `support/`, and `runtime/workspace.py`
 - reviewable outputs: `api/catalog.py`, `runs/contracts.py`, `runs/import_lineage.py`, `runs/launch_bundles.py`, `runs/failure_reports.py`, and `workflows/paths.py`
 
 ## Execution model
@@ -59,15 +59,16 @@ flowchart TD
 
 ## Module topology
 
-- `charter.py` owns the machine-readable execution charter and release-blocking module audit
-- `interfaces/` owns CLI-facing runtime contracts
+- `governance/charter.py` owns the machine-readable execution charter and release-blocking module audit
 - `api/` owns FastAPI assembly, request logging, `api/routes/`, and `api/v1/endpoints/`
+- `api/cli.py` owns the canonical CLI contract and operator-safe command output
 - `runs/` owns run identity, run config, preflight, recovery, decisions, lineage, bundles, and typed execution context
 - `workflows/` owns workflow planning, reproducibility, smoke workflow catalogs, and reviewable path manifests
 - `providers/` owns provider binding, capability gates, provider metadata, and provider execution support
 - `runtime/` holds only internal workspace and transport contracts that do not belong to the run-owned families
-- `agents/`, `execution/`, and `tools/` own runtime-local execution planning and coordination support
-- `memory/` and `state/` own replayable state, history, and review-safe persistence contracts
+- `agents/` and `execution/` own runtime-local execution planning and coordination support
+- `state/` owns replayable state, history, and review-safe persistence contracts, including the former memory records and store surfaces
+- `support/` owns package support surfaces such as runtime identity and shared test/support contracts
 
 ## Route owners
 
@@ -119,7 +120,7 @@ New orchestration features should land here before compat forwarding in
 
 - add code here when a new concern changes canonical operator entrypoints,
   provider binding, replay safety, or orchestration coordination
-- extend `interfaces/`, `api/routes/`, `api/v1/endpoints/`, `runs/`,
+- extend `api/cli.py`, `api/routes/`, `api/v1/endpoints/`, `runs/`,
   `workflows/`, or `providers/` before compat or lower packages invent
   runtime-local entrypoints
 - keep new transport and orchestration behavior here when it changes how

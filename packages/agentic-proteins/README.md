@@ -70,7 +70,7 @@ agentic-proteins --help
 Prefer canonical imports for new integrations:
 
 ```python
-from bijux_proteomics_runtime.interfaces.cli import cli
+from bijux_proteomics_runtime.api.cli import cli
 ```
 
 Legacy imports continue to work via forwarding:

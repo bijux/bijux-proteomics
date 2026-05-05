@@ -8,11 +8,11 @@ integrators can rely on at the canonical execution boundary.
 - Distribution name: `bijux-proteomics-runtime`
 - Import root: `bijux_proteomics_runtime`
 - Canonical CLI command: `bijux-proteomics-runtime`
-- Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
+- Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `api.cli:cli`
 
 ## Stable contracts
 
-- `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical workflow CLI entrypoint.
+- `bijux_proteomics_runtime.api.cli:cli` is the canonical workflow CLI entrypoint.
 - `bijux_proteomics_runtime.api.app:create_app` exposes the canonical FastAPI app constructor.
 - `bijux_proteomics_runtime.runs.manager:RunManager` remains the canonical orchestration root.
 - `bijux_proteomics_runtime.workflows.paths:run_reviewable_sequence_path` publishes the canonical reviewable sequence-run manifest.
