@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-
-import bijux_proteomics_lab
+import tomllib
 
 from bijux_proteomics_dev.api.foundation_root_consumers import REPO_ROOT
 from bijux_proteomics_dev.api.lab_analytical_logic import validate_lab_analytical_logic
@@ -101,6 +100,12 @@ def _combined_docs() -> str:
     return "\n".join(path.read_text(encoding="utf-8") for path in LAB_DOC_PATHS).lower()
 
 
+def _root_entrypoint_count() -> int:
+    with LAB_ROOT_API_POLICY.open("rb") as handle:
+        policy = tomllib.load(handle)
+    return len(policy["symbol"])
+
+
 def build_lab_publishability_report() -> LabPublishabilityReport:
     """Build the checked publishability report for lab."""
 
@@ -126,8 +131,9 @@ def build_lab_publishability_report() -> LabPublishabilityReport:
         )
     )
     metrics = ownership_report.metrics
+    root_entrypoint_count = _root_entrypoint_count()
     return LabPublishabilityReport(
-        root_entrypoint_count=len(tuple(bijux_proteomics_lab.__all__)),
+        root_entrypoint_count=root_entrypoint_count,
         source_owner_family_count=len(metrics.source_owner_families),
         test_family_count=len(metrics.test_families),
         mirrored_owner_family_count=metrics.mirrored_owner_family_count,
@@ -138,7 +144,7 @@ def build_lab_publishability_report() -> LabPublishabilityReport:
         ownership_ready=ownership_report.ownership_ready,
         boundary_ready=boundary_ready,
         guard=LabPublishabilityGuard(
-            max_root_entrypoint_count=len(tuple(bijux_proteomics_lab.__all__)),
+            max_root_entrypoint_count=root_entrypoint_count,
             min_source_owner_family_count=len(metrics.source_owner_families),
             min_test_family_count=len(metrics.test_families),
             min_mirrored_owner_family_count=metrics.mirrored_owner_family_count,
