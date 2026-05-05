@@ -15,7 +15,7 @@ import click
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
-from bijux_proteomics_intelligence.domain.candidates import CandidateStore
+from bijux_proteomics_intelligence.candidates import CandidateStore
 from bijux_proteomics_runtime.api.catalog import (
     build_artifact_lookup_response,
     build_evidence_lookup_response,

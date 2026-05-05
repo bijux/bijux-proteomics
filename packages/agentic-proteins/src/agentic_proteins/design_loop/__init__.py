@@ -1,3 +1,3 @@
-"""Compatibility forwarding module for canonical intelligence design-learning ownership."""
+"""Compatibility forwarding module for canonical intelligence refinement ownership."""
 
-from bijux_proteomics_intelligence.learning.iterative_design import *  # noqa: F401,F403
+from bijux_proteomics_intelligence.learning.refinement import *  # noqa: F401,F403

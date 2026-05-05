@@ -11,12 +11,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from bijux_proteomics_intelligence.domain.candidates import (
+from bijux_proteomics_intelligence.candidates import (
     candidate_to_domain,
     select_candidates,
 )
-from bijux_proteomics_intelligence.domain.candidates.model import CandidateSelection
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.candidates.records import CandidateSelection
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 
 from bijux_proteomics_runtime.core.failures import FailureType, suggest_next_action
 from bijux_proteomics_runtime.core.hashing import sha256_hex

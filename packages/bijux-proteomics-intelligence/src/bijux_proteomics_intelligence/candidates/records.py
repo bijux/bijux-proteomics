@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from bijux_proteomics_intelligence.domain.metrics.quality import ConfidenceVector
+from bijux_proteomics_intelligence.candidates.quality import ConfidenceVector
 
 
 @dataclass(frozen=True)

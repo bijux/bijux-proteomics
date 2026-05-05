@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 
 from bijux_proteomics.domain.sequence.validation import validate_sequence
 from bijux_proteomics_runtime.agents.planning.schemas import Plan

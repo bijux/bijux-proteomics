@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
+from bijux_proteomics_intelligence.candidates.quality import QCStatus
 
 from bijux_proteomics_runtime.agents.schemas import CoordinatorDecisionType
 

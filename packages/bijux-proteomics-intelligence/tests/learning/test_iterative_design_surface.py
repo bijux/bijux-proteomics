@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.learning.iterative_design.convergence import (
+from bijux_proteomics_intelligence.learning.refinement.convergence import (
     is_convergence_failure,
 )
-from bijux_proteomics_intelligence.learning.iterative_design.stagnation import (
+from bijux_proteomics_intelligence.learning.refinement.stagnation import (
     update_stagnation_count,
 )
 

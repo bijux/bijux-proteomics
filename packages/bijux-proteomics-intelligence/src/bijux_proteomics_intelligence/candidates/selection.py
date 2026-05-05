@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from bijux_proteomics_intelligence.domain.candidates.filters import filter_candidates
-from bijux_proteomics_intelligence.domain.candidates.model import (
+from bijux_proteomics_intelligence.candidates.filters import filter_candidates
+from bijux_proteomics_intelligence.candidates.records import (
     Candidate,
     CandidateScore,
     CandidateSelection,

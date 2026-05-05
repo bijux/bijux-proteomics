@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import statistics
 
-from bijux_proteomics_intelligence.domain.metrics.quality import ToolReliability
+from bijux_proteomics_intelligence.candidates.quality import ToolReliability
 
 
 @dataclass

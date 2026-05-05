@@ -1,20 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Iterative design-learning helpers for repeated analytical refinement."""
+"""Analytical refinement helpers for repeated candidate improvement loops."""
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.learning.iterative_design.convergence import (
+from bijux_proteomics_intelligence.learning.refinement.convergence import (
     is_convergence_failure,
 )
-from bijux_proteomics_intelligence.learning.iterative_design.runner import (
+from bijux_proteomics_intelligence.learning.refinement.runner import (
     LoopAction,
     LoopContext,
     LoopDecision,
     LoopRunner,
 )
-from bijux_proteomics_intelligence.learning.iterative_design.stagnation import (
+from bijux_proteomics_intelligence.learning.refinement.stagnation import (
     update_stagnation_count,
 )
 
@@ -26,4 +26,3 @@ __all__ = [
     "is_convergence_failure",
     "update_stagnation_count",
 ]
-

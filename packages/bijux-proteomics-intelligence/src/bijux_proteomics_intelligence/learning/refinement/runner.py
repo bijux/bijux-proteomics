@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Iterative design-learning runner for candidate refinement."""
+"""Analytical refinement runner for candidate improvement loops."""
 
 from __future__ import annotations
 
@@ -11,14 +11,14 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any, Protocol
 
-from bijux_proteomics_intelligence.learning.iterative_design.convergence import (
+from bijux_proteomics_intelligence.learning.refinement.convergence import (
     is_convergence_failure,
 )
-from bijux_proteomics_intelligence.learning.iterative_design.stagnation import (
+from bijux_proteomics_intelligence.learning.refinement.stagnation import (
     update_stagnation_count,
 )
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
-from bijux_proteomics_intelligence.domain.metrics.quality import QCStatus
+from bijux_proteomics_intelligence.candidates.quality import QCStatus
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 
 
 @dataclass

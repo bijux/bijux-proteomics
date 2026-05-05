@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics_intelligence.domain.metrics.quality import ConfidenceVector
+from bijux_proteomics_intelligence.candidates.quality import ConfidenceVector
 
 
 class CandidateStructure(BaseModel):

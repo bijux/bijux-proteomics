@@ -10,12 +10,12 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
-from bijux_proteomics_intelligence.domain.metrics.quality import (
+from bijux_proteomics_intelligence.candidates.quality import (
     MetricValue,
     QCStatus,
     ToolReliability,
 )
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 from bijux_proteomics_runtime.agents.planning.schemas import PlanDecision
 from bijux_proteomics_runtime.core.decisions import Decision, DecisionExplanation
 from bijux_proteomics_runtime.core.observations import (

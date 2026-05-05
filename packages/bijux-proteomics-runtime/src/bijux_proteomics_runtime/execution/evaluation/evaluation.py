@@ -8,7 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 import json
 
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 from bijux_proteomics_runtime.agents.execution.coordinator import CoordinatorAgent
 from bijux_proteomics_runtime.agents.planning.compiler import compile_plan_to_execution
 from bijux_proteomics_runtime.agents.planning.planner import PlannerAgent

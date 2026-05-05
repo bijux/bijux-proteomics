@@ -17,8 +17,8 @@ from bijux_proteomics.domain.structure import (
     tertiary_summary_from_structure,
     tm_score,
 )
-from bijux_proteomics_intelligence.domain.metrics.compute import compute_metrics
-from bijux_proteomics_intelligence.domain.structure.confidence import (
+from bijux_proteomics_intelligence.interpretation.structures import (
+    compute_metrics,
     low_confidence_segments,
 )
 

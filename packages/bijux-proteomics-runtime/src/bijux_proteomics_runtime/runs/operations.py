@@ -9,8 +9,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from bijux_proteomics_intelligence.domain.candidates import CandidateStore
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.candidates import CandidateStore
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.runs.artifacts import compare_runs

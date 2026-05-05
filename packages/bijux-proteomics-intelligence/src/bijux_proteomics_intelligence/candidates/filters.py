@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.domain.candidates.model import Candidate
+from bijux_proteomics_intelligence.candidates.records import Candidate
 
 
 def filter_candidates(candidates: list[Candidate]) -> list[Candidate]:

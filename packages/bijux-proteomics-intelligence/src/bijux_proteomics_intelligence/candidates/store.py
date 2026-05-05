@@ -10,8 +10,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from bijux_proteomics_intelligence.domain._fingerprints import hash_payload
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
+from bijux_proteomics_intelligence.candidates.fingerprints import hash_payload
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 
 
 @dataclass(frozen=True)
