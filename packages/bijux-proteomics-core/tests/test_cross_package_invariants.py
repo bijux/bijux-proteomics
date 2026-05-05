@@ -20,14 +20,21 @@ def _imports_agentic_runtime(content: str) -> bool:
     return _AGENTIC_IMPORT_RE.search(content) is not None
 
 
-def test_core_only_reaches_agentic_runtime_through_runtime_adapter() -> None:
+def test_core_does_not_import_agentic_runtime_paths() -> None:
     core_root = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
     for path in core_root.rglob("*.py"):
         content = _read(path)
-        if path.name == "runtime_adapter.py":
-            assert _imports_agentic_runtime(content)
-            continue
         assert not _imports_agentic_runtime(content)
+
+
+def test_core_runtime_adapter_uses_canonical_runtime_imports() -> None:
+    runtime_adapter = Path(
+        "packages/bijux-proteomics-core/src/bijux_proteomics/execution/runtime_adapter.py"
+    )
+    content = _read(runtime_adapter)
+
+    assert "from bijux_proteomics_runtime.runtime import RunManager" in content
+    assert "from bijux_proteomics_runtime.runtime.context import RunConfig" in content
 
 
 def test_knowledge_does_not_depend_on_intelligence_or_lab() -> None:

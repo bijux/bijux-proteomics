@@ -11,12 +11,12 @@ from bijux_proteomics.execution.backend import ExecutionBackend, ExecutionReques
 
 
 class AgenticProteinsBackend:
-    """Execution backend backed by the Agentic Proteins runtime."""
+    """Execution backend backed by the canonical bijux runtime."""
 
     def execute(self, request: ExecutionRequest) -> dict[str, Any]:
         """Execute a core request through the runtime RunManager entrypoint."""
-        from agentic_proteins.runtime import RunManager
-        from agentic_proteins.runtime.infra import RunConfig
+        from bijux_proteomics_runtime.runtime import RunManager
+        from bijux_proteomics_runtime.runtime.context import RunConfig
 
         config = RunConfig(
             loop_max_iterations=request.rounds,
