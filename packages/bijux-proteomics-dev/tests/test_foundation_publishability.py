@@ -55,16 +55,18 @@ def test_foundation_publishable_docs_reference_current_contract_entrypoints() ->
     contracts = FOUNDATION_CONTRACTS.read_text()
     combined = f"{readme}\n{contracts}"
 
-    for stale_entrypoint in ("schema", "serialization"):
+    for stale_entrypoint in ("schema", "evolution"):
         assert f"`{stale_entrypoint}`" not in combined
     for stale_module in ("schema.py", "serialization.py", "evolution.py"):
         assert stale_module not in combined
     for current_entrypoint in (
         "charter",
+        "identity",
         "documents",
         "compatibility",
-        "hashing",
-        "ids",
+        "outcomes",
+        "serialization",
+        "support",
         "json_models",
         "migrations",
     ):

@@ -5,8 +5,9 @@
 - Distribution name: `bijux-proteomics-foundation`
 - Import root: `bijux_proteomics_foundation`
 - Stable entrypoints:
-  `bijux_proteomics_foundation`, `documents`, `compatibility`, `hashing`,
-  `ids`, `json_models`, and `migrations`
+  `bijux_proteomics_foundation`, `documents`, `compatibility`,
+  `serialization`, `identity`, `support`, `outcomes`, `json_models`, and
+  `migrations`
 
 ## Stable contracts
 
