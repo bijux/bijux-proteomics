@@ -274,16 +274,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Planning owns batching, scheduling, and assay-level operational tradeoffs.",
     ),
     LabModuleAuditEntry(
-        module_path="ptm_follow_up.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The flat PTM follow-up import path is kept only as a compatibility facade over the handoff-owned PTM packet builder.",
-    ),
-    LabModuleAuditEntry(
-        module_path="protocols.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The flat protocols import path is kept only as a compatibility facade over design-owned protocol helpers.",
-    ),
-    LabModuleAuditEntry(
         module_path="readiness/__init__.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The readiness band re-exports operational readiness under the durable readiness namespace.",
@@ -296,11 +286,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.PROGRESSION,
         ),
         reason="Operational readiness turns cost, staffing, backlog, and reagent pressure into explicit execution state.",
-    ),
-    LabModuleAuditEntry(
-        module_path="risk.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The flat risk import path is kept only as a compatibility facade over handoff-owned assay-risk scoring.",
     ),
     LabModuleAuditEntry(
         module_path="reconciliation/__init__.py",
@@ -326,11 +311,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         module_path="targeted_benchmarking.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The flat targeted-benchmarking import path is kept only as a compatibility facade over the benchmark rehearsal owner module.",
-    ),
-    LabModuleAuditEntry(
-        module_path="workflow_readiness.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The flat workflow-readiness import path is kept only as a compatibility facade over readiness-owned workflow checks.",
     ),
     LabModuleAuditEntry(
         module_path="readiness/workflow.py",

@@ -69,11 +69,7 @@ def test_only_curated_compatibility_paths_remain_thin_abstraction() -> None:
         "lifecycle/__init__.py",
         "outcomes/__init__.py",
         "planning/__init__.py",
-        "ptm_follow_up.py",
-        "protocols.py",
         "readiness/__init__.py",
         "reconciliation/__init__.py",
-        "risk.py",
         "targeted_benchmarking.py",
-        "workflow_readiness.py",
     }
