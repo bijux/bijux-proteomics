@@ -1,0 +1,241 @@
+{
+  "candidate_id": "cand-her2-ambiguous",
+  "target_id": "target-her2",
+  "review_queue_decision": {
+    "review_id": "review-her2-ambiguous",
+    "program_id": "prog-her2",
+    "gate_id": "gate-targeted-follow-up",
+    "state": "deferred",
+    "summary": "targeted follow-up remains deferred because the proposed peptide is non-unique and the target signal is still too weak",
+    "evidence_ids": ["ev-her2-theme-1", "ev-her2-weak-2"]
+  },
+  "workflow_readiness_summary": {
+    "program_id": "prog-her2",
+    "ready_step_count": 1,
+    "blocked_step_count": 4,
+    "missing_evidence_needs": ["assay", "structure"],
+    "blocking_assay_ids": ["prm-weak-target"],
+    "blocking_review_gate_ids": ["gate-targeted-follow-up"],
+    "step_statuses": [
+      {
+        "step_id": "intake",
+        "stage_kind": "intake",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "evidence-review",
+        "stage_kind": "evidence_review",
+        "ready": false,
+        "blockers": ["missing_evidence:assay", "missing_evidence:structure"]
+      },
+      {
+        "step_id": "assay-execution",
+        "stage_kind": "assay_execution",
+        "ready": false,
+        "blockers": ["blocking_assay:prm-weak-target"]
+      },
+      {
+        "step_id": "decision-review",
+        "stage_kind": "decision_review",
+        "ready": false,
+        "blockers": ["blocking_review_gate:gate-targeted-follow-up"]
+      },
+      {
+        "step_id": "learning-loop",
+        "stage_kind": "learning_loop",
+        "ready": false,
+        "blockers": ["missing_evidence:assay"]
+      }
+    ]
+  },
+  "plate_advisory": {
+    "plate_id": "plate-her2-ambiguous",
+    "row_count": 8,
+    "column_count": 12,
+    "randomization_seed": 19,
+    "assignments": [
+      {
+        "sample_id": "weak-target-01",
+        "condition": "treated",
+        "replicate": 1,
+        "fraction": 1,
+        "batch": "batch-her2-ambiguous-1",
+        "plate_id": "plate-her2-ambiguous",
+        "well_id": "A01",
+        "lineage_label": "cand-her2-ambiguous|treated|rep1",
+        "sample_role": "sample",
+        "randomization_block": "block-a",
+        "multiplex_group": "ambiguous-panel-1",
+        "contamination_watch": true
+      }
+    ],
+    "control_well_ids": [],
+    "blocked_layout_labels": ["missing-reference-control", "weak-lineage"],
+    "multiplex_group_count": 1,
+    "contamination_watch_well_ids": ["A01"],
+    "layout_summary": "layout remains blocked because the proposed weak-target assay has no pooled reference and the sample lineage is too thin",
+    "notes": [
+      "no pooled reference or bridge control is reserved",
+      "the only proposed sample does not separate weak-target signal from background drift"
+    ]
+  },
+  "handoff_validation": {
+    "program_id": "prog-her2",
+    "candidate_id": "cand-her2-ambiguous",
+    "accepted": false,
+    "accepted_assay_ids": [],
+    "blockers": [
+      "supporting evidence remains too weak for irreversible lab spend",
+      "the proposed targeted peptide remains ambiguous and is not decision-ready for responsible follow-up",
+      "weak target signal remains below the threshold for an executable lab request"
+    ],
+    "skepticism_notes": [
+      "replace the surrogate with a more unique peptide before rebuilding the targeted packet",
+      "obtain stronger target-linked evidence before consuming targeted lab capacity"
+    ],
+    "required_next_actions": [
+      "replace the non-unique peptide with a better surrogate",
+      "collect stronger target-linked evidence before a new handoff is proposed"
+    ]
+  },
+  "transition_review": {
+    "assay_id": "prm-weak-target",
+    "approved_transition_ids": [],
+    "exploratory_transition_ids": ["tr-her2-watch"],
+    "refused_transition_ids": ["tr-her2-ambiguous"],
+    "readiness_score": 0.125,
+    "entries": [
+      {
+        "transition_id": "tr-her2-watch",
+        "disposition": "exploratory",
+        "risk_assessment": {
+          "assay_id": "prm-weak-target",
+          "overall_risk_score": 0.42,
+          "supported_for_follow_up": true,
+          "findings": [
+            {
+              "code": "weak_quant_reproducibility",
+              "severity": "moderate",
+              "summary": "quantitative reproducibility is too weak for confident operational follow-up",
+              "rationale": ["quant_reproducibility_score=0.61 is below the review threshold"],
+              "mitigation": ["repeat the assay with matched controls and stricter replicate handling"]
+            }
+          ],
+          "notes": ["assay risk remains acceptable for follow-up"]
+        },
+        "missing_controls": ["heavy-standard"],
+        "reasons": [
+          "assay risk score 0.42 keeps the transition exploratory",
+          "missing required controls: heavy-standard"
+        ]
+      },
+      {
+        "transition_id": "tr-her2-ambiguous",
+        "disposition": "refused",
+        "risk_assessment": {
+          "assay_id": "prm-weak-target",
+          "overall_risk_score": 0.77,
+          "supported_for_follow_up": false,
+          "findings": [
+            {
+              "code": "weak_peptide_uniqueness",
+              "severity": "high",
+              "summary": "transition evidence depends on weak peptide uniqueness",
+              "rationale": ["peptide_uniqueness_score=0.51 is below the review threshold"],
+              "mitigation": ["replace the peptide with a more unique surrogate"]
+            },
+            {
+              "code": "likely_assay_failure",
+              "severity": "high",
+              "summary": "operational evidence suggests the assay is likely to fail or stall",
+              "rationale": ["predicted_failure_risk=0.71", "assay_feasibility_score=0.39"],
+              "mitigation": ["prefer a lower-risk orthogonal assay when available"]
+            }
+          ],
+          "notes": ["assay risk should block or downgrade the follow-up handoff"]
+        },
+        "missing_controls": ["heavy-standard", "pooled-reference"],
+        "reasons": [
+          "assay risk score 0.77 is too high for confident transition approval",
+          "assay feasibility is too weak for direct targeted handoff",
+          "transition is not responsible to schedule as written"
+        ]
+      }
+    ],
+    "notes": [
+      "the proposed non-unique transition remains blocked until the surrogate and target-linked evidence both improve"
+    ]
+  },
+  "review_packet": {
+    "program_id": "prog-her2",
+    "ready_for_synthesis": false,
+    "blocking_findings": [
+      "weak target evidence still lacks claim-linked orthogonal support",
+      "the proposed peptide remains ambiguous for irreversible targeted spend"
+    ],
+    "recommended_actions": [
+      "replace the targeted peptide before rebuilding the packet",
+      "collect stronger target-linked orthogonal evidence"
+    ],
+    "advancement_evidence": {
+      "bundle_id": "bundle-her2-ambiguous",
+      "target_id": "target-her2",
+      "evidence_ids": ["ev-her2-theme-1", "ev-her2-weak-2"],
+      "required_evidence_kinds": ["assay", "structure"],
+      "missing_evidence_kinds": ["assay"],
+      "items": [
+        {
+          "evidence_id": "ev-her2-theme-1",
+          "kind": "structure",
+          "confidence": 0.39,
+          "strength": "weak",
+          "claim": "a weak structural theme exists but it does not support a confident targeted follow-up claim"
+        }
+      ]
+    }
+  },
+  "executable_plan": {
+    "program_id": "prog-her2",
+    "batch_id": "batch-her2-ambiguous-1",
+    "plan_kind": "executable",
+    "instructions": [
+      {
+        "instruction_id": "batch-her2-ambiguous-1:prm-weak-target",
+        "assay_id": "prm-weak-target",
+        "batch_id": "batch-her2-ambiguous-1",
+        "sample_kind": "targeted",
+        "objective": "attempt targeted confirmation of the weak HER2 signal",
+        "blocking": true,
+        "preflight_checks": ["heavy standard reserved", "pooled reference reserved"]
+      }
+    ],
+    "blocked_by": [
+      "review gate pending: gate-targeted-follow-up",
+      "targeted peptide ambiguity prevents a responsible run"
+    ],
+    "ready_for_execution": false
+  },
+  "alternative_plan_options": [
+    {
+      "plan_id": "orthogonal-rebuild",
+      "prioritized_assay_ids": ["orthogonal-assay"],
+      "evidence_gain_score": 0.81,
+      "estimated_cost": 1.9,
+      "turnaround_days": 5.0,
+      "supporting_rationale": [
+        "rebuild scientific support before consuming targeted assay capacity"
+      ]
+    },
+    {
+      "plan_id": "ambiguous-prm-direct",
+      "prioritized_assay_ids": ["prm-weak-target"],
+      "evidence_gain_score": 0.18,
+      "estimated_cost": 1.0,
+      "turnaround_days": 3.0,
+      "supporting_rationale": [
+        "fast but still too ambiguous to justify direct targeted scheduling"
+      ]
+    }
+  ]
+}

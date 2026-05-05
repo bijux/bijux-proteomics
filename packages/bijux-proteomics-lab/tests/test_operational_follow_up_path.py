@@ -42,6 +42,23 @@ def _handoff_fixture(name: str) -> dict[str, Any]:
     )
 
 
+def _follow_up_path_from_fixture(fixture: dict[str, Any]) -> OperationalFollowUpPath:
+    return build_operational_follow_up_path(
+        candidate_id=cast(str, fixture["candidate_id"]),
+        handoff_validation=CandidateHandoffValidation.model_validate(
+            fixture["handoff_validation"]
+        ),
+        transition_review=TargetedTransitionReview.model_validate(
+            fixture["transition_review"]
+        ),
+        review_packet=ReviewPacket.model_validate(fixture["review_packet"]),
+        executable_plan=ExecutableAssayPlan.model_validate(fixture["executable_plan"]),
+        outcome=ExperimentOutcome.model_validate(fixture["outcome"]),
+        target_id=cast(str, fixture["target_id"]),
+        claim_links=cast(dict[str, list[str]], fixture.get("claim_links", {})),
+    )
+
+
 def test_supported_fixture_builds_complete_operational_follow_up_path() -> None:
     fixture = _handoff_fixture("supported_targeted_follow_up.json")
     review_queue = ReviewQueueDecision.model_validate(fixture["review_queue_decision"])
@@ -59,16 +76,7 @@ def test_supported_fixture_builds_complete_operational_follow_up_path() -> None:
     executable_plan = ExecutableAssayPlan.model_validate(fixture["executable_plan"])
     outcome = ExperimentOutcome.model_validate(fixture["outcome"])
 
-    path = build_operational_follow_up_path(
-        candidate_id=cast(str, fixture["candidate_id"]),
-        handoff_validation=handoff_validation,
-        transition_review=transition_review,
-        review_packet=review_packet,
-        executable_plan=executable_plan,
-        outcome=outcome,
-        target_id=cast(str, fixture["target_id"]),
-        claim_links=cast(dict[str, list[str]], fixture["claim_links"]),
-    )
+    path = _follow_up_path_from_fixture(fixture)
 
     comparison = compare_alternative_assay_plans(
         tuple(
@@ -152,3 +160,65 @@ def test_refused_fixture_keeps_weak_science_blockers_explicit() -> None:
         for statement in explanation.blocked
     )
     assert comparison.recommended_plan_id == "orthogonal-rebuild"
+
+
+def test_ambiguous_peptide_fixture_keeps_weak_target_follow_up_blocked() -> None:
+    fixture = _handoff_fixture("ambiguous_peptide_weak_target_follow_up.json")
+    review_queue = ReviewQueueDecision.model_validate(fixture["review_queue_decision"])
+    workflow = WorkflowReadinessSummary.model_validate(
+        fixture["workflow_readiness_summary"]
+    )
+    handoff_validation = CandidateHandoffValidation.model_validate(
+        fixture["handoff_validation"]
+    )
+    transition_review = TargetedTransitionReview.model_validate(
+        fixture["transition_review"]
+    )
+    review_packet = ReviewPacket.model_validate(fixture["review_packet"])
+    executable_plan = ExecutableAssayPlan.model_validate(fixture["executable_plan"])
+
+    explanation = build_handoff_explanation(
+        candidate_id=cast(str, fixture["candidate_id"]),
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+    )
+    refusal = refuse_irresponsible_assay_handoff(
+        candidate_id=cast(str, fixture["candidate_id"]),
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+    )
+
+    assert review_queue.state.value == "deferred"
+    assert workflow.blocked_step_count == 4
+    assert handoff_validation.accepted is False
+    assert any("ambiguous" in blocker for blocker in handoff_validation.blockers)
+    assert any("weak target signal" in blocker for blocker in handoff_validation.blockers)
+    assert transition_review.refused_transition_ids == ("tr-her2-ambiguous",)
+    assert refusal is not None
+    assert "refused_targeted_transition" in refusal.refusal_reason_codes
+    assert any(
+        "ambiguous" in statement.summary or "weak target" in statement.summary
+        for statement in explanation.blocked
+    )
+
+
+def test_failed_transition_fixture_refuses_execution_after_review_clearance() -> None:
+    fixture = _handoff_fixture("failed_targeted_transition_follow_up.json")
+    review_queue = ReviewQueueDecision.model_validate(fixture["review_queue_decision"])
+    path = _follow_up_path_from_fixture(fixture)
+
+    assert review_queue.state.value == "approved"
+    assert path.handoff_validation.accepted is True
+    assert path.refusal is not None
+    assert path.execution_request.ready_for_lab_review is False
+    assert "refused_targeted_transition" in path.refusal.refusal_reason_codes
+    assert "execution_plan_blocked" in path.refusal.refusal_reason_codes
+    assert path.transition_review.refused_transition_ids == ("tr-met-failed",)
+    assert path.reconciliation.belief_posture == "blocked"
+    assert path.reconciliation.intelligence_feedback.blocked_assay_ids == (
+        "prm-transition-panel",
+    )
