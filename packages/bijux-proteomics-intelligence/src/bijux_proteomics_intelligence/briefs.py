@@ -29,9 +29,11 @@ from bijux_proteomics_intelligence.outcomes import (
 from bijux_proteomics_intelligence.policies import (
     RankingFactor,
     RankingPolicy,
+    RankingPolicyLineage,
     ScientificMetricClass,
     TieBreakRule,
     classify_metric_name,
+    ranking_policy_lineage,
 )
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
@@ -206,6 +208,10 @@ class CandidateRanking(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     program_id: ProgramId = Field(..., description="Program identifier.")
+    policy_lineage: RankingPolicyLineage | None = Field(
+        default=None,
+        description="Lineage for the ranking policy that produced this result.",
+    )
     ranked_candidates: list[RankedCandidate] = Field(
         default_factory=list,
         description="Candidates ordered from strongest to weakest.",
@@ -249,6 +255,10 @@ class CandidateRankingProvenanceReport(JsonModel):
 
     program_id: ProgramId = Field(..., description="Program identifier.")
     policy_id: str = Field(..., min_length=1)
+    policy_lineage: RankingPolicyLineage = Field(
+        ...,
+        description="Lineage for the scoring contract used to produce this report.",
+    )
     entries: list[RankingProvenanceEntry] = Field(default_factory=list)
 
 
@@ -383,6 +393,10 @@ class RankingAssumptionScenario(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     policy_id: str = Field(..., min_length=1)
+    policy_lineage: RankingPolicyLineage = Field(
+        ...,
+        description="Lineage for the scoring policy used in this scenario.",
+    )
     top_candidate_id: str | None = Field(default=None)
     ranked_candidate_ids: list[str] = Field(default_factory=list)
     drift_from_baseline: RankingDriftReport = Field(...)
@@ -395,6 +409,10 @@ class RankingStabilityReport(JsonModel):
 
     program_id: ProgramId = Field(..., description="Program identifier.")
     baseline_policy_id: str = Field(..., min_length=1)
+    baseline_policy_lineage: RankingPolicyLineage = Field(
+        ...,
+        description="Lineage for the baseline scoring policy.",
+    )
     baseline_top_candidate_id: str | None = Field(default=None)
     stable_top_candidate: bool = Field(...)
     top_candidate_frequencies: dict[str, int] = Field(default_factory=dict)
@@ -703,6 +721,7 @@ def prioritize_candidates(
 ) -> CandidateRanking:
     """Rank candidates with transparent penalties for risk and weak support."""
     policy = policy or RankingPolicy(policy_id="default-balance")
+    policy_lineage = ranking_policy_lineage(policy)
     freshness_score = 1.0
     freshness_notes: list[str] = []
     contradiction_pressure = 0.0
@@ -895,6 +914,7 @@ def prioritize_candidates(
             "top_drivers": reasons[:3],
             "blockers": [flag.summary for flag in candidate.liabilities[:3]],
             "confidence": round(1.0 - candidate.uncertainty, 4),
+            "policy_lineage": policy_lineage.to_dict(),
             "factor_scores": factor_scores,
             "priority_inputs": priority_inputs,
             "input_contributions": input_contributions,
@@ -998,6 +1018,7 @@ def prioritize_candidates(
 
     return CandidateRanking(
         program_id=program.program_id,
+        policy_lineage=policy_lineage,
         ranked_candidates=ranked_candidates,
         rejected_candidates=rejected,
         rejections=rejections,
@@ -1014,6 +1035,7 @@ def build_ranking_provenance_report(
     return CandidateRankingProvenanceReport(
         program_id=ranking.program_id,
         policy_id=policy.policy_id,
+        policy_lineage=ranking.policy_lineage or ranking_policy_lineage(policy),
         entries=ranking.provenance_entries,
     )
 
@@ -1349,6 +1371,7 @@ def analyze_ranking_stability(
         scenarios.append(
             RankingAssumptionScenario(
                 policy_id=policy.policy_id,
+                policy_lineage=ranking.policy_lineage or ranking_policy_lineage(policy),
                 top_candidate_id=top_candidate_id,
                 ranked_candidate_ids=[
                     candidate.candidate_id for candidate in ranking.ranked_candidates
@@ -1375,6 +1398,8 @@ def analyze_ranking_stability(
     return RankingStabilityReport(
         program_id=program.program_id,
         baseline_policy_id=baseline_policy.policy_id,
+        baseline_policy_lineage=baseline_ranking.policy_lineage
+        or ranking_policy_lineage(baseline_policy),
         baseline_top_candidate_id=baseline_top,
         stable_top_candidate=stable_top_candidate,
         top_candidate_frequencies=top_frequencies,

@@ -28,6 +28,7 @@ from bijux_proteomics_intelligence import (
     RankingAssumptionScenario,
     RankingFactor,
     RankingPolicy,
+    RankingPolicyLineage,
     RankingStabilityReport,
     RejectionReasonCode,
     ScientificMetricClass,
@@ -43,6 +44,7 @@ from bijux_proteomics_intelligence import (
     classify_metric_name,
     criterion_satisfaction_vector,
     prioritize_candidates,
+    ranking_policy_lineage,
     select_portfolio_shortlist,
     summarize_candidate_explainability,
     summarize_liability_focus,
@@ -225,6 +227,8 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
         "lab_cost_efficiency": 1.0,
         "operational_reliability": 1.0,
     }
+    assert ranking.policy_lineage is not None
+    assert ranking.policy_lineage.policy_version == 1
     assert ranking.provenance_entries[0].candidate_id == "candidate-a"
     assert ranking.provenance_entries[0].accepted is True
 
@@ -279,6 +283,9 @@ def test_build_ranking_provenance_report_tracks_ranked_and_rejected_candidates()
 
     assert isinstance(provenance, CandidateRankingProvenanceReport)
     assert provenance.policy_id == "provenance-policy"
+    assert isinstance(provenance.policy_lineage, RankingPolicyLineage)
+    assert provenance.policy_lineage.policy_id == "provenance-policy"
+    assert provenance.policy_lineage.policy_fingerprint
     assert provenance.entries[0].weighted_contributions
     assert any(entry.accepted is False for entry in provenance.entries)
 
@@ -347,9 +354,12 @@ def test_analyze_ranking_stability_reports_sensitivity_to_policy_weights() -> No
 
     assert isinstance(report, RankingStabilityReport)
     assert report.baseline_policy_id == "baseline-stability"
+    assert report.baseline_policy_lineage.policy_id == "baseline-stability"
+    assert report.baseline_policy_lineage.policy_fingerprint
     assert report.stable_top_candidate is False
     assert report.top_candidate_frequencies == {"candidate-a": 1, "candidate-b": 1}
     assert isinstance(report.scenarios[0], RankingAssumptionScenario)
+    assert report.scenarios[0].policy_lineage.policy_id == "baseline-stability"
     assert any("changes across scoring assumptions" in note for note in report.notes)
 
 
@@ -1070,6 +1080,28 @@ def test_validate_factor_weights_reports_normalization_and_missing_factors() -> 
 
     assert "manufacturability" in report.missing_factors
     assert report.normalized is False
+
+
+def test_ranking_policy_lineage_changes_when_policy_revision_changes() -> None:
+    baseline_policy = RankingPolicy(
+        policy_id="lineage-policy",
+        policy_family="candidate_prioritization",
+        policy_version=1,
+    )
+    revised_policy = RankingPolicy(
+        policy_id="lineage-policy",
+        policy_family="candidate_prioritization",
+        policy_version=2,
+        diversity_bonus_weight=0.2,
+    )
+
+    baseline_lineage = ranking_policy_lineage(baseline_policy)
+    revised_lineage = ranking_policy_lineage(revised_policy)
+
+    assert baseline_lineage.policy_id == revised_lineage.policy_id
+    assert baseline_lineage.policy_version == 1
+    assert revised_lineage.policy_version == 2
+    assert baseline_lineage.policy_fingerprint != revised_lineage.policy_fingerprint
 
 
 def test_summarize_liability_focus_counts_top_blockers() -> None:

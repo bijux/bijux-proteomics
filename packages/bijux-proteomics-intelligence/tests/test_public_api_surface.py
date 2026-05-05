@@ -40,8 +40,10 @@ def test_judgment_public_api_contains_expected_exports() -> None:
     assert "EvidenceContradictionSummary" in bijux_proteomics_intelligence.__all__
     assert "EvidenceFreshnessSummary" in bijux_proteomics_intelligence.__all__
     assert "RankingSensitivityReport" in bijux_proteomics_intelligence.__all__
+    assert "RankingPolicyLineage" in bijux_proteomics_intelligence.__all__
     assert "build_ranking_sensitivity_report" in bijux_proteomics_intelligence.__all__
     assert "build_ranking_rule_grounding_ledger" in bijux_proteomics_intelligence.__all__
+    assert "ranking_policy_lineage" in bijux_proteomics_intelligence.__all__
     assert "rule_grounding_map" in bijux_proteomics_intelligence.__all__
     assert "assess_recommendation_readiness" in bijux_proteomics_intelligence.__all__
     assert "summarize_evidence_contradictions" in bijux_proteomics_intelligence.__all__

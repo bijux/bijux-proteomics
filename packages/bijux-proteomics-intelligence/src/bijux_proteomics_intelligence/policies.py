@@ -9,7 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import DocumentSchema, JsonModel, hash_payload
 
 
 class TieBreakRule(StrEnum):
@@ -72,12 +72,45 @@ class MetricDefinition(JsonModel):
     )
 
 
+class RankingPolicyLineage(JsonModel):
+    """Stable lineage record for one ranking policy revision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    policy_id: str = Field(..., min_length=1, description="Stable policy identifier.")
+    policy_family: str = Field(
+        ...,
+        min_length=1,
+        description="Durable family for related scoring contracts.",
+    )
+    policy_version: int = Field(
+        ...,
+        ge=1,
+        description="Monotonic version within the policy family.",
+    )
+    policy_fingerprint: str = Field(
+        ...,
+        min_length=1,
+        description="Canonical fingerprint of the scoring contract.",
+    )
+
+
 class RankingPolicy(JsonModel):
     """Serializable ranking policy for candidate evaluation."""
 
     model_config = ConfigDict(extra="forbid")
 
     policy_id: str = Field(..., min_length=1, description="Stable policy identifier.")
+    policy_family: str = Field(
+        default="candidate_prioritization",
+        min_length=1,
+        description="Durable family for related candidate-ranking policies.",
+    )
+    policy_version: int = Field(
+        default=1,
+        ge=1,
+        description="Monotonic version within the policy family.",
+    )
     document_schema: DocumentSchema = Field(
         default_factory=lambda: DocumentSchema(
             created_by="bijux-proteomics-intelligence"
@@ -224,6 +257,16 @@ class FactorWeightValidationReport(JsonModel):
     weight_sum: float = Field(..., description="Sum of declared factor weights.")
     normalized: bool = Field(
         ..., description="Whether weight sum is approximately normalized to 1.0."
+    )
+
+
+def ranking_policy_lineage(policy: RankingPolicy) -> RankingPolicyLineage:
+    """Build stable lineage metadata for a ranking policy revision."""
+    return RankingPolicyLineage(
+        policy_id=policy.policy_id,
+        policy_family=policy.policy_family,
+        policy_version=policy.policy_version,
+        policy_fingerprint=hash_payload(policy.to_dict()),
     )
 
 
