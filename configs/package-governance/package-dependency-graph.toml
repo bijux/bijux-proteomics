@@ -1,0 +1,174 @@
+# Generated package dependency graph.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_dependency_graph
+
+[guard]
+max_total_edges = 24
+max_total_source_module_uses = 348
+
+[[edge]]
+source_distribution = "agentic-proteins"
+target_distribution = "bijux-proteomics-core"
+source_module_count = 17
+source_modules = ["agentic_proteins", "agentic_proteins.biology", "agentic_proteins.biology.pathway", "agentic_proteins.biology.protein_agent", "agentic_proteins.biology.regulator", "agentic_proteins.biology.signals", "agentic_proteins.biology.validation", "agentic_proteins.domain", "agentic_proteins.domain.sequence", "agentic_proteins.domain.sequence.summary", "agentic_proteins.domain.sequence.validation", "agentic_proteins.domain.structure", "agentic_proteins.domain.structure.structure", "agentic_proteins.report", "agentic_proteins.report.compute", "agentic_proteins.report.model", "agentic_proteins.report.render"]
+target_modules = ["bijux_proteomics.biology", "bijux_proteomics.biology.pathway", "bijux_proteomics.biology.protein_agent", "bijux_proteomics.biology.regulator", "bijux_proteomics.biology.signals", "bijux_proteomics.biology.validation", "bijux_proteomics.domain.sequence", "bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.sequence.validation", "bijux_proteomics.domain.structure", "bijux_proteomics.domain.structure.structure", "bijux_proteomics.structure_report", "bijux_proteomics.structure_report.compute", "bijux_proteomics.structure_report.model", "bijux_proteomics.structure_report.render"]
+
+[[edge]]
+source_distribution = "agentic-proteins"
+target_distribution = "bijux-proteomics-intelligence"
+source_module_count = 20
+source_modules = ["agentic_proteins", "agentic_proteins.design_loop", "agentic_proteins.design_loop.convergence", "agentic_proteins.design_loop.loop", "agentic_proteins.design_loop.stagnation", "agentic_proteins.domain", "agentic_proteins.domain.candidates", "agentic_proteins.domain.candidates.filters", "agentic_proteins.domain.candidates.model", "agentic_proteins.domain.candidates.schema", "agentic_proteins.domain.candidates.selection", "agentic_proteins.domain.candidates.store", "agentic_proteins.domain.candidates.transform", "agentic_proteins.domain.candidates.updates", "agentic_proteins.domain.confidence", "agentic_proteins.domain.confidence.segments", "agentic_proteins.domain.metrics", "agentic_proteins.domain.metrics.compute", "agentic_proteins.domain.metrics.quality", "agentic_proteins.domain.metrics.validation"]
+target_modules = ["bijux_proteomics_intelligence.design_loop", "bijux_proteomics_intelligence.design_loop.convergence", "bijux_proteomics_intelligence.design_loop.loop", "bijux_proteomics_intelligence.design_loop.stagnation", "bijux_proteomics_intelligence.domain.candidates", "bijux_proteomics_intelligence.domain.candidates.filters", "bijux_proteomics_intelligence.domain.candidates.model", "bijux_proteomics_intelligence.domain.candidates.schema", "bijux_proteomics_intelligence.domain.candidates.selection", "bijux_proteomics_intelligence.domain.candidates.store", "bijux_proteomics_intelligence.domain.candidates.transform", "bijux_proteomics_intelligence.domain.candidates.updates", "bijux_proteomics_intelligence.domain.metrics", "bijux_proteomics_intelligence.domain.metrics.compute", "bijux_proteomics_intelligence.domain.metrics.quality", "bijux_proteomics_intelligence.domain.metrics.validation", "bijux_proteomics_intelligence.domain.structure.confidence"]
+
+[[edge]]
+source_distribution = "agentic-proteins"
+target_distribution = "bijux-proteomics-runtime"
+source_module_count = 111
+source_modules = ["agentic_proteins.agents", "agentic_proteins.agents.analysis", "agentic_proteins.agents.analysis.failure_analysis", "agentic_proteins.agents.analysis.sequence_analysis", "agentic_proteins.agents.analysis.structure", "agentic_proteins.agents.base", "agentic_proteins.agents.base.base", "agentic_proteins.agents.execution", "agentic_proteins.agents.execution.coordinator", "agentic_proteins.agents.planning", "agentic_proteins.agents.planning.compiler", "agentic_proteins.agents.planning.generation", "agentic_proteins.agents.planning.planner", "agentic_proteins.agents.planning.schemas", "agentic_proteins.agents.planning.validation", "agentic_proteins.agents.reporting", "agentic_proteins.agents.reporting.reporting", "agentic_proteins.agents.schemas", "agentic_proteins.agents.verification", "agentic_proteins.agents.verification.critic", "agentic_proteins.agents.verification.input_validation", "agentic_proteins.agents.verification.quality_control", "agentic_proteins.api", "agentic_proteins.api.app", "agentic_proteins.api.deps", "agentic_proteins.api.errors", "agentic_proteins.api.middleware", "agentic_proteins.api.v1", "agentic_proteins.api.v1.endpoints", "agentic_proteins.api.v1.endpoints.compare", "agentic_proteins.api.v1.endpoints.inspect", "agentic_proteins.api.v1.endpoints.resume", "agentic_proteins.api.v1.endpoints.run", "agentic_proteins.api.v1.router", "agentic_proteins.api.v1.schema", "agentic_proteins.core", "agentic_proteins.core.api_lock", "agentic_proteins.core.contracts", "agentic_proteins.core.costs", "agentic_proteins.core.decisions", "agentic_proteins.core.determinism", "agentic_proteins.core.execution", "agentic_proteins.core.failures", "agentic_proteins.core.fingerprints", "agentic_proteins.core.hashing", "agentic_proteins.core.identifiers", "agentic_proteins.core.observations", "agentic_proteins.core.stability", "agentic_proteins.core.status", "agentic_proteins.core.surface_area", "agentic_proteins.core.tooling", "agentic_proteins.execution", "agentic_proteins.execution.compiler", "agentic_proteins.execution.compiler.boundary", "agentic_proteins.execution.evaluation", "agentic_proteins.execution.evaluation.evaluation", "agentic_proteins.execution.evaluation.observations", "agentic_proteins.execution.evaluation.schemas", "agentic_proteins.execution.runtime", "agentic_proteins.execution.runtime.executor", "agentic_proteins.execution.runtime.integration", "agentic_proteins.execution.schemas", "agentic_proteins.execution.validation", "agentic_proteins.interfaces", "agentic_proteins.interfaces.cli", "agentic_proteins.memory", "agentic_proteins.memory.schemas", "agentic_proteins.memory.store", "agentic_proteins.providers", "agentic_proteins.providers.base", "agentic_proteins.providers.errors", "agentic_proteins.providers.experimental", "agentic_proteins.providers.experimental._async_utils", "agentic_proteins.providers.experimental.colabfold", "agentic_proteins.providers.experimental.openprotein", "agentic_proteins.providers.factory", "agentic_proteins.providers.heuristic", "agentic_proteins.providers.local", "agentic_proteins.providers.local.esmfold", "agentic_proteins.providers.local.rosettafold", "agentic_proteins.registry", "agentic_proteins.registry.agents", "agentic_proteins.registry.tools", "agentic_proteins.runtime", "agentic_proteins.runtime.context", "agentic_proteins.runtime.context.context", "agentic_proteins.runtime.context.lifecycle", "agentic_proteins.runtime.context.output", "agentic_proteins.runtime.context.request", "agentic_proteins.runtime.control.artifacts", "agentic_proteins.runtime.control.execution", "agentic_proteins.runtime.control.state_machine", "agentic_proteins.runtime.infra", "agentic_proteins.runtime.infra.analysis", "agentic_proteins.runtime.infra.capabilities", "agentic_proteins.runtime.infra.config", "agentic_proteins.runtime.infra.observability", "agentic_proteins.runtime.infra.reliability", "agentic_proteins.runtime.infra.telemetry", "agentic_proteins.runtime.workspace", "agentic_proteins.state", "agentic_proteins.state.schemas", "agentic_proteins.state.snapshot", "agentic_proteins.tools", "agentic_proteins.tools.base", "agentic_proteins.tools.heuristic", "agentic_proteins.tools.schemas", "agentic_proteins.validation", "agentic_proteins.validation.agents", "agentic_proteins.validation.state", "agentic_proteins.validation.tools"]
+target_modules = ["bijux_proteomics_runtime.agents", "bijux_proteomics_runtime.agents.analysis", "bijux_proteomics_runtime.agents.analysis.failure_analysis", "bijux_proteomics_runtime.agents.analysis.sequence_analysis", "bijux_proteomics_runtime.agents.analysis.structure", "bijux_proteomics_runtime.agents.base", "bijux_proteomics_runtime.agents.base.base", "bijux_proteomics_runtime.agents.catalog", "bijux_proteomics_runtime.agents.contracts", "bijux_proteomics_runtime.agents.execution", "bijux_proteomics_runtime.agents.execution.coordinator", "bijux_proteomics_runtime.agents.planning", "bijux_proteomics_runtime.agents.planning.compiler", "bijux_proteomics_runtime.agents.planning.generation", "bijux_proteomics_runtime.agents.planning.planner", "bijux_proteomics_runtime.agents.planning.schemas", "bijux_proteomics_runtime.agents.planning.validation", "bijux_proteomics_runtime.agents.reporting", "bijux_proteomics_runtime.agents.reporting.reporting", "bijux_proteomics_runtime.agents.schemas", "bijux_proteomics_runtime.agents.verification", "bijux_proteomics_runtime.agents.verification.critic", "bijux_proteomics_runtime.agents.verification.input_validation", "bijux_proteomics_runtime.agents.verification.quality_control", "bijux_proteomics_runtime.api", "bijux_proteomics_runtime.api.app", "bijux_proteomics_runtime.api.deps", "bijux_proteomics_runtime.api.errors", "bijux_proteomics_runtime.api.middleware", "bijux_proteomics_runtime.api.v1", "bijux_proteomics_runtime.api.v1.endpoints", "bijux_proteomics_runtime.api.v1.endpoints.compare", "bijux_proteomics_runtime.api.v1.endpoints.inspect", "bijux_proteomics_runtime.api.v1.endpoints.resume", "bijux_proteomics_runtime.api.v1.endpoints.run", "bijux_proteomics_runtime.api.v1.router", "bijux_proteomics_runtime.api.v1.schema", "bijux_proteomics_runtime.core", "bijux_proteomics_runtime.core.api_lock", "bijux_proteomics_runtime.core.contracts", "bijux_proteomics_runtime.core.costs", "bijux_proteomics_runtime.core.decisions", "bijux_proteomics_runtime.core.determinism", "bijux_proteomics_runtime.core.execution", "bijux_proteomics_runtime.core.failures", "bijux_proteomics_runtime.core.fingerprints", "bijux_proteomics_runtime.core.hashing", "bijux_proteomics_runtime.core.identifiers", "bijux_proteomics_runtime.core.observations", "bijux_proteomics_runtime.core.stability", "bijux_proteomics_runtime.core.status", "bijux_proteomics_runtime.core.surface_area", "bijux_proteomics_runtime.core.tooling", "bijux_proteomics_runtime.execution", "bijux_proteomics_runtime.execution.compiler", "bijux_proteomics_runtime.execution.compiler.boundary", "bijux_proteomics_runtime.execution.evaluation", "bijux_proteomics_runtime.execution.evaluation.evaluation", "bijux_proteomics_runtime.execution.evaluation.observations", "bijux_proteomics_runtime.execution.evaluation.schemas", "bijux_proteomics_runtime.execution.graph_validation", "bijux_proteomics_runtime.execution.runtime", "bijux_proteomics_runtime.execution.runtime.executor", "bijux_proteomics_runtime.execution.runtime.integration", "bijux_proteomics_runtime.execution.schemas", "bijux_proteomics_runtime.execution.validation", "bijux_proteomics_runtime.interfaces", "bijux_proteomics_runtime.interfaces.cli", "bijux_proteomics_runtime.memory", "bijux_proteomics_runtime.memory.schemas", "bijux_proteomics_runtime.memory.store", "bijux_proteomics_runtime.providers", "bijux_proteomics_runtime.providers.base", "bijux_proteomics_runtime.providers.capabilities", "bijux_proteomics_runtime.providers.errors", "bijux_proteomics_runtime.providers.experimental", "bijux_proteomics_runtime.providers.experimental._async_utils", "bijux_proteomics_runtime.providers.experimental.colabfold", "bijux_proteomics_runtime.providers.experimental.openprotein", "bijux_proteomics_runtime.providers.factory", "bijux_proteomics_runtime.providers.heuristic", "bijux_proteomics_runtime.providers.local", "bijux_proteomics_runtime.providers.local.esmfold", "bijux_proteomics_runtime.providers.local.rosettafold", "bijux_proteomics_runtime.runs", "bijux_proteomics_runtime.runs.analysis", "bijux_proteomics_runtime.runs.artifacts", "bijux_proteomics_runtime.runs.context", "bijux_proteomics_runtime.runs.lifecycle", "bijux_proteomics_runtime.runs.logging", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.output", "bijux_proteomics_runtime.runs.request", "bijux_proteomics_runtime.runs.run_config", "bijux_proteomics_runtime.runs.state_machine", "bijux_proteomics_runtime.runs.telemetry", "bijux_proteomics_runtime.runs.tool_reliability", "bijux_proteomics_runtime.runtime", "bijux_proteomics_runtime.runtime.workspace", "bijux_proteomics_runtime.state", "bijux_proteomics_runtime.state.schemas", "bijux_proteomics_runtime.state.snapshot", "bijux_proteomics_runtime.tools", "bijux_proteomics_runtime.tools.base", "bijux_proteomics_runtime.tools.catalog", "bijux_proteomics_runtime.tools.contracts", "bijux_proteomics_runtime.tools.heuristic", "bijux_proteomics_runtime.tools.schemas"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-core"
+target_distribution = "bijux-proteomics-foundation"
+source_module_count = 48
+source_modules = ["bijux_proteomics.adoption", "bijux_proteomics.benchmarks", "bijux_proteomics.charter", "bijux_proteomics.chemistry", "bijux_proteomics.chemistry.isotope_adduct_annotation", "bijux_proteomics.chemistry.modified_peptide_conflicts", "bijux_proteomics.chemistry.open_search_unknown_mod", "bijux_proteomics.chemistry.stable_isotope_labeling", "bijux_proteomics.chemistry.theoretical_fragment_reference", "bijux_proteomics.collaboration", "bijux_proteomics.corpus", "bijux_proteomics.dia", "bijux_proteomics.domain.assays", "bijux_proteomics.domain.constraints", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.liabilities", "bijux_proteomics.domain.lifecycle", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.repositories", "bijux_proteomics.domain.reviews", "bijux_proteomics.domain.targets", "bijux_proteomics.domain.validation", "bijux_proteomics.execution.backend", "bijux_proteomics.identification", "bijux_proteomics.identification.confidence", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.interfaces.examples", "bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.spectra", "bijux_proteomics.lab.operations", "bijux_proteomics.lab.planning", "bijux_proteomics.protein_family_evidence_graph", "bijux_proteomics.proteoform_identity", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.qc", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.review", "bijux_proteomics.review.inference_packets", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.enzyme_rule_provenance", "bijux_proteomics.sequences.peptide_uniqueness_audit", "bijux_proteomics.sequences.protease_digest_comparison", "bijux_proteomics.study", "bijux_proteomics.workflow.blueprint"]
+target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.errors", "bijux_proteomics_foundation.ids"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-core"
+target_distribution = "bijux-proteomics-intelligence"
+source_module_count = 1
+source_modules = ["bijux_proteomics.intelligence"]
+target_modules = ["bijux_proteomics_intelligence.analytical_review"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-core"
+target_distribution = "bijux-proteomics-lab"
+source_module_count = 3
+source_modules = ["bijux_proteomics.lab.operations", "bijux_proteomics.lab.planning", "bijux_proteomics.ptm.review"]
+target_modules = ["bijux_proteomics_lab.handoffs.ptm", "bijux_proteomics_lab.planning", "bijux_proteomics_lab.reconciliation"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-core"
+target_distribution = "bijux-proteomics-runtime"
+source_module_count = 2
+source_modules = ["bijux_proteomics.execution.runtime_adapter", "bijux_proteomics.interfaces.cli.app"]
+target_modules = ["bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.run_config", "bijux_proteomics_runtime.workflows.plans"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-dev"
+target_distribution = "bijux-proteomics-core"
+source_module_count = 4
+source_modules = ["bijux_proteomics_dev.api.core_compatibility_exports", "bijux_proteomics_dev.tools.golden_path_example", "bijux_proteomics_dev.tools.mre_agentic_protein", "bijux_proteomics_dev.tools.visualize_invariants"]
+target_modules = ["bijux_proteomics.biology", "bijux_proteomics.biology.pathway", "bijux_proteomics.biology.protein_agent", "bijux_proteomics.biology.signals", "bijux_proteomics.charter"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-dev"
+target_distribution = "bijux-proteomics-foundation"
+source_module_count = 2
+source_modules = ["bijux_proteomics_dev.api.serialization_compatibility", "bijux_proteomics_dev.quality.architecture.package_substance"]
+target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.charter", "bijux_proteomics_foundation.compatibility"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-dev"
+target_distribution = "bijux-proteomics-intelligence"
+source_module_count = 3
+source_modules = ["bijux_proteomics_dev.api.intelligence_boundary_mix", "bijux_proteomics_dev.api.intelligence_capability_map", "bijux_proteomics_dev.quality.architecture.package_substance"]
+target_modules = ["bijux_proteomics_intelligence.charter"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-dev"
+target_distribution = "bijux-proteomics-knowledge"
+source_module_count = 5
+source_modules = ["bijux_proteomics_dev.api.knowledge_breadth", "bijux_proteomics_dev.api.knowledge_reference_quality", "bijux_proteomics_dev.api.serialization_compatibility", "bijux_proteomics_dev.quality.architecture.package_substance", "bijux_proteomics_dev.release.scientific_readiness"]
+target_modules = ["bijux_proteomics_knowledge.charter", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.briefings", "bijux_proteomics_knowledge.references.citations", "bijux_proteomics_knowledge.references.contexts", "bijux_proteomics_knowledge.references.corpora", "bijux_proteomics_knowledge.references.literature", "bijux_proteomics_knowledge.references.narratives", "bijux_proteomics_knowledge.references.ontologies", "bijux_proteomics_knowledge.references.problems", "bijux_proteomics_knowledge.references.rules", "bijux_proteomics_knowledge.references.workflow_queries", "bijux_proteomics_knowledge.schema"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-dev"
+target_distribution = "bijux-proteomics-lab"
+source_module_count = 4
+source_modules = ["bijux_proteomics_dev.api.lab_operational_ownership", "bijux_proteomics_dev.api.lab_packet_only_modules", "bijux_proteomics_dev.api.serialization_compatibility", "bijux_proteomics_dev.quality.architecture.package_substance"]
+target_modules = ["bijux_proteomics_lab.charter", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.planning.assays"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-dev"
+target_distribution = "bijux-proteomics-runtime"
+source_module_count = 4
+source_modules = ["bijux_proteomics_dev.api.runtime_breadth", "bijux_proteomics_dev.api.runtime_live_contracts", "bijux_proteomics_dev.api.runtime_thin_modules", "bijux_proteomics_dev.quality.architecture.package_substance"]
+target_modules = ["bijux_proteomics_runtime.api", "bijux_proteomics_runtime.charter", "bijux_proteomics_runtime.core.surface_area"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-intelligence"
+target_distribution = "bijux-proteomics-core"
+source_module_count = 6
+source_modules = ["bijux_proteomics_intelligence.benchmark_reviews", "bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.decision_paths", "bijux_proteomics_intelligence.domain.metrics.compute", "bijux_proteomics_intelligence.evaluators", "bijux_proteomics_intelligence.interpretation"]
+target_modules = ["bijux_proteomics.collaboration", "bijux_proteomics.dia", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure.structure", "bijux_proteomics.identification", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.qc", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.sequences", "bijux_proteomics.structure_report"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-intelligence"
+target_distribution = "bijux-proteomics-foundation"
+source_module_count = 16
+source_modules = ["bijux_proteomics_intelligence.analytical_review", "bijux_proteomics_intelligence.benchmark_reviews", "bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.candidates", "bijux_proteomics_intelligence.charter", "bijux_proteomics_intelligence.decision_paths", "bijux_proteomics_intelligence.domain._fingerprints", "bijux_proteomics_intelligence.domain._hashing", "bijux_proteomics_intelligence.evaluators", "bijux_proteomics_intelligence.evidence_posture", "bijux_proteomics_intelligence.follow_up_learning", "bijux_proteomics_intelligence.interpretation", "bijux_proteomics_intelligence.policies", "bijux_proteomics_intelligence.recommendations", "bijux_proteomics_intelligence.review_packets", "bijux_proteomics_intelligence.skeptical_review"]
+target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.json_models", "bijux_proteomics_foundation.outcomes.results", "bijux_proteomics_foundation.refusals", "bijux_proteomics_foundation.results", "bijux_proteomics_foundation.states"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-intelligence"
+target_distribution = "bijux-proteomics-knowledge"
+source_module_count = 7
+source_modules = ["bijux_proteomics_intelligence.benchmark_reviews", "bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.decision_paths", "bijux_proteomics_intelligence.evaluators", "bijux_proteomics_intelligence.evidence_posture", "bijux_proteomics_intelligence.recommendations", "bijux_proteomics_intelligence.review_packets"]
+target_modules = ["bijux_proteomics_knowledge.evidence", "bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.rules", "bijux_proteomics_knowledge.references.workflow_queries"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-knowledge"
+target_distribution = "bijux-proteomics-foundation"
+source_module_count = 18
+source_modules = ["bijux_proteomics_knowledge.charter", "bijux_proteomics_knowledge.memory.claims", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.memory.graph", "bijux_proteomics_knowledge.memory.ingestion", "bijux_proteomics_knowledge.memory.resolution", "bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.briefings", "bijux_proteomics_knowledge.references.citations", "bijux_proteomics_knowledge.references.contexts", "bijux_proteomics_knowledge.references.corpora", "bijux_proteomics_knowledge.references.literature", "bijux_proteomics_knowledge.references.narratives", "bijux_proteomics_knowledge.references.ontologies", "bijux_proteomics_knowledge.references.problems", "bijux_proteomics_knowledge.references.rules", "bijux_proteomics_knowledge.reviews.packets", "bijux_proteomics_knowledge.schema"]
+target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.json_models"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-lab"
+target_distribution = "bijux-proteomics-core"
+source_module_count = 5
+source_modules = ["bijux_proteomics_lab.benchmarks.claims", "bijux_proteomics_lab.design.experiments", "bijux_proteomics_lab.handoffs.ptm", "bijux_proteomics_lab.planning.assays", "bijux_proteomics_lab.readiness.workflow"]
+target_modules = ["bijux_proteomics.dia", "bijux_proteomics.domain.assays", "bijux_proteomics.domain.program_spec", "bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.workflow.blueprint"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-lab"
+target_distribution = "bijux-proteomics-foundation"
+source_module_count = 18
+source_modules = ["bijux_proteomics_lab.benchmarks.claims", "bijux_proteomics_lab.benchmarks.rehearsals", "bijux_proteomics_lab.charter", "bijux_proteomics_lab.design.experiments", "bijux_proteomics_lab.design.protocols", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.explanations", "bijux_proteomics_lab.handoffs.exports", "bijux_proteomics_lab.handoffs.ptm", "bijux_proteomics_lab.handoffs.risk", "bijux_proteomics_lab.handoffs.transitions", "bijux_proteomics_lab.lifecycle.progression", "bijux_proteomics_lab.outcomes.observations", "bijux_proteomics_lab.planning.assays", "bijux_proteomics_lab.readiness.operations", "bijux_proteomics_lab.readiness.workflow", "bijux_proteomics_lab.reconciliation.follow_up", "bijux_proteomics_lab.repositories"]
+target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.ids", "bijux_proteomics_foundation.refusals", "bijux_proteomics_foundation.results"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-lab"
+target_distribution = "bijux-proteomics-intelligence"
+source_module_count = 1
+source_modules = ["bijux_proteomics_lab.benchmarks.claims"]
+target_modules = ["bijux_proteomics_intelligence.briefs", "bijux_proteomics_intelligence.decision_paths"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-lab"
+target_distribution = "bijux-proteomics-knowledge"
+source_module_count = 4
+source_modules = ["bijux_proteomics_lab.benchmarks.claims", "bijux_proteomics_lab.outcomes.observations", "bijux_proteomics_lab.planning.assays", "bijux_proteomics_lab.readiness.workflow"]
+target_modules = ["bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_knowledge.memory.ingestion", "bijux_proteomics_knowledge.references.benchmarks"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-runtime"
+target_distribution = "bijux-proteomics-core"
+source_module_count = 3
+source_modules = ["bijux_proteomics_runtime.agents.planning.validation", "bijux_proteomics_runtime.workflows.plans", "bijux_proteomics_runtime.workflows.runs"]
+target_modules = ["bijux_proteomics.domain.sequence.validation", "bijux_proteomics.io.formats", "bijux_proteomics.io.spectra", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.qc", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.search_adapters", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-runtime"
+target_distribution = "bijux-proteomics-foundation"
+source_module_count = 34
+source_modules = ["bijux_proteomics_runtime.api.routes.adapter_conformance", "bijux_proteomics_runtime.api.routes.evidence_graph", "bijux_proteomics_runtime.api.routes.lab_handoffs", "bijux_proteomics_runtime.api.routes.ptm_reports", "bijux_proteomics_runtime.api.routes.quant_reports", "bijux_proteomics_runtime.api.routes.review_packets", "bijux_proteomics_runtime.api.routes.runtime_execution", "bijux_proteomics_runtime.charter", "bijux_proteomics_runtime.core.fingerprints", "bijux_proteomics_runtime.core.hashing", "bijux_proteomics_runtime.core.identifiers", "bijux_proteomics_runtime.interfaces.command_output", "bijux_proteomics_runtime.interfaces.workflow_story", "bijux_proteomics_runtime.providers.support", "bijux_proteomics_runtime.runs.cache", "bijux_proteomics_runtime.runs.checkpoints", "bijux_proteomics_runtime.runs.cleanup", "bijux_proteomics_runtime.runs.contracts", "bijux_proteomics_runtime.runs.execution_decisions", "bijux_proteomics_runtime.runs.failure_reports", "bijux_proteomics_runtime.runs.import_lineage", "bijux_proteomics_runtime.runs.integrity", "bijux_proteomics_runtime.runs.launch_bundles", "bijux_proteomics_runtime.runs.ledger", "bijux_proteomics_runtime.runs.preflight", "bijux_proteomics_runtime.runs.recovery", "bijux_proteomics_runtime.runs.replay", "bijux_proteomics_runtime.runs.replay_decisions", "bijux_proteomics_runtime.runs.reruns", "bijux_proteomics_runtime.runtime.contracts", "bijux_proteomics_runtime.workflows.paths", "bijux_proteomics_runtime.workflows.plans", "bijux_proteomics_runtime.workflows.reproducibility", "bijux_proteomics_runtime.workflows.runs"]
+target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.hashing", "bijux_proteomics_foundation.json_models"]
+
+[[edge]]
+source_distribution = "bijux-proteomics-runtime"
+target_distribution = "bijux-proteomics-intelligence"
+source_module_count = 12
+source_modules = ["bijux_proteomics_runtime.agents.planning.validation", "bijux_proteomics_runtime.agents.schemas", "bijux_proteomics_runtime.agents.verification.quality_control", "bijux_proteomics_runtime.execution.evaluation.evaluation", "bijux_proteomics_runtime.execution.validation", "bijux_proteomics_runtime.interfaces.cli", "bijux_proteomics_runtime.runs.artifacts", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.operations", "bijux_proteomics_runtime.runs.output", "bijux_proteomics_runtime.runs.tool_reliability", "bijux_proteomics_runtime.state.schemas"]
+target_modules = ["bijux_proteomics_intelligence.design_loop.loop", "bijux_proteomics_intelligence.domain.candidates", "bijux_proteomics_intelligence.domain.candidates.model", "bijux_proteomics_intelligence.domain.candidates.schema", "bijux_proteomics_intelligence.domain.metrics.quality", "bijux_proteomics_intelligence.domain.metrics.validation"]
