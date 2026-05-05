@@ -40,7 +40,13 @@ def test_package_substance_inventory_keeps_real_products_and_bridge_explicit() -
     )
     assert entries["agentic-proteins"].owned_logic_count == 0
     assert entries["agentic-proteins"].wrapper_module_count >= 100
+    assert (
+        entries["bijux-proteomics-foundation"].boundary_role
+        is PackageBoundaryRole.SHARED_KERNEL
+    )
     assert entries["bijux-proteomics-foundation"].owned_logic_count >= 12
+    assert entries["bijux-proteomics-foundation"].wrapper_module_count >= 7
+    assert entries["bijux-proteomics-foundation"].thin_module_count <= 2
     assert entries["bijux-proteomics-runtime"].owned_logic_count >= 60
     assert entries["bijux-proteomics-intelligence"].owned_logic_count >= 8
     assert entries["bijux-proteomics-knowledge"].owned_logic_count >= 12

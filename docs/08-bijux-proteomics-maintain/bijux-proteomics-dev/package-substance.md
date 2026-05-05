@@ -9,11 +9,12 @@ last_reviewed: 2026-05-05
 
 # package substance
 
-This report makes package-boundary substance explicit. The six real product packages must carry enough owned logic to justify their boundaries, the compatibility bridge must stay wrapper-only, and the maintainer package must remain a real repository-health surface instead of a token directory.
+This report makes package-boundary substance explicit. The five real product packages must carry enough owned logic to justify their boundaries, the shared kernel must stay narrow and reusable, the compatibility bridge must stay wrapper-only, and the maintainer package must remain a real repository-health surface instead of a token directory.
 
 ## Boundary Roles
 
-- canonical products: 6
+- canonical products: 5
+- shared kernels: 1
 - compatibility bridges: 1
 - maintainer support packages: 1
 
@@ -21,8 +22,8 @@ This report makes package-boundary substance explicit. The six real product pack
 
 - `agentic-proteins`: role=compatibility_bridge, owned_logic=0, wrappers=147, thin=0, ready=yes
 - `bijux-proteomics-core`: role=canonical_product, owned_logic=89, wrappers=0, thin=25, ready=yes
-- `bijux-proteomics-dev`: role=maintainer_support, owned_logic=47, wrappers=0, thin=8, ready=yes
-- `bijux-proteomics-foundation`: role=canonical_product, owned_logic=17, wrappers=0, thin=1, ready=yes
+- `bijux-proteomics-dev`: role=maintainer_support, owned_logic=52, wrappers=0, thin=8, ready=yes
+- `bijux-proteomics-foundation`: role=shared_kernel, owned_logic=21, wrappers=7, thin=1, ready=yes
 - `bijux-proteomics-intelligence`: role=canonical_product, owned_logic=11, wrappers=0, thin=1, ready=yes
 - `bijux-proteomics-knowledge`: role=canonical_product, owned_logic=20, wrappers=0, thin=2, ready=yes
 - `bijux-proteomics-lab`: role=canonical_product, owned_logic=15, wrappers=0, thin=1, ready=yes
@@ -30,7 +31,8 @@ This report makes package-boundary substance explicit. The six real product pack
 
 ## Release Rule
 
-- the six real product packages must keep enough owned logic to justify separate release identities
+- the five real product packages must keep enough owned logic to justify separate release identities
+- the shared kernel must stay narrow, reusable, and free of presentation or workflow ownership drift
 - the compatibility bridge is allowed to be thin only because it is explicitly a wrapper-only bridge
 - package-boundary thinness is release-blocking when it hides unresolved SSOT ownership
 - current package substance issues: 0

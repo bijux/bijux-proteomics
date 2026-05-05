@@ -77,6 +77,7 @@ class PackageBoundaryRole(StrEnum):
     """Durable package roles in the proteomics suite."""
 
     CANONICAL_PRODUCT = "canonical_product"
+    SHARED_KERNEL = "shared_kernel"
     COMPATIBILITY_BRIDGE = "compatibility_bridge"
     MAINTAINER_SUPPORT = "maintainer_support"
 
@@ -119,7 +120,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         evidence_locator="packages/bijux-proteomics-core/src/bijux_proteomics/",
     ),
     "bijux-proteomics-foundation": _PackageSubstanceExpectation(
-        boundary_role=PackageBoundaryRole.CANONICAL_PRODUCT,
+        boundary_role=PackageBoundaryRole.SHARED_KERNEL,
         minimum_owned_logic_count=12,
         maximum_thin_module_count=2,
         evidence_locator=(
@@ -177,6 +178,18 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         evidence_locator="packages/bijux-proteomics-dev/src/bijux_proteomics_dev/",
     ),
 }
+
+FOUNDATION_COMPATIBILITY_WRAPPER_PATHS = frozenset(
+    {
+        "canonicalization.py",
+        "hashing.py",
+        "ids.py",
+        "provenance.py",
+        "refusals.py",
+        "results.py",
+        "states.py",
+    }
+)
 
 
 def _source_module_paths(package: WorkspacePackage) -> tuple[Path, ...]:
@@ -237,6 +250,39 @@ def _charter_backed_entry(
     )
 
 
+def _foundation_kernel_entry(package: WorkspacePackage) -> PackageSubstanceEntry:
+    source_paths = _source_module_paths(package)
+    counts = Counter(getattr(entry.classification, "value") for entry in DEFAULT_FOUNDATION_MODULE_AUDIT)
+    expectation = _CANONICAL_PRODUCT_EXPECTATIONS["bijux-proteomics-foundation"]
+    wrapper_module_count = sum(
+        1
+        for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
+        if entry.module_path in FOUNDATION_COMPATIBILITY_WRAPPER_PATHS
+    )
+    thin_module_count = sum(
+        1
+        for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
+        if (
+            entry.classification is FoundationModuleClassification.THIN_ABSTRACTION
+            and entry.module_path not in FOUNDATION_COMPATIBILITY_WRAPPER_PATHS
+        )
+    )
+    return PackageSubstanceEntry(
+        package_name="bijux-proteomics-foundation",
+        boundary_role=expectation.boundary_role,
+        source_module_count=len(source_paths),
+        owned_logic_count=counts[FoundationModuleClassification.SHARED_CONTRACT_VALUE.value],
+        wrapper_module_count=wrapper_module_count,
+        thin_module_count=thin_module_count,
+        evidence_locator=expectation.evidence_locator,
+        ready=(
+            counts[FoundationModuleClassification.SHARED_CONTRACT_VALUE.value]
+            >= expectation.minimum_owned_logic_count
+            and thin_module_count <= expectation.maximum_thin_module_count
+        ),
+    )
+
+
 def _compatibility_bridge_entry(package: WorkspacePackage) -> PackageSubstanceEntry:
     source_paths = _source_module_paths(package)
     inventory = build_agentic_compatibility_inventory(REPO_ROOT)
@@ -287,13 +333,7 @@ def build_package_substance_inventory(
         _compatibility_bridge_entry(package_by_name["agentic-proteins"]),
         _maintainer_support_entry(package_by_name["bijux-proteomics-dev"]),
         _core_entry(package_by_name["bijux-proteomics-core"]),
-        _charter_backed_entry(
-            "bijux-proteomics-foundation",
-            package_by_name["bijux-proteomics-foundation"],
-            audit=DEFAULT_FOUNDATION_MODULE_AUDIT,
-            owned_logic_value=FoundationModuleClassification.SHARED_CONTRACT_VALUE.value,
-            thin_value=FoundationModuleClassification.THIN_ABSTRACTION.value,
-        ),
+        _foundation_kernel_entry(package_by_name["bijux-proteomics-foundation"]),
         _charter_backed_entry(
             "bijux-proteomics-runtime",
             package_by_name["bijux-proteomics-runtime"],
@@ -362,7 +402,7 @@ def validate_package_substance(repo_root: Path) -> tuple[PackageSubstanceIssue, 
                         code="insufficient-owned-logic",
                         detail=(
                             f"{entry.package_name} exposes only {entry.owned_logic_count} "
-                            "owned-logic modules and is too thin to justify a product boundary"
+                            "owned-logic modules and is too thin to justify its release boundary"
                         ),
                     )
                 )
@@ -382,7 +422,28 @@ def validate_package_substance(repo_root: Path) -> tuple[PackageSubstanceIssue, 
                         code="wrapper-leak-into-product",
                         detail=(
                             f"{entry.package_name} should not rely on compatibility-wrapper "
-                            "module counts to justify its product boundary"
+                            "module counts to justify its release boundary"
+                        ),
+                    )
+                )
+        elif entry.boundary_role is PackageBoundaryRole.SHARED_KERNEL:
+            if entry.owned_logic_count < expectation.minimum_owned_logic_count:
+                issues.append(
+                    PackageSubstanceIssue(
+                        code="insufficient-owned-logic",
+                        detail=(
+                            f"{entry.package_name} exposes only {entry.owned_logic_count} "
+                            "owned-logic modules and is too thin to justify its release boundary"
+                        ),
+                    )
+                )
+            if entry.thin_module_count > expectation.maximum_thin_module_count:
+                issues.append(
+                    PackageSubstanceIssue(
+                        code="too-many-thin-modules",
+                        detail=(
+                            f"{entry.package_name} exposes {entry.thin_module_count} "
+                            "thin modules and needs tighter ownership boundaries"
                         ),
                     )
                 )
@@ -476,14 +537,16 @@ def _summary_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
         "",
         "# package substance",
         "",
-        "This report makes package-boundary substance explicit. The six real product "
+        "This report makes package-boundary substance explicit. The five real product "
         "packages must carry enough owned logic to justify their boundaries, the "
-        "compatibility bridge must stay wrapper-only, and the maintainer package must "
-        "remain a real repository-health surface instead of a token directory.",
+        "shared kernel must stay narrow and reusable, the compatibility bridge must "
+        "stay wrapper-only, and the maintainer package must remain a real "
+        "repository-health surface instead of a token directory.",
         "",
         "## Boundary Roles",
         "",
         f"- canonical products: {role_counts[PackageBoundaryRole.CANONICAL_PRODUCT.value]}",
+        f"- shared kernels: {role_counts[PackageBoundaryRole.SHARED_KERNEL.value]}",
         f"- compatibility bridges: {role_counts[PackageBoundaryRole.COMPATIBILITY_BRIDGE.value]}",
         f"- maintainer support packages: {role_counts[PackageBoundaryRole.MAINTAINER_SUPPORT.value]}",
         "",
@@ -502,7 +565,8 @@ def _summary_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
             "",
             "## Release Rule",
             "",
-            "- the six real product packages must keep enough owned logic to justify separate release identities",
+            "- the five real product packages must keep enough owned logic to justify separate release identities",
+            "- the shared kernel must stay narrow, reusable, and free of presentation or workflow ownership drift",
             "- the compatibility bridge is allowed to be thin only because it is explicitly a wrapper-only bridge",
             "- package-boundary thinness is release-blocking when it hides unresolved SSOT ownership",
             f"- current package substance issues: {len(validate_package_substance(REPO_ROOT))}",
