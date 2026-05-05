@@ -1,19 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Shared operation-state vocabulary for support and loss reporting."""
+"""Compatibility wrapper for support-state contracts."""
 
 from __future__ import annotations
 
-from enum import StrEnum
+from bijux_proteomics_foundation.support.states import SupportState
 
-
-class SupportState(StrEnum):
-    """Shared state vocabulary for support, refusal, and degraded outcomes."""
-
-    ADVISORY = "advisory"
-    SUPPORTED = "supported"
-    REFUSED = "refused"
-    AMBIGUOUS = "ambiguous"
-    INCOMPLETE = "incomplete"
-    LOSSY = "lossy"
+__all__ = ["SupportState"]

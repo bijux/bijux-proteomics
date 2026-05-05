@@ -10,10 +10,10 @@ from typing import Any
 
 from pydantic import AliasChoices, ConfigDict, Field, field_validator
 
-from bijux_proteomics_foundation.ordering import stable_order_pairs
-from bijux_proteomics_foundation.provenance import ProvenancePointer
 from bijux_proteomics_foundation.json_models import JsonModel
-from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_foundation.ordering import stable_order_pairs
+from bijux_proteomics_foundation.support.provenance import ProvenancePointer
+from bijux_proteomics_foundation.support.states import SupportState
 
 
 class ErrorCategory(StrEnum):

@@ -99,7 +99,12 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
     FoundationCharterEntry(
         capability=FoundationCharterCapability.IDENTIFIERS_AND_STATES,
         owned_surface="Typed identifiers, provenance pointers, support states, and version primitives that multiple product packages must share exactly.",
-        required_modules=("ids.py", "provenance.py", "states.py", "versions.py"),
+        required_modules=(
+            "identity/identifiers.py",
+            "support/provenance.py",
+            "support/states.py",
+            "versions.py",
+        ),
         release_blocker="Foundation cannot ship if shared identifiers, states, or provenance drift into per-package variants.",
     ),
     FoundationCharterEntry(
@@ -166,6 +171,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
         )
 
+    if module_path in {"ids.py", "provenance.py", "states.py"}:
+        return FoundationModuleAuditEntry(
+            module_path=module_path,
+            classification=FoundationModuleClassification.THIN_ABSTRACTION,
+            reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
+        )
+
     if module_path == "charter.py":
         return _shared_contract_entry(
             module_path,
@@ -179,7 +191,14 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             "The machine-readable charter keeps the allowed primitive surface explicit and release-blocking.",
         )
 
-    if module_path in {"ids.py", "provenance.py", "states.py", "versions.py"}:
+    if module_path in {
+        "identity/__init__.py",
+        "identity/identifiers.py",
+        "support/__init__.py",
+        "support/provenance.py",
+        "support/states.py",
+        "versions.py",
+    }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.IDENTIFIERS_AND_STATES,),

@@ -20,7 +20,7 @@ from bijux_proteomics_foundation.serialization.hashing import (
     hash_text,
 )
 from bijux_proteomics_foundation.serialization.canonicalization import to_canonical_json
-from bijux_proteomics_foundation.ids import (
+from bijux_proteomics_foundation.identity.identifiers import (
     AssayId,
     BatchId,
     build_identifier,
