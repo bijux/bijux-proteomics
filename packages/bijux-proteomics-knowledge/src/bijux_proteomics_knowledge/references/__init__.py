@@ -26,6 +26,11 @@ from bijux_proteomics_knowledge.references.ontologies import (
     KnowledgeOntologyMapping,
     resolve_ontology_mapping,
 )
+from bijux_proteomics_knowledge.references.rules import (
+    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+    KnowledgeRuleDomain,
+    ScientificRuleReference,
+)
 
 __all__ = [
     "BenchmarkManifest",
@@ -36,9 +41,12 @@ __all__ = [
     "DEFAULT_CITATION_REGISTRY",
     "DEFAULT_CORPUS_MANIFESTS",
     "DEFAULT_ONTOLOGY_MAPPINGS",
+    "DEFAULT_SCIENTIFIC_RULE_REFERENCES",
     "KnowledgeCorpusSourceKind",
     "KnowledgeOntologyDomain",
     "KnowledgeOntologyMapping",
+    "KnowledgeRuleDomain",
     "KnowledgeWorkflowFamily",
+    "ScientificRuleReference",
     "resolve_ontology_mapping",
 ]
