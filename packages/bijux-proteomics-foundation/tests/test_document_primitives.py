@@ -20,7 +20,6 @@ from bijux_proteomics_foundation import (
     ReviewId,
     SchemaCompatibility,
     assess_schema_compatibility,
-    ensure_identifier_kind,
     hash_model,
     hash_payload,
 )
@@ -53,6 +52,7 @@ from bijux_proteomics_foundation.ids import (
     SpectrumId,
     build_identifier,
     classify_identifier,
+    ensure_identifier_kind,
 )
 from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
 

@@ -34,6 +34,10 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: pytest.ExitCode) -
     _remove_foundation_bytecode_artifacts()
 
 
+def pytest_runtest_setup(item: pytest.Item) -> None:
+    _remove_foundation_bytecode_artifacts()
+
+
 def pytest_collection_modifyitems(
     config: pytest.Config, items: list[pytest.Item]
 ) -> None:

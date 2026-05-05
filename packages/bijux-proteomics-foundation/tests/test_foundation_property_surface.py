@@ -14,7 +14,6 @@ import pytest
 
 from bijux_proteomics_foundation import (
     JsonModel,
-    ensure_identifier_kind,
     fingerprint_model,
     hash_payload,
     to_canonical_json,
@@ -24,7 +23,11 @@ from bijux_proteomics_foundation.error_models import (
     build_error_envelope_from_exception,
     summarize_exception_chain,
 )
-from bijux_proteomics_foundation.ids import IdentifierKind, build_identifier
+from bijux_proteomics_foundation.ids import (
+    IdentifierKind,
+    build_identifier,
+    ensure_identifier_kind,
+)
 from bijux_proteomics_foundation.ordering import stable_order_value
 from bijux_proteomics_foundation.provenance import (
     ProvenancePointer,

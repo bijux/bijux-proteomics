@@ -72,8 +72,8 @@ from bijux_proteomics_foundation import DocumentSchema, hash_payload, to_canonic
 - Distribution name: `bijux-proteomics-foundation`
 - Import root: `bijux_proteomics_foundation`
 - Stable entrypoints:
-  `bijux_proteomics_foundation`, `documents`, `compatibility`, `hashing`,
-  `ids`, `json_models`, and `migrations`
+  `bijux_proteomics_foundation`, `charter`, `documents`, `compatibility`,
+  `hashing`, `ids`, `json_models`, and `migrations`
 
 ## Package boundaries
 
@@ -81,6 +81,7 @@ This package owns shared document metadata, canonical serialization, and
 migration compatibility helpers.
 
 It does not own product decision logic, lab logic, or runtime orchestration.
+The exact allowed primitive surface is audited in `charter.py`.
 
 ## Contract checkpoints
 
@@ -182,6 +183,8 @@ result = OperationResult.success(
   foundation change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or stability claims are part of the change
+- review `charter.py` when the question is whether a new primitive belongs in
+  foundation at all
 - use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
   affects package publication, metadata, or release-readiness expectations
 

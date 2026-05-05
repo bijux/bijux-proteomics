@@ -65,6 +65,7 @@ def test_foundation_publishable_docs_reference_current_contract_entrypoints() ->
     for stale_module in ("schema.py", "serialization.py", "evolution.py"):
         assert stale_module not in combined
     for current_entrypoint in (
+        "charter",
         "documents",
         "compatibility",
         "hashing",

@@ -82,6 +82,21 @@ owner_distribution_name = "bijux-proteomics-lab"
 owner_import_root = "bijux_proteomics_lab"
 
 [[symbol]]
+name = "AnalyticalContrastRecommendation"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "AnalyticalContrastRecommendationReport"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "AnalyticalContrastRejectionReason"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
 name = "AnalyticalValueSignal"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
@@ -617,6 +632,11 @@ owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
+name = "CandidateRankingSensitivityReport"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
 name = "CandidateRejection"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
@@ -927,11 +947,6 @@ owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
 
 [[symbol]]
-name = "ContainerMount"
-owner_distribution_name = "bijux-proteomics-core"
-owner_import_root = "bijux_proteomics"
-
-[[symbol]]
 name = "ContainerNetworkMode"
 owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
@@ -1025,21 +1040,6 @@ owner_import_root = "bijux_proteomics_knowledge"
 name = "ContradictoryInterpretationOutcome"
 owner_distribution_name = "bijux-proteomics-knowledge"
 owner_import_root = "bijux_proteomics_knowledge"
-
-[[symbol]]
-name = "ContrastRecommendation"
-owner_distribution_name = "bijux-proteomics-intelligence"
-owner_import_root = "bijux_proteomics_intelligence"
-
-[[symbol]]
-name = "ContrastRecommendationReport"
-owner_distribution_name = "bijux-proteomics-intelligence"
-owner_import_root = "bijux_proteomics_intelligence"
-
-[[symbol]]
-name = "ContrastRejectionReason"
-owner_distribution_name = "bijux-proteomics-intelligence"
-owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
 name = "CoreResultRuntimeBinding"
@@ -1230,6 +1230,16 @@ owner_import_root = "bijux_proteomics"
 name = "DesignBrief"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "DesignContrastRecommendation"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
+
+[[symbol]]
+name = "DesignContrastRejectionReason"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
 
 [[symbol]]
 name = "DesignIssueSeverity"
@@ -1738,6 +1748,11 @@ owner_import_root = "bijux_proteomics_knowledge"
 
 [[symbol]]
 name = "EvidenceTrustBalanceReport"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "EvidenceTrustScoreInput"
 owner_distribution_name = "bijux-proteomics-knowledge"
 owner_import_root = "bijux_proteomics_knowledge"
 
@@ -4902,11 +4917,6 @@ owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
-name = "RankingSensitivityReport"
-owner_distribution_name = "bijux-proteomics-intelligence"
-owner_import_root = "bijux_proteomics_intelligence"
-
-[[symbol]]
 name = "RankingStabilityReport"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
@@ -6332,11 +6342,6 @@ owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
 
 [[symbol]]
-name = "TrustScoreInput"
-owner_distribution_name = "bijux-proteomics-knowledge"
-owner_import_root = "bijux_proteomics_knowledge"
-
-[[symbol]]
 name = "TrustScoreProvenance"
 owner_distribution_name = "bijux-proteomics-knowledge"
 owner_import_root = "bijux_proteomics_knowledge"
@@ -6533,6 +6538,11 @@ owner_import_root = "bijux_proteomics"
 
 [[symbol]]
 name = "WorkflowCheckpointStep"
+owner_distribution_name = "bijux-proteomics-core"
+owner_import_root = "bijux_proteomics"
+
+[[symbol]]
+name = "WorkflowContainerMount"
 owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
 
@@ -8865,11 +8875,6 @@ owner_import_root = "bijux_proteomics"
 name = "enforce_wet_lab_automation_boundary"
 owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
-
-[[symbol]]
-name = "ensure_identifier_kind"
-owner_distribution_name = "bijux-proteomics-foundation"
-owner_import_root = "bijux_proteomics_foundation"
 
 [[symbol]]
 name = "ensure_program_revision"

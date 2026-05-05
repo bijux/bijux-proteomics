@@ -34,7 +34,6 @@ from bijux_proteomics_foundation.ids import (
     PromotionId,
     ReviewId,
     TargetId,
-    ensure_identifier_kind,
 )
 from bijux_proteomics_foundation.json_models import JsonModel, fingerprint_model
 
@@ -58,7 +57,6 @@ __all__ = [
     "SchemaCompatibility",
     "TargetId",
     "assess_schema_compatibility",
-    "ensure_identifier_kind",
     "fingerprint_model",
     "hash_model",
     "hash_payload",

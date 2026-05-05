@@ -11,8 +11,8 @@ from bijux_proteomics.domain.program_spec import ProgramSpec, ProgramStage
 from bijux_proteomics_foundation import (
     IdentifierKind,
     JsonModel,
-    ensure_identifier_kind,
 )
+from bijux_proteomics_foundation.ids import ensure_identifier_kind
 
 
 class ProgramValidationIssue(JsonModel):
