@@ -184,6 +184,31 @@ def test_novelty_trap_fixture_does_not_outrank_grounded_follow_up() -> None:
     )
 
 
+def test_novelty_pressure_fixture_keeps_grounded_follow_up_on_top() -> None:
+    payload = _load_scenario_fixture("novelty_pressure_trap")
+    program = _program_from_fixture(payload)
+    assessments = _assessments_from_fixture(payload)
+    bundle = _bundle_from_fixture(payload)
+
+    ranking = prioritize_candidates(
+        program,
+        assessments,
+        evidence_bundle=bundle,
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert ranking.ranked_candidates[1].candidate_id == "novelty-pressure-candidate"
+    assert (
+        ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
+        > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    )
+    assert (
+        ranking.ranked_candidates[1].explainability["priority_inputs"]["evidence_strength"]
+        < ranking.ranked_candidates[0].explainability["priority_inputs"]["evidence_strength"]
+    )
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "workflow_family", "seductive_candidate_id"),
     [
@@ -247,6 +272,38 @@ def test_aging_evidence_fixture_downgrades_recommendation_readiness() -> None:
     assert result.disposition.value == "degraded_success"
     assert "explicit evidence posture caveats" in result.summary
     assert any("aging-support-1:" in reason for reason in result.degradation_reasons)
+
+
+def test_stale_polish_fixture_degrades_polished_recommendation_readiness() -> None:
+    payload = _load_scenario_fixture("stale_polish_trap")
+    bundle = _bundle_from_fixture(payload)
+
+    result = assess_recommendation_readiness(bundle)
+
+    assert result.disposition.value == "degraded_success"
+    assert any(
+        reason.startswith("stale-polish-assay:") for reason in result.degradation_reasons
+    )
+    assert any(
+        "stale and should be refreshed" in reason for reason in result.degradation_reasons
+    )
+
+
+def test_thin_grounding_fixture_refuses_polished_candidate_without_decisive_support() -> (
+    None
+):
+    payload = _load_scenario_fixture("thin_grounding_trap")
+    bundle = _bundle_from_fixture(payload)
+
+    result = assess_recommendation_readiness(bundle)
+
+    assert result.disposition.value == "refused"
+    assert result.refusal is not None
+    assert result.refusal.code == "thin_grounding_support"
+    assert any(
+        "lacks decisive evidence records" in detail
+        for detail in result.refusal.reason_details
+    )
 
 
 def test_contradiction_fixture_refuses_recommendation_and_keeps_conflicts_explicit() -> (

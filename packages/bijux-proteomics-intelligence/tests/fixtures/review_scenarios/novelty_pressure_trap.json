@@ -1,0 +1,79 @@
+{
+  "workflow_family": "dia",
+  "program": {
+    "program_id": "prog-novelty-pressure-trap",
+    "name": "novelty pressure trap",
+    "objective": "prevent novelty-heavy weak evidence from outranking grounded follow-up",
+    "target_id": "target-novelty-pressure-trap",
+    "target_name": "Target Novelty Pressure Trap",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "prefer grounded follow-up over novelty pressure when support is thin"
+  },
+  "criterion": {
+    "criterion_id": "novelty-pressure",
+    "metric": "dia_follow_up_score",
+    "threshold": 0.72
+  },
+  "candidates": [
+    {
+      "candidate_id": "grounded-dia-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dia_follow_up_score": 0.84
+      },
+      "manufacturability_score": 0.81,
+      "uncertainty": 0.08,
+      "evidence_support": 0.89,
+      "reproducibility_score": 0.9,
+      "effect_size_score": 0.77,
+      "assay_feasibility_score": 0.82,
+      "novelty_score": 0.33,
+      "lab_cost_risk": 0.12,
+      "operational_risk": 0.1
+    },
+    {
+      "candidate_id": "novelty-pressure-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "dia_follow_up_score": 0.91
+      },
+      "manufacturability_score": 0.86,
+      "uncertainty": 0.21,
+      "evidence_support": 0.39,
+      "reproducibility_score": 0.34,
+      "effect_size_score": 0.7,
+      "assay_feasibility_score": 0.62,
+      "novelty_score": 0.98,
+      "lab_cost_risk": 0.31,
+      "operational_risk": 0.29
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "novelty-pressure-support-1",
+      "kind": "differential_proteomics",
+      "title": "grounded DIA support",
+      "source": "dia-pressure-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible DIA rescue across independent repeats",
+      "confidence": 0.92,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 16
+    },
+    {
+      "evidence_id": "novelty-pressure-support-2",
+      "kind": "literature",
+      "title": "disease context",
+      "source": "PMID:novelty-pressure-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the grounded DIA follow-up target state",
+      "confidence": 0.82,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 41
+    }
+  ],
+  "expected_top_candidate_id": "grounded-dia-follow-up"
+}

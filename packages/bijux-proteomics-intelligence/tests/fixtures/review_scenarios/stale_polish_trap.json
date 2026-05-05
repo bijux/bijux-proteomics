@@ -1,0 +1,63 @@
+{
+  "workflow_family": "targeted",
+  "program": {
+    "program_id": "prog-stale-polish-trap",
+    "name": "stale polish trap",
+    "objective": "degrade polished recommendations when key support has gone stale",
+    "target_id": "target-stale-polish-trap",
+    "target_name": "Target Stale Polish Trap",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "keep stale support explicit even when candidate metrics remain polished"
+  },
+  "criterion": {
+    "criterion_id": "stale-polish",
+    "metric": "targeted_assay_score",
+    "threshold": 0.74
+  },
+  "candidates": [
+    {
+      "candidate_id": "stale-polish-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "targeted_assay_score": 0.9
+      },
+      "manufacturability_score": 0.84,
+      "uncertainty": 0.07,
+      "evidence_support": 0.86,
+      "reproducibility_score": 0.82,
+      "effect_size_score": 0.75,
+      "assay_feasibility_score": 0.83,
+      "novelty_score": 0.37,
+      "lab_cost_risk": 0.11,
+      "operational_risk": 0.1
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "stale-polish-assay",
+      "kind": "assay",
+      "title": "stale assay support",
+      "source": "lab-stale-polish-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with a previously strong assay response",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 235
+    },
+    {
+      "evidence_id": "stale-polish-literature",
+      "kind": "literature",
+      "title": "stale literature support",
+      "source": "PMID:stale-polish-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the polished targeted follow-up",
+      "confidence": 0.83,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 410
+    }
+  ],
+  "expected_top_candidate_id": "stale-polish-candidate"
+}
