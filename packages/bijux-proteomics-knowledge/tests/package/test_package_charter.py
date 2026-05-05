@@ -66,6 +66,5 @@ def test_knowledge_thin_modules_are_only_roots_and_compatibility_wrappers() -> N
         "contracts/__init__.py",
         "memory/__init__.py",
         "references/__init__.py",
-        "review.py",
         "reviews/__init__.py",
     }

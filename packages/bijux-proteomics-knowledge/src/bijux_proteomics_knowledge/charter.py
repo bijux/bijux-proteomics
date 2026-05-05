@@ -275,11 +275,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Scientific rules and grounded judgment ledgers translate reference provenance into reusable interpretation boundaries.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="review.py",
-        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
-        reason="The flat review-packet path is kept only as a compatibility shim over reviewer-facing owners.",
-    ),
-    KnowledgeModuleAuditEntry(
         module_path="reviews/__init__.py",
         classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
         reason="The reviews package root groups reviewer-facing owner modules without adding separate curation logic.",
