@@ -32,27 +32,28 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-knowledge` models the evidence and claim layer behind protein
-program decisions, including trust scoring, contradiction handling, and
-decision-lineage structures.
+`bijux-proteomics-knowledge` is the repository's scientific memory with
+provenance. It preserves evidence, claims, resolution history, and grounded
+workflow references as selective, reviewable memory instead of as generic
+context.
 
-Use this package when you need auditable evidence provenance, conflict-aware
-knowledge management, and explicit reasoning about uncertainty and evidence
-gaps.
+Use this package when you need auditable scientific memory, explicit
+provenance, contradiction-aware evidence reasoning, and grounded workflow
+briefings that downstream packages can consume without re-curating locally.
 
 ## Why teams pick this package
 
-- explicit evidence and claim models with trust and freshness semantics
-- contradiction-aware resolution workflows that preserve audit history
-- decision lineage structures for explainable governance and retrospectives
-- compatibility with cross-package schema and serialization contracts
+- explicit evidence and claim memory with provenance, trust, and freshness semantics
+- contradiction-aware resolution flows that preserve audit history
+- grounded workflow briefings, caveats, and scientific rules tied to citations
+- compatibility with shared schema and serialization contracts
 
 ## Typical use cases
 
-- store and score evidence used to advance or block protein program decisions
-- detect conflicting claims and apply explicit resolution policies
-- build auditable trails that explain why a conclusion changed over time
-- surface unresolved knowledge gaps before committing lab or portfolio spend
+- preserve evidence bundles, claims, and resolution history for later scientific review
+- retrieve grounded workflow caveats, benchmark claims, and ontology mappings
+- explain why a scientific conclusion changed over time without losing provenance
+- surface unresolved knowledge gaps before downstream packages rank, schedule, or execute work
 
 ## Installation
 
@@ -79,11 +80,15 @@ from bijux_proteomics_knowledge.references.briefings import (
 
 ## Package boundaries
 
-This package owns evidence records, claim state, trust scoring, and contradiction resolution.
+This package owns scientific memory with provenance: evidence records, claim
+state, contradiction resolution, resolution history, and curated workflow
+references that ground shared interpretation boundaries.
 
-It does not own lifecycle gate transitions, ranking policy decisions, or experiment scheduling.
+It does not own execution orchestration, route-shaped payloads, candidate
+ranking or recommendation policy, or experiment scheduling.
 
-It also owns curated scientific reference knowledge that grounds shared evidence rules, benchmark claims, and ontology mappings.
+It is also not a generic context store. New content belongs here only when it
+becomes selective, cited, and reviewable scientific memory.
 
 ## Scientific memory charter
 
@@ -95,16 +100,19 @@ The package boundary is justified by five grounded capabilities:
 - curated corpora
 - scientific context
 
-Everything else in the package exists to turn those capabilities into auditable scientific memory:
-`memory/` owns evidence and claim semantics, `reviews/` owns reviewer-facing read paths, and `references/` owns grounded curation surfaces.
+Everything else in the package exists to turn those capabilities into auditable
+scientific memory with provenance:
+- `memory/` owns evidence, claims, graph integrity, ingestion, and resolution history
+- `reviews/` owns reviewer-facing packets built from existing memory
+- `references/` owns selective curation surfaces and the narrow workflow lookup surface
 
 ## Contract checkpoints
 
 - evidence and claim records must stay typed, auditable, and schema-versioned
-- trust, freshness, and contradiction outputs must remain explicit instead of inferred
+- provenance, trust, freshness, and contradiction outputs must remain explicit instead of inferred
 - resolution flows must preserve explainable lineage from evidence to decision
-- downstream packages should depend on this layer for evidence semantics instead of re-scoring trust locally
-- external evidence normalization belongs here only when it ends as scientific memory, not when it defines runtime adapters or persistence contracts
+- downstream packages should depend on this layer for shared evidence meaning instead of recreating local memory models
+- external evidence normalization belongs here only when it ends as scientific memory, not when it defines runtime adapters or orchestration seams
 - every workflow-facing claim, caveat, and rule must stay grounded in citations, benchmark manifests, corpora, or scientific context entries
 
 ## Curated scientific reference surfaces
@@ -117,21 +125,20 @@ Everything else in the package exists to turn those capabilities into auditable 
 
 ## Choose this package when
 
-- you need evidence, claim, contradiction, or lineage semantics
+- you need selective scientific memory with provenance
 - auditability and review traceability are part of the contract
-- multiple higher layers should share the same trust and resolution model
+- multiple higher layers should share the same evidence, claim, and resolution semantics
 
 ## Route elsewhere when
 
-- the change defines lifecycle authority, ranking policy, lab scheduling, or
-  transport-bound payload shaping
+- the change defines execution orchestration, route-shaped payloads, ranking or recommendation policy, or lab scheduling
 - the helper only reformats evidence results for operator interfaces
-- the behavior exists for one scoring or lab workflow instead of shared evidence meaning
+- the behavior exists for one analytical workflow instead of shared scientific memory meaning
 
 ## Verification route
 
-- check `tests` for evidence, resolution, graph, and schema proof before
-  treating a knowledge change as safe
+- check `tests/memory`, `tests/references`, `tests/reviews`, and `tests/package`
+  before treating a knowledge change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or trust-semantics claims are part of the change
 - use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
@@ -139,17 +146,13 @@ Everything else in the package exists to turn those capabilities into auditable 
 
 ## Review questions
 
-- does the change preserve evidence, contradiction, lineage, or trust semantics
-  rather than transport-bound presentation or workflow-local shaping
-- would another package start carrying shadow evidence interpretation if this
-  behavior stayed outside knowledge
-- can the change be justified without claiming lifecycle, ranking, lab
-  execution, or runtime interface ownership
+- does the change preserve scientific memory, provenance, contradiction, or trust semantics rather than transport-bound presentation or workflow-local shaping
+- would another package start carrying shadow scientific memory if this behavior stayed outside knowledge
+- can the change be justified without claiming execution orchestration, ranking, recommendation, lab execution, or runtime interface ownership
 
 ## Escalation route
 
-- route the change outward when the behavior mainly defines lifecycle
-  progression, ranking policy, lab execution, or interface transport
+- route the change outward when the behavior mainly defines execution orchestration, ranking or recommendation policy, lab execution, or interface transport
 - stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
   proposal starts looking like presentation reshaping instead of shared evidence
   meaning
@@ -158,34 +161,30 @@ Everything else in the package exists to turn those capabilities into auditable 
 
 ## Consumer impact signals
 
-- expect downstream review when evidence rules, lineage semantics, or trust
-  resolution behavior change because other layers consume those meanings
-- treat changes that alter contradiction handling, claim interpretation, or
-  lineage expectations as high-impact even when APIs stay stable
-- expect a narrower release burden when the change only improves internal
-  implementation without changing evidence semantics
+- expect downstream review when evidence rules, provenance, lineage semantics, or trust resolution behavior change because other layers consume those meanings
+- treat changes that alter contradiction handling, claim interpretation, or lineage expectations as high-impact even when APIs stay stable
+- expect a narrower release burden when the change only improves internal implementation without changing scientific memory semantics
 
 ## Explicit non-goals
 
-- this package does not own runtime orchestration, provider wiring, or replay
-  behavior
-- this package does not define ranking policy or lab-specific scheduling logic
-- this package does not carry shared primitive contracts that belong in the
-  foundation package
+- this package does not own execution orchestration, provider wiring, replay behavior, or route-shaped payloads
+- this package does not define candidate ranking or recommendation policy
+- this package does not define lab-specific scheduling logic
+- this package does not carry shared primitive contracts that belong in the foundation package
+- this package does not serve as a generic context sink for uncited scientific notes
 
 ## Source guide
 
-- [`src/bijux_proteomics_knowledge/memory/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py) for evidence models, scoring, contradiction detection, and memory quality audits
+- [`src/bijux_proteomics_knowledge/memory/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py) for evidence models, provenance scoring, contradiction detection, and memory quality audits
 - [`src/bijux_proteomics_knowledge/memory/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/claims.py) for claim modeling, lineage, and knowledge-gap audits
 - [`src/bijux_proteomics_knowledge/memory/resolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/resolution.py) for conflict-resolution policies over shared scientific memory
 - [`src/bijux_proteomics_knowledge/memory/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/graph.py) for evidence-graph validation rules and decision tracing
 - [`src/bijux_proteomics_knowledge/memory/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/ingestion.py) for normalization of external evidence into knowledge-owned memory records
-- [`src/bijux_proteomics_knowledge/reviews/queries.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/queries.py) for read-only scientific memory filtering over claims, evidence records, and resolution history
-- [`src/bijux_proteomics_knowledge/reviews/packets.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/packets.py) for reviewer-facing packets, graph explanations, and multi-decision summaries
+- [`src/bijux_proteomics_knowledge/reviews/packets.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/packets.py) for reviewer-facing packets, graph explanations, and multi-decision summaries derived from existing memory
 - [`src/bijux_proteomics_knowledge/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/charter.py) for the machine-readable package charter and module audit
-- [`src/bijux_proteomics_knowledge/references/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references) for curated citations, ontology mappings, benchmark manifests, corpus manifests, scientific rules, and read-only query helpers
+- [`src/bijux_proteomics_knowledge/references/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references) for curated citations, ontology mappings, benchmark manifests, corpus manifests, scientific rules, and the narrow workflow lookup surface
 - [`src/bijux_proteomics_knowledge/references/briefings.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/briefings.py) for workflow-level claim, limitation, context, literature, problem, and rule packets that preserve provenance for downstream consumers
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/tests) for executable behavior expectations
+- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/tests) for executable behavior expectations organized by memory, references, reviews, and package contracts
 
 ## Documentation
 

@@ -7,58 +7,60 @@
 
 ## Architectural role
 
-`bijux-proteomics-knowledge` provides the evidence-centric domain for decision
-traceability: claims, bundles, trust scoring, contradictions, and lineage.
+`bijux-proteomics-knowledge` provides scientific memory with provenance:
+curated evidence, claims, contradiction handling, resolution history, and
+grounded workflow references that downstream packages can inspect without
+re-curating locally.
 
 ## Design constraints
 
-- evidence records are first-class typed entities
-- contradiction handling is policy-based and explicit
-- trust, freshness, and context completeness are measurable outputs
+- evidence records are first-class typed memory entities
+- contradiction handling and resolution history stay explicit and auditable
+- trust, freshness, and context completeness are measurable memory attributes
+- curated references stay selective, cited, and workflow-scoped instead of becoming a generic context sink
 
 ## Module topology
 
-- `evidence.py` owns bundles, trust scoring, freshness, and contradiction inputs
-- `claims.py` owns claim state, lineage, and knowledge-gap modeling
-- `resolution.py` owns explicit conflict-resolution policies and updates
-- `graph.py` owns evidence-graph structure and validation
-- `review.py` owns decision-readiness and review-packet synthesis
+- `memory/evidence.py` owns evidence bundles, provenance scoring, freshness, and contradiction inputs
+- `memory/claims.py` owns claim state, lineage, and knowledge-gap modeling
+- `memory/resolution.py` owns explicit conflict-resolution policies and resolution history
+- `memory/graph.py` owns evidence-graph structure and validation
+- `memory/ingestion.py` owns normalization of external evidence into knowledge-owned memory records
+- `reviews/packets.py` owns reviewer-facing packets derived from existing scientific memory
+- `references/` owns selective curated references, workflow briefings, and the narrow workflow lookup surface
 
 ## Dependency direction
 
-The package is designed to keep decision rationale inspectable.
+The package is designed to keep scientific memory inspectable.
 
 It may depend on foundation primitives and core identifiers, but it should not
-take ownership of lifecycle authority, ranking policy, or lab execution logic.
+take ownership of execution orchestration, route shaping, ranking or
+recommendation policy, or lab execution logic.
 
 ## Downstream expectations
 
-Downstream packages should use these evidence and resolution models directly
-instead of maintaining separate trust, contradiction, or lineage formats.
+Downstream packages should use these memory and reference models directly
+instead of maintaining separate evidence, provenance, contradiction, or lineage
+formats.
 
 ## Extension signals
 
-- add code here when a new concern changes evidence, claim, contradiction, or
-  lineage semantics
-- extend `evidence.py`, `claims.py`, `resolution.py`, `graph.py`, or `review.py`
-  before downstream packages create shadow trust models
-- keep new auditability rules here when they define evidence meaning rather than
-  only how a runtime or recommendation surface displays it
+- add code here when a new concern changes evidence, claim, provenance,
+  contradiction, resolution, or curated scientific-memory semantics
+- extend `memory/`, `reviews/`, or `references/` before downstream packages create shadow memory models
+- keep new auditability rules here when they define evidence meaning rather than only how a runtime or recommendation surface displays it
 
 ## Misplacement signals
 
-- if the change needs lifecycle authority, ranking policy, lab scheduling, or
-  transport-bound payload shaping, it belongs elsewhere
+- if the change needs execution orchestration, ranking or recommendation policy,
+  lab scheduling, or transport-bound payload shaping, it belongs elsewhere
 - if a helper mainly reformats evidence results for API or CLI consumers, it
   belongs in runtime adapters rather than in knowledge models
-- if a rule only exists to serve one scoring or lab flow, keep it with that
+- if a rule only exists to serve one analytical or lab flow, keep it with that
   owner instead of making knowledge absorb workflow-specific behavior
 
 ## Review questions
 
-- does the change alter canonical evidence, contradiction, lineage, or review
-  semantics instead of only reformatting those outputs
-- would another package create a shadow trust or resolution model if this
-  behavior stayed out of knowledge
-- can the architecture still be defended without claiming lifecycle, ranking,
-  lab execution, or transport ownership
+- does the change alter canonical scientific memory, contradiction, lineage, or review semantics instead of only reformatting those outputs
+- would another package create a shadow trust or resolution model if this behavior stayed out of knowledge
+- can the architecture still be defended without claiming execution orchestration, ranking, recommendation, lab execution, or transport ownership
