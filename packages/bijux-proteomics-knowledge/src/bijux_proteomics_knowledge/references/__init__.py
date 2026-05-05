@@ -10,19 +10,35 @@ from bijux_proteomics_knowledge.references.citations import (
     CitationSourceKind,
     DEFAULT_CITATION_REGISTRY,
 )
+from bijux_proteomics_knowledge.references.benchmarks import (
+    BenchmarkManifest,
+    DEFAULT_BENCHMARK_MANIFESTS,
+    KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.corpora import (
+    CorpusManifest,
+    DEFAULT_CORPUS_MANIFESTS,
+    KnowledgeCorpusSourceKind,
+)
 from bijux_proteomics_knowledge.references.ontologies import (
+    DEFAULT_ONTOLOGY_MAPPINGS,
     KnowledgeOntologyDomain,
     KnowledgeOntologyMapping,
-    DEFAULT_ONTOLOGY_MAPPINGS,
     resolve_ontology_mapping,
 )
 
 __all__ = [
+    "BenchmarkManifest",
     "CitationRecord",
     "CitationSourceKind",
+    "CorpusManifest",
+    "DEFAULT_BENCHMARK_MANIFESTS",
     "DEFAULT_CITATION_REGISTRY",
+    "DEFAULT_CORPUS_MANIFESTS",
     "DEFAULT_ONTOLOGY_MAPPINGS",
+    "KnowledgeCorpusSourceKind",
     "KnowledgeOntologyDomain",
     "KnowledgeOntologyMapping",
+    "KnowledgeWorkflowFamily",
     "resolve_ontology_mapping",
 ]
