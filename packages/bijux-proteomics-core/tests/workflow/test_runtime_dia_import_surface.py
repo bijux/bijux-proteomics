@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.runs import (
+from bijux_proteomics_runtime.runtime.control.workflow_runs import (
     DiaPrecursorQuantInput,
     run_dia_import_workflow_end_to_end,
 )

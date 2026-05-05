@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.execution.providers import run_container_smoke_execution
+from bijux_proteomics_runtime.runtime.control.provider_support import run_container_smoke_execution
 
 
 def test_run_container_smoke_execution_captures_logs_and_artifacts() -> None:

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.api import (
+from bijux_proteomics_runtime.api.product_routes import (
     LabHandoffRouteRequest,
     route_lab_handoff_api,
 )

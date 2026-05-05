@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.workflow.runs import (
+from bijux_proteomics_runtime.runtime.control.workflow_runs import (
     FakeExternalToolKind,
     build_fake_external_engine_harness,
 )

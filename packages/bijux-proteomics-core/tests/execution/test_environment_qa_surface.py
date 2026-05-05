@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.execution.providers import (
+from bijux_proteomics_runtime.runtime.control.provider_support import (
     EnvironmentQaSnapshot,
     run_environment_qa_for_proteomics_workflows,
 )

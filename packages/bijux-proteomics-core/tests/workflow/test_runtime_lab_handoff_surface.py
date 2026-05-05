@@ -8,7 +8,7 @@ from bijux_proteomics_lab.ptm_follow_up import (
     PtmLabValidationPacket,
     PtmLabValidationTargetEntry,
 )
-from bijux_proteomics.workflow.runs import run_lab_handoff_workflow_end_to_end
+from bijux_proteomics_runtime.runtime.control.workflow_runs import run_lab_handoff_workflow_end_to_end
 
 
 def test_run_lab_handoff_workflow_end_to_end_tracks_unresolved_risks() -> None:

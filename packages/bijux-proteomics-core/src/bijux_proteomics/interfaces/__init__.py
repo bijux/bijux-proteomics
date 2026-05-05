@@ -5,5 +5,4 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.interfaces.api import *  # noqa: F401,F403
 from bijux_proteomics.interfaces.examples import *  # noqa: F401,F403
