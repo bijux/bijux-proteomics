@@ -1,0 +1,22 @@
+# Generated knowledge analytical logic hotspot report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge_analytical_logic
+
+[[module]]
+path = "memory/claims.py"
+matched_identifiers = ["completeness_score", "minimum_trust_score", "recommendations", "score", "trust_score"]
+
+[[module]]
+path = "memory/evidence.py"
+matched_identifiers = ["EvidenceRefreshPriority", "EvidenceRelevanceScore", "EvidenceTrustScoreInput", "TrustScoreProvenance", "TrustScoreRule", "base_score", "completeness_score", "convergence_score", "coverage_score", "decisive_score", "final_score", "integrated_trust_score", "modality_score", "priority", "quality_score", "quantity_score", "recommendations", "record_scores", "relevance_score", "risk_score", "score", "score_evidence_record", "support_score", "triangulation_score", "trust_score", "weighted_score"]
+
+[[module]]
+path = "memory/resolution.py"
+matched_identifiers = ["_resolution_score", "priority"]
+
+[[module]]
+path = "references/rules.py"
+matched_identifiers = ["RankingRuleGroundingLedger", "build_ranking_rule_grounding_ledger"]
+
+[[module]]
+path = "reviews/packets.py"
+matched_identifiers = ["CandidateDecisionDisposition", "EvidenceRelevanceScore", "compute_decision_intelligence_index", "decision_intelligence_index", "decision_scores", "disposition", "evidence_ranking", "gate_recommendation", "intelligence_index", "intelligence_index_delta", "minimum_triangulation_score", "minimum_trust_score", "portfolio_score", "ranking", "recommendation", "recommendation_change_count", "recommendation_changed", "recommendations", "score", "scores", "triangulation_score", "trust_score"]
