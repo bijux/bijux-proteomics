@@ -5,6 +5,7 @@ from pathlib import Path
 import tomllib
 from typing import Any
 
+from bijux_proteomics_dev.api.package_scorecard import build_package_scorecard_report
 from bijux_proteomics_dev.quality.package_graph import load_workspace_packages
 
 __all__ = [
@@ -41,7 +42,9 @@ class PackageFamilyReadinessReport:
     family_id: str
     package_count: int
     evidence_count: int
+    publishable_package_count: int
     ready: bool
+    not_ready_package_names: tuple[str, ...]
     missing_paths: tuple[str, ...]
 
 
@@ -74,17 +77,29 @@ def build_package_family_readiness_reports(
     repo_root: Path,
 ) -> tuple[PackageFamilyReadinessReport, ...]:
     """Build readiness evidence summaries across declared package families."""
+    scorecard = {
+        entry.distribution_name: entry
+        for entry in build_package_scorecard_report().entries
+    }
     reports = []
     for entry in _load_package_family_entries(repo_root):
         missing_paths = tuple(
             path for path in entry.evidence_paths if not (repo_root / path).exists()
+        )
+        not_ready_package_names = tuple(
+            package_name
+            for package_name in entry.package_names
+            if not scorecard[package_name].architectural_ready
         )
         reports.append(
             PackageFamilyReadinessReport(
                 family_id=entry.family_id,
                 package_count=len(entry.package_names),
                 evidence_count=len(entry.evidence_paths),
-                ready=not missing_paths,
+                publishable_package_count=len(entry.package_names)
+                - len(not_ready_package_names),
+                ready=not missing_paths and not not_ready_package_names,
+                not_ready_package_names=not_ready_package_names,
                 missing_paths=missing_paths,
             )
         )
