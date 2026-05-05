@@ -30,6 +30,11 @@ from bijux_proteomics_knowledge.references.literature import (
     LiteratureFocusArea,
     LiteratureGroup,
 )
+from bijux_proteomics_knowledge.references.narratives import (
+    DEFAULT_WORKFLOW_NARRATIVES,
+    WorkflowNarrative,
+    WorkflowNarrativeKind,
+)
 from bijux_proteomics_knowledge.references.ontologies import (
     DEFAULT_ONTOLOGY_MAPPINGS,
     KnowledgeOntologyDomain,
@@ -70,6 +75,7 @@ __all__ = [
     "DEFAULT_KNOWN_PROBLEM_REGISTRY",
     "DEFAULT_LITERATURE_GROUPS",
     "DEFAULT_ONTOLOGY_MAPPINGS",
+    "DEFAULT_WORKFLOW_NARRATIVES",
     "DEFAULT_SCIENTIFIC_RULE_REFERENCES",
     "DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES",
     "KnowledgeContextDomain",
@@ -84,6 +90,8 @@ __all__ = [
     "LiteratureGroup",
     "ScientificContextEntry",
     "ScientificRuleReference",
+    "WorkflowNarrative",
+    "WorkflowNarrativeKind",
     "get_benchmark_manifest",
     "get_citation",
     "get_corpus_manifest",
