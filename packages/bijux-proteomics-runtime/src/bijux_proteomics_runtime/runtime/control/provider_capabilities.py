@@ -5,24 +5,35 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
+
+from bijux_proteomics_runtime.providers.base import ProviderCapabilities
 from bijux_proteomics_runtime.providers.factory import (
     PROVIDER_CAPABILITIES,
     cuda_available,
     provider_requirements,
 )
 
-KNOWN_PROVIDERS = {
+KNOWN_PROVIDERS = frozenset(
+    {
     "heuristic_proxy",
     "local_esmfold",
     "local_rosettafold",
     "api_colabfold",
     "api_openprotein_esmfold",
     "api_openprotein_alphafold",
-}
+    }
+)
 
 
-def validate_runtime_capabilities(
-    config: dict[str, object], allow_unknown: bool = False
+def evaluate_runtime_capabilities(
+    config: dict[str, object],
+    *,
+    known_providers: set[str] | frozenset[str],
+    provider_capabilities: Mapping[str, ProviderCapabilities],
+    cuda_probe: Callable[[], bool],
+    requirements_lookup: Callable[[str], list[str]],
+    allow_unknown: bool = False,
 ) -> tuple[list[str], list[str]]:
     """Return runtime capability errors and warnings for one config."""
     errors: list[str] = []
@@ -36,12 +47,12 @@ def validate_runtime_capabilities(
         execution_mode_obj if isinstance(execution_mode_obj, str) else "auto"
     ).lower()
     for provider_name in enabled:
-        if provider_name not in KNOWN_PROVIDERS and not allow_unknown:
+        if provider_name not in known_providers and not allow_unknown:
             errors.append(f"unknown_provider:{provider_name}")
             continue
-        capabilities = PROVIDER_CAPABILITIES.get(provider_name)
+        capabilities = provider_capabilities.get(provider_name)
         if capabilities:
-            gpu_ok = cuda_available()
+            gpu_ok = cuda_probe()
             resource_limits_obj = config.get("resource_limits", {})
             resource_limits = (
                 resource_limits_obj if isinstance(resource_limits_obj, dict) else {}
@@ -68,8 +79,26 @@ def validate_runtime_capabilities(
                         warnings.append(f"cpu_fallback:{provider_name}")
                     else:
                         errors.append("gpu_required")
-        errors.extend(provider_requirements(provider_name))
+        errors.extend(requirements_lookup(provider_name))
     return errors, warnings
 
 
-__all__ = ["KNOWN_PROVIDERS", "validate_runtime_capabilities"]
+def validate_runtime_capabilities(
+    config: dict[str, object], allow_unknown: bool = False
+) -> tuple[list[str], list[str]]:
+    """Return runtime capability errors and warnings for one config."""
+    return evaluate_runtime_capabilities(
+        config,
+        known_providers=KNOWN_PROVIDERS,
+        provider_capabilities=PROVIDER_CAPABILITIES,
+        cuda_probe=cuda_available,
+        requirements_lookup=provider_requirements,
+        allow_unknown=allow_unknown,
+    )
+
+
+__all__ = [
+    "KNOWN_PROVIDERS",
+    "evaluate_runtime_capabilities",
+    "validate_runtime_capabilities",
+]
