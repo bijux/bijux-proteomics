@@ -1,0 +1,22 @@
+# Generated lab core scientific semantics report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab_core_scientific_semantics
+
+[[dependency]]
+importer_module_path = "benchmarks/claims.py"
+imported_module_name = "bijux_proteomics.dia"
+
+[[dependency]]
+importer_module_path = "benchmarks/claims.py"
+imported_module_name = "bijux_proteomics.io.ingestion"
+
+[[dependency]]
+importer_module_path = "design/experiments.py"
+imported_module_name = "bijux_proteomics.io.formats"
+
+[[dependency]]
+importer_module_path = "handoffs/ptm.py"
+imported_module_name = "bijux_proteomics.ptm"
+
+[[dependency]]
+importer_module_path = "handoffs/ptm.py"
+imported_module_name = "bijux_proteomics.ptm.review"

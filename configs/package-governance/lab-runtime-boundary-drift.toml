@@ -1,0 +1,7 @@
+# Generated lab runtime boundary drift report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab_runtime_boundary_drift
+
+[metrics]
+forbidden_module_paths = []
+forbidden_import_edges = []
+forbidden_definition_names = []
