@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import importlib
 from pathlib import Path
 
 
@@ -193,3 +194,9 @@ def test_foundation_source_tree_excludes_bytecode_artifacts() -> None:
         )
     )
     assert forbidden_paths == []
+
+
+def test_foundation_root_export_surface_stays_reviewable() -> None:
+    module = importlib.import_module("bijux_proteomics_foundation")
+
+    assert len(module.__all__) <= 24
