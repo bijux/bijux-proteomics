@@ -9,7 +9,7 @@ from bijux_proteomics_runtime.runs.import_lineage import RuntimeImportTrace
 from bijux_proteomics_runtime.runs.import_lineage import load_import_run_bundle
 from bijux_proteomics_runtime.runs.import_lineage import load_import_trace
 
-from .runtime_fixture_data import load_fixture
+from ..support.fixture_data import load_fixture
 
 
 def test_runtime_import_result_persists_trace_and_reviewable_outputs(

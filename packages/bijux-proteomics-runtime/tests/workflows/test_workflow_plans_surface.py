@@ -28,7 +28,8 @@ from bijux_proteomics_runtime.workflows.plans import (
 
 def _fixture(name: str) -> Path:
     return (
-        Path(__file__).resolve().parents[2]
+        Path(__file__).resolve().parents[4]
+        / "packages"
         / "bijux-proteomics-core"
         / "tests"
         / "fixtures"

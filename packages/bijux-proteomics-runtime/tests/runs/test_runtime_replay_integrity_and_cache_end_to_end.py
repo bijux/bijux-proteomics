@@ -29,7 +29,7 @@ from bijux_proteomics_runtime.runs.replay import (
 from bijux_proteomics_runtime.runs.reruns import build_partial_rerun_plan
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
-from .runtime_fixture_data import load_fixture
+from ..support.fixture_data import load_fixture
 
 
 def _build_contract(

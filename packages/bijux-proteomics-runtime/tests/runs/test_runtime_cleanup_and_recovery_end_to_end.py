@@ -27,7 +27,7 @@ from bijux_proteomics_runtime.runs.replay import (
 from bijux_proteomics_runtime.runs.checkpoints import build_resume_checkpoint
 from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
 
-from .runtime_fixture_data import load_fixture
+from ..support.fixture_data import load_fixture
 
 
 def _seed_runtime_bundle(

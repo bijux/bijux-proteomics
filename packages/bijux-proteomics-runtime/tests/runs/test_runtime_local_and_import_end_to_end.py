@@ -19,7 +19,7 @@ from bijux_proteomics_runtime.workflows.paths import (
     run_reviewable_sequence_path,
 )
 
-from .runtime_fixture_data import load_fixture
+from ..support.fixture_data import load_fixture
 
 
 def test_runtime_local_path_publishes_reviewable_outputs_from_fixture(
