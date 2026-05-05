@@ -17,7 +17,7 @@ benchmark_id = "foundation-serialization-throughput"
 package_name = "bijux-proteomics-foundation"
 metric_name = "documents_per_second"
 unit = "documents_per_second"
-owner_focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization.py"
+owner_focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/canonicalization.py"
 
 [[benchmark_artifact]]
 benchmark_id = "core-digestion-throughput"
