@@ -289,10 +289,16 @@ from bijux_proteomics_lab.artifacts import (
     verify_canonical_artifact_envelope,
 )
 from bijux_proteomics_lab.handoffs import (
+    HandoffExplanation,
+    HandoffSupportLevel,
+    HandoffSupportStatement,
+    LabExecutionRefusal,
     TargetedTransitionCandidate,
     TargetedTransitionReview,
     TargetedTransitionReviewEntry,
     TransitionReviewDisposition,
+    build_handoff_explanation,
+    refuse_irresponsible_assay_handoff,
     review_targeted_transition_candidates,
 )
 from bijux_proteomics_lab.risk import (
@@ -544,10 +550,16 @@ __all__ = [
     "AssayRiskFinding",
     "AssayRiskSeverity",
     "assess_assay_risk",
+    "HandoffExplanation",
+    "HandoffSupportLevel",
+    "HandoffSupportStatement",
+    "LabExecutionRefusal",
     "TargetedTransitionCandidate",
     "TargetedTransitionReview",
     "TargetedTransitionReviewEntry",
     "TransitionReviewDisposition",
+    "build_handoff_explanation",
+    "refuse_irresponsible_assay_handoff",
     "review_targeted_transition_candidates",
     "consolidate_claim_belief_updates",
     "assess_observation_quality",
