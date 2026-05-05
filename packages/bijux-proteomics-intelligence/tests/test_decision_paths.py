@@ -23,14 +23,14 @@ from bijux_proteomics_intelligence.decision_paths import (
     build_follow_up_candidate_path,
     build_review_board_decision_path,
 )
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 
 def _program() -> object:

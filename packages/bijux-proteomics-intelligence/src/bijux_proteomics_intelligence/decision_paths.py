@@ -44,7 +44,7 @@ from bijux_proteomics_knowledge.evidence import (
     EvidenceBundle,
     assess_decision_readiness,
 )
-from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 
 class FollowUpCandidateRecommendation(JsonModel):

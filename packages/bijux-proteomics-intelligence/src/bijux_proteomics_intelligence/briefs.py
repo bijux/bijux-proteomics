@@ -16,7 +16,8 @@ from bijux_proteomics_intelligence.evidence_posture import (
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
 )
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.decision_rules import (
     build_ranking_rule_grounding_ledger,
 )
 from bijux_proteomics_intelligence.policies import (
@@ -29,7 +30,6 @@ from bijux_proteomics_intelligence.policies import (
     ranking_policy_lineage,
 )
 from bijux_proteomics_knowledge.evidence import EvidenceBundle, evidence_gaps
-from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
 
 class OptimizationAxis(StrEnum):

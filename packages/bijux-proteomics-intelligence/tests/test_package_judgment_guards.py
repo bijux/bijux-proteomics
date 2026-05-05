@@ -30,7 +30,7 @@ from bijux_proteomics_intelligence.recommendations import (
     build_final_decision_recommendation,
 )
 from bijux_proteomics_intelligence.skeptical_review import build_skeptical_review_report
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -40,7 +40,7 @@ from bijux_proteomics_knowledge import (
 from bijux_proteomics_knowledge.references.decision_rules import (
     build_ranking_rule_grounding_ledger,
 )
-from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 
 def _program():

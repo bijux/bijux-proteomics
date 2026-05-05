@@ -14,14 +14,14 @@ from bijux_proteomics_intelligence.skeptical_review import (
     SkepticalReviewReport,
     build_skeptical_review_report,
 )
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 
 def _program() -> object:

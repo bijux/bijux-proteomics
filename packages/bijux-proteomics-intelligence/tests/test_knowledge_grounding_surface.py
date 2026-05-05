@@ -3,12 +3,18 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.references.benchmarks import (
     KnowledgeWorkflowFamily,
-    WorkflowNarrativeKind,
+)
+from bijux_proteomics_knowledge.references.briefings import (
     build_workflow_reference_briefing,
 )
-from bijux_proteomics_knowledge.references import build_ranking_rule_grounding_ledger
+from bijux_proteomics_knowledge.references.decision_rules import (
+    build_ranking_rule_grounding_ledger,
+)
+from bijux_proteomics_knowledge.references.narratives import (
+    WorkflowNarrativeKind,
+)
 
 
 def test_intelligence_can_consume_knowledge_briefing_with_limitations() -> None:

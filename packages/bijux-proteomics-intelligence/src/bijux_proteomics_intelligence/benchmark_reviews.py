@@ -52,9 +52,11 @@ from bijux_proteomics.quantification.review import (
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import JsonModel, fingerprint_model
 from bijux_proteomics_foundation.states import SupportState
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.references.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.queries import (
     get_benchmark_manifest,
 )
 

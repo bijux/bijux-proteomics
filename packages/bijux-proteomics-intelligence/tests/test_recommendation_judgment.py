@@ -33,14 +33,14 @@ from bijux_proteomics_intelligence.review_packets import (
 from bijux_proteomics_knowledge.references.decision_rules import (
     build_ranking_rule_grounding_ledger,
 )
-from bijux_proteomics_knowledge import (
+from bijux_proteomics_knowledge.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 
 def _program() -> object:
