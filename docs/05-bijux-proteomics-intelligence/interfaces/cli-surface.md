@@ -19,6 +19,6 @@ CLI documentation should describe the commands the package truly owns, not the c
 
 ## First Proof Check
 
-- `src/bijux_proteomics_intelligence/candidates.py`, `policies.py`, and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 - `packages/bijux-proteomics-intelligence/tests`

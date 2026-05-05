@@ -28,15 +28,15 @@ reconstructed from policy, evaluation, and report surfaces.
 
 ## Review Rules
 
-- recommendations must stay explainable through candidates, policies, evaluators, and outputs
+- recommendations must stay explainable through candidates, judgment, posture, and outputs
 - decision logic must not re-own evidence semantics or lab execution behavior
 - public reports and outcomes must continue to justify why the system moved
 
 ## First Proof Check
 
 - `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 
 ## Design Pressure
 

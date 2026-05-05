@@ -13,9 +13,9 @@ last_reviewed: 2026-04-26
 
 ## Owned Module Families
 
-- `src/bijux_proteomics_intelligence/candidates.py` and `domain/candidates/` own candidate state and portfolio structure
-- `src/bijux_proteomics_intelligence/policies.py`, `evaluators.py`, and `domain/metrics/` own scoring and decision rules
-- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, `outcomes.py`, and `design_loop/` own explainability and control-loop structure
+- `src/bijux_proteomics_intelligence/candidates/` owns candidate records, ranking, lifecycle, quality, and validation
+- `src/bijux_proteomics_intelligence/judgment/` and `posture/` own scoring, recommendation, refusal, and skeptical challenge rules
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/` own review projection, interpretation contracts, and refinement structure
 
 ## First Proof Check
 

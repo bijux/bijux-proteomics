@@ -18,7 +18,7 @@ For `bijux-proteomics-intelligence`, limitations exist wherever recommendation q
 ```mermaid
 flowchart TB
     evidence["weak or conflicting evidence"]
-    policy["intelligence policy and evaluators"]
+    policy["intelligence candidate, judgment, and posture owners"]
     outputs["rankings, reports, and outcomes"]
     execution["lab and runtime execute the result"]
     limit["intelligence cannot turn weak inputs into guaranteed truth"]
@@ -41,8 +41,8 @@ This page should stop readers from over-claiming what a scoring layer can do. Th
 ## First Proof Check
 
 - `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 
 ## Design Pressure
 

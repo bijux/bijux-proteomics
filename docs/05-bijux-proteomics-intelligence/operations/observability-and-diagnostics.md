@@ -13,12 +13,12 @@ Diagnostics should reveal whether a failure belongs to this package or to a neig
 
 ## Operating Rules
 
-- reports, briefs, and outcome payloads are core diagnostics here
+- review packets, interpretation summaries, and recommendation outputs are core diagnostics here
 - observe which metric or policy change moved the recommendation
 - make uncertainty and contradiction visible rather than smoothing them away
 
 ## First Proof Check
 
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 - `packages/bijux-proteomics-intelligence/tests`
