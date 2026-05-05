@@ -90,5 +90,7 @@ def test_foundation_thin_abstractions_stay_limited_to_curated_compatibility_path
         "hashing.py",
         "ids.py",
         "provenance.py",
+        "refusals.py",
+        "results.py",
         "states.py",
     }

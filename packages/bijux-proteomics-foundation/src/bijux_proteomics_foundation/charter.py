@@ -127,7 +127,12 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
     FoundationCharterEntry(
         capability=FoundationCharterCapability.REFUSALS_ERRORS_AND_RESULTS,
         owned_surface="Shared refusal, error-envelope, and operation-result contracts for deterministic cross-package failure semantics.",
-        required_modules=("refusals.py", "error_models.py", "errors.py", "results.py"),
+        required_modules=(
+            "outcomes/refusals.py",
+            "error_models.py",
+            "errors.py",
+            "outcomes/results.py",
+        ),
         release_blocker="Foundation cannot ship if shared refusal or error semantics fragment into runtime-, intelligence-, or lab-local contracts.",
     ),
     FoundationCharterEntry(
@@ -172,6 +177,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {"ids.py", "provenance.py", "states.py"}:
+        return FoundationModuleAuditEntry(
+            module_path=module_path,
+            classification=FoundationModuleClassification.THIN_ABSTRACTION,
+            reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
+        )
+
+    if module_path in {"refusals.py", "results.py"}:
         return FoundationModuleAuditEntry(
             module_path=module_path,
             classification=FoundationModuleClassification.THIN_ABSTRACTION,
@@ -225,7 +237,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             "Shared document and JSON model contracts are foundation ownership because they define the reusable persisted shape language.",
         )
 
-    if module_path in {"refusals.py", "error_models.py", "errors.py", "results.py"}:
+    if module_path in {
+        "error_models.py",
+        "errors.py",
+        "outcomes/__init__.py",
+        "outcomes/refusals.py",
+        "outcomes/results.py",
+    }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.REFUSALS_ERRORS_AND_RESULTS,),
