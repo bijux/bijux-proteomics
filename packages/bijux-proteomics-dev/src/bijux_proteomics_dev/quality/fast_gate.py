@@ -55,7 +55,7 @@ def default_fast_gate_targets() -> tuple[FastGateTarget, ...]:
         ),
         FastGateTarget(
             surface="evidence",
-            test_path="packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py",
+            test_path="packages/bijux-proteomics-knowledge/tests/memory/test_evidence_bundle.py",
             rationale="prove evidence trust and bundle basics remain intact",
         ),
     )

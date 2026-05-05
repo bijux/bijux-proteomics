@@ -25,7 +25,7 @@ KNOWLEDGE_REFERENCES_ROOT_API_POLICY = (
 )
 PUBLIC_SURFACE_TESTS = {
     "packages/bijux-proteomics-dev/tests/test_knowledge_references_root_api_policy.py",
-    "packages/bijux-proteomics-knowledge/tests/test_reference_public_api_surface.py",
+    "packages/bijux-proteomics-knowledge/tests/references/test_reference_public_api_surface.py",
 }
 
 

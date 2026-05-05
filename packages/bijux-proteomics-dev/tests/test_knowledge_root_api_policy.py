@@ -21,10 +21,10 @@ KNOWLEDGE_ROOT_API_POLICY = (
 )
 PUBLIC_SURFACE_TESTS = {
     "packages/bijux-proteomics-dev/tests/test_knowledge_root_api_policy.py",
-    "packages/bijux-proteomics-knowledge/tests/test_package_grounding_guards.py",
-    "packages/bijux-proteomics-knowledge/tests/test_public_api_surface.py",
-    "packages/bijux-proteomics-knowledge/tests/test_schema.py",
-    "packages/bijux-proteomics-knowledge/tests/test_serialization.py",
+    "packages/bijux-proteomics-knowledge/tests/package/test_package_grounding_guards.py",
+    "packages/bijux-proteomics-knowledge/tests/package/test_public_api_surface.py",
+    "packages/bijux-proteomics-knowledge/tests/package/test_schema.py",
+    "packages/bijux-proteomics-knowledge/tests/package/test_serialization.py",
 }
 
 

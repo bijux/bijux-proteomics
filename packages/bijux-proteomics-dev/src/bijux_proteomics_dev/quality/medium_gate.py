@@ -51,7 +51,7 @@ def default_medium_gate_targets() -> tuple[MediumGateTarget, ...]:
         ),
         MediumGateTarget(
             surface="evidence-integrity",
-            test_path="packages/bijux-proteomics-knowledge/tests/test_evidence_bundle.py",
+            test_path="packages/bijux-proteomics-knowledge/tests/memory/test_evidence_bundle.py",
             rationale="prove governed evidence and trust surfaces remain coherent",
         ),
         MediumGateTarget(

@@ -27,3 +27,20 @@ def test_knowledge_source_tree_excludes_bytecode_artifacts() -> None:
     )
 
     assert forbidden_paths == []
+
+
+def test_knowledge_tests_follow_owned_boundary_families() -> None:
+    allowed_top_level_paths = {
+        "conftest.py",
+        "memory",
+        "package",
+        "references",
+        "reviews",
+    }
+    observed_top_level_paths = {
+        path.relative_to(KNOWLEDGE_TEST_ROOT).parts[0]
+        for path in KNOWLEDGE_TEST_ROOT.rglob("*")
+        if path != KNOWLEDGE_TEST_ROOT
+    }
+
+    assert observed_top_level_paths == allowed_top_level_paths
