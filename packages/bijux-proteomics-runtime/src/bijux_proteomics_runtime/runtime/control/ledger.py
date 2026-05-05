@@ -76,6 +76,8 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("local_run_bundle_path", "local_run_bundle", "runtime-local-run-bundle"),
     ("container_run_bundle_path", "container_run_bundle", "runtime-container-run-bundle"),
     ("scheduler_job_bundle_path", "scheduler_job_bundle", "runtime-scheduler-job-bundle"),
+    ("import_trace_path", "import_trace", "runtime-import-trace"),
+    ("import_run_bundle_path", "import_run_bundle", "runtime-import-run-bundle"),
     ("preflight_report_path", "preflight_report", "runtime-preflight-report"),
 )
 

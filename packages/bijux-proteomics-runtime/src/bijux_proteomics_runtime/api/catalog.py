@@ -80,6 +80,8 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
         "runtime-scheduler-job-bundle",
         "runtime scheduler job bundle",
     ),
+    ("import_trace", "runtime-import-trace", "runtime import provenance trace"),
+    ("import_run_bundle", "runtime-import-run-bundle", "runtime import run bundle"),
     ("preflight_report", "runtime-preflight-report", "runtime preflight report"),
 )
 

@@ -161,6 +161,16 @@ class RunWorkspace:
         return self.run_dir / "scheduler_job_bundle.json"
 
     @property
+    def import_trace_path(self) -> Path:
+        """import_trace_path."""
+        return self.run_dir / "import_trace.json"
+
+    @property
+    def import_run_bundle_path(self) -> Path:
+        """import_run_bundle_path."""
+        return self.run_dir / "import_run_bundle.json"
+
+    @property
     def preflight_report_path(self) -> Path:
         """preflight_report_path."""
         return self.run_dir / "preflight_report.json"

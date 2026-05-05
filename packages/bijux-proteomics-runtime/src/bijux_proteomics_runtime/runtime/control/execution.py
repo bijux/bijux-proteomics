@@ -105,6 +105,13 @@ from bijux_proteomics_runtime.runtime.control.execution_surfaces import (
     write_container_run_bundle,
     write_scheduler_job_bundle,
 )
+from bijux_proteomics_runtime.runtime.control.imports import (
+    build_import_run_bundle,
+    build_import_trace,
+    write_import_documents,
+    write_import_run_bundle,
+    write_import_trace,
+)
 from bijux_proteomics_runtime.runtime.control.failure_reports import (
     build_runtime_failure_report,
     write_runtime_failure_report,
@@ -830,6 +837,156 @@ class RunManager:
             start=start,
             run_logger=run_logger,
         )
+
+    def import_result(
+        self,
+        *,
+        sequence: str,
+        source_path: Path,
+        imported_payload: dict[str, Any],
+        engine_name: str,
+        engine_version: str,
+        run_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Import external-engine outputs without pretending runtime produced them."""
+        try:
+            RunRequest.model_validate({"sequence": sequence})
+        except Exception as exc:  # noqa: BLE001
+            context, _warnings = create_run_context(
+                self._base_dir, self._config, run_id=run_id
+            )
+            return self._fail_fast(
+                context,
+                [str(exc)],
+                FailureType.INPUT_INVALID.value,
+                None,
+            )
+        context, warnings = create_run_context(
+            self._base_dir, self._config, run_id=run_id
+        )
+        run_context_contract = build_run_context_contract(
+            run_id=context.run_id,
+            started_at=context.start_time.isoformat(),
+            base_dir=self._base_dir,
+            config=context.config,
+            provider_name=engine_name,
+            artifact_policy=context.artifact_policy,
+            sequence=sequence,
+            command="import",
+            workflow_family="external_import",
+            candidate_id=f"{context.run_id}-c0",
+            dataset_kind=RuntimeDatasetKind.IMPORTED_EVIDENCE,
+            source_path=source_path,
+            import_only=True,
+        )
+        write_json_atomic(context.workspace.run_context_path, run_context_contract.to_dict())
+        preflight_report = build_runtime_preflight_report(
+            context.workspace,
+            run_id=context.run_id,
+            provider_name=engine_name,
+        )
+        write_runtime_preflight_report(context.workspace, preflight_report)
+        if not preflight_report.passed:
+            preflight_messages = [check.message for check in preflight_report.checks]
+            return self._fail_fast(
+                context,
+                preflight_messages,
+                FailureType.IMPORT_INVALID.value,
+                None,
+            )
+        imported_path, evidence_bundle_path, review_packet_path = write_import_documents(
+            context.workspace,
+            engine_name=engine_name,
+            engine_version=engine_version,
+            source_path=source_path,
+            imported_payload=imported_payload,
+        )
+        version_info = _version_info(None)
+        version_info.tool_versions = {engine_name: engine_version}
+        summary = _build_run_summary(
+            context,
+            command="import",
+            candidate_id=f"{context.run_id}-c0",
+            status="success",
+            failure_type=FailureType.NONE.value,
+            lifecycle_state=RunLifecycleState.ARCHIVED.value,
+            tool_status="imported",
+            qc_status=QCStatus.ACCEPTABLE.value,
+            warnings=warnings,
+            version_info=version_info,
+            provider_name=engine_name,
+        )
+        write_json_atomic(context.workspace.run_summary_path, summary)
+        output = RunOutput(
+            run_id=context.run_id,
+            candidate_id=f"{context.run_id}-c0",
+            lifecycle_state=RunLifecycleState.ARCHIVED.value,
+            status=RunStatus.SUCCESS,
+            failure_type=FailureType.NONE.value,
+            plan_fingerprint="import-only",
+            tool_status="imported",
+            report={
+                "engine_name": engine_name,
+                "engine_version": engine_version,
+                "source_path": str(source_path),
+            },
+            qc_status=QCStatus.ACCEPTABLE,
+            coordinator_decision=CoordinatorDecisionType.TERMINATE,
+            errors=[],
+            warnings=sorted(warnings),
+            version_info=version_info,
+        )
+        write_json_atomic(context.workspace.run_output_path, output.model_dump(mode="json"))
+        replay_contract = build_replay_contract(
+            run_context_contract,
+            app_version=version_info.app_version,
+            git_commit=version_info.git_commit,
+            tool_versions=version_info.tool_versions,
+        )
+        write_replay_contract(context.workspace, replay_contract)
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
+        )
+        import_trace = build_import_trace(
+            workspace=context.workspace,
+            run_id=context.run_id,
+            engine_name=engine_name,
+            engine_version=engine_version,
+            source_path=source_path,
+            imported_artifact_path=imported_path,
+            derived_paths=(
+                evidence_bundle_path,
+                review_packet_path,
+                context.workspace.run_summary_path,
+                context.workspace.run_context_path,
+                context.workspace.replay_contract_path,
+            ),
+        )
+        write_import_trace(context.workspace, import_trace)
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
+        )
+        import_run_bundle = build_import_run_bundle(
+            run_context=run_context_contract,
+            replay_contract=replay_contract,
+            import_trace=import_trace,
+            artifact_ledger=load_artifact_ledger(context.workspace, context.run_id),
+            run_summary=summary,
+        )
+        write_import_run_bundle(context.workspace, import_run_bundle)
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
+        )
+        return output.model_dump(mode="json")
 
     def _run_with_context(
         self,

@@ -140,6 +140,8 @@ def default_runtime_artifact_policy(artifacts_root: Path) -> RuntimeArtifactPoli
             "runtime-local-run-bundle": RuntimeArtifactRetentionClass.REPLAY_REQUIRED,
             "runtime-container-run-bundle": RuntimeArtifactRetentionClass.REPLAY_REQUIRED,
             "runtime-scheduler-job-bundle": RuntimeArtifactRetentionClass.REPLAY_REQUIRED,
+            "runtime-import-trace": RuntimeArtifactRetentionClass.AUDIT_REQUIRED,
+            "runtime-import-run-bundle": RuntimeArtifactRetentionClass.REPLAY_REQUIRED,
             "runtime-replay-contract": RuntimeArtifactRetentionClass.REPLAY_REQUIRED,
             "runtime-preflight-report": RuntimeArtifactRetentionClass.AUDIT_REQUIRED,
         },
