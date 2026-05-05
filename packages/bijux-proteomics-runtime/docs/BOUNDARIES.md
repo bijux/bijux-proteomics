@@ -66,11 +66,28 @@ Runtime must use adapter and mapper modules when translating lower-layer domain
 objects into runtime interface payloads. Lower layers must not expose runtime
 shapes or import runtime contracts.
 
+## Supported execution surfaces
+
+- `launch_surface="local"` is the canonical direct execution surface
+- `launch_surface="container"` is limited to replay-safe bundle and digest capture
+- `launch_surface="scheduler"` is limited to replay-safe scheduler submission metadata
+- `launch_surface="import"` is limited to provenance-preserving external result normalization
+- `execution_mode="auto"` may choose CPU after provider capability checks
+- `execution_mode="cpu"` is the supported CPU-compatible mode
+- `execution_mode="gpu"` is supported only when provider capabilities and environment support agree
+
+Runtime does not own container image build policy, cluster provisioning, queue
+policy, or scientific derivation claims for imported evidence.
+
 ## Downstream expectations
 
-Downstream callers should treat runtime as the only canonical owner of
-orchestration, provider binding, and operator-facing entrypoints. Lower layers
-should stay meaningful without importing runtime shapes.
+Downstream callers should treat runtime as the canonical owner of
+orchestration, provider binding, and operator-facing entrypoints, while in-repo
+and package-internal consumers should import exact owners such as `api.app`,
+`runs.manager`, `runs.preflight`, `runs.import_lineage`, `workflows.paths`, and
+`providers.factory`.
+
+Lower layers should stay meaningful without importing runtime shapes.
 
 ## Migration staging law
 
@@ -98,6 +115,8 @@ Compatibility package modules are forwarding-only surfaces in strict mode.
   behavior, migration staging has drifted and ownership must be pulled back here
 - if runtime adapters have to redefine schema, lifecycle, evidence, ranking, or
   lab truth locally, the owning lower package contract is incomplete
+- if runtime docs teach internal consumers to start from `bijux_proteomics_runtime`
+  instead of the actual owner modules, boundary clarity has regressed
 
 ## Review questions
 

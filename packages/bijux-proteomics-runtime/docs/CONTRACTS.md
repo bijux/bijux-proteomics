@@ -13,12 +13,26 @@ integrators can rely on at the canonical execution boundary.
 ## Stable contracts
 
 - `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical workflow CLI entrypoint.
-- `bijux_proteomics_runtime.api.app:app` exposes the canonical FastAPI app.
-- `bijux_proteomics_runtime.RunManager` remains the canonical orchestration root.
-- `bijux_proteomics_runtime.runs` and `bijux_proteomics_runtime.workflows` are
-  the canonical exact-owner imports inside the runtime package.
-- runtime exports typed run context, reviewable outputs, failure reports, and
-  replay artifacts without forcing downstream users to parse private workspaces.
+- `bijux_proteomics_runtime.api.app:create_app` exposes the canonical FastAPI app constructor.
+- `bijux_proteomics_runtime.runs.manager:RunManager` remains the canonical orchestration root.
+- `bijux_proteomics_runtime.workflows.paths:run_reviewable_sequence_path` publishes the canonical reviewable sequence-run manifest.
+- `bijux_proteomics_runtime.workflows.paths:run_reviewable_import_path` publishes the canonical reviewable import manifest.
+- runtime exports typed run context, reviewable outputs, failure reports, and replay artifacts without forcing downstream users to parse private workspaces.
+
+## Exact owner import contracts
+
+- internal and package-maintainer code should import `api.app`, `runs.manager`, `workflows.paths`, `providers.factory`, and `providers.capabilities` directly
+- HTTP route ownership is pinned to `api/routes/runtime_execution.py`, `review_packets.py`, `quant_reports.py`, `ptm_reports.py`, `evidence_graph.py`, `lab_handoffs.py`, and `adapter_conformance.py`
+- import provenance ownership is pinned to `runs/import_lineage.py`
+- preflight, replay-decision, and execution-decision ownership is pinned to `runs/preflight.py`, `runs/replay_decisions.py`, and `runs/execution_decisions.py`
+
+## Supported execution limits
+
+- `execution_mode="auto"` is allowed to degrade to CPU after capability checks
+- `execution_mode="cpu"` is supported for CPU-compatible providers only
+- `execution_mode="gpu"` is supported only when provider and environment constraints agree
+- `launch_surface="container"` and `launch_surface="scheduler"` persist replay-safe launch bundles but do not own container fleet policy or queue policy
+- `launch_surface="import"` preserves external provenance but does not convert imported evidence into runtime-owned scientific truth
 
 ## Change requirements
 
@@ -26,6 +40,7 @@ integrators can rely on at the canonical execution boundary.
 - Runtime package documentation reflects ownership and dependency law.
 - Runtime does not silently absorb lower-layer domain ownership.
 - Runtime charter entries stay backed by live modules and a current source audit.
+- Runtime docs must name the current owner modules and current route modules instead of removed topology labels.
 
 Any contract change should update runtime surface tests and the boundary
 validation suite that pins compat forwarding, canonical roots, and migration

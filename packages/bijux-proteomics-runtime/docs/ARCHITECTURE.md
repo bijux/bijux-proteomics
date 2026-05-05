@@ -27,11 +27,11 @@ Runtime-owned capabilities:
 
 ## Execution charter
 
-- canonical entrypoints: `interfaces/`, `api/`, and `runs/operations.py`
-- provider binding: `providers/`, `providers/capabilities.py`, and `providers/support.py`
-- workflow execution: `agents/`, `execution/`, `tools/`, `runs/manager.py`, and `workflows/`
-- replay and recovery: `runs/`, `memory/`, `state/`, and `runtime/workspace.py`
-- reviewable outputs: `api/catalog.py`, `runs/launch_bundles.py`, `runs/failure_reports.py`, and `workflows/paths.py`
+- canonical entrypoints: `interfaces/cli.py`, `api/app.py`, `api/v1/endpoints/`, and `runs/operations.py`
+- provider binding: `providers/base.py`, `providers/factory.py`, `providers/capabilities.py`, and `providers/support.py`
+- workflow execution: `runs/manager.py`, `workflows/paths.py`, `workflows/plans.py`, `agents/`, `execution/`, and `tools/`
+- replay and recovery: `runs/replay.py`, `runs/reruns.py`, `runs/recovery.py`, `runs/preflight.py`, `memory/`, `state/`, and `runtime/workspace.py`
+- reviewable outputs: `api/catalog.py`, `runs/contracts.py`, `runs/import_lineage.py`, `runs/launch_bundles.py`, `runs/failure_reports.py`, and `workflows/paths.py`
 
 ## Execution model
 
@@ -61,13 +61,33 @@ flowchart TD
 
 - `charter.py` owns the machine-readable execution charter and release-blocking module audit
 - `interfaces/` owns CLI-facing runtime contracts
-- `api/` owns HTTP entrypoints, request logging, and request-scoped base-dir wiring
-- `runs/` owns run identity, run config, correlation, canonical run operations, and typed execution context
-- `workflows/` owns workflow planning, reproducibility, reviewable path manifests, and end-to-end workflow run reports
-- `providers/` owns provider binding, capability gates, and provider execution support
-- `runtime/` now holds only internal workspace and transport contracts that do not belong to the run-owned families
+- `api/` owns FastAPI assembly, request logging, `api/routes/`, and `api/v1/endpoints/`
+- `runs/` owns run identity, run config, preflight, recovery, decisions, lineage, bundles, and typed execution context
+- `workflows/` owns workflow planning, reproducibility, smoke workflow catalogs, and reviewable path manifests
+- `providers/` owns provider binding, capability gates, provider metadata, and provider execution support
+- `runtime/` holds only internal workspace and transport contracts that do not belong to the run-owned families
 - `agents/`, `execution/`, and `tools/` own runtime-local execution planning and coordination support
 - `memory/` and `state/` own replayable state, history, and review-safe persistence contracts
+
+## Route owners
+
+- `api/routes/runtime_execution.py` owns run, import, resume, compare, and inspect route composition
+- `api/routes/review_packets.py` owns review packet transport
+- `api/routes/quant_reports.py` owns quant-report transport
+- `api/routes/ptm_reports.py` owns PTM-report transport
+- `api/routes/evidence_graph.py` owns evidence-graph transport
+- `api/routes/lab_handoffs.py` owns lab handoff transport
+- `api/routes/adapter_conformance.py` owns adapter-conformance transport
+
+## Supported execution surfaces
+
+- `launch_surface="local"` is the direct workspace execution surface
+- `launch_surface="container"` is the container bundle and digest-capture surface, not a container-image build system
+- `launch_surface="scheduler"` is the scheduler bundle and submission-metadata surface, not a queue-policy or cluster-provisioning system
+- `launch_surface="import"` is the import-only normalization surface, not a scientific derivation surface
+- `execution_mode="auto"` may degrade to CPU after provider capability checks
+- `execution_mode="cpu"` is the CPU-compatible execution surface
+- `execution_mode="gpu"` requires a provider and environment that can honor GPU work
 
 ## Dependency direction
 
@@ -88,16 +108,20 @@ runtime-specific schemas.
 
 ## Downstream expectations
 
-Downstream callers should integrate through the canonical runtime roots and
-leave domain meaning in the lower packages. New orchestration features should
-land here before compat forwarding in `agentic-proteins` grows.
+Downstream callers should integrate through exact owner modules such as
+`api.app`, `runs.manager`, `workflows.paths`, and `providers.factory` instead
+of teaching internal consumers to widen package-root imports.
+
+New orchestration features should land here before compat forwarding in
+`agentic-proteins` grows.
 
 ## Extension signals
 
 - add code here when a new concern changes canonical operator entrypoints,
   provider binding, replay safety, or orchestration coordination
-- extend `interfaces/`, `api/`, `runs/`, `workflows/`, or `providers/` before
-  compat or lower packages invent runtime-local entrypoints
+- extend `interfaces/`, `api/routes/`, `api/v1/endpoints/`, `runs/`,
+  `workflows/`, or `providers/` before compat or lower packages invent
+  runtime-local entrypoints
 - keep new transport and orchestration behavior here when it changes how
   canonical execution runs rather than what lower-layer domain truth means
 

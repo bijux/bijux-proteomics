@@ -32,18 +32,17 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-runtime` is the canonical runtime package for execution control,
-provider binding, deterministic replay, and operator-facing orchestration
-surfaces in `bijux-proteomics`.
+`bijux-proteomics-runtime` is the canonical runtime package for execution
+control, provider binding, deterministic replay, and operator-facing
+orchestration surfaces in `bijux-proteomics`.
 
-Use this package when you need the supported CLI, HTTP API, provider wiring,
+Use this package when you need supported CLI, HTTP API, provider wiring,
 runtime state handling, and replay-safe orchestration for canonical
 `bijux-proteomics` execution.
 
-It is important not to overstate that role. Runtime owns execution control. It
-does not own the scientific workflow blueprint, evidence truth, ranking
-semantics, or lab progression logic that the wider proteomics engine still
-needs.
+Runtime owns execution control. It does not own the scientific workflow
+blueprint, evidence truth, ranking semantics, or lab progression logic that the
+wider proteomics engine still needs.
 
 ## Why teams pick this package
 
@@ -83,11 +82,20 @@ run outputs:
 bijux-proteomics-runtime --help
 ```
 
-Python integrations should start from the canonical runtime package:
+Use exact owner modules for Python integrations:
 
 ```python
-from bijux_proteomics_runtime import AppConfig, RunManager, create_app
+from bijux_proteomics_runtime.api.app import AppConfig, create_app
+from bijux_proteomics_runtime.runs.manager import RunManager
+from bijux_proteomics_runtime.workflows.paths import (
+    run_reviewable_import_path,
+    run_reviewable_sequence_path,
+)
 ```
+
+The package root remains a stable external entrypoint surface, but runtime
+maintainers and in-repo consumers should import the exact owner modules above
+instead of widening `bijux_proteomics_runtime` into a convenience bucket.
 
 ## Package identity
 
@@ -96,7 +104,7 @@ from bijux_proteomics_runtime import AppConfig, RunManager, create_app
 - Canonical workflow CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
 - Execution charter: `src/bijux_proteomics_runtime/charter.py`
-- First-level owner families: `runs/`, `workflows/`, `providers/`, `agents/`, `execution/`, `tools/`, `memory/`, and `state/`
+- First-level owner families: `runs/`, `workflows/`, `providers/`, `api/`, `interfaces/`, `agents/`, `execution/`, `tools/`, `memory/`, `state/`, and `runtime/`
 - Compatibility forwarding lives in `agentic-proteins`; the canonical runtime package keeps only owner paths
 
 ## Package boundaries
@@ -112,18 +120,38 @@ remain in their dedicated lower-layer packages.
 - runtime only owns canonical entrypoints, provider binding, workflow execution, replay and recovery, and reviewable run outputs
 - modules that cannot be defended against that charter should move out of runtime or be deleted rather than hardening into generic infrastructure
 
-## Execution surfaces
+## Supported execution surfaces
 
-- local runs persist machine-readable run context, replay, ledger, and local reuse bundles
-- container runs persist image digests, mount maps, environment capture, and expected artifacts
-- scheduler runs persist launch metadata, replay boundaries, and review-safe job bundles
-- import-only runs persist imported evidence, runtime-derived review documents, and an explicit import trace
-- partial runs only publish resume checkpoints when runtime is waiting at a human-review boundary
-- bundle reuse is guarded by artifact-integrity reports and artifact-size limits before runtime reloads state
-- cache reuse is guarded by runtime cache claims so shared reads remain explicit and unsafe sharing is refused
-- cleanup plans only delete transient outputs and preserve replay, review, and forensic artifacts by retention class
-- failure audits identify which good artifacts remain reusable after a failed phase
-- failure reports classify subprocess, container, scheduler, import, validation, and workspace breakage through one runtime-owned surface
+Launch surfaces:
+
+- `launch_surface="local"` runs through `runs/manager.py` inside the current workspace and persists canonical review artifacts
+- `launch_surface="container"` emits container launch bundles and digest capture through `runs/launch_bundles.py`; runtime does not build images or define container fleet policy
+- `launch_surface="scheduler"` emits scheduler submission bundles and replay-safe metadata through `runs/launch_bundles.py`; runtime does not own queue policy, job priority rules, or cluster provisioning
+- `launch_surface="import"` normalizes third-party outputs through `runs/import_lineage.py`; runtime does not claim new scientific derivation for imported evidence
+
+Execution modes:
+
+- `execution_mode="auto"` lets provider capability checks choose an allowed mode; runtime may degrade to CPU when provider support or configured budgets require it
+- `execution_mode="cpu"` forces CPU-compatible execution; runtime does not emulate GPU-only providers when a CPU path is unavailable
+- `execution_mode="gpu"` requires GPU-capable providers and an execution environment that can honor that request; runtime does not provision GPUs or schedule cluster policy
+
+Non-goals for these surfaces:
+
+- runtime does not define workflow truth, evidence truth, scoring truth, or lab truth
+- runtime does not promise every provider on every launch surface
+- runtime does not replace container orchestration, scheduler administration, or external-engine provenance
+
+## Canonical owner imports
+
+- `bijux_proteomics_runtime.interfaces.cli` for CLI contracts and operator-safe command output
+- `bijux_proteomics_runtime.api.app` for `AppConfig`, FastAPI construction, and request-scoped runtime wiring
+- `bijux_proteomics_runtime.api.routes.runtime_execution` for runtime execution HTTP routes
+- `bijux_proteomics_runtime.runs.manager` for canonical execution coordination
+- `bijux_proteomics_runtime.runs.preflight` for readiness and refusal reports
+- `bijux_proteomics_runtime.runs.replay_decisions` and `runs.execution_decisions` for operator-visible reuse and degraded-mode reasoning
+- `bijux_proteomics_runtime.runs.import_lineage` for import traces and derived-artifact separation
+- `bijux_proteomics_runtime.workflows.paths` for reviewable runtime path manifests
+- `bijux_proteomics_runtime.providers.factory` and `providers.capabilities` for provider binding and capability gates
 
 ## Operational review paths
 
