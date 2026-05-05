@@ -5,8 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics_intelligence.briefs import CandidateAssessment, LiabilityFlag
-from bijux_proteomics_intelligence.candidates import (
+from bijux_proteomics_intelligence.candidates.lifecycle import (
     CandidateAssayAgendaItem,
     CandidateDecision,
     CandidateLifecycleSummary,
@@ -43,6 +42,10 @@ from bijux_proteomics_intelligence.candidates import (
     summarize_variant_context,
     transition_candidate,
     validate_transition_history,
+)
+from bijux_proteomics_intelligence.candidates.ranking import (
+    CandidateAssessment,
+    LiabilityFlag,
 )
 
 

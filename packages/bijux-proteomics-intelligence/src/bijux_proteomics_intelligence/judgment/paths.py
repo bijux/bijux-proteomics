@@ -11,7 +11,11 @@ from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics.qc import InstrumentBatchQcReport
 from bijux_proteomics.quantification import ReplicateCorrelationReport
 from bijux_proteomics_foundation import JsonModel, ProgramId
-from bijux_proteomics_intelligence.briefs import (
+from bijux_proteomics_intelligence.candidates.lifecycle import (
+    CandidateRiskProfile,
+    build_risk_profile,
+)
+from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
     CandidateRanking,
     RankingPolicy,
@@ -19,11 +23,10 @@ from bijux_proteomics_intelligence.briefs import (
     prioritize_candidates,
     summarize_candidate_explainability,
 )
-from bijux_proteomics_intelligence.candidates import (
-    CandidateRiskProfile,
-    build_risk_profile,
+from bijux_proteomics_intelligence.judgment.recommendations import (
+    summarize_unresolved_question_ledger,
 )
-from bijux_proteomics_intelligence.evaluators import (
+from bijux_proteomics_intelligence.judgment.scenarios import (
     EvaluatorPolicyBundle,
     ScenarioSetEvaluation,
     evaluate_all_scenarios,
@@ -31,9 +34,6 @@ from bijux_proteomics_intelligence.evaluators import (
 from bijux_proteomics_intelligence.interpretation import (
     OutlierInterpretationClass,
     explain_outlier_samples,
-)
-from bijux_proteomics_intelligence.recommendations import (
-    summarize_unresolved_question_ledger,
 )
 from bijux_proteomics_intelligence.review_packets import (
     ReviewBoardPacket,

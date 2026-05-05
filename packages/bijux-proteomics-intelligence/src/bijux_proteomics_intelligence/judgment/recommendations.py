@@ -11,7 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_foundation.results import OperationResult
-from bijux_proteomics_intelligence.evaluators import (
+from bijux_proteomics_intelligence.judgment.scenarios import (
     HypothesisStatus,
     ScenarioAction,
     ScenarioEvaluation,

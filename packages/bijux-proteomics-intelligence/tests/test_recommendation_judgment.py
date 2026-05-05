@@ -7,13 +7,16 @@ from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics_intelligence.briefs import (
+from bijux_proteomics_intelligence.candidates.lifecycle import CandidateRiskProfile
+from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
     build_ranking_sensitivity_report,
     prioritize_candidates,
 )
-from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
-from bijux_proteomics_intelligence.evaluators import (
+from bijux_proteomics_intelligence.judgment.recommendations import (
+    build_final_decision_recommendation,
+)
+from bijux_proteomics_intelligence.judgment.scenarios import (
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
@@ -24,9 +27,6 @@ from bijux_proteomics_intelligence.evidence_posture import (
     FreshnessPosture,
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
-)
-from bijux_proteomics_intelligence.recommendations import (
-    build_final_decision_recommendation,
 )
 from bijux_proteomics_intelligence.review_packets import (
     ComparativeCandidateReviewPacket,

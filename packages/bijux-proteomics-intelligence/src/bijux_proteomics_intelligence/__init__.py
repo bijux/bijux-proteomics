@@ -22,14 +22,14 @@ __all__ = [
 ]
 _INTELLIGENCE_ROOT_MODULES = {
     "benchmark_reviews": f"{__name__}.benchmark_reviews",
-    "briefs": f"{__name__}.briefs",
+    "briefs": f"{__name__}.candidates.ranking",
     "charter": f"{__name__}.governance.charter",
-    "decision_paths": f"{__name__}.decision_paths",
+    "decision_paths": f"{__name__}.judgment.paths",
     "evidence_posture": f"{__name__}.evidence_posture",
-    "evaluators": f"{__name__}.evaluators",
+    "evaluators": f"{__name__}.judgment.scenarios",
     "follow_up_learning": f"{__name__}.learning.adaptation",
     "interpretation": f"{__name__}.interpretation",
-    "policies": f"{__name__}.policies",
+    "policies": f"{__name__}.judgment.policies",
     "skeptical_review": f"{__name__}.skeptical_review",
 }
 

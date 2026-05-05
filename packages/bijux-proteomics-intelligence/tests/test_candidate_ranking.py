@@ -11,7 +11,12 @@ from bijux_proteomics.domain.constraints import (
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.domain.program_spec import create_program_spec
 from bijux_proteomics.domain.reviews import ReviewGate
-from bijux_proteomics_intelligence.briefs import (
+from bijux_proteomics_intelligence.candidates.lifecycle import (
+    PortfolioSelectionPolicy,
+    build_risk_profile,
+    select_portfolio_shortlist,
+)
+from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
     CandidateRejection,
     CandidateExplainabilitySummary,
@@ -42,12 +47,7 @@ from bijux_proteomics_intelligence.briefs import (
     summarize_ranking_drift,
     summarize_uncertainty_pressure,
 )
-from bijux_proteomics_intelligence.candidates import (
-    PortfolioSelectionPolicy,
-    build_risk_profile,
-    select_portfolio_shortlist,
-)
-from bijux_proteomics_intelligence.policies import (
+from bijux_proteomics_intelligence.judgment.policies import (
     MetricDefinition,
     MetricDirection,
     RankingFactor,

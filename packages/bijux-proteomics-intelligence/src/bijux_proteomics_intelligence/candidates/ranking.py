@@ -20,7 +20,7 @@ from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFa
 from bijux_proteomics_knowledge.references.rules import (
     build_ranking_rule_grounding_ledger,
 )
-from bijux_proteomics_intelligence.policies import (
+from bijux_proteomics_intelligence.judgment.policies import (
     RankingFactor,
     RankingPolicy,
     RankingPolicyLineage,

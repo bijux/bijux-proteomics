@@ -4,13 +4,30 @@
 from __future__ import annotations
 
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics_intelligence.briefs import (
+from bijux_proteomics_intelligence.candidates.lifecycle import CandidateRiskProfile
+from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
     CandidateRanking,
     RankedCandidate,
 )
-from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
-from bijux_proteomics_intelligence.evaluators import (
+from bijux_proteomics_intelligence.judgment.policies import (
+    HoldPolicyConfig,
+    ProgressionPolicyConfig,
+    RedesignPolicyConfig,
+)
+from bijux_proteomics_intelligence.judgment.recommendations import (
+    IntelligenceDecisionSupportEnvelope,
+    IntelligenceOutputMode,
+    ScenarioUncertaintyEntry,
+    UncertaintyPreservingInterpretationSummary,
+    build_final_decision_recommendation,
+    build_intelligence_decision_support_envelope,
+    derive_decision_escalation_flags,
+    promote_intelligence_output_to_policy,
+    summarize_uncertainty_preserving_interpretation,
+    summarize_unresolved_question_ledger,
+)
+from bijux_proteomics_intelligence.judgment.scenarios import (
     EvaluatorPolicyBundle,
     HypothesisStatus,
     ProgressionPolicy,
@@ -29,23 +46,6 @@ from bijux_proteomics_intelligence.evaluators import (
     summarize_hold_pressure,
     summarize_scenario_confidence_spread,
     summarize_scenario_consensus,
-)
-from bijux_proteomics_intelligence.policies import (
-    HoldPolicyConfig,
-    ProgressionPolicyConfig,
-    RedesignPolicyConfig,
-)
-from bijux_proteomics_intelligence.recommendations import (
-    IntelligenceDecisionSupportEnvelope,
-    IntelligenceOutputMode,
-    ScenarioUncertaintyEntry,
-    UncertaintyPreservingInterpretationSummary,
-    build_final_decision_recommendation,
-    build_intelligence_decision_support_envelope,
-    derive_decision_escalation_flags,
-    promote_intelligence_output_to_policy,
-    summarize_uncertainty_preserving_interpretation,
-    summarize_unresolved_question_ledger,
 )
 from bijux_proteomics_intelligence.review_packets import (
     ComparativeCandidateReviewPacket,

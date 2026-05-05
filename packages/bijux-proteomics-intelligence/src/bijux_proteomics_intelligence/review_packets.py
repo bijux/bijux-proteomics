@@ -8,9 +8,20 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
-from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
-from bijux_proteomics_intelligence.evaluators import (
+from bijux_proteomics_intelligence.candidates.lifecycle import CandidateRiskProfile
+from bijux_proteomics_intelligence.candidates.ranking import (
+    CandidateAssessment,
+    CandidateRanking,
+)
+from bijux_proteomics_intelligence.judgment.recommendations import (
+    DecisionEscalationFlags,
+    FinalDecisionRecommendation,
+    UnresolvedQuestionLedger,
+    build_final_decision_recommendation,
+    derive_decision_escalation_flags,
+    summarize_unresolved_question_ledger,
+)
+from bijux_proteomics_intelligence.judgment.scenarios import (
     PortfolioDecisionReport,
     ScenarioDecisionConsensus,
     ScenarioAction,
@@ -21,14 +32,6 @@ from bijux_proteomics_intelligence.evaluators import (
 from bijux_proteomics_intelligence.evidence_posture import (
     EvidenceContradictionSummary,
     summarize_evidence_contradictions,
-)
-from bijux_proteomics_intelligence.recommendations import (
-    DecisionEscalationFlags,
-    FinalDecisionRecommendation,
-    UnresolvedQuestionLedger,
-    build_final_decision_recommendation,
-    derive_decision_escalation_flags,
-    summarize_unresolved_question_ledger,
 )
 from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily

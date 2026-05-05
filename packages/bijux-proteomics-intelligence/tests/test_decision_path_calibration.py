@@ -7,8 +7,8 @@ from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics_intelligence.briefs import CandidateAssessment
-from bijux_proteomics_intelligence.decision_paths import (
+from bijux_proteomics_intelligence.candidates.ranking import CandidateAssessment
+from bijux_proteomics_intelligence.judgment.paths import (
     build_follow_up_candidate_path,
     build_review_board_decision_path,
 )

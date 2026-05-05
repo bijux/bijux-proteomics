@@ -7,7 +7,7 @@ from pydantic import ValidationError
 import pytest
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_intelligence.briefs import DesignBrief
+from bijux_proteomics_intelligence.candidates.ranking import DesignBrief
 
 
 def test_intelligence_briefs_use_foundation_model_and_identifier_primitives() -> None:

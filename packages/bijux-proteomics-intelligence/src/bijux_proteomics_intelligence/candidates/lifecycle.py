@@ -11,7 +11,10 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import CandidateId, JsonModel, ProgramId
-from bijux_proteomics_intelligence.briefs import CandidateAssessment, LiabilityFlag
+from bijux_proteomics_intelligence.candidates.ranking import (
+    CandidateAssessment,
+    LiabilityFlag,
+)
 
 
 class CandidateStatus(StrEnum):
