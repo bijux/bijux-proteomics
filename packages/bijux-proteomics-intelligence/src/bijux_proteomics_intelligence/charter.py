@@ -22,6 +22,16 @@ class IntelligenceCharterCapability(StrEnum):
     RECOMMENDATION = "recommendation"
 
 
+class IntelligenceAnalyticalBand(StrEnum):
+    """Stable analytical bands that organize intelligence owner modules."""
+
+    JUDGMENT = "judgment"
+    EVIDENCE_POSTURE = "evidence_posture"
+    INTERPRETATION = "interpretation"
+    REVIEW = "review"
+    LEARNING = "learning"
+
+
 class IntelligenceModuleClassification(StrEnum):
     """Allowed audit outcomes for intelligence source modules."""
 
@@ -69,6 +79,18 @@ class IntelligenceModuleAuditEntry(JsonModel):
     reason: str = Field(..., min_length=1)
 
 
+class IntelligenceCapabilityMapEntry(JsonModel):
+    """One stable analytical band and the modules it owns."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    band: IntelligenceAnalyticalBand
+    owned_surface: str = Field(..., min_length=1)
+    required_modules: tuple[str, ...] = Field(..., min_length=1)
+    decision_scope: tuple[str, ...] = Field(default_factory=tuple)
+    refusal_scope: tuple[str, ...] = Field(default_factory=tuple)
+
+
 DEFAULT_INTELLIGENCE_CHARTER = IntelligenceProductCharter(
     package_name="bijux-proteomics-intelligence",
     value_statement=(
@@ -93,6 +115,100 @@ DEFAULT_INTELLIGENCE_CHARTER = IntelligenceProductCharter(
         "runtime execution and artifact transport",
         "knowledge curation and reference registry maintenance",
         "lab queueing and operational handoff authority",
+    ),
+)
+
+DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] = (
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.JUDGMENT,
+        owned_surface=(
+            "ranking policy, candidate framing, rejection semantics, and scenario "
+            "evaluation that turn typed evidence into explicit analytical judgment"
+        ),
+        required_modules=(
+            "briefs.py",
+            "policies.py",
+            "evaluators.py",
+            "candidates.py",
+            "outcomes.py",
+        ),
+        decision_scope=(
+            "rank candidates against explicit policy factors",
+            "compare scenario actions such as advance, hold, redesign, and scale-up",
+            "publish machine-readable rejection and tie-break reasoning",
+        ),
+        refusal_scope=(
+            "refuse implied decisions when evidence posture is unresolved",
+            "refuse package-root convenience exports as a substitute for owner-module judgment",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.EVIDENCE_POSTURE,
+        owned_surface=(
+            "contradiction pressure, freshness pressure, and readiness gating over "
+            "knowledge-owned evidence bundles"
+        ),
+        required_modules=("evidence_posture.py",),
+        decision_scope=(
+            "downgrade confidence when evidence is aging",
+            "refuse recommendations when contradictions remain unresolved",
+        ),
+        refusal_scope=(
+            "do not decide evidence truth or curation ownership",
+            "do not bypass knowledge-owned trust and refresh contracts",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.INTERPRETATION,
+        owned_surface=(
+            "typed biological interpretation and caution-aware analytical summaries "
+            "over already-normalized proteomics evidence"
+        ),
+        required_modules=("interpretation.py", "analytical_review.py"),
+        decision_scope=(
+            "summarize run-level interpretation posture",
+            "recommend contrasts and enrichment summaries with explicit caveats",
+        ),
+        refusal_scope=(
+            "refuse mechanistic overclaim without convergent contradiction-free support",
+            "do not own raw parsing, quantification, PTM mapping, or QC generation",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.REVIEW,
+        owned_surface=(
+            "review packets, skeptical challenge reports, benchmark-backed review, "
+            "and end-to-end decision paths"
+        ),
+        required_modules=(
+            "decision_paths.py",
+            "skeptical_review.py",
+            "benchmark_reviews.py",
+        ),
+        decision_scope=(
+            "state whether a recommendation is ready for review scrutiny",
+            "publish unresolved questions and benchmark-backed challenge signals",
+        ),
+        refusal_scope=(
+            "do not overclaim release readiness without benchmark-backed review",
+            "do not hide unresolved questions behind polished narrative",
+        ),
+    ),
+    IntelligenceCapabilityMapEntry(
+        band=IntelligenceAnalyticalBand.LEARNING,
+        owned_surface=(
+            "outcome-informed prioritization updates and design-loop feedback that "
+            "adjust future analytical posture without rewriting history"
+        ),
+        required_modules=("follow_up_learning.py", "design_loop/"),
+        decision_scope=(
+            "adjust future prioritization from observed outcomes",
+            "track convergence and stagnation in iterative design analysis",
+        ),
+        refusal_scope=(
+            "do not mutate historical decisions in place",
+            "do not take over lab queue authority or operational handoff ownership",
+        ),
     ),
 )
 
@@ -141,6 +257,15 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         module_path="__init__.py",
         classification=IntelligenceModuleClassification.THIN_ABSTRACTION,
         reason="The package root is an export surface that aggregates stable analytical entrypoints.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="analytical_review.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,
+            IntelligenceCharterCapability.REVIEW_REASONING,
+        ),
+        reason="Caution-aware analytical review turns typed proteomics evidence into explicit interpretation posture instead of unbounded scientific narrative.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="benchmark_reviews.py",
@@ -201,6 +326,12 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         reason="Freshness and contradiction posture make recommendation confidence defensible.",
     ),
     IntelligenceModuleAuditEntry(
+        module_path="follow_up_learning.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.RECOMMENDATION,),
+        reason="Outcome-aware follow-up pressure keeps later analytical posture explicit instead of turning learning into informal downstream lore.",
+    ),
+    IntelligenceModuleAuditEntry(
         module_path="interpretation.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.INTERPRETATION_DISCIPLINE,),
@@ -243,15 +374,32 @@ def list_intelligence_charter_entries() -> tuple[IntelligenceCharterEntry, ...]:
     return DEFAULT_INTELLIGENCE_CHARTER_ENTRIES
 
 
+def list_intelligence_analytical_bands() -> tuple[IntelligenceAnalyticalBand, ...]:
+    """Return the stable analytical bands intelligence is organized around."""
+
+    return tuple(entry.band for entry in DEFAULT_INTELLIGENCE_CAPABILITY_MAP)
+
+
+def list_intelligence_capability_map() -> tuple[IntelligenceCapabilityMapEntry, ...]:
+    """Return the authoritative analytical-band capability map."""
+
+    return DEFAULT_INTELLIGENCE_CAPABILITY_MAP
+
+
 __all__ = [
     "DEFAULT_INTELLIGENCE_CHARTER",
     "DEFAULT_INTELLIGENCE_CHARTER_ENTRIES",
+    "DEFAULT_INTELLIGENCE_CAPABILITY_MAP",
     "DEFAULT_INTELLIGENCE_MODULE_AUDIT",
+    "IntelligenceAnalyticalBand",
+    "IntelligenceCapabilityMapEntry",
     "IntelligenceCharterCapability",
     "IntelligenceCharterEntry",
     "IntelligenceModuleAuditEntry",
     "IntelligenceModuleClassification",
     "IntelligenceProductCharter",
+    "list_intelligence_analytical_bands",
+    "list_intelligence_capability_map",
     "list_intelligence_capabilities",
     "list_intelligence_charter_entries",
 ]

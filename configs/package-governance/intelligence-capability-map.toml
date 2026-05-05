@@ -1,0 +1,49 @@
+# Generated intelligence capability map.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence_capability_map
+
+[metrics]
+analytical_band_count = 5
+owned_surface_count = 5
+required_module_count = 13
+decision_scope_count = 11
+refusal_scope_count = 10
+
+[guard]
+baseline_analytical_band_count = 5
+baseline_owned_surface_count = 5
+baseline_required_module_count = 13
+
+[[band]]
+band = "judgment"
+owned_surface = "ranking policy, candidate framing, rejection semantics, and scenario evaluation that turn typed evidence into explicit analytical judgment"
+required_modules = ["briefs.py", "policies.py", "evaluators.py", "candidates.py", "outcomes.py"]
+decision_scope_count = 3
+refusal_scope_count = 2
+
+[[band]]
+band = "evidence_posture"
+owned_surface = "contradiction pressure, freshness pressure, and readiness gating over knowledge-owned evidence bundles"
+required_modules = ["evidence_posture.py"]
+decision_scope_count = 2
+refusal_scope_count = 2
+
+[[band]]
+band = "interpretation"
+owned_surface = "typed biological interpretation and caution-aware analytical summaries over already-normalized proteomics evidence"
+required_modules = ["interpretation.py", "analytical_review.py"]
+decision_scope_count = 2
+refusal_scope_count = 2
+
+[[band]]
+band = "review"
+owned_surface = "review packets, skeptical challenge reports, benchmark-backed review, and end-to-end decision paths"
+required_modules = ["decision_paths.py", "skeptical_review.py", "benchmark_reviews.py"]
+decision_scope_count = 2
+refusal_scope_count = 2
+
+[[band]]
+band = "learning"
+owned_surface = "outcome-informed prioritization updates and design-loop feedback that adjust future analytical posture without rewriting history"
+required_modules = ["follow_up_learning.py", "design_loop/"]
+decision_scope_count = 2
+refusal_scope_count = 2

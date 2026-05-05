@@ -3,12 +3,16 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence import (
+from bijux_proteomics_intelligence.charter import (
     DEFAULT_INTELLIGENCE_CHARTER,
+    DEFAULT_INTELLIGENCE_CAPABILITY_MAP,
     DEFAULT_INTELLIGENCE_CHARTER_ENTRIES,
     DEFAULT_INTELLIGENCE_MODULE_AUDIT,
+    IntelligenceAnalyticalBand,
     IntelligenceCharterCapability,
     IntelligenceModuleClassification,
+    list_intelligence_analytical_bands,
+    list_intelligence_capability_map,
     list_intelligence_capabilities,
     list_intelligence_charter_entries,
 )
@@ -43,6 +47,20 @@ def test_intelligence_charter_entries_stay_release_blocking_and_module_backed() 
     )
     assert all(entry.required_modules for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES)
     assert all(entry.release_blocker for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES)
+
+
+def test_intelligence_capability_map_keeps_stable_analytical_bands() -> None:
+    assert list_intelligence_analytical_bands() == (
+        IntelligenceAnalyticalBand.JUDGMENT,
+        IntelligenceAnalyticalBand.EVIDENCE_POSTURE,
+        IntelligenceAnalyticalBand.INTERPRETATION,
+        IntelligenceAnalyticalBand.REVIEW,
+        IntelligenceAnalyticalBand.LEARNING,
+    )
+    assert list_intelligence_capability_map() == DEFAULT_INTELLIGENCE_CAPABILITY_MAP
+    assert all(entry.required_modules for entry in DEFAULT_INTELLIGENCE_CAPABILITY_MAP)
+    assert all(entry.decision_scope for entry in DEFAULT_INTELLIGENCE_CAPABILITY_MAP)
+    assert all(entry.refusal_scope for entry in DEFAULT_INTELLIGENCE_CAPABILITY_MAP)
 
 
 def test_intelligence_module_audit_requires_substantial_analytical_surface() -> None:
