@@ -221,7 +221,7 @@ from bijux_proteomics_intelligence.policies import (
     validate_factor_weights,
     validate_metric_catalog,
 )
-from bijux_proteomics_intelligence.serialization import JsonModel
+from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.workflow import (
     WorkflowReadinessStep,
     WorkflowReadinessSummary,

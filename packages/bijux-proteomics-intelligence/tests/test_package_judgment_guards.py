@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 from bijux_proteomics import SuccessCriterion, create_program_spec
 from bijux_proteomics.programs import MeasurementDirection
@@ -166,3 +167,10 @@ def test_recommendation_guard_keeps_machine_readable_refusal_visible() -> None:
     assert recommendation.action is ScenarioAction.HOLD
     assert recommendation.gate_result is not None
     assert recommendation.gate_result.disposition.value == "refused"
+
+
+def test_intelligence_package_does_not_restore_wrapper_only_serialization_surface() -> (
+    None
+):
+    package_dir = Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_intelligence"
+    assert not (package_dir / "serialization.py").exists()

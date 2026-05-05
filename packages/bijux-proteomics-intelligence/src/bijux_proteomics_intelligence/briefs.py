@@ -10,7 +10,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
-from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
+from bijux_proteomics_foundation import CandidateId, JsonModel, ProgramId, TargetId
 from bijux_proteomics_intelligence.evidence_posture import (
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
@@ -33,7 +33,6 @@ from bijux_proteomics_intelligence.policies import (
     TieBreakRule,
     classify_metric_name,
 )
-from bijux_proteomics_intelligence.serialization import JsonModel
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 

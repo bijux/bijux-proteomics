@@ -10,13 +10,13 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import ProgramSpec
+from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_foundation.results import OperationResult
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
 from bijux_proteomics_intelligence.evidence_posture import (
     assess_recommendation_readiness,
 )
-from bijux_proteomics_intelligence.serialization import JsonModel
 from bijux_proteomics_knowledge import DecisionReadiness, EvidenceBundle
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
