@@ -13,8 +13,8 @@ Code navigation should get a reviewer from the package question to the owning mo
 
 ## Start Here
 
-- `src/bijux_proteomics_foundation/ids.py` and `schema.py` for shared meaning
-- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py` for compatibility movement
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `documents.py` for shared meaning
+- `src/bijux_proteomics_foundation/serialization/` and `migrations.py` for compatibility movement
 - `packages/bijux-proteomics-foundation/tests` for cross-package proof
 
 ## First Proof Check

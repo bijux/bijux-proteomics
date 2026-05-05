@@ -67,3 +67,6 @@ JSON behavior, compatibility semantics, or migration-path guarantees.
 - This package does not define product decision policy.
 - This package does not define runtime orchestration behavior.
 - This package does not own evidence, ranking, or lab semantics.
+- This package does not carry product-specific fixtures or workflow examples.
+- This package does not publish route-shaped, CLI-shaped, or Markdown-shaped
+  helper surfaces.

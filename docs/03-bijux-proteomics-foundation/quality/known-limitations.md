@@ -41,8 +41,8 @@ This page should keep the reader from confusing strong shared contracts with tot
 ## First Proof Check
 
 - `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
-- `src/bijux_proteomics_foundation/serialization.py`
+- `src/bijux_proteomics_foundation/documents.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization/`
 
 ## Design Pressure
 

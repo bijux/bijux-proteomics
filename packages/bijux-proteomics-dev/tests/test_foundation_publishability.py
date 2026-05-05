@@ -16,6 +16,14 @@ FOUNDATION_README = REPO_ROOT / "packages" / "bijux-proteomics-foundation" / "RE
 FOUNDATION_CONTRACTS = (
     REPO_ROOT / "packages" / "bijux-proteomics-foundation" / "docs" / "CONTRACTS.md"
 )
+FOUNDATION_SCOPE = (
+    REPO_ROOT
+    / "docs"
+    / "03-bijux-proteomics-foundation"
+    / "foundation"
+    / "scope-and-non-goals.md"
+)
+FOUNDATION_DOCS_ROOT = REPO_ROOT / "docs" / "03-bijux-proteomics-foundation"
 
 
 def _foundation_consumers() -> set[str]:
@@ -53,11 +61,23 @@ def test_foundation_is_a_real_shared_dependency_for_every_product_package() -> N
 def test_foundation_publishable_docs_reference_current_contract_entrypoints() -> None:
     readme = FOUNDATION_README.read_text()
     contracts = FOUNDATION_CONTRACTS.read_text()
-    combined = f"{readme}\n{contracts}"
+    docs = "\n".join(
+        path.read_text()
+        for path in sorted(FOUNDATION_DOCS_ROOT.rglob("*.md"))
+    )
+    combined = f"{readme}\n{contracts}\n{docs}"
 
-    for stale_entrypoint in ("schema", "evolution"):
+    for stale_entrypoint in (
+        "bijux_proteomics_foundation.schema",
+        "bijux_proteomics_foundation.evolution",
+    ):
         assert f"`{stale_entrypoint}`" not in combined
-    for stale_module in ("schema.py", "serialization.py", "evolution.py"):
+    for stale_module in (
+        "schema.py",
+        "serialization.py",
+        "evolution.py",
+        "src/bijux_proteomics_foundation/ids.py",
+    ):
         assert stale_module not in combined
     for current_entrypoint in (
         "charter",
@@ -71,3 +91,20 @@ def test_foundation_publishable_docs_reference_current_contract_entrypoints() ->
         "migrations",
     ):
         assert f"`{current_entrypoint}`" in combined
+
+
+def test_foundation_docs_state_explicit_non_goals_for_kernel_boundary() -> None:
+    combined = "\n".join(
+        (
+            FOUNDATION_README.read_text(),
+            FOUNDATION_CONTRACTS.read_text(),
+            FOUNDATION_SCOPE.read_text(),
+        )
+    )
+
+    for expected_text in (
+        "product-specific fixtures",
+        "workflow examples",
+        "route-shaped, CLI-shaped, and Markdown-shaped",
+    ):
+        assert expected_text in combined

@@ -19,6 +19,6 @@ Data contracts are the quickest way to judge whether a package really owns a con
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/ids.py` and `schema.py`
-- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `documents.py`
+- `src/bijux_proteomics_foundation/serialization/` and `migrations.py`
 - `packages/bijux-proteomics-foundation/tests`

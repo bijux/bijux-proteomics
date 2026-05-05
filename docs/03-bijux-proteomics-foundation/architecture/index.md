@@ -16,9 +16,9 @@ package-specific policy.
 
 ```mermaid
 flowchart LR
-    ids["ids.py<br/>stable identifiers"]
-    schema["schema.py<br/>shared payload shape"]
-    serialization["serialization.py<br/>transport form"]
+    ids["identity/identifiers.py<br/>stable identifiers"]
+    schema["documents.py<br/>shared payload shape"]
+    serialization["serialization/<br/>transport form"]
     migrations["migrations.py<br/>version continuity"]
     errors["errors.py<br/>shared failure vocabulary"]
     consumers["all higher packages"]
@@ -34,7 +34,8 @@ flowchart LR
 - the same object should keep the same meaning while it moves between packages,
   artifacts, and versions
 - version repair belongs here, but domain judgment does not
-- the small file count is a design statement, not a sign of incompleteness
+- the owner paths should stay explicit enough that a reviewer can find them
+  without relying on wrapper history
 
 ## Start With
 
@@ -59,8 +60,8 @@ flowchart LR
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/ids.py` and `schema.py` for stable shared meaning
-- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py` for transport and compatibility structure
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `documents.py` for stable shared meaning
+- `src/bijux_proteomics_foundation/serialization/` and `migrations.py` for transport and compatibility structure
 - `src/bijux_proteomics_foundation/errors.py` for shared failure vocabulary
 
 ## Boundary Test

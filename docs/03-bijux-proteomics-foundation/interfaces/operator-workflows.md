@@ -19,6 +19,6 @@ Operator workflows should say who uses the surface, why they use it, and when th
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/ids.py` and `schema.py`
-- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `documents.py`
+- `src/bijux_proteomics_foundation/serialization/` and `migrations.py`
 - `packages/bijux-proteomics-foundation/tests`

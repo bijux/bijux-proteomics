@@ -97,7 +97,7 @@ def test_repository_handbook_layout_is_sectioned() -> None:
     assert root_markdown == ["index.md"]
     assert section_dirs == ["foundation", "operations"]
     assert section_counts == {
-        "foundation": 11,
+        "foundation": 12,
         "operations": 12,
     }
 
@@ -110,7 +110,7 @@ def test_maintenance_handbook_layout_is_sectioned() -> None:
     assert root_markdown == ["index.md"]
     assert section_dirs == ["bijux-proteomics-dev", "gh-workflows", "makes"]
     assert section_counts == {
-        "bijux-proteomics-dev": 10,
+        "bijux-proteomics-dev": 11,
         "gh-workflows": 5,
         "makes": 10,
     }
