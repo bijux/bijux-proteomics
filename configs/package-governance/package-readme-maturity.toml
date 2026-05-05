@@ -9,7 +9,7 @@ distribution_name = "agentic-proteins"
 maturity_claim_count = 4
 owned_value_bullet_count = 3
 proof_depth_count = 1
-unresolved_debt_count = 1
+unresolved_debt_count = 2
 maturity_outpaces_owner_logic = true
 
 [[package]]
@@ -17,7 +17,7 @@ distribution_name = "bijux-proteomics-core"
 maturity_claim_count = 8
 owned_value_bullet_count = 6
 proof_depth_count = 13
-unresolved_debt_count = 3
+unresolved_debt_count = 4
 maturity_outpaces_owner_logic = true
 
 [[package]]
@@ -25,7 +25,7 @@ distribution_name = "bijux-proteomics-dev"
 maturity_claim_count = 2
 owned_value_bullet_count = 5
 proof_depth_count = 3
-unresolved_debt_count = 2
+unresolved_debt_count = 3
 maturity_outpaces_owner_logic = true
 
 [[package]]
@@ -33,7 +33,7 @@ distribution_name = "bijux-proteomics-foundation"
 maturity_claim_count = 3
 owned_value_bullet_count = 6
 proof_depth_count = 1
-unresolved_debt_count = 3
+unresolved_debt_count = 4
 maturity_outpaces_owner_logic = true
 
 [[package]]
@@ -41,7 +41,7 @@ distribution_name = "bijux-proteomics-intelligence"
 maturity_claim_count = 8
 owned_value_bullet_count = 5
 proof_depth_count = 1
-unresolved_debt_count = 3
+unresolved_debt_count = 4
 maturity_outpaces_owner_logic = true
 
 [[package]]
@@ -49,7 +49,7 @@ distribution_name = "bijux-proteomics-knowledge"
 maturity_claim_count = 2
 owned_value_bullet_count = 5
 proof_depth_count = 2
-unresolved_debt_count = 4
+unresolved_debt_count = 5
 maturity_outpaces_owner_logic = true
 
 [[package]]
@@ -57,7 +57,7 @@ distribution_name = "bijux-proteomics-lab"
 maturity_claim_count = 2
 owned_value_bullet_count = 5
 proof_depth_count = 1
-unresolved_debt_count = 4
+unresolved_debt_count = 5
 maturity_outpaces_owner_logic = true
 
 [[package]]
@@ -65,5 +65,5 @@ distribution_name = "bijux-proteomics-runtime"
 maturity_claim_count = 9
 owned_value_bullet_count = 6
 proof_depth_count = 7
-unresolved_debt_count = 2
+unresolved_debt_count = 3
 maturity_outpaces_owner_logic = true

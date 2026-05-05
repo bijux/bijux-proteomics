@@ -3,7 +3,7 @@
 
 [guard]
 min_total_owned_value_bullet_count = 41
-min_total_owner_depth_count = 378
+min_total_owner_depth_count = 382
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -17,7 +17,7 @@ readme_sentence_count = 121
 distribution_name = "bijux-proteomics-dev"
 owned_value_bullets = ["release-readiness and packaging policy checks", "docs integrity, publication, and contract-shape enforcement", "API freeze and schema drift checks", "runtime migration governance and compat-boundary validation", "maintainer-only operational helpers that support root `make` and CI entrypoints"]
 owned_value_summary = "release-readiness and packaging policy checks; docs integrity, publication, and contract-shape enforcement; API freeze and schema drift checks; runtime migration governance and compat-boundary validation; maintainer-only operational helpers that support root `make` and CI entrypoints"
-owner_depth_count = 107
+owner_depth_count = 111
 public_breadth_count = 1
 readme_sentence_count = 103
 
