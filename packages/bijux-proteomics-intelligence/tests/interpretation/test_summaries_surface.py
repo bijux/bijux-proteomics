@@ -64,7 +64,7 @@ from bijux_proteomics_intelligence.interpretation import (
 
 
 def _repo_packages_dir() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[3]
 
 
 def _core_fixture(package: str, name: str) -> Path:
@@ -79,7 +79,7 @@ def _core_fixture(package: str, name: str) -> Path:
 
 
 def _local_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "interpretation" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "interpretation" / name
 
 
 def _annotations() -> tuple[ProteinAnnotationAssignment, ...]:

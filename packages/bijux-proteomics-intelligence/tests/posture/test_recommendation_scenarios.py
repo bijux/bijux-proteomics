@@ -32,7 +32,7 @@ from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFa
 
 
 def _fixture_dir() -> Path:
-    return Path(__file__).parent / "fixtures" / "review_scenarios"
+    return Path(__file__).resolve().parents[1] / "fixtures" / "review_scenarios"
 
 
 def _load_scenario_fixture(name: str) -> dict[str, object]:

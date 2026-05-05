@@ -18,7 +18,7 @@ from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFa
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    return Path(__file__).resolve().parents[4]
 
 
 def test_build_dda_benchmark_review_keeps_owner_surfaces_and_field_limits_visible() -> (
