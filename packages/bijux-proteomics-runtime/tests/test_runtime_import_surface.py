@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runtime import RunManager
+from bijux_proteomics_runtime.runs import RunManager
 from bijux_proteomics_runtime.runtime.control import (
     ImportRunBundle,
     RuntimeImportTrace,

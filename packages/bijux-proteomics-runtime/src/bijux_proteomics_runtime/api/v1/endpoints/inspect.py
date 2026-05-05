@@ -18,10 +18,10 @@ from bijux_proteomics_runtime.api.v1.schema import (
     ErrorResponse,
     InspectResponse,
 )
-from bijux_proteomics_runtime.runtime.context.correlation import (
+from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )
-from bijux_proteomics_runtime.runtime.control import (
+from bijux_proteomics_runtime.runs.operations import (
     inspect_candidate_operation,
     load_run_summary_operation,
 )

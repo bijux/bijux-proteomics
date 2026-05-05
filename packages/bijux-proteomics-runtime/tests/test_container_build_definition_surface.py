@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.runtime.control.provider_support import (
+from bijux_proteomics_runtime.providers.support import (
     build_container_build_definition,
 )
 

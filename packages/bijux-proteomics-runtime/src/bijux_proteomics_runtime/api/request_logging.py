@@ -14,7 +14,7 @@ import uuid
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-from bijux_proteomics_runtime.runtime.context.correlation import build_trace_id
+from bijux_proteomics_runtime.runs.correlation import build_trace_id
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):

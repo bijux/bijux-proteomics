@@ -5,9 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics_runtime.runtime.control import (
-    provider_capabilities as capabilities_module,
-)
+from bijux_proteomics_runtime.providers import capabilities as capabilities_module
 
 
 def test_validate_runtime_capabilities_variants(

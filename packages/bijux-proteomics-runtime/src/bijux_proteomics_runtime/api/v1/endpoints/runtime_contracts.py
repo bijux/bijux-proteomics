@@ -26,7 +26,7 @@ from bijux_proteomics_runtime.api.v1.schema import (
     ApiEnvelope,
     ErrorResponse,
 )
-from bijux_proteomics_runtime.runtime.context.correlation import (
+from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )
 

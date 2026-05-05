@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_runtime.api.catalog import build_artifact_lookup_response
-from bijux_proteomics_runtime.runtime.context import (
+from bijux_proteomics_runtime.runs import (
     RuntimeArtifactRetentionClass,
     build_run_context_contract,
     create_run_context,
@@ -211,7 +211,7 @@ def test_runtime_medium_execution_benchmark_publishes_reviewable_path(
     tmp_path: Path,
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_success,
     )
 

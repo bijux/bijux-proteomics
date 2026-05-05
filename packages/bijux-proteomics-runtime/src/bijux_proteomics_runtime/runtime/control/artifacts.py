@@ -21,8 +21,8 @@ from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
 from bijux_proteomics_runtime.core.failures import FailureType, suggest_next_action
 from bijux_proteomics_runtime.core.hashing import sha256_hex
 from bijux_proteomics_runtime.core.tooling import ToolError
-from bijux_proteomics_runtime.runtime.context import RuntimeArtifactRetentionClass
-from bijux_proteomics_runtime.runtime.context import RunContext
+from bijux_proteomics_runtime.runs.contracts import RuntimeArtifactRetentionClass
+from bijux_proteomics_runtime.runs.context import RunContext
 from bijux_proteomics_runtime.runtime.control.ledger import record_artifact_entry
 from bijux_proteomics_runtime.runtime.control.failure_reports import (
     build_runtime_failure_report,

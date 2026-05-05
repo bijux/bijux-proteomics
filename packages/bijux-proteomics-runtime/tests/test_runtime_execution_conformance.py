@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runtime import RunManager
+from bijux_proteomics_runtime.runs import RunManager
 from bijux_proteomics_runtime.runtime.control import (
     ContainerRunBundle,
     ImportRunBundle,
@@ -15,7 +15,7 @@ from bijux_proteomics_runtime.runtime.control import (
     load_local_run_bundle,
     load_scheduler_job_bundle,
 )
-from bijux_proteomics_runtime.runtime.context import RunConfig
+from bijux_proteomics_runtime.runs import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 
@@ -37,7 +37,7 @@ def test_runtime_local_execution_surface_is_reusable(
     tmp_path: Path, monkeypatch
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_success,
     )
 
@@ -57,7 +57,7 @@ def test_runtime_container_execution_surface_is_runtime_owned(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_success,
     )
     manager = RunManager(
@@ -83,7 +83,7 @@ def test_runtime_scheduler_execution_surface_is_runtime_owned(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_success,
     )
     manager = RunManager(

@@ -24,10 +24,10 @@ from bijux_proteomics_runtime.interfaces.cli import (
     _read_sequence,
     _validate_sequence,
 )
-from bijux_proteomics_runtime.runtime.context.correlation import (
+from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )
-from bijux_proteomics_runtime.runtime.control import (
+from bijux_proteomics_runtime.runs.operations import (
     build_runtime_run_config,
     load_run_summary_operation,
     run_sequence_operation,

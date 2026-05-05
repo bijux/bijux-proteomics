@@ -1,4 +1,4 @@
-"""Run context and lifecycle artifacts."""
+"""Compatibility forwarding for run-owned context surfaces."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from importlib import import_module
 from typing import Any
 
 _CONTEXT_EXPORT_GROUPS = {
-    "bijux_proteomics_runtime.runtime.context.contracts": [
+    "bijux_proteomics_runtime.runs.contracts": [
         "DatasetIdentity",
         "RunContextContract",
         "RunLineage",
@@ -19,19 +19,19 @@ _CONTEXT_EXPORT_GROUPS = {
         "build_runtime_environment",
         "default_runtime_artifact_policy",
     ],
-    "bijux_proteomics_runtime.runtime.context.context": [
+    "bijux_proteomics_runtime.runs.context": [
         "RunContext",
         "create_run_context",
     ],
-    "bijux_proteomics_runtime.runtime.context.run_config": ["RunConfig"],
-    "bijux_proteomics_runtime.runtime.context.lifecycle": ["RunLifecycleState"],
-    "bijux_proteomics_runtime.runtime.context.output": [
+    "bijux_proteomics_runtime.runs.run_config": ["RunConfig"],
+    "bijux_proteomics_runtime.runs.lifecycle": ["RunLifecycleState"],
+    "bijux_proteomics_runtime.runs.output": [
         "ErrorDetail",
         "RunOutput",
         "RunStatus",
         "VersionInfo",
     ],
-    "bijux_proteomics_runtime.runtime.context.request": ["RunRequest"],
+    "bijux_proteomics_runtime.runs.request": ["RunRequest"],
 }
 
 _CONTEXT_EXPORTS = {

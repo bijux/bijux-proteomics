@@ -6,7 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.search_adapters import SearchAdapterKind
-from bijux_proteomics_runtime.runtime.control.workflow_plans import (
+from bijux_proteomics_runtime.workflows.plans import (
     ExternalToolCapabilityReport,
     WorkflowExecutionMode,
     WorkflowInputRole,

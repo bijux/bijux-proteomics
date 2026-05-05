@@ -20,10 +20,10 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RunResponse,
 )
 from bijux_proteomics_runtime.core.status import WorkflowState
-from bijux_proteomics_runtime.runtime.context.correlation import (
+from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )
-from bijux_proteomics_runtime.runtime.control import (
+from bijux_proteomics_runtime.runs.operations import (
     load_run_summary_operation,
     resume_candidate_operation,
 )

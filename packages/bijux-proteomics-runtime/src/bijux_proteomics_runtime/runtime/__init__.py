@@ -20,5 +20,5 @@ def __getattr__(name: str) -> Any:
 
     if name != "RunManager":
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    module = import_module("bijux_proteomics_runtime.runtime.control.execution")
+    module = import_module("bijux_proteomics_runtime.runs.manager")
     return getattr(module, "RunManager")

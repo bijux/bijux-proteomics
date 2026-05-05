@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_runtime.core.failures import FailureType
-from bijux_proteomics_runtime.runtime.context import create_run_context
+from bijux_proteomics_runtime.runs import create_run_context
 from bijux_proteomics_runtime.runtime.control.failure_reports import (
     RuntimeFailureCategory,
     build_runtime_failure_report,

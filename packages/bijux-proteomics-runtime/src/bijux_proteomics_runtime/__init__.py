@@ -5,16 +5,11 @@ from __future__ import annotations
 from importlib import import_module
 from typing import Any
 
-__all__ = [
-    "AppConfig",
-    "RunManager",
-    "cli",
-    "create_app",
-]
+__all__ = ["AppConfig", "RunManager", "cli", "create_app"]
 
 _RUNTIME_ROOT_EXPORTS = {
     "AppConfig": ("bijux_proteomics_runtime.api", "AppConfig"),
-    "RunManager": ("bijux_proteomics_runtime.runtime", "RunManager"),
+    "RunManager": ("bijux_proteomics_runtime.runs.manager", "RunManager"),
     "cli": ("bijux_proteomics_runtime.interfaces.cli", "cli"),
     "create_app": ("bijux_proteomics_runtime.api", "create_app"),
 }

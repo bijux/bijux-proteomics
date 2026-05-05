@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics_runtime.runtime import RunManager
-from bijux_proteomics_runtime.runtime.context import (
+from bijux_proteomics_runtime.runs import RunManager
+from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
@@ -17,7 +17,7 @@ from bijux_proteomics_runtime.runtime.control.replay import (
     build_replay_contract,
     evaluate_replay_eligibility,
 )
-from bijux_proteomics_runtime.runtime.context import RunConfig
+from bijux_proteomics_runtime.runs import RunConfig
 
 
 def test_runtime_failure_injection_reports_broken_container_requirements(
@@ -74,7 +74,7 @@ def test_runtime_failure_injection_handles_interrupted_runs(
         raise KeyboardInterrupt
 
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _raise_interrupt,
     )
     manager = RunManager(tmp_path)

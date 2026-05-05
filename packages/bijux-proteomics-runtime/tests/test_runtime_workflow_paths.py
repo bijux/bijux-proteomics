@@ -54,7 +54,7 @@ def test_runtime_useful_run_path_persists_reviewable_manifest(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_success,
     )
 

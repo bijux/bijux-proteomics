@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runtime import RunManager
-from bijux_proteomics_runtime.runtime.context import (
+from bijux_proteomics_runtime.runs import RunManager
+from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
@@ -14,7 +14,7 @@ from bijux_proteomics_runtime.runtime.control.execution_surfaces import (
     build_scheduler_job_bundle,
 )
 from bijux_proteomics_runtime.runtime.control.replay import build_replay_contract
-from bijux_proteomics_runtime.runtime.context import RunConfig
+from bijux_proteomics_runtime.runs import RunConfig
 
 
 def _contract(tmp_path: Path, *, run_id: str, config: RunConfig | None = None):
@@ -122,7 +122,7 @@ def test_runtime_run_manager_persists_non_local_execution_bundles(
         }
 
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_run_flow,
     )
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics_runtime.runtime.context import create_run_context
+from bijux_proteomics_runtime.runs import create_run_context
 from bijux_proteomics_runtime.runtime.control.artifacts import write_artifact
 from bijux_proteomics_runtime.runtime.control.ledger import (
     RuntimeArtifactLedger,

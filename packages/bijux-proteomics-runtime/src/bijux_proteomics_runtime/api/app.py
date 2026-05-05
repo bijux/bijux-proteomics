@@ -30,7 +30,7 @@ from bijux_proteomics_runtime.api.v1.router import router as v1_router
 from bijux_proteomics_runtime.api.v1.schema import ApiEnvelope
 from bijux_proteomics_runtime.providers import provider_metadata
 from bijux_proteomics_runtime.providers.factory import provider_requirements
-from bijux_proteomics_runtime.runtime.context.correlation import (
+from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )
 from bijux_proteomics_runtime.runtime_identity import runtime_banner

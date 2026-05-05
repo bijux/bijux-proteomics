@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_runtime.runtime.context import (
+from bijux_proteomics_runtime.runs.contracts import (
     RunContextContract,
     RuntimeArtifactRetentionClass,
 )

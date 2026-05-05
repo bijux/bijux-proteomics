@@ -11,7 +11,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_runtime.runtime.context import RuntimeArtifactRetentionClass
+from bijux_proteomics_runtime.runs.contracts import RuntimeArtifactRetentionClass
 from bijux_proteomics_runtime.runtime.control.integrity import (
     build_artifact_integrity_report,
 )

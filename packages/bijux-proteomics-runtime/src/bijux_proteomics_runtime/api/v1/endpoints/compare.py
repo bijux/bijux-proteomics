@@ -18,10 +18,10 @@ from bijux_proteomics_runtime.api.v1.schema import (
     CompareResponse,
     ErrorResponse,
 )
-from bijux_proteomics_runtime.runtime.context.correlation import (
+from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )
-from bijux_proteomics_runtime.runtime.control import compare_run_operation
+from bijux_proteomics_runtime.runs.operations import compare_run_operation
 
 router = APIRouter()
 

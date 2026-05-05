@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics_runtime.runtime import RunManager
+from bijux_proteomics_runtime.runs import RunManager
 from bijux_proteomics_runtime.runtime.control import (
     ResumeCheckpoint,
     load_local_run_bundle,
     load_resume_checkpoint,
     verify_runtime_artifact_integrity,
 )
-from bijux_proteomics_runtime.runtime.context import RunConfig
+from bijux_proteomics_runtime.runs import RunConfig
 
 
 def test_runtime_partial_human_review_writes_resume_checkpoint(
@@ -32,7 +32,7 @@ def test_runtime_partial_human_review_writes_resume_checkpoint(
         }
 
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_run_flow,
     )
 
@@ -67,7 +67,7 @@ def test_runtime_integrity_report_detects_corrupted_local_bundle(
         }
 
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.execution.run_flow",
+        "bijux_proteomics_runtime.runs.manager.run_flow",
         _fake_run_flow,
     )
 

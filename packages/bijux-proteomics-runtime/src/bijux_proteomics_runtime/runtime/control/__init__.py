@@ -17,11 +17,11 @@ _CONTROL_EXPORT_GROUPS = {
         "claim_runtime_cache",
         "release_runtime_cache_claim",
     ],
-    "bijux_proteomics_runtime.runtime.control.execution": [
+    "bijux_proteomics_runtime.runs.manager": [
         "RunManager",
         "run_flow",
     ],
-    "bijux_proteomics_runtime.runtime.control.operations": [
+    "bijux_proteomics_runtime.runs.operations": [
         "build_runtime_run_config",
         "compare_run_operation",
         "export_report_operation",
@@ -105,11 +105,11 @@ _CONTROL_EXPORT_GROUPS = {
         "build_runtime_dependency_graph",
         "build_runtime_partial_rerun_plan",
     ],
-    "bijux_proteomics_runtime.runtime.control.state_machine": [
+    "bijux_proteomics_runtime.runs.state_machine": [
         "RunStateMachine",
         "apply_transition",
     ],
-    "bijux_proteomics_runtime.runtime.control.workflow_paths": [
+    "bijux_proteomics_runtime.workflows.paths": [
         "RuntimeReviewableOutputPath",
         "RuntimeSmokeWorkflow",
         "RuntimeWorkflowStep",
