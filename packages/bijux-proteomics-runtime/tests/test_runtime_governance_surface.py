@@ -60,6 +60,6 @@ def test_runtime_api_lock_freezes_canonical_runtime_symbols() -> None:
 
 def test_runtime_api_lock_declares_runtime_owned_extension_boundaries() -> None:
     assert "bijux_proteomics_runtime.providers.experimental" in DEPRECATED_EXTENSIONS
-    assert "bijux_proteomics_runtime.runtime.control" in DO_NOT_EXTEND_ZONES
+    assert "bijux_proteomics_runtime.runtime" in DO_NOT_EXTEND_ZONES
     assert "bijux_proteomics_runtime.runs" in DO_NOT_EXTEND_ZONES
     assert "bijux_proteomics_runtime.workflows" in DO_NOT_EXTEND_ZONES

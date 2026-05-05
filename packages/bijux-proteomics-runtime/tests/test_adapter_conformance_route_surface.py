@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.api.product_routes import (
+from bijux_proteomics_runtime.api.routes.adapter_conformance import (
     AdapterConformanceRouteRequest,
     route_adapter_conformance_api,
 )

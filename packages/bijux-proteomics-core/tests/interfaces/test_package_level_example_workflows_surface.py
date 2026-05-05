@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.api.product_routes import (
+from bijux_proteomics_runtime.interfaces.workflow_story import (
     ExampleWorkflowPackageEntry,
     build_package_level_example_workflow_catalog,
 )

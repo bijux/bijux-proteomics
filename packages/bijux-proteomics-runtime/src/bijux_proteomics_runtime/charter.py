@@ -135,10 +135,10 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.REPLAY_AND_RECOVERY,
         owned_surface="Replay-safe bundles, checkpoints, cache claims, rerun planning, cleanup, and recovery behavior that preserve trustworthy run reuse.",
         required_modules=(
-            "runtime/control/replay.py",
-            "runtime/control/reruns.py",
-            "runtime/control/integrity.py",
-            "runtime/control/recovery.py",
+            "runs/replay.py",
+            "runs/reruns.py",
+            "runs/integrity.py",
+            "runs/recovery.py",
             "runtime/workspace.py",
         ),
         release_blocker="Runtime cannot ship if reruns, replay, or recovery depend on ad hoc operator behavior instead of typed runtime control.",
@@ -149,8 +149,8 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         required_modules=(
             "api/catalog.py",
             "runs/contracts.py",
-            "runtime/control/execution_surfaces.py",
-            "runtime/control/failure_reports.py",
+            "runs/launch_bundles.py",
+            "runs/failure_reports.py",
             "workflows/paths.py",
         ),
         release_blocker="Runtime cannot ship if operators or downstream packages lose stable reviewable run outputs and fall back to private workspace parsing.",
@@ -160,30 +160,6 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
 
 def _runtime_source_root() -> Path:
     return Path(__file__).resolve().parent
-
-
-_COMPATIBILITY_FORWARDERS = {
-    "runtime/context/context.py",
-    "runtime/context/contracts.py",
-    "runtime/context/correlation.py",
-    "runtime/context/lifecycle.py",
-    "runtime/context/logging.py",
-    "runtime/context/output.py",
-    "runtime/context/request.py",
-    "runtime/context/run_config.py",
-    "runtime/context/telemetry.py",
-    "runtime/control/execution.py",
-    "runtime/control/operations.py",
-    "runtime/control/provider_capabilities.py",
-    "runtime/control/provider_support.py",
-    "runtime/control/run_analysis.py",
-    "runtime/control/state_machine.py",
-    "runtime/control/tool_reliability.py",
-    "runtime/control/workflow_paths.py",
-    "runtime/control/workflow_plans.py",
-    "runtime/control/workflow_reproducibility.py",
-    "runtime/control/workflow_runs.py",
-}
 
 
 def _execution_value_entry(
@@ -212,13 +188,6 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             module_path=module_path,
             classification=RuntimeModuleClassification.THIN_ABSTRACTION,
             reason="Namespace package initializers only aggregate stable runtime-owned sub-surfaces.",
-        )
-
-    if module_path in _COMPATIBILITY_FORWARDERS:
-        return RuntimeModuleAuditEntry(
-            module_path=module_path,
-            classification=RuntimeModuleClassification.THIN_ABSTRACTION,
-            reason="Compatibility forwarding stays isolated under legacy runtime namespaces while owner logic lives in first-level runtime families.",
         )
 
     if (
@@ -316,17 +285,6 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Typed run context, workspace, and contract code keep runtime execution reproducible, inspectable, and exportable.",
-        )
-
-    if module_path.startswith("runtime/control/"):
-        return _execution_value_entry(
-            module_path,
-            (
-                RuntimeCharterCapability.WORKFLOW_EXECUTION,
-                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
-                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
-            ),
-            "Runtime control code owns execution flow, replay boundaries, integrity checks, and reviewable run outputs.",
         )
 
     if module_path.startswith("core/"):

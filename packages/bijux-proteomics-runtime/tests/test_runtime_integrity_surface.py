@@ -5,12 +5,10 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics_runtime.runs import RunManager
-from bijux_proteomics_runtime.runtime.control import (
-    ResumeCheckpoint,
-    load_local_run_bundle,
-    load_resume_checkpoint,
-    verify_runtime_artifact_integrity,
-)
+from bijux_proteomics_runtime.runs.checkpoints import ResumeCheckpoint
+from bijux_proteomics_runtime.runs.checkpoints import load_resume_checkpoint
+from bijux_proteomics_runtime.runs.integrity import verify_runtime_artifact_integrity
+from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
 from bijux_proteomics_runtime.runs import RunConfig
 
 

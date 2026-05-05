@@ -3,12 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics_runtime.runtime.control import (
-    RuntimeReviewableOutputPath,
-    build_runtime_smoke_workflows,
-    run_reviewable_import_path,
-    run_reviewable_sequence_path,
-)
+from bijux_proteomics_runtime.workflows.paths import RuntimeReviewableOutputPath
+from bijux_proteomics_runtime.workflows.paths import build_runtime_smoke_workflows
+from bijux_proteomics_runtime.workflows.paths import run_reviewable_import_path
+from bijux_proteomics_runtime.workflows.paths import run_reviewable_sequence_path
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
 
 

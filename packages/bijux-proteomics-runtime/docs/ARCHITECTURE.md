@@ -30,8 +30,8 @@ Runtime-owned capabilities:
 - canonical entrypoints: `interfaces/`, `api/`, and `runs/operations.py`
 - provider binding: `providers/`, `providers/capabilities.py`, and `providers/support.py`
 - workflow execution: `agents/`, `execution/`, `tools/`, `runs/manager.py`, and `workflows/`
-- replay and recovery: `runs/`, `runtime/control/`, `memory/`, `state/`, and `runtime/workspace.py`
-- reviewable outputs: `api/catalog.py`, `runtime/control/execution_surfaces.py`, `runtime/control/failure_reports.py`, and `workflows/paths.py`
+- replay and recovery: `runs/`, `memory/`, `state/`, and `runtime/workspace.py`
+- reviewable outputs: `api/catalog.py`, `runs/launch_bundles.py`, `runs/failure_reports.py`, and `workflows/paths.py`
 
 ## Execution model
 
@@ -65,7 +65,7 @@ flowchart TD
 - `runs/` owns run identity, run config, correlation, canonical run operations, and typed execution context
 - `workflows/` owns workflow planning, reproducibility, reviewable path manifests, and end-to-end workflow run reports
 - `providers/` owns provider binding, capability gates, and provider execution support
-- `runtime/context/` and moved `runtime/control/*` modules remain compatibility forwarding surfaces only
+- `runtime/` now holds only internal workspace and transport contracts that do not belong to the run-owned families
 - `agents/`, `execution/`, and `tools/` own runtime-local execution planning and coordination support
 - `memory/` and `state/` own replayable state, history, and review-safe persistence contracts
 

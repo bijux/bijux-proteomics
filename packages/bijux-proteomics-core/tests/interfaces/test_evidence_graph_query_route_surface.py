@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.api.product_routes import (
+from bijux_proteomics_runtime.api.routes.evidence_graph import (
     EvidenceGraphQueryRouteRequest,
     route_evidence_graph_query_api,
 )

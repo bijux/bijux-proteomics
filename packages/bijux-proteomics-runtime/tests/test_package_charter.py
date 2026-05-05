@@ -75,8 +75,16 @@ def test_runtime_thin_abstractions_are_only_namespace_initializers() -> None:
     }
 
     assert thin_paths
-    assert all(
-        path.endswith("__init__.py")
-        or path.startswith(("runtime/context/", "runtime/control/"))
-        for path in thin_paths
-    )
+    assert all(path.endswith("__init__.py") for path in thin_paths)
+
+
+def test_runtime_owner_modules_avoid_too_thin_non_initializer_files() -> None:
+    undersized = []
+    for path in sorted(RUNTIME_SRC_ROOT.rglob("*.py")):
+        relative = path.relative_to(RUNTIME_SRC_ROOT).as_posix()
+        if relative.endswith("__init__.py"):
+            continue
+        if len(path.read_text(encoding="utf-8").splitlines()) < 10:
+            undersized.append(relative)
+
+    assert undersized == []

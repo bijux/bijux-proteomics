@@ -140,7 +140,7 @@ from bijux_proteomics_runtime.providers.factory import (
 )
 from bijux_proteomics_runtime.agents.catalog import AgentCatalog as RuntimeAgentCatalog
 from bijux_proteomics_runtime.tools.catalog import ToolCatalog as RuntimeToolCatalog
-from bijux_proteomics_runtime.runtime.control.artifacts import (
+from bijux_proteomics_runtime.runs.artifacts import (
     _sign_payload as runtime_sign_payload,
 )
 from bijux_proteomics_runtime.runs.manager import (
@@ -155,9 +155,7 @@ from bijux_proteomics_runtime.runs.manager import (
 from bijux_proteomics_runtime.runs.manager import (
     _version_info as runtime_version_info,
 )
-from bijux_proteomics_runtime.runtime.control import (
-    provider_capabilities as runtime_capabilities,
-)
+from bijux_proteomics_runtime.providers import capabilities as runtime_capabilities
 from bijux_proteomics_runtime.providers.capabilities import (
     KNOWN_PROVIDERS as RUNTIME_KNOWN_PROVIDERS,
 )

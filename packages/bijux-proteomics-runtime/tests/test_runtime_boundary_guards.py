@@ -4,7 +4,6 @@ from pathlib import Path
 
 from bijux_proteomics_runtime import __all__ as runtime_public_entrypoints
 from bijux_proteomics_runtime.charter import DEFAULT_RUNTIME_CHARTER_ENTRIES
-from bijux_proteomics_runtime.runtime.control import __all__ as runtime_control_exports
 
 
 def _runtime_source_root() -> Path:
@@ -18,6 +17,8 @@ def test_runtime_source_tree_excludes_removed_legacy_buckets() -> None:
     assert not (runtime_root / "validation").exists()
     assert not (runtime_root / "runtime" / "adapters").exists()
     assert not (runtime_root / "runtime" / "infra").exists()
+    assert not (runtime_root / "runtime" / "context").exists()
+    assert not (runtime_root / "runtime" / "control").exists()
 
 
 def test_runtime_source_tree_excludes_removed_generic_http_helper_names() -> None:
@@ -66,14 +67,7 @@ def test_runtime_root_exports_only_runtime_owned_entrypoints() -> None:
     )
 
 
-def test_runtime_control_exports_release_blocking_execution_surfaces() -> None:
-    required_exports = {
-        "build_runtime_preflight_report",
-        "build_runtime_partial_rerun_plan",
-        "verify_runtime_artifact_integrity",
-        "write_runtime_failure_report",
-        "run_reviewable_import_path",
-        "run_reviewable_sequence_path",
-    }
+def test_runtime_source_tree_excludes_removed_public_route_wrapper() -> None:
+    runtime_root = _runtime_source_root()
 
-    assert required_exports.issubset(set(runtime_control_exports))
+    assert not (runtime_root / "api" / "product_routes.py").exists()

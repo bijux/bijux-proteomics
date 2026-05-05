@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.api.product_routes import (
+from bijux_proteomics_runtime.api.routes.review_packets import (
     ReviewPacketRouteRequest,
     route_review_packet_api,
 )
