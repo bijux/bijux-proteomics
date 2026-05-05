@@ -6,4 +6,3 @@
 from __future__ import annotations
 
 from bijux_proteomics.sequences.protease_digest_comparison import *  # noqa: F401,F403
-

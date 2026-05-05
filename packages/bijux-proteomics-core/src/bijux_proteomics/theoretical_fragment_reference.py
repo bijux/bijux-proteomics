@@ -6,4 +6,3 @@
 from __future__ import annotations
 
 from bijux_proteomics.chemistry.theoretical_fragment_reference import *  # noqa: F401,F403
-

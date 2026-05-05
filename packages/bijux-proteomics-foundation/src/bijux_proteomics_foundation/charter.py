@@ -218,7 +218,9 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
 DEFAULT_FOUNDATION_MODULE_AUDIT: tuple[FoundationModuleAuditEntry, ...] = tuple(
     sorted(
         (
-            _classify_foundation_module(path.relative_to(_foundation_source_root()).as_posix())
+            _classify_foundation_module(
+                path.relative_to(_foundation_source_root()).as_posix()
+            )
             for path in _foundation_source_root().glob("*.py")
         ),
         key=lambda entry: entry.module_path,

@@ -12,7 +12,12 @@ from bijux_proteomics.search_adapters import (
 
 
 def _corpus_root() -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "search_adapter_corpora" / "spectronaut"
+    return (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "search_adapter_corpora"
+        / "spectronaut"
+    )
 
 
 def test_spectronaut_output_corpus_report_covers_native_and_pipeline_exports() -> None:

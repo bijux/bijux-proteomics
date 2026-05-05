@@ -35,7 +35,9 @@ from bijux_proteomics import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "search_adapters" / name
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "search_adapters" / name
+    )
 
 
 def test_search_adapter_registry_exposes_capability_matrix() -> None:

@@ -453,9 +453,7 @@ def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
             FIXTURE_ROOT / "psm" / "minimal_results.tsv",
             "results.tsv",
         )
-        shutil.copy(
-            FIXTURE_ROOT / "spectra" / "simple.mgf", "simple.mgf"
-        )
+        shutil.copy(FIXTURE_ROOT / "spectra" / "simple.mgf", "simple.mgf")
         shutil.copy(
             FIXTURE_ROOT / "modifications" / "valid_registry.json",
             "registry.json",
@@ -490,9 +488,7 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
             FIXTURE_ROOT / "psm" / "minimal_results.tsv",
             "results.tsv",
         )
-        shutil.copy(
-            FIXTURE_ROOT / "spectra" / "multi.mgf", "multi.mgf"
-        )
+        shutil.copy(FIXTURE_ROOT / "spectra" / "multi.mgf", "multi.mgf")
 
         fasta_result = runner.invoke(
             cli, ["summarize", "valid.fasta", "--kind", "fasta"]

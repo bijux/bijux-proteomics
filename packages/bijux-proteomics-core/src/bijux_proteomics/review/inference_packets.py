@@ -80,19 +80,13 @@ def build_inference_disagreement_review_packet(
         for comparison in strategy_report.comparisons
     )
     if not entries and strategy_overlap_alert_count == 0:
-        recommendation = (
-            "inference strategies are consistent; proceed with standard review gate checks"
-        )
+        recommendation = "inference strategies are consistent; proceed with standard review gate checks"
     elif any(
         entry.severity is InferenceDisagreementSeverity.BLOCKING for entry in entries
     ):
-        recommendation = (
-            "blocking inference disagreements were detected; require strategy adjudication before release"
-        )
+        recommendation = "blocking inference disagreements were detected; require strategy adjudication before release"
     else:
-        recommendation = (
-            "review warnings were detected; include disagreement rationale in the evidence handoff"
-        )
+        recommendation = "review warnings were detected; include disagreement rationale in the evidence handoff"
     return InferenceDisagreementReviewPacket(
         entry_count=len(entries),
         blocking_count=sum(

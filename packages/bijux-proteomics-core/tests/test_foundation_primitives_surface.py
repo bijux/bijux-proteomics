@@ -10,7 +10,9 @@ from bijux_proteomics.domain.program_spec import ProgramSpec, create_program_spe
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
-def test_core_program_models_use_foundation_document_and_identifier_primitives() -> None:
+def test_core_program_models_use_foundation_document_and_identifier_primitives() -> (
+    None
+):
     program = create_program_spec(
         program_id="prog-core",
         name="Core program",

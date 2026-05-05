@@ -6,4 +6,3 @@
 from __future__ import annotations
 
 from bijux_proteomics.sequences.enzyme_rule_provenance import *  # noqa: F401,F403
-

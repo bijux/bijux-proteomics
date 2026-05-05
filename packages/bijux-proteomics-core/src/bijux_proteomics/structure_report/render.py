@@ -36,7 +36,11 @@ def _load_langchain_dependencies() -> tuple[type[Any], type[Any]] | None:
     global LANGCHAIN_AVAILABLE, HuggingFaceHub, PromptTemplate
     if LANGCHAIN_AVAILABLE is False:
         return None
-    if LANGCHAIN_AVAILABLE is True and HuggingFaceHub is not None and PromptTemplate is not None:
+    if (
+        LANGCHAIN_AVAILABLE is True
+        and HuggingFaceHub is not None
+        and PromptTemplate is not None
+    ):
         return HuggingFaceHub, PromptTemplate
     try:
         llms = importlib.import_module("langchain_community.llms")

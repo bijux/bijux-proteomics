@@ -251,7 +251,15 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
     if module_path.startswith(("workflow/", "execution/")):
         return CoreScientificDomainFamily.WORKFLOW_CONTRACTS
     if module_path.startswith(
-        ("review/", "collaboration/", "corpus/", "biology/", "lab/", "intelligence/", "structure_report/")
+        (
+            "review/",
+            "collaboration/",
+            "corpus/",
+            "biology/",
+            "lab/",
+            "intelligence/",
+            "structure_report/",
+        )
     ) or module_path in {
         "protein_family_evidence_graph.py",
         "proteoform_identity.py",

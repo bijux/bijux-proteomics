@@ -6,4 +6,3 @@
 from __future__ import annotations
 
 from bijux_proteomics.chemistry.stable_isotope_labeling import *  # noqa: F401,F403
-

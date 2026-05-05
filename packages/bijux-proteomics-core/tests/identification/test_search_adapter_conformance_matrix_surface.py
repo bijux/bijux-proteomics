@@ -12,7 +12,9 @@ from bijux_proteomics.search_adapters import (
 
 
 def _matrix_root() -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "search_adapter_corpora"
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "search_adapter_corpora"
+    )
 
 
 def test_search_adapter_corpus_conformance_matrix_summarizes_all_built_in_adapters() -> (

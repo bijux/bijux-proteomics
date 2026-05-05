@@ -36,16 +36,17 @@ def test_foundation_charter_keeps_non_owned_surfaces_explicit() -> None:
     assert "workflow execution, provider binding, and operator transport" in (
         DEFAULT_FOUNDATION_CHARTER.excluded_ownership
     )
-    assert "downstream package-owned scientific, analytical, runtime, and lab models" in (
-        DEFAULT_FOUNDATION_CHARTER.required_inputs
+    assert (
+        "downstream package-owned scientific, analytical, runtime, and lab models"
+        in (DEFAULT_FOUNDATION_CHARTER.required_inputs)
     )
 
 
 def test_foundation_charter_entries_stay_release_blocking_and_module_backed() -> None:
     assert list_foundation_charter_entries() == DEFAULT_FOUNDATION_CHARTER_ENTRIES
-    assert {
-        entry.capability for entry in DEFAULT_FOUNDATION_CHARTER_ENTRIES
-    } == set(DEFAULT_FOUNDATION_CHARTER.capabilities)
+    assert {entry.capability for entry in DEFAULT_FOUNDATION_CHARTER_ENTRIES} == set(
+        DEFAULT_FOUNDATION_CHARTER.capabilities
+    )
     assert all(entry.required_modules for entry in DEFAULT_FOUNDATION_CHARTER_ENTRIES)
     assert all(entry.release_blocker for entry in DEFAULT_FOUNDATION_CHARTER_ENTRIES)
 
