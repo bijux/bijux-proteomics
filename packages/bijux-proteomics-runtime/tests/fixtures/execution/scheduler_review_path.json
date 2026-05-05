@@ -1,0 +1,56 @@
+{
+  "run_id": "runtime-scheduler-review-1",
+  "sequence": "MNNNKQQQQQGGSSTTSGGGGGGNSQQQQMPEPTIDEKAAA",
+  "config": {
+    "launch_surface": "scheduler",
+    "scheduler_system": "slurm",
+    "scheduler_queue": "gpu-long",
+    "scheduler_job_name": "bijux-runtime-review",
+    "scheduler_submission_id": "slurm:runtime-review-1"
+  },
+  "expected_artifact_kinds": [
+    "runtime-scheduler-job-bundle",
+    "runtime-replay-contract",
+    "runtime-status",
+    "runtime-integrity-report"
+  ],
+  "slurm_script": {
+    "job_name": "bijux-runtime-review",
+    "time_limit": "02:00:00",
+    "cpus": 8,
+    "memory_gb": 32,
+    "scratch_dir": "/scratch/runtime-review-1",
+    "log_path": "artifacts/slurm/runtime-review-1.out",
+    "environment_exports": {
+      "BIJUX_PROFILE": "runtime-review",
+      "CUDA_VISIBLE_DEVICES": "0"
+    },
+    "artifact_dir": "artifacts/runtime-scheduler-review-1",
+    "command": "python -m bijux_proteomics_runtime.interfaces.cli run --provider local_esmfold"
+  },
+  "collected_logs": [
+    "artifacts/slurm/runtime-review-1.out",
+    "artifacts/slurm/runtime-review-1.err"
+  ],
+  "fake_run_flow_result": {
+    "plan_fingerprint": "plan-scheduler-review-path",
+    "tool_status": "success",
+    "report": {
+      "status": "ok",
+      "workflow_family": "structure_prediction",
+      "steps": [
+        "export_scheduler_bundle",
+        "submit_job",
+        "collect_review_outputs"
+      ],
+      "metrics": {
+        "queued_minutes": 11.0,
+        "wall_minutes": 17.5
+      }
+    },
+    "qc_status": "acceptable",
+    "coordinator_decision": "TerminateRun",
+    "failure_type": "none",
+    "lifecycle_state": "done"
+  }
+}

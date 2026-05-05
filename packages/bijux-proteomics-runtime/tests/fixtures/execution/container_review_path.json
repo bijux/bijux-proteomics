@@ -1,0 +1,52 @@
+{
+  "run_id": "runtime-container-review-1",
+  "sequence": "MSPQTETKASVGFKAGVKEYKLTYYTPEYETKDTDILAAFR",
+  "config": {
+    "launch_surface": "container",
+    "container_image": "ghcr.io/bijux/proteomics-runtime:gpu-review",
+    "container_image_digest": "sha256:gpu-review-digest",
+    "execution_mode": "cpu",
+    "tool_versions": {
+      "heuristic_proxy": "0.1"
+    }
+  },
+  "expected_enabled_predictors": [
+    "heuristic_proxy"
+  ],
+  "expected_artifact_kinds": [
+    "runtime-container-run-bundle",
+    "runtime-replay-contract",
+    "runtime-status",
+    "runtime-integrity-report"
+  ],
+  "smoke_command": [
+    "python3",
+    "-m",
+    "bijux_proteomics_runtime.interfaces.cli",
+    "--help"
+  ],
+  "expected_smoke_artifacts": [
+    "artifacts/container-review.log"
+  ],
+  "fake_run_flow_result": {
+    "plan_fingerprint": "plan-container-review-path",
+    "tool_status": "success",
+    "report": {
+      "status": "ok",
+      "workflow_family": "structure_prediction",
+      "steps": [
+        "stage_container_mounts",
+        "execute_predictor",
+        "publish_review_packet"
+      ],
+      "metrics": {
+        "predicted_residues": 49,
+        "gpu_minutes": 3.2
+      }
+    },
+    "qc_status": "acceptable",
+    "coordinator_decision": "TerminateRun",
+    "failure_type": "none",
+    "lifecycle_state": "done"
+  }
+}
