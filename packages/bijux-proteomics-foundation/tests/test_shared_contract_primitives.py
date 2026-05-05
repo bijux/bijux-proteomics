@@ -11,7 +11,10 @@ from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
 )
-from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
+from bijux_proteomics_foundation.outcomes.error_envelopes import (
+    ErrorCategory,
+    ErrorEnvelope,
+)
 from bijux_proteomics_foundation.serialization.fingerprints import (
     FingerprintScope,
     build_artifact_bundle_fingerprint,

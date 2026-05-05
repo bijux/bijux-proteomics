@@ -14,7 +14,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics.domain.reviews import ReviewGate
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_foundation.errors import (
+from bijux_proteomics_foundation.outcomes.exceptions import (
     ContractConflictError,
     ContractNotFoundError,
 )

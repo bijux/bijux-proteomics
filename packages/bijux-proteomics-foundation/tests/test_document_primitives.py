@@ -22,7 +22,7 @@ from bijux_proteomics_foundation.compatibility import (
     assess_schema_compatibility,
     assess_schema_evolution,
 )
-from bijux_proteomics_foundation.errors import (
+from bijux_proteomics_foundation.outcomes.exceptions import (
     ContractConflictError,
     ContractNotFoundError,
     ContractValidationError,

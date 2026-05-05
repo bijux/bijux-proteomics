@@ -18,7 +18,7 @@ from bijux_proteomics_foundation import (
     hash_payload,
     to_canonical_json,
 )
-from bijux_proteomics_foundation.error_models import (
+from bijux_proteomics_foundation.outcomes.error_envelopes import (
     ErrorCategory,
     ErrorEnvelope,
     build_error_envelope_from_exception,

@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.errors import (
+from bijux_proteomics_foundation.outcomes.exceptions import (
     MigrationExecutionError,
     MigrationPathError,
 )

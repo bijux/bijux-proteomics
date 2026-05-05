@@ -132,8 +132,8 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         owned_surface="Shared refusal, error-envelope, and operation-result contracts for deterministic cross-package failure semantics.",
         required_modules=(
             "outcomes/refusals.py",
-            "error_models.py",
-            "errors.py",
+            "outcomes/error_envelopes.py",
+            "outcomes/exceptions.py",
             "outcomes/results.py",
         ),
         release_blocker="Foundation cannot ship if shared refusal or error semantics fragment into runtime-, intelligence-, or lab-local contracts.",
@@ -245,8 +245,8 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
-        "error_models.py",
-        "errors.py",
+        "outcomes/error_envelopes.py",
+        "outcomes/exceptions.py",
         "outcomes/__init__.py",
         "outcomes/refusals.py",
         "outcomes/results.py",
