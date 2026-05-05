@@ -48,7 +48,7 @@ from bijux_proteomics_lab.planning.queue import (
     summarize_review_queue_sla,
     summarize_review_queue_workload,
 )
-from bijux_proteomics_lab.repositories import (
+from bijux_proteomics_lab.outcomes.feedback import (
     LabFeedbackQuery,
     LabFeedbackRecord,
     detect_feedback_anomalies,

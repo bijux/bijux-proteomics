@@ -106,7 +106,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
         owned_surface="Observed-outcome interpretation that feeds back into reruns, evidence promotion, and future cycles.",
         required_modules=(
             "outcomes/observations.py",
-            "repositories.py",
+            "outcomes/feedback.py",
             "readiness/operations.py",
             "handoffs/risk.py",
             "reconciliation/follow_up.py",
@@ -300,13 +300,10 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Planned-versus-observed reconciliation converts assay outcomes into honest downstream feedback instead of implicit optimism.",
     ),
     LabModuleAuditEntry(
-        module_path="repositories.py",
+        module_path="outcomes/feedback.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
-        anchor_capabilities=(
-            LabCharterCapability.QUEUEING,
-            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
-        ),
-        reason="Feedback and review-queue records are the typed persistence boundary for lab operations.",
+        anchor_capabilities=(LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,),
+        reason="Feedback records and feedback analytics belong to outcomes because they convert observed work back into auditable downstream posture.",
     ),
     LabModuleAuditEntry(
         module_path="readiness/workflow.py",

@@ -19,7 +19,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
 from bijux_proteomics_knowledge.memory.ingestion import (
     NormalizedEvidenceInput,
 )
-from bijux_proteomics_lab.repositories import LabFeedbackRecord
+from bijux_proteomics_lab.outcomes.feedback import LabFeedbackRecord
 
 
 class FailureClass(StrEnum):
