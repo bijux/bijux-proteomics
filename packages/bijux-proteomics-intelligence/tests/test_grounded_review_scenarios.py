@@ -11,15 +11,19 @@ import pytest
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics_intelligence import (
+from bijux_proteomics_intelligence.briefs import (
     CandidateAssessment,
+    prioritize_candidates,
+)
+from bijux_proteomics_intelligence.evaluators import (
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
-    assess_recommendation_readiness,
     build_final_decision_recommendation,
     build_review_board_packet,
-    prioritize_candidates,
+)
+from bijux_proteomics_intelligence.evidence_posture import (
+    assess_recommendation_readiness,
 )
 from bijux_proteomics_knowledge import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily

@@ -8,27 +8,35 @@ from pathlib import Path
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics_intelligence import (
+from bijux_proteomics_intelligence.briefs import (
     CandidateAssessment,
+    build_ranking_sensitivity_report,
+    prioritize_candidates,
+)
+from bijux_proteomics_intelligence.charter import (
     DEFAULT_INTELLIGENCE_CHARTER,
     DEFAULT_INTELLIGENCE_MODULE_AUDIT,
     IntelligenceModuleClassification,
+)
+from bijux_proteomics_intelligence.decision_paths import (
+    build_review_board_decision_path,
+)
+from bijux_proteomics_intelligence.evaluators import (
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
     build_final_decision_recommendation,
-    build_review_board_decision_path,
-    build_ranking_rule_grounding_ledger,
-    build_ranking_sensitivity_report,
-    build_skeptical_review_report,
-    prioritize_candidates,
 )
+from bijux_proteomics_intelligence.skeptical_review import build_skeptical_review_report
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,
     EvidenceStrength,
+)
+from bijux_proteomics_knowledge.references.decision_rules import (
+    build_ranking_rule_grounding_ledger,
 )
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 

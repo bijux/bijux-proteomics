@@ -7,11 +7,11 @@ from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics_intelligence import (
-    CandidateAssessment,
+from bijux_proteomics_intelligence.briefs import CandidateAssessment
+from bijux_proteomics_intelligence.decision_paths import build_review_board_decision_path
+from bijux_proteomics_intelligence.skeptical_review import (
     ReviewChallengeSeverity,
     SkepticalReviewReport,
-    build_review_board_decision_path,
     build_skeptical_review_report,
 )
 from bijux_proteomics_knowledge import (

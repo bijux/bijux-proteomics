@@ -4,20 +4,19 @@
 from __future__ import annotations
 
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics_intelligence import (
+from bijux_proteomics_intelligence.briefs import (
     CandidateAssessment,
     CandidateRanking,
-    CandidateRiskProfile,
+    RankedCandidate,
+)
+from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
+from bijux_proteomics_intelligence.evaluators import (
     ComparativeCandidateReviewPacket,
     EvaluatorPolicyBundle,
-    HoldPolicyConfig,
     HypothesisStatus,
     IntelligenceDecisionSupportEnvelope,
     IntelligenceOutputMode,
     ProgressionPolicy,
-    ProgressionPolicyConfig,
-    RankedCandidate,
-    RedesignPolicyConfig,
     ReviewBoardPacket,
     ScaleUpPolicy,
     ScenarioAction,
@@ -46,6 +45,11 @@ from bijux_proteomics_intelligence import (
     summarize_scenario_consensus,
     summarize_uncertainty_preserving_interpretation,
     summarize_unresolved_question_ledger,
+)
+from bijux_proteomics_intelligence.policies import (
+    HoldPolicyConfig,
+    ProgressionPolicyConfig,
+    RedesignPolicyConfig,
 )
 from bijux_proteomics_knowledge import (
     DecisionReadiness,

@@ -14,9 +14,9 @@ from bijux_proteomics.quantification import (
     ReplicateCorrelationReport,
 )
 from bijux_proteomics_foundation import DocumentSchema
-from bijux_proteomics_intelligence import (
+from bijux_proteomics_intelligence.briefs import CandidateAssessment
+from bijux_proteomics_intelligence.decision_paths import (
     CautiousAnomalyInterpretationPath,
-    CandidateAssessment,
     FollowUpCandidatePath,
     ReviewBoardDecisionPath,
     build_cautious_anomaly_interpretation_path,

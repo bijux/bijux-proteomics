@@ -40,7 +40,7 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import DocumentSchema
-from bijux_proteomics_intelligence import (
+from bijux_proteomics_intelligence.interpretation import (
     AnalyticalContrastRejectionReason,
     EnrichmentProvenance,
     MissingnessPatternLabel,
