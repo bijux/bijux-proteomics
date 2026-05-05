@@ -1,0 +1,32 @@
+{
+  "candidate_id": "cand-confirmed",
+  "target_id": "target-confirmed",
+  "claim_links": {
+    "assay-confirmed": ["claim-confirmed"]
+  },
+  "execution_request": {
+    "program_id": "prog-confirmed",
+    "batch_id": "batch-confirmed-1",
+    "evidence_ids": ["ev-confirmed-1"],
+    "requested_instruction_ids": ["batch-confirmed-1:assay-confirmed"],
+    "requested_assay_ids": ["assay-confirmed"],
+    "scientific_rationale": ["confirm the prioritized follow-up signal with one orthogonal assay"],
+    "unresolved_risks": [],
+    "ready_for_lab_review": true
+  },
+  "outcome": {
+    "batch_id": "batch-confirmed-1",
+    "assay_outcomes": [
+      {
+        "assay_id": "assay-confirmed",
+        "passed": true,
+        "result_state": "passed",
+        "observation_summary": "the orthogonal assay reproduced the expected direction",
+        "failure_class": null,
+        "replicate_count": 3,
+        "uncertainty": 0.08
+      }
+    ],
+    "rerun_policy": "never"
+  }
+}

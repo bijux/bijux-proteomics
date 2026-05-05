@@ -438,6 +438,113 @@ def test_build_lab_execution_request_preserves_review_evidence_and_instructions(
     assert request.ready_for_lab_review is False
 
 
+def test_lab_surfaces_keep_advice_request_instruction_and_outcome_separate() -> None:
+    program = create_program_spec(
+        program_id="prog-surface-line",
+        name="surface line",
+        objective="keep scientific advice separate from executable and observed lab state",
+        target_id="target-surface-line",
+        target_name="Target Surface Line",
+        sequence="ACDEFGHIKLMNPQRSTVWY",
+        organism="human",
+        mechanism="stabilize a productive state",
+    )
+    program.evidence_needs = [
+        EvidenceNeed.LITERATURE,
+        EvidenceNeed.STRUCTURE,
+        EvidenceNeed.ASSAY,
+    ]
+    program.assay_panel.append(
+        AssayRequirement(
+            assay_id="gate-binding",
+            purpose="confirm target engagement",
+            readout="binding_score",
+            sample_kind="biophysical",
+            blocking=True,
+        )
+    )
+    bundle = EvidenceBundle(
+        bundle_id="bundle-surface-line",
+        target_id="target-surface-line",
+        records=[
+            EvidenceRecord(
+                evidence_id="lit-line-1",
+                kind=EvidenceKind.LITERATURE,
+                title="Paper",
+                source="PMID:2",
+                claim="literature supports tractability",
+                confidence=0.9,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="structure-line-1",
+                kind=EvidenceKind.STRUCTURE,
+                title="Model",
+                source="AlphaFold",
+                claim="structure supports a stable binding pose",
+                confidence=0.84,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="assay-line-1",
+                kind=EvidenceKind.ASSAY,
+                title="Assay",
+                source="lab",
+                claim="a prior assay supports the same direction",
+                confidence=0.88,
+                strength=EvidenceStrength.DECISIVE,
+            ),
+        ],
+    )
+    advisory_plan = build_advisory_assay_plan(program)
+    executable_plan = build_executable_assay_plan(
+        ExperimentPlan(
+            program_id=program.program_id,
+            batches=[
+                ExperimentBatch(
+                    batch_id="batch-surface-line",
+                    objective="execute the gate assay once review stays clean",
+                    assay_ids=["gate-binding"],
+                    priority=1,
+                    sample_requirements=["biophysical"],
+                    assay_sample_kinds={"gate-binding": "biophysical"},
+                )
+            ],
+        ),
+        batch_id="batch-surface-line",
+        available_sample_kinds=["biophysical"],
+    )
+    review_packet = build_review_packet(program, bundle, [])
+    request = build_lab_execution_request(review_packet, executable_plan)
+    outcome = ExperimentOutcome(
+        batch_id="batch-surface-line",
+        assay_outcomes=[
+            AssayOutcome(
+                assay_id="gate-binding",
+                passed=True,
+                result_state=AssayResultState.PASSED,
+                observation_summary="the gate assay reproduced the expected signal",
+                replicate_count=2,
+                uncertainty=0.09,
+            )
+        ],
+        rerun_policy=RerunPolicy.NEVER,
+    )
+
+    assert advisory_plan.plan_kind is AssayPlanKind.ADVISORY
+    assert advisory_plan.executable is False
+    assert advisory_plan.recommendations[0].assay_id == "gate-binding"
+    assert executable_plan.plan_kind is AssayPlanKind.EXECUTABLE
+    assert (
+        executable_plan.instructions[0].instruction_id
+        == "batch-surface-line:gate-binding"
+    )
+    assert request.requested_instruction_ids == ["batch-surface-line:gate-binding"]
+    assert request.requested_assay_ids == ["gate-binding"]
+    assert request.ready_for_lab_review is True
+    assert outcome.assay_outcomes[0].assay_id == request.requested_assay_ids[0]
+
+
 def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> None:
     program = create_program_spec(
         program_id="prog-align",

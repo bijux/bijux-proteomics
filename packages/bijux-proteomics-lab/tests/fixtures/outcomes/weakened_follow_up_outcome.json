@@ -1,0 +1,32 @@
+{
+  "candidate_id": "cand-weakened",
+  "target_id": "target-weakened",
+  "claim_links": {
+    "assay-weakened": ["claim-weakened"]
+  },
+  "execution_request": {
+    "program_id": "prog-weakened",
+    "batch_id": "batch-weakened-1",
+    "evidence_ids": ["ev-weakened-1"],
+    "requested_instruction_ids": ["batch-weakened-1:assay-weakened"],
+    "requested_assay_ids": ["assay-weakened"],
+    "scientific_rationale": ["stress-test the follow-up hypothesis with one biological readout"],
+    "unresolved_risks": [],
+    "ready_for_lab_review": true
+  },
+  "outcome": {
+    "batch_id": "batch-weakened-1",
+    "assay_outcomes": [
+      {
+        "assay_id": "assay-weakened",
+        "passed": false,
+        "result_state": "failed_biological",
+        "observation_summary": "the biological readout did not support the hypothesized direction",
+        "failure_class": "biological",
+        "replicate_count": 2,
+        "uncertainty": 0.14
+      }
+    ],
+    "rerun_policy": "never"
+  }
+}

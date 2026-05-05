@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from bijux_proteomics_lab.outcomes import (
     AssayOutcome,
     AssayResultState,
@@ -12,6 +15,14 @@ from bijux_proteomics_lab.outcomes import (
 )
 from bijux_proteomics_lab.planning import LabExecutionRequest
 from bijux_proteomics_lab.reconciliation import reconcile_planned_and_observed_outcome
+
+
+def _outcome_fixture(name: str) -> dict[str, object]:
+    return json.loads(
+        (Path(__file__).parent / "fixtures" / "outcomes" / name).read_text(
+            encoding="utf-8"
+        )
+    )
 
 
 def test_reconcile_planned_and_observed_outcome_emits_feedback_signal() -> None:
@@ -113,3 +124,52 @@ def test_reconcile_planned_and_observed_outcome_flags_missing_requested_assays()
         for action in report.operational_follow_through
     )
     assert "assay-b" in report.intelligence_feedback.blocked_assay_ids
+
+
+def test_reconciliation_fixtures_cover_confirm_weaken_and_overturn_feedback() -> None:
+    confirmed = _outcome_fixture("confirmed_follow_up_outcome.json")
+    weakened = _outcome_fixture("weakened_follow_up_outcome.json")
+    overturned = _outcome_fixture("overturned_follow_up_outcome.json")
+
+    confirmed_report = reconcile_planned_and_observed_outcome(
+        candidate_id=str(confirmed["candidate_id"]),
+        execution_request=LabExecutionRequest.model_validate(
+            confirmed["execution_request"]
+        ),
+        outcome=ExperimentOutcome.model_validate(confirmed["outcome"]),
+        target_id=str(confirmed["target_id"]),
+        claim_links=confirmed["claim_links"],
+    )
+    weakened_report = reconcile_planned_and_observed_outcome(
+        candidate_id=str(weakened["candidate_id"]),
+        execution_request=LabExecutionRequest.model_validate(
+            weakened["execution_request"]
+        ),
+        outcome=ExperimentOutcome.model_validate(weakened["outcome"]),
+        target_id=str(weakened["target_id"]),
+        claim_links=weakened["claim_links"],
+    )
+    overturned_report = reconcile_planned_and_observed_outcome(
+        candidate_id=str(overturned["candidate_id"]),
+        execution_request=LabExecutionRequest.model_validate(
+            overturned["execution_request"]
+        ),
+        outcome=ExperimentOutcome.model_validate(overturned["outcome"]),
+        target_id=str(overturned["target_id"]),
+        claim_links=overturned["claim_links"],
+    )
+
+    assert confirmed_report.belief_posture == "reinforcing"
+    assert confirmed_report.intelligence_feedback.supported_assay_ids == (
+        "assay-confirmed",
+    )
+    assert weakened_report.belief_posture == "weakening"
+    assert weakened_report.intelligence_feedback.weakened_assay_ids == (
+        "assay-weakened",
+    )
+    assert overturned_report.belief_posture == "weakening"
+    assert overturned_report.claim_belief_update.updates[0].delta == -0.4
+    assert overturned_report.intelligence_feedback.weakened_assay_ids == (
+        "assay-overturn-a",
+        "assay-overturn-b",
+    )
