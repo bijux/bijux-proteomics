@@ -35,7 +35,7 @@ module_count = 14
 
 [[subtree]]
 name = "runs"
-module_count = 28
+module_count = 30
 
 [[subtree]]
 name = "runtime"

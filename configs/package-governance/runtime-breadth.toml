@@ -1,0 +1,18 @@
+# Generated runtime breadth-versus-owned-logic report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.runtime_breadth
+
+[metrics]
+public_entrypoint_count = 5
+extension_point_count = 4
+config_knob_count = 10
+first_level_subtree_count = 13
+total_breadth_count = 32
+owner_execution_module_count = 121
+thin_module_count = 28
+owner_execution_modules_per_surface = 3.78
+
+[guard]
+baseline_total_breadth_count = 32
+baseline_first_level_subtree_count = 13
+baseline_owner_execution_module_count = 121
+baseline_owner_execution_modules_per_surface = 3.78
