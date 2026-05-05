@@ -44,6 +44,11 @@ replace it. Intelligence explains readiness and recommendation pressure, but it
 does not define workflow stages or pretend ranking alone is the whole
 proteomics engine.
 
+It now also publishes a machine-readable analytical charter, knowledge-grounded
+ranking rules, evidence contradiction and freshness summaries, and an explicit
+recommendation gate that refuses overconfident outputs when the evidence posture
+is weak, stale, or contradictory.
+
 It also now provides typed proteomics interpretation helpers that sit on top of
 `bijux-proteomics-core` evidence surfaces when you need deterministic summaries
 for QC posture, differential abundance, PTM interpretation, enrichment, and
@@ -77,6 +82,17 @@ pip install bijux-proteomics-intelligence
 from bijux_proteomics_intelligence import briefs, policies, evaluators
 ```
 
+For grounded recommendation judgment:
+
+```python
+from bijux_proteomics_intelligence import (
+    assess_recommendation_readiness,
+    build_ranking_rule_grounding_ledger,
+    build_ranking_sensitivity_report,
+    prioritize_candidates,
+)
+```
+
 For proteomics evidence interpretation:
 
 ```python
@@ -92,7 +108,7 @@ from bijux_proteomics_intelligence import (
 - Distribution name: `bijux-proteomics-intelligence`
 - Import root: `bijux_proteomics_intelligence`
 - Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`,
-  `outcomes`, and `interpretation`
+  `outcomes`, `interpretation`, `charter`, `grounding`, and `evidence_posture`
 
 ## Package boundaries
 
@@ -101,6 +117,14 @@ This package owns decision intelligence, ranking policy, scenario scoring, and e
 It also owns deterministic interpretation contracts over already-typed
 proteomics evidence when those summaries belong at the intelligence layer
 rather than in raw scientific parsing or runtime execution.
+
+The package charter is intentionally narrow:
+
+- prioritization
+- contradiction handling
+- review reasoning
+- interpretation discipline
+- recommendation
 
 It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
 
@@ -111,6 +135,8 @@ parallel workflow story of its own.
 ## Contract checkpoints
 
 - ranking and scenario outputs must carry typed rationale instead of opaque scores
+- non-obvious ranking rules must remain grounded in knowledge-owned benchmark and reference surfaces
+- recommendation outputs must surface contradiction pressure, freshness pressure, and machine-readable refusal when evidence is not strong enough
 - policy models must remain reproducible inputs for repeated evaluations
 - portfolio and rejection summaries must stay explicit enough for review-gate use
 - downstream packages should ask this layer for recommendation logic instead of recreating scoring locally
@@ -178,6 +204,9 @@ parallel workflow story of its own.
 ## Source guide
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
+- [`src/bijux_proteomics_intelligence/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/charter.py) for the machine-readable intelligence product charter
+- [`src/bijux_proteomics_intelligence/grounding.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/grounding.py) for knowledge-backed ranking rule provenance
+- [`src/bijux_proteomics_intelligence/evidence_posture.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py) for contradiction, freshness, and recommendation-gate summaries
 - [`src/bijux_proteomics_intelligence/policies.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py) for ranking and decision policy models
 - [`src/bijux_proteomics_intelligence/evaluators.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py) for scenario and portfolio evaluators
 - [`src/bijux_proteomics_intelligence/interpretation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation.py) for run summaries, proteomics interpretation, and enrichment contracts
