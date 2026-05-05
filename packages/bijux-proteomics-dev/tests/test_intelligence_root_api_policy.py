@@ -66,11 +66,15 @@ def test_intelligence_root_api_stays_within_budget() -> None:
 
 def test_intelligence_root_excludes_convenience_symbol_exports() -> None:
     removed = {
-        "CandidateAssessment",
-        "FollowUpCandidatePath",
-        "ScenarioEvaluation",
-        "build_final_decision_recommendation",
-        "build_run_interpretation_summary",
+        "benchmark_reviews",
+        "briefs",
+        "charter",
+        "decision_paths",
+        "evidence_posture",
+        "evaluators",
+        "follow_up_learning",
+        "policies",
+        "skeptical_review",
     }
 
     assert removed.isdisjoint(bijux_proteomics_intelligence.__all__)
