@@ -17,7 +17,7 @@ from bijux_proteomics_runtime.runs.contracts import (
 from bijux_proteomics_runtime.runtime.control.integrity import (
     require_reusable_artifact_bundle,
 )
-from bijux_proteomics_runtime.runtime.control.replay import ReplayContract
+from bijux_proteomics_runtime.runs.replay import ReplayContract
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
 
 

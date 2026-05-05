@@ -125,7 +125,7 @@ from bijux_proteomics_runtime.runtime.control.integrity import (
     guard_payload_size,
     verify_runtime_artifact_integrity,
 )
-from bijux_proteomics_runtime.runtime.control.checkpoints import (
+from bijux_proteomics_runtime.runs.checkpoints import (
     build_resume_checkpoint,
     write_resume_checkpoint,
 )
@@ -137,7 +137,7 @@ from bijux_proteomics_runtime.runtime.control.preflight import (
     build_runtime_preflight_report,
     write_runtime_preflight_report,
 )
-from bijux_proteomics_runtime.runtime.control.replay import (
+from bijux_proteomics_runtime.runs.replay import (
     build_local_run_bundle,
     build_replay_contract,
     write_local_run_bundle,

@@ -13,7 +13,7 @@ from bijux_proteomics_runtime.runtime.control.execution_surfaces import (
     build_container_run_bundle,
     build_scheduler_job_bundle,
 )
-from bijux_proteomics_runtime.runtime.control.replay import build_replay_contract
+from bijux_proteomics_runtime.runs.replay import build_replay_contract
 from bijux_proteomics_runtime.runs import RunConfig
 
 

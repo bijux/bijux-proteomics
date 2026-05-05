@@ -10,7 +10,7 @@ from bijux_proteomics_runtime.runtime.control.ledger import (
     RuntimeArtifactLedger,
     refresh_runtime_artifact_ledger,
 )
-from bijux_proteomics_runtime.runtime.control.replay import (
+from bijux_proteomics_runtime.runs.replay import (
     LocalRunBundle,
     build_local_run_bundle,
     build_replay_contract,

@@ -54,7 +54,7 @@ _CONTROL_EXPORT_GROUPS = {
         "load_artifact_integrity_report",
         "verify_runtime_artifact_integrity",
     ],
-    "bijux_proteomics_runtime.runtime.control.checkpoints": [
+    "bijux_proteomics_runtime.runs.checkpoints": [
         "ResumeCheckpoint",
         "load_resume_checkpoint",
     ],
@@ -88,7 +88,7 @@ _CONTROL_EXPORT_GROUPS = {
         "RuntimeFailureRecoveryAudit",
         "build_runtime_failure_recovery_audit",
     ],
-    "bijux_proteomics_runtime.runtime.control.replay": [
+    "bijux_proteomics_runtime.runs.replay": [
         "LocalRunBundle",
         "ReplayContract",
         "ReplayEligibility",
@@ -97,7 +97,7 @@ _CONTROL_EXPORT_GROUPS = {
         "evaluate_replay_eligibility",
         "load_local_run_bundle",
     ],
-    "bijux_proteomics_runtime.runtime.control.reruns": [
+    "bijux_proteomics_runtime.runs.reruns": [
         "PartialRerunPlan",
         "PartialRerunStep",
         "RuntimeDependencyNode",

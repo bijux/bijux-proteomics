@@ -13,7 +13,7 @@ from bijux_proteomics_runtime.runtime.control.failure_reports import (
     RuntimeFailureCategory,
     RuntimeFailureReport,
 )
-from bijux_proteomics_runtime.runtime.control.replay import (
+from bijux_proteomics_runtime.runs.replay import (
     build_replay_contract,
     evaluate_replay_eligibility,
 )
