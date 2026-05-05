@@ -25,11 +25,21 @@ from bijux_proteomics_knowledge.references.contexts import (
     KnowledgeContextDomain,
     ScientificContextEntry,
 )
+from bijux_proteomics_knowledge.references.literature import (
+    DEFAULT_LITERATURE_GROUPS,
+    LiteratureFocusArea,
+    LiteratureGroup,
+)
 from bijux_proteomics_knowledge.references.ontologies import (
     DEFAULT_ONTOLOGY_MAPPINGS,
     KnowledgeOntologyDomain,
     KnowledgeOntologyMapping,
     resolve_ontology_mapping,
+)
+from bijux_proteomics_knowledge.references.problems import (
+    DEFAULT_KNOWN_PROBLEM_REGISTRY,
+    KnowledgeProblemKind,
+    KnownProblemRegistryEntry,
 )
 from bijux_proteomics_knowledge.references.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
@@ -57,6 +67,8 @@ __all__ = [
     "DEFAULT_BENCHMARK_MANIFESTS",
     "DEFAULT_CITATION_REGISTRY",
     "DEFAULT_CORPUS_MANIFESTS",
+    "DEFAULT_KNOWN_PROBLEM_REGISTRY",
+    "DEFAULT_LITERATURE_GROUPS",
     "DEFAULT_ONTOLOGY_MAPPINGS",
     "DEFAULT_SCIENTIFIC_RULE_REFERENCES",
     "DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES",
@@ -64,8 +76,12 @@ __all__ = [
     "KnowledgeCorpusSourceKind",
     "KnowledgeOntologyDomain",
     "KnowledgeOntologyMapping",
+    "KnowledgeProblemKind",
     "KnowledgeRuleDomain",
     "KnowledgeWorkflowFamily",
+    "KnownProblemRegistryEntry",
+    "LiteratureFocusArea",
+    "LiteratureGroup",
     "ScientificContextEntry",
     "ScientificRuleReference",
     "get_benchmark_manifest",
