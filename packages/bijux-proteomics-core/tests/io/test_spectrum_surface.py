@@ -36,11 +36,11 @@ from bijux_proteomics import (
 
 
 def _spectrum_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "spectra" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "spectra" / name
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def test_spectrum_model_and_mgf_parser_accept_simple_fixture() -> None:

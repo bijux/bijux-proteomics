@@ -9,7 +9,7 @@ from bijux_proteomics.io.ingestion import extract_ion_mobility_support
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def test_extract_ion_mobility_support_reports_mobility_fields_with_units() -> None:

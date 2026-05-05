@@ -11,7 +11,7 @@ from bijux_proteomics.io.ingestion import (
 
 
 def _quant_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "quant" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "quant" / name
 
 
 def test_parse_ms1_feature_table_with_provenance_reports_units_and_optional_fields() -> (

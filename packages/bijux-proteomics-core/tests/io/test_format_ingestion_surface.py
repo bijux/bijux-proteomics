@@ -24,11 +24,11 @@ from bijux_proteomics import (
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def _workflow_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "first_useful_run" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "first_useful_run" / name
 
 
 def test_mzml_reader_and_metadata_extract_stable_spectrum_contracts() -> None:

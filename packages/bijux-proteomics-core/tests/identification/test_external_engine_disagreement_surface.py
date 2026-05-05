@@ -15,7 +15,7 @@ from bijux_proteomics.search_adapters import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "search_adapters" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "search_adapters" / name
 
 
 def test_external_engine_disagreement_report_detects_missing_and_peptide_conflicts() -> (

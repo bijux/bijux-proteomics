@@ -56,7 +56,7 @@ from bijux_proteomics import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "production_run" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "production_run" / name
 
 
 def test_workflow_manifest_projects_imported_results_into_dag_ready_steps() -> None:

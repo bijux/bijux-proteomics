@@ -12,11 +12,11 @@ from bijux_proteomics.io.ingestion import (
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def _spectra_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "spectra" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "spectra" / name
 
 
 def test_stream_mgf_spectra_parses_without_full_table_contracts() -> None:

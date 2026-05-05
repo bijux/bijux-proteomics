@@ -9,7 +9,7 @@ from bijux_proteomics.io.ingestion import parse_mztab_or_refuse
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def test_parse_mztab_or_refuse_reports_section_counts_and_field_coverage() -> None:

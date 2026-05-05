@@ -25,7 +25,7 @@ from bijux_proteomics import (
 
 
 def _workflow_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "first_useful_run" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "first_useful_run" / name
 
 
 def test_first_useful_run_fixture_covers_digest_psm_fdr_and_annotation() -> None:

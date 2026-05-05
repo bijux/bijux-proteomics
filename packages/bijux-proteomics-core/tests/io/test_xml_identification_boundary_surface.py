@@ -11,7 +11,7 @@ from bijux_proteomics.io.ingestion import (
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def test_evaluate_pepxml_idxml_boundary_detects_pepxml_and_requires_conversion() -> (

@@ -11,7 +11,7 @@ from bijux_proteomics.io.ingestion import (
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def test_evaluate_spectrum_library_boundary_supports_msp_parse_mode() -> None:

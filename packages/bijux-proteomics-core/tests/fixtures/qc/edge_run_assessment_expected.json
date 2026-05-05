@@ -40,7 +40,7 @@
         "policy_name": "default-lcms-qc",
         "policy_sha256": "<policy_sha256>",
         "policy_version": "1.0.0",
-        "rule_sha256": "d423a34c0ffb075d9ca5c372fc05ff70da2ac2e631acfdae8c800a8ff16a75ea",
+        "rule_sha256": "<policy_sha256>",
         "triggered_threshold": "lower_fail",
         "upper_fail": null,
         "upper_warn": null
@@ -73,7 +73,7 @@
         "policy_name": "default-lcms-qc",
         "policy_sha256": "<policy_sha256>",
         "policy_version": "1.0.0",
-        "rule_sha256": "89497bf22c0dfb693a7ef54fb8d170e74ccbc97d7bffb745988e4dd1caf72a02",
+        "rule_sha256": "<policy_sha256>",
         "triggered_threshold": "lower_fail",
         "upper_fail": null,
         "upper_warn": null
@@ -106,7 +106,7 @@
         "policy_name": "default-lcms-qc",
         "policy_sha256": "<policy_sha256>",
         "policy_version": "1.0.0",
-        "rule_sha256": "b875f0cb4b706e371da896566c56ce2be0348f82b5e9733c2ed4b8ba77f3f0a3",
+        "rule_sha256": "<policy_sha256>",
         "triggered_threshold": null,
         "upper_fail": 20.0,
         "upper_warn": 10.0
@@ -139,7 +139,7 @@
         "policy_name": "default-lcms-qc",
         "policy_sha256": "<policy_sha256>",
         "policy_version": "1.0.0",
-        "rule_sha256": "b8b200d57e2637be09bb76ecc059f2cf11a3661ab008cd450e631de05c26b36e",
+        "rule_sha256": "<policy_sha256>",
         "triggered_threshold": null,
         "upper_fail": 0.2,
         "upper_warn": 0.1
@@ -172,7 +172,7 @@
         "policy_name": "default-lcms-qc",
         "policy_sha256": "<policy_sha256>",
         "policy_version": "1.0.0",
-        "rule_sha256": "c1a248aa44ec272875ab945fa08ce1e2403d2c8dcee1f9a778b08fc456e7a23f",
+        "rule_sha256": "<policy_sha256>",
         "triggered_threshold": null,
         "upper_fail": 0.35,
         "upper_warn": 0.2
@@ -205,7 +205,7 @@
         "policy_name": "default-lcms-qc",
         "policy_sha256": "<policy_sha256>",
         "policy_version": "1.0.0",
-        "rule_sha256": "72fa7be663c6e974e0bbb92cf2b5da1b5c9a22b5d8ff386819bd3832fe4d0cec",
+        "rule_sha256": "<policy_sha256>",
         "triggered_threshold": null,
         "upper_fail": 0.3,
         "upper_warn": 0.15

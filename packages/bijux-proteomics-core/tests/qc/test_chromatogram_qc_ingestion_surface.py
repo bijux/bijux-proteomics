@@ -9,7 +9,7 @@ from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def test_parse_chromatogram_qc_table_distinguishes_unknown_from_failed_metrics() -> (

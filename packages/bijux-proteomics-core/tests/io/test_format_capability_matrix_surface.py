@@ -11,7 +11,7 @@ from bijux_proteomics.io.ingestion import (
 
 
 def _fixtures_dir() -> Path:
-    return Path(__file__).parent / "fixtures" / "formats"
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats"
 
 
 def test_build_format_capability_matrix_from_fixtures_reports_expected_states() -> None:

@@ -9,7 +9,7 @@ from bijux_proteomics.io.ingestion import inspect_mzml_decoding_support
 
 
 def _format_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "formats" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "formats" / name
 
 
 def test_inspect_mzml_decoding_support_reports_supported_simple_fixture() -> None:

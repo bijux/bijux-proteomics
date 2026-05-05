@@ -45,11 +45,11 @@ PROTEIN_SEQUENCES = {
 
 
 def _qc_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "qc" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "qc" / name
 
 
 def _quant_fixture(name: str) -> Path:
-    return Path(__file__).parent / "fixtures" / "quant" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "quant" / name
 
 
 def _design_entries() -> dict[str, ExperimentalDesignEntry]:
@@ -84,7 +84,7 @@ def _normalized_document_json(payload: _JsonPayload) -> str:
         if isinstance(value, dict):
             scrubbed: dict[str, object] = {}
             for key, item in value.items():
-                if key == "policy_sha256":
+                if key in {"policy_sha256", "rule_sha256"}:
                     scrubbed[key] = "<policy_sha256>"
                 else:
                     scrubbed[key] = _scrub_policy_hashes(item)
