@@ -17,6 +17,7 @@ from bijux_proteomics.domain.criteria import criterion_passes
 from bijux_proteomics.domain.program_spec import (
     ProgramSpec,
     StageEligibility,
+    ProgramStage,
     assess_stage_eligibility,
     create_program_spec,
     program_summary,
@@ -49,22 +50,20 @@ from bijux_proteomics.domain.validation import (
     validate_program,
     validate_program_readiness,
 )
+from bijux_proteomics.domain.assays import AssayRequirement
 from bijux_proteomics.domain.constraints import ConstraintCategory
-from bijux_proteomics.exceptions import ProgramValidationError, ReviewGateBlockedError
-from bijux_proteomics.execution.backend import ExecutionRequest
-from bijux_proteomics.execution.runner import ProgramExecutionRequest
-from bijux_proteomics.programs import (
-    AssayRequirement,
-    LiabilityCategory,
+from bijux_proteomics.domain.constraints import ScientificConstraint
+from bijux_proteomics.domain.criteria import (
     MeasurementDirection,
     MetricFamily,
-    ProgramLiability,
-    ProgramStage,
-    ReviewGate,
-    ScientificConstraint,
     SuccessCriterion,
     build_assay_grounded_criteria,
 )
+from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
+from bijux_proteomics.domain.reviews import ReviewGate
+from bijux_proteomics.exceptions import ProgramValidationError, ReviewGateBlockedError
+from bijux_proteomics.execution.backend import ExecutionRequest
+from bijux_proteomics.execution.runner import ProgramExecutionRequest
 from bijux_proteomics.execution.runtime_adapter import MissingExecutionBackendError
 
 

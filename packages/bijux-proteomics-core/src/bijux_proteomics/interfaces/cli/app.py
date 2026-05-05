@@ -73,7 +73,11 @@ from bijux_proteomics.identification import (
     infer_proteins_by_parsimony,
     parse_psm_tsv,
 )
-from bijux_proteomics.programs import ProgramSpec, create_program_spec, program_summary
+from bijux_proteomics.domain.program_spec import (
+    ProgramSpec,
+    create_program_spec,
+    program_summary,
+)
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
     build_ptm_enrichment_input,
