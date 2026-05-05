@@ -4,13 +4,17 @@
 
 - Distribution name: `bijux-proteomics-foundation`
 - Import root: `bijux_proteomics_foundation`
-- Stable entrypoints: `schema`, `serialization`, `ids`, and `migrations`
+- Stable entrypoints:
+  `bijux_proteomics_foundation`, `documents`, `compatibility`, `hashing`,
+  `ids`, `json_models`, and `migrations`
 
 ## Stable contracts
 
 - output of canonical serialization must be deterministic for equivalent models
 - schema compatibility checks must return explicit compatibility status and
   reasons
+- refusal, error, provenance, and result contracts must serialize with explicit
+  field names that do not depend on internal repo history
 - migration helpers must preserve semantic model meaning across versions
 
 ## Change requirements

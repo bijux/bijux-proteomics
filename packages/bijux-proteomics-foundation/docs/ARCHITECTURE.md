@@ -19,11 +19,14 @@ with the same rules.
 
 ## Module topology
 
-- `schema.py` owns versioned schema identity and compatibility status
-- `serialization.py` owns canonical JSON and fingerprint behavior
+- `documents.py` owns document metadata and shared value wrappers
+- `compatibility.py` owns schema compatibility and schema-evolution assessment
+- `canonicalization.py` owns canonical JSON behavior
+- `hashing.py` owns deterministic hashing policies and payload hashing
 - `migrations.py` owns declarative version-to-version upgrade flow
 - `ids.py` owns stable identifier kinds and construction helpers
-- `errors.py` owns shared contract and migration error primitives
+- `errors.py`, `refusals.py`, `error_models.py`, and `results.py` own shared
+  machine-readable contract outcomes
 
 ## Dependency direction
 
@@ -43,7 +46,8 @@ serialization rules, compatibility logic, or migration path behavior locally.
 
 - add code here when a new concern changes canonical document primitives shared
   by multiple packages
-- extend `schema.py`, `serialization.py`, `ids.py`, or `migrations.py` before
+- extend `documents.py`, `compatibility.py`, `canonicalization.py`, `hashing.py`,
+  `ids.py`, or `migrations.py` before
   higher packages invent local copies of the same rules
 - prefer adding stable low-volatility helpers here when the change would
   otherwise fragment serialization or compatibility behavior across packages
