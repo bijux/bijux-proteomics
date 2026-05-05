@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Memory store interface."""
+"""Replay-state memory store interface."""
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from bijux_proteomics_runtime.memory.schemas import MemoryRecord, MemoryScope
+from bijux_proteomics_runtime.state.memory_records import MemoryRecord, MemoryScope
 
 
 class MemoryStore(ABC):

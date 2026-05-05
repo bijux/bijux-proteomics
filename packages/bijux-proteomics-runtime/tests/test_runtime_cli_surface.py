@@ -6,7 +6,7 @@ from pathlib import Path
 from click.testing import CliRunner
 from pytest import MonkeyPatch
 
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _artifact_hashes,
     _artifact_paths,
     _build_run_config,
@@ -143,7 +143,7 @@ def test_runtime_run_json_output_uses_api_envelope(
 
     runner = CliRunner()
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.interfaces.cli._run_sequence",
+        "bijux_proteomics_runtime.api.cli._run_sequence",
         _fake_run_sequence,
     )
     result = runner.invoke(
@@ -377,7 +377,7 @@ def test_runtime_import_result_cli_uses_runtime_import_operation(
         }
 
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.interfaces.cli._import_result",
+        "bijux_proteomics_runtime.api.cli._import_result",
         _fake_import_result,
     )
 

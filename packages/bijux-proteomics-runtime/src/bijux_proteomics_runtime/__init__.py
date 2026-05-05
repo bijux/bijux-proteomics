@@ -10,7 +10,7 @@ __all__ = ["AppConfig", "RunManager", "cli", "create_app"]
 _RUNTIME_ROOT_EXPORTS = {
     "AppConfig": ("bijux_proteomics_runtime.api", "AppConfig"),
     "RunManager": ("bijux_proteomics_runtime.runs.manager", "RunManager"),
-    "cli": ("bijux_proteomics_runtime.interfaces.cli", "cli"),
+    "cli": ("bijux_proteomics_runtime.api.cli", "cli"),
     "create_app": ("bijux_proteomics_runtime.api", "create_app"),
 }
 

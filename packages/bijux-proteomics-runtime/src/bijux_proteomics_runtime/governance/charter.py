@@ -104,7 +104,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.CANONICAL_ENTRYPOINTS,
         owned_surface="Canonical CLI and HTTP entrypoints that start, inspect, compare, import, and resume runtime-controlled execution.",
         required_modules=(
-            "interfaces/cli.py",
+            "api/cli.py",
             "api/app.py",
             "api/v1/endpoints/run.py",
             "runs/operations.py",
@@ -159,7 +159,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
 
 
 def _runtime_source_root() -> Path:
-    return Path(__file__).resolve().parent
+    return Path(__file__).resolve().parents[1]
 
 
 def _execution_value_entry(
@@ -190,10 +190,7 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             reason="Namespace package initializers only aggregate stable runtime-owned sub-surfaces.",
         )
 
-    if (
-        module_path.startswith(("api/", "interfaces/"))
-        or module_path == "runtime_identity.py"
-    ):
+    if module_path.startswith("api/") or module_path == "support/identity.py":
         return _execution_value_entry(
             module_path,
             (
@@ -247,7 +244,7 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             "Workflow-owned planning, reproducibility, and run reports stay grouped under one navigable runtime family.",
         )
 
-    if module_path == "charter.py":
+    if module_path == "governance/charter.py":
         return _execution_value_entry(
             module_path,
             (
@@ -257,14 +254,14 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             "The machine-readable charter keeps runtime ownership explicit, auditable, and release-blocking.",
         )
 
-    if module_path.startswith(("agents/", "execution/", "tools/")):
+    if module_path.startswith(("agents/", "execution/")):
         return _execution_value_entry(
             module_path,
             (RuntimeCharterCapability.WORKFLOW_EXECUTION,),
             "Agent, execution-graph, and tool coordination code gives runtime real execution substance instead of wrapper-only transport.",
         )
 
-    if module_path.startswith(("memory/", "state/")):
+    if module_path.startswith("state/"):
         return _execution_value_entry(
             module_path,
             (

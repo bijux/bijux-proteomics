@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_runtime.core.tooling import SchemaDefinition, ToolContract
-from bijux_proteomics_runtime.tools.catalog import ToolCatalog
+from bijux_proteomics_runtime.execution.tools.catalog import ToolCatalog
 
 __all__ = [
     "validate_tool_contract",

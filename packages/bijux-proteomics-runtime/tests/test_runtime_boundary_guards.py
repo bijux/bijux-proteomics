@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_runtime import __all__ as runtime_public_entrypoints
-from bijux_proteomics_runtime.charter import DEFAULT_RUNTIME_CHARTER_ENTRIES
+from bijux_proteomics_runtime.governance.charter import DEFAULT_RUNTIME_CHARTER_ENTRIES
 
 
 def _runtime_source_root() -> Path:

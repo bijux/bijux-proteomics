@@ -16,7 +16,7 @@ from bijux_proteomics_runtime.agents.schemas import (
     StructureAgentOutput,
 )
 from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.memory.schemas import MemoryScope
+from bijux_proteomics_runtime.state.memory_records import MemoryScope
 
 
 class StructureAgent(AgentRole):

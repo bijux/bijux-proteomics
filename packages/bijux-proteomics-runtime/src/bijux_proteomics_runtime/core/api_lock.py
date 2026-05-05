@@ -8,7 +8,7 @@ from __future__ import annotations
 CORE_API_FROZEN = (
     "bijux_proteomics_runtime.runs.RunManager",
     "bijux_proteomics_runtime.runs.RunConfig",
-    "bijux_proteomics_runtime.interfaces.cli.cli",
+    "bijux_proteomics_runtime.api.cli.cli",
     "bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path",
     "bijux_proteomics_runtime.runs.reruns.build_runtime_partial_rerun_plan",
 )

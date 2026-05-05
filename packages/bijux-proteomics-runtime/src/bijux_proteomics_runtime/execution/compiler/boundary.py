@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from bijux_proteomics_runtime.tools.base import Tool
-from bijux_proteomics_runtime.tools.schemas import (
+from bijux_proteomics_runtime.execution.tools.base import Tool
+from bijux_proteomics_runtime.execution.tools.schemas import (
     ToolError,
     ToolInvocationSpec,
     ToolResult,

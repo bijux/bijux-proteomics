@@ -21,7 +21,7 @@ from bijux_proteomics_runtime.execution.schemas import (
     ExecutionTask,
     ExecutionTrace,
 )
-from bijux_proteomics_runtime.tools.schemas import ToolError, ToolResult
+from bijux_proteomics_runtime.execution.tools.schemas import ToolError, ToolResult
 
 
 def build_trace(

@@ -15,10 +15,6 @@ def test_runtime_stability_marks_canonical_public_modules_stable() -> None:
     assert (
         STABILITY_EXPECTATIONS["bijux_proteomics_runtime.api"] == StabilityLevel.STABLE
     )
-    assert (
-        STABILITY_EXPECTATIONS["bijux_proteomics_runtime.interfaces"]
-        == StabilityLevel.STABLE
-    )
 
 
 def test_runtime_stability_marks_runtime_owned_zones() -> None:
@@ -55,7 +51,7 @@ def test_runtime_stability_marks_runtime_owned_zones() -> None:
 def test_runtime_api_lock_freezes_canonical_runtime_symbols() -> None:
     assert "bijux_proteomics_runtime.runs.RunManager" in CORE_API_FROZEN
     assert "bijux_proteomics_runtime.runs.RunConfig" in CORE_API_FROZEN
-    assert "bijux_proteomics_runtime.interfaces.cli.cli" in CORE_API_FROZEN
+    assert "bijux_proteomics_runtime.api.cli.cli" in CORE_API_FROZEN
 
 
 def test_runtime_api_lock_declares_runtime_owned_extension_boundaries() -> None:

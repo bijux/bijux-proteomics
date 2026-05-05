@@ -7,7 +7,7 @@ from bijux_proteomics_dev.api.runtime_topology import (
     REPO_ROOT,
     build_runtime_topology_budget,
 )
-from bijux_proteomics_runtime.charter import (
+from bijux_proteomics_runtime.governance.charter import (
     DEFAULT_RUNTIME_MODULE_AUDIT,
     RuntimeModuleClassification,
 )

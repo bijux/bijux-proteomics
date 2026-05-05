@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.charter import (
+from bijux_proteomics_runtime.governance.charter import (
     DEFAULT_RUNTIME_CHARTER,
     DEFAULT_RUNTIME_CHARTER_ENTRIES,
     DEFAULT_RUNTIME_MODULE_AUDIT,

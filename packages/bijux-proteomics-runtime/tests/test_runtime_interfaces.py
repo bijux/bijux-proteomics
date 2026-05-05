@@ -4,7 +4,7 @@ from click.testing import CliRunner
 from fastapi.testclient import TestClient
 
 from bijux_proteomics_runtime.api.app import app
-from bijux_proteomics_runtime.interfaces.cli import cli
+from bijux_proteomics_runtime.api.cli import cli
 
 
 def test_runtime_cli_identity_command() -> None:

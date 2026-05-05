@@ -159,9 +159,11 @@ from bijux_proteomics_runtime.runtime.workspace import (
     write_json_atomic,
     write_text_atomic,
 )
+from bijux_proteomics_runtime.execution.tools.base import Tool
+from bijux_proteomics_runtime.execution.tools.heuristic import (
+    HeuristicStructureTool,
+)
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
-from bijux_proteomics_runtime.tools.base import Tool
-from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
 
 __all__ = [
     "PipelineArtifacts",

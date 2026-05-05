@@ -98,40 +98,40 @@ from bijux_proteomics.structure_report.render import to_text as runtime_to_text
 from bijux_proteomics_runtime.execution.evaluation.observations import (
     EvaluationInput as RuntimeEvaluationInput,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _artifact_hashes as runtime_artifact_hashes,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _artifact_paths as runtime_artifact_paths,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _build_run_config as runtime_build_run_config,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _emit_json_payload as runtime_emit_json_payload,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _emit_run_summary_human as runtime_emit_run_summary_human,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _export_report_payload as runtime_export_report_payload,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _load_run_config as runtime_load_run_config,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _load_run_summary as runtime_load_run_summary,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _read_sequence as runtime_read_sequence,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _resume_candidate as runtime_resume_candidate,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     _write_output as runtime_write_output,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
+from bijux_proteomics_runtime.api.cli import (
     cli as runtime_cli,
 )
 from bijux_proteomics_runtime.providers.base import _time_left as runtime_time_left
@@ -139,7 +139,9 @@ from bijux_proteomics_runtime.providers.factory import (
     _require_module as runtime_require_module,
 )
 from bijux_proteomics_runtime.agents.catalog import AgentCatalog as RuntimeAgentCatalog
-from bijux_proteomics_runtime.tools.catalog import ToolCatalog as RuntimeToolCatalog
+from bijux_proteomics_runtime.execution.tools.catalog import (
+    ToolCatalog as RuntimeToolCatalog,
+)
 from bijux_proteomics_runtime.runs.artifacts import (
     _sign_payload as runtime_sign_payload,
 )

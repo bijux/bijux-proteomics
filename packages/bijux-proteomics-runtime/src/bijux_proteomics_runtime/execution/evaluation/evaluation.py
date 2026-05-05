@@ -45,13 +45,15 @@ from bijux_proteomics_runtime.execution.runtime.executor import (
     materialize_observation,
 )
 from bijux_proteomics_runtime.agents.catalog import AgentCatalog
-from bijux_proteomics_runtime.state.schemas import StateSnapshot
-from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
-from bijux_proteomics_runtime.tools.schemas import (
+from bijux_proteomics_runtime.execution.tools.heuristic import (
+    HeuristicStructureTool,
+)
+from bijux_proteomics_runtime.execution.tools.schemas import (
     InvocationInput,
     ToolInvocationSpec,
     ToolResult,
 )
+from bijux_proteomics_runtime.state.schemas import StateSnapshot
 
 
 class HeuristicBoundary(ExecutionBoundary):

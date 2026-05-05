@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Memory schemas."""
+"""Replay-state memory record schemas."""
 
 from __future__ import annotations
 

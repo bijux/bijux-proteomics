@@ -15,7 +15,7 @@ from bijux_proteomics_runtime.agents.schemas import (
     InputValidationAgentInput,
     InputValidationAgentOutput,
 )
-from bijux_proteomics_runtime.memory.schemas import MemoryScope
+from bijux_proteomics_runtime.state.memory_records import MemoryScope
 from bijux_proteomics_runtime.agents.contracts import validate_agent
 
 

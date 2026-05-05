@@ -23,7 +23,7 @@ from bijux_proteomics_runtime.core.observations import (
     Observation,
     ReplanningTrigger,
 )
-from bijux_proteomics_runtime.memory.schemas import MemoryScope
+from bijux_proteomics_runtime.state.memory_records import MemoryScope
 
 
 class AgentMetadata(BaseModel):

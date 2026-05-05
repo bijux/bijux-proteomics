@@ -51,7 +51,7 @@ from bijux_proteomics_runtime.runs.operations import (
 )
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
-from bijux_proteomics_runtime.runtime_identity import runtime_banner
+from bijux_proteomics_runtime.support.identity import runtime_banner
 
 __all__ = [
     "CliResult",

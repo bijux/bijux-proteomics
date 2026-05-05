@@ -22,7 +22,7 @@ from bijux_proteomics_lab.governance.charter import (
     DEFAULT_LAB_MODULE_AUDIT,
     LabModuleClassification,
 )
-from bijux_proteomics_runtime.charter import (
+from bijux_proteomics_runtime.governance.charter import (
     DEFAULT_RUNTIME_MODULE_AUDIT,
     RuntimeModuleClassification,
 )
@@ -133,7 +133,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         minimum_owned_logic_count=60,
         maximum_thin_module_count=35,
         evidence_locator=(
-            "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/charter.py"
+            "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/charter.py"
         ),
     ),
     "bijux-proteomics-intelligence": _PackageSubstanceExpectation(

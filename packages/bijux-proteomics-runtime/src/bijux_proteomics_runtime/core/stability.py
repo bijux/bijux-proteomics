@@ -49,7 +49,6 @@ def sealed() -> None:
 
 STABILITY_EXPECTATIONS = {
     "bijux_proteomics_runtime.api": StabilityLevel.STABLE,
-    "bijux_proteomics_runtime.interfaces": StabilityLevel.STABLE,
     "bijux_proteomics_runtime.providers": StabilityLevel.EXPERIMENTAL,
     "bijux_proteomics_runtime.providers.experimental": StabilityLevel.EXPERIMENTAL,
     "bijux_proteomics_runtime.sandbox": StabilityLevel.EXPERIMENTAL,

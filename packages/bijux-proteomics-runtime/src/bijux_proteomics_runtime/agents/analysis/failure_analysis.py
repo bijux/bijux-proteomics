@@ -16,7 +16,7 @@ from bijux_proteomics_runtime.agents.schemas import (
     FailureAnalysisAgentOutput,
 )
 from bijux_proteomics_runtime.core.failures import FailureType
-from bijux_proteomics_runtime.memory.schemas import MemoryScope
+from bijux_proteomics_runtime.state.memory_records import MemoryScope
 from bijux_proteomics_runtime.agents.contracts import validate_agent
 
 

@@ -58,7 +58,7 @@ def test_runtime_core_exports_status_enums() -> None:
 
 
 def test_runtime_surface_area_uses_canonical_cli_entrypoint() -> None:
-    assert "bijux_proteomics_runtime.interfaces.cli.cli" in PUBLIC_ENTRYPOINTS
+    assert "bijux_proteomics_runtime.api.cli.cli" in PUBLIC_ENTRYPOINTS
 
 
 def test_runtime_surface_area_uses_canonical_run_manager_entrypoint() -> None:

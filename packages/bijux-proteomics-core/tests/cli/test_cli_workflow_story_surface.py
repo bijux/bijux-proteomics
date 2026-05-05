@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.interfaces.workflow_story import (
+from bijux_proteomics_runtime.api.workflow_story import (
     CliWorkflowCommandEntry,
     build_unified_cli_workflow_story,
 )

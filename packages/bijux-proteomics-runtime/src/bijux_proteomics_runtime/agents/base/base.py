@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from bijux_proteomics_runtime.agents.schemas import AgentMetadata
 from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.memory.schemas import MemoryScope
+from bijux_proteomics_runtime.state.memory_records import MemoryScope
 
 
 class AgentRole(ABC):

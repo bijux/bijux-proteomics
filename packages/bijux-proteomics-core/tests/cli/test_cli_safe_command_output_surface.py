@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.interfaces.command_output import (
+from bijux_proteomics_runtime.api.command_output import (
     ScriptSafeOutputField,
     build_script_safe_command_output,
 )

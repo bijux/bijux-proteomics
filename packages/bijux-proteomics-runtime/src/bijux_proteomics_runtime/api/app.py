@@ -33,7 +33,7 @@ from bijux_proteomics_runtime.providers.factory import provider_requirements
 from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )
-from bijux_proteomics_runtime.runtime_identity import (
+from bijux_proteomics_runtime.support.identity import (
     runtime_banner,
     runtime_description,
     runtime_title,

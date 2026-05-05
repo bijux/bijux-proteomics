@@ -11,8 +11,10 @@ from typing import Any, Protocol, cast, get_args, get_origin
 from pydantic import BaseModel
 
 from bijux_proteomics_runtime.agents.catalog import AgentCatalog
-from bijux_proteomics_runtime.memory.schemas import MemoryScope
-from bijux_proteomics_runtime.tools.contracts import validate_tools_for_agents
+from bijux_proteomics_runtime.execution.tools.contracts import (
+    validate_tools_for_agents,
+)
+from bijux_proteomics_runtime.state.memory_records import MemoryScope
 
 __all__ = [
     "ALLOWED_TOOL_NAMESPACE",
