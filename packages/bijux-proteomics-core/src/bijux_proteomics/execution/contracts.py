@@ -12,7 +12,7 @@ class CandidateLike(Protocol):
     sequence: str
 
 
-class ToolResultLike(Protocol):
+class ExecutionToolResultLike(Protocol):
     """Runtime-agnostic tool result contract."""
 
     status: str
@@ -21,9 +21,9 @@ class ToolResultLike(Protocol):
 class ExecutionIteration(Protocol):
     """Runtime-agnostic single-iteration execution contract."""
 
-    def run_iteration(self, candidate: CandidateLike) -> ToolResultLike:
+    def run_iteration(self, candidate: CandidateLike) -> ExecutionToolResultLike:
         """Run one execution iteration for a candidate."""
         ...
 
 
-__all__ = ["CandidateLike", "ExecutionIteration", "ToolResultLike"]
+__all__ = ["CandidateLike", "ExecutionIteration", "ExecutionToolResultLike"]

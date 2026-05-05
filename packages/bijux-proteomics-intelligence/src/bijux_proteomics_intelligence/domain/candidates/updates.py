@@ -20,7 +20,7 @@ class InvocationInputLike(Protocol):
     value: str
 
 
-class ToolResultLike(Protocol):
+class CandidateUpdateToolResultLike(Protocol):
     """Minimal tool result contract used by candidate updates."""
 
     status: str
@@ -42,7 +42,7 @@ def update_candidate_from_result(
     candidate: Candidate,
     tool_name: str,
     tool_version: str,
-    result: ToolResultLike,
+    result: CandidateUpdateToolResultLike,
     plan_fingerprint: str,
     iteration_index: int,
 ) -> Candidate:

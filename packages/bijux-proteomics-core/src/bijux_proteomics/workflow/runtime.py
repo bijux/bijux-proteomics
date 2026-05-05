@@ -466,7 +466,7 @@ class ProteomicsDagPlan(JsonModel):
     edges: tuple[WorkflowDagEdge, ...] = Field(default_factory=tuple)
 
 
-class ContainerMount(JsonModel):
+class WorkflowContainerMount(JsonModel):
     """One stable mount binding for a containerized workflow step."""
 
     model_config = ConfigDict(extra="forbid")
@@ -488,7 +488,7 @@ class ContainerizedStepSpec(JsonModel):
     command_sha256: str = Field(..., min_length=64, max_length=64)
     descriptor_sha256: str = Field(..., min_length=64, max_length=64)
     command: tuple[str, ...] = Field(default_factory=tuple)
-    mounts: tuple[ContainerMount, ...] = Field(default_factory=tuple)
+    mounts: tuple[WorkflowContainerMount, ...] = Field(default_factory=tuple)
     network_policy: str = Field(..., min_length=1)
     workdir: str = Field(..., min_length=1)
 
@@ -2105,14 +2105,14 @@ def build_containerized_step_specs(
     """Build container execution specs for each workflow step."""
     manifest_sha256 = _stable_model_sha256(manifest)
     mounts = tuple(
-        ContainerMount(
+        WorkflowContainerMount(
             source_path=asset.path,
             target_path=f"/workspace/inputs/{Path(asset.path).name}",
             read_only=True,
         )
         for asset in manifest.input_assets
     ) + (
-        ContainerMount(
+        WorkflowContainerMount(
             source_path=manifest.artifacts_dir,
             target_path="/workspace/artifacts",
             read_only=False,
