@@ -33,6 +33,11 @@ def test_citation_registry_covers_core_reference_families() -> None:
 
 def test_citation_registry_records_version_and_license_notes() -> None:
     for citation in DEFAULT_CITATION_REGISTRY:
+        assert citation.publisher
+        assert citation.source_locator_kind
+        assert citation.access_route
+        assert citation.retrieval_trace
+        assert citation.evidence_role
         assert citation.license_note
         assert citation.summary
         assert citation.publication_year >= 2006

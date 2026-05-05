@@ -166,3 +166,12 @@ def test_citation_registry_retains_scientific_source_variety() -> None:
         CitationSourceKind.METHOD,
         CitationSourceKind.REVIEW,
     }.issubset(source_kinds)
+
+
+def test_citation_registry_carries_source_metadata_and_retrieval_roles() -> None:
+    for citation in DEFAULT_CITATION_REGISTRY:
+        assert citation.publisher
+        assert citation.source_locator_kind
+        assert citation.access_route
+        assert citation.retrieval_trace
+        assert citation.evidence_role

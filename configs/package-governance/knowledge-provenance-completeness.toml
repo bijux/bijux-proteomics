@@ -5,7 +5,7 @@
 name = "citations"
 entry_count = 8
 complete_entry_count = 8
-required_fields = ["title", "source_kind", "venue", "publication_year", "source_version", "license_note", "summary"]
+required_fields = ["title", "source_kind", "venue", "publisher", "source_locator_kind", "access_route", "publication_year", "source_version", "retrieval_trace", "evidence_role", "license_note", "summary"]
 incomplete_entry_ids = []
 
 [[surface]]
