@@ -8,7 +8,7 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import BatchId, JsonModel, ProgramId
-from bijux_proteomics_foundation.ids import CycleId
+from bijux_proteomics_foundation.identity.identifiers import CycleId
 
 from bijux_proteomics_lab.planning.assays import (
     AssayDependency,

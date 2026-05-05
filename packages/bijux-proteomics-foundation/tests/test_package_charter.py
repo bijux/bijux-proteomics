@@ -86,11 +86,4 @@ def test_foundation_thin_abstractions_stay_limited_to_curated_compatibility_path
 
     assert thin_paths == {
         "__init__.py",
-        "canonicalization.py",
-        "hashing.py",
-        "ids.py",
-        "provenance.py",
-        "refusals.py",
-        "results.py",
-        "states.py",
     }

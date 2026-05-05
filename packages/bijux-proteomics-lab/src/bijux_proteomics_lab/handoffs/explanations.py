@@ -10,8 +10,11 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import AssayId, JsonModel
-from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
-from bijux_proteomics_foundation.results import OperationResult
+from bijux_proteomics_foundation.outcomes.refusals import (
+    OperationRefusal,
+    RefusalKind,
+)
+from bijux_proteomics_foundation.outcomes.results import OperationResult
 from bijux_proteomics_lab.lifecycle import CandidateHandoffValidation
 from bijux_proteomics_lab.planning import ExecutableAssayPlan, ReviewPacket
 

@@ -84,55 +84,39 @@ FOUNDATION_COMPATIBILITY_ALIASES_PATH = (
 
 
 def public_foundation_surfaces() -> tuple[PublicFoundationSurface, ...]:
-    """Return direct import surfaces that foundation keeps stable or compatible."""
+    """Return direct import surfaces that foundation keeps stable."""
 
     return (
         PublicFoundationSurface(module_name="bijux_proteomics_foundation"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.documents"),
         PublicFoundationSurface(module_name="bijux_proteomics_foundation.compatibility"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.serialization"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.identity"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.support"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.outcomes"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.json_models"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.migrations"),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.canonicalization",
-            canonical_module_name=(
-                "bijux_proteomics_foundation.serialization.canonicalization"
-            ),
-            compatibility_wrapper=True,
+            module_name="bijux_proteomics_foundation.identity.identifiers"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.hashing",
-            canonical_module_name="bijux_proteomics_foundation.serialization.hashing",
-            compatibility_wrapper=True,
+            module_name="bijux_proteomics_foundation.outcomes.error_envelopes"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.ids",
-            canonical_module_name="bijux_proteomics_foundation.identity.identifiers",
-            compatibility_wrapper=True,
+            module_name="bijux_proteomics_foundation.outcomes.exceptions"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.provenance",
-            canonical_module_name="bijux_proteomics_foundation.support.provenance",
-            compatibility_wrapper=True,
+            module_name="bijux_proteomics_foundation.outcomes.refusals"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.refusals",
-            canonical_module_name="bijux_proteomics_foundation.outcomes.refusals",
-            compatibility_wrapper=True,
+            module_name="bijux_proteomics_foundation.outcomes.results"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.results",
-            canonical_module_name="bijux_proteomics_foundation.outcomes.results",
-            compatibility_wrapper=True,
+            module_name="bijux_proteomics_foundation.serialization.documents"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.states",
-            canonical_module_name="bijux_proteomics_foundation.support.states",
-            compatibility_wrapper=True,
+            module_name="bijux_proteomics_foundation.serialization.fingerprints"
         ),
+        PublicFoundationSurface(
+            module_name="bijux_proteomics_foundation.serialization.hashing"
+        ),
+        PublicFoundationSurface(
+            module_name="bijux_proteomics_foundation.serialization.json_models"
+        ),
+        PublicFoundationSurface(module_name="bijux_proteomics_foundation.support.states"),
     )
 
 

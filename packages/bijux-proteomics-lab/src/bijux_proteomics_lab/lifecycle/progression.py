@@ -18,7 +18,7 @@ from bijux_proteomics_foundation import (
     JsonModel,
     ProgramId,
 )
-from bijux_proteomics_foundation.ids import PromotionId, ReviewId
+from bijux_proteomics_foundation.identity.identifiers import PromotionId, ReviewId
 
 
 class ReviewQueueState(StrEnum):

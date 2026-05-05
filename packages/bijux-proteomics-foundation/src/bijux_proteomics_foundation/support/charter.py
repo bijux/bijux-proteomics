@@ -172,27 +172,6 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
             reason="The package root is a constrained export surface over the shared primitive modules.",
         )
 
-    if module_path in {"canonicalization.py", "hashing.py"}:
-        return FoundationModuleAuditEntry(
-            module_path=module_path,
-            classification=FoundationModuleClassification.THIN_ABSTRACTION,
-            reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
-        )
-
-    if module_path in {"ids.py", "provenance.py", "states.py"}:
-        return FoundationModuleAuditEntry(
-            module_path=module_path,
-            classification=FoundationModuleClassification.THIN_ABSTRACTION,
-            reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
-        )
-
-    if module_path in {"refusals.py", "results.py"}:
-        return FoundationModuleAuditEntry(
-            module_path=module_path,
-            classification=FoundationModuleClassification.THIN_ABSTRACTION,
-            reason="The flat module remains only as a compatibility wrapper over the canonical owner path.",
-        )
-
     if module_path == "support/charter.py":
         return _shared_contract_entry(
             module_path,
@@ -213,7 +192,6 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/charter.py",
         "support/provenance.py",
         "support/states.py",
-        "compatibility/versions.py",
     }:
         return _shared_contract_entry(
             module_path,
@@ -258,6 +236,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
+        "compatibility/versions.py",
         "compatibility/__init__.py",
         "compatibility/evolution.py",
         "compatibility/migrations.py",

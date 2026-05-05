@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_intelligence.reviews.benchmarks import (
     WorkflowBenchmarkReview,
     build_dda_benchmark_review,

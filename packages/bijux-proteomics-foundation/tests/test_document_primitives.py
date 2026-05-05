@@ -44,7 +44,7 @@ from bijux_proteomics_foundation.serialization.hashing import (
     StableHashPolicy,
     default_hash_policy,
 )
-from bijux_proteomics_foundation.ids import (
+from bijux_proteomics_foundation.identity.identifiers import (
     ExperimentId,
     IdentifierKind,
     PeptideId,

@@ -19,7 +19,7 @@ from bijux_proteomics_foundation import (
     JsonModel,
     ProgramId,
 )
-from bijux_proteomics_foundation.ids import CycleId
+from bijux_proteomics_foundation.identity.identifiers import CycleId
 from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     assess_decision_readiness,

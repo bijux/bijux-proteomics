@@ -24,7 +24,7 @@ from bijux_proteomics_foundation.outcomes.error_envelopes import (
     build_error_envelope_from_exception,
     summarize_exception_chain,
 )
-from bijux_proteomics_foundation.ids import (
+from bijux_proteomics_foundation.identity.identifiers import (
     IdentifierKind,
     build_identifier,
     classify_identifier,
@@ -32,16 +32,16 @@ from bijux_proteomics_foundation.ids import (
 )
 from bijux_proteomics_foundation.serialization.ordering import stable_order_value
 from bijux_proteomics_foundation.serialization.canonicalization import normalize_json_value
-from bijux_proteomics_foundation.provenance import (
-    ProvenancePointer,
-    ProvenancePointerKind,
-)
-from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
-from bijux_proteomics_foundation.results import (
+from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
+from bijux_proteomics_foundation.outcomes.results import (
     OperationDisposition,
     OperationResult,
 )
-from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_foundation.support.provenance import (
+    ProvenancePointer,
+    ProvenancePointerKind,
+)
+from bijux_proteomics_foundation.support.states import SupportState
 
 
 JSON_SCALAR_STRATEGY = st.one_of(

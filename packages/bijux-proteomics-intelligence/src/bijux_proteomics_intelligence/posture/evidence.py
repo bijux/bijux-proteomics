@@ -11,9 +11,12 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.serialization.json_models import JsonModel
-from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
-from bijux_proteomics_foundation.results import OperationResult
-from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_foundation.outcomes.refusals import (
+    OperationRefusal,
+    RefusalKind,
+)
+from bijux_proteomics_foundation.outcomes.results import OperationResult
+from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     compute_bundle_trust,

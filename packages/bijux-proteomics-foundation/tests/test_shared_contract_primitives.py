@@ -23,7 +23,7 @@ from bijux_proteomics_foundation.serialization.fingerprints import (
     build_parameter_set_fingerprint,
     build_run_context_fingerprint,
 )
-from bijux_proteomics_foundation.ids import (
+from bijux_proteomics_foundation.identity.identifiers import (
     IdentifierKind,
     LabActionId,
     PtmId,
@@ -31,12 +31,12 @@ from bijux_proteomics_foundation.ids import (
     StudyId,
     build_identifier,
 )
-from bijux_proteomics_foundation.provenance import (
+from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
+from bijux_proteomics_foundation.support.provenance import (
     ProvenancePointer,
     ProvenancePointerKind,
 )
-from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
-from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_foundation.support.states import SupportState
 
 
 class IdentifierSurface(BaseModel):
