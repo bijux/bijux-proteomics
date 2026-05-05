@@ -35,7 +35,7 @@ from bijux_proteomics_intelligence.interpretation import (
     OutlierInterpretationClass,
     explain_outlier_samples,
 )
-from bijux_proteomics_intelligence.review_packets import (
+from bijux_proteomics_intelligence.reviews.packets import (
     ReviewBoardPacket,
     build_review_board_packet,
 )

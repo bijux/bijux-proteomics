@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.analytical_review import (
+from bijux_proteomics_intelligence.reviews.analysis import (
     PathwayInterpretationState,
     build_pathway_network_caution_report,
 )

@@ -29,7 +29,7 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     evaluate_portfolio_balance,
     summarize_scenario_consensus,
 )
-from bijux_proteomics_intelligence.evidence_posture import (
+from bijux_proteomics_intelligence.posture.evidence import (
     EvidenceContradictionSummary,
     summarize_evidence_contradictions,
 )

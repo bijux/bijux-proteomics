@@ -23,10 +23,10 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     ScenarioEvaluation,
     ScenarioSetEvaluation,
 )
-from bijux_proteomics_intelligence.evidence_posture import (
+from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
 )
-from bijux_proteomics_intelligence.review_packets import build_review_board_packet
+from bijux_proteomics_intelligence.reviews.packets import build_review_board_packet
 from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 

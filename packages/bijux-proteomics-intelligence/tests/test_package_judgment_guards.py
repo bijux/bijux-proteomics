@@ -29,7 +29,9 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     ScenarioEvaluation,
     ScenarioSetEvaluation,
 )
-from bijux_proteomics_intelligence.skeptical_review import build_skeptical_review_report
+from bijux_proteomics_intelligence.posture.skeptical import (
+    build_skeptical_review_report,
+)
 from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     EvidenceKind,

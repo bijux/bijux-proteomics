@@ -12,7 +12,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.domain.criteria import MeasurementDirection
 from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics_foundation import CandidateId, JsonModel, ProgramId, TargetId
-from bijux_proteomics_intelligence.evidence_posture import (
+from bijux_proteomics_intelligence.posture.evidence import (
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
 )

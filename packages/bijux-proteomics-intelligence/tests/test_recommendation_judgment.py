@@ -21,14 +21,14 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     ScenarioEvaluation,
     ScenarioSetEvaluation,
 )
-from bijux_proteomics_intelligence.evidence_posture import (
+from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
     ContradictionPosture,
     FreshnessPosture,
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
 )
-from bijux_proteomics_intelligence.review_packets import (
+from bijux_proteomics_intelligence.reviews.packets import (
     ComparativeCandidateReviewPacket,
     build_comparative_candidate_review_packet,
 )

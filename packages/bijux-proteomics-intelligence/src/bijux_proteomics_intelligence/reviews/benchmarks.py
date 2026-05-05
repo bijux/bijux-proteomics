@@ -104,7 +104,7 @@ class WorkflowBenchmarkReview(JsonModel):
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
+    return Path(__file__).resolve().parents[5]
 
 
 def _require_manifest(benchmark_id: str) -> BenchmarkManifest:

@@ -20,7 +20,7 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     summarize_scenario_confidence_spread,
     summarize_scenario_consensus,
 )
-from bijux_proteomics_intelligence.evidence_posture import (
+from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
 )
 from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle

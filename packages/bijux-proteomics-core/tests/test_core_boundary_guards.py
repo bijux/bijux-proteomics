@@ -19,7 +19,7 @@ ALLOWED_RUNTIME_IMPORTS = {
 }
 ALLOWED_CROSS_PACKAGE_IMPORTS = {
     "intelligence/__init__.py": {
-        "bijux_proteomics_intelligence.analytical_review",
+        "bijux_proteomics_intelligence.reviews.analysis",
     },
     "lab/operations.py": {
         "bijux_proteomics_lab.reconciliation",

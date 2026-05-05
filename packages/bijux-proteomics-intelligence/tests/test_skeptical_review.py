@@ -11,7 +11,7 @@ from bijux_proteomics_intelligence.candidates.ranking import CandidateAssessment
 from bijux_proteomics_intelligence.judgment.paths import (
     build_review_board_decision_path,
 )
-from bijux_proteomics_intelligence.skeptical_review import (
+from bijux_proteomics_intelligence.posture.skeptical import (
     ReviewChallengeSeverity,
     SkepticalReviewReport,
     build_skeptical_review_report,
