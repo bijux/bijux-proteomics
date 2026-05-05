@@ -1,0 +1,50 @@
+# Generated core cross-package import report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.core_cross_package_imports
+
+[guard]
+max_runtime_edges = 3
+max_intelligence_edges = 3
+max_lab_edges = 1
+max_total_edges = 7
+
+[[import]]
+importer_module_path = "execution/runtime_adapter.py"
+owner_distribution = "bijux-proteomics-runtime"
+imported_module_name = "bijux_proteomics_runtime.runtime"
+imported_symbols = ["RunManager"]
+
+[[import]]
+importer_module_path = "execution/runtime_adapter.py"
+owner_distribution = "bijux-proteomics-runtime"
+imported_module_name = "bijux_proteomics_runtime.runtime.context"
+imported_symbols = ["RunConfig"]
+
+[[import]]
+importer_module_path = "intelligence/__init__.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.analytical_review"
+imported_symbols = ["*"]
+
+[[import]]
+importer_module_path = "interfaces/cli/app.py"
+owner_distribution = "bijux-proteomics-runtime"
+imported_module_name = "bijux_proteomics_runtime.runtime.control.workflow_plans"
+imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_bundle", "build_workflow_runtime_validation_report"]
+
+[[import]]
+importer_module_path = "lab/operations.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.follow_up_learning"
+imported_symbols = ["*"]
+
+[[import]]
+importer_module_path = "lab/planning.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.follow_up_learning"
+imported_symbols = ["*"]
+
+[[import]]
+importer_module_path = "ptm/review.py"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.ptm_follow_up"
+imported_symbols = ["build_ptm_lab_validation_packet"]

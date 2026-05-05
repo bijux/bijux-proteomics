@@ -174,10 +174,9 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Runtime-agnostic workflow blueprints, execution requests, and replayable scientific workflow contracts.",
         required_modules=(
             "workflow/blueprint.py",
-            "workflow/runtime.py",
-            "workflow/runs.py",
             "execution/backend.py",
             "execution/runner.py",
+            "execution/runtime_adapter.py",
         ),
         release_blocker="Core cannot ship if workflow contracts require runtime internals instead of scientific inputs and explicit adapters.",
     ),
@@ -187,7 +186,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "__init__.py",
             "cli.py",
-            "interfaces/api.py",
+            "interfaces/examples.py",
             "adoption/__init__.py",
             "charter.py",
         ),

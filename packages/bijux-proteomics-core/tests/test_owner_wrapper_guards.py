@@ -9,12 +9,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 WRAPPER_MODULES = (
-    "packages/bijux-proteomics-core/src/bijux_proteomics/execution/providers.py",
-    "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/api.py",
     "packages/bijux-proteomics-core/src/bijux_proteomics/intelligence/__init__.py",
-    "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/reproducibility.py",
-    "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/runs.py",
-    "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/runtime.py",
+    "packages/bijux-proteomics-core/src/bijux_proteomics/liabilities.py",
+    "packages/bijux-proteomics-core/src/bijux_proteomics/search_adapters.py",
+    "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_blueprint.py",
 )
 
 
