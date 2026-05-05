@@ -47,6 +47,11 @@ def tests_root(package_name: str) -> Path:
     return package_root(package_name) / "tests"
 
 
+def docs_root(package_name: str) -> Path | None:
+    path = package_root(package_name) / "docs"
+    return path if path.exists() else None
+
+
 def fixture_root(package_name: str) -> Path | None:
     path = tests_root(package_name) / "fixtures"
     return path if path.exists() else None
@@ -85,6 +90,31 @@ def flat_test_modules(package_name: str) -> tuple[Path, ...]:
     if not root.exists():
         return ()
     return tuple(sorted(root.glob("test_*.py")))
+
+
+def test_modules(package_name: str) -> tuple[Path, ...]:
+    root = tests_root(package_name)
+    if not root.exists():
+        return ()
+    return tuple(sorted(root.rglob("test_*.py")))
+
+
+def fixture_files(package_name: str) -> tuple[Path, ...]:
+    root = fixture_root(package_name)
+    if root is None:
+        return ()
+    return tuple(sorted(path for path in root.rglob("*") if path.is_file()))
+
+
+def package_docs(package_name: str) -> tuple[Path, ...]:
+    docs: list[Path] = []
+    readme_path = package_root(package_name) / "README.md"
+    if readme_path.exists():
+        docs.append(readme_path)
+    package_docs_root = docs_root(package_name)
+    if package_docs_root is not None:
+        docs.extend(sorted(package_docs_root.glob("*.md")))
+    return tuple(docs)
 
 
 def nonempty_line_count(path: Path) -> int:
