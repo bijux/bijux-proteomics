@@ -11,6 +11,7 @@ from bijux_proteomics_knowledge.references import (
     get_benchmark_manifest,
 )
 from bijux_proteomics_dev.quality.package_graph import load_workspace_packages
+from bijux_proteomics_dev.release.ssot_readiness import validate_ssot_readiness
 
 __all__ = [
     "ScientificReleaseDossierEntry",
@@ -116,6 +117,7 @@ def build_scientific_release_dossier(
 ) -> tuple[ScientificReleaseDossierEntry, ...]:
     """Build a reviewer-facing dossier over benchmark-backed workflow coverage."""
 
+    ssot_ready = not validate_ssot_readiness(repo_root)
     entries = []
     for entry in _load_entries(repo_root):
         manifest = get_benchmark_manifest(entry.benchmark_id)
@@ -129,6 +131,7 @@ def build_scientific_release_dossier(
             and paths_exist
             and _builder_exists(entry)
             and not _summary_is_vague(entry.scientific_limit_summary)
+            and ssot_ready
         )
         entries.append(
             ScientificReleaseDossierEntry(
@@ -238,6 +241,16 @@ def validate_scientific_release_dossier(
             ScientificReleaseIssue(
                 code="missing-workflow-family",
                 detail=f"scientific release dossier is missing workflow families: {missing_families}",
+            )
+        )
+    for issue in validate_ssot_readiness(repo_root):
+        issues.append(
+            ScientificReleaseIssue(
+                code="ssot-readiness-blocked",
+                detail=(
+                    "scientific release dossier is blocked until SSOT readiness is clean: "
+                    f"{issue.code}: {issue.detail}"
+                ),
             )
         )
     return tuple(sorted(issues, key=lambda issue: (issue.code, issue.detail)))

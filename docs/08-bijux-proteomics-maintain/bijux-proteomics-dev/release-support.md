@@ -32,6 +32,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - keep version resolution and changelog checks explicit
 - block publication when repository proof is incomplete
 - tie release decisions back to checked-in policy helpers
+- require SSOT ownership readiness before any benchmark-backed scientific release claim can count as publishable
 - require one checked-in scientific release dossier that names the owner,
   benchmark, tests, docs, and scientific limit for each workflow family
 
@@ -41,6 +42,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/changelog_version.py`
 - `src/bijux_proteomics_dev/release/publication_guard.py`
 - `src/bijux_proteomics_dev/release/scientific_readiness.py`
+- `src/bijux_proteomics_dev/release/ssot_readiness.py`
 - `configs/package-governance/scientific-release-workflows.toml`
 
 ## Scientific Proof Chain
@@ -68,6 +70,14 @@ Use `build_scientific_release_dossier()` when you need the live code-backed
 index, and review
 `configs/package-governance/scientific-release-workflows.toml` when you need
 the checked-in declaration that release policy depends on.
+
+Use `validate_ssot_readiness()` when the question is whether public symbol
+ownership, duplicate model ownership, compatibility-bridge posture, and
+package-boundary substance are all clean enough for scientific release claims
+to count at all. Review
+`docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-substance.md`
+when the question is whether the current package split still earns its
+separate release identities.
 
 ## Design Pressure
 

@@ -17,7 +17,9 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
 
     expected_bits = [
         "build_scientific_release_dossier()",
+        "validate_ssot_readiness()",
         "scientific-release-workflows.toml",
+        "package-substance.md",
         "`dda`",
         "`dia`",
         "`ptm`",
