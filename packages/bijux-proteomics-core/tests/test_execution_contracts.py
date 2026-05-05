@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bijux_proteomics.execution_contracts import (
+from bijux_proteomics.execution.contracts import (
     CandidateLike,
     ExecutionToolResultLike,
     ExecutionIteration,

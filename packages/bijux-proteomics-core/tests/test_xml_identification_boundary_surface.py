@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.advanced_format_ingestion import (
+from bijux_proteomics.io.ingestion import (
     evaluate_pepxml_idxml_boundary,
 )
 

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.advanced_format_ingestion import (
+from bijux_proteomics.io.ingestion import (
     ChromatogramQcIngestionReport,
     ChromatogramQcPoint,
     FormatCapabilityEntry,
@@ -252,7 +252,7 @@ from bijux_proteomics.exceptions import (
     ProteomicsOperatorErrorCode,
     ReviewGateBlockedError,
 )
-from bijux_proteomics.execution_backend import ExecutionBackend, ExecutionRequest
+from bijux_proteomics.execution.backend import ExecutionBackend, ExecutionRequest
 from bijux_proteomics.adoption import (
     AgenticProteinsMigrationItem,
     AgenticProteinsMigrationReport,
@@ -1035,8 +1035,8 @@ from bijux_proteomics.review import (
     run_reviewer_challenge_workflow,
 )
 from bijux_proteomics.reviews import ReviewGate
-from bijux_proteomics.runner import ProgramExecutionRequest, execute_program
-from bijux_proteomics.runtime_adapter import (
+from bijux_proteomics.execution.runner import ProgramExecutionRequest, execute_program
+from bijux_proteomics.execution.runtime_adapter import (
     AgenticProteinsBackend,
     MissingExecutionBackendError,
 )
@@ -1377,7 +1377,7 @@ from bijux_proteomics.workflow_blueprint import (
     workflow_blueprint_for_program,
     workflow_blueprint_summary,
 )
-from bijux_proteomics.workflow_runtime import (
+from bijux_proteomics.workflow.runtime import (
     ArchivedArtifactDescriptor,
     ArtifactInventoryEntry,
     ArtifactRegistryEntry,

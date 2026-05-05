@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.advanced_format_ingestion import extract_ion_mobility_support
+from bijux_proteomics.io.ingestion import extract_ion_mobility_support
 
 
 def _format_fixture(name: str) -> Path:

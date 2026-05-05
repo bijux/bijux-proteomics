@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.advanced_format_ingestion import inspect_mzml_decoding_support
+from bijux_proteomics.io.ingestion import inspect_mzml_decoding_support
 
 
 def _format_fixture(name: str) -> Path:
