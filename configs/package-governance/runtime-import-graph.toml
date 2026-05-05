@@ -1,0 +1,78 @@
+# Generated runtime import graph.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.runtime_import_graph
+
+[[surface]]
+name = "agents"
+outgoing_surfaces = ["core", "execution", "memory", "tools"]
+
+[[surface]]
+name = "api"
+outgoing_surfaces = ["core", "interfaces", "providers", "runs", "runtime", "runtime_identity"]
+
+[[surface]]
+name = "charter"
+outgoing_surfaces = []
+
+[[surface]]
+name = "core"
+outgoing_surfaces = ["state"]
+
+[[surface]]
+name = "execution"
+outgoing_surfaces = ["agents", "core", "memory", "state", "tools"]
+
+[[surface]]
+name = "interfaces"
+outgoing_surfaces = ["api", "core", "runs", "runtime", "runtime_identity"]
+
+[[surface]]
+name = "memory"
+outgoing_surfaces = ["core"]
+
+[[surface]]
+name = "package_root"
+outgoing_surfaces = []
+
+[[surface]]
+name = "providers"
+outgoing_surfaces = ["core"]
+
+[[surface]]
+name = "runs"
+outgoing_surfaces = ["agents", "core", "execution", "providers", "runtime", "state", "tools"]
+
+[[surface]]
+name = "runtime"
+outgoing_surfaces = ["core"]
+
+[[surface]]
+name = "runtime_identity"
+outgoing_surfaces = []
+
+[[surface]]
+name = "sandbox"
+outgoing_surfaces = ["core"]
+
+[[surface]]
+name = "state"
+outgoing_surfaces = ["core", "memory"]
+
+[[surface]]
+name = "tools"
+outgoing_surfaces = ["core", "providers"]
+
+[[surface]]
+name = "workflows"
+outgoing_surfaces = ["core", "runs", "runtime"]
+
+[[cycle]]
+surfaces = ["agents", "execution"]
+
+[[cycle]]
+surfaces = ["api", "interfaces"]
+
+[[cycle]]
+surfaces = ["core", "state"]
+
+[[cycle]]
+surfaces = ["core", "state", "memory"]
