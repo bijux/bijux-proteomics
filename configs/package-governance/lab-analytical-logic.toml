@@ -1,0 +1,18 @@
+# Generated lab analytical hotspot report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab_analytical_logic
+
+[[module]]
+path = "benchmarks/claims.py"
+matched_identifiers = ["candidate_assessments"]
+
+[[module]]
+path = "handoffs/explanations.py"
+matched_identifiers = ["skepticism_notes"]
+
+[[module]]
+path = "lifecycle/progression.py"
+matched_identifiers = ["contradiction_pressure", "skepticism_notes"]
+
+[[module]]
+path = "planning/assays.py"
+matched_identifiers = ["contradiction_pressure", "map_assay_contradiction_pressure", "skeptical_candidate_ids", "skepticism_penalty"]
