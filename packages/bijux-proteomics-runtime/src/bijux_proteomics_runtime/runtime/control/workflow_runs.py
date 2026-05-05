@@ -18,7 +18,7 @@ from typing import Any, Protocol
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.digestion import digest_protein_records
-from bijux_proteomics.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import (
     build_ptm_motif_windows,
     build_ptm_site_table,
@@ -37,7 +37,7 @@ from bijux_proteomics.sequences import (
     generate_decoy_records,
     parse_fasta_document,
 )
-from bijux_proteomics.spectra import MgfParseReport, parse_mgf
+from bijux_proteomics.io.spectra import MgfParseReport, parse_mgf
 from bijux_proteomics_foundation import JsonModel
 
 

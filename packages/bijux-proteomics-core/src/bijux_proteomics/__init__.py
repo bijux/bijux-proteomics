@@ -319,7 +319,7 @@ from bijux_proteomics.execution.providers import (
     run_environment_qa_for_proteomics_workflows,
     run_mocked_slurm_lifecycle,
 )
-from bijux_proteomics.formats import (
+from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignRejectedRow,
     ExperimentalDesignReport,
@@ -1259,7 +1259,7 @@ from bijux_proteomics.sequences import (
     validate_protein_sequence,
     validate_target_decoy_database,
 )
-from bijux_proteomics.spectra import (
+from bijux_proteomics.io.spectra import (
     AnnotatedSpectrumBundle,
     MgfParseReport,
     PeakNormalizationPolicy,

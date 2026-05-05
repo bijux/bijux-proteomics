@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Iteration-05 quantification and QC capability surfaces."""
+"""Quantification and QC capability surfaces."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     LabelBasedChannelRole,
     LabelBasedQuantPolicy,

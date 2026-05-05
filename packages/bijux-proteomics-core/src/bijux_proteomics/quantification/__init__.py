@@ -19,7 +19,7 @@ import numpy as np
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
-from bijux_proteomics.formats import (
+from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignSampleRole,
 )

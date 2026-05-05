@@ -37,7 +37,7 @@ from bijux_proteomics.exceptions import (
     ProteomicsOperatorError,
     ProteomicsOperatorErrorCode,
 )
-from bijux_proteomics.formats import (
+from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     FormatConversionTarget,
     ProteomicsFormatKind,
@@ -142,7 +142,7 @@ from bijux_proteomics.sequences import (
     sequence_checksum,
     validate_target_decoy_database,
 )
-from bijux_proteomics.spectra import (
+from bijux_proteomics.io.spectra import (
     annotate_spectrum_fragments,
     build_spectrum_collection_summary,
     build_spectrum_metrics,

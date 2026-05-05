@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.workflow.runs import run_quant_workflow_end_to_end
 

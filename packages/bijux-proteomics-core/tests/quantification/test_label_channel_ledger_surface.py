@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.formats import (
+from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignSampleRole,
 )
