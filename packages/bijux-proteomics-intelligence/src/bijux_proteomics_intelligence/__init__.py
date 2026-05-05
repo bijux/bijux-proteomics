@@ -48,9 +48,15 @@ from bijux_proteomics_intelligence.briefs import (
 )
 from bijux_proteomics_intelligence.charter import (
     DEFAULT_INTELLIGENCE_CHARTER,
+    DEFAULT_INTELLIGENCE_CHARTER_ENTRIES,
+    DEFAULT_INTELLIGENCE_MODULE_AUDIT,
     IntelligenceCharterCapability,
+    IntelligenceCharterEntry,
+    IntelligenceModuleAuditEntry,
+    IntelligenceModuleClassification,
     IntelligenceProductCharter,
     list_intelligence_capabilities,
+    list_intelligence_charter_entries,
 )
 from bijux_proteomics_intelligence.decision_paths import (
     AnomalyInterpretationRecommendation,
@@ -68,6 +74,14 @@ from bijux_proteomics_intelligence.evidence_posture import (
     assess_recommendation_readiness,
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
+)
+from bijux_proteomics_intelligence.skeptical_review import (
+    AnalyticalValueSignal,
+    ReviewChallenge,
+    ReviewChallengeDomain,
+    ReviewChallengeSeverity,
+    SkepticalReviewReport,
+    build_skeptical_review_report,
 )
 from bijux_proteomics_intelligence.candidates import (
     CandidateAssayAgendaItem,
@@ -294,7 +308,13 @@ __all__ = [
     "SequenceRiskSignals",
     "DesignBrief",
     "DEFAULT_INTELLIGENCE_CHARTER",
+    "DEFAULT_INTELLIGENCE_CHARTER_ENTRIES",
+    "DEFAULT_INTELLIGENCE_MODULE_AUDIT",
+    "AnalyticalValueSignal",
     "IntelligenceCharterCapability",
+    "IntelligenceCharterEntry",
+    "IntelligenceModuleAuditEntry",
+    "IntelligenceModuleClassification",
     "IntelligenceProductCharter",
     "GroundedDecisionRule",
     "RankingRuleGroundingLedger",
@@ -344,6 +364,10 @@ __all__ = [
     "ScaleUpPolicy",
     "SynthesisPolicy",
     "TieBreakExplanation",
+    "ReviewChallenge",
+    "ReviewChallengeDomain",
+    "ReviewChallengeSeverity",
+    "SkepticalReviewReport",
     "build_rejection_action_plan",
     "summarize_rejections",
     "TieBreakRule",
@@ -353,7 +377,9 @@ __all__ = [
     "build_design_brief",
     "build_follow_up_candidate_path",
     "build_review_board_decision_path",
+    "build_skeptical_review_report",
     "list_intelligence_capabilities",
+    "list_intelligence_charter_entries",
     "summarize_evidence_contradictions",
     "summarize_evidence_freshness",
     "assess_recommendation_readiness",

@@ -5,8 +5,12 @@ from __future__ import annotations
 
 from bijux_proteomics_intelligence import (
     DEFAULT_INTELLIGENCE_CHARTER,
+    DEFAULT_INTELLIGENCE_CHARTER_ENTRIES,
+    DEFAULT_INTELLIGENCE_MODULE_AUDIT,
     IntelligenceCharterCapability,
+    IntelligenceModuleClassification,
     list_intelligence_capabilities,
+    list_intelligence_charter_entries,
 )
 
 
@@ -30,3 +34,30 @@ def test_intelligence_charter_keeps_non_owned_surfaces_explicit() -> None:
     assert "knowledge-owned evidence bundles and references" in (
         DEFAULT_INTELLIGENCE_CHARTER.required_inputs
     )
+
+
+def test_intelligence_charter_entries_stay_release_blocking_and_module_backed() -> (
+    None
+):
+    assert list_intelligence_charter_entries() == DEFAULT_INTELLIGENCE_CHARTER_ENTRIES
+    assert {
+        entry.capability for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES
+    } == set(DEFAULT_INTELLIGENCE_CHARTER.capabilities)
+    assert all(entry.required_modules for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES)
+    assert all(entry.release_blocker for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES)
+
+
+def test_intelligence_module_audit_requires_substantial_analytical_surface() -> None:
+    analytical_modules = [
+        entry
+        for entry in DEFAULT_INTELLIGENCE_MODULE_AUDIT
+        if entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    ]
+    thin_modules = [
+        entry
+        for entry in DEFAULT_INTELLIGENCE_MODULE_AUDIT
+        if entry.classification is IntelligenceModuleClassification.THIN_ABSTRACTION
+    ]
+
+    assert len(analytical_modules) >= 8
+    assert len(thin_modules) <= 2
