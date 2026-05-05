@@ -1,0 +1,62 @@
+{
+  "workflow_family": "targeted",
+  "program": {
+    "program_id": "prog-aging-guard",
+    "name": "aging evidence guard",
+    "objective": "downgrade recommendations when evidence is aging toward staleness",
+    "target_id": "target-aging-guard",
+    "target_name": "Target Aging Guard",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "keep aging evidence visible even when the direction stays supportive"
+  },
+  "criterion": {
+    "criterion_id": "aging-guard",
+    "metric": "targeted_assay_score",
+    "threshold": 0.72
+  },
+  "candidates": [
+    {
+      "candidate_id": "aging-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "targeted_assay_score": 0.84
+      },
+      "manufacturability_score": 0.81,
+      "uncertainty": 0.09,
+      "evidence_support": 0.83,
+      "reproducibility_score": 0.84,
+      "effect_size_score": 0.72,
+      "assay_feasibility_score": 0.8,
+      "novelty_score": 0.38,
+      "lab_cost_risk": 0.12,
+      "operational_risk": 0.1
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "aging-support-1",
+      "kind": "target_engagement",
+      "title": "aging engagement support",
+      "source": "lab-aging-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible target engagement",
+      "confidence": 0.87,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 165
+    },
+    {
+      "evidence_id": "aging-support-2",
+      "kind": "assay",
+      "title": "aging assay confirmation",
+      "source": "lab-aging-2",
+      "source_type": "lab_assay",
+      "claim": "supports follow-up because the assay confirmation remains directionally consistent",
+      "confidence": 0.82,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 170
+    }
+  ]
+}

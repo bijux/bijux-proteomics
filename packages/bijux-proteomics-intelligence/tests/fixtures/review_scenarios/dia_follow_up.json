@@ -1,0 +1,82 @@
+{
+  "workflow_family": "dia",
+  "program": {
+    "program_id": "prog-dia-follow-up",
+    "name": "dia follow-up review",
+    "objective": "prioritize DIA follow-up candidates with reproducible library support",
+    "target_id": "target-dia-follow-up",
+    "target_name": "Target DIA Follow Up",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "preserve DIA-resolved pathway rescue while limiting operational fragility"
+  },
+  "criterion": {
+    "criterion_id": "dia-priority",
+    "metric": "dia_follow_up_score",
+    "threshold": 0.74
+  },
+  "qc_caveats": [
+    "one spectral library update is pending before broad rollout"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "dia-library-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dia_follow_up_score": 0.87
+      },
+      "manufacturability_score": 0.82,
+      "uncertainty": 0.08,
+      "evidence_support": 0.86,
+      "reproducibility_score": 0.89,
+      "effect_size_score": 0.76,
+      "assay_feasibility_score": 0.8,
+      "novelty_score": 0.46,
+      "lab_cost_risk": 0.12,
+      "operational_risk": 0.1
+    },
+    {
+      "candidate_id": "dia-fragile-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "dia_follow_up_score": 0.84
+      },
+      "manufacturability_score": 0.68,
+      "uncertainty": 0.17,
+      "evidence_support": 0.7,
+      "reproducibility_score": 0.67,
+      "effect_size_score": 0.73,
+      "assay_feasibility_score": 0.66,
+      "novelty_score": 0.6,
+      "lab_cost_risk": 0.26,
+      "operational_risk": 0.29
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "dia-support-1",
+      "kind": "differential_proteomics",
+      "title": "DIA quantitative support",
+      "source": "dia-run-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible DIA quantitative rescue and low library drift",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 10
+    },
+    {
+      "evidence_id": "dia-support-2",
+      "kind": "assay",
+      "title": "orthogonal validation support",
+      "source": "dia-assay-1",
+      "source_type": "lab_assay",
+      "claim": "supports follow-up because orthogonal assay signal agrees with the DIA trend",
+      "confidence": 0.84,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 18
+    }
+  ],
+  "expected_top_candidate_id": "dia-library-candidate"
+}

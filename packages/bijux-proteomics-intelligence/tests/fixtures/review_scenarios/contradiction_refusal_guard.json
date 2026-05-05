@@ -1,0 +1,62 @@
+{
+  "workflow_family": "dia",
+  "program": {
+    "program_id": "prog-contradiction-guard",
+    "name": "contradiction guard",
+    "objective": "refuse recommendations when decisive evidence still conflicts",
+    "target_id": "target-contradiction-guard",
+    "target_name": "Target Contradiction Guard",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "keep contradictory proteomics evidence explicit"
+  },
+  "criterion": {
+    "criterion_id": "contradiction-guard",
+    "metric": "dia_follow_up_score",
+    "threshold": 0.72
+  },
+  "candidates": [
+    {
+      "candidate_id": "conflicted-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dia_follow_up_score": 0.82
+      },
+      "manufacturability_score": 0.8,
+      "uncertainty": 0.11,
+      "evidence_support": 0.79,
+      "reproducibility_score": 0.77,
+      "effect_size_score": 0.73,
+      "assay_feasibility_score": 0.78,
+      "novelty_score": 0.41,
+      "lab_cost_risk": 0.14,
+      "operational_risk": 0.13
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "contradiction-support",
+      "kind": "assay",
+      "title": "supportive assay",
+      "source": "lab-contradiction-a",
+      "source_type": "lab_assay",
+      "claim": "supports progression with stable assay response",
+      "confidence": 0.88,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 12
+    },
+    {
+      "evidence_id": "contradiction-fail",
+      "kind": "assay",
+      "title": "failing assay",
+      "source": "lab-contradiction-b",
+      "source_type": "lab_assay",
+      "claim": "fails progression because the assay response worsens",
+      "confidence": 0.84,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 9
+    }
+  ]
+}

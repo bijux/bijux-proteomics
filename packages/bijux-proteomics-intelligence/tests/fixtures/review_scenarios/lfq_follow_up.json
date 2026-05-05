@@ -1,0 +1,82 @@
+{
+  "workflow_family": "lfq",
+  "program": {
+    "program_id": "prog-lfq-follow-up",
+    "name": "lfq follow-up review",
+    "objective": "prioritize LFQ follow-up candidates with stable abundance effects",
+    "target_id": "target-lfq-follow-up",
+    "target_name": "Target LFQ Follow Up",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "preserve abundance rescue with low missingness pressure"
+  },
+  "criterion": {
+    "criterion_id": "lfq-priority",
+    "metric": "lfq_follow_up_score",
+    "threshold": 0.72
+  },
+  "qc_caveats": [
+    "one treatment replicate still needs orthogonal confirmation"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "lfq-mito-adapter",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "lfq_follow_up_score": 0.85
+      },
+      "manufacturability_score": 0.8,
+      "uncertainty": 0.1,
+      "evidence_support": 0.82,
+      "reproducibility_score": 0.85,
+      "effect_size_score": 0.77,
+      "assay_feasibility_score": 0.79,
+      "novelty_score": 0.44,
+      "lab_cost_risk": 0.14,
+      "operational_risk": 0.11
+    },
+    {
+      "candidate_id": "lfq-high-variance",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "lfq_follow_up_score": 0.82
+      },
+      "manufacturability_score": 0.71,
+      "uncertainty": 0.2,
+      "evidence_support": 0.68,
+      "reproducibility_score": 0.62,
+      "effect_size_score": 0.74,
+      "assay_feasibility_score": 0.7,
+      "novelty_score": 0.59,
+      "lab_cost_risk": 0.24,
+      "operational_risk": 0.23
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "lfq-support-1",
+      "kind": "differential_proteomics",
+      "title": "stable LFQ shift",
+      "source": "lfq-run-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible LFQ abundance rescue across replicates",
+      "confidence": 0.88,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 20
+    },
+    {
+      "evidence_id": "lfq-support-2",
+      "kind": "literature",
+      "title": "mitochondrial adaptation context",
+      "source": "PMID:lfq-1",
+      "source_type": "literature",
+      "claim": "supports mitochondrial adaptation as disease-relevant follow-up biology",
+      "confidence": 0.8,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 90
+    }
+  ],
+  "expected_top_candidate_id": "lfq-mito-adapter"
+}
