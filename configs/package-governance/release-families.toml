@@ -13,7 +13,9 @@ evidence_paths = [
   "docs/05-bijux-proteomics-intelligence/index.md",
   "docs/06-bijux-proteomics-knowledge/index.md",
   "docs/07-bijux-proteomics-lab/index.md",
+  "configs/package-governance/scientific-release-workflows.toml",
   "configs/package-governance/high-value-artifact-schemas.toml",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py",
 ]
 rationale = "the scientific platform family ships only when the durable artifact, interpretation, and lab review surfaces all stay documented together"
 
