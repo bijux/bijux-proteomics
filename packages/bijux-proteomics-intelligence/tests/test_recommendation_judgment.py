@@ -20,6 +20,8 @@ from bijux_proteomics_intelligence.evaluators import (
 )
 from bijux_proteomics_intelligence.evidence_posture import (
     assess_recommendation_readiness,
+    ContradictionPosture,
+    FreshnessPosture,
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
 )
@@ -133,6 +135,108 @@ def _contradictory_bundle() -> EvidenceBundle:
     )
 
 
+def _unresolved_contradiction_bundle() -> EvidenceBundle:
+    now = datetime.now(UTC)
+    return EvidenceBundle(
+        bundle_id="bundle-unresolved",
+        target_id="target-judgment",
+        records=[
+            EvidenceRecord(
+                evidence_id="evidence-supports",
+                kind=EvidenceKind.ASSAY,
+                title="Supportive assay",
+                source="lab-assay-a",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="supports progression with stable assay response",
+                confidence=0.9,
+                strength=EvidenceStrength.DECISIVE,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=20),
+            ),
+            EvidenceRecord(
+                evidence_id="evidence-fails",
+                kind=EvidenceKind.ASSAY,
+                title="Conflicting assay",
+                source="lab-assay-b",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="fails progression because the assay response worsens",
+                confidence=0.86,
+                strength=EvidenceStrength.SUPPORTING,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=18),
+            ),
+            EvidenceRecord(
+                evidence_id="evidence-literature",
+                kind=EvidenceKind.LITERATURE,
+                title="Context literature",
+                source="PMID:456",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="documents disease relevance for the progression target context",
+                confidence=0.79,
+                strength=EvidenceStrength.SUPPORTING,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=25),
+            ),
+        ],
+    )
+
+
+def _thin_grounding_bundle() -> EvidenceBundle:
+    now = datetime.now(UTC)
+    return EvidenceBundle(
+        bundle_id="bundle-thin-grounding",
+        target_id="target-judgment",
+        records=[
+            EvidenceRecord(
+                evidence_id="evidence-literature-thin",
+                kind=EvidenceKind.LITERATURE,
+                title="Thin literature support",
+                source="PMID:thin",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="supports progression with weak single-source justification",
+                confidence=0.68,
+                strength=EvidenceStrength.SUPPORTING,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=14),
+            ),
+        ],
+    )
+
+
+def _stale_grounded_bundle() -> EvidenceBundle:
+    now = datetime.now(UTC)
+    return EvidenceBundle(
+        bundle_id="bundle-stale-grounded",
+        target_id="target-judgment",
+        records=[
+            EvidenceRecord(
+                evidence_id="evidence-assay-stale",
+                kind=EvidenceKind.ASSAY,
+                title="Stale assay support",
+                source="lab-assay-stale",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="supports progression with historical assay support",
+                confidence=0.91,
+                strength=EvidenceStrength.DECISIVE,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=240),
+            ),
+            EvidenceRecord(
+                evidence_id="evidence-literature-current",
+                kind=EvidenceKind.LITERATURE,
+                title="Current literature context",
+                source="PMID:stale-grounded",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="supports disease relevance for the progression target",
+                confidence=0.82,
+                strength=EvidenceStrength.SUPPORTING,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=22),
+            ),
+        ],
+    )
+
+
 def test_prioritize_candidates_exposes_grounded_multi_objective_judgment() -> None:
     ranking = prioritize_candidates(
         _program(),
@@ -197,11 +301,20 @@ def test_evidence_posture_summaries_surface_conflicts_and_staleness() -> None:
     freshness = summarize_evidence_freshness(_contradictory_bundle())
 
     assert contradictions.conflict_count >= 1
+    assert contradictions.posture is ContradictionPosture.BLOCKING
     assert contradictions.conflicting_evidence_ids == (
         "evidence-fails",
         "evidence-supports",
     )
+    assert contradictions.exact_conflict_reasons
+    assert contradictions.unresolved_questions
     assert freshness.stale_records
+    assert freshness.posture is FreshnessPosture.STALE
+    assert freshness.stale_record_reasons
+    assert freshness.decisive_stale_records == (
+        "evidence-fails",
+        "evidence-supports",
+    )
     assert freshness.freshness_score < 0.8
 
 
@@ -212,6 +325,42 @@ def test_assess_recommendation_readiness_refuses_contradictory_evidence() -> Non
     assert result.refusal is not None
     assert result.refusal.code == "contradictory_evidence"
     assert "evidence contradictions remain unresolved" in result.refusal.reason
+
+
+def test_assess_recommendation_readiness_degrades_unresolved_contradiction_pressure() -> (
+    None
+):
+    result = assess_recommendation_readiness(_unresolved_contradiction_bundle())
+
+    assert result.disposition.value == "degraded_success"
+    assert result.support_state.value == "ambiguous"
+    assert any(
+        "contradiction pressure=" in reason for reason in result.degradation_reasons
+    )
+
+
+def test_assess_recommendation_readiness_refuses_thin_grounding_support() -> None:
+    result = assess_recommendation_readiness(_thin_grounding_bundle())
+
+    assert result.disposition.value == "refused"
+    assert result.refusal is not None
+    assert result.refusal.code == "thin_grounding_support"
+    assert any(
+        "lacks orthogonal support" in detail for detail in result.refusal.reason_details
+    )
+
+
+def test_assess_recommendation_readiness_degrades_stale_grounded_support_with_exact_reasons() -> (
+    None
+):
+    result = assess_recommendation_readiness(_stale_grounded_bundle())
+
+    assert result.disposition.value == "degraded_success"
+    assert any(
+        reason.startswith("evidence-assay-stale:")
+        for reason in result.degradation_reasons
+    )
+    assert any("stale and should be refreshed" in reason for reason in result.degradation_reasons)
 
 
 def test_final_decision_recommendation_holds_when_evidence_gate_refuses() -> None:

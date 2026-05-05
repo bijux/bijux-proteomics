@@ -245,7 +245,8 @@ def test_aging_evidence_fixture_downgrades_recommendation_readiness() -> None:
     result = assess_recommendation_readiness(bundle)
 
     assert result.disposition.value == "degraded_success"
-    assert "aging evidence should be refreshed soon" in result.summary
+    assert "explicit evidence posture caveats" in result.summary
+    assert any("aging-support-1:" in reason for reason in result.degradation_reasons)
 
 
 def test_contradiction_fixture_refuses_recommendation_and_keeps_conflicts_explicit() -> (
