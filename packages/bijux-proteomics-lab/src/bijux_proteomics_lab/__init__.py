@@ -317,8 +317,10 @@ from bijux_proteomics_lab.risk import (
 )
 from bijux_proteomics_lab.reconciliation import (
     IntelligenceFeedbackSignal,
+    OperationalFollowUpPath,
     OutcomeReconciliationReport,
     PlannedObservedAssayDelta,
+    build_operational_follow_up_path,
     reconcile_planned_and_observed_outcome,
 )
 
@@ -564,8 +566,10 @@ __all__ = [
     "AssayRiskSeverity",
     "assess_assay_risk",
     "IntelligenceFeedbackSignal",
+    "OperationalFollowUpPath",
     "OutcomeReconciliationReport",
     "PlannedObservedAssayDelta",
+    "build_operational_follow_up_path",
     "reconcile_planned_and_observed_outcome",
     "HandoffExplanation",
     "HandoffSupportLevel",

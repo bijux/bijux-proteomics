@@ -8,6 +8,14 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import BatchId, JsonModel, ProgramId
+from bijux_proteomics_lab.handoffs import (
+    HandoffExplanation,
+    LabExecutionRefusal,
+    TargetedTransitionReview,
+    build_handoff_explanation,
+    refuse_irresponsible_assay_handoff,
+)
+from bijux_proteomics_lab.lifecycle import CandidateHandoffValidation
 from bijux_proteomics_lab.outcomes import (
     AssayOutcome,
     AssayResultState,
@@ -19,7 +27,12 @@ from bijux_proteomics_lab.outcomes import (
     consolidate_claim_belief_updates,
     promote_batch_outcome_to_evidence,
 )
-from bijux_proteomics_lab.planning import LabExecutionRequest
+from bijux_proteomics_lab.planning import (
+    ExecutableAssayPlan,
+    LabExecutionRequest,
+    ReviewPacket,
+    build_lab_execution_request,
+)
 
 
 class PlannedObservedAssayDelta(JsonModel):
@@ -67,6 +80,22 @@ class OutcomeReconciliationReport(JsonModel):
         ..., description="Whether the reconciliation is specific enough for downstream feedback."
     )
     intelligence_feedback: IntelligenceFeedbackSignal
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class OperationalFollowUpPath(JsonModel):
+    """Full operational path from candidate handoff to observed outcome reconciliation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    execution_request: LabExecutionRequest
+    handoff_validation: CandidateHandoffValidation
+    transition_review: TargetedTransitionReview
+    explanation: HandoffExplanation
+    refusal: LabExecutionRefusal | None = None
+    reconciliation: OutcomeReconciliationReport
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -182,9 +211,63 @@ def reconcile_planned_and_observed_outcome(
     )
 
 
+def build_operational_follow_up_path(
+    *,
+    candidate_id: str,
+    handoff_validation: CandidateHandoffValidation,
+    transition_review: TargetedTransitionReview,
+    review_packet: ReviewPacket,
+    executable_plan: ExecutableAssayPlan,
+    outcome: ExperimentOutcome,
+    target_id: str,
+    claim_links: dict[str, list[str]] | None = None,
+) -> OperationalFollowUpPath:
+    """Build one full path from candidate handoff through observed outcome feedback."""
+    execution_request = build_lab_execution_request(review_packet, executable_plan)
+    explanation = build_handoff_explanation(
+        candidate_id=candidate_id,
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+    )
+    refusal = refuse_irresponsible_assay_handoff(
+        candidate_id=candidate_id,
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+    )
+    reconciliation = reconcile_planned_and_observed_outcome(
+        candidate_id=candidate_id,
+        execution_request=execution_request,
+        outcome=outcome,
+        target_id=target_id,
+        claim_links=claim_links,
+    )
+    notes = (
+        ("handoff remains refused but the observed batch still produced reviewable reconciliation",)
+        if refusal is not None
+        else ("handoff and observed outcome form a complete operational follow-up path",)
+    )
+    return OperationalFollowUpPath(
+        candidate_id=candidate_id,
+        program_id=execution_request.program_id,
+        execution_request=execution_request,
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        explanation=explanation,
+        refusal=refusal,
+        reconciliation=reconciliation,
+        notes=notes,
+    )
+
+
 __all__ = [
     "IntelligenceFeedbackSignal",
+    "OperationalFollowUpPath",
     "OutcomeReconciliationReport",
     "PlannedObservedAssayDelta",
+    "build_operational_follow_up_path",
     "reconcile_planned_and_observed_outcome",
 ]

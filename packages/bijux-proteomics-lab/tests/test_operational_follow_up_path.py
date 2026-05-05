@@ -1,0 +1,144 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any, cast
+
+from bijux_proteomics_lab import (
+    AlternativeAssayPlanOption,
+    CandidateHandoffValidation,
+    ExecutableAssayPlan,
+    ExperimentOutcome,
+    OperationalFollowUpPath,
+    ReviewPacket,
+    ReviewQueueDecision,
+    SampleTrackingPlateAdvisory,
+    TargetedTransitionReview,
+    WorkflowReadinessSummary,
+    build_operational_follow_up_path,
+    compare_alternative_assay_plans,
+    build_handoff_explanation,
+    refuse_irresponsible_assay_handoff,
+)
+
+
+def _handoff_fixture(name: str) -> dict[str, Any]:
+    return cast(
+        dict[str, Any],
+        json.loads(
+            (Path(__file__).parent / "fixtures" / "handoffs" / name).read_text(
+                encoding="utf-8"
+            )
+        ),
+    )
+
+
+def test_supported_fixture_builds_complete_operational_follow_up_path() -> None:
+    fixture = _handoff_fixture("supported_targeted_follow_up.json")
+    review_queue = ReviewQueueDecision.model_validate(fixture["review_queue_decision"])
+    workflow = WorkflowReadinessSummary.model_validate(
+        fixture["workflow_readiness_summary"]
+    )
+    plate = SampleTrackingPlateAdvisory.model_validate(fixture["plate_advisory"])
+    handoff_validation = CandidateHandoffValidation.model_validate(
+        fixture["handoff_validation"]
+    )
+    transition_review = TargetedTransitionReview.model_validate(
+        fixture["transition_review"]
+    )
+    review_packet = ReviewPacket.model_validate(fixture["review_packet"])
+    executable_plan = ExecutableAssayPlan.model_validate(fixture["executable_plan"])
+    outcome = ExperimentOutcome.model_validate(fixture["outcome"])
+
+    path = build_operational_follow_up_path(
+        candidate_id=cast(str, fixture["candidate_id"]),
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+        outcome=outcome,
+        target_id=cast(str, fixture["target_id"]),
+        claim_links=cast(dict[str, list[str]], fixture["claim_links"]),
+    )
+
+    comparison = compare_alternative_assay_plans(
+        tuple(
+            AlternativeAssayPlanOption.model_validate(option)
+            for option in cast(list[dict[str, Any]], fixture["alternative_plan_options"])
+        )
+    )
+
+    assert isinstance(path, OperationalFollowUpPath)
+    assert review_queue.state.value == "approved"
+    assert workflow.blocked_step_count == 0
+    assert plate.control_well_ids == ("A12", "B12")
+    assert plate.contamination_watch_well_ids == ("B12",)
+    assert handoff_validation.accepted is True
+    assert path.refusal is None
+    assert path.execution_request.ready_for_lab_review is True
+    assert path.reconciliation.ready_for_feedback is True
+    assert path.reconciliation.intelligence_feedback.supported_assay_ids == (
+        "prm-assay",
+    )
+    assert path.reconciliation.intelligence_feedback.weakened_assay_ids == (
+        "orthogonal-assay",
+    )
+    assert comparison.recommended_plan_id == "orthogonal-first"
+
+
+def test_refused_fixture_keeps_weak_science_blockers_explicit() -> None:
+    fixture = _handoff_fixture("refused_targeted_follow_up.json")
+    review_queue = ReviewQueueDecision.model_validate(fixture["review_queue_decision"])
+    workflow = WorkflowReadinessSummary.model_validate(
+        fixture["workflow_readiness_summary"]
+    )
+    plate = SampleTrackingPlateAdvisory.model_validate(fixture["plate_advisory"])
+    handoff_validation = CandidateHandoffValidation.model_validate(
+        fixture["handoff_validation"]
+    )
+    transition_review = TargetedTransitionReview.model_validate(
+        fixture["transition_review"]
+    )
+    review_packet = ReviewPacket.model_validate(fixture["review_packet"])
+    executable_plan = ExecutableAssayPlan.model_validate(fixture["executable_plan"])
+
+    explanation = build_handoff_explanation(
+        candidate_id=cast(str, fixture["candidate_id"]),
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+    )
+    refusal = refuse_irresponsible_assay_handoff(
+        candidate_id=cast(str, fixture["candidate_id"]),
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+    )
+    comparison = compare_alternative_assay_plans(
+        tuple(
+            AlternativeAssayPlanOption.model_validate(option)
+            for option in cast(list[dict[str, Any]], fixture["alternative_plan_options"])
+        )
+    )
+
+    assert review_queue.state.value == "deferred"
+    assert workflow.blocked_step_count == 4
+    assert plate.blocked_layout_labels == ("missing-reference-control", "weak-lineage")
+    assert handoff_validation.accepted is False
+    assert any(
+        "too weak for irreversible lab spend" in blocker
+        for blocker in handoff_validation.blockers
+    )
+    assert refusal is not None
+    assert refusal.result.refusal is not None
+    assert refusal.result.refusal.code == "irresponsible_assay_handoff"
+    assert any(
+        "unresolved contradiction pressure" in statement.summary
+        for statement in explanation.blocked
+    )
+    assert comparison.recommended_plan_id == "orthogonal-rebuild"
