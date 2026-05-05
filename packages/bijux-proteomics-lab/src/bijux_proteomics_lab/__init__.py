@@ -225,6 +225,12 @@ from bijux_proteomics_lab.protocols import (
     build_lab_protocol_evidence_bundle,
     build_protocol_attachment,
 )
+from bijux_proteomics_lab.ptm_follow_up import (
+    PtmLabAssayRisk,
+    PtmLabValidationPacket,
+    PtmLabValidationTargetEntry,
+    build_ptm_lab_validation_packet,
+)
 from bijux_proteomics_lab.readiness import (
     OperationalReadinessReport,
     ReagentAvailability,
@@ -629,4 +635,8 @@ __all__ = [
     "plan_uncertainty_reduction_assays",
     "recommend_next_best_experiment",
     "validate_experiment_design",
+    "PtmLabAssayRisk",
+    "PtmLabValidationPacket",
+    "PtmLabValidationTargetEntry",
+    "build_ptm_lab_validation_packet",
 ]

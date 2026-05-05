@@ -8,6 +8,12 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics.review.inference_packets import (
+    InferenceDisagreementReviewEntry as InferenceDisagreementReviewEntry,
+    InferenceDisagreementReviewPacket as InferenceDisagreementReviewPacket,
+    InferenceDisagreementSeverity as InferenceDisagreementSeverity,
+    build_inference_disagreement_review_packet as build_inference_disagreement_review_packet,
+)
 
 
 class EvidenceGraphNode(JsonModel):
