@@ -23,7 +23,7 @@ def __getattr__(name: str) -> Any:
 
         return getattr(_report, name)
     if name == "low_confidence_segments":
-        from bijux_proteomics_knowledge.confidence import low_confidence_segments
+        from bijux_proteomics_intelligence.domain import low_confidence_segments
 
         return low_confidence_segments
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

@@ -33,7 +33,7 @@ def test_domain_owner_matrix_is_enforced() -> None:
     assert owners["biology/pathway.py"] == "bijux-proteomics-core"
     assert owners["domain/sequence/summary.py"] == "bijux-proteomics-core"
     assert owners["domain/structure/structure.py"] == "bijux-proteomics-core"
-    assert owners["domain/confidence/segments.py"] == "bijux-proteomics-knowledge"
+    assert owners["domain/confidence/segments.py"] == "bijux-proteomics-intelligence"
     assert owners["domain/metrics/compute.py"] == "bijux-proteomics-intelligence"
     assert owners["design_loop/loop.py"] == "bijux-proteomics-intelligence"
     assert owners["report/__init__.py"] == "bijux-proteomics-intelligence"

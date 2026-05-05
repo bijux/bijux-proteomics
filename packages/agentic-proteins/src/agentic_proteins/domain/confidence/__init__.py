@@ -1,3 +1,3 @@
-"""Compatibility forwarding module for canonical knowledge confidence ownership."""
+"""Compatibility forwarding module for canonical intelligence confidence ownership."""
 
-from bijux_proteomics_knowledge.confidence import *  # noqa: F401,F403
+from bijux_proteomics_intelligence.domain import *  # noqa: F401,F403

@@ -25,7 +25,9 @@ from bijux_proteomics.domain.structure import (
     tm_score,
 )
 from bijux_proteomics_intelligence.domain.metrics import compute_metrics
-from bijux_proteomics_knowledge.confidence import low_confidence_segments
+from bijux_proteomics_intelligence.domain.structure.confidence import (
+    low_confidence_segments,
+)
 
 __all__ = [
     "HYDROPATHY",

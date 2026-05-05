@@ -71,7 +71,7 @@ domain/candidates/store.py,domain_ownership,bijux-proteomics-intelligence,"Candi
 domain/candidates/transform.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
 domain/candidates/updates.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
 domain/confidence/__init__.py,domain_ownership,bijux-proteomics-knowledge,Confidence segmentation expresses evidence/trust semantics and belongs in knowledge ownership.
-domain/confidence/segments.py,domain_ownership,bijux-proteomics-knowledge,Confidence segmentation expresses evidence/trust semantics and belongs in knowledge ownership.
+domain/confidence/segments.py,domain_ownership,bijux-proteomics-intelligence,Confidence segmentation drives downstream interpretation and belongs in intelligence ownership.
 domain/metrics/__init__.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
 domain/metrics/compute.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
 domain/metrics/quality.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
