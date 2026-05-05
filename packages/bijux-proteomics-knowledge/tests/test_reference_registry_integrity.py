@@ -72,6 +72,8 @@ def test_benchmark_manifests_require_reproduction_metadata() -> None:
             workflow_family=KnowledgeWorkflowFamily.DIA,
             title="Missing reproduction metadata",
             scientific_focus="This should fail because reproduction inputs are incomplete.",
+            dataset_id="dataset:missing_reproduction_metadata",
+            dataset_locator="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
             acquisition_mode="data-independent acquisition",
             success_metric="Not enough structure for a reproducible claim.",
             result_claim="Incomplete manifests should not validate.",
@@ -80,6 +82,10 @@ def test_benchmark_manifests_require_reproduction_metadata() -> None:
             benchmark_rationale="A rationale exists, but reproduction requirements are missing.",
             instrument_profiles=("Orbitrap",),
             reproduction_requirements=(),
+            comparison_notes=("This benchmark still needs comparison notes.",),
+            exclusion_notes=("This benchmark still needs explicit exclusions.",),
+            weakness_notes=("This benchmark still needs explicit weaknesses.",),
+            failure_mode_notes=("This benchmark still needs explicit failure modes.",),
         )
 
 
@@ -93,6 +99,9 @@ def test_benchmark_registry_carries_reproducible_claim_context() -> None:
         assert len(manifest.reproduction_requirements) >= 3
         assert manifest.success_metric
         assert manifest.result_claim
+        assert manifest.exclusion_notes
+        assert manifest.weakness_notes
+        assert manifest.failure_mode_notes
 
 
 def test_corpus_manifests_distinguish_bundled_fixtures_from_external_references() -> (

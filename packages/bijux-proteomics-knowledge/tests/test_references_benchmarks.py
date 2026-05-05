@@ -37,6 +37,9 @@ def test_benchmark_manifests_carry_reproducibility_inputs() -> None:
         assert manifest.instrument_profiles
         assert len(manifest.reproduction_requirements) >= 3
         assert manifest.comparison_notes
+        assert manifest.exclusion_notes
+        assert manifest.weakness_notes
+        assert manifest.failure_mode_notes
         assert manifest.success_metric
         assert manifest.result_claim
 
@@ -55,3 +58,13 @@ def test_benchmark_manifests_carry_explicit_comparison_scope() -> None:
             for note in manifest.comparison_notes
             for token in ("compare", "parity", "published", "scope")
         )
+
+
+def test_benchmark_manifests_carry_explicit_exclusions_weaknesses_and_failures() -> None:
+    for manifest in DEFAULT_BENCHMARK_MANIFESTS:
+        assert len(manifest.exclusion_notes) >= 2
+        assert len(manifest.weakness_notes) >= 2
+        assert len(manifest.failure_mode_notes) >= 2
+        assert any("excludes" in note.lower() for note in manifest.exclusion_notes)
+        assert any("fixture" in note.lower() or "production" in note.lower() for note in manifest.weakness_notes)
+        assert any("can" in note.lower() for note in manifest.failure_mode_notes)

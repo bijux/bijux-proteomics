@@ -126,6 +126,9 @@ def build_workflow_reference_briefing(
             (
                 *evidence_claim.scope_limit_notes,
                 *limitation.scope_limit_notes,
+                *benchmark_manifest.exclusion_notes,
+                *benchmark_manifest.weakness_notes,
+                *benchmark_manifest.failure_mode_notes,
             )
         )
     )

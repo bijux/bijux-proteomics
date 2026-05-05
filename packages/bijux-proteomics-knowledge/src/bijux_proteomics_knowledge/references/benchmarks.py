@@ -43,6 +43,9 @@ class BenchmarkManifest(JsonModel):
     instrument_profiles: tuple[str, ...] = Field(..., min_length=1)
     reproduction_requirements: tuple[str, ...] = Field(..., min_length=1)
     comparison_notes: tuple[str, ...] = Field(..., min_length=1)
+    exclusion_notes: tuple[str, ...] = Field(..., min_length=1)
+    weakness_notes: tuple[str, ...] = Field(..., min_length=1)
+    failure_mode_notes: tuple[str, ...] = Field(..., min_length=1)
 
     @field_validator(
         "primary_citation_ids",
@@ -50,6 +53,9 @@ class BenchmarkManifest(JsonModel):
         "instrument_profiles",
         "reproduction_requirements",
         "comparison_notes",
+        "exclusion_notes",
+        "weakness_notes",
+        "failure_mode_notes",
     )
     @classmethod
     def _forbid_blank_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
@@ -89,6 +95,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Compare normalized outputs against the checked-in MSFragger export rather than rerunning external engines in-repo.",
             "Preserve target-decoy and reviewed-proteome expectations from the published identification framing.",
         ),
+        exclusion_notes=(
+            "Excludes direct search-engine reruns and any claim about raw-spectrum scoring parity outside the checked-in adapter fixture corpus.",
+            "Excludes non-tryptic and protease-mixed export behavior that is not represented in the benchmark fixture suite.",
+        ),
+        weakness_notes=(
+            "The checked-in export is cleaner and narrower than many production search result bundles.",
+            "Protein rollup caution remains indirect because the benchmark surface is adapter-shaped rather than cohort-scale.",
+        ),
+        failure_mode_notes=(
+            "Target-decoy columns can be normalized while semantic scope is still misread at peptide versus protein levels.",
+            "Reviewed-proteome identifiers can appear stable even when protease comparability quietly drifts.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:dia_library_extraction_consistency",
@@ -118,6 +136,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         comparison_notes=(
             "Compare adapter-normalized outputs against the checked-in Spectronaut-style export because direct DIA-NN or Spectronaut execution is outside repo scope.",
             "Keep SWATH-style transition semantics aligned with the published DIA method reference.",
+        ),
+        exclusion_notes=(
+            "Excludes claims about vendor-library parity or de novo discovery beyond the benchmarked library-conditioned extraction surface.",
+            "Excludes biological absence claims when a peptide is missing from the checked-in DIA extraction export.",
+        ),
+        weakness_notes=(
+            "The fixture export does not capture the full instability of production library curation and chromatographic drift.",
+            "Library-conditioned extraction can look more complete than the underlying protein-level support actually is.",
+        ),
+        failure_mode_notes=(
+            "Transition evidence can be over-read as direct protein confirmation when library scope stays implicit.",
+            "Vocabulary normalization can stay syntactically correct while transition alignment semantics still drift.",
         ),
     ),
     BenchmarkManifest(
@@ -149,6 +179,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Compare localization handling against the checked-in PTM localization fixture because direct rescoring engines are not executed in the repo test path.",
             "Retain Ascore-style ambiguity framing and PSI-MOD grounding in the resulting claims.",
         ),
+        exclusion_notes=(
+            "Excludes occupancy and condition-wide regulation claims that are outside the localized fixture scope.",
+            "Excludes full rescoring-engine parity because the benchmark uses checked-in localization outputs rather than live rescoring.",
+        ),
+        weakness_notes=(
+            "Localization confidence can still hide uncertainty about biological relevance and occupancy magnitude.",
+            "The fixture surface is phosphorylation-oriented and does not generalize to every PTM family equally well.",
+        ),
+        failure_mode_notes=(
+            "Ambiguous-site groups can be flattened into one confident-sounding label if the downstream consumer drops localization qualifiers.",
+            "Ontology grounding can look complete while site-level ambiguity remains unresolved.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:lfq_quantification_repeatability",
@@ -175,6 +217,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         comparison_notes=(
             "Compare rollups against the checked-in study-scale LFQ fixture instead of claiming parity with unexecuted external quantification pipelines.",
             "Keep support claims scoped to repeatable abundance aggregation and design preservation.",
+        ),
+        exclusion_notes=(
+            "Excludes universal cohort readiness claims and any promise that fixture repeatability removes missingness or interference.",
+            "Excludes direct parity claims against external LFQ pipelines that are not executed inside the repository.",
+        ),
+        weakness_notes=(
+            "Study-scale fixtures underrepresent the sample heterogeneity and dropout patterns seen in broader cohorts.",
+            "Protein-level repeatability can obscure peptide-level ambiguity and design-sensitive missingness.",
+        ),
+        failure_mode_notes=(
+            "Stable rollups can be mistaken for scope-free abundance truth even when missingness remains informative.",
+            "Design labels can survive normalization while the downstream claim quietly widens past the benchmarked cohort shape.",
         ),
     ),
     BenchmarkManifest(
@@ -203,6 +257,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Compare reporter handling against the checked-in multiplex fixture because direct vendor-specific multiplex pipelines are not executed here.",
             "Limit support claims to channel semantics and chemistry caveats, not full external pipeline parity.",
         ),
+        exclusion_notes=(
+            "Excludes label-free abundance interpretation and any claim that reporter summaries erase multiplex interference.",
+            "Excludes vendor-pipeline parity claims beyond the checked-in multiplex fixture and published chemistry framing.",
+        ),
+        weakness_notes=(
+            "The fixture surface is narrower than production multiplex cohorts with more severe missing-channel and interference behavior.",
+            "Channel stability can look stronger than the underlying protein-level certainty actually is.",
+        ),
+        failure_mode_notes=(
+            "Reporter-channel summaries can be over-read as label-free abundance evidence when chemistry caveats are dropped.",
+            "Rollup outputs can stay numerically stable while missing-channel pressure is hidden from reviewers.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:targeted_transition_quality_control",
@@ -229,6 +295,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         comparison_notes=(
             "Compare targeted QC handling against the checked-in chromatogram fixture and published protein-inference caution rather than claiming direct vendor chromatogram parity.",
             "Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.",
+        ),
+        exclusion_notes=(
+            "Excludes direct vendor chromatogram parity and any claim that transition-level QC alone resolves shared-peptide ambiguity.",
+            "Excludes unqualified protein certainty when the benchmark only proves cautious transition retention and rollup visibility.",
+        ),
+        weakness_notes=(
+            "The QC fixture is operationally tidy compared with noisier targeted production runs and carryover scenarios.",
+            "Transition retention is easier to prove than protein-specific interpretability in shared-peptide settings.",
+        ),
+        failure_mode_notes=(
+            "Transition-level evidence can be collapsed into protein certainty too early if inference caution is not preserved.",
+            "QC summaries can stay stable while chromatogram-specific edge cases remain outside the benchmarked fixture surface.",
         ),
     ),
 )
