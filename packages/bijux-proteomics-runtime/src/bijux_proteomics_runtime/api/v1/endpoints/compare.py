@@ -10,14 +10,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
-from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import raise_http_error
+from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiEnvelope,
     CompareRequest,
     CompareResponse,
     ErrorResponse,
+)
+from bijux_proteomics_runtime.runtime.context.correlation import (
+    build_request_correlation_meta,
 )
 from bijux_proteomics_runtime.runtime.control import compare_run_operation
 
@@ -36,7 +38,7 @@ router = APIRouter()
 def compare_endpoint(
     payload: CompareRequest,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope:
     """compare_endpoint."""
     meta = build_request_correlation_meta(request, "compare", request.url.path)

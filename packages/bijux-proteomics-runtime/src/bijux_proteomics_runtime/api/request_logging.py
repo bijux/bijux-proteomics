@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+# Copyright © 2026 Bijan Mousavi
 
-"""API middleware."""
+"""Request correlation and logging middleware for runtime HTTP surfaces."""
 
 from __future__ import annotations
 
@@ -14,16 +14,16 @@ import uuid
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
-from bijux_proteomics_runtime.api.correlation import build_trace_id
+from bijux_proteomics_runtime.runtime.context.correlation import build_trace_id
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
-    """Attach a request id header for tracing."""
+    """Attach request and trace identifiers for runtime HTTP surfaces."""
 
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
-        """Inject a request id for correlation across logs."""
+        """Inject stable request metadata before the request is handled."""
         request_id = request.headers.get("x-request-id", str(uuid.uuid4()))
         request.state.request_id = request_id
         request.state.trace_id = build_trace_id(
@@ -38,23 +38,23 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
 
 
 class RequestLogMiddleware(BaseHTTPMiddleware):
-    """Log request/response metadata with correlation id."""
+    """Persist request lifecycle events into the runtime artifacts tree."""
 
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
     ) -> Response:
-        """Log request lifecycle."""
+        """Log request start and completion with shared correlation metadata."""
         start = time.perf_counter()
         request_id = request.headers.get("x-request-id") or getattr(
             request.state, "request_id", "unknown"
         )
         trace_id = getattr(request.state, "trace_id", "unknown")
         base_dir = getattr(request.app.state, "base_dir", None)
-        log_path = None
+        log_path: Path | None = None
         if isinstance(base_dir, Path):
             log_path = base_dir / "artifacts" / "api" / "requests.jsonl"
             log_path.parent.mkdir(parents=True, exist_ok=True)
-            _write_log(
+            _append_request_log(
                 log_path,
                 {
                     "timestamp": datetime.now(UTC).isoformat(),
@@ -67,7 +67,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
             )
         response: Response = await call_next(request)
         if log_path is not None:
-            _write_log(
+            _append_request_log(
                 log_path,
                 {
                     "timestamp": datetime.now(UTC).isoformat(),
@@ -83,7 +83,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
         return response
 
 
-def _write_log(path: Path, payload: dict[str, object]) -> None:
-    """_write_log."""
-    with path.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(payload, sort_keys=True) + "\n")
+def _append_request_log(path: Path, payload: dict[str, object]) -> None:
+    """Append one runtime HTTP request event to a JSONL log."""
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, sort_keys=True) + "\n")

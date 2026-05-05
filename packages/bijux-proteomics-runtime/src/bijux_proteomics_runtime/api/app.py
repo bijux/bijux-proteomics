@@ -15,7 +15,6 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.routing import Match
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
 from bijux_proteomics_runtime.api.errors import (
     ApiError,
     http_error,
@@ -23,7 +22,7 @@ from bijux_proteomics_runtime.api.errors import (
     ok_envelope,
     validation_error,
 )
-from bijux_proteomics_runtime.api.middleware import (
+from bijux_proteomics_runtime.api.request_logging import (
     RequestIdMiddleware,
     RequestLogMiddleware,
 )
@@ -31,6 +30,9 @@ from bijux_proteomics_runtime.api.v1.router import router as v1_router
 from bijux_proteomics_runtime.api.v1.schema import ApiEnvelope
 from bijux_proteomics_runtime.providers import provider_metadata
 from bijux_proteomics_runtime.providers.factory import provider_requirements
+from bijux_proteomics_runtime.runtime.context.correlation import (
+    build_request_correlation_meta,
+)
 from bijux_proteomics_runtime.runtime_identity import runtime_banner
 
 

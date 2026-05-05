@@ -11,9 +11,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
-from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import ok_envelope, raise_http_error
+from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiEnvelope,
     ErrorResponse,
@@ -21,6 +20,9 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RunResponse,
 )
 from bijux_proteomics_runtime.core.status import WorkflowState
+from bijux_proteomics_runtime.runtime.context.correlation import (
+    build_request_correlation_meta,
+)
 from bijux_proteomics_runtime.runtime.control import (
     load_run_summary_operation,
     resume_candidate_operation,
@@ -49,7 +51,7 @@ def _run_id_from_candidate(candidate_id: str) -> str:
 def resume_endpoint(
     payload: ResumeRequest,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope | JSONResponse:
     """resume_endpoint."""
     meta = build_request_correlation_meta(request, "resume", request.url.path)

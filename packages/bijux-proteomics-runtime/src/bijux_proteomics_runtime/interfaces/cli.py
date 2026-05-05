@@ -26,7 +26,6 @@ from bijux_proteomics_runtime.api.catalog import (
     build_runtime_health_response,
     build_runtime_status_response,
 )
-from bijux_proteomics_runtime.api.correlation import build_correlation_meta
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiCandidate,
     ApiEnvelope,
@@ -37,6 +36,7 @@ from bijux_proteomics_runtime.api.v1.schema import (
 )
 from bijux_proteomics_runtime.runtime import RunManager
 from bijux_proteomics_runtime.runtime.context import RunOutput, RunRequest
+from bijux_proteomics_runtime.runtime.context.correlation import build_correlation_meta
 from bijux_proteomics_runtime.runtime.control import (
     build_runtime_run_config,
     compare_run_operation,

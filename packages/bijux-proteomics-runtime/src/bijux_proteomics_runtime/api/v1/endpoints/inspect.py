@@ -10,14 +10,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
-from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import raise_http_error
+from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiCandidate,
     ApiEnvelope,
     ErrorResponse,
     InspectResponse,
+)
+from bijux_proteomics_runtime.runtime.context.correlation import (
+    build_request_correlation_meta,
 )
 from bijux_proteomics_runtime.runtime.control import (
     inspect_candidate_operation,
@@ -43,7 +45,7 @@ def _run_id_from_candidate(candidate_id: str) -> str:
 def inspect_endpoint(
     candidate_id: str,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope:
     """inspect_endpoint."""
     meta = build_request_correlation_meta(request, "inspect", request.url.path)
