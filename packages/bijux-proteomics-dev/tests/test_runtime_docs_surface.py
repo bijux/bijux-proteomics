@@ -26,9 +26,7 @@ def test_runtime_docs_reject_removed_topology_names() -> None:
     text = "\n".join(
         (
             (RUNTIME_ROOT / "README.md").read_text(encoding="utf-8"),
-            (RUNTIME_ROOT / "docs" / "ARCHITECTURE.md").read_text(
-                encoding="utf-8"
-            ),
+            (RUNTIME_ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8"),
             (RUNTIME_ROOT / "docs" / "CONTRACTS.md").read_text(encoding="utf-8"),
         )
     )

@@ -12,15 +12,9 @@ PRODUCT_IMPORT_ROOTS = {
     "bijux-proteomics-knowledge": "bijux_proteomics_knowledge",
     "bijux-proteomics-lab": "bijux_proteomics_lab",
 }
-FOUNDATION_README = (
-    REPO_ROOT / "packages" / "bijux-proteomics-foundation" / "README.md"
-)
+FOUNDATION_README = REPO_ROOT / "packages" / "bijux-proteomics-foundation" / "README.md"
 FOUNDATION_CONTRACTS = (
-    REPO_ROOT
-    / "packages"
-    / "bijux-proteomics-foundation"
-    / "docs"
-    / "CONTRACTS.md"
+    REPO_ROOT / "packages" / "bijux-proteomics-foundation" / "docs" / "CONTRACTS.md"
 )
 
 
@@ -41,8 +35,9 @@ def _foundation_consumers() -> set[str]:
                         consumers.add(package_name)
                         break
                 if isinstance(node, ast.ImportFrom) and node.module is not None:
-                    if node.module == "bijux_proteomics_foundation" or node.module.startswith(
-                        "bijux_proteomics_foundation."
+                    if (
+                        node.module == "bijux_proteomics_foundation"
+                        or node.module.startswith("bijux_proteomics_foundation.")
                     ):
                         consumers.add(package_name)
                         break

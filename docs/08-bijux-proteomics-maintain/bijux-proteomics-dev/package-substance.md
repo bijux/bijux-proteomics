@@ -20,13 +20,13 @@ This report makes package-boundary substance explicit. The six real product pack
 ## Current Package Counts
 
 - `agentic-proteins`: role=compatibility_bridge, owned_logic=0, wrappers=147, thin=0, ready=yes
-- `bijux-proteomics-core`: role=canonical_product, owned_logic=95, wrappers=0, thin=25, ready=yes
+- `bijux-proteomics-core`: role=canonical_product, owned_logic=89, wrappers=0, thin=25, ready=yes
 - `bijux-proteomics-dev`: role=maintainer_support, owned_logic=47, wrappers=0, thin=8, ready=yes
 - `bijux-proteomics-foundation`: role=canonical_product, owned_logic=17, wrappers=0, thin=1, ready=yes
 - `bijux-proteomics-intelligence`: role=canonical_product, owned_logic=11, wrappers=0, thin=1, ready=yes
 - `bijux-proteomics-knowledge`: role=canonical_product, owned_logic=20, wrappers=0, thin=2, ready=yes
-- `bijux-proteomics-lab`: role=canonical_product, owned_logic=14, wrappers=0, thin=1, ready=yes
-- `bijux-proteomics-runtime`: role=canonical_product, owned_logic=106, wrappers=0, thin=27, ready=yes
+- `bijux-proteomics-lab`: role=canonical_product, owned_logic=15, wrappers=0, thin=1, ready=yes
+- `bijux-proteomics-runtime`: role=canonical_product, owned_logic=111, wrappers=0, thin=27, ready=yes
 
 ## Release Rule
 

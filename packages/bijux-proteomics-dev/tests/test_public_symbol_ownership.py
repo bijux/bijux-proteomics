@@ -26,9 +26,7 @@ def test_public_symbol_ownership_assigns_one_owner_per_symbol() -> None:
 
     assert len(entries) >= 500
     assert owners_by_symbol["DocumentSchema"] == {"bijux-proteomics-foundation"}
-    assert owners_by_symbol["EvidenceTrustScoreInput"] == {
-        "bijux-proteomics-knowledge"
-    }
+    assert owners_by_symbol["EvidenceTrustScoreInput"] == {"bijux-proteomics-knowledge"}
     assert owners_by_symbol["AnalyticalContrastRecommendation"] == {
         "bijux-proteomics-intelligence"
     }

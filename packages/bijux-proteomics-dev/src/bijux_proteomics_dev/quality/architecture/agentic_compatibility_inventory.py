@@ -110,9 +110,9 @@ class AgenticCompatibilityInventoryIssue:
 
 
 def _module_import_path(module_path: str) -> str:
-    return "agentic_proteins." + module_path.removesuffix(".py").replace("/", ".").replace(
-        ".__init__", ""
-    )
+    return "agentic_proteins." + module_path.removesuffix(".py").replace(
+        "/", "."
+    ).replace(".__init__", "")
 
 
 def _canonical_targets(tree: ast.Module) -> tuple[str, ...]:
@@ -131,8 +131,7 @@ def _compat_targets(tree: ast.Module) -> tuple[str, ...]:
     targets = {
         name
         for name in import_references(tree)
-        if name == _COMPAT_IMPORT_PREFIX
-        or name.startswith(f"{_COMPAT_IMPORT_PREFIX}.")
+        if name == _COMPAT_IMPORT_PREFIX or name.startswith(f"{_COMPAT_IMPORT_PREFIX}.")
     }
     return tuple(sorted(targets))
 
@@ -197,11 +196,15 @@ def _is_top_level_alias_assignment(node: ast.Assign) -> bool:
 
 
 def _is_wrapper_call_expr(node: ast.AST) -> bool:
-    return isinstance(node, ast.Call) and isinstance(node.func, (ast.Name, ast.Attribute))
+    return isinstance(node, ast.Call) and isinstance(
+        node.func, (ast.Name, ast.Attribute)
+    )
 
 
 def _is_wrapper_assign(node: ast.Assign) -> bool:
-    if not all(isinstance(target, (ast.Name, ast.Attribute)) for target in node.targets):
+    if not all(
+        isinstance(target, (ast.Name, ast.Attribute)) for target in node.targets
+    ):
         return False
     return _is_alias_expr(node.value) or _is_wrapper_call_expr(node.value)
 
@@ -245,7 +248,9 @@ def _is_wrapper_function(node: ast.FunctionDef) -> bool:
         if isinstance(statement, ast.Return):
             if statement.value is None:
                 continue
-            if _is_alias_expr(statement.value) or _is_wrapper_call_expr(statement.value):
+            if _is_alias_expr(statement.value) or _is_wrapper_call_expr(
+                statement.value
+            ):
                 continue
             return False
         return False
@@ -320,16 +325,16 @@ def build_agentic_compatibility_inventory(
 ) -> tuple[AgenticCompatibilityInventoryEntry, ...]:
     """Build the checked compatibility inventory for every agentic module."""
 
-    owner_by_module = {
-        row.module_path: row.owner_package for row in build_ledger()
-    }
+    owner_by_module = {row.module_path: row.owner_package for row in build_ledger()}
     entries: list[AgenticCompatibilityInventoryEntry] = []
     for path in iter_python_files(MODULE_ROOT):
         module_path = path.relative_to(MODULE_ROOT).as_posix()
         tree = parse_python_module(path).tree
         classification = _classification_for(tree)
         canonical_targets = _canonical_targets(tree)
-        fallback_owner_package = owner_by_module.get(module_path, "agentic-proteins-compat")
+        fallback_owner_package = owner_by_module.get(
+            module_path, "agentic-proteins-compat"
+        )
         entry = AgenticCompatibilityInventoryEntry(
             module_path=module_path,
             import_path=_module_import_path(module_path),
@@ -538,14 +543,13 @@ def _is_up_to_date(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> b
         return False
     if not AGENTIC_COMPATIBILITY_INVENTORY_SUMMARY_PATH.exists():
         return False
-    return (
-        AGENTIC_COMPATIBILITY_INVENTORY_CSV_PATH.read_text(encoding="utf-8").replace(
-            "\r\n", "\n"
-        )
-        == _csv_text(entries).replace("\r\n", "\n")
-        and AGENTIC_COMPATIBILITY_INVENTORY_SUMMARY_PATH.read_text(encoding="utf-8")
-        == _summary_text(entries)
-    )
+    return AGENTIC_COMPATIBILITY_INVENTORY_CSV_PATH.read_text(encoding="utf-8").replace(
+        "\r\n", "\n"
+    ) == _csv_text(entries).replace(
+        "\r\n", "\n"
+    ) and AGENTIC_COMPATIBILITY_INVENTORY_SUMMARY_PATH.read_text(
+        encoding="utf-8"
+    ) == _summary_text(entries)
 
 
 def run(check: bool = False) -> int:

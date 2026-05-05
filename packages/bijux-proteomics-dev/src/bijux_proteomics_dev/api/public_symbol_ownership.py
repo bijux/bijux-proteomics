@@ -101,7 +101,10 @@ def build_public_symbol_ownership() -> tuple[PublicSymbolOwnershipEntry, ...]:
                 )
             )
     return tuple(
-        sorted(entries, key=lambda entry: (entry.symbol_name, entry.owner_distribution_name))
+        sorted(
+            entries,
+            key=lambda entry: (entry.symbol_name, entry.owner_distribution_name),
+        )
     )
 
 
@@ -164,10 +167,9 @@ def _toml_text(entries: tuple[PublicSymbolOwnershipEntry, ...]) -> str:
 def _is_up_to_date(entries: tuple[PublicSymbolOwnershipEntry, ...]) -> bool:
     if not CANONICAL_PUBLIC_SYMBOL_OWNERSHIP_PATH.exists():
         return False
-    return (
-        CANONICAL_PUBLIC_SYMBOL_OWNERSHIP_PATH.read_text(encoding="utf-8")
-        == _toml_text(entries)
-    )
+    return CANONICAL_PUBLIC_SYMBOL_OWNERSHIP_PATH.read_text(
+        encoding="utf-8"
+    ) == _toml_text(entries)
 
 
 def run(check: bool = False) -> int:
@@ -189,9 +191,7 @@ def run(check: bool = False) -> int:
         _toml_text(entries),
         encoding="utf-8",
     )
-    print(
-        f"generated canonical public symbol ownership map for {len(entries)} symbols"
-    )
+    print(f"generated canonical public symbol ownership map for {len(entries)} symbols")
     return 0
 
 

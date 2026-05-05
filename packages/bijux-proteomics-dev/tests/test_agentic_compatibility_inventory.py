@@ -24,7 +24,10 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
 
     assert len(entries) >= 100
     assert "sandbox/__init__.py" not in by_path
-    assert by_path["report/render.py"].classification is AgenticModuleClassification.WRAPPER
+    assert (
+        by_path["report/render.py"].classification
+        is AgenticModuleClassification.WRAPPER
+    )
     assert (
         by_path["runtime/infra/capabilities.py"].classification
         is AgenticModuleClassification.WRAPPER
@@ -34,8 +37,14 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
         by_path["domain/confidence/segments.py"].owner_package
         == "bijux-proteomics-intelligence"
     )
-    assert by_path["registry/__init__.py"].classification is AgenticModuleClassification.WRAPPER
-    assert by_path["validation/__init__.py"].classification is AgenticModuleClassification.WRAPPER
+    assert (
+        by_path["registry/__init__.py"].classification
+        is AgenticModuleClassification.WRAPPER
+    )
+    assert (
+        by_path["validation/__init__.py"].classification
+        is AgenticModuleClassification.WRAPPER
+    )
     assert AGENTIC_COMPATIBILITY_INVENTORY_CSV_PATH.exists()
     assert AGENTIC_COMPATIBILITY_INVENTORY_SUMMARY_PATH.exists()
 

@@ -28,7 +28,9 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
         "`targeted`",
     ]
     missing = [bit for bit in expected_bits if bit not in text]
-    assert not missing, f"missing scientific release dossier guidance in {doc_path}: {missing}"
+    assert not missing, (
+        f"missing scientific release dossier guidance in {doc_path}: {missing}"
+    )
 
 
 def test_readmes_point_reviewers_to_benchmark_backed_scope() -> None:
@@ -39,7 +41,10 @@ def test_readmes_point_reviewers_to_benchmark_backed_scope() -> None:
         REPO_ROOT / "packages" / "bijux-proteomics-dev" / "README.md"
     ).read_text(encoding="utf-8")
 
-    assert "benchmark-backed review outputs for `dda`, `dia`, `ptm`," in intelligence_readme
+    assert (
+        "benchmark-backed review outputs for `dda`, `dia`, `ptm`,"
+        in intelligence_readme
+    )
     assert "`lfq`, and `multiplex`" in intelligence_readme
     assert "benchmark_reviews.py" in intelligence_readme
     assert "build_scientific_release_dossier()" in dev_readme

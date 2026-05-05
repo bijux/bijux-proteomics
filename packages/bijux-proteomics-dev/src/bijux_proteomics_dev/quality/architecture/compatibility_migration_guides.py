@@ -37,6 +37,7 @@ class CompatibilityMigrationGuideEntry:
     status: str
     migration_action: str
 
+
 def build_compatibility_migration_guide(
     repo_root: Path,
 ) -> tuple[CompatibilityMigrationGuideEntry, ...]:
@@ -56,7 +57,9 @@ def build_compatibility_migration_guide(
 
 def _render_markdown(entries: tuple[CompatibilityMigrationGuideEntry, ...]) -> str:
     wrapper_count = sum(
-        1 for entry in entries if entry.status == AgenticModuleClassification.WRAPPER.value
+        1
+        for entry in entries
+        if entry.status == AgenticModuleClassification.WRAPPER.value
     )
     dead_count = sum(
         1 for entry in entries if entry.status == AgenticModuleClassification.DEAD.value

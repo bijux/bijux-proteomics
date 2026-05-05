@@ -4403,18 +4403,18 @@ owner_import_root = "bijux_proteomics_intelligence"
 
 [[symbol]]
 name = "PtmLabAssayRisk"
-owner_distribution_name = "bijux-proteomics-core"
-owner_import_root = "bijux_proteomics"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
 
 [[symbol]]
 name = "PtmLabValidationPacket"
-owner_distribution_name = "bijux-proteomics-core"
-owner_import_root = "bijux_proteomics"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
 
 [[symbol]]
 name = "PtmLabValidationTargetEntry"
-owner_distribution_name = "bijux-proteomics-core"
-owner_import_root = "bijux_proteomics"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
 
 [[symbol]]
 name = "PtmLocalizationColumnMapping"
@@ -8023,8 +8023,8 @@ owner_import_root = "bijux_proteomics"
 
 [[symbol]]
 name = "build_ptm_lab_validation_packet"
-owner_distribution_name = "bijux-proteomics-core"
-owner_import_root = "bijux_proteomics"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
 
 [[symbol]]
 name = "build_ptm_motif_background_report"

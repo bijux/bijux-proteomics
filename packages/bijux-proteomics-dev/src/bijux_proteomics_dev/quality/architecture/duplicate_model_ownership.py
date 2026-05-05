@@ -41,7 +41,9 @@ def _repo_root() -> Path:
     for parent in current.parents:
         if (parent / "pyproject.toml").exists() and (parent / "packages").exists():
             return parent
-    raise RuntimeError("Unable to resolve repository root for duplicate model ownership")
+    raise RuntimeError(
+        "Unable to resolve repository root for duplicate model ownership"
+    )
 
 
 REPO_ROOT = _repo_root()
@@ -182,7 +184,9 @@ def _summary_text(definitions: tuple[DuplicateModelDefinition, ...]) -> str:
         package_counts[definition.package_name] = (
             package_counts.get(definition.package_name, 0) + 1
         )
-        kind_counts[definition.model_kind] = kind_counts.get(definition.model_kind, 0) + 1
+        kind_counts[definition.model_kind] = (
+            kind_counts.get(definition.model_kind, 0) + 1
+        )
 
     lines = [
         "---",
@@ -235,14 +239,13 @@ def _is_up_to_date(definitions: tuple[DuplicateModelDefinition, ...]) -> bool:
         return False
     if not DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.exists():
         return False
-    return (
-        DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.read_text(encoding="utf-8").replace(
-            "\r\n", "\n"
-        )
-        == _csv_text(definitions).replace("\r\n", "\n")
-        and DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.read_text(encoding="utf-8")
-        == _summary_text(definitions)
-    )
+    return DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.read_text(encoding="utf-8").replace(
+        "\r\n", "\n"
+    ) == _csv_text(definitions).replace(
+        "\r\n", "\n"
+    ) and DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.read_text(
+        encoding="utf-8"
+    ) == _summary_text(definitions)
 
 
 def run(check: bool = False) -> int:
@@ -270,7 +273,9 @@ def run(check: bool = False) -> int:
         _summary_text(definitions),
         encoding="utf-8",
     )
-    print(f"generated duplicate model ownership report for {len(definitions)} definitions")
+    print(
+        f"generated duplicate model ownership report for {len(definitions)} definitions"
+    )
     return 0
 
 

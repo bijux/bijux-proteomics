@@ -31,7 +31,10 @@ from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory i
     build_agentic_compatibility_inventory,
     validate_agentic_compatibility_inventory,
 )
-from bijux_proteomics_dev.quality.package_graph import WorkspacePackage, load_workspace_packages
+from bijux_proteomics_dev.quality.package_graph import (
+    WorkspacePackage,
+    load_workspace_packages,
+)
 
 __all__ = [
     "PACKAGE_SUBSTANCE_CSV_PATH",
@@ -129,8 +132,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         minimum_owned_logic_count=60,
         maximum_thin_module_count=35,
         evidence_locator=(
-            "packages/bijux-proteomics-runtime/src/"
-            "bijux_proteomics_runtime/charter.py"
+            "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/charter.py"
         ),
     ),
     "bijux-proteomics-intelligence": _PackageSubstanceExpectation(
@@ -180,7 +182,9 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
 def _source_module_paths(package: WorkspacePackage) -> tuple[Path, ...]:
     return tuple(
         sorted(
-            path for path in package.src_dir.rglob("*.py") if "__pycache__" not in path.parts
+            path
+            for path in package.src_dir.rglob("*.py")
+            if "__pycache__" not in path.parts
         )
     )
 
@@ -271,7 +275,9 @@ def _maintainer_support_entry(package: WorkspacePackage) -> PackageSubstanceEntr
     )
 
 
-def build_package_substance_inventory(repo_root: Path) -> tuple[PackageSubstanceEntry, ...]:
+def build_package_substance_inventory(
+    repo_root: Path,
+) -> tuple[PackageSubstanceEntry, ...]:
     """Build the package-boundary substance inventory across the workspace."""
 
     package_by_name = {
@@ -517,11 +523,12 @@ def _is_up_to_date(entries: tuple[PackageSubstanceEntry, ...]) -> bool:
         return False
     if not PACKAGE_SUBSTANCE_SUMMARY_PATH.exists():
         return False
-    return (
-        PACKAGE_SUBSTANCE_CSV_PATH.read_text(encoding="utf-8").replace("\r\n", "\n")
-        == _csv_text(entries).replace("\r\n", "\n")
-        and PACKAGE_SUBSTANCE_SUMMARY_PATH.read_text(encoding="utf-8")
-        == _summary_text(entries)
+    return PACKAGE_SUBSTANCE_CSV_PATH.read_text(encoding="utf-8").replace(
+        "\r\n", "\n"
+    ) == _csv_text(entries).replace(
+        "\r\n", "\n"
+    ) and PACKAGE_SUBSTANCE_SUMMARY_PATH.read_text(encoding="utf-8") == _summary_text(
+        entries
     )
 
 

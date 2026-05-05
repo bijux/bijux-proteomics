@@ -32,10 +32,7 @@ def test_benchmark_owner_manifest_is_valid_for_current_repo() -> None:
 
 
 def test_lab_benchmark_owner_points_to_targeted_rehearsal_surface() -> None:
-    owners = {
-        entry.package_name: entry
-        for entry in load_benchmark_owners(REPO_ROOT)
-    }
+    owners = {entry.package_name: entry for entry in load_benchmark_owners(REPO_ROOT)}
 
     lab_owner = owners["bijux-proteomics-lab"]
 

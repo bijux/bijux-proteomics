@@ -65,7 +65,12 @@ class ScientificReleaseIssue:
 def scientific_release_manifest_path(repo_root: Path) -> Path:
     """Return the checked-in scientific release dossier manifest path."""
 
-    return repo_root / "configs" / "package-governance" / "scientific-release-workflows.toml"
+    return (
+        repo_root
+        / "configs"
+        / "package-governance"
+        / "scientific-release-workflows.toml"
+    )
 
 
 def _load_toml(path: Path) -> dict[str, Any]:
@@ -234,7 +239,9 @@ def validate_scientific_release_dossier(
                 )
             )
     missing_families = sorted(
-        family.value for family in KnowledgeWorkflowFamily if family not in seen_families
+        family.value
+        for family in KnowledgeWorkflowFamily
+        if family not in seen_families
     )
     if missing_families:
         issues.append(

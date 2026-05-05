@@ -49,7 +49,9 @@ def _check_failures(repo_root: Path) -> tuple[tuple[str, tuple[str, ...]], ...]:
         ),
         (
             "duplicate-model-ownership",
-            tuple(issue.detail for issue in validate_duplicate_model_ownership(repo_root)),
+            tuple(
+                issue.detail for issue in validate_duplicate_model_ownership(repo_root)
+            ),
         ),
         (
             "compatibility-bridge",
@@ -65,7 +67,9 @@ def _check_failures(repo_root: Path) -> tuple[tuple[str, tuple[str, ...]], ...]:
     )
 
 
-def build_ssot_readiness_report(repo_root: Path) -> tuple[SsotReadinessCheckResult, ...]:
+def build_ssot_readiness_report(
+    repo_root: Path,
+) -> tuple[SsotReadinessCheckResult, ...]:
     """Build the SSOT readiness report across ownership-critical checks."""
 
     return tuple(
