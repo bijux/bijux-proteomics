@@ -8,18 +8,7 @@ from __future__ import annotations
 from importlib import import_module
 from types import ModuleType
 
-__all__ = [
-    "benchmark_reviews",
-    "briefs",
-    "charter",
-    "decision_paths",
-    "evidence_posture",
-    "evaluators",
-    "follow_up_learning",
-    "interpretation",
-    "policies",
-    "skeptical_review",
-]
+__all__ = ["benchmark_reviews", "briefs", "charter", "decision_paths", "evidence_posture", "evaluators", "follow_up_learning", "interpretation", "policies", "skeptical_review"]
 _INTELLIGENCE_ROOT_MODULES = {
     "benchmark_reviews": f"{__name__}.reviews.benchmarks",
     "briefs": f"{__name__}.candidates.ranking",

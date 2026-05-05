@@ -31,7 +31,9 @@ def test_public_symbol_ledger_maps_exports_to_owner_modules_and_tests() -> None:
     assert foundation_symbol.owner_test_paths
     assert runtime_symbol.owner_module_path.endswith(".py")
     assert runtime_symbol.owner_test_paths
-    assert intelligence_symbol.owner_module_name == "bijux_proteomics_intelligence.briefs"
+    assert intelligence_symbol.owner_module_name == (
+        "bijux_proteomics_intelligence.candidates.ranking"
+    )
 
 
 def test_public_symbol_ledger_requires_named_owner_modules_and_tests() -> None:

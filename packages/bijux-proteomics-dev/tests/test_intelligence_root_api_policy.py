@@ -20,7 +20,7 @@ INTELLIGENCE_ROOT_API_POLICY = (
     REPO_ROOT / "configs" / "package-governance" / "intelligence-root-api.toml"
 )
 PUBLIC_SURFACE_TESTS = {
-    "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py",
+    "packages/bijux-proteomics-intelligence/tests/package/test_public_api_surface.py",
 }
 
 

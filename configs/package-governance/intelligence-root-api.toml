@@ -6,43 +6,43 @@ max_init_lines = 32
 
 [[symbol]]
 name = "benchmark_reviews"
-owner_module = "bijux_proteomics_intelligence.benchmark_reviews"
+owner_module = "bijux_proteomics_intelligence.reviews.benchmarks"
 classification = "review_band"
 rationale = "Benchmark-backed review outputs are a stable analytical namespace."
 
 [[symbol]]
 name = "briefs"
-owner_module = "bijux_proteomics_intelligence.briefs"
+owner_module = "bijux_proteomics_intelligence.candidates.ranking"
 classification = "judgment_band"
 rationale = "Ranking and explainability framing belong under one stable judgment namespace."
 
 [[symbol]]
 name = "charter"
-owner_module = "bijux_proteomics_intelligence.charter"
+owner_module = "bijux_proteomics_intelligence.governance.charter"
 classification = "governance_band"
 rationale = "The machine-readable analytical charter is a first-class intelligence surface."
 
 [[symbol]]
 name = "decision_paths"
-owner_module = "bijux_proteomics_intelligence.decision_paths"
+owner_module = "bijux_proteomics_intelligence.judgment.paths"
 classification = "review_band"
 rationale = "Decision paths are the canonical end-to-end analytical recommendation namespace."
 
 [[symbol]]
 name = "evidence_posture"
-owner_module = "bijux_proteomics_intelligence.evidence_posture"
+owner_module = "bijux_proteomics_intelligence.posture.evidence"
 classification = "evidence_posture_band"
 rationale = "Evidence contradiction, freshness, and readiness stay grouped under one refusal-aware namespace."
 
 [[symbol]]
 name = "evaluators"
-owner_module = "bijux_proteomics_intelligence.evaluators"
+owner_module = "bijux_proteomics_intelligence.judgment.scenarios"
 classification = "judgment_band"
 rationale = "Scenario evaluators are a core intelligence namespace rather than a convenience export pile."
 
 [[symbol]]
 name = "follow_up_learning"
-owner_module = "bijux_proteomics_intelligence.follow_up_learning"
+owner_module = "bijux_proteomics_intelligence.learning.adaptation"
 classification = "learning_band"
 rationale = "Learning surfaces remain explicit instead of disappearing into package-root symbols."
 
@@ -54,12 +54,12 @@ rationale = "Interpretation contracts stay visible as their own analytical names
 
 [[symbol]]
 name = "policies"
-owner_module = "bijux_proteomics_intelligence.policies"
+owner_module = "bijux_proteomics_intelligence.judgment.policies"
 classification = "judgment_band"
 rationale = "Policy definitions remain a stable judgment namespace."
 
 [[symbol]]
 name = "skeptical_review"
-owner_module = "bijux_proteomics_intelligence.skeptical_review"
+owner_module = "bijux_proteomics_intelligence.posture.skeptical"
 classification = "review_band"
 rationale = "Skeptical review is a canonical analytical review namespace."

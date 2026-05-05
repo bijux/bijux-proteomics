@@ -21,7 +21,7 @@ def test_intelligence_boundary_mix_report_tracks_governed_hotspots() -> None:
     assert metrics.scanned_module_count == 16
     assert metrics.hotspot_count == guard.baseline_hotspot_count
     assert metrics.max_touched_band_count == guard.baseline_max_touched_band_count
-    assert guard.baseline_hotspot_modules == ("decision_paths.py", "review_packets.py")
+    assert guard.baseline_hotspot_modules == ("reviews/packets.py",)
 
 
 def test_intelligence_boundary_mix_release_guard_has_no_failures() -> None:

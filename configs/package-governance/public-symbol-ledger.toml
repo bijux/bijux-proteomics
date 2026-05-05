@@ -33,7 +33,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_module_name = "bijux_proteomics_intelligence.domain.structure.confidence"
 owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/domain/structure/confidence.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_structure_confidence_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/domain/test_structure_confidence_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-core"
@@ -241,9 +241,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "benchmark_reviews"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.benchmark_reviews"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_benchmark_review_surface.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py"]
+owner_module_name = "bijux_proteomics_intelligence.reviews.benchmarks"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -251,9 +251,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "briefs"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.briefs"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_candidate_lifecycle.py", "packages/bijux-proteomics-intelligence/tests/test_candidate_ranking.py", "packages/bijux-proteomics-intelligence/tests/test_decision_path_calibration.py", "packages/bijux-proteomics-intelligence/tests/test_decision_paths.py", "packages/bijux-proteomics-intelligence/tests/test_foundation_primitives_surface.py", "packages/bijux-proteomics-intelligence/tests/test_grounded_review_scenarios.py", "packages/bijux-proteomics-intelligence/tests/test_package_judgment_guards.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py", "packages/bijux-proteomics-intelligence/tests/test_recommendation_judgment.py", "packages/bijux-proteomics-intelligence/tests/test_scenario_evaluators.py", "packages/bijux-proteomics-intelligence/tests/test_skeptical_review.py"]
+owner_module_name = "bijux_proteomics_intelligence.candidates.ranking"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/package/test_foundation_primitives_surface.py", "packages/bijux-proteomics-intelligence/tests/package/test_public_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -261,9 +261,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "charter"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.charter"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/charter.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_package_charter.py", "packages/bijux-proteomics-intelligence/tests/test_package_judgment_guards.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py"]
+owner_module_name = "bijux_proteomics_intelligence.governance.charter"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/governance/charter.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/package/test_judgment_guards.py", "packages/bijux-proteomics-intelligence/tests/package/test_package_charter.py", "packages/bijux-proteomics-intelligence/tests/package/test_public_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -271,9 +271,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "decision_paths"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.decision_paths"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_decision_path_calibration.py", "packages/bijux-proteomics-intelligence/tests/test_decision_paths.py", "packages/bijux-proteomics-intelligence/tests/test_package_judgment_guards.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py", "packages/bijux-proteomics-intelligence/tests/test_skeptical_review.py"]
+owner_module_name = "bijux_proteomics_intelligence.judgment.paths"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/paths.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/package/test_public_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -281,9 +281,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "evaluators"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.evaluators"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_grounded_review_scenarios.py", "packages/bijux-proteomics-intelligence/tests/test_package_judgment_guards.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py", "packages/bijux-proteomics-intelligence/tests/test_recommendation_judgment.py", "packages/bijux-proteomics-intelligence/tests/test_scenario_evaluators.py"]
+owner_module_name = "bijux_proteomics_intelligence.judgment.scenarios"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/scenarios.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/package/test_public_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -291,9 +291,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "evidence_posture"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.evidence_posture"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_grounded_review_scenarios.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py", "packages/bijux-proteomics-intelligence/tests/test_recommendation_judgment.py"]
+owner_module_name = "bijux_proteomics_intelligence.posture.evidence"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/evidence.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/judgment/test_recommendations_surface.py", "packages/bijux-proteomics-intelligence/tests/package/test_public_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -301,9 +301,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "follow_up_learning"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.follow_up_learning"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/follow_up_learning.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_follow_up_learning_surface.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py"]
+owner_module_name = "bijux_proteomics_intelligence.learning.adaptation"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/adaptation.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/package/test_public_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -312,8 +312,8 @@ name = "interpretation"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_module_name = "bijux_proteomics_intelligence.interpretation"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_analytical_review_pathway_surface.py", "packages/bijux-proteomics-intelligence/tests/test_decision_paths.py", "packages/bijux-proteomics-intelligence/tests/test_interpretation_surface.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py", "packages/bijux-proteomics-intelligence/tests/test_scenario_evaluators.py"]
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/interpretation/test_summaries_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -321,9 +321,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "policies"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.policies"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_candidate_ranking.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py", "packages/bijux-proteomics-intelligence/tests/test_scenario_evaluators.py"]
+owner_module_name = "bijux_proteomics_intelligence.judgment.policies"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/policies.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/judgment/test_scenarios_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -331,9 +331,9 @@ import_root = "bijux_proteomics_intelligence"
 name = "skeptical_review"
 symbol_kind = "module"
 owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.skeptical_review"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/skeptical_review.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/test_package_judgment_guards.py", "packages/bijux-proteomics-intelligence/tests/test_public_api_surface.py", "packages/bijux-proteomics-intelligence/tests/test_skeptical_review.py"]
+owner_module_name = "bijux_proteomics_intelligence.posture.skeptical"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/skeptical.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/posture/test_skeptical_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-knowledge"
