@@ -64,13 +64,18 @@ pip install bijux-proteomics-knowledge
 
 ```python
 from bijux_proteomics_knowledge import evidence, claims, resolution, graph
+from bijux_proteomics_knowledge.references import (
+    get_benchmark_manifest,
+    list_scientific_rules,
+    resolve_ontology_mapping,
+)
 ```
 
 ## Package identity
 
 - Distribution name: `bijux-proteomics-knowledge`
 - Import root: `bijux_proteomics_knowledge`
-- Stable entrypoints: `evidence`, `claims`, `resolution`, `graph`, and `review`
+- Stable entrypoints: `evidence`, `claims`, `resolution`, `graph`, `review`, and `references`
 
 ## Package boundaries
 
@@ -78,12 +83,20 @@ This package owns evidence records, claim state, trust scoring, and contradictio
 
 It does not own lifecycle gate transitions, ranking policy decisions, or experiment scheduling.
 
+It also owns curated scientific reference knowledge that grounds shared evidence rules, benchmark claims, and ontology mappings.
+
 ## Contract checkpoints
 
 - evidence and claim records must stay typed, auditable, and schema-versioned
 - trust, freshness, and contradiction outputs must remain explicit instead of inferred
 - resolution flows must preserve explainable lineage from evidence to decision
 - downstream packages should depend on this layer for evidence semantics instead of re-scoring trust locally
+
+## Curated scientific reference surfaces
+
+- `references` exposes citation registries, ontology mappings, benchmark manifests, corpus manifests, scientific rule mappings, and read-only lookup helpers
+- bundled fixture corpora stay distinct from external scientific references so reproducibility claims remain auditable
+- scientific rules carry explicit citation and benchmark context instead of relying on package-local assumptions
 
 ## Choose this package when
 
@@ -149,6 +162,7 @@ It does not own lifecycle gate transitions, ranking policy decisions, or experim
 - [`src/bijux_proteomics_knowledge/resolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/resolution.py) for conflict-resolution policies
 - [`src/bijux_proteomics_knowledge/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/graph.py) for evidence-graph validation rules
 - [`src/bijux_proteomics_knowledge/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/claims.py) for claim modeling and knowledge-gap audits
+- [`src/bijux_proteomics_knowledge/references/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references) for curated citations, ontology mappings, benchmark manifests, corpus manifests, scientific rules, and read-only query helpers
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/tests) for executable behavior expectations
 
 ## Documentation
