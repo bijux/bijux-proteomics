@@ -20,10 +20,30 @@ from bijux_proteomics_knowledge.references.corpora import (
     DEFAULT_CORPUS_MANIFESTS,
     KnowledgeCorpusSourceKind,
 )
+from bijux_proteomics_knowledge.references.contexts import (
+    DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
+    KnowledgeContextDomain,
+    ScientificContextEntry,
+)
+from bijux_proteomics_knowledge.references.literature import (
+    DEFAULT_LITERATURE_GROUPS,
+    LiteratureFocusArea,
+    LiteratureGroup,
+)
+from bijux_proteomics_knowledge.references.narratives import (
+    DEFAULT_WORKFLOW_NARRATIVES,
+    WorkflowNarrative,
+    WorkflowNarrativeKind,
+)
 from bijux_proteomics_knowledge.references.ontologies import (
     DEFAULT_ONTOLOGY_MAPPINGS,
     KnowledgeOntologyDomain,
     KnowledgeOntologyMapping,
+)
+from bijux_proteomics_knowledge.references.problems import (
+    DEFAULT_KNOWN_PROBLEM_REGISTRY,
+    KnowledgeProblemKind,
+    KnownProblemRegistryEntry,
 )
 from bijux_proteomics_knowledge.references.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
@@ -74,6 +94,23 @@ def get_ontology_mapping(term_id: str) -> KnowledgeOntologyMapping | None:
     )
 
 
+def list_scientific_context(
+    *, domain: KnowledgeContextDomain | None = None
+) -> tuple[ScientificContextEntry, ...]:
+    """Return curated scientific context entries, optionally filtered by domain."""
+    if domain is None:
+        return DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES
+    return tuple(entry for entry in DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES if entry.domain is domain)
+
+
+def get_scientific_context(context_id: str) -> ScientificContextEntry | None:
+    """Return one scientific context entry by stable identifier."""
+    return next(
+        (entry for entry in DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES if entry.context_id == context_id),
+        None,
+    )
+
+
 def list_benchmark_manifests(
     *, workflow_family: KnowledgeWorkflowFamily | None = None
 ) -> tuple[BenchmarkManifest, ...]:
@@ -118,6 +155,50 @@ def get_corpus_manifest(corpus_id: str) -> CorpusManifest | None:
     )
 
 
+def list_known_problems(
+    *, problem_kind: KnowledgeProblemKind | None = None
+) -> tuple[KnownProblemRegistryEntry, ...]:
+    """Return curated known-problem entries, optionally filtered by problem kind."""
+    if problem_kind is None:
+        return DEFAULT_KNOWN_PROBLEM_REGISTRY
+    return tuple(
+        entry
+        for entry in DEFAULT_KNOWN_PROBLEM_REGISTRY
+        if entry.problem_kind is problem_kind
+    )
+
+
+def get_known_problem(problem_id: str) -> KnownProblemRegistryEntry | None:
+    """Return one known-problem entry by stable identifier."""
+    return next(
+        (
+            entry
+            for entry in DEFAULT_KNOWN_PROBLEM_REGISTRY
+            if entry.problem_id == problem_id
+        ),
+        None,
+    )
+
+
+def list_literature_groups(
+    *, focus_area: LiteratureFocusArea | None = None
+) -> tuple[LiteratureGroup, ...]:
+    """Return curated literature groups, optionally filtered by focus area."""
+    if focus_area is None:
+        return DEFAULT_LITERATURE_GROUPS
+    return tuple(
+        group for group in DEFAULT_LITERATURE_GROUPS if group.focus_area is focus_area
+    )
+
+
+def get_literature_group(group_id: str) -> LiteratureGroup | None:
+    """Return one literature group by stable identifier."""
+    return next(
+        (group for group in DEFAULT_LITERATURE_GROUPS if group.group_id == group_id),
+        None,
+    )
+
+
 def list_scientific_rules(
     *, domain: KnowledgeRuleDomain | None = None
 ) -> tuple[ScientificRuleReference, ...]:
@@ -137,15 +218,49 @@ def get_scientific_rule(rule_id: str) -> ScientificRuleReference | None:
     )
 
 
+def list_workflow_narratives(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+    narrative_kind: WorkflowNarrativeKind | None = None,
+) -> tuple[WorkflowNarrative, ...]:
+    """Return curated workflow narratives with optional workflow and kind filters."""
+    return tuple(
+        narrative
+        for narrative in DEFAULT_WORKFLOW_NARRATIVES
+        if (workflow_family is None or narrative.workflow_family is workflow_family)
+        and (narrative_kind is None or narrative.narrative_kind is narrative_kind)
+    )
+
+
+def get_workflow_narrative(narrative_id: str) -> WorkflowNarrative | None:
+    """Return one workflow narrative by stable identifier."""
+    return next(
+        (
+            narrative
+            for narrative in DEFAULT_WORKFLOW_NARRATIVES
+            if narrative.narrative_id == narrative_id
+        ),
+        None,
+    )
+
+
 __all__ = [
     "get_benchmark_manifest",
     "get_citation",
     "get_corpus_manifest",
+    "get_known_problem",
+    "get_literature_group",
     "get_ontology_mapping",
+    "get_scientific_context",
     "get_scientific_rule",
+    "get_workflow_narrative",
     "list_benchmark_manifests",
     "list_citations",
     "list_corpus_manifests",
+    "list_known_problems",
+    "list_literature_groups",
     "list_ontology_mappings",
+    "list_scientific_context",
     "list_scientific_rules",
+    "list_workflow_narratives",
 ]
