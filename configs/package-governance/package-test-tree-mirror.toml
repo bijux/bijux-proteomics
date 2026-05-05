@@ -4,7 +4,7 @@
 [guard]
 min_total_mirrored_owner_family_count = 31
 max_total_missing_test_family_count = 42
-max_total_flat_test_module_count = 232
+max_total_flat_test_module_count = 233
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -22,7 +22,7 @@ test_families = []
 mirrored_owner_families = []
 missing_test_families = ["api", "docs", "quality", "release", "security", "tools"]
 extra_test_families = []
-flat_test_module_count = 127
+flat_test_module_count = 128
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
