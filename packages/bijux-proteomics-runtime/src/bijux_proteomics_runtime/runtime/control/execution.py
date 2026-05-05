@@ -77,11 +77,14 @@ from bijux_proteomics_runtime.runtime.adapters import (
 from bijux_proteomics_runtime.runtime.context import (
     ErrorDetail,
     RunContext,
+    RunContextContract,
     RunLifecycleState,
     RunOutput,
     RunRequest,
     RunStatus,
+    RuntimeDatasetKind,
     VersionInfo,
+    build_run_context_contract,
     create_run_context,
 )
 from bijux_proteomics_runtime.runtime.control.artifacts import (
@@ -93,7 +96,14 @@ from bijux_proteomics_runtime.runtime.control.artifacts import (
     write_failure_artifacts,
 )
 from bijux_proteomics_runtime.runtime.control.ledger import (
+    load_artifact_ledger,
     refresh_runtime_artifact_ledger,
+)
+from bijux_proteomics_runtime.runtime.control.replay import (
+    build_local_run_bundle,
+    build_replay_contract,
+    write_local_run_bundle,
+    write_replay_contract,
 )
 from bijux_proteomics_runtime.runtime.control.state_machine import RunStateMachine
 from bijux_proteomics_runtime.runtime.infra import (
@@ -777,6 +787,7 @@ class RunManager:
                 warnings,
                 selected_tool,
                 explicit_tool=tool is not None,
+                command="resume",
             )
             failure_type = result.get("failure_type") or FailureType.NONE.value
             status = "failure" if failure_type != FailureType.NONE.value else "success"
@@ -832,6 +843,7 @@ class RunManager:
                 warnings,
                 selected_tool,
                 explicit_tool=tool is not None,
+                command="run",
             )
             failure_type = result.get("failure_type") or FailureType.NONE.value
             status = "failure" if failure_type != FailureType.NONE.value else "success"
@@ -934,6 +946,29 @@ class RunManager:
         write_json_atomic(
             context.workspace.run_output_path, output.model_dump(mode="json")
         )
+        run_context_contract = RunContextContract.load_json(
+            context.workspace.run_context_path
+        )
+        replay_contract = build_replay_contract(
+            run_context_contract,
+            app_version=version_info.app_version,
+            git_commit=version_info.git_commit,
+            tool_versions=version_info.tool_versions,
+        )
+        write_replay_contract(context.workspace, replay_contract)
+        refresh_runtime_artifact_ledger(
+            context.workspace,
+            run_id=context.run_id,
+            artifact_policy=context.artifact_policy,
+            producer="bijux_proteomics_runtime.runtime.control.execution",
+        )
+        local_run_bundle = build_local_run_bundle(
+            run_context=run_context_contract,
+            replay_contract=replay_contract,
+            artifact_ledger=load_artifact_ledger(context.workspace, context.run_id),
+            run_summary=summary,
+        )
+        write_local_run_bundle(context.workspace, local_run_bundle)
         refresh_runtime_artifact_ledger(
             context.workspace,
             run_id=context.run_id,
@@ -949,6 +984,7 @@ class RunManager:
         warnings: list[str],
         tool: Tool | None,
         explicit_tool: bool = False,
+        command: str = "run",
     ) -> dict[str, Any]:
         """_run_with_candidate."""
         if warnings:
@@ -973,6 +1009,33 @@ class RunManager:
                     FailureType.UNKNOWN.value,
                     tool,
                 )
+        selected_tool = tool or _select_structure_tool(context.config)
+        parent_run_id = None
+        if candidate.provenance.get("run_id") not in {None, context.run_id}:
+            parent_run_id = str(candidate.provenance["run_id"])
+        run_context_contract = build_run_context_contract(
+            run_id=context.run_id,
+            started_at=context.start_time.isoformat(),
+            base_dir=self._base_dir,
+            config=context.config,
+            provider_name=selected_tool.name,
+            artifact_policy=context.artifact_policy,
+            sequence=candidate.sequence,
+            command=command,
+            workflow_family="structure_prediction",
+            candidate_id=candidate.candidate_id,
+            dataset_kind=(
+                RuntimeDatasetKind.CANDIDATE_STORE
+                if parent_run_id is not None
+                else RuntimeDatasetKind.INLINE_SEQUENCE
+            ),
+            parent_run_id=parent_run_id,
+            resume_depth=0 if parent_run_id is None else 1,
+        )
+        write_json_atomic(
+            context.workspace.run_context_path,
+            run_context_contract.to_dict(),
+        )
         capability_errors, capability_warnings = validate_runtime_capabilities(
             context.config, allow_unknown=explicit_tool
         )
@@ -992,7 +1055,6 @@ class RunManager:
                 duration_ms=0.0,
                 warnings=capability_warnings,
             )
-        selected_tool = tool or _select_structure_tool(context.config)
         result = run_flow(candidate, context, selected_tool)
         if result.get("candidate"):
             store = CandidateStore(context.workspace.candidate_store_dir)
