@@ -55,7 +55,7 @@ needs.
 - partial rerun planning, cache claims, cleanup plans, and failure-recovery audits for operational safety
 - preflight and failure reports that fail early on missing execution requirements
 - import traces, human-review resume checkpoints, and artifact-integrity reports for safe reuse
-- adapter-based composition that keeps lower layers runtime-agnostic
+- runtime-owned control surfaces that consume lower-layer contracts without re-exporting their domain semantics
 - explicit migration target for `agentic-proteins` compatibility forwarding
 
 ## Typical use cases
@@ -92,7 +92,7 @@ from bijux_proteomics_runtime import AppConfig, RunManager, create_app
 - Import root: `bijux_proteomics_runtime`
 - Canonical CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
-- Runtime control surfaces: `runtime.control.operations`, `runtime.control.workflow_paths`, `runtime.control.reruns`, `runtime.control.cache`, `runtime.control.cleanup`, and `runtime.control.recovery`
+- Runtime control surfaces: `runtime.control.operations`, `runtime.control.workflow_paths`, `runtime.control.reruns`, `runtime.control.cache`, `runtime.control.cleanup`, `runtime.control.recovery`, `runtime.control.preflight`, `runtime.control.integrity`, and `runtime.control.failure_reports`
 
 ## Package boundaries
 
@@ -112,6 +112,7 @@ remain in their dedicated lower-layer packages.
 - cache reuse is guarded by runtime cache claims so shared reads remain explicit and unsafe sharing is refused
 - cleanup plans only delete transient outputs and preserve replay, review, and forensic artifacts by retention class
 - failure audits identify which good artifacts remain reusable after a failed phase
+- failure reports classify subprocess, container, scheduler, import, validation, and workspace breakage through one runtime-owned surface
 
 ## Operational review paths
 
@@ -119,11 +120,12 @@ remain in their dedicated lower-layer packages.
 - `run_reviewable_import_path` publishes a runtime-owned manifest from third-party evidence import to reviewable output
 - `build_runtime_smoke_workflows` declares the supported smoke paths for sequence-to-digest, DDA import, DIA import, quant review, PTM review, analytical review, and lab handoff
 - `build_runtime_partial_rerun_plan` exposes dependency-graph rerun boundaries instead of leaving replay reuse implicit
+- `build_runtime_preflight_report`, `verify_runtime_artifact_integrity`, and `write_runtime_failure_report` keep readiness, reuse safety, and failure classification on the public runtime control surface
 
 ## Contract checkpoints
 
 - runtime entrypoints must remain canonical while compat imports forward to them
-- lower-layer meaning must stay below runtime adapters rather than being redefined here
+- lower-layer meaning must stay below runtime control surfaces rather than being redefined here
 - replay, artifact, and provider contracts must remain explicit and testable
 - run context, artifact ledger, replay/import bundles, checkpoint artifacts, and preflight outputs must remain machine-readable and reviewable
 - changes to canonical ownership should land in runtime before compat forwarding expands
@@ -132,7 +134,7 @@ remain in their dedicated lower-layer packages.
 
 - you need canonical CLI, API, provider binding, or replay-safe orchestration
 - the change affects how canonical execution runs rather than what lower layers mean
-- operator-facing entrypoints or runtime adapters need to evolve without pushing
+- operator-facing entrypoints or runtime control helpers need to evolve without pushing
   runtime ownership downward
 
 ## Route elsewhere when
@@ -174,7 +176,7 @@ remain in their dedicated lower-layer packages.
 
 - expect cross-surface review when CLI, API, provider binding, replay behavior,
   or migration expectations change because operators consume them directly
-- treat changes that alter canonical entrypoints, runtime adapters, or compat
+- treat changes that alter canonical entrypoints, runtime control helpers, or compat
   expectations as high-impact even when import paths stay stable
 - expect a narrower release burden when the change only improves internal
   orchestration without changing runtime-facing behavior
