@@ -487,6 +487,11 @@ FormatConversionTarget,bijux-proteomics-core,bijux_proteomics/io/formats.py,stre
 FormatDetectionDiagnostic,bijux-proteomics-core,bijux_proteomics/io/formats.py,jsonmodel
 FormatValidationIssue,bijux-proteomics-core,bijux_proteomics/io/formats.py,jsonmodel
 FormatValidationReport,bijux-proteomics-core,bijux_proteomics/io/formats.py,jsonmodel
+FoundationCharterCapability,bijux-proteomics-foundation,bijux_proteomics_foundation/charter.py,strenum
+FoundationCharterEntry,bijux-proteomics-foundation,bijux_proteomics_foundation/charter.py,jsonmodel
+FoundationModuleAuditEntry,bijux-proteomics-foundation,bijux_proteomics_foundation/charter.py,jsonmodel
+FoundationModuleClassification,bijux-proteomics-foundation,bijux_proteomics_foundation/charter.py,strenum
+FoundationProductCharter,bijux-proteomics-foundation,bijux_proteomics_foundation/charter.py,jsonmodel
 FractionAssignment,bijux-proteomics-lab,bijux_proteomics_lab/design.py,jsonmodel
 FractionationAggregationReport,bijux-proteomics-core,bijux_proteomics/study/__init__.py,jsonmodel
 FractionationPlan,bijux-proteomics-lab,bijux_proteomics_lab/design.py,jsonmodel

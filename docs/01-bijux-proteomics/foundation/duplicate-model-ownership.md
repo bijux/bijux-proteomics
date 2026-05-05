@@ -13,11 +13,11 @@ This report tracks structured model names across the six real product packages. 
 
 ## Current Counts
 
-- tracked model definitions: 1602
+- tracked model definitions: 1607
 - `basemodel`: 127
-- `jsonmodel`: 1212
+- `jsonmodel`: 1215
 - `protocol`: 19
-- `strenum`: 244
+- `strenum`: 246
 
 ## Package Distribution
 
@@ -26,7 +26,7 @@ This report tracks structured model names across the six real product packages. 
 - `bijux-proteomics-runtime`: 167
 - `bijux-proteomics-intelligence`: 158
 - `bijux-proteomics-knowledge`: 125
-- `bijux-proteomics-foundation`: 26
+- `bijux-proteomics-foundation`: 31
 
 ## Release Rule
 
