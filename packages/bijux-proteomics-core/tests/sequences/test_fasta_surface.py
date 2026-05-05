@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics import (
+from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,
     ResiduePolicyState,

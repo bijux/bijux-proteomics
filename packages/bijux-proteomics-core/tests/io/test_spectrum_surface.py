@@ -6,7 +6,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.chemistry import calculate_fragment_ions
+from bijux_proteomics.io.formats import parse_mzml
+from bijux_proteomics.io.spectra import (
     PeakNormalizationPolicy,
     SpectralSimilarityMethod,
     SpectrumModel,
@@ -19,7 +21,6 @@ from bijux_proteomics import (
     build_spectrum_metrics,
     build_spectrum_plot_payload,
     build_spectrum_provenance_manifest,
-    calculate_fragment_ions,
     calculate_precursor_mass_error,
     calculate_spectral_similarity,
     detect_precursor_isotope_offset_advisory,
@@ -30,7 +31,6 @@ from bijux_proteomics import (
     normalize_spectrum_peaks,
     normalize_spectrum_scan_key,
     parse_mgf,
-    parse_mzml,
     render_mgf,
 )
 

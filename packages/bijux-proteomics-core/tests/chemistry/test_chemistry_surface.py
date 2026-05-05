@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics import (
+from bijux_proteomics.chemistry import (
     AppliedModification,
     FragmentIonSeries,
     IsotopicLabelingPolicy,

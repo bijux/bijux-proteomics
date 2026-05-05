@@ -6,9 +6,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.identification import (
     ConfidenceCalibrationLevel,
-    FastaParseMode,
     FdrPolicy,
     ParsimonyVariant,
     PsmRecord,
@@ -56,7 +55,6 @@ from bijux_proteomics import (
     infer_proteins_by_parsimony,
     normalize_psm_records,
     normalize_psm_score_orientation,
-    parse_fasta_document,
     parse_psm_tsv,
     parse_target_decoy_label,
     rollup_peptide_evidence,
@@ -68,6 +66,7 @@ from bijux_proteomics import (
     validate_target_decoy_policy,
     verify_fdr_q_value_monotonicity,
 )
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
 def _psm_fixture(name: str) -> Path:

@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.io.formats import (
     ExperimentalDesignSampleRole,
     FormatConversionTarget,
     ProteomicsFormatKind,

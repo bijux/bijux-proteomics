@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.ptm import (
     build_ptm_enrichment_input,
     build_ptm_motif_background_report,
     build_ptm_motif_windows,
@@ -15,8 +15,6 @@ from bijux_proteomics import (
     build_ptm_site_table,
     estimate_ptm_site_occupancy,
     map_ptm_evidence_to_protein_sites,
-    parse_fasta_document,
-    parse_ms1_feature_table,
     parse_ptm_localization_tsv,
     validate_ptm_site_coordinates,
 )
@@ -24,7 +22,8 @@ from bijux_proteomics.ptm import (
     PtmSiteGroupEvidenceEntry,
     build_ptm_site_group_evidence,
 )
-from bijux_proteomics.sequences import FastaParseMode
+from bijux_proteomics.quantification import parse_ms1_feature_table
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
 def _ptm_fixture(name: str) -> Path:

@@ -7,7 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
-from bijux_proteomics import (
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.quantification import (
     DifferentialReplicatePolicy,
     LabelBasedChannelPolicyEntry,
     LabelBasedChannelRole,
@@ -58,7 +59,6 @@ from bijux_proteomics import (
     export_quant_reproducibility_manifest,
     normalize_label_free_table,
     normalize_multiplex_quant_table,
-    parse_experimental_design_table,
     parse_ms1_feature_table,
     summarize_missing_values,
 )
